@@ -3,7 +3,23 @@ const app = express();
 const config = require("config");
 const mongoose = require("mongoose");
 const DBuri = config.get("mongoURI");
+//
+const testAddon = require("./build/Release/testaddon.node");
+console.log("addon", testAddon);
+console.log("hello ", testAddon.hello());
+console.log("add ", testAddon.add(5, 10));
 
+const prevInstance = new testAddon.ClassExample(4.3);
+console.log("Initial value : ", prevInstance.getValue());
+console.log("After adding 3.3 : ", prevInstance.add(3.3));
+
+const newFromExisting = new testAddon.ClassExample(prevInstance);
+
+console.log("Testing class initial value for derived instance");
+console.log(newFromExisting.getValue());
+
+module.exports = testAddon;
+//
 mongoose
   .connect(DBuri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("MongoDB connected..."))
@@ -16,6 +32,7 @@ require("./config/passport")(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use("/api/cpp", require("./routes/api/cpp"));
 app.use("/api/upload", require("./routes/api/upload"));
 app.use("/api/items", require("./routes/api/items"));
 app.use("/api/users", require("./routes/api/users"));

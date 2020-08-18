@@ -1756,7 +1756,7 @@ class ThreeDViewer extends Component {
 
     //mesh.position.set(childData[0], childData[1], childData[2]);
     // this.scene.add(mesh);
-    return [childData[0], childData[1], childData[2]];
+    return [childData[0], childData[1], childData[2]];  
   };
 
   render() {
