@@ -79,8 +79,6 @@ export const login = ({ email, password }) => dispatch => {
         payload: res.data //this is the response from the server
       })
     )
-    .then(() => store.dispatch(loadUser()))
-
     .catch(err => {
       returnErrors(err.response.data, err.response.status, "LOGIN_FAIL");
       dispatch({

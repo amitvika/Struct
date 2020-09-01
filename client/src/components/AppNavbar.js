@@ -14,12 +14,10 @@ import {
 import { connect } from "react-redux";
 import RegisterModal from "./auth/RegisterModal";
 import Logout from "./auth/Logout";
-import LoginModal from "./auth/LoginModal";
 import PropTypes from "prop-types";
 import { changePage } from "../actions/pageActions";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import store from "../store";
 import { loadUser } from "../actions/authActions";
 import struct from "./Struct Logo.png";
 
@@ -155,7 +153,7 @@ class AppNavbar extends Component {
                 </DropdownToggle>
 
                 <DropdownMenu>
-                  {this.props.auth.user.userAccess.access.OA_1_V ? (
+                  {this.props.auth.user && this.props.auth.user.userAccess.access.OA_1_V ? (
                     <DropdownItem
                       onClick={this.onPageChangeClick.bind(
                         this,
@@ -166,8 +164,8 @@ class AppNavbar extends Component {
                       Access Setup
                     </DropdownItem>
                   ) : (
-                    ""
-                  )}
+                      ""
+                    )}
 
                   <DropdownItem
                     onClick={this.onPageChangeClick.bind(
