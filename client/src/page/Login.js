@@ -32,7 +32,7 @@ const LoginModal = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      history.push('/vendors');
+      history.push('/dashboard');
     }
   }, [isAuthenticated]);
 
