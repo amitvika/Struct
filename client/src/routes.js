@@ -23,6 +23,7 @@ export default function AppRoutes() {
           <Route exact path="/">
             <Login />
           </Route>
+<<<<<<< HEAD
           <Layout>
             <Switch>
               <Route path='/vendors'>
@@ -30,6 +31,14 @@ export default function AppRoutes() {
               </Route>
             </Switch>
           </Layout>
+=======
+          <Switch>
+            <AppNavbar/>
+            <Route path='/vendors'>
+              <Vendors />
+            </Route>
+          </Switch>
+>>>>>>> 00f41aafaf2213b91035081ae51c9069be3fb64b
         </Switch>
       </div>
     </Router>
@@ -44,7 +53,11 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
         <div>
           {props.auth.user != null && props.auth.user.userAccess != null ? (
             <div>
+<<<<<<< HEAD
               {/* <AppNavbar /> */}
+=======
+              <AppNavbar />
+>>>>>>> 00f41aafaf2213b91035081ae51c9069be3fb64b
               <Component {...props} />
             </div>
           ) : (

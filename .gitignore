@@ -1,2 +1,4 @@
-node_modules
-build
+client/build/
+client/node_modules/
+node_modules/
+build/
