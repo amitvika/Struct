@@ -1,26 +1,27 @@
 import axios from "axios";
 import MaterialTable from "material-table";
 import React, { Component } from "react";
-
 import { connect } from "react-redux";
 import { Spinner, Alert } from "reactstrap";
-import { tokenConfig } from "../../actions/authActions";
-import store from "../../store";
-import Typography from "@material-ui/core/Typography";
-import Breadcrumbs from "@material-ui/core/Breadcrumbs";
-import Link from "@material-ui/core/Link";
+import { tokenConfig } from "../actions/authActions";
+import store from "../store";
 import Card from "@material-ui/core/Card";
-import { changePage } from "../../actions/pageActions";
-import Checkbox from "@material-ui/core/Checkbox";
+import { changePage } from "../actions/pageActions";
 import InfoIcon from "@material-ui/icons/Info";
-import { Button } from "@material-ui/core";
-
-import Snackbar from "@material-ui/core/Snackbar";
+import {
+  Button,
+  Snackbar,
+  Checkbox,
+  Link,
+  Breadcrumbs,
+  Typography,
+  Paper,
+  CardContent
+} from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
-import UserAccessModal from "./accessConfigurationsComponents/UserAccessModal";
+import UserAccessModal from "../containers/UserAccessModal";
 
-import CardContent from "@material-ui/core/CardContent";
-class ViewAccess extends Component {
+class AccessConfiguration extends Component {
   state = {
     modal: false,
     rowData1: [],
@@ -74,6 +75,7 @@ class ViewAccess extends Component {
   };
 
   componentDidMount() {
+    //this.retrieveClientsFromDb();
     this.retrieveUserAccessFromDb();
   }
   retrieveUserAccessFromDb = () => {
@@ -81,9 +83,7 @@ class ViewAccess extends Component {
       userAccessLoaded: false
     }));
     axios
-      .get(
-        `/api/userAccessConfigurations/${this.props.auth.user.userAccess._id}`
-      )
+      .get(`/api/userAccessConfigurations/${this.props.page.page.objId}`)
       .then(res => {
         //console.log(res.data._id);
         if (res.data.access == null) {
@@ -143,6 +143,69 @@ class ViewAccess extends Component {
       })
       .catch(err => console.log(err));
   };
+  saveUserAccess = () => {
+    if (this.props.auth.user.userAccess.access.OA_1_E) {
+      var state = this.state;
+      state.rowData1 = null;
+      axios
+        .put(
+          `/api/userAccessConfigurations/${this.state.userAccessId}`,
+          {
+            state: state,
+            user: this.props.auth.user,
+            name: this.state.userAccessName
+          },
+          tokenConfig(store.getState)
+        )
+        .then(res => {
+          //console.log(res);
+          ////////////////////////
+          //save to each user this access ID
+          console.log(this.props.userAccessUsers.userAccessUsers);
+          axios
+            .put(
+              `/api/userAccessConfigurationUsers/${this.state.userAccessId}`,
+              {
+                users: this.props.userAccessUsers.userAccessUsers,
+                user: this.props.auth.user,
+                userAccessId: this.state.userAccessId
+              },
+              tokenConfig(store.getState)
+            )
+            .catch(err => console.log(err));
+          //////////////////////
+        })
+        .then(
+          this.setState({
+            msg: "Configurations Saved",
+            snackBarAlertType: "success",
+            snackBar: true
+          })
+        )
+        .catch(err => {
+          console.log(err);
+          this.setState({
+            msg: "Error. Configurations not saved",
+            snackBarAlertType: "error",
+            snackBar: true
+          });
+        });
+    } else {
+      this.setState({
+        msg: "Edit Access Denied. Configurations Not Saved",
+        snackBarAlertType: "error",
+        snackBar: true
+      });
+    }
+  };
+
+  updateAccessState = e => {
+    this.setState({
+      [e.target.name]: !this.state[e.target.name]
+    });
+    console.log(this.state);
+    console.log(this.props.userAccessUsers.newUsers);
+  };
 
   retrieveClientsFromDb = access => {
     this.setState(state => ({
@@ -169,7 +232,13 @@ class ViewAccess extends Component {
             return {
               clientId: x._id,
               client: x.name,
-              allow: <Checkbox color="primary" name={x._id} />
+              allow: (
+                <Checkbox
+                  color="primary"
+                  name={x._id}
+                  onChange={this.updateAccessState.bind(this)}
+                />
+              )
             };
           } else if (access[x._id]) {
             this.setState({
@@ -178,13 +247,26 @@ class ViewAccess extends Component {
             return {
               clientId: x._id,
               client: x.name,
-              allow: <Checkbox color="primary" name={x._id} defaultChecked />
+              allow: (
+                <Checkbox
+                  color="primary"
+                  name={x._id}
+                  defaultChecked
+                  onChange={this.updateAccessState.bind(this)}
+                />
+              )
             };
           } else {
             return {
               clientId: x._id,
               client: x.name,
-              allow: <Checkbox color="primary" name={x._id} />
+              allow: (
+                <Checkbox
+                  color="primary"
+                  name={x._id}
+                  onChange={this.updateAccessState.bind(this)}
+                />
+              )
             };
           }
         });
@@ -197,11 +279,69 @@ class ViewAccess extends Component {
       .catch(err => console.log(err));
   };
 
+  updateClientAccessState = id => {
+    this.setState({
+      [id]: !this.state[id]
+    });
+  };
+
+  onPageChangeClick = (navType, page, objId) => {
+    const pageDetail = {
+      navType,
+      page,
+      objId
+    };
+    this.props.changePage(pageDetail);
+  };
+  handleClose = (event, reason) => {
+    this.setState({
+      snackBar: !this.state.snackBar
+    });
+  };
+
   render() {
     return (
       <div>
+        <Snackbar
+          open={this.state.snackBar}
+          autoHideDuration={10000}
+          onClose={this.handleClose}
+        >
+          <MuiAlert
+            severity={this.state.snackBarAlertType}
+            onClose={this.handleClose}
+          >
+            {this.state.msg}
+          </MuiAlert>
+        </Snackbar>
+
         {this.state.tableLoaded && this.state.userAccessLoaded ? (
           <div>
+            <Paper style={{ padding: 20, marginBottom: 10 }}>
+              <Breadcrumbs
+                style={{
+                  display: "flex",
+                  justifyContent: "center"
+                }}
+              >
+                <Link
+                  onClick={this.onPageChangeClick.bind(
+                    this,
+                    "OpsNav",
+                    "AccessSetup",
+                    0
+                  )}
+                  href="#"
+                >
+                  Access Setup
+                </Link>
+
+                <Typography color="textPrimary">
+                  User Access Configuration
+                </Typography>
+              </Breadcrumbs>
+            </Paper>
+
             <Card className="mb-2">
               <CardContent>
                 <div
@@ -210,7 +350,7 @@ class ViewAccess extends Component {
                     justifyContent: "center"
                   }}
                 >
-                  <h4>{this.props.auth.user.userAccess.name} </h4>
+                  <h4>{this.state.userAccessName} </h4>
                 </div>
                 <div
                   style={{
@@ -218,7 +358,7 @@ class ViewAccess extends Component {
                     justifyContent: "center"
                   }}
                 >
-                  <p>Access Setup ID: {this.props.auth.user.userAccess._id}</p>
+                  <p>Access Setup ID: {this.state.userAccessId} </p>
                 </div>
 
                 <div
@@ -227,7 +367,7 @@ class ViewAccess extends Component {
                     justifyContent: "center"
                   }}
                 >
-                  {/* <UserAccessModal userAccessState={this.state} />*/}
+                  <UserAccessModal userAccessState={this.state} />
                 </div>
               </CardContent>
             </Card>
@@ -257,6 +397,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="OA_1_E"
                       checked={this.state.OA_1_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -264,6 +405,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="OA_1_V"
                       checked={this.state.OA_1_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -280,7 +422,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="OA_2_E"
                       checked={this.state.OA_2_E}
-                      
+                      onChange={this.updateAccessState}
                     />*/
                   ),
                   view: (
@@ -288,6 +430,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="OA_2_V"
                       checked={this.state.OA_2_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 }
@@ -340,6 +483,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="COA_1_E"
                       checked={this.state.COA_1_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -348,6 +492,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="COA_1_V"
                       checked={this.state.COA_1_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -364,6 +509,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="COA_2_E"
                       checked={this.state.COA_2_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -372,6 +518,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="COA_2_V"
                       checked={this.state.COA_2_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -388,6 +535,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="COA_3_E"
                       checked={this.state.COA_3_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -396,6 +544,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="COA_3_V"
                       checked={this.state.COA_3_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 }
@@ -430,6 +579,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="PGOA_1_E"
                       checked={this.state.PGOA_1_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -438,6 +588,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="PGOA_1_V"
                       checked={this.state.PGOA_1_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -454,6 +605,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="PGOA_2_E"
                       checked={this.state.PGOA_2_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -462,6 +614,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="PGOA_2_V"
                       checked={this.state.PGOA_2_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -478,6 +631,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="PGOA_3_E"
                       checked={this.state.PGOA_3_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -486,6 +640,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="PGOA_3_V"
                       checked={this.state.PGOA_3_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 }
@@ -518,6 +673,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="IOA_1_E"
                       checked={this.state.IOA_1_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -526,6 +682,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="IOA_1_V"
                       checked={this.state.IOA_1_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -542,6 +699,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="IOA_2_E"
                       checked={this.state.IOA_2_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -550,6 +708,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="IOA_2_V"
                       checked={this.state.IOA_2_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -566,6 +725,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="IOA_3_E"
                       checked={this.state.IOA_3_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -574,6 +734,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="IOA_3_V"
                       checked={this.state.IOA_3_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 }
@@ -606,6 +767,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_1_E"
                       checked={this.state.POA_1_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -614,6 +776,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_1_V"
                       checked={this.state.POA_1_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -630,6 +793,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_2_E"
                       checked={this.state.POA_2_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -638,6 +802,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_2_V"
                       checked={this.state.POA_2_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -654,6 +819,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_3_E"
                       checked={this.state.POA_3_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -662,6 +828,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_3_V"
                       checked={this.state.POA_3_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -678,6 +845,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_4_E"
                       checked={this.state.POA_4_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -686,6 +854,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_4_V"
                       checked={this.state.POA_4_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -703,6 +872,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_5_E"
                       checked={this.state.POA_5_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -711,6 +881,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_5_V"
                       checked={this.state.POA_5_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 },
@@ -727,6 +898,7 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_6_E"
                       checked={this.state.POA_6_E}
+                      onChange={this.updateAccessState}
                     />
                   ),
                   view: (
@@ -735,12 +907,35 @@ class ViewAccess extends Component {
                       color="primary"
                       name="POA_6_V"
                       checked={this.state.POA_6_V}
+                      onChange={this.updateAccessState}
                     />
                   )
                 }
               ]}
               title={<h5>Process Object Access</h5>}
             />
+
+            <Snackbar
+              open={true}
+              //autoHideDuration={10000}
+              //onClose={this.handleClose}
+              style={{
+                marginRight: "17%"
+              }}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right"
+              }}
+            >
+              <Button
+                className="mt-2 mb-3"
+                variant="contained"
+                color="primary"
+                onClick={this.saveUserAccess}
+              >
+                Save
+              </Button>
+            </Snackbar>
           </div>
         ) : (
           <div
@@ -763,4 +958,4 @@ const mapStateToProps = state => ({
   userAccessUsers: state.userAccessUsers
 });
 
-export default connect(mapStateToProps, { changePage })(ViewAccess);
+export default connect(mapStateToProps, { changePage })(AccessConfiguration);

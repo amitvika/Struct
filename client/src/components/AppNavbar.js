@@ -124,12 +124,8 @@ class AppNavbar extends Component {
               <div>
                 <NavLink
                   className="navbar-text mt-2 mr-1"
-                  onClick={this.onPageChangeClick.bind(
-                    this,
-                    "OpsNav",
-                    "ConfigurationHistory"
-                  )}
-                  href="#"
+                  to='/configuration-history'
+                  tag={RRNavLink}
                 >
                   Configuration History
                 </NavLink>
@@ -145,27 +141,22 @@ class AppNavbar extends Component {
 
                 <DropdownMenu>
                   {this.props.auth.user && this.props.auth.user.userAccess.access.OA_1_V ? (
-                    <DropdownItem
-                      onClick={this.onPageChangeClick.bind(
-                        this,
-                        "OpsNav",
-                        "AccessSetup"
-                      )}
-                    >
+                    <DropdownItem>
+                      <RRNavLink
+                      to='/access-setup'
+                      >
                       Access Setup
+                      </RRNavLink>
                     </DropdownItem>
                   ) : (
                       ""
                     )}
 
-                  <DropdownItem
-                    onClick={this.onPageChangeClick.bind(
-                      this,
-                      "OpsNav",
-                      "ViewAccess"
-                    )}
-                  >
+                  <DropdownItem>
+                    <RRNavLink
+                    to='/view-access'>
                     View Access
+                    </RRNavLink>
                   </DropdownItem>
                   <DropdownItem divider />
                   {isAuthenticated ? authLinks : guestLinks}

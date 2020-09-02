@@ -14,8 +14,11 @@ import Dashboard from './page/Dashboard';
 import ProcessGroups from './page/ProcessGroups';
 import Clients from './page/Clients';
 import ProductDesign from './page/ProductDesign';
-import Items from './page/Items'
-
+import Items from './page/Items';
+import AccessSetup from './page/AccessSetup';
+import ConfigurationHistory from './page/ConfigurationHistory';
+import AccessConfiguration from './page/AccessConfiguration';
+import ViewAccess from './page/ViewAccess';
 
 export default function AppRoutes() {
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -36,6 +39,10 @@ export default function AppRoutes() {
               <Route path='/vendors' component={Vendors} />
               <Route path='/process-groups' component={ProcessGroups} />
               <Route path='/items' component={Items} />
+              <Route path='/access-setup' component={AccessSetup} />
+              <Route path='/configuration-history' component={ConfigurationHistory} />
+              <Route path='/access-configuration' component={AccessConfiguration} />
+              <Route path='/view-access' component={ViewAccess} />
             </Switch>
           </Layout>
         </Switch>

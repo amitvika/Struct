@@ -3,12 +3,13 @@ import MaterialTable, { MTableToolbar } from "material-table";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
-import { tokenConfig } from "../../actions/authActions";
-import store from "../../store";
-import { changePage } from "../../actions/pageActions";
+import { tokenConfig } from "../actions/authActions";
+import store from "../store";
+import { changePage } from "../actions/pageActions";
 import Checkbox from "@material-ui/core/Checkbox";
 import PropTypes from "prop-types";
-class Clients extends Component {
+
+class AccessSetup extends Component {
   state = {
     rowData: [],
     tableLoaded: true,
@@ -238,4 +239,4 @@ const mapStateToProps = state => ({
   auth: state.auth
 });
 
-export default connect(mapStateToProps, { changePage })(Clients);
+export default connect(mapStateToProps, { changePage })(AccessSetup);

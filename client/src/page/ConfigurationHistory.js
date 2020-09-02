@@ -1,11 +1,8 @@
 import axios from "axios";
 import MaterialTable from "material-table";
 import React, { Component } from "react";
-
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
-import { tokenConfig } from "../../actions/authActions";
-import store from "../../store";
 
 class ConfigurationHistory extends Component {
   state = {
@@ -18,7 +15,7 @@ class ConfigurationHistory extends Component {
   }
 
   retrieveFromDb = () => {
-    if (this.props.auth.user.userAccess.access.OA_2_V) {
+    // if (this.props.auth.user.userAccess.access.OA_2_V) {
       this.setState(state => ({
         tableLoaded: false,
         rowData: state.rowData
@@ -69,11 +66,11 @@ class ConfigurationHistory extends Component {
           }));
         })
         .catch(err => console.log(err));
-    } else {
-      this.setState(state => ({
-        tableLoaded: true
-      }));
-    }
+    // } else {
+    //   this.setState(state => ({
+    //     tableLoaded: true
+    //   }));
+    // }
   };
   render() {
     return (

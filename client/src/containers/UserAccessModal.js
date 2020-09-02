@@ -3,11 +3,7 @@ import { Spinner } from "reactstrap";
 import React, { Component } from "react";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import { connect } from "react-redux";
-import { updateUsers } from "../../../actions/userAccessUserActions";
-import PropTypes from "prop-types";
-import { login, loadUser } from "../../../actions/authActions";
-import { clearErrors } from "../../../actions/errorActions";
-import store from "../../../store";
+import { updateUsers } from "../actions/userAccessUserActions";
 import {
   Button,
   Table,
@@ -19,6 +15,7 @@ import {
   Paper
 } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
+
 class UserAccessModal extends Component {
   state = {
     modal: false,
