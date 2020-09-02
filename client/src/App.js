@@ -1,5 +1,5 @@
 import React from "react";
-import Pages from "./components/Pages";
+// import Pages from "./components/Pages";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 //redux
@@ -10,9 +10,9 @@ import { loadUser } from "./actions/authActions";
 import AppRoutes from './routes';
 
 class App extends React.Component {
-  // componentDidMount() {
-  //   store.dispatch(loadUser());
-  // }
+  componentDidMount() {
+    store.dispatch(loadUser());
+  }
   render() {
     return (
       <Provider store={store}>

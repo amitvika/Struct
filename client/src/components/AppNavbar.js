@@ -2,24 +2,24 @@ import React, { Component, Fragment } from "react";
 import {
   Collapse,
   Navbar,
+  NavLink,
   NavbarToggler,
   NavbarBrand,
   Nav,
-  NavLink,
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
   DropdownItem
 } from "reactstrap";
 import { connect } from "react-redux";
+import { NavLink as RRNavLink } from 'react-router-dom'
 import RegisterModal from "./auth/RegisterModal";
 import Logout from "./auth/Logout";
 import PropTypes from "prop-types";
 import { changePage } from "../actions/pageActions";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import { loadUser } from "../actions/authActions";
-import struct from "./Struct Logo.png";
+import struct from "./struct_logo.png";
 
 class AppNavbar extends Component {
   state = {
@@ -67,53 +67,44 @@ class AppNavbar extends Component {
               width="250"
               height="30"
               className="d-inline-block align-top"
-            />*/}
+            /> */}
             Struct
           </NavbarBrand>
           <Nav className="mr-auto" navbar>
             <NavLink
               className="navbar-text"
-              onClick={this.onPageChangeClick.bind(
-                this,
-                "MainNav",
-                "ProductDesign"
-              )}
-              href="#"
-            >
+              to='/product-design'
+              tag={RRNavLink}>
               Product Design
             </NavLink>
 
             <NavLink
               className="navbar-text"
-              onClick={this.onPageChangeClick.bind(this, "MainNav", "Clients")}
-              href="#"
-            >
+              to='/clients'
+              tag={RRNavLink}
+              >
               Clients
             </NavLink>
             <NavLink
               className="navbar-text"
-              onClick={this.onPageChangeClick.bind(this, "MainNav", "Vendors")}
-              href="#"
+              to='/vendors'
+              tag={RRNavLink}
             >
               Vendors
             </NavLink>
 
             <NavLink
               className="navbar-text"
-              onClick={this.onPageChangeClick.bind(
-                this,
-                "MainNav",
-                "ProcessGroups"
-              )}
-              href="#"
+              to='/process-groups'
+              tag={RRNavLink}
             >
               Process Groups
             </NavLink>
 
             <NavLink
               className="navbar-text"
-              onClick={this.onPageChangeClick.bind(this, "MainNav", "Items")}
-              href="#"
+              to='/items'
+              tag={RRNavLink}
             >
               Items
             </NavLink>

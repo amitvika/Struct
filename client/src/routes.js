@@ -5,12 +5,17 @@ import {
   Route,
   Redirect
 } from "react-router-dom";
-import { Spinner } from "reactstrap";
-
-import Login from '../src/page/Login'
-import Vendors from "./components/mainNav/Vendors";
 import { useSelector } from 'react-redux';
+import { Spinner } from "reactstrap";
 import Layout from './components/Layout';
+import Login from './page/Login'
+import Vendors from "./page/Vendors";
+import Dashboard from './page/Dashboard';
+import ProcessGroups from './page/ProcessGroups';
+import Clients from './page/Clients';
+import ProductDesign from './page/ProductDesign';
+import Items from './page/Items'
+
 
 export default function AppRoutes() {
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -25,9 +30,12 @@ export default function AppRoutes() {
           </Route>
           <Layout>
             <Switch>
-              <Route path='/vendors'>
-                <Vendors />
-              </Route>
+              <Route path='/dashboard' component={Dashboard} />
+              <Route path='/product-design' component={ProductDesign} />
+              <Route path='/clients' component={Clients} />
+              <Route path='/vendors' component={Vendors} />
+              <Route path='/process-groups' component={ProcessGroups} />
+              <Route path='/items' component={Items} />
             </Switch>
           </Layout>
         </Switch>
