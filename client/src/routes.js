@@ -6,10 +6,11 @@ import {
   Redirect
 } from "react-router-dom";
 import { Spinner } from "reactstrap";
-import AppNavbar from '../src/components/AppNavbar';
+
 import Login from '../src/page/Login'
 import Vendors from "./components/mainNav/Vendors";
 import { useSelector } from 'react-redux';
+import Layout from './components/Layout';
 
 export default function AppRoutes() {
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -22,12 +23,13 @@ export default function AppRoutes() {
           <Route exact path="/">
             <Login />
           </Route>
-          <Switch>
-            <AppNavbar/>
-            <Route path='/vendors'>
-              <Vendors />
-            </Route>
-          </Switch>
+          <Layout>
+            <Switch>
+              <Route path='/vendors'>
+                <Vendors />
+              </Route>
+            </Switch>
+          </Layout>
         </Switch>
       </div>
     </Router>
@@ -42,7 +44,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
         <div>
           {props.auth.user != null && props.auth.user.userAccess != null ? (
             <div>
-              <AppNavbar />
+              {/* <AppNavbar /> */}
               <Component {...props} />
             </div>
           ) : (

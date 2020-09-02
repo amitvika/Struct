@@ -10,9 +10,9 @@ import { loadUser } from "./actions/authActions";
 import AppRoutes from './routes';
 
 class App extends React.Component {
-  // componentDidMount() {
-  //   store.dispatch(loadUser());
-  // }
+  componentDidMount() {
+    store.dispatch(loadUser());
+  }
   render() {
     return (
       <Provider store={store}>
