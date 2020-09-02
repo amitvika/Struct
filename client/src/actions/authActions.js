@@ -11,11 +11,12 @@ import {
 } from "./types";
 import { returnErrors } from "./errorActions";
 import store from "../store";
+import http from '../utils/axios';
 
 export const loadUser = () => (dispatch, getState) => {
   dispatch({ type: USER_LOADING }); //sets idloading to true
 
-  axios
+  http
     .get("api/auth/user", tokenConfig(getState))
     .then(res =>
       dispatch({

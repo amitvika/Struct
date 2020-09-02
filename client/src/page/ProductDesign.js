@@ -44,10 +44,10 @@ class ProductDesign extends Component {
   }
 
   retrieveFromDb = () => {
-    if (
-      this.props.auth.user.userAccess.access.PGOA_1_V || /////
-      this.props.auth.user.userAccess.access.PGOA_3_V
-    ) {
+    // if (
+    //   this.props.auth.user.userAccess.access.PGOA_1_V || /////
+    //   this.props.auth.user.userAccess.access.PGOA_3_V
+    // ) {
       this.setState(state => ({
         tableLoaded: false,
         rowData: state.rowData
@@ -57,17 +57,19 @@ class ProductDesign extends Component {
         .then(res => {
           var rowData;
           if (!this.state.showDeletes) {
-            rowData = res.data.filter((x, index) => {
-              return x.deletedAt == null;
-            });
-            rowData = rowData.filter((x, index) => {
-              return (
-                //client access filter
-                this.props.auth.user.userAccess.access[x.client._id] ||
-                (this.props.auth.user.userAccess.access.PGOA_3_V &&
-                  this.props.auth.user._id === x.createdBy._id)
-              );
-            });
+            rowData = res.data
+            // .filter((x, index) => {
+            //   return x.deletedAt == null;
+            // });
+            // rowData = rowData
+            // .filter((x, index) => {
+            //   return (
+            //     //client access filter
+            //     this.props.auth.user.userAccess.access[x.client._id] ||
+            //     (this.props.auth.user.userAccess.access.PGOA_3_V &&
+            //       this.props.auth.user._id === x.createdBy._id)
+            //   );
+            // });
             console.log(rowData);
             rowData = rowData.map((x, index) => {
               return {
@@ -79,9 +81,10 @@ class ProductDesign extends Component {
               };
             });
           } else {
-            rowData = res.data.filter((x, index) => {
-              return this.props.auth.user.userAccess.access[x.client._id];
-            });
+            rowData = res.data
+            // .filter((x, index) => {
+            //   return this.props.auth.user.userAccess.access[x.client._id];
+            // });
             rowData = rowData.map((x, index) => {
               return {
                 id: x._id,
@@ -100,11 +103,11 @@ class ProductDesign extends Component {
           }));
         })
         .catch(err => console.log(err));
-    } else {
-      this.setState(state => ({
-        tableLoaded: true
-      }));
-    }
+    // } else {
+    //   this.setState(state => ({
+    //     tableLoaded: true
+    //   }));
+    // }
   };
 
   retrieveClientDropDownFromDb = () => {

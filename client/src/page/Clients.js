@@ -37,10 +37,10 @@ class Clients extends Component {
   }
 
   retrieveFromDb = () => {
-    if (
-      this.props.auth.user.userAccess.access.COA_1_V ||
-      this.props.auth.user.userAccess.access.COA_3_V
-    ) {
+    // if (
+    //   this.props.auth.user.userAccess.access.COA_1_V ||
+    //   this.props.auth.user.userAccess.access.COA_3_V
+    // ) {
       this.setState(state => ({
         tableLoaded: false,
         rowData: state.rowData
@@ -50,16 +50,17 @@ class Clients extends Component {
         .then(res => {
           var rowData;
           if (!this.state.showDeletes) {
-            rowData = res.data.filter((x, index) => {
-              return x.deletedAt == null;
-            });
-            rowData = rowData.filter((x, index) => {
-              return (
-                this.props.auth.user.userAccess.access[x._id] ||
-                (this.props.auth.user.userAccess.access.COA_3_V &&
-                  this.props.auth.user._id === x.createdByUserId._id)
-              );
-            });
+            rowData = res.data
+            // .filter((x, index) => {
+            //   return x.deletedAt == null;
+            // });
+            // rowData = rowData.filter((x, index) => {
+            //   return (
+            //     this.props.auth.user.userAccess.access[x._id] ||
+            //     (this.props.auth.user.userAccess.access.COA_3_V &&
+            //       this.props.auth.user._id === x.createdByUserId._id)
+            //   );
+            // });
 
             rowData = rowData.map((x, index) => {
               return {
@@ -70,9 +71,10 @@ class Clients extends Component {
               };
             });
           } else {
-            rowData = res.data.filter((x, index) => {
-              return this.props.auth.user.userAccess.access[x._id];
-            });
+            rowData = res.data
+            // .filter((x, index) => {
+            //   return this.props.auth.user.userAccess.access[x._id];
+            // });
             rowData = rowData.map((x, index) => {
               return {
                 id: x._id,
@@ -89,11 +91,11 @@ class Clients extends Component {
           }));
         })
         .catch(err => console.log(err));
-    } else {
-      this.setState(state => ({
-        tableLoaded: true
-      }));
-    }
+    // } else {
+    //   this.setState(state => ({
+    //     tableLoaded: true
+    //   }));
+    // }
   };
 
   onPageChangeClick = (navType, page, objId) => {

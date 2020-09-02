@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 // import Pages from "./components/Pages";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -9,19 +9,21 @@ import store from "./store";
 import { loadUser } from "./actions/authActions";
 import AppRoutes from './routes';
 
-class App extends React.Component {
-  componentDidMount() {
+const App = () => {
+
+  useEffect(() => {
     store.dispatch(loadUser());
-  }
-  render() {
-    return (
-      <Provider store={store}>
-        <div className="App">
-          <AppRoutes />
-        </div>
-      </Provider>
-    );
-  }
+  }, []);
+  
+
+  return (
+    <Provider store={store}>
+      <div className="App">
+        <AppRoutes />
+      </div>
+    </Provider>
+  );
+
 }
 
 export default App;
