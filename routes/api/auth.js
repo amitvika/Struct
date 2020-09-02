@@ -13,7 +13,9 @@ router.post("/", (req, res) => {
   if (!email || !password) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
-  User.findOne({ email }).then(user => {
+  User.findOne({ email })
+  .populate("userAccess")
+  .then(user => {
     if (!user) {
       return res.status(400).json({ msg: "User not found" });
     }
@@ -30,7 +32,8 @@ router.post("/", (req, res) => {
             user: {
               id: user.id,
               name: user.name,
-              email: user.email
+              email: user.email,
+              userAccess : user.userAccess
             }
           });
         }

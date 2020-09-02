@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from "react";
 import {
   Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
   Form,
   FormGroup,
   Label,
   Input,
   Alert,
-  DropdownItem
 } from "reactstrap";
 import { useDispatch, useSelector } from 'react-redux';
-import PropTypes from "prop-types";
 import { login, loadUser } from "../../actions/authActions";
-import { clearErrors } from "../../actions/errorActions";
 import { Card, CardContent } from "@material-ui/core";
 
 const LoginModal = () => {

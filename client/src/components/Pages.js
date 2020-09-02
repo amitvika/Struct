@@ -142,25 +142,24 @@ class Pages extends Component {
             {this.props.auth.user.userAccess != null ? (
               <div>
                 <AppNavbar />
-
                 {renderPageSwitch(this.props.page.page)}
               </div>
             ) : (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center"
-                }}
-              >
-                <Spinner animation="border" />
-              </div>
-            )}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center"
+                  }}
+                >
+                  <Spinner animation="border" />
+                </div>
+              )}
           </div>
         ) : (
-          <Container style={{ marginTop: "7%" }}>
-            <LoginPage />
-          </Container>
-        )}
+            <Container style={{ marginTop: "7%" }}>
+              <LoginPage />
+            </Container>
+          )}
       </div>
     );
   }
