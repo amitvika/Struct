@@ -3,6 +3,7 @@ import { DropdownItem } from "reactstrap";
 import { logout } from "../../actions/authActions";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
+
 export class Logout extends Component {
   static propTypes = {
     logout: PropTypes.func.isRequired,

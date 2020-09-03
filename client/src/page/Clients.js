@@ -33,6 +33,7 @@ class Clients extends Component {
   };
 
   componentDidMount() {
+    console.log('---------->>>>')
     this.retrieveFromDb();
   }
 
