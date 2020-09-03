@@ -22,10 +22,10 @@ import AccessConfiguration from './page/AccessConfiguration';
 import ViewAccess from './page/ViewAccess';
 
 import ClientDetail from "./page/ClientDetail";
-// import ProcessGroupDetail from "./subNav/ProcessGroupDetail";
-// import VendorDetail from "./subNav/VendorDetail";
+import ProductDesignDetail from "./page/ProductDesignDetail";
+// import ProcessGroupDetail from "./page/ProcessGroupDetail";
+import VendorDetail from "./page/VendorDetail";
 import ItemDetail from "./page/ItemDetail";
-// import ProductDesignDetail from "./subNav/ProductDesignDetail";
 
 export default function AppRoutes() {
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -40,13 +40,22 @@ export default function AppRoutes() {
           <Layout>
             <Switch>
               <Route path='/dashboard' component={Dashboard} />
-              <Route path='/product-design' component={ProductDesign} />
+
+              <Route exact path='/product-design' component={ProductDesign} />
+              <Route path='/product-design/:id' component={ProductDesignDetail} />
+
               <Route exact path='/clients' component={Clients} />
               <Route path='/clients/:id' component={ClientDetail} />
-              <Route path='/vendors' component={Vendors} />
-              <Route path='/process-groups' component={ProcessGroups} />
+
+              <Route exact path='/vendors' component={Vendors} />
+              <Route path='/vendors/:id' component={VendorDetail} />
+
+              <Route exact path='/process-groups' component={ProcessGroups} />
+              {/* <Route path='/process-groups/:id' component={ProcessGroupDetail} /> */}
+
               <Route exact path='/items' component={Items} />
               <Route path='/items/:id' component={ItemDetail} />
+
               <Route path='/access-setup' component={AccessSetup} />
               <Route path='/configuration-history' component={ConfigurationHistory} />
               <Route path='/access-configuration' component={AccessConfiguration} />

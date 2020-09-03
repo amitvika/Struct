@@ -10,9 +10,8 @@ import {
 } from "@material-ui/core";
 import { NavLink, useParams } from "react-router-dom";
 
-
 const ItemDetail = () => {
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(1);
   let { id } = useParams();
 
   const renderPageSwitch = (index) => {
@@ -65,8 +64,7 @@ const ItemDetail = () => {
             orientation="vertical"
             variant="scrollable"
             value={value}
-            onChange={(event, newValue) => setValue(newValue)}
-          >
+            onChange={(event, newValue) => setValue(newValue)}>
             <Tab label="Item Geometry" value={1} />
             <Tab label="Item Properties" value={2} />
             <Tab label="Item Type Configurations" value={3} />
