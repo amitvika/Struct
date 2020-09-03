@@ -1,15 +1,6 @@
-import axios from "axios";
-import MaterialTable, { MTableToolbar } from "material-table";
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { Spinner } from "reactstrap";
-import { tokenConfig } from "../../actions/authActions";
-import store from "../../store";
-import { changePage } from "../../actions/pageActions";
+import React, { Component, useEffect, useState } from "react";
+import { changePage } from "../actions/pageActions";
 import {
-  Checkbox,
-  Snackbar,
-  MuiAlert,
   Paper,
   Tab,
   Tabs,
@@ -19,8 +10,9 @@ import {
   Link
 } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
-import ClientDetailTabContent from "./ClientDetailTabs/ClientDetailTabContent";
+// import { makeStyles } from "@material-ui/core/styles";
+// import ClientDetailTabContent from "../components/subNav/ClientDetailTabs/ClientDetailTabContent";
+
 class ClientDetail extends Component {
   state = {
     value: 0
@@ -31,7 +23,7 @@ class ClientDetail extends Component {
       page,
       objId
     };
-    this.props.changePage(pageDetail);
+    // this.props.changePage(pageDetail);
   };
   handleChange = (event, newValue) => {
     this.setState({ value: newValue });
@@ -128,8 +120,4 @@ class ClientDetail extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  auth: state.auth
-});
-
-export default connect(mapStateToProps, { changePage })(ClientDetail);
+export default ClientDetail;
