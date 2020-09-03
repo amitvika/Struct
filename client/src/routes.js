@@ -6,7 +6,7 @@ import {
   Redirect
 } from "react-router-dom";
 import { useSelector } from 'react-redux';
-import { Spinner } from "reactstrap";
+import AppRoute from './AppRoute';
 import Layout from './containers/Layout';
 import Login from './page/Login';
 import Register from './page/RegisterPage';
@@ -39,68 +39,31 @@ export default function AppRoutes() {
           <Route path="/register" component={Register} />
           <Layout>
             <Switch>
-              <Route path='/dashboard' component={Dashboard} />
+              <AppRoute authenticate path='/dashboard' component={Dashboard} />
 
-              <Route exact path='/product-design' component={ProductDesign} />
-              <Route path='/product-design/:id' component={ProductDesignDetail} />
+              <AppRoute authenticate exact path='/product-design' component={ProductDesign} />
+              <AppRoute authenticate path='/product-design/:id' component={ProductDesignDetail} />
 
-              <Route exact path='/clients' component={Clients} />
-              <Route path='/clients/:id' component={ClientDetail} />
+              <AppRoute authenticate exact path='/clients' component={Clients} />
+              <AppRoute authenticate path='/clients/:id' component={ClientDetail} />
 
-              <Route exact path='/vendors' component={Vendors} />
-              <Route path='/vendors/:id' component={VendorDetail} />
+              <AppRoute authenticate exact path='/vendors' component={Vendors} />
+              <AppRoute authenticate path='/vendors/:id' component={VendorDetail} />
 
-              <Route exact path='/process-groups' component={ProcessGroups} />
-              <Route path='/process-groups/:id' component={ProcessGroupDetail} />
+              <AppRoute authenticate exact path='/process-groups' component={ProcessGroups} />
+              <AppRoute authenticate path='/process-groups/:id' component={ProcessGroupDetail} />
 
-              <Route exact path='/items' component={Items} />
-              <Route path='/items/:id' component={ItemDetail} />
+              <AppRoute authenticate exact path='/items' component={Items} />
+              <AppRoute authenticate path='/items/:id' component={ItemDetail} />
 
-              <Route path='/access-setup' component={AccessSetup} />
-              <Route path='/configuration-history' component={ConfigurationHistory} />
-              <Route path='/access-configuration' component={AccessConfiguration} />
-              <Route path='/view-access' component={ViewAccess} />
+              <AppRoute authenticate path='/access-setup' component={AccessSetup} />
+              <AppRoute authenticate path='/configuration-history' component={ConfigurationHistory} />
+              <AppRoute authenticate path='/access-configuration' component={AccessConfiguration} />
+              <AppRoute authenticate path='/view-access' component={ViewAccess} />
             </Switch>
           </Layout>
-          <Route path="*" component={NoMatch} />
         </Switch>
       </div>
     </Router>
-  );
-}
-
-const ProtectedRoute = ({ component: Comp, loggedIn, path, ...rest }) => {
-  return (
-    <Route
-      path={path}
-      {...rest}
-      render={(props) => {
-        return loggedIn ? (
-          <Comp {...props} />
-        ) : (
-            <Redirect
-              to={{
-                pathname: "/",
-                state: {
-                  prevLocation: path,
-                  error: "You need to login first!",
-                },
-              }}
-            />
-          );
-      }}
-    />
-  );
-};
-
-export function NoMatch({ location }) {
-  return (
-    <>
-      <div className="mt-5">
-        <div sm={{ span: 8, offset: 2 }}>
-          <h1>Page Not Found</h1>
-        </div>
-      </div>
-    </>
   );
 }
