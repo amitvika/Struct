@@ -2,10 +2,9 @@ import axios from "axios";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
-import { tokenConfig } from "../../actions/authActions";
-import store from "../../store";
-import { changePage } from "../../actions/pageActions";
-import NewProcessAdd from "./Processes/newProcessAdd";
+import { tokenConfig } from "../actions/authActions";
+import store from "../store";
+import { changePage } from "../actions/pageActions";
 import {
   Checkbox,
   Snackbar,
@@ -29,10 +28,12 @@ import InfoIcon from "@material-ui/icons/Info";
 import AddIcon from "@material-ui/icons/Add";
 import BootstrapTable from "react-bootstrap-table-next";
 import filterFactory, { textFilter } from "react-bootstrap-table2-filter";
-import Machining from "./Processes/Machining";
-import InjectionMolding from "./Processes/InjectionMolding";
-import ProcessHelper from "./Processes/ProcessHelper";
-import Assembly from "./Processes/Assembly";
+import { NavLink } from "react-router-dom";
+import NewProcessAdd from "../components/Processes/newProcessAdd";
+import Machining from "../components/Processes/Machining";
+import InjectionMolding from "../components/Processes/InjectionMolding";
+import ProcessHelper from "../components/Processes/ProcessHelper";
+import Assembly from "../components/Processes/Assembly";
 
 class ProcessGroupDetail extends Component {
   state = {
@@ -49,12 +50,15 @@ class ProcessGroupDetail extends Component {
     allProcessesObject: {},
     processGroupDataLoaded: false
   };
+
   componentDidMount = () => {
     this.getProcesses();
   };
+  
   printState = () => {
     console.log(this.state.allProcessesObject);
   };
+  
   getProcesses = () => {
     axios
       .get("/api/processes")
@@ -91,7 +95,7 @@ class ProcessGroupDetail extends Component {
       processGroupDataLoaded: false
     }));
     axios
-      .get(`/api/processgroup/${this.props.id}`)
+      .get(`/api/processgroup/${this.props.match.params.id}`)
       .then(res => {
         this.setState(state => ({
           processGroupName: res.data.name,
@@ -100,7 +104,7 @@ class ProcessGroupDetail extends Component {
         }));
         ///////////////////////
         axios
-          .get(`/api/processdata/${this.props.id}`)
+          .get(`/api/processdata/${this.props.match.params.id}`)
           .then(res => {
             // console.log(res.data);
             var processData = res.data.map((x, index) => {
@@ -145,6 +149,7 @@ class ProcessGroupDetail extends Component {
         });
       });
   };
+  
   onPageChangeClick = (navType, page, objId) => {
     const pageDetail = {
       navType,
@@ -153,12 +158,15 @@ class ProcessGroupDetail extends Component {
     };
     this.props.changePage(pageDetail);
   };
+  
   handleChange = (event, newValue) => {
     this.setState({ value: newValue });
   };
+  
   onNewProcessSelect = event => {
     this.setState({ selectedProcess: event.target.value });
   };
+
   processAddButton = () => {
     //console.log(this.state.selectedProcess);
 
@@ -283,17 +291,10 @@ class ProcessGroupDetail extends Component {
                     justifyContent: "center"
                   }}
                 >
-                  <Link
-                    onClick={this.onPageChangeClick.bind(
-                      this,
-                      "MainNav",
-                      "ProcessGroups",
-                      0
-                    )}
-                    href="#"
-                  >
+                  <NavLink
+                  to='/process-groups'                  >
                     Process Groups
-                  </Link>
+                  </NavLink>
 
                   <Typography color="textPrimary">
                     Process Group:{" "}
@@ -375,23 +376,23 @@ class ProcessGroupDetail extends Component {
                   </Paper>
                 </div>
               ) : (
-                <Paper style={{ padding: 20, margin: 10 }}>
-                  <h5>Please Select Process to Edit</h5>
-                </Paper>
-              )}
+                  <Paper style={{ padding: 20, margin: 10 }}>
+                    <h5>Please Select Process to Edit</h5>
+                  </Paper>
+                )}
             </Grid>
           </Grid>
         ) : (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: "7%"
-            }}
-          >
-            <Spinner animation="border" />
-          </div>
-        )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "7%"
+              }}
+            >
+              <Spinner animation="border" />
+            </div>
+          )}
       </div>
     );
   }

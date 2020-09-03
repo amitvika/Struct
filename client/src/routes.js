@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
-import Layout from './components/Layout';
+import Layout from './containers/Layout';
 import Login from './page/Login';
 import Register from './page/RegisterPage';
 import Vendors from "./page/Vendors";
@@ -23,7 +23,7 @@ import ViewAccess from './page/ViewAccess';
 
 import ClientDetail from "./page/ClientDetail";
 import ProductDesignDetail from "./page/ProductDesignDetail";
-// import ProcessGroupDetail from "./page/ProcessGroupDetail";
+import ProcessGroupDetail from "./page/ProcessGroupDetail";
 import VendorDetail from "./page/VendorDetail";
 import ItemDetail from "./page/ItemDetail";
 
@@ -51,7 +51,7 @@ export default function AppRoutes() {
               <Route path='/vendors/:id' component={VendorDetail} />
 
               <Route exact path='/process-groups' component={ProcessGroups} />
-              {/* <Route path='/process-groups/:id' component={ProcessGroupDetail} /> */}
+              <Route path='/process-groups/:id' component={ProcessGroupDetail} />
 
               <Route exact path='/items' component={Items} />
               <Route path='/items/:id' component={ItemDetail} />

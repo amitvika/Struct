@@ -1,5 +1,5 @@
-import axios from "axios";
-import React, { Component, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+
 export default function Machining() {
   const [cartItems, setCartItems] = useState([]);
   const [scrollDepth, setScrollDepth] = useState(0);
