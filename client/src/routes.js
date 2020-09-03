@@ -21,6 +21,12 @@ import ConfigurationHistory from './page/ConfigurationHistory';
 import AccessConfiguration from './page/AccessConfiguration';
 import ViewAccess from './page/ViewAccess';
 
+// import ClientDetail from "./page/ClientDetail";
+// import ProcessGroupDetail from "./subNav/ProcessGroupDetail";
+// import VendorDetail from "./subNav/VendorDetail";
+// import ItemDetail from "./subNav/ItemDetail";
+// import ProductDesignDetail from "./subNav/ProductDesignDetail";
+
 export default function AppRoutes() {
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
   return (
@@ -30,21 +36,23 @@ export default function AppRoutes() {
             renders the first one that matches the current URL. */}
         <Switch>
           <Route exact path="/" component={Login} />
-          <Route exact path="/register" component={Register} />
+          {/* <Route path="/register" component={Register} /> */}
           <Layout>
             <Switch>
-              <Route loggedIn={isAuthenticated} component={Dashboard} />
+              <Route path='/dashboard' component={Dashboard} />
               <Route path='/product-design' component={ProductDesign} />
-              <Route path='/clients' component={Clients} />
-              <Route loggedIn={isAuthenticated} path='/vendors' component={Vendors} />
+              <Route exact path='/clients' component={Clients} />
+              <Route path='/vendors' component={Vendors} />
               <Route path='/process-groups' component={ProcessGroups} />
               <Route path='/items' component={Items} />
               <Route path='/access-setup' component={AccessSetup} />
               <Route path='/configuration-history' component={ConfigurationHistory} />
               <Route path='/access-configuration' component={AccessConfiguration} />
               <Route path='/view-access' component={ViewAccess} />
+              {/* <Route path='/clients/:id' component={ClientDetail} /> */}
             </Switch>
           </Layout>
+          <Route path="*" component={NoMatch} />
         </Switch>
       </div>
     </Router>
@@ -74,3 +82,15 @@ const ProtectedRoute = ({ component: Comp, loggedIn, path, ...rest }) => {
     />
   );
 };
+
+export function NoMatch({ location }) {
+  return (
+    <>
+      <div className="mt-5">
+        <div sm={{ span: 8, offset: 2 }}>
+          <h1>Page Not Found</h1>
+        </div>
+      </div>
+    </>
+  );
+}

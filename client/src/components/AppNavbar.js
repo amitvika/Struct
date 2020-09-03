@@ -37,7 +37,7 @@ const AppNavbar = () => {
         style={{ color: "black" }}
         onClick={()=>{
           dispatch(logout());
-          history.replace('login')
+          history.replace('/')
         }}
         href="#"
       >
@@ -103,9 +103,9 @@ const AppNavbar = () => {
             Items
             </NavLink>
         </Nav>
-        <NavbarToggler onClick={this.toggle} />
+        <NavbarToggler onClick={toggle} />
 
-        <Collapse isOpen={this.state.isOpen} navbar>
+        <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto " navbar>
             <NavLink className="navbar-text mt-2" href="#">
               <ArrowBackIcon />
@@ -134,7 +134,7 @@ const AppNavbar = () => {
               </DropdownToggle>
 
               <DropdownMenu>
-                {this.props.auth.user && this.props.auth.user.userAccess.access.OA_1_V ? (
+                {user && user.userAccess.access.OA_1_V ? (
                   <DropdownItem>
                     <RRNavLink
                       to='/access-setup'
