@@ -197,14 +197,7 @@ class Vendors extends Component {
               exportButton: true,
               exportFileName: "Vendors"
             }}
-            onRowClick={(rowdata, event) => {
-              this.onPageChangeClick(
-                "VendorsNav",
-                "VendorsConfiguration",
-                event.id
-              );
-              //console.log(rowdata);
-            }}
+            onRowClick={(rowdata, event) => this.props.history.push(`/vendors/${event.id}`)}
             components={{
               Toolbar: props => (
                 <div>

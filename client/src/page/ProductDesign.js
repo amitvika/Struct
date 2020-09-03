@@ -199,14 +199,7 @@ class ProductDesign extends Component {
               exportButton: false,
               exportFileName: "ProductDesign"
             }}
-            onRowClick={(rowdata, event) => {
-              this.onPageChangeClick(
-                "ProductDesignNav",
-                "ProductDesignConfiguration",
-                event.id
-              );
-              //console.log(rowdata);
-            }}
+            onRowClick={(rowdata, event) => this.props.history.push(`/product-design/${event.id}`)}
             components={{
               Toolbar: props => (
                 <div>

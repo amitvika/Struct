@@ -33,6 +33,7 @@ import Machining from "./Processes/Machining";
 import InjectionMolding from "./Processes/InjectionMolding";
 import ProcessHelper from "./Processes/ProcessHelper";
 import Assembly from "./Processes/Assembly";
+
 class ProcessGroupDetail extends Component {
   state = {
     value: 1,
