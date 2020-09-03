@@ -10,9 +10,9 @@ import {
   Input
 } from "reactstrap";
 import { connect } from "react-redux";
-import { tokenConfig } from "../../../actions/authActions";
+import { tokenConfig } from "../../actions/authActions";
 import axios from "axios";
-import store from "../../../store";
+import store from "../../store";
 class newProcessAdd extends Component {
   state = {
     modal: false,

@@ -12,10 +12,10 @@ import {
   DropdownItem
 } from "reactstrap";
 import { NavLink as RRNavLink } from 'react-router-dom'
-import RegisterModal from "./auth/RegisterModal";
+import RegisterModal from "../components/auth/RegisterModal";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import struct from "./struct_logo.png";
+// import struct from "./struct_logo.png";
 import { logout } from "../actions/authActions";
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from "react-router-dom";

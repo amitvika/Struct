@@ -205,14 +205,7 @@ class ProcessGroups extends Component {
               exportButton: true,
               exportFileName: "ProcessGroups"
             }}
-            onRowClick={(rowdata, event) => {
-              this.onPageChangeClick(
-                "ProcessGroupsNav",
-                "ProcessGroupsConfiguration",
-                event.id
-              );
-              //console.log(rowdata);
-            }}
+            onRowClick={(rowdata, event) => this.props.history.push(`/process-groups/${event.id}`)}
             components={{
               Toolbar: props => (
                 <div>
