@@ -9,7 +9,8 @@ import {
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
-  DropdownItem
+  DropdownItem,
+  Alert
 } from "reactstrap";
 import { NavLink as RRNavLink } from 'react-router-dom'
 import RegisterModal from "../components/auth/RegisterModal";
@@ -23,9 +24,24 @@ import { useHistory } from "react-router-dom";
 const AppNavbar = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  
+
   const { isAuthenticated, user } = useSelector(state => state.auth);
+  const error = useSelector(state => state.error);
   const [isOpen, setIsOpen] = useState(false);
+  const [msg, setMsg] = useState(null);
+
+  useEffect(() => {
+    if (error) {
+      setMsg(error.msg.msg);
+      // setTimeout(() => {
+      //   history.replace('/')
+      // }, 2000)
+    }
+    else {
+      setMsg(null);
+    }
+  }, [error]);
+
 
   const toggle = () => {
     setIsOpen(!isOpen);
@@ -35,7 +51,7 @@ const AppNavbar = () => {
     <>
       <DropdownItem
         style={{ color: "black" }}
-        onClick={()=>{
+        onClick={() => {
           dispatch(logout());
           history.replace('/')
         }}
@@ -54,6 +70,7 @@ const AppNavbar = () => {
 
   return (
     <div>
+
       <Navbar fixed="top" color="dark" dark expand="sm" className="mb-5">
         <NavbarBrand>
           {/* <img
@@ -146,11 +163,10 @@ const AppNavbar = () => {
                     ""
                   )}
 
-                <DropdownItem>
-                  <RRNavLink
-                    to='/view-access'>
-                    View Access
-                    </RRNavLink>
+                <DropdownItem
+                  style={{ color: "black" }}
+                  onClick={() => history.push('/view-access')}>
+                  View Access
                 </DropdownItem>
                 <DropdownItem divider />
                 {isAuthenticated ? authLinks : guestLinks}

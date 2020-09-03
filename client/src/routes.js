@@ -36,7 +36,7 @@ export default function AppRoutes() {
             renders the first one that matches the current URL. */}
         <Switch>
           <Route exact path="/" component={Login} />
-          {/* <Route path="/register" component={Register} /> */}
+          <Route path="/register" component={Register} />
           <Layout>
             <Switch>
               <Route path='/dashboard' component={Dashboard} />
