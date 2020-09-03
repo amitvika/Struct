@@ -8,7 +8,8 @@ import {
 import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 import Layout from './components/Layout';
-import Login from './page/Login'
+import Login from './page/Login';
+import Register from './page/RegisterPage';
 import Vendors from "./page/Vendors";
 import Dashboard from './page/Dashboard';
 import ProcessGroups from './page/ProcessGroups';
@@ -28,15 +29,14 @@ export default function AppRoutes() {
         {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
         <Switch>
-          <Route exact path="/">
-            <Login />
-          </Route>
+          <Route exact path="/" component={Login} />
+          <Route exact path="/register" component={Register} />
           <Layout>
             <Switch>
-              <Route path='/dashboard' component={Dashboard} />
+              <Route loggedIn={isAuthenticated} component={Dashboard} />
               <Route path='/product-design' component={ProductDesign} />
               <Route path='/clients' component={Clients} />
-              <Route path='/vendors' component={Vendors} />
+              <Route loggedIn={isAuthenticated} path='/vendors' component={Vendors} />
               <Route path='/process-groups' component={ProcessGroups} />
               <Route path='/items' component={Items} />
               <Route path='/access-setup' component={AccessSetup} />
@@ -51,33 +51,26 @@ export default function AppRoutes() {
   );
 }
 
-const PrivateRoute = ({ component: Component, ...rest }) => {
-  return <Route
-    {...rest}
-    render={props =>
-      props.auth && props.auth.isAuthenticated ? (
-        <div>
-          {props.auth.user != null && props.auth.user.userAccess != null ? (
-            <div>
-              {/* <AppNavbar /> */}
-              <Component {...props} />
-            </div>
-          ) : (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center"
-                }}
-              >
-                <Spinner animation="border" />
-              </div>
-            )}
-        </div>
-      )
-        : <Redirect
-          to={{
-            pathname: '/'
-          }}
-        />}
-  ></Route>
-}
+const ProtectedRoute = ({ component: Comp, loggedIn, path, ...rest }) => {
+  return (
+    <Route
+      path={path}
+      {...rest}
+      render={(props) => {
+        return loggedIn ? (
+          <Comp {...props} />
+        ) : (
+            <Redirect
+              to={{
+                pathname: "/",
+                state: {
+                  prevLocation: path,
+                  error: "You need to login first!",
+                },
+              }}
+            />
+          );
+      }}
+    />
+  );
+};

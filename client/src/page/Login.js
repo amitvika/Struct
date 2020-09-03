@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { login } from "../actions/authActions";
 import { useHistory } from "react-router-dom";
 import { Card, CardContent } from "@material-ui/core";
+import { NavLink } from 'react-router-dom'
 
 const LoginModal = () => {
   const dispatch = useDispatch();
@@ -79,9 +80,11 @@ const LoginModal = () => {
 
               <Button color="dark" style={{ marginBottom: "2rem" }} block>
                 Login
-                </Button>
+              </Button>
+
             </FormGroup>
           </Form>
+          <NavLink to='/register'> Go to Registration Page </NavLink>
         </CardContent>
       </Card>
     </div>
