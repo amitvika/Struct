@@ -33,7 +33,6 @@ class Clients extends Component {
   };
 
   componentDidMount() {
-    console.log('---------->>>>')
     this.retrieveFromDb();
   }
 
@@ -42,56 +41,56 @@ class Clients extends Component {
     //   this.props.auth.user.userAccess.access.COA_1_V ||
     //   this.props.auth.user.userAccess.access.COA_3_V
     // ) {
-      this.setState(state => ({
-        tableLoaded: false,
-        rowData: state.rowData
-      }));
-      axios
-        .get("/api/clients")
-        .then(res => {
-          var rowData;
-          if (!this.state.showDeletes) {
-            rowData = res.data
-            // .filter((x, index) => {
-            //   return x.deletedAt == null;
-            // });
-            // rowData = rowData.filter((x, index) => {
-            //   return (
-            //     this.props.auth.user.userAccess.access[x._id] ||
-            //     (this.props.auth.user.userAccess.access.COA_3_V &&
-            //       this.props.auth.user._id === x.createdByUserId._id)
-            //   );
-            // });
+    this.setState(state => ({
+      tableLoaded: false,
+      rowData: state.rowData
+    }));
+    axios
+      .get("/api/clients")
+      .then(res => {
+        var rowData;
+        if (!this.state.showDeletes) {
+          rowData = res.data
+          // .filter((x, index) => {
+          //   return x.deletedAt == null;
+          // });
+          // rowData = rowData.filter((x, index) => {
+          //   return (
+          //     this.props.auth.user.userAccess.access[x._id] ||
+          //     (this.props.auth.user.userAccess.access.COA_3_V &&
+          //       this.props.auth.user._id === x.createdByUserId._id)
+          //   );
+          // });
 
-            rowData = rowData.map((x, index) => {
-              return {
-                id: x._id,
-                name: x.name,
-                created_by: x.createdByUserId.name,
-                deleted_at: x.deletedAt
-              };
-            });
-          } else {
-            rowData = res.data
-            // .filter((x, index) => {
-            //   return this.props.auth.user.userAccess.access[x._id];
-            // });
-            rowData = rowData.map((x, index) => {
-              return {
-                id: x._id,
-                name: x.name,
-                created_by: x.createdByUserId.name,
-                deleted_at: x.deletedAt
-              };
-            });
-          }
+          rowData = rowData.map((x, index) => {
+            return {
+              id: x._id,
+              name: x.name,
+              created_by: x.createdByUserId.name,
+              deleted_at: x.deletedAt
+            };
+          });
+        } else {
+          rowData = res.data
+          // .filter((x, index) => {
+          //   return this.props.auth.user.userAccess.access[x._id];
+          // });
+          rowData = rowData.map((x, index) => {
+            return {
+              id: x._id,
+              name: x.name,
+              created_by: x.createdByUserId.name,
+              deleted_at: x.deletedAt
+            };
+          });
+        }
 
-          this.setState(state => ({
-            tableLoaded: true,
-            rowData
-          }));
-        })
-        .catch(err => console.log(err));
+        this.setState(state => ({
+          tableLoaded: true,
+          rowData
+        }));
+      })
+      .catch(err => console.log(err));
     // } else {
     //   this.setState(state => ({
     //     tableLoaded: true
@@ -132,7 +131,7 @@ class Clients extends Component {
   render() {
     const { user } = this.props.auth;
     return (
-      <div>
+      <>
         <Snackbar
           open={this.state.snackBar}
           autoHideDuration={10000}
@@ -156,14 +155,7 @@ class Clients extends Component {
               exportButton: true,
               exportFileName: "Clients"
             }}
-            onRowClick={(rowdata, event) => {
-              this.onPageChangeClick(
-                "ClientsNav",
-                "ClientsConfiguration",
-                event.id
-              );
-              //console.log(rowdata);
-            }}
+            onRowClick={(rowdata, event) => this.props.history.push(`/clients/${event.id}`)}
             components={{
               Toolbar: props => (
                 <div>
@@ -176,8 +168,8 @@ class Clients extends Component {
                         onChange={this.showDeletes}
                       />
                     ) : (
-                      <Checkbox value="top" onChange={this.showDeletes} />
-                    )}
+                        <Checkbox value="top" onChange={this.showDeletes} />
+                      )}
                     {""}
                     Show Deletions
                   </div>
@@ -285,19 +277,19 @@ class Clients extends Component {
                   }, 1000);
                 })
             }}
-            //////
+          //////
           />
         ) : (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center"
-            }}
-          >
-            <Spinner animation="border" />
-          </div>
-        )}
-      </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center"
+              }}
+            >
+              <Spinner animation="border" />
+            </div>
+          )}
+      </>
     );
   }
 }
