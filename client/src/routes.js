@@ -21,10 +21,10 @@ import ConfigurationHistory from './page/ConfigurationHistory';
 import AccessConfiguration from './page/AccessConfiguration';
 import ViewAccess from './page/ViewAccess';
 
-// import ClientDetail from "./page/ClientDetail";
+import ClientDetail from "./page/ClientDetail";
 // import ProcessGroupDetail from "./subNav/ProcessGroupDetail";
 // import VendorDetail from "./subNav/VendorDetail";
-// import ItemDetail from "./subNav/ItemDetail";
+import ItemDetail from "./page/ItemDetail";
 // import ProductDesignDetail from "./subNav/ProductDesignDetail";
 
 export default function AppRoutes() {
@@ -42,14 +42,15 @@ export default function AppRoutes() {
               <Route path='/dashboard' component={Dashboard} />
               <Route path='/product-design' component={ProductDesign} />
               <Route exact path='/clients' component={Clients} />
+              <Route path='/clients/:id' component={ClientDetail} />
               <Route path='/vendors' component={Vendors} />
               <Route path='/process-groups' component={ProcessGroups} />
-              <Route path='/items' component={Items} />
+              <Route exact path='/items' component={Items} />
+              <Route path='/items/:id' component={ItemDetail} />
               <Route path='/access-setup' component={AccessSetup} />
               <Route path='/configuration-history' component={ConfigurationHistory} />
               <Route path='/access-configuration' component={AccessConfiguration} />
               <Route path='/view-access' component={ViewAccess} />
-              {/* <Route path='/clients/:id' component={ClientDetail} /> */}
             </Switch>
           </Layout>
           <Route path="*" component={NoMatch} />

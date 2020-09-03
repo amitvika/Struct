@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { login } from "../actions/authActions";
 import { useHistory } from "react-router-dom";
 import { Card, CardContent } from "@material-ui/core";
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom';
 
 const LoginModal = () => {
   const dispatch = useDispatch();
