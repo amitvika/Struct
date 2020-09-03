@@ -62,9 +62,20 @@ class ViewAccess extends Component {
     POA_6_V: false
   };
 
+  componentWillMount() {
+    if (this.props.auth.user == null) {
+      this.props.history.push('/');
+      return;
+    }
+  }
+
   componentDidMount() {
+    if (this.props.auth.user === null) {
+      return;
+    }
     this.retrieveUserAccessFromDb();
   }
+
   retrieveUserAccessFromDb = () => {
     this.setState(state => ({
       userAccessLoaded: false
@@ -199,7 +210,7 @@ class ViewAccess extends Component {
                     justifyContent: "center"
                   }}
                 >
-                  <h4>{this.props.auth.user.userAccess.name} </h4>
+                  <h4>{this.props.auth.user !== null && this.props.auth.user.userAccess.name} </h4>
                 </div>
                 <div
                   style={{
@@ -207,7 +218,7 @@ class ViewAccess extends Component {
                     justifyContent: "center"
                   }}
                 >
-                  <p>Access Setup ID: {this.props.auth.user.userAccess._id}</p>
+                  <p>Access Setup ID: {this.props.auth.user !== null && this.props.auth.user.userAccess._id}</p>
                 </div>
 
                 <div
@@ -732,15 +743,15 @@ class ViewAccess extends Component {
             />
           </div>
         ) : (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center"
-            }}
-          >
-            <Spinner animation="border" />
-          </div>
-        )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center"
+              }}
+            >
+              <Spinner animation="border" />
+            </div>
+          )}
       </div>
     );
   }
