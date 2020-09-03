@@ -7,7 +7,7 @@ const AppRoute = ({ component: Component, authenticate, ...rest }) => {
 
   useEffect(_ => {
     if (authenticate && !isLoggedIn()) {
-      history.push('/login');
+      history.push('/');
     }
   },
     [authenticate],
