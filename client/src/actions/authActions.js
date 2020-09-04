@@ -18,14 +18,17 @@ export const loadUser = () => (dispatch, getState) => {
 
   http
     .get("api/auth/user", tokenConfig(getState))
-    .then(res =>
+    .then(res => {
+      console.log('---->>res', res)
       dispatch({
         type: USER_LOADED,
         payload: res.data
       })
+    }
     )
     .catch(err => {
-      dispatch(returnErrors(err.response.data, err.response.status));
+      console.log('')
+      // dispatch(returnErrors(err.response.data, err.response.status));
       dispatch({
         type: AUTH_ERROR
       });
