@@ -34,7 +34,7 @@ const Register = () => {
     }
 
     if (isAuthenticated) {
-      history.push('/dashbaord');
+      history.push('/');
     }
   }, [error, isAuthenticated]);
 

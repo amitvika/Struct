@@ -151,7 +151,7 @@ const AppNavbar = () => {
               </DropdownToggle>
 
               <DropdownMenu>
-                {user && user.userAccess.access.OA_1_V ? (
+                {user && user.userAccess && user.userAccess.access.OA_1_V ? (
                   <DropdownItem>
                     <RRNavLink
                       to='/access-setup'
