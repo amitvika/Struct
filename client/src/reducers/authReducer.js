@@ -2,6 +2,7 @@ import {
   USER_LOADED,
   USER_LOADING,
   AUTH_ERROR,
+  LOGIN_START,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
   LOGOUT_SUCCESS,
@@ -12,7 +13,8 @@ const initialState = {
   token: localStorage.getItem("token"),
   isAuthenticated: null,
   isLoading: false,
-  user: null
+  user: null,
+  isLoginStarted: false
 };
 
 export default function (state = initialState, action) {
@@ -30,12 +32,18 @@ export default function (state = initialState, action) {
         isLoading: false,
         user: action.payload
       };
+    case LOGIN_START:
+      return {
+        isLoginStarted: true
+      }
+
     case LOGIN_SUCCESS:
       localStorage.setItem("token", action.payload.token);
       return {
         isAuthenticated: true,
         user: action.payload.user,
-        token :action.payload.token
+        token: action.payload.token,
+        isLoginStarted: false
       }
     case REGISTER_SUCCESS:
       localStorage.setItem("token", action.payload.token);
@@ -55,7 +63,8 @@ export default function (state = initialState, action) {
         token: null,
         user: null,
         isAuthenticated: false,
-        isLoading: false
+        isLoading: false,
+        isLoginStarted: false
       };
     default: {
       return state;

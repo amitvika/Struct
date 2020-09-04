@@ -3,6 +3,7 @@ import {
   USER_LOADED,
   USER_LOADING,
   AUTH_ERROR,
+  LOGIN_START,
   LOGIN_FAIL,
   LOGIN_SUCCESS,
   LOGOUT_SUCCESS,
@@ -69,6 +70,11 @@ export const logout = () => {
 };
 
 export const login = ({ email, password }) => dispatch => {
+  
+  dispatch({
+    type: LOGIN_START
+  })
+
   //Headers
   const config = {
     headers: { "Content-type": "application/json" }

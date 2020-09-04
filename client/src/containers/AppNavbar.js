@@ -162,13 +162,16 @@ const AppNavbar = () => {
                 ) : (
                     ""
                   )}
-
-                <DropdownItem
-                  style={{ color: "black" }}
-                  onClick={() => history.push('/view-access')}>
-                  View Access
-                </DropdownItem>
-                <DropdownItem divider />
+                {
+                  user && user.userAccess && user.userAccess._id && <>
+                    <DropdownItem
+                      style={{ color: "black" }}
+                      onClick={() => history.push('/view-access')}>
+                      View Access
+                    </DropdownItem>
+                    <DropdownItem divider />
+                  </>
+                }
                 {isAuthenticated ? authLinks : guestLinks}
               </DropdownMenu>
             </UncontrolledDropdown>

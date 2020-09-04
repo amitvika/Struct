@@ -62,17 +62,8 @@ class ViewAccess extends Component {
     POA_6_V: false
   };
 
-  componentWillMount() {
-    if (this.props.auth.user == null) {
-      this.props.history.push('/');
-      return;
-    }
-  }
 
   componentDidMount() {
-    if (this.props.auth.user === null) {
-      return;
-    }
     this.retrieveUserAccessFromDb();
   }
 
