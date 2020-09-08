@@ -12,24 +12,19 @@ import {
 } from "./types";
 import { returnErrors } from "./errorActions";
 import store from "../store";
-import http from '../utils/axios';
+import { loginApi, registrationApi, loadUserApi } from '../api/auth';
 
 export const loadUser = () => (dispatch, getState) => {
   dispatch({ type: USER_LOADING }); //sets idloading to true
 
-  http
-    .get("api/auth/user", tokenConfig(getState))
+  loadUserApi()
     .then(res => {
-      console.log('---->>res', res)
       dispatch({
         type: USER_LOADED,
         payload: res.data
       })
-    }
-    )
+    })
     .catch(err => {
-      console.log('')
-      // dispatch(returnErrors(err.response.data, err.response.status));
       dispatch({
         type: AUTH_ERROR
       });
@@ -37,15 +32,9 @@ export const loadUser = () => (dispatch, getState) => {
 };
 
 //Register User
-export const register = ({ name, email, password, password2 }) => dispatch => {
-  //Headers
-  const config = {
-    headers: { "Content-type": "application/json" }
-  };
-  //Regquest body
-  const body = JSON.stringify({ name, email, password, password2 });
-  axios
-    .post("/api/users", body, config)
+export const register = (data) => dispatch => {
+
+  registrationApi(data)
     .then(res =>
       dispatch({
         type: REGISTER_SUCCESS,
@@ -69,20 +58,13 @@ export const logout = () => {
   };
 };
 
-export const login = ({ email, password }) => dispatch => {
-  
+export const login = (data) => dispatch => {
+
   dispatch({
     type: LOGIN_START
   })
 
-  //Headers
-  const config = {
-    headers: { "Content-type": "application/json" }
-  };
-  //Regquest body
-  const body = JSON.stringify({ email, password });
-  axios
-    .post("/api/auth", body, config)
+  loginApi(data)
     .then(res =>
       dispatch({
         type: LOGIN_SUCCESS,
@@ -90,7 +72,8 @@ export const login = ({ email, password }) => dispatch => {
       })
     )
     .catch(err => {
-      returnErrors(err.response.data, err.response.status, "LOGIN_FAIL");
+      console.log('---->>', err)
+      // returnErrors(err.response.data, err.response.status, "LOGIN_FAIL");
       dispatch({
         type: LOGIN_FAIL
       });
