@@ -19,3 +19,7 @@ export const GET_CLIENTS = "GET_CLIENTS";
 export const CHANGE_PAGE = "CHANGE_PAGE";
 
 export const UPDATE_USERS = "UPDATE_USERS";
+
+export const CBA_LOADING = "CBA_LOADING";
+export const CBA_SUCCESS = "CBA_SUCCESS";
+export const CBA_ERROR = "CBA_ERROR";
