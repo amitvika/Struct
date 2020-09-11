@@ -1,8 +1,7 @@
 import * as Types from "../actions/types";
 
 const initialState = {
-  accessConfig: {},
-  clients:[],
+  data: {},
   isLoading: false,
 }
 
@@ -17,8 +16,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         isLoading: false,
-        accessConfig: action.payload.accessConfig,
-        clients: action.payload.clients
+        data: action.payload
       }
 
     case Types.ACCESS_CONFIGURATION_ERROR:

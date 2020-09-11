@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { connect } from "react-redux";
 import { Spinner, Alert } from "reactstrap";
 import { tokenConfig } from "../actions/authActions";
 import store from "../store";
 import Card from "@material-ui/core/Card";
-import { changePage } from "../actions/pageActions";
 import {
   Button,
   Snackbar,
@@ -92,20 +90,26 @@ const AccessConfiguration = (props) => {
   }, []);
 
   useEffect(() => {
+    console.log('-----', data)
     if (data && !isLoading) {
-
       if (data.access == null) {
-        setLocalState({
-          userAccessLoaded: true,
-          userAccessName: data.name,
-          userAccessId: data._id
+        setLocalState(state => {
+          return {
+            ...state,
+            userAccessLoaded: true,
+            userAccessName: data.name,
+            userAccessId: data._id
+          }
         });
       } else {
-        setLocalState({
-          userAccessLoaded: true,
-          userAccessName: data.name,
-          userAccessId: data._id,
-          ...data.access
+        setLocalState(state => {
+          return {
+            ...state,
+            userAccessLoaded: true,
+            userAccessName: data.name,
+            userAccessId: data._id,
+            ...data.access
+          }
         });
       }
     }
@@ -147,6 +151,7 @@ const AccessConfiguration = (props) => {
         .then(
           setLocalState(state => {
             return {
+              ...state,
               msg: "Configurations Saved",
               snackBarAlertType: "success",
               snackBar: true
@@ -157,6 +162,7 @@ const AccessConfiguration = (props) => {
           console.log(err);
           setLocalState(state => {
             return {
+              ...state,
               msg: "Error. Configurations not saved",
               snackBarAlertType: "error",
               snackBar: true
@@ -166,6 +172,7 @@ const AccessConfiguration = (props) => {
     } else {
       setLocalState(state => {
         return {
+          ...state,
           msg: "Edit Access Denied. Configurations Not Saved",
           snackBarAlertType: "error",
           snackBar: true
@@ -182,7 +189,6 @@ const AccessConfiguration = (props) => {
       }
     });
     console.log(localState);
-    console.log(props.userAccessUsers.newUsers);
   };
 
   const retrieveClientsFromDb = access => {
@@ -260,6 +266,7 @@ const AccessConfiguration = (props) => {
   const updateClientAccessState = id => {
     setLocalState(state => {
       return {
+        ...state,
         [id]: !state[id]
       }
     });
@@ -268,6 +275,7 @@ const AccessConfiguration = (props) => {
   const handleClose = (event, reason) => {
     setLocalState(state => {
       return {
+        ...state,
         snackBar: !state.snackBar
       }
     });
@@ -278,11 +286,11 @@ const AccessConfiguration = (props) => {
       <Snackbar
         open={localState.snackBar}
         autoHideDuration={10000}
-        onClose={this.handleClose}
+        onClose={handleClose}
       >
         <MuiAlert
           severity={localState.snackBarAlertType}
-          onClose={this.handleClose}
+          onClose={handleClose}
         >
           {localState.msg}
         </MuiAlert>
@@ -298,12 +306,7 @@ const AccessConfiguration = (props) => {
               }}
             >
               <Link
-                onClick={this.onPageChangeClick.bind(
-                  this,
-                  "OpsNav",
-                  "AccessSetup",
-                  0
-                )}
+                to={`/access-setup`}
                 href="#"
               >
                 Access Setup
@@ -351,6 +354,7 @@ const AccessConfiguration = (props) => {
           />
           <div className="mb-2"> </div>
           <ClientBasedAccess
+            userAccessLoaded={localState.userAccessLoaded}
             access={localState}
             updateAccessState={updateAccessState}
           />
