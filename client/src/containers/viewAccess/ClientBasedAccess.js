@@ -4,7 +4,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import InfoIcon from "@material-ui/icons/Info";
 import { Spinner } from "reactstrap";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchClientAction } from '../../actions/accessActions.action';
+import { fetchClientAction } from '../../actions/viewAccess.action';
 
 export default function ClientBasedAccess({ userAccessLoaded, access }) {
   const dispatch = useDispatch();

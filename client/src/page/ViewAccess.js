@@ -8,9 +8,9 @@ import { changePage } from "../actions/pageActions";
 import Checkbox from "@material-ui/core/Checkbox";
 import InfoIcon from "@material-ui/icons/Info";
 import CardContent from "@material-ui/core/CardContent";
-import OperationAccess from "../containers/access/OperationAccess";
-import ClientObjectAccess from "../containers/access/ClientObjectAccess";
-import ClientBasedAccess from "../containers/access/ClientBasedAccess";
+import OperationAccess from "../containers/viewAccess/OperationAccess";
+import ClientObjectAccess from "../containers/viewAccess/ClientObjectAccess";
+import ClientBasedAccess from "../containers/viewAccess/ClientBasedAccess";
 
 class ViewAccess extends Component {
   state = {

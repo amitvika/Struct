@@ -107,9 +107,7 @@ class AccessSetup extends Component {
               exportButton: true,
               exportFileName: "UserAccessTypes"
             }}
-            onRowClick={(rowdata, event) => {
-              this.onPageChangeClick("OpsNav", "AccessConfiguration", event.id);
-            }}
+            onRowClick={(rowdata, event) => this.props.history.push(`/access-configuration/${event.id}`)}
             components={{
               Toolbar: props => (
                 <div>
