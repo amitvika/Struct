@@ -19,3 +19,9 @@
   opacity: 0.01;
   transition: opacity 500ms ease-in;
 }
+
+.UserLoading__Progress{
+  position: fixed;
+    left: 50%;
+    top: 40%;
+}

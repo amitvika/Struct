@@ -6,6 +6,7 @@ import {
   Label,
   Input,
   Alert,
+  Spinner
 } from "reactstrap";
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from "../actions/authActions";
@@ -19,7 +20,7 @@ const LoginModal = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [msg, setMsg] = useState(null);
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const { isAuthenticated, isLoginStarted } = useSelector(state => state.auth);
   const error = useSelector(state => state.error);
 
   useEffect(() => {
@@ -84,6 +85,7 @@ const LoginModal = () => {
 
             </FormGroup>
           </Form>
+          {isLoginStarted && <Spinner color="primary" />}
           <NavLink to='/register'> Go to Registration Page </NavLink>
         </CardContent>
       </Card>

@@ -6,6 +6,7 @@ export const ITEMS_LOADING = "ITEMS_LOADING";
 export const USER_LOADING = "USER_LOADING";
 export const USER_LOADED = "USER_LOADED";
 export const AUTH_ERROR = "AUTH_ERROR";
+export const LOGIN_START = "LOGIN_START";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_FAIL = "LOGIN_FAIL";
 export const LOGOUT_SUCCESS = "LOGOUT_SUCCESS";
@@ -18,3 +19,7 @@ export const GET_CLIENTS = "GET_CLIENTS";
 export const CHANGE_PAGE = "CHANGE_PAGE";
 
 export const UPDATE_USERS = "UPDATE_USERS";
+
+export const CBA_LOADING = "CBA_LOADING";
+export const CBA_SUCCESS = "CBA_SUCCESS";
+export const CBA_ERROR = "CBA_ERROR";

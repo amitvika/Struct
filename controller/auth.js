@@ -1,14 +1,43 @@
-const express = require("express");
-const router = express.Router();
 const bcrypt = require("bcryptjs");
 const config = require("config");
 const jwt = require("jsonwebtoken");
-const User = require("../../models/User");
+const User = require("@model/User");
 
-router.get("/", (req, res) => res.send("login"));
+exports.login = (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ msg: "Please enter all fields" });
+  }
+  User.findOne({ email })
+    .populate("userAccess")
+    .then(user => {
+      if (!user) {
+        return res.status(400).json({ msg: "User not found" });
+      }
+      bcrypt.compare(password, user.password).then(isMatch => {
+        // if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
+        jwt.sign(
+          { id: user.id },
+          config.get("JWTSecret"),
+          { expiresIn: 3600 },
+          (err, token) => {
+            if (err) throw err;
+            res.json({
+              token,
+              user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                userAccess: user.userAccess
+              }
+            });
+          }
+        );
+      });
+    });
+}
 
-//handle the login
-router.post("/", (req, res, next) => {
+exports.register = (req, res) => {
   const { name, email, password, password2 } = req.body;
   if (!name || !email || !password || !password2) {
     return res.status(400).json({ msg: "Please enter all fields" });
@@ -61,6 +90,4 @@ router.post("/", (req, res, next) => {
       })
     );
   });
-});
-
-module.exports = router;
+}

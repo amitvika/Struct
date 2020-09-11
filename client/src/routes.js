@@ -5,6 +5,7 @@ import {
   Route,
   Redirect
 } from "react-router-dom";
+import { Spinner } from "reactstrap";
 import { useSelector } from 'react-redux';
 import AppRoute from './AppRoute';
 import Layout from './containers/Layout';
@@ -28,7 +29,13 @@ import VendorDetail from "./page/VendorDetail";
 import ItemDetail from "./page/ItemDetail";
 
 export default function AppRoutes() {
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const isUserLoading = useSelector(state => state.auth.isLoading);
+
+  if (isUserLoading) {
+    return <Spinner
+      className='UserLoading__Progress'
+      animation="border" />
+  }
   return (
     <Router>
       <div>

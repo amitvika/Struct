@@ -7,8 +7,11 @@ import Card from "@material-ui/core/Card";
 import { changePage } from "../actions/pageActions";
 import Checkbox from "@material-ui/core/Checkbox";
 import InfoIcon from "@material-ui/icons/Info";
-
 import CardContent from "@material-ui/core/CardContent";
+import OperationAccess from "../containers/access/OperationAccess";
+import ClientObjectAccess from "../containers/access/ClientObjectAccess";
+import ClientBasedAccess from "../containers/access/ClientBasedAccess";
+
 class ViewAccess extends Component {
   state = {
     modal: false,
@@ -62,24 +65,16 @@ class ViewAccess extends Component {
     POA_6_V: false
   };
 
-  componentWillMount() {
-    if (this.props.auth.user == null) {
-      this.props.history.push('/');
-      return;
-    }
-  }
 
   componentDidMount() {
-    if (this.props.auth.user === null) {
-      return;
-    }
-    this.retrieveUserAccessFromDb();
+    // this.retrieveUserAccessFromDb();
   }
 
   retrieveUserAccessFromDb = () => {
     this.setState(state => ({
       userAccessLoaded: false
     }));
+    console.log('----this.props.auth.user', this.props.auth.user)
     axios
       .get(
         `/api/userAccessConfigurations/${this.props.auth.user.userAccess._id}`
@@ -87,15 +82,12 @@ class ViewAccess extends Component {
       .then(res => {
         //console.log(res.data._id);
         if (res.data.access == null) {
-          this.retrieveClientsFromDb(res.data.access);
           this.setState(state => ({
             userAccessLoaded: true,
             userAccessName: res.data.name,
             userAccessId: res.data._id
           }));
         } else {
-          this.retrieveClientsFromDb(res.data.access);
-
           this.setState(state => ({
             userAccessLoaded: true,
             userAccessName: res.data.name,
@@ -232,175 +224,18 @@ class ViewAccess extends Component {
               </CardContent>
             </Card>
 
-            <MaterialTable
-              columns={[
-                { title: "Description", field: "desc" },
-                { title: "Add/Edit/Delete Access", field: "edit" },
-                { title: "View Access", field: "view" }
-              ]}
-              options={{
-                search: false,
-                pageSize: 3,
-                paging: false
-              }}
-              data={[
-                {
-                  desc: (
-                    <div title="Allows access to Process Group objects created by self and users">
-                      <InfoIcon />
-                      User Access
-                    </div>
-                  ),
-                  edit: (
-                    <Checkbox
-                      //checked={true}
-                      color="primary"
-                      name="OA_1_E"
-                      checked={this.state.OA_1_E}
-                    />
-                  ),
-                  view: (
-                    <Checkbox
-                      color="primary"
-                      name="OA_1_V"
-                      checked={this.state.OA_1_V}
-                    />
-                  )
-                },
-                {
-                  desc: (
-                    <div title="Allows access to Process Group object details created by self and users">
-                      <InfoIcon />
-                      Configuration History
-                    </div>
-                  ),
-                  edit: (
-                    <div></div>
-                    /*<Checkbox
-                      color="primary"
-                      name="OA_2_E"
-                      checked={this.state.OA_2_E}
-                      
-                    />*/
-                  ),
-                  view: (
-                    <Checkbox
-                      color="primary"
-                      name="OA_2_V"
-                      checked={this.state.OA_2_V}
-                    />
-                  )
-                }
-              ]}
-              title={<h5>Operations Access</h5>}
+            <OperationAccess
+              access={this.state}
             />
+
             <div className="mb-2"> </div>
-            <MaterialTable
-              columns={[
-                { title: "Client", field: "client" },
-                { title: "Client Id", field: "clientId" },
-                { title: "Allow Access", field: "allow" }
-              ]}
-              data={this.state.rowData1}
-              options={{
-                search: false,
-                pageSize: 15,
-                pageSizeOptions: [15, 50, 100],
-                paging: false
-              }}
-              title={
-                <h5 title="This configuration determines user access to all the below configurations for each client in this table">
-                  <InfoIcon /> Client Based Access
-                </h5>
-              }
+            <ClientBasedAccess
+              userAccessLoaded={this.state.userAccessLoaded}
+              access={this.state}
             />
             <div className="mb-2"></div>
-            <MaterialTable
-              columns={[
-                { title: "Description", field: "desc" },
-                { title: "Add/Edit/Delete Access", field: "edit" },
-                { title: "View Access", field: "view" }
-              ]}
-              options={{
-                search: false,
-                pageSize: 2,
-                paging: false
-              }}
-              data={[
-                {
-                  desc: (
-                    <div title="Allows access to Client objects created by self and users">
-                      <InfoIcon />
-                      Clients
-                    </div>
-                  ),
-                  edit: (
-                    <Checkbox
-                      //checked={true}
-                      color="primary"
-                      name="COA_1_E"
-                      checked={this.state.COA_1_E}
-                    />
-                  ),
-                  view: (
-                    <Checkbox
-                      //checked={true}
-                      color="primary"
-                      name="COA_1_V"
-                      checked={this.state.COA_1_V}
-                    />
-                  )
-                },
-                {
-                  desc: (
-                    <div title="Allows access to Client object details created by self and users">
-                      <InfoIcon />
-                      Client Details
-                    </div>
-                  ),
-                  edit: (
-                    <Checkbox
-                      //checked={true}
-                      color="primary"
-                      name="COA_2_E"
-                      checked={this.state.COA_2_E}
-                    />
-                  ),
-                  view: (
-                    <Checkbox
-                      //checked={true}
-                      color="primary"
-                      name="COA_2_V"
-                      checked={this.state.COA_2_V}
-                    />
-                  )
-                },
-                {
-                  desc: (
-                    <div title="Allows access to Client objects and Client details if it is created by self regardless of above Client object and Client detail configurations">
-                      <InfoIcon />
-                      Self Created Clients and Details
-                    </div>
-                  ),
-                  edit: (
-                    <Checkbox
-                      //checked={true}
-                      color="primary"
-                      name="COA_3_E"
-                      checked={this.state.COA_3_E}
-                    />
-                  ),
-                  view: (
-                    <Checkbox
-                      //checked={true}
-                      color="primary"
-                      name="COA_3_V"
-                      checked={this.state.COA_3_V}
-                    />
-                  )
-                }
-              ]}
-              title={<h5>Client Object Access</h5>}
+            <ClientObjectAccess
+              access={this.state}
             />
 
             <div className="mb-2"> </div>

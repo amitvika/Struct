@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const UserAccessType = require("../../models/UserAccessType");
 const ChangeTracking = require("../../models/ChangeTracking");
-const auth = require("../../middleware/auth");
+const auth = require("@middleware/auth");
 
 router.put("/:id", auth, (req, res) => {
   const saveObject = {
@@ -25,7 +25,7 @@ router.put("/:id", auth, (req, res) => {
     .catch(err => res.status(404).json({ success: false }));
 });
 
-router.get("/:id", (req, res) => {
+router.get("/", auth, (req, res) => {
   UserAccessType.findById(req.params.id)
     .sort({ date: -1 }) //sorts descending
     .then(clients => {

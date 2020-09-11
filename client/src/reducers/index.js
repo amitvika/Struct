@@ -5,6 +5,7 @@ import authReducer from "./authReducer";
 import pagesReducer from "./pageReducer";
 import userAccessUserReducer from "./userAccessUserReducer";
 import loading from './loading';
+import accessReducer from './accessReducer';
 //import clientReducer from "./clientReducer";
 export default combineReducers({
   item: itemReducer,
@@ -12,6 +13,7 @@ export default combineReducers({
   auth: authReducer,
   page: pagesReducer,
   userAccessUsers: userAccessUserReducer,
-  loading
+  loading,
+  access: accessReducer
   //all reducers go in this file object
 });

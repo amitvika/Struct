@@ -1,15 +1,14 @@
-import axios from 'axios';
-import store from '../store';
+import axios from '../utils/axios';
 
-export const request = async (server_url, path, data, method) => {
-  console.log('---->>>>', store.auth.token)
+export const request = async (path, data, method) => {
+  const token = localStorage.getItem("token");
 
   return axios({
     method,
-    url: `${server_url}${path}`,
+    url: `${path}`,
     headers: {
       'Content-Type': 'application/json',
-      'x-auth-token': store.auth.token
+      'x-auth-token': token
     },
     data
   });
