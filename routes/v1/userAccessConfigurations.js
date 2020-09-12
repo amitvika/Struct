@@ -25,7 +25,7 @@ router.put("/:id", auth, (req, res) => {
     .catch(err => res.status(404).json({ success: false }));
 });
 
-router.get("/", auth, (req, res) => {
+router.get("/:id", auth, (req, res) => {
   UserAccessType.findById(req.params.id)
     .sort({ date: -1 }) //sorts descending
     .then(clients => {

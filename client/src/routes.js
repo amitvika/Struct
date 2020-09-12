@@ -65,7 +65,7 @@ export default function AppRoutes() {
 
               <AppRoute authenticate path='/access-setup' component={AccessSetup} />
               <AppRoute authenticate path='/configuration-history' component={ConfigurationHistory} />
-              <AppRoute authenticate path='/access-configuration' component={AccessConfiguration} />
+              <AppRoute authenticate path='/access-configuration/:id' component={AccessConfiguration} />
               <AppRoute authenticate path='/view-access' component={ViewAccess} />
             </Switch>
           </Layout>
