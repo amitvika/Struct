@@ -5,7 +5,7 @@ export const request = async (path, data, method) => {
 
   return axios({
     method,
-    url: `http://localhost:3000/${path}`,
+    url: `http://localhost:3000${path}`,
     headers: {
       'Content-Type': 'application/json',
       'x-auth-token': token

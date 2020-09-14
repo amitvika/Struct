@@ -1,14 +1,13 @@
-import axios from "axios";
-import MaterialTable, { MTableToolbar } from "material-table";
 import React, { Component } from "react";
+import MaterialTable, { MTableToolbar } from "material-table";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
-import { tokenConfig } from "../actions/authActions";
-import store from "../store";
 import { changePage } from "../actions/pageActions";
 import Checkbox from "@material-ui/core/Checkbox";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
+import API from '../api/productDesign.api';
+import { fetchClientsApi } from '../api/clients.api';
 
 class ProductDesign extends Component {
   state = {
@@ -44,87 +43,87 @@ class ProductDesign extends Component {
   }
 
   retrieveFromDb = () => {
-    // if (
-    //   this.props.auth.user.userAccess.access.PGOA_1_V || /////
-    //   this.props.auth.user.userAccess.access.PGOA_3_V
-    // ) {
-      this.setState(state => ({
-        tableLoaded: false,
-        rowData: state.rowData
-      }));
-      axios
-        .get("/api/processGroups")
-        .then(res => {
-          var rowData;
-          if (!this.state.showDeletes) {
-            rowData = res.data
-            // .filter((x, index) => {
-            //   return x.deletedAt == null;
-            // });
-            // rowData = rowData
-            // .filter((x, index) => {
-            //   return (
-            //     //client access filter
-            //     this.props.auth.user.userAccess.access[x.client._id] ||
-            //     (this.props.auth.user.userAccess.access.PGOA_3_V &&
-            //       this.props.auth.user._id === x.createdBy._id)
-            //   );
-            // });
-            console.log(rowData);
-            rowData = rowData.map((x, index) => {
-              return {
-                id: x._id,
-                name: x.name,
-                client: x.client._id,
-                created_by: x.createdBy.name,
-                deleted_at: x.deletedAt
-              };
-            });
-          } else {
-            rowData = res.data
-            // .filter((x, index) => {
-            //   return this.props.auth.user.userAccess.access[x.client._id];
-            // });
-            rowData = rowData.map((x, index) => {
-              return {
-                id: x._id,
-                name: x.name,
-                client: x.client._id,
-                created_by: x.createdBy.name,
-                deleted_at: x.deletedAt
-              };
-            });
-          }
 
-          //this.retrieveClientDropDownFromDb();
-          this.setState(state => ({
-            rowData,
-            tableLoaded: true
-          }));
-        })
-        .catch(err => console.log(err));
-    // } else {
-    //   this.setState(state => ({
-    //     tableLoaded: true
-    //   }));
-    // }
+    this.setState(state => ({
+      tableLoaded: false,
+      rowData: state.rowData
+    }));
+    API.getProductDesignApi()
+      .then(res => {
+        var rowData;
+        if (!this.state.showDeletes) {
+          rowData = res.data
+          // .filter((x, index) => {
+          //   return x.deletedAt == null;
+          // });
+          // rowData = rowData
+          // .filter((x, index) => {
+          //   return (
+          //     //client access filter
+          //     this.props.auth.user.userAccess.access[x.client._id] ||
+          //     (this.props.auth.user.userAccess.access.PGOA_3_V &&
+          //       this.props.auth.user._id === x.createdBy._id)
+          //   );
+          // });
+          console.log(rowData);
+          rowData = rowData.map((x, index) => {
+            return {
+              id: x._id,
+              name: x.name,
+              client: x.client._id,
+              created_by: x.createdBy.name,
+              deleted_at: x.deletedAt
+            };
+          });
+        } else {
+          rowData = res.data
+          // .filter((x, index) => {
+          //   return this.props.auth.user.userAccess.access[x.client._id];
+          // });
+          rowData = rowData.map((x, index) => {
+            return {
+              id: x._id,
+              name: x.name,
+              client: x.client._id,
+              created_by: x.createdBy.name,
+              deleted_at: x.deletedAt
+            };
+          });
+        }
+
+        //this.retrieveClientDropDownFromDb();
+        this.setState(state => ({
+          rowData,
+          tableLoaded: true
+        }));
+      })
+      .catch(err => {
+        console.log(err)
+        if (err.response && err.response.data) {
+          this.setState({
+            msg: err.response.data.message,
+            snackBarAlertType: "error",
+            snackBar: true
+          });
+        }
+      });
   };
 
   retrieveClientDropDownFromDb = () => {
     this.setState(state => ({
       tableLoaded: false
     }));
-    axios
-      .get("/api/clients")
+    fetchClientsApi()
       .then(res => {
-        var rowData = res.data.filter((x, index) => {
-          return (
-            (this.props.auth.user.userAccess.access[x._id] ||
-              (this.props.auth.user.userAccess.access.COA_3_V &&
-                this.props.auth.user._id === x.createdByUserId._id)) &&
-            x.deletedAt == null
-          );
-        });
+        var rowData = res.data
+        // .filter((x, index) => {
+        //   return (
+        //     (this.props.auth.user.userAccess.access[x._id] ||
+        //       (this.props.auth.user.userAccess.access.COA_3_V &&
+        //         this.props.auth.user._id === x.createdByUserId._id)) &&
+        //     x.deletedAt == null
+        //   );
+        // });
 
         var clientDropDownData = {};
         rowData.forEach(x => {
@@ -172,6 +171,48 @@ class ProductDesign extends Component {
     );
   };
 
+  addProductDesign = (newData) => {
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        {
+          const newProcessGroup = {
+            name: newData.name,
+            client: newData.client,
+            user: this.props.auth.isAuthenticated
+              ? this.props.auth.user._id
+              : "Guest"
+          }; //
+
+          API.addProductDesignApi(newProcessGroup)
+            .then(res => {
+              console.log(res.data);
+              this.retrieveFromDb();
+            })
+            .catch(err => {
+              console.log(err.data)
+              this.setState({
+                msg:
+                  "Edit Access Not Authorized for User. Configurations Not Saved",
+                snackBarAlertType: "error",
+                snackBar: true
+              });
+
+            });
+
+        }
+        resolve();
+      }, 10);
+    })
+  }
+
+  updateRowHandler() {
+
+  }
+
+  deleteRowHandler() {
+
+  }
+
   render() {
     const { user } = this.props.auth;
     return (
@@ -212,8 +253,8 @@ class ProductDesign extends Component {
                         onChange={this.showDeletes}
                       />
                     ) : (
-                      <Checkbox value="top" onChange={this.showDeletes} />
-                    )}
+                        <Checkbox value="top" onChange={this.showDeletes} />
+                      )}
                     {""}
                     Show Deletions
                   </div>
@@ -221,77 +262,33 @@ class ProductDesign extends Component {
               )
             }}
             editable={{
-              onRowAdd: newData =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    {
-                      const newProcessGroup = {
-                        name: newData.name,
-                        client: newData.client,
-                        user: this.props.auth.isAuthenticated
-                          ? this.props.auth.user._id
-                          : "Guest"
-                      }; //
-                      if (
-                        this.props.auth.user.userAccess.access.PGOA_1_E ||
-                        this.props.auth.user.userAccess.access.PGOA_3_E
-                      ) {
-                        axios
-                          .post(
-                            "/api/processgroups",
-                            newProcessGroup,
-                            tokenConfig(store.getState),
-                            { data: { user: this.props.auth.user._id } }
-                          )
-                          .then(res => {
-                            console.log(res.data);
-                            this.retrieveFromDb();
-                          })
-                          .catch(err => console.log(err.data));
-                      } else {
-                        this.setState({
-                          msg:
-                            "Edit Access Not Authorized for User. Configurations Not Saved",
-                          snackBarAlertType: "error",
-                          snackBar: true
-                        });
-                      }
-                    }
-                    resolve();
-                  }, 10);
-                }),
+              onRowAdd: newData => this.addProductDesign(newData),
               onRowUpdate: (newData, oldData) =>
                 new Promise((resolve, reject) => {
                   setTimeout(() => {
                     {
-                      if (
-                        this.props.auth.user.userAccess.access.PGOA_1_E ||
-                        this.props.auth.user.userAccess.access.PGOA_3_E
-                      ) {
-                        console.log(newData.client);
-                        axios
-                          .put(
-                            `/api/processgroups/${newData.id}`,
-                            {
-                              name: newData.name,
-                              user: user._id,
-                              client: newData.client
-                            },
-                            tokenConfig(store.getState)
-                          )
-                          .then(res => {
-                            console.log(res.data);
-                            this.retrieveFromDb();
-                          })
-                          .catch(err => console.log(err.data));
-                      } else {
-                        this.setState({
-                          msg:
-                            "Edit Access Not Authorized for User. Configurations Not Saved",
-                          snackBarAlertType: "error",
-                          snackBar: true
-                        });
+                      console.log(newData.client);
+                      const data = {
+                        name: newData.name,
+                        user: user._id,
+                        client: newData.client
                       }
+
+                      API.updateProductDesignApi(newData.id, data)
+                        .then(res => {
+                          console.log(res.data);
+                          this.retrieveFromDb();
+                        })
+                        .catch(err => {
+                          console.log(err.data);
+                          this.setState({
+                            msg:
+                              "Edit Access Not Authorized for User. Configurations Not Saved",
+                            snackBarAlertType: "error",
+                            snackBar: true
+                          });
+                        });
+
                     }
                     resolve();
                   }, 1000);
@@ -300,51 +297,37 @@ class ProductDesign extends Component {
                 new Promise((resolve, reject) => {
                   setTimeout(() => {
                     {
-                      if (
-                        this.props.auth.user.userAccess.access.PGOA_1_E ||
-                        this.props.auth.user.userAccess.access.PGOA_3_E
-                      ) {
-                        axios
-                          .delete(
-                            `/api/processgroups/${oldData.id}`,
-                            tokenConfig(store.getState),
-                            {
-                              data: {
-                                user: this.props.auth.user._id,
-                                client: oldData.client
-                              }
-                            }
-                          )
-                          .then(res => {
-                            console.log(res.data);
-                            this.retrieveFromDb();
-                          })
-                          .catch(err => console.log(err.data));
-                      } else {
-                        this.setState({
-                          msg:
-                            "Edit Access Not Authorized for User. Configurations Not Saved",
-                          snackBarAlertType: "error",
-                          snackBar: true
-                        });
-                      }
+                      API.deleteProductDesignApi(oldData.id)
+                        .then(res => {
+                          console.log(res.data);
+                          this.retrieveFromDb();
+                        })
+                        .catch(err => {
+                          console.log(err)
+                          this.setState({
+                            msg: err.message,
+                            snackBarAlertType: "error",
+                            snackBar: true
+                          });
+                        }
+                        );
                     }
                     resolve();
                   }, 1000);
                 })
             }}
-            //////
+          //////
           />
         ) : (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center"
-            }}
-          >
-            <Spinner animation="border" />
-          </div>
-        )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center"
+              }}
+            >
+              <Spinner animation="border" />
+            </div>
+          )}
       </div>
     );
   }
