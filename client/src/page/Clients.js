@@ -9,6 +9,7 @@ import { changePage } from "../actions/pageActions";
 import Checkbox from "@material-ui/core/Checkbox";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
+import API from '../api/clients.api';
 
 class Clients extends Component {
   state = {
@@ -37,16 +38,13 @@ class Clients extends Component {
   }
 
   retrieveFromDb = () => {
-    // if (
-    //   this.props.auth.user.userAccess.access.COA_1_V ||
-    //   this.props.auth.user.userAccess.access.COA_3_V
-    // ) {
+
     this.setState(state => ({
       tableLoaded: false,
       rowData: state.rowData
     }));
-    axios
-      .get("/api/clients")
+
+    API.fetchClientsApi()
       .then(res => {
         var rowData;
         if (!this.state.showDeletes) {
@@ -90,7 +88,10 @@ class Clients extends Component {
           rowData
         }));
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err)
+        this.alertForError(err);
+      });
     // } else {
     //   this.setState(state => ({
     //     tableLoaded: true
@@ -127,6 +128,17 @@ class Clients extends Component {
       () => this.retrieveFromDb()
     );
   };
+
+  alertForError = (err) => {
+    if (err.response && err.response.data) {
+      this.setState({
+        msg: err.response.data.message,
+        snackBarAlertType: "error",
+        snackBar: true,
+        tableLoaded: true
+      });
+    }
+  }
 
   render() {
     const { user } = this.props.auth;
@@ -187,30 +199,18 @@ class Clients extends Component {
                           ? this.props.auth.user._id
                           : "Guest"
                       }; //
-                      if (
-                        this.props.auth.user.userAccess.access.COA_1_E ||
-                        this.props.auth.user.userAccess.access.COA_3_E
-                      ) {
-                        axios
-                          .post(
-                            "/api/clients",
-                            newClient,
-                            tokenConfig(store.getState),
-                            { data: { user: this.props.auth.user._id } }
-                          )
-                          .then(res => {
-                            console.log(res.data);
-                            this.retrieveFromDb();
-                          })
-                          .catch(err => console.log(err.data));
-                      } else {
-                        this.setState({
-                          msg:
-                            "Edit Access Not Authorized for User. Configurations Not Saved",
-                          snackBarAlertType: "error",
-                          snackBar: true
+
+                      API.addClientApi(newClient)
+                        .then(res => {
+                          console.log(res.data);
+                          this.retrieveFromDb();
+                        })
+                        .catch(err => {
+                          console.log(err.data)
+                          this.alertForError(err)
                         });
-                      }
+
+
                     }
                     resolve();
                   }, 10);
@@ -219,29 +219,16 @@ class Clients extends Component {
                 new Promise((resolve, reject) => {
                   setTimeout(() => {
                     {
-                      if (
-                        this.props.auth.user.userAccess.access.COA_1_E ||
-                        this.props.auth.user.userAccess.access.COA_3_E
-                      ) {
-                        axios
-                          .put(
-                            `/api/clients/${newData.id}`,
-                            { name: newData.name, user: user._id },
-                            tokenConfig(store.getState)
-                          )
-                          .then(res => {
-                            console.log(res.data);
-                            this.retrieveFromDb();
-                          })
-                          .catch(err => console.log(err.data));
-                      } else {
-                        this.setState({
-                          msg:
-                            "Edit Access Not Authorized for User. Configurations Not Saved",
-                          snackBarAlertType: "error",
-                          snackBar: true
+
+                      API.updateClientApi(newData.id, { name: newData.name, user: user._id })
+                        .then(res => {
+                          console.log(res.data);
+                          this.retrieveFromDb();
+                        })
+                        .catch(err => {
+                          console.log(err.data)
+                          this.alertForError(err)
                         });
-                      }
                     }
                     resolve();
                   }, 1000);
@@ -250,28 +237,16 @@ class Clients extends Component {
                 new Promise((resolve, reject) => {
                   setTimeout(() => {
                     {
-                      if (
-                        this.props.auth.user.userAccess.access.COA_1_E ||
-                        this.props.auth.user.userAccess.access.COA_3_E
-                      ) {
-                        axios
-                          .delete(
-                            `/api/clients/${oldData.id}`,
-                            tokenConfig(store.getState)
-                          )
-                          .then(res => {
-                            console.log(res.data);
-                            this.retrieveFromDb();
-                          })
-                          .catch(err => console.log(err.data));
-                      } else {
-                        this.setState({
-                          msg:
-                            "Edit Access Not Authorized for User. Configurations Not Saved",
-                          snackBarAlertType: "error",
-                          snackBar: true
+                      API.deleteClientApi(oldData.id)
+                        .then(res => {
+                          console.log(res.data);
+                          this.retrieveFromDb();
+                        })
+                        .catch(err => {
+                          console.log(err.data)
+                          this.alertForError(err);
                         });
-                      }
+
                     }
                     resolve();
                   }, 1000);

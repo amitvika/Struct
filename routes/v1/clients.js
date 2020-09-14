@@ -3,17 +3,35 @@ const router = express.Router();
 const Client = require("../../models/Client");
 const ChangeTracking = require("../../models/ChangeTracking");
 const auth = require("../../middleware/auth");
+const checkAccess = require('../../middleware/checkAccess');
+const { hasPermissionForClientView, hasPermissionForClientEdit } = require('../../middleware/hasPermission')
 
-router.get("/", (req, res) => {
-  Client.find()
-    .populate("createdByUserId", "name")
-    .sort({ date: -1 }) //sorts descending
-    .then(clients => {
-      res.json(clients);
-    });
-});
+router.use(auth);
+router.use(checkAccess);
 
-router.post("/", auth, (req, res) => {
+router.get("/",
+  hasPermissionForClientView,
+  (req, res) => {
+    let query = { $and: [] };
+    query.$and.push({ createdByUserId: req.user.id });
+    query.$and.push({
+      "deletedAt": { "$exists": false }
+    })
+
+    if (req.permisibleIds.length > 0) {
+      query.$and.push({ _id: { $in: req.permisibleIds } })
+    }
+
+    Client.find(query)
+      .populate("createdByUserId", "name")
+      .sort({ date: -1 }) //sorts descending
+      .then(clients => {
+        res.json(clients);
+      });
+
+  });
+
+router.post("/", hasPermissionForClientEdit, (req, res) => {
   const saveObject = {
     name: req.body.name,
     createdByUserId: req.body.userId
@@ -37,12 +55,12 @@ router.post("/", auth, (req, res) => {
     .catch(error => console.log(error));
 });
 
-router.delete("/:id", auth, (req, res) => {
+router.delete("/:id", hasPermissionForClientEdit, (req, res) => {
   /* Client.findByIdAndRemove(req.params.id)
     .then(() => res.json({ success: true }))
     .catch(err => res.status(404).json({ success: false }));*/
 
-  Client.findById(req.params.id, "deletedAt", function(err, client) {
+  Client.findById(req.params.id, "deletedAt", function (err, client) {
     console.log(client);
     if (client.deletedAt == null) {
       const saveObject = {

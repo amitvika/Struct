@@ -6,7 +6,7 @@ async function checkAccess(req, res, next) {
   const user = await UserModel
     .findOne({ _is: req.user._id })
     .populate("userAccess");
-// console.log('----', user)
+  console.log('----', user)
   if (user && user.userAccess) {
     req.access = user.userAccess.access
     next();
