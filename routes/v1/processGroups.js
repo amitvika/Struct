@@ -12,7 +12,7 @@ router.use(checkAccess);
 router.get("/",
   hasPermissionForPGView,
   (req, res) => {
-    ProcessGroup.find()
+    ProcessGroup.find({ "deletedAt": { "$exists": false } })
       .populate("createdBy", "name")
       .populate("client")
       .sort({ date: -1 }) //sorts descending
@@ -26,7 +26,7 @@ router.post("/",
   (req, res) => {
     const saveObject = {
       name: req.body.name,
-      createdBy: req.body.user,
+      createdBy: req.user.id,
       client: req.body.client
     };
     const newProcessGroup = new ProcessGroup(saveObject);
@@ -64,12 +64,12 @@ router.delete("/:id",
         ProcessGroup.findByIdAndUpdate(req.params.id, saveObject)
           .then(() => {
             const changeTracking = new ChangeTracking({
-              client: req.body.client,
+              client: saveObject.client,
               update: saveObject,
               model: "ProcessGroup",
               updateType: "Delete",
               updatedObject: req.params.id,
-              updatedBy: req.body.user
+              updatedBy: req.user.id
             });
             changeTracking.save().catch(error => console.log(error));
 
@@ -84,12 +84,12 @@ router.delete("/:id",
           .then(() => {
             console.log(req.body);
             const changeTracking = new ChangeTracking({
-              client: req.body.client,
+              client: saveObject.client,
               update: saveObject,
               model: "ProcessGroup",
               updateType: "Un-Delete",
               updatedObject: req.params.id,
-              updatedBy: req.body.user
+              updatedBy: req.user.id
             });
             changeTracking.save().catch(error => console.log(error));
 
@@ -115,7 +115,7 @@ router.put("/:id",
           model: "ProcessGroup",
           updateType: "Update",
           updatedObject: req.params.id,
-          updatedBy: req.body.user
+          updatedBy: req.user.id
         });
         changeTracking.save().catch(error => console.log(error));
 

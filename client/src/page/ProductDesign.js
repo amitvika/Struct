@@ -98,16 +98,21 @@ class ProductDesign extends Component {
         }));
       })
       .catch(err => {
+        this.alertForError(err)
         console.log(err)
-        if (err.response && err.response.data) {
-          this.setState({
-            msg: err.response.data.message,
-            snackBarAlertType: "error",
-            snackBar: true
-          });
-        }
+
       });
   };
+
+  alertForError = (err) => {
+    if (err.response && err.response.data) {
+      this.setState({
+        msg: err.response.data.message,
+        snackBarAlertType: "error",
+        snackBar: true
+      });
+    }
+  }
 
   retrieveClientDropDownFromDb = () => {
     this.setState(state => ({
@@ -171,48 +176,6 @@ class ProductDesign extends Component {
     );
   };
 
-  addProductDesign = (newData) => {
-    new Promise((resolve, reject) => {
-      setTimeout(() => {
-        {
-          const newProcessGroup = {
-            name: newData.name,
-            client: newData.client,
-            user: this.props.auth.isAuthenticated
-              ? this.props.auth.user._id
-              : "Guest"
-          }; //
-
-          API.addProductDesignApi(newProcessGroup)
-            .then(res => {
-              console.log(res.data);
-              this.retrieveFromDb();
-            })
-            .catch(err => {
-              console.log(err.data)
-              this.setState({
-                msg:
-                  "Edit Access Not Authorized for User. Configurations Not Saved",
-                snackBarAlertType: "error",
-                snackBar: true
-              });
-
-            });
-
-        }
-        resolve();
-      }, 10);
-    })
-  }
-
-  updateRowHandler() {
-
-  }
-
-  deleteRowHandler() {
-
-  }
-
   render() {
     const { user } = this.props.auth;
     return (
@@ -262,7 +225,32 @@ class ProductDesign extends Component {
               )
             }}
             editable={{
-              onRowAdd: newData => this.addProductDesign(newData),
+              onRowAdd: newData =>
+                new Promise((resolve, reject) => {
+                  setTimeout(() => {
+                    {
+                      const newProcessGroup = {
+                        name: newData.name,
+                        client: newData.client,
+                        user: this.props.auth.isAuthenticated
+                          ? this.props.auth.user._id
+                          : "Guest"
+                      }; //
+
+                      API.addProductDesignApi(newProcessGroup)
+                        .then(res => {
+                          console.log(res.data);
+                          this.retrieveFromDb();
+                        })
+                        .catch(err => {
+                          console.log(err.data)
+                          this.alertForError(err)
+                        });
+
+                    }
+                    resolve();
+                  }, 10);
+                }),
               onRowUpdate: (newData, oldData) =>
                 new Promise((resolve, reject) => {
                   setTimeout(() => {
@@ -281,12 +269,7 @@ class ProductDesign extends Component {
                         })
                         .catch(err => {
                           console.log(err.data);
-                          this.setState({
-                            msg:
-                              "Edit Access Not Authorized for User. Configurations Not Saved",
-                            snackBarAlertType: "error",
-                            snackBar: true
-                          });
+                          this.alertForError(err)
                         });
 
                     }
@@ -304,13 +287,8 @@ class ProductDesign extends Component {
                         })
                         .catch(err => {
                           console.log(err)
-                          this.setState({
-                            msg: err.message,
-                            snackBarAlertType: "error",
-                            snackBar: true
-                          });
-                        }
-                        );
+                          this.alertForError(err)
+                        });
                     }
                     resolve();
                   }, 1000);
