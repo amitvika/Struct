@@ -9,6 +9,8 @@ import { changePage } from "../actions/pageActions";
 import Checkbox from "@material-ui/core/Checkbox";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
+import ProcessGroupAPI from '../api/processGroup.api';
+import ClientAPI from '../api/clients.api'
 
 class ProcessGroups extends Component {
   state = {
@@ -48,67 +50,66 @@ class ProcessGroups extends Component {
     //   this.props.auth.user.userAccess.access.PGOA_1_V || /////
     //   this.props.auth.user.userAccess.access.PGOA_3_V
     // ) {
-      this.setState(state => ({
-        tableLoaded: false,
-        rowData: state.rowData
-      }));
-      axios
-        .get("/api/processGroups")
-        .then(res => {
-          var rowData;
-          if (!this.state.showDeletes) {
-            rowData = res.data
-            // .filter((x, index) => {
-            //   return x.deletedAt == null;
-            // });
-            // rowData = rowData.filter((x, index) => {
-            //   return (
-            //     //client access filter
-            //     this.props.auth.user.userAccess.access[x.client._id] ||
-            //     (this.props.auth.user.userAccess.access.PGOA_3_V &&
-            //       this.props.auth.user._id === x.createdBy._id)
-            //   );
-            // });
-            console.log(rowData);
-            rowData = rowData.map((x, index) => {
-              return {
-                id: x._id,
-                name: x.name,
-                client: x.client._id,
-                created_by: x.createdBy.name,
-                deleted_at: x.deletedAt
-              };
-            });
-          } else {
-            rowData = res.data
-            // .filter((x, index) => {
-            //   return this.props.auth.user.userAccess.access[x.client._id];
-            // });
-            rowData = rowData.map((x, index) => {
-              return {
-                id: x._id,
-                name: x.name,
-                client: x.client._id,
-                created_by: x.createdBy.name,
-                deleted_at: x.deletedAt
-              };
-            });
+    this.setState(state => ({
+      tableLoaded: false,
+      rowData: state.rowData
+    }));
+    ProcessGroupAPI.getProcessGroupsApi()
+      .then(res => {
+        var rowData;
+        if (!this.state.showDeletes) {
+          rowData = res.data
+          // .filter((x, index) => {
+          //   return x.deletedAt == null;
+          // });
+          // rowData = rowData.filter((x, index) => {
+          //   return (
+          //     //client access filter
+          //     this.props.auth.user.userAccess.access[x.client._id] ||
+          //     (this.props.auth.user.userAccess.access.PGOA_3_V &&
+          //       this.props.auth.user._id === x.createdBy._id)
+          //   );
+          // });
+          console.log(rowData);
+          rowData = rowData.map((x, index) => {
+            return {
+              id: x._id,
+              name: x.name,
+              client: x.client._id,
+              created_by: x.createdBy.name,
+              deleted_at: x.deletedAt
+            };
+          });
+        } else {
+          rowData = res.data
+          // .filter((x, index) => {
+          //   return this.props.auth.user.userAccess.access[x.client._id];
+          // });
+          rowData = rowData.map((x, index) => {
+            return {
+              id: x._id,
+              name: x.name,
+              client: x.client._id,
+              created_by: x.createdBy.name,
+              deleted_at: x.deletedAt
+            };
+          });
+        }
+
+        //this.retrieveClientDropDownFromDb();
+
+        this.setState(
+          {
+            rowData
+          },
+          () => {
+            this.setState(state => ({
+              tableLoaded: true
+            }));
           }
-
-          //this.retrieveClientDropDownFromDb();
-
-          this.setState(
-            {
-              rowData
-            },
-            () => {
-              this.setState(state => ({
-                tableLoaded: true
-              }));
-            }
-          );
-        })
-        .catch(err => console.log(err));
+        );
+      })
+      .catch(err => console.log(err));
     // } else {
     //   this.setState(state => ({
     //     tableLoaded: true
@@ -120,17 +121,17 @@ class ProcessGroups extends Component {
     this.setState(state => ({
       tableLoaded: false
     }));
-    axios
-      .get("/api/clients")
+    ClientAPI.fetchClientsApi()
       .then(res => {
-        var rowData = res.data.filter((x, index) => {
-          return (
-            (this.props.auth.user.userAccess.access[x._id] ||
-              (this.props.auth.user.userAccess.access.COA_3_V &&
-                this.props.auth.user._id === x.createdByUserId._id)) &&
-            x.deletedAt == null
-          );
-        });
+        var rowData = res.data
+        // .filter((x, index) => {
+        //   return (
+        //     (this.props.auth.user.userAccess.access[x._id] ||
+        //       (this.props.auth.user.userAccess.access.COA_3_V &&
+        //         this.props.auth.user._id === x.createdByUserId._id)) &&
+        //     x.deletedAt == null
+        //   );
+        // });
 
         var clientDropDownData = {};
         rowData.forEach(x => {
@@ -218,8 +219,8 @@ class ProcessGroups extends Component {
                         onChange={this.showDeletes}
                       />
                     ) : (
-                      <Checkbox value="top" onChange={this.showDeletes} />
-                    )}
+                        <Checkbox value="top" onChange={this.showDeletes} />
+                      )}
                     {""}
                     Show Deletions
                   </div>
@@ -339,18 +340,18 @@ class ProcessGroups extends Component {
                   }, 1000);
                 })
             }}
-            //////
+          //////
           />
         ) : (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center"
-            }}
-          >
-            <Spinner animation="border" />
-          </div>
-        )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center"
+              }}
+            >
+              <Spinner animation="border" />
+            </div>
+          )}
       </div>
     );
   }

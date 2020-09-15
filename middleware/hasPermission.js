@@ -68,9 +68,24 @@ const idsWithPermission = (access) => {
   return permisibleIds;
 }
 
+const hasPermissionForProcessDataEdit = (req, res, next) => {
+  const access = req.access
+  if (access.COA_1_E || access.COA_2_E || access.COA_3_E ||
+    access.COA_4_E || access.COA_5_E || access.COA_6_E) {
+    next()
+  }
+  else {
+    return res
+      .status(403)
+      .send({ message: 'Permission error' })
+  }
+}
+
+
 module.exports = {
   hasPermissionForPGView,
   hasPermissionForPGEdit,
   hasPermissionForClientView,
-  hasPermissionForClientEdit
+  hasPermissionForClientEdit,
+  hasPermissionForProcessDataEdit
 }

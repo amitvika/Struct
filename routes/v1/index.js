@@ -14,7 +14,7 @@ router.use("/changeTracking", require("./changeTracking"));
 router.use("/userList", require("./userList"));
 router.use("/processGroups", require("./processGroups"));
 router.use("/processGroup", require("./processGroup"));
-router.use("/processdata", require("./processdata"));
+router.use("/processdata", require("./processData.route"));
 router.use("/processes", require("./processes"));
 
 module.exports = router;

@@ -1,19 +1,16 @@
-const express = require("express");
-const router = express.Router();
-const ProcessData = require("../../models/ProcessData");
-const ChangeTracking = require("../../models/ChangeTracking");
-const auth = require("../../middleware/auth");
+const ProcessData = require("../models/ProcessData");
+const ChangeTracking = require("../models/ChangeTracking");
 
-router.get("/:id", (req, res) => {
+exports.get = (req, res) => {
   ProcessData.find({ processGroup: req.params.id })
     .populate("createdBy", "name")
     .sort({ date: 1 }) //sorts descending
     .then(clients => {
       res.json(clients);
     });
-});
+}
 
-router.post("/", auth, (req, res) => {
+exports.create = (req, res) => {
   const saveObject = {
     process: req.body.process,
     createdBy: req.body.user,
@@ -36,6 +33,4 @@ router.post("/", auth, (req, res) => {
       res.json(item);
     })
     .catch(error => console.log(error));
-});
-
-module.exports = router;
+}
