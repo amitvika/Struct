@@ -152,13 +152,11 @@ const AppNavbar = () => {
 
               <DropdownMenu>
                 {/* {user && user.userAccess && user.userAccess.access.OA_1_V ? ( */}
-                  <DropdownItem>
-                    <RRNavLink
-                      to='/access-setup'
-                    >
-                      Access Setup
-                      </RRNavLink>
-                  </DropdownItem>
+                <DropdownItem
+                  style={{ color: "black" }}
+                  onClick={() => history.push('/access-setup')}>
+                  Access Setup
+                </DropdownItem>
                 {/* ) : (
                     ""
                   )} */}

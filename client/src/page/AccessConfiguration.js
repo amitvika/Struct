@@ -25,6 +25,7 @@ import ProcessObjectAccess from '../containers/accessConfig/ProcessObjectAccess'
 import { getUserAccessConfigurationAction } from '../actions/accessConfig.action';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from "react-router-dom";
+import { NavLink } from 'react-router-dom'
 
 const AccessConfiguration = (props) => {
   const dispatch = useDispatch();
@@ -305,12 +306,11 @@ const AccessConfiguration = (props) => {
                 justifyContent: "center"
               }}
             >
-              <Link
+              <NavLink
                 to={`/access-setup`}
-                href="#"
               >
                 Access Setup
-                </Link>
+                </NavLink>
 
               <Typography color="textPrimary">
                 User Access Configuration

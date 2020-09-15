@@ -1,13 +1,11 @@
-import axios from "axios";
 import MaterialTable, { MTableToolbar } from "material-table";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
-import { tokenConfig } from "../actions/authActions";
-import store from "../store";
 import { changePage } from "../actions/pageActions";
 import Checkbox from "@material-ui/core/Checkbox";
 import PropTypes from "prop-types";
+import UserAccessTypesAPI from '../api/access.api'
 
 class AccessSetup extends Component {
   state = {
@@ -33,8 +31,8 @@ class AccessSetup extends Component {
       tableLoaded: false,
       rowData: state.rowData
     }));
-    axios
-      .get("/api/userAccessTypes")
+    UserAccessTypesAPI
+      .fetchUserAccessTypesApi()
       .then(res => {
         var rowData;
         if (!this.state.showDeletes) {
@@ -120,8 +118,8 @@ class AccessSetup extends Component {
                         onChange={this.showDeletes}
                       />
                     ) : (
-                      <Checkbox value="top" onChange={this.showDeletes} />
-                    )}
+                        <Checkbox value="top" onChange={this.showDeletes} />
+                      )}
                     {""}
                     Show Deletions
                   </div>
@@ -145,12 +143,9 @@ class AccessSetup extends Component {
                           ? this.props.auth.user._id
                           : "Guest"*/
                       };
-                      axios
-                        .post(
-                          "/api/userAccessTypes",
-                          newClient,
-                          tokenConfig(store.getState)
-                        )
+
+                      UserAccessTypesAPI
+                        .addUserAccessTypesApi(newClient)
                         .then(res => {
                           this.retrieveFromDb();
                           this.setState(state => ({
@@ -171,12 +166,9 @@ class AccessSetup extends Component {
                         tableLoaded: false,
                         rowData: state.rowData
                       }));
-                      axios
-                        .put(
-                          `/api/userAccessTypes/${newData.id}`,
-                          { name: newData.name, user: user._id },
-                          tokenConfig(store.getState)
-                        )
+
+                      UserAccessTypesAPI
+                        .updateUserAccessTypesApi(newData.id, { name: newData.name, user: user._id })
                         .then(res => {
                           this.retrieveFromDb();
                           this.setState(state => ({
@@ -197,12 +189,9 @@ class AccessSetup extends Component {
                         tableLoaded: false,
                         rowData: state.rowData
                       }));
-                      axios
-                        .delete(
-                          `/api/userAccessTypes/${oldData.id}`,
-                          tokenConfig(store.getState),
-                          { data: { user: this.props.auth.user._id } }
-                        )
+
+                      UserAccessTypesAPI
+                        .deleteUserAccessTypesApi(oldData.id)
                         .then(res => {
                           this.retrieveFromDb();
                           this.setState(state => ({
@@ -216,18 +205,18 @@ class AccessSetup extends Component {
                   }, 1000);
                 })
             }}
-            //////
+          //////
           />
         ) : (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center"
-            }}
-          >
-            <Spinner animation="border" />
-          </div>
-        )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center"
+              }}
+            >
+              <Spinner animation="border" />
+            </div>
+          )}
       </div>
     );
   }

@@ -6,7 +6,7 @@ exports.get = async (req, res) => {
     const access = req.access;
     const userId = req.user.id;
 
-    const processGroups = await ProcessGroup.find({ "deletedAt": { "$exists": false } })
+    const processGroups = await ProcessGroup.find()
       .populate("createdBy", "name")
       .populate("client")
       .sort({ date: -1 }) //sorts descending
