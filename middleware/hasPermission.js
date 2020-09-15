@@ -81,11 +81,25 @@ const hasPermissionForProcessDataEdit = (req, res, next) => {
   }
 }
 
+const hasPermissionForAccessConfigUserEdit = (req, res, next) => {
+  const access = req.access
+  if (access.OA_1_E ) {
+    next()
+  }
+  else {
+    return res
+      .status(403)
+      .send({ message: 'Permission error' })
+  }
+}
+
+
 
 module.exports = {
   hasPermissionForPGView,
   hasPermissionForPGEdit,
   hasPermissionForClientView,
   hasPermissionForClientEdit,
-  hasPermissionForProcessDataEdit
+  hasPermissionForProcessDataEdit,
+  hasPermissionForAccessConfigUserEdit
 }

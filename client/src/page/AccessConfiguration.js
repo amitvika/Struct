@@ -26,6 +26,7 @@ import { getUserAccessConfigurationAction } from '../actions/accessConfig.action
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from "react-router-dom";
 import { NavLink } from 'react-router-dom'
+import AccessConfigurationAPI from '../api/accessConfig.api'
 
 const AccessConfiguration = (props) => {
   const dispatch = useDispatch();
@@ -116,71 +117,63 @@ const AccessConfiguration = (props) => {
     }
   }, [isLoading, data]);
 
-  const saveUserAccess = () => {
-    if (user && user.userAccess.access.OA_1_E) {
-      var state = localState;
-      state.rowData1 = null;
+  const saveUserAccess = async () => {
+    try {
+      const saveAccessConfig = await AccessConfigurationAPI.saveUserAccessConfigurationAPI(localState.userAccessId, {
+        state: localState,
+        user: user,
+        name: localState.userAccessName
+      });
 
-      axios
-        .put(
-          `/api/userAccessConfigurations/${localState.userAccessId}`,
-          {
-            state: state,
-            user: user,
-            name: localState.userAccessName
-          },
-          tokenConfig(store.getState)
-        )
-        .then(res => {
-          //console.log(res);
-          ////////////////////////
-          //save to each user this access ID
-          console.log(props.userAccessUsers.userAccessUsers);
-          axios
-            .put(
-              `/api/userAccessConfigurationUsers/${localState.userAccessId}`,
-              {
-                users: props.userAccessUsers.userAccessUsers,
-                user: user,
-                userAccessId: localState.userAccessId
-              },
-              tokenConfig(store.getState)
-            )
-            .catch(err => console.log(err));
-          //////////////////////
-        })
-        .then(
-          setLocalState(state => {
-            return {
-              ...state,
-              msg: "Configurations Saved",
-              snackBarAlertType: "success",
-              snackBar: true
-            }
-          })
-        )
-        .catch(err => {
-          console.log(err);
-          setLocalState(state => {
-            return {
-              ...state,
-              msg: "Error. Configurations not saved",
-              snackBarAlertType: "error",
-              snackBar: true
-            }
-          });
-        });
-    } else {
+      if (!saveAccessConfig) {
+        throw { message: 'Unable update info' }
+      }
+
+      const updateAccesConfigForUser = await AccessConfigurationAPI.updateUserAccessConfigurationForUserAPI(localState.userAccessId, {
+        users: props.userAccessUsers.userAccessUsers,
+        user: user,
+        userAccessId: localState.userAccessId
+      })
+
+      if (!updateAccesConfigForUser) {
+        throw { message: 'Unable update info' }
+      }
+
       setLocalState(state => {
         return {
           ...state,
-          msg: "Edit Access Denied. Configurations Not Saved",
-          snackBarAlertType: "error",
+          msg: "Configurations Saved",
+          snackBarAlertType: "success",
           snackBar: true
         }
-      });
+      })
+
+
+    } catch (error) {
+      alertForError(error)
     }
-  };
+
+  }
+
+  const alertForError = (err) => {
+    let message = `It's not you , it's us`
+    if (err.response && err.response.data) {
+      message = err.response.data.message;
+    }
+    else if (err && err.message) {
+      message = err.message;
+    }
+
+    setLocalState(state => {
+      return {
+        ...state,
+        msg: message,
+        snackBarAlertType: "error",
+        snackBar: true,
+        tableLoaded: true
+      }
+    });
+  }
 
   const updateAccessState = e => {
     setLocalState(state => {
