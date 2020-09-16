@@ -152,6 +152,7 @@ class ProcessGroupDetail extends Component {
   };
 
   handleChange = (event, newValue) => {
+    console.log('--->>>>>', newValue)
     this.setState({ value: newValue });
   };
 
@@ -165,7 +166,7 @@ class ProcessGroupDetail extends Component {
     const newClient = {
       process: this.state.selectedProcess,
       user: this.props.auth.user._id,
-      processGroup: this.props.id,
+      processGroup: this.props.match.params.id,
       client: this.state.processGroupClientId
     }; //
 
@@ -183,6 +184,7 @@ class ProcessGroupDetail extends Component {
             "\nID:" +
             res.data._id,
           createdBy: this.props.auth.user,
+          process : res.data.process,
           processName: this.state.allProcessesObject[res.data.process]
         };
         tempProcessList.push(newProcess);

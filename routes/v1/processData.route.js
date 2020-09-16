@@ -8,7 +8,7 @@ const { hasPermissionForProcessDataEdit } = require('../../middleware/hasPermiss
 router.use(auth);
 
 router.get("/:id", ProcessDataController.get);
-
-router.post("/", checkAccess, hasPermissionForProcessDataEdit, ProcessDataController.create);
+// hasPermissionForProcessDataEdit
+router.post("/", checkAccess, ProcessDataController.create);
 
 module.exports = router;
