@@ -2,7 +2,7 @@ import MaterialTable from "material-table";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
-import { getConfigurationHistory } from '../api/configurationHistory.api';
+import ConfigurationHistoryAPI from '../api/configurationHistory.api';
 
 class ConfigurationHistory extends Component {
   state = {
@@ -10,31 +10,14 @@ class ConfigurationHistory extends Component {
     tableLoaded: true
   };
 
-  componentDidMount() {
-    this.retrieveFromDb();
-  }
+  dataQueryPage = (query) => {
+    return new Promise(async (resolve, reject) => {
 
-  retrieveFromDb = () => {
-    // if (this.props.auth.user.userAccess.access.OA_2_V) {
-      this.setState(state => ({
-        tableLoaded: false,
-        rowData: state.rowData
-      }));
-      getConfigurationHistory()
-        .then(res => {
-          var rowData = res.data.filter((x, index) => {
-            if (x.client !== null) {
-              return (
-                this.props.auth.user.userAccess.access[x.client._id] ||
-                this.props.auth.user._id === x.updatedBy._id
-              );
-            } else {
-              return (
-                this.props.auth.user.userAccess.access[x._id] ||
-                this.props.auth.user._id === x.updatedBy._id
-              );
-            }
-          });
+      ConfigurationHistoryAPI
+        .getConfigurationHistory(`limit=${query.pageSize}&page=${query.page + 1}`)
+        .then(result => result.data)
+        .then(result => {
+          let rowData = result.docs;
 
           rowData = rowData.map((x, index) => {
             if (x.client !== null) {
@@ -59,18 +42,16 @@ class ConfigurationHistory extends Component {
               };
             }
           });
-          this.setState(state => ({
-            tableLoaded: true,
-            rowData
-          }));
+
+          resolve({
+            data: rowData,
+            page: result.page - 1,
+            totalCount: result.totalPages,
+          })
         })
         .catch(err => console.log(err));
-    // } else {
-    //   this.setState(state => ({
-    //     tableLoaded: true
-    //   }));
-    // }
-  };
+    })
+  }
   render() {
     return (
       <div>
@@ -84,7 +65,7 @@ class ConfigurationHistory extends Component {
               { title: "Updated Item Id", field: "updatedItem" },
               { title: "Change Date/Time", field: "time" }
             ]}
-            data={this.state.rowData}
+            data={query => this.dataQueryPage(query)}
             title="Configuration History"
             detailPanel={rowData => {
               return "Update: " + JSON.stringify(rowData.update);
@@ -92,15 +73,15 @@ class ConfigurationHistory extends Component {
             onRowClick={(event, rowData, togglePanel) => togglePanel()}
           />
         ) : (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center"
-            }}
-          >
-            <Spinner animation="border" />
-          </div>
-        )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center"
+              }}
+            >
+              <Spinner animation="border" />
+            </div>
+          )}
       </div>
     );
   }

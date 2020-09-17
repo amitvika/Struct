@@ -2,16 +2,21 @@ const ChangeTracking = require("../models/ChangeTracking.model");
 
 exports.get = async (req, res) => {
   try {
-    const modelName = req.params.pageName;
-    let query = {};
+    const userId = req.user.id;
+    const modelName = req.query.pageName;
+    let query = { updatedBy: userId };
     if (modelName) {
       // query.$and.push({ model: modelName });
     }
 
-    const trackingHistory = await ChangeTracking.find(query).limit(10)
-      // .populate("updatedBy", "name")
-      // .populate("client", "name")
-      // .sort({ date: -1 })
+    const options = {
+      page: req.query.page,
+      limit: req.query.limit,
+      populate: ['updatedBy', 'client'],
+      sort: { date: -1 },
+    };
+
+    const trackingHistory = await ChangeTracking.paginate({}, options)
 
     res.json(trackingHistory);
 

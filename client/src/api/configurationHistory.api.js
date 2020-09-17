@@ -1,6 +1,6 @@
 import { postRequest, getRequest, putRequest } from '../utils/apiHandler';
 
-const getConfigurationHistory = (id) => getRequest(`/api/changetracking`);
+const getConfigurationHistory = (query) => getRequest(`/api/changetracking?${query}`);
 
 
 export default {
