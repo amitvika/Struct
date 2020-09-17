@@ -5,7 +5,7 @@ export default function Layout(props) {
   return (
     <div >
       <AppNavbar />
-      <div style={{ marginTop : '65px' }}>
+      <div style={{ marginTop : '75px' }}>
       {props.children}
       </div>
     </div>

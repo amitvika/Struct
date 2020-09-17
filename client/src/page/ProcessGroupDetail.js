@@ -34,6 +34,8 @@ import Machining from "../components/Processes/Machining";
 import InjectionMolding from "../components/Processes/InjectionMolding";
 import ProcessHelper from "../components/Processes/ProcessHelper";
 import Assembly from "../components/Processes/Assembly";
+import ProcessAPI from '../api/process.api';
+import ProcessGroupAPI from '../api/processGroup.api';
 
 class ProcessGroupDetail extends Component {
   state = {
@@ -54,14 +56,14 @@ class ProcessGroupDetail extends Component {
   componentDidMount = () => {
     this.getProcesses();
   };
-  
+
   printState = () => {
     console.log(this.state.allProcessesObject);
   };
-  
+
   getProcesses = () => {
-    axios
-      .get("/api/processes")
+    ProcessAPI
+      .getProcessApi()
       .then(res => {
         var allProcessesObject = {};
         //console.log(res.data.name);
@@ -94,8 +96,8 @@ class ProcessGroupDetail extends Component {
     this.setState(state => ({
       processGroupDataLoaded: false
     }));
-    axios
-      .get(`/api/processgroup/${this.props.match.params.id}`)
+    ProcessGroupAPI
+      .getProcessGroupsByIdApi(this.props.match.params.id)
       .then(res => {
         this.setState(state => ({
           processGroupName: res.data.name,
@@ -103,12 +105,11 @@ class ProcessGroupDetail extends Component {
           processGroupClientId: res.data.client._id
         }));
         ///////////////////////
-        axios
-          .get(`/api/processdata/${this.props.match.params.id}`)
+        ProcessGroupAPI
+          .getProcessDataApi(this.props.match.params.id)
           .then(res => {
             // console.log(res.data);
             var processData = res.data.map((x, index) => {
-              console.log(x.createdBy);
               return {
                 id: x._id,
                 record:
@@ -149,20 +150,12 @@ class ProcessGroupDetail extends Component {
         });
       });
   };
-  
-  onPageChangeClick = (navType, page, objId) => {
-    const pageDetail = {
-      navType,
-      page,
-      objId
-    };
-    this.props.changePage(pageDetail);
-  };
-  
+
   handleChange = (event, newValue) => {
+    console.log('--->>>>>', newValue)
     this.setState({ value: newValue });
   };
-  
+
   onNewProcessSelect = event => {
     this.setState({ selectedProcess: event.target.value });
   };
@@ -173,56 +166,50 @@ class ProcessGroupDetail extends Component {
     const newClient = {
       process: this.state.selectedProcess,
       user: this.props.auth.user._id,
-      processGroup: this.props.id,
+      processGroup: this.props.match.params.id,
       client: this.state.processGroupClientId
     }; //
-    if (
-      this.props.auth.user.userAccess.access.COA_1_E ||
-      this.props.auth.user.userAccess.access.COA_2_E ||
-      this.props.auth.user.userAccess.access.COA_3_E ||
-      this.props.auth.user.userAccess.access.COA_4_E ||
-      this.props.auth.user.userAccess.access.COA_5_E ||
-      this.props.auth.user.userAccess.access.COA_6_E
-    ) {
-      axios
-        .post("/api/processData", newClient, tokenConfig(store.getState))
-        .then(res => {
-          console.log(res.data);
 
-          //add the new process to state handling the
-          var tempProcessList = this.state.products;
-          var newProcess = {
-            id: res.data._id,
-            record:
-              this.state.allProcessesObject[res.data.process] +
-              "\nID:" +
-              res.data._id,
-            createdBy: this.props.auth.user,
-            processName: this.state.allProcessesObject[res.data.process]
-          };
-          tempProcessList.push(newProcess);
-          this.setState({
-            msg: "Process Added",
-            snackBarAlertType: "success",
-            snackBar: true,
-            products: tempProcessList
-          });
-        })
-        .catch(err => {
-          this.setState({
-            msg: err.data,
-            snackBarAlertType: "error",
-            snackBar: true
-          });
+    ProcessGroupAPI.
+      addProcessDataApi(newClient)
+      .then(res => {
+        console.log(res.data);
+
+        //add the new process to state handling the
+        var tempProcessList = this.state.products;
+        var newProcess = {
+          id: res.data._id,
+          record:
+            this.state.allProcessesObject[res.data.process] +
+            "\nID:" +
+            res.data._id,
+          createdBy: this.props.auth.user,
+          process : res.data.process,
+          processName: this.state.allProcessesObject[res.data.process]
+        };
+        tempProcessList.push(newProcess);
+        this.setState({
+          msg: "Process Added",
+          snackBarAlertType: "success",
+          snackBar: true,
+          products: tempProcessList
         });
-    } else {
+      })
+      .catch(err => {
+        this.alertForError(err);
+      });
+
+  };
+
+  alertForError = (err) => {
+    if (err.response && err.response.data) {
       this.setState({
-        msg: "Edit Access Not Authorized for User. Configurations Not Saved",
+        msg: err.response.data.message,
         snackBarAlertType: "error",
         snackBar: true
       });
     }
-  };
+  }
   handleClose = (event, reason) => {
     this.setState({
       snackBar: !this.state.snackBar
@@ -292,7 +279,7 @@ class ProcessGroupDetail extends Component {
                   }}
                 >
                   <NavLink
-                  to='/process-groups'                  >
+                    to='/process-groups'                  >
                     Process Groups
                   </NavLink>
 

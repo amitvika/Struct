@@ -1,16 +1,25 @@
 import { getRequest, postRequest, putRequest, deleteRequest } from '../utils/apiHandler';
 
-const getprocessGroupsApi = () => getRequest('/api/processGroups');
+const getProcessGroupsApi = () => getRequest('/api/processGroups');
 
-const addprocessGroupsApi = (data) => postRequest('/api/processGroups', data);
+const getProcessGroupsByIdApi = (id) => getRequest(`/api/processgroup/${id}`);
 
-const updateprocessGroupsApi = (id,data) => putRequest(`/api/processGroups/${id}`, data);
+const addProcessGroupsApi = (data) => postRequest('/api/processGroups', data);
 
-const deleteprocessGroupsApi = (id) => deleteRequest(`/api/processGroups/${id}`);
+const updateProcessGroupsApi = (id, data) => putRequest(`/api/processGroups/${id}`, data);
+
+const deleteProcessGroupsApi = (id) => deleteRequest(`/api/processGroups/${id}`);
+
+const getProcessDataApi = (id) => getRequest(`/api/processdata/${id}`);
+
+const addProcessDataApi = (data) => postRequest(`/api/processdata`, data);
 
 export default {
-  getprocessGroupsApi,
-  addprocessGroupsApi,
-  updateprocessGroupsApi,
-  deleteprocessGroupsApi
+  getProcessGroupsApi,
+  getProcessGroupsByIdApi,
+  addProcessGroupsApi,
+  updateProcessGroupsApi,
+  deleteProcessGroupsApi,
+  getProcessDataApi,
+  addProcessDataApi
 }

@@ -1,7 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const Client = require("../../models/Client");
-const ChangeTracking = require("../../models/ChangeTracking");
 const User = require("../../models/User");
 
 router.get("/", (req, res) => {
