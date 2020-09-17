@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ChangeTracking = require("../../models/ChangeTracking");
+const ChangeTracking = require("../../models/ChangeTracking.model");
 const User = require("../../models/User");
 const auth = require("../../middleware/auth");
 const checkAccess = require('../../middleware/checkAccess');

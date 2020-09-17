@@ -19,7 +19,7 @@ class ProductDesign extends Component {
     snackBarAlertType: "",
     clientDropDownData: {},
     columns: [
-      { title: "ID", field: "id", editable: "never" },
+      { title: "ID", field: "id", editable: "never", align: 'center' },
       { title: "Name", field: "name" },
       {
         title: "Client",
@@ -201,7 +201,13 @@ class ProductDesign extends Component {
               actionsColumnIndex: 4,
               addRowPosition: "first",
               exportButton: false,
-              exportFileName: "ProductDesign"
+              exportFileName: "ProductDesign",
+              cellStyle: {
+                textAlign: 'center'
+              },
+              headerStyle: {
+                textAlign: 'center'
+              }
             }}
             onRowClick={(rowdata, event) => this.props.history.push(`/product-design/${event.id}`)}
             components={{

@@ -1,5 +1,5 @@
 const ProcessGroup = require("../models/ProcessGroup");
-const ChangeTracking = require("../models/ChangeTracking");
+const ChangeTracking = require("../models/ChangeTracking.model");
 
 exports.get = async (req, res) => {
   try {

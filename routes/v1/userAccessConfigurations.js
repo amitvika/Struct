@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const UserAccessType = require("../../models/UserAccessType");
-const ChangeTracking = require("../../models/ChangeTracking");
+const ChangeTracking = require("../../models/ChangeTracking.model");
 const auth = require("@middleware/auth");
 
 router.put("/:id", auth, (req, res) => {

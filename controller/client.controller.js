@@ -1,5 +1,5 @@
 const Client = require("../models/client.model");
-const ChangeTracking = require("../models/ChangeTracking");
+const ChangeTracking = require("../models/ChangeTracking.model");
 
 exports.get = async (req, res) => {
   const access = req.access;

@@ -1,8 +1,8 @@
-import axios from "axios";
 import MaterialTable from "material-table";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
+import { getConfigurationHistory } from '../api/configurationHistory.api';
 
 class ConfigurationHistory extends Component {
   state = {
@@ -20,8 +20,7 @@ class ConfigurationHistory extends Component {
         tableLoaded: false,
         rowData: state.rowData
       }));
-      axios
-        .get("/api/changetracking")
+      getConfigurationHistory()
         .then(res => {
           var rowData = res.data.filter((x, index) => {
             if (x.client !== null) {

@@ -128,9 +128,9 @@ const AccessConfiguration = (props) => {
       if (!saveAccessConfig) {
         throw { message: 'Unable update info' }
       }
-
+      console.log('--->>',props.userAccessUsers)
       const updateAccesConfigForUser = await AccessConfigurationAPI.updateUserAccessConfigurationForUserAPI(localState.userAccessId, {
-        users: props.userAccessUsers.userAccessUsers,
+        users: props.userAccessUsers,
         user: user,
         userAccessId: localState.userAccessId
       })
@@ -150,6 +150,7 @@ const AccessConfiguration = (props) => {
 
 
     } catch (error) {
+      console.log('---', error)
       alertForError(error)
     }
 

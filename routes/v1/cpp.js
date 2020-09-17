@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const ProcessGroup = require("../../models/ProcessGroup");
-const ChangeTracking = require("../../models/ChangeTracking");
+const ChangeTracking = require("../../models/ChangeTracking.model");
 const auth = require("../../middleware/auth");
 const testAddon = require("../../build/Release/testaddon.node");
 ////console.log("addon", testAddon);

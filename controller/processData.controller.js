@@ -1,5 +1,5 @@
 const ProcessData = require("../models/ProcessData");
-const ChangeTracking = require("../models/ChangeTracking");
+const ChangeTracking = require("../models/ChangeTracking.model");
 
 exports.get = (req, res) => {
   ProcessData.find({ processGroup: req.params.id })

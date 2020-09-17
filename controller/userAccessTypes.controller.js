@@ -1,5 +1,5 @@
 const UserAccessType = require("../models/UserAccessType");
-const ChangeTracking = require("../models/ChangeTracking");
+const ChangeTracking = require("../models/ChangeTracking.model");
 
 exports.get = (req, res) => {
   UserAccessType.find()

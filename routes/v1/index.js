@@ -10,7 +10,7 @@ router.use("/clients", require("./clients"));
 router.use("/userAccessTypes", require("./userAccessTypes"));
 router.use("/userAccessConfigurations", require("./userAccessConfigurations"));
 router.use("/userAccessConfigurationUsers", require("./userAccessConfigurationUsers"));
-router.use("/changeTracking", require("./changeTracking"));
+router.use("/changeTracking", require("./changeTracking.route"));
 router.use("/userList", require("./userList"));
 router.use("/processGroups", require("./processGroups"));
 router.use("/processGroup", require("./processGroup"));
