@@ -16,7 +16,7 @@ import { NavLink as RRNavLink } from 'react-router-dom'
 import RegisterModal from "../components/auth/RegisterModal";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-// import struct from "./struct_logo.png";
+import StructLogo from '../assets/images/struct_logo.png';
 import { logout } from "../actions/authActions";
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from "react-router-dom";
@@ -73,13 +73,13 @@ const AppNavbar = () => {
 
       <Navbar fixed="top" color="dark" dark expand="sm" className="mb-5">
         <NavbarBrand>
-          {/* <img
-              src={struct}
-              width="250"
+          <img
+              src={StructLogo}
+              width="150"
               height="30"
               className="d-inline-block align-top"
-            /> */}
-            Struct
+            />
+            {/* Struct */}
           </NavbarBrand>
         <Nav className="mr-auto" navbar>
           <NavLink

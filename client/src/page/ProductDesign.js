@@ -48,23 +48,12 @@ class ProductDesign extends Component {
       tableLoaded: false,
       rowData: state.rowData
     }));
+    
     API.getProductDesignApi()
       .then(res => {
         var rowData;
         if (!this.state.showDeletes) {
           rowData = res.data
-          // .filter((x, index) => {
-          //   return x.deletedAt == null;
-          // });
-          // rowData = rowData
-          // .filter((x, index) => {
-          //   return (
-          //     //client access filter
-          //     this.props.auth.user.userAccess.access[x.client._id] ||
-          //     (this.props.auth.user.userAccess.access.PGOA_3_V &&
-          //       this.props.auth.user._id === x.createdBy._id)
-          //   );
-          // });
           console.log(rowData);
           rowData = rowData.map((x, index) => {
             return {
@@ -215,15 +204,15 @@ class ProductDesign extends Component {
                 <div>
                   <MTableToolbar {...props} />
                   <div className="ml-3">
-                    {this.state.showDeletes ? (
+                    {/* {this.state.showDeletes ? ( */}
                       <Checkbox
-                        checked
+                        checked={this.state.showDeletes}
                         value="top"
                         onChange={this.showDeletes}
                       />
-                    ) : (
-                        <Checkbox value="top" onChange={this.showDeletes} />
-                      )}
+                    {/* ) : ( */}
+                        {/* <Checkbox value="top" onChange={this.showDeletes} /> */}
+                      {/* )} */}
                     {""}
                     Show Deletions
                   </div>

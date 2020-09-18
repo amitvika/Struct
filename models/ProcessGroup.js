@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-var Schema = mongoose.Schema;
+const mongoosePaginate = require('mongoose-paginate-v2');
+const Schema = mongoose.Schema;
 //Define the User model schema(filed structure)
 const ProcessGroupSchema = new mongoose.Schema({
   name: {
@@ -24,6 +25,8 @@ const ProcessGroupSchema = new mongoose.Schema({
     type: Date
   }
 });
+
+ProcessGroupSchema.plugin(mongoosePaginate);
 //this converts the schema into a model
 const ProcessGroup = mongoose.model("ProcessGroup", ProcessGroupSchema);
 //allows for exporting the schema

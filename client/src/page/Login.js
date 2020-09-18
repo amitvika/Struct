@@ -13,6 +13,7 @@ import { login } from "../actions/authActions";
 import { useHistory } from "react-router-dom";
 import { Card, CardContent } from "@material-ui/core";
 import { NavLink } from 'react-router-dom';
+import StructLogo from '../assets/images/struct_logo.png';
 
 const LoginModal = () => {
   const dispatch = useDispatch();
@@ -53,7 +54,15 @@ const LoginModal = () => {
               justifyContent: "center"
             }}
           >
-            <h3>Struct</h3>
+
+            <img
+              src={StructLogo}
+              width="250"
+              height="35"
+              className="d-inline-block align-top"
+            />
+
+            {/* <h3>Struct</h3> */}
           </div>
           {msg ? (
             <Alert color="danger">{msg}</Alert>
