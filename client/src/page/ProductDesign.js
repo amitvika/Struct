@@ -38,6 +38,7 @@ class ProductDesign extends Component {
       {
         title: 'History',
         field: "id",
+        editable: "never",
         render: rowData => <span style={{ cursor: 'pointer' }}
           onClick={(event) => {
             event.stopPropagation();
