@@ -1,5 +1,5 @@
-import MaterialTable from "material-table";
 import React, { Component } from "react";
+import MaterialTable from "material-table";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
 import ConfigurationHistoryAPI from '../api/configurationHistory.api';

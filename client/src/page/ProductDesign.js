@@ -8,6 +8,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import API from '../api/productDesign.api';
 import { fetchClientsApi } from '../api/clients.api';
+import ShowHistoryModal from "../containers/ShowHistoryModal";
 
 class ProductDesign extends Component {
   state = {
@@ -33,8 +34,19 @@ class ProductDesign extends Component {
         initialEditValue: this.props.auth.isAuthenticated
           ? this.props.auth.user.name
           : "Guest"
-      }
-    ]
+      },
+      {
+        title: 'History',
+        field: "id",
+        render: rowData => <span style={{ cursor: 'pointer' }}
+          onClick={(event) => {
+            event.stopPropagation();
+            this.handleHistoryModal({ rowId: rowData.id })
+          }}> Show History </span>
+      },
+    ],
+    isHistoryModalOpened: false,
+    selectedItemId: ''
   };
 
   componentDidMount() {
@@ -48,7 +60,7 @@ class ProductDesign extends Component {
       tableLoaded: false,
       rowData: state.rowData
     }));
-    
+
     API.getProductDesignApi()
       .then(res => {
         var rowData;
@@ -151,24 +163,32 @@ class ProductDesign extends Component {
   };
 
   showDeletes = () => {
-    const columns = this.state.columns;
-    if (!this.state.showDeletes) {
-      columns.push({ title: "Deleted At", field: "deleted_at" });
-    } else {
-      columns.pop();
-    }
-    this.setState(
-      state => ({
-        showDeletes: !state.showDeletes
-      }),
-      () => this.retrieveFromDb()
-    );
+    // const columns = this.state.columns;
+    // if (!this.state.showDeletes) {
+    //   columns.push({ title: "Deleted At", field: "deleted_at" });
+    // } else {
+    //   columns.pop();
+    // }
+    // this.setState(
+    //   state => ({
+    //     showDeletes: !state.showDeletes
+    //   }),
+    //   () => this.retrieveFromDb()
+    // );
   };
+
+  handleHistoryModal = ({ rowId }) => {
+    this.setState({
+      isHistoryModalOpened: !this.state.isHistoryModalOpened,
+      selectedItemId: rowId
+    })
+  }
 
   render() {
     const { user } = this.props.auth;
     return (
       <div>
+        <ShowHistoryModal isVisible={this.state.isHistoryModalOpened} pageName={'ProcessGroup'} selectedItemId={this.state.selectedItemId} />
         <Snackbar
           open={this.state.snackBar}
           autoHideDuration={10000}
@@ -187,7 +207,7 @@ class ProductDesign extends Component {
             data={this.state.rowData}
             title="Create New Product Design"
             options={{
-              actionsColumnIndex: 4,
+              actionsColumnIndex: 5,
               addRowPosition: "first",
               exportButton: false,
               exportFileName: "ProductDesign",
@@ -204,17 +224,21 @@ class ProductDesign extends Component {
                 <div>
                   <MTableToolbar {...props} />
                   <div className="ml-3">
-                    {/* {this.state.showDeletes ? ( */}
-                      <Checkbox
-                        checked={this.state.showDeletes}
-                        value="top"
-                        onChange={this.showDeletes}
-                      />
-                    {/* ) : ( */}
-                        {/* <Checkbox value="top" onChange={this.showDeletes} /> */}
-                      {/* )} */}
-                    {""}
+                    <Checkbox
+                      checked={this.state.showDeletes}
+                      value="top"
+                      onChange={this.showDeletes}
+                    />
                     Show Deletions
+                  </div>
+
+                  <div className="ml-3">
+                    <Checkbox
+                      checked={this.state.isHistoryModalOpened}
+                      value="top"
+                      onChange={() => this.handleHistoryModal({})}
+                    />
+                    Show history
                   </div>
                 </div>
               )

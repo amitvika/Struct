@@ -25,3 +25,10 @@
     left: 50%;
     top: 40%;
 }
+
+@media (min-width: 576px) {
+  .modal-dialog {
+    max-width: unset;
+    margin: 1.75rem auto;
+}
+}
