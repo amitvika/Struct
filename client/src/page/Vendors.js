@@ -22,7 +22,7 @@ class Vendors extends Component {
       {
         title: 'History',
         field: "id",
-        editable: false,
+        editable: "never",
         render: rowData => <span style={{ cursor: 'pointer' }}
           onClick={(event) => {
             event.stopPropagation();
@@ -117,7 +117,7 @@ class Vendors extends Component {
             exportButton: true,
             exportFileName: "Vendors"
           }}
-          onRowClick={(rowdata, event) => this.props.history.push(`/vendor/${event.id}`)}
+          onRowClick={(rowdata, event) => this.props.history.push(`/vendors/${event.id}`)}
           components={{
             Toolbar: props => (
               <div>

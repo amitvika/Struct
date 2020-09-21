@@ -3,18 +3,8 @@ const ChangeTracking = require("../models/ChangeTracking.model");
 
 exports.get = async (req, res) => {
   try {
-    const pageName = req.query.pageName;
-    const updatedId = req.query.updatedId;
 
     let query = {};
-    if (pageName) {
-      query = { $and: [] };
-      query.$and.push({ model: pageName });
-    }
-
-    if (updatedId && updatedId !== 'undefined') {
-      query.$and.push({ updatedObject: updatedId });
-    }
 
     const options = {
       page: req.query.page,
