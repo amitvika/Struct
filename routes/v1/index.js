@@ -16,5 +16,6 @@ router.use("/processGroups", require("./processGroups"));
 router.use("/processGroup", require("./processGroup"));
 router.use("/processdata", require("./processData.route"));
 router.use("/processes", require("./processes"));
+router.use("/vendor", require("./vendors.route"));
 
 module.exports = router;

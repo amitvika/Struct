@@ -1,12 +1,8 @@
-import axios from "axios";
 import MaterialTable, { MTableToolbar } from "material-table";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
-import { tokenConfig } from "../actions/authActions";
-import store from "../store";
 import { changePage } from "../actions/pageActions";
-import Checkbox from "@material-ui/core/Checkbox";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import ProcessGroupAPI from '../api/processGroup.api';
