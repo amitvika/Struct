@@ -1,21 +1,18 @@
-import axios from "axios";
-import MaterialTable, { MTableToolbar } from "material-table";
 import React, { Component } from "react";
+import MaterialTable, { MTableToolbar } from "material-table";
 import { connect } from "react-redux";
-import { Spinner } from "reactstrap";
-import { tokenConfig } from "../actions/authActions";
-import store from "../store";
 import { changePage } from "../actions/pageActions";
-import Checkbox from "@material-ui/core/Checkbox";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import ItemsAPI from '../api/items.api';
+import ShowHistoryModal from "../containers/ShowHistoryModal";
+import Toolbar from '../components/Toolbar';
 
 class Items extends Component {
   state = {
     rowData: [],
     tableLoaded: false,
-    showDeletes: false,
+    isDeletedItemVisible: false,
     msg: "",
     snackBar: false,
     snackBarAlertType: "",
@@ -26,8 +23,26 @@ class Items extends Component {
       {
         title: "Source", field: "source"
       },
-    ]
+      {
+        title: 'History',
+        field: "id",
+        render: rowData => <span style={{ cursor: 'pointer' }}
+          onClick={(event) => {
+            event.stopPropagation();
+            this.handleHistoryToggle({ rowId: rowData.id })
+          }}> Show History </span>
+      }
+    ],
+    isHistoryModalOpened: false,
+    selectedItemId: ''
   };
+
+  handleHistoryToggle = ({ rowId }) => {
+    this.setState({
+      isHistoryModalOpened: !this.state.isHistoryModalOpened,
+      selectedItemId: rowId
+    })
+  }
 
   handleClose = (event, reason) => {
     this.setState({
@@ -35,16 +50,16 @@ class Items extends Component {
     });
   };
 
-  showDeletes = () => {
+  handleShowDelete = () => {
     const columns = this.state.columns;
-    if (!this.state.showDeletes) {
+    if (!this.state.isDeletedItemVisible) {
       columns.push({ title: "Deleted At", field: "deleted_at" });
     } else {
       columns.pop();
     }
     this.setState(
       state => ({
-        showDeletes: !state.showDeletes
+        isDeletedItemVisible: !state.isDeletedItemVisible
       })
     );
   };
@@ -80,15 +95,18 @@ class Items extends Component {
     const { user } = this.props.auth;
     return (
       <div>
+        <ShowHistoryModal
+          isVisible={this.state.isHistoryModalOpened}
+          pageName={'Item'}
+          selectedItemId={this.state.selectedItemId}
+          handleHistoryToggle={this.handleHistoryToggle} />
         <Snackbar
           open={this.state.snackBar}
           autoHideDuration={10000}
-          onClose={this.handleClose}
-        >
+          onClose={this.handleClose}>
           <MuiAlert
             severity={this.state.snackBarAlertType}
-            onClose={this.handleClose}
-          >
+            onClose={this.handleClose}>
             {this.state.msg}
           </MuiAlert>
         </Snackbar>
@@ -108,19 +126,12 @@ class Items extends Component {
             Toolbar: props => (
               <div>
                 <MTableToolbar {...props} />
-                <div className="ml-3">
-                  {this.state.showDeletes ? (
-                    <Checkbox
-                      checked
-                      value="top"
-                      onChange={this.showDeletes}
-                    />
-                  ) : (
-                      <Checkbox value="top" onChange={this.showDeletes} />
-                    )}
-                  {""}
-                    Show Deletions
-                  </div>
+                <Toolbar
+                  isDeletedItemVisible={this.state.isDeletedItemVisible}
+                  handleDeletedToggle={this.handleShowDelete}
+                  isHistoryModalOpened={this.state.isHistoryModalOpened}
+                  handleHistoryToggle={this.handleHistoryToggle}
+                />
               </div>
             )
           }}
@@ -144,46 +155,17 @@ class Items extends Component {
                 })
                 .catch(err => console.log(err.data));
             },
-            onRowDelete: oldData =>
-              new Promise((resolve, reject) => {
-                setTimeout(() => {
-                  {
-                    if (
-                      this.props.auth.user.userAccess.access.PGOA_1_E ||
-                      this.props.auth.user.userAccess.access.PGOA_3_E
-                    ) {
-                      axios
-                        .delete(
-                          `/api/processgroups/${oldData.id}`,
-                          tokenConfig(store.getState),
-                          {
-                            data: {
-                              user: this.props.auth.user._id,
-                              client: oldData.client
-                            }
-                          }
-                        )
-                        .then(res => {
-                          console.log(res.data);
-                          this.retrieveFromDb();
-                        })
-                        .catch(err => console.log(err.data));
-                    } else {
-                      this.setState({
-                        msg:
-                          "Edit Access Not Authorized for User. Configurations Not Saved",
-                        snackBarAlertType: "error",
-                        snackBar: true
-                      });
-                    }
-                  }
-                  resolve();
-                }, 1000);
-              })
-          }}
-        //////
-        />
+            onRowDelete: oldData => {
+              return ItemsAPI.deleteItemAPI(oldData.id)
+                .then(res => {
+                  console.log(res.data);
+                  this.retrieveFromDb();
+                })
+                .catch(err => console.log(err.data));
+            }
 
+          }}
+        />
       </div>
     );
   }

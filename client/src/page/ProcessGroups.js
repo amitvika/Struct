@@ -12,12 +12,13 @@ import MuiAlert from "@material-ui/lab/Alert";
 import ProcessGroupAPI from '../api/processGroup.api';
 import ClientAPI from '../api/clients.api';
 import ShowHistoryModal from "../containers/ShowHistoryModal";
+import Toolbar from '../components/Toolbar';
 
 class ProcessGroups extends Component {
   state = {
     rowData: [],
     tableLoaded: false,
-    showDeletes: false,
+    isDeletedItemVisible: false,
     msg: "",
     snackBar: false,
     snackBarAlertType: "",
@@ -58,10 +59,7 @@ class ProcessGroups extends Component {
   }
 
   retrieveFromDb = () => {
-    // if (
-    //   this.props.auth.user.userAccess.access.PGOA_1_V || /////
-    //   this.props.auth.user.userAccess.access.PGOA_3_V
-    // ) {
+   
     this.setState(state => ({
       tableLoaded: false,
       rowData: state.rowData
@@ -71,17 +69,6 @@ class ProcessGroups extends Component {
         var rowData;
         if (!this.state.showDeletes) {
           rowData = res.data
-          // .filter((x, index) => {
-          //   return x.deletedAt == null;
-          // });
-          // rowData = rowData.filter((x, index) => {
-          //   return (
-          //     //client access filter
-          //     this.props.auth.user.userAccess.access[x.client._id] ||
-          //     (this.props.auth.user.userAccess.access.PGOA_3_V &&
-          //       this.props.auth.user._id === x.createdBy._id)
-          //   );
-          // });
           console.log(rowData);
           rowData = rowData.map((x, index) => {
             return {
@@ -94,9 +81,6 @@ class ProcessGroups extends Component {
           });
         } else {
           rowData = res.data
-          // .filter((x, index) => {
-          //   return this.props.auth.user.userAccess.access[x.client._id];
-          // });
           rowData = rowData.map((x, index) => {
             return {
               id: x._id,
@@ -108,12 +92,8 @@ class ProcessGroups extends Component {
           });
         }
 
-        //this.retrieveClientDropDownFromDb();
 
-        this.setState(
-          {
-            rowData
-          },
+        this.setState({ rowData },
           () => {
             this.setState(state => ({
               tableLoaded: true
@@ -122,11 +102,7 @@ class ProcessGroups extends Component {
         );
       })
       .catch(err => console.log(err));
-    // } else {
-    //   this.setState(state => ({
-    //     tableLoaded: true
-    //   }));
-    // }
+
   };
 
   retrieveClientDropDownFromDb = () => {
@@ -136,14 +112,6 @@ class ProcessGroups extends Component {
     ClientAPI.fetchClientsApi()
       .then(res => {
         var rowData = res.data
-        // .filter((x, index) => {
-        //   return (
-        //     (this.props.auth.user.userAccess.access[x._id] ||
-        //       (this.props.auth.user.userAccess.access.COA_3_V &&
-        //         this.props.auth.user._id === x.createdByUserId._id)) &&
-        //     x.deletedAt == null
-        //   );
-        // });
 
         var clientDropDownData = {};
         rowData.forEach(x => {
@@ -161,31 +129,22 @@ class ProcessGroups extends Component {
       .catch(err => console.log(err));
   };
 
-  onPageChangeClick = (navType, page, objId) => {
-    const pageDetail = {
-      navType,
-      page,
-      objId
-    };
-    this.props.changePage(pageDetail);
-  };
-
   handleClose = (event, reason) => {
     this.setState({
       snackBar: !this.state.snackBar
     });
   };
 
-  showDeletes = () => {
+  handleShowDelete = () => {
     const columns = this.state.columns;
-    if (!this.state.showDeletes) {
+    if (!this.state.isDeletedItemVisible) {
       columns.push({ title: "Deleted At", field: "deleted_at" });
     } else {
       columns.pop();
     }
     this.setState(
       state => ({
-        showDeletes: !state.showDeletes
+        isDeletedItemVisible: !state.isDeletedItemVisible
       }),
       () => this.retrieveFromDb()
     );
@@ -231,143 +190,56 @@ class ProcessGroups extends Component {
               Toolbar: props => (
                 <div>
                   <MTableToolbar {...props} />
-                  <div className="ml-3">
-                    {this.state.showDeletes ? (
-                      <Checkbox
-                        checked
-                        value="top"
-                        onChange={this.showDeletes}
-                      />
-                    ) : (
-                        <Checkbox value="top" onChange={this.showDeletes} />
-                      )}
-                    {""}
-                    Show Deletions
-                  </div>
-                  
-                  <div className="ml-3">
-                    <Checkbox
-                      checked={this.state.isHistoryModalOpened}
-                      value="top"
-                      onChange={() => this.handleHistoryModal({})}
-                    />
-                    Show history
-                  </div>
+                  <Toolbar
+                    isDeletedItemVisible={this.state.isDeletedItemVisible}
+                    handleDeletedToggle={this.handleShowDelete}
+                    isHistoryModalOpened={this.state.isHistoryModalOpened}
+                    handleHistoryToggle={this.handleHistoryModal}
+                  />
                 </div>
               )
             }}
             editable={{
-              onRowAdd: newData =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    {
-                      const newProcessGroup = {
-                        name: newData.name,
-                        client: newData.client,
-                        user: this.props.auth.isAuthenticated
-                          ? this.props.auth.user._id
-                          : "Guest"
-                      }; //
-                      if (
-                        this.props.auth.user.userAccess.access.PGOA_1_E ||
-                        this.props.auth.user.userAccess.access.PGOA_3_E
-                      ) {
-                        axios
-                          .post(
-                            "/api/processgroups",
-                            newProcessGroup,
-                            tokenConfig(store.getState),
-                            { data: { user: this.props.auth.user._id } }
-                          )
-                          .then(res => {
-                            console.log(res.data);
-                            this.retrieveFromDb();
-                          })
-                          .catch(err => console.log(err.data));
-                      } else {
-                        this.setState({
-                          msg:
-                            "Edit Access Not Authorized for User. Configurations Not Saved",
-                          snackBarAlertType: "error",
-                          snackBar: true
-                        });
-                      }
-                    }
-                    resolve();
-                  }, 10);
-                }),
-              onRowUpdate: (newData, oldData) =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    {
-                      if (
-                        this.props.auth.user.userAccess.access.PGOA_1_E ||
-                        this.props.auth.user.userAccess.access.PGOA_3_E
-                      ) {
-                        console.log(newData.client);
-                        axios
-                          .put(
-                            `/api/processgroups/${newData.id}`,
-                            {
-                              name: newData.name,
-                              user: user._id,
-                              client: newData.client
-                            },
-                            tokenConfig(store.getState)
-                          )
-                          .then(res => {
-                            console.log(res.data);
-                            this.retrieveFromDb();
-                          })
-                          .catch(err => console.log(err.data));
-                      } else {
-                        this.setState({
-                          msg:
-                            "Edit Access Not Authorized for User. Configurations Not Saved",
-                          snackBarAlertType: "error",
-                          snackBar: true
-                        });
-                      }
-                    }
-                    resolve();
-                  }, 1000);
-                }),
-              onRowDelete: oldData =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    {
-                      if (
-                        this.props.auth.user.userAccess.access.PGOA_1_E ||
-                        this.props.auth.user.userAccess.access.PGOA_3_E
-                      ) {
-                        axios
-                          .delete(
-                            `/api/processgroups/${oldData.id}`,
-                            tokenConfig(store.getState),
-                            {
-                              data: {
-                                user: this.props.auth.user._id,
-                                client: oldData.client
-                              }
-                            }
-                          )
-                          .then(res => {
-                            console.log(res.data);
-                            this.retrieveFromDb();
-                          })
-                          .catch(err => console.log(err.data));
-                      } else {
-                        this.setState({
-                          msg:
-                            "Edit Access Not Authorized for User. Configurations Not Saved",
-                          snackBarAlertType: "error",
-                          snackBar: true
-                        });
-                      }
-                    }
-                    resolve();
-                  }, 1000);
-                })
+              onRowAdd: newData => {
+                const data = {
+                  name: newData.name,
+                  client: newData.client,
+                  user: this.props.auth.isAuthenticated
+                    ? this.props.auth.user._id
+                    : "Guest"
+                }; //
+                return ProcessGroupAPI
+                  .addProcessGroupsApi(data)
+                  .then(res => {
+                    console.log(res.data);
+                    this.retrieveFromDb();
+                  })
+                  .catch(err => console.log(err.data));
+              },
+              onRowUpdate: (newData, oldData) => {
+                const data = {
+                  name: newData.name,
+                  user: user._id,
+                  client: newData.client
+                }
+
+                return ProcessGroupAPI
+                  .updateProcessGroupsApi(newData.id, data)
+                  .then(res => {
+                    console.log(res.data);
+                    this.retrieveFromDb();
+                  })
+                  .catch(err => console.log(err.data));
+              },
+              onRowDelete: oldData => {
+                return ProcessGroupAPI
+                  .deleteProcessGroupsApi(oldData.id)
+                  .then(res => {
+                    console.log(res.data);
+                    this.retrieveFromDb();
+                  })
+                  .catch(err => console.log(err.data));
+              }
             }}
           //////
           />

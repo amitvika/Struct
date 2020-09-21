@@ -7,7 +7,7 @@ import {
 import MaterialTable from "material-table";
 import ConfigurationHistoryAPI from '../api/configurationHistory.api';
 
-const ShowHistoryModal = ({ isVisible, pageName, selectedItemId }) => {
+const ShowHistoryModal = ({ isVisible, pageName, selectedItemId, handleHistoryToggle }) => {
 
   const [isModalVisible, setIsModalVisible] = useState(isVisible);
 
@@ -19,6 +19,7 @@ const ShowHistoryModal = ({ isVisible, pageName, selectedItemId }) => {
 
   const handleModalToggle = () => {
     setIsModalVisible(!isModalVisible);
+    handleHistoryToggle({})
   }
 
   const handleQuery = (query) => {
