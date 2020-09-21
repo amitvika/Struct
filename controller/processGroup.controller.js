@@ -1,27 +1,35 @@
 const ProcessGroup = require("../models/ProcessGroup");
 const ChangeTracking = require("../models/ChangeTracking.model");
+const { extractIds } = require('../utils/helper');
 
 exports.get = async (req, res) => {
   try {
     const access = req.access;
     const userId = req.user.id;
 
-    const processGroups = await ProcessGroup.find()
+    const ids = extractIds(access);
+    const processGroups = await ProcessGroup.find({})
       .populate("createdBy", "name")
       .populate("client")
+      // .populate({
+      //   path: "client",
+      //   match: { _id: { $in: ids } }
+      // })
       .sort({ date: -1 }) //sorts descending
 
 
-    const filterProcessGroups = processGroups.filter(processGroup => {
-      if (access[processGroup.client._id] || (access.PGOA_3_V && String(userId) === String(processGroup.createdBy._id))) {
-        return true;
-      }
-      return false
-    })
+    const filterProcessGroups = processGroups
+      .filter(processGroup => {
+        if (access[processGroup.client._id] || (access.PGOA_3_V && String(userId) === String(processGroup.createdBy._id))) {
+          return true;
+        }
+        return false
+      })
 
     res.json(filterProcessGroups);
 
   } catch (error) {
+    console.log('--->>Error', error)
     return res
       .status(500)
       .send({ message: 'Some unexpected error occurred' })

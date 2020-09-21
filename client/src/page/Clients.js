@@ -7,6 +7,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import API from '../api/clients.api';
+import ShowHistoryModal from "../containers/ShowHistoryModal";
 
 class Clients extends Component {
   state = {
@@ -26,8 +27,19 @@ class Clients extends Component {
         initialEditValue: this.props.auth.isAuthenticated
           ? this.props.auth.user.name
           : "Guest"
-      }
-    ]
+      },
+      {
+        title: 'History',
+        field: "id",
+        render: rowData => <span style={{ cursor: 'pointer' }}
+          onClick={(event) => {
+            event.stopPropagation();
+            this.handleHistoryModal({ rowId: rowData.id })
+          }}> Show History </span>
+      },
+    ],
+    isHistoryModalOpened: false,
+    selectedItemId: ''
   };
 
   componentDidMount() {
@@ -137,10 +149,18 @@ class Clients extends Component {
     }
   }
 
+  handleHistoryModal = ({ rowId }) => {
+    this.setState({
+      isHistoryModalOpened: !this.state.isHistoryModalOpened,
+      selectedItemId: rowId
+    })
+  }
+
   render() {
     const { user } = this.props.auth;
     return (
       <>
+        <ShowHistoryModal isVisible={this.state.isHistoryModalOpened} pageName={'Client'} selectedItemId={this.state.selectedItemId} />
         <Snackbar
           open={this.state.snackBar}
           autoHideDuration={10000}
@@ -181,6 +201,14 @@ class Clients extends Component {
                       )}
                     {""}
                     Show Deletions
+                  </div>
+                  <div className="ml-3">
+                    <Checkbox
+                      checked={this.state.isHistoryModalOpened}
+                      value="top"
+                      onChange={() => this.handleHistoryModal({})}
+                    />
+                    Show history
                   </div>
                 </div>
               )

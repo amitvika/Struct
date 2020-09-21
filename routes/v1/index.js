@@ -5,7 +5,7 @@ router.use("/auth", require("./auth"));
 router.use("/users", require("./users"));
 router.use("/cpp", require("./cpp"));
 router.use("/upload", require("./upload"));
-router.use("/items", require("./items"));
+router.use("/items", require("./items.route"));
 router.use("/clients", require("./clients"));
 router.use("/userAccessTypes", require("./userAccessTypes"));
 router.use("/userAccessConfigurations", require("./userAccessConfigurations"));

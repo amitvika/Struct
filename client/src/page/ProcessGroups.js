@@ -10,7 +10,8 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import ProcessGroupAPI from '../api/processGroup.api';
-import ClientAPI from '../api/clients.api'
+import ClientAPI from '../api/clients.api';
+import ShowHistoryModal from "../containers/ShowHistoryModal";
 
 class ProcessGroups extends Component {
   state = {
@@ -36,8 +37,19 @@ class ProcessGroups extends Component {
         initialEditValue: this.props.auth.isAuthenticated
           ? this.props.auth.user.name
           : "Guest"
-      }
-    ]
+      },
+      {
+        title: 'History',
+        field: "id",
+        render: rowData => <span style={{ cursor: 'pointer' }}
+          onClick={(event) => {
+            event.stopPropagation();
+            this.handleHistoryModal({ rowId: rowData.id })
+          }}> Show History </span>
+      },
+    ],
+    isHistoryModalOpened: false,
+    selectedItemId: ''
   };
 
   componentDidMount() {
@@ -179,10 +191,18 @@ class ProcessGroups extends Component {
     );
   };
 
+  handleHistoryModal = ({ rowId }) => {
+    this.setState({
+      isHistoryModalOpened: !this.state.isHistoryModalOpened,
+      selectedItemId: rowId
+    })
+  }
+
   render() {
     const { user } = this.props.auth;
     return (
       <div>
+        <ShowHistoryModal isVisible={this.state.isHistoryModalOpened} pageName={'ProcessGroup'} selectedItemId={this.state.selectedItemId} />
         <Snackbar
           open={this.state.snackBar}
           autoHideDuration={10000}
@@ -223,6 +243,15 @@ class ProcessGroups extends Component {
                       )}
                     {""}
                     Show Deletions
+                  </div>
+                  
+                  <div className="ml-3">
+                    <Checkbox
+                      checked={this.state.isHistoryModalOpened}
+                      value="top"
+                      onChange={() => this.handleHistoryModal({})}
+                    />
+                    Show history
                   </div>
                 </div>
               )

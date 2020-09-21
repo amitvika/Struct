@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate-v2');
+
 //Define the User model schema(filed structure)
 const ItemSchema = new mongoose.Schema({
   name: {
@@ -8,8 +10,12 @@ const ItemSchema = new mongoose.Schema({
   date: {
     type: Date,
     default: Date.now
-  }
+  },
+  source: { type: String }
 });
+
+
+ItemSchema.plugin(mongoosePaginate);
 //this converts the schema into a model
 const Item = mongoose.model("Item", ItemSchema);
 //allows for exporting the schema
