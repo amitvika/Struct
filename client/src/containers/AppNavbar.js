@@ -74,13 +74,13 @@ const AppNavbar = () => {
       <Navbar fixed="top" color="dark" dark expand="sm" className="mb-5">
         <NavbarBrand>
           <img
-              src={StructLogo}
-              width="150"
-              height="30"
-              className="d-inline-block align-top"
-            />
-            {/* Struct */}
-          </NavbarBrand>
+            src={StructLogo}
+            width="150"
+            height="30"
+            className="d-inline-block align-top"
+          />
+          {/* Struct */}
+        </NavbarBrand>
         <Nav className="mr-auto" navbar>
           <NavLink
             className="navbar-text"
@@ -151,32 +151,33 @@ const AppNavbar = () => {
               </DropdownToggle>
 
               <DropdownMenu>
-                {/* {user && user.userAccess && user.userAccess.access.OA_1_V ? ( */}
-                <DropdownItem
-                  style={{ color: "black" }}
-                  onClick={() => history.push('/access-setup')}>
-                  Access Setup
-                </DropdownItem>
-                {/* ) : (
-                    ""
-                  )} */}
-                {
-                  user && user.userAccess && user.userAccess._id && <>
+
+                {user && user.userAccess && user.userAccess.access.OA_1_V && (
+                  <>
                     <DropdownItem
                       style={{ color: "black" }}
-                      onClick={() => history.push('/view-access')}>
-                      View Access
-                    </DropdownItem>
+                      onClick={() => history.push('/access-setup')}>
+                      Access Setup
+                  </DropdownItem>
                     <DropdownItem divider />
                   </>
-                }
+                )}
+
+                <DropdownItem
+                  style={{ color: "black" }}
+                  onClick={() => history.push('/view-access')}>
+                  View Access
+                    </DropdownItem>
+                <DropdownItem divider />
+
+
                 {isAuthenticated ? authLinks : guestLinks}
               </DropdownMenu>
             </UncontrolledDropdown>
           </Nav>
         </Collapse>
       </Navbar>
-    </div>
+    </div >
   );
 }
 export default AppNavbar;

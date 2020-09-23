@@ -84,6 +84,7 @@ const ShowHistoryModal = ({ isVisible, pageName, selectedItemId, handleHistoryTo
             detailPanel={rowData => {
               return "Update: " + JSON.stringify(rowData.update);
             }}
+            onRowClick={(event, rowData, togglePanel) => togglePanel()}
           />
         </ModalBody>
       </Modal>

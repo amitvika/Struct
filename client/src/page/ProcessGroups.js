@@ -56,7 +56,7 @@ class ProcessGroups extends Component {
   }
 
   retrieveFromDb = () => {
-   
+
     this.setState(state => ({
       tableLoaded: false,
       rowData: state.rowData
@@ -182,7 +182,13 @@ class ProcessGroups extends Component {
               exportButton: true,
               exportFileName: "ProcessGroups"
             }}
-            onRowClick={(rowdata, event) => this.props.history.push(`/process-groups/${event.id}`)}
+            onRowClick={(rowdata, event) => {
+              const selection = window.getSelection();
+
+              if (selection.type != "Range") {
+                this.props.history.push(`/process-groups/${event.id}`);
+              }
+            }}
             components={{
               Toolbar: props => (
                 <div>

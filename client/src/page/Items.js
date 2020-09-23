@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import MaterialTable, { MTableToolbar } from "material-table";
 import { connect } from "react-redux";
-import { changePage } from "../actions/pageActions";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import ItemsAPI from '../api/items.api';
@@ -26,6 +25,7 @@ class Items extends Component {
       {
         title: 'History',
         field: "id",
+        editable: "never",
         render: rowData => <span style={{ cursor: 'pointer' }}
           onClick={(event) => {
             event.stopPropagation();
@@ -121,7 +121,14 @@ class Items extends Component {
             exportButton: true,
             exportFileName: "Items"
           }}
-          onRowClick={(rowdata, event) => this.props.history.push(`/items/${event.id}`)}
+          onRowClick={(rowdata, event) => {
+            const selection = window.getSelection();
+
+            if (selection.type != "Range") {
+              this.props.history.push(`/items/${event.id}`)
+            }
+          }
+          }
           components={{
             Toolbar: props => (
               <div>
@@ -175,4 +182,4 @@ const mapStateToProps = state => ({
   auth: state.auth
 });
 
-export default connect(mapStateToProps, { changePage })(Items);
+export default connect(mapStateToProps, {})(Items);

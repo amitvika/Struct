@@ -9,12 +9,13 @@ import MuiAlert from "@material-ui/lab/Alert";
 import API from '../api/productDesign.api';
 import { fetchClientsApi } from '../api/clients.api';
 import ShowHistoryModal from "../containers/ShowHistoryModal";
+import Toolbar from '../components/Toolbar';
 
 class ProductDesign extends Component {
   state = {
     rowData: [],
     tableLoaded: false,
-    showDeletes: false,
+    isDeletedItemVisible: false,
     msg: "",
     snackBar: false,
     snackBarAlertType: "",
@@ -42,7 +43,7 @@ class ProductDesign extends Component {
         render: rowData => <span style={{ cursor: 'pointer' }}
           onClick={(event) => {
             event.stopPropagation();
-            this.handleHistoryModal({ rowId: rowData.id })
+            this.handleHistoryToggle({ rowId: rowData.id })
           }}> Show History </span>
       },
     ],
@@ -163,22 +164,22 @@ class ProductDesign extends Component {
     });
   };
 
-  showDeletes = () => {
+  handleShowDelete = () => {
     // const columns = this.state.columns;
-    // if (!this.state.showDeletes) {
+    // if (!this.state.isDeletedItemVisible) {
     //   columns.push({ title: "Deleted At", field: "deleted_at" });
     // } else {
     //   columns.pop();
     // }
     // this.setState(
     //   state => ({
-    //     showDeletes: !state.showDeletes
+    //     isDeletedItemVisible: !state.isDeletedItemVisible
     //   }),
     //   () => this.retrieveFromDb()
     // );
   };
 
-  handleHistoryModal = ({ rowId }) => {
+  handleHistoryToggle = ({ rowId }) => {
     this.setState({
       isHistoryModalOpened: !this.state.isHistoryModalOpened,
       selectedItemId: rowId
@@ -189,7 +190,11 @@ class ProductDesign extends Component {
     const { user } = this.props.auth;
     return (
       <div>
-        <ShowHistoryModal isVisible={this.state.isHistoryModalOpened} pageName={'ProcessGroup'} selectedItemId={this.state.selectedItemId} />
+        <ShowHistoryModal
+          isVisible={this.state.isHistoryModalOpened}
+          pageName={'ProcessGroup'}
+          selectedItemId={this.state.selectedItemId}
+          handleHistoryToggle={this.handleHistoryToggle} />
         <Snackbar
           open={this.state.snackBar}
           autoHideDuration={10000}
@@ -219,28 +224,22 @@ class ProductDesign extends Component {
                 textAlign: 'center'
               }
             }}
-            onRowClick={(rowdata, event) => this.props.history.push(`/product-design/${event.id}`)}
+            onRowClick={(rowdata, event) => {
+              const selection = window.getSelection();
+              if (selection.type != "Range") {
+                this.props.history.push(`/product-design/${event.id}`);
+              }
+            }}
             components={{
               Toolbar: props => (
                 <div>
                   <MTableToolbar {...props} />
-                  <div className="ml-3">
-                    <Checkbox
-                      checked={this.state.showDeletes}
-                      value="top"
-                      onChange={this.showDeletes}
-                    />
-                    Show Deletions
-                  </div>
-
-                  <div className="ml-3">
-                    <Checkbox
-                      checked={this.state.isHistoryModalOpened}
-                      value="top"
-                      onChange={() => this.handleHistoryModal({})}
-                    />
-                    Show history
-                  </div>
+                  <Toolbar
+                    isDeletedItemVisible={this.state.isDeletedItemVisible}
+                    handleDeletedToggle={this.handleShowDelete}
+                    isHistoryModalOpened={this.state.isHistoryModalOpened}
+                    handleHistoryToggle={this.handleHistoryToggle}
+                  />
                 </div>
               )
             }}

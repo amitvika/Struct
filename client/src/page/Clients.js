@@ -3,17 +3,17 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
 import { changePage } from "../actions/pageActions";
-import Checkbox from "@material-ui/core/Checkbox";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import API from '../api/clients.api';
 import ShowHistoryModal from "../containers/ShowHistoryModal";
+import Toolbar from '../components/Toolbar';
 
 class Clients extends Component {
   state = {
     rowData: [],
     tableLoaded: false,
-    showDeletes: false,
+    isDeletedItemVisible: false,
     msg: "",
     snackBar: false,
     snackBarAlertType: "",
@@ -34,7 +34,7 @@ class Clients extends Component {
         render: rowData => <span style={{ cursor: 'pointer' }}
           onClick={(event) => {
             event.stopPropagation();
-            this.handleHistoryModal({ rowId: rowData.id })
+            this.handleHistoryToggle({ rowId: rowData.id })
           }}> Show History </span>
       },
     ],
@@ -123,18 +123,18 @@ class Clients extends Component {
     });
   };
 
-  showDeletes = () => {
+  handleShowDelete = () => {
     const columns = this.state.columns;
-    if (!this.state.showDeletes) {
+    if (!this.state.isDeletedItemVisible) {
       columns.push({ title: "Deleted At", field: "deleted_at" });
     } else {
       columns.pop();
     }
     this.setState(
       state => ({
-        showDeletes: !state.showDeletes
+        isDeletedItemVisible: !state.isDeletedItemVisible
       }),
-      () => this.retrieveFromDb()
+      // () => this.retrieveFromDb()
     );
   };
 
@@ -149,7 +149,7 @@ class Clients extends Component {
     }
   }
 
-  handleHistoryModal = ({ rowId }) => {
+  handleHistoryToggle = ({ rowId }) => {
     this.setState({
       isHistoryModalOpened: !this.state.isHistoryModalOpened,
       selectedItemId: rowId
@@ -160,7 +160,12 @@ class Clients extends Component {
     const { user } = this.props.auth;
     return (
       <>
-        <ShowHistoryModal isVisible={this.state.isHistoryModalOpened} pageName={'Client'} selectedItemId={this.state.selectedItemId} />
+        <ShowHistoryModal
+          isVisible={this.state.isHistoryModalOpened}
+          pageName={'Client'}
+          selectedItemId={this.state.selectedItemId}
+          handleHistoryToggle={this.handleHistoryToggle} />
+
         <Snackbar
           open={this.state.snackBar}
           autoHideDuration={10000}
@@ -184,32 +189,23 @@ class Clients extends Component {
               exportButton: true,
               exportFileName: "Clients"
             }}
-            onRowClick={(rowdata, event) => this.props.history.push(`/clients/${event.id}`)}
+            onRowClick={(rowdata, event) => {
+              const selection = window.getSelection();
+              
+              if (selection.type != "Range") {
+                this.props.history.push(`/clients/${event.id}`);
+              }
+            }}
             components={{
               Toolbar: props => (
                 <div>
                   <MTableToolbar {...props} />
-                  <div className="ml-3">
-                    {this.state.showDeletes ? (
-                      <Checkbox
-                        checked
-                        value="top"
-                        onChange={this.showDeletes}
-                      />
-                    ) : (
-                        <Checkbox value="top" onChange={this.showDeletes} />
-                      )}
-                    {""}
-                    Show Deletions
-                  </div>
-                  <div className="ml-3">
-                    <Checkbox
-                      checked={this.state.isHistoryModalOpened}
-                      value="top"
-                      onChange={() => this.handleHistoryModal({})}
-                    />
-                    Show history
-                  </div>
+                  <Toolbar
+                    isDeletedItemVisible={this.state.isDeletedItemVisible}
+                    handleDeletedToggle={this.handleShowDelete}
+                    isHistoryModalOpened={this.state.isHistoryModalOpened}
+                    handleHistoryToggle={this.handleHistoryToggle}
+                  />
                 </div>
               )
             }}
