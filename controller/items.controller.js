@@ -6,9 +6,14 @@ exports.get = async (req, res) => {
 
     let query = {};
 
+    if (req.query.vendorId) {
+      query = { vendorId: req.query.vendorId }
+    }
+
     const options = {
       page: req.query.page,
       limit: req.query.limit,
+      populate: 'vendorId',
       sort: { date: -1 },
     };
 
@@ -30,7 +35,8 @@ exports.create = async (req, res) => {
 
     const newItem = new ItemModel({
       name: req.body.name,
-      source: req.body.source
+      vendorId: req.body.vendorId,
+      author: req.user.id
     });
 
     const savedItem = await newItem.save();

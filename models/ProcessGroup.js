@@ -23,7 +23,13 @@ const ProcessGroupSchema = new mongoose.Schema({
   },
   deletedAt: {
     type: Date
-  }
+  },
+  isDeleted: { type: Boolean, default: false },
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
 });
 
 ProcessGroupSchema.plugin(mongoosePaginate);

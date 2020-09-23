@@ -77,7 +77,7 @@ class Items extends Component {
             return {
               id: item._id,
               name: item.name,
-              source: item.source
+              source: item?.vendorId?.name
             };
           });
 
@@ -92,7 +92,6 @@ class Items extends Component {
   }
 
   render() {
-    const { user } = this.props.auth;
     return (
       <div>
         <ShowHistoryModal
@@ -116,7 +115,6 @@ class Items extends Component {
           data={query => this.dataQuery(query)}
           title="Items"
           options={{
-            actionsColumnIndex: 4,
             addRowPosition: "first",
             exportButton: true,
             exportFileName: "Items"
@@ -141,36 +139,6 @@ class Items extends Component {
                 />
               </div>
             )
-          }}
-          editable={{
-            onRowAdd: newData => {
-              return ItemsAPI
-                .saveItemAPI({ name: newData.name, source: newData.source })
-                .then(res => {
-                  this.retrieveFromDb();
-                })
-                .catch(error => {
-                  console.log(error.data)
-                })
-            },
-            onRowUpdate: (newData, oldData) => {
-              return ItemsAPI
-                .updateItemsAPI(newData.id, { name: newData.name, source: newData.source })
-                .then(res => {
-                  console.log(res.data);
-                  this.retrieveFromDb();
-                })
-                .catch(err => console.log(err.data));
-            },
-            onRowDelete: oldData => {
-              return ItemsAPI.deleteItemAPI(oldData.id)
-                .then(res => {
-                  console.log(res.data);
-                  this.retrieveFromDb();
-                })
-                .catch(err => console.log(err.data));
-            }
-
           }}
         />
       </div>

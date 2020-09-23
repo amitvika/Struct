@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const mongoosePaginate = require('mongoose-paginate-v2');
+const Schema = mongoose.Schema;
 
 //Define the User model schema(filed structure)
 const VendorSchema = new mongoose.Schema({
@@ -10,6 +11,15 @@ const VendorSchema = new mongoose.Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  isDeleted: { type: Boolean, default: false },
+  deletedAt: {
+    type: Date
   }
 });
 

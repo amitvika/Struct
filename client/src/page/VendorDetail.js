@@ -9,6 +9,7 @@ import {
   Typography
 } from "@material-ui/core";
 import { NavLink, useParams } from "react-router-dom";
+import ItemContainer from '../containers/Items';
 
 const VendorDetail = () => {
   const [value, setValue] = useState(1);
@@ -16,10 +17,8 @@ const VendorDetail = () => {
 
   const renderPageSwitch = (index) => {
     switch (index) {
-      case 0:
-        return "Shows all items and their respoective unpacking processes/ if it has been configured";
       case 1:
-        return "Check boxes if it is a shipping vendor or a products vendor. Wll become greyed out once shipping services/ items(products) are added";
+        return <ItemContainer vendorId={id} />;
       case 2:
         return "pull reports base on items, and any details below";
       case 3:
@@ -77,6 +76,7 @@ const VendorDetail = () => {
       <Grid item sm sm={10}>
         <Paper style={{ padding: 20, margin: 10 }}>
           {renderPageSwitch(value)}
+
         </Paper>
       </Grid>
     </Grid>
