@@ -56,7 +56,8 @@ exports.register = (req, res) => {
     const newUser = new User({
       email,
       name,
-      password
+      password,
+      userAccess: '5e9bf12d4d1e982f1063bf2f'
     });
     bcrypt.genSalt(10, (err, salt) =>
       bcrypt.hash(newUser.password, salt, (err, hash) => {
