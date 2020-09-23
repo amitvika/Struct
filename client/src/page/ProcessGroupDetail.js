@@ -299,7 +299,7 @@ class ProcessGroupDetail extends Component {
                         <strong>{this.state.processGroupName}</strong>
                       </h4>
                       Client: {this.state.processGroupClientName}
-                      {" | "}Process Group ID: {this.props.id}
+                      {" | "}Process Group ID: {this.props?.match?.params?.id}
                     </div>
                   </Grid>
 
