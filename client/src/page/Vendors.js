@@ -23,7 +23,7 @@ class Vendors extends Component {
         title: 'History',
         field: "id",
         editable: "never",
-        render: rowData => <span style={{ cursor: 'pointer' }}
+        render: rowData => rowData && <span style={{ cursor: 'pointer' }}
           onClick={(event) => {
             event.stopPropagation();
             this.handleHistoryToggle({ rowId: rowData.id })

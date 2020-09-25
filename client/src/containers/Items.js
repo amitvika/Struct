@@ -4,6 +4,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import ItemsAPI from '../api/items.api';
 import ShowHistoryModal from "../containers/ShowHistoryModal";
+import { withRouter } from 'react-router-dom';
 
 class Items extends Component {
   state = {
@@ -21,7 +22,7 @@ class Items extends Component {
         title: 'History',
         field: "id",
         editable: "never",
-        render: rowData => <span style={{ cursor: 'pointer' }}
+        render: rowData => rowData && <span style={{ cursor: 'pointer' }}
           onClick={(event) => {
             event.stopPropagation();
             this.handleHistoryToggle({ rowId: rowData.id })
@@ -116,6 +117,13 @@ class Items extends Component {
             exportButton: true,
             exportFileName: "Items"
           }}
+          onRowClick={(rowdata, event) => {
+            const selection = window.getSelection();
+
+            if (selection.type != "Range") {
+              this.props.history.push(`/items/${event.id}`)
+            }
+          }}
           editable={{
             onRowAdd: newData => {
               return ItemsAPI
@@ -151,4 +159,4 @@ class Items extends Component {
     );
   }
 }
-export default Items;
+export default withRouter(Items);

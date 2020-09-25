@@ -31,7 +31,7 @@ class Clients extends Component {
       {
         title: 'History',
         field: "id",
-        render: rowData => <span style={{ cursor: 'pointer' }}
+        render: rowData => rowData && <span style={{ cursor: 'pointer' }}
           onClick={(event) => {
             event.stopPropagation();
             this.handleHistoryToggle({ rowId: rowData.id })
