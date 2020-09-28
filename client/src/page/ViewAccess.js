@@ -11,6 +11,7 @@ import CardContent from "@material-ui/core/CardContent";
 import OperationAccess from "../containers/viewAccess/OperationAccess";
 import ClientObjectAccess from "../containers/viewAccess/ClientObjectAccess";
 import ClientBasedAccess from "../containers/viewAccess/ClientBasedAccess";
+import AccessConfig from '../api/accessConfig.api';
 
 class ViewAccess extends Component {
   state = {
@@ -67,7 +68,7 @@ class ViewAccess extends Component {
 
 
   componentDidMount() {
-    // this.retrieveUserAccessFromDb();
+    this.retrieveUserAccessFromDb();
   }
 
   retrieveUserAccessFromDb = () => {
@@ -75,10 +76,9 @@ class ViewAccess extends Component {
       userAccessLoaded: false
     }));
     console.log('----this.props.auth.user', this.props.auth.user)
-    axios
-      .get(
-        `/api/userAccessConfigurations/${this.props.auth.user.userAccess._id}`
-      )
+
+    AccessConfig
+      .getViewUserAccessConfiguration()
       .then(res => {
         //console.log(res.data._id);
         if (res.data.access == null) {
@@ -202,7 +202,7 @@ class ViewAccess extends Component {
                     justifyContent: "center"
                   }}
                 >
-                  <h4>{this.props.auth.user !== null && this.props.auth.user.userAccess.name} </h4>
+                  <h4>{this.props.auth.user !== null && this.props.auth.user?.userAccess?.name} </h4>
                 </div>
                 <div
                   style={{
@@ -210,7 +210,7 @@ class ViewAccess extends Component {
                     justifyContent: "center"
                   }}
                 >
-                  <p>Access Setup ID: {this.props.auth.user !== null && this.props.auth.user.userAccess._id}</p>
+                  <p>Access Setup ID: {this.props.auth.user !== null && this.props.auth.user?.userAccess?._id}</p>
                 </div>
 
                 <div
