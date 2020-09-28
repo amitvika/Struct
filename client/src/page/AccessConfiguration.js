@@ -18,6 +18,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import UserAccessModal from "../containers/UserAccessModal";
 import ClientBasedAccess from "../containers/accessConfig/ClientBasedAccess";
 import ClientObjectAccess from "../containers/accessConfig/ClientObjectAccess";
+import VendorObjectAccess from "../containers/accessConfig/VendorObjectAccess";
 import ItemObjectAccess from "../containers/accessConfig/ItemObjectAccess";
 import OperationAccess from "../containers/accessConfig/OperationAccess";
 import ProcessGroupObjectAccess from '../containers/accessConfig/ProcessGroupObjectAccess';
@@ -55,6 +56,13 @@ const AccessConfiguration = (props) => {
     COA_2_V: false,
     COA_3_E: false,
     COA_3_V: false,
+
+    VOA_1_E: false,
+    VOA_1_V: false,
+    VOA_2_E: false,
+    VOA_2_V: false,
+    VOA_3_E: false,
+    VOA_3_V: false,
 
     PGOA_1_E: false,
     PGOA_1_V: false,
@@ -128,7 +136,7 @@ const AccessConfiguration = (props) => {
       if (!saveAccessConfig) {
         throw { message: 'Unable update info' }
       }
-      console.log('--->>',props.userAccessUsers)
+      console.log('--->>', props.userAccessUsers)
       const updateAccesConfigForUser = await AccessConfigurationAPI.updateUserAccessConfigurationForUserAPI(localState.userAccessId, {
         users: props.userAccessUsers,
         user: user,
@@ -355,6 +363,12 @@ const AccessConfiguration = (props) => {
 
           <div className="mb-2"></div>
           <ClientObjectAccess
+            access={localState}
+            updateAccessState={updateAccessState}
+          />
+
+          <div className="mb-2"></div>
+          <VendorObjectAccess
             access={localState}
             updateAccessState={updateAccessState}
           />
