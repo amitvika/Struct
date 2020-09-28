@@ -27,6 +27,7 @@ export default function ItemObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.IOA_1_V}
               color="primary"
               name="IOA_1_E"
               checked={access.IOA_1_E}
@@ -53,6 +54,7 @@ export default function ItemObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.IOA_2_V}
               color="primary"
               name="IOA_2_E"
               checked={access.IOA_2_E}
@@ -79,6 +81,7 @@ export default function ItemObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.IOA_3_V}
               color="primary"
               name="IOA_3_E"
               checked={access.IOA_3_E}

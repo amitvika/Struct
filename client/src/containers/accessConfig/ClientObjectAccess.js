@@ -27,6 +27,7 @@ export default function ClientObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.COA_1_V}
               color="primary"
               name="COA_1_E"
               checked={access.COA_1_E}
@@ -52,6 +53,7 @@ export default function ClientObjectAccess({ access, updateAccessState }) {
           ),
           edit: (
             <Checkbox
+              disabled={!access.COA_2_V}
               //checked={true}
               color="primary"
               name="COA_2_E"
@@ -79,6 +81,7 @@ export default function ClientObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.COA_3_V}
               color="primary"
               name="COA_3_E"
               checked={access.COA_3_E}

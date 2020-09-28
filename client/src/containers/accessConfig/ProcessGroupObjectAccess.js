@@ -27,6 +27,7 @@ export default function ProcessGroupObjectAccess({ access, updateAccessState }) 
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.PGOA_1_V}
               color="primary"
               name="PGOA_1_E"
               checked={access.PGOA_1_E}
@@ -53,6 +54,7 @@ export default function ProcessGroupObjectAccess({ access, updateAccessState }) 
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.PGOA_2_V}
               color="primary"
               name="PGOA_2_E"
               checked={access.PGOA_2_E}
@@ -79,6 +81,7 @@ export default function ProcessGroupObjectAccess({ access, updateAccessState }) 
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.PGOA_3_V}
               color="primary"
               name="PGOA_3_E"
               checked={access.PGOA_3_E}

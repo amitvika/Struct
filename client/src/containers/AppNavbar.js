@@ -16,7 +16,7 @@ import { NavLink as RRNavLink } from 'react-router-dom'
 import RegisterModal from "../components/auth/RegisterModal";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import StructLogo from '../assets/images/struct_logo.png';
+import StructLogo from '../assets/images/logo_white.png';
 import { logout } from "../actions/authActions";
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from "react-router-dom";

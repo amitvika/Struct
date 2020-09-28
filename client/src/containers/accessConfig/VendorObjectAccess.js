@@ -27,6 +27,7 @@ export default function VendorObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.VOA_1_V}
               color="primary"
               name="VOA_1_E"
               checked={access.VOA_1_E}
@@ -53,6 +54,7 @@ export default function VendorObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.VOA_2_V}
               color="primary"
               name="VOA_2_E"
               checked={access.VOA_2_E}
@@ -79,6 +81,7 @@ export default function VendorObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.VOA_3_V}
               color="primary"
               name="VOA_3_E"
               checked={access.VOA_3_E}

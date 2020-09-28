@@ -27,6 +27,7 @@ export default function ProcessObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.POA_1_V}
               color="primary"
               name="POA_1_E"
               checked={access.POA_1_E}
@@ -52,6 +53,7 @@ export default function ProcessObjectAccess({ access, updateAccessState }) {
           ),
           edit: (
             <Checkbox
+              disabled={!access.POA_2_V}
               //checked={true}
               color="primary"
               name="POA_2_E"
@@ -79,6 +81,7 @@ export default function ProcessObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.POA_3_V}
               color="primary"
               name="POA_3_E"
               checked={access.POA_3_E}
@@ -105,6 +108,7 @@ export default function ProcessObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.POA_4_V}
               color="primary"
               name="POA_4_E"
               checked={access.POA_4_E}
@@ -132,6 +136,7 @@ export default function ProcessObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.POA_5_V}
               color="primary"
               name="POA_5_E"
               checked={access.POA_5_E}
@@ -158,6 +163,7 @@ export default function ProcessObjectAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.POA_6_V}
               color="primary"
               name="POA_6_E"
               checked={access.POA_6_E}

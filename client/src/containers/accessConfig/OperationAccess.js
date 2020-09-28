@@ -27,6 +27,7 @@ export default function OperationAccess({ access, updateAccessState }) {
           edit: (
             <Checkbox
               //checked={true}
+              disabled={!access.OA_1_V}
               color="primary"
               name="OA_1_E"
               checked={access.OA_1_E}
