@@ -127,25 +127,27 @@ const AccessConfiguration = (props) => {
 
   const saveUserAccess = async () => {
     try {
-      const saveAccessConfig = await AccessConfigurationAPI.saveUserAccessConfigurationAPI(localState.userAccessId, {
-        state: localState,
-        user: user,
-        name: localState.userAccessName
-      });
+      const saveAccessConfig = await AccessConfigurationAPI
+        .saveUserAccessConfigurationAPI(localState.userAccessId, {
+          state: localState,
+          user: user,
+          name: localState.userAccessName
+        });
 
       if (!saveAccessConfig) {
         throw { message: 'Unable update info' }
       }
       console.log('--->>', props.userAccessUsers)
-      const updateAccesConfigForUser = await AccessConfigurationAPI.updateUserAccessConfigurationForUserAPI(localState.userAccessId, {
-        users: props.userAccessUsers,
-        user: user,
-        userAccessId: localState.userAccessId
-      })
+      // const updateAccesConfigForUser = await AccessConfigurationAPI
+      //   .updateUserAccessConfigurationForUserAPI(localState.userAccessId, {
+      //     users: props.userAccessUsers,
+      //     user: user,
+      //     userAccessId: localState.userAccessId
+      //   })
 
-      if (!updateAccesConfigForUser) {
-        throw { message: 'Unable update info' }
-      }
+      // if (!updateAccesConfigForUser) {
+      //   throw { message: 'Unable update info' }
+      // }
 
       setLocalState(state => {
         return {

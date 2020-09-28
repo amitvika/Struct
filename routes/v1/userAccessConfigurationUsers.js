@@ -4,19 +4,22 @@ const ChangeTracking = require("../../models/ChangeTracking.model");
 const User = require("../../models/User");
 const auth = require("../../middleware/auth");
 const checkAccess = require('../../middleware/checkAccess');
-const { hasPermissionForAccessConfigUserEdit } = require('../../middleware/hasPermission')
+const { hasPermissionForAccessConfigUserEdit } = require('../../middleware/hasPermission');
+const get  = require('lodash/get');
 
 router.use(auth);
 router.use(checkAccess);
 
 router.put("/:id",
-  hasPermissionForAccessConfigUserEdit, (req, res) => {
+  hasPermissionForAccessConfigUserEdit, async (req, res) => {
     const saveObject = {
       userAccess: req.body.userAccessId
       ///make sure the savObject in change tracking saves the userAccess ID for each member
     };
 
-    req.body.users.newUsers.forEach(x => {
+    const newUsers = get(req,'body.users.newUsers',[])
+
+    newUsers.map(x => {
       User.findByIdAndUpdate(x.id, saveObject)
         .then(() => {
           const changeTracking = new ChangeTracking({

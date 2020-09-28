@@ -4,10 +4,10 @@ const UserModel = mongoose.model('User');
 async function checkAccess(req, res, next) {
 
   const user = await UserModel
-    .findOne({ _is: req.user._id })
+    .findOne({ _id: req.user.id })
     .populate("userAccess");
-  
-    if (user && user.userAccess) {
+
+  if (user && user.userAccess) {
     req.access = user.userAccess.access
     next();
   } else {

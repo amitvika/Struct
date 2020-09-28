@@ -83,6 +83,7 @@ const hasPermissionForProcessDataEdit = (req, res, next) => {
 
 const hasPermissionForAccessConfigUserEdit = (req, res, next) => {
   const access = req.access
+  console.log('--->>',req.user )
   if (access.OA_1_E ) {
     next()
   }
