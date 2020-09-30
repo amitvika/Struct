@@ -28,6 +28,8 @@ import ProcessGroupDetail from "./page/ProcessGroupDetail";
 import VendorDetail from "./page/VendorDetail";
 import ItemDetail from "./page/ItemDetail";
 
+import Viewer from './page/3DViewer'
+
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);
 
@@ -44,6 +46,7 @@ export default function AppRoutes() {
         <Switch>
           <Route exact path="/" component={Login} />
           <Route path="/register" component={Register} />
+          <Route path="/viewer" component={Viewer} />
           <Layout>
             <Switch>
               <AppRoute authenticate path='/dashboard' component={Dashboard} />
