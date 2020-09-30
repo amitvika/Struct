@@ -110,20 +110,28 @@ class Items extends Component {
         <MaterialTable
           columns={this.state.columns}
           data={query => this.dataQuery(query)}
-          title="Items"
+          title={`Items Supplied by: ${this.props.vendorName}`}
           options={{
             actionsColumnIndex: 4,
             addRowPosition: "first",
             exportButton: true,
             exportFileName: "Items"
           }}
-          onRowClick={(rowdata, event) => {
-            const selection = window.getSelection();
-
-            if (selection.type != "Range") {
-              this.props.history.push(`/items/${event.id}`)
-            }
+          detailPanel={rowData => {
+            return (
+              <div>
+                {JSON.stringify(rowData)}
+              </div>
+            )
           }}
+          onRowClick={(event, rowData, togglePanel) => togglePanel()}
+          actions={[
+            {
+              icon: 'details',
+              tooltip: 'View detail',
+              onClick: (event, rowData) =>  this.props.history.push(`/items/${rowData.id}`)
+            }
+          ]}
           editable={{
             onRowAdd: newData => {
               return ItemsAPI

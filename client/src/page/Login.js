@@ -13,7 +13,7 @@ import { login } from "../actions/authActions";
 import { useHistory } from "react-router-dom";
 import { Card, CardContent } from "@material-ui/core";
 import { NavLink } from 'react-router-dom';
-import StructLogo from '../assets/images/logo_black.png';
+import StructLogo from '../assets/images/new_logo.png';
 
 const LoginModal = () => {
   const dispatch = useDispatch();

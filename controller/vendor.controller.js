@@ -23,6 +23,17 @@ exports.get = async (req, res) => {
   };
 }
 
+exports.getOne = (req, res) => {
+  const vendorId = req.params.id;
+
+  VendorModel.findById(vendorId)
+    .then(data => {
+      res.send(data);
+    })
+    .catch(error => {
+      res.status(400).send(error)
+    })
+}
 
 exports.create = async (req, res) => {
 

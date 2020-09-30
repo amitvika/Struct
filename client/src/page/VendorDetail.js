@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Paper,
   Tab,
@@ -10,15 +10,33 @@ import {
 } from "@material-ui/core";
 import { NavLink, useParams } from "react-router-dom";
 import ItemContainer from '../containers/Items';
+import VendorAPI from '../api/vendor.api'
 
 const VendorDetail = () => {
   const [value, setValue] = useState(1);
+  const [vendorInfo, setVendorInfo] = useState({});
   let { id } = useParams();
+
+  useEffect(() => {
+
+    VendorAPI.getVendorApi(id)
+      .then(res => {
+        setVendorInfo(res.data);
+
+      })
+      .catch(error => {
+
+      })
+
+    return () => {
+
+    }
+  }, [id])
 
   const renderPageSwitch = (index) => {
     switch (index) {
       case 1:
-        return <ItemContainer vendorId={id} />;
+        return <ItemContainer vendorName={vendorInfo.name} vendorId={id} />;
       case 2:
         return "pull reports base on items, and any details below";
       case 3:
@@ -53,7 +71,7 @@ const VendorDetail = () => {
           </Breadcrumbs>
         </Paper>
         <Paper style={{ padding: 10, margin: 10 }}>
-          <h4>Vendor Name: Struct</h4>
+          <h4>Vendor Name: {vendorInfo.name}</h4>
           <p>Vendor ID:{id}</p>
         </Paper>
       </Grid>
@@ -68,7 +86,7 @@ const VendorDetail = () => {
             <Tab label="Reports" value={2} />
             <Tab label="Service Agreement" value={3} />
             <Tab label="Payments" value={4} />
-            <Tab label="Identified Issues" value={5} />
+            <Tab label="Validation Failures" value={5} />
             <Tab label="Vendor as Client" value={6} />
           </Tabs>
         </Paper>

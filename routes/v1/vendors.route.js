@@ -6,6 +6,8 @@ const VendorController = require('../../controller/vendor.controller');
 router.use(auth);
 router.get("/", VendorController.get);
 
+router.get("/:id", VendorController.getOne);
+
 router.post("/", VendorController.create);
 
 router.put("/:id", VendorController.update);
