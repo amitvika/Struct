@@ -1,9 +1,6 @@
-import axios from "axios";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
-import { tokenConfig } from "../actions/authActions";
-import store from "../store";
 import { changePage } from "../actions/pageActions";
 import {
   Checkbox,
@@ -32,14 +29,14 @@ import { NavLink } from "react-router-dom";
 import NewProcessAdd from "../components/Processes/newProcessAdd";
 import Machining from "../components/Processes/Machining";
 import InjectionMolding from "../components/Processes/InjectionMolding";
-import ProcessHelper from "../components/Processes/ProcessHelper";
+import ProcessHelper from "../containers/ProcessHelper";
 import Assembly from "../components/Processes/Assembly";
 import ProcessAPI from '../api/process.api';
 import ProcessGroupAPI from '../api/processGroup.api';
 
 class ProcessGroupDetail extends Component {
   state = {
-    value: 1,
+    value: 0,
     columns: [
       {
         dataField: "record",
@@ -121,7 +118,7 @@ class ProcessGroupDetail extends Component {
               };
             });
             processData.unshift({
-              id: "n/a",
+              id: 0,
               process: "n/a",
               createdBy: "Struct",
               processName: "Process Helper",
@@ -238,9 +235,9 @@ class ProcessGroupDetail extends Component {
   render() {
     function renderPageSwitch(index) {
       switch (index) {
-        case "n/a":
-          return <ProcessHelper />;
         case 0:
+          return <ProcessHelper />;
+        case 1:
           return <NewProcessAdd />;
         case "5eaeee3f8986281884691dd7":
           return <Machining />;
