@@ -1,8 +1,8 @@
 const ProcessGroup = require("../models/ProcessGroup");
 const ChangeTracking = require("../models/ChangeTracking.model");
-const nodeocc  = require("node-occ");
+const nodeocc = require("node-occ");
 const occ = nodeocc.occ;
-
+const path = require('path');
 const { extractIds } = require('../utils/helper');
 
 exports.get = async (req, res) => {
@@ -134,13 +134,12 @@ exports.delete = (req, res) => {
 
 
 exports.load_cadfile = function (req, res) {
-  var filename = path.join(__dirname, "..", req.body.filename);
+ 
+  var filename = path.join(global.MY_ROOT, req.file.path);
 
   function progress(percent) {
-    console.log(" -----------------> ", percent);
+    // console.log(" -----------------> ", percent);
   }
-
-  console.log(" loading ", filename);
 
   occ.readSTEP(filename, function (err, solids) {
     if (err) {

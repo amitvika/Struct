@@ -1,4 +1,5 @@
 import { getRequest, postRequest, putRequest, deleteRequest } from '../utils/apiHandler';
+import axios, { post } from 'axios';
 
 const getProcessGroupsApi = () => getRequest('/api/processGroups');
 
@@ -14,6 +15,18 @@ const getProcessDataApi = (id) => getRequest(`/api/processdata/${id}`);
 
 const addProcessDataApi = (data) => postRequest(`/api/processdata`, data);
 
+const uploadStepfile = (data) => {
+
+  const url = '/api/step-file';
+  const config = {
+    headers: {
+      'content-type': 'multipart/form-data',
+    }
+  }
+
+  return axios.post(url, data)
+}
+
 export default {
   getProcessGroupsApi,
   getProcessGroupsByIdApi,
@@ -21,5 +34,6 @@ export default {
   updateProcessGroupsApi,
   deleteProcessGroupsApi,
   getProcessDataApi,
-  addProcessDataApi
+  addProcessDataApi,
+  uploadStepfile
 }

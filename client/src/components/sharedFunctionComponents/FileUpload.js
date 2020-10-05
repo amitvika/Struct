@@ -10,8 +10,8 @@ import {
 } from "reactstrap";
 import { Button } from "@material-ui/core";
 import axios from "axios";
-import Message from "./Message";
-import ProgressBar from "./ProgressBar";
+import Message from "../Message";
+import ProgressBar from "../ProgressBar";
 
 export default function FileUpload() {
   //State

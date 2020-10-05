@@ -5,6 +5,8 @@ const express = require("express"); //brings in express
 const app = express();
 const passport = require("passport");
 
+global.MY_ROOT = __dirname
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());

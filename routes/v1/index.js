@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const Upload = require('../../middleware/fileUpload');
+const ProcessGroupController = require('../../controller/processGroup.controller');
 
 router.use("/auth", require("./auth"));
 router.use("/users", require("./users"));
@@ -17,5 +19,7 @@ router.use("/processGroup", require("./processGroup"));
 router.use("/processdata", require("./processData.route"));
 router.use("/processes", require("./processes"));
 router.use("/vendor", require("./vendors.route"));
+
+router.post('/step-file', Upload.uploadSingleFile(), ProcessGroupController.load_cadfile)
 
 module.exports = router;

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../../middleware/auth");
 const checkAccess = require('../../middleware/checkAccess');
-const Upload = require('../../middleware/fileUpload');
+
 const { hasPermissionForPGEdit } = require('../../middleware/hasPermission');
 const ProcessGroupController = require('../../controller/processGroup.controller');
 
@@ -23,7 +23,5 @@ router.delete("/:id",
 router.put("/:id",
   hasPermissionForPGEdit,
   ProcessGroupController.update);
-
-router.post('/step-file', Upload.uploadSingleFile, ProcessGroupController.load_cadfile)
 
 module.exports = router;

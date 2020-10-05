@@ -5,7 +5,7 @@ const fs = require('fs');
 exports.uploadSingleFile = (req, res) => {
   const storageWithDestination = multer.diskStorage({
     destination: function (req, file, callback) {
-      const postPath = `./uploads/media`;
+      const postPath = `./uploads/step`;
       if (!fs.existsSync(postPath)) {
         fs.mkdirSync(postPath, { recursive: true });
       }
@@ -13,20 +13,11 @@ exports.uploadSingleFile = (req, res) => {
     },
     filename: function (req, file, callback) {
       var fileName =
-        'user_post_' + Date.now() + path.parse(file.originalname).ext;
+        'step_' + Date.now() + path.parse(file.originalname).ext;
       callback(null, fileName);
     },
   });
   return multer({
     storage: storageWithDestination,
-  }).fields([
-    {
-      name: 'video',
-      maxCount: 1,
-    },
-    {
-      name: 'image',
-      maxCount: 1,
-    },
-  ]);
+  }).single('file');
 };
