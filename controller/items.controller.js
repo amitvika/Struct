@@ -28,6 +28,18 @@ exports.get = async (req, res) => {
   };
 }
 
+exports.getAll = async (req, res) => {
+  try {
+
+    const item = await ItemModel.find();
+    res.json(item);
+  }
+  catch (error) {
+    console.log('====', error)
+    res.status(500).send(error)
+  };
+}
+
 
 exports.create = async (req, res) => {
 

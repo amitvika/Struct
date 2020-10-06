@@ -8,9 +8,12 @@ const updateItemsAPI = (id, data) => putRequest(`/api/items/${id}`, data);
 
 const deleteItemAPI = (id) => deleteRequest(`/api/items/${id}`);
 
+const getItemsAllAPI = (query) => getRequest(`/api/items/all`);
+
 export default {
   getItemsAPI,
   saveItemAPI,
   updateItemsAPI,
-  deleteItemAPI
+  deleteItemAPI,
+  getItemsAllAPI
 }

@@ -30,7 +30,7 @@ import NewProcessAdd from "../components/Processes/newProcessAdd";
 import Machining from "../components/Processes/Machining";
 import InjectionMolding from "../components/Processes/InjectionMolding";
 import ProcessHelper from "../containers/ProcessHelper";
-import Assembly from "../components/Processes/Assembly";
+import Assembly from "../containers/Assembly";
 import ProcessAPI from '../api/process.api';
 import ProcessGroupAPI from '../api/processGroup.api';
 
@@ -154,7 +154,9 @@ class ProcessGroupDetail extends Component {
   };
 
   onNewProcessSelect = event => {
-    this.setState({ selectedProcess: event.target.value });
+    this.setState({ 
+      selectedProcess: event.target.value,
+     });
   };
 
   processAddButton = () => {
@@ -181,7 +183,7 @@ class ProcessGroupDetail extends Component {
             "\nID:" +
             res.data._id,
           createdBy: this.props.auth.user,
-          process : res.data.process,
+          process: res.data.process,
           processName: this.state.allProcessesObject[res.data.process]
         };
         tempProcessList.push(newProcess);
