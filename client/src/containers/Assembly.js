@@ -9,22 +9,29 @@ import {
   Paper,
   CardContent
 } from "@material-ui/core";
-import AddComponent from './AddComponent';
+import AddComponent from './AssemblyAddComponent';
+import AssemblyComponent from './AssemblyComponent';
 
 export default function Assembly() {
   const [isAddComponentModalOpen, setIsAddComponentModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState({});
 
   return (
     <div>
-      <Button variant="contained" color="primary" onClick={() => setIsAddComponentModalOpen(true)}>
-        Add Component
+      {
+        Object.keys(selectedItem).length > 0 ?
+          <AssemblyComponent
+            setIsAddComponentModalOpen={setIsAddComponentModalOpen}
+            selectedItem={selectedItem}
+          /> :
+          <Button variant="contained" color="primary" onClick={() => setIsAddComponentModalOpen(true)}>
+            Add Component
       </Button>
-      <Paper>
-        <Typography variant="h1" component="h2">Component 1</Typography>
-      </Paper>
+      }
       <AddComponent
         isAddComponentModalOpen={isAddComponentModalOpen}
         setIsAddComponentModalOpen={setIsAddComponentModalOpen}
+        setSelectedItem={setSelectedItem}
       />
     </div>
   );

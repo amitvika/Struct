@@ -51,3 +51,34 @@
 .Add_Component{
   width: 30%;
 }
+
+.AssemblyComponent__Header{
+  display: flex;
+  margin: 10px 50px;
+}
+
+.AssemblyComponent__Body{
+  justify-content: center;
+  padding: 50px;
+}
+
+.AssemblyComponent__Delete--Button {
+  margin-left: auto !important;
+}
+
+.AssemblyComponent__Content {
+  align-items: center;
+  display: flex;
+  margin: 30px;
+}
+
+.AsseblyComponent_Workholding{
+  justify-content: space-around;
+  display: flex;
+}
+
+.AssemblyComponent__Content--Workholding{
+  display: flex;
+  margin: 30px;
+  flex-direction: column;
+}

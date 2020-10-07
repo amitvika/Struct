@@ -10,11 +10,11 @@ import {
 } from "reactstrap";
 import ItemsAPI from '../api/items.api';
 
-export default function AppComponent({ isAddComponentModalOpen, setIsAddComponentModalOpen }) {
+export default function AppComponent({ isAddComponentModalOpen, setIsAddComponentModalOpen, setSelectedItem }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [itemList, setItemList] = useState([]);
-  const [selectedItem, setSelectedItem] = useState('Select Item')
+  const [localSelectedItem, setLocalSelectedItem] = useState({ name: 'Select Item' })
 
   const toggleModal = () => {
     setIsAddComponentModalOpen(!isAddComponentModalOpen)
@@ -40,8 +40,8 @@ export default function AppComponent({ isAddComponentModalOpen, setIsAddComponen
     }
   }, [isAddComponentModalOpen])
 
-  const handleChange = (event) => {
-    setSelectedItem(event.target.value)
+  const handleChange = (item) => {
+    setLocalSelectedItem(item)
   }
 
   const onSubmit = () => {
@@ -56,20 +56,24 @@ export default function AppComponent({ isAddComponentModalOpen, setIsAddComponen
           <FormGroup>
             <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
               <DropdownToggle caret>
-                {selectedItem}
+                {localSelectedItem.name}
               </DropdownToggle>
               <DropdownMenu>
                 {
                   itemList.map((item, index) => {
                     return <DropdownItem
                       key={index}
-                      onClick={handleChange}
+                      onClick={() => handleChange(item)}
                       value={item.name}>{item.name}</DropdownItem>
                   })
                 }
               </DropdownMenu>
             </Dropdown>
-            <Button color="dark" style={{ marginBottom: "2rem" }} block>
+            <Button color="dark" style={{ marginBottom: "2rem" }} block onClick={() => {
+              toggleModal()
+              setSelectedItem(localSelectedItem)
+            }
+            }>
               Go
           </Button>
           </FormGroup>
