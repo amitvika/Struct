@@ -9,6 +9,7 @@ import {
   Typography
 } from "@material-ui/core";
 import { NavLink, useParams } from "react-router-dom";
+import ItemGeometry from '../containers/ItemGeometry';
 
 const ItemDetail = () => {
   const [value, setValue] = useState(1);
@@ -19,7 +20,7 @@ const ItemDetail = () => {
       case 0:
         return "Add vendor items here";
       case 1:
-        return "pull reports base on items, and any details below";
+        return <ItemGeometry />;
       case 2:
         return "place all past and current service agreements here";
       case 3:

@@ -32,7 +32,7 @@ export default function ThreejsViewModal({ isVisible = false }) {
       if (container && container != null && container.length === 0) {
         throw Error("Cannot find graphical view div");
       }
-      console.log('--->>', container)
+     
       let view = new ThreeGeomView.GeomView(container);
 
       view.clearAll();

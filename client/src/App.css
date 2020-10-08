@@ -82,3 +82,13 @@
   margin: 30px;
   flex-direction: column;
 }
+
+.ItemGeometry--Choose{
+  margin: 25px;
+  display: flex;
+}
+
+.Choose_Geometry {
+  display: flex;
+  align-items: center;
+}
