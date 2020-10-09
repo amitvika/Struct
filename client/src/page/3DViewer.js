@@ -22,7 +22,7 @@ export default class Viewer extends Component {
   render() {
     return (
       <div>
-        <div id="graphical_view"
+        <div style={{ height: '80vh' }} id="graphical_view"
           className="Viewer_Graphical"></div>
 
       </div >
