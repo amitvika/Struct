@@ -57,8 +57,8 @@ const LoginModal = () => {
 
             <img
               src={StructLogo}
-              width="250"
-              height="35"
+              width="150"
+            height="30"
               className="d-inline-block align-top"
             />
 

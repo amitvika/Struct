@@ -198,12 +198,10 @@ class ProductDesign extends Component {
         <Snackbar
           open={this.state.snackBar}
           autoHideDuration={10000}
-          onClose={this.handleClose}
-        >
+          onClose={this.handleClose}>
           <MuiAlert
             severity={this.state.snackBarAlertType}
-            onClose={this.handleClose}
-          >
+            onClose={this.handleClose}>
             {this.state.msg}
           </MuiAlert>
         </Snackbar>

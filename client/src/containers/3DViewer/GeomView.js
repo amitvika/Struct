@@ -3,10 +3,12 @@
 
 // Author: etienne.rossignon@gadz.org
 // released under MIT license
-// let THREE = global.THREE;
-import * as THREE from "three";
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
+let THREE = global.THREE;
+// let TrackballControls = global.TrackballControls;
+// import * as THREE from "three";
+// import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 
+console.log(global.THREE)
 let assert = global.assert || function (condition, message) {
   if (!condition) {
     throw new Error(message);
@@ -184,7 +186,7 @@ function GeomView(container, width, height) {
   container.appendChild(me.renderer.domElement);
 
 
-  me.controls = new TrackballControls(me.camera, container);
+  me.controls = new THREE.TrackballControls(me.camera, container);
 
   me.controls.rotateSpeed = 1.0;
   me.controls.zoomSpeed = 1.2;
@@ -304,7 +306,7 @@ function GeomView(container, width, height) {
         }
       },
       undefined,
-      function onError() {
+      function onError(error) {
         console.log("cannot load background texture");
         if (me.render3D) {
           me.render3D();
@@ -335,7 +337,7 @@ function GeomView(container, width, height) {
 
   };
 
-  me.setGraduatedBackgound("/images/backgrounds/Graduated_Blue_Background.png");
+  me.setGraduatedBackgound("/images/backgrounds/body_bg.jpg");
 
   me.resizeRenderer = function () {
     const me = this;
@@ -512,6 +514,7 @@ function GeomView(container, width, height) {
 
   };
   DragObjectManipulator.prototype.onMouseMove = function (event) {
+    
 
     const intersects = buildIntersectPlane(event);
 
@@ -673,9 +676,9 @@ function process_face_mesh(rootNode, jsonEntry, color) {
   const jsonFace = jsonEntry.mesh;
 
   jsonFace.scale = 1.0;
-  // const jsonLoader = new THREE.JSONLoader();
+  const jsonLoader = new THREE.JSONLoader();
 
-  const model = jsonFace// jsonLoader.parse(jsonFace, /* texturePath */ undefined);
+  const model = jsonLoader.parse(jsonFace, /* texturePath */ undefined);
 
   const material = new THREE.MeshLambertMaterial({ color: rgb2hex(color) });
   const mesh = new THREE.Mesh(model.geometry, material);
@@ -693,7 +696,7 @@ function process_edge_mesh(rootNode, jsonEdge) {
     geometry.vertices.push(new THREE.Vector3(v[i], v[i + 1], v[i + 2]));
     i += 3;
   }
-  const material = new THREE.LineDashedMaterial({ linewidth: 4, color: 0xffffff });
+  const material = new THREE.LineDashedMaterial({ linewidth: 4, color: 0x000000 });
   const polyline = new THREE.Line(geometry, material);
   polyline.properties = polyline.properties || {};
   polyline.properties.OCCType = "edge";
