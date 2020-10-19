@@ -13,7 +13,7 @@ exports.get = (req, res) => {
 exports.create = (req, res) => {
   const saveObject = {
     process: req.body.process,
-    createdBy: req.body.user,
+    createdBy: req.user.id,
     processGroup: req.body.processGroup
   };
   const newProcessData = new ProcessData(saveObject);

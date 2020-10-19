@@ -6,14 +6,13 @@ exports.get = async (req, res) => {
 
     let query = {};
 
-    if (req.query.vendorId) {
-      query = { vendorId: req.query.vendorId }
+    if (req.params.id) {
+      query = { id: req.params.id }
     }
 
     const options = {
       page: req.query.page,
       limit: req.query.limit,
-      populate: 'vendorId',
       sort: { date: -1 },
     };
 

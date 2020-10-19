@@ -11,8 +11,6 @@ export default class AssemblyThreejsView extends Component {
       throw Error("Cannot find graphical view div");
     }
 
-    console.log(container)
-
     let view = new ThreeGeomView.GeomView(container);
 
     view.clearAll();

@@ -63,7 +63,6 @@ class ProcessGroupDetail extends Component {
       .getProcessApi()
       .then(res => {
         var allProcessesObject = {};
-        //console.log(res.data.name);
         res.data.forEach((x, index) => {
           allProcessesObject[x._id] = x.name;
         });
@@ -85,7 +84,6 @@ class ProcessGroupDetail extends Component {
           snackBarAlertType: "error",
           snackBar: true
         });
-        console.log(err);
       });
   };
 
@@ -105,7 +103,6 @@ class ProcessGroupDetail extends Component {
         ProcessGroupAPI
           .getProcessDataApi(this.props.match.params.id)
           .then(res => {
-            // console.log(res.data);
             var processData = res.data.map((x, index) => {
               return {
                 id: x._id,
@@ -149,18 +146,16 @@ class ProcessGroupDetail extends Component {
   };
 
   handleChange = (event, newValue) => {
-    console.log('--->>>>>', newValue)
     this.setState({ value: newValue });
   };
 
   onNewProcessSelect = event => {
-    this.setState({ 
+    this.setState({
       selectedProcess: event.target.value,
-     });
+    });
   };
 
   processAddButton = () => {
-    //console.log(this.state.selectedProcess);
 
     const newClient = {
       process: this.state.selectedProcess,
@@ -172,8 +167,6 @@ class ProcessGroupDetail extends Component {
     ProcessGroupAPI.
       addProcessDataApi(newClient)
       .then(res => {
-        console.log(res.data);
-
         //add the new process to state handling the
         var tempProcessList = this.state.products;
         var newProcess = {
@@ -219,12 +212,7 @@ class ProcessGroupDetail extends Component {
     clickToSelect: true,
     style: { backgroundColor: "#ededed" },
     onSelect: (row, isSelect, rowIndex, e) => {
-      console.log(row);
-      console.log(row.process);
-      console.log(isSelect);
-      console.log(rowIndex);
-      console.log(row.processName);
-      console.log(e);
+      console.log(row)
       this.setState({
         value: row.process,
         selectedProcessId: row.id,
@@ -234,24 +222,26 @@ class ProcessGroupDetail extends Component {
     }
   };
 
-  render() {
-    function renderPageSwitch(index) {
-      switch (index) {
-        case 0:
-          return <ProcessHelper />;
-        case 1:
-          return <NewProcessAdd />;
-        case "5eaeee3f8986281884691dd7":
-          return <Machining />;
-        case "5eaeef468986281884691dd9":
-          return <Assembly />;
-        case "5eaeef0a8986281884691dd8":
-          return <InjectionMolding />;
+  renderPageSwitch = (index) => {
+    switch (index) {
+      case 0:
+        return <ProcessHelper />;
+      case 1:
+        return <NewProcessAdd />;
+      case "5eaeee3f8986281884691dd7":
+        return <Machining />;
+      case "5eaeef468986281884691dd9":
+        return <Assembly processId={this.state.selectedProcessId} />;
+      case "5eaeef0a8986281884691dd8":
+        return <InjectionMolding />;
 
-        default:
-          return "Undefined Tab Index";
-      }
+      default:
+        return "Undefined Tab Index";
     }
+  }
+
+  render() {
+
     return (
       <div>
         <Snackbar
@@ -320,7 +310,7 @@ class ProcessGroupDetail extends Component {
                             onChange={this.onNewProcessSelect}
                           >
                             {this.state.allProcesses.map(({ _id, name }) => (
-                              <MenuItem value={_id}>{name}</MenuItem>
+                              <MenuItem key={_id} value={_id}>{name}</MenuItem>
                             ))}
                           </Select>
                         </FormControl>{" "}
@@ -358,7 +348,7 @@ class ProcessGroupDetail extends Component {
                     {/*<Button onClick={this.printState}>Test State</Button>*/}
                   </Paper>
                   <Paper style={{ padding: 20, margin: 10 }}>
-                    {renderPageSwitch(this.state.value)}
+                    {this.renderPageSwitch(this.state.value)}
                   </Paper>
                 </div>
               ) : (

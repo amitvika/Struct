@@ -19,6 +19,7 @@ router.use("/processGroup", require("./processGroup"));
 router.use("/processdata", require("./processData.route"));
 router.use("/processes", require("./processes"));
 router.use("/vendor", require("./vendors.route"));
+router.use("/assemblyProcess", require("./assemblyProcess.route"));
 
 router.post('/step-file', Upload.uploadSingleFile(), ProcessGroupController.load_cadfile)
 
