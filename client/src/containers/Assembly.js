@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
 
 import AssemblyTable from './AssemblyTable';
-import AssemblyThreejsView from './AssemblyThreejsView'
+import ThreejsViewModal from './ThreejsViewModal'
 
 export default function Assembly({ processId }) {
 
+  const [isThreejsVisible, setIsThreejsVisible] = useState(false);
   return (
     <div>
-      <AssemblyThreejsView />
-      <AssemblyTable processId={processId} />
+      <ThreejsViewModal
+        isVisible={isThreejsVisible} />
+
+      <AssemblyTable processId={processId} setIsThreejsVisible={setIsThreejsVisible} />
     </div>
   );
 }

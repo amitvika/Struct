@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import MaterialTable, { MTableToolbar } from "material-table";
 import AssemblyProcessAPI from '../api/assemblyProcess.api';
 
-export default function AssemblyTable({ processId }) {
+export default function AssemblyTable({ processId, setIsThreejsVisible }) {
   const [columns, setColumns] = useState([
-    { title: "Sequence", field: "id" },
+    { title: "Sequence #", field: "serialNumber" },
     { title: "Action", field: "action" },
     { title: "Status ", field: "status" }
   ]);
@@ -14,24 +14,27 @@ export default function AssemblyTable({ processId }) {
   const handleAddRow = () => {
     const rowLength = rowData.length;
     const data = [
-      { id: rowLength + 1, action: "Work Holding 1", status: 'X4' },
-      { id: rowLength + 2, action: "First Item Setup:", status: 'X' }
+      { serialNumber: rowLength + 2, action: "First Item Setup:", status: 'X', assemblyId: processId },
+      { serialNumber: rowLength + 1, action: "Work Holding 1", status: 'X4', assemblyId: processId }
     ]
+    AssemblyProcessAPI.addAssemblyProcessApi({ assembly_processes: data })
+      .then(data => {
+        console.log(data);
+      })
 
-    setRowData(prev => [...prev, ...data])
+    setRowData(prev => [...data, ...prev])
   }
 
   useEffect(() => {
     if (processId) {
+      setIsThreejsVisible(false);
       AssemblyProcessAPI
         .fetchAssemblyProcessApi(processId)
-        .then(response => {
-          console.log('--response->>>>',response)
-        })
-        .catch(error => {
-
-        })
+        .then(result => {
+          setRowData(result.data);
+        });
     }
+
   }, [processId])
 
   return (
@@ -39,7 +42,7 @@ export default function AssemblyTable({ processId }) {
       <MaterialTable
         columns={columns}
         data={rowData}
-        title="Process Groups"
+        title="Assembly Sequence Setup"
         options={{
           addRowPosition: "first",
           actionsColumnIndex: 4
@@ -58,11 +61,7 @@ export default function AssemblyTable({ processId }) {
           }
         ]}
         onRowClick={(rowdata, event) => {
-          const selection = window.getSelection();
-
-          if (selection.type != "Range") {
-            // this.props.history.push(`/process-groups/${event.id}`);
-          }
+          setIsThreejsVisible(true);
         }}
       >
 

@@ -1,6 +1,6 @@
 import { postRequest, getRequest, putRequest, deleteRequest } from '../utils/apiHandler';
 
-const fetchAssemblyProcessApi = (id) => getRequest(`/api/assemblyProcess/${id}`);
+const fetchAssemblyProcessApi = (id, query) => getRequest(`/api/assemblyProcess/${id}?${query}`);
 
 const addAssemblyProcessApi = (data) => postRequest('/api/assemblyProcess', data);
 

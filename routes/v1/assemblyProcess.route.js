@@ -4,7 +4,7 @@ const auth = require("../../middleware/auth");
 const AssemblyProcessController = require('../../controller/assemblyProcess.controller');
 
 router.use(auth);
-router.get("/:id", AssemblyProcessController.get);
+router.get("/:assemblyId", AssemblyProcessController.get);
 
 router.get("/all", AssemblyProcessController.getAll);
 

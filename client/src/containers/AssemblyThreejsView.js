@@ -1,6 +1,11 @@
 import React, { Component } from 'react'
 import ThreeGeomView from './3DViewer/GeomView';
 import MeshJSON from '../assets/mesh.json'
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+} from "reactstrap";
 
 export default class AssemblyThreejsView extends Component {
 
@@ -20,12 +25,17 @@ export default class AssemblyThreejsView extends Component {
   }
 
   render() {
+    const { isModalVisible, handleModalToggle } = this.props;
     return (
-      <div>
-        <div style={{ height: '40vh' }} id="graphical_view"
-          className="Viewer_Graphical"></div>
-
-      </div >
+      <Modal isOpen={isModalVisible} toggle={handleModalToggle}>
+        <ModalHeader toggle={handleModalToggle}>Thressjs</ModalHeader>
+        <ModalBody>
+          <div>
+            <div style={{ height: '40vh' }} id="graphical_view"
+              className="Viewer_Graphical"></div>
+          </div >
+        </ModalBody>
+      </Modal>
     )
   }
 }

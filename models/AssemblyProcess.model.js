@@ -16,10 +16,15 @@ const AssemblyProcessSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  status:{
+  status: {
     type: String,
     required: true
-  }
+  },
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
 });
 
 AssemblyProcessSchema.plugin(mongoosePaginate);

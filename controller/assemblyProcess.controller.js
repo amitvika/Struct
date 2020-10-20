@@ -4,21 +4,11 @@ const ChangeTracking = require("../models/ChangeTracking.model");
 exports.get = async (req, res) => {
   try {
 
-    let query = {};
+    const item = await AssemblyProcessModel
+      .find({ assemblyId: req.params.assemblyId })
+      .sort({ serialNumber: -1 })
 
-    if (req.params.id) {
-      query = { id: req.params.id }
-    }
-
-    const options = {
-      page: req.query.page,
-      limit: req.query.limit,
-      sort: { date: -1 },
-    };
-
-    const item = await AssemblyProcessModel.paginate(query, options)
-
-    res.json(item);
+    res.json(item)
 
   }
   catch (error) {
@@ -43,30 +33,36 @@ exports.getAll = async (req, res) => {
 exports.create = async (req, res) => {
 
   try {
+    const { assembly_processes } = req.body;
 
-    const newItem = new AssemblyProcessModel({
-      assemblyId: req.body.assemblyId,
-      serialNumber: req.body.serialNumber,
-      action: req.body.action,
-      author: req.user.id
+    assembly_processes.map(async data => {
+
+
+      const newItem = new AssemblyProcessModel({
+        assemblyId: data.assemblyId,
+        serialNumber: data.serialNumber,
+        action: data.action,
+        status: data.status,
+        author: req.user.id
+      });
+
+      const savedItem = await newItem.save();
+      if (!savedItem) {
+        throw { message: 'Unable to save' }
+      }
+
+      const changeTracking = new ChangeTracking({
+        client: savedItem._id,
+        update: savedItem,
+        model: "Item",
+        updateType: "Create",
+        updatedObject: savedItem._id,
+        updatedBy: req.user.id
+      });
+      await changeTracking.save();
     });
 
-    const savedItem = await newItem.save();
-    if (!savedItem) {
-      throw { message: 'Unable to save' }
-    }
-
-    const changeTracking = new ChangeTracking({
-      client: savedItem._id,
-      update: savedItem,
-      model: "Item",
-      updateType: "Create",
-      updatedObject: savedItem._id,
-      updatedBy: req.user.id
-    });
-    await changeTracking.save();
-
-    res.json(savedItem);
+    res.json({ success: true });
 
   }
   catch (error) {
