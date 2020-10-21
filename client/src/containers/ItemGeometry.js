@@ -12,25 +12,35 @@ import {
   Paper,
   CircularProgress
 } from "@material-ui/core";
+import ItemAPI from '../api/items.api';
 
-export default function ItemGeometry() {
+export default function ItemGeometry({ itemId }) {
 
   const [isFileUploading, setIsFileUploading] = useState(false);
-  const [meshJson, setMeshJson] = useState(MeshJSON);
 
   useEffect(() => {
-    setTimeout(() => {
-      loadViewer()
-    }, 0);
-  })
+    ItemAPI
+      .getItemGeomtery(itemId)
+      .then(res => {
+        setTimeout(() => {
+          loadViewer(res.data.step)
+        }, 100);
 
-  const loadViewer = () => {
+      })
+  }, [])
+
+  const loadViewer = (meshJson) => {
     try {
       const container = document.getElementById("graphical_view");
 
       if (container && container != null && container.length === 0) {
         throw Error("Cannot find graphical view div");
       }
+      
+      if(container){
+        container.innerHTML = '';
+      }
+
 
       let view = new ThreeGeomView.GeomView(container);
 
@@ -49,11 +59,10 @@ export default function ItemGeometry() {
     ProcessGroupAPI
       .uploadStepfile(data)
       .then(res => {
-        setMeshJson(res.data);
         setIsFileUploading(false);
       })
       .catch(error => {
-        console.log('----->>>>', error)
+        // console.log('----->>>>', error)
         setIsFileUploading(false);
       })
   }
@@ -61,7 +70,7 @@ export default function ItemGeometry() {
   return (
     <div>
       {isFileUploading && <CircularProgress />}
-      <FileUpload handleFileUpload={handleFileUpload} />
+      <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
       <div id="graphical_view"
         className="Viewer_Graphical"></div>
 

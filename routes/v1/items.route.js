@@ -14,4 +14,6 @@ router.put("/:id", ItemsController.update);
 
 router.delete("/:id", ItemsController.delete);
 
+router.get("/:id/geomtery", ItemsController.itemGeometry);
+
 module.exports = router;

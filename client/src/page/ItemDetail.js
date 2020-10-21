@@ -20,7 +20,7 @@ const ItemDetail = () => {
       case 0:
         return "Add vendor items here";
       case 1:
-        return <ItemGeometry />;
+        return <ItemGeometry itemId={id} />;
       case 2:
         return "place all past and current service agreements here";
       case 3:

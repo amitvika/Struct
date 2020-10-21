@@ -10,10 +10,13 @@ const deleteItemAPI = (id) => deleteRequest(`/api/items/${id}`);
 
 const getItemsAllAPI = (query) => getRequest(`/api/items/all`);
 
+const getItemGeomtery = (id) => getRequest(`/api/items/${id}/geomtery`);
+
 export default {
   getItemsAPI,
   saveItemAPI,
   updateItemsAPI,
   deleteItemAPI,
-  getItemsAllAPI
+  getItemsAllAPI,
+  getItemGeomtery
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import ThreeGeomView from './3DViewer/GeomView';
-import MeshJSON from '../assets/mesh.json'
+// import MeshJSON from '../assets/mesh.json'
 import {
   Button,
   Modal,
@@ -19,13 +19,9 @@ export default function ThreejsViewModal({ isVisible = false }) {
   const toggleDropdown = () => setDropdownOpen(prevState => !prevState);
 
   useEffect(() => {
-    if (isVisible) {
-      setTimeout(() => {
-        loadViewer();
-
-      }, 3000)
-      setIsModalVisible(!isModalVisible);
-    }
+    // if (isVisible) {
+      setIsModalVisible(isVisible);
+    // }
   }, [isVisible]);
 
   useEffect(() => {
@@ -40,7 +36,7 @@ export default function ThreejsViewModal({ isVisible = false }) {
       })
   }, []);
 
-  const loadViewer = () => {
+  const loadViewer = (MeshJSON) => {
     try {
 
       const container = document.getElementById("graphical_view");
@@ -67,7 +63,16 @@ export default function ThreejsViewModal({ isVisible = false }) {
   }
 
   const handleChange = (item) => {
-    setLocalSelectedItem(item)
+    setLocalSelectedItem(item);
+
+    ItemsAPI
+      .getItemGeomtery(item._id)
+      .then(res => {
+        setTimeout(() => {
+          loadViewer(res.data.step)
+        }, 100);
+
+      })
   }
 
   return (

@@ -1,8 +1,5 @@
 const ProcessGroup = require("../models/ProcessGroup");
 const ChangeTracking = require("../models/ChangeTracking.model");
-const nodeocc = require("node-occ");
-const occ = nodeocc.occ;
-const path = require('path');
 const { extractIds } = require('../utils/helper');
 
 exports.get = async (req, res) => {
@@ -130,44 +127,4 @@ exports.delete = (req, res) => {
         .catch(err => res.status(404).json({ success: false }));
     }
   });
-}
-
-
-exports.load_cadfile = function (req, res) {
- 
-  var filename = path.join(global.MY_ROOT, req.file.path);
-
-  function progress(percent) {
-    // console.log(" -----------------> ", percent);
-  }
-
-  occ.readSTEP(filename, function (err, solids) {
-    if (err) {
-      console.log(" readStep has failed", err.message);
-      res.status(501).send("Error building solid : " + err.message + "    " + err.stack);
-    } else {
-      console.log(" readStep has succeeded");
-      res.send(buildResponse(solids, []));
-    }
-  }, progress);
-};
-
-
-function buildResponse(solids, logs) {
-
-  let response = { solids: [], logs: [] };
-  let counter = 1;
-  solids.forEach(function (solid) {
-    solid.name = "S" + counter;
-    counter++;
-    try {
-      let mesh = occ.buildSolidMesh(solid);
-      response.solids.push(mesh);
-    }
-    catch (err) {
-      console.log(" EXCEPTION in MESHING ");
-    }
-  });
-  response.logs = logs;
-  return response;
 }

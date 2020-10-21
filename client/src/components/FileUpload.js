@@ -9,7 +9,7 @@ import { Button } from "@material-ui/core";
 import Message from "./Message";
 import ProgressBar from "./ProgressBar";
 
-export default function FileUpload({ handleFileUpload }) {
+export default function FileUpload({ handleFileUpload, itemId }) {
   //State
   const [file, setFile] = useState("");
   const [fileName, setFileName] = useState("");
@@ -29,6 +29,7 @@ export default function FileUpload({ handleFileUpload }) {
     e.preventDefault();
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("itemId", itemId);
     handleFileUpload(formData)
   };
 
