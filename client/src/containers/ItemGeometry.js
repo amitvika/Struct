@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import ThreeGeomView from './3DViewer/GeomView';
-import MeshJSON from '../assets/mesh.json'
 import FileUpload from '../components/FileUpload';
 import ProcessGroupAPI from '../api/processGroup.api'
 import ChooseGeometry from './ChooseGeometry';
@@ -24,7 +23,7 @@ export default function ItemGeometry({ itemId }) {
       .then(res => {
         setTimeout(() => {
           loadViewer(res.data.step)
-        }, 100);
+        }, 1000);
 
       })
   }, [])
@@ -40,7 +39,6 @@ export default function ItemGeometry({ itemId }) {
       if(container){
         container.innerHTML = '';
       }
-
 
       let view = new ThreeGeomView.GeomView(container);
 

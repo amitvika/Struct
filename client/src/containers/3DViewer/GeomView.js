@@ -42,7 +42,7 @@ const GeomTools = {
 
   makeGrid: function () {
 
-    const size = 200, step = 10;
+    const size = 300, step = 10;
     const geometry = new THREE.Geometry();
     const material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors });
 
