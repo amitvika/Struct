@@ -12,11 +12,15 @@ const getItemsAllAPI = (query) => getRequest(`/api/items/all`);
 
 const getItemGeomtery = (id) => getRequest(`/api/items/${id}/geomtery`);
 
+const deleteItemGeomtery = (id) => deleteRequest(`/api/items/${id}/geomtery`);
+
+
 export default {
   getItemsAPI,
   saveItemAPI,
   updateItemsAPI,
   deleteItemAPI,
   getItemsAllAPI,
-  getItemGeomtery
+  getItemGeomtery,
+  deleteItemGeomtery
 }

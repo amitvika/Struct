@@ -220,7 +220,22 @@ exports.itemGeometry = (req, res) => {
 
   ItemGeometryModel.findOne({ itemId })
     .then(data => {
-      console.log('-data-->>>>',data)
+      console.log('-data-->>>>', data)
+      if(!data){
+        res.send({});  
+      }
+      res.send(data);
+    })
+    .catch(error => {
+      res.status(500).send({ message: 'Internal Server Error' })
+    })
+}
+
+exports.removeItemGeometry = (req, res) => {
+  const itemId = req.params.id;
+
+  ItemGeometryModel.findOneAndRemove({ itemId })
+    .then(data => {
       res.send(data);
     })
     .catch(error => {

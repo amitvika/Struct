@@ -15,16 +15,28 @@ import ItemAPI from '../api/items.api';
 
 export default function ItemGeometry({ itemId }) {
 
-  const [isFileUploading, setIsFileUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isStepLoaded, setIsStepLoaded] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
+
     ItemAPI
       .getItemGeomtery(itemId)
       .then(res => {
-        setTimeout(() => {
-          loadViewer(res.data.step)
-        }, 1000);
+        setIsLoading(false);
 
+        if (res.data.step) {
+          setIsStepLoaded(true);
+          setTimeout(() => {
+            loadViewer(res.data.step)
+          }, 1000);
+        }
+      
+      })
+      .catch(error => {
+        setIsStepLoaded(false);
+        setIsLoading(false);
       })
   }, [])
 
@@ -35,8 +47,8 @@ export default function ItemGeometry({ itemId }) {
       if (container && container != null && container.length === 0) {
         throw Error("Cannot find graphical view div");
       }
-      
-      if(container){
+
+      if (container) {
         container.innerHTML = '';
       }
 
@@ -53,51 +65,84 @@ export default function ItemGeometry({ itemId }) {
   }
 
   const handleFileUpload = (data) => {
-    setIsFileUploading(true);
+    setIsLoading(true);
     ProcessGroupAPI
       .uploadStepfile(data)
       .then(res => {
-        setIsFileUploading(false);
+        setIsLoading(false);
       })
       .catch(error => {
         // console.log('----->>>>', error)
-        setIsFileUploading(false);
+        setIsLoading(false);
       })
   }
 
+  const removeFile = (data) => {
+    setIsLoading(true);
+    ItemAPI
+      .deleteItemGeomtery(itemId)
+      .then(res => {
+        loadViewer({})
+        setIsLoading(false);
+      })
+      .catch(error => {
+        setIsLoading(false);
+      })
+  }
+
+  if (isLoading) {
+    return <CircularProgress />
+  }
   return (
     <div>
-      {isFileUploading && <CircularProgress />}
-      <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
-      <div id="graphical_view"
-        className="Viewer_Graphical"></div>
-
-      <Paper elevation={0} className="ItemGeometry--Choose">
-        <ChooseGeometry />
-        <ChooseMaterial />
-        <ChooseItemType />
-      </Paper>
-
-      <Snackbar
-        open={true}
-        //autoHideDuration={10000}
-        //onClose={this.handleClose}
-        style={{
-          marginRight: "17%"
-        }}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right"
-        }}
-      >
+      {isStepLoaded ?
         <Button
           className="mt-2 mb-3"
           variant="contained"
           color="primary"
-          onClick={() => { }}>
-          Save
+          onClick={removeFile}>
+          Clear File
+      </Button>
+        :
+        <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
+
+      }
+
+      <div id="graphical_view"
+        className="Viewer_Graphical"></div>
+
+      {
+        !isStepLoaded && <>
+
+
+          <Paper elevation={0} className="ItemGeometry--Choose">
+            <ChooseGeometry />
+            <ChooseMaterial />
+            <ChooseItemType />
+          </Paper>
+
+          <Snackbar
+            open={true}
+            //autoHideDuration={10000}
+            //onClose={this.handleClose}
+            style={{
+              marginRight: "17%"
+            }}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right"
+            }}
+          >
+            <Button
+              className="mt-2 mb-3"
+              variant="contained"
+              color="primary"
+              onClick={() => { }}>
+              Save
           </Button>
-      </Snackbar>
+          </Snackbar>
+        </>
+      }
     </div >
   )
 }

@@ -21,6 +21,6 @@ router.use("/processes", require("./processes"));
 router.use("/vendor", require("./vendors.route"));
 router.use("/assemblyProcess", require("./assemblyProcess.route"));
 
-router.post('/step-file', Upload.uploadSingleFile(), ItemController.load_cadfile)
+router.post('/step-file', Upload.uploadSingleFile(), ItemController.load_cadfile);
 
 module.exports = router;
