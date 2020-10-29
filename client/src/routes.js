@@ -26,7 +26,7 @@ import ClientDetail from "./page/ClientDetail";
 import ProductDesignDetail from "./page/ProductDesignDetail";
 import ProcessGroupDetail from "./page/ProcessGroupDetail";
 import VendorDetail from "./page/VendorDetail";
-import ItemDetail from "./page/ItemDetail";
+import ItemDetail from "./containers/itemDetail/ItemDetail";
 
 import Viewer from './page/3DViewer'
 

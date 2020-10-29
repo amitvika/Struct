@@ -9,7 +9,8 @@ import {
   Typography
 } from "@material-ui/core";
 import { NavLink, useParams } from "react-router-dom";
-import ItemGeometry from '../containers/ItemGeometry';
+import ItemGeometry from './ItemGeometry';
+import CurrentUsage from './CurrentUsage';
 
 const ItemDetail = () => {
   const [value, setValue] = useState(1);
@@ -22,6 +23,9 @@ const ItemDetail = () => {
       case 1:
         return <ItemGeometry itemId={id} />;
       case 2:
+        return <CurrentUsage itemId={id} />
+
+      case 7:
         return "place all past and current service agreements here";
       case 3:
         return "signed service agreement with the current state of config.  IF there is changed configs, those changes will show up here and will indicate to reduline the contract with those new items.  Also feature of auto generate the contract will be included";
@@ -66,12 +70,13 @@ const ItemDetail = () => {
             variant="scrollable"
             value={value}
             onChange={(event, newValue) => setValue(newValue)}>
-            <Tab label="Item Geometry" value={1} />
-            <Tab label="Item Properties" value={2} />
-            <Tab label="Item Type Configurations" value={3} />
-            <Tab label="Item Variations" value={4} />
-            <Tab label="Validations" value={5} />
-            <Tab label="Production Regimens" value={6} />
+            <Tab label="Item Geometry and Properties" value={1} />
+            <Tab label="Current Usage" value={2} />
+            <Tab label="Item Properties" value={3} />
+            <Tab label="Item Type Configurations" value={4} />
+            <Tab label="Item Variations" value={5} />
+            <Tab label="Validations" value={6} />
+            <Tab label="Production Regimens" value={7} />
           </Tabs>
         </Paper>
       </Grid>

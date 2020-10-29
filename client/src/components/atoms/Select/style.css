@@ -1,0 +1,47 @@
+.brewery-select-wrap .brewery-select__control {
+  background-color: #e9f1f8;
+  border: 0;
+  border-radius: 3px;
+  min-height: 40px;
+  min-width: 200px;
+}
+
+.brewery-select-wrap .brewery-select__single-value,
+.brewery-select-wrap .brewery-select__placeholder {
+  color: #6f91b1;
+  font-family: Montserrat;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.29;
+}
+
+.brewery-select-wrap .brewery-select__single-value {
+  color: var(--BrewLogixBlue);
+}
+
+.brewery-select-wrap .brewery-select__indicator-separator {
+  background-color: #6f91b152;
+}
+
+.brewery-select-wrap > label {
+  color: var(--BrewLogixBlue);
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.29;
+  margin-bottom: 5px;
+}
+
+.brewery-select-wrap .brewery-select__menu-list {
+  background-color: #e9f1f8;
+}
+
+.brewery-select-wrap .brewery-select__option {
+  color: var(--BrewLogixBlue);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.flavors-modal {
+  margin: 5% auto !important;
+}

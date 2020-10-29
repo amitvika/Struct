@@ -220,7 +220,6 @@ exports.itemGeometry = (req, res) => {
 
   ItemGeometryModel.findOne({ itemId })
     .then(data => {
-      console.log('-data-->>>>', data)
       if(!data){
         res.send({});  
       }
