@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import ThreeGeomView from './3DViewer/GeomView';
-import MeshJSON from '../assets/mesh.json'
-import FileUpload from '../components/FileUpload';
-import ProcessGroupAPI from '../api/processGroup.api'
+import ThreeGeomView from '../3DViewer/GeomView';
+import FileUpload from '../../components/FileUpload';
+import ProcessGroupAPI from '../../api/processGroup.api'
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 export default class ProcessHelper extends Component {

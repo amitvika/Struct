@@ -2,13 +2,13 @@ import MaterialTable, { MTableToolbar } from "material-table";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
-import { changePage } from "../actions/pageActions";
+import { changePage } from "../../actions/pageActions";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
-import ProcessGroupAPI from '../api/processGroup.api';
-import ClientAPI from '../api/clients.api';
-import ShowHistoryModal from "../containers/ShowHistoryModal";
-import Toolbar from '../components/Toolbar';
+import ProcessGroupAPI from '../../api/processGroup.api';
+import ClientAPI from '../../api/clients.api';
+import ShowHistoryModal from "../ShowHistoryModal";
+import Toolbar from '../../components/Toolbar';
 
 class ProcessGroups extends Component {
   state = {

@@ -13,7 +13,7 @@ import Login from './page/Login';
 import Register from './page/RegisterPage';
 import Vendors from "./page/Vendors";
 import Dashboard from './page/Dashboard';
-import ProcessGroups from './page/ProcessGroups';
+import ProcessGroups from './containers/processGroups/ProcessGroups';
 import Clients from './page/Clients';
 import ProductDesign from './page/ProductDesign';
 import Items from './page/Items';
@@ -24,7 +24,7 @@ import ViewAccess from './page/ViewAccess';
 
 import ClientDetail from "./page/ClientDetail";
 import ProductDesignDetail from "./page/ProductDesignDetail";
-import ProcessGroupDetail from "./page/ProcessGroupDetail";
+import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
 import VendorDetail from "./page/VendorDetail";
 import ItemDetail from "./containers/itemDetail/ItemDetail";
 

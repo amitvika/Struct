@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import ThreeGeomView from './3DViewer/GeomView';
+import ThreeGeomView from '../3DViewer/GeomView';
 // import MeshJSON from '../assets/mesh.json'
 import {
   Button,
@@ -8,7 +8,7 @@ import {
   ModalBody,
   Dropdown, DropdownToggle, DropdownMenu, DropdownItem
 } from "reactstrap";
-import ItemsAPI from '../api/items.api';
+import ItemsAPI from '../../api/items.api';
 
 export default function ThreejsViewModal({ isVisible = false }) {
   const [isModalVisible, setIsModalVisible] = useState(isVisible);

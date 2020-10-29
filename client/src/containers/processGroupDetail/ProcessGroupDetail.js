@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
-import { changePage } from "../actions/pageActions";
+import { changePage } from "../../actions/pageActions";
 import {
   Checkbox,
   Snackbar,
@@ -26,13 +26,15 @@ import AddIcon from "@material-ui/icons/Add";
 import BootstrapTable from "react-bootstrap-table-next";
 import filterFactory, { textFilter } from "react-bootstrap-table2-filter";
 import { NavLink } from "react-router-dom";
-import NewProcessAdd from "../components/Processes/newProcessAdd";
-import Machining from "../components/Processes/Machining";
-import InjectionMolding from "../components/Processes/InjectionMolding";
-import ProcessHelper from "../containers/ProcessHelper";
-import Assembly from "../containers/Assembly";
-import ProcessAPI from '../api/process.api';
-import ProcessGroupAPI from '../api/processGroup.api';
+
+import NewProcessAdd from "./newProcessAdd";
+import Machining from "./Machining";
+import InjectionMolding from "./InjectionMolding";
+import ProcessHelper from "./ProcessHelper";
+import Assembly from "./Assembly";
+
+import ProcessAPI from '../../api/process.api';
+import ProcessGroupAPI from '../../api/processGroup.api';
 
 class ProcessGroupDetail extends Component {
   state = {
