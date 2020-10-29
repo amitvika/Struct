@@ -224,7 +224,9 @@ exports.itemGeometry = (req, res) => {
       if(!data){
         res.send({});  
       }
-      res.send(data);
+      else {
+        res.send(data);
+      }
     })
     .catch(error => {
       res.status(500).send({ message: 'Internal Server Error' })

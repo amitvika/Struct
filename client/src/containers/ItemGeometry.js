@@ -69,6 +69,7 @@ export default function ItemGeometry({ itemId }) {
     ProcessGroupAPI
       .uploadStepfile(data)
       .then(res => {
+        setIsStepLoaded(false);
         setIsLoading(false);
       })
       .catch(error => {
