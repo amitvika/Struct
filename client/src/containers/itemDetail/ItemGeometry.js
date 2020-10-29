@@ -21,18 +21,20 @@ export default function ItemGeometry({ itemId, itemDetail }) {
   const [isStepLoaded, setIsStepLoaded] = useState(false);
   const [itemData, setItemData] = useState({});
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log(itemDetail)
-    if(itemDetail){
+    if (itemDetail) {
       setItemData(itemDetail);
-
-      setTimeout(()=>{
-        if(itemDetail.step){
+      if (itemDetail.step) {
+        setIsStepLoaded(true);
+      }
+      setTimeout(() => {
+        if (itemDetail.step) {
           loadViewer(itemDetail.step)
         }
       }, [1000])
     }
-  },[itemDetail])
+  }, [itemDetail])
 
   const loadViewer = (meshJson) => {
     try {
@@ -73,15 +75,15 @@ export default function ItemGeometry({ itemId, itemDetail }) {
   }
 
   const removeFile = (data) => {
-    setIsLoading(true);
+    // setIsLoading(true);
     ItemAPI
       .deleteItemGeomtery(itemId)
       .then(res => {
         loadViewer({})
-        setIsLoading(false);
+        setIsStepLoaded(false);
       })
       .catch(error => {
-        setIsLoading(false);
+        // setIsLoading(false);
       })
   }
 
@@ -105,30 +107,28 @@ export default function ItemGeometry({ itemId, itemDetail }) {
   return (
     <div>
       {
-        !isStepLoaded && <>
-          <Paper elevation={0} className="ItemGeometry--Choose">
-            <Grid className="section-padding-left" container spacing={4}>
+        <Paper elevation={0} className="ItemGeometry--Choose">
+          <Grid className="section-padding-left" container spacing={4}>
 
-              <Grid item xs={12}>
-                {isStepLoaded ?
-                  <Button
-                    className="mt-2 mb-3"
-                    variant="contained"
-                    color="primary"
-                    onClick={removeFile}>
-                    Clear File
+            <Grid item xs={12}>
+              {isStepLoaded ?
+                <Button
+                  className="mt-2 mb-3"
+                  variant="contained"
+                  color="primary"
+                  onClick={removeFile}>
+                  Clear File
                     </Button>
-                  :
-                  <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
-                }
-              </Grid>
-
-
+                :
+                <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
+              }
             </Grid>
-          </Paper>
-        </>
+            <GeometryInput setItemData={setItemData} itemData={itemData} />
+          </Grid>
+        </Paper>
+
       }
-      <GeometryInput setItemData={setItemData} itemData={itemData} />
+
 
       <div id="graphical_view"
         className="Viewer_Graphical"></div>
