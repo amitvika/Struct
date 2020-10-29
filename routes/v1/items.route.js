@@ -16,6 +16,8 @@ router.delete("/:id", ItemsController.delete);
 
 router.get("/:id/geomtery", ItemsController.itemGeometry);
 
+router.put("/:id/geomtery", ItemsController.updateItemGeometry);
+
 router.delete("/:id/geomtery", ItemsController.removeItemGeometry);
 
 

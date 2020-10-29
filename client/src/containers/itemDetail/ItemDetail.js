@@ -6,22 +6,41 @@ import {
   Box,
   Grid,
   Breadcrumbs,
-  Typography
+  Typography,
+  CircularProgress
 } from "@material-ui/core";
 import { NavLink, useParams } from "react-router-dom";
 import ItemGeometry from './ItemGeometry';
 import CurrentUsage from './CurrentUsage';
+import ItemAPI from '../../api/items.api';
 
 const ItemDetail = () => {
   const [value, setValue] = useState(1);
   let { id } = useParams();
+  const [itemDetail, setItemDetail] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    ItemAPI
+      .getItemGeomtery(id)
+      .then(res => {
+        setIsLoading(false);
+        if (res.data) {
+          setItemDetail(res.data);
+        }
+      })
+      .catch(error => {
+        setIsLoading(false);
+      })
+  }, [])
 
   const renderPageSwitch = (index) => {
     switch (index) {
       case 0:
         return "Add vendor items here";
       case 1:
-        return <ItemGeometry itemId={id} />;
+        return <ItemGeometry itemId={id} itemDetail={itemDetail} />;
       case 2:
         return <CurrentUsage itemId={id} />
 
@@ -39,6 +58,10 @@ const ItemDetail = () => {
       default:
         return "Undefined Tab Index";
     }
+  }
+
+  if(isLoading){
+    return <CircularProgress/>;
   }
   return (
     <Grid container>

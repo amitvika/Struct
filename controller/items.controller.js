@@ -220,8 +220,8 @@ exports.itemGeometry = (req, res) => {
 
   ItemGeometryModel.findOne({ itemId })
     .then(data => {
-      if(!data){
-        res.send({});  
+      if (!data) {
+        res.send({});
       }
       else {
         res.send(data);
@@ -235,7 +235,20 @@ exports.itemGeometry = (req, res) => {
 exports.removeItemGeometry = (req, res) => {
   const itemId = req.params.id;
 
-  ItemGeometryModel.findOneAndRemove({ itemId })
+  ItemGeometryModel.findOneAndUpdate({ itemId }, { $set: { step: {} } })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(error => {
+      res.status(500).send({ message: 'Internal Server Error' })
+    })
+}
+
+exports.updateItemGeometry = (req, res) => {
+  const itemId = req.params.id;
+  const data = req.body;
+
+  ItemGeometryModel.findOneAndUpdate({ itemId }, { $set: data })
     .then(data => {
       res.send(data);
     })
