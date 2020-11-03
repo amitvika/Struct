@@ -184,8 +184,8 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
           options={[
             { label: "Single Material Part", value: "Single Material Part" },
             { label: "Multi-part Assembly", value: "Multi-part Assembly" }]}
-          onChange={(data) => handleOnChange('itemType', data.value)}
-          value={itemData.itemType && { label: itemData.itemType }}
+          onChange={(data) => handleOnChange('assembly', data.value)}
+          value={itemData.assembly && { label: itemData.assembly }}
         />
       </Grid>
 

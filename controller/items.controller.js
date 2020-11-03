@@ -179,11 +179,9 @@ exports.load_cadfile = function (req, res) {
 
       const itemGeometryDoc = await ItemGeometryModel.findOne({ itemId: req.body.itemId });
 
-      console.log('-->>', req.body.itemId)
-      if (itemGeometryDoc && itemGeometryDoc !== null ) {
+      if (itemGeometryDoc && itemGeometryDoc !== null) {
         ItemGeometryModel.findOneAndUpdate({ itemId: req.body.itemId }, { $set: { step: stepReponse } })
           .then(data => {
-            console.log('------Update->>>data',data, itemGeometryDoc)
             res.send(stepReponse);
           })
           .catch(error => {
@@ -198,7 +196,6 @@ exports.load_cadfile = function (req, res) {
 
         itemGeometry.save()
           .then(data => {
-            console.log('------->>>data',data, itemGeometryDoc, req.body.itemId)
             res.send(stepReponse);
           })
           .catch(error => {
@@ -263,11 +260,13 @@ exports.updateItemGeometry = (req, res) => {
   const itemId = req.params.id;
   const data = req.body;
 
-  ItemGeometryModel.findOneAndUpdate({ itemId }, { $set: data })
+  ItemGeometryModel.findOneAndUpdate({ itemId }, { $set: data }, { new: true })
     .then(data => {
+      console.log('ppppp',data)
       res.send(data);
     })
     .catch(error => {
+      console.log('Error', error)
       res.status(500).send({ message: 'Internal Server Error' })
     })
 }

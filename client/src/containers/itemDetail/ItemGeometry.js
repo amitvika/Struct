@@ -28,7 +28,7 @@ export default function ItemGeometry({ itemId, itemDetail }) {
       setIsStepLoaded(true);
     }
     loadViewer(itemDetail.step)
-    
+
   }, [itemDetail])
 
   const loadViewer = (meshJson) => {
@@ -62,6 +62,9 @@ export default function ItemGeometry({ itemId, itemDetail }) {
       .then(res => {
         setIsStepLoaded(false);
         setIsLoading(false);
+        if(res.data){
+          loadViewer(res.data)
+        }
       })
       .catch(error => {
         // console.log('----->>>>', error)
@@ -84,6 +87,7 @@ export default function ItemGeometry({ itemId, itemDetail }) {
 
   const handleSave = () => {
     // setIsLoading(true);
+    itemData.step = undefined;
     ItemAPI
       .updateItemGeomtery(itemId, itemData)
       .then(res => {

@@ -60,8 +60,8 @@ const ItemDetail = () => {
     }
   }
 
-  if(isLoading){
-    return <CircularProgress/>;
+  if (isLoading) {
+    return <CircularProgress />;
   }
   return (
     <Grid container>
@@ -107,6 +107,9 @@ const ItemDetail = () => {
         <Paper style={{ padding: 20, margin: 10 }}>
           {renderPageSwitch(value)}
         </Paper>
+
+        <div id="graphical_view"
+          className="Viewer_Graphical"></div>
       </Grid>
     </Grid>
   );
