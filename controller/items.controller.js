@@ -169,7 +169,7 @@ exports.load_cadfile = function (req, res) {
     // console.log(" -----------------> ", percent);
   }
 
-  occ.readSTEP(filename, function (err, solids) {
+  occ.readSTEP(filename, async function (err, solids) {
     if (err) {
       console.log(" readStep has failed", err.message);
       res.status(501).send("Error building solid : " + err.message + "    " + err.stack);
@@ -177,19 +177,34 @@ exports.load_cadfile = function (req, res) {
       console.log(" readStep has succeeded");
       const stepReponse = buildResponse(solids, []);
 
-      const itemGeometry = new ItemGeometryModel({
-        itemId: req.body.itemId,
-        step: stepReponse
-      });
+      const itemGeometryDoc = await ItemGeometryModel.findOne({ itemId: req.body.itemId });
 
-      itemGeometry.save()
-        .then(data => {
-          console.log('------->>>data', data)
-          res.send(stepReponse);
-        })
-        .catch(error => {
-          console.log('Error')
-        })
+      console.log('-->>', req.body.itemId)
+      if (itemGeometryDoc && itemGeometryDoc !== null ) {
+        ItemGeometryModel.findOneAndUpdate({ itemId: req.body.itemId }, { $set: { step: stepReponse } })
+          .then(data => {
+            console.log('------Update->>>data',data, itemGeometryDoc)
+            res.send(stepReponse);
+          })
+          .catch(error => {
+            console.log('error', error)
+          })
+      }
+      else {
+        const itemGeometry = new ItemGeometryModel({
+          itemId: req.body.itemId,
+          step: stepReponse
+        });
+
+        itemGeometry.save()
+          .then(data => {
+            console.log('------->>>data',data, itemGeometryDoc, req.body.itemId)
+            res.send(stepReponse);
+          })
+          .catch(error => {
+            console.log('error', error)
+          })
+      }
 
     }
   }, progress);

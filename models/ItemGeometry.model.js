@@ -4,7 +4,8 @@ const Schema = mongoose.Schema;
 const ItemGeomterySchema = new mongoose.Schema({
   itemId: {
     type: Schema.Types.ObjectId,
-    ref: "Item"
+    ref: "Item",
+    unique: true
   },
   step: {
     type: Object

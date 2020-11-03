@@ -22,18 +22,13 @@ export default function ItemGeometry({ itemId, itemDetail }) {
   const [itemData, setItemData] = useState({});
 
   useEffect(() => {
-    console.log(itemDetail)
-    if (itemDetail) {
-      setItemData(itemDetail);
-      if (itemDetail.step) {
-        setIsStepLoaded(true);
-      }
-      setTimeout(() => {
-        if (itemDetail.step) {
-          loadViewer(itemDetail.step)
-        }
-      }, [1000])
+
+    setItemData(itemDetail);
+    if (itemDetail.step) {
+      setIsStepLoaded(true);
     }
+    loadViewer(itemDetail.step)
+    
   }, [itemDetail])
 
   const loadViewer = (meshJson) => {
@@ -128,10 +123,6 @@ export default function ItemGeometry({ itemId, itemDetail }) {
         </Paper>
 
       }
-
-
-      <div id="graphical_view"
-        className="Viewer_Graphical"></div>
 
       <Snackbar
         open={true}
