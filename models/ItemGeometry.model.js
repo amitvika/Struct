@@ -10,6 +10,7 @@ const ItemGeomterySchema = new mongoose.Schema({
   step: {
     type: Object
   },
+  mixture: { type: String },
   generalGeomerty: { type: String },
   assembly: { type: String },
   material: { type: String },

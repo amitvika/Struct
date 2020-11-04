@@ -45,6 +45,17 @@ exports.getAll = async (req, res) => {
   };
 }
 
+exports.getOne = async (req, res) => {
+  try {
+
+    const item = await ItemModel.findById(req.params.id);
+    res.json(item);
+  }
+  catch (error) {
+    console.log('====', error)
+    res.status(500).send(error)
+  };
+}
 
 exports.create = async (req, res) => {
 
@@ -262,7 +273,7 @@ exports.updateItemGeometry = (req, res) => {
 
   ItemGeometryModel.findOneAndUpdate({ itemId }, { $set: data }, { new: true })
     .then(data => {
-      console.log('ppppp',data)
+      console.log('ppppp', data)
       res.send(data);
     })
     .catch(error => {

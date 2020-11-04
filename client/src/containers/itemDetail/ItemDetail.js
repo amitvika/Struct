@@ -17,22 +17,25 @@ import ItemAPI from '../../api/items.api';
 const ItemDetail = () => {
   const [value, setValue] = useState(1);
   let { id } = useParams();
-  const [itemDetail, setItemDetail] = useState({});
+  const [itemGeometryDetail, setItemGeometryDetail] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [itemDetail, setItemDetail] = useState({});
 
   useEffect(() => {
-    setIsLoading(true);
-    ItemAPI
-      .getItemGeomtery(id)
-      .then(res => {
-        setIsLoading(false);
-        if (res.data) {
-          setItemDetail(res.data);
-        }
-      })
-      .catch(error => {
-        setIsLoading(false);
-      })
+    (async () => {
+      setIsLoading(true);
+      const itemDetailResponse = await ItemAPI.getItemAPI(id)
+      if (itemDetailResponse.data) {
+        setItemDetail(itemDetailResponse.data);
+      }
+
+      const itemGeometryResponse = await ItemAPI.getItemGeomtery(id)
+      if (itemGeometryResponse.data) {
+        setItemGeometryDetail(itemGeometryResponse.data);
+      }
+
+      setIsLoading(false);
+    })()
   }, [])
 
   const renderPageSwitch = (index) => {
@@ -40,7 +43,7 @@ const ItemDetail = () => {
       case 0:
         return "Add vendor items here";
       case 1:
-        return <ItemGeometry itemId={id} itemDetail={itemDetail} />;
+        return <ItemGeometry itemId={id} itemDetail={itemGeometryDetail} />;
       case 2:
         return <CurrentUsage itemId={id} />
 
@@ -82,7 +85,7 @@ const ItemDetail = () => {
           </Breadcrumbs>
         </Paper>
         <Paper style={{ padding: 10, margin: 10 }}>
-          <h4>Item Name: Struct</h4>
+          <h4>Item Name: {itemDetail.name}</h4>
           <p>Item ID:{id}</p>
         </Paper>
       </Grid>
@@ -107,9 +110,11 @@ const ItemDetail = () => {
         <Paper style={{ padding: 20, margin: 10 }}>
           {renderPageSwitch(value)}
         </Paper>
-
-        <div id="graphical_view"
-          className="Viewer_Graphical"></div>
+        {
+          value === 1 &&
+          <div id="graphical_view"
+            className="Viewer_Graphical"></div>
+        }
       </Grid>
     </Grid>
   );

@@ -177,17 +177,31 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
         </>
 
       }
-      <Grid item xs={4}>
-        <Select
-          label="Assembly"
-          placeholder="Select"
-          options={[
-            { label: "Single Material Part", value: "Single Material Part" },
-            { label: "Multi-part Assembly", value: "Multi-part Assembly" }]}
-          onChange={(data) => handleOnChange('assembly', data.value)}
-          value={itemData.assembly && { label: itemData.assembly }}
-        />
-      </Grid>
+
+      {itemData.generalGeomerty === 'Bulk Powder/Particles/Grains' ?
+        <Grid item xs={4}>
+          <Select
+            label="Mixture"
+            placeholder="Select"
+            options={[
+              { label: "Yes", value: "Yes" },
+              { label: "No", value: "No" }]}
+            onChange={(data) => handleOnChange('mixture', data.value)}
+            value={itemData.assembly && { label: itemData.mixture }}
+          />
+        </Grid> :
+        <Grid item xs={4}>
+          <Select
+            label="Assembly"
+            placeholder="Select"
+            options={[
+              { label: "Single Material Part", value: "Single Material Part" },
+              { label: "Multi-part Assembly", value: "Multi-part Assembly" }]}
+            onChange={(data) => handleOnChange('assembly', data.value)}
+            value={itemData.assembly && { label: itemData.assembly }}
+          />
+        </Grid>
+      }
 
       <Grid item xs={4} >
         <Select

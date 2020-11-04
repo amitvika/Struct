@@ -12,6 +12,8 @@ router.post("/", ItemsController.create);
 
 router.put("/:id", ItemsController.update);
 
+router.get("/:id", ItemsController.getOne);
+
 router.delete("/:id", ItemsController.delete);
 
 router.get("/:id/geomtery", ItemsController.itemGeometry);
