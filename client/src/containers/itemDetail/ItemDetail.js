@@ -12,6 +12,7 @@ import {
 import { NavLink, useParams } from "react-router-dom";
 import ItemGeometry from './ItemGeometry';
 import CurrentUsage from './CurrentUsage';
+import ItemTypeConfigurations from './ItemTypeConfigurations';
 import ItemAPI from '../../api/items.api';
 
 const ItemDetail = () => {
@@ -52,7 +53,7 @@ const ItemDetail = () => {
       case 3:
         return "signed service agreement with the current state of config.  IF there is changed configs, those changes will show up here and will indicate to reduline the contract with those new items.  Also feature of auto generate the contract will be included";
       case 4:
-        return "Shows all items to be billed for over here. configure the payments period over here. checks printing and mailing api will be linked to this ";
+        return <ItemTypeConfigurations itemId={id} itemGeometryDetail={itemGeometryDetail} />
       case 5:
         return "shows a log of all items that do not pass vailidation along with other client complaints";
       case 6:
