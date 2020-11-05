@@ -3,9 +3,20 @@ import Select from '../../components/atoms/Select';
 import Input from '../../components/atoms/Input';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
+import MaterialTable from "material-table";
 
 export default function ItemTypeConfigurations({ itemGeometryDetail }) {
   const [itemConfiguration, setItemConfiguration] = useState({});
+  const [columns, setColumns] = useState([
+    { title: 'Item ID', field: 'itemID' },
+    { title: 'Item Name', field: 'itemName' },
+    { title: 'Actuator Type', field: 'actuatorType' },
+    {
+      title: 'For Axis #',
+      field: 'forAxis'
+    },
+  ]);
+
   const handleOnChange = (name, value) => {
     setItemConfiguration(prev => ({ ...prev, [name]: value }))
   }
@@ -37,6 +48,16 @@ export default function ItemTypeConfigurations({ itemGeometryDetail }) {
         />
         {/* </Tooltip> */}
       </Grid>
+
+      {
+        itemConfiguration.itemType && itemConfiguration.itemType.includes('Machine -') &&
+        <Grid item xs={12}>
+          <MaterialTable
+            title={itemConfiguration.itemType}
+            columns={columns}
+          />
+        </Grid>
+      }
 
       <Grid item xs={4} >
         <Select
