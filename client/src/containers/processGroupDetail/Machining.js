@@ -5,7 +5,7 @@ import { Button } from "@material-ui/core";
 import Select from '../../components/atoms/Select';
 import ItemsAPI from '../../api/items.api';
 import MeshJSON from '../../assets/mesh.json'
-import ThreeGeomView from '../3DViewer/GeomView';
+import ThreeGeomView from '../3DViewer/GeomViewMachining';
 
 export default function Machining() {
   const [itemListOption, setItemListOption] = useState([]);
