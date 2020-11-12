@@ -41,7 +41,8 @@ exports.create = async (req, res) => {
 
     const newItem = new VendorModel({
       name: req.body.name,
-      source: req.body.source
+      source: req.body.source,
+      author : req.user.id
     });
 
     const savedItem = await newItem.save();
