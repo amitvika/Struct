@@ -103,7 +103,13 @@ const AppNavbar = () => {
           >
             Vendors
             </NavLink>
-
+          <NavLink
+            className="navbar-text"
+            to='/items'
+            tag={RRNavLink}
+          >
+            Items
+            </NavLink>
           <NavLink
             className="navbar-text"
             to='/process-groups'
@@ -112,13 +118,7 @@ const AppNavbar = () => {
             Process Groups
             </NavLink>
 
-          <NavLink
-            className="navbar-text"
-            to='/items'
-            tag={RRNavLink}
-          >
-            Items
-            </NavLink>
+
         </Nav>
         <NavbarToggler onClick={toggle} />
 

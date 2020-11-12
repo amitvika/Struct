@@ -97,8 +97,8 @@ const ItemDetail = () => {
             variant="scrollable"
             value={value}
             onChange={(event, newValue) => setValue(newValue)}>
-            <Tab label="Item Geometry and Properties" value={1} />
             <Tab label="Current Usage" value={2} />
+            <Tab label="Item Geometry and Properties" value={1} />
             <Tab label="Item Type Configurations" value={4} />
             <Tab label="Item Variations" value={5} />
             <Tab label="Validations" value={6} />

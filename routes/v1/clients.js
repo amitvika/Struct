@@ -10,6 +10,8 @@ router.use(checkAccess);
 
 router.get("/", ClientController.get);
 
+router.get("/:id", ClientController.getOne);
+
 router.post("/", hasPermissionForClientEdit, ClientController.create);
 
 router.delete("/:id", hasPermissionForClientEdit, ClientController.delete);

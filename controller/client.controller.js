@@ -31,6 +31,20 @@ exports.get = async (req, res) => {
   }
 }
 
+exports.getOne = (req, res) => {
+  Client.findById(req.params.id)
+    .populate("createdByUserId", "name")
+    .sort({ date: -1 })
+    .then(data => {
+      res.json(data)
+    })
+    .catch(error => {
+      return res
+        .status(500)
+        .send({ message: 'Some unexpected error occurred' })
+    });
+}
+
 exports.create = async (req, res) => {
   try {
     const saveObject = {

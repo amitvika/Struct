@@ -195,7 +195,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
             placeholder="Select"
             options={[
               { label: "Single Material Part", value: "Single Material Part" },
-              { label: "Multi-part Assembly", value: "Multi-part Assembly" }]}
+              { label: "Multi Material Assembly", value: "Multi Material Assembly" }]}
             onChange={(data) => handleOnChange('assembly', data.value)}
             value={itemData.assembly && { label: itemData.assembly }}
           />

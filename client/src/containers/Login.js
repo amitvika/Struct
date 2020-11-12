@@ -46,7 +46,7 @@ const LoginModal = () => {
 
   return (
     <div>
-      <Card style={{ marginLeft: "22%", width: "56%" }}>
+      <Card style={{ margin: "6% 20%", width: "56%" }}>
         <CardContent>
           <div
             style={{

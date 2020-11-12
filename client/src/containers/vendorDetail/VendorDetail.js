@@ -9,8 +9,9 @@ import {
   Typography
 } from "@material-ui/core";
 import { NavLink, useParams } from "react-router-dom";
-import ItemContainer from '../containers/Items';
-import VendorAPI from '../api/vendor.api'
+import ItemContainer from './Items';
+import VendorAPI from '../../api/vendor.api';
+
 
 const VendorDetail = () => {
   const [value, setValue] = useState(1);
@@ -54,6 +55,7 @@ const VendorDetail = () => {
   }
   return (
     <Grid container>
+      
       <Grid item sm sm={12}>
         <Paper style={{ padding: 20, margin: 10 }}>
           <Breadcrumbs

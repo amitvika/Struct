@@ -11,12 +11,26 @@ import {
 } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import { NavLink, useParams } from "react-router-dom";
+import API from '../api/clients.api';
 // import { makeStyles } from "@material-ui/core/styles";
 // import ClientDetailTabContent from "../components/subNav/ClientDetailTabs/ClientDetailTabContent";
 
 const ClientDetail = () => {
   const [value, setValue] = useState(0);
+  const [data, setData] = useState({});
   let { id } = useParams();
+
+  useEffect(() => {
+    API.fetchClientApi(id)
+      .then(res => {
+        if (res.data) {
+          setData(res.data);
+        }
+      })
+      .catch(error => {
+        console.log('Error :', error)
+      })
+  }, [id])
 
   const renderPageSwitch = (index) => {
     switch (index) {
@@ -67,7 +81,7 @@ const ClientDetail = () => {
           </Breadcrumbs>
         </Paper>
         <Paper style={{ padding: 10, margin: 10 }}>
-          <h4>Client Name: Struct</h4>
+          <h4>Client Name: {data.name}</h4>
           <p>Client ID:{id}</p>
         </Paper>
       </Grid>

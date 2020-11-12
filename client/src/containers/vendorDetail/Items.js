@@ -2,9 +2,10 @@ import React, { Component } from "react";
 import MaterialTable from "material-table";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
-import ItemsAPI from '../api/items.api';
-import ShowHistoryModal from "../containers/ShowHistoryModal";
+import ItemsAPI from '../../api/items.api';
+import ShowHistoryModal from "../ShowHistoryModal";
 import { withRouter } from 'react-router-dom';
+import ThreejsViewModal from './ItemModal';
 
 class Items extends Component {
   state = {
@@ -30,7 +31,9 @@ class Items extends Component {
       }
     ],
     isHistoryModalOpened: false,
-    selectedItemId: ''
+    selectedItemId: '',
+    isThreejsModalOpened: false,
+    selectedId: ''
   };
 
   handleHistoryToggle = ({ rowId }) => {
@@ -90,6 +93,11 @@ class Items extends Component {
   render() {
     return (
       <div>
+        <ThreejsViewModal
+          itemId={this.state.selectedId}
+          isVisible={this.state.isThreejsModalOpened}
+          closeModal = {() => this.setState({isThreejsModalOpened : false})}
+        />
         <ShowHistoryModal
           isVisible={this.state.isHistoryModalOpened}
           pageName={'Item'}
@@ -124,12 +132,15 @@ class Items extends Component {
               </div>
             )
           }}
-          onRowClick={(event, rowData, togglePanel) => togglePanel()}
+          onRowClick={(event, rowData, togglePanel) => {
+            this.setState({ selectedId: rowData.id, isThreejsModalOpened: true })
+            togglePanel()
+          }}
           actions={[
             {
-              icon: 'details',
+              icon: 'settings-outline',
               tooltip: 'View detail',
-              onClick: (event, rowData) =>  this.props.history.push(`/items/${rowData.id}`)
+              onClick: (event, rowData) => this.props.history.push(`/items/${rowData.id}`)
             }
           ]}
           editable={{

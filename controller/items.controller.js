@@ -9,10 +9,10 @@ const path = require('path');
 exports.get = async (req, res) => {
   try {
 
-    let query = {};
+    let query = { deletedAt: null};
 
     if (req.query.vendorId) {
-      query = { vendorId: req.query.vendorId }
+      query = { vendorId: req.query.vendorId,  deletedAt: null }
     }
 
     const options = {

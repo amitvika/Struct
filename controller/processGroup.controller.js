@@ -8,7 +8,7 @@ exports.get = async (req, res) => {
     const userId = req.user.id;
 
     const ids = extractIds(access);
-    const processGroups = await ProcessGroup.find({})
+    const processGroups = await ProcessGroup.find({deletedAt: null})
       .populate("createdBy", "name")
       .populate("client")
       // .populate({

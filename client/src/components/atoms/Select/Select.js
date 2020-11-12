@@ -18,6 +18,7 @@ const Select = ({
   onCustomOnChange,
   ...props
 }) => {
+  const selectStyles = { menu: styles => ({ ...styles, zIndex: 999 }) };
 
   return (
     <div
@@ -37,6 +38,7 @@ const Select = ({
         placeholder={placeholder || 'Select'}
         onInputChange={onInputChange}
         value={value}
+        styles={selectStyles}
       />
 
     </div>

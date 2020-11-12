@@ -9,7 +9,7 @@ import { Spinner } from "reactstrap";
 import { useSelector } from 'react-redux';
 import AppRoute from './AppRoute';
 import Layout from './containers/Layout';
-import Login from './page/Login';
+import Login from './containers/Login';
 import Register from './page/RegisterPage';
 import Vendors from "./page/Vendors";
 import Dashboard from './page/Dashboard';
@@ -22,10 +22,10 @@ import ConfigurationHistory from './page/ConfigurationHistory';
 import AccessConfiguration from './page/AccessConfiguration';
 import ViewAccess from './page/ViewAccess';
 
-import ClientDetail from "./page/ClientDetail";
+import ClientDetail from "./containers/ClientDetail";
 import ProductDesignDetail from "./page/ProductDesignDetail";
 import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
-import VendorDetail from "./page/VendorDetail";
+import VendorDetail from "./containers/vendorDetail/VendorDetail";
 import ItemDetail from "./containers/itemDetail/ItemDetail";
 
 import Viewer from './page/3DViewer'

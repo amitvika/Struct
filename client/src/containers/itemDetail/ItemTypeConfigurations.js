@@ -34,14 +34,14 @@ export default function ItemTypeConfigurations({ itemGeometryDetail }) {
           label="Item Type"
           placeholder="Select"
           options={[
-            { label: 'Machine Actuator', value: 'Machine Actuator' },
-            { label: 'Machine - Tool Position/Orientation', value: 'Machine - Tool Position/Orientation' },
-            { label: 'Machine - Workholding', value: 'Machine - Workholding' },
-            { label: "Machine - Workpiece Transport", value: "Machine - Workpiece Transport" },
+            { label: 'Machine - Actuator', value: 'Machine - Actuator' },
+            { label: 'Machine - Motion Control', value: 'Machine - Motion Control' },
+            { label: 'Machine - Tool/Workholding', value: 'Machine - Tool/Workholding' },
             { label: "Machine - Workpiece Environment Modification", value: "Machine - Workpiece Environment Modification" },
             { label: "Containment - Pressure Vessel", value: "Containment - Pressure Vessel" },
             { label: "Containment - Liquid Container", value: "Containment - Liquid Container" },
-            { label: "Other", value: "Other" }
+            { label: "Tool", value: "Tool" },
+            { label: "Machine - Tool", value: "Machine - Tool" },
           ]}
           onChange={(data) => handleOnChange('itemType', data.value)}
           value={itemConfiguration.itemType && { label: itemConfiguration.itemType }}
@@ -58,19 +58,21 @@ export default function ItemTypeConfigurations({ itemGeometryDetail }) {
           />
         </Grid>
       }
-
-      <Grid item xs={4} >
-        <Select
-          label="Machine Actuator Type"
-          placeholder="Select"
-          options={[
-            { label: 'Rotational', value: 'Rotational' },
-            { label: 'Linear', value: 'Linear' }
-          ]}
-          onChange={(data) => handleOnChange('machineActuatorType', data.value)}
-          value={itemConfiguration.machineActuatorType && { label: itemConfiguration.machineActuatorType }}
-        />
-      </Grid>
+      {
+        itemConfiguration.itemType === "Machine - Actuator" &&
+        <Grid item xs={4} >
+          <Select
+            label="Machine Actuator Type"
+            placeholder="Select"
+            options={[
+              { label: 'Rotational', value: 'Rotational' },
+              { label: 'Linear', value: 'Linear' }
+            ]}
+            onChange={(data) => handleOnChange('machineActuatorType', data.value)}
+            value={itemConfiguration.machineActuatorType && { label: itemConfiguration.machineActuatorType }}
+          />
+        </Grid>
+      }
       {
         itemConfiguration.machineActuatorType === 'Linear' &&
         <>
