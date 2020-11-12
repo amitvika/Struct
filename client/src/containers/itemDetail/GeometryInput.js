@@ -201,19 +201,35 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
           />
         </Grid>
       }
+      {
+        itemData.assembly === 'Multi Material Assembly' ?
+          <Grid item xs={4} >
+            <Select
+              isMulti
+              label="Material"
+              placeholder="Select"
+              options={[
+                { label: "Polymer", value: "Polymer" },
+                { label: "Metal", value: "Metal" },
+                { label: "Ceramic", value: "Ceramic" }]}
+              onChange={(data) => data && handleOnChange('material', data.value)}
+            // value={itemData.material && { label: itemData.material }}
+            />
+          </Grid> :
 
-      <Grid item xs={4} >
-        <Select
-          label="Material"
-          placeholder="Select"
-          options={[
-            { label: "Polymer", value: "Polymer" },
-            { label: "Metal", value: "Metal" },
-            { label: "Ceramic", value: "Ceramic" }]}
-          onChange={(data) => handleOnChange('material', data.value)}
-          value={itemData.material && { label: itemData.material }}
-        />
-      </Grid>
+          <Grid item xs={4} >
+            <Select
+              label="Material"
+              placeholder="Select"
+              options={[
+                { label: "Polymer", value: "Polymer" },
+                { label: "Metal", value: "Metal" },
+                { label: "Ceramic", value: "Ceramic" }]}
+              onChange={(data) => data && handleOnChange('material', data.value)}
+            // value={itemData.material && { label: itemData.material }}
+            />
+          </Grid>
+      }
       <Grid item xs={8} ></Grid>
 
     </>

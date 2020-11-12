@@ -28,18 +28,34 @@ const Select = ({
       }}
     >
       <label htmlFor={htmlFor}>{label}</label>
-      <ReactSelect
-        {...field}
-        {...props}
-        onChange={onChange}
-        classNamePrefix="brewery-select"
-        isSearchable
-        options={options}
-        placeholder={placeholder || 'Select'}
-        onInputChange={onInputChange}
-        value={value}
-        styles={selectStyles}
-      />
+      {isMulti ?
+        <ReactSelect
+          {...field}
+          {...props}
+          onChange={onChange}
+          classNamePrefix="brewery-select"
+          isSearchable
+          options={options}
+          placeholder={placeholder || 'Select'}
+          onInputChange={onInputChange}
+          value={value}
+          styles={selectStyles}
+          isMulti
+        /> :
+
+        <ReactSelect
+          {...field}
+          {...props}
+          onChange={onChange}
+          classNamePrefix="brewery-select"
+          isSearchable
+          options={options}
+          placeholder={placeholder || 'Select'}
+          onInputChange={onInputChange}
+          value={value}
+          styles={selectStyles}
+        />
+      }
 
     </div>
   );
