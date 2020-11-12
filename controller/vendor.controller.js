@@ -4,7 +4,7 @@ const ChangeTracking = require("../models/ChangeTracking.model");
 exports.get = async (req, res) => {
   try {
 
-    let query = {};
+    let query = { deletedAt: null };
 
     const options = {
       page: req.query.page,
