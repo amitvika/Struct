@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import ThreeGeomView from '../3DViewer/GeomView';
+import ThreeGeomView from '../Geoms/GeomView';
 import MeshJSON from '../../assets/mesh.json'
 import {
   Modal,

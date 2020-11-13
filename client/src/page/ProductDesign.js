@@ -225,7 +225,7 @@ class ProductDesign extends Component {
             onRowClick={(rowdata, event) => {
               const selection = window.getSelection();
               if (selection.type != "Range") {
-                this.props.history.push(`/product-design/${event.id}`);
+                this.props.history.push(`/product-design/${event.id}?product_name=${event.name}`);
               }
             }}
             components={{

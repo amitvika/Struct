@@ -1,8 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import ThreeGeomView from '../3DViewer/GeomView';
-
-import FileUpload from '../../components/FileUpload';
-
 import Grid from '@material-ui/core/Grid';
 import {
   Button,
@@ -10,8 +6,11 @@ import {
   Paper,
   CircularProgress
 } from "@material-ui/core";
+import Headding from '../../components/atoms/Headding'
 import GeometryInput from './GeometryInput';
+import FileUpload from '../../components/FileUpload';
 
+import ThreejsViewer from '../3DViewer/ThreejsViewer';
 import ProcessGroupAPI from '../../api/processGroup.api'
 import ItemAPI from '../../api/items.api';
 
@@ -20,6 +19,7 @@ export default function ItemGeometry({ itemId, itemDetail }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isStepLoaded, setIsStepLoaded] = useState(false);
   const [itemData, setItemData] = useState({});
+  const [jsonMesh, setJSONMesh] = useState({});
 
   useEffect(() => {
 
@@ -27,33 +27,9 @@ export default function ItemGeometry({ itemId, itemDetail }) {
     if (itemDetail.step) {
       setIsStepLoaded(true);
     }
-    loadViewer(itemDetail.step)
+    setJSONMesh(itemDetail.step)
 
   }, [itemDetail])
-
-  const loadViewer = (meshJson) => {
-    try {
-      const container = document.getElementById("graphical_view");
-
-      if (container === null || container.length === 0) {
-        throw Error("Cannot find graphical view div");
-      }
-
-      if (container) {
-        container.innerHTML = '';
-      }
-
-      let view = new ThreeGeomView.GeomView(container);
-
-      view.clearAll();
-      view.updateShapeObject(meshJson, function () {
-        view.zoomAll();
-      });
-    }
-    catch (error) {
-      console.log('00000', error)
-    }
-  }
 
   const handleFileUpload = (data) => {
     setIsLoading(true);
@@ -62,8 +38,8 @@ export default function ItemGeometry({ itemId, itemDetail }) {
       .then(res => {
         setIsStepLoaded(false);
         setIsLoading(false);
-        if(res.data){
-          loadViewer(res.data)
+        if (res.data) {
+          setJSONMesh(res.data)
         }
       })
       .catch(error => {
@@ -77,7 +53,7 @@ export default function ItemGeometry({ itemId, itemDetail }) {
     ItemAPI
       .deleteItemGeomtery(itemId)
       .then(res => {
-        loadViewer({})
+        setJSONMesh({})
         setIsStepLoaded(false);
       })
       .catch(error => {
@@ -122,11 +98,16 @@ export default function ItemGeometry({ itemId, itemDetail }) {
                 <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
               }
             </Grid>
+            <Grid item xs={12}>
+              <Headding bold title={'Set Item Properties'} />
+            </Grid>
             <GeometryInput setItemData={setItemData} itemData={itemData} />
           </Grid>
         </Paper>
-
       }
+
+      <ThreejsViewer
+        jsonMesh={jsonMesh} />
 
       <Snackbar
         open={true}

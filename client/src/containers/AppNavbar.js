@@ -118,20 +118,18 @@ const AppNavbar = () => {
             Process Groups
             </NavLink>
 
-
+          <NavLink className="navbar-text" href="#" onClick={() => history.goBack()}>
+            <ArrowBackIcon />
+          </NavLink>
+          <NavLink className="navbar-text" href="#" onClick={() => history.goForward()}>
+            <ArrowForwardIcon />
+          </NavLink>
         </Nav>
         <NavbarToggler onClick={toggle} />
 
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto " navbar>
-            <NavLink className="navbar-text mt-2" href="#" onClick={() => history.goBack()}>
-              <ArrowBackIcon />
-            </NavLink>
-            <NavLink className="navbar-text mt-2 mr-2" href="#" onClick={() => history.goForward()}>
-              <ArrowForwardIcon />
-            </NavLink>
             <NavLink className="navbar-text mt-2 mr-2 disabled">|</NavLink>
-
             <div>
               <NavLink
                 className="navbar-text mt-2 mr-1"

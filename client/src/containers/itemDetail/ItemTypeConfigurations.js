@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import Select from '../../components/atoms/Select';
 import Input from '../../components/atoms/Input';
 import Grid from '@material-ui/core/Grid';
-import Tooltip from '@material-ui/core/Tooltip';
 import MaterialTable from "material-table";
+import ToolTypeOptions from './ToolTypeOptions';
+import MachineTool_Workholding from './MachineTool_Workholding';
 
 export default function ItemTypeConfigurations({ itemGeometryDetail }) {
   const [itemConfiguration, setItemConfiguration] = useState({});
@@ -20,6 +21,8 @@ export default function ItemTypeConfigurations({ itemGeometryDetail }) {
   const handleOnChange = (name, value) => {
     setItemConfiguration(prev => ({ ...prev, [name]: value }))
   }
+
+
 
   if (!itemGeometryDetail) {
     return <div>Please populate fields in Item Properties and Geometry</div>
@@ -48,6 +51,20 @@ export default function ItemTypeConfigurations({ itemGeometryDetail }) {
         />
         {/* </Tooltip> */}
       </Grid>
+      {
+        itemConfiguration.itemType === 'Tool' &&
+        <ToolTypeOptions
+          itemConfiguration={itemConfiguration}
+          handleOnChange={handleOnChange} />
+      }
+
+      {
+        itemConfiguration.itemType === 'Machine - Tool/Workholding' &&
+        <MachineTool_Workholding
+          itemConfiguration={itemConfiguration}
+          handleOnChange={handleOnChange}
+        />
+      }
 
       {
         itemConfiguration.itemType && itemConfiguration.itemType.includes('Machine -') &&

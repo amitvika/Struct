@@ -9,7 +9,7 @@ export default function Assembly({ processId }) {
   return (
     <div>
       <ThreejsViewModal
-        isVisible={isThreejsVisible} />
+        isVisible={isThreejsVisible} setIsThreejsVisible={setIsThreejsVisible} />
       <AssemblyTable processId={processId} setIsThreejsVisible={setIsThreejsVisible} />
     </div>
   );

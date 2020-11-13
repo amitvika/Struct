@@ -42,7 +42,7 @@ const GeomTools = {
 
   makeGrid: function () {
 
-    const size = 300, step = 10;
+    const size = 50, step = 3;
     const geometry = new THREE.Geometry();
     const material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors });
 
@@ -125,7 +125,7 @@ function GeomView(container, width, height) {
   //   me.camera = new THREE.OrthographicCamera(width, height, 70, 1, 10000, -500, 1000);
   //   me.camera.toOrthographic();
   // } else {
-    me.camera = new THREE.PerspectiveCamera(35, ratio, 1, 100000);
+    me.camera = new THREE.PerspectiveCamera(35, ratio, 1, 100);
 
     me.camera.toXXXView = function (dirView, up) {
 

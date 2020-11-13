@@ -39,6 +39,7 @@ import ProcessGroupAPI from '../../api/processGroup.api';
 class ProcessGroupDetail extends Component {
   state = {
     value: 0,
+    selectedProcessName: 'Process Helper',
     columns: [
       {
         dataField: "record",
@@ -118,7 +119,7 @@ class ProcessGroupDetail extends Component {
             });
             processData.unshift({
               id: 0,
-              process: "n/a",
+              process: 0,
               createdBy: "Struct",
               processName: "Process Helper",
               record: <strong>Process Helper</strong>
@@ -347,7 +348,7 @@ class ProcessGroupDetail extends Component {
                     <h4>{this.state.selectedProcessName}</h4>
                     Created by: {this.state.selectedProcessCreator} | Process
                     ID: {this.state.selectedProcessId}
-                    {/*<Button onClick={this.printState}>Test State</Button>*/}
+
                   </Paper>
                   <Paper style={{ padding: 20, margin: 10 }}>
                     {this.renderPageSwitch(this.state.value)}

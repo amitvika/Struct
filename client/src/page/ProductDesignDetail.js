@@ -8,11 +8,15 @@ import {
   Link,
   Typography
 } from "@material-ui/core";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useParams, useLocation } from "react-router-dom";
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 const ProductDesignDetail = () => {
   const [value, setValue] = useState(1);
   let { id } = useParams();
+  let query = useQuery();
 
   const renderPageSwitch = (index) => {
     switch (index) {
@@ -54,7 +58,7 @@ const ProductDesignDetail = () => {
           </Breadcrumbs>
         </Paper>
         <Paper style={{ padding: 10, margin: 10 }}>
-          <h4>Design Name: Struct</h4>
+          <h4>Design Name: {query.get('product_name')}</h4>
           <p>Design ID:{id}</p>
         </Paper>
       </Grid>

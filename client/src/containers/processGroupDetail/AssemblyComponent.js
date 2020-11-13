@@ -10,7 +10,7 @@ import {
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { Link } from 'react-router-dom';
-import ThreejsViewModal from '../ThreejsViewModal';
+import ThreejsViewModal from './ThreejsViewModal';
 
 export default function AssemblyComponent({ setIsAddComponentModalOpen, selectedItem }) {
   const [isThreejsModalVisible, setIsThreejsModalVisible] = useState(false);

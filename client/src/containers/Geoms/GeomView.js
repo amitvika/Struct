@@ -42,7 +42,7 @@ const GeomTools = {
 
   makeGrid: function () {
 
-    const size = 50, step = 3;
+    const size = 300, step = 10;
     const geometry = new THREE.Geometry();
     const material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors });
 
@@ -327,7 +327,7 @@ function GeomView(container, width, height) {
   me.render3D = function () {
 
     const me = this;
-    renderbackground();
+    // renderbackground();
 
     me.sceneHelpers.updateMatrixWorld();
     me.scene.updateMatrixWorld();
@@ -337,7 +337,7 @@ function GeomView(container, width, height) {
 
   };
 
-  me.setGraduatedBackgound("/images/backgrounds/body_bg.jpg");
+  // me.setGraduatedBackgound("/images/backgrounds/body_bg.jpg");
 
   me.resizeRenderer = function () {
     const me = this;
@@ -680,7 +680,7 @@ function process_face_mesh(rootNode, jsonEntry, color) {
 
   const model = jsonLoader.parse(jsonFace, /* texturePath */ undefined);
 
-  const material = new THREE.MeshLambertMaterial({ color: rgb2hex(color) });
+  const material = new THREE.MeshLambertMaterial({ color: 0x808080 });
   const mesh = new THREE.Mesh(model.geometry, material);
   mesh.properties = mesh.properties || {};
   mesh.properties.OCCType = "face";

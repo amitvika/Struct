@@ -110,11 +110,6 @@ const ItemDetail = () => {
         <Paper style={{ padding: 20, margin: 10 }}>
           {renderPageSwitch(value)}
         </Paper>
-        {
-          value === 1 &&
-          <div id="graphical_view"
-            className="Viewer_Graphical"></div>
-        }
       </Grid>
     </Grid>
   );

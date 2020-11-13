@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import ThreeGeomView from '../3DViewer/GeomView';
+import ThreeGeomView from '../Geoms/GeomView';
 import FileUpload from '../../components/FileUpload';
 import ProcessGroupAPI from '../../api/processGroup.api'
 import CircularProgress from '@material-ui/core/CircularProgress';

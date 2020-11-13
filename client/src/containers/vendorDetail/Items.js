@@ -5,7 +5,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import ItemsAPI from '../../api/items.api';
 import ShowHistoryModal from "../ShowHistoryModal";
 import { withRouter } from 'react-router-dom';
-import ThreejsViewModal from './ItemModal';
+import ItemDetailView from './ItemDetailView';
 
 class Items extends Component {
   state = {
@@ -93,11 +93,7 @@ class Items extends Component {
   render() {
     return (
       <div>
-        <ThreejsViewModal
-          itemId={this.state.selectedId}
-          isVisible={this.state.isThreejsModalOpened}
-          closeModal = {() => this.setState({isThreejsModalOpened : false})}
-        />
+
         <ShowHistoryModal
           isVisible={this.state.isHistoryModalOpened}
           pageName={'Item'}
@@ -132,10 +128,14 @@ class Items extends Component {
               </div>
             )
           }}
-          onRowClick={(event, rowData, togglePanel) => {
-            this.setState({ selectedId: rowData.id, isThreejsModalOpened: true })
-            togglePanel()
+          detailPanel={rowData => {
+            return (
+              <ItemDetailView
+                itemId={rowData.id}
+              />
+            )
           }}
+          onRowClick={(event, rowData, togglePanel) => togglePanel()}
           actions={[
             {
               icon: 'settings-outline',

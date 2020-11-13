@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import ThreeGeomView from '../3DViewer/GeomView';
+import ThreejsViewer from '../3DViewer/ThreejsViewer';
 // import MeshJSON from '../assets/mesh.json'
 import {
   Button,
@@ -10,17 +10,22 @@ import {
 } from "reactstrap";
 import ItemsAPI from '../../api/items.api';
 
-export default function ThreejsViewModal({ isVisible = false }) {
+export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisible }) {
   const [isModalVisible, setIsModalVisible] = useState(isVisible);
   const [itemList, setItemList] = useState([]);
   const [localSelectedItem, setLocalSelectedItem] = useState({ name: 'Select Item' })
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [jsonMesh, setJSONMesh] = useState({});
 
   const toggleDropdown = () => setDropdownOpen(prevState => !prevState);
 
   useEffect(() => {
     // if (isVisible) {
-      setIsModalVisible(isVisible);
+    setIsModalVisible(isVisible);
+    if (isVisible) {
+      setJSONMesh({});
+      setLocalSelectedItem({ name: 'Select Item' })
+    }
     // }
   }, [isVisible]);
 
@@ -36,31 +41,6 @@ export default function ThreejsViewModal({ isVisible = false }) {
       })
   }, []);
 
-  const loadViewer = (MeshJSON) => {
-    try {
-
-      const container = document.getElementById("graphical_view");
-
-      if (container && container != null && container.length === 0) {
-        throw Error("Cannot find graphical view div");
-      }
-
-      let view = new ThreeGeomView.GeomView(container);
-
-      view.clearAll();
-      view.updateShapeObject(MeshJSON, function () {
-        view.zoomAll();
-      });
-    }
-    catch (error) {
-      console.log('00000', error)
-    }
-  }
-
-
-  const handleModalToggle = () => {
-    setIsModalVisible(!isModalVisible);
-  }
 
   const handleChange = (item) => {
     setLocalSelectedItem(item);
@@ -69,7 +49,7 @@ export default function ThreejsViewModal({ isVisible = false }) {
       .getItemGeomtery(item._id)
       .then(res => {
         setTimeout(() => {
-          loadViewer(res.data.step)
+          setJSONMesh(res.data.step)
         }, 100);
 
       })
@@ -77,13 +57,12 @@ export default function ThreejsViewModal({ isVisible = false }) {
 
   return (
     <div>
-      <Modal isOpen={isModalVisible} toggle={handleModalToggle}>
-        <ModalHeader toggle={handleModalToggle}>Thressjs</ModalHeader>
+      <Modal isOpen={isModalVisible} toggle={() => setIsThreejsVisible(false)}>
+        <ModalHeader toggle={() => setIsThreejsVisible(false)}>Thressjs</ModalHeader>
         <ModalBody>
           <div>
 
-            <div id="graphical_view" style={{ height: '80vh' }}
-              className="Viewer_Graphical"></div>
+            <ThreejsViewer jsonMesh={jsonMesh} />
             <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
               <DropdownToggle caret>
                 {localSelectedItem.name}
