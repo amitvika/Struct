@@ -15,6 +15,8 @@ const getProcessDataApi = (id) => getRequest(`/api/processdata/${id}`);
 
 const addProcessDataApi = (data) => postRequest(`/api/processdata`, data);
 
+const deleteProcessDataApi = (id) => deleteRequest(`/api/processdata/${id}`);
+
 const uploadStepfile = (data) => {
 
   const url = '/api/step-file';
@@ -35,5 +37,6 @@ export default {
   deleteProcessGroupsApi,
   getProcessDataApi,
   addProcessDataApi,
-  uploadStepfile
+  uploadStepfile,
+  deleteProcessDataApi
 }

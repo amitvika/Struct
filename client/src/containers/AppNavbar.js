@@ -118,6 +118,8 @@ const AppNavbar = () => {
             Process Groups
             </NavLink>
 
+          <NavLink className="navbar-text mr-2 disabled">|</NavLink>
+
           <NavLink className="navbar-text" href="#" onClick={() => history.goBack()}>
             <ArrowBackIcon />
           </NavLink>
@@ -129,13 +131,11 @@ const AppNavbar = () => {
 
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto " navbar>
-            <NavLink className="navbar-text mt-2 mr-2 disabled">|</NavLink>
             <div>
               <NavLink
                 className="navbar-text mt-2 mr-1"
                 to='/configuration-history'
-                tag={RRNavLink}
-              >
+                tag={RRNavLink}>
                 Configuration History
                 </NavLink>
               <NavLink className="navbar-text mt-2 mr-1 disabled">|</NavLink>

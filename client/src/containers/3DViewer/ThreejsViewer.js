@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import ThreeGeomView from '../Geoms/GeomView';
 import Headding from '../../components/atoms/Headding'
+import './style.css';
 
 export default function ThreejsViewer({ jsonMesh = {} }) {
 
@@ -41,11 +42,13 @@ export default function ThreejsViewer({ jsonMesh = {} }) {
   }
 
   if (Object.keys(jsonMesh).length === 0) {
-    return <div>3d Viewer: Cad File Not Loaded</div>
+    return <div className="ThreejsView__Container">
+      <Headding bold title={'3d Viewer: Cad File Not Loaded'} />
+      </div>
   }
 
   return (
-    <div>
+    <div className="ThreejsView__Container">
       <Headding bold title={'3D Viewer'} />
       <div id="graphical_view"
         className="Viewer_Graphical"></div>

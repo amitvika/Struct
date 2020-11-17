@@ -11,4 +11,6 @@ router.get("/:id", ProcessDataController.get);
 // hasPermissionForProcessDataEdit
 router.post("/", checkAccess, ProcessDataController.create);
 
+router.delete("/:id", checkAccess, ProcessDataController.delete);
+
 module.exports = router;

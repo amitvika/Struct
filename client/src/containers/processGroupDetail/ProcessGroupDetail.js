@@ -3,18 +3,12 @@ import { connect } from "react-redux";
 import { Spinner } from "reactstrap";
 import { changePage } from "../../actions/pageActions";
 import {
-  Checkbox,
   Snackbar,
   Paper,
-  Tab,
-  Tabs,
-  Box,
   MenuItem,
   Breadcrumbs,
-  Link,
   Select,
   Button,
-  FormHelperText,
   FormControl,
   InputLabel,
   Grid,
@@ -26,6 +20,7 @@ import AddIcon from "@material-ui/icons/Add";
 import BootstrapTable from "react-bootstrap-table-next";
 import filterFactory, { textFilter } from "react-bootstrap-table2-filter";
 import { NavLink } from "react-router-dom";
+import ConfirmDialog from '../../components/atoms/ConfirmDialog';
 
 import NewProcessAdd from "./newProcessAdd";
 import Machining from "./Machining";
@@ -50,7 +45,8 @@ class ProcessGroupDetail extends Component {
     products: [],
     allProcesses: [],
     allProcessesObject: {},
-    processGroupDataLoaded: false
+    processGroupDataLoaded: false,
+    isDeleteProcessDialogOpen: false
   };
 
   componentDidMount = () => {
@@ -243,10 +239,42 @@ class ProcessGroupDetail extends Component {
     }
   }
 
+  setDeleteProcessDialogOpen = (isDeleteProcessDialogOpen) => {
+    this.setState({
+      isDeleteProcessDialogOpen
+    })
+  }
+
+  handleConfirmDeleteProcess = (processId) => {
+    if (!this.state.selectedProcessId) {
+      return;
+    }
+
+    ProcessGroupAPI.deleteProcessDataApi(this.state.selectedProcessId)
+      .then(res => {
+        this.setState({
+          snackBar: true,
+          msg: res.data.message
+        }, () => {
+          this.getProcesses();
+        })
+      })
+      .catch(error => {
+        console.log('Error :-', error)
+      })
+  }
+
   render() {
 
     return (
       <div>
+        <ConfirmDialog
+          title="Delete Process"
+          children="Are you sure you want to permanently delete this process?"
+          open={this.state.isDeleteProcessDialogOpen}
+          setOpen={this.setDeleteProcessDialogOpen}
+          onConfirm={this.handleConfirmDeleteProcess}
+        />
         <Snackbar
           open={this.state.snackBar}
           autoHideDuration={10000}
@@ -346,8 +374,18 @@ class ProcessGroupDetail extends Component {
                 <div>
                   <Paper style={{ padding: 20, margin: 10 }}>
                     <h4>{this.state.selectedProcessName}</h4>
-                    Created by: {this.state.selectedProcessCreator} | Process
-                    ID: {this.state.selectedProcessId}
+                    {this.state.selectedProcessCreator &&
+                      <>
+                        Created by: {this.state.selectedProcessCreator} | Process ID: {this.state.selectedProcessId}
+                        <Button variant="contained" color="secondary"
+                          style={{ position: 'absolute', right: '30px' }}
+                          onClick={() => this.setDeleteProcessDialogOpen(true)}
+                        >
+                          Delete Process
+                        </Button>
+                      </>
+
+                    }
 
                   </Paper>
                   <Paper style={{ padding: 20, margin: 10 }}>

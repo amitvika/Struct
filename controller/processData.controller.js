@@ -34,3 +34,15 @@ exports.create = (req, res) => {
     })
     .catch(error => console.log(error));
 }
+
+exports.delete = (req, res) => {
+
+  ProcessData.findByIdAndRemove(req.params.id)
+    .then(item => {
+      res.json({ success: true, message: 'Successfully deleted' });
+    })
+    .catch(error => {
+      console.log(error);
+      res.json({ success: false, message: 'Unable to delete' })
+    });
+}

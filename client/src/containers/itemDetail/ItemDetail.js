@@ -47,7 +47,6 @@ const ItemDetail = () => {
         return <ItemGeometry itemId={id} itemDetail={itemGeometryDetail} />;
       case 2:
         return <CurrentUsage itemId={id} />
-
       case 7:
         return "place all past and current service agreements here";
       case 3:

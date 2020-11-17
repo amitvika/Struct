@@ -14,8 +14,8 @@ export default function AssemblyTable({ processId, setIsThreejsVisible }) {
   const handleAddRow = () => {
     const rowLength = rowData.length;
     const data = [
-      { serialNumber: rowLength + 2, action: "First Item Setup:", status: 'X', assemblyId: processId },
-      { serialNumber: rowLength + 1, action: "Work Holding 1", status: 'X4', assemblyId: processId }
+      { serialNumber: rowLength + 1, action: "Work Holding 1", status: 'X4', assemblyId: processId },
+      { serialNumber: rowLength + 2, action: "First Item Setup:", status: 'X', assemblyId: processId }
     ]
     AssemblyProcessAPI.addAssemblyProcessApi({ assembly_processes: data })
       .then(data => {

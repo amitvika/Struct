@@ -6,7 +6,7 @@ exports.get = async (req, res) => {
 
     const item = await AssemblyProcessModel
       .find({ assemblyId: req.params.assemblyId })
-      .sort({ serialNumber: -1 })
+      .sort({ serialNumber: 1 })
 
     res.json(item)
 
@@ -29,14 +29,12 @@ exports.getAll = async (req, res) => {
   };
 }
 
-
 exports.create = async (req, res) => {
 
   try {
     const { assembly_processes } = req.body;
 
     assembly_processes.map(async data => {
-
 
       const newItem = new AssemblyProcessModel({
         assemblyId: data.assemblyId,
