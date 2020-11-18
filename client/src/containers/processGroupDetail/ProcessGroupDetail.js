@@ -113,6 +113,7 @@ class ProcessGroupDetail extends Component {
                 // record: "process name" + "\nID:" + x._id
               };
             });
+
             processData.unshift({
               id: 0,
               process: 0,

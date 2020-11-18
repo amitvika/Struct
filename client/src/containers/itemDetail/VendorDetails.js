@@ -64,11 +64,9 @@ export default function VendorDetails() {
         </Grid>
 
         <Space size={10} />
-        
-        <Grid item xs={4}>
-          <Headding title={'Receipt'} />
-        </Grid>
+
         <Grid item xs={4} >
+          <Headding fontSize={18} title={'Receipt'} />
           <Select
             label="Receipt Method"
             placeholder="Select"
@@ -84,9 +82,6 @@ export default function VendorDetails() {
         </Grid>
         <Grid item xs={4}>
           <Headding title={'Unpacking'} />
-        </Grid>
-        <Grid item xs={4}>
-          
         </Grid>
 
       </Grid>
