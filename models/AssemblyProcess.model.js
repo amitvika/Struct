@@ -25,6 +25,9 @@ const AssemblyProcessSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
+  itemId: {
+    type: Schema.Types.ObjectId,
+  },
 });
 
 AssemblyProcessSchema.plugin(mongoosePaginate);

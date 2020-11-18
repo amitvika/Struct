@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import MaterialTable, { MTableToolbar } from "material-table";
 import AssemblyProcessAPI from '../../api/assemblyProcess.api';
 
-export default function AssemblyTable({ processId, setIsThreejsVisible }) {
+export default function AssemblyTable({ processId, setIsThreejsVisible, setAssemblyProcessId }) {
   const [columns, setColumns] = useState([
     { title: "Sequence #", field: "serialNumber" },
     { title: "Action", field: "action" },
@@ -61,6 +61,7 @@ export default function AssemblyTable({ processId, setIsThreejsVisible }) {
           }
         ]}
         onRowClick={(rowdata, event) => {
+          setAssemblyProcessId(rowData.id)
           setIsThreejsVisible(true);
         }}
       >

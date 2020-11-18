@@ -9,8 +9,9 @@ import {
   Dropdown, DropdownToggle, DropdownMenu, DropdownItem
 } from "reactstrap";
 import ItemsAPI from '../../api/items.api';
+import AssemblyProcessAPI from '../../api/assemblyProcess.api';
 
-export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisible }) {
+export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisible, assemblyProcessId }) {
   const [isModalVisible, setIsModalVisible] = useState(isVisible);
   const [itemList, setItemList] = useState([]);
   const [localSelectedItem, setLocalSelectedItem] = useState({ name: 'Select Item' })
@@ -55,35 +56,49 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
       })
   }
 
+  const handleSubmitButton = () => {
+    AssemblyProcessAPI.updateAssemblyProcessApi(assemblyProcessId, { itemId: localSelectedItem._id })
+      .then(res => {
+        console.log('Response --->>>', res)
+        if (res.data.success) {
+
+        }
+      })
+      .catch(error => {
+        console.log('--->>>>')
+      })
+
+  }
+
   return (
     <div>
       <Modal isOpen={isModalVisible} toggle={() => setIsThreejsVisible(false)}>
         <ModalHeader toggle={() => setIsThreejsVisible(false)}>Thressjs</ModalHeader>
         <ModalBody>
-          <div>
-
-            <ThreejsViewer jsonMesh={jsonMesh} />
-            <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
-              <DropdownToggle caret>
-                {localSelectedItem.name}
-              </DropdownToggle>
-              <DropdownMenu>
-                {
-                  itemList.map((item, index) => {
-                    return <DropdownItem
-                      key={index}
-                      onClick={() => handleChange(item)}
-                      value={item.name}>{item.name}</DropdownItem>
-                  })
-                }
-              </DropdownMenu>
-            </Dropdown>
-            <Button color="dark" style={{ marginBottom: "2rem" }} block onClick={() => {
-              setLocalSelectedItem(localSelectedItem)
-            }
-            }>
-              Go
+          <div style={{ display: 'flex', flexDirection: 'row', height : '75vh' }}>
+            <div style={{ width: '70%' }}>
+              <ThreejsViewer jsonMesh={jsonMesh} />
+            </ div>
+            <div style={{ width: '30%' }}>
+              <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown} style={{ marginBottom: "2rem" }}>
+                <DropdownToggle caret style={{width : '100%'}}>
+                  {localSelectedItem.name}
+                </DropdownToggle>
+                <DropdownMenu>
+                  {
+                    itemList.map((item, index) => {
+                      return <DropdownItem
+                        key={index}
+                        onClick={() => handleChange(item)}
+                        value={item.name}>{item.name}</DropdownItem>
+                    })
+                  }
+                </DropdownMenu>
+              </Dropdown>
+              <Button color="dark" style={{ marginBottom: "2rem" }} block onClick={handleSubmitButton}>
+                Go
           </Button>
+            </div>
           </div>
         </ModalBody>
       </Modal>

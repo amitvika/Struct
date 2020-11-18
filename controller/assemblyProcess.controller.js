@@ -73,34 +73,17 @@ exports.create = async (req, res) => {
 }
 
 exports.update = async (req, res) => {
-  try {
 
-    const saveObject = {
-      name: req.body.name,
-      source: req.body.source
-    };
+  AssemblyProcessModel.findByIdAndUpdate(req.params.id, { itemId: req.body.itemId })
+    .then(data => {
+      res.json({ success: true });
+    })
+    .catch(error => {
 
-    const updatedItem = await AssemblyProcessModel.findByIdAndUpdate(req.params.id, saveObject)
-
-    const changeTracking = new ChangeTracking({
-      client: updatedItem._id,
-      update: updatedItem,
-      model: "Item",
-      updateType: "Update",
-      updatedObject: updatedItem._id,
-      updatedBy: req.user.id
-    });
-    await changeTracking.save();
-
-    res.json({ success: true });
-  }
-  catch (error) {
-    console.log(error)
-
-    return res
-      .status(500)
-      .send({ message: 'Some unexpected error occurred' })
-  }
+      return res
+        .status(500)
+        .send({ message: 'Some unexpected error occurred' })
+    })
 }
 
 exports.delete = (req, res) => {

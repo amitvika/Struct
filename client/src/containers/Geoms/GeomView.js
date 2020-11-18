@@ -342,7 +342,7 @@ function GeomView(container, width, height) {
   me.resizeRenderer = function () {
     const me = this;
 
-    const width = me.container.offsetParent ? me.container.offsetParent.offsetWidth : me.container.offsetWidth;
+    const width = me.container.offsetWidth//me.container.offsetParent ? me.container.offsetParent.offsetWidth : me.container.offsetWidth;
     const height = me.container.offsetParent ? me.container.offsetParent.offsetHeight : me.container.offsetHeight;
 
     //xx const width = me.container.offsetWidth + me.container.offsetLeft;

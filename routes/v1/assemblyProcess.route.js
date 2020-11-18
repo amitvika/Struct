@@ -10,7 +10,7 @@ router.get("/all", AssemblyProcessController.getAll);
 
 router.post("/", AssemblyProcessController.create);
 
-// router.put("/:id", AssemblyProcessController.update);
+router.put("/:id", AssemblyProcessController.update);
 
 // router.delete("/:id", AssemblyProcessController.delete);
 
