@@ -59,9 +59,6 @@ export default function ItemGeometry({ itemId, itemDetail, setItemGeometryDetail
       })
   }
 
-
-
-
   if (isLoading) {
     return <CircularProgress />
   }

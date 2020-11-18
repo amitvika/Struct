@@ -5,6 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import MaterialTable from "material-table";
 import ToolTypeOptions from './ToolTypeOptions';
 import MachineTool_Workholding from './MachineTool_Workholding';
+import UnassembledKit from './UnassembledKit';
 
 export default function ItemTypeConfigurations({ itemGeometryDetail }) {
   const [itemConfiguration, setItemConfiguration] = useState({});
@@ -21,8 +22,6 @@ export default function ItemTypeConfigurations({ itemGeometryDetail }) {
   const handleOnChange = (name, value) => {
     setItemConfiguration(prev => ({ ...prev, [name]: value }))
   }
-
-
 
   if (!itemGeometryDetail) {
     return <div>Please populate fields in Item Properties and Geometry</div>
@@ -45,12 +44,17 @@ export default function ItemTypeConfigurations({ itemGeometryDetail }) {
             { label: "Containment - Liquid Container", value: "Containment - Liquid Container" },
             { label: "Tool", value: "Tool" },
             { label: "Machine - Tool", value: "Machine - Tool" },
+            { label: "Unassembled Kit", value: "Unassembled Kit" }
           ]}
           onChange={(data) => handleOnChange('itemType', data.value)}
           value={itemConfiguration.itemType && { label: itemConfiguration.itemType }}
         />
         {/* </Tooltip> */}
       </Grid>
+      {
+        itemConfiguration.itemType === 'Unassembled Kit' &&
+        <UnassembledKit />
+      }
       {
         itemConfiguration.itemType === 'Tool' &&
         <ToolTypeOptions
