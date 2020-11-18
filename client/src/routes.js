@@ -23,7 +23,7 @@ import AccessConfiguration from './page/AccessConfiguration';
 import ViewAccess from './page/ViewAccess';
 
 import ClientDetail from "./containers/ClientDetail";
-import ProductDesignDetail from "./page/ProductDesignDetail";
+import ProductDesignDetail from "./containers/productDesignDetail";
 import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
 import VendorDetail from "./containers/vendorDetail/VendorDetail";
 import ItemDetail from "./containers/itemDetail/ItemDetail";

@@ -14,16 +14,14 @@ import ThreejsViewer from '../3DViewer/ThreejsViewer';
 import ProcessGroupAPI from '../../api/processGroup.api'
 import ItemAPI from '../../api/items.api';
 
-export default function ItemGeometry({ itemId, itemDetail }) {
+export default function ItemGeometry({ itemId, itemDetail, setItemGeometryDetail }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isStepLoaded, setIsStepLoaded] = useState(false);
-  const [itemData, setItemData] = useState({});
   const [jsonMesh, setJSONMesh] = useState({});
 
   useEffect(() => {
 
-    setItemData(itemDetail);
     if (itemDetail.step) {
       setIsStepLoaded(true);
     }
@@ -61,19 +59,7 @@ export default function ItemGeometry({ itemId, itemDetail }) {
       })
   }
 
-  const handleSave = () => {
-    // setIsLoading(true);
-    itemData.step = undefined;
-    ItemAPI
-      .updateItemGeomtery(itemId, itemData)
-      .then(res => {
-        setItemData(res.data)
-        setIsLoading(false);
-      })
-      .catch(error => {
-        setIsLoading(false);
-      })
-  }
+
 
 
   if (isLoading) {
@@ -101,32 +87,13 @@ export default function ItemGeometry({ itemId, itemDetail }) {
             <Grid item xs={12}>
               <Headding bold title={'Set Item Properties'} />
             </Grid>
-            <GeometryInput setItemData={setItemData} itemData={itemData} />
+            <GeometryInput setItemData={setItemGeometryDetail} itemData={itemDetail} />
           </Grid>
         </Paper>
       }
 
       <ThreejsViewer
         jsonMesh={jsonMesh} />
-
-      <Snackbar
-        open={true}
-        style={{
-          marginRight: "17%"
-        }}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right"
-        }}
-      >
-        <Button
-          className="mt-2 mb-3"
-          variant="contained"
-          color="primary"
-          onClick={handleSave}>
-          Save
-          </Button>
-      </Snackbar>
     </div >
   )
 }

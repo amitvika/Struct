@@ -1,6 +1,8 @@
 import React, { Component, useEffect, useState } from "react";
 import { changePage } from "../actions/pageActions";
 import {
+  Snackbar,
+  Button,
   Paper,
   Tab,
   Tabs,
@@ -62,56 +64,76 @@ const ClientDetail = () => {
     }
   }
 
+  const handleSave = () => {
+
+  }
+
   return (
-    <Grid container>
-      <Grid item sm sm={12}>
-        <Paper style={{ padding: 20, margin: 10 }}>
-          <Breadcrumbs
-            style={{
-              display: "flex",
-              justifyContent: "center"
-            }}
-          >
-            <NavLink
-              to='/clients'>
-              Clients
+    <>
+      <Grid container>
+        <Grid item sm sm={12}>
+          <Paper style={{ padding: 20, margin: 10 }}>
+            <Breadcrumbs
+              style={{
+                display: "flex",
+                justifyContent: "center"
+              }}
+            >
+              <NavLink
+                to='/clients'>
+                Clients
               </NavLink>
 
-            <Typography color="textPrimary">Client Details</Typography>
-          </Breadcrumbs>
-        </Paper>
-        <Paper style={{ padding: 10, margin: 10 }}>
-          <h4>Client Name: {data.name}</h4>
-          <p>Client ID:{id}</p>
-        </Paper>
+              <Typography color="textPrimary">Client Details</Typography>
+            </Breadcrumbs>
+          </Paper>
+          <Paper style={{ padding: 10, margin: 10 }}>
+            <h4>Client Name: {data.name}</h4>
+            <p>Client ID:{id}</p>
+          </Paper>
+        </Grid>
+        <Grid item sm={2}>
+          <Paper style={{ padding: 20, margin: 10 }}>
+            <Tabs
+              orientation="vertical"
+              variant="scrollable"
+              value={value}
+              onChange={(event, newValue) => setValue(newValue)}
+            >
+              <Tab label="Products" value={-1} />
+              <Tab label="Orders and Fulfillment" value={-2} />
+              <Tab label="Billing" value={5} />
+              <Tab label="Client Notifications" value={-3} />
+              {/* <Tab label="Reports" value={2} />*/}
+              <Tab label="Warranty Setup" value={1} />
+              {/*<Tab label="End User Features" value={0} />*/}
+              <Tab label="Requirements Documents" value={4} />
+              <Tab label="Service Agreement" value={3} />
+              <Tab label="Identified Issues" value={6} />
+            </Tabs>
+          </Paper>
+        </Grid>
+        <Grid item sm sm={10}>
+          <Paper style={{ padding: 20, margin: 10 }}>
+            {renderPageSwitch(value)}
+          </Paper>
+        </Grid>
       </Grid>
-      <Grid item sm={2}>
-        <Paper style={{ padding: 20, margin: 10 }}>
-          <Tabs
-            orientation="vertical"
-            variant="scrollable"
-            value={value}
-            onChange={(event, newValue) => setValue(newValue)}
-          >
-            <Tab label="Products" value={-1} />
-            <Tab label="Orders and Fulfillment" value={-2} />
-            <Tab label="Billing" value={5} />
-            <Tab label="Client Notifications" value={-3} />
-            {/* <Tab label="Reports" value={2} />*/}
-            <Tab label="Warranty Setup" value={1} />
-            {/*<Tab label="End User Features" value={0} />*/}
-            <Tab label="Requirements Documents" value={4} />
-            <Tab label="Service Agreement" value={3} />
-            <Tab label="Identified Issues" value={6} />
-          </Tabs>
-        </Paper>
-      </Grid>
-      <Grid item sm sm={10}>
-        <Paper style={{ padding: 20, margin: 10 }}>
-          {renderPageSwitch(value)}
-        </Paper>
-      </Grid>
-    </Grid>
+      <Snackbar
+        style={{
+          left: '10%'
+        }}
+        open={true}
+      >
+        <Button
+          size="large"
+          variant="contained"
+          color="primary"
+          onClick={handleSave}>
+          Save
+          </Button>
+      </Snackbar>
+    </>
   );
 }
 

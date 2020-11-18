@@ -47,7 +47,7 @@ export default function FileUpload({ handleFileUpload, itemId }) {
               type="file"
               id="file"
               name="file"
-              label="Upload Goal Geometry File - STEP Files Only"
+              label="Upload CAD File - STEP and STL files only"
               onChange={onChange}
             />
           </Col>

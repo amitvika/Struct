@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
+  Snackbar,
+  Button,
   Paper,
   Tab,
   Tabs,
@@ -53,53 +55,74 @@ const VendorDetail = () => {
         return "Undefined Tab Index";
     }
   }
+
+  const handleSave = () => {
+
+  }
+
   return (
-    <Grid container>
-      
-      <Grid item sm sm={12}>
-        <Paper style={{ padding: 20, margin: 10 }}>
-          <Breadcrumbs
-            style={{
-              display: "flex",
-              justifyContent: "center"
-            }}
-          >
-            <NavLink
-              to='/vendors'>
-              Vendors
+    <>
+      <Grid container>
+
+        <Grid item sm sm={12}>
+          <Paper style={{ padding: 20, margin: 10 }}>
+            <Breadcrumbs
+              style={{
+                display: "flex",
+                justifyContent: "center"
+              }}
+            >
+              <NavLink
+                to='/vendors'>
+                Vendors
               </NavLink>
 
-            <Typography color="textPrimary">Vendor Details</Typography>
-          </Breadcrumbs>
-        </Paper>
-        <Paper style={{ padding: 10, margin: 10 }}>
-          <h4>Vendor Name: {vendorInfo.name}</h4>
-          <p>Vendor ID:{id}</p>
-        </Paper>
-      </Grid>
-      <Grid item sm={2}>
-        <Paper style={{ padding: 20, margin: 10 }}>
-          <Tabs
-            orientation="vertical"
-            variant="scrollable"
-            value={value}
-            onChange={(event, newValue) => setValue(newValue)}>
-            <Tab label="Services" value={1} />
-            <Tab label="Reports" value={2} />
-            <Tab label="Service Agreement" value={3} />
-            <Tab label="Payments" value={4} />
-            <Tab label="Validation Failures" value={5} />
-            <Tab label="Vendor as Client" value={6} />
-          </Tabs>
-        </Paper>
-      </Grid>
-      <Grid item sm sm={10}>
-        <Paper style={{ padding: 20, margin: 10 }}>
-          {renderPageSwitch(value)}
+              <Typography color="textPrimary">Vendor Details</Typography>
+            </Breadcrumbs>
+          </Paper>
+          <Paper style={{ padding: 10, margin: 10 }}>
+            <h4>Vendor Name: {vendorInfo.name}</h4>
+            <p>Vendor ID:{id}</p>
+          </Paper>
+        </Grid>
+        <Grid item sm={2}>
+          <Paper style={{ padding: 20, margin: 10 }}>
+            <Tabs
+              orientation="vertical"
+              variant="scrollable"
+              value={value}
+              onChange={(event, newValue) => setValue(newValue)}>
+              <Tab label="Services" value={1} />
+              <Tab label="Reports" value={2} />
+              <Tab label="Service Agreement" value={3} />
+              <Tab label="Payments" value={4} />
+              <Tab label="Validation Failures" value={5} />
+              <Tab label="Vendor as Client" value={6} />
+            </Tabs>
+          </Paper>
+        </Grid>
+        <Grid item sm sm={10}>
+          <Paper style={{ padding: 20, margin: 10 }}>
+            {renderPageSwitch(value)}
 
-        </Paper>
+          </Paper>
+        </Grid>
       </Grid>
-    </Grid>
+      <Snackbar
+        style={{
+          left: '10%'
+        }}
+        open={true}
+      >
+        <Button
+          size="large"
+          variant="contained"
+          color="primary"
+          onClick={handleSave}>
+          Save
+          </Button>
+      </Snackbar>
+    </>
   );
 }
 
