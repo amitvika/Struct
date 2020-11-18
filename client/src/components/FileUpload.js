@@ -9,7 +9,7 @@ import { Button } from "@material-ui/core";
 import Message from "./Message";
 import ProgressBar from "./ProgressBar";
 
-export default function FileUpload({ handleFileUpload, itemId }) {
+export default function FileUpload({ handleFileUpload, itemId, label = "Upload CAD File - STEP and STL files only" }) {
   //State
   const [file, setFile] = useState("");
   const [fileName, setFileName] = useState("");
@@ -47,7 +47,7 @@ export default function FileUpload({ handleFileUpload, itemId }) {
               type="file"
               id="file"
               name="file"
-              label="Upload CAD File - STEP and STL files only"
+              label={label}
               onChange={onChange}
             />
           </Col>
