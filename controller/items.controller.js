@@ -1,18 +1,20 @@
 const ItemModel = require("../models/Item.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
-const ItemGeometryModel = require('../models/ItemGeometry.model')
+const ItemGeometryModel = require('../models/ItemDetail.model');
+const ItemDetailFileModel = require('../models/itemDetailFile.model')
 
 const nodeocc = require("node-occ");
 const occ = nodeocc.occ;
 const path = require('path');
+const { resolve } = require("path");
 
 exports.get = async (req, res) => {
   try {
 
-    let query = { deletedAt: null};
+    let query = { deletedAt: null };
 
     if (req.query.vendorId) {
-      query = { vendorId: req.query.vendorId,  deletedAt: null }
+      query = { vendorId: req.query.vendorId, deletedAt: null }
     }
 
     const options = {
@@ -171,51 +173,66 @@ exports.delete = (req, res) => {
   });
 }
 
-
-exports.load_cadfile = function (req, res) {
-
+const readSTEP = (req) => {
   var filename = path.join(global.MY_ROOT, req.file.path);
 
-  function progress(percent) {
-    // console.log(" -----------------> ", percent);
-  }
+  return new Promise((resolve, reject) => {
 
-  occ.readSTEP(filename, async function (err, solids) {
-    if (err) {
-      console.log(" readStep has failed", err.message);
-      res.status(501).send("Error building solid : " + err.message + "    " + err.stack);
-    } else {
-      console.log(" readStep has succeeded");
-      const stepReponse = buildResponse(solids, []);
-
-      const itemGeometryDoc = await ItemGeometryModel.findOne({ itemId: req.body.itemId });
-
-      if (itemGeometryDoc && itemGeometryDoc !== null) {
-        ItemGeometryModel.findOneAndUpdate({ itemId: req.body.itemId }, { $set: { step: stepReponse } })
-          .then(data => {
-            res.send(stepReponse);
-          })
-          .catch(error => {
-            console.log('error', error)
-          })
-      }
-      else {
-        const itemGeometry = new ItemGeometryModel({
-          itemId: req.body.itemId,
-          step: stepReponse
-        });
-
-        itemGeometry.save()
-          .then(data => {
-            res.send(stepReponse);
-          })
-          .catch(error => {
-            console.log('error', error)
-          })
-      }
-
+    function progress(percent) {
+      // console.log(" -----------------> ", percent);
     }
-  }, progress);
+
+    occ.readSTEP(filename, async function (err, solids) {
+      if (err) {
+        console.log(" readStep has failed", err.message);
+        reject(err);
+      } else {
+        console.log(" readStep has succeeded");
+        const stepReponse = buildResponse(solids, []);
+        resolve(stepReponse);
+      }
+    }, progress)
+  })
+}
+
+exports.load_cadfile = async function (req, res) {
+
+  try {
+    console.log('--->>>filename', req.file, req.file.type)
+
+    if (!req.file) {
+      return;
+    }
+
+    let data = {};
+
+    if (req.file.originalname.includes('.step')) {
+      const stepJSON = await readSTEP(req);
+      data = { step: stepJSON };
+    }
+    else if (req.file.originalname.includes('.STL')) {
+      data = { stl: req.file.filename };
+    }
+
+    const itemDetailDoc = await ItemDetailFileModel.findOne({ itemId: req.body.itemId });
+
+    if (itemDetailDoc && itemDetailDoc !== null) {
+      await ItemDetailFileModel.findOneAndUpdate({ itemId: req.body.itemId }, { $set: data });
+    }
+    else {
+      const itemDetail = new ItemDetailFileModel({
+        itemId: req.body.itemId,
+        ...data
+      });
+
+      await itemDetail.save()
+    }
+
+    res.json(data);
+
+  } catch (err) {
+    res.status(500).send({ message: err.message, success: false })
+  }
 };
 
 
@@ -238,6 +255,25 @@ function buildResponse(solids, logs) {
   return response;
 }
 
+exports.itemDetailThreejs = (req, res) => {
+  const itemId = req.params.id;
+
+  ItemDetailFileModel.findOne({ itemId })
+    .then(data => {
+      if (!data) {
+        res.send({});
+      }
+      else if(data.stl){
+        res.send({...data, stl : `http://localhost:3000/api/stl-file/${data.stl}` });
+      }else {
+        res.send(data)
+      }
+    })
+    .catch(error => {
+      res.status(500).send({ message: 'Internal Server Error' })
+    })
+}
+
 exports.itemGeometry = (req, res) => {
   const itemId = req.params.id;
 
@@ -255,10 +291,10 @@ exports.itemGeometry = (req, res) => {
     })
 }
 
-exports.removeItemGeometry = (req, res) => {
+exports.removeItemDetailThreejs = (req, res) => {
   const itemId = req.params.id;
 
-  ItemGeometryModel.findOneAndUpdate({ itemId }, { $set: { step: {} } })
+  ItemDetailFileModel.findOneAndUpdate({ itemId }, { $set: { step: {} } })
     .then(data => {
       res.send(data);
     })

@@ -14,20 +14,20 @@ import ThreejsViewer from '../3DViewer/ThreejsViewer';
 import ProcessGroupAPI from '../../api/processGroup.api'
 import ItemAPI from '../../api/items.api';
 
-export default function ItemGeometry({ itemId, itemDetail, setItemGeometryDetail }) {
+export default function ItemGeometry({ itemId, itemDetail, setItemGeometryDetail, threejsData }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isStepLoaded, setIsStepLoaded] = useState(false);
-  const [jsonMesh, setJSONMesh] = useState({});
+  const [threejsObject, setThreejsObject] = useState({});
 
   useEffect(() => {
 
-    if (itemDetail.step) {
+    if (threejsData.step || threejsData.stl) {
       setIsStepLoaded(true);
     }
-    setJSONMesh(itemDetail.step)
+    setThreejsObject(threejsData)
 
-  }, [itemDetail])
+  }, [threejsData])
 
   const handleFileUpload = (data) => {
     setIsLoading(true);
@@ -37,7 +37,7 @@ export default function ItemGeometry({ itemId, itemDetail, setItemGeometryDetail
         setIsStepLoaded(false);
         setIsLoading(false);
         if (res.data) {
-          setJSONMesh(res.data)
+          setThreejsObject(res.data)
         }
       })
       .catch(error => {
@@ -51,7 +51,7 @@ export default function ItemGeometry({ itemId, itemDetail, setItemGeometryDetail
     ItemAPI
       .deleteItemGeomtery(itemId)
       .then(res => {
-        setJSONMesh({})
+        setThreejsObject({})
         setIsStepLoaded(false);
       })
       .catch(error => {
@@ -90,7 +90,7 @@ export default function ItemGeometry({ itemId, itemDetail, setItemGeometryDetail
       }
 
       <ThreejsViewer
-        jsonMesh={jsonMesh} />
+        data={threejsObject} />
     </div >
   )
 }

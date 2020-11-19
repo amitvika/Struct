@@ -20,7 +20,9 @@ router.get("/:id/geomtery", ItemsController.itemGeometry);
 
 router.put("/:id/geomtery", ItemsController.updateItemGeometry);
 
-router.delete("/:id/geomtery", ItemsController.removeItemGeometry);
+router.get("/:id/three-model", ItemsController.itemDetailThreejs);
+
+router.delete("/:id/three-model", ItemsController.removeItemDetailThreejs);
 
 
 module.exports = router;

@@ -11,12 +11,12 @@ import {
 import ItemsAPI from '../../api/items.api';
 import AssemblyProcessAPI from '../../api/assemblyProcess.api';
 
-export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisible, assemblyProcessId }) {
+export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisible, assemblyProcessData }) {
   const [isModalVisible, setIsModalVisible] = useState(isVisible);
   const [itemList, setItemList] = useState([]);
   const [localSelectedItem, setLocalSelectedItem] = useState({ name: 'Select Item' })
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [jsonMesh, setJSONMesh] = useState({});
+  const [threejsObject, setThreejsObject] = useState({});
 
   const toggleDropdown = () => setDropdownOpen(prevState => !prevState);
 
@@ -24,7 +24,7 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
     // if (isVisible) {
     setIsModalVisible(isVisible);
     if (isVisible) {
-      setJSONMesh({});
+      setThreejsObject({});
       setLocalSelectedItem({ name: 'Select Item' })
     }
     // }
@@ -39,25 +39,37 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
       })
       .catch(error => {
         console.log('Error:-', error)
-      })
+      });
   }, []);
 
+  useEffect(() => {
+    if (assemblyProcessData && assemblyProcessData.itemId) {
+      fetchThreejs(assemblyProcessData.itemId);
+    }
+  }, [assemblyProcessData]);
 
-  const handleChange = (item) => {
-    setLocalSelectedItem(item);
-
+  const fetchThreejs = (itemId) => {
     ItemsAPI
-      .getItemGeomtery(item._id)
+      .getItemThreejsData(itemId)
       .then(res => {
         setTimeout(() => {
-          setJSONMesh(res.data.step)
+          setThreejsObject(res.data)
         }, 100);
 
       })
   }
 
+  const handleChange = (item) => {
+    setLocalSelectedItem(item);
+    fetchThreejs(item._id);
+  }
+
   const handleSubmitButton = () => {
-    AssemblyProcessAPI.updateAssemblyProcessApi(assemblyProcessId, { itemId: localSelectedItem._id })
+    if (!assemblyProcessData) {
+      return;
+    }
+
+    AssemblyProcessAPI.updateAssemblyProcessApi(assemblyProcessData._id, { itemId: localSelectedItem._id })
       .then(res => {
         console.log('Response --->>>', res)
         if (res.data.success) {
@@ -75,13 +87,13 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
       <Modal isOpen={isModalVisible} toggle={() => setIsThreejsVisible(false)}>
         <ModalHeader toggle={() => setIsThreejsVisible(false)}>Thressjs</ModalHeader>
         <ModalBody>
-          <div style={{ display: 'flex', flexDirection: 'row', height : '75vh' }}>
+          <div style={{ display: 'flex', flexDirection: 'row', height: '75vh' }}>
             <div style={{ width: '70%' }}>
-              <ThreejsViewer jsonMesh={jsonMesh} />
+              <ThreejsViewer data={threejsObject} />
             </ div>
             <div style={{ width: '30%' }}>
               <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown} style={{ marginBottom: "2rem" }}>
-                <DropdownToggle caret style={{width : '100%'}}>
+                <DropdownToggle caret style={{ width: '100%' }}>
                   {localSelectedItem.name}
                 </DropdownToggle>
                 <DropdownMenu>

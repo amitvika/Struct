@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+
 const Upload = require('../../middleware/fileUpload');
 const ItemController = require('../../controller/items.controller');
 
@@ -22,5 +24,8 @@ router.use("/vendor", require("./vendors.route"));
 router.use("/assemblyProcess", require("./assemblyProcess.route"));
 
 router.post('/step-file', Upload.uploadSingleFile(), ItemController.load_cadfile);
+router.get('/stl-file/:fileName', function (req, res) {
+  res.sendFile(path.join(__dirname, `../../uploads/step/${req.params.fileName}`));
+});
 
 module.exports = router;

@@ -4,18 +4,19 @@ import AssemblyTable from './AssemblyTable';
 import ThreejsViewModal from './ThreejsViewModal'
 
 export default function Assembly({ processId }) {
-  const [assemblyProcessId, setAssemblyProcessId] = useState('');
+  const [assemblyProcessData, setAssemblyProcessData] = useState('');
   const [isThreejsVisible, setIsThreejsVisible] = useState(false);
+  
   return (
     <div>
       <ThreejsViewModal
         isVisible={isThreejsVisible}
         setIsThreejsVisible={setIsThreejsVisible}
-        assemblyProcessId={assemblyProcessId} />
+        assemblyProcessData={assemblyProcessData} />
       <AssemblyTable
         processId={processId}
         setIsThreejsVisible={setIsThreejsVisible}
-        setAssemblyProcessId={setAssemblyProcessId} />
+        setAssemblyProcessData={setAssemblyProcessData} />
     </div>
   );
 }

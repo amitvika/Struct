@@ -37,7 +37,7 @@ export default function Machining() {
         />
       </Grid>
       <Grid item xs={12} >
-        <ThreejsViewer jsonMesh={MeshJSON} />
+        <ThreejsViewer data={{ step: MeshJSON }} />
       </Grid>
       <Grid item xs={4} >
         <Button color="primary">

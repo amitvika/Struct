@@ -16,8 +16,9 @@ const getItemGeomtery = (id) => getRequest(`/api/items/${id}/geomtery`);
 
 const updateItemGeomtery = (id, data) => putRequest(`/api/items/${id}/geomtery`,data);
 
-const deleteItemGeomtery = (id) => deleteRequest(`/api/items/${id}/geomtery`);
+const deleteItemGeomtery = (id) => deleteRequest(`/api/items/${id}/three-model`);
 
+const getItemThreejsData = (id) => getRequest(`/api/items/${id}/three-model`);
 
 export default {
   getItemsAPI,
@@ -28,5 +29,6 @@ export default {
   getItemsAllAPI,
   getItemGeomtery,
   deleteItemGeomtery,
-  updateItemGeomtery
+  updateItemGeomtery,
+  getItemThreejsData
 }

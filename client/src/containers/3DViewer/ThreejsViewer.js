@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import ThreeGeomView from '../Geoms/GeomView';
+import ThreeSTLView from '../Geoms/STLView';
 import Headding from '../../components/atoms/Headding'
 import './style.css';
 
-export default function ThreejsViewer({ jsonMesh = {} }) {
+export default function ThreejsViewer({ data = {} }) {
 
   useEffect(() => {
 
-    if (Object.keys(jsonMesh).length > 0) {
+    if (Object.keys(data).length > 0) {
       setTimeout(() => {
         loadViewer()
       }, [2000])
     }
-  }, [jsonMesh]);
+  }, [data]);
 
   const loadViewer = () => {
     try {
@@ -25,26 +26,35 @@ export default function ThreejsViewer({ jsonMesh = {} }) {
       if (container) {
         container.innerHTML = '';
       }
+      let view;
 
-      let view = new ThreeGeomView.GeomView(container);
+      if (data.step) {
+        view = new ThreeGeomView.GeomView(container);
+        view.clearAll();
 
-      view.clearAll();
+        view.updateShapeObject(data.step, function () {
+          view.zoomAll();
+        });
+      }
+      else {
+        view = new ThreeSTLView.GeomView(container);
+        view.clearAll();
 
-      console.log(jsonMesh);
+        view.updateShapeObject(data.stl, function () {
+          view.zoomAll();
+        });
+      }
 
-      view.updateShapeObject(jsonMesh, function () {
-        view.zoomAll();
-      });
     }
     catch (error) {
       console.log('00000', error)
     }
   }
 
-  if (Object.keys(jsonMesh).length === 0) {
+  if (Object.keys(data).length === 0) {
     return <div className="ThreejsView__Container">
       <Headding bold title={'3d Viewer: Cad File Not Loaded'} />
-      </div>
+    </div>
   }
 
   return (

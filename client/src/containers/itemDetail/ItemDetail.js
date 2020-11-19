@@ -26,6 +26,7 @@ const ItemDetail = () => {
   const [itemGeometryDetail, setItemGeometryDetail] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [itemDetail, setItemDetail] = useState({});
+  const [threejsData, setThreejsData] = useState({});
 
   useEffect(() => {
     (async () => {
@@ -40,6 +41,11 @@ const ItemDetail = () => {
         setItemGeometryDetail(itemGeometryResponse.data);
       }
 
+      const itemThreejsDataResponse = await ItemAPI.getItemThreejsData(id);
+      if (itemThreejsDataResponse.data) {
+        setThreejsData(itemThreejsDataResponse.data)
+      }
+
       setIsLoading(false);
     })()
   }, [])
@@ -49,8 +55,8 @@ const ItemDetail = () => {
       case 0:
         return "Add vendor items here";
       case 1:
-        return <ItemGeometry itemId={id} itemDetail={itemGeometryDetail} setItemGeometryDetail={setItemGeometryDetail} />;
-      case 2: 
+        return <ItemGeometry itemId={id} itemDetail={itemGeometryDetail} setItemGeometryDetail={setItemGeometryDetail} threejsData={threejsData} />;
+      case 2:
         return <CurrentUsage itemId={id} />
       case 3:
         return "signed service agreement with the current state of config.  IF there is changed configs, those changes will show up here and will indicate to reduline the contract with those new items.  Also feature of auto generate the contract will be included";

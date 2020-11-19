@@ -3,7 +3,7 @@ import ItemsAPI from '../../api/items.api';
 import ThreejsViewer from '../3DViewer/ThreejsViewer';
 
 export default function ThreejsViewModal({ itemId = '', isVisible = false, closeModal }) {
-  const [jsonMesh, setJSONMesh] = useState({});
+  const [threejsObject, setThreejsObject] = useState({});
 
   useEffect(() => {
     fetchStep()
@@ -14,10 +14,10 @@ export default function ThreejsViewModal({ itemId = '', isVisible = false, close
   const fetchStep = () => {
 
     ItemsAPI
-      .getItemGeomtery(itemId)
+      .getItemThreejsData(itemId)
       .then(res => {
         setTimeout(() => {
-          setJSONMesh(res.data.step)
+          setThreejsObject(res.data)
         }, 100);
 
       })
@@ -25,7 +25,7 @@ export default function ThreejsViewModal({ itemId = '', isVisible = false, close
 
   return (
     <div className="Vendor_modal" style={{ width: '500px', height: '500px' }}>
-      <ThreejsViewer jsonMesh={jsonMesh} />
+      <ThreejsViewer data={threejsObject} />
     </div>
   )
 
