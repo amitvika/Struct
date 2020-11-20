@@ -34,9 +34,9 @@ export default function ItemGeometry({ itemId, itemDetail, setItemGeometryDetail
     ProcessGroupAPI
       .uploadStepfile(data)
       .then(res => {
-        setIsStepLoaded(false);
         setIsLoading(false);
         if (res.data) {
+          setIsStepLoaded(true);
           setThreejsObject(res.data)
         }
       })

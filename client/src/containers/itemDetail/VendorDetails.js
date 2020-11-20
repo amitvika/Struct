@@ -25,6 +25,14 @@ export default function VendorDetails() {
         </Grid>
         <Grid item xs={4} >
           <Input
+            label="Unit Price ($)"
+            placeholder="Enter"
+            type="number"
+          />
+        </Grid>
+        <Grid item xs={8} ></Grid>
+        <Grid item xs={4} >
+          <Input
             label="Identification Number #"
             placeholder="Enter"
             type="text"

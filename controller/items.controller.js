@@ -208,10 +208,10 @@ exports.load_cadfile = async function (req, res) {
 
     if (req.file.originalname.includes('.step')) {
       const stepJSON = await readSTEP(req);
-      data = { step: stepJSON };
+      data = { stl: null, step: stepJSON };
     }
     else if (req.file.originalname.includes('.STL')) {
-      data = { stl: req.file.filename };
+      data = { stl: req.file.filename, step: null, };
     }
 
     const itemDetailDoc = await ItemDetailFileModel.findOne({ itemId: req.body.itemId });
@@ -263,9 +263,9 @@ exports.itemDetailThreejs = (req, res) => {
       if (!data) {
         res.send({});
       }
-      else if(data.stl){
-        res.send({...data, stl : `http://localhost:3000/api/stl-file/${data.stl}` });
-      }else {
+      else if (data.stl) {
+        res.send({ itemId: data.itemId, stl: `http://localhost:3000/api/stl-file/${data.stl}` });
+      } else {
         res.send(data)
       }
     })

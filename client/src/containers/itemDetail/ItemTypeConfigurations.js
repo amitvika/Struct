@@ -44,7 +44,8 @@ export default function ItemTypeConfigurations({ itemGeometryDetail }) {
             { label: "Containment - Liquid Container", value: "Containment - Liquid Container" },
             { label: "Tool", value: "Tool" },
             { label: "Machine - Tool", value: "Machine - Tool" },
-            { label: "Unassembled Kit", value: "Unassembled Kit" }
+            { label: "Unassembled Kit", value: "Unassembled Kit" },
+            { label: "Other", value: "Other" }
           ]}
           onChange={(data) => handleOnChange('itemType', data.value)}
           value={itemConfiguration.itemType && { label: itemConfiguration.itemType }}
