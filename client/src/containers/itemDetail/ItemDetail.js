@@ -48,7 +48,7 @@ const ItemDetail = () => {
 
       setIsLoading(false);
     })()
-  }, [])
+  }, []);
 
   const renderPageSwitch = (index) => {
     switch (index) {
@@ -61,7 +61,7 @@ const ItemDetail = () => {
       case 3:
         return "signed service agreement with the current state of config.  IF there is changed configs, those changes will show up here and will indicate to reduline the contract with those new items.  Also feature of auto generate the contract will be included";
       case 4:
-        return <ItemTypeConfigurations itemId={id} itemGeometryDetail={itemGeometryDetail} />
+        return <ItemTypeConfigurations itemId={id} itemGeometryDetail={itemGeometryDetail} setItemGeometryDetail={setItemGeometryDetail} />
       case 5:
         return "shows a log of all items that do not pass vailidation along with other client complaints";
       case 6:
@@ -79,7 +79,7 @@ const ItemDetail = () => {
     // setIsLoading(true);
     itemGeometryDetail.step = undefined;
     ItemAPI
-      .updateItemGeomtery(id, itemGeometryDetail)
+      .updateItemGeomtery(id, { ...itemGeometryDetail, itemId: id })
       .then(res => {
         setItemGeometryDetail(res.data)
       })

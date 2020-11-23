@@ -280,7 +280,7 @@ exports.itemGeometry = (req, res) => {
   ItemGeometryModel.findOne({ itemId })
     .then(data => {
       if (!data) {
-        res.send({});
+        res.send(null);
       }
       else {
         res.send(data);
@@ -304,10 +304,8 @@ exports.removeItemDetailThreejs = (req, res) => {
 }
 
 exports.updateItemGeometry = (req, res) => {
-  const itemId = req.params.id;
   const data = req.body;
-
-  ItemGeometryModel.findOneAndUpdate({ itemId }, { $set: data }, { new: true })
+  ItemGeometryModel.findOneAndUpdate({ itemId: req.params.id }, data, { upsert: true })
     .then(data => {
       console.log('ppppp', data)
       res.send(data);

@@ -7,8 +7,8 @@ import ToolTypeOptions from './ToolTypeOptions';
 import MachineTool_Workholding from './MachineTool_Workholding';
 import UnassembledKit from './UnassembledKit';
 
-export default function ItemTypeConfigurations({ itemGeometryDetail }) {
-  const [itemConfiguration, setItemConfiguration] = useState({});
+export default function ItemTypeConfigurations({ itemGeometryDetail = {}, setItemGeometryDetail }) {
+  const itemConfiguration = itemGeometryDetail.itemTypeConfiguration || {};
   const [columns, setColumns] = useState([
     { title: 'Item ID', field: 'itemID' },
     { title: 'Item Name', field: 'itemName' },
@@ -20,7 +20,13 @@ export default function ItemTypeConfigurations({ itemGeometryDetail }) {
   ]);
 
   const handleOnChange = (name, value) => {
-    setItemConfiguration(prev => ({ ...prev, [name]: value }))
+    setItemGeometryDetail(prev => ({
+      ...prev,
+      itemTypeConfiguration: {
+        ...prev.itemTypeConfiguration,
+        [name]: value
+      }
+    }))
   }
 
   if (!itemGeometryDetail) {
