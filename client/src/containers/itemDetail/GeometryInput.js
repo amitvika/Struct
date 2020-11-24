@@ -3,10 +3,16 @@ import Select from '../../components/atoms/Select';
 import Input from '../../components/atoms/Input';
 import Grid from '@material-ui/core/Grid';
 
-export default function GeometryInput({ itemData = {}, setItemData }) {
-
+export default function GeometryInput({ itemProperties = {}, setItemProperties }) {
+  const itemGeometry = itemProperties.itemGeometry || {}
   const handleOnChange = (name, value) => {
-    setItemData(prevData => ({ ...prevData, [name]: value }));
+    setItemProperties(prevData => ({
+      ...prevData,
+      itemGeometry: {
+        ...itemGeometry,
+        [name]: value
+      }
+    }))
   }
 
   return (
@@ -23,11 +29,11 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
             { label: "Liquid", value: "Liquid" },
             { label: "Gas", value: "Gas" }]}
           onChange={(data) => handleOnChange('generalGeomerty', data.value)}
-          value={itemData.generalGeomerty && { label: itemData.generalGeomerty }}
+          value={itemGeometry.generalGeomerty && { label: itemGeometry.generalGeomerty }}
         />
       </Grid>
 
-      {itemData.generalGeomerty === 'Bulk Powder/Particles/Grains' &&
+      {itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' &&
         <>
           <Grid item xs={4}>
             <Input
@@ -35,7 +41,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('xDim', event.target.value)}
-              value={itemData.xDim}
+              value={itemGeometry.xDim}
             />
           </Grid>
           <Grid item xs={4}>
@@ -44,7 +50,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('xTolerance', event.target.value)}
-              value={itemData.xTolerance}
+              value={itemGeometry.xTolerance}
             />
           </Grid>
 
@@ -55,7 +61,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('yDim', event.target.value)}
-              value={itemData.yDim}
+              value={itemGeometry.yDim}
             />
           </Grid>
           <Grid item xs={4}>
@@ -64,7 +70,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('yTolerance', event.target.value)}
-              value={itemData.yTolerance}
+              value={itemGeometry.yTolerance}
             />
           </Grid>
 
@@ -75,7 +81,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('zDim', event.target.value)}
-              value={itemData.zDim}
+              value={itemGeometry.zDim}
             />
           </Grid>
           <Grid item xs={4}>
@@ -84,14 +90,14 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('zTolerance', event.target.value)}
-              value={itemData.zTolerance}
+              value={itemGeometry.zTolerance}
             />
           </Grid>
         </>
       }
 
       {
-        ['1 Dimensional Solid', '2 Dimensional Solid', '3 Dimensional Solid'].includes(itemData.generalGeomerty) &&
+        ['1 Dimensional Solid', '2 Dimensional Solid', '3 Dimensional Solid'].includes(itemGeometry.generalGeomerty) &&
         <>
           <Grid item xs={4}>
             <Input
@@ -99,7 +105,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('mass', event.target.value)}
-              value={itemData.mass}
+              value={itemGeometry.mass}
             />
           </Grid>
 
@@ -109,7 +115,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('volume', event.target.value)}
-              value={itemData.volume}
+              value={itemGeometry.volume}
             />
           </Grid>
 
@@ -120,7 +126,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('boundingBoxX', event.target.value)}
-              value={itemData.boundingBoxX}
+              value={itemGeometry.boundingBoxX}
             />
           </Grid>
           <Grid item xs={4}>
@@ -129,7 +135,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('boundingBoxY', event.target.value)}
-              value={itemData.boundingBoxY}
+              value={itemGeometry.boundingBoxY}
             />
           </Grid>
 
@@ -140,7 +146,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('boundingBoxZ', event.target.value)}
-              value={itemData.boundingBoxZ}
+              value={itemGeometry.boundingBoxZ}
             />
           </Grid>
           <Grid item xs={4}>
@@ -149,7 +155,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('numberOfFaces', event.target.value)}
-              value={itemData.numberOfFaces}
+              value={itemGeometry.numberOfFaces}
             />
           </Grid>
 
@@ -160,7 +166,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('numberOfEdges', event.target.value)}
-              value={itemData.numberOfEdges}
+              value={itemGeometry.numberOfEdges}
             />
           </Grid>
           <Grid item xs={4}>
@@ -169,7 +175,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               placeholder="Enter"
               type="number"
               onChange={(event) => handleOnChange('numberOfCorners', event.target.value)}
-              value={itemData.numberOfCorners}
+              value={itemGeometry.numberOfCorners}
             />
           </Grid>
 
@@ -177,7 +183,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
 
       }
 
-      {itemData.generalGeomerty === 'Bulk Powder/Particles/Grains' ?
+      {itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' ?
         <Grid item xs={4}>
           <Select
             label="Mixture"
@@ -186,7 +192,7 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               { label: "Yes", value: "Yes" },
               { label: "No", value: "No" }]}
             onChange={(data) => handleOnChange('mixture', data.value)}
-            value={itemData.assembly && { label: itemData.mixture }}
+            value={itemGeometry.assembly && { label: itemGeometry.mixture }}
           />
         </Grid> :
         <Grid item xs={4}>
@@ -197,12 +203,12 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
               { label: "Single Material Part", value: "Single Material Part" },
               { label: "Multi Material Assembly", value: "Multi Material Assembly" }]}
             onChange={(data) => handleOnChange('assembly', data.value)}
-            value={itemData.assembly && { label: itemData.assembly }}
+            value={itemGeometry.assembly && { label: itemGeometry.assembly }}
           />
         </Grid>
       }
       {
-        itemData.assembly === 'Multi Material Assembly' ?
+        itemGeometry.assembly === 'Multi Material Assembly' ?
           <Grid item xs={4} >
             <Select
               isMulti
@@ -213,7 +219,8 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
                 { label: "Metal", value: "Metal" },
                 { label: "Ceramic", value: "Ceramic" }]}
               onChange={(data) => data && handleOnChange('material', data.value)}
-            // value={itemData.material && { label: itemData.material }}
+              value={Array.isArray(itemGeometry.material)
+                && itemGeometry.material.map(item => ({ label: item }))}
             />
           </Grid> :
 
@@ -225,8 +232,8 @@ export default function GeometryInput({ itemData = {}, setItemData }) {
                 { label: "Polymer", value: "Polymer" },
                 { label: "Metal", value: "Metal" },
                 { label: "Ceramic", value: "Ceramic" }]}
-              onChange={(data) => data && handleOnChange('material', data.value)}
-            // value={itemData.material && { label: itemData.material }}
+              onChange={(data) => data && handleOnChange('material', [data.value])}
+              value={Array.isArray(itemGeometry.material) && { label: itemGeometry.material[0] }}
             />
           </Grid>
       }

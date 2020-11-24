@@ -23,7 +23,7 @@ import ItemAPI from '../../api/items.api';
 const ItemDetail = () => {
   const [value, setValue] = useState(1);
   let { id } = useParams();
-  const [itemGeometryDetail, setItemGeometryDetail] = useState({});
+  const [itemProperties, setItemProperties] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [itemDetail, setItemDetail] = useState({});
   const [threejsData, setThreejsData] = useState({});
@@ -38,7 +38,7 @@ const ItemDetail = () => {
 
       const itemGeometryResponse = await ItemAPI.getItemGeomtery(id)
       if (itemGeometryResponse.data) {
-        setItemGeometryDetail(itemGeometryResponse.data);
+        setItemProperties(itemGeometryResponse.data);
       }
 
       const itemThreejsDataResponse = await ItemAPI.getItemThreejsData(id);
@@ -55,13 +55,13 @@ const ItemDetail = () => {
       case 0:
         return "Add vendor items here";
       case 1:
-        return <ItemGeometry itemId={id} itemDetail={itemGeometryDetail} setItemGeometryDetail={setItemGeometryDetail} threejsData={threejsData} />;
+        return <ItemGeometry itemId={id} itemProperties={itemProperties} setItemProperties={setItemProperties} threejsData={threejsData} />;
       case 2:
         return <CurrentUsage itemId={id} />
       case 3:
         return "signed service agreement with the current state of config.  IF there is changed configs, those changes will show up here and will indicate to reduline the contract with those new items.  Also feature of auto generate the contract will be included";
       case 4:
-        return <ItemTypeConfigurations itemId={id} itemGeometryDetail={itemGeometryDetail} setItemGeometryDetail={setItemGeometryDetail} />
+        return <ItemTypeConfigurations itemId={id} itemProperties={itemProperties} setItemProperties={setItemProperties} />
       case 5:
         return "shows a log of all items that do not pass vailidation along with other client complaints";
       case 6:
@@ -77,11 +77,11 @@ const ItemDetail = () => {
 
   const handleSave = () => {
     // setIsLoading(true);
-    itemGeometryDetail.step = undefined;
+    itemProperties.step = undefined;
     ItemAPI
-      .updateItemGeomtery(id, { ...itemGeometryDetail, itemId: id })
+      .updateItemGeomtery(id, { ...itemProperties, itemId: id })
       .then(res => {
-        setItemGeometryDetail(res.data)
+        setItemProperties(res.data)
       })
       .catch(error => {
       })

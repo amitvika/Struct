@@ -303,15 +303,25 @@ exports.removeItemDetailThreejs = (req, res) => {
     })
 }
 
-exports.updateItemGeometry = (req, res) => {
-  const data = req.body;
-  ItemGeometryModel.findOneAndUpdate({ itemId: req.params.id }, data, { upsert: true })
-    .then(data => {
-      console.log('ppppp', data)
-      res.send(data);
-    })
-    .catch(error => {
-      console.log('Error', error)
-      res.status(500).send({ message: 'Internal Server Error' })
-    })
+exports.updateItemGeometry = async (req, res) => {
+
+  try {
+    const data = req.body;
+
+    let itemDetailData = await ItemGeometryModel.findOneAndUpdate({ itemId: req.params.id });
+
+    if (itemDetailData && itemDetailData !== null) {
+      itemDetailData = await ItemGeometryModel.findOneAndUpdate({ itemId: req.params.id }, { $set: data }, { new: true });
+    }
+    else {
+      itemDetailData = await ItemGeometryModel.create(data)
+    }
+
+    console.log('ppppp', data)
+    res.send(data);
+
+  } catch (error) {
+    console.log('Error', error)
+    res.status(500).send({ message: 'Internal Server Error' })
+  }
 }

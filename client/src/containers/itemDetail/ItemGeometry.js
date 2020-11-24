@@ -14,7 +14,7 @@ import ThreejsViewer from '../3DViewer/ThreejsViewer';
 import ProcessGroupAPI from '../../api/processGroup.api'
 import ItemAPI from '../../api/items.api';
 
-export default function ItemGeometry({ itemId, itemDetail, setItemGeometryDetail, threejsData }) {
+export default function ItemGeometry({ itemId, itemProperties, setItemProperties, threejsData }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isStepLoaded, setIsStepLoaded] = useState(false);
@@ -84,7 +84,7 @@ export default function ItemGeometry({ itemId, itemDetail, setItemGeometryDetail
             <Grid item xs={12}>
               <Headding bold title={'Set Item Properties'} />
             </Grid>
-            <GeometryInput setItemData={setItemGeometryDetail} itemData={itemDetail} />
+            <GeometryInput setItemProperties={setItemProperties} itemProperties={itemProperties} />
           </Grid>
         </Paper>
       }

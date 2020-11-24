@@ -7,8 +7,8 @@ import ToolTypeOptions from './ToolTypeOptions';
 import MachineTool_Workholding from './MachineTool_Workholding';
 import UnassembledKit from './UnassembledKit';
 
-export default function ItemTypeConfigurations({ itemGeometryDetail = {}, setItemGeometryDetail }) {
-  const itemConfiguration = itemGeometryDetail.itemTypeConfiguration || {};
+export default function ItemTypeConfigurations({ itemProperties = {}, setItemProperties }) {
+  const itemConfiguration = itemProperties.itemTypeConfiguration || {};
   const [columns, setColumns] = useState([
     { title: 'Item ID', field: 'itemID' },
     { title: 'Item Name', field: 'itemName' },
@@ -20,7 +20,7 @@ export default function ItemTypeConfigurations({ itemGeometryDetail = {}, setIte
   ]);
 
   const handleOnChange = (name, value) => {
-    setItemGeometryDetail(prev => ({
+    setItemProperties(prev => ({
       ...prev,
       itemTypeConfiguration: {
         ...prev.itemTypeConfiguration,
@@ -29,7 +29,7 @@ export default function ItemTypeConfigurations({ itemGeometryDetail = {}, setIte
     }))
   }
 
-  if (!itemGeometryDetail) {
+  if (!itemProperties.itemGeometry) {
     return <div>Please populate fields in Item Properties and Geometry</div>
   }
   return (
