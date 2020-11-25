@@ -10,7 +10,7 @@ const getItemAPI = (id) => getRequest(`/api/items/${id}`);
 
 const deleteItemAPI = (id) => deleteRequest(`/api/items/${id}`);
 
-const getItemsAllAPI = (query) => getRequest(`/api/items/all`);
+const getItemsAllAPI = (query) => getRequest(`/api/items/all?${query}`);
 
 const getItemGeomtery = (id) => getRequest(`/api/items/${id}/geomtery`);
 

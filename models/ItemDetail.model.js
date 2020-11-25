@@ -9,7 +9,11 @@ const ItemDetailSchema = new mongoose.Schema({
   },
   itemGeometry: { type: Object },
   itemTypeConfiguration: { type: Object },
-  vendorDetails : { type: Object }
+  vendorDetails : { type: Object },
+  step: {
+    type: Object
+  },
+  stl: { type: String }
 });
 //this converts the schema into a model
 const ItemGeomtery = mongoose.model("itemDetail", ItemDetailSchema);

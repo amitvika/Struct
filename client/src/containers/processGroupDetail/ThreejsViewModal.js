@@ -11,7 +11,7 @@ import {
 import ItemsAPI from '../../api/items.api';
 import AssemblyProcessAPI from '../../api/assemblyProcess.api';
 
-export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisible, assemblyProcessData }) {
+export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisible, assemblyProcessData = {} }) {
   const [isModalVisible, setIsModalVisible] = useState(isVisible);
   const [itemList, setItemList] = useState([]);
   const [localSelectedItem, setLocalSelectedItem] = useState({ name: 'Select Item' })
@@ -31,37 +31,38 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
   }, [isVisible]);
 
   useEffect(() => {
-    ItemsAPI.getItemsAllAPI()
+    if (!assemblyProcessData.action) {
+      return;
+    }
+
+    ItemsAPI.getItemsAllAPI(`item_type=${assemblyProcessData.action}`)
       .then(res => {
+        let itemListClone = [];
+
         if (Array.isArray(res.data)) {
-          setItemList(res.data)
+          itemListClone = res.data
+          setItemList(itemListClone)
+        }
+
+        if (assemblyProcessData && assemblyProcessData.itemId) {
+          updateThreejsModel(assemblyProcessData.itemId)
+         
         }
       })
       .catch(error => {
         console.log('Error:-', error)
       });
-  }, []);
+  }, [assemblyProcessData.action]);
 
-  useEffect(() => {
-    if (assemblyProcessData && assemblyProcessData.itemId) {
-      fetchThreejs(assemblyProcessData.itemId);
-    }
-  }, [assemblyProcessData]);
-
-  const fetchThreejs = (itemId) => {
-    ItemsAPI
-      .getItemThreejsData(itemId)
-      .then(res => {
-        setTimeout(() => {
-          setThreejsObject(res.data)
-        }, 100);
-
-      })
+  const updateThreejsModel = (itemId) =>{
+    setTimeout(() => {
+      setThreejsObject(itemList.filter(item => item.itemId === itemId)[0])
+    }, 100);
   }
 
   const handleChange = (item) => {
     setLocalSelectedItem(item);
-    fetchThreejs(item._id);
+    updateThreejsModel(item._id);
   }
 
   const handleSubmitButton = () => {

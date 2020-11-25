@@ -6,7 +6,7 @@ import ThreejsViewModal from './ThreejsViewModal'
 export default function Assembly({ processId }) {
   const [assemblyProcessData, setAssemblyProcessData] = useState('');
   const [isThreejsVisible, setIsThreejsVisible] = useState(false);
-  
+
   return (
     <div>
       <ThreejsViewModal

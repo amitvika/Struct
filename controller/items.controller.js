@@ -1,12 +1,11 @@
 const ItemModel = require("../models/Item.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
 const ItemGeometryModel = require('../models/ItemDetail.model');
-const ItemDetailFileModel = require('../models/itemDetailFile.model')
-
 const nodeocc = require("node-occ");
 const occ = nodeocc.occ;
 const path = require('path');
-const { resolve } = require("path");
+const mongoose = require('mongoose');
+const { populate } = require("../models/Item.model");
 
 exports.get = async (req, res) => {
   try {
@@ -37,9 +36,35 @@ exports.get = async (req, res) => {
 
 exports.getAll = async (req, res) => {
   try {
+    const item_type = req.query.item_type;
 
-    const item = await ItemModel.find();
-    res.json(item);
+    let itemDetails = await ItemGeometryModel.find()
+      .populate('itemId')
+
+    itemDetails = itemDetails.filter(itemDetail => {
+      if(itemDetail.step === null && itemDetail === null){
+        return false;
+      }
+      if (item_type === 'Work Holding 1') {
+        if (itemDetail.itemTypeConfiguration.itemType === 'Machine - Tool/Workholding') {
+          return true;
+        }
+        else {
+          return false;
+        }
+      }
+      else {
+        return true;
+      }
+    })
+    .map(itemDetail => ({
+      itemGeometry : itemDetail.itemGeometry,
+      itemTypeConfiguration : itemDetail.itemTypeConfiguration,
+      name : itemDetail.itemId.name,
+      step: itemDetail.step,
+      stl: itemDetail.stl
+    }))
+    res.json(itemDetails);
   }
   catch (error) {
     console.log('====', error)
@@ -214,13 +239,13 @@ exports.load_cadfile = async function (req, res) {
       data = { stl: req.file.filename, step: null, };
     }
 
-    const itemDetailDoc = await ItemDetailFileModel.findOne({ itemId: req.body.itemId });
+    const itemDetailDoc = await ItemGeometryModel.findOne({ itemId: req.body.itemId });
 
     if (itemDetailDoc && itemDetailDoc !== null) {
-      await ItemDetailFileModel.findOneAndUpdate({ itemId: req.body.itemId }, { $set: data });
+      await ItemGeometryModel.findOneAndUpdate({ itemId: req.body.itemId }, { $set: data });
     }
     else {
-      const itemDetail = new ItemDetailFileModel({
+      const itemDetail = new ItemGeometryModel({
         itemId: req.body.itemId,
         ...data
       });
@@ -258,7 +283,7 @@ function buildResponse(solids, logs) {
 exports.itemDetailThreejs = (req, res) => {
   const itemId = req.params.id;
 
-  ItemDetailFileModel.findOne({ itemId })
+  ItemGeometryModel.findOne({ itemId })
     .then(data => {
       if (!data) {
         res.send({});
@@ -294,7 +319,7 @@ exports.itemGeometry = (req, res) => {
 exports.removeItemDetailThreejs = (req, res) => {
   const itemId = req.params.id;
 
-  ItemDetailFileModel.findOneAndUpdate({ itemId }, { $set: { step: {} } })
+  ItemGeometryModel.findOneAndUpdate({ itemId }, { $set: { step: null, stl: null } })
     .then(data => {
       res.send(data);
     })
