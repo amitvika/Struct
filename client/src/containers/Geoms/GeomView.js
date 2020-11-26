@@ -125,48 +125,48 @@ function GeomView(container, width, height) {
   //   me.camera = new THREE.OrthographicCamera(width, height, 70, 1, 10000, -500, 1000);
   //   me.camera.toOrthographic();
   // } else {
-    me.camera = new THREE.PerspectiveCamera(35, ratio, 1, 100000);
+  me.camera = new THREE.PerspectiveCamera(35, ratio, 1, 100000);
 
-    me.camera.toXXXView = function (dirView, up) {
+  me.camera.toXXXView = function (dirView, up) {
 
-      const target = me.getObjectCenter();
+    const target = me.getObjectCenter();
 
-      // preserve existing distance
-      const dist = target.distanceTo(me.camera.position) || 100;
+    // preserve existing distance
+    const dist = target.distanceTo(me.camera.position) || 100;
 
-      const eye = new THREE.Vector3(0, 0, 0);
-      eye.copy(dirView);
-      eye.multiplyScalar(dist); // distance
-      eye.addVectors(target, eye);
+    const eye = new THREE.Vector3(0, 0, 0);
+    eye.copy(dirView);
+    eye.multiplyScalar(dist); // distance
+    eye.addVectors(target, eye);
 
-      console.log("eye", eye);
-      console.log("up", up);
-      console.log("dirView", dirView);
-      me.camera.position.copy(eye);
-      me.camera.up.copy(up);
+    console.log("eye", eye);
+    console.log("up", up);
+    console.log("dirView", dirView);
+    me.camera.position.copy(eye);
+    me.camera.up.copy(up);
 
-      // look at is a vector
-      me.camera.lookAt(dirView);
+    // look at is a vector
+    me.camera.lookAt(dirView);
 
-    };
-    me.camera.toTopView = function () {
-      this.toXXXView(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0));
-    };
-    me.camera.toBottomView = function () {
-      this.toXXXView(new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 1, 0));
-    };
-    me.camera.toFrontView = function () {
-      this.toXXXView(new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, 1));
-    };
-    me.camera.toBackView = function () {
-      this.toXXXView(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1));
-    };
-    me.camera.toLeftView = function () {
-      this.toXXXView(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 1));
-    };
-    me.camera.toRightView = function () {
-      this.toXXXView(new THREE.Vector3(-1, 0, 0), new THREE.Vector3(0, 0, 1));
-    };
+  };
+  me.camera.toTopView = function () {
+    this.toXXXView(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0));
+  };
+  me.camera.toBottomView = function () {
+    this.toXXXView(new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 1, 0));
+  };
+  me.camera.toFrontView = function () {
+    this.toXXXView(new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, 1));
+  };
+  me.camera.toBackView = function () {
+    this.toXXXView(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1));
+  };
+  me.camera.toLeftView = function () {
+    this.toXXXView(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 1));
+  };
+  me.camera.toRightView = function () {
+    this.toXXXView(new THREE.Vector3(-1, 0, 0), new THREE.Vector3(0, 0, 1));
+  };
   // }
 
   me.camera.name = "Camera";
@@ -514,7 +514,7 @@ function GeomView(container, width, height) {
 
   };
   DragObjectManipulator.prototype.onMouseMove = function (event) {
-    
+
 
     const intersects = buildIntersectPlane(event);
 
@@ -547,6 +547,26 @@ function GeomView(container, width, height) {
     }
   };
 
+  const onKeyDown = function onKeyDown(event) {
+
+    var distance = 0.15;
+    var fov = me.scene.getObjectByName('S1');
+    if (event.keyCode == '37') {
+      fov.position.x -= distance;
+    }
+    else if (event.keyCode == '38') {
+      fov.position.z += distance;
+    }
+    else if (event.keyCode == '39') {
+      fov.position.x += distance;
+    }
+    else if (event.keyCode == '40') {
+      fov.position.z -= distance;
+    }
+    me.resizeRenderer();
+    me.render3D();
+  };
+
 
   const onMouseUp = function onMouseUp(event) {
     if (me.manipulator && me.manipulator.onMouseUp) {
@@ -573,6 +593,7 @@ function GeomView(container, width, height) {
   me.renderer.domElement.addEventListener("mousemove", onMouseMove, false);
   me.renderer.domElement.addEventListener("mouseup", onMouseUp, false);
   me.renderer.domElement.addEventListener("mousedown", onMouseDown, false);
+  document.addEventListener("keydown", onKeyDown, false);
   me.renderer.domElement.addEventListener("click", onClick, false);
 }
 

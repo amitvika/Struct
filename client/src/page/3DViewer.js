@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import ThreeGeomView from '../containers/Geoms/STLView';
+import ThreeGeomView from '../containers/Geoms/GeomView';
 import MeshJSON from '../assets/mesh.json'
 
 export default class Viewer extends Component {
