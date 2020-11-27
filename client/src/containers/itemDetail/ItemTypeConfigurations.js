@@ -29,9 +29,9 @@ export default function ItemTypeConfigurations({ itemProperties = {}, setItemPro
     }))
   }
 
-  if (!itemProperties.itemGeometry) {
-    return <div>Please populate fields in Item Properties and Geometry</div>
-  }
+  // if (!itemProperties.itemGeometry) {
+  //   return <div>Please populate fields in Item Properties and Geometry</div>
+  // }
   return (
     <Grid className="section-padding-left" container spacing={4}>
       <Grid item xs={12} >

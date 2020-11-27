@@ -67,7 +67,7 @@ class Items extends Component {
     return new Promise(async (resolve, reject) => {
 
       ItemsAPI
-        .getItemsAPI(`limit=${query.pageSize}&page=${query.page + 1}&vendorId=${this.props.vendorId}`)
+        .getItemsAPI(`limit=${query.pageSize}&page=${query.page + 1}&vendorId=${this.props.vendorId}&search=${query.search}`)
         .then(result => result.data)
         .then(result => {
           let rowData = result.docs;

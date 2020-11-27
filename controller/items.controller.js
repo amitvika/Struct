@@ -12,8 +12,18 @@ exports.get = async (req, res) => {
 
     let query = { deletedAt: null };
 
-    if (req.query.vendorId) {
-      query = { vendorId: req.query.vendorId, deletedAt: null }
+    if (req.query.vendorId && req.query.search) {
+      query = {
+        $and: [{ vendorId: req.query.vendorId },
+        { deletedAt: null },
+        { name: { '$regex': new RegExp(`${req.query.search}`, "i") } }]
+      }
+    }
+    else if (req.query.vendorId) {
+      query = { $and: [{ vendorId: req.query.vendorId }, { deletedAt: null }] }
+    }
+    else if (req.query.search) {
+      query = { $and: [{ name: { '$regex': new RegExp(`${req.query.search}`, "i") } }, { deletedAt: null }] }
     }
 
     const options = {

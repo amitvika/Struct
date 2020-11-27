@@ -90,7 +90,7 @@ export default function ItemGeometry({ itemId, itemProperties, setItemProperties
       }
 
       <ThreejsViewer
-        data={threejsObject} />
+        data={threejsObject} isLoading={isLoading}/>
     </div >
   )
 }

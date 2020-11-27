@@ -11,6 +11,7 @@ import {
   Typography,
   CircularProgress
 } from "@material-ui/core";
+import MuiAlert from '@material-ui/lab/Alert';
 import { NavLink, useParams } from "react-router-dom";
 
 import ItemGeometry from './ItemGeometry';
@@ -20,6 +21,10 @@ import VendorDetails from './VendorDetails';
 import ItemTypeConfigurations from './ItemTypeConfigurations';
 import ItemAPI from '../../api/items.api';
 
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
 const ItemDetail = () => {
   const [value, setValue] = useState(1);
   let { id } = useParams();
@@ -27,6 +32,7 @@ const ItemDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [itemDetail, setItemDetail] = useState({});
   const [threejsData, setThreejsData] = useState({});
+  const [snackbarOptions, setSnackbarOptions] = useState({ isOpen: false, message: '' });
 
   useEffect(() => {
     (async () => {
@@ -78,10 +84,16 @@ const ItemDetail = () => {
     ItemAPI
       .updateItemGeomtery(id, { ...itemProperties })
       .then(res => {
-        setItemProperties(res.data)
+        setItemProperties(res.data);
+        setSnackbarOptions({ isOpen: true, message: 'All data is saved' })
       })
       .catch(error => {
+        setSnackbarOptions({ isOpen: true, message: 'Unable to save info' })
       })
+  }
+
+  const handleSnackbarClose = () => {
+    setSnackbarOptions({ isOpen: false })
   }
 
   if (isLoading) {
@@ -148,6 +160,11 @@ const ItemDetail = () => {
           onClick={handleSave}>
           Save
           </Button>
+      </Snackbar>
+      <Snackbar open={snackbarOptions.isOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity="success">
+          {snackbarOptions.message}
+        </Alert>
       </Snackbar>
     </>
   );

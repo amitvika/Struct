@@ -8,6 +8,7 @@ import {
 import { Button } from "@material-ui/core";
 import Message from "./Message";
 import ProgressBar from "./ProgressBar";
+import STLConfirmationDialog from './STLConfirmationDialog';
 
 export default function FileUpload({ handleFileUpload, itemId, label = "Upload CAD File - STEP and STL files only" }) {
   //State
@@ -17,6 +18,7 @@ export default function FileUpload({ handleFileUpload, itemId, label = "Upload C
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState();
   const [uploadPercentage, setUploadPercentage] = useState();
+  const [open, setOpen] = React.useState(false);
 
   //Methods
   const onChange = e => {
@@ -29,6 +31,13 @@ export default function FileUpload({ handleFileUpload, itemId, label = "Upload C
   };
 
   const onSubmit = e => {
+    const fileSize = file.size / 1024 / 1024;
+
+    if (fileName.split('.').pop() === 'STL' && fileSize > 20) {
+      setOpen(true)
+      return;
+    }
+
     e.preventDefault();
     const formData = new FormData();
     formData.append("file", file);
@@ -65,6 +74,7 @@ export default function FileUpload({ handleFileUpload, itemId, label = "Upload C
           Load File
           </Button>
       </div>
+      <STLConfirmationDialog open={open} setOpen={setOpen} />
       {/* </Form> */}
     </Fragment>
   );

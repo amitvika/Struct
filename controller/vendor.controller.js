@@ -5,6 +5,9 @@ exports.get = async (req, res) => {
   try {
 
     let query = { deletedAt: null };
+    if (req.query.search) {
+      query = { $and: [{ deletedAt: null }, { name: { '$regex': new RegExp(`${req.query.search}`, "i") } }] };
+    }
 
     const options = {
       page: req.query.page,
@@ -42,7 +45,7 @@ exports.create = async (req, res) => {
     const newItem = new VendorModel({
       name: req.body.name,
       source: req.body.source,
-      author : req.user.id
+      author: req.user.id
     });
 
     const savedItem = await newItem.save();

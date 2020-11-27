@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 import ThreeGeomView from '../Geoms/GeomView';
 import ThreeSTLView from '../Geoms/STLView';
 import Headding from '../../components/atoms/Headding'
 import './style.css';
 
-export default function ThreejsViewer({ data = {} }) {
+export default function ThreejsViewer({ data = {}, isLoading = false }) {
 
   useEffect(() => {
 
@@ -55,6 +57,10 @@ export default function ThreejsViewer({ data = {} }) {
     return <div className="ThreejsView__Container">
       <Headding bold title={'3d Viewer: Cad File Not Loaded'} />
     </div>
+  }
+
+  if (isLoading) {
+    return <CircularProgress />
   }
 
   return (

@@ -286,6 +286,10 @@ const AccessConfiguration = (props) => {
     });
   };
 
+  if(isLoading){
+    return <div>Loading......</div>
+  }
+
   return (
     <div>
       <Snackbar

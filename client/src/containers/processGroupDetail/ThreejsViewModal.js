@@ -17,6 +17,7 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
   const [localSelectedItem, setLocalSelectedItem] = useState({ name: 'Select Item' })
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [threejsObject, setThreejsObject] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const toggleDropdown = () => setDropdownOpen(prevState => !prevState);
 
@@ -35,8 +36,10 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
       return;
     }
 
+    setIsLoading(true);
     ItemsAPI.getItemsAllAPI(`item_type=${assemblyProcessData.action}`)
       .then(res => {
+        setIsLoading(false);
         let itemListClone = [];
 
         if (Array.isArray(res.data)) {
@@ -46,10 +49,10 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
 
         if (assemblyProcessData && assemblyProcessData.itemId) {
           updateThreejsModel(assemblyProcessData.itemId)
-         
         }
       })
       .catch(error => {
+        setIsLoading(false);
         console.log('Error:-', error)
       });
   }, [assemblyProcessData.action]);
@@ -90,7 +93,7 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
         <ModalBody>
           <div style={{ display: 'flex', flexDirection: 'row', height: '75vh' }}>
             <div style={{ width: '70%' }}>
-              <ThreejsViewer data={threejsObject} />
+              <ThreejsViewer data={threejsObject} isLoading={isLoading}/>
             </ div>
             <div style={{ width: '30%' }}>
               <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown} style={{ marginBottom: "2rem" }}>

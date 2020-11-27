@@ -63,8 +63,9 @@ class Vendors extends Component {
 
   dataQuery = (query) => {
     return new Promise(async (resolve, reject) => {
+      
       VendorAPI
-        .getVendorsApi(`limit=${query.pageSize}&page=${query.page + 1}`)
+        .getVendorsApi(`limit=${query.pageSize}&page=${query.page + 1}&search=${query.search}`)
         .then(result => result.data)
         .then(result => {
           let rowData = result.docs;
