@@ -74,8 +74,9 @@ const ItemDetail = () => {
   const handleSave = () => {
     // setIsLoading(true);
     itemProperties.step = undefined;
+    itemProperties.itemId = undefined;
     ItemAPI
-      .updateItemGeomtery(id, { ...itemProperties, itemId: id })
+      .updateItemGeomtery(id, { ...itemProperties })
       .then(res => {
         setItemProperties(res.data)
       })

@@ -20,6 +20,9 @@ export default function FileUpload({ handleFileUpload, itemId, label = "Upload C
 
   //Methods
   const onChange = e => {
+    if (!e.target.files[0]) {
+      return;
+    }
     //e.preventDefault();
     setFile(e.target.files[0]);
     setFileName(e.target.files[0].name);
@@ -40,29 +43,29 @@ export default function FileUpload({ handleFileUpload, itemId, label = "Upload C
         <ProgressBar percentage={uploadPercentage} />
       ) : null}
 
-      <Form onSubmit={onSubmit} encType="multipart/form-data">
-        <FormGroup row>
-          <Col>
-            <CustomInput
-              type="file"
-              id="file"
-              name="file"
-              label={label}
-              onChange={onChange}
-            />
-          </Col>
+      {/* <Form> */}
+      <div style={{ display: 'flex' }}>
+        {/* <Col> */}
+        <CustomInput
+          type="file"
+          id="file"
+          name="file"
+          label={label}
+          onChange={onChange}
+        />
+        {/* </Col> */}
 
-          <Button
-            style={{ marginLeft: "1%" }}
-            variant="contained"
-            color="primary"
-            type="submit"
-            value="upload"
-          >
-            Load File
+        <Button
+          style={{ marginLeft: "1%", width: '25%' }}
+          variant="contained"
+          color="primary"
+          type="button"
+          onClick={onSubmit}
+        >
+          Load File
           </Button>
-        </FormGroup>
-      </Form>
+      </div>
+      {/* </Form> */}
     </Fragment>
   );
 }

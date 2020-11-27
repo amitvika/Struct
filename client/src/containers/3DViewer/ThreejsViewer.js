@@ -28,7 +28,7 @@ export default function ThreejsViewer({ data = {} }) {
       }
       let view;
 
-      if (data.step) {
+      if (data.step !== null) {
         view = new ThreeGeomView.GeomView(container);
         view.clearAll();
 
@@ -36,7 +36,7 @@ export default function ThreejsViewer({ data = {} }) {
           view.zoomAll();
         });
       }
-      else {
+      else if (data.stl !== null) {
         view = new ThreeSTLView.GeomView(container);
         view.clearAll();
 
@@ -51,7 +51,7 @@ export default function ThreejsViewer({ data = {} }) {
     }
   }
 
-  if (Object.keys(data).length === 0) {
+  if (data.step === null && data.stl === null) {
     return <div className="ThreejsView__Container">
       <Headding bold title={'3d Viewer: Cad File Not Loaded'} />
     </div>

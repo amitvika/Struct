@@ -42,11 +42,12 @@ exports.getAll = async (req, res) => {
       .populate('itemId')
 
     itemDetails = itemDetails.filter(itemDetail => {
-      if(itemDetail.step === null && itemDetail === null){
+      if (itemDetail.step === null && itemDetail === null) {
         return false;
       }
       if (item_type === 'Work Holding 1') {
-        if (itemDetail.itemTypeConfiguration.itemType === 'Machine - Tool/Workholding') {
+
+        if (itemDetail.itemTypeConfiguration && itemDetail.itemTypeConfiguration.itemType === 'Machine - Tool/Workholding') {
           return true;
         }
         else {
@@ -57,13 +58,13 @@ exports.getAll = async (req, res) => {
         return true;
       }
     })
-    .map(itemDetail => ({
-      itemGeometry : itemDetail.itemGeometry,
-      itemTypeConfiguration : itemDetail.itemTypeConfiguration,
-      name : itemDetail.itemId.name,
-      step: itemDetail.step,
-      stl: itemDetail.stl
-    }))
+      .map(itemDetail => ({
+        itemGeometry: itemDetail.itemGeometry,
+        itemTypeConfiguration: itemDetail.itemTypeConfiguration,
+        name: itemDetail.itemId.name,
+        step: itemDetail.step,
+        stl: itemDetail.stl
+      }))
     res.json(itemDetails);
   }
   catch (error) {
@@ -253,7 +254,7 @@ exports.load_cadfile = async function (req, res) {
       await itemDetail.save()
     }
 
-    res.json(data);
+    res.json({ ...data, stl: data.stl ? `http://localhost:3000/api/stl-file/${req.file.filename}` : null });
 
   } catch (err) {
     res.status(500).send({ message: err.message, success: false })
@@ -308,7 +309,13 @@ exports.itemGeometry = (req, res) => {
         res.send(null);
       }
       else {
-        res.send(data);
+        res.send({
+          itemId: data.itemId,
+          step: data.step,
+          stl: data.stl !== null ? `http://localhost:3000/api/stl-file/${data.stl}` : null,
+          itemGeometry: data.itemGeometry,
+          itemTypeConfiguration: data.itemTypeConfiguration
+        });
       }
     })
     .catch(error => {
@@ -319,7 +326,7 @@ exports.itemGeometry = (req, res) => {
 exports.removeItemDetailThreejs = (req, res) => {
   const itemId = req.params.id;
 
-  ItemGeometryModel.findOneAndUpdate({ itemId }, { $set: { step: null, stl: null } })
+  ItemGeometryModel.findOneAndUpdate({ itemId }, { $set: { step: null, stl: null } }, { new: true })
     .then(data => {
       res.send(data);
     })
@@ -333,12 +340,22 @@ exports.updateItemGeometry = async (req, res) => {
   try {
     const data = req.body;
 
-    let itemDetailData = await ItemGeometryModel.findOneAndUpdate({ itemId: req.params.id });
+    let itemDetailData = await ItemGeometryModel.findOne({ itemId: req.params.id });
 
     if (itemDetailData && itemDetailData !== null) {
-      itemDetailData = await ItemGeometryModel.findOneAndUpdate({ itemId: req.params.id }, { $set: data }, { new: true });
+      itemDetailData = await ItemGeometryModel.findOneAndUpdate({ itemId: req.params.id },
+        {
+          $set: {
+            step: itemDetailData.step,
+            stl: itemDetailData.stl,
+            itemTypeConfiguration: data.itemTypeConfiguration,
+            itemGeometry: data.itemGeometry
+          }
+        },
+        { new: true });
     }
     else {
+      data.itemId = req.params.id;
       itemDetailData = await ItemGeometryModel.create(data)
     }
 
