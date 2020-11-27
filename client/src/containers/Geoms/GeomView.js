@@ -551,7 +551,19 @@ function GeomView(container, width, height) {
 
     var distance = 0.15;
     var fov = me.scene.getObjectByName('S1');
-    if (event.keyCode == '37') {
+    if (event.shiftKey && event.keyCode == '37') {
+      fov.rotation.x += 0.01
+    }
+    else if (event.shiftKey && event.keyCode == '38') {
+      fov.rotation.z += 0.01
+    }
+    else if (event.shiftKey && event.keyCode == '39') {
+      fov.rotation.z -= 0.01
+    }
+    else if (event.shiftKey && event.keyCode == '40') {
+      fov.rotation.x -= 0.01
+    } 
+    else if (event.keyCode == '37') {
       fov.position.x -= distance;
     }
     else if (event.keyCode == '38') {

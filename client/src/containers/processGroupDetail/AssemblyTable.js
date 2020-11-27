@@ -17,12 +17,12 @@ export default function AssemblyTable({ processId, setIsThreejsVisible, setAssem
     if (rowLength == 0) {
       data = [
         { serialNumber: rowLength + 1, action: "Work Holding 1", status: 'X4', assemblyId: processId },
-        { serialNumber: rowLength + 2, action: "First Item Setup:", status: 'X', assemblyId: processId }
+        { serialNumber: rowLength + 2, action: "First Item Setup", status: 'X', assemblyId: processId }
       ]
     }
     else {
       data = [
-        { serialNumber: rowLength + 1, action: "Work Holding 1", status: 'X4', assemblyId: processId }
+        { serialNumber: rowLength + 1, action: "First Item Setup", status: 'X4', assemblyId: processId }
       ]
     }
     AssemblyProcessAPI.addAssemblyProcessApi({ assembly_processes: data })
