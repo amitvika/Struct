@@ -10,8 +10,9 @@ import {
   Link,
   Typography
 } from "@material-ui/core";
-
 import { NavLink, useParams, useLocation } from "react-router-dom";
+import FunctionalElements from './FunctionalElements';
+
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
@@ -26,7 +27,7 @@ const ProductDesignDetail = () => {
       case 1:
         return "THINGS MADE WITH PRODUCT DESIGN DO NOT REUIRED ADDITIONAL PROCESS CONFIG. IT IS MEANT TO BE FULLY AUTOMATED.  Select if its a standalone item or part of an assembly";
       case 2:
-        return "can choose elements such as screens, button panels, sensors, actuators, drive trains.  Can select an item from Items or anotherproduct design to incorporate   ";
+        return <FunctionalElements />
       case 3:
         return "";
       case 4:
