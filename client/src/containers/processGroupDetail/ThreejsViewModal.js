@@ -6,7 +6,8 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
-  Dropdown, DropdownToggle, DropdownMenu, DropdownItem
+  Dropdown, DropdownToggle, DropdownMenu, DropdownItem,
+  Tooltip
 } from "reactstrap";
 import ItemsAPI from '../../api/items.api';
 import AssemblyProcessAPI from '../../api/assemblyProcess.api';
@@ -20,6 +21,10 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
   const [isLoading, setIsLoading] = useState(false);
 
   const toggleDropdown = () => setDropdownOpen(prevState => !prevState);
+
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+
+  const toggle = () => setTooltipOpen(!tooltipOpen);
 
   useEffect(() => {
     // if (isVisible) {
@@ -57,7 +62,7 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
       });
   }, [assemblyProcessData.action]);
 
-  const updateThreejsModel = (itemId) =>{
+  const updateThreejsModel = (itemId) => {
     setTimeout(() => {
       setThreejsObject(itemList.filter(item => item.itemId === itemId)[0])
     }, 100);
@@ -93,12 +98,22 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
         <ModalBody>
           <div style={{ display: 'flex', flexDirection: 'row', height: '75vh' }}>
             <div style={{ width: '70%' }}>
-              <ThreejsViewer data={threejsObject} isLoading={isLoading}/>
+              <ThreejsViewer data={threejsObject} isLoading={isLoading} />
             </ div>
-            <div style={{ width: '30%' }}>
+            <Tooltip placement="right" isOpen={tooltipOpen} target="TooltipExample" toggle={toggle}>
+              {
+                assemblyProcessData.action === 'Work Holding 1' ?
+                  `This will only show items of type "Machine - Tool/Workholding. Please ensure item has 3d model loaded, otherwise it will not populate here` :
+                  `Please ensure item has 3d model loaded, otherwise it will not populate here`
+              }
+            </Tooltip>
+            <div style={{ width: '30%' }} >
+
               <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown} style={{ marginBottom: "2rem" }}>
-                <DropdownToggle caret style={{ width: '100%' }}>
+                <DropdownToggle caret style={{ width: '100%' }} id="TooltipExample">
+
                   {localSelectedItem.name}
+
                 </DropdownToggle>
                 <DropdownMenu>
                   {
@@ -111,6 +126,7 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
                   }
                 </DropdownMenu>
               </Dropdown>
+
               <Button color="dark" style={{ marginBottom: "2rem" }} block onClick={handleSubmitButton}>
                 Go
           </Button>
@@ -118,7 +134,7 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
           </div>
         </ModalBody>
       </Modal>
-    </div>
+    </div >
   )
 
 }
