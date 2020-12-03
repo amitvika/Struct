@@ -67,7 +67,6 @@ export default function ItemGeometry({ itemId, itemProperties, setItemProperties
       {
         <Paper elevation={0} className="ItemGeometry--Choose">
           <Grid className="section-padding-left" container spacing={4}>
-
             <Grid item xs={12}>
               {isStepLoaded ?
                 <Button

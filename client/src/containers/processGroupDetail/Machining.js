@@ -6,6 +6,10 @@ import Select from '../../components/atoms/Select';
 import ItemsAPI from '../../api/items.api';
 import MeshJSON from '../../assets/mesh.json'
 import ThreejsViewer from '../3DViewer/ThreejsViewer';
+import ThreeDViewer from "../../components/sharedFunctionComponents/ThreeDViewer";
+import FileUpload from "../../components/sharedFunctionComponents/FileUpload";
+// import ThreeDViewer from "../../sharedFunctionComponents/ThreeDViewer";
+import CppTest from "../../components/sharedFunctionComponents/CppTest";
 
 export default function Machining() {
   const [itemListOption, setItemListOption] = useState([]);
@@ -30,14 +34,19 @@ export default function Machining() {
   return (
     <Grid className="section-padding-left" container spacing={4}>
       <Grid item xs={12} >
-        <Select
+        <FileUpload/>
+        {/* <Select
           label="Item Type"
           placeholder="Select"
           options={itemListOption}
-        />
+        /> */}
       </Grid>
       <Grid item xs={12} >
-        <ThreejsViewer data={{ step: MeshJSON }} />
+        <CppTest/>
+      </Grid>
+      <Grid item xs={12} >
+        <ThreeDViewer/>
+        {/* <ThreejsViewer data={{ step: MeshJSON }} /> */}
       </Grid>
       <Grid item xs={4} >
         <Button color="primary">

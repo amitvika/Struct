@@ -178,9 +178,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
               value={itemGeometry.numberOfCorners}
             />
           </Grid>
-
         </>
-
       }
 
       {itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' ?
