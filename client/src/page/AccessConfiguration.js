@@ -94,6 +94,7 @@ const AccessConfiguration = (props) => {
 
   const { isLoading, data } = useSelector(state => state.accessConfig);
   const user = useSelector(state => state.auth.user);
+  const userAccessUsers = useSelector(state => state.userAccessUsers.userAccessUsers)
 
   useEffect(() => {
     dispatch(getUserAccessConfigurationAction(id));
@@ -137,13 +138,13 @@ const AccessConfiguration = (props) => {
       if (!saveAccessConfig) {
         throw { message: 'Unable update info' }
       }
-      console.log('--->>', props.userAccessUsers)
-      // const updateAccesConfigForUser = await AccessConfigurationAPI
-      //   .updateUserAccessConfigurationForUserAPI(localState.userAccessId, {
-      //     users: props.userAccessUsers,
-      //     user: user,
-      //     userAccessId: localState.userAccessId
-      //   })
+      console.log('--->>', userAccessUsers)
+      const updateAccesConfigForUser = await AccessConfigurationAPI
+        .updateUserAccessConfigurationForUserAPI(localState.userAccessId, {
+          users: userAccessUsers,
+          user: user,
+          userAccessId: localState.userAccessId
+        })
 
       // if (!updateAccesConfigForUser) {
       //   throw { message: 'Unable update info' }
@@ -286,7 +287,7 @@ const AccessConfiguration = (props) => {
     });
   };
 
-  if(isLoading){
+  if (isLoading) {
     return <div>Loading......</div>
   }
 

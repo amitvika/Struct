@@ -5,7 +5,7 @@ const User = require("../../models/User");
 const auth = require("../../middleware/auth");
 const checkAccess = require('../../middleware/checkAccess');
 const { hasPermissionForAccessConfigUserEdit } = require('../../middleware/hasPermission');
-const get  = require('lodash/get');
+const get = require('lodash/get');
 
 router.use(auth);
 router.use(checkAccess);
@@ -17,7 +17,12 @@ router.put("/:id",
       ///make sure the savObject in change tracking saves the userAccess ID for each member
     };
 
-    const newUsers = get(req,'body.users.newUsers',[])
+    const newUsers = get(req, 'body.users.newUsers', [])
+    const removedUsers = get(req, 'body.users.removedUsers', [])
+
+    if (newUsers.length === 0 && removedUsers.length === 0) {
+      return res.json({ success: true });
+    }
 
     newUsers.map(x => {
       User.findByIdAndUpdate(x.id, saveObject)
@@ -31,7 +36,7 @@ router.put("/:id",
             updatedBy: req.user.id
           });
           changeTracking.save().catch(error => console.log(error));
-          //res.json({ success: true });
+          res.json({ success: true });
         })
         .catch(err => console.log(err));
     });
@@ -41,7 +46,7 @@ router.put("/:id",
       ///make sure the savObject in change tracking saves the userAccess ID for each member
     };
 
-    req.body.users.removedUsers.forEach(x => {
+    removedUsers.forEach(x => {
       User.findByIdAndUpdate(x.id, saveObject2)
         .then(() => {
           const changeTracking = new ChangeTracking({
@@ -53,7 +58,7 @@ router.put("/:id",
             updatedBy: req.user.id
           });
           changeTracking.save().catch(error => console.log(error));
-          //res.json({ success: true });
+          res.json({ success: true });
         })
         .catch(err => console.log(err));
     });
