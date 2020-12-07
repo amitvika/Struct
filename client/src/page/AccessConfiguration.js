@@ -116,10 +116,11 @@ const AccessConfiguration = (props) => {
         setLocalState(state => {
           return {
             ...state,
+            ...data.access,
             userAccessLoaded: true,
             userAccessName: data.name,
             userAccessId: data._id,
-            ...data.access
+            
           }
         });
       }
