@@ -30,5 +30,6 @@ router.get('/stl-file/:fileName', function (req, res) {
 });
 
 router.get('/load-material', LoadMaterial.load);
+router.get('/load-material-hierarchy', LoadMaterial.loadHierarchy);
 
 module.exports = router;
