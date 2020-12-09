@@ -159,7 +159,7 @@ class Clients extends Component {
   render() {
     const { user } = this.props.auth;
     return (
-      <>
+      <div>
         <ShowHistoryModal
           isVisible={this.state.isHistoryModalOpened}
           pageName={'Client'}
@@ -178,114 +178,116 @@ class Clients extends Component {
             {this.state.msg}
           </MuiAlert>
         </Snackbar>
-        {this.state.tableLoaded ? (
-          <MaterialTable
-            columns={this.state.columns}
-            data={this.state.rowData}
-            title="Clients"
-            options={{
-              actionsColumnIndex: 4,
-              addRowPosition: "first",
-              exportButton: true,
-              exportFileName: "Clients"
-            }}
-            onRowClick={(rowdata, event) => {
-              const selection = window.getSelection();
-              
-              if (selection.type != "Range") {
-                this.props.history.push(`/clients/${event.id}`);
-              }
-            }}
-            components={{
-              Toolbar: props => (
-                <div>
-                  <MTableToolbar {...props} />
-                  <Toolbar
-                    isDeletedItemVisible={this.state.isDeletedItemVisible}
-                    handleDeletedToggle={this.handleShowDelete}
-                    isHistoryModalOpened={this.state.isHistoryModalOpened}
-                    handleHistoryToggle={this.handleHistoryToggle}
-                  />
-                </div>
-              )
-            }}
-            editable={{
-              onRowAdd: newData =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    {
-                      const newClient = {
-                        name: newData.name,
-                        userId: this.props.auth.isAuthenticated
-                          ? this.props.auth.user._id
-                          : "Guest"
-                      }; //
-
-                      API.addClientApi(newClient)
-                        .then(res => {
-                          console.log(res.data);
-                          this.retrieveFromDb();
-                        })
-                        .catch(err => {
-                          console.log(err.data)
-                          this.alertForError(err)
-                        });
-
-
-                    }
-                    resolve();
-                  }, 10);
-                }),
-              onRowUpdate: (newData, oldData) =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    {
-
-                      API.updateClientApi(newData.id, { name: newData.name, user: user._id })
-                        .then(res => {
-                          console.log(res.data);
-                          this.retrieveFromDb();
-                        })
-                        .catch(err => {
-                          console.log(err.data)
-                          this.alertForError(err)
-                        });
-                    }
-                    resolve();
-                  }, 1000);
-                }),
-              onRowDelete: oldData =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    {
-                      API.deleteClientApi(oldData.id)
-                        .then(res => {
-                          console.log(res.data);
-                          this.retrieveFromDb();
-                        })
-                        .catch(err => {
-                          console.log(err.data)
-                          this.alertForError(err);
-                        });
-
-                    }
-                    resolve();
-                  }, 1000);
-                })
-            }}
-          //////
-          />
-        ) : (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center"
+        <div style={{ marginLeft: '15%', width: '70%' }}>
+          {this.state.tableLoaded ? (
+            <MaterialTable
+              columns={this.state.columns}
+              data={this.state.rowData}
+              title="Clients"
+              options={{
+                actionsColumnIndex: 4,
+                addRowPosition: "first",
+                exportButton: true,
+                exportFileName: "Clients"
               }}
-            >
-              <Spinner animation="border" />
-            </div>
-          )}
-      </>
+              onRowClick={(rowdata, event) => {
+                const selection = window.getSelection();
+
+                if (selection.type != "Range") {
+                  this.props.history.push(`/clients/${event.id}`);
+                }
+              }}
+              components={{
+                Toolbar: props => (
+                  <div>
+                    <MTableToolbar {...props} />
+                    <Toolbar
+                      isDeletedItemVisible={this.state.isDeletedItemVisible}
+                      handleDeletedToggle={this.handleShowDelete}
+                      isHistoryModalOpened={this.state.isHistoryModalOpened}
+                      handleHistoryToggle={this.handleHistoryToggle}
+                    />
+                  </div>
+                )
+              }}
+              editable={{
+                onRowAdd: newData =>
+                  new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      {
+                        const newClient = {
+                          name: newData.name,
+                          userId: this.props.auth.isAuthenticated
+                            ? this.props.auth.user._id
+                            : "Guest"
+                        }; //
+
+                        API.addClientApi(newClient)
+                          .then(res => {
+                            console.log(res.data);
+                            this.retrieveFromDb();
+                          })
+                          .catch(err => {
+                            console.log(err.data)
+                            this.alertForError(err)
+                          });
+
+
+                      }
+                      resolve();
+                    }, 10);
+                  }),
+                onRowUpdate: (newData, oldData) =>
+                  new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      {
+
+                        API.updateClientApi(newData.id, { name: newData.name, user: user._id })
+                          .then(res => {
+                            console.log(res.data);
+                            this.retrieveFromDb();
+                          })
+                          .catch(err => {
+                            console.log(err.data)
+                            this.alertForError(err)
+                          });
+                      }
+                      resolve();
+                    }, 1000);
+                  }),
+                onRowDelete: oldData =>
+                  new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      {
+                        API.deleteClientApi(oldData.id)
+                          .then(res => {
+                            console.log(res.data);
+                            this.retrieveFromDb();
+                          })
+                          .catch(err => {
+                            console.log(err.data)
+                            this.alertForError(err);
+                          });
+
+                      }
+                      resolve();
+                    }, 1000);
+                  })
+              }}
+            //////
+            />
+          ) : (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center"
+                }}
+              >
+                <Spinner animation="border" />
+              </div>
+            )}
+        </div>
+      </div>
     );
   }
 }

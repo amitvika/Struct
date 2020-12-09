@@ -205,124 +205,126 @@ class ProductDesign extends Component {
             {this.state.msg}
           </MuiAlert>
         </Snackbar>
-        {this.state.tableLoaded ? (
-          <MaterialTable
-            columns={this.state.columns}
-            data={this.state.rowData}
-            title="Create New Product Design"
-            options={{
-              actionsColumnIndex: 5,
-              addRowPosition: "first",
-              exportButton: false,
-              exportFileName: "ProductDesign",
-              cellStyle: {
-                textAlign: 'center'
-              },
-              headerStyle: {
-                textAlign: 'center'
-              }
-            }}
-            onRowClick={(rowdata, event) => {
-              const selection = window.getSelection();
-              if (selection.type != "Range") {
-                this.props.history.push(`/product-design/${event.id}?product_name=${event.name}`);
-              }
-            }}
-            components={{
-              Toolbar: props => (
-                <div>
-                  <MTableToolbar {...props} />
-                  <Toolbar
-                    isDeletedItemVisible={this.state.isDeletedItemVisible}
-                    handleDeletedToggle={this.handleShowDelete}
-                    isHistoryModalOpened={this.state.isHistoryModalOpened}
-                    handleHistoryToggle={this.handleHistoryToggle}
-                  />
-                </div>
-              )
-            }}
-            editable={{
-              onRowAdd: newData =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    {
-                      const newProcessGroup = {
-                        name: newData.name,
-                        client: newData.client,
-                        user: this.props.auth.isAuthenticated
-                          ? this.props.auth.user._id
-                          : "Guest"
-                      }; //
-
-                      API.addProductDesignApi(newProcessGroup)
-                        .then(res => {
-                          console.log(res.data);
-                          this.retrieveFromDb();
-                        })
-                        .catch(err => {
-                          console.log(err.data)
-                          this.alertForError(err)
-                        });
-
-                    }
-                    resolve();
-                  }, 10);
-                }),
-              onRowUpdate: (newData, oldData) =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    {
-                      console.log(newData.client);
-                      const data = {
-                        name: newData.name,
-                        user: user._id,
-                        client: newData.client
-                      }
-
-                      API.updateProductDesignApi(newData.id, data)
-                        .then(res => {
-                          console.log(res.data);
-                          this.retrieveFromDb();
-                        })
-                        .catch(err => {
-                          console.log(err.data);
-                          this.alertForError(err)
-                        });
-
-                    }
-                    resolve();
-                  }, 1000);
-                }),
-              onRowDelete: oldData =>
-                new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    {
-                      API.deleteProductDesignApi(oldData.id)
-                        .then(res => {
-                          console.log(res.data);
-                          this.retrieveFromDb();
-                        })
-                        .catch(err => {
-                          console.log(err)
-                          this.alertForError(err)
-                        });
-                    }
-                    resolve();
-                  }, 1000);
-                })
-            }}
-          //////
-          />
-        ) : (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center"
+        <div style={{ marginLeft: '15%', width: '70%' }}>
+          {this.state.tableLoaded ? (
+            <MaterialTable
+              columns={this.state.columns}
+              data={this.state.rowData}
+              title="Create New Product Design"
+              options={{
+                actionsColumnIndex: 5,
+                addRowPosition: "first",
+                exportButton: false,
+                exportFileName: "ProductDesign",
+                cellStyle: {
+                  textAlign: 'center'
+                },
+                headerStyle: {
+                  textAlign: 'center'
+                }
               }}
-            >
-              <Spinner animation="border" />
-            </div>
-          )}
+              onRowClick={(rowdata, event) => {
+                const selection = window.getSelection();
+                if (selection.type != "Range") {
+                  this.props.history.push(`/product-design/${event.id}?product_name=${event.name}`);
+                }
+              }}
+              components={{
+                Toolbar: props => (
+                  <div>
+                    <MTableToolbar {...props} />
+                    <Toolbar
+                      isDeletedItemVisible={this.state.isDeletedItemVisible}
+                      handleDeletedToggle={this.handleShowDelete}
+                      isHistoryModalOpened={this.state.isHistoryModalOpened}
+                      handleHistoryToggle={this.handleHistoryToggle}
+                    />
+                  </div>
+                )
+              }}
+              editable={{
+                onRowAdd: newData =>
+                  new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      {
+                        const newProcessGroup = {
+                          name: newData.name,
+                          client: newData.client,
+                          user: this.props.auth.isAuthenticated
+                            ? this.props.auth.user._id
+                            : "Guest"
+                        }; //
+
+                        API.addProductDesignApi(newProcessGroup)
+                          .then(res => {
+                            console.log(res.data);
+                            this.retrieveFromDb();
+                          })
+                          .catch(err => {
+                            console.log(err.data)
+                            this.alertForError(err)
+                          });
+
+                      }
+                      resolve();
+                    }, 10);
+                  }),
+                onRowUpdate: (newData, oldData) =>
+                  new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      {
+                        console.log(newData.client);
+                        const data = {
+                          name: newData.name,
+                          user: user._id,
+                          client: newData.client
+                        }
+
+                        API.updateProductDesignApi(newData.id, data)
+                          .then(res => {
+                            console.log(res.data);
+                            this.retrieveFromDb();
+                          })
+                          .catch(err => {
+                            console.log(err.data);
+                            this.alertForError(err)
+                          });
+
+                      }
+                      resolve();
+                    }, 1000);
+                  }),
+                onRowDelete: oldData =>
+                  new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      {
+                        API.deleteProductDesignApi(oldData.id)
+                          .then(res => {
+                            console.log(res.data);
+                            this.retrieveFromDb();
+                          })
+                          .catch(err => {
+                            console.log(err)
+                            this.alertForError(err)
+                          });
+                      }
+                      resolve();
+                    }, 1000);
+                  })
+              }}
+            //////
+            />
+          ) : (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center"
+                }}
+              >
+                <Spinner animation="border" />
+              </div>
+            )}
+        </div>
       </div>
     );
   }

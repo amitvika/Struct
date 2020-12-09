@@ -63,7 +63,7 @@ class Vendors extends Component {
 
   dataQuery = (query) => {
     return new Promise(async (resolve, reject) => {
-      
+
       VendorAPI
         .getVendorsApi(`limit=${query.pageSize}&page=${query.page + 1}&search=${query.search}`)
         .then(result => result.data)
@@ -107,69 +107,70 @@ class Vendors extends Component {
             {this.state.msg}
           </MuiAlert>
         </Snackbar>
+        <div style={{ marginLeft: '15%', width: '70%' }}>
+          <MaterialTable
+            columns={this.state.columns}
+            data={query => this.dataQuery(query)}
+            title="Vendor"
+            options={{
+              actionsColumnIndex: 4,
+              addRowPosition: "first",
+              exportButton: true,
+              exportFileName: "Vendors"
+            }}
+            onRowClick={(rowdata, event) => {
+              const selection = window.getSelection();
 
-        <MaterialTable
-          columns={this.state.columns}
-          data={query => this.dataQuery(query)}
-          title="Vendor"
-          options={{
-            actionsColumnIndex: 4,
-            addRowPosition: "first",
-            exportButton: true,
-            exportFileName: "Vendors"
-          }}
-          onRowClick={(rowdata, event) => {
-            const selection = window.getSelection();
-              
-            if (selection.type != "Range") {
-              this.props.history.push(`/vendors/${event.id}`);
-            }
-          }}
-          components={{
-            Toolbar: props => (
-              <div>
-                <MTableToolbar {...props} />
-                <Toolbar
-                  isDeletedItemVisible={this.state.isDeletedItemVisible}
-                  handleDeletedToggle={this.handleShowDelete}
-                  isHistoryModalOpened={this.state.isHistoryModalOpened}
-                  handleHistoryToggle={this.handleHistoryToggle}
-                />
-              </div>
-            )
-          }}
-          editable={{
-            onRowAdd: newData => {
-              return VendorAPI
-                .addVendorApi({ name: newData.name, source: newData.source })
-                .then(res => {
-                  // this.retrieveFromDb();
-                })
-                .catch(error => {
-                  console.log(error.data)
-                })
-            },
-            onRowUpdate: (newData, oldData) => {
-              return VendorAPI
-                .updateVendorApi(newData.id, { name: newData.name, source: newData.source })
-                .then(res => {
-                  console.log(res.data);
-                  // this.retrieveFromDb();
-                })
-                .catch(err => console.log(err.data));
-            },
-            onRowDelete: oldData => {
-              return VendorAPI
-                .deleteVendorApi(oldData.id)
-                .then(res => {
-                  console.log(res.data);
-                  // this.retrieveFromDb();
-                })
-                .catch(err => console.log(err.data));
-            }
+              if (selection.type != "Range") {
+                this.props.history.push(`/vendors/${event.id}`);
+              }
+            }}
+            components={{
+              Toolbar: props => (
+                <div>
+                  <MTableToolbar {...props} />
+                  <Toolbar
+                    isDeletedItemVisible={this.state.isDeletedItemVisible}
+                    handleDeletedToggle={this.handleShowDelete}
+                    isHistoryModalOpened={this.state.isHistoryModalOpened}
+                    handleHistoryToggle={this.handleHistoryToggle}
+                  />
+                </div>
+              )
+            }}
+            editable={{
+              onRowAdd: newData => {
+                return VendorAPI
+                  .addVendorApi({ name: newData.name, source: newData.source })
+                  .then(res => {
+                    // this.retrieveFromDb();
+                  })
+                  .catch(error => {
+                    console.log(error.data)
+                  })
+              },
+              onRowUpdate: (newData, oldData) => {
+                return VendorAPI
+                  .updateVendorApi(newData.id, { name: newData.name, source: newData.source })
+                  .then(res => {
+                    console.log(res.data);
+                    // this.retrieveFromDb();
+                  })
+                  .catch(err => console.log(err.data));
+              },
+              onRowDelete: oldData => {
+                return VendorAPI
+                  .deleteVendorApi(oldData.id)
+                  .then(res => {
+                    console.log(res.data);
+                    // this.retrieveFromDb();
+                  })
+                  .catch(err => console.log(err.data));
+              }
 
-          }}
-        />
+            }}
+          />
+        </div>
       </div>
     );
   }

@@ -109,38 +109,39 @@ class Items extends Component {
             {this.state.msg}
           </MuiAlert>
         </Snackbar>
+        <div style={{ marginLeft: '15%', width: '70%' }}>
+          <MaterialTable
+            columns={this.state.columns}
+            data={query => this.dataQuery(query)}
+            title="Items"
+            options={{
+              addRowPosition: "first",
+              exportButton: true,
+              exportFileName: "Items"
+            }}
+            onRowClick={(rowdata, event) => {
+              const selection = window.getSelection();
 
-        <MaterialTable
-          columns={this.state.columns}
-          data={query => this.dataQuery(query)}
-          title="Items"
-          options={{
-            addRowPosition: "first",
-            exportButton: true,
-            exportFileName: "Items"
-          }}
-          onRowClick={(rowdata, event) => {
-            const selection = window.getSelection();
-
-            if (selection.type != "Range") {
-              this.props.history.push(`/items/${event.id}`)
+              if (selection.type != "Range") {
+                this.props.history.push(`/items/${event.id}`)
+              }
             }
-          }
-          }
-          components={{
-            Toolbar: props => (
-              <div>
-                <MTableToolbar {...props} />
-                <Toolbar
-                  isDeletedItemVisible={this.state.isDeletedItemVisible}
-                  handleDeletedToggle={this.handleShowDelete}
-                  isHistoryModalOpened={this.state.isHistoryModalOpened}
-                  handleHistoryToggle={this.handleHistoryToggle}
-                />
-              </div>
-            )
-          }}
-        />
+            }
+            components={{
+              Toolbar: props => (
+                <div>
+                  <MTableToolbar {...props} />
+                  <Toolbar
+                    isDeletedItemVisible={this.state.isDeletedItemVisible}
+                    handleDeletedToggle={this.handleShowDelete}
+                    isHistoryModalOpened={this.state.isHistoryModalOpened}
+                    handleHistoryToggle={this.handleHistoryToggle}
+                  />
+                </div>
+              )
+            }}
+          />
+        </div>
       </div>
     );
   }

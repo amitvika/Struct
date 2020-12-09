@@ -171,91 +171,93 @@ class ProcessGroups extends Component {
             {this.state.msg}
           </MuiAlert>
         </Snackbar>
-        {this.state.tableLoaded ? (
-          <MaterialTable
-            columns={this.state.columns}
-            data={this.state.rowData}
-            title="Process Groups"
-            options={{
-              actionsColumnIndex: 5,
-              addRowPosition: "first",
-              exportButton: true,
-              exportFileName: "ProcessGroups"
-            }}
-            onRowClick={(rowdata, event) => {
-              const selection = window.getSelection();
-
-              if (selection.type != "Range") {
-                this.props.history.push(`/process-groups/${event.id}`);
-              }
-            }}
-            components={{
-              Toolbar: props => (
-                <div>
-                  <MTableToolbar {...props} />
-                  <Toolbar
-                    isDeletedItemVisible={this.state.isDeletedItemVisible}
-                    handleDeletedToggle={this.handleShowDelete}
-                    isHistoryModalOpened={this.state.isHistoryModalOpened}
-                    handleHistoryToggle={this.handleHistoryModal}
-                  />
-                </div>
-              )
-            }}
-            editable={{
-              onRowAdd: newData => {
-                const data = {
-                  name: newData.name,
-                  client: newData.client,
-                  user: this.props.auth.isAuthenticated
-                    ? this.props.auth.user._id
-                    : "Guest"
-                }; //
-                return ProcessGroupAPI
-                  .addProcessGroupsApi(data)
-                  .then(res => {
-                    console.log(res.data);
-                    this.retrieveFromDb();
-                  })
-                  .catch(err => console.log(err.data));
-              },
-              onRowUpdate: (newData, oldData) => {
-                const data = {
-                  name: newData.name,
-                  user: user._id,
-                  client: newData.client
-                }
-
-                return ProcessGroupAPI
-                  .updateProcessGroupsApi(newData.id, data)
-                  .then(res => {
-                    console.log(res.data);
-                    this.retrieveFromDb();
-                  })
-                  .catch(err => console.log(err.data));
-              },
-              onRowDelete: oldData => {
-                return ProcessGroupAPI
-                  .deleteProcessGroupsApi(oldData.id)
-                  .then(res => {
-                    console.log(res.data);
-                    this.retrieveFromDb();
-                  })
-                  .catch(err => console.log(err.data));
-              }
-            }}
-          //////
-          />
-        ) : (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center"
+        <div style={{ marginLeft: '15%', width: '70%' }}>
+          {this.state.tableLoaded ? (
+            <MaterialTable
+              columns={this.state.columns}
+              data={this.state.rowData}
+              title="Process Groups"
+              options={{
+                actionsColumnIndex: 5,
+                addRowPosition: "first",
+                exportButton: true,
+                exportFileName: "ProcessGroups"
               }}
-            >
-              <Spinner animation="border" />
-            </div>
-          )}
+              onRowClick={(rowdata, event) => {
+                const selection = window.getSelection();
+
+                if (selection.type != "Range") {
+                  this.props.history.push(`/process-groups/${event.id}`);
+                }
+              }}
+              components={{
+                Toolbar: props => (
+                  <div>
+                    <MTableToolbar {...props} />
+                    <Toolbar
+                      isDeletedItemVisible={this.state.isDeletedItemVisible}
+                      handleDeletedToggle={this.handleShowDelete}
+                      isHistoryModalOpened={this.state.isHistoryModalOpened}
+                      handleHistoryToggle={this.handleHistoryModal}
+                    />
+                  </div>
+                )
+              }}
+              editable={{
+                onRowAdd: newData => {
+                  const data = {
+                    name: newData.name,
+                    client: newData.client,
+                    user: this.props.auth.isAuthenticated
+                      ? this.props.auth.user._id
+                      : "Guest"
+                  }; //
+                  return ProcessGroupAPI
+                    .addProcessGroupsApi(data)
+                    .then(res => {
+                      console.log(res.data);
+                      this.retrieveFromDb();
+                    })
+                    .catch(err => console.log(err.data));
+                },
+                onRowUpdate: (newData, oldData) => {
+                  const data = {
+                    name: newData.name,
+                    user: user._id,
+                    client: newData.client
+                  }
+
+                  return ProcessGroupAPI
+                    .updateProcessGroupsApi(newData.id, data)
+                    .then(res => {
+                      console.log(res.data);
+                      this.retrieveFromDb();
+                    })
+                    .catch(err => console.log(err.data));
+                },
+                onRowDelete: oldData => {
+                  return ProcessGroupAPI
+                    .deleteProcessGroupsApi(oldData.id)
+                    .then(res => {
+                      console.log(res.data);
+                      this.retrieveFromDb();
+                    })
+                    .catch(err => console.log(err.data));
+                }
+              }}
+            //////
+            />
+          ) : (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center"
+                }}
+              >
+                <Spinner animation="border" />
+              </div>
+            )}
+        </div>
       </div>
     );
   }

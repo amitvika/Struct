@@ -92,3 +92,7 @@
   display: flex;
   align-items: center;
 }
+
+.MuiPaper-root{
+  /* width: 70%; */
+}
