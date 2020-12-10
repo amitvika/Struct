@@ -1,12 +1,17 @@
 const mongoose = require("mongoose");
-var Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 
-const UserSchema = new mongoose.Schema({
+const MaterialHierarchySchema = new mongoose.Schema({
+  id: { type: String, default: 0 },
   title: {
     type: String,
     required: true
   },
-  categoryId: {
-    type: Schema.Types.ObjectId,
+  parentId: {
+    type: String, default: 0
   }
 });
+
+const MaterialHierarchy = mongoose.model("MaterialHierarchy", MaterialHierarchySchema);
+//allows for exporting the schema
+module.exports = MaterialHierarchy;

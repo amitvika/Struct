@@ -1,0 +1,31 @@
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const MaterialSchema = new mongoose.Schema({
+  name: { type: String },
+  description: { type: String },
+  chemicalComposition: [
+    {
+      elementName: { type: String },
+      max: { type: Number, default: 0, get: getDecimalNumber, set: setDecimalNumber },
+      min: { type: Number, default: 0, get: getDecimalNumber, set: setDecimalNumber },
+      unit: { type: String }
+    }
+  ],
+  properties: [{
+    name: { type: String },
+    value: [{
+      max: { type: Number, default: 0, get: getDecimalNumber, set: setDecimalNumber },
+      min: { type: Number, default: 0, get: getDecimalNumber, set: setDecimalNumber },
+      unit: { type: String }
+    }]
+  }],
+  applications: [{ type: String }]
+});
+
+function getDecimalNumber(val) { return (val / 1000000); }
+function setDecimalNumber(val) { return (val * 1000000); }
+
+const Material = mongoose.model("Material", MaterialSchema);
+//allows for exporting the schema
+module.exports = Material;
