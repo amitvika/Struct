@@ -4,7 +4,6 @@ const path = require('path');
 
 const Upload = require('../../middleware/fileUpload');
 const ItemController = require('../../controller/items.controller');
-const LoadMaterial = require('../../controller/loadMaterial.controller');
 
 router.use("/auth", require("./auth"));
 router.use("/users", require("./users"));
@@ -23,13 +22,12 @@ router.use("/processdata", require("./processData.route"));
 router.use("/processes", require("./processes"));
 router.use("/vendor", require("./vendors.route"));
 router.use("/assemblyProcess", require("./assemblyProcess.route"));
+router.use("/material", require("./material.route"))
 
 router.post('/step-file', Upload.uploadSingleFile(), ItemController.load_cadfile);
 router.get('/stl-file/:fileName', function (req, res) {
   res.sendFile(path.join(__dirname, `../../uploads/step/${req.params.fileName}`));
 });
 
-router.get('/load-material', LoadMaterial.load);
-router.get('/load-material-hierarchy', LoadMaterial.loadHierarchy);
 
 module.exports = router;

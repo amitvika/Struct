@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const MaterialHierarchySchema = new mongoose.Schema({
   id: { type: String, default: 0 },
@@ -12,6 +12,7 @@ const MaterialHierarchySchema = new mongoose.Schema({
   }
 });
 
+MaterialHierarchySchema.plugin(mongoosePaginate);
 const MaterialHierarchy = mongoose.model("MaterialHierarchy", MaterialHierarchySchema);
 //allows for exporting the schema
 module.exports = MaterialHierarchy;

@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate-v2');
+
 const Schema = mongoose.Schema;
 
 const MaterialSchema = new mongoose.Schema({
@@ -26,6 +28,7 @@ const MaterialSchema = new mongoose.Schema({
 function getDecimalNumber(val) { return (val / 1000000); }
 function setDecimalNumber(val) { return (val * 1000000); }
 
+MaterialSchema.plugin(mongoosePaginate);
+
 const Material = mongoose.model("Material", MaterialSchema);
-//allows for exporting the schema
 module.exports = Material;

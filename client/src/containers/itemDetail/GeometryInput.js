@@ -1,9 +1,20 @@
 import React, { useState } from 'react'
 import Select from '../../components/atoms/Select';
 import Input from '../../components/atoms/Input';
+import Button from '../../components/atoms/Button';
 import Grid from '@material-ui/core/Grid';
+import MaterialModal from './MaterialModal';
 
 export default function GeometryInput({ itemProperties = {}, setItemProperties }) {
+
+
+  const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
+  const toggleMaterial = () => {
+    setIsMaterialModalOpen(prevValue => {
+      return !prevValue;
+    })
+  }
+
   const itemGeometry = itemProperties.itemGeometry || {}
   const handleOnChange = (name, value) => {
     setItemProperties(prevData => ({
@@ -17,6 +28,10 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 
   return (
     <>
+      <MaterialModal
+        toggleMaterial={toggleMaterial}
+        isMaterialModalOpen={isMaterialModalOpen}
+      />
       <Grid item xs={4} >
         <Select
           label="General Geometry"
@@ -223,7 +238,10 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
           </Grid> :
 
           <Grid item xs={4} >
-            <Select
+            <Button onClick={toggleMaterial}>
+              Select Material
+            </Button>
+            {/* <Select
               label="Material"
               placeholder="Select"
               options={[
@@ -232,7 +250,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
                 { label: "Ceramic", value: "Ceramic" }]}
               onChange={(data) => data && handleOnChange('material', [data.value])}
               value={Array.isArray(itemGeometry.material) && { label: itemGeometry.material[0] }}
-            />
+            /> */}
           </Grid>
       }
       <Grid item xs={8} ></Grid>
