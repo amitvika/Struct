@@ -8,7 +8,6 @@ import Grid from '@material-ui/core/Grid';
 import Input from '../../components/atoms/Input';
 import Headding from '../../components/atoms/Headding';
 import {
-  Button,
   Table,
   TableBody,
   TableCell,
@@ -17,6 +16,7 @@ import {
   TableRow,
   Paper
 } from "@material-ui/core";
+import Button from '../../components/atoms/Button';
 
 import MaterialAPI from '../../api/material.api';
 
@@ -26,6 +26,7 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
 
   const [selectedMaterials, setSelectedMaterials] = useState([]);
   const [materialList, setMaterialList] = useState([]);
+  const [searchText, setSearchText] = useState('');
 
   const addMaterialToSelected = (data) => {
     setMaterialList(preMaterialList => {
@@ -37,13 +38,13 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
 
   const removeMaterialFromSelected = (data) => {
     setSelectedMaterials(preMaterialList => {
-      return preMaterialList.filter(material => material.id !== data.id);
+      return preMaterialList.filter(material => material._id !== data._id);
     });
     setMaterialList([...materialList, data])
   }
 
-  useEffect(() => {
-    MaterialAPI.fetchMaterialApi()
+  const fetchData = ({ query = '' }) => {
+    MaterialAPI.fetchMaterialApi(query)
       .then(res => {
         if (res.data) {
           setMaterialList(res.data.docs)
@@ -56,18 +57,28 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
     return () => {
 
     }
-  }, [])
+  }
+
+  const searchMaterial = () => {
+    let query = ''
+    if (searchText) {
+      query = `search=${searchText}`
+    }
+    fetchData({ query })
+  }
 
   return (
     <Modal isOpen={isMaterialModalOpen} toggle={toggleMaterial} className={'Material__Modal'}>
       <ModalHeader toggle={toggleMaterial}>Select Material</ModalHeader>
       <ModalBody>
         <Grid className="section-padding-left" container spacing={4}>
+          
           <Grid item xs={3} ><Headding title="Name Search" /></Grid>
           <Grid item xs={3} >
             <Input
               placeholder="Enter"
               type="text"
+              onChange={(event) => setSearchText(event.target.value)}
             />
           </Grid>
           <Grid item xs={6} ></Grid>
@@ -159,6 +170,11 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
             />
           </Grid>
           <Grid item xs={3} ></Grid>
+          <Grid item xs={12}>
+            <Button onClick={searchMaterial}>
+              Search Material
+            </Button>
+          </Grid>
         </Grid>
         <div>
           <h5 className="mt-2">Selected Material</h5>
@@ -207,7 +223,6 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
               </TableBody>
             </Table>
           </TableContainer>
-          <div className="mb-2"> </div>
         </div>
       </ModalBody>
     </Modal >

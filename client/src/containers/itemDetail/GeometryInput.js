@@ -7,7 +7,6 @@ import MaterialModal from './MaterialModal';
 
 export default function GeometryInput({ itemProperties = {}, setItemProperties }) {
 
-
   const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
   const toggleMaterial = () => {
     setIsMaterialModalOpen(prevValue => {
