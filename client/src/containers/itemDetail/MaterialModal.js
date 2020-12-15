@@ -26,7 +26,7 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
 
   const [selectedMaterials, setSelectedMaterials] = useState([]);
   const [materialList, setMaterialList] = useState([]);
-  const [searchText, setSearchText] = useState('');
+  const [filter, setFilter] = useState({});
 
   const addMaterialToSelected = (data) => {
     setMaterialList(preMaterialList => {
@@ -59,12 +59,23 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
     }
   }
 
+  const handleChange = (name, value) => {
+    setFilter(prevFilter => {
+      return {
+        ...prevFilter,
+        [name]: value
+      }
+    })
+  }
+
   const searchMaterial = () => {
-    let query = ''
-    if (searchText) {
-      query = `search=${searchText}`
-    }
-    fetchData({ query })
+    let query = []
+    Object.keys(filter).forEach((key, index) => {
+      if (filter[key]) {
+        query.push(`${key}=${filter[key]}`)
+      }
+    })
+    fetchData({ query: query.join('&') })
   }
 
   return (
@@ -72,13 +83,13 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
       <ModalHeader toggle={toggleMaterial}>Select Material</ModalHeader>
       <ModalBody>
         <Grid className="section-padding-left" container spacing={4}>
-          
+
           <Grid item xs={3} ><Headding title="Name Search" /></Grid>
           <Grid item xs={3} >
             <Input
               placeholder="Enter"
               type="text"
-              onChange={(event) => setSearchText(event.target.value)}
+              onChange={(event) => handleChange("search", event.target.value)}
             />
           </Grid>
           <Grid item xs={6} ></Grid>
@@ -89,13 +100,15 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
           <Grid item xs={3} >
             <Input
               placeholder="Enter Min"
-              type="text"
+              type="number"
+              onChange={(event) => handleChange("densityMin", event.target.value)}
             />
           </Grid>
           <Grid item xs={3} >
             <Input
               placeholder="Enter Max"
-              type="text"
+              type="number"
+              onChange={(event) => handleChange("densityMax", event.target.value)}
             />
           </Grid>
           <Grid item xs={3} ></Grid>
@@ -106,13 +119,15 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
           <Grid item xs={3} >
             <Input
               placeholder="Enter Min"
-              type="text"
+              type="number"
+              onChange={(event) => handleChange("tensileMin", event.target.value)}
             />
           </Grid>
           <Grid item xs={3} >
             <Input
               placeholder="Enter Max"
-              type="text"
+              type="number"
+              onChange={(event) => handleChange("tensileMax", event.target.value)}
             />
           </Grid>
           <Grid item xs={3} ></Grid>
@@ -124,13 +139,15 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
           <Grid item xs={3} >
             <Input
               placeholder="Enter Min"
-              type="text"
+              type="number"
+              onChange={(event) => handleChange("elasticMin", event.target.value)}
             />
           </Grid>
           <Grid item xs={3} >
             <Input
               placeholder="Enter Max"
-              type="text"
+              type="number"
+              onChange={(event) => handleChange("elasticMax", event.target.value)}
             />
           </Grid>
           <Grid item xs={3} ></Grid>
@@ -142,13 +159,15 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
           <Grid item xs={3} >
             <Input
               placeholder="Enter Min"
-              type="text"
+              type="number"
+              onChange={(event) => handleChange("yieldMin", event.target.value)}
             />
           </Grid>
           <Grid item xs={3} >
             <Input
               placeholder="Enter Max"
-              type="text"
+              type="number"
+              onChange={(event) => handleChange("yieldMax", event.target.value)}
             />
           </Grid>
           <Grid item xs={3} ></Grid>
@@ -160,13 +179,15 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
           <Grid item xs={3} >
             <Input
               placeholder="Enter Min"
-              type="text"
+              type="number"
+              onChange={(event) => handleChange("flexuralMin", event.target.value)}
             />
           </Grid>
           <Grid item xs={3} >
             <Input
               placeholder="Enter Max"
-              type="text"
+              type="number"
+              onChange={(event) => handleChange("flexuralMax", event.target.value)}
             />
           </Grid>
           <Grid item xs={3} ></Grid>

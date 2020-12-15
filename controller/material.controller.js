@@ -63,8 +63,8 @@ const processMaterialFile = (rows) => {
 
       materialObj.chemicalComposition.push({
         elementName: rowItem[1],
-        max: rowItem[2],
-        min: rowItem[3],
+        min: rowItem[2],
+        max: rowItem[3],
         unit: rowItem[4]
       })
     }
@@ -80,8 +80,8 @@ const processMaterialFile = (rows) => {
             return {
               ...property,
               value: property.value.push({
-                max: rowItem[2],
-                min: rowItem[3],
+                min: rowItem[2],
+                max: rowItem[3],
                 unit: rowItem[4]
               })
             }
@@ -96,8 +96,8 @@ const processMaterialFile = (rows) => {
           materialObj.properties.push({
             name: rowItem[1],
             value: [{
-              max: rowItem[2],
-              min: rowItem[3],
+              min: rowItem[2],
+              max: rowItem[3],
               unit: rowItem[4]
             }]
           })
@@ -267,17 +267,40 @@ exports.getMaterials = async (req, res) => {
     //   query = { $and: [{ vendorId: req.query.vendorId }, { deletedAt: null }] }
     // }
     // else 
-    if (req.query.search) {
+    if (req.query.search != undefined) {
       query.$and.push({ name: { '$regex': new RegExp(`${req.query.search}`, "i") } })
     }
 
-    if (req.query.density) {
-      query.$and.push({ 'properties.name': { '$regex': new RegExp(`Density`, "i") }  })
+    //density
+    if (req.query.densityMax || req.query.densityMin) {
+      query.$and.push(buildQueryForProperties({ name: "Density", unit: "g/cm³", max: req.query.densityMax, min: req.query.densityMin }))
     }
 
-    if(query.$and.length === 0){
+    //tensile  strenght
+    if (req.query.tensileMax || req.query.tensileMin) {
+      query.$and.push(buildQueryForProperties({ name: "Tensile", unit: "MPa", max: req.query.tensileMax, min: req.query.tensileMin }))
+    }
+
+    //Elastic Modulus
+    if (req.query.elasticMax || req.query.elasticMin) {
+      query.$and.push(buildQueryForProperties({ name: "Elastic Modulus", unit: "GPa", max: req.query.elasticMax, min: req.query.elasticMin }))
+    }
+
+    //Yield Strength
+    if (req.query.yieldMax || req.query.yieldMin) {
+      query.$and.push(buildQueryForProperties({ name: "Yield Strength", unit: "MPa", max: req.query.yieldMax, min: req.query.yieldMin }))
+    }
+
+    //Flexural Modulus
+    if (req.query.flexuralMax || req.query.flexuralMin) {
+      query.$and.push(buildQueryForProperties({ name: "Flexural Modulus", unit: "GPa", max: req.query.flexuralMax, min: req.query.flexuralMin }))
+    }
+
+    if (query.$and.length === 0) {
       query = {}
     }
+
+    console.log(JSON.stringify(query))
 
     const options = {
       // page: req.query.page,
@@ -289,6 +312,69 @@ exports.getMaterials = async (req, res) => {
 
     res.json(item);
   } catch (error) {
+    console.log(error)
     res.send(error)
   }
+}
+
+const buildQueryForProperties = ({ name, unit, max, min }) => {
+  let query = {}
+  if (max && min) {
+    query = {
+      "properties": {
+        "$elemMatch": {
+          "name": { '$regex': new RegExp(`${name}`, "i") },
+          "value": {
+            "$elemMatch": {
+              "unit": unit,
+              "$and": [{
+                "min": {
+                  "$gte": min *1000000
+                }
+              }, {
+                "max": {
+                  "$lte": max *1000000
+                }
+              }]
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (min) {
+    query = {
+      "properties": {
+        "$elemMatch": {
+          "name": { '$regex': new RegExp(`${name}`, "i") },
+          "value": {
+            "$elemMatch": {
+              "unit": unit,
+              "min": {
+                "$eq": min
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (max) {
+    query = {
+      "properties": {
+        "$elemMatch": {
+          "name": { '$regex': new RegExp(`${name}`, "i") },
+          "value": {
+            "$elemMatch": {
+              "unit": unit,
+              "max": {
+                "$eq": max
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return query;
 }

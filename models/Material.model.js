@@ -30,5 +30,9 @@ function setDecimalNumber(val) { return (val * 1000000); }
 
 MaterialSchema.plugin(mongoosePaginate);
 
+// mongoose.set('debug', function (coll, method, query, doc) {
+//   console.log("----"+coll + " --- " + method + " --- " + JSON.stringify(query) + "--" + JSON.stringify(doc));
+// });
+
 const Material = mongoose.model("Material", MaterialSchema);
 module.exports = Material;
