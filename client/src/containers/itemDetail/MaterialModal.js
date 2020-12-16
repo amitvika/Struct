@@ -5,6 +5,7 @@ import {
   ModalBody
 } from "reactstrap";
 import Grid from '@material-ui/core/Grid';
+import Select from '../../components/atoms/Select';
 import Input from '../../components/atoms/Input';
 import Headding from '../../components/atoms/Headding';
 import {
@@ -27,6 +28,29 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
   const [selectedMaterials, setSelectedMaterials] = useState([]);
   const [materialList, setMaterialList] = useState([]);
   const [filter, setFilter] = useState({});
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [categoryLevel, setCategoryLevel] = useState(0)
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  const fetchCategories = () => {
+    MaterialAPI.fetchCategories(`parent_id=${categoryLevel}`)
+      .then(res => {
+        if (res.data) {
+          setCategoryOptions(res.data.map(item => {
+            return {
+              label: item.title,
+              value: item.id
+            }
+          }))
+        }
+      })
+      .catch(error => {
+
+      })
+  }
 
   const addMaterialToSelected = (data) => {
     setMaterialList(preMaterialList => {
@@ -78,8 +102,9 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
     fetchData({ query: query.join('&') })
   }
 
+
   return (
-    <Modal isOpen={isMaterialModalOpen} toggle={toggleMaterial} className={'Material__Modal'}>
+    <Modal isOpen={isMaterialModalOpen} toggle={toggleMaterial}>
       <ModalHeader toggle={toggleMaterial}>Select Material</ModalHeader>
       <ModalBody>
         <Grid className="section-padding-left" container spacing={4}>
@@ -190,7 +215,13 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
               onChange={(event) => handleChange("flexuralMax", event.target.value)}
             />
           </Grid>
-          <Grid item xs={3} ></Grid>
+          <Grid item xs={3} >
+            <Select
+              label="Category"
+              placeholder="Select"
+              options={categoryOptions}
+            />
+          </Grid>
           <Grid item xs={12}>
             <Button onClick={searchMaterial}>
               Search Material

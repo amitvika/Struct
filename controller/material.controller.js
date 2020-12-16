@@ -11,17 +11,23 @@ exports.load = async (req, res) => {
 
     const fileList = await getFileNameFromDirectory();
 
-    fileList.map(file => {
+    for (let i = fileList.length - 1; i >= 0; i--) {
+
+      let file = fileList[i]
+      // }
+      // fileList.map(file => {
       //read
+
       xlsxFile(file)
         .then(rows => {
           const material = processMaterialFile(rows);
-          addMaterialToDatabase(material);
+          addMaterialToDatabase(material, file);
         })
         .catch(error => {
           console.log('Excel file read error', error)
         })
-    });
+    }
+    // });
 
     res.send({ message: 'File imported sucessfully' })
   }
@@ -30,15 +36,17 @@ exports.load = async (req, res) => {
   }
 }
 
-const addMaterialToDatabase = (data) => {
-  const materialToBeInserted = new MaterialModel(data);
+const addMaterialToDatabase = (data, file) => {
+  // const materialToBeInserted = new MaterialModel(data);
 
-  materialToBeInserted.save()
+  MaterialModel.updateOne({
+    name: data.name
+  }, data, { upsert: true })
     .then(item => {
-
+      console.log('Files updates successfully', file)
     })
     .catch(error => {
-      console.log('Database inserted error', data.name)
+      console.log('Database inserted error', file, data.name)
     })
 }
 
@@ -48,7 +56,8 @@ const processMaterialFile = (rows) => {
     chemicalComposition: [],
     description: '',
     properties: [],
-    applications: []
+    applications: [],
+    technologicalProperties: []
   };
   let itemName = '';
   let propertyName = '';
@@ -63,9 +72,10 @@ const processMaterialFile = (rows) => {
 
       materialObj.chemicalComposition.push({
         elementName: rowItem[1],
-        min: rowItem[2],
-        max: rowItem[3],
-        unit: rowItem[4]
+        min: extractNumber(rowItem[2]),
+        max: extractNumber(rowItem[3]),
+        unit: rowItem[4],
+        comment: extractStringContent(rowItem[2])
       })
     }
     else if (itemName === "Description" && rowItem[1] === "Description") {
@@ -80,9 +90,10 @@ const processMaterialFile = (rows) => {
             return {
               ...property,
               value: property.value.push({
-                min: rowItem[2],
-                max: rowItem[3],
-                unit: rowItem[4]
+                min: extractNumber(rowItem[2]),
+                max: extractNumber(rowItem[3]),
+                unit: rowItem[4],
+                comment: extractStringContent(rowItem[2])
               })
             }
           }
@@ -96,9 +107,10 @@ const processMaterialFile = (rows) => {
           materialObj.properties.push({
             name: rowItem[1],
             value: [{
-              min: rowItem[2],
-              max: rowItem[3],
-              unit: rowItem[4]
+              min: extractNumber(rowItem[2]),
+              max: extractNumber(rowItem[3]),
+              unit: rowItem[4],
+              comment: extractStringContent(rowItem[2])
             }]
           })
         }
@@ -121,14 +133,35 @@ const processMaterialFile = (rows) => {
     else if (itemName === 'Applications' && rowItem[1]) {
       materialObj.applications.push(rowItem[1]);
     }
+    else if (itemName === 'Technological properties' && rowItem[1]) {
+      materialObj.technologicalProperties.push({ name: rowItem[1], value: rowItem[2] });
+    }
   }
 
   return materialObj;
 }
 
+const extractNumber = (exactValue) => {
+  if (typeof exactValue === 'number' && !isNaN(exactValue)) {
+    return exactValue
+  }
+  else {
+    return 0
+  }
+}
+
+const extractStringContent = (value) => {
+  if (isNaN(value)) {
+    return value
+  }
+  else {
+    return '';
+  }
+}
+
 const getFileNameFromDirectory = () => {
   return new Promise((resolve, reject) => {
-    const dirname = '../../../Downloads/NonMetalsMatMatch/'
+    const dirname = '../../../Downloads/metalsnotALSteel/'
     fs.readdir(dirname, function (err, filenames) {
       if (err) {
         reject(err);
@@ -329,11 +362,11 @@ const buildQueryForProperties = ({ name, unit, max, min }) => {
               "unit": unit,
               "$and": [{
                 "min": {
-                  "$gte": min *1000000
+                  "$gte": min * 1000000
                 }
               }, {
                 "max": {
-                  "$lte": max *1000000
+                  "$lte": max * 1000000
                 }
               }]
             }
@@ -377,4 +410,17 @@ const buildQueryForProperties = ({ name, unit, max, min }) => {
     }
   }
   return query;
+}
+
+
+exports.getMaterialCategories = (req, res) => {
+  const parent_id = req.query.parent_id;
+
+  MaterialHierarchyModel.find({ parentId: parent_id })
+    .then(data => {
+      res.send(data)
+    })
+    .catch(error => {
+      res.status(500).send(error)
+    })
 }

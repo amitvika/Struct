@@ -11,7 +11,8 @@ const MaterialSchema = new mongoose.Schema({
       elementName: { type: String },
       max: { type: Number, default: 0, get: getDecimalNumber, set: setDecimalNumber },
       min: { type: Number, default: 0, get: getDecimalNumber, set: setDecimalNumber },
-      unit: { type: String }
+      unit: { type: String },
+      comment: { type: String }
     }
   ],
   properties: [{
@@ -19,10 +20,12 @@ const MaterialSchema = new mongoose.Schema({
     value: [{
       max: { type: Number, default: 0, get: getDecimalNumber, set: setDecimalNumber },
       min: { type: Number, default: 0, get: getDecimalNumber, set: setDecimalNumber },
-      unit: { type: String }
+      unit: { type: String },
+      comment: { type: String }
     }]
   }],
-  applications: [{ type: String }]
+  applications: [{ type: String }],
+  technologicalProperties: [{ name: { type: String }, value: { type: String, default: null } }]
 });
 
 function getDecimalNumber(val) { return (val / 1000000); }

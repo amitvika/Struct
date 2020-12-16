@@ -8,4 +8,6 @@ router.get('/', LoadMaterial.getMaterials);
 router.get('/load-material', LoadMaterial.load);
 router.get('/load-material-hierarchy', LoadMaterial.loadHierarchy);
 
+router.get('/category', LoadMaterial.getMaterialCategories)
+
 module.exports = router;
