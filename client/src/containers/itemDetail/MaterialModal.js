@@ -23,7 +23,7 @@ import MaterialAPI from '../../api/material.api';
 
 import './style.css';
 
-export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
+export default function MaterialModal({ toggleMaterial, isMaterialModalOpen, handleMaterialPropertieView }) {
 
   const [selectedMaterials, setSelectedMaterials] = useState([]);
   const [materialList, setMaterialList] = useState([]);
@@ -236,6 +236,7 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
                 <TableRow>
                   <TableCell>S No</TableCell>
                   <TableCell>Material Name</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -243,10 +244,12 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
                   selectedMaterials.map(materialRow => (
                     <TableRow
                       key={materialRow._id}
-                      onClick={() => removeMaterialFromSelected(materialRow)}
                     >
                       <TableCell>{materialRow._id}</TableCell>
-                      <TableCell>{materialRow.name}</TableCell>
+                      <TableCell onClick={() => removeMaterialFromSelected(materialRow)}>
+                        {materialRow.name}
+                      </TableCell>
+                      <TableCell onClick={() => handleMaterialPropertieView(materialRow)}>View Material Properties</TableCell>
                     </TableRow>
                   ))
                 }
@@ -260,16 +263,17 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen }) {
                 <TableRow>
                   <TableCell>S No</TableCell>
                   <TableCell>Material Name</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {materialList.map(materialRow => (
                   <TableRow
-                    key={materialRow._id}
-                    onClick={() => addMaterialToSelected(materialRow)}
-                  >
+                    key={materialRow._id}>
                     <TableCell>{materialRow._id}</TableCell>
-                    <TableCell>{materialRow.name}</TableCell>
+                    <TableCell
+                      onClick={() => addMaterialToSelected(materialRow)}>{materialRow.name}</TableCell>
+                    <TableCell onClick={() => handleMaterialPropertieView(materialRow)}>View Material Properties</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

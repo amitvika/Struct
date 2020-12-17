@@ -65,31 +65,28 @@ export default function ItemGeometry({ itemId, itemProperties, setItemProperties
   return (
     <div>
       {
-        <Paper elevation={0} className="ItemGeometry--Choose">
-          <Grid className="section-padding-left" container spacing={4}>
-            <Grid item xs={12}>
-              {isStepLoaded ?
-                <Button
-                  className="mt-2 mb-3"
-                  variant="contained"
-                  color="primary"
-                  onClick={removeFile}>
-                  Clear File
+        <>
+          <Paper style={{ padding: 20, margin: 10 }}>
+            <Headding bold title={'Cad File or Assembly File Upload'} />
+            {isStepLoaded ?
+              <Button
+                className="mt-2 mb-3"
+                variant="contained"
+                color="primary"
+                onClick={removeFile}>
+                Clear File
                     </Button>
-                :
-                <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
-              }
-            </Grid>
-            <Grid item xs={12}>
-              <Headding bold title={'Set Item Properties'} />
-            </Grid>
-            <GeometryInput setItemProperties={setItemProperties} itemProperties={itemProperties} />
-          </Grid>
-        </Paper>
+              :
+              <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
+            }
+          </Paper>
+          <GeometryInput setItemProperties={setItemProperties} itemProperties={itemProperties} />
+        </>
       }
-
-      <ThreejsViewer
-        data={threejsObject} isLoading={isLoading}/>
+      <Paper style={{ padding: 20, margin: 10 }}>
+        <ThreejsViewer
+          data={threejsObject} isLoading={isLoading} />
+      </Paper>
     </div >
   )
 }

@@ -133,9 +133,9 @@ const ItemDetail = () => {
               onChange={(event, newValue) => setValue(newValue)}>
               <Tab label="Item Geometry and Properties" value={1} />
               <Tab label="Item Type Configurations" value={4} />
-              <Tab label="Item Variations" value={5} />
-              <Tab label="Validations" value={6} />
-              <Tab label="Production Regimens" value={7} />
+              {/* <Tab label="Item Variations" value={5} /> */}
+              {/* <Tab label="Validations" value={6} /> */}
+              {/* <Tab label="Production Regimens" value={7} /> */}
               <Tab label="Current Usage" value={2} />
               <Tab label="Vendor Details" value={8} />
             </Tabs>

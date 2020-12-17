@@ -38,7 +38,7 @@ export default function ItemTypeConfigurations({ itemProperties = {}, setItemPro
         {/* <Tooltip
           title={`All choices beginning "Machine - " should contain one or more "Machine Actuator" item types within the item's assembly`}
           placement="right-start"> */}
-        <Select
+        {/* <Select
           label="Item Type"
           placeholder="Select"
           options={[
@@ -55,7 +55,7 @@ export default function ItemTypeConfigurations({ itemProperties = {}, setItemPro
           ]}
           onChange={(data) => handleOnChange('itemType', data.value)}
           value={itemConfiguration.itemType && { label: itemConfiguration.itemType }}
-        />
+        /> */}
         {/* </Tooltip> */}
       </Grid>
       {
