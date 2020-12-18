@@ -6,6 +6,9 @@ import {
   ModalBody
 } from "reactstrap";
 import Grid from '@material-ui/core/Grid';
+import {
+  Paper
+} from "@material-ui/core";
 
 export default function MaterialProperties({ materialProperties = {}, toggleMaterialProperties, isMaterialPropertiesModalOpen }) {
 
@@ -14,40 +17,46 @@ export default function MaterialProperties({ materialProperties = {}, toggleMate
       return;
     }
     return (
-      <>
-        <Grid item xs={12}>
-          <Headding bold title={'Properties'} />
-        </Grid>
-        {
-          materialProperties.properties.map(p => {
-            return (
-              <>
-                <Grid item xs={4}></Grid>
-                <Grid item xs={8}>
-                  <Headding title={p.name}></Headding>
-                </Grid>
-                {p.value.map(item => {
-                  return (
-                    <>
-                      <Grid item xs={6} />
-                      <Grid item xs={2}>
-                        <Headding title={item.min/1000000} />
-                      </Grid>
-                      <Grid item xs={2}>
-                        <Headding title={item.max/1000000} />
-                      </Grid>
-                      <Grid item xs={2}>
-                        <Headding title={item.unit} />
-                      </Grid>
-                    </>
-                  )
-                })}
+      <Paper style={{ padding: 20, margin: 10 }}>
+        <Grid className="section-padding-left" container spacing={4}>
+          <Grid item xs={12}>
+            <Headding bold title={'Properties'} />
+          </Grid>
+          {
+            materialProperties.properties.map(p => {
+              return (
+                <>
+                  <Grid item xs={3}></Grid>
+                  <Grid item xs={2}>
+                    <Headding title={p.name}></Headding>
+                  </Grid>
+                  <Grid item xs={2}>Min</Grid>
+                  <Grid item xs={2}>Max</Grid>
+                  <Grid item xs={2}>Unit</Grid>
+                  {p.value.map(item => {
+                    return (
+                      <>
+                        <Grid item xs={5} />
+                        <Grid item xs={2}>
+                          <Headding title={(Math.round(item.min / 1000000)).toFixed(2)} />
+                        </Grid>
+                        <Grid item xs={2}>
+                          <Headding title={(Math.round(item.max / 1000000)).toFixed(2)} />
+                        </Grid>
+                        <Grid item xs={2}>
+                          <Headding title={item.unit} />
+                        </Grid>
+                        {/* <Grid item xs={3} /> */}
+                      </>
+                    )
+                  })}
 
-              </>
-            )
-          })
-        }
-      </>
+                </>
+              )
+            })
+          }
+        </Grid>
+      </Paper>
     )
   }
 
@@ -56,33 +65,38 @@ export default function MaterialProperties({ materialProperties = {}, toggleMate
       return;
     }
     return (
-      <>
-        <Grid item xs={12}>
-          <Headding bold title={'Chemical Composition'} />
+      <Paper style={{ padding: 20, margin: 10 }}>
+        <Grid className="section-padding-left" container spacing={4}>
+          <Grid item xs={12}>
+            <Headding bold title={'Chemical Composition'} />
+          </Grid>
+          <Grid item xs={5}></Grid>
+          <Grid item xs={2}>Min</Grid>
+          <Grid item xs={2}>Max</Grid>
+          <Grid item xs={2}>Unit</Grid>
+          {
+            materialProperties.chemicalComposition.map(p => {
+              return (
+                <>
+                  <Grid item xs={3}></Grid>
+                  <Grid item xs={2}>
+                    <Headding title={p.elementName}></Headding>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Headding title={(Math.round(p.min / 1000000)).toFixed(2)}></Headding>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Headding title={(Math.round(p.max / 1000000)).toFixed(2)}></Headding>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Headding title={p.unit}></Headding>
+                  </Grid>
+                </>
+              )
+            })
+          }
         </Grid>
-        {
-          materialProperties.chemicalComposition.map(p => {
-            return (
-              <>
-                <Grid item xs={3}></Grid>
-                <Grid item xs={1}>
-                  <Headding title={p.elementName}></Headding>
-                </Grid>
-                <Grid item xs={1}>
-                  <Headding title={p.min/1000000}></Headding>
-                </Grid>
-                <Grid item xs={1}>
-                  <Headding title={p.max/1000000}></Headding>
-                </Grid>
-                <Grid item xs={1}>
-                  <Headding title={p.unit}></Headding>
-                </Grid>
-                <Grid item xs={5} />
-              </>
-            )
-          })
-        }
-      </>
+      </Paper>
     )
   }
 
@@ -92,26 +106,28 @@ export default function MaterialProperties({ materialProperties = {}, toggleMate
     }
 
     return (
-      <>
-        <Grid item xs={12}>
-          <Headding bold title={'Technological properties'} />
+      <Paper style={{ padding: 20, margin: 10 }}>
+        <Grid className="section-padding-left" container spacing={4}>
+          <Grid item xs={12}>
+            <Headding bold title={'Technological properties'} />
+          </Grid>
+          {
+            materialProperties.technologicalProperties.map(tp => {
+              return (
+                <>
+                  <Grid item xs={3}></Grid>
+                  <Grid item xs={2}>
+                    <Headding title={tp.name}></Headding>
+                  </Grid>
+                  <Grid item xs={7}>
+                    <Headding title={tp.value}></Headding>
+                  </Grid>
+                </>
+              )
+            })
+          }
         </Grid>
-        {
-          materialProperties.technologicalProperties.map(tp => {
-            return (
-              <>
-                <Grid item xs={3}></Grid>
-                <Grid item xs={2}>
-                  <Headding title={tp.name}></Headding>
-                </Grid>
-                <Grid item xs={7}>
-                  <Headding title={tp.value}></Headding>
-                </Grid>
-              </>
-            )
-          })
-        }
-      </>
+      </Paper>
     )
   }
 
@@ -121,23 +137,25 @@ export default function MaterialProperties({ materialProperties = {}, toggleMate
     }
 
     return (
-      <>
-        <Grid item xs={12}>
-          <Headding bold title={'Applications'} />
+      <Paper style={{ padding: 20, margin: 10 }}>
+        <Grid className="section-padding-left" container spacing={4}>
+          <Grid item xs={12}>
+            <Headding bold title={'Applications'} />
+          </Grid>
+          {
+            materialProperties.applications.map(item => {
+              return (
+                <>
+                  <Grid item xs={3}></Grid>
+                  <Grid item xs={7}>
+                    <Headding title={item} />
+                  </Grid>
+                </>
+              )
+            })
+          }
         </Grid>
-        {
-          materialProperties.applications.map(item => {
-            return (
-              <>
-                <Grid item xs={3}></Grid>
-                <Grid item xs={7}>
-                  <Headding title={item} />
-                </Grid>
-              </>
-            )
-          })
-        }
-      </>
+      </Paper>
     )
   }
 
@@ -146,27 +164,29 @@ export default function MaterialProperties({ materialProperties = {}, toggleMate
   }
 
   return (
-    <Modal isOpen={isMaterialPropertiesModalOpen} toggle={toggleMaterialProperties}>
+    <Modal isOpen={isMaterialPropertiesModalOpen} toggle={toggleMaterialProperties} style={{ width: '70%' }}>
       <ModalHeader toggle={toggleMaterialProperties}>{materialProperties.name}</ModalHeader>
       <ModalBody>
+        <Paper style={{ padding: 20, margin: 10 }}>
+          <Grid className="section-padding-left" container spacing={4}>
 
-        <Grid className="section-padding-left" container spacing={4}>
-
-          <Grid item xs={3}>
-            <Headding bold title={'Description'} />
+            <Grid item xs={3}>
+              <Headding bold title={'Description'} />
+            </Grid>
+            <Grid item xs={9}>
+              <Headding title={materialProperties.description}></Headding>
+            </Grid>
           </Grid>
-          <Grid item xs={9}>
-            <Headding title={materialProperties.description}></Headding>
-          </Grid>
+        </Paper>
 
-          {renderChemicalComposition()}
+        {renderChemicalComposition()}
 
-          {renderTechnologiesProperties()}
+        {renderTechnologiesProperties()}
 
-          {renderProperties()}
+        {renderProperties()}
 
-          {renderApplications()}
-        </Grid>
+        {renderApplications()}
+
       </ModalBody>
     </Modal >
   )

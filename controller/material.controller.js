@@ -413,14 +413,25 @@ const buildQueryForProperties = ({ name, unit, max, min }) => {
 }
 
 
-exports.getMaterialCategories = (req, res) => {
-  const parent_id = req.query.parent_id;
+exports.getMaterialCategories = async (req, res) => {
+  try {
+    const parent_id = req.query.parent_id;
 
-  MaterialHierarchyModel.find({ parentId: parent_id })
-    .then(data => {
-      res.send(data)
-    })
-    .catch(error => {
-      res.status(500).send(error)
-    })
+    const materialCategories = await MaterialHierarchyModel.find({ parentId: parent_id });
+
+    if (!materialCategories) {
+      res.send([]);
+    }
+
+    const titleArray = materialCategories.map(mc => mc.title);
+    const itemMaterials = await MaterialModel.find({ name: { $in: titleArray } });
+
+    res.send({ categories: materialCategories, materials: itemMaterials })
+
+  }
+  catch (error) {
+    console.log('Error', error)
+    res.status(500).send(error)
+
+  }
 }
