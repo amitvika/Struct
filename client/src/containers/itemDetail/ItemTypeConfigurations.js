@@ -9,6 +9,7 @@ import UnassembledKit from './UnassembledKit';
 
 export default function ItemTypeConfigurations({ itemProperties = {}, setItemProperties }) {
   const itemConfiguration = itemProperties.itemTypeConfiguration || {};
+  const itemGeometry = itemProperties.itemGeometry || {}
   const [columns, setColumns] = useState([
     { title: 'Item ID', field: 'itemID' },
     { title: 'Item Name', field: 'itemName' },
@@ -59,18 +60,18 @@ export default function ItemTypeConfigurations({ itemProperties = {}, setItemPro
         {/* </Tooltip> */}
       </Grid>
       {
-        itemConfiguration.itemType === 'Unassembled Kit' &&
+        itemGeometry.itemType === 'Unassembled Kit' &&
         <UnassembledKit />
       }
       {
-        itemConfiguration.itemType === 'Tool' &&
+        itemGeometry.itemType === 'Tool' &&
         <ToolTypeOptions
           itemConfiguration={itemConfiguration}
           handleOnChange={handleOnChange} />
       }
 
       {
-        itemConfiguration.itemType === 'Machine - Tool/Workholding' &&
+        itemGeometry.itemType === 'Machine - Tool/Workholding' &&
         <MachineTool_Workholding
           itemConfiguration={itemConfiguration}
           handleOnChange={handleOnChange}
@@ -78,16 +79,16 @@ export default function ItemTypeConfigurations({ itemProperties = {}, setItemPro
       }
 
       {
-        itemConfiguration.itemType && itemConfiguration.itemType.includes('Machine -') &&
+        itemGeometry.itemType && itemGeometry.itemType.includes('Machine -') &&
         <Grid item xs={12}>
           <MaterialTable
-            title={itemConfiguration.itemType}
+            title={itemGeometry.itemType}
             columns={columns}
           />
         </Grid>
       }
       {
-        itemConfiguration.itemType === "Machine - Actuator" &&
+        itemGeometry.itemType === "Machine - Actuator" &&
         <Grid item xs={4} >
           <Select
             label="Machine Actuator Type"

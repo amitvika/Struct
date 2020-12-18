@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Button,
   Snackbar,
@@ -14,8 +14,10 @@ import MaterialModal from './MaterialModal';
 import MaterialPropertiesModal from './MaterialPropertiesModal';
 
 export default function GeometryInput({ itemProperties = {}, setItemProperties }) {
+  const itemGeometry = itemProperties.itemGeometry || {}
 
   const [materialProperties, setMaterialProperties] = useState({});
+  const [selectedMaterials, setSelectedMaterials] = useState(itemGeometry.materials || []);
   // const [materialSelected, ]
 
   const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
@@ -37,7 +39,6 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
     setMaterialProperties(material);
   }
 
-  const itemGeometry = itemProperties.itemGeometry || {}
   const handleOnChange = (name, value) => {
     setItemProperties(prevData => ({
       ...prevData,
@@ -48,9 +49,20 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
     }))
   }
 
-  const handleMaterialSelected = () =>{
+  useEffect(() => {
+    setItemProperties(prevProps => {
+      return {
+        ...prevProps,
+        itemGeometry: {
+          ...itemGeometry,
+          materials: selectedMaterials
+        }
+      }
+    })
+    return () => {
 
-  }
+    }
+  }, [selectedMaterials])
 
   return (
     <Paper style={{ padding: 20, margin: 10 }}>
@@ -59,6 +71,8 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
         isMaterialModalOpen={isMaterialModalOpen}
         materialProperties={materialProperties}
         handleMaterialPropertieView={handleMaterialPropertieView}
+        selectedMaterials={selectedMaterials}
+        setSelectedMaterials={setSelectedMaterials}
       />
       <MaterialPropertiesModal
         toggleMaterialProperties={toggleMaterialProperties}
@@ -73,7 +87,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
           <Grid item xs={12}>
             <Headding fontSize={20} bold title={'Item Material'} />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={4}>
             <Button
               size="large"
               variant="contained"
@@ -82,6 +96,31 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
               Select Material
             </Button>
           </Grid>
+          {
+            selectedMaterials.length > 0 ?
+              <>
+                <Grid item xs={4}>
+                  <span>Selected Materials || </span>
+                </Grid>
+                <Grid item xs={4} />
+              </> :
+              <Grid item xs={8} />
+          }
+          {
+            selectedMaterials.map(material => {
+              return (
+                <>
+                  <Grid item xs={4} />
+                  <Grid item xs={5}>
+                    <Headding title={material.name}></Headding>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <span onClick={() => handleMaterialPropertieView(material)}>View Material Properties</span>
+                  </Grid>
+                </>
+              )
+            })
+          }
         </Grid>
       </Paper>
 
@@ -173,178 +212,9 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
           }
         </Grid>
 
-        {itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' &&
-          <Paper style={{ padding: 20, margin: 10 }}>
-            <Grid className="section-padding-left" container spacing={4}>
-              <Grid item xs={12}>
-                <Headding size={10} bold title={'Dimensional Properties'} />
-              </Grid>
 
-              <Grid item xs={4}>
-                <Headding bold title={'X Dim (Length)'} />
-              </Grid>
-              <Grid item xs={8}>
-                <Input
-                  // label="X Dim (Length)"
-                  placeholder="Enter"
-                  type="number"
-                  onChange={(event) => handleOnChange('xDim', event.target.value)}
-                  value={itemGeometry.xDim}
-                />
-              </Grid>
 
-              <Grid item xs={4}>
-                <Headding bold title={'X Tolerance'} />
-              </Grid>
-              <Grid item xs={8}>
-                <Input
-                  // label="X Tolerance"
-                  placeholder="Enter"
-                  type="number"
-                  onChange={(event) => handleOnChange('xTolerance', event.target.value)}
-                  value={itemGeometry.xTolerance}
-                />
-              </Grid>
 
-              <Grid item xs={4}>
-                <Headding bold title={'Y Dim (Length)'} />
-              </Grid>
-              <Grid item xs={8}>
-                <Input
-                  // label="Y Dim (Length)"
-                  placeholder="Enter"
-                  type="number"
-                  onChange={(event) => handleOnChange('yDim', event.target.value)}
-                  value={itemGeometry.yDim}
-                />
-              </Grid>
-
-              <Grid item xs={4}>
-                <Headding bold title={'Y Tolerance'} />
-              </Grid>
-              <Grid item xs={8}>
-                <Input
-                  // label="Y Tolerance"
-                  placeholder="Enter"
-                  type="number"
-                  onChange={(event) => handleOnChange('yTolerance', event.target.value)}
-                  value={itemGeometry.yTolerance}
-                />
-              </Grid>
-
-              <Grid item xs={4}>
-                <Headding bold title={'Z Dim (Length)'} />
-              </Grid>
-              <Grid item xs={8}>
-                <Input
-                  // label="Z Dim (Length)"
-                  placeholder="Enter"
-                  type="number"
-                  onChange={(event) => handleOnChange('zDim', event.target.value)}
-                  value={itemGeometry.zDim}
-                />
-              </Grid>
-
-              <Grid item xs={4}>
-                <Headding bold title={'Z Tolerance'} />
-              </Grid>
-              <Grid item xs={8}>
-                <Input
-                  // label="Z Tolerance"
-                  placeholder="Enter"
-                  type="number"
-                  onChange={(event) => handleOnChange('zTolerance', event.target.value)}
-                  value={itemGeometry.zTolerance}
-                />
-              </Grid>
-            </Grid>
-          </Paper>
-        }
-
-        {
-          ['1 Dimensional Solid', '2 Dimensional Solid', '3 Dimensional Solid'].includes(itemGeometry.generalGeomerty) &&
-          <>
-            <Grid item xs={4}>
-              <Input
-                label="Mass (g)"
-                placeholder="Enter"
-                type="number"
-                onChange={(event) => handleOnChange('mass', event.target.value)}
-                value={itemGeometry.mass}
-              />
-            </Grid>
-
-            <Grid item xs={4}>
-              <Input
-                label="Volume (mm^3)"
-                placeholder="Enter"
-                type="number"
-                onChange={(event) => handleOnChange('volume', event.target.value)}
-                value={itemGeometry.volume}
-              />
-            </Grid>
-
-            <Grid item xs={4}></Grid>
-            <Grid item xs={4}>
-              <Input
-                label="Bounding Box x (mm)"
-                placeholder="Enter"
-                type="number"
-                onChange={(event) => handleOnChange('boundingBoxX', event.target.value)}
-                value={itemGeometry.boundingBoxX}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <Input
-                label="Bounding Box y (mm)"
-                placeholder="Enter"
-                type="number"
-                onChange={(event) => handleOnChange('boundingBoxY', event.target.value)}
-                value={itemGeometry.boundingBoxY}
-              />
-            </Grid>
-
-            <Grid item xs={4} ></Grid>
-            <Grid item xs={4}>
-              <Input
-                label="Bounding Box z (mm)"
-                placeholder="Enter"
-                type="number"
-                onChange={(event) => handleOnChange('boundingBoxZ', event.target.value)}
-                value={itemGeometry.boundingBoxZ}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <Input
-                label="Number of Faces"
-                placeholder="Enter"
-                type="number"
-                onChange={(event) => handleOnChange('numberOfFaces', event.target.value)}
-                value={itemGeometry.numberOfFaces}
-              />
-            </Grid>
-
-            <Grid item xs={4} ></Grid>
-            <Grid item xs={4}>
-              <Input
-                label="Number of Edges"
-                placeholder="Enter"
-                type="number"
-                onChange={(event) => handleOnChange('numberOfEdges', event.target.value)}
-                value={itemGeometry.numberOfEdges}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <Input
-                label="Number of Corners"
-                placeholder="Enter"
-                type="number"
-                onChange={(event) => handleOnChange('numberOfCorners', event.target.value)}
-                value={itemGeometry.numberOfCorners}
-              />
-            </Grid>
-          </>
-        }
 
 
         {/* {
@@ -379,6 +249,209 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
         {/* </Grid> */}
         {/* } */}
       </Paper>
-    </Paper>
+      {
+        itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' &&
+        <Paper style={{ padding: 20, margin: 10 }}>
+          <Grid className="section-padding-left" container spacing={4}>
+            <Grid item xs={12}>
+              <Headding size={10} bold title={'Dimensional Properties'} />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'X Dim (Length)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="X Dim (Length)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('xDim', event.target.value)}
+                value={itemGeometry.xDim}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'X Tolerance'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="X Tolerance"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('xTolerance', event.target.value)}
+                value={itemGeometry.xTolerance}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Y Dim (Length)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Y Dim (Length)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('yDim', event.target.value)}
+                value={itemGeometry.yDim}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Y Tolerance'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Y Tolerance"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('yTolerance', event.target.value)}
+                value={itemGeometry.yTolerance}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Z Dim (Length)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Z Dim (Length)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('zDim', event.target.value)}
+                value={itemGeometry.zDim}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Z Tolerance'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Z Tolerance"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('zTolerance', event.target.value)}
+                value={itemGeometry.zTolerance}
+              />
+            </Grid>
+          </Grid>
+        </Paper>
+      }
+
+      {
+        ['1 Dimensional Solid', '2 Dimensional Solid', '3 Dimensional Solid'].includes(itemGeometry.generalGeomerty) &&
+        <Paper style={{ padding: 20, margin: 10 }}>
+          <Grid className="section-padding-left" container spacing={4}>
+            <Grid item xs={12}>
+              <Headding size={10} bold title={'Dimensional Properties'} />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Mass (g)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Mass (g)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('mass', event.target.value)}
+                value={itemGeometry.mass}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Volume (mm^3)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Volume (mm^3)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('volume', event.target.value)}
+                value={itemGeometry.volume}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Bounding Box x (mm)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Bounding Box x (mm)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('boundingBoxX', event.target.value)}
+                value={itemGeometry.boundingBoxX}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Bounding Box y (mm)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Bounding Box y (mm)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('boundingBoxY', event.target.value)}
+                value={itemGeometry.boundingBoxY}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Bounding Box z (mm)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Bounding Box z (mm)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('boundingBoxZ', event.target.value)}
+                value={itemGeometry.boundingBoxZ}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Number of Faces'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Number of Faces"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('numberOfFaces', event.target.value)}
+                value={itemGeometry.numberOfFaces}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Number of Edges'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Number of Edges"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('numberOfEdges', event.target.value)}
+                value={itemGeometry.numberOfEdges}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Headding bold title={'Number of Corners'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Number of Corners"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('numberOfCorners', event.target.value)}
+                value={itemGeometry.numberOfCorners}
+              />
+            </Grid>
+          </Grid>
+        </Paper>
+      }
+    </Paper >
   )
 }

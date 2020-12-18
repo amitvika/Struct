@@ -15,17 +15,21 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper
+  Paper,
+  Button,
+  Icon,
+  CircularProgress
 } from "@material-ui/core";
-import Button from '../../components/atoms/Button';
 
 import MaterialAPI from '../../api/material.api';
 
 import './style.css';
 
-export default function MaterialModal({ toggleMaterial, isMaterialModalOpen, handleMaterialPropertieView }) {
+export default function MaterialModal({ toggleMaterial,
+  isMaterialModalOpen,
+  handleMaterialPropertieView,
+  selectedMaterials, setSelectedMaterials }) {
 
-  const [selectedMaterials, setSelectedMaterials] = useState([]);
   const [materialList, setMaterialList] = useState([]);
   const [filter, setFilter] = useState({});
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -34,7 +38,12 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen, han
   const [subcategoryOptionsTwo, setSubcategoryOptionsTwo] = useState([]);
   const [subcategoryOptionsThree, setSubcategoryOptionsThree] = useState([]);
   const [subcategoryOptionsFour, setSubcategoryOptionsFour] = useState([]);
-
+  const [isMaterialLoading, setIsMaterialLoading] = useState(false);
+  const [searchMaterialByName, setSearchMaterialByName] = useState({
+    name: '',
+    typing: false,
+    typingTimeout: 0,
+  });
 
   useEffect(() => {
     fetchCategories(categoryLevel, (data) => {
@@ -51,8 +60,10 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen, han
   }, [])
 
   const fetchCategories = (id, callback) => {
+    setIsMaterialLoading(true);
     MaterialAPI.fetchCategories(`parent_id=${id}`)
       .then(res => {
+        setIsMaterialLoading(false);
         if (res.data) {
           callback(res.data)
         }
@@ -108,8 +119,10 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen, han
       if (filter[key]) {
         query.push(`${key}=${filter[key]}`)
       }
-    })
-    fetchData({ query: query.join('&') })
+    });
+    if (query.length > 0) {
+      fetchData({ query: query.join('&') })
+    }
   }
 
   const handleCategoryChange = (data) => {
@@ -197,6 +210,25 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen, han
     });
   }
 
+  const handleNameChange = (event) => {
+    const inputValue = event.target.value;
+    if (inputValue.length < 3) {
+      return;
+    }
+
+    if (searchMaterialByName.typingTimeout) {
+      clearTimeout(searchMaterialByName.typingTimeout);
+    }
+
+    setSearchMaterialByName({
+      name: inputValue,
+      typing: false,
+      typingTimeout: setTimeout(() => {
+        fetchData({ query: `search=${inputValue}` });
+      }, 1000),
+    });
+  }
+
   return (
     <Modal isOpen={isMaterialModalOpen} toggle={toggleMaterial} style={{ width: '70%' }}>
       <ModalHeader toggle={toggleMaterial}>Select Material</ModalHeader>
@@ -208,10 +240,22 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen, han
             <Input
               placeholder="Enter"
               type="text"
-              onChange={(event) => handleChange("search", event.target.value)}
+              onChange={(event) => handleNameChange(event)}
             />
           </Grid>
-          <Grid item xs={6} ></Grid>
+          <Grid item xs={3} >
+            <Button
+              variant="contained"
+              color="primary"
+              endIcon={<Icon>search</Icon>}
+              onClick={searchMaterial}>
+              Search
+              </Button>
+          </Grid>
+          <Grid item xs={3} >
+            {isMaterialLoading &&
+              <CircularProgress />}
+          </Grid>
 
           <Grid item xs={3} >
             <Headding title='Density Range (g/cm3)'></Headding>
@@ -396,12 +440,6 @@ export default function MaterialModal({ toggleMaterial, isMaterialModalOpen, han
               <Grid item xs={3} />
             </>
           }
-
-          <Grid item xs={12}>
-            <Button onClick={searchMaterial}>
-              Search Material
-            </Button>
-          </Grid>
         </Grid>
 
         <div>
