@@ -231,7 +231,9 @@ class ProcessGroupDetail extends Component {
       case "5eaeee3f8986281884691dd7":
         return <Machining />;
       case "5eaeef468986281884691dd9":
-        return <Assembly processId={this.state.selectedProcessId} />;
+        return <Assembly
+          processId={this.state.selectedProcessId}
+          processGroupName={this.state.processGroupName} />;
       case "5eaeef0a8986281884691dd8":
         return <InjectionMolding />;
 
@@ -378,12 +380,7 @@ class ProcessGroupDetail extends Component {
                     {this.state.selectedProcessCreator &&
                       <>
                         Created by: {this.state.selectedProcessCreator} | Process ID: {this.state.selectedProcessId}
-                        <Button variant="contained" color="secondary"
-                          style={{ position: 'absolute', right: '30px' }}
-                          onClick={() => this.setDeleteProcessDialogOpen(true)}
-                        >
-                          Delete Process
-                        </Button>
+
                       </>
 
                     }
@@ -391,6 +388,13 @@ class ProcessGroupDetail extends Component {
                   </Paper>
                   <Paper style={{ padding: 20, margin: 10 }}>
                     {this.renderPageSwitch(this.state.value)}
+                  </Paper>
+                  <Paper style={{ padding: 20, margin: 10 }}>
+                    <Button variant="contained" color="secondary"
+                      style={{ position: 'relative', left: '40%' }}
+                      onClick={() => this.setDeleteProcessDialogOpen(true)}
+                    >Delete Process
+                        </Button>
                   </Paper>
                 </div>
               ) : (

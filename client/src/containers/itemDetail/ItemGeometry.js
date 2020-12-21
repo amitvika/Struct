@@ -6,7 +6,7 @@ import {
   Paper,
   CircularProgress
 } from "@material-ui/core";
-import Headding from '../../components/atoms/Headding'
+import Headding from '../../components/atoms/Headding';
 import GeometryInput from './GeometryInput';
 import FileUpload from '../../components/FileUpload';
 

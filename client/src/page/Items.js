@@ -23,6 +23,10 @@ class Items extends Component {
         title: "Source", field: "source"
       },
       {
+        title: 'Assembly',
+        lookup: { 34: "Single Item Part", 63: "Multi-Item Assembly" }
+      },
+      {
         title: 'History',
         field: "id",
         editable: "never",
