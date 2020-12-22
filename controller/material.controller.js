@@ -161,7 +161,7 @@ const extractStringContent = (value) => {
 
 const getFileNameFromDirectory = () => {
   return new Promise((resolve, reject) => {
-    const dirname = '../../../Downloads/metalsnotALSteel/'
+    const dirname = '../../../Downloads/aluminums/'
     fs.readdir(dirname, function (err, filenames) {
       if (err) {
         reject(err);
@@ -175,25 +175,35 @@ const getFileNameFromDirectory = () => {
 
 
 exports.loadHierarchy = (req, res) => {
-  fs.readFile('../../../Downloads/nonmetals hierarchy.csv', async (err, data) => {
+  fs.readFile('../../../Downloads/aluminums hierarchy.csv', async (err, data) => {
     try {
       if (err) {
         console.error(err)
         return
       }
       const rows = await neatCsv(data)
-      const dataToBeInserted = parseHierarchy(rows);
+
+      const lastHierarichal = await MaterialHierarchyModel.find().sort({ id: -1 }).limit(1)
+      let lastInsertedId = 0;
+      if (lastHierarichal) {
+        lastInsertedId = lastHierarichal[0].id
+      }
+
+      const dataToBeInserted = parseHierarchy(rows, lastInsertedId);
       const dataInserted = await MaterialHierarchyModel.insertMany(dataToBeInserted);
-      res.send(dataInserted);
+
+      console.log('---', lastHierarichal)
+      res.send(dataToBeInserted);
     } catch (error) {
+      console.log('Error', error)
       res.status(500).send(error)
     }
   }
   )
 }
 
-const parseHierarchy = (rows) => {
-  let count = 1;
+const parseHierarchy = (rows, lastInsertedId) => {
+  let count = parseInt(lastInsertedId) + 1;
 
   let materialObjectWithKeys = {
   };
