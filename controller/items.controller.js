@@ -4,8 +4,6 @@ const ItemGeometryModel = require('../models/ItemDetail.model');
 const nodeocc = require("node-occ");
 const occ = nodeocc.occ;
 const path = require('path');
-const mongoose = require('mongoose');
-const { populate } = require("../models/Item.model");
 
 exports.get = async (req, res) => {
   try {
@@ -34,6 +32,60 @@ exports.get = async (req, res) => {
     };
 
     const item = await ItemModel.paginate(query, options)
+
+    res.json(item);
+
+  }
+  catch (error) {
+    console.log('====', error)
+    res.status(500).send(error)
+  };
+}
+
+exports.filterItems = async (req, res) => {
+  try {
+
+    let query = [];
+
+    if (req.query.search) {
+      query.push({ $match: { name: { '$regex': new RegExp(`${req.query.search}`, "i") } } })
+    }
+
+    if (req.query.itemType || req.query.itemCategory || req.query.isSingleItem) {
+      query.push({
+        $lookup:
+        {
+          from: 'itemdetails',
+          localField: '_id',
+          foreignField: 'itemId',
+          as: 'itemDetail'
+        }
+      });
+
+      query.push({
+        $unwind: '$itemDetail'
+      })
+    }
+
+    if (req.query.itemType) {
+      query.push({
+        $match: {
+          'itemDetail.itemTypeConfiguration.itemType': { '$regex': new RegExp(`${req.query.itemType}`, "i") }
+        }
+      })
+    }
+
+    if (req.query.itemCategory) {
+      // query.push({
+      //   $match: {
+      //     'itemDetail.itemGeometry.generalGeomerty': { '$regex': new RegExp(`${req.query.itemCategory}`, "i") }
+      //   }
+      // })
+    }
+
+    console.log(JSON.stringify(query))
+
+    const item = await ItemModel.aggregate(query)
 
     res.json(item);
 

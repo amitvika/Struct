@@ -2,6 +2,8 @@ import { postRequest, getRequest, putRequest, deleteRequest } from '../utils/api
 
 const getItemsAPI = (query) => getRequest(`/api/items?${query}`);
 
+const filterItemsAPI = (query) => getRequest(`/api/items/filter?${query}`);
+
 const saveItemAPI = (data) => postRequest(`/api/items`, data);
 
 const updateItemsAPI = (id, data) => putRequest(`/api/items/${id}`, data);
@@ -14,7 +16,7 @@ const getItemsAllAPI = (query) => getRequest(`/api/items/all?${query}`);
 
 const getItemGeomtery = (id) => getRequest(`/api/items/${id}/geomtery`);
 
-const updateItemGeomtery = (id, data) => putRequest(`/api/items/${id}/geomtery`,data);
+const updateItemGeomtery = (id, data) => putRequest(`/api/items/${id}/geomtery`, data);
 
 const deleteItemGeomtery = (id) => deleteRequest(`/api/items/${id}/three-model`);
 
@@ -22,6 +24,7 @@ const getItemThreejsData = (id) => getRequest(`/api/items/${id}/three-model`);
 
 export default {
   getItemsAPI,
+  filterItemsAPI,
   getItemAPI,
   saveItemAPI,
   updateItemsAPI,

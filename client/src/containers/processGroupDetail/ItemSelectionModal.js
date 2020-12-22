@@ -20,7 +20,7 @@ import {
   Icon,
   CircularProgress
 } from "@material-ui/core";
-
+import { Link } from 'react-router-dom';
 import ItemAPI from '../../api/items.api';
 
 import './style.css';
@@ -55,10 +55,10 @@ export default function ItemSelectionModal({ toggleItemSelection,
   }
 
   const fetchData = ({ query = '' }) => {
-    ItemAPI.getItemsAPI(query)
+    ItemAPI.filterItemsAPI(query)
       .then(res => {
         if (res.data) {
-          setItemList(res.data.docs)
+          setItemList(res.data)
         }
         console.log('Response :-', res);
       })
@@ -197,7 +197,7 @@ export default function ItemSelectionModal({ toggleItemSelection,
                       <TableCell onClick={() => removeItemFromSelected(itemRow)}>
                         {itemRow.name}
                       </TableCell>
-                      <TableCell onClick={() => {console.log('Hello ')}}>View Item</TableCell>
+                      <TableCell><Link to={`/items/${itemRow._id}`}>View</Link> </TableCell>
                     </TableRow>
                   ))
                 }
@@ -221,7 +221,7 @@ export default function ItemSelectionModal({ toggleItemSelection,
                     <TableCell>{itemRow._id}</TableCell>
                     <TableCell
                       onClick={() => addItemToSelectedList(itemRow)}>{itemRow.name}</TableCell>
-                    <TableCell onClick={() => {}}>View Item</TableCell>
+                    <TableCell><Link to={`/items/${itemRow._id}`}>View </Link></TableCell>
                   </TableRow>
                 ))}
               </TableBody>

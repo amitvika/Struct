@@ -19,11 +19,11 @@ export default function ConfigureItemAssembly({ toggleConfigureItemAssembly, isC
       <ModalHeader toggle={toggleConfigureItemAssembly}>Configure Item Assembly</ModalHeader>
       <ModalBody>
         <Grid className="section-padding-left" container spacing={2}>
-          <Grid item xs={10} >
+          <Grid item xs={9} >
             <ThreejsViewer data={threejsObject} isLoading={isLoading} />
           </Grid>
 
-          <Grid item xs={2} >
+          <Grid item xs={3} >
             <Button
               size="large"
               variant="contained"

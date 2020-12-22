@@ -55,6 +55,7 @@ export default function Assembly(props) {
       <AddLineItemToAssembly
         toggleConfigureItemAssembly={toggleConfigureItemAssembly}
         isConfigureItemAssemblyModalOpen={isConfigureItemAssemblyModalOpen}
+        selectedItems={selectedItems}
       />
       {/* <AssemblyTable */}
       {/* {...props} */}
