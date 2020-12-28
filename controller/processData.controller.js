@@ -4,6 +4,7 @@ const ChangeTracking = require("../models/ChangeTracking.model");
 exports.get = (req, res) => {
   ProcessData.find({ processGroup: req.params.id })
     .populate("createdBy", "name")
+    .populate("itemId")
     .sort({ date: 1 }) //sorts descending
     .then(clients => {
       res.json(clients);
@@ -45,4 +46,35 @@ exports.delete = (req, res) => {
       console.log(error);
       res.json({ success: false, message: 'Unable to delete' })
     });
+}
+
+exports.update = async (req, res) => {
+  try {
+
+    const processData = await ProcessData.findByIdAndUpdate(req.params.id,
+      {
+        $set: {
+          itemId: req.body.itemId
+        }
+      },
+      { new: true });
+
+    const changeTracking = new ChangeTracking({
+      client: req.user.id,
+      update: processData,
+      model: "ProcessData",
+      updateType: "Update",
+      updatedObject: processData._id,
+      updatedBy: req.user.id
+    });
+    await changeTracking.save()
+
+    res.json({ success: true, message: 'Successfully updated' });
+
+
+  } catch (error) {
+    console.log('--->>>', error)
+    res.json({ success: false, message: 'Unable to update' })
+
+  }
 }

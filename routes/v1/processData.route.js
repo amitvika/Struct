@@ -3,13 +3,14 @@ const router = express.Router();
 const auth = require("../../middleware/auth");
 const checkAccess = require('../../middleware/checkAccess');
 const ProcessDataController = require('../../controller/processData.controller');
-const { hasPermissionForProcessDataEdit } = require('../../middleware/hasPermission')
 
 router.use(auth);
 
 router.get("/:id", ProcessDataController.get);
-// hasPermissionForProcessDataEdit
+
 router.post("/", checkAccess, ProcessDataController.create);
+
+router.put("/:id", checkAccess, ProcessDataController.update);
 
 router.delete("/:id", checkAccess, ProcessDataController.delete);
 

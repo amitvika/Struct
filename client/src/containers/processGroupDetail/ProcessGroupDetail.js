@@ -375,27 +375,36 @@ class ProcessGroupDetail extends Component {
             <Grid item sm sm={10}>
               {this.state.value !== 1 ? (
                 <div>
-                  <Paper style={{ padding: 20, margin: 10 }}>
-                    <h4>{this.state.selectedProcessName}</h4>
-                    {this.state.selectedProcessCreator &&
-                      <>
-                        Created by: {this.state.selectedProcessCreator} | Process ID: {this.state.selectedProcessId}
+                  <Paper style={{ padding: 20, margin: 10, display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}>
+                      <h4>{this.state.selectedProcessName}</h4>
+                      {this.state.selectedProcessCreator &&
+                        <div>
+                          Created by: {this.state.selectedProcessCreator} | Process ID: {this.state.selectedProcessId}
+                        </div>
+                      }
+                    </div>
+                    <div style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      display: 'flex'
+                    }}>
+                      <Button variant="contained" color="secondary"
+                        onClick={() => this.setDeleteProcessDialogOpen(true)}
+                      >Delete Process
+                        </Button>
+                    </div>
 
-                      </>
 
-                    }
 
                   </Paper>
                   <Paper style={{ padding: 20, margin: 10 }}>
                     {this.renderPageSwitch(this.state.value)}
                   </Paper>
-                  <Paper style={{ padding: 20, margin: 10 }}>
-                    <Button variant="contained" color="secondary"
-                      style={{ position: 'relative', left: '40%' }}
-                      onClick={() => this.setDeleteProcessDialogOpen(true)}
-                    >Delete Process
-                        </Button>
-                  </Paper>
+
                 </div>
               ) : (
                   <Paper style={{ padding: 20, margin: 10 }}>

@@ -42,7 +42,7 @@ const ItemDetail = () => {
         setItemDetail(itemDetailResponse.data);
       }
 
-      const itemGeometryResponse = await ItemAPI.getItemGeomtery(id)
+      const itemGeometryResponse = await ItemAPI.getItemAPI(id)
       if (itemGeometryResponse.data) {
         setItemProperties(itemGeometryResponse.data);
         setThreejsData(itemGeometryResponse.data)

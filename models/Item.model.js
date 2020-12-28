@@ -14,8 +14,7 @@ const ItemSchema = new mongoose.Schema({
   },
   vendorId: {
     type: Schema.Types.ObjectId,
-    ref: "Vendor",
-    required: true
+    ref: "Vendor"
   },
   author: {
     type: Schema.Types.ObjectId,
@@ -25,7 +24,15 @@ const ItemSchema = new mongoose.Schema({
   isDeleted: { type: Boolean, default: false },
   deletedAt: {
     type: Date
-  }
+  },
+  assembly: { type: String },
+  itemGeometry: { type: Object },
+  itemTypeConfiguration: { type: Object },
+  vendorDetails: { type: Object },
+  step: {
+    type: Object
+  },
+  stl: { type: String }
 });
 
 

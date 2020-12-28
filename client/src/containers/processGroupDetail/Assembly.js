@@ -5,15 +5,38 @@ import AddLineItem from './AddLineItem';
 import AddLineItemToAssembly from './AddLineItemToAssembly';
 import ConfigureItemAssembly from './ConfigureItemAssemblyModal';
 import ItemSelectionModal from './ItemSelectionModal';
+import ProcessAPI from '../../api/process.api';
 
 export default function Assembly(props) {
   const [assemblyProcessData, setAssemblyProcessData] = useState('');
   const [isThreejsVisible, setIsThreejsVisible] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
 
+  useEffect(() => {
+    ProcessAPI.getProcessData(props.processId)
+      .then(res => {
 
-  const addItemToAssembly = () => {
-    console.log('Hello World');
+      })
+      .catch(error => {
+
+      })
+
+  }, []);
+
+  const addItemToAssembly = (itemId) => {
+    console.log('addItemToAssembly', props.processId, itemId);
+
+    if (!itemId) {
+      return;
+    }
+
+    ProcessAPI.updateProcessData(props.processId, { itemId, assembly: 'Multi-Item Assembly' })
+      .then(res => {
+        console.log('Response', res)
+      })
+      .catch(error => {
+        console.log('error', error)
+      })
   }
 
   const [isConfigureItemAssemblyModalOpen, setIsConfigureItemAssemblyModalOpen] = useState(false);

@@ -1,6 +1,5 @@
 const ItemModel = require("../models/Item.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
-const ItemGeometryModel = require('../models/ItemDetail.model');
 const nodeocc = require("node-occ");
 const occ = nodeocc.occ;
 const path = require('path');
@@ -100,8 +99,7 @@ exports.getAll = async (req, res) => {
   try {
     const item_type = req.query.item_type;
 
-    let itemDetails = await ItemGeometryModel.find()
-      .populate('itemId')
+    let itemDetails = await ItemModel.find();
 
     itemDetails = itemDetails.filter(itemDetail => {
       if (itemDetail.step === null && itemDetail === null) {
@@ -123,7 +121,7 @@ exports.getAll = async (req, res) => {
       .map(itemDetail => ({
         itemGeometry: itemDetail.itemGeometry,
         itemTypeConfiguration: itemDetail.itemTypeConfiguration,
-        name: itemDetail.itemId.name,
+        name: itemDetail.name,
         step: itemDetail.step,
         stl: itemDetail.stl
       }))
@@ -154,7 +152,8 @@ exports.create = async (req, res) => {
     const newItem = new ItemModel({
       name: req.body.name,
       vendorId: req.body.vendorId,
-      author: req.user.id
+      author: req.user.id,
+      assembly: req.body.assembly
     });
 
     const savedItem = await newItem.save();
@@ -189,7 +188,8 @@ exports.update = async (req, res) => {
 
     const saveObject = {
       name: req.body.name,
-      source: req.body.source
+      source: req.body.source,
+      assembly: req.body.assembly
     };
 
     const updatedItem = await ItemModel.findByIdAndUpdate(req.params.id, saveObject)
@@ -302,14 +302,13 @@ exports.load_cadfile = async function (req, res) {
       data = { stl: req.file.filename, step: null, };
     }
 
-    const itemDetailDoc = await ItemGeometryModel.findOne({ itemId: req.body.itemId });
+    const itemDetailDoc = await ItemModel.findById(req.body.itemId);
 
     if (itemDetailDoc && itemDetailDoc !== null) {
-      await ItemGeometryModel.findOneAndUpdate({ itemId: req.body.itemId }, { $set: data });
+      await ItemModel.findByIdAndUpdate(req.body.itemId, { $set: data });
     }
     else {
-      const itemDetail = new ItemGeometryModel({
-        itemId: req.body.itemId,
+      const itemDetail = new ItemModel({
         ...data
       });
 
@@ -346,7 +345,7 @@ function buildResponse(solids, logs) {
 exports.itemDetailThreejs = (req, res) => {
   const itemId = req.params.id;
 
-  ItemGeometryModel.findOne({ itemId })
+  ItemModel.findById(itemId)
     .then(data => {
       if (!data) {
         res.send({});
@@ -365,14 +364,14 @@ exports.itemDetailThreejs = (req, res) => {
 exports.itemGeometry = (req, res) => {
   const itemId = req.params.id;
 
-  ItemGeometryModel.findOne({ itemId })
+  ItemModel.findOne(itemId)
     .then(data => {
       if (!data) {
         res.send(null);
       }
       else {
         res.send({
-          itemId: data.itemId,
+          itemId: data._id,
           step: data.step,
           stl: data.stl !== null ? `http://localhost:3000/api/stl-file/${data.stl}` : null,
           itemGeometry: data.itemGeometry,
@@ -388,7 +387,7 @@ exports.itemGeometry = (req, res) => {
 exports.removeItemDetailThreejs = (req, res) => {
   const itemId = req.params.id;
 
-  ItemGeometryModel.findOneAndUpdate({ itemId }, { $set: { step: null, stl: null } }, { new: true })
+  ItemModel.findByIdAndUpdate( itemId, { $set: { step: null, stl: null } }, { new: true })
     .then(data => {
       res.send(data);
     })
@@ -402,10 +401,10 @@ exports.updateItemGeometry = async (req, res) => {
   try {
     const data = req.body;
 
-    let itemDetailData = await ItemGeometryModel.findOne({ itemId: req.params.id });
+    let itemDetailData = await ItemModel.findById(req.params.id);
 
     if (itemDetailData && itemDetailData !== null) {
-      itemDetailData = await ItemGeometryModel.findOneAndUpdate({ itemId: req.params.id },
+      itemDetailData = await ItemModel.findByIdAndUpdate(req.params.id,
         {
           $set: {
             step: itemDetailData.step,
@@ -417,8 +416,7 @@ exports.updateItemGeometry = async (req, res) => {
         { new: true });
     }
     else {
-      data.itemId = req.params.id;
-      itemDetailData = await ItemGeometryModel.create(data)
+      itemDetailData = await ItemModel.create(data)
     }
 
     console.log('ppppp', data)

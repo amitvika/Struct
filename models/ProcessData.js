@@ -26,6 +26,11 @@ const ProcessDataSchema = new mongoose.Schema({
   },
   configuration: {
     type: Object
+  },
+  itemId: {
+    type: Schema.Types.ObjectId,
+    ref: "Item",
+    required: true
   }
 });
 //this converts the schema into a model

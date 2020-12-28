@@ -129,11 +129,12 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
           <Grid item xs={12}>
             <Headding fontSize={20} bold title={'Item Category Details'} />
           </Grid>
+
           <Grid item xs={4}>
-            <Headding bold title={'Single Item Part or Assembly'} />
+            <Headding bold title={'Single Item Part or Multi-Item Assembly'} />
           </Grid>
           <Grid item xs={8}>
-            <span>Single Item Part</span>
+            <span>{itemProperties.assembly}</span>
           </Grid>
 
           <Grid item xs={4}>

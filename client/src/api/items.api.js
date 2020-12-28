@@ -14,8 +14,6 @@ const deleteItemAPI = (id) => deleteRequest(`/api/items/${id}`);
 
 const getItemsAllAPI = (query) => getRequest(`/api/items/all?${query}`);
 
-const getItemGeomtery = (id) => getRequest(`/api/items/${id}/geomtery`);
-
 const updateItemGeomtery = (id, data) => putRequest(`/api/items/${id}/geomtery`, data);
 
 const deleteItemGeomtery = (id) => deleteRequest(`/api/items/${id}/three-model`);
@@ -30,7 +28,6 @@ export default {
   updateItemsAPI,
   deleteItemAPI,
   getItemsAllAPI,
-  getItemGeomtery,
   deleteItemGeomtery,
   updateItemGeomtery,
   getItemThreejsData

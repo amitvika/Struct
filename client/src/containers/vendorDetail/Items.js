@@ -20,6 +20,11 @@ class Items extends Component {
       { title: "ID", field: "id", editable: "never" },
       { title: "Name", field: "name" },
       {
+        title: 'Assembly',
+        field: 'assembly',
+        lookup: { 'Single Item Part': "Single Item Part", 'Multi-Item Assembly': "Multi-Item Assembly" }
+      },
+      {
         title: 'History',
         field: "id",
         editable: "never",
@@ -76,7 +81,8 @@ class Items extends Component {
             return {
               id: item._id,
               name: item.name,
-              source: item.source
+              source: item.source,
+              assembly: item.assembly
             };
           });
 
@@ -116,7 +122,7 @@ class Items extends Component {
           data={query => this.dataQuery(query)}
           title={`Items Supplied by: ${this.props.vendorName}`}
           options={{
-            actionsColumnIndex: 4,
+            actionsColumnIndex: 5,
             addRowPosition: "first",
             exportButton: true,
             exportFileName: "Items"
@@ -145,8 +151,9 @@ class Items extends Component {
           ]}
           editable={{
             onRowAdd: newData => {
+              console.log('--->>', newData)
               return ItemsAPI
-                .saveItemAPI({ name: newData.name, source: newData.source, vendorId: this.props.vendorId })
+                .saveItemAPI({ name: newData.name, source: newData.source, vendorId: this.props.vendorId, assembly: newData.assembly })
                 .then(res => {
                   this.retrieveFromDb();
                 })
@@ -156,7 +163,7 @@ class Items extends Component {
             },
             onRowUpdate: (newData, oldData) => {
               return ItemsAPI
-                .updateItemsAPI(newData.id, { name: newData.name, source: newData.source })
+                .updateItemsAPI(newData.id, { name: newData.name, source: newData.source, assembly: newData.assembly })
                 .then(res => {
                   console.log(res.data);
                   this.retrieveFromDb();
