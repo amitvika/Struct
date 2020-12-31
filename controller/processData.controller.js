@@ -1,4 +1,6 @@
+const ProcessGroup = require("../models/ProcessGroup");
 const ProcessData = require("../models/ProcessData");
+const ItemModel = require("../models/Item.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
 
 exports.get = (req, res) => {
@@ -21,29 +23,52 @@ exports.getOne = (req, res) => {
     });
 }
 
-exports.create = (req, res) => {
-  const saveObject = {
-    process: req.body.process,
-    createdBy: req.user.id,
-    processGroup: req.body.processGroup
-  };
-  const newProcessData = new ProcessData(saveObject);
-  newProcessData
-    .save()
-    .then(item => {
-      const changeTracking = new ChangeTracking({
-        client: req.body.client,
-        update: saveObject,
-        model: "ProcessData",
-        updateType: "Create",
-        updatedObject: item._id,
-        updatedBy: req.body.user
-      });
-      changeTracking.save().catch(error => console.log(error));
+exports.create = async (req, res) => {
+  try {
 
-      res.json(item);
-    })
-    .catch(error => console.log(error));
+    //get process group
+    const processGroupData = await ProcessGroup.findById(req.body.processGroup);
+    if (!processGroupData) {
+      throw 'Error'
+    }
+
+    //create new item
+    const newItem = new ItemModel({
+      name: processGroupData.name,
+      vendorId: req.body.vendorId,
+      author: req.user.id,
+      assemblyType: 'Multi-Item Assembly'
+    });
+    const savedItem = await newItem.save();
+
+    //create a new process
+    const newProcessData = new ProcessData({
+      process: req.body.process,
+      createdBy: req.user.id,
+      processGroup: req.body.processGroup,
+      itemId: savedItem._id
+    });
+    const savedProcessData = await newProcessData.save();
+
+    //chnage tracking data
+    const changeTracking = new ChangeTracking({
+      client: req.body.client,
+      update: savedProcessData,
+      model: "ProcessData",
+      updateType: "Create",
+      updatedObject: savedProcessData._id,
+      updatedBy: req.user.id
+    });
+    await changeTracking.save();
+
+    res.json(newProcessData);
+
+  } catch (error) {
+    res
+      .status(500)
+      .send({ message: 'Some Error occurred' });
+  }
+
 }
 
 exports.delete = (req, res) => {
@@ -63,9 +88,7 @@ exports.update = async (req, res) => {
 
     const processData = await ProcessData.findByIdAndUpdate(req.params.id,
       {
-        $set: {
-          itemId: req.body.itemId
-        }
+        $set: req.body
       },
       { new: true });
 
@@ -79,7 +102,7 @@ exports.update = async (req, res) => {
     });
     await changeTracking.save()
 
-    res.json({ success: true, message: 'Successfully updated' });
+    res.json(processData);
 
 
   } catch (error) {

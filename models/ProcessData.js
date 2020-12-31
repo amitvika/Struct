@@ -29,9 +29,16 @@ const ProcessDataSchema = new mongoose.Schema({
   },
   itemId: {
     type: Schema.Types.ObjectId,
-    ref: "Item",
-    required: true
-  }
+    ref: "Item"
+  },
+  assemblySequenceNumber: [{
+    orderNumber: { type: Number },
+    itemId: [{
+      type: Schema.Types.ObjectId,
+      ref: "Item"
+    }],
+    fasteningMethods: { type: String }
+  }]
 });
 //this converts the schema into a model
 const ProcessData = mongoose.model("ProcessData", ProcessDataSchema);

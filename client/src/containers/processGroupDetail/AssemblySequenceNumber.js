@@ -15,14 +15,14 @@ import Headding from '../../components/atoms/Headding';
 import Select from '../../components/atoms/Select';
 import { Link } from 'react-router-dom';
 
-export default function AddLineItemToAssembly({ toggleConfigureItemAssembly, selectedItems }) {
+export default function AssemblySequenceNumber({ data, toggleConfigureItemAssembly, selectedItems }) {
   const [fasteningMethod, setFasteningMethod] = useState('')
 
   return (
     <Paper style={{ padding: 20, margin: 10 }}>
       <Grid className="section-padding-left" container spacing={4}>
         <Grid item xs={6} >
-          <Headding fontSize={26} bold title={'Assembly Sequence Number'} />
+          <Headding fontSize={26} bold title={`Assembly Sequence Number #${data.orderNumber}`} />
         </Grid>
         <Grid item xs={6}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -36,7 +36,7 @@ export default function AddLineItemToAssembly({ toggleConfigureItemAssembly, sel
             size="large"
             variant="contained"
             color="primary"
-            onClick={toggleConfigureItemAssembly}>
+            onClick={() => toggleConfigureItemAssembly(data._id)}>
             Configure Item Assembly
             </Button>
         </Grid>

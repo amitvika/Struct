@@ -75,12 +75,22 @@ exports.filterItems = async (req, res) => {
     }
 
     if (req.query.itemCategory) {
-      // query.push({
-      //   $match: {
-      //     'itemDetail.itemGeometry.generalGeomerty': { '$regex': new RegExp(`${req.query.itemCategory}`, "i") }
-      //   }
-      // })
+      query.push({
+        $match: {
+          'itemDetail.itemGeometry.generalGeomerty': { '$regex': new RegExp(`${req.query.itemCategory}`, "i") }
+        }
+      })
     }
+
+    if (req.query.assemblyType) {
+      query.push({
+        $match: {
+          'itemDetail.assemblyType': { '$regex': new RegExp(`${req.query.assemblyType}`, "i") }
+        }
+      })
+    }
+
+    
 
     console.log(JSON.stringify(query))
 
@@ -153,7 +163,7 @@ exports.create = async (req, res) => {
       name: req.body.name,
       vendorId: req.body.vendorId,
       author: req.user.id,
-      assembly: req.body.assembly
+      assemblyType: req.body.assemblyType
     });
 
     const savedItem = await newItem.save();
@@ -189,10 +199,10 @@ exports.update = async (req, res) => {
     const saveObject = {
       name: req.body.name,
       source: req.body.source,
-      assembly: req.body.assembly
+      assemblyType: req.body.assemblyType
     };
 
-    const updatedItem = await ItemModel.findByIdAndUpdate(req.params.id, saveObject)
+    const updatedItem = await ItemModel.findByIdAndUpdate(req.params.id, saveObject, { new: true })
 
     const changeTracking = new ChangeTracking({
       client: updatedItem._id,
@@ -204,7 +214,7 @@ exports.update = async (req, res) => {
     });
     await changeTracking.save();
 
-    res.json({ success: true });
+    res.json(updatedItem);
   }
   catch (error) {
     console.log(error)
@@ -387,7 +397,7 @@ exports.itemGeometry = (req, res) => {
 exports.removeItemDetailThreejs = (req, res) => {
   const itemId = req.params.id;
 
-  ItemModel.findByIdAndUpdate( itemId, { $set: { step: null, stl: null } }, { new: true })
+  ItemModel.findByIdAndUpdate(itemId, { $set: { step: null, stl: null } }, { new: true })
     .then(data => {
       res.send(data);
     })

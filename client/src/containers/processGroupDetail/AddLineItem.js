@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Paper,
   Grid,
@@ -11,24 +11,34 @@ import ItemAPI from '../../api/items.api';
 import ThreejsViewer from '../3DViewer/ThreejsViewer';
 
 export default function AddLineItem({ processGroupName = '', name = '', addItemToAssembly, assemblyProcessData }) {
-  const [itemName, setItemName] = useState(processGroupName);
+  const [item, setItem] = useState({});
   const [isEditOn, setIsEditOn] = useState(false);
-  const [updatedItemName, setUpdatedItemName] = useState(processGroupName);
-  const [itemId, setItemId] = useState();
+  const [updatedItemName, setUpdatedItemName] = useState('');
 
-  const handleSaveLineItem = () => {
-    ItemAPI.saveItemAPI({ name: itemName })
+  useEffect(() => {
+
+    if (assemblyProcessData.itemId) {
+      setItem(assemblyProcessData.itemId);
+      setUpdatedItemName(assemblyProcessData?.itemId?.name)
+    }
+
+    return () => {
+
+    }
+  }, [assemblyProcessData])
+
+  const handleUpdatedItem = () => {
+    ItemAPI.updateItemsAPI(item._id, { name: updatedItemName })
       .then(res => {
-        console.log('Response', res);
-
-        setItemId(res.data._id);
+        if (res.data) {
+          setItem(res.data);
+        }
       })
       .catch(error => {
         console.log('Item save error', error)
       });
 
     setIsEditOn(false);
-    setItemName(updatedItemName)
   }
 
   const handleClose = () => {
@@ -40,7 +50,7 @@ export default function AddLineItem({ processGroupName = '', name = '', addItemT
     <Paper style={{ padding: 10, margin: 10 }}>
       <Grid container>
         <Grid item xs={12} >
-          <Headding bold title={'Assembly Item Name'} />
+          <Headding fontSize={26} bold title={'Assembly Item Name'} />
         </Grid>
         <Grid item xs={12} >
           <div style={{ display: 'flex' }}>
@@ -56,26 +66,18 @@ export default function AddLineItem({ processGroupName = '', name = '', addItemT
                   />
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Icon style={{ marginLeft: '18px' }} onClick={handleClose}>cancel</Icon>
-                    <Icon style={{ marginLeft: '18px' }} onClick={handleSaveLineItem}>check</Icon>
+                    <Icon style={{ marginLeft: '18px' }} onClick={handleUpdatedItem}>check</Icon>
                   </div>
                 </>
                 :
                 <>
-                  <Headding title={itemName} />
+                  <Headding title={item.name} />
                   <Icon style={{ marginLeft: '18px' }} onClick={() => setIsEditOn(true)}>edit</Icon>
                 </>
             }
           </div>
         </Grid>
-        <Grid item xs={4}>
-          <Button
-            size="large"
-            variant="contained"
-            color="primary"
-            onClick={() => addItemToAssembly(itemId)}>
-            Add Item to Assembly
-            </Button>
-        </Grid>
+
         <Grid item xs={4}>
           <ThreejsViewer data={{}} />
         </Grid>

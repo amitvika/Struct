@@ -24,7 +24,7 @@ class Items extends Component {
       },
       {
         title: 'Assembly',
-        field: 'assembly',
+        field: 'assemblyType',
         lookup: { "Single Item Part": "Single Item Part", "Multi-Item Assembly": "Multi-Item Assembly" }
       },
       {
@@ -83,7 +83,7 @@ class Items extends Component {
               id: item._id,
               name: item.name,
               source: item?.vendorId?.name,
-              assembly: item.assembly
+              assemblyType: item.assemblyType
             };
           });
 

@@ -21,7 +21,7 @@ class Items extends Component {
       { title: "Name", field: "name" },
       {
         title: 'Assembly',
-        field: 'assembly',
+        field: 'assemblyType',
         lookup: { 'Single Item Part': "Single Item Part", 'Multi-Item Assembly': "Multi-Item Assembly" }
       },
       {
@@ -82,7 +82,7 @@ class Items extends Component {
               id: item._id,
               name: item.name,
               source: item.source,
-              assembly: item.assembly
+              assemblyType: item.assemblyType
             };
           });
 
@@ -153,7 +153,7 @@ class Items extends Component {
             onRowAdd: newData => {
               console.log('--->>', newData)
               return ItemsAPI
-                .saveItemAPI({ name: newData.name, source: newData.source, vendorId: this.props.vendorId, assembly: newData.assembly })
+                .saveItemAPI({ name: newData.name, source: newData.source, vendorId: this.props.vendorId, assemblyType: newData.assemblyType })
                 .then(res => {
                   this.retrieveFromDb();
                 })
@@ -163,7 +163,7 @@ class Items extends Component {
             },
             onRowUpdate: (newData, oldData) => {
               return ItemsAPI
-                .updateItemsAPI(newData.id, { name: newData.name, source: newData.source, assembly: newData.assembly })
+                .updateItemsAPI(newData.id, { name: newData.name, source: newData.source, assemblyType: newData.assemblyType })
                 .then(res => {
                   console.log(res.data);
                   this.retrieveFromDb();

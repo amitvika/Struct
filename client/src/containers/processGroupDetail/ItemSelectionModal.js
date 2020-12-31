@@ -135,8 +135,15 @@ export default function ItemSelectionModal({ toggleItemSelection,
               </Button>
           </Grid>
           <Grid item xs={2} >
-            {isItemLoading &&
-              <CircularProgress />}
+            {isItemLoading ?
+              <CircularProgress /> :
+              <Button
+                variant="contained"
+                color="primary"
+                endIcon={<Icon>cancel</Icon>}
+                onClick={() => setFilter({})}>
+                Clear
+              </Button>}
           </Grid>
 
           <Grid item xs={3} >
@@ -160,7 +167,7 @@ export default function ItemSelectionModal({ toggleItemSelection,
                 { label: "Other", value: "Other" }
               ]}
               onChange={(data) => handleChange('itemType', data.value)}
-              value={filter.itemType && { label: filter.itemType }}
+              value={filter.itemType ? { label: filter.itemType } : ''}
             />
           </Grid>
           <Grid item xs={5} ></Grid>
@@ -180,7 +187,7 @@ export default function ItemSelectionModal({ toggleItemSelection,
                 { label: "Liquid", value: "Liquid" },
                 { label: "Gas", value: "Gas" }]}
               onChange={(data) => handleChange('itemCategory', data.value)}
-              value={filter.itemCategory && { label: filter.itemCategory }}
+              value={filter.itemCategory ? { label: filter.itemCategory } : ''}
             />
           </Grid>
           <Grid item xs={5} ></Grid>
@@ -195,7 +202,7 @@ export default function ItemSelectionModal({ toggleItemSelection,
                 { label: 'Single Item Part', value: 'Single Item Part' },
                 { label: 'Multi-Item Assembly', value: 'Multi-Item Assembly' }]}
               onChange={(data) => handleChange('assemblyType', data.value)}
-              value={filter.assemblyType && { label: filter.assemblyType }}
+              value={filter.assemblyType ? { label: filter.assemblyType } : ''}
             />
           </Grid>
           <Grid item xs={5} ></Grid>

@@ -25,7 +25,7 @@ const ItemSchema = new mongoose.Schema({
   deletedAt: {
     type: Date
   },
-  assembly: { type: String },
+  assemblyType: { type: String },
   itemGeometry: { type: Object },
   itemTypeConfiguration: { type: Object },
   vendorDetails: { type: Object },

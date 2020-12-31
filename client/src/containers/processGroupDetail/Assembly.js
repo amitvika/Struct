@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
+import {
+  Button
+} from "@material-ui/core";
 
 import ThreejsViewModal from './ThreejsViewModal'
 import AddLineItem from './AddLineItem';
-import AddLineItemToAssembly from './AddLineItemToAssembly';
+import AssemblySequenceNumber from './AssemblySequenceNumber';
 import ConfigureItemAssembly from './ConfigureItemAssemblyModal';
 import ItemSelectionModal from './ItemSelectionModal';
 import ProcessAPI from '../../api/process.api';
@@ -11,12 +14,18 @@ export default function Assembly(props) {
   const [assemblyProcessData, setAssemblyProcessData] = useState('');
   const [isThreejsVisible, setIsThreejsVisible] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [assemblySequenceNumber, setAssemblySequenceNumber] = useState([]);
+  const [selectedAssemblySequence, setSelectedAssemblySequence] = useState('');
 
   useEffect(() => {
     ProcessAPI.getProcessData(props.processId)
       .then(res => {
         if (res.data) {
           setAssemblyProcessData(res.data)
+        }
+
+        if (res.data.assemblySequenceNumber) {
+          setAssemblySequenceNumber(res.data.assemblySequenceNumber)
         }
       })
       .catch(error => {
@@ -25,16 +34,19 @@ export default function Assembly(props) {
 
   }, []);
 
-  const addItemToAssembly = (itemId) => {
-    console.log('addItemToAssembly', props.processId, itemId);
+  const addItemToAssembly = () => {
+    const updateAssemblySequence = [...assemblySequenceNumber, { orderNumber: assemblySequenceNumber.length + 1 }]
 
-    if (!itemId) {
-      return;
-    }
-
-    ProcessAPI.updateProcessData(props.processId, { itemId, assembly: 'Multi-Item Assembly' })
+    ProcessAPI.updateProcessData(props.processId, { assemblySequenceNumber: updateAssemblySequence })
       .then(res => {
         console.log('Response', res)
+        if (res.data) {
+          setAssemblyProcessData(res.data)
+        }
+
+        if (res.data.assemblySequenceNumber) {
+          setAssemblySequenceNumber(res.data.assemblySequenceNumber)
+        }
       })
       .catch(error => {
         console.log('error', error)
@@ -42,7 +54,8 @@ export default function Assembly(props) {
   }
 
   const [isConfigureItemAssemblyModalOpen, setIsConfigureItemAssemblyModalOpen] = useState(false);
-  const toggleConfigureItemAssembly = () => {
+  const toggleConfigureItemAssembly = (assemblySequenceId) => {
+    setSelectedAssemblySequence(assemblySequenceId)
     setIsConfigureItemAssemblyModalOpen(!isConfigureItemAssemblyModalOpen);
   }
 
@@ -75,20 +88,30 @@ export default function Assembly(props) {
 
       <AddLineItem
         {...props}
-        addItemToAssembly={addItemToAssembly}
         assemblyProcessData={assemblyProcessData} />
 
-      <AddLineItemToAssembly
-        toggleConfigureItemAssembly={toggleConfigureItemAssembly}
-        isConfigureItemAssemblyModalOpen={isConfigureItemAssemblyModalOpen}
-        selectedItems={selectedItems}
-      />
-      {/* <AssemblyTable */}
-      {/* {...props} */}
-      {/* // processId={processId} */}
-      {/* setIsThreejsVisible={setIsThreejsVisible}
-        setAssemblyProcessData={setAssemblyProcessData}
-      /> */}
+      {
+        assemblySequenceNumber.map(asnItem => {
+          return (
+            <AssemblySequenceNumber
+              data={asnItem}
+              toggleConfigureItemAssembly={toggleConfigureItemAssembly}
+              isConfigureItemAssemblyModalOpen={isConfigureItemAssemblyModalOpen}
+              selectedItems={selectedItems}
+            />
+          )
+        })
+      }
+      <Button
+        style={{ margin: '10px' }}
+        size="large"
+        variant="contained"
+        color="primary"
+        onClick={() => addItemToAssembly()}>
+        Add Item to Assembly
+            </Button>
+
+
     </div>
   );
 }
