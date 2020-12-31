@@ -8,7 +8,7 @@ const deleteProcessApi = (id) => deleteRequest(`/api/processes/${id}`);
 
 const updateProcessData = (id,data) => putRequest(`/api/processdata/${id}`, data);
 
-const getProcessData = (id) => getRequest(`/api/processdata/${id}`);
+const getProcessData = (id) => getRequest(`/api/processdata/${id}/`);
 
 export default {
   getProcessApi,

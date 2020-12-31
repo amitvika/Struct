@@ -118,7 +118,7 @@ export default function ItemSelectionModal({ toggleItemSelection,
         <Grid className="section-padding-left" container spacing={4}>
 
           <Grid item xs={3} ><Headding title="Name Search" /></Grid>
-          <Grid item xs={3} >
+          <Grid item xs={4} >
             <Input
               placeholder="Enter"
               type="text"
@@ -134,7 +134,7 @@ export default function ItemSelectionModal({ toggleItemSelection,
               Search
               </Button>
           </Grid>
-          <Grid item xs={3} >
+          <Grid item xs={2} >
             {isItemLoading &&
               <CircularProgress />}
           </Grid>
@@ -142,38 +142,63 @@ export default function ItemSelectionModal({ toggleItemSelection,
           <Grid item xs={3} >
             <Headding title='Item type'></Headding>
           </Grid>
-          <Grid item xs={3} >
-            <Input
-              placeholder="Enter"
-              type="text"
-              onChange={(event) => handleChange("itemType", event.target.value)}
+          <Grid item xs={4} >
+
+            <Select
+              // label="Item Type"
+              placeholder="Select"
+              options={[
+                { label: 'Machine - Actuator', value: 'Machine - Actuator' },
+                { label: 'Machine - Motion Control', value: 'Machine - Motion Control' },
+                { label: 'Machine - Tool/Workholding', value: 'Machine - Tool/Workholding' },
+                { label: "Machine - Workpiece Environment Modification", value: "Machine - Workpiece Environment Modification" },
+                { label: "Containment - Pressure Vessel", value: "Containment - Pressure Vessel" },
+                { label: "Containment - Liquid Container", value: "Containment - Liquid Container" },
+                { label: "Tool", value: "Tool" },
+                { label: "Machine - Tool", value: "Machine - Tool" },
+                { label: "Unassembled Kit", value: "Unassembled Kit" },
+                { label: "Other", value: "Other" }
+              ]}
+              onChange={(data) => handleChange('itemType', data.value)}
+              value={filter.itemType && { label: filter.itemType }}
             />
           </Grid>
-          <Grid item xs={6} ></Grid>
+          <Grid item xs={5} ></Grid>
 
           <Grid item xs={3} >
             <Headding title='Item category'></Headding>
           </Grid>
-          <Grid item xs={3} >
-            <Input
-              placeholder="Enter"
-              type="text"
-              onChange={(event) => handleChange("itemCategory", event.target.value)}
+          <Grid item xs={4} >
+            <Select
+              // label="General Geometry"
+              placeholder="Select"
+              options={[
+                { label: '1 Dimensional Solid', value: '1 Dimensional Solid' },
+                { label: '2 Dimensional Solid', value: '2 Dimensional Solid' },
+                { label: '3 Dimensional Solid', value: '3 Dimensional Solid' },
+                { label: "Bulk Powder/Particles/Grains", value: "Bulk Powder/Particles/Grains" },
+                { label: "Liquid", value: "Liquid" },
+                { label: "Gas", value: "Gas" }]}
+              onChange={(data) => handleChange('itemCategory', data.value)}
+              value={filter.itemCategory && { label: filter.itemCategory }}
             />
           </Grid>
-          <Grid item xs={6} ></Grid>
+          <Grid item xs={5} ></Grid>
 
           <Grid item xs={3} >
             <Headding title='Single Item Part or Assembly'></Headding>
           </Grid>
-          <Grid item xs={3} >
-            <Input
-              placeholder="Enter"
-              type="text"
-              onChange={(event) => handleChange("isSingleItem", event.target.value)}
+          <Grid item xs={4} >
+            <Select
+              placeholder="Select"
+              options={[
+                { label: 'Single Item Part', value: 'Single Item Part' },
+                { label: 'Multi-Item Assembly', value: 'Multi-Item Assembly' }]}
+              onChange={(data) => handleChange('assemblyType', data.value)}
+              value={filter.assemblyType && { label: filter.assemblyType }}
             />
           </Grid>
-          <Grid item xs={6} ></Grid>
+          <Grid item xs={5} ></Grid>
         </Grid>
 
         <div>

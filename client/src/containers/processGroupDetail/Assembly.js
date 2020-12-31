@@ -15,7 +15,9 @@ export default function Assembly(props) {
   useEffect(() => {
     ProcessAPI.getProcessData(props.processId)
       .then(res => {
-
+        if (res.data) {
+          setAssemblyProcessData(res.data)
+        }
       })
       .catch(error => {
 
@@ -73,7 +75,8 @@ export default function Assembly(props) {
 
       <AddLineItem
         {...props}
-        addItemToAssembly={addItemToAssembly} />
+        addItemToAssembly={addItemToAssembly}
+        assemblyProcessData={assemblyProcessData} />
 
       <AddLineItemToAssembly
         toggleConfigureItemAssembly={toggleConfigureItemAssembly}

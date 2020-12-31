@@ -10,11 +10,11 @@ import Headding from '../../components/atoms/Headding';
 import ItemAPI from '../../api/items.api';
 import ThreejsViewer from '../3DViewer/ThreejsViewer';
 
-export default function AddLineItem({ processGroupName = '', name = '', addItemToAssembly }) {
+export default function AddLineItem({ processGroupName = '', name = '', addItemToAssembly, assemblyProcessData }) {
   const [itemName, setItemName] = useState(processGroupName);
   const [isEditOn, setIsEditOn] = useState(false);
   const [updatedItemName, setUpdatedItemName] = useState(processGroupName);
-  const [itemId, setItemId] = useState()
+  const [itemId, setItemId] = useState();
 
   const handleSaveLineItem = () => {
     ItemAPI.saveItemAPI({ name: itemName })
@@ -77,7 +77,7 @@ export default function AddLineItem({ processGroupName = '', name = '', addItemT
             </Button>
         </Grid>
         <Grid item xs={4}>
-          <ThreejsViewer data={{}}  />
+          <ThreejsViewer data={{}} />
         </Grid>
       </Grid>
     </Paper>

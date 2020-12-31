@@ -11,7 +11,7 @@ const updateProcessGroupsApi = (id, data) => putRequest(`/api/processGroups/${id
 
 const deleteProcessGroupsApi = (id) => deleteRequest(`/api/processGroups/${id}`);
 
-const getProcessDataApi = (id) => getRequest(`/api/processdata/${id}`);
+const getProcessDataListApi = (id) => getRequest(`/api/processdata/${id}/all`);
 
 const addProcessDataApi = (data) => postRequest(`/api/processdata`, data);
 
@@ -35,7 +35,7 @@ export default {
   addProcessGroupsApi,
   updateProcessGroupsApi,
   deleteProcessGroupsApi,
-  getProcessDataApi,
+  getProcessDataListApi,
   addProcessDataApi,
   uploadStepfile,
   deleteProcessDataApi

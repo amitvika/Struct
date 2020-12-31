@@ -100,7 +100,7 @@ class ProcessGroupDetail extends Component {
         }));
         ///////////////////////
         ProcessGroupAPI
-          .getProcessDataApi(this.props.match.params.id)
+          .getProcessDataListApi(this.props.match.params.id)
           .then(res => {
             var processData = res.data.map((x, index) => {
               return {

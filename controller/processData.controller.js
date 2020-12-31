@@ -11,6 +11,16 @@ exports.get = (req, res) => {
     });
 }
 
+exports.getOne = (req, res) => {
+  ProcessData.findById(req.params.id)
+    .populate("createdBy", "name")
+    .populate("itemId")
+    .sort({ date: 1 }) //sorts descending
+    .then(clients => {
+      res.json(clients);
+    });
+}
+
 exports.create = (req, res) => {
   const saveObject = {
     process: req.body.process,

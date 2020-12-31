@@ -6,7 +6,9 @@ const ProcessDataController = require('../../controller/processData.controller')
 
 router.use(auth);
 
-router.get("/:id", ProcessDataController.get);
+router.get("/:id/all", ProcessDataController.get);
+
+router.get("/:id", ProcessDataController.getOne);
 
 router.post("/", checkAccess, ProcessDataController.create);
 
