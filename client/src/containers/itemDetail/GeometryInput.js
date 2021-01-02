@@ -3,7 +3,12 @@ import {
   Button,
   Snackbar,
   Paper,
-  CircularProgress
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from "@material-ui/core";
 import Select from '../../components/atoms/Select';
 import Input from '../../components/atoms/Input';
@@ -84,10 +89,10 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 
       <Paper style={{ padding: 20, margin: 10 }}>
         <Grid className="section-padding-left" container spacing={4}>
-          <Grid item xs={12}>
-            <Headding fontSize={20} bold title={'Item Material'} />
+          <Grid item xs={3}>
+            <Headding fontSize={20} bold title={'Item Material'}/>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={9}>
             <Button
               size="large"
               variant="contained"
@@ -97,30 +102,41 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
             </Button>
           </Grid>
           {
-            selectedMaterials.length > 0 ?
-              <>
-                <Grid item xs={4}>
-                  <span>Selected Materials || </span>
-                </Grid>
-                <Grid item xs={4} />
-              </> :
-              <Grid item xs={8} />
+            selectedMaterials.length > 0 &&
+            (
+              <Grid item xs={12}>
+                <Headding bold title={'Selected Materials'} />
+
+                <TableContainer className="mb-2" component={Paper}>
+                  <Table aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>S No</TableCell>
+                        <TableCell>Material Name</TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {
+                        selectedMaterials.map(materialRow => (
+                          <TableRow
+                            key={materialRow._id}
+                          >
+                            <TableCell>{materialRow._id}</TableCell>
+                            <TableCell >
+                              {materialRow.name}
+                            </TableCell>
+                            <TableCell style={{ cursor: 'pointer' }} onClick={() => handleMaterialPropertieView(materialRow)}>View Material Properties</TableCell>
+                          </TableRow>
+                        ))
+                      }
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Grid>
+            )
           }
-          {
-            selectedMaterials.map(material => {
-              return (
-                <>
-                  <Grid item xs={4} />
-                  <Grid item xs={5}>
-                    <Headding title={material.name}></Headding>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <span onClick={() => handleMaterialPropertieView(material)}>View Material Properties</span>
-                  </Grid>
-                </>
-              )
-            })
-          }
+
         </Grid>
       </Paper>
 

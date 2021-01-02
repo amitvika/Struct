@@ -35,7 +35,32 @@ export default function Assembly(props) {
   }, []);
 
   const addItemToAssembly = () => {
-    const updateAssemblySequence = [...assemblySequenceNumber, { orderNumber: assemblySequenceNumber.length + 1 }]
+
+    let maxCount = 0;
+    if (assemblySequenceNumber.length > 0) {
+      maxCount = Math.max.apply(Math, assemblySequenceNumber.map(function (o) { return o.orderNumber; }))
+    }
+
+    const updateAssemblySequence = [...assemblySequenceNumber, { orderNumber: maxCount + 1 }]
+
+    ProcessAPI.updateProcessData(props.processId, { assemblySequenceNumber: updateAssemblySequence })
+      .then(res => {
+        console.log('Response', res)
+        if (res.data) {
+          setAssemblyProcessData(res.data)
+        }
+
+        if (res.data.assemblySequenceNumber) {
+          setAssemblySequenceNumber(res.data.assemblySequenceNumber)
+        }
+      })
+      .catch(error => {
+        console.log('error', error)
+      })
+  }
+
+  const deleteAssemblySequence = (sequenceId) => {
+    const updateAssemblySequence = assemblySequenceNumber.filter(sequence => sequence._id !== sequenceId);
 
     ProcessAPI.updateProcessData(props.processId, { assemblySequenceNumber: updateAssemblySequence })
       .then(res => {
@@ -98,12 +123,13 @@ export default function Assembly(props) {
               toggleConfigureItemAssembly={toggleConfigureItemAssembly}
               isConfigureItemAssemblyModalOpen={isConfigureItemAssemblyModalOpen}
               selectedItems={selectedItems}
+              deleteAssemblySequence={deleteAssemblySequence}
             />
           )
         })
       }
       <Button
-        style={{ margin: '10px' }}
+        style={{ margin: '10px', width: '100%' }}
         size="large"
         variant="contained"
         color="primary"

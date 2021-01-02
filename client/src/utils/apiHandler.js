@@ -11,7 +11,15 @@ export const request = async (path, data, method) => {
       'x-auth-token': token
     },
     data
-  });
+  })
+    .catch(error => {
+      const { status } = error.response;
+
+      if (status === 401 && path !== '/api/auth/user') {
+        window.localStorage.clear('token');
+        window.location = '/';
+      }
+    })
 };
 
 export const getRequest = (path, data) => request(path, data, 'GET');

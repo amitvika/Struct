@@ -129,7 +129,7 @@ class ProcessGroupDetail extends Component {
           })
           .catch(err => {
             this.setState({
-              msg: err,
+              msg: err.message,
               snackBarAlertType: "error",
               snackBar: true
             });

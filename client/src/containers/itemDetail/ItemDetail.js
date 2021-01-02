@@ -137,7 +137,9 @@ const ItemDetail = () => {
               {/* <Tab label="Validations" value={6} /> */}
               {/* <Tab label="Production Regimens" value={7} /> */}
               <Tab label="Current Usage" value={2} />
-              <Tab label="Vendor Details" value={8} />
+              {
+                itemDetail.vendorId && <Tab label="Vendor Details" value={8} />
+              }
             </Tabs>
           </Paper>
         </Grid>

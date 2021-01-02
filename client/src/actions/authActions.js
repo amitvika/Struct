@@ -18,17 +18,23 @@ export const loadUser = () => (dispatch, getState) => {
 
   loadUserApi()
     .then(res => {
-      dispatch({
-        type: USER_LOADED,
-        payload: res.data
-      })
+      if (res && res.data) {
+
+        dispatch({
+          type: USER_LOADED,
+          payload: res.data
+        })
+      }
+      else {
+        dispatch({
+          type: AUTH_ERROR
+        });
+      }
     })
-    .catch(err => {
-      console.log('---->>>', err)
-      dispatch({
-        type: AUTH_ERROR
-      });
-    });
+  // .catch(err => {
+  //   console.log('---->>>', err)
+
+  // });
 };
 
 //Register User

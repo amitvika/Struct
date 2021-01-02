@@ -15,7 +15,7 @@ import Headding from '../../components/atoms/Headding';
 import Select from '../../components/atoms/Select';
 import { Link } from 'react-router-dom';
 
-export default function AssemblySequenceNumber({ data, toggleConfigureItemAssembly, selectedItems }) {
+export default function AssemblySequenceNumber({ data, toggleConfigureItemAssembly, selectedItems, deleteAssemblySequence }) {
   const [fasteningMethod, setFasteningMethod] = useState('')
 
   return (
@@ -27,7 +27,7 @@ export default function AssemblySequenceNumber({ data, toggleConfigureItemAssemb
         <Grid item xs={6}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Headding title={'Status:'} />
-            <Icon style={{ marginLeft: '18px' }} >cancel</Icon>
+            <Icon style={{ marginLeft: '18px' }} onClick={() => deleteAssemblySequence(data._id)}>cancel</Icon>
             {/* <Icon style={{ marginLeft: '18px' }} >check</Icon> */}
           </div>
         </Grid>

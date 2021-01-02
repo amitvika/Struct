@@ -138,6 +138,9 @@ export default function MaterialModal({ toggleMaterial,
           value: item.id
         }
       }))
+      setSubcategoryOptionsTwo([]);
+      setSubcategoryOptionsThree([])
+      setSubcategoryOptionsFour([]);
     });
   }
 
@@ -463,7 +466,7 @@ export default function MaterialModal({ toggleMaterial,
                       <TableCell onClick={() => removeMaterialFromSelected(materialRow)}>
                         {materialRow.name}
                       </TableCell>
-                      <TableCell onClick={() => handleMaterialPropertieView(materialRow)}>View Material Properties</TableCell>
+                      <TableCell style={{ cursor: 'pointer' }} onClick={() => handleMaterialPropertieView(materialRow)}>View Material Properties</TableCell>
                     </TableRow>
                   ))
                 }
@@ -487,7 +490,7 @@ export default function MaterialModal({ toggleMaterial,
                     <TableCell>{materialRow._id}</TableCell>
                     <TableCell
                       onClick={() => addMaterialToSelected(materialRow)}>{materialRow.name}</TableCell>
-                    <TableCell onClick={() => handleMaterialPropertieView(materialRow)}>View Material Properties</TableCell>
+                    <TableCell style={{ cursor: 'pointer' }} onClick={() => handleMaterialPropertieView(materialRow)}>View Material Properties</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

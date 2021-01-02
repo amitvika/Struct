@@ -428,15 +428,25 @@ exports.getMaterialCategories = async (req, res) => {
     const parent_id = req.query.parent_id;
 
     const materialCategories = await MaterialHierarchyModel.find({ parentId: parent_id });
-
     if (!materialCategories) {
       res.send([]);
     }
 
     const titleArray = materialCategories.map(mc => mc.title);
     const itemMaterials = await MaterialModel.find({ name: { $in: titleArray } });
+    
+    //get material categories
+    const filteredCategories = materialCategories.filter(category => {
+      const material = itemMaterials.find(material => material.name == category.title);
+      if (!material) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    })
 
-    res.send({ categories: materialCategories, materials: itemMaterials })
+    res.send({ categories: filteredCategories, materials: itemMaterials })
 
   }
   catch (error) {
