@@ -15,7 +15,7 @@ import Vendors from "./page/Vendors";
 import Dashboard from './page/Dashboard';
 import ProcessGroups from './containers/processGroups/ProcessGroups';
 import Clients from './page/Clients';
-import ProductDesign from './page/ProductDesign';
+import ProductDesign from './containers/productDesignDetail/ProductDesign';
 import Items from './page/Items';
 import AccessSetup from './page/AccessSetup';
 import ConfigurationHistory from './page/ConfigurationHistory';

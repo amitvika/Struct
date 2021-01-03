@@ -1,0 +1,18 @@
+.brewery-search > input {
+  background-color: #f7f7f7;
+  background-image: url('./search.svg');
+  background-position: center right 10px;
+  background-repeat: no-repeat;
+  border: 0;
+  border-radius: 3px;
+  height: 29px;
+  padding: 0 11px;
+  width: 219px;
+}
+
+.brewery-search > input:hover,
+.brewery-search > input:focus,
+.brewery-search > input:active {
+  border: 0;
+  outline: 0;
+}
