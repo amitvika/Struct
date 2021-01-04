@@ -145,14 +145,17 @@ export default function Assembly(props) {
           )
         })
       }
-      <Button
-        style={{ margin: '10px', width: '100%' }}
-        size="large"
-        variant="contained"
-        color="primary"
-        onClick={() => addItemToAssembly()}>
-        Add Item to Assembly
+      <div style={{ margin: '10px' }}>
+
+        <Button
+          style={{ width: '100%' }}
+          size="large"
+          variant="contained"
+          color="primary"
+          onClick={() => addItemToAssembly()}>
+          Add Item to Assembly
             </Button>
+      </div>
     </div>
   );
 }

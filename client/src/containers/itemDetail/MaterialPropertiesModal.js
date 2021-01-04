@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Headding from '../../components/atoms/Headding';
 import {
   Modal,
@@ -7,10 +7,26 @@ import {
 } from "reactstrap";
 import Grid from '@material-ui/core/Grid';
 import {
-  Paper
+  Paper,
+  Icon,
 } from "@material-ui/core";
 
+import MaterialAPI from '../../api/material.api';
+
 export default function MaterialProperties({ materialProperties = {}, toggleMaterialProperties, isMaterialPropertiesModalOpen }) {
+  const [hierarchy, setHierarchy] = useState(null);
+
+  useEffect(() => {
+    MaterialAPI.fetchMaterialHierarchy(materialProperties.name)
+      .then(res => {
+        if (res.data) {
+          setHierarchy(res.data.join(' > '))
+        }
+      })
+      .catch(error => {
+
+      })
+  }, [materialProperties.name])
 
   const renderProperties = () => {
     if (materialProperties.properties.length === 0) {
@@ -169,6 +185,13 @@ export default function MaterialProperties({ materialProperties = {}, toggleMate
       <ModalBody>
         <Paper style={{ padding: 20, margin: 10 }}>
           <Grid className="section-padding-left" container spacing={4}>
+
+            <Grid item xs={3}>
+              <Headding bold title={'Material Hierarchy'} />
+            </Grid>
+            <Grid item xs={9}>
+              {hierarchy}
+            </Grid>
 
             <Grid item xs={3}>
               <Headding bold title={'Description'} />

@@ -9,7 +9,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Icon,
 } from "@material-ui/core";
+import { Tooltip } from 'reactstrap';
+
 import Select from '../../components/atoms/Select';
 import Input from '../../components/atoms/Input';
 // import Button from '../../components/atoms/Button';
@@ -19,6 +22,9 @@ import MaterialModal from './MaterialModal';
 import MaterialPropertiesModal from './MaterialPropertiesModal';
 
 export default function GeometryInput({ itemProperties = {}, setItemProperties }) {
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
+
   const itemGeometry = itemProperties.itemGeometry || {}
 
   const [materialProperties, setMaterialProperties] = useState({});
@@ -90,7 +96,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
       <Paper style={{ padding: 20, margin: 10 }}>
         <Grid className="section-padding-left" container spacing={4}>
           <Grid item xs={3}>
-            <Headding fontSize={20} bold title={'Item Material'}/>
+            <Headding fontSize={20} bold title={'Item Material'} />
           </Grid>
           <Grid item xs={9}>
             <Button
@@ -153,12 +159,17 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
             <span>{itemProperties.assembly}</span>
           </Grid>
 
-          <Grid item xs={4}>
-            <Headding bold title={'Item Category'} />
+          <Grid item xs={4} style={{ display: 'flex' }} >
+            <Headding bold title={'Item Category'}>
+            </Headding>
+            <Icon style={{ marginLeft: '18px' }} id="TooltipExample">info</Icon>
+            <Tooltip placement="top" isOpen={tooltipOpen} target="TooltipExample" toggle={toggleTooltip}>
+              This allows for selection of the general geometry or matter state of the item. The downstream impacts include how the item is handled and transported within Struct Production Systems
+            </Tooltip>
           </Grid>
           <Grid item xs={8} >
             <Select
-              label="General Geometry"
+              // label="General Geometry"
               placeholder="Select"
               options={[
                 { label: '1 Dimensional Solid', value: '1 Dimensional Solid' },

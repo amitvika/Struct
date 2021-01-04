@@ -293,6 +293,49 @@ const isCharacterSpaceOrNumeric = (character) => {
     return false
   }
 }
+exports.getHierarchy = async (req, res) => {
+  const material = req.params.material;
+  try {
+    let hierarchies = [];
+
+    const hierarchy1 = await MaterialHierarchyModel.findOne({ title: material });
+    if (hierarchy1 === null) {
+      return res.json([]);
+
+    }
+    hierarchies.unshift(hierarchy1.title);
+
+    const hierarchy2 = await MaterialHierarchyModel.findOne({ id: hierarchy1.parentId });
+    if (hierarchy2 === null) {
+      return res.json(hierarchies)
+    }
+    hierarchies.unshift(hierarchy2.title);
+
+    const hierarchy3 = await MaterialHierarchyModel.findOne({ id: hierarchy2.parentId });
+    if (hierarchy3 === null) {
+      return res.json(hierarchies)
+    }
+    hierarchies.unshift(hierarchy3.title);
+
+    const hierarchy4 = await MaterialHierarchyModel.findOne({ id: hierarchy3.parentId });
+    if (hierarchy4 === null) {
+      return res.json(hierarchies)
+    }
+    hierarchies.unshift(hierarchy4.title);
+
+    const hierarchy5 = await MaterialHierarchyModel.findOne({ id: hierarchy4.parentId });
+    if (hierarchy5 === null) {
+      return res.json(hierarchies)
+    }
+    hierarchies.unshift(hierarchy5.title);
+
+    return res.json(hierarchies)
+
+  } catch (error) {
+    return []
+  }
+
+}
 
 
 exports.getMaterials = async (req, res) => {
@@ -434,7 +477,7 @@ exports.getMaterialCategories = async (req, res) => {
 
     const titleArray = materialCategories.map(mc => mc.title);
     const itemMaterials = await MaterialModel.find({ name: { $in: titleArray } });
-    
+
     //get material categories
     const filteredCategories = materialCategories.filter(category => {
       const material = itemMaterials.find(material => material.name == category.title);

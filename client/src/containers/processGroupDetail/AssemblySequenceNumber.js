@@ -4,12 +4,6 @@ import {
   Grid,
   Icon,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
 } from "@material-ui/core";
 import Headding from '../../components/atoms/Headding';
 import Select from '../../components/atoms/Select';
@@ -24,12 +18,21 @@ export default function AssemblySequenceNumber({ data, toggleConfigureItemAssemb
         <Grid item xs={6} >
           <Headding fontSize={26} bold title={`Assembly Sequence Number #${data.orderNumber}`} />
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={3}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Headding title={'Status:'} />
-            <Icon style={{ marginLeft: '18px' }} onClick={() => deleteAssemblySequence(data._id)}>cancel</Icon>
+            <Icon style={{ marginLeft: '18px' }} >cancel</Icon>
             {/* <Icon style={{ marginLeft: '18px' }} >check</Icon> */}
           </div>
+        </Grid>
+        <Grid item xs={3}>
+          <Button
+            size="small"
+            variant="contained"
+            color="secondary"
+            onClick={() => deleteAssemblySequence(data._id)}>
+            Delete Item in Assembly
+            </Button>
         </Grid>
         <Grid item xs={12} >
           <Button
