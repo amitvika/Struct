@@ -7,10 +7,22 @@ import {
 } from "reactstrap";
 import {
   Button,
-  Grid
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from "@material-ui/core";
+import Headding from '../../components/atoms/Headding';
+import { Link } from 'react-router-dom';
 
-export default function ConfigureItemAssembly({ toggleConfigureItemAssembly, isConfigureItemAssemblyModalOpen, toggleItemSelection }) {
+export default function ConfigureItemAssembly({ toggleConfigureItemAssembly,
+  isConfigureItemAssemblyModalOpen,
+  toggleItemSelection,
+  selectedItem }) {
   const [threejsObject, setThreejsObject] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,11 +31,11 @@ export default function ConfigureItemAssembly({ toggleConfigureItemAssembly, isC
       <ModalHeader toggle={toggleConfigureItemAssembly}>Configure Item Assembly</ModalHeader>
       <ModalBody>
         <Grid className="section-padding-left" container spacing={2}>
-          <Grid item xs={9} >
+          <Grid item xs={8} >
             <ThreejsViewer data={threejsObject} isLoading={isLoading} />
           </Grid>
 
-          <Grid item xs={3} >
+          <Grid item xs={4} >
             <Button
               size="large"
               variant="contained"
@@ -31,6 +43,18 @@ export default function ConfigureItemAssembly({ toggleConfigureItemAssembly, isC
               onClick={toggleItemSelection}>
               Select Item
             </Button>
+          </Grid>
+          <Grid item xs={8} ></Grid>
+          <Grid item xs={4}>
+            {
+              Object.keys(selectedItem).length > 0 &&
+              (
+                <Grid item xs={12} style={{ display: 'flex' }}>
+                  <Headding title={'Selected Item: '} />
+                  <Link to={`/items/${selectedItem._id}`}>{selectedItem.name}</Link>
+                </Grid>
+              )
+            }
           </Grid>
 
         </Grid>

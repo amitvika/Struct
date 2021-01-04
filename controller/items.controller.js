@@ -50,26 +50,10 @@ exports.filterItems = async (req, res) => {
       query.push({ $match: { name: { '$regex': new RegExp(`${req.query.search}`, "i") } } })
     }
 
-    if (req.query.itemType || req.query.itemCategory || req.query.isSingleItem) {
-      query.push({
-        $lookup:
-        {
-          from: 'itemdetails',
-          localField: '_id',
-          foreignField: 'itemId',
-          as: 'itemDetail'
-        }
-      });
-
-      query.push({
-        $unwind: '$itemDetail'
-      })
-    }
-
     if (req.query.itemType) {
       query.push({
         $match: {
-          'itemDetail.itemTypeConfiguration.itemType': { '$regex': new RegExp(`${req.query.itemType}`, "i") }
+          'itemTypeConfiguration.itemType': { '$regex': new RegExp(`${req.query.itemType}`, "i") }
         }
       })
     }
@@ -77,7 +61,7 @@ exports.filterItems = async (req, res) => {
     if (req.query.itemCategory) {
       query.push({
         $match: {
-          'itemDetail.itemGeometry.generalGeomerty': { '$regex': new RegExp(`${req.query.itemCategory}`, "i") }
+          'itemGeometry.generalGeomerty': { '$regex': new RegExp(`${req.query.itemCategory}`, "i") }
         }
       })
     }
@@ -85,12 +69,12 @@ exports.filterItems = async (req, res) => {
     if (req.query.assemblyType) {
       query.push({
         $match: {
-          'itemDetail.assemblyType': { '$regex': new RegExp(`${req.query.assemblyType}`, "i") }
+          'assemblyType': req.query.assemblyType
         }
       })
     }
 
-    
+
 
     console.log(JSON.stringify(query))
 

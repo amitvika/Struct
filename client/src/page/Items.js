@@ -82,7 +82,7 @@ class Items extends Component {
             return {
               id: item._id,
               name: item.name,
-              source: item?.vendorId?.name,
+              source: item?.vendorId?.name || 'STRUCT',
               assemblyType: item.assemblyType
             };
           });

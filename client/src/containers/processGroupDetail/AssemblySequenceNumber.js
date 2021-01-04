@@ -15,7 +15,7 @@ import Headding from '../../components/atoms/Headding';
 import Select from '../../components/atoms/Select';
 import { Link } from 'react-router-dom';
 
-export default function AssemblySequenceNumber({ data, toggleConfigureItemAssembly, selectedItems, deleteAssemblySequence }) {
+export default function AssemblySequenceNumber({ data, toggleConfigureItemAssembly, selectedItem, deleteAssemblySequence }) {
   const [fasteningMethod, setFasteningMethod] = useState('')
 
   return (
@@ -31,7 +31,7 @@ export default function AssemblySequenceNumber({ data, toggleConfigureItemAssemb
             {/* <Icon style={{ marginLeft: '18px' }} >check</Icon> */}
           </div>
         </Grid>
-        <Grid item xs={4} >
+        <Grid item xs={12} >
           <Button
             size="large"
             variant="contained"
@@ -40,35 +40,15 @@ export default function AssemblySequenceNumber({ data, toggleConfigureItemAssemb
             Configure Item Assembly
             </Button>
         </Grid>
-        <Grid item xs={8}>
-          {
-            selectedItems.length > 0 &&
-            <>
+        {
+          data.itemId && Object.keys(data.itemId).length > 0 &&
+          (
+            <Grid item xs={12} style={{ display: 'flex' }}>
               <Headding title={'Selected Item: '} />
-              <TableContainer component={Paper}>
-                <Table aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>S No</TableCell>
-                      <TableCell>Item Name</TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {selectedItems.map(itemRow => (
-                      <TableRow
-                        key={itemRow._id}>
-                        <TableCell>{itemRow._id}</TableCell>
-                        <TableCell >{itemRow.name}</TableCell>
-                        <TableCell><Link to={`/items/${itemRow._id}`}>View</Link></TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          }
-        </Grid>
+              <Link to={`/items/${data.itemId._id}`}>{data.itemId.name}</Link>
+            </Grid>
+          )
+        }
 
         <Grid item xs={4}>
           <Headding title={'Fastening Method(s):'} />
@@ -90,7 +70,7 @@ export default function AssemblySequenceNumber({ data, toggleConfigureItemAssemb
             onChange={data => setFasteningMethod(data.value)}
           />
         </Grid>
-        <Grid item xs={3} />
+        <Grid item xs={2} />
       </Grid>
     </Paper >
   )

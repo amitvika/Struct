@@ -27,7 +27,7 @@ import './style.css';
 
 export default function ItemSelectionModal({ toggleItemSelection,
   isItemSelectionModalOpen,
-  selectedItems, setSelectedItems }) {
+  selectedItem, setSelectedItem }) {
 
   const [itemList, setItemList] = useState([]);
   const [filter, setFilter] = useState({});
@@ -41,20 +41,21 @@ export default function ItemSelectionModal({ toggleItemSelection,
 
   const addItemToSelectedList = (data) => {
     setItemList(preItemList => {
-      return preItemList.filter(item => item._id !== data._id);
+      return [selectedItem, ...preItemList.filter(item => item._id !== data._id)];
     });
 
-    setSelectedItems([...selectedItems, data])
+    setSelectedItem(data)
   }
 
   const removeItemFromSelected = (data) => {
-    setSelectedItems(preItemList => {
+    setSelectedItem(preItemList => {
       return preItemList.filter(item => item._id !== data._id);
     });
     setItemList([...itemList, data])
   }
 
   const fetchData = ({ query = '' }) => {
+
     ItemAPI.filterItemsAPI(query)
       .then(res => {
         if (res.data) {
@@ -94,6 +95,8 @@ export default function ItemSelectionModal({ toggleItemSelection,
 
   const handleNameChange = (event) => {
     const inputValue = event.target.value;
+    handleChange('search', inputValue)
+
     if (inputValue.length < 3) {
       return;
     }
@@ -122,6 +125,7 @@ export default function ItemSelectionModal({ toggleItemSelection,
             <Input
               placeholder="Enter"
               type="text"
+              value={filter.search}
               onChange={(event) => handleNameChange(event)}
             />
           </Grid>
@@ -221,17 +225,16 @@ export default function ItemSelectionModal({ toggleItemSelection,
               </TableHead>
               <TableBody>
                 {
-                  selectedItems.map(itemRow => (
-                    <TableRow
-                      key={itemRow._id}
-                    >
-                      <TableCell>{itemRow._id}</TableCell>
-                      <TableCell onClick={() => removeItemFromSelected(itemRow)}>
-                        {itemRow.name}
-                      </TableCell>
-                      <TableCell><Link to={`/items/${itemRow._id}`}>View</Link> </TableCell>
-                    </TableRow>
-                  ))
+                  selectedItem &&
+                  (<TableRow
+                    key={selectedItem._id}>
+                    <TableCell>{selectedItem._id}</TableCell>
+                    <TableCell onClick={() => removeItemFromSelected(selectedItem)}>
+                      {selectedItem.name}
+                    </TableCell>
+                    <TableCell><Link to={`/items/${selectedItem._id}`}>View</Link> </TableCell>
+                  </TableRow>)
+
                 }
               </TableBody>
             </Table>

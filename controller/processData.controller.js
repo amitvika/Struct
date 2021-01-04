@@ -34,7 +34,7 @@ exports.create = async (req, res) => {
 
     //create new item
     const newItem = new ItemModel({
-      name: processGroupData.name,
+      name: processGroupData.name + ' ' + req.body.process,
       vendorId: req.body.vendorId,
       author: req.user.id,
       assemblyType: 'Multi-Item Assembly'

@@ -33,10 +33,10 @@ const ProcessDataSchema = new mongoose.Schema({
   },
   assemblySequenceNumber: [{
     orderNumber: { type: Number },
-    itemId: [{
+    itemId: {
       type: Schema.Types.ObjectId,
       ref: "Item"
-    }],
+    },
     fasteningMethods: { type: String }
   }]
 });

@@ -13,9 +13,9 @@ import ProcessAPI from '../../api/process.api';
 export default function Assembly(props) {
   const [assemblyProcessData, setAssemblyProcessData] = useState('');
   const [isThreejsVisible, setIsThreejsVisible] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [assemblySequenceNumber, setAssemblySequenceNumber] = useState([]);
-  const [selectedAssemblySequence, setSelectedAssemblySequence] = useState('');
+  const [selectedItem, setSelectedItem] = useState({});
+  const [assemblySequenceNumbers, setAssemblySequenceNumbers] = useState([]);
+  const [assemblySequenceId, setAssemblySequenceId] = useState('');
 
   useEffect(() => {
     ProcessAPI.getProcessData(props.processId)
@@ -25,23 +25,23 @@ export default function Assembly(props) {
         }
 
         if (res.data.assemblySequenceNumber) {
-          setAssemblySequenceNumber(res.data.assemblySequenceNumber)
+          setAssemblySequenceNumbers(res.data.assemblySequenceNumber)
         }
       })
       .catch(error => {
 
       })
 
-  }, []);
+  }, [props.processId]);
 
   const addItemToAssembly = () => {
 
     let maxCount = 0;
-    if (assemblySequenceNumber.length > 0) {
-      maxCount = Math.max.apply(Math, assemblySequenceNumber.map(function (o) { return o.orderNumber; }))
+    if (assemblySequenceNumbers.length > 0) {
+      maxCount = Math.max.apply(Math, assemblySequenceNumbers.map(function (o) { return o.orderNumber; }))
     }
 
-    const updateAssemblySequence = [...assemblySequenceNumber, { orderNumber: maxCount + 1 }]
+    const updateAssemblySequence = [...assemblySequenceNumbers, { orderNumber: maxCount + 1 }]
 
     ProcessAPI.updateProcessData(props.processId, { assemblySequenceNumber: updateAssemblySequence })
       .then(res => {
@@ -51,7 +51,7 @@ export default function Assembly(props) {
         }
 
         if (res.data.assemblySequenceNumber) {
-          setAssemblySequenceNumber(res.data.assemblySequenceNumber)
+          setAssemblySequenceNumbers(res.data.assemblySequenceNumber)
         }
       })
       .catch(error => {
@@ -60,7 +60,7 @@ export default function Assembly(props) {
   }
 
   const deleteAssemblySequence = (sequenceId) => {
-    const updateAssemblySequence = assemblySequenceNumber.filter(sequence => sequence._id !== sequenceId);
+    const updateAssemblySequence = assemblySequenceNumbers.filter(sequence => sequence._id !== sequenceId);
 
     ProcessAPI.updateProcessData(props.processId, { assemblySequenceNumber: updateAssemblySequence })
       .then(res => {
@@ -70,7 +70,7 @@ export default function Assembly(props) {
         }
 
         if (res.data.assemblySequenceNumber) {
-          setAssemblySequenceNumber(res.data.assemblySequenceNumber)
+          setAssemblySequenceNumbers(res.data.assemblySequenceNumber)
         }
       })
       .catch(error => {
@@ -79,15 +79,33 @@ export default function Assembly(props) {
   }
 
   const [isConfigureItemAssemblyModalOpen, setIsConfigureItemAssemblyModalOpen] = useState(false);
-  const toggleConfigureItemAssembly = (assemblySequenceId) => {
-    setSelectedAssemblySequence(assemblySequenceId)
+  const toggleConfigureItemAssembly = (sequenceId) => {
+    if (sequenceId !== assemblySequenceId) {
+      setSelectedItem({});
+    }
+
+    setAssemblySequenceId(sequenceId);
     setIsConfigureItemAssemblyModalOpen(!isConfigureItemAssemblyModalOpen);
+
   }
 
   const [isItemSelectionModalOpen, setIsItemSelectionModalOpen] = useState(false);
   const toggleItemSelection = () => {
     setIsItemSelectionModalOpen(!isItemSelectionModalOpen)
   }
+
+  useEffect(() => {
+
+    if (assemblySequenceId) {
+      setAssemblySequenceNumbers(assemblySequenceNumbers.map(item => {
+        if (item._id === assemblySequenceId) {
+          return { ...item, itemId: selectedItem }
+        }
+        return item;
+      }))
+    }
+
+  }, [selectedItem])
 
   return (
     <div>
@@ -99,16 +117,16 @@ export default function Assembly(props) {
       <ConfigureItemAssembly
         toggleConfigureItemAssembly={toggleConfigureItemAssembly}
         isConfigureItemAssemblyModalOpen={isConfigureItemAssemblyModalOpen}
-        selectedItems={selectedItems}
-        setSelectedItems={setSelectedItems}
+        selectedItem={selectedItem}
+        setSelectedItem={setSelectedItem}
         toggleItemSelection={toggleItemSelection}
       />
 
       <ItemSelectionModal
         toggleItemSelection={toggleItemSelection}
         isItemSelectionModalOpen={isItemSelectionModalOpen}
-        selectedItems={selectedItems}
-        setSelectedItems={setSelectedItems}
+        selectedItem={selectedItem}
+        setSelectedItem={setSelectedItem}
       />
 
       <AddLineItem
@@ -116,13 +134,12 @@ export default function Assembly(props) {
         assemblyProcessData={assemblyProcessData} />
 
       {
-        assemblySequenceNumber.map(asnItem => {
+        assemblySequenceNumbers.map(asnItem => {
           return (
             <AssemblySequenceNumber
               data={asnItem}
               toggleConfigureItemAssembly={toggleConfigureItemAssembly}
               isConfigureItemAssemblyModalOpen={isConfigureItemAssemblyModalOpen}
-              selectedItems={selectedItems}
               deleteAssemblySequence={deleteAssemblySequence}
             />
           )
@@ -136,8 +153,6 @@ export default function Assembly(props) {
         onClick={() => addItemToAssembly()}>
         Add Item to Assembly
             </Button>
-
-
     </div>
   );
 }
