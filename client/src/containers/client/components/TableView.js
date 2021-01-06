@@ -34,20 +34,6 @@ export default function TableView({
     },
   ])
 
-  useEffect(() => {
-
-    let clientLookupList = {};
-    clientList.forEach(client => {
-      clientLookupList[client._id] = client.name;
-    });
-
-    setColumns(prevColoumn => {
-      prevColoumn[2].lookup = clientLookupList;
-      return prevColoumn;
-    });
-
-  }, [clientList])
-
   return (
     <div>
       <MaterialTable

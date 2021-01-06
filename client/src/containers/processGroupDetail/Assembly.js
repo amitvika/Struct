@@ -60,7 +60,9 @@ export default function Assembly(props) {
   }
 
   const deleteAssemblySequence = (sequenceId) => {
-    const updateAssemblySequence = assemblySequenceNumbers.filter(sequence => sequence._id !== sequenceId);
+    const updateAssemblySequence = assemblySequenceNumbers
+      .filter(sequence => sequence._id !== sequenceId)
+      .map((sequence, index) => ({ ...sequence, orderNumber: index+1 }));
 
     ProcessAPI.updateProcessData(props.processId, { assemblySequenceNumber: updateAssemblySequence })
       .then(res => {
