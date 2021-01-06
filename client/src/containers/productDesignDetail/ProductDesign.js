@@ -7,13 +7,10 @@ import MuiAlert from "@material-ui/lab/Alert";
 import API from '../../api/productDesign.api';
 import { fetchClientsApi } from '../../api/clients.api';
 import HistoryModal from "../ShowHistoryModal";
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 
+import Toolbar from './components/Toolbar'
 import GridView from './components/GridView';
 import TableView from './components/TableView';
-import Checkbox from '../../components/atoms/Checkbox';
-import SearchBar from '../../components/atoms/SearchBar';
 
 const ProductDesign = () => {
   const { isAuthenticated, user } = useSelector(state => state.auth);
@@ -31,8 +28,8 @@ const ProductDesign = () => {
   const [isGridViewSelected, setIsGridViewSelected] = useState(false);
 
   useEffect(() => {
-    fetchProductDesign();
     fetchClientList();
+    fetchProductDesign();
   }, [])
 
   const fetchProductDesign = async () => {
@@ -187,17 +184,16 @@ const ProductDesign = () => {
     </div>)
   }
 
-  const handleSearchBar = (event) => {
-    const searchText = event.target.value;
+  const handleSearchBar = (searchText, searchLabel) => {
+    console.log(searchText, searchLabel)
+    // const searchText = event.target.value;
     if (searchText.length == 0) {
       setFilteredProductDesignList(productDesignList);
     }
     else {
       setFilteredProductDesignList(productDesignList.filter(product => {
-        if (product.name.includes(searchText) ||
-          product.clientName.includes(searchText) ||
-          product.created_by.includes(searchText)
-        ) {
+        const label = product[searchLabel]
+        if (label.includes(searchText)) {
           return true;
         }
         else {
@@ -205,6 +201,10 @@ const ProductDesign = () => {
         }
       }))
     }
+  }
+
+  const onInputChange = (data) => {
+    console.log(data)
   }
 
   return (
@@ -224,22 +224,17 @@ const ProductDesign = () => {
           {message}
         </MuiAlert>
       </Snackbar>
-      <Paper style={{ marginTop: '10px', marginBottom: '10px' }} >
-        <Grid container justify="space-between">
-          <Grid item sm sm={4}>
-            <Checkbox
-              checked={isGridViewSelected}
-              size="large"
-              label="View GridView"
-              onClick={() => setIsGridViewSelected(!isGridViewSelected)}
-            />
-          </Grid>
-          <Grid item sm sm={4}>
-            <SearchBar onChange={handleSearchBar} />
-          </Grid>
-          <Grid item sm sm={4}></Grid>
-        </Grid>
-      </Paper>
+
+      <Toolbar
+        isGridViewSelected={isGridViewSelected}
+        setIsGridViewSelected={setIsGridViewSelected}
+        handleSearchBar={handleSearchBar}
+        isDeletedItemVisible={isDeletedItemVisible}
+        handleShowDelete={handleShowDelete}
+        isHistoryModalOpened={isHistoryModalOpened}
+        handleHistoryToggle={handleHistoryToggle}
+        clientList={clientList}
+      />
 
       {
         isGridViewSelected ?
@@ -247,7 +242,7 @@ const ProductDesign = () => {
             productDesignList={filteredProductDesignList}
             handleHistoryToggle={handleHistoryToggle} /> :
           <TableView
-            productDesignList={productDesignList}
+            productDesignList={filteredProductDesignList}
             clientList={clientList}
             isDeletedItemVisible={isDeletedItemVisible}
             handleHistoryToggle={handleHistoryToggle}
@@ -259,7 +254,7 @@ const ProductDesign = () => {
           />
 
       }
-    </div>
+    </div >
   );
 }
 

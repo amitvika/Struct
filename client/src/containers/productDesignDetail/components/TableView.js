@@ -65,7 +65,7 @@ export default function TableView({
       <MaterialTable
         columns={columns}
         data={productDesignList}
-        title="New Product Design"
+        // title="New Product Design"
         options={{
           actionsColumnIndex: 5,
           addRowPosition: "first",
@@ -83,19 +83,6 @@ export default function TableView({
           if (selection.type != "Range") {
             history.push(`/product-design/${event.id}?product_name=${event.name}`);
           }
-        }}
-        components={{
-          Toolbar: props => (
-            <div>
-              <MTableToolbar {...props} />
-              <Toolbar
-                isDeletedItemVisible={isDeletedItemVisible}
-                handleDeletedToggle={handleShowDelete}
-                isHistoryModalOpened={isHistoryModalOpened}
-                handleHistoryToggle={handleHistoryToggle}
-              />
-            </div>
-          )
         }}
         editable={{
           onRowAdd: (newData, oldData) => addProductDesign(newData, oldData),

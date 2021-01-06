@@ -27,7 +27,7 @@ const Select = ({
         width
       }}
     >
-      <label htmlFor={htmlFor}>{label}</label>
+      {label && <label htmlFor={htmlFor}>{label}</label>}
       {isMulti ?
         <ReactSelect
           {...field}

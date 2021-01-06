@@ -14,7 +14,6 @@ import Register from './page/RegisterPage';
 import Vendors from "./page/Vendors";
 import Dashboard from './page/Dashboard';
 import ProcessGroups from './containers/processGroups/ProcessGroups';
-import Clients from './page/Clients';
 import ProductDesign from './containers/productDesignDetail/ProductDesign';
 import Items from './page/Items';
 import AccessSetup from './page/AccessSetup';
@@ -22,7 +21,8 @@ import ConfigurationHistory from './page/ConfigurationHistory';
 import AccessConfiguration from './page/AccessConfiguration';
 import ViewAccess from './page/ViewAccess';
 
-import ClientDetail from "./containers/ClientDetail";
+import Clients from './containers/client/Clients';
+import ClientDetail from "./containers/client/ClientDetail";
 import ProductDesignDetail from "./containers/productDesignDetail";
 import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
 import VendorDetail from "./containers/vendorDetail/VendorDetail";

@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from "react";
-import { changePage } from "../actions/pageActions";
+import { changePage } from "../../actions/pageActions";
 import {
   Snackbar,
   Button,
@@ -13,7 +13,7 @@ import {
 } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import { NavLink, useParams } from "react-router-dom";
-import API from '../api/clients.api';
+import API from '../../api/clients.api';
 // import { makeStyles } from "@material-ui/core/styles";
 // import ClientDetailTabContent from "../components/subNav/ClientDetailTabs/ClientDetailTabContent";
 
