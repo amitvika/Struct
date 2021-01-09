@@ -26,6 +26,7 @@ const ProductDesign = () => {
   const [selectedProductDesignId, setSelectedProductDesignId] = useState('');
   const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
   const [isGridViewSelected, setIsGridViewSelected] = useState(false);
+  const columnsFields = ['id', 'name', 'clientName', 'created_by'];
 
   useEffect(() => {
     fetchClientList();
@@ -184,29 +185,6 @@ const ProductDesign = () => {
     </div>)
   }
 
-  const handleSearchBar = (searchText, searchLabel) => {
-    console.log(searchText, searchLabel)
-    // const searchText = event.target.value;
-    if (searchText.length == 0) {
-      setFilteredProductDesignList(productDesignList);
-    }
-    else {
-      setFilteredProductDesignList(productDesignList.filter(product => {
-        const label = product[searchLabel]
-        if (label.includes(searchText)) {
-          return true;
-        }
-        else {
-          return false;
-        }
-      }))
-    }
-  }
-
-  const onInputChange = (data) => {
-    console.log(data)
-  }
-
   return (
     <div style={{ marginLeft: '5%', marginRight: '5%' }}>
       <HistoryModal
@@ -228,12 +206,15 @@ const ProductDesign = () => {
       <Toolbar
         isGridViewSelected={isGridViewSelected}
         setIsGridViewSelected={setIsGridViewSelected}
-        handleSearchBar={handleSearchBar}
         isDeletedItemVisible={isDeletedItemVisible}
         handleShowDelete={handleShowDelete}
         isHistoryModalOpened={isHistoryModalOpened}
         handleHistoryToggle={handleHistoryToggle}
         clientList={clientList}
+        productDesignList={productDesignList}
+        filteredProductDesignList={filteredProductDesignList}
+        setFilteredProductDesignList={setFilteredProductDesignList}
+        columnsFields={columnsFields}
       />
 
       {

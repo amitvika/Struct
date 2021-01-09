@@ -95,4 +95,9 @@
 
 .MuiPaper-root{
   /* width: 70%; */
+  z-index: 1 !important;
+}
+
+.MuiToolbar-root> div{
+  z-index: 1 !important;
 }

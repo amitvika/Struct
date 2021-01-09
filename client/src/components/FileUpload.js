@@ -1,8 +1,5 @@
 import React, { Fragment, useState } from "react";
 import {
-  Col,
-  Form,
-  FormGroup,
   CustomInput
 } from "reactstrap";
 import { Button } from "@material-ui/core";
