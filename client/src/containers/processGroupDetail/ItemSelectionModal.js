@@ -232,7 +232,7 @@ export default function ItemSelectionModal({ toggleItemSelection,
                     <TableCell onClick={() => removeItemFromSelected(selectedItem)}>
                       {selectedItem.name}
                     </TableCell>
-                    <TableCell><Link to={`/items/${selectedItem._id}`}>View</Link> </TableCell>
+                    <TableCell><Link target="_blank" to={`/items/${selectedItem._id}`}>View</Link> </TableCell>
                   </TableRow>)
 
                 }
@@ -256,7 +256,7 @@ export default function ItemSelectionModal({ toggleItemSelection,
                     <TableCell>{itemRow._id}</TableCell>
                     <TableCell
                       onClick={() => addItemToSelectedList(itemRow)}>{itemRow.name}</TableCell>
-                    <TableCell><Link to={`/items/${itemRow._id}`}>View </Link></TableCell>
+                    <TableCell><Link target="_blank" to={`/items/${itemRow._id}`}>View </Link></TableCell>
                   </TableRow>
                 ))}
               </TableBody>

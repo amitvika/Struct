@@ -51,7 +51,7 @@ export default function ConfigureItemAssembly({ toggleConfigureItemAssembly,
               (
                 <Grid item xs={12} style={{ display: 'flex' }}>
                   <Headding title={'Selected Item: '} />
-                  <Link to={`/items/${selectedItem._id}`}>{selectedItem.name}</Link>
+                  <Link target="_blank" to={`/items/${selectedItem._id}`}>{selectedItem.name}</Link>
                 </Grid>
               )
             }

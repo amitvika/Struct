@@ -49,7 +49,7 @@ export default function AssemblyComponent({ setIsAddComponentModalOpen, selected
             <Button variant="contained" color="primary" onClick={() => setIsAddComponentModalOpen(true)}>
               Select Component
             </Button>
-            <Link to={`/items/${selectedItem._id}`}>{selectedItem.name}</Link>
+            <Link target="_blank" to={`/items/${selectedItem._id}`}>{selectedItem.name}</Link>
           </div>
           <div className="AssemblyComponent__Content">
             <Button variant="contained" color="primary" onClick={() => handleThreejsVisibility(true)}>

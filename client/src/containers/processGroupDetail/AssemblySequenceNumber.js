@@ -48,7 +48,7 @@ export default function AssemblySequenceNumber({ data, toggleConfigureItemAssemb
           (
             <Grid item xs={12} style={{ display: 'flex' }}>
               <Headding title={'Selected Item: '} />
-              <Link to={`/items/${data.itemId._id}`}>{data.itemId.name}</Link>
+              <Link target="_blank" to={`/items/${data.itemId._id}`}>{data.itemId.name}</Link>
             </Grid>
           )
         }
