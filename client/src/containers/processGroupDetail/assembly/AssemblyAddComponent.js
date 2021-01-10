@@ -8,7 +8,7 @@ import {
   FormGroup,
   Dropdown, DropdownToggle, DropdownMenu, DropdownItem
 } from "reactstrap";
-import ItemsAPI from '../../api/items.api';
+import ItemsAPI from '../../../api/items.api';
 
 export default function AppComponent({ isAddComponentModalOpen, setIsAddComponentModalOpen, setSelectedItem }) {
   const [modalOpen, setModalOpen] = useState(false);

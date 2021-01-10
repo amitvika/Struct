@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import Headding from '../../components/atoms/Headding';
 import {
   Modal,
   ModalHeader,
@@ -11,7 +10,8 @@ import {
   Icon,
 } from "@material-ui/core";
 
-import MaterialAPI from '../../api/material.api';
+import Headding from '../../../components/atoms/Headding';
+import MaterialAPI from '../../../api/material.api';
 
 export default function MaterialProperties({ materialProperties = {}, toggleMaterialProperties, isMaterialPropertiesModalOpen }) {
   const [hierarchy, setHierarchy] = useState(null);

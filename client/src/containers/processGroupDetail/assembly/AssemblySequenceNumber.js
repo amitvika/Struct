@@ -5,8 +5,8 @@ import {
   Icon,
   Button,
 } from "@material-ui/core";
-import Headding from '../../components/atoms/Headding';
-import Select from '../../components/atoms/Select';
+import Headding from '../../../components/atoms/Headding';
+import Select from '../../../components/atoms/Select';
 import { Link } from 'react-router-dom';
 
 export default function AssemblySequenceNumber({ data, toggleConfigureItemAssembly, selectedItem, deleteAssemblySequence }) {

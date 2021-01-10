@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Grid from '@material-ui/core/Grid';
-import { Button } from "@material-ui/core";
+import {
+  Button,
+  Paper,
+  Grid
+} from "@material-ui/core";
 
 import Select from '../../components/atoms/Select';
 import ItemsAPI from '../../api/items.api';
@@ -32,27 +35,29 @@ export default function Machining() {
   }, []);
 
   return (
-    <Grid className="section-padding-left" container spacing={4}>
-      <Grid item xs={12} >
-        <FileUpload/>
-        {/* <Select
+    <Paper style={{ padding: 10, margin: 10 }}>
+      <Grid className="section-padding-left" container spacing={4}>
+        <Grid item xs={12} >
+          <FileUpload />
+          {/* <Select
           label="Item Type"
           placeholder="Select"
           options={itemListOption}
         /> */}
-      </Grid>
-      <Grid item xs={12} >
-        <CppTest/>
-      </Grid>
-      <Grid item xs={12} >
-        <ThreeDViewer/>
-        {/* <ThreejsViewer data={{ step: MeshJSON }} /> */}
-      </Grid>
-      <Grid item xs={4} >
-        <Button color="primary">
-          Generate toolpath
+        </Grid>
+        <Grid item xs={12} >
+          <CppTest />
+        </Grid>
+        <Grid item xs={12} >
+          <ThreeDViewer />
+          {/* <ThreejsViewer data={{ step: MeshJSON }} /> */}
+        </Grid>
+        <Grid item xs={4} >
+          <Button color="primary">
+            Generate toolpath
       </Button>
+        </Grid>
       </Grid>
-    </Grid>
+    </Paper>
   );
 }

@@ -3,12 +3,12 @@ import {
   Button
 } from "@material-ui/core";
 
-import ThreejsViewModal from './ThreejsViewModal'
+import ThreejsViewModal from '../ThreejsViewModal'
 import AddLineItem from './AddLineItem';
 import AssemblySequenceNumber from './AssemblySequenceNumber';
 import ConfigureItemAssembly from './ConfigureItemAssemblyModal';
-import ItemSelectionModal from './ItemSelectionModal';
-import ProcessAPI from '../../api/process.api';
+import ItemSelectionModal from '../ItemSelectionModal';
+import ProcessAPI from '../../../api/process.api';
 
 export default function Assembly(props) {
   const [assemblyProcessData, setAssemblyProcessData] = useState('');

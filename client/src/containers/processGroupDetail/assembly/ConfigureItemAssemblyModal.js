@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import ThreejsViewer from '../3DViewer/ThreejsViewer';
+import ThreejsViewer from '../../3DViewer/ThreejsViewer';
 import {
   Modal,
   ModalHeader,
@@ -16,7 +16,7 @@ import {
   TableRow,
   Paper,
 } from "@material-ui/core";
-import Headding from '../../components/atoms/Headding';
+import Headding from '../../../components/atoms/Headding';
 import { Link } from 'react-router-dom';
 
 export default function ConfigureItemAssembly({ toggleConfigureItemAssembly,

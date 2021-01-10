@@ -25,8 +25,9 @@ import ConfirmDialog from '../../components/atoms/ConfirmDialog';
 import NewProcessAdd from "./newProcessAdd";
 import Machining from "./Machining";
 import InjectionMolding from "./InjectionMolding";
+import InjectionCasting from "./injectionCasting/index";
 import ProcessHelper from "./ProcessHelper";
-import Assembly from "./Assembly";
+import Assembly from "./assembly";
 
 import ProcessAPI from '../../api/process.api';
 import ProcessGroupAPI from '../../api/processGroup.api';
@@ -236,6 +237,8 @@ class ProcessGroupDetail extends Component {
           processGroupName={this.state.processGroupName} />;
       case "5eaeef0a8986281884691dd8":
         return <InjectionMolding />;
+      case 'Injection Casting':
+        return <InjectionCasting />;
 
       default:
         return "Undefined Tab Index";
@@ -397,9 +400,6 @@ class ProcessGroupDetail extends Component {
                       >Delete Process
                         </Button>
                     </div>
-
-
-
                   </Paper>
                   <Paper style={{ padding: 20, margin: 10 }}>
                     {this.renderPageSwitch(this.state.value)}

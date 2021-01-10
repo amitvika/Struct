@@ -12,12 +12,11 @@ import {
   Icon,
 } from "@material-ui/core";
 import { Tooltip } from 'reactstrap';
-
-import Select from '../../components/atoms/Select';
-import Input from '../../components/atoms/Input';
-// import Button from '../../components/atoms/Button';
-import Headding from '../../components/atoms/Headding';
 import Grid from '@material-ui/core/Grid';
+
+import Select from '../../../components/atoms/Select';
+import Input from '../../../components/atoms/Input';
+import Headding from '../../../components/atoms/Headding';
 import MaterialModal from './MaterialModal';
 import MaterialPropertiesModal from './MaterialPropertiesModal';
 
@@ -98,7 +97,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
           <Grid item xs={3}>
             <Headding fontSize={20} bold title={'Item Material'} />
           </Grid>
-          <Grid item xs={9}>
+          <Grid item xs={9} style={{display: 'flex',justifyContent: 'flex-end'}}>
             <Button
               size="large"
               variant="contained"
@@ -156,7 +155,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
             <Headding bold title={'Single Item Part or Multi-Item Assembly'} />
           </Grid>
           <Grid item xs={8}>
-            <span>{itemProperties.assembly}</span>
+            <span>{itemProperties.assemblyType}</span>
           </Grid>
 
           <Grid item xs={4} style={{ display: 'flex' }} >

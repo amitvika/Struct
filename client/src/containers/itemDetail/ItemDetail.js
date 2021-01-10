@@ -14,9 +14,11 @@ import {
 import MuiAlert from '@material-ui/lab/Alert';
 import { NavLink, useParams } from "react-router-dom";
 
-import ItemGeometry from './ItemGeometry';
+import BaseItemProperties from './baseItemProperties';
+import GeometricDimensioning from './geometricDimensioning';
 import CurrentUsage from './CurrentUsage';
 import VendorDetails from './VendorDetails';
+import ManufacturingAnalysis from './manufacturabilityAnalysis'
 
 import ItemTypeConfigurations from './ItemTypeConfigurations';
 import ItemAPI from '../../api/items.api';
@@ -57,21 +59,17 @@ const ItemDetail = () => {
       case 0:
         return "Add vendor items here";
       case 1:
-        return <ItemGeometry itemId={id} itemProperties={itemProperties} setItemProperties={setItemProperties} threejsData={threejsData} />;
+        return <BaseItemProperties itemId={id} itemProperties={itemProperties} setItemProperties={setItemProperties} threejsData={threejsData} />;
       case 2:
-        return <CurrentUsage itemId={id} />
+        return <GeometricDimensioning />
       case 3:
-        return "signed service agreement with the current state of config.  IF there is changed configs, those changes will show up here and will indicate to reduline the contract with those new items.  Also feature of auto generate the contract will be included";
+        return <CurrentUsage itemId={id} />
       case 4:
         return <ItemTypeConfigurations itemId={id} itemProperties={itemProperties} setItemProperties={setItemProperties} />
       case 5:
-        return "shows a log of all items that do not pass vailidation along with other client complaints";
-      case 6:
-        return "if this vendor is a client, shows payments and billing, along with a unified net payments/billing description";
-      case 7:
-        return "place all past and current service agreements here";
-      case 8:
         return <VendorDetails />
+      case 6:
+        return <ManufacturingAnalysis />;
       default:
         return "Undefined Tab Index";
     }
@@ -131,15 +129,20 @@ const ItemDetail = () => {
               variant="scrollable"
               value={value}
               onChange={(event, newValue) => setValue(newValue)}>
-              <Tab label="Item Geometry and Properties" value={1} />
-              <Tab label="Item Type Configurations" value={4} />
-              {/* <Tab label="Item Variations" value={5} /> */}
-              {/* <Tab label="Validations" value={6} /> */}
-              {/* <Tab label="Production Regimens" value={7} /> */}
-              <Tab label="Current Usage" value={2} />
+              <Tab label="Base Item Properties" value={1} />
+
               {
-                itemDetail.vendorId && <Tab label="Vendor Details" value={8} />
+                itemProperties?.itemGeometry?.itemType && <Tab label="Geometric Dimensioning and Tolerances" value={2} />
               }
+
+              <Tab label="Current Usage" value={3} />
+              <Tab label="Item Type Configurations" value={4} />
+              {
+                itemDetail.vendorId && <Tab label="Vendor Details" value={5} />
+              }
+
+              <Tab label="Manufacturability Analysis" value={6} />
+
             </Tabs>
           </Paper>
         </Grid>

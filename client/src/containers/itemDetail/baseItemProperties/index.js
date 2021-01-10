@@ -6,15 +6,18 @@ import {
   Paper,
   CircularProgress
 } from "@material-ui/core";
-import Headding from '../../components/atoms/Headding';
+import Headding from '../../../components/atoms/Headding';
 import GeometryInput from './GeometryInput';
-import FileUpload from '../../components/FileUpload';
+import FileUpload from '../../../components/FileUpload';
 
-import ThreejsViewer from '../3DViewer/ThreejsViewer';
-import ProcessGroupAPI from '../../api/processGroup.api'
-import ItemAPI from '../../api/items.api';
+import ThreejsViewer from '../../3DViewer/ThreejsViewer';
+import ProcessGroupAPI from '../../../api/processGroup.api'
+import ItemAPI from '../../../api/items.api';
 
-export default function ItemGeometry({ itemId, itemProperties, setItemProperties, threejsData }) {
+import '../style.css';
+
+
+export default function BaseItemProperties({ itemId, itemProperties, setItemProperties, threejsData }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isStepLoaded, setIsStepLoaded] = useState(false);
