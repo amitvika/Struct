@@ -15,9 +15,9 @@ exports.get = async (req, res) => {
       sort: { date: -1 },
     };
 
-    const item = await VendorModel.paginate(query, options)
+    const item = await VendorModel.find(query).sort({ date: -1 })
 
-    res.json(item);
+      res.json(item);
 
   }
   catch (error) {

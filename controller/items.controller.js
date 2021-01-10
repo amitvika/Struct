@@ -30,7 +30,7 @@ exports.get = async (req, res) => {
       sort: { date: -1 },
     };
 
-    const item = await ItemModel.paginate(query, options)
+    const item = await ItemModel.find(query).populate('vendorId').sort({date: -1})
 
     res.json(item);
 

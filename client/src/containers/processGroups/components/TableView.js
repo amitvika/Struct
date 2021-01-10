@@ -5,7 +5,8 @@ import { useHistory } from "react-router-dom";
 import { useSelector } from 'react-redux';
 
 export default function TableView({
-  productDesignList,
+  title,
+  list,
   clientList,
   isDeletedItemVisible,
   handleHistoryToggle,
@@ -64,8 +65,8 @@ export default function TableView({
     <div>
       <MaterialTable
         columns={columns}
-        data={productDesignList}
-        // title="New Product Design"
+        data={list}
+        title={title}
         options={{
           actionsColumnIndex: 5,
           addRowPosition: "first",
@@ -81,7 +82,7 @@ export default function TableView({
         onRowClick={(rowdata, event) => {
           const selection = window.getSelection();
           if (selection.type != "Range") {
-            history.push(`/product-design/${event.id}?product_name=${event.name}`);
+            history.push(`/process-groups/${event.id}`);
           }
         }}
         editable={{

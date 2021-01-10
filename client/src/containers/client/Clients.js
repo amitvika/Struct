@@ -1,20 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
+import { useHistory } from "react-router-dom";
 
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import API from '../../api/clients.api';
 import HistoryModal from "../ShowHistoryModal";
-import Toolbar from '../../containers/client/components/Toolbar';
-import TableView from '../../containers/client/components/TableView';
-import GridView from '../../containers/client/components/GridView';
+// import Toolbar from '../../containers/client/components/Toolbar';
+import TableView from '../../components/TableView';
+import GridView from './components/GridView';
+
+import Toolbar from '../../components/Toolbar';
 
 const Clients = () => {
+  let history = useHistory();
+
   const { isAuthenticated, user } = useSelector(state => state.auth);
 
   const [clientList, setClientList] = useState([]);
   const [filteredClientList, setFilteredClientList] = useState([]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [snackBar, setSnackBar] = useState(false);
@@ -23,6 +29,26 @@ const Clients = () => {
   const [selectedClientId, setSelectedClientId] = useState('');
   const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
   const [isGridViewSelected, setIsGridViewSelected] = useState(false);
+  const columnsFields = ['id', 'name', 'created_by'];
+  const [columns, setColumns] = useState([
+    { title: "ID", field: "id", editable: "never", align: 'center' },
+    { title: "Name", field: "name" },
+    {
+      title: "Created By",
+      field: "created_by",
+      editable: "never"
+    },
+    {
+      title: 'History',
+      field: "id",
+      editable: "never",
+      render: rowData => rowData && <span style={{ cursor: 'pointer' }}
+        onClick={(event) => {
+          event.stopPropagation();
+          handleHistoryToggle({ rowId: rowData.id })
+        }}> Show History </span>
+    },
+  ])
 
   useEffect(() => {
     fetchClientList();
@@ -33,10 +59,7 @@ const Clients = () => {
       setIsLoading(true);
 
       const clientRes = await API.fetchClientsApi();
-
-      // console.log(clientRes)
-
-
+      
       if (clientRes && clientRes.data) {
         const clients = clientRes.data.map((x, index) => {
           return {
@@ -180,7 +203,6 @@ const Clients = () => {
     })
   }
 
-
   if (isLoading) {
     return (<div
       style={{
@@ -211,6 +233,7 @@ const Clients = () => {
       </Snackbar>
 
       <Toolbar
+        title={'Client'}
         isGridViewSelected={isGridViewSelected}
         setIsGridViewSelected={setIsGridViewSelected}
         handleSearchBar={handleSearchBar}
@@ -218,22 +241,25 @@ const Clients = () => {
         handleShowDelete={handleShowDelete}
         isHistoryModalOpened={isHistoryModalOpened}
         handleHistoryToggle={handleHistoryToggle}
+        list={clientList}
+        filteredList={filteredClientList}
+        setFilteredList={setFilteredClientList}
+        columnsFields={columnsFields}
       />
 
       {
         isGridViewSelected ?
           <GridView
-            clientList={filteredClientList}
+            list={filteredClientList}
             handleHistoryToggle={handleHistoryToggle} /> :
           <TableView
-            clientList={filteredClientList}
-            isDeletedItemVisible={isDeletedItemVisible}
-            handleHistoryToggle={handleHistoryToggle}
-            handleShowDelete={handleShowDelete}
-            isHistoryModalOpened={isHistoryModalOpened}
-            addClient={addClient}
-            updateClient={updateClient}
-            deleteClient={deleteClient}
+            list={clientList}
+            handleAdd={addClient}
+            handleUpdate={updateClient}
+            handleDelete={deleteClient}
+            handleTableRowClick={(event) => history.push(`/clients/${event.id}`)}
+            columns={columns}
+            setColumns={setColumns}
           />
 
       }

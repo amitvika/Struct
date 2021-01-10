@@ -5,10 +5,10 @@ import Typography from '@material-ui/core/Typography';
 import GridList from '../../../components/GridList';
 import Cardview from '../../../components/Cardview';
 
-export default function GridView({ clientList, handleHistoryToggle }) {
+export default function GridView({ list, handleHistoryToggle }) {
   return (
     <GridList>
-      {clientList.map(client => {
+      {list.map(client => {
         return (<Cardview>
           <Grid item xs container direction="column" spacing={2}>
             <Grid item xs>

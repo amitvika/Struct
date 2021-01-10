@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
+import { useHistory } from "react-router-dom";
 
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
@@ -8,11 +9,13 @@ import API from '../../api/productDesign.api';
 import { fetchClientsApi } from '../../api/clients.api';
 import HistoryModal from "../ShowHistoryModal";
 
-import Toolbar from './components/Toolbar'
+import Toolbar from '../../components/Toolbar';
 import GridView from './components/GridView';
-import TableView from './components/TableView';
+import TableView from '../../components/TableView';
 
 const ProductDesign = () => {
+  let history = useHistory();
+  
   const { isAuthenticated, user } = useSelector(state => state.auth);
 
   const [productDesignList, setProductDesignList] = useState([]);
@@ -27,6 +30,34 @@ const ProductDesign = () => {
   const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
   const [isGridViewSelected, setIsGridViewSelected] = useState(false);
   const columnsFields = ['id', 'name', 'clientName', 'created_by'];
+
+  const [columns, setColumns] = useState([
+    { title: "ID", field: "id", editable: "never", align: 'center' },
+    { title: "Name", field: "name" },
+    {
+      title: "Client",
+      field: "client",
+      lookup: { 34: "İstanbul", 63: "Şanlıurfa" }
+    },
+    {
+      title: "Created By",
+      field: "created_by",
+      editable: "never",
+      initialEditValue: isAuthenticated
+        ? user.name
+        : "Guest"
+    },
+    {
+      title: 'History',
+      field: "id",
+      editable: "never",
+      render: rowData => rowData && <span style={{ cursor: 'pointer' }}
+        onClick={(event) => {
+          event.stopPropagation();
+          handleHistoryToggle({ rowId: rowData.id })
+        }}> Show History </span>
+    },
+  ])
 
   useEffect(() => {
     fetchClientList();
@@ -174,6 +205,10 @@ const ProductDesign = () => {
     setSelectedProductDesignId(rowId)
   }
 
+  const handleTableRowClick = (event) => {
+    history.push(`/product-design/${event.id}?product_name=${event.name}`);
+  }
+
   if (isLoading) {
     return (<div
       style={{
@@ -204,6 +239,7 @@ const ProductDesign = () => {
       </Snackbar>
 
       <Toolbar
+        title={"New Product Design"}
         isGridViewSelected={isGridViewSelected}
         setIsGridViewSelected={setIsGridViewSelected}
         isDeletedItemVisible={isDeletedItemVisible}
@@ -211,9 +247,9 @@ const ProductDesign = () => {
         isHistoryModalOpened={isHistoryModalOpened}
         handleHistoryToggle={handleHistoryToggle}
         clientList={clientList}
-        productDesignList={productDesignList}
-        filteredProductDesignList={filteredProductDesignList}
-        setFilteredProductDesignList={setFilteredProductDesignList}
+        list={productDesignList}
+        filteredList={filteredProductDesignList}
+        setFilteredList={setFilteredProductDesignList}
         columnsFields={columnsFields}
       />
 
@@ -223,15 +259,15 @@ const ProductDesign = () => {
             productDesignList={filteredProductDesignList}
             handleHistoryToggle={handleHistoryToggle} /> :
           <TableView
-            productDesignList={filteredProductDesignList}
+            title={"New Product Design"}
+            list={filteredProductDesignList}
             clientList={clientList}
-            isDeletedItemVisible={isDeletedItemVisible}
-            handleHistoryToggle={handleHistoryToggle}
-            handleShowDelete={handleShowDelete}
-            isHistoryModalOpened={isHistoryModalOpened}
-            addProductDesign={addProductDesign}
-            updateProductDesign={updateProductDesign}
-            deleteProductDesign={deleteProductDesign}
+            handleAdd={addProductDesign}
+            handleUpdate={updateProductDesign}
+            handleDelete={deleteProductDesign}
+            handleTableRowClick={handleTableRowClick}
+            columns={columns}
+            setColumns={setColumns}
           />
 
       }

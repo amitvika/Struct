@@ -63,8 +63,12 @@ export default function CheckboxFilter({
       if (flags[array[i][field]]) {
         continue;
       }
-      flags[array[i][field]] = true;
-      output.push({ label: array[i][field], value: array[i][field] });
+
+      let tempValue = array[i][field];
+      if (tempValue && tempValue.trim().length > 0) {
+        flags[array[i][field]] = true;
+        output.push({ label: array[i][field], value: array[i][field] });
+      }
     }
     return output;
   }
@@ -87,7 +91,10 @@ export default function CheckboxFilter({
           variant="contained"
           color="primary"
           type="button"
-          onClick={() => setSelectedFields({})}>
+          onClick={() => {
+            setFilteredList(list)
+            setSelectedFields({})
+          }}>
           Clear
           </Button>
       </Grid>

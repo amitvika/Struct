@@ -11,11 +11,14 @@ import AppRoute from './AppRoute';
 import Layout from './containers/Layout';
 import Login from './containers/Login';
 import Register from './page/RegisterPage';
-import Vendors from "./page/Vendors";
+
+import Vendors from "./containers/vendor/Vendors";
+import VendorDetail from "./containers/vendor/VendorDetail";
+
 import Dashboard from './page/Dashboard';
 import ProcessGroups from './containers/processGroups/ProcessGroups';
 import ProductDesign from './containers/productDesignDetail/ProductDesign';
-import Items from './page/Items';
+import Items from './containers/item/Items';
 import AccessSetup from './page/AccessSetup';
 import ConfigurationHistory from './page/ConfigurationHistory';
 import AccessConfiguration from './page/AccessConfiguration';
@@ -25,7 +28,6 @@ import Clients from './containers/client/Clients';
 import ClientDetail from "./containers/client/ClientDetail";
 import ProductDesignDetail from "./containers/productDesignDetail";
 import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
-import VendorDetail from "./containers/vendorDetail/VendorDetail";
 import ItemDetail from "./containers/itemDetail/ItemDetail";
 
 import Viewer from './page/3DViewer'
