@@ -73,20 +73,26 @@ export default function CheckboxFilter({
     return output;
   }
 
+  const renderItem = () => {
+    let item = [];
+
+    Object.keys(columnsFields).forEach(fieldItem => {
+      item.push(
+        <Grid item sm sm={2}>
+          <SelectCheckboxes
+            onChange={(data) => handleChange(data, fieldItem)}
+            options={get_unique_options(fieldItem)}
+            placeholder={`Select ${columnsFields[fieldItem]}`} />
+        </Grid>
+      )
+    })
+    return item;
+  }
   return (
     <>{
-      columnsFields.map(fieldItem => {
-        return (
-          <Grid item sm sm={2}>
-            <SelectCheckboxes
-              onChange={(data) => handleChange(data, fieldItem)}
-              options={get_unique_options(fieldItem)}
-              placeholder={`Select ${fieldItem}`} />
-          </Grid>
-        )
-      })
+      renderItem()
     }
-      <Grid item sm sm={2} style={{ justifyContent: 'center', display: 'flex' }}>
+      <Grid item sm sm={1} style={{ justifyContent: 'center', display: 'flex' }}>
         <Button
           variant="contained"
           color="primary"

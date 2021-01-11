@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
+import { useHistory } from "react-router-dom";
 
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
 import API from '../../api/processGroup.api';
 import ClientAPI from '../../api/clients.api';
-import ShowHistoryModal from "../ShowHistoryModal";
 import Toolbar from '../../components/Toolbar';
-import TableView from './components/TableView';
-import GridView from './components/GridView';
+import TableView from '../../components/TableView';
+import GridView from '../../components/GridView';
+import DefaultContainer from '../../components/DefaultContainer';
+
 
 const ProcessGroups = () => {
+  const history = useHistory();
   const { isAuthenticated, user } = useSelector(state => state.auth);
 
   const [processGroupList, setProcessGroupList] = useState([]);
@@ -26,8 +27,8 @@ const ProcessGroups = () => {
   const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
   const [selectedProcessGroupId, setSelectedProcessGroupId] = useState('');
   const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
-  const [isGridViewSelected, setIsGridViewSelected] = useState(false);
-  const columnsFields = ['id', 'name', 'clientName', 'created_by'];
+  const [isGridViewSelected, setIsGridViewSelected] = useState(true);
+  const columnsFields = { 'id': 'ID', 'name': 'Name', 'clientName': 'Client Name', 'created_by': 'Created By' };
 
   const alertForError = (err) => {
     setIsLoading(false);
@@ -176,6 +177,10 @@ const ProcessGroups = () => {
     })
   }
 
+  const handleTableRowClick = (event) => {
+    history.push(`/process-groups/${event.id}`);
+  }
+
 
   if (isLoading) {
     return (<div
@@ -189,22 +194,15 @@ const ProcessGroups = () => {
   }
 
   return (
-    <div>
-      <ShowHistoryModal
-        isVisible={isHistoryModalOpened}
-        pageName={'ProcessGroup'}
-        selectedItemId={selectedProcessGroupId}
-        handleHistoryToggle={handleHistoryToggle} />
-      <Snackbar
-        open={snackBar}
-        autoHideDuration={10000}
-        onClose={handleAlertClose}>
-        <MuiAlert
-          severity={snackBarAlertType}
-          onClose={handleAlertClose}>
-          {message}
-        </MuiAlert>
-      </Snackbar>
+    <DefaultContainer
+      isHistoryModalOpened={isHistoryModalOpened}
+      title={'ProcessGroup'}
+      selectedId={selectedProcessGroupId}
+      handleHistoryToggle={handleHistoryToggle}
+      snackBar={snackBar}
+      handleAlertClose={handleAlertClose}
+      message={message}
+      snackBarAlertType={snackBarAlertType}>
 
       <Toolbar
         title={'Process Group'}
@@ -226,7 +224,9 @@ const ProcessGroups = () => {
         isGridViewSelected ?
           <GridView
             list={filteredProcessGroupList}
-            handleHistoryToggle={handleHistoryToggle} /> :
+            handleHistoryToggle={handleHistoryToggle}
+            columnsFields={columnsFields}
+            handleTableRowClick={handleTableRowClick} /> :
           <TableView
             title={'Process Group'}
             list={filteredProcessGroupList}
@@ -238,10 +238,11 @@ const ProcessGroups = () => {
             update={updateProcessGroup}
             delete={deleteProcessGroup}
             clientList={clientList}
+            handleTableRowClick={handleTableRowClick}
           />
 
       }
-    </div>
+    </DefaultContainer>
   );
 }
 

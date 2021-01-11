@@ -3,14 +3,12 @@ import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
 
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
 import API from '../../api/items.api';
-import ShowHistoryModal from "../ShowHistoryModal";
 
 import Toolbar from '../../components/Toolbar';
-import GridView from './components/GridView';
+import GridView from '../../components/GridView';
 import TableView from '../../components/TableView';
+import DefaultContainer from '../../components/DefaultContainer'
 
 const Items = () => {
   let history = useHistory();
@@ -26,8 +24,8 @@ const Items = () => {
   const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState('');
   const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
-  const [isGridViewSelected, setIsGridViewSelected] = useState(false);
-  const columnsFields = ['id', 'name', 'source', 'assemblyType'];
+  const [isGridViewSelected, setIsGridViewSelected] = useState(true);
+  const columnsFields = { 'id': 'ID', 'name': 'Name', 'source': 'Source', 'assemblyType': 'Assembly type' };
 
   const [columns, setColumns] = useState([
     { title: "ID", field: "id", editable: "never" },
@@ -108,7 +106,7 @@ const Items = () => {
       alertForError(error)
     }
   }
-  
+
   const handleHistoryToggle = ({ rowId }) => {
     setIsHistoryModalOpened(!isHistoryModalOpened);
     setSelectedItemId(rowId)
@@ -131,22 +129,15 @@ const Items = () => {
 
 
   return (
-    <div>
-      <ShowHistoryModal
-        isVisible={isHistoryModalOpened}
-        pageName={'Item'}
-        selectedItemId={selectedItemId}
-        handleHistoryToggle={handleHistoryToggle} />
-      <Snackbar
-        open={snackBar}
-        autoHideDuration={10000}
-        onClose={handleAlertClose}>
-        <MuiAlert
-          severity={snackBarAlertType}
-          onClose={handleAlertClose}>
-          {message}
-        </MuiAlert>
-      </Snackbar>
+    <DefaultContainer
+      isHistoryModalOpened={isHistoryModalOpened}
+      title={'Item'}
+      selectedId={selectedItemId}
+      handleHistoryToggle={handleHistoryToggle}
+      snackBar={snackBar}
+      handleAlertClose={handleAlertClose}
+      message={message}
+      snackBarAlertType={snackBarAlertType}>
 
       <Toolbar
         title={"Items"}
@@ -166,7 +157,10 @@ const Items = () => {
         isGridViewSelected ?
           <GridView
             list={filteredItemList}
-            handleHistoryToggle={handleHistoryToggle} /> :
+            handleHistoryToggle={handleHistoryToggle}
+            columnsFields={columnsFields}
+            handleTableRowClick={handleTableRowClick}
+          /> :
           <TableView
             title={"Items"}
             list={filteredItemList}
@@ -176,7 +170,7 @@ const Items = () => {
           />
 
       }
-    </div>
+    </DefaultContainer>
   );
 }
 

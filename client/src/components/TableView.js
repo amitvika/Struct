@@ -44,7 +44,8 @@ export default function TableView({
             textAlign: 'center'
           },
           headerStyle: {
-            textAlign: 'center'
+            textAlign: 'center',
+            fontWeight: 'bold'
           }
         }}
         onRowClick={(rowdata, event) => {

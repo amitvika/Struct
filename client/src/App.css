@@ -101,3 +101,5 @@
 .MuiToolbar-root> div{
   z-index: 1 !important;
 }
+
+.MuiDataGrid-root .MuiDataGrid-cell {border-bottom: none !important;}

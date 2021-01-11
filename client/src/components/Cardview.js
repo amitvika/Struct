@@ -12,13 +12,19 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     padding: theme.spacing(2),
-    margin: '10px',
+    margin: '10px 2px 10px 2px',
     maxWidth: 400,
     minWidth: 400,
+    cursor: 'pointer',
+    transition: '0.3s',
+    "&:hover, &:focus": {
+      backgroundColor: '#DCDCDC'
+    }
   },
+
   image: {
-    width: 128,
-    height: 128,
+    width: 55,
+    height: 70,
   },
   img: {
     margin: 'auto',
@@ -33,41 +39,19 @@ export default function ComplexGrid(props) {
 
   return (
     // <div className={classes.root}>
-    <Paper className={classes.paper}>
+    <Paper className={classes.paper} onClick={props.onClick}>
       <Grid container spacing={2}>
-        <Grid item>
+        <Grid item xs={2}>
           <ButtonBase className={classes.image}>
             <img className={classes.img} alt="complex" src={StructLogo} />
           </ButtonBase>
         </Grid>
-        <Grid item xs={12} sm container>
+        <Grid item xs={10}>
           {
             props.children
           }
-          {/* <Grid item xs container direction="column" spacing={2}>
-              <Grid item xs>
-                <Typography gutterBottom variant="subtitle1">
-                  Standard license
-                </Typography>
-                <Typography variant="body2" gutterBottom>
-                  Full resolution 1920x1080 • JPEG
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  ID: 1030114
-                </Typography>
-              </Grid>
-              <Grid item>
-                <Typography variant="body2" style={{ cursor: 'pointer' }}>
-                  Remove
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle1">$19.00</Typography>
-            </Grid> */}
         </Grid>
       </Grid>
     </Paper>
-    // </div>
   );
 }

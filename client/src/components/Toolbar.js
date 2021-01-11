@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-
+import { Grid, Paper, Icon } from '@material-ui/core';
 import Checkbox from './atoms/Checkbox';
 import Headding from './atoms/Headding';
 import CheckboxFilter from './CheckboxFilter'
@@ -14,8 +12,8 @@ export default function Toolbar({
   handleShowDelete,
   isHistoryModalOpened,
   handleHistoryToggle,
-  list=[],
-  filteredList=[],
+  list = [],
+  filteredList = [],
   setFilteredList,
   columnsFields = []
 }) {
@@ -34,6 +32,9 @@ export default function Toolbar({
             onClick={() => setIsGridViewSelected(!isGridViewSelected)}
           />
         </Grid>
+        <Grid item sm sm={1} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <Icon>search</Icon>
+        </Grid>
         <CheckboxFilter
           list={list}
           filteredList={filteredList}
@@ -48,7 +49,7 @@ export default function Toolbar({
           />
           <Checkbox
             checked={isHistoryModalOpened}
-            label="Show history"
+            label="Show History"
             onChange={handleHistoryToggle}
           />
         </Grid>

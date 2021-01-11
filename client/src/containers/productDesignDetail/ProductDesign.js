@@ -3,19 +3,17 @@ import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
 
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
 import API from '../../api/productDesign.api';
 import { fetchClientsApi } from '../../api/clients.api';
-import HistoryModal from "../ShowHistoryModal";
 
 import Toolbar from '../../components/Toolbar';
-import GridView from './components/GridView';
+import GridView from '../../components/GridView';
 import TableView from '../../components/TableView';
+import DefaultContainer from '../../components/DefaultContainer'
 
 const ProductDesign = () => {
   let history = useHistory();
-  
+
   const { isAuthenticated, user } = useSelector(state => state.auth);
 
   const [productDesignList, setProductDesignList] = useState([]);
@@ -28,8 +26,8 @@ const ProductDesign = () => {
   const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
   const [selectedProductDesignId, setSelectedProductDesignId] = useState('');
   const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
-  const [isGridViewSelected, setIsGridViewSelected] = useState(false);
-  const columnsFields = ['id', 'name', 'clientName', 'created_by'];
+  const [isGridViewSelected, setIsGridViewSelected] = useState(true);
+  const columnsFields = { 'id': 'ID', 'name': 'Name', 'clientName': 'Client Name', 'created_by': 'Created By' };
 
   const [columns, setColumns] = useState([
     { title: "ID", field: "id", editable: "never", align: 'center' },
@@ -221,25 +219,19 @@ const ProductDesign = () => {
   }
 
   return (
-    <div style={{ marginLeft: '5%', marginRight: '5%' }}>
-      <HistoryModal
-        isVisible={isHistoryModalOpened}
-        pageName={'ProcessGroup'}
-        selectedItemId={selectedProductDesignId}
-        handleHistoryToggle={handleHistoryToggle} />
-      <Snackbar
-        open={snackBar}
-        autoHideDuration={10000}
-        onClose={handleAlertClose}>
-        <MuiAlert
-          severity={snackBarAlertType}
-          onClose={handleAlertClose}>
-          {message}
-        </MuiAlert>
-      </Snackbar>
+    <DefaultContainer
+      isHistoryModalOpened={isHistoryModalOpened}
+      title={'ProcessGroup'}
+      selectedId={selectedProductDesignId}
+      handleHistoryToggle={handleHistoryToggle}
+      snackBar={snackBar}
+      handleAlertClose={handleAlertClose}
+      message={message}
+      snackBarAlertType={snackBarAlertType}
+    >
 
       <Toolbar
-        title={"New Product Design"}
+        title={"Product Design"}
         isGridViewSelected={isGridViewSelected}
         setIsGridViewSelected={setIsGridViewSelected}
         isDeletedItemVisible={isDeletedItemVisible}
@@ -256,8 +248,11 @@ const ProductDesign = () => {
       {
         isGridViewSelected ?
           <GridView
-            productDesignList={filteredProductDesignList}
-            handleHistoryToggle={handleHistoryToggle} /> :
+            list={filteredProductDesignList}
+            handleHistoryToggle={handleHistoryToggle}
+            handleItemClick={handleTableRowClick}
+            columnsFields={columnsFields}
+          /> :
           <TableView
             title={"New Product Design"}
             list={filteredProductDesignList}
@@ -269,9 +264,8 @@ const ProductDesign = () => {
             columns={columns}
             setColumns={setColumns}
           />
-
       }
-    </div >
+    </DefaultContainer >
   );
 }
 

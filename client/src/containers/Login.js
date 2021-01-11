@@ -35,7 +35,7 @@ const LoginModal = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      history.push('/dashboard');
+      history.push('/process-groups');
     }
   }, [isAuthenticated]);
 

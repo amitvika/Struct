@@ -3,14 +3,11 @@ import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
 
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
 import API from '../../api/vendor.api';
-import ShowHistoryModal from "../ShowHistoryModal";
 import Toolbar from '../../components/Toolbar';
 import TableView from '../../components/TableView';
-import GridView from './components/GridView';
-
+import GridView from '../../components/GridView';
+import DefaultContainer from '../../components/DefaultContainer';
 
 const Vendors = () => {
   let history = useHistory();
@@ -26,7 +23,7 @@ const Vendors = () => {
   const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
   const [selectedVendorId, setSelectedVendorId] = useState('');
   const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
-  const [isGridViewSelected, setIsGridViewSelected] = useState(false);
+  const [isGridViewSelected, setIsGridViewSelected] = useState(true);
 
   const [columns, setColumns] = useState([
     { title: "ID", field: "id", editable: "never", align: 'center' },
@@ -43,7 +40,7 @@ const Vendors = () => {
         }}> Show History </span>
     },
   ])
-  const columnsFields = ['id', 'name'];
+  const columnsFields = { 'id': 'ID', 'name': 'Name' };
 
   const alertForError = (err) => {
     setIsLoading(false);
@@ -209,22 +206,15 @@ const Vendors = () => {
   }
 
   return (
-    <div>
-      <ShowHistoryModal
-        isVisible={isHistoryModalOpened}
-        pageName={'Vendor'}
-        selectedItemId={selectedVendorId}
-        handleHistoryToggle={handleHistoryToggle} />
-      <Snackbar
-        open={snackBar}
-        autoHideDuration={10000}
-        onClose={handleAlertClose}>
-        <MuiAlert
-          severity={snackBarAlertType}
-          onClose={handleAlertClose}>
-          {message}
-        </MuiAlert>
-      </Snackbar>
+    <DefaultContainer
+      isHistoryModalOpened={isHistoryModalOpened}
+      title={'Vendor'}
+      selectedId={selectedVendorId}
+      handleHistoryToggle={handleHistoryToggle}
+      snackBar={snackBar}
+      handleAlertClose={handleAlertClose}
+      message={message}
+      snackBarAlertType={snackBarAlertType}>
 
       <Toolbar
         title={'Vendor'}
@@ -245,7 +235,9 @@ const Vendors = () => {
         isGridViewSelected ?
           <GridView
             list={filteredVendorList}
-            handleHistoryToggle={handleHistoryToggle} /> :
+            handleHistoryToggle={handleHistoryToggle} 
+            columnsFields={columnsFields}
+            handleTableRowClick={handleTableRowClick}/> :
           <TableView
             list={filteredVendorList}
             handleAdd={addVendor}
@@ -254,9 +246,10 @@ const Vendors = () => {
             handleTableRowClick={handleTableRowClick}
             columns={columns}
             setColumns={setColumns}
+            
           />
       }
-    </div>
+    </DefaultContainer>
   );
 }
 

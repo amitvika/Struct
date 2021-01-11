@@ -3,15 +3,12 @@ import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
 
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
 import API from '../../api/clients.api';
-import HistoryModal from "../ShowHistoryModal";
-// import Toolbar from '../../containers/client/components/Toolbar';
-import TableView from '../../components/TableView';
-import GridView from './components/GridView';
 
+import TableView from '../../components/TableView';
+import GridView from '../../components/GridView';
 import Toolbar from '../../components/Toolbar';
+import DefaultContainer from '../../components/DefaultContainer'
 
 const Clients = () => {
   let history = useHistory();
@@ -28,8 +25,9 @@ const Clients = () => {
   const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState('');
   const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
-  const [isGridViewSelected, setIsGridViewSelected] = useState(false);
-  const columnsFields = ['id', 'name', 'created_by'];
+  const [isGridViewSelected, setIsGridViewSelected] = useState(true);
+  const columnsFields = { 'id': 'ID', 'name': 'Name', 'created_by': 'Created By' };
+
   const [columns, setColumns] = useState([
     { title: "ID", field: "id", editable: "never", align: 'center' },
     { title: "Name", field: "name" },
@@ -59,7 +57,7 @@ const Clients = () => {
       setIsLoading(true);
 
       const clientRes = await API.fetchClientsApi();
-      
+
       if (clientRes && clientRes.data) {
         const clients = clientRes.data.map((x, index) => {
           return {
@@ -203,6 +201,8 @@ const Clients = () => {
     })
   }
 
+  const handleTableRowClick = (event) => history.push(`/clients/${event.id}`)
+
   if (isLoading) {
     return (<div
       style={{
@@ -215,22 +215,15 @@ const Clients = () => {
   }
 
   return (
-    <div style={{ marginLeft: '5%', marginRight: '5%' }}>
-      <HistoryModal
-        isVisible={isHistoryModalOpened}
-        pageName={'ProcessGroup'}
-        selectedItemId={selectedClientId}
-        handleHistoryToggle={handleHistoryToggle} />
-      <Snackbar
-        open={snackBar}
-        autoHideDuration={10000}
-        onClose={handleAlertClose}>
-        <MuiAlert
-          severity={snackBarAlertType}
-          onClose={handleAlertClose}>
-          {message}
-        </MuiAlert>
-      </Snackbar>
+    <DefaultContainer
+      isHistoryModalOpened={isHistoryModalOpened}
+      title={'Client'}
+      selectedId={selectedClientId}
+      handleHistoryToggle={handleHistoryToggle}
+      snackBar={snackBar}
+      handleAlertClose={handleAlertClose}
+      message={message}
+      snackBarAlertType={snackBarAlertType}>
 
       <Toolbar
         title={'Client'}
@@ -251,19 +244,22 @@ const Clients = () => {
         isGridViewSelected ?
           <GridView
             list={filteredClientList}
-            handleHistoryToggle={handleHistoryToggle} /> :
+            handleHistoryToggle={handleHistoryToggle}
+            columnsFields={columnsFields}
+            handleTableRowClick={handleTableRowClick}
+          /> :
           <TableView
-            list={clientList}
+            list={filteredClientList}
             handleAdd={addClient}
             handleUpdate={updateClient}
             handleDelete={deleteClient}
-            handleTableRowClick={(event) => history.push(`/clients/${event.id}`)}
             columns={columns}
             setColumns={setColumns}
+            handleTableRowClick={handleTableRowClick}
           />
 
       }
-    </div >
+    </DefaultContainer >
   );
 }
 
