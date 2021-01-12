@@ -250,7 +250,7 @@ const ProductDesign = () => {
           <GridView
             list={filteredProductDesignList}
             handleHistoryToggle={handleHistoryToggle}
-            handleItemClick={handleTableRowClick}
+            handleTableRowClick={handleTableRowClick}
             columnsFields={columnsFields}
           /> :
           <TableView

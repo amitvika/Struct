@@ -1,59 +1,152 @@
 import React, { useState, useEffect } from 'react'
-import { Grid, Paper, Icon } from '@material-ui/core';
+import { Grid, Paper, Icon, Button } from '@material-ui/core';
 import Checkbox from './atoms/Checkbox';
 import Headding from './atoms/Headding';
-import CheckboxFilter from './CheckboxFilter'
+import SelectCheckboxes from './atoms/SelectCheckboxes'
 
 export default function Toolbar({
-  title,
-  isGridViewSelected,
-  setIsGridViewSelected,
-  isDeletedItemVisible,
-  handleShowDelete,
-  isHistoryModalOpened,
-  handleHistoryToggle,
-  list = [],
-  filteredList = [],
-  setFilteredList,
-  columnsFields = []
+	title,
+	isGridViewSelected,
+	setIsGridViewSelected,
+	isDeletedItemVisible,
+	handleShowDelete,
+	isHistoryModalOpened,
+	handleHistoryToggle,
+	list = [],
+	filteredList = [],
+	setFilteredList,
+	columnsFields = []
 }) {
+	const [selectedFieldName, setSelectedFieldName] = useState('');
+	const [selectedFieldOptions, setSelectedFieldOptions] = useState([]);
 
-  return (
-    <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
-      <Grid container justify="space-between">
-        <Grid item sm sm={12}>
-          <Headding title={title}></Headding>
-        </Grid>
-        <Grid item sm sm={2}>
-          <Checkbox
-            checked={isGridViewSelected}
-            size="large"
-            label="View GridView"
-            onClick={() => setIsGridViewSelected(!isGridViewSelected)}
-          />
-        </Grid>
-        <Grid item sm sm={1} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <Icon>search</Icon>
-        </Grid>
-        <CheckboxFilter
-          list={list}
-          filteredList={filteredList}
-          setFilteredList={setFilteredList}
-          columnsFields={columnsFields}
-        />
-        <Grid item sm sm={6}>
-          <Checkbox
-            checked={isDeletedItemVisible}
-            label="Show Deletions"
-            onChange={handleShowDelete}
-          />
-          <Checkbox
-            checked={isHistoryModalOpened}
-            label="Show History"
-            onChange={handleHistoryToggle}
-          />
-        </Grid>
-      </Grid>
-    </Paper>
-  )
+	const [selectedFields, setSelectedFields] = useState({});
+
+	const handleChange = (data, field) => {
+		setSelectedFieldOptions(get_unique_options(field))
+
+		setSelectedFields(prev => {
+			return {
+				...prev,
+				[field]: data
+			}
+		});
+		setSelectedFieldName(field)
+	}
+
+	useEffect(() => {
+		filtered();
+	}, [selectedFields])
+
+	const filtered = () => {
+		const myArrayFiltered = list.filter((el) => {
+			let flag = true;
+
+			Object.keys(selectedFields).forEach(key => {
+				const fieldValues = selectedFields[key];
+
+				if (flag && fieldValues.length > 0) {
+					flag = fieldValues.some((f) => f.label === el[key]);
+				}
+			});
+
+			return flag;
+		});
+
+		setFilteredList(myArrayFiltered)
+	}
+
+	const get_unique_options = (field) => {
+		if (field === selectedFieldName) {
+			return selectedFieldOptions;
+		}
+
+		const array = filteredList;
+
+		let flags = [], output = [], l = array.length, i;
+
+		for (i = 0; i < l; i++) {
+			if (flags[array[i][field]]) {
+				continue;
+			}
+
+			let tempValue = array[i][field];
+			if (tempValue && tempValue.trim().length > 0) {
+				flags[array[i][field]] = true;
+				output.push({ label: array[i][field], value: array[i][field] });
+			}
+		}
+		return output;
+	}
+
+
+	const renderItem = () => {
+		let item = [];
+
+		Object.keys(columnsFields).forEach(fieldItem => {
+			item.push(
+				<Grid item sm sm={2}>
+					<SelectCheckboxes
+						onChange={(data) => handleChange(data, fieldItem)}
+						options={get_unique_options(fieldItem)}
+						placeholder={`Select ${columnsFields[fieldItem]}`} />
+				</Grid>
+			)
+		})
+		return item;
+	}
+
+	return (
+		<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
+			<Grid container>
+				<Grid item sm sm={12}>
+					<Headding title={title}></Headding>
+				</Grid>
+				<Grid item sm sm={2}>
+					<Grid item sm sm={12}>
+						<Checkbox
+							checked={isGridViewSelected}
+							size="large"
+							label="View GridView"
+							onClick={() => setIsGridViewSelected(!isGridViewSelected)}
+						/>
+					</Grid>
+
+					<Grid item sm sm={12}>
+						<Checkbox
+							checked={isDeletedItemVisible}
+							label="Show Deletions"
+							onChange={handleShowDelete}
+						/>
+					</Grid>
+
+					<Grid item sm sm={12}>
+						<Checkbox
+							checked={isHistoryModalOpened}
+							label="Show History"
+							onChange={handleHistoryToggle}
+						/>
+					</Grid>
+				</Grid>
+				<Grid item sm sm={1} style={{ display: 'flex', justifyContent: 'center' }}>
+					<Icon style={{ marginTop: '10px' }}>search</Icon>
+				</Grid>
+				<Grid item sm sm={1}>
+					<Button
+						variant="contained"
+						color="primary"
+						type="button"
+						onClick={() => {
+							setFilteredList(list)
+							setSelectedFields({})
+						}}>
+						Clear
+          </Button>
+				</Grid>
+				{
+					renderItem()
+				}
+			</Grid>
+		</Paper >
+	)
 }

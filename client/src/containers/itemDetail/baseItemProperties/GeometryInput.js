@@ -94,10 +94,10 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 
       <Paper style={{ padding: 20, margin: 10 }}>
         <Grid className="section-padding-left" container spacing={4}>
-          <Grid item xs={3}>
+          <Grid item xs={4}>
             <Headding fontSize={20} bold title={'Item Material'} />
           </Grid>
-          <Grid item xs={9} style={{display: 'flex',justifyContent: 'flex-end'}}>
+          <Grid item xs={8} >
             <Button
               size="large"
               variant="contained"
