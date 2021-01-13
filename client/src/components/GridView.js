@@ -2,18 +2,13 @@ import React from 'react'
 import {
 	Grid,
 	Typography,
-	Table,
-	TableBody,
-	TableRow,
-	TableCell,
 	makeStyles,
 	Paper,
-	GridListTile,
-	ButtonBase
 } from '@material-ui/core';
+import './style.css'
 
-import GridList from './GridList';
 import StructLogo from '../assets/images/struct_logo.png';
+
 
 const useStyles = makeStyles((theme) => ({
 	tableCell: {
@@ -43,6 +38,16 @@ const useStyles = makeStyles((theme) => ({
 		maxWidth: '100%',
 		maxHeight: '100%',
 	},
+	historyLink: {
+		margin: '10px',
+		justifyContent: 'center',
+		color: '#0b79c7',
+	},
+	fieldItem: {
+		display: 'flex',
+		padding: '10px 0 0 0'
+	}
+
 }));
 
 export default function GridView({ list, handleHistoryToggle, columnsFields, handleTableRowClick }) {
@@ -53,46 +58,56 @@ export default function GridView({ list, handleHistoryToggle, columnsFields, han
 
 		Object.keys(columnsFields).forEach(fieldItem => {
 			item.push(
-				<div style={{ display: 'flex', padding: '10px 0 0 0' }}>
-					<Typography className={classes.boldtablecell}>{columnsFields[fieldItem]}: </Typography>
-					<Typography className={classes.tableCell}>{` ${data[fieldItem]}`}</Typography>
-				</div>
+				<Grid item sm sm={12} className={classes.fieldItem}>
+					<div >
+						<span className={classes.boldtablecell}>{columnsFields[fieldItem]}</span>
+						{`: `}
+						<span className={classes.tableCell}>{` ${data[fieldItem] != undefined || data[fieldItem] != null ? data[fieldItem] : ''}`}</span>
+					</div>
+				</Grid>
 			)
 		})
 		return item;
 	}
 
 	return (
-		// <GridList>
-		<Grid container spacing={3}>
+		<div className={'fixed-grid--around'}>
+			{/* <Row xs="4"> */}
+			{/* <GridList> */}
+			{/* // <Grid container spacing={3}> */}
 			{list.map(product => {
 				return (
-					<Grid item xs={12} sm={4}>
+					<div style={{ marginTop: '10px', marginBottom: '10px', width: '380px' }}>
+						{/* // <Grid item sm sm={3}> */}
 						<Paper className={classes.paper} onClick={() => handleTableRowClick(product)}>
-							<Grid container style={{ padding: '5px 10px' }}>
-								<Grid item sm sm={4}>
-									<ButtonBase className={classes.image}>
-										<img className={classes.img} alt="complex" src={StructLogo} />
-									</ButtonBase>
+							<Grid container style={{
+								height: '100%'
+							}}>
+								<Grid item sm sm={4} style={{ display: 'flex' }}>
+									<img className={classes.img} alt="complex" src={StructLogo} />
 								</Grid>
 								<Grid item sm sm={8}>
+
 									{renderItem(product)}
-								</Grid>
-								<Grid item sm sm={12} style={{ margin: '10px', justifyContent: 'center', color: '#0b79c7' }}>
-									<Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={(event) => {
-										event.stopPropagation();
-										handleHistoryToggle({ rowId: product.id })
-									}}>
-										View History
-                </Typography>
+									<Grid item sm sm={12} className={classes.historyLink}>
+										<Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={(event) => {
+											event.stopPropagation();
+											handleHistoryToggle({ rowId: product.id })
+										}}>
+											View History
+                		</Typography>
+									</Grid>
 								</Grid>
 							</Grid>
 						</Paper>
-					</Grid>
+						{/* // </Grid> */}
+					</div>
 				)
 			})
 			}
-		</Grid>
+			{/* </Row> */}
+			{/* </GridList> */}
+		</div >
 
 	)
 }

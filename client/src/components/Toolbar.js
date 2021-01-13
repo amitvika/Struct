@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Grid, Paper, Icon, Button } from '@material-ui/core';
 import Checkbox from './atoms/Checkbox';
 import Headding from './atoms/Headding';
-import SelectCheckboxes from './atoms/SelectCheckboxes'
+import SelectCheckboxes from './atoms/SelectCheckboxes';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
 
 export default function Toolbar({
 	title,
@@ -97,56 +98,62 @@ export default function Toolbar({
 	}
 
 	return (
-		<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
-			<Grid container>
-				<Grid item sm sm={12}>
-					<Headding title={title}></Headding>
-				</Grid>
-				<Grid item sm sm={2}>
+			<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
+				<Grid container>
 					<Grid item sm sm={12}>
-						<Checkbox
-							checked={isGridViewSelected}
-							size="large"
-							label="View GridView"
-							onClick={() => setIsGridViewSelected(!isGridViewSelected)}
-						/>
+						<Headding title={title}></Headding>
 					</Grid>
+					<Grid item sm sm={2}>
+						<Grid item sm sm={12}>
+							<Checkbox
+								checked={isGridViewSelected}
+								size="large"
+								label="View GridView"
+								onClick={() => setIsGridViewSelected(!isGridViewSelected)}
+							/>
+						</Grid>
 
-					<Grid item sm sm={12}>
-						<Checkbox
-							checked={isDeletedItemVisible}
-							label="Show Deletions"
-							onChange={handleShowDelete}
-						/>
-					</Grid>
+						<Grid item sm sm={12}>
+							<Checkbox
+								checked={isDeletedItemVisible}
+								label="Show Deletions"
+								onChange={handleShowDelete}
+							/>
+						</Grid>
 
-					<Grid item sm sm={12}>
-						<Checkbox
-							checked={isHistoryModalOpened}
-							label="Show History"
-							onChange={handleHistoryToggle}
-						/>
+						<Grid item sm sm={12}>
+							<Checkbox
+								checked={isHistoryModalOpened}
+								label="Show History"
+								onChange={handleHistoryToggle}
+							/>
+						</Grid>
 					</Grid>
-				</Grid>
-				<Grid item sm sm={1} style={{ display: 'flex', justifyContent: 'center' }}>
-					<Icon style={{ marginTop: '10px' }}>search</Icon>
-				</Grid>
-				<Grid item sm sm={1}>
-					<Button
-						variant="contained"
-						color="primary"
-						type="button"
-						onClick={() => {
-							setFilteredList(list)
-							setSelectedFields({})
-						}}>
-						Clear
+					<Grid item sm sm={1} style={{ display: 'flex', justifyContent: 'center' }}>
+						<Icon style={{ marginTop: '10px' }}>search</Icon>
+					</Grid>
+					<Grid item sm sm={1}>
+						<Button
+							variant="contained"
+							color="primary"
+							type="button"
+							onClick={() => {
+								setFilteredList(list)
+								setSelectedFields({})
+							}}>
+							Clear
           </Button>
+					</Grid>
+					{
+						renderItem()
+					}
+					{
+						isGridViewSelected &&
+						<div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
+							<AddCircleIcon style={{ color: '#3f51b5' }} />
+						</div>
+					}
 				</Grid>
-				{
-					renderItem()
-				}
-			</Grid>
-		</Paper >
+			</Paper >
 	)
 }
