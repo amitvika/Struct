@@ -163,7 +163,7 @@ class Items extends Component {
             },
             onRowUpdate: (newData, oldData) => {
               return ItemsAPI
-                .updateItemsAPI(newData.id, { name: newData.name, source: newData.source, assemblyType: newData.assemblyType })
+                .updateItemAPI(newData.id, { name: newData.name, source: newData.source, assemblyType: newData.assemblyType })
                 .then(res => {
                   console.log(res.data);
                   this.retrieveFromDb();

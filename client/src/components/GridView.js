@@ -50,7 +50,13 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-export default function GridView({ list, handleHistoryToggle, columnsFields, handleTableRowClick }) {
+export default function GridView({
+	list,
+	handleHistoryToggle,
+	columnsFields,
+	handleTableRowClick,
+	isHistoryLinkVisible = true
+}) {
 	const classes = useStyles();
 
 	const renderItem = (data) => {
@@ -72,13 +78,9 @@ export default function GridView({ list, handleHistoryToggle, columnsFields, han
 
 	return (
 		<div className={'fixed-grid--around'}>
-			{/* <Row xs="4"> */}
-			{/* <GridList> */}
-			{/* // <Grid container spacing={3}> */}
 			{list.map(product => {
 				return (
 					<div style={{ marginTop: '10px', marginBottom: '10px', width: '380px' }}>
-						{/* // <Grid item sm sm={3}> */}
 						<Paper className={classes.paper} onClick={() => handleTableRowClick(product)}>
 							<Grid container style={{
 								height: '100%'
@@ -89,24 +91,26 @@ export default function GridView({ list, handleHistoryToggle, columnsFields, han
 								<Grid item sm sm={8}>
 
 									{renderItem(product)}
-									<Grid item sm sm={12} className={classes.historyLink}>
-										<Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={(event) => {
-											event.stopPropagation();
-											handleHistoryToggle({ rowId: product.id })
-										}}>
-											View History
+
+									{
+										isHistoryLinkVisible &&
+										<Grid item sm sm={12} className={classes.historyLink}>
+											<Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={(event) => {
+												event.stopPropagation();
+												handleHistoryToggle({ rowId: product.id })
+											}}>
+												View History
                 		</Typography>
-									</Grid>
+										</Grid>
+									}
 								</Grid>
 							</Grid>
 						</Paper>
-						{/* // </Grid> */}
 					</div>
 				)
 			})
 			}
-			{/* </Row> */}
-			{/* </GridList> */}
+
 		</div >
 
 	)

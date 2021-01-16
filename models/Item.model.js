@@ -4,35 +4,39 @@ const Schema = mongoose.Schema;
 
 //Define the User model schema(filed structure)
 const ItemSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  },
-  vendorId: {
-    type: Schema.Types.ObjectId,
-    ref: "Vendor"
-  },
-  author: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true
-  },
-  isDeleted: { type: Boolean, default: false },
-  deletedAt: {
-    type: Date
-  },
-  assemblyType: { type: String },
-  itemGeometry: { type: Object },
-  itemTypeConfiguration: { type: Object },
-  vendorDetails: { type: Object },
-  step: {
-    type: Object
-  },
-  stl: { type: String }
+	name: {
+		type: String,
+		required: true
+	},
+	date: {
+		type: Date,
+		default: Date.now
+	},
+	vendorId: {
+		type: Schema.Types.ObjectId,
+		ref: "Vendor"
+	},
+	author: {
+		type: Schema.Types.ObjectId,
+		ref: "User",
+		required: true
+	},
+	isDeleted: { type: Boolean, default: false },
+	deletedAt: {
+		type: Date
+	},
+	selectedClientId: {
+		type: Schema.Types.ObjectId,
+		ref: "Client",
+	},
+	assemblyType: { type: String },
+	itemGeometry: { type: Object },
+	itemTypeConfiguration: { type: Object },
+	vendorDetails: { type: Object },
+	step: {
+		type: Object
+	},
+	stl: { type: String }
 });
 
 

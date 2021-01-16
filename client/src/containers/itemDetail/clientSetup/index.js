@@ -1,0 +1,131 @@
+import React, { useState, useEffect } from 'react';
+
+import Filter from '../../../components/Filter';
+import GridView from '../../../components/GridView';
+import Headding from '../../../components/atoms/Headding'
+import Space from '../../../components/atoms/Space';
+
+import {
+	Grid,
+	Typography,
+	makeStyles,
+	Paper,
+} from '@material-ui/core';
+import { Spinner } from "reactstrap";
+
+import { columnsFields } from '../../../constants/client'
+import API from '../../../api/clients.api';
+
+
+export default function ClientSetup({
+	itemProperties,
+	setItemProperties
+}) {
+	const [isLoading, setIsLoading] = useState(false);
+
+	const [clientList, setClientList] = useState([]);
+	const [selectedClient, setSelectedClient] = useState({});
+	const [filteredClientList, setFilteredClientList] = useState([]);
+
+	useEffect(() => {
+		fetchClientList();
+	}, []);
+
+	const fetchClientList = async () => {
+		try {
+			setIsLoading(true);
+
+			const clientRes = await API.fetchClientsApi();
+
+			if (clientRes && clientRes.data) {
+				const clients = clientRes.data.map((x, index) => {
+					return {
+						id: x._id,
+						name: x.name,
+						created_by: x.createdByUserId.name,
+						deleted_at: x.deletedAt
+					}
+				})
+				setClientList(clients)
+				setFilteredClientList(clients)
+
+				if (itemProperties.selectedClientId) {
+					const selectedClient = clients.find(client => client.id === itemProperties.selectedClientId);
+					setSelectedClient(selectedClient);
+				}
+			}
+			setIsLoading(false);
+
+		} catch (error) {
+			console.log(error)
+		}
+	};
+
+	const handleClientSelect = (data) => {
+		setFilteredClientList(prevState => {
+			const updatedState = prevState.filter(client => client.id != data.id);
+			if (Object.keys(selectedClient).length > 0) {
+				updatedState = [data, updatedState]
+			}
+			return updatedState;
+		});
+
+		setSelectedClient(data)
+		setItemProperties(prevState => ({ selectedClientId: data.id, ...prevState }))
+	}
+
+	const handleClientRemove = (data) => {
+		setFilteredClientList(preMaterialList => {
+			return [data, ...preMaterialList];
+		});
+		setSelectedClient({});
+		setItemProperties(prevState => ({ selectedClientId: null, ...prevState }))
+	}
+
+	if (isLoading) {
+		return (<div
+			style={{
+				display: "flex",
+				justifyContent: "center"
+			}}
+		>
+			<Spinner animation="border" />
+		</div>)
+	}
+
+	return (
+		<div>
+			{/* Filter section */}
+			<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
+				<Grid container>
+					<Filter
+						list={clientList}
+						filteredList={filteredClientList}
+						setFilteredList={setFilteredClientList}
+						columnsFields={columnsFields}
+					/>
+				</Grid>
+			</Paper>
+			<Space size={20} />
+
+			<Headding fontSize={20} title={'Selected Client'} style={{ fontWeight: 'bold' }}></Headding>
+			<GridView
+				list={Object.keys(selectedClient).length > 0 ? [selectedClient] : []}
+				handleHistoryToggle={() => false}
+				columnsFields={columnsFields}
+				handleTableRowClick={handleClientRemove}
+				isHistoryLinkVisible={false}
+			/>
+
+			<Space size={20} />
+			<Headding fontSize={20} title={'Choose Client'} style={{ fontWeight: 'bold' }}></Headding>
+			<GridView
+				list={filteredClientList}
+				handleHistoryToggle={() => false}
+				columnsFields={columnsFields}
+				handleTableRowClick={handleClientSelect}
+				isHistoryLinkVisible={false}
+			/>
+		</div>
+	)
+}

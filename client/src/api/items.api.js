@@ -6,15 +6,13 @@ const filterItemsAPI = (query) => getRequest(`/api/items/filter?${query}`);
 
 const saveItemAPI = (data) => postRequest(`/api/items`, data);
 
-const updateItemsAPI = (id, data) => putRequest(`/api/items/${id}`, data);
+const updateItemAPI = (id, data) => putRequest(`/api/items/${id}`, data);
 
 const getItemAPI = (id) => getRequest(`/api/items/${id}`);
 
 const deleteItemAPI = (id) => deleteRequest(`/api/items/${id}`);
 
 const getItemsAllAPI = (query) => getRequest(`/api/items/all?${query}`);
-
-const updateItemGeomtery = (id, data) => putRequest(`/api/items/${id}/geomtery`, data);
 
 const deleteItemGeomtery = (id) => deleteRequest(`/api/items/${id}/three-model`);
 
@@ -25,10 +23,9 @@ export default {
   filterItemsAPI,
   getItemAPI,
   saveItemAPI,
-  updateItemsAPI,
+  updateItemAPI,
   deleteItemAPI,
   getItemsAllAPI,
   deleteItemGeomtery,
-  updateItemGeomtery,
-  getItemThreejsData
+	getItemThreejsData
 }

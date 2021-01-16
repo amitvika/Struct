@@ -28,7 +28,7 @@ export default function AddLineItem({ processGroupName = '', name = '', addItemT
   }, [assemblyProcessData])
 
   const handleUpdatedItem = () => {
-    ItemAPI.updateItemsAPI(item._id, { name: updatedItemName })
+    ItemAPI.updateItemAPI(item._id, { name: updatedItemName })
       .then(res => {
         if (res.data) {
           setItem(res.data);
