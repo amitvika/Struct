@@ -1,0 +1,8 @@
+.MuiSnackbar-anchorOriginBottomCenter {
+  /* left: unset !important; */
+}
+
+.Material__Modal{
+  width: 70%;
+    top: 20%;
+}

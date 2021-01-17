@@ -18,7 +18,7 @@ import BaseItemProperties from './baseItemProperties';
 import GeometricDimensioning from './geometricDimensioning';
 import CurrentUsage from './CurrentUsage';
 import VendorDetails from './VendorDetails';
-import ManufacturingAnalysis from './manufacturabilityAnalysis'
+import Manufacturing from './manufacturability'
 import ClientSetup from './clientSetup';
 
 import ItemTypeConfigurations from './ItemTypeConfigurations';
@@ -70,7 +70,7 @@ const ItemDetail = () => {
 			case 5:
 				return <VendorDetails />
 			case 6:
-				return <ManufacturingAnalysis />;
+				return <Manufacturing />;
 			case 7:
 				return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
 			default:
@@ -147,7 +147,7 @@ const ItemDetail = () => {
 								itemDetail.vendorId && <Tab label="Vendor Details" value={5} />
 							}
 
-							<Tab label="Manufacturability Analysis" value={6} />
+							<Tab label="Manufacturability" value={6} />
 
 
 						</Tabs>
