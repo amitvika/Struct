@@ -31,13 +31,13 @@ const ProcessDataSchema = new mongoose.Schema({
     type: Schema.Types.ObjectId,
     ref: "Item"
   },
-  assemblySequenceNumber: [{
+  assemblySequences: [{
     orderNumber: { type: Number },
     itemId: {
       type: Schema.Types.ObjectId,
       ref: "Item"
     },
-    fasteningMethods: { type: String }
+    fasteningMethods: [{ type: Object }]
   }]
 });
 //this converts the schema into a model
