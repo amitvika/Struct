@@ -17,6 +17,7 @@ import Grid from '@material-ui/core/Grid';
 import Select from '../../../components/atoms/Select';
 import Input from '../../../components/atoms/Input';
 import Headding from '../../../components/atoms/Headding';
+import Checkbox from '../../../components/atoms/Checkbox';
 import MaterialModal from './MaterialModal';
 import MaterialPropertiesModal from './MaterialPropertiesModal';
 
@@ -162,7 +163,12 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 						<Headding bold title={'End Product'} />
 					</Grid>
 					<Grid item xs={8}>
-						
+						<Checkbox
+							checked={itemGeometry.isEndProductSelected}
+							size="large"
+							// label="View GridView"
+							onChange={(event) => handleOnChange('isEndProductSelected', event.target.checked)}
+						/>
 					</Grid>
 
 					<Grid item xs={4}>

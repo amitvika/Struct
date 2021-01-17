@@ -8,17 +8,17 @@ import Headding from '../../../components/atoms/Headding';
 import Input from '../../../components/atoms/Input';
 import Space from '../../../components/atoms/Space';
 
-export default function ClientPortal() {
-	const [websiteName, setWebsiteName] = useState('');
-	const [checked, setChecked] = useState(false);
-
+export default function ClientPortal({ clientData, handleClientUpdate, isWebsiteNameAvailable }) {
 
 	const handleSiteNameChange = (event) => {
-		setWebsiteName(event.target.value);
+		event.persist();
+		if (event.target !== null) {
+			handleClientUpdate({ ...clientData, websiteName: event.target.value });
+		}
 	}
 
 	const handleChange = (event) => {
-		setChecked(event.target.checked);
+		handleClientUpdate({ ...clientData, isSiteVisible: event.target.checked });
 	};
 
 	return (
@@ -35,11 +35,11 @@ export default function ClientPortal() {
 				<Grid item xs={8}>
 					<Checkbox
 						inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-						checked={checked}
+						checked={clientData.isSiteVisible}
 						onChange={handleChange} />
 				</Grid>
 				{
-					checked &&
+					clientData.isSiteVisible &&
 					<>
 						<Grid item xs={4}>
 							<Headding bold title={'Client Site URL'} />
@@ -47,17 +47,20 @@ export default function ClientPortal() {
 						<Grid item xs={8}>
 							<Grid item xs={6}>
 								<Input
-									placeholder="Enter Name"
+									placeholder="Enter website name"
 									type="text"
 									onChange={handleSiteNameChange}
+									value={clientData.websiteName}
 								/>
 							</Grid>
-							<Grid item xs={6}>
-
+							<Grid item xs={6} style={{ color: isWebsiteNameAvailable ? 'green' : 'red' }}>
 								{
-									websiteName.length > 0 &&
+									isWebsiteNameAvailable && clientData.websiteName && clientData.websiteName.length > 0 &&
 									<Link color="inherit"
-										onClick={() => window.open(`http://${websiteName}.struct.services`, "_blank")}>{`${websiteName}.struct.services`}</Link>
+										onClick={() => window.open(`http://${clientData.websiteName}.struct.services`, "_blank")}>{`${clientData.websiteName}.struct.services`}</Link>
+								}
+								{
+									!isWebsiteNameAvailable && <span>{`${clientData.websiteName}.struct.services `}***Website Name Already Taken***</span>
 								}
 							</Grid>
 						</Grid>

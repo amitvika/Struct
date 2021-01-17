@@ -20,9 +20,6 @@ const Checkbox = ({
   id,
   ...props
 }) => {
-  const handleChange = (event) => {
-    onChange(label, event.target.checked);
-  };
 
   return (
     <div
@@ -37,7 +34,7 @@ const Checkbox = ({
         id={id}
         checkedIcon={<span className="brewery-checkbox--checked" />}
         icon={<span className="brewery-checkbox--icon" />}
-        onChange={handleChange}
+        onChange={onChange}
         disableRipple={readonly}
         {...field}
         {...props}

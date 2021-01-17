@@ -4,17 +4,20 @@ import Filter from '../../../components/Filter';
 import GridView from '../../../components/GridView';
 import Headding from '../../../components/atoms/Headding';
 import Space from '../../../components/atoms/Space';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 import {
 	Grid,
-	Paper, 
+	Paper,
 	Typography,
-	Breadcrumbs
+	IconButton,
+
 } from '@material-ui/core';
 import { Spinner } from "reactstrap";
 
 import { columnsFields } from '../../../constants/item'
-import ItemAPI from '../../../api/items.api'
+import ItemAPI from '../../../api/items.api';
+import ProductOptions from './productOptions'
 
 export default function Products({
 	clientId
@@ -76,39 +79,50 @@ export default function Products({
 	return (
 		<div>
 			{/* Breadcrum */}
-			{Object.keys(selectedItem).length > 0 &&
-				<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px', display: 'flex' }} >
-					<Breadcrumbs aria-label="breadcrumb">
-						<Typography color="inherit" onClick={handleProductBreadcrumbSelect}>Products</Typography>
-						<Typography color="primary" aria-current="page">Product Options: {selectedItem.name}</Typography>
-					</Breadcrumbs>
-				</Paper>
-			}
+			{Object.keys(selectedItem).length > 0 ?
+				<>
+					<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px', display: 'flex' }} >
+						<IconButton color="primary" onClick={handleProductBreadcrumbSelect} component="span">
+							<ArrowBackIcon />
+						</IconButton>
+						<Typography color="primary" aria-current="page"
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								fontSize: '20px'
+							}}
+						>Configure Product: {selectedItem.name}</Typography>
+					</Paper>
+					<ProductOptions />
+				</> :
+				
+				<>
+					<Space size={20} />
 
-			<Space size={20} />
+					{/* Filter section */}
+					<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
+						<Grid container>
+							<Filter
+								list={itemList}
+								filteredList={filteredItemList}
+								setFilteredList={setFilteredItemList}
+								columnsFields={columnsFields}
+							/>
+						</Grid>
+					</Paper>
+					<Space size={20} />
 
-			{/* Filter section */}
-			<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
-				<Grid container>
-					<Filter
-						list={itemList}
-						filteredList={filteredItemList}
-						setFilteredList={setFilteredItemList}
+					<Headding fontSize={20} title={'Configure Products'} style={{ fontWeight: 'bold' }}></Headding>
+					<GridView
+						list={filteredItemList}
+						handleHistoryToggle={() => false}
 						columnsFields={columnsFields}
+						handleTableRowClick={handleItemClick}
+						isHistoryLinkVisible={false}
 					/>
-				</Grid>
-			</Paper>
-			<Space size={20} />
-
-			<Headding fontSize={20} title={'Client used in following Items'} style={{ fontWeight: 'bold' }}></Headding>
-			<GridView
-				list={filteredItemList}
-				handleHistoryToggle={() => false}
-				columnsFields={columnsFields}
-				handleTableRowClick={handleItemClick}
-				isHistoryLinkVisible={false}
-			/>
-		</div>
+				</>
+			}
+		</div >
 	)
 
 }

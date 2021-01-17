@@ -72,7 +72,7 @@ const ItemDetail = () => {
 			case 6:
 				return <ManufacturingAnalysis />;
 			case 7:
-				return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties}/>;
+				return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
 			default:
 				return "Undefined Tab Index";
 		}
@@ -134,25 +134,22 @@ const ItemDetail = () => {
 							onChange={(event, newValue) => setValue(newValue)}>
 							<Tab label="Base Item Properties" value={1} />
 							{
-								itemProperties?.itemGeometry?.itemType !== "End Product" &&
-								<>
-									{
-										itemProperties?.itemGeometry?.itemType && <Tab label="Geometric Dimensioning and Tolerances" value={2} />
-									}
-									<Tab label="Current Usage" value={3} />
-									<Tab label="Item Type Configurations" value={4} />
-									{
-										itemDetail.vendorId && <Tab label="Vendor Details" value={5} />
-									}
-
-									<Tab label="Manufacturability Analysis" value={6} />
-								</>
+								itemProperties?.itemGeometry?.isEndProductSelected &&
+								<Tab label="Client Setup" value={7} />
 							}
 
 							{
-								itemProperties?.itemGeometry?.itemType === "End Product" &&
-								<Tab label="Client Setup" value={7} />
+								itemProperties?.itemGeometry?.itemType && <Tab label="Geometric Dimensioning and Tolerances" value={2} />
 							}
+							<Tab label="Current Usage" value={3} />
+							<Tab label="Item Type Configurations" value={4} />
+							{
+								itemDetail.vendorId && <Tab label="Vendor Details" value={5} />
+							}
+
+							<Tab label="Manufacturability Analysis" value={6} />
+
+
 						</Tabs>
 					</Paper>
 				</Grid>

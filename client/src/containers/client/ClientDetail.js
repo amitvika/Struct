@@ -21,29 +21,50 @@ import ClientPortal from './clientPortal';
 
 const ClientDetail = () => {
 	const [value, setValue] = useState(1);
-	const [data, setData] = useState({});
+	const [clientData, setClientData] = useState({});
 	let { id } = useParams();
+	const [isWebsiteNameAvailable, setIsWebsiteNameAvailable] = useState(true);
 
 	useEffect(() => {
 		API.fetchClientApi(id)
 			.then(res => {
 				if (res.data) {
-					setData(res.data);
+					setClientData(res.data);
 				}
 			})
 			.catch(error => {
 				console.log('Error :', error)
 			})
-	}, [id])
+	}, [id]);
+
+	const handleSave = () => {
+		API.updateClientApi(id, clientData)
+			.then(res => {
+				if (res.data.success) {
+					setIsWebsiteNameAvailable(res.data.isWebsiteNameAvailable);
+				}
+				else {
+					setClientData(res.data);
+				}
+			})
+			.catch(error => {
+				console.log('Error :', error)
+			})
+	}
+
+	const handleClientUpdate = (data) => {
+		setClientData(data);
+		setIsWebsiteNameAvailable(true)
+	}
 
 	const renderPageSwitch = (index) => {
 		switch (index) {
 			case 1:
 				return <Products clientId={id} />
-				
+
 			case 2:
-				return <ClientPortal />;
-				
+				return <ClientPortal clientData={clientData} handleClientUpdate={handleClientUpdate} isWebsiteNameAvailable={isWebsiteNameAvailable} />;
+
 			case -2:
 				return "shows order claims via data file input or online store api.  Allows shipping configurations to be set as well. configure labelling as well";
 			case -3:
@@ -69,10 +90,6 @@ const ClientDetail = () => {
 		}
 	}
 
-	const handleSave = () => {
-
-	}
-
 	return (
 		<>
 			<Grid container>
@@ -93,7 +110,7 @@ const ClientDetail = () => {
 						</Breadcrumbs>
 					</Paper>
 					<Paper style={{ padding: 10, margin: 10 }}>
-						<h4>Client Name: {data.name}</h4>
+						<h4>Client Name: {clientData.name}</h4>
 						<p>Client ID:{id}</p>
 					</Paper>
 				</Grid>
