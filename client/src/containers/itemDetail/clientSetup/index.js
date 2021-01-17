@@ -52,6 +52,13 @@ export default function ClientSetup({
 				if (itemProperties.selectedClientId) {
 					const selectedClient = clients.find(client => client.id === itemProperties.selectedClientId);
 					setSelectedClient(selectedClient);
+
+					setClientList(clients.filter(client => client.id !== itemProperties.selectedClientId))
+					setFilteredClientList(clients.filter(client => client.id !== itemProperties.selectedClientId))
+				}
+				else {
+					setClientList(clients)
+					setFilteredClientList(clients)
 				}
 			}
 			setIsLoading(false);
@@ -63,9 +70,9 @@ export default function ClientSetup({
 
 	const handleClientSelect = (data) => {
 		setFilteredClientList(prevState => {
-			const updatedState = prevState.filter(client => client.id != data.id);
+			let updatedState = prevState.filter(client => client.id != data.id);
 			if (Object.keys(selectedClient).length > 0) {
-				updatedState = [data, updatedState]
+				updatedState = [data, ...updatedState]
 			}
 			return updatedState;
 		});

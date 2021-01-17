@@ -196,7 +196,7 @@ const ProcessGroups = () => {
   return (
     <DefaultContainer
       isHistoryModalOpened={isHistoryModalOpened}
-      title={'ProcessGroup'}
+      title={'ProcessGroups'}
       selectedId={selectedProcessGroupId}
       handleHistoryToggle={handleHistoryToggle}
       snackBar={snackBar}
@@ -205,7 +205,7 @@ const ProcessGroups = () => {
       snackBarAlertType={snackBarAlertType}>
 
       <Toolbar
-        title={'Process Group'}
+        title={'Process Groups'}
         isGridViewSelected={isGridViewSelected}
         setIsGridViewSelected={setIsGridViewSelected}
         // handleSearchBar={handleSearchBar}
@@ -228,7 +228,7 @@ const ProcessGroups = () => {
             columnsFields={columnsFields}
             handleTableRowClick={handleTableRowClick} /> :
           <TableView
-            title={'Process Group'}
+            title={'Process Groups'}
             list={filteredProcessGroupList}
             isDeletedItemVisible={isDeletedItemVisible}
             handleHistoryToggle={handleHistoryToggle}

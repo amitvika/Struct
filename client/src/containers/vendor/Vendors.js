@@ -208,7 +208,7 @@ const Vendors = () => {
   return (
     <DefaultContainer
       isHistoryModalOpened={isHistoryModalOpened}
-      title={'Vendor'}
+      title={'Vendors'}
       selectedId={selectedVendorId}
       handleHistoryToggle={handleHistoryToggle}
       snackBar={snackBar}
@@ -217,7 +217,7 @@ const Vendors = () => {
       snackBarAlertType={snackBarAlertType}>
 
       <Toolbar
-        title={'Vendor'}
+        title={'Vendors'}
         isGridViewSelected={isGridViewSelected}
         setIsGridViewSelected={setIsGridViewSelected}
         // handleSearchBar={handleSearchBar}

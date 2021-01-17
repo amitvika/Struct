@@ -2,6 +2,7 @@ import React from 'react'
 import { Grid, Paper } from '@material-ui/core';
 import Checkbox from './atoms/Checkbox';
 import Headding from './atoms/Headding';
+import Space from './atoms/Space';
 import Filter from './Filter';
 
 export default function Toolbar({
@@ -17,6 +18,7 @@ export default function Toolbar({
 	return (
 		<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
 			<Grid container>
+
 				<Grid item sm sm={2}>
 					<Grid item sm sm={12}>
 						<Checkbox
@@ -43,12 +45,17 @@ export default function Toolbar({
 						/>
 					</Grid>
 				</Grid>
-				<Filter
-					{...restProps} />
-
-				<Grid item sm sm={12} style={{ display: 'flex', justifyContent: 'center' }}>
-					<Headding fontSize={30} title={title} style={{ fontWeight: 'bold' }}></Headding>
+				<Grid item sm sm={10}>
+					<Grid item sm sm={12} style={{ display: 'flex' }}>
+						<Filter
+							{...restProps} />
+					</Grid>
+					<Space size={30} />
+					<Grid item sm sm={10} style={{ display: 'flex', justifyContent: 'center' }}>
+						<Headding fontSize={30} title={title} style={{ fontWeight: 'bold' }}></Headding>
+					</Grid>
 				</Grid>
+
 				{/* {
 						isGridViewSelected &&
 						<div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>

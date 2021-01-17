@@ -158,7 +158,12 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 						<span>{itemProperties.assemblyType}</span>
 					</Grid>
 
-
+					<Grid item xs={4}>
+						<Headding bold title={'End Product'} />
+					</Grid>
+					<Grid item xs={8}>
+						
+					</Grid>
 
 					<Grid item xs={4}>
 						<Headding bold title={'Item Type'} />
@@ -177,8 +182,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 								{ label: "Containment - Liquid Container", value: "Containment - Liquid Container" },
 								{ label: "Tool", value: "Tool" },
 								{ label: "Machine - Tool", value: "Machine - Tool" },
-								{ label: "Unassembled Kit", value: "Unassembled Kit" },
-								{ label: "End Product", value: "End Product" }
+								{ label: "Unassembled Kit", value: "Unassembled Kit" }
 							]}
 							onChange={(data) => handleOnChange('itemType', data.value)}
 							value={itemGeometry.itemType && { label: itemGeometry.itemType }}
