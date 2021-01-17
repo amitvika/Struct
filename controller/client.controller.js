@@ -49,22 +49,22 @@ exports.create = async (req, res) => {
 	try {
 		const saveObject = {
 			name: req.body.name,
-			createdByUserId: req.body.userId
+			createdByUserId: req.user.id
 		};
 		const client = new Client(saveObject);
-		const newClient = client.save();
+		const newClient = await client.save();
 
 		if (!newClient) {
 			throw { message: 'Unable to save client' }
 		}
 
 		const changeTracking = new ChangeTracking({
-			client: item._id,
+			client: newClient._id,
 			update: saveObject,
 			model: "Client",
 			updateType: "Create",
-			updatedObject: item._id,
-			updatedBy: req.body.userId
+			updatedObject: newClient._id,
+			updatedBy: req.user.id
 		});
 
 		await changeTracking.save();

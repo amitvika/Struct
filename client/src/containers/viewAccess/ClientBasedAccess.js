@@ -6,23 +6,23 @@ import { Spinner } from "reactstrap";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClientAction } from '../../actions/viewAccess.action';
 
-export default function ClientBasedAccess({ userAccessLoaded, access }) {
+export default function ClientBasedAccess({ userAccessLoaded, access, clientList }) {
   const dispatch = useDispatch();
   const isLoading = useSelector(state => state.access.isCBALoading);
   const data = useSelector(state => state.access.cba);
 
-  useEffect(() => {
-    if (userAccessLoaded) {
-      dispatch(fetchClientAction(access))
-    }
-  }, [userAccessLoaded]);
+  // useEffect(() => {
+  //   if (userAccessLoaded) {
+  //     dispatch(fetchClientAction(access))
+  //   }
+  // }, [userAccessLoaded]);
 
   const refactorData = () => {
-    return data.map((x, index) => {
+    return clientList.map((x, index) => {
       if (access[x._id]) {
-        this.setState({
-          [x._id]: true
-        });
+        // this.setState({
+        //   [x._id]: true
+        // });
         return {
           clientId: x._id,
           client: x.name,

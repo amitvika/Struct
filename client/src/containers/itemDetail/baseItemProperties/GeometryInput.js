@@ -103,6 +103,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 							size="large"
 							variant="contained"
 							color="primary"
+							disabled={itemProperties.assemblyType === 'Multi-Item Assembly'}
 							onClick={toggleMaterial}>
 							Select Material
             </Button>
