@@ -168,7 +168,9 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 							checked={itemGeometry.isEndProductSelected}
 							size="large"
 							// label="View GridView"
-							onChange={(event) => handleOnChange('isEndProductSelected', event.target.checked)}
+							onChange={(event) => {
+								handleOnChange('isEndProductSelected', event.target.checked)
+							}}
 						/>
 					</Grid>
 

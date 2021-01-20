@@ -14,10 +14,9 @@ import {
 import Typography from "@material-ui/core/Typography";
 import { NavLink, useParams } from "react-router-dom";
 import API from '../../api/clients.api';
-// import { makeStyles } from "@material-ui/core/styles";
-// import ClientDetailTabContent from "../components/subNav/ClientDetailTabs/ClientDetailTabContent";
 import Products from './products'
 import ClientPortal from './clientPortal';
+import LogoView from '../../components/LogoView'
 
 const ClientDetail = () => {
 	const [value, setValue] = useState(1);
@@ -109,9 +108,14 @@ const ClientDetail = () => {
 							<Typography color="textPrimary">Client Details</Typography>
 						</Breadcrumbs>
 					</Paper>
-					<Paper style={{ padding: 10, margin: 10 }}>
-						<h4>Client Name: {clientData.name}</h4>
-						<p>Client ID:{id}</p>
+					<Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
+						<div>
+
+							<h4>Client Name: {clientData.name}</h4>
+							<p>Client ID:{id}</p>
+						</div>
+
+						<LogoView />
 					</Paper>
 				</Grid>
 				<Grid item sm={2}>

@@ -85,7 +85,7 @@ export default function Products({
 						<IconButton color="primary" onClick={handleProductBreadcrumbSelect} component="span">
 							<ArrowBackIcon />
 						</IconButton>
-						<Typography color="primary" aria-current="page"
+						<Typography
 							style={{
 								display: 'flex',
 								alignItems: 'center',

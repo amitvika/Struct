@@ -208,6 +208,11 @@ exports.update = async (req, res) => {
 			updateData.selectedClientId = body.selectedClientId;
 		}
 
+		if(body.itemGeometry.isEndProductSelected === false){
+			updateData.selectedClientId = null;
+		}
+
+
 		const updatedItem = await ItemModel.findByIdAndUpdate(req.params.id, updateData, { new: true })
 
 		const changeTracking = new ChangeTracking({

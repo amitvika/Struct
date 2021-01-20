@@ -71,14 +71,11 @@ export default function ClientSetup({
 	const handleClientSelect = (data) => {
 		setFilteredClientList(prevState => {
 			let updatedState = prevState.filter(client => client.id != data.id);
-			if (Object.keys(selectedClient).length > 0) {
-				updatedState = [data, ...updatedState]
-			}
 			return updatedState;
 		});
 
 		setSelectedClient(data)
-		setItemProperties(prevState => ({ selectedClientId: data.id, ...prevState }))
+		setItemProperties(prevState => ({ ...prevState, selectedClientId: data.id }))
 	}
 
 	const handleClientRemove = (data) => {
@@ -86,7 +83,7 @@ export default function ClientSetup({
 			return [data, ...preMaterialList];
 		});
 		setSelectedClient({});
-		setItemProperties(prevState => ({ selectedClientId: null, ...prevState }))
+		setItemProperties(prevState => ({ ...prevState, selectedClientId: null }))
 	}
 
 	if (isLoading) {
