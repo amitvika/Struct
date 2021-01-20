@@ -18,7 +18,7 @@ import BaseItemProperties from './baseItemProperties';
 import GeometricDimensioning from './geometricDimensioning';
 import CurrentUsage from './CurrentUsage';
 import VendorDetails from './VendorDetails';
-import Manufacturing from './manufacturability'
+import Manufacturing from './manufacturability/index2'
 import ClientSetup from './clientSetup';
 
 import ItemTypeConfigurations from './ItemTypeConfigurations';
@@ -147,7 +147,7 @@ const ItemDetail = () => {
 								itemDetail.vendorId && <Tab label="Vendor Details" value={5} />
 							}
 
-							<Tab label="Manufacturability" value={6} />
+							<Tab label="Manufacture" value={6} />
 
 
 						</Tabs>
