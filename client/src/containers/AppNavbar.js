@@ -110,13 +110,13 @@ const AppNavbar = () => {
           >
             Items
             </NavLink>
-          <NavLink
+          {/* <NavLink
             className="navbar-text"
             to='/process-groups'
             tag={RRNavLink}
           >
             Process Groups
-            </NavLink>
+            </NavLink> */}
 
           <NavLink className="navbar-text mr-2 disabled">|</NavLink>
 
