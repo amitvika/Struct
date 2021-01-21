@@ -64,7 +64,8 @@ const Clients = () => {
 						id: x._id,
 						name: x.name,
 						created_by: x.createdByUserId.name,
-						deleted_at: x.deletedAt
+						deleted_at: x.deletedAt,
+						logoUrl: x.logoUrl
 					}
 				})
 				setClientList(clients)

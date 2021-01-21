@@ -3,10 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import { blue } from '@material-ui/core/colors';
-
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -47,6 +43,7 @@ export default function Index2() {
 
     const handleTabChange = (tabName) => {
         setSelectedTab(tabName);
+        setSelectedTab2(tabArray2[1]);
         setisSubTabVisible(true);
     }
 
@@ -54,30 +51,29 @@ export default function Index2() {
         setSelectedTab2(tabName2);
     }
 
-    
-
 
     return (
-
-
         <>
             <Paper className={classes.paper} style={{ marginTop: "50px" }}>
                 <Grid container spacing={1}>
                     {
-                        tabArray.map(tabName => 
-                            (
-                                <Grid item xs={2.5}>
-                                    <Paper onClick={() => handleTabChange(tabName)}
-                                     style={{ 
-                                        backgroundColor: selectedTab === tabName ? "#343a40" : "" ,
-                                        color: selectedTab === tabName ? "white" : "" ,
-                                    
-                                    }} 
-                                        className={classes.paper}>{tabName}</Paper>
+                        tabArray.map(tabName =>
+                        (
+                            <Grid item xs={2.5}>
+                                <Paper onClick={() => "handleTabChange(tabName); handleTabChange2(tabName2);"}
 
-                                </Grid>
-                            )
-                        
+
+                                    style={{
+                                        backgroundColor: selectedTab === tabName ? "#343a40" : "",
+                                        color: selectedTab === tabName ? "white" : "",
+
+
+                                    }}
+                                    className={classes.paper}>{tabName}</Paper>
+
+                            </Grid>
+                        )
+
                         )
                     }
                 </Grid>
@@ -91,13 +87,13 @@ export default function Index2() {
                     {
                         tabArray2.map(tabName2 => (
                             <Grid item xs={3}>
-                                
-                                    <Paper onClick={() => handleTabChange2(tabName2)} style={{
-                                        backgroundColor: selectedTab2 ===tabName2 ? "#3369FF" : "",
-                                        color: selectedTab2 === tabName2 ? "white" : ""
-                                    }}
-                                     className={classes.paper}>{tabName2}</Paper>
-                                
+
+                                <Paper onClick={() => handleTabChange2(tabName2)} style={{
+                                    backgroundColor: selectedTab2 === tabName2 ? "#3369FF" : "",
+                                    color: selectedTab2 === tabName2 ? "white" : ""
+                                }}
+                                    className={classes.paper}>{tabName2}</Paper>
+
                             </Grid>
                         )
                         )

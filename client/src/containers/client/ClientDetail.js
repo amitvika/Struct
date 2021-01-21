@@ -17,12 +17,19 @@ import API from '../../api/clients.api';
 import Products from './products'
 import ClientPortal from './clientPortal';
 import LogoView from '../../components/LogoView'
+import MuiAlert from '@material-ui/lab/Alert';
+
+function Alert(props) {
+	return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const ClientDetail = () => {
+	let { id } = useParams();
+
 	const [value, setValue] = useState(1);
 	const [clientData, setClientData] = useState({});
-	let { id } = useParams();
 	const [isWebsiteNameAvailable, setIsWebsiteNameAvailable] = useState(true);
+	const [snackbarOptions, setSnackbarOptions] = useState({ isOpen: false, message: '' });
 
 	useEffect(() => {
 		API.fetchClientApi(id)
@@ -45,6 +52,7 @@ const ClientDetail = () => {
 				else {
 					setClientData(res.data);
 				}
+				setSnackbarOptions({ isOpen: true, message: 'All data is saved' })
 			})
 			.catch(error => {
 				console.log('Error :', error)
@@ -54,6 +62,10 @@ const ClientDetail = () => {
 	const handleClientUpdate = (data) => {
 		setClientData(data);
 		setIsWebsiteNameAvailable(true)
+	}
+
+	const handleSnackbarClose = () => {
+		setSnackbarOptions({ isOpen: false })
 	}
 
 	const renderPageSwitch = (index) => {
@@ -89,6 +101,16 @@ const ClientDetail = () => {
 		}
 	}
 
+	const handleLogoChange = ({ logoName, logoUrl }) => {
+		setClientData(prevState => {
+			return {
+				...prevState,
+				logoName,
+				logoUrl
+			}
+		});
+	}
+
 	return (
 		<>
 			<Grid container>
@@ -98,12 +120,11 @@ const ClientDetail = () => {
 							style={{
 								display: "flex",
 								justifyContent: "center"
-							}}
-						>
+							}}>
 							<NavLink
 								to='/clients'>
 								Clients
-              </NavLink>
+								</NavLink>
 
 							<Typography color="textPrimary">Client Details</Typography>
 						</Breadcrumbs>
@@ -115,7 +136,9 @@ const ClientDetail = () => {
 							<p>Client ID:{id}</p>
 						</div>
 
-						<LogoView />
+						<LogoView
+							logoUrl={clientData.logoUrl}
+							handleLogoChange={handleLogoChange} />
 					</Paper>
 				</Grid>
 				<Grid item sm={2}>
@@ -159,6 +182,11 @@ const ClientDetail = () => {
 					onClick={handleSave}>
 					Save
           </Button>
+			</Snackbar>
+			<Snackbar open={snackbarOptions.isOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+				<Alert onClose={handleSnackbarClose} severity="success">
+					{snackbarOptions.message}
+				</Alert>
 			</Snackbar>
 		</>
 	);

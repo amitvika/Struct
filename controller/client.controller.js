@@ -21,6 +21,15 @@ exports.get = async (req, res) => {
 			}
 			return false
 		})
+			.map(client => ({
+				_id: client._id,
+				name: client.name,
+				websiteName: client.websiteName,
+				isSiteVisible: client.isSiteVisible,
+				createdByUserId : client.createdByUserId,
+				logoName: client.logoName,
+				logoUrl: client.logoUrl ? `http://${req.headers.host}/logo/${client.logoName}` : ''
+			}))
 
 		res.json(filterClients)
 
@@ -131,14 +140,16 @@ exports.update = async (req, res) => {
 	const saveObject = {
 		name: req.body.name,
 		websiteName: req.body.websiteName,
-		isSiteVisible: req.body.isSiteVisible
+		isSiteVisible: req.body.isSiteVisible,
+		logoName: req.body.logoName,
+		logoUrl: req.body.logoUrl,
 	};
 
 	try {
 
 		const client = await Client.findOne({ $and: [{ _id: { $ne: req.params.id } }, { websiteName: req.body.websiteName }] });
 
-		if (client) {
+		if (req.body.websiteName && client) {
 			res.send({ success: true, message: 'Website Name already taken', isWebsiteNameAvailable: false })
 			return
 		}
@@ -152,7 +163,7 @@ exports.update = async (req, res) => {
 			model: "Client",
 			updateType: "Update",
 			updatedObject: req.params.id,
-			updatedBy: req.body.user
+			updatedBy: req.user.id
 		});
 
 		await changeTracking.save()
@@ -160,6 +171,7 @@ exports.update = async (req, res) => {
 		res.json(updateClient);
 
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({ success: false })
 	}
 }

@@ -35,8 +35,8 @@ const useStyles = makeStyles((theme) => ({
 	img: {
 		margin: 'auto',
 		display: 'block',
-		maxWidth: '100%',
-		maxHeight: '100%',
+		maxWidth: '96px',
+		maxHeight: '96px',
 	},
 	historyLink: {
 		margin: '10px',
@@ -86,7 +86,7 @@ export default function GridView({
 								height: '100%'
 							}}>
 								<Grid item sm sm={4} style={{ display: 'flex' }}>
-									<img className={classes.img} alt="complex" src={StructLogo} />
+									<img className={classes.img} alt="complex" src={product.logoUrl || StructLogo} />
 								</Grid>
 								<Grid item sm sm={8}>
 

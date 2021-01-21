@@ -208,7 +208,7 @@ exports.update = async (req, res) => {
 			updateData.selectedClientId = body.selectedClientId;
 		}
 
-		if(body.itemGeometry.isEndProductSelected === false){
+		if(body.itemGeometry.isEndProductSelected === false || body.selectedClientId === null){
 			updateData.selectedClientId = null;
 		}
 

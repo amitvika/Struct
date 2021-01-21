@@ -13,6 +13,8 @@ const ClientSchema = new mongoose.Schema({
 	websiteName: { type: String },
 	isSiteVisible: { type: String },
 	isDeleted: { type: Boolean, default: false },
+	logoName: { type: String },
+	logoUrl: { type: String }
 });
 //this converts the schema into a model
 const Client = mongoose.model("Client", ClientSchema);
