@@ -64,7 +64,7 @@ export default function Index2() {
 
         if (selectedTab === 'Machining') {
             return <Maching
-            selectedSubTab={selectedSubTab} />
+                selectedSubTab={selectedSubTab} />
         }
         else if (selectedTab === 'Injection Casting') {
             return <InjectionCasting
@@ -92,13 +92,9 @@ export default function Index2() {
                         (
                             <Grid item xs={2.5}>
                                 <Paper onClick={() => handleTabChange(tabName)}
-
-
                                     style={{
                                         backgroundColor: selectedTab === tabName ? "#343a40" : "",
-                                        color: selectedTab === tabName ? "white" : "",
-
-
+                                        color: selectedTab === tabName ? "white" : ""
                                     }}
                                     className={classes.paper}>{tabName}</Paper>
 
@@ -136,9 +132,8 @@ export default function Index2() {
                         </Paper>
                         <Divider className={classes.dividerStyle} />
 
-                        <Paper elevation={3} className={classes.paper} >
-                            {renderDetailPanel()}
-                        </Paper>
+                        {renderDetailPanel()}
+
                     </> : null
             }
 

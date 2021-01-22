@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
-	Button
+	Button,
+	makeStyles,
+	Paper
 } from "@material-ui/core";
 
 import ThreejsViewModal from './ThreejsViewModal'
@@ -10,7 +12,21 @@ import ConfigureItemAssembly from './ConfigureItemAssemblyModal';
 import ItemSelectionModal from './ItemSelectionModal';
 import ProcessAPI from '../../../../api/process.api';
 
+const useStyles = makeStyles((theme) => ({
+	paper: {
+		padding: theme.spacing(1),
+		textAlign: 'center',
+		color: theme.palette.text.secondary,
+		marginTop: 10,
+		marginBottom: 10
+	},
+}));
+
+
 export default function Assembly(props) {
+
+	const classes = useStyles();
+
 	const [assemblyProcessData, setAssemblyProcessData] = useState('');
 	const [isThreejsVisible, setIsThreejsVisible] = useState(false);
 
@@ -143,7 +159,7 @@ export default function Assembly(props) {
 				isItemSelectionModalOpen={isItemSelectionModalOpen}
 				handleUpdateAssemblySequence={handleUpdateAssemblySequence}
 			/>
-{/* 
+			{/* 
 			<AddLineItem
 				{...props}
 				assemblyProcessData={assemblyProcessData} /> */}
@@ -161,7 +177,7 @@ export default function Assembly(props) {
 					)
 				})
 			}
-			<div style={{ margin: '10px' }}>
+			<Paper elevation={3} className={classes.paper}>
 
 				<Button
 					style={{ width: '100%' }}
@@ -171,7 +187,7 @@ export default function Assembly(props) {
 					onClick={() => addItemToAssembly()}>
 					Add Item to Assembly
             </Button>
-			</div>
+			</Paper>
 		</div>
 	);
 }

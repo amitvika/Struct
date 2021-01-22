@@ -1,12 +1,12 @@
 import React from 'react'
-import ProcessConfiguration from './processConfiguration'
+import ProcessStatisticsAndAnalysis from './processStatisticsAndAnalysis'
 
 export default function InjectionCasting({ selectedSubTab }) {
   return (
     <div>
       {
-        selectedSubTab === 'Process Configuration' ?
-          <ProcessConfiguration /> : null
+        selectedSubTab === 'Process Statistics and Analysis' ?
+          <ProcessStatisticsAndAnalysis /> : null
       }
     </div>
   )
