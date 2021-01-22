@@ -1,36 +1,21 @@
 import React, { Component } from 'react'
-import ThreeGeomView from '../Geoms/GeomView';
 import FileUpload from '../../components/FileUpload';
 import ProcessGroupAPI from '../../api/processGroup.api'
 import CircularProgress from '@material-ui/core/CircularProgress';
+import {
+  ThreejsViewer
+} from '../../components';
 
 export default class ProcessHelper extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      isFileUploading: false
+      isFileUploading: false,
+      jsonMesh: {}
     }
   }
 
-  componentDidMount() {
-
-  }
-
-  loadStepInContainer = (MeshJSON) => {
-    const container = document.getElementById("graphical_view");
-
-    if (container.length === 0) {
-      throw Error("Cannot find graphical view div");
-    }
-
-    let view = new ThreeGeomView.GeomView(container);
-
-    view.clearAll();
-    view.updateShapeObject(MeshJSON, function () {
-      view.zoomAll();
-    });
-  }
 
   handleFileUpload = (data) => {
     this.setState({
@@ -39,9 +24,9 @@ export default class ProcessHelper extends Component {
     ProcessGroupAPI
       .uploadStepfile(data)
       .then(res => {
-        this.loadStepInContainer(res.data);
         this.setState({
-          isFileUploading: false
+          isFileUploading: false,
+          jsonMesh: res.data
         })
       })
       .catch(error => {
@@ -57,9 +42,10 @@ export default class ProcessHelper extends Component {
       <div>
         {this.state.isFileUploading && <CircularProgress />}
         <FileUpload handleFileUpload={this.handleFileUpload} />
-        <div id="graphical_view"
-          className="Viewer_Graphical"></div>
-
+        <ThreejsViewer
+          isLoading={this.state.isFileUploading}
+          data={this.state.jsonMesh}
+        />
       </div >
     )
   }

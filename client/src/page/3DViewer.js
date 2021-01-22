@@ -1,29 +1,17 @@
 import React, { Component } from 'react'
-import ThreeGeomView from '../containers/Geoms/GeomView';
+import {
+  ThreejsViewer
+} from '../components';
 import MeshJSON from '../assets/mesh.json'
 
 export default class Viewer extends Component {
 
-  componentDidMount() {
-    const container = document.getElementById("graphical_view");
-
-    if (container.length === 0) {
-      throw Error("Cannot find graphical view div");
-    }
-
-    let view = new ThreeGeomView.GeomView(container);
-
-    view.clearAll();
-    view.updateShapeObject(MeshJSON, function () {
-      view.zoomAll();
-    });
-  }
-
   render() {
     return (
       <div>
-        <div style={{ height: '80vh' }} id="graphical_view"
-          className="Viewer_Graphical"></div>
+        <div style={{ height: '80vh' }} >
+          <ThreejsViewer data={MeshJSON} isLoading={false} />
+        </div>
 
       </div >
     )

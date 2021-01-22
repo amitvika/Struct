@@ -6,11 +6,15 @@ import {
   Paper,
   CircularProgress
 } from "@material-ui/core";
-import Headding from '../../../components/atoms/Headding';
-import GeometryInput from './GeometryInput';
-import FileUpload from '../../../components/FileUpload';
 
-import ThreejsViewer from '../../3DViewer/ThreejsViewer';
+import GeometryInput from './GeometryInput';
+
+import {
+  ThreejsViewer,
+  Headding,
+  FileUpload
+} from '../../../components';
+
 import ProcessGroupAPI from '../../../api/processGroup.api'
 import ItemAPI from '../../../api/items.api';
 

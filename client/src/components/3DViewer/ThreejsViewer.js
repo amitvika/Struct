@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import ThreeGeomView from '../Geoms/GeomView';
-import ThreeSTLView from '../Geoms/STLView';
-import Headding from '../../components/atoms/Headding'
+import ThreeGeomView from './Geoms/GeomView';
+import ThreeSTLView from './Geoms/STLView';
+import Headding from '../atoms/Headding'
 import './style.css';
 
 export default function ThreejsViewer({ data = {}, isLoading = false }) {

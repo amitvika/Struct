@@ -18,7 +18,7 @@ import BaseItemProperties from './baseItemProperties';
 import GeometricDimensioning from './geometricDimensioning';
 import CurrentUsage from './CurrentUsage';
 import VendorDetails from './VendorDetails';
-import Manufacturing from './manufacturability/index2'
+import Manufacturing from '../manufacture/index2'
 import ClientSetup from './clientSetup';
 
 import ItemTypeConfigurations from './ItemTypeConfigurations';

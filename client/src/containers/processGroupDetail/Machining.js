@@ -5,13 +5,10 @@ import {
   Grid
 } from "@material-ui/core";
 
-import Select from '../../components/atoms/Select';
 import ItemsAPI from '../../api/items.api';
-import MeshJSON from '../../assets/mesh.json'
-import ThreejsViewer from '../3DViewer/ThreejsViewer';
+
 import ThreeDViewer from "../../components/sharedFunctionComponents/ThreeDViewer";
 import FileUpload from "../../components/sharedFunctionComponents/FileUpload";
-// import ThreeDViewer from "../../sharedFunctionComponents/ThreeDViewer";
 import CppTest from "../../components/sharedFunctionComponents/CppTest";
 
 export default function Machining() {

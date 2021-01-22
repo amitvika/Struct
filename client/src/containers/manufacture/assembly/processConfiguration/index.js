@@ -143,10 +143,10 @@ export default function Assembly(props) {
 				isItemSelectionModalOpen={isItemSelectionModalOpen}
 				handleUpdateAssemblySequence={handleUpdateAssemblySequence}
 			/>
-
+{/* 
 			<AddLineItem
 				{...props}
-				assemblyProcessData={assemblyProcessData} />
+				assemblyProcessData={assemblyProcessData} /> */}
 
 			{
 				assemblySequenceList.map(asnItem => {

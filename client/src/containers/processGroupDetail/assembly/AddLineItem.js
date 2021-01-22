@@ -5,10 +5,12 @@ import {
   Icon,
   Button
 } from "@material-ui/core";
-import Input from '../../../components/atoms/Input';
-import Headding from '../../../components/atoms/Headding';
+import {
+  Input,
+  Headding,
+  ThreejsViewer
+} from '../../../components';
 import ItemAPI from '../../../api/items.api';
-import ThreejsViewer from '../../3DViewer/ThreejsViewer';
 
 export default function AddLineItem({ processGroupName = '', name = '', addItemToAssembly, assemblyProcessData }) {
   const [item, setItem] = useState({});

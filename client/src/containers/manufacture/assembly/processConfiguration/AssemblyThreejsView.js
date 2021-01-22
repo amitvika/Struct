@@ -1,28 +1,15 @@
 import React, { Component } from 'react'
-import ThreeGeomView from '../../../Geoms/GeomView';
 import MeshJSON from '../../../../assets/mesh.json'
 import {
   Modal,
   ModalHeader,
   ModalBody,
 } from "reactstrap";
+import {
+ThreeGeomView
+} from '../../../../components';
 
 export default class AssemblyThreejsView extends Component {
-
-  componentDidMount() {
-    const container = document.getElementById("graphical_view");
-
-    if (container.length === 0) {
-      throw Error("Cannot find graphical view div");
-    }
-
-    let view = new ThreeGeomView.GeomView(container);
-
-    view.clearAll();
-    view.updateShapeObject(MeshJSON, function () {
-      view.zoomAll();
-    });
-  }
 
   render() {
     const { isModalVisible, handleModalToggle } = this.props;
@@ -30,8 +17,8 @@ export default class AssemblyThreejsView extends Component {
       <Modal isOpen={isModalVisible} toggle={handleModalToggle}>
         <ModalHeader toggle={handleModalToggle}>Thressjs</ModalHeader>
         <ModalBody>
-          <div>
-            <div style={{ height: '40vh' }} id="graphical_view"
+          <div style={{ height: '40vh' }}>
+            <div  id="graphical_view"
               className="Viewer_Graphical"></div>
           </div >
         </ModalBody>

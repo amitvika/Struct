@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import ThreejsViewer from '../../../3DViewer/ThreejsViewer';
 // import MeshJSON from '../assets/mesh.json'
 import {
   Button,
@@ -9,6 +8,11 @@ import {
   Dropdown, DropdownToggle, DropdownMenu, DropdownItem,
   Tooltip
 } from "reactstrap";
+
+import {
+  ThreejsViewer
+} from '../../../../components';
+
 import ItemsAPI from '../../../../api/items.api';
 import AssemblyProcessAPI from '../../../../api/assemblyProcess.api';
 
