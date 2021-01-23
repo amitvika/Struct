@@ -17,6 +17,18 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(1),
         textAlign: 'center',
         color: theme.palette.text.secondary,
+        marginTop: '10px',
+        marginBottom: '10px'
+    },
+    tabPaper: {
+        padding: theme.spacing(1),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+        cursor: 'pointer',
+        transition: '0.3s',
+        "&:hover, &:focus": {
+            backgroundColor: '#DCDCDC'
+        }
     },
     selectedTab: {
         backgroundColor: "blue",
@@ -25,6 +37,10 @@ const useStyles = makeStyles((theme) => ({
     dividerStyle: {
         marginTop: '20px',
         marginBottom: '20px'
+    },
+    verticalDivider: {
+        margin: '5px',
+        width: '1px'
     }
 }));
 
@@ -43,7 +59,7 @@ export default function Index2() {
     };
 
 
-    const tabArray = ['Process', 'Machining', 'Injection Casting', 'Assembly', 'Photolithography', 'Unpacking',
+    const tabArray = ['Machining', 'Injection Casting', 'Assembly', 'Photolithography', 'Unpacking',
         'PCB Assembly', 'Extrusion', '3D Printing', 'Forming',
         ' Textile Assembly', 'Powder Stamping and Sintering', ' Coatings', ' Temperature and Gas Treatments',
         ' Photochemical Machining']
@@ -87,6 +103,18 @@ export default function Index2() {
         <>
             <Paper elevation={3} className={classes.paper}>
                 <Grid container spacing={1}>
+                    <Grid item xs={2.5}>
+                        <Paper onClick={() => handleTabChange('Full Process Recommendation')}
+                            style={{
+                                backgroundColor: selectedTab === 'Full Process Recommendation' ? "#343a40" : "",
+                                color: selectedTab === 'Full Process Recommendation' ? "white" : ""
+                            }}
+                            className={classes.tabPaper}>{'Full Process Recommendation'}</Paper>
+                    </Grid>
+
+                    <Divider orientation="vertical" flexItem className={classes.verticalDivider} />
+
+
                     {
                         tabArray.map(tabName =>
                         (
@@ -96,7 +124,7 @@ export default function Index2() {
                                         backgroundColor: selectedTab === tabName ? "#343a40" : "",
                                         color: selectedTab === tabName ? "white" : ""
                                     }}
-                                    className={classes.paper}>{tabName}</Paper>
+                                    className={classes.tabPaper}>{tabName}</Paper>
 
                             </Grid>
                         )
@@ -109,9 +137,9 @@ export default function Index2() {
             {
                 isSubTabVisible ?
                     <>
-                        <Divider className={classes.dividerStyle} />
                         <Paper elevation={3} style={{
-                            visibility: isSubTabVisible ? "visible" : "hidden"
+                            visibility: isSubTabVisible ? "visible" : "hidden",
+
                         }} className={classes.paper}>
                             <Grid container spacing={1}>
                                 {
@@ -122,7 +150,7 @@ export default function Index2() {
                                                 backgroundColor: selectedSubTab === tabName2 ? "#3369FF" : "",
                                                 color: selectedSubTab === tabName2 ? "white" : ""
                                             }}
-                                                className={classes.paper}>{tabName2}</Paper>
+                                                className={classes.tabPaper}>{tabName2}</Paper>
 
                                         </Grid>
                                     )
@@ -130,7 +158,6 @@ export default function Index2() {
                                 }
                             </Grid>
                         </Paper>
-                        <Divider className={classes.dividerStyle} />
 
                         {renderDetailPanel()}
 

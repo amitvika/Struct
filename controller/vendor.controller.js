@@ -15,9 +15,15 @@ exports.get = async (req, res) => {
       sort: { date: -1 },
     };
 
-    const item = await VendorModel.find(query).sort({ date: -1 })
+    const item = await VendorModel.find(query)
+      .sort({ date: -1 })
+      .map(data => {
+        data.logoName = data.logoName;
+        data.logoUrl = data.logoUrl ? `http://${req.headers.host}/logo/${data.logoName}` : '';
+        return data;
+      })
 
-      res.json(item);
+    res.json(item);
 
   }
   catch (error) {
@@ -31,6 +37,8 @@ exports.getOne = (req, res) => {
 
   VendorModel.findById(vendorId)
     .then(data => {
+      data.logoName = data.logoName;
+      data.logoUrl = data.logoUrl ? `http://${req.headers.host}/logo/${data.logoName}` : ''
       res.send(data);
     })
     .catch(error => {
@@ -80,10 +88,12 @@ exports.update = async (req, res) => {
 
     const saveObject = {
       name: req.body.name,
-      source: req.body.source
+      source: req.body.source,
+      logoName: req.body.logoName,
+      logoUrl: req.body.logoUrl
     };
 
-    const updatedItem = await VendorModel.findByIdAndUpdate(req.params.id, saveObject)
+    const updatedItem = await VendorModel.findByIdAndUpdate(req.params.id, saveObject, { new: true })
 
     const changeTracking = new ChangeTracking({
       client: updatedItem._id,
@@ -95,7 +105,7 @@ exports.update = async (req, res) => {
     });
     await changeTracking.save();
 
-    res.json({ success: true });
+    res.json(updatedItem);
   }
   catch (error) {
     console.log(error)

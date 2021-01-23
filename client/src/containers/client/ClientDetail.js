@@ -1,5 +1,4 @@
-import React, { Component, useEffect, useState } from "react";
-import { changePage } from "../../actions/pageActions";
+import React, { useEffect, useState } from "react";
 import {
 	Snackbar,
 	Button,
@@ -16,7 +15,7 @@ import { NavLink, useParams } from "react-router-dom";
 import API from '../../api/clients.api';
 import Products from './products'
 import ClientPortal from './clientPortal';
-import LogoView from '../../components/LogoView'
+import LogoView from '../../components/LogoView';
 import MuiAlert from '@material-ui/lab/Alert';
 
 function Alert(props) {

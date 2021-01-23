@@ -26,7 +26,7 @@ exports.get = async (req, res) => {
 				name: client.name,
 				websiteName: client.websiteName,
 				isSiteVisible: client.isSiteVisible,
-				createdByUserId : client.createdByUserId,
+				createdByUserId: client.createdByUserId,
 				logoName: client.logoName,
 				logoUrl: client.logoUrl ? `http://${req.headers.host}/logo/${client.logoName}` : ''
 			}))
@@ -45,6 +45,8 @@ exports.getOne = (req, res) => {
 		.populate("createdByUserId", "name")
 		.sort({ date: -1 })
 		.then(data => {
+			data.logoName = data.logoName;
+			data.logoUrl = data.logoUrl ? `http://${req.headers.host}/logo/${client.logoName}` : '';
 			res.json(data)
 		})
 		.catch(error => {

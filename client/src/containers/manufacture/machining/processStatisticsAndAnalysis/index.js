@@ -110,10 +110,7 @@ export default function ProcessStaticsAndAnalysis() {
                             </Grid>
                         </Grid>
                     </Grid>
-
-                    <Grid item xs={12}>
-                        <Divider className={classes.dividerStyle} />
-                    </Grid>
+                    
                     
                     <Grid item xs={12}>
                         <Grid item xs={12} style={{ display: 'flex', marginTop: '10px', marginBottom: '10px' }}>

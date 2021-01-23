@@ -90,7 +90,8 @@ const Vendors = () => {
           return {
             id: x._id,
             name: x.name,
-            source: x.source
+            source: x.source,
+            logoUrl: x.logoUrl
           }
         })
 

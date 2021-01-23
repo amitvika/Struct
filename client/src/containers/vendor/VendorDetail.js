@@ -10,15 +10,23 @@ import {
   Link,
   Typography
 } from "@material-ui/core";
+
 import { NavLink, useParams } from "react-router-dom";
 import ItemContainer from './Items';
 import VendorAPI from '../../api/vendor.api';
+import LogoView from '../../components/LogoView';
+import MuiAlert from '@material-ui/lab/Alert';
 
+function Alert(props) {
+	return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const VendorDetail = () => {
   const [value, setValue] = useState(1);
   const [vendorInfo, setVendorInfo] = useState({});
   let { id } = useParams();
+  const [snackbarOptions, setSnackbarOptions] = useState({ isOpen: false, message: '' });
+
 
   useEffect(() => {
 
@@ -57,8 +65,30 @@ const VendorDetail = () => {
   }
 
   const handleSave = () => {
-
+    VendorAPI.updateVendorApi(id, vendorInfo)
+      .then(res => {
+        setVendorInfo(res.data);
+        setSnackbarOptions({ isOpen: true, message: 'All data is saved' })
+      })
+      .catch(err => {
+        setSnackbarOptions({ isOpen: true, message: 'Unable to perform operation' })
+      });
   }
+
+  const handleLogoChange = ({ logoName, logoUrl }) => {
+    setVendorInfo(prevState => {
+      return {
+        ...prevState,
+        logoName,
+        logoUrl
+      }
+    });
+  }
+
+  
+	const handleSnackbarClose = () => {
+		setSnackbarOptions({ isOpen: false })
+	}
 
   return (
     <>
@@ -80,10 +110,18 @@ const VendorDetail = () => {
               <Typography color="textPrimary">Vendor Details</Typography>
             </Breadcrumbs>
           </Paper>
-          <Paper style={{ padding: 10, margin: 10 }}>
-            <h4>Vendor Name: {vendorInfo.name}</h4>
-            <p>Vendor ID:{id}</p>
+
+          <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
+            <div>
+              <h4>Vendor Name: {vendorInfo.name}</h4>
+              <p>Vendor ID:{id}</p>
+            </div>
+
+            <LogoView
+              logoUrl={vendorInfo.logoUrl}
+              handleLogoChange={handleLogoChange} />
           </Paper>
+
         </Grid>
         <Grid item sm={2}>
           <Paper style={{ padding: 20, margin: 10 }}>
@@ -122,6 +160,11 @@ const VendorDetail = () => {
           Save
           </Button>
       </Snackbar>
+      <Snackbar open={snackbarOptions.isOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+				<Alert onClose={handleSnackbarClose} severity="success">
+					{snackbarOptions.message}
+				</Alert>
+			</Snackbar>
     </>
   );
 }

@@ -86,10 +86,10 @@ const ItemDetail = () => {
 			.updateItemAPI(id, { ...itemProperties })
 			.then(res => {
 				setItemProperties(res.data);
-				setSnackbarOptions({ isOpen: true, message: 'All data is saved' })
+				setSnackbarOptions({ isOpen: true, message: 'All data is saved' });
 			})
 			.catch(error => {
-				setSnackbarOptions({ isOpen: true, message: 'Unable to save info' })
+				setSnackbarOptions({ isOpen: true, message: 'Unable to save info' });
 			})
 	}
 

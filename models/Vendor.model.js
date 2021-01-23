@@ -20,7 +20,9 @@ const VendorSchema = new mongoose.Schema({
   isDeleted: { type: Boolean, default: false },
   deletedAt: {
     type: Date
-  }
+  },
+  logoName: { type: String },
+	logoUrl: { type: String }
 });
 
 
