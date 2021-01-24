@@ -135,7 +135,7 @@ const ClientDetail = () => {
 							<p>Client ID:{id}</p>
 						</div>
 
-						<LogoView
+3						<LogoView
 							logoUrl={clientData.logoUrl}
 							handleLogoChange={handleLogoChange} />
 					</Paper>

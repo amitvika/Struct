@@ -12,7 +12,12 @@ import { Button } from "@material-ui/core";
 import red from "@material-ui/core/colors/red";
 import blue from "@material-ui/core/colors/blue";
 import axios from "axios";
-import { set } from 'mongoose';
+
+import MuiAlert from '@material-ui/lab/Alert';
+
+function Alert(props) {
+	return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -61,6 +66,7 @@ export default function ImageUploadModal({
 	const [isFileChanged, setIsFileChanged] = useState(false);
 	const [file, setfile] = useState('');
 	const [logoURL, setLogoURL] = useState(logoUrl);
+	const [snackbarOptions, setSnackbarOptions] = useState({ isOpen: false, message: '' });
 
 	const handleChange = (event) => {
 		setLogoURL(URL.createObjectURL(event.target.files[0]));
@@ -69,10 +75,10 @@ export default function ImageUploadModal({
 	}
 
 	const handleFileUpload = () => {
-		if(!isFileChanged){
+		if (!isFileChanged) {
 			return;
 		}
-		
+
 		const formData = new FormData();
 		formData.append("file", file);
 		axios
@@ -80,11 +86,17 @@ export default function ImageUploadModal({
 			.then(res => {
 				if (res.data.logoUrl) {
 					handleLogoChange(res.data)
+					setSnackbarOptions({ isOpen: true, message: 'Logo is upload successfully' });
 				}
 			})
 			.catch(err => {
 				console.log(err);
+				setSnackbarOptions({ isOpen: true, message: 'Unable to process your request' })
 			});
+	}
+	
+	const handleSnackbarClose = () => {
+		setSnackbarOptions({ isOpen: false })
 	}
 
 	return (
