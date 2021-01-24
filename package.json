@@ -4,14 +4,14 @@
   "description": "All the code, in one place",
   "main": "index.js",
   "scripts": {
-    "setup": "npm install --prefix ./ && npm install --prefix ./frontend-client && npm install --prefix ./backend-node",
+    "setup": "npm install --prefix ./ && npm install --prefix ./frontend-client && npm install --prefix ./backend-node  && npm install --prefix ./frontend-web",
     "*****Server*****": "Node backend",
     "server": "cd backend-node && npm run server",
     "*****Client*****": "Frontend",
     "client": "cd frontend-client && npm start",
     "*****Website*****": "Marketing website",
-    "website": "cd frontend-website && npm start",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "website": "cd frontend-web && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\" \"npm run website\""
   },
   "repository": {
     "type": "git",
