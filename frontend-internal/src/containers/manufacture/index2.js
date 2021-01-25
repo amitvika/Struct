@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function Index2() {
+export default function Index2(props) {
 
     const [selectedTab, setSelectedTab] = useState("");
     const [selectedSubTab, setselectedSubTab] = useState("");
@@ -80,14 +80,17 @@ export default function Index2() {
 
         if (selectedTab === 'Machining') {
             return <Maching
+                {...props}
                 selectedSubTab={selectedSubTab} />
         }
         else if (selectedTab === 'Injection Casting') {
             return <InjectionCasting
+                {...props}
                 selectedSubTab={selectedSubTab} />
         }
         else if (selectedTab === 'Assembly') {
             return <Assembly
+                {...props}
                 selectedSubTab={selectedSubTab} />
         }
         else {

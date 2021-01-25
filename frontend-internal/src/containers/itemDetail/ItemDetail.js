@@ -70,7 +70,7 @@ const ItemDetail = () => {
 			case 5:
 				return <VendorDetails />
 			case 6:
-				return <Manufacturing />;
+				return <Manufacturing itemId={id}/>;
 			case 7:
 				return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
 			default:

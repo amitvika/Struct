@@ -10,7 +10,6 @@ import AddLineItem from './AddLineItem';
 import AssemblySequenceNumber from './AssemblySequenceNumber';
 import ConfigureItemAssembly from './ConfigureItemAssemblyModal';
 import ItemSelectionModal from './ItemSelectionModal';
-import ProcessAPI from '../../../../api/process.api';
 
 const useStyles = makeStyles((theme) => ({
 	paper: {
@@ -23,11 +22,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function Assembly(props) {
+export default function Assembly({
+	assemblyManufactureValues,
+	handleAssemblyManufactureChange
+}) {
 
 	const classes = useStyles();
 
-	const [assemblyProcessData, setAssemblyProcessData] = useState('');
+	const assemblyProcessData = assemblyManufactureValues.processConfiguration || {};
+
 	const [isThreejsVisible, setIsThreejsVisible] = useState(false);
 
 	const [assemblySequenceList, setAssemblySequenceList] = useState([]);
@@ -35,21 +38,10 @@ export default function Assembly(props) {
 	const [isAssemblySequenceSynced, setIsAssemblySequenceSynced] = useState(true);
 
 	useEffect(() => {
-		ProcessAPI.getProcessData(props.processId)
-			.then(res => {
-				if (res.data) {
-					setAssemblyProcessData(res.data)
-				}
-
-				if (res.data.assemblySequences) {
-					setAssemblySequenceList(res.data.assemblySequences)
-				}
-			})
-			.catch(error => {
-
-			})
-
-	}, [props.processId]);
+		if(assemblyManufactureValues?.processConfiguration?.assemblySequences){
+			setAssemblySequenceList(assemblyManufactureValues.processConfiguration.assemblySequences)
+		}
+	}, [assemblyManufactureValues])
 
 	const addItemToAssembly = () => {
 
@@ -89,6 +81,7 @@ export default function Assembly(props) {
 		setIsAssemblySequenceSynced(false);
 	}
 
+
 	const syncProcessData = (updatedData) => {
 		if (updatedData.assemblySequences) {
 			updatedData.assemblySequences = updatedData?.assemblySequences
@@ -97,21 +90,7 @@ export default function Assembly(props) {
 		else {
 			updatedData.assemblySequences = [];
 		}
-		ProcessAPI.updateProcessData(props.processId, updatedData)
-			.then(res => {
-				console.log('Response', res)
-				if (res.data) {
-					setAssemblyProcessData(res.data)
-				}
-
-				if (res.data.assemblySequences) {
-					setAssemblySequenceList(res.data.assemblySequences)
-					setIsAssemblySequenceSynced(true);
-				}
-			})
-			.catch(error => {
-				console.log('error', error)
-			})
+		handleAssemblyManufactureChange({ processConfiguration: updatedData })
 	}
 
 	const [isConfigureItemAssemblyModalOpen, setIsConfigureItemAssemblyModalOpen] = useState(false);
