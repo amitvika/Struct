@@ -4,14 +4,15 @@
   "description": "All the code, in one place",
   "main": "index.js",
   "scripts": {
-    "setup": "npm install --prefix ./ && npm install --prefix ./frontend-client && npm install --prefix ./backend-node  && npm install --prefix ./frontend-web",
+    "setup": "npm install --prefix ./ && npm install --prefix ./frontend-internal && npm install --prefix ./backend-node  && npm install --prefix ./frontend-public",
     "*****Server*****": "Node backend",
     "server": "cd backend-node && npm run server",
-    "*****Client*****": "Frontend",
-    "client": "cd frontend-client && npm start",
-    "*****Website*****": "Marketing website",
-    "website": "cd frontend-web && npm start",
-    "dev": "concurrently \"npm run server\" \"npm run client\" \"npm run website\""
+    "*****Internal*****": "Internal Website",
+    "internal": "cd frontend-internal && npm start",
+    "*****Public*****": "Public website",
+    "public": "cd frontend-public && npm start",
+    "*****Development*****": "Start development environment",
+    "dev": "concurrently \"npm run server\" \"npm run internal\" \"npm run public\""
   },
   "repository": {
     "type": "git",
