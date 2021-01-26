@@ -7,7 +7,8 @@ import authReducer from "./authReducer";
 import pagesReducer from "./pageReducer";
 import userAccessUserReducer from "./userAccessUserReducer";
 import loading from './loading';
-import accessReducer from './viewAccess.reducer';;
+import accessReducer from './viewAccess.reducer';
+import alertReducer from './alert.reducer';
 
 
 export default combineReducers({
@@ -19,6 +20,6 @@ export default combineReducers({
   loading,
   access: accessReducer,
   accessConfig: accessConfigReducer,
-  clients: clientReducer
-  //all reducers go in this file object
+  clients: clientReducer,
+  alert: alertReducer
 });

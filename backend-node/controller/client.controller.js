@@ -46,7 +46,7 @@ exports.getOne = (req, res) => {
 		.sort({ date: -1 })
 		.then(data => {
 			data.logoName = data.logoName;
-			data.logoUrl = data.logoUrl ? `http://${req.headers.host}/logo/${client.logoName}` : '';
+			data.logoUrl = data.logoUrl ? `http://${req.headers.host}/logo/${data.logoName}` : '';
 			res.json(data)
 		})
 		.catch(error => {
@@ -63,11 +63,16 @@ exports.create = async (req, res) => {
 			createdByUserId: req.user.id
 		};
 		const client = new Client(saveObject);
-		const newClient = await client.save();
+		let newClient = await client.save()
+
 
 		if (!newClient) {
 			throw { message: 'Unable to save client' }
 		}
+
+		newClient = newClient
+			.findById(newClient._id)
+			.populate("createdByUserId", "name")
 
 		const changeTracking = new ChangeTracking({
 			client: newClient._id,
@@ -82,6 +87,7 @@ exports.create = async (req, res) => {
 
 		res.json(newClient);
 	} catch (error) {
+		console.log(error)
 
 		return res
 			.status(500)
@@ -156,7 +162,7 @@ exports.update = async (req, res) => {
 			return
 		}
 
-		const updateClient = await Client.findByIdAndUpdate(req.params.id, { $set: saveObject })
+		const updateClient = await Client.findByIdAndUpdate(req.params.id, { $set: saveObject }, { new: true })
 			.populate("createdByUserId", "name")
 
 		const changeTracking = new ChangeTracking({

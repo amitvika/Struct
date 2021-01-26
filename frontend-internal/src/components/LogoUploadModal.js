@@ -50,7 +50,12 @@ const useStyles = makeStyles(theme => ({
 	},
 	imagePreview: {
 		width: '100%',
-		height: '100%'
+		height: '100%',
+		objectFit: 'contain'
+	},
+	modalContainer: {
+		width: '50%',
+		height: '50%'
 	}
 }))
 
@@ -94,18 +99,18 @@ export default function ImageUploadModal({
 				setSnackbarOptions({ isOpen: true, message: 'Unable to process your request' })
 			});
 	}
-	
+
 	const handleSnackbarClose = () => {
 		setSnackbarOptions({ isOpen: false })
 	}
 
 	return (
 		<>
-			<Modal isOpen={isModalOpened} toggle={toggleModal}>
+			<Modal isOpen={isModalOpened} toggle={toggleModal} className={classes.modalContainer}>
 				<ModalHeader toggle={toggleModal}>Upload Logo</ModalHeader>
 				<ModalBody>
 					<Grid container spacing={1}>
-						<Grid item xs={8}>
+						<Grid item xs={8} style={{ display: 'flex', height: '50vh', justifyContent: 'center' }}>
 							<img className={classes.imagePreview} src={logoURL} />
 
 						</Grid>

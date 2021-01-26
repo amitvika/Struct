@@ -8,17 +8,19 @@ import store from "./store";
 //reduxEnd
 import { loadUser } from "./actions/authActions";
 import AppRoutes from './routes';
+import Alert from './components/Alert';
 
 const App = () => {
 
   useEffect(() => {
     store.dispatch(loadUser());
   }, []);
-  
+
 
   return (
     <Provider store={store}>
       <div className="App">
+        <Alert />
         <AppRoutes />
       </div>
     </Provider>

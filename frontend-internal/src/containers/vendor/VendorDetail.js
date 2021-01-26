@@ -15,13 +15,14 @@ import { NavLink, useParams } from "react-router-dom";
 import ItemContainer from './Items';
 import VendorAPI from '../../api/vendor.api';
 import LogoView from '../../components/LogoView';
-import MuiAlert from '@material-ui/lab/Alert';
 
-function Alert(props) {
-	return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+import { useDispatch } from 'react-redux';
+import { showErrorAlert, showSuccessAlert, hideAlert } from '../../actions/alert.action';
+
 
 const VendorDetail = () => {
+  const dispatch = useDispatch()
+
   const [value, setValue] = useState(1);
   const [vendorInfo, setVendorInfo] = useState({});
   let { id } = useParams();
@@ -65,30 +66,30 @@ const VendorDetail = () => {
   }
 
   const handleSave = () => {
-    VendorAPI.updateVendorApi(id, vendorInfo)
+    syncWithServer(vendorInfo)
+  }
+
+  const syncWithServer = (data) => {
+    VendorAPI.updateVendorApi(id, data)
       .then(res => {
         setVendorInfo(res.data);
-        setSnackbarOptions({ isOpen: true, message: 'All data is saved' })
+        dispatch(showSuccessAlert({ message: 'All data is saved' }));
       })
       .catch(err => {
-        setSnackbarOptions({ isOpen: true, message: 'Unable to perform operation' })
+        dispatch(showErrorAlert({ message: 'Unable to save data' }));
       });
   }
 
   const handleLogoChange = ({ logoName, logoUrl }) => {
-    setVendorInfo(prevState => {
-      return {
-        ...prevState,
-        logoName,
-        logoUrl
-      }
-    });
-  }
+    const updatedValues = {
+      ...vendorInfo,
+      logoName,
+      logoUrl
+    };
 
-  
-	const handleSnackbarClose = () => {
-		setSnackbarOptions({ isOpen: false })
-	}
+    setVendorInfo(updatedValues);
+    syncWithServer(updatedValues);
+  }
 
   return (
     <>
@@ -119,7 +120,8 @@ const VendorDetail = () => {
 
             <LogoView
               logoUrl={vendorInfo.logoUrl}
-              handleLogoChange={handleLogoChange} />
+              handleLogoChange={handleLogoChange}
+              name={vendorInfo.name} />
           </Paper>
 
         </Grid>
@@ -160,11 +162,7 @@ const VendorDetail = () => {
           Save
           </Button>
       </Snackbar>
-      <Snackbar open={snackbarOptions.isOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-				<Alert onClose={handleSnackbarClose} severity="success">
-					{snackbarOptions.message}
-				</Alert>
-			</Snackbar>
+
     </>
   );
 }

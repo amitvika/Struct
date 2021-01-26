@@ -16,19 +16,18 @@ import API from '../../api/clients.api';
 import Products from './products'
 import ClientPortal from './clientPortal';
 import LogoView from '../../components/LogoView';
-import MuiAlert from '@material-ui/lab/Alert';
 
-function Alert(props) {
-	return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+import { useDispatch } from 'react-redux';
+import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
+
 
 const ClientDetail = () => {
 	let { id } = useParams();
+	const dispatch = useDispatch()
 
 	const [value, setValue] = useState(1);
 	const [clientData, setClientData] = useState({});
 	const [isWebsiteNameAvailable, setIsWebsiteNameAvailable] = useState(true);
-	const [snackbarOptions, setSnackbarOptions] = useState({ isOpen: false, message: '' });
 
 	useEffect(() => {
 		API.fetchClientApi(id)
@@ -43,7 +42,12 @@ const ClientDetail = () => {
 	}, [id]);
 
 	const handleSave = () => {
-		API.updateClientApi(id, clientData)
+		syncWithServer(clientData)
+	}
+
+
+	const syncWithServer = (data) => {
+		API.updateClientApi(id, data)
 			.then(res => {
 				if (res.data.success) {
 					setIsWebsiteNameAvailable(res.data.isWebsiteNameAvailable);
@@ -51,11 +55,23 @@ const ClientDetail = () => {
 				else {
 					setClientData(res.data);
 				}
-				setSnackbarOptions({ isOpen: true, message: 'All data is saved' })
+				dispatch(showSuccessAlert({ message: 'All data is saved' }));
 			})
 			.catch(error => {
 				console.log('Error :', error)
+				dispatch(showErrorAlert({ message: 'Unable to save data' }));
 			})
+	}
+
+	const handleLogoChange = ({ logoName, logoUrl }) => {
+		const updatedValues = {
+			...clientData,
+			logoName,
+			logoUrl
+		};
+
+		setClientData(updatedValues);
+		syncWithServer(updatedValues);
 	}
 
 	const handleClientUpdate = (data) => {
@@ -63,9 +79,6 @@ const ClientDetail = () => {
 		setIsWebsiteNameAvailable(true)
 	}
 
-	const handleSnackbarClose = () => {
-		setSnackbarOptions({ isOpen: false })
-	}
 
 	const renderPageSwitch = (index) => {
 		switch (index) {
@@ -100,16 +113,6 @@ const ClientDetail = () => {
 		}
 	}
 
-	const handleLogoChange = ({ logoName, logoUrl }) => {
-		setClientData(prevState => {
-			return {
-				...prevState,
-				logoName,
-				logoUrl
-			}
-		});
-	}
-
 	return (
 		<>
 			<Grid container>
@@ -130,14 +133,13 @@ const ClientDetail = () => {
 					</Paper>
 					<Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
 						<div>
-
 							<h4>Client Name: {clientData.name}</h4>
 							<p>Client ID:{id}</p>
 						</div>
-
-3						<LogoView
+						<LogoView
 							logoUrl={clientData.logoUrl}
-							handleLogoChange={handleLogoChange} />
+							handleLogoChange={handleLogoChange}
+							name={clientData.name} />
 					</Paper>
 				</Grid>
 				<Grid item sm={2}>
@@ -182,11 +184,7 @@ const ClientDetail = () => {
 					Save
           </Button>
 			</Snackbar>
-			<Snackbar open={snackbarOptions.isOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-				<Alert onClose={handleSnackbarClose} severity="success">
-					{snackbarOptions.message}
-				</Alert>
-			</Snackbar>
+
 		</>
 	);
 }

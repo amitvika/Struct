@@ -4,7 +4,7 @@
   "description": "All the code, in one place",
   "main": "index.js",
   "scripts": {
-    "setup": "npm install --prefix ./ && npm install --prefix ./frontend-internal && npm install --prefix ./backend-node  && npm install --prefix ./frontend-public",
+    "setup": "npm install  ./ && npm install ./frontend-internal && npm install  ./backend-node  && npm install ./frontend-public",
     "*****Server*****": "Node backend",
     "server": "cd backend-node && npm run server",
     "*****Internal*****": "Internal Website",
@@ -12,7 +12,7 @@
     "*****Public*****": "Public website",
     "public": "cd frontend-public && npm start",
     "*****Development*****": "Start development environment",
-    "dev": "concurrently \"npm run server\" \"npm run internal\" \"npm run public\""
+    "dev": "concurrently \"npm run server\" \"npm run internal\" "
   },
   "repository": {
     "type": "git",

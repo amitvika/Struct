@@ -11,8 +11,13 @@ import Toolbar from '../../components/Toolbar';
 import DefaultContainer from '../../components/DefaultContainer'
 import { columnsFields } from '../../constants/client'
 
+import { useDispatch } from 'react-redux';
+import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
+
+
 const Clients = () => {
 	let history = useHistory();
+	const dispatch = useDispatch();
 
 	const { isAuthenticated, user } = useSelector(state => state.auth);
 
@@ -20,9 +25,7 @@ const Clients = () => {
 	const [filteredClientList, setFilteredClientList] = useState([]);
 
 	const [isLoading, setIsLoading] = useState(false);
-	const [message, setMessage] = useState('');
-	const [snackBar, setSnackBar] = useState(false);
-	const [snackBarAlertType, setSnackBarAlertType] = useState('');
+
 	const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
 	const [selectedClientId, setSelectedClientId] = useState('');
 	const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
@@ -74,14 +77,10 @@ const Clients = () => {
 			setIsLoading(false);
 
 		} catch (error) {
-			console.log(error)
-			alertForError(error)
+			dispatch(showErrorAlert({ message: 'Unable to fetch clients' }));
 		}
 	};
 
-	const handleAlertClose = (event, reason) => {
-		setSnackBar(!snackBar);
-	};
 
 	const handleShowDelete = () => {
 		// const columns = this.state.columns;
@@ -97,15 +96,6 @@ const Clients = () => {
 		// () => this.retrieveFromDb()
 		// );
 	};
-
-	const alertForError = (err) => {
-		setIsLoading(false);
-		if (err.response && err.response.data) {
-			setMessage(err.response.data.message);
-			setSnackBarAlertType("error");
-			setSnackBar(true);
-		}
-	}
 
 	const handleHistoryToggle = ({ rowId }) => {
 		setIsHistoryModalOpened(!isHistoryModalOpened);
@@ -146,10 +136,24 @@ const Clients = () => {
 
 					API.addClientApi(newClient)
 						.then(res => {
-							fetchClientList();
+							if (res.data) {
+								dispatch(showSuccessAlert({ message: 'New client added' }));
+
+								const updatedClientList = [
+									{ ...res.data, id: res.data._id },
+									...clientList
+								];
+								setClientList(updatedClientList);
+								const updatedFilteredList = [
+									{ ...res.data, id: res.data._id },
+									...filteredClientList
+								];
+								setFilteredClientList(updatedFilteredList)
+
+							}
 						})
 						.catch(err => {
-							alertForError(err)
+							dispatch(showErrorAlert({ message: 'Unable to add client' }));
 						});
 
 				}
@@ -159,26 +163,47 @@ const Clients = () => {
 	}
 
 	const updateClient = (newData, oldData) => {
-		new Promise((resolve, reject) => {
-			setTimeout(() => {
-				{
-					console.log(newData.client);
-					const data = {
-						name: newData.name,
-						user: user._id
-					}
+		return new Promise((resolve, reject) => {
 
-					API.updateClientApi(newData.id, data)
-						.then(res => {
-							fetchClientList()
-						})
-						.catch(err => {
-							alertForError(err)
+			const data = {
+				name: newData.name,
+				user: user._id
+			}
+
+			API.updateClientApi(newData.id, data)
+				.then(res => {
+					if (res.data) {
+						dispatch(showSuccessAlert({ message: 'Client updated successfully' }));
+
+						const updatedClientList = clientList.map(client => {
+							if (client.id === newData.id) {
+								return { ...res.data, id: res.data._id }
+							}
+							else {
+								return client
+							}
 						});
 
-				}
-				resolve();
-			}, 1000);
+						setClientList(updatedClientList);
+
+						const updatedFilteredList = filteredClientList.map(client => {
+							if (client.id === newData.id) {
+								return { ...res.data, id: res.data._id }
+							}
+							else {
+								return client
+							}
+						})
+						setFilteredClientList(updatedFilteredList)
+
+					}
+
+				})
+				.catch(err => {
+					dispatch(showErrorAlert({ message: 'Unable to update client' }));
+				});
+
+			resolve();
 		})
 	}
 
@@ -188,10 +213,16 @@ const Clients = () => {
 				{
 					API.deleteClientApi(oldData.id)
 						.then(res => {
-							fetchClientList();
+							const updatedClientList = clientList.filter(client => client.id != oldData.id);
+							setClientList(updatedClientList)
+
+							const updatedFilteredClientList = filteredClientList.filter(client => client.id != oldData.id);
+							setFilteredClientList(updatedFilteredClientList)
+
+							dispatch(showSuccessAlert({ message: 'Client removed successfully' }));
 						})
 						.catch(err => {
-							alertForError(err)
+							dispatch(showErrorAlert({ message: 'Unable to delete client' }));
 						});
 				}
 				resolve();
@@ -218,10 +249,7 @@ const Clients = () => {
 			title={'Clients'}
 			selectedId={selectedClientId}
 			handleHistoryToggle={handleHistoryToggle}
-			snackBar={snackBar}
-			handleAlertClose={handleAlertClose}
-			message={message}
-			snackBarAlertType={snackBarAlertType}>
+		>
 
 			<Toolbar
 				title={'Clients'}

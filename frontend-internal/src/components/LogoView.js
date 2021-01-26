@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
 	large: {
 		width: theme.spacing(7),
 		height: theme.spacing(7),
+		objectFit: 'contain'
 	},
 	editIconContainer: {
 		position: 'absolute',
@@ -35,7 +36,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function LogoView({
 	logoUrl,
-	handleLogoChange
+	handleLogoChange,
+	name = "Sample"
 }) {
 	const classes = useStyles();
 
@@ -44,6 +46,11 @@ export default function LogoView({
 
 	const toggleModal = () => {
 		setisModalOpened(!isModalOpened)
+	}
+
+	const onChange = (data) => {
+		handleLogoChange(data);
+		toggleModal();
 	}
 
 	useEffect(() => {
@@ -55,7 +62,7 @@ export default function LogoView({
 			<ImageUploadModal
 				isModalOpened={isModalOpened}
 				toggleModal={toggleModal}
-				handleLogoChange={handleLogoChange}
+				handleLogoChange={onChange}
 				logoUrl={logoUrl}
 			/>
 			<div className={classes.root}>
@@ -64,9 +71,8 @@ export default function LogoView({
 				</div>
 				{
 					logo && logo.length > 0 ?
-						<Avatar variant="square" alt="Remy Sharp" src={logo} className={classes.large} /> :
-						<Avatar variant="square" alt="Remy Sharp" src={StructLogo} className={classes.large} />
-
+						<Avatar variant="square" alt={name} src={logo} className={classes.large} /> :
+						<Avatar variant="square" alt={name} src={StructLogo} className={classes.large} />
 				}
 
 			</div>
