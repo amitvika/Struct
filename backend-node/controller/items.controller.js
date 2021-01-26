@@ -1,7 +1,7 @@
 const ItemModel = require("../models/Item.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
-const nodeocc = require("node-occ");
-const occ = nodeocc.occ;
+// const nodeocc = require("node-occ");
+const occ = {}//nodeocc.occ;
 const path = require('path');
 const { getObjectId } = require('../utils/helper')
 

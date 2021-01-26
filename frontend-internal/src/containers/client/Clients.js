@@ -14,7 +14,6 @@ import { columnsFields } from '../../constants/client'
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
-
 const Clients = () => {
 	let history = useHistory();
 	const dispatch = useDispatch();

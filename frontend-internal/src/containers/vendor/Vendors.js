@@ -9,9 +9,14 @@ import TableView from '../../components/TableView';
 import GridView from '../../components/GridView';
 import DefaultContainer from '../../components/DefaultContainer';
 
+import { useDispatch } from 'react-redux';
+import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
+
+
 const Vendors = () => {
   let history = useHistory();
-  const { isAuthenticated, user } = useSelector(state => state.auth);
+
+  const dispatch = useDispatch();
 
   const [vendorList, setVendorList] = useState([]);
   const [filteredVendorList, setFilteredVendorList] = useState([]);
@@ -151,7 +156,7 @@ const Vendors = () => {
   }
 
   const updateVendor = (newData, oldData) => {
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
         {
           console.log(newData.client);
