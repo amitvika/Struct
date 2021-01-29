@@ -12,7 +12,6 @@ import DefaultContainer from '../../components/DefaultContainer';
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
-
 const Vendors = () => {
   let history = useHistory();
 

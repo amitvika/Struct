@@ -45,7 +45,7 @@ export default function ConfigureItemAssembly({
 								color="primary"
 								onClick={toggleItemSelection}>
 								Select Item
-            </Button>
+							</Button>
 						</Grid>
 
 						<Grid item xs={12}>
@@ -76,6 +76,7 @@ export default function ConfigureItemAssembly({
 									{ label: 'Weld', value: 'Weld' },
 									{ label: 'Brazing', value: 'Brazing' }
 								]}
+								value={selectedAssemblySequence?.fasteningMethods ? selectedAssemblySequence?.fasteningMethods : []}
 								onChange={data => handleUpdateAssemblySequence({ fasteningMethods: data })}
 							/>
 						</Grid>

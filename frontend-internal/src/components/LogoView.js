@@ -20,8 +20,8 @@ const useStyles = makeStyles((theme) => ({
 
 	},
 	large: {
-		width: theme.spacing(7),
-		height: theme.spacing(7),
+		width: '96px',
+		height: '96px',
 		objectFit: 'contain'
 	},
 	editIconContainer: {
@@ -71,7 +71,7 @@ export default function LogoView({
 				</div>
 				{
 					logo && logo.length > 0 ?
-						<Avatar variant="square" alt={name} src={logo} className={classes.large} /> :
+						<Avatar variant="square" alt={name} imgProps={{ style: { objectFit: 'contain' } }} src={logo} className={classes.large} /> :
 						<Avatar variant="square" alt={name} src={StructLogo} className={classes.large} />
 				}
 

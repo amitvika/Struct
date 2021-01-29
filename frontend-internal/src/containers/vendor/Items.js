@@ -77,6 +77,9 @@ class Items extends Component {
         .then(result => {
           let rowData = result.docs;
 
+          if (!rowData) {
+            rowData = []
+          }
           rowData = rowData.map((item, index) => {
             return {
               id: item._id,

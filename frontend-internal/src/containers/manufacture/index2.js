@@ -62,7 +62,7 @@ export default function Index2(props) {
     const tabArray = ['Machining', 'Injection Casting', 'Assembly', 'Photolithography', 'Unpacking',
         'PCB Assembly', 'Extrusion', '3D Printing', 'Forming',
         ' Textile Assembly', 'Powder Stamping and Sintering', ' Coatings', ' Temperature and Gas Treatments',
-        ' Photochemical Machining']
+        ' Photochemical Machining', 'Storage', 'Dispensing', 'Holding']
 
     const subTabArray = ['Manufacturability Analysis', 'Process Configuration', 'Process Statistics and Analysis', 'Process Steps']
 
@@ -116,8 +116,6 @@ export default function Index2(props) {
                     </Grid>
 
                     <Divider orientation="vertical" flexItem className={classes.verticalDivider} />
-
-
                     {
                         tabArray.map(tabName =>
                         (
@@ -131,7 +129,6 @@ export default function Index2(props) {
 
                             </Grid>
                         )
-
                         )
                     }
                 </Grid>
