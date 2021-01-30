@@ -602,7 +602,7 @@ button:focus {
     opacity: 0.75;
 }
 .regular-work-section {
-    /* background: url(../images/regular-banner-img.jpg) no-repeat scroll; */
+    background: url(../images/regular-banner-img.jpg) no-repeat scroll;
     text-align: center;
     position: relative;
     z-index: 1;

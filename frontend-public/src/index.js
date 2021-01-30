@@ -4,13 +4,6 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-import './assets/css/global.css'
-// import './assets/css/owl.carousel.min.css'
-// import './assets/css/owl.theme.default.min.css'
-import './assets/css/responsive.css'
-import './assets/css/style.css'
-import 'bootstrap/dist/css/bootstrap.css';
-
 ReactDOM.render(
   <React.StrictMode>
     <App />

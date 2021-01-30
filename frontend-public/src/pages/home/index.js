@@ -1,13 +1,14 @@
-import React from 'react'
+import React from 'react';
+import RobotWeldingBackground from '../../assets/images/robot_welding.jpg'
 
 export default function Home() {
     return (
         <div>
-            <div className="hero-section" style={{ background: 'url("http://droitthemes.com/wp/inova/multi-site/wp-content/uploads/2017/07/product2.jpg") no-repeat scroll center 0' }}>
+            <div className="hero-section" style={{ backgroundImage: `url(${RobotWeldingBackground})` }}>
                 <div className="hero-section-area paypal">
                     <div className="container paypal-flex">
                         <div className="hero-content">
-                            <h1>What Are You Going<br /> To Buy Today?</h1>
+                            <h1>Infinitely Scalable<br /> Manufacturing</h1>
                             <p>We bring you the latest technology at your service</p>
                             <a href="#" className="btn slider-btn">Explore Top Products</a>
                         </div>
