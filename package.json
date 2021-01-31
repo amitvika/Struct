@@ -4,15 +4,17 @@
   "description": "All the code, in one place",
   "main": "index.js",
   "scripts": {
-    "setup": "npm install  ./ && npm install ./frontend-internal && npm install  ./backend-node  && npm install ./frontend-public",
+    "setup": "npm install  ./ && npm install ./frontend-internal && npm install  ./backend-node  && npm install ./frontend-public && npm install ./frontend-design-website",
     "*****Server*****": "Node backend",
     "server": "cd backend-node && npm run server",
     "*****Internal*****": "Internal Website",
     "internal": "cd frontend-internal && npm start",
-    "*****Public*****": "Public website",
+    "*****Public Website*****": "Public website",
     "public": "cd frontend-public && npm start",
+    "*****Design Website*****": "Design website",
+    "design": "cd frontend-design-website && npm start",
     "*****Development*****": "Start development environment",
-    "dev": "concurrently \"npm run server\" \"npm run internal\" "
+    "dev": "concurrently \"npm run server\" \"npm run internal\" \"npm run public\" \"npm run design\" "
   },
   "repository": {
     "type": "git",
@@ -30,6 +32,10 @@
   },
   "homepage": "https://github.com/amitvika/Struct#readme",
   "dependencies": {
-    "concurrently": "^5.3.0"
+    "client": "file:frontend-internal",
+    "concurrently": "^5.3.0",
+    "frontend-design-website": "file:frontend-design-website",
+    "frontend-web": "file:frontend-public",
+    "mernshop": "file:backend-node"
   }
 }

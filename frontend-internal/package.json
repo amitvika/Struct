@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "dependencies": {
@@ -29,12 +29,8 @@
     "redux-thunk": "^2.3.0",
     "three": "^0.116.1",
     "three-orbit-controls": "^82.1.0",
-    "three-stl-loader": "^1.0.6"
-  },
-  "devDependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^7.2.1"
+    "three-stl-loader": "^1.0.6",
+    "shared-lib": "file:../shared-lib"
   },
   "proxy": "http://localhost:5000",
   "eslintConfig": {
@@ -51,5 +47,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "customize-cra": "^1.0.0",
+    "react-app-rewired": "^2.1.8"
   }
 }
