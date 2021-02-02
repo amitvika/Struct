@@ -9,11 +9,11 @@ import Headding from '../../../../components/atoms/Headding';
 
 import { Link } from 'react-router-dom';
 
-export default function AssemblySequenceNumber({ 
+export default function AssemblySequenceNumber({
 	data,
 	toggleConfigureItemAssembly,
 	deleteAssemblySequence
-	}) {
+}) {
 	return (
 		<Paper style={{ padding: 20, margin: 10 }}>
 			<Grid className="section-padding-left" container spacing={4}>
@@ -50,10 +50,27 @@ export default function AssemblySequenceNumber({
 					(
 						<Grid item xs={12} style={{ display: 'flex' }}>
 							<Headding title={'Selected Item: '} />
+							<div>&nbsp;&nbsp;&nbsp;</div>
 							<Link target="_blank" to={`/items/${data.itemId._id}`}>{data.itemId.name}</Link>
 						</Grid>
 					)
 				}
+				<Grid item xs={6} style={{ display: 'flex' }}>
+					<Grid item xs={4} style={{ alignItems: 'center', display: 'flex' }}>
+						<Headding title={'Fastening Method: '} />
+					</Grid>
+					<Grid item xs={8} style={{ display: 'flex',flexDirection: 'column' }}>
+						{
+							data.fasteningMethods && data.fasteningMethods.map(fs => {
+								return (
+
+									<div>{fs.label}</div>
+
+								)
+							})
+						}
+					</Grid>
+				</Grid>
 
 			</Grid>
 		</Paper >

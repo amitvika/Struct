@@ -9,6 +9,9 @@ import {
 	Grid,
 	Radio
 } from "@material-ui/core";
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+
 import {
 	Headding,
 	ThreejsViewer,
@@ -27,7 +30,17 @@ export default function ConfigureItemAssembly({
 	const [threejsObject, setThreejsObject] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [fasteningMethod, setFasteningMethod] = useState([])
+	const [value, setValue] = React.useState(' ');
 
+	const handleChange = (event) => {
+		console.log(event.target.value, value)
+		if (event.target.value === value) {
+			setValue('');
+		} else {
+
+			setValue(event.target.value);
+		}
+	};
 	return (
 		<Modal isOpen={isConfigureItemAssemblyModalOpen} toggle={toggleConfigureItemAssembly} style={{ width: '70%' }}>
 			<ModalHeader toggle={toggleConfigureItemAssembly}>Configure Item Assembly</ModalHeader>
@@ -54,6 +67,7 @@ export default function ConfigureItemAssembly({
 								(
 									<Grid item xs={12} style={{ display: 'flex' }}>
 										<Headding title={'Selected Item: '} />
+										<div>&nbsp;&nbsp;&nbsp;</div>
 										<Link target="_blank" to={`/items/${selectedAssemblySequence?.itemId?._id}`}>{selectedAssemblySequence?.itemId?.name}</Link>
 									</Grid>
 								)
@@ -81,24 +95,17 @@ export default function ConfigureItemAssembly({
 							/>
 						</Grid>
 						<Space size={20} />
-						{
-							selectedAssemblySequence?.fasteningMethods && selectedAssemblySequence?.fasteningMethods.map(fs => {
-								return (
-									<Grid item xs={12} style={{ display: 'flex' }}>
-										<Grid item xs={6} style={{ alignItems: 'center', display: 'flex' }}>
-											<Headding title={fs.label}></Headding>
-										</Grid>
-										<Grid item xs={6}>
-											<Radio
-												value={fs.label}
-												name="radio-button-demo"
-												inputProps={{ 'aria-label': 'A' }}
-											/>
-										</Grid>
-									</Grid>
-								)
-							})
-						}
+						<Grid item xs={12} style={{ display: 'flex' }}>
+							<RadioGroup value={value} >
+								{
+									selectedAssemblySequence?.fasteningMethods && selectedAssemblySequence?.fasteningMethods.map(fs => {
+										return (
+											<FormControlLabel value={fs.label} control={<Radio onClick={handleChange} />} label={fs.label} />
+										)
+									})
+								}
+							</RadioGroup>
+						</Grid>
 
 					</Grid>
 
