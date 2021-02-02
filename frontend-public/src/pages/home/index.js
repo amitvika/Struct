@@ -5,15 +5,19 @@ import AssembleAnything from '../../assets/images/assemble_anything.jpg'
 import Molding from '../../assets/images/molding.jpg'
 import Prototype from '../../assets/images/prototype.jpg'
 import Fabrication from '../../assets/images/fabrication.jpg'
+import {Link} from "react-router-dom"
 
 export default function Home() {
     return (
+        <Link to="/">
         <div>
             <div className="hero-section" style={{ backgroundImage: `url(${RobotWeldingBackground})` }}>
                 <div className="hero-section-area paypal">
                     <div className="container paypal-flex">
                         <div className="hero-content">
+                            
                             <h1>Infinitely Scalable<br /> Manufacturing</h1>
+                            
                             <p>We bring you the latest technology at your service</p>
                             <a href="#" className="btn slider-btn">Explore Top Products</a>
                         </div>
@@ -57,7 +61,7 @@ export default function Home() {
                     <div className="row hot-features">
                         <div className="col-md-6 col-md-offset-3">
                             <div className="hots-img">
-                                <img className="img-fluid" src={AssembleAnything} alt="Image" />
+                                <img className="img-fluid" style={{ width: '100%' }} src={AssembleAnything} alt="Image" />
                                 
                             </div>
                         </div>
@@ -156,6 +160,6 @@ export default function Home() {
                 </div>
             </section>
         </div>
-
+        </Link>
     )
 }
