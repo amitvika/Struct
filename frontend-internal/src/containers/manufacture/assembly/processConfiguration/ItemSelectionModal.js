@@ -200,9 +200,8 @@ export default function ItemSelectionModal({
 							// label="General Geometry"
 							placeholder="Select"
 							options={[
-								{ label: '1 Dimensional Solid', value: '1 Dimensional Solid' },
-								{ label: '2 Dimensional Solid', value: '2 Dimensional Solid' },
-								{ label: '3 Dimensional Solid', value: '3 Dimensional Solid' },
+								
+								{ label: ' Solid', value: ' Solid' },
 								{ label: "Bulk Powder/Particles/Grains", value: "Bulk Powder/Particles/Grains" },
 								{ label: "Liquid", value: "Liquid" },
 								{ label: "Gas", value: "Gas" }]}

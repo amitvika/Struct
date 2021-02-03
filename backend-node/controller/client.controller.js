@@ -47,6 +47,7 @@ exports.getOne = (req, res) => {
 		.then(data => {
 			data.logoName = data.logoName;
 			data.logoUrl = data.logoUrl ? `http://${req.headers.host}/logo/${data.logoName}` : '';
+			data.linkedItems = data.linkedItems || []
 			res.json(data)
 		})
 		.catch(error => {
@@ -151,6 +152,7 @@ exports.update = async (req, res) => {
 		isSiteVisible: req.body.isSiteVisible,
 		logoName: req.body.logoName,
 		logoUrl: req.body.logoUrl,
+		linkedItems: req.body.linkedItems
 	};
 
 	try {

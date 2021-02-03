@@ -134,8 +134,8 @@ const ItemDetail = () => {
 							onChange={(event, newValue) => setValue(newValue)}>
 							<Tab label="Base Item Properties" value={1} />
 							{
-								itemProperties?.itemGeometry?.isEndProductSelected &&
-								<Tab label="Client Setup" value={7} />
+								// itemProperties?.itemGeometry?.isEndProductSelected &&
+								// <Tab label="Client Setup" value={7} />
 							}
 
 							{
@@ -147,7 +147,7 @@ const ItemDetail = () => {
 								itemDetail.vendorId && <Tab label="Vendor Details" value={5} />
 							}
 
-							<Tab label="Manufacture" value={6} />
+							<Tab label="Manufacture & processing" value={6} />
 
 
 						</Tabs>

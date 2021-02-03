@@ -19,24 +19,32 @@ import LogoView from '../../components/LogoView';
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
+import { Spinner } from "reactstrap";
 
 
 const ClientDetail = () => {
 	let { id } = useParams();
 	const dispatch = useDispatch()
 
+	const [isLoading, setIsLoading] = useState(false);
 	const [value, setValue] = useState(1);
 	const [clientData, setClientData] = useState({});
 	const [isWebsiteNameAvailable, setIsWebsiteNameAvailable] = useState(true);
 
 	useEffect(() => {
+		setIsLoading(true)
 		API.fetchClientApi(id)
 			.then(res => {
+
 				if (res.data) {
 					setClientData(res.data);
 				}
+
+				setIsLoading(false)
 			})
 			.catch(error => {
+				setIsLoading(false)
+				dispatch(showErrorAlert({ message: 'Unable to get client' }))
 				console.log('Error :', error)
 			})
 	}, [id]);
@@ -47,6 +55,7 @@ const ClientDetail = () => {
 
 
 	const syncWithServer = (data) => {
+
 		API.updateClientApi(id, data)
 			.then(res => {
 				if (res.data.success) {
@@ -56,9 +65,11 @@ const ClientDetail = () => {
 					setClientData(res.data);
 				}
 				dispatch(showSuccessAlert({ message: 'All data is saved' }));
+
 			})
 			.catch(error => {
 				console.log('Error :', error)
+				setIsLoading(false)
 				dispatch(showErrorAlert({ message: 'Unable to save data' }));
 			})
 	}
@@ -83,7 +94,7 @@ const ClientDetail = () => {
 	const renderPageSwitch = (index) => {
 		switch (index) {
 			case 1:
-				return <Products clientId={id} />
+				return <Products clientData={clientData} clientId={id} handleClientUpdate={handleClientUpdate} />
 
 			case 2:
 				return <ClientPortal clientData={clientData} handleClientUpdate={handleClientUpdate} isWebsiteNameAvailable={isWebsiteNameAvailable} />;
@@ -111,6 +122,17 @@ const ClientDetail = () => {
 			default:
 				return "Undefined Tab Index";
 		}
+	}
+
+	if (isLoading) {
+		return (<div
+			style={{
+				display: "flex",
+				justifyContent: "center"
+			}}
+		>
+			<Spinner animation="border" />
+		</div>)
 	}
 
 	return (

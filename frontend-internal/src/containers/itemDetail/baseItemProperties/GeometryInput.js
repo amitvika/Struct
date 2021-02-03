@@ -160,7 +160,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 						<span>{itemProperties.assemblyType}</span>
 					</Grid>
 
-					<Grid item xs={4}>
+					{/* <Grid item xs={4}>
 						<Headding bold title={'End Product'} />
 					</Grid>
 					<Grid item xs={8}>
@@ -172,7 +172,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 								handleOnChange('isEndProductSelected', event.target.checked)
 							}}
 						/>
-					</Grid>
+					</Grid> */}
 
 					<Grid item xs={4}>
 						<Headding bold title={'Item Type'} />
@@ -211,9 +211,8 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 							// label="General Geometry"
 							placeholder="Select"
 							options={[
-								{ label: '1 Dimensional Solid', value: '1 Dimensional Solid' },
-								{ label: '2 Dimensional Solid', value: '2 Dimensional Solid' },
-								{ label: '3 Dimensional Solid', value: '3 Dimensional Solid' },
+								
+								{ label: ' Solid', value: ' Solid' },
 								{ label: "Bulk Powder/Particles/Grains", value: "Bulk Powder/Particles/Grains" },
 								{ label: "Liquid", value: "Liquid" },
 								{ label: "Gas", value: "Gas" }]}
@@ -382,7 +381,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 			}
 
 			{
-				['1 Dimensional Solid', '2 Dimensional Solid', '3 Dimensional Solid'].includes(itemGeometry.generalGeomerty) &&
+				[ 'Solid'].includes(itemGeometry.generalGeomerty) &&
 				<Paper style={{ padding: 20, margin: 10 }}>
 					<Grid className="section-padding-left" container spacing={4}>
 						<Grid item xs={12}>

@@ -14,7 +14,8 @@ const ClientSchema = new mongoose.Schema({
 	isSiteVisible: { type: String },
 	isDeleted: { type: Boolean, default: false },
 	logoName: { type: String },
-	logoUrl: { type: String }
+	logoUrl: { type: String },
+	linkedItems: [{ type: Schema.Types.ObjectId, ref: "Item" }]
 });
 //this converts the schema into a model
 const Client = mongoose.model("Client", ClientSchema);

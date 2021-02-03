@@ -83,6 +83,7 @@ const Items = () => {
 	};
 
 	const fetchItems = async (query) => {
+		
 		try {
 			setIsLoading(true);
 
