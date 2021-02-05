@@ -62,7 +62,7 @@ export default function Index2(props) {
     const tabArray = ['Machining', 'Injection Casting', 'Assembly', 'Photolithography', 'Unpacking',
         'PCB Assembly', 'Extrusion', '3D Printing', 'Forming',
         ' Textile Assembly', 'Powder Stamping and Sintering', ' Coatings', ' Temperature and Gas Treatments',
-        ' Photochemical Machining', 'Storage', 'Dispensing', 'Holding']
+        ' Photochemical Machining', 'Storage', 'Dispensing', 'Holding', 'Separation and Refinement', 'Particulate/Liquid/Gas Mixing', 'Particulate Consolidation' ]
 
     const subTabArray = ['Manufacturability Analysis', 'Process Configuration', 'Process Statistics and Analysis', 'Process Steps']
 
@@ -107,15 +107,16 @@ export default function Index2(props) {
             <Paper elevation={3} className={classes.paper}>
                 <Grid container spacing={1}>
                     <Grid item xs={2.5}>
-                        <Paper onClick={() => handleTabChange('Full Process Recommendation')}
+                        <Paper onClick={() => handleTabChange('Full Process')}
                             style={{
-                                backgroundColor: selectedTab === 'Full Process Recommendation' ? "#343a40" : "",
-                                color: selectedTab === 'Full Process Recommendation' ? "white" : ""
+                                backgroundColor: selectedTab === 'Full Process' ? "#343a40" : "",
+                                color: selectedTab === 'Full Process' ? "white" : "",
+                                fontWeight: 'bold'
                             }}
-                            className={classes.tabPaper}>{'Full Process Recommendation'}</Paper>
+                            className={classes.tabPaper}>{'Full Process'}</Paper>
                     </Grid>
 
-                    <Divider orientation="vertical" flexItem className={classes.verticalDivider} />
+                    <Divider orientation="vertical" flexItem className={classes.verticalDivider} style={{borderStyle: 'inset'}} />
                     {
                         tabArray.map(tabName =>
                         (

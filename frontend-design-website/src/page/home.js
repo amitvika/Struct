@@ -1,11 +1,10 @@
 import React from 'react'
-import Header from '../components/Header'
 import RobotWeldingBackground from '../assets/images/robot_welding.jpg'
 
 export default function home() {
     return (
         <>
-            <Header />
+
             <div>
                 <div className="hero-section" style={{ backgroundImage: `url(${RobotWeldingBackground})` }}>
                     <div className="hero-section-area paypal">

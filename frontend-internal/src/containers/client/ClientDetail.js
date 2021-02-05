@@ -154,7 +154,7 @@ const ClientDetail = () => {
 						</Breadcrumbs>
 					</Paper>
 					<Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
-						<div>
+						<div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
 							<h4>Client Name: {clientData.name}</h4>
 							<p>Client ID:{id}</p>
 						</div>
