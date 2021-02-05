@@ -11,6 +11,12 @@ export default function CurrentUsage() {
 
   return (
     <div>
+      <Grid container spacing={1}>
+        <Grid  item xs={2.5}>
+          
+
+        </Grid>
+      </Grid>
       <MaterialTable
         columns={columns}
         data={rowData}
