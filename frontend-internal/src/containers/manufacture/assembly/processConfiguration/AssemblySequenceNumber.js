@@ -17,25 +17,24 @@ export default function AssemblySequenceNumber({
 	return (
 		<Paper style={{ padding: 20, margin: 10 }}>
 			<Grid className="section-padding-left" container spacing={4}>
-				<Grid item xs={6} >
-					<Headding fontSize={26} bold title={`Assembly Sequence Number #${data.orderNumber}`} />
-				</Grid>
-				<Grid item xs={3}>
-					<div style={{ display: 'flex', alignItems: 'center' }}>
+				<Grid item xs={6} style={{ display: 'flex' }}>
+					<Headding fontSize={26} bold title={`Assembly Part #${data.orderNumber}`} />
+
+					<div style={{ display: 'flex', alignItems: 'center', marginLeft: '30px' }}>
 						<Headding title={'Status:'} />
 						<Icon style={{ marginLeft: '18px' }} >cancel</Icon>
 						{/* <Icon style={{ marginLeft: '18px' }} >check</Icon> */}
 					</div>
 				</Grid>
-				<Grid item xs={3}>
+				<Grid item xs={6} style={{ display: 'flex', justifyContent: 'flex-end' }}>
 					<Button
 						size="small"
 						variant="contained"
 						color="secondary"
 						onClick={() => deleteAssemblySequence(data._id)}>
-						Delete Item in Assembly
-            </Button>
+						Delete Item in Assembly         </Button>
 				</Grid>
+
 				<Grid item xs={12} >
 					<Button
 						size="large"
@@ -57,17 +56,11 @@ export default function AssemblySequenceNumber({
 				}
 				<Grid item xs={6} style={{ display: 'flex' }}>
 					<Grid item xs={4} style={{ alignItems: 'center', display: 'flex' }}>
-						<Headding title={'Fastening Method: '} />
+						<Headding title={'Fastening Method(s): '} />
 					</Grid>
-					<Grid item xs={8} style={{ display: 'flex',flexDirection: 'column' }}>
+					<Grid item xs={8} style={{ display: 'flex', flexDirection: 'column' }}>
 						{
-							data.fasteningMethods && data.fasteningMethods.map(fs => {
-								return (
-
-									<div>{fs.label}</div>
-
-								)
-							})
+							data.fasteningMethods && data.fasteningMethods.map(fs => fs.label).join(', ')
 						}
 					</Grid>
 				</Grid>

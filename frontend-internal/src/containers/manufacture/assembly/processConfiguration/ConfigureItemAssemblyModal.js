@@ -30,7 +30,7 @@ export default function ConfigureItemAssembly({
 	const [threejsObject, setThreejsObject] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [fasteningMethod, setFasteningMethod] = useState([])
-	const [value, setValue] = React.useState(' ');
+	const [value, setValue] = useState(' ');
 
 	const handleChange = (event) => {
 		console.log(event.target.value, value)
@@ -60,6 +60,7 @@ export default function ConfigureItemAssembly({
 								Select Item
 							</Button>
 						</Grid>
+						<Space size={20} />
 
 						<Grid item xs={12}>
 							{

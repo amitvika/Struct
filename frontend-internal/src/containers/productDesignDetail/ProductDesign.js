@@ -27,15 +27,18 @@ const ProductDesign = () => {
   const [selectedProductDesignId, setSelectedProductDesignId] = useState('');
   const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
   const [isGridViewSelected, setIsGridViewSelected] = useState(true);
-  const columnsFields = { 'id': 'ID', 'name': 'Name', 'clientName': 'Client Name', 'created_by': 'Created By' };
+  const columnsFields = { 'id': 'ID', 'name': 'Name', 'design_type': 'Design Type', 'updated_by': 'Updated By', 'created_by': 'Created By' };
 
   const [columns, setColumns] = useState([
     { title: "ID", field: "id", editable: "never", align: 'center' },
     { title: "Name", field: "name" },
     {
-      title: "Client",
-      field: "client",
-      lookup: { 34: "İstanbul", 63: "Şanlıurfa" }
+      title: "Design Type",
+      field: "design_type"
+    },
+    {
+      title: "Updated By",
+      field: "updated_by"
     },
     {
       title: "Created By",
@@ -73,8 +76,8 @@ const ProductDesign = () => {
           return {
             id: x._id,
             name: x.name,
-            client: x.client._id,
-            clientName: x.client.name,
+            // client: x.client._id,
+            // clientName: x.client.name,
             created_by: x.createdBy.name,
             deleted_at: x.deletedAt
           }
@@ -204,7 +207,7 @@ const ProductDesign = () => {
   }
 
   const handleTableRowClick = (event) => {
-    history.push(`/product-design/${event.id}?product_name=${event.name}`);
+    // history.push(`/product-design/${event.id}?product_name=${event.name}`);
   }
 
   if (isLoading) {
