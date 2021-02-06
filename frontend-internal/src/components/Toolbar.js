@@ -49,19 +49,24 @@ export default function Toolbar({
 					<Grid item sm sm={12} style={{ display: 'flex' }}>
 						<Filter
 							{...restProps} />
+						{
+							title === 'Items' &&
+							<Grid item sm sm={3} style={{ display: 'flex', flexDirection: 'column' }}>
+								<Checkbox
+									label="Unused by Other Items"
+								/>
+								<Checkbox
+									label="Unused by Clients"
+								/>
+							</Grid>
+						}
 					</Grid>
 					<Space size={30} />
 					<Grid item sm sm={10} style={{ display: 'flex', justifyContent: 'center' }}>
 						<Headding fontSize={30} title={title} style={{ fontWeight: 'bold' }}></Headding>
+
 					</Grid>
 				</Grid>
-
-				{/* {
-						isGridViewSelected &&
-						<div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
-							<AddCircleIcon style={{ color: '#3f51b5' }} />
-						</div>
-					} */}
 			</Grid>
 		</Paper >
 	)

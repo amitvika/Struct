@@ -1,27 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import MaterialTable, { MTableToolbar } from "material-table";
+import { Grid, Paper, Tab, Tabs } from "@material-ui/core";
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+  },
+  paper: {
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    marginTop: '10px',
+    marginBottom: '10px'
+  },
+  tabPaper: {
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    cursor: 'pointer',
+    transition: '0.3s',
+    "&:hover, &:focus": {
+      backgroundColor: '#DCDCDC'
+    }
+  },
+}));
 
 export default function CurrentUsage() {
-  const [columns, setColumns] = useState([
-    { title: "Process Id", field: "processsId" },
-    { title: "# of instances", field: "action" },
-    { title: "Total Usage ", field: "totalUsage" }
-  ]);
-  const [rowData, setRowData] = useState([]);
+  const classes = useStyles();
+
+  const [selectedTab, setSelectedTab] = useState("");
+
+  const tabArray = ['Items Using This Item', 'Items Used By This Item', 'Items Created By This Item',
+    'Clients Using/Buying This Item Directly', 'Clients Using/Buying This Item Indirectly']
+
+  const handleTabChange = (tabName) => {
+    setSelectedTab(tabName);
+  }
 
   return (
     <div>
       <Grid container spacing={1}>
-        <Grid  item xs={2.5}>
-          
+        {
+          tabArray.map(tabName =>
+          (
+            <Grid item xs={2.5}>
+              <Paper onClick={() => handleTabChange(tabName)}
+                style={{
+                  backgroundColor: selectedTab === tabName ? "#343a40" : "",
+                  color: selectedTab === tabName ? "white" : ""
+                }}
+                className={classes.tabPaper}>{tabName}</Paper>
 
-        </Grid>
+            </Grid>
+          )
+          )
+        }
       </Grid>
-      <MaterialTable
-        columns={columns}
-        data={rowData}
-        title="Assembly Sequence Setup"
-      />
+
+
     </div>
   )
 }

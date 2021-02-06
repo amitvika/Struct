@@ -45,13 +45,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Index2(props) {
+    const classes = useStyles();
 
     const [selectedTab, setSelectedTab] = useState("");
     const [selectedSubTab, setselectedSubTab] = useState("");
     const [isSubTabVisible, setisSubTabVisible] = useState(false);
 
 
-    const classes = useStyles();
     const [value, setValue] = React.useState(0);
 
     const handleChange = (event, newValue) => {
@@ -62,7 +62,7 @@ export default function Index2(props) {
     const tabArray = ['Machining', 'Injection Casting', 'Assembly', 'Photolithography', 'Unpacking',
         'PCB Assembly', 'Extrusion', '3D Printing', 'Forming',
         ' Textile Assembly', 'Powder Stamping and Sintering', ' Coatings', ' Temperature and Gas Treatments',
-        ' Photochemical Machining', 'Storage', 'Dispensing', 'Holding', 'Separation and Refinement', 'Particulate/Liquid/Gas Mixing', 'Particulate Consolidation' ]
+        ' Photochemical Machining', 'Storage', 'Dispensing', 'Holding', 'Separation and Refinement', 'Particulate/Liquid/Gas Mixing', 'Particulate Consolidation']
 
     const subTabArray = ['Manufacturability Analysis', 'Process Configuration', 'Process Statistics and Analysis', 'Process Steps']
 
@@ -116,7 +116,7 @@ export default function Index2(props) {
                             className={classes.tabPaper}>{'Full Process'}</Paper>
                     </Grid>
 
-                    <Divider orientation="vertical" flexItem className={classes.verticalDivider} style={{borderStyle: 'inset'}} />
+                    <Divider orientation="vertical" flexItem className={classes.verticalDivider} style={{ borderStyle: 'inset' }} />
                     {
                         tabArray.map(tabName =>
                         (
@@ -164,8 +164,6 @@ export default function Index2(props) {
 
                     </> : null
             }
-
-
-        </>)
-
+        </>
+        )
 }
