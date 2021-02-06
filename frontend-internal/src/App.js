@@ -9,6 +9,7 @@ import store from "./store";
 import { loadUser } from "./actions/authActions";
 import AppRoutes from './routes';
 import Alert from './components/Alert';
+import ThemeProvider from './ThemeProvider';
 
 const App = () => {
 
@@ -19,10 +20,13 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      <div className="App">
-        <Alert />
-        <AppRoutes />
-      </div>
+      <ThemeProvider>
+        <div className="App">
+          <Alert />
+          <AppRoutes />
+        </div>
+      </ThemeProvider>
+
     </Provider>
   );
 

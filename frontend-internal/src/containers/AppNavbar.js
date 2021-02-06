@@ -12,23 +12,49 @@ import {
   DropdownItem,
   Alert
 } from "reactstrap";
-import { NavLink as RRNavLink } from 'react-router-dom'
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+import { purple, } from '@material-ui/core/colors';
+
+import { useHistory, NavLink as RRNavLink } from 'react-router-dom'
 import RegisterModal from "../components/auth/RegisterModal";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import StructLogo from '../assets/images/logo_white.png';
-import { logout } from "../actions/authActions";
+
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from "react-router-dom";
+
+import { logout } from "../actions/authActions";
+import { setThemeAction } from '../actions/theme.action'
+
+import { withStyles } from '@material-ui/core/styles';
+
+const ThemeSwitch = withStyles({
+  switchBase: {
+    color: purple[300],
+    '&$checked': {
+      color: purple[500],
+    },
+    '&$checked + $track': {
+      backgroundColor: purple[500],
+    },
+  },
+  checked: {},
+  track: {},
+})(Switch);
 
 const AppNavbar = () => {
   const dispatch = useDispatch();
   const history = useHistory();
 
   const { isAuthenticated, user } = useSelector(state => state.auth);
+  const themeName = useSelector(state => state.theme.curThemeName);
+
   const error = useSelector(state => state.error);
   const [isOpen, setIsOpen] = useState(false);
   const [msg, setMsg] = useState(null);
+
+  const [lightThemeSelected, setLightThemeSelected] = useState(false);
 
   useEffect(() => {
     if (error) {
@@ -45,6 +71,16 @@ const AppNavbar = () => {
 
   const toggle = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleThemeChange = (event) => {
+    setLightThemeSelected(event.target.checked)
+    if (event.target.checked) {
+      dispatch(setThemeAction({ themeName: 'darkTheme' }))
+    }
+    else {
+      dispatch(setThemeAction({ themeName: 'lightTheme' }))
+    }
   };
 
   const authLinks = (
@@ -166,6 +202,13 @@ const AppNavbar = () => {
                   onClick={() => history.push('/view-access')}>
                   View Access
                     </DropdownItem>
+                <DropdownItem divider />
+
+                <DropdownItem toggle={false} >
+                  <Switch checked={lightThemeSelected} onChange={handleThemeChange} name="currentTheme" />
+                  {lightThemeSelected ? 'Dark' : 'Light'}
+                </DropdownItem>
+
                 <DropdownItem divider />
 
 

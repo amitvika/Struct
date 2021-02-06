@@ -9,7 +9,7 @@ import userAccessUserReducer from "./userAccessUserReducer";
 import loading from './loading';
 import accessReducer from './viewAccess.reducer';
 import alertReducer from './alert.reducer';
-
+import themeReducer from './theme.reducer'
 
 export default combineReducers({
   item: itemReducer,
@@ -21,5 +21,6 @@ export default combineReducers({
   access: accessReducer,
   accessConfig: accessConfigReducer,
   clients: clientReducer,
-  alert: alertReducer
+  alert: alertReducer,
+  theme: themeReducer
 });
