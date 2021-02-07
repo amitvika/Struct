@@ -20,6 +20,7 @@ import LogoView from '../../components/LogoView';
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { Spinner } from "reactstrap";
+import Documentation from "./documentation";
 
 
 const ClientDetail = () => {
@@ -111,7 +112,7 @@ const ClientDetail = () => {
 			case 3:
 				return "signed service agreement with the current state of config.  IF there is changed configs, those changes will show up here and will indicate to reduline the contract with those new items.  Also feature of auto generate the contract will be included";
 			case 4:
-				return "stores all requirements documents tied with this client.  Potential tying ability with items created. Also autogenerate requirements documents based on the configs in the system";
+				return <Documentation />
 			case 5:
 				return "shows the total of things to be billed. Can configure the specific billing period. Based on bank account to send to, will check if vendors have same and show reconciliation and net total";
 			case 6:
@@ -172,17 +173,18 @@ const ClientDetail = () => {
 							value={value}
 							onChange={(event, newValue) => setValue(newValue)}
 						>
-							<Tab label="Products" value={1} />
+							<Tab label="Contract Manufacturing Products" value={1} />
 							<Tab label="Client Portal" value={2} />
 							<Tab label="Orders and Fulfillment" value={-2} />
 							<Tab label="Billing" value={5} />
-							<Tab label="Notifications" value={-3} />
+							<Tab label="Purchased Automation Product/Services" value={null} />
+							{/* <Tab label="Notifications" value={-3} /> */}
 							{/* <Tab label="Reports" value={2} />*/}
 							{/* <Tab label="Warranty Setup" value={-1} /> */}
 							{/*<Tab label="End User Features" value={0} />*/}
-							<Tab label="Requirements Documents" value={4} />
-							<Tab label="Service Agreement" value={3} />
-							<Tab label="Identified Issues" value={6} />
+							<Tab label="Documentation" value={4} />
+							{/* <Tab label="Service Agreement" value={3} /> */}
+							{/* <Tab label="Identified Issues" value={6} /> */}
 						</Tabs>
 					</Paper>
 				</Grid>

@@ -1,0 +1,6 @@
+Django==2.1.7
+django-cors-headers==2.5.0
+djangorestframework==3.9.2
+pyparsing==2.4.7
+cadquery==1.2.0
+cqparts==0.2.1

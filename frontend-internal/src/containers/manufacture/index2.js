@@ -8,6 +8,8 @@ import Divider from '@material-ui/core/Divider';
 import Assembly from './assembly'
 import Maching from './machining';
 import InjectionCasting from './injectionCasting';
+import Dispensing from './Dispensing'
+import Storage from './Storage';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -90,6 +92,16 @@ export default function Index2(props) {
         }
         else if (selectedTab === 'Assembly') {
             return <Assembly
+                {...props}
+                selectedSubTab={selectedSubTab} />
+        }
+        else if (selectedTab === 'Dispensing') {
+            return <Dispensing
+                {...props}
+                selectedSubTab={selectedSubTab} />
+        }
+        else if (selectedTab === 'Storage') {
+            return <Storage
                 {...props}
                 selectedSubTab={selectedSubTab} />
         }

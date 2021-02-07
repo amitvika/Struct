@@ -1,8 +1,28 @@
 # Struct
 All the code, in one place
 
-## How to run locally
+## Installation
+
+#### GLTFConverter
+
+- Install miniconda
+- start miniconda terminal
+- run `conda create  --name importexport -c cadquery -c conda-forge freecad=0.17 python=3.6 pip`
+- run `conda activate importexport`
+- cd `gltfconverter` directory
+- run `pip install -r requirements.txt`
+
+### React and Node
+
 - First for setup, use `npm run setup` (first time only)
+
+## Run localy
+
+#### GLTFConverter
+- `python manage.py runserver localhost:8000`
+
+#### React and Node 
+
 - Then, `npm run dev` to run the entire dev environment
 
 ## Tasks
