@@ -134,24 +134,31 @@ def getFile(id,key):
     
 @api_view(['GET'])
 def FileGetView(request):
+    id = request.GET.get('id', None)
+    #print(id)
     data = []
-    if request.method == 'GET':
-        id = request.GET.get('id', None)
-        print(id)
-        
-        if is_number(id) :
-            if id==0:
-               id = request.GET.get('file', None)
-               data = getFile(id,"")
-            else :
-                files = File.objects.filter(id__icontains=id)
-                for eachfile in files:
-                   data = getFile(eachfile.file.name,"Media/")
-        else:
-            id = request.GET.get('file', None)
-            #id = 0
-            #files = File.objects.filter(id__icontains=id)
-            #for eachfile in files:
-            #    data = getFile(eachfile.file.name,"Media/")
-            data = getFile(id,"Media/")
+    if id is None:
+        id = 10
+    if id is not None:
+        files = File.objects.filter(id__icontains=id)
+        if request.method == 'GET':
+            for eachfile in files:
+                filename, file_extension = os.path.splitext(eachfile.filename)				
+                newfilename = 'Display/'+Path(eachfile.file.name).resolve().stem + ".gltf"
+                file_extension = file_extension.lower()
+                #print(file_extension, filename, eachfile.file.name, newfilename)
+                #print(eachfile)
+                file_type = ""
+                if file_extension==".stp" or file_extension==".step" :
+                     file_type = "step"
+                if file_extension==".stl" or file_extension==".svg" or file_extension==".amf" or file_extension==".json" :
+                     file_type = file_extension[1:]
+                if file_type != "" :					 
+                     print('Media/'+eachfile.file.name)		
+                     mypart = Part.importer(file_type)('Media/'+eachfile.file.name)
+                     mypart.exporter('gltf')(newfilename)
+                     f = open(newfilename, "r")
+                     data = f.read()
+                     f.close()
+    #print(data)
     return JsonResponse(data, safe=False)

@@ -1,0 +1,99 @@
+import React, { Component } from 'react';
+import Dropzone from 'react-dropzone';
+import request from 'axios';
+import GLTFRenderer from "./GltfRenderer";
+
+class DropZone extends Component {
+
+	constructor() {
+		super();
+		this.state = {
+			fileIDs: [],
+			files: [],
+			gltfjson: "",
+			activefile: 0
+		}
+	}
+	// this.
+	// 	this.setFileIDs = (function (dropzone, oneFile) {
+	// 		return function (err, response) {
+	// 			dropzone.fileIDs.push([oneFile, response.body.id]);
+	// 			dropzone.setState({ files: dropzone.fileIDs });
+	// 			console.log(oneFile + " upload done!!!!!");
+	// 		};
+	// 	});
+
+	onDrop = async (files) => {
+
+		this.fileIDs = [];
+		files.forEach(oneFile => {
+			var formData = new FormData();
+			formData.append('file', oneFile)
+			var req = request
+				.post('http://localhost:8000/api/v0/upload/', formData)
+				.then(res => {
+					this.setState({
+						files: [res.data],
+						fileIDs: [res.data.id]
+					})
+					// this.setFileIDs(this, oneFile);
+				})
+				.catch(err => {
+					console.log('Error -->> ', err)
+				})
+
+
+			//req.end(this.setFileIDs(this,oneFile));
+		});
+	};
+
+	getView = (id) => {
+		var convertURL = "http://localhost:8000/api/v0/convert?id=" + id;
+		fetch(convertURL)
+			.then((res) => res.json())
+			.then((repos) => {
+				//console.log(repos);
+				this.setState({ gltfjson: repos });
+				this.setState({ activefile: id });
+			});
+
+	};
+
+
+	render() {
+
+		const files = this.state.files.map(files => (
+			<li key={files.name}>
+				<button value={files.name} onClick={() => this.getView(files.id)} type='button'>{files.name}</button>
+			</li>
+		));
+
+		return (
+			<div id="box">
+				<div id="rowheader">
+					<Dropzone onDrop={this.onDrop}>
+						{({ getRootProps, getInputProps }) => (
+							<section className="container">
+								<div {...getRootProps({ className: 'dropzone' })}>
+									<input {...getInputProps()} />
+									<p>Try dropping some files here, or click to select files to upload.</p>
+								</div>
+								{ files && !!files.length &&
+									<aside>
+										<h4>Click Button to View the File</h4>
+										<ul>{files}</ul>
+									</aside>
+								}
+							</section>
+						)}
+					</Dropzone>
+				</div>
+				<div id="rowcontent">
+					<GLTFRenderer gltfjson={this.state.gltfjson} activefile={this.state.activefile} />
+				</div>
+			</div>
+		);
+	}
+}
+
+export default DropZone;

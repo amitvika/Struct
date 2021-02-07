@@ -30,7 +30,8 @@ import ProductDesignDetail from "./containers/productDesignDetail";
 import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
 import ItemDetail from "./containers/itemDetail/ItemDetail";
 
-import Viewer from './page/3DViewer'
+// import Viewer from './page/3DViewer';
+import Viewer from './gltf/DropZone'
 
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);
