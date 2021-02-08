@@ -19,6 +19,8 @@ All the code, in one place
 ## Run localy
 
 #### GLTFConverter
+- cd `gltfconverter` folder
+- run `conda activate importexport` for activating virtual environment
 - `python manage.py runserver localhost:8000`
 
 #### React and Node 

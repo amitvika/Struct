@@ -155,7 +155,7 @@ def FileGetView(request):
                      file_type = file_extension[1:]
                 if file_type != "" :					 
                      print('Media/'+eachfile.file.name)		
-                     mypart = Part.importer(file_type)('Media/'+eachfile.file.name)
+                     mypart = Part.importer(file_type)('Display/'+eachfile.file.name)
                      mypart.exporter('gltf')(newfilename)
                      f = open(newfilename, "r")
                      data = f.read()
