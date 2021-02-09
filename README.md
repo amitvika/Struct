@@ -25,7 +25,9 @@ All the code, in one place
 
 #### React and Node 
 
-- Then, `npm run dev` to run the entire dev environment
+-  `npm run dev-all` to run the entire dev environment
+
+-  `npm run dev` to run the backend and internal dev environment
 
 ## Tasks
 

@@ -36,7 +36,8 @@ const ItemSchema = new mongoose.Schema({
 	step: {
 		type: Object
 	},
-	stl: { type: String }
+	stl: { type: String },
+	fileId: { type: Number }
 });
 
 

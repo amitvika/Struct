@@ -1,5 +1,5 @@
 import React from 'react';
-import ProcessConfiguration from './processConfiguration';
+import ProcessConfiguration from './processConfiguration/index2';
 import ProcessStaticsAndAnalysis from './processStatisticsAndAnalysis';
 
 export default function Machining({

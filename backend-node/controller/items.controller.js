@@ -75,7 +75,7 @@ exports.filterItems = async (req, res) => {
 			})
 		}
 
-		if(req.query.client_id){
+		if (req.query.client_id) {
 			query.push({
 				$match: {
 					'selectedClientId': getObjectId(req.query.client_id)
@@ -208,7 +208,9 @@ exports.update = async (req, res) => {
 			updateData.selectedClientId = body.selectedClientId;
 		}
 
-		if(body.itemGeometry.isEndProductSelected === false || body.selectedClientId === null){
+		updateData.fileId = body.fileId || null;
+
+		if (body.itemGeometry.isEndProductSelected === false || body.selectedClientId === null) {
 			updateData.selectedClientId = null;
 		}
 

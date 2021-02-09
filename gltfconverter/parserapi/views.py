@@ -154,7 +154,6 @@ def FileGetView(request):
                 if file_extension==".stl" or file_extension==".svg" or file_extension==".amf" or file_extension==".json" :
                      file_type = file_extension[1:]
                 if file_type != "" :					 
-                     print('Media/'+eachfile.file.name)		
                      mypart = Part.importer(file_type)('Display/'+eachfile.file.name)
                      mypart.exporter('gltf')(newfilename)
                      f = open(newfilename, "r")

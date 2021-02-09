@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 import request from 'axios';
 import GLTFRenderer from "./GltfRenderer";
+import { upload3DFile, getGLTFJson } from '../api/fileUpload.api'
 
 class DropZone extends Component {
 
@@ -29,8 +30,7 @@ class DropZone extends Component {
 		files.forEach(oneFile => {
 			var formData = new FormData();
 			formData.append('file', oneFile)
-			var req = request
-				.post('http://localhost:8000/api/v0/upload/', formData)
+			upload3DFile(formData)
 				.then(res => {
 					this.setState({
 						files: [res.data],
@@ -48,9 +48,8 @@ class DropZone extends Component {
 	};
 
 	getView = (id) => {
-		var convertURL = "http://localhost:8000/api/v0/convert?id=" + id;
-		fetch(convertURL)
-			.then((res) => res.json())
+		getGLTFJson(id)
+			.then(res => res.data)
 			.then((repos) => {
 				//console.log(repos);
 				this.setState({ gltfjson: repos });
@@ -63,8 +62,8 @@ class DropZone extends Component {
 	render() {
 
 		const files = this.state.files.map(files => (
-			<li key={files.name}>
-				<button value={files.name} onClick={() => this.getView(files.id)} type='button'>{files.name}</button>
+			<li key={files.filename}>
+				<button value={files.filename} onClick={() => this.getView(files.id)} type='button'>{files.filename}</button>
 			</li>
 		));
 

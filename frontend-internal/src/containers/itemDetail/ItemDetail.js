@@ -13,6 +13,7 @@ import {
 } from "@material-ui/core";
 import MuiAlert from '@material-ui/lab/Alert';
 import { NavLink, useParams } from "react-router-dom";
+import { useDispatch } from 'react-redux';
 
 import BaseItemProperties from './baseItemProperties';
 import GeometricDimensioning from './geometricDimensioning';
@@ -23,12 +24,16 @@ import ClientSetup from './clientSetup';
 
 import ItemTypeConfigurations from './ItemTypeConfigurations';
 import ItemAPI from '../../api/items.api';
+import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
+
 
 function Alert(props) {
 	return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
 const ItemDetail = () => {
+	const dispatch = useDispatch()
+
 	const [value, setValue] = useState(1);
 	let { id } = useParams();
 	const [itemProperties, setItemProperties] = useState({});
@@ -86,10 +91,10 @@ const ItemDetail = () => {
 			.updateItemAPI(id, { ...itemProperties })
 			.then(res => {
 				setItemProperties(res.data);
-				setSnackbarOptions({ isOpen: true, message: 'All data is saved' });
+				dispatch(showSuccessAlert({ message: 'All data is saved' }));
 			})
 			.catch(error => {
-				setSnackbarOptions({ isOpen: true, message: 'Unable to save info' });
+				dispatch(showErrorAlert({  message: 'Unable to save info' }));
 			})
 	}
 

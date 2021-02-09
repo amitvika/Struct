@@ -9,12 +9,13 @@ import {
 import Stats from "stats.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { resourcePathURL } from '../api/fileUpload.api'
 
 var gltfJSON = "";
 var activeFile = 0;
 
 class GLTFRenderer extends Component {
-  
+
   componentDidMount() {
     this.init();
   }
@@ -24,46 +25,46 @@ class GLTFRenderer extends Component {
   }
 
   alter = () => {
-	gltfJSON = this.props.gltfjson;
+    gltfJSON = this.props.gltfjson;
     activeFile = this.props.activefile;
-    if(gltfJSON!="") {
-	      this.scene = new Scene();
-          this.scene.background = new Color("#FFFFFF");
-    	
-	      this.gltfLoader = new GLTFLoader();
-		  this.gltfLoader.parse(gltfJSON, "http://localhost:8000/Media/", ({ scene }) => {
-		  this.object = scene;
-		  this.object.traverse(node => {
-			if (node.isMesh) {
-			  node.material = new MeshNormalMaterial();
-			  node.material.needsUpdate = true;
-			}
-		  });
+    if (gltfJSON != "") {
+      this.scene = new Scene();
+      this.scene.background = new Color("#FFFFFF");
 
-		  this.scene.add(this.object);
-		});
-	}
-    
+      this.gltfLoader = new GLTFLoader();
+      this.gltfLoader.parse(gltfJSON, resourcePathURL, ({ scene }) => {
+        this.object = scene;
+        this.object.traverse(node => {
+          if (node.isMesh) {
+            node.material = new MeshNormalMaterial();
+            node.material.needsUpdate = true;
+          }
+        });
+
+        this.scene.add(this.object);
+      });
+    }
+
     this.renderer.render(this.scene, this.camera);
     this.renderer.setAnimationLoop(this.animate);
   };
 
   init = () => {
-	gltfJSON = this.props.gltfjson;
+    gltfJSON = this.props.gltfjson;
     this.aspect = this.node.clientWidth / this.node.clientHeight;
     this.camera = new PerspectiveCamera(0.1, this.aspect, 0.01, 10000);
     this.camera.position.set(200, 50, 200);
-	//this.camera.zoom = 5;
+    //this.camera.zoom = 5;
     this.controls = new OrbitControls(this.camera, this.node);
     this.scene = new Scene();
     this.scene.background = new Color("#FFFFFF");
     //const gltfJSON = require(filename);
-	
-    
+
+
     this.renderer = new WebGLRenderer({
       antialias: true
     });
-    
+
     this.node.appendChild(this.renderer.domElement);
     window.addEventListener("resize", this.onWindowResize);
 
@@ -74,14 +75,14 @@ class GLTFRenderer extends Component {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.node.clientWidth, this.node.clientHeight);
     this.alter();
-	
+
   };
 
   animate = () => {
     this.stats.begin();
 
     if (this.object) {
-     // this.object.rotation.y += 0.001;
+      // this.object.rotation.y += 0.001;
     }
 
     this.controls.update();
@@ -103,9 +104,9 @@ class GLTFRenderer extends Component {
   };
 
   render() {
-	if( activeFile != this.props.activefile ) {
-		this.alter();		
-	}
+    if (activeFile != this.props.activefile) {
+      this.alter();
+    }
     return (
       <div
         css={{ width: "100%", height: "100%" }}
