@@ -24,7 +24,7 @@ router.use("/vendor", require("./vendors.route"));
 router.use("/assemblyProcess", require("./assemblyProcess.route"));
 router.use("/material", require("./material.route"));
 router.use("/assemblyManufacture", require("./assemblyManufacture.route"));
-
+router.use("/factory", require("./factory.route"));
 
 router.post('/upload-logo', Upload.uploadLogo(), (req, res) => {
   res.send({ logoName: req.file.filename, logoUrl : `http://${req.headers.host}/logo/${req.file.filename}` })

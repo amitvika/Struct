@@ -146,6 +146,12 @@ const AppNavbar = () => {
           >
             Items
             </NavLink>
+            <NavLink
+            className="navbar-text"
+            to='/factories'
+            tag={RRNavLink}>
+            Factories
+            </NavLink>
           {/* <NavLink
             className="navbar-text"
             to='/process-groups'
@@ -191,7 +197,7 @@ const AppNavbar = () => {
                     <DropdownItem
                       style={{ color: "black" }}
                       onClick={() => history.push('/access-setup')}>
-                      Access Setup
+                     User Setup
                   </DropdownItem>
                     <DropdownItem divider />
                   </>
@@ -200,7 +206,7 @@ const AppNavbar = () => {
                 <DropdownItem
                   style={{ color: "black" }}
                   onClick={() => history.push('/view-access')}>
-                  View Access
+                  View My Profile
                     </DropdownItem>
                 <DropdownItem divider />
 

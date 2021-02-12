@@ -23,9 +23,11 @@ import AccessSetup from './page/AccessSetup';
 import ConfigurationHistory from './page/ConfigurationHistory';
 import AccessConfiguration from './page/AccessConfiguration';
 import ViewAccess from './page/ViewAccess';
-
+import Factories from './containers/factories/Factories';
 import Clients from './containers/client/Clients';
 import ClientDetail from "./containers/client/ClientDetail";
+
+import FactoryDetail from './containers/factories/FactoryDetail'
 import ProductDesignDetail from "./containers/productDesignDetail";
 import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
 import ItemDetail from "./containers/itemDetail/ItemDetail";
@@ -68,6 +70,9 @@ export default function AppRoutes() {
 
               <AppRoute authenticate exact path='/items' component={Items} />
               <AppRoute authenticate path='/items/:id' component={ItemDetail} />
+
+              <AppRoute authenticate exact path='/factories' component={Factories} />
+              <AppRoute authenticate path='/factories/:id' component={FactoryDetail} />
 
               <AppRoute authenticate path='/access-setup' component={AccessSetup} />
               <AppRoute authenticate path='/configuration-history' component={ConfigurationHistory} />
