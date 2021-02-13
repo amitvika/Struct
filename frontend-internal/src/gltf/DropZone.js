@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 import request from 'axios';
+
+
 import GLTFRenderer from "./GltfRenderer";
 import { upload3DFile, getGLTFJson } from '../api/fileUpload.api'
 
@@ -15,15 +17,6 @@ class DropZone extends Component {
 			activefile: 0
 		}
 	}
-	// this.
-	// 	this.setFileIDs = (function (dropzone, oneFile) {
-	// 		return function (err, response) {
-	// 			dropzone.fileIDs.push([oneFile, response.body.id]);
-	// 			dropzone.setState({ files: dropzone.fileIDs });
-	// 			console.log(oneFile + " upload done!!!!!");
-	// 		};
-	// 	});
-
 	onDrop = async (files) => {
 
 		this.fileIDs = [];
@@ -57,7 +50,6 @@ class DropZone extends Component {
 			});
 
 	};
-
 
 	render() {
 

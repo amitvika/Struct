@@ -161,6 +161,7 @@ class AccessSetup extends Component {
 													.catch(err => console.log(err.data));
 											}
 											resolve();
+											
 										}, 10);
 									}),
 								onRowUpdate: (newData, oldData) =>

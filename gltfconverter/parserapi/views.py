@@ -11,6 +11,7 @@ import glob
 import os
 from pathlib import Path
 from cqparts import Part
+from cqparts import Assembly
 from decimal import Decimal
 
 @api_view(['GET', 'POST', 'DELETE'])
@@ -82,15 +83,13 @@ def is_number(value):
 def getFile(id,key):
     data =[]
     if id or is_number(id) :
-        id = id.replace('"','')
-        print("converting",id,key)
-#        id="2e537c1c57a0a0dc91c28f879e69f8fa.STEP"
         print("converting",id,key)
         filename, file_extension = os.path.splitext(id)
         print(filename, file_extension)
         sourcefilename = key+id			
-        print(sourcefilename)		
-        newfilename = "../client/public/Display/"+Path(sourcefilename).resolve().stem + ".gltf"
+        print(sourcefilename)
+        newfilenamewithoutext = newfilename = "Display/"+Path(id).resolve().stem		
+        newfilename = newfilenamewithoutext + ".gltf"
         print(newfilename)		
         file_extension = file_extension.lower()
         print(file_extension, filename, id, newfilename)
@@ -99,65 +98,39 @@ def getFile(id,key):
             file_type = "step"
         if file_extension==".stl" or file_extension==".svg" or file_extension==".amf" or file_extension==".json" :
             file_type = file_extension[1:]
-        if file_type != "" :
-            #Exceptions = True		
-            #sourcefilename = 'Media/2e537c1c57a0a0dc91c28f879e69f8fa.step'
-            '''while Exceptions :
-                try:
-                    with open(sourcefilename) as f:
-                       data = f.read()
-                       lenData = len(data)
-                       Exception = (lenData<=0)
-                except IOError as x:
-                    if x.errno == errno.ENOENT:
-                       Exception = False #print '- does not exist'//'''
-            #f=open(sourcefilename,"r")
-            #data=f.readline()
+        if file_type != "" :					 
+            #mypart = Part.importer(file_type)(sourcefilename)
+            #mypart.exporter('gltf')(newfilename)
+            #f = open(newfilename, "r")
+            #data = f.read()
             #f.close()
-#            if data :
-#                print(data.length)			
-            #print(sourcefilename,"DATA",data, len(data))
-#            print(sourcefilename,"before read")
-#            f=open("Media/50mm_SWD_Flex_Spline_Helical_Gear_Iter_1_10.19.2020.STEP","r")
-#            data=f.readline()
-#            f.close()
-#            if data :
-#                print(data.length)
-#            print("Media/50mm_SWD_Flex_Spline_Helical_Gear_Iter_1_10.19.2020.STEP","DATA",data)
-  
-            mypart = Part.importer(file_type)(sourcefilename)
-            mypart.exporter('gltf')(newfilename)
+            myassemblies = Assembly.importer(file_type)(sourcefilename)
+            #mycount = 0
+            #newfilename = newfilenamewithoutext+str(mycount)+".gltf"
+            myassemblies.exporter('gltf')(newfilename)
+            print("My assemblies", myassemblies)
             f = open(newfilename, "r")
             data = f.read()
-            f.close()
+            f.close()            
+           
     return data
     
 @api_view(['GET'])
 def FileGetView(request):
-    id = request.GET.get('id', None)
-    #print(id)
     data = []
-    if id is None:
-        id = 10
-    if id is not None:
-        files = File.objects.filter(id__icontains=id)
-        if request.method == 'GET':
-            for eachfile in files:
-                filename, file_extension = os.path.splitext(eachfile.filename)				
-                newfilename = 'Display/'+Path(eachfile.file.name).resolve().stem + ".gltf"
-                file_extension = file_extension.lower()
-                #print(file_extension, filename, eachfile.file.name, newfilename)
-                #print(eachfile)
-                file_type = ""
-                if file_extension==".stp" or file_extension==".step" :
-                     file_type = "step"
-                if file_extension==".stl" or file_extension==".svg" or file_extension==".amf" or file_extension==".json" :
-                     file_type = file_extension[1:]
-                if file_type != "" :					 
-                     mypart = Part.importer(file_type)('Display/'+eachfile.file.name)
-                     mypart.exporter('gltf')(newfilename)
-                     f = open(newfilename, "r")
-                     data = f.read()
-                     f.close()
-    #print(data)
+    if request.method == 'GET':
+        id = request.GET.get('id', None)
+        print(id)
+        
+        if is_number(id) :
+            if id==0:
+               id = request.GET.get('file', None)
+               data = getFile(id,"Media/")
+            else :
+                files = File.objects.filter(id__icontains=id)
+                for eachfile in files:
+                   data = getFile(eachfile.file.name,"Media/")
+        else:
+            id = request.GET.get('file', None)
+            data = getFile(id,"Media/")
     return JsonResponse(data, safe=False)

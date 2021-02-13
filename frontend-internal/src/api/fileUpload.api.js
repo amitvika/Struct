@@ -11,4 +11,4 @@ export const getGLTFJson = (id) => {
     return axios.get(convertURL)
 }
 
-export const resourcePathURL = `http://localhost:8000/Media/`;
+export const resourcePathURL = `http://localhost:8000/Display/`;

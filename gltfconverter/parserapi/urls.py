@@ -16,5 +16,5 @@ urlpatterns = [
 	url(r'^api/v0/upload', views.FileUploadView),
     url(r'^api/v0/uploads/(?P<pk>[0-9]+)$', views.FileReplaceView),
     url(r'^api/v0/convert$', views.FileGetView)
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

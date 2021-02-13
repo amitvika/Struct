@@ -132,4 +132,4 @@ CORS_ORIGIN_REGEX_WHITELIST = [
     'http://localhost:4200',
 ]
 MEDIA_ROOT = os.path.join(BASE_DIR, 'Display')
-MEDIA_URL = '/Media/'
+MEDIA_URL = '/Display/'
