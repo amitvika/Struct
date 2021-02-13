@@ -4,7 +4,7 @@ import request from 'axios';
 
 
 import GLTFRenderer from "./GltfRenderer";
-import { upload3DFile, getGLTFJson } from '../api/fileUpload.api'
+import { upload3DFile, getGLTFJson } from '../../api/fileUpload.api'
 
 class DropZone extends Component {
 

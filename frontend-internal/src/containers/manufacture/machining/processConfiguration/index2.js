@@ -7,7 +7,7 @@ import {
 } from "@material-ui/core";
 
 import FileUpload from "./FileUpload";
-import GLTFRenderer from '../../../GltfRenderer';
+import GLTFRenderer from '../../../gltf/GltfRenderer';
 import { upload3DFile, getGLTFJson } from '../../../../api/fileUpload.api'
 
 const useStyles = makeStyles((theme) => ({

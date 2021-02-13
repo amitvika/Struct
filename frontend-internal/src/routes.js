@@ -33,7 +33,7 @@ import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDeta
 import ItemDetail from "./containers/itemDetail/ItemDetail";
 
 // import Viewer from './page/3DViewer';
-import Viewer from './gltf/DropZone'
+import Viewer from './containers/gltf/DropZone'
 
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);

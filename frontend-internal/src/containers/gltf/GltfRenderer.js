@@ -34,7 +34,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { GUI } from 'dat.gui';
-import { resourcePathURL } from '../api/fileUpload.api.js'
+import { resourcePathURL } from '../../api/fileUpload.api.js'
+import './style.css';
 
 const DEFAULT_CAMERA = '[default]';
 
@@ -841,7 +842,7 @@ class GLTFRenderer extends Component {
     }
     return (
       <div
-        css={{ width: "100%", height: "100%" }}
+        style={{ position: 'relative', width: "100%", height: "100%" }}
         ref={el => (this.node = el)}
       />
     );
