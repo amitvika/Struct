@@ -25,7 +25,7 @@ import ClientSetup from './clientSetup';
 import ItemTypeConfigurations from './ItemTypeConfigurations';
 import ItemAPI from '../../api/items.api';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-
+import get from 'lodash/get';
 
 function Alert(props) {
 	return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -46,15 +46,13 @@ const ItemDetail = () => {
 		(async () => {
 			setIsLoading(true);
 			const itemDetailResponse = await ItemAPI.getItemAPI(id)
-			if (itemDetailResponse.data) {
-				setItemDetail(itemDetailResponse.data);
-			}
+			setItemDetail(get(itemDetailResponse, 'data', {}));
 
-			const itemGeometryResponse = await ItemAPI.getItemAPI(id)
-			if (itemGeometryResponse.data) {
-				setItemProperties(itemGeometryResponse.data);
-				setThreejsData(itemGeometryResponse.data)
-			}
+			// const itemGeometryResponse = await ItemAPI.getItemAPI(id)
+			// if (itemGeometryResponse.data) {
+			setItemProperties(get(itemDetailResponse, 'data', {}));
+			// setThreejsData(itemGeometryResponse.data)
+			// }
 
 			setIsLoading(false);
 		})()
@@ -75,7 +73,7 @@ const ItemDetail = () => {
 			case 5:
 				return <VendorDetails />
 			case 6:
-				return <Manufacturing itemId={id}/>;
+				return <Manufacturing itemId={id} />;
 			case 7:
 				return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
 			default:
@@ -94,7 +92,7 @@ const ItemDetail = () => {
 				dispatch(showSuccessAlert({ message: 'All data is saved' }));
 			})
 			.catch(error => {
-				dispatch(showErrorAlert({  message: 'Unable to save info' }));
+				dispatch(showErrorAlert({ message: 'Unable to save info' }));
 			})
 	}
 

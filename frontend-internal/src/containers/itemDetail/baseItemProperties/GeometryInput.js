@@ -191,7 +191,8 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 								{ label: "Containment - Liquid Container", value: "Containment - Liquid Container" },
 								{ label: "Tool", value: "Tool" },
 								{ label: "Machine - Tool", value: "Machine - Tool" },
-								{ label: "Unassembled Kit", value: "Unassembled Kit" }
+								{ label: "Unassembled Kit", value: "Unassembled Kit" },
+								{ label: "Structure", value: 'Structure' }
 							]}
 							onChange={(data) => handleOnChange('itemType', data.value)}
 							value={itemGeometry.itemType && { label: itemGeometry.itemType }}
@@ -211,7 +212,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 							// label="General Geometry"
 							placeholder="Select"
 							options={[
-								
+
 								{ label: ' Solid', value: ' Solid' },
 								{ label: "Bulk Powder/Particles/Grains", value: "Bulk Powder/Particles/Grains" },
 								{ label: "Liquid", value: "Liquid" },
@@ -381,7 +382,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 			}
 
 			{
-				[ 'Solid'].includes(itemGeometry.generalGeomerty) &&
+				['Solid'].includes(itemGeometry.generalGeomerty) &&
 				<Paper style={{ padding: 20, margin: 10 }}>
 					<Grid className="section-padding-left" container spacing={4}>
 						<Grid item xs={12}>

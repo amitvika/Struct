@@ -1,4 +1,5 @@
 const ItemModel = require("../models/Item.model");
+const FactoryModel = require("../models/factory.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
 // const nodeocc = require("node-occ");
 const occ = {}//nodeocc.occ;
@@ -138,6 +139,12 @@ exports.getOne = async (req, res) => {
 	try {
 
 		const item = await ItemModel.findById(req.params.id);
+
+		const factory = await FactoryModel.find({ selectedItemId: req.params.id });
+
+		if (factory) {
+			item.itemGeometry.itemType = 'Structure';
+		}
 		res.json(item);
 	}
 	catch (error) {

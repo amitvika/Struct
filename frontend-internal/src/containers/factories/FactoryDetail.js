@@ -12,15 +12,15 @@ import {
 } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import { NavLink, useParams } from "react-router-dom";
-import API from '../../api/clients.api';
-import Products from './products'
-import LogoView from '../../components/LogoView';
-
 import { useDispatch } from 'react-redux';
-import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { Spinner } from "reactstrap";
-import Documentation from "./documentation";
 
+import FactoriesAPI from '../../api/factories.api';
+import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
+
+import BaseFactorySetup from './baseFactorySetup'
+
+import get from 'lodash/get';
 
 const FactoriesDetail = () => {
     let { id } = useParams();
@@ -28,17 +28,13 @@ const FactoriesDetail = () => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [value, setValue] = useState(1);
-    const [clientData, setClientData] = useState({});
-    const [isWebsiteNameAvailable, setIsWebsiteNameAvailable] = useState(true);
+    const [factoryValue, setFactoryValue] = useState({});
 
     useEffect(() => {
         setIsLoading(true)
-        API.fetchClientApi(id)
+        FactoriesAPI.fetchFactories(`factory_id=${id}`)
             .then(res => {
-
-                if (res.data) {
-                    setClientData(res.data);
-                }
+                setFactoryValue(get(res, 'data[0]', {}));
 
                 setIsLoading(false)
             })
@@ -50,20 +46,14 @@ const FactoriesDetail = () => {
     }, [id]);
 
     const handleSave = () => {
-        syncWithServer(clientData)
+        syncWithServer(factoryValue)
     }
-
 
     const syncWithServer = (data) => {
 
-        API.updateClientApi(id, data)
+        FactoriesAPI.upsertFactoryApi(data)
             .then(res => {
-                if (res.data.success) {
-                    setIsWebsiteNameAvailable(res.data.isWebsiteNameAvailable);
-                }
-                else {
-                    setClientData(res.data);
-                }
+                // setFactoryValue(res.data);
                 dispatch(showSuccessAlert({ message: 'All data is saved' }));
 
             })
@@ -74,29 +64,13 @@ const FactoriesDetail = () => {
             })
     }
 
-    const handleLogoChange = ({ logoName, logoUrl }) => {
-        const updatedValues = {
-            ...clientData,
-            logoName,
-            logoUrl
-        };
-
-        setFactoriesData(updatedValues);
-        syncWithServer(updatedValues);
-    }
-
-    const handleClientUpdate = (data) => {
-        setFactoriesData(data);
-        setIsWebsiteNameAvailable(true)
-    }
-
-
     const renderPageSwitch = (index) => {
+        if(!get(factoryValue, '_id')){
+            return null
+        }
         switch (index) {
             case 1:
-                return <Products />
-            case 2:
-                return <Documentation />
+                return <BaseFactorySetup factoryId={id} setFactoryValue={setFactoryValue} factoryValue={factoryValue} />
             default:
                 return "Undefined Tab Index";
         }
@@ -133,13 +107,9 @@ const FactoriesDetail = () => {
                     </Paper>
                     <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                            {/* <h4>Factory Name: {Data.name}</h4> */}
+                            <h4>Factory Name: {factoryValue.name}</h4>
                             <p>Factory ID:{id}</p>
                         </div>
-                        <LogoView
-                            logoUrl={clientData.logoUrl}
-                            handleLogoChange={handleLogoChange}
-                            name={clientData.name} />
                     </Paper>
                 </Grid>
                 <Grid item sm={2}>

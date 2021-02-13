@@ -10,9 +10,9 @@ exports.get = async (req, res) => {
             "deletedAt": { "$exists": false }
         })
 
-        if (req.params.factories) {
+        if (req.params.factory_id) {
             query.$and.push({
-                "_id": { $in: req.params.factories }
+                "_id": req.params.factory_id
             })
         }
 
@@ -33,9 +33,10 @@ exports.upsert = async (req, res) => {
     try {
 
         let factory;
-        if (req.body.id) {
+        let id = req.body.id || req.body._id
+        if (id) {
             factory = await FactoryModel.updateOne(
-                { _id: req.body.id },
+                { _id: id },
                 req.body,
                 { upsert: true, new: true });
         }
@@ -49,7 +50,7 @@ exports.upsert = async (req, res) => {
         }
 
         factory = await FactoryModel
-            .findById(factory._id)
+            .findById(id)
             .populate("author", "name")
 
         const changeTracking = new ChangeTracking({

@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const FactorySchema = new mongoose.Schema({
     name: { type: String, required: true },
-    linkendItem: { type: Schema.Types.ObjectId, ref: "Item" },
+    selectedItemId: { type: Schema.Types.ObjectId, ref: "Item" },
     date: { type: Date, default: Date.now },
     isDeleted: { type: Boolean, default: false },
     author: {
