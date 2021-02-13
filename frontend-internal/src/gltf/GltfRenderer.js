@@ -102,13 +102,14 @@ class GLTFRenderer extends Component {
   }
 
   init = () => {
-    this.gltfJSON = this.props.gltfjson;
+
     this.lights = [];
     this.content = null;
     this.mixer = null;
     this.clips = [];
     this.gui = null;
 
+    //console.log(this.props);
 
     this.prevTime = 0;
 
@@ -165,7 +166,8 @@ class GLTFRenderer extends Component {
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
     this.renderer.domElement.addEventListener('mousemove', this.onMouseMove.bind(this), false);
     this.renderer.domElement.addEventListener('click', this.onMouseClick.bind(this), false);
-
+    this.alter();
+    this.onWindowResize();
   }
 
 
@@ -691,6 +693,7 @@ class GLTFRenderer extends Component {
 
   onWindowResize = () => {
     if (this.node) {
+
       if (this.node.parentElement) {
         const { clientHeight, clientWidth } = this.node.parentElement;
         this.defaultCamera.aspect = clientWidth / clientHeight;
@@ -806,9 +809,11 @@ class GLTFRenderer extends Component {
   };
 
   alter = () => {
+
     this.gltfJSON = this.props.gltfjson;
     this.activeFile = this.props.activefile;
-
+    //console.log( this.gltfJSON );
+    //console.log( this.activeFile );
     if (this.gltfJSON != "") {
 
       this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');

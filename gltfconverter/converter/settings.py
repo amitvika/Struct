@@ -131,5 +131,8 @@ CORS_ORIGIN_WHITELIST = [
 CORS_ORIGIN_REGEX_WHITELIST = [
     'http://localhost:4200',
 ]
-MEDIA_ROOT = os.path.join(BASE_DIR, 'Display')
-MEDIA_URL = '/Display/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'Media')
+MEDIA_URL = '/Media/'
+
+DISPLAY_ROOT = os.path.join(BASE_DIR, 'Display')
+DISPLAY_URL = '/Display/'
