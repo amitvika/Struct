@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MaterialTable, { MTableToolbar } from "material-table";
 import { Grid, Paper, Tab, Tabs } from "@material-ui/core";
 import { makeStyles, useTheme } from '@material-ui/core/styles';
-
+import Clients from './Clients';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,6 +39,15 @@ export default function CurrentUsage() {
     setSelectedTab(tabName);
   }
 
+  const renderContent = () => {
+    switch (selectedTab) {
+      case 'Clients Using/Buying This Item Directly':
+        return <Clients />;
+      default:
+        return <></>
+    }
+  }
+
   return (
     <div>
       <Grid container spacing={1}>
@@ -58,6 +67,8 @@ export default function CurrentUsage() {
           )
         }
       </Grid>
+
+      {renderContent()}
 
 
     </div>

@@ -17,7 +17,7 @@ import { useDispatch } from 'react-redux';
 
 import BaseItemProperties from './baseItemProperties';
 import GeometricDimensioning from './geometricDimensioning';
-import CurrentUsage from './CurrentUsage';
+import CurrentUsage from './currentUsage';
 import VendorDetails from './VendorDetails';
 import Manufacturing from '../manufacture/index2'
 import ClientSetup from './clientSetup';

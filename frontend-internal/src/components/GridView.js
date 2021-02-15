@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function GridView({
 	list,
-	handleHistoryToggle,
+	handleHistoryToggle = () => { },
 	columnsFields,
 	handleTableRowClick,
 	isHistoryLinkVisible = true
@@ -60,19 +60,19 @@ export default function GridView({
 	const classes = useStyles();
 
 	const renderItem = (data) => {
-		let item = [];+
+		let item = []; +
 
-		Object.keys(columnsFields).forEach(fieldItem => {
-			item.push(
-				<Grid item sm sm={12} className={classes.fieldItem}>
-					<div >
-						<span className={classes.boldtablecell}>{columnsFields[fieldItem]}</span>
-						{`: `}
-						<span className={classes.tableCell}>{` ${data[fieldItem] != undefined || data[fieldItem] != null ? data[fieldItem] : ''}`}</span>
-					</div>
-				</Grid>
-			)
-		})
+			Object.keys(columnsFields).forEach(fieldItem => {
+				item.push(
+					<Grid item sm sm={12} className={classes.fieldItem}>
+						<div >
+							<span className={classes.boldtablecell}>{columnsFields[fieldItem]}</span>
+							{`: `}
+							<span className={classes.tableCell}>{` ${data[fieldItem] != undefined || data[fieldItem] != null ? data[fieldItem] : ''}`}</span>
+						</div>
+					</Grid>
+				)
+			})
 		return item;
 	}
 

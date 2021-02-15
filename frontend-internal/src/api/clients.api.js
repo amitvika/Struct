@@ -1,6 +1,6 @@
 import { postRequest, getRequest, putRequest, deleteRequest } from '../utils/apiHandler';
 
-export const fetchClientsApi = () => getRequest('/api/clients');
+export const fetchClientsApi = (query) => getRequest(`/api/clients?${query}`);
 
 const fetchClientApi = (id) => getRequest(`/api/clients/${id}`);
 

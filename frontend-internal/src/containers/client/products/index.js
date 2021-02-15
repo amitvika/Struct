@@ -22,6 +22,7 @@ import { columnsFields } from '../../../constants/item'
 import ItemAPI from '../../../api/items.api';
 import ProductOptions from './productOptions'
 import { mapItems } from '../../../utils/mapper'
+import get from 'lodash/get';
 
 export default function Products({
 	clientId,
@@ -54,7 +55,7 @@ export default function Products({
 		try {
 			setIsLoading(true);
 
-			const itemRes = await ItemAPI.getItemsAPI(`client_id=${clientId}`)
+			const itemRes = await ItemAPI.getItemsAPI()
 
 			if (itemRes && itemRes.data) {
 				const items = mapItems(itemRes.data.filter(item => {

@@ -9,7 +9,13 @@ exports.get = async (req, res) => {
 		let query = { $and: [] };
 		query.$and.push({
 			"deletedAt": { "$exists": false }
-		})
+		});
+
+		if(req.query.item_id){
+			query.$and.push({
+				"linkedItems": req.query.item_id
+			});
+		}
 
 		const clients = await Client.find(query)
 			.populate("createdByUserId", "name")
