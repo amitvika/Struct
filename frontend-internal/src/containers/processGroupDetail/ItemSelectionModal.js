@@ -72,7 +72,7 @@ export default function ItemSelectionModal({
 
 	const fetchData = ({ query = '' }) => {
 
-		ItemAPI.filterItemsAPI(query)
+		ItemAPI.getItemsAPI(query)
 			.then(res => {
 				if (res.data) {
 					setItemList(res.data)
@@ -200,7 +200,7 @@ export default function ItemSelectionModal({
 							// label="General Geometry"
 							placeholder="Select"
 							options={[
-								
+
 								{ label: ' Solid', value: 'Solid' },
 								{ label: "Bulk Powder/Particles/Grains", value: "Bulk Powder/Particles/Grains" },
 								{ label: "Liquid", value: "Liquid" },

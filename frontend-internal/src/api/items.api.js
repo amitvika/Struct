@@ -2,13 +2,9 @@ import { postRequest, getRequest, putRequest, deleteRequest } from '../utils/api
 
 const getItemsAPI = (query) => getRequest(`/api/items?${query}`);
 
-const filterItemsAPI = (query) => getRequest(`/api/items/filter?${query}`);
-
 const saveItemAPI = (data) => postRequest(`/api/items`, data);
 
 const updateItemAPI = (id, data) => putRequest(`/api/items/${id}`, data);
-
-const getItemAPI = (id) => getRequest(`/api/items/${id}`);
 
 const deleteItemAPI = (id) => deleteRequest(`/api/items/${id}`);
 
@@ -20,8 +16,6 @@ const getItemThreejsData = (id) => getRequest(`/api/items/${id}/three-model`);
 
 export default {
   getItemsAPI,
-  filterItemsAPI,
-  getItemAPI,
   saveItemAPI,
   updateItemAPI,
   deleteItemAPI,

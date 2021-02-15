@@ -12,6 +12,10 @@ import {
     Paper,
 } from '@material-ui/core';
 import { Spinner } from "reactstrap";
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+
 
 import { columnsFields } from '../../../constants/item'
 import ItemAPI from '../../../api/items.api';
@@ -28,6 +32,16 @@ export default function BaseFactorySetup({
     const [selectedItem, setSelectedItem] = useState({});
     const [filteredItemList, setFilteredItemList] = useState([]);
 
+    const [isItemSelectionVisible, setIsItemSelectionVisible] = useState(false);
+
+    const onClick = () => setIsItemSelectionVisible(!isItemSelectionVisible);
+    const [state, setState] = useState({
+        checkedA: true,
+    });
+    const handleChange = (event) => {
+        setState({ ...state, [event.target.name]: event.target.checked });
+    };
+
     useEffect(() => {
         fetchItemList();
     }, [factoryId]);
@@ -36,7 +50,7 @@ export default function BaseFactorySetup({
         try {
             setIsLoading(true);
 
-            const itemRes = await ItemAPI.getItemsAPI();
+            const itemRes = await ItemAPI.getItemsAPI(`itemType=Structure`);
 
             const items = get(itemRes, 'data', []).map((item, index) => {
                 return {
@@ -69,21 +83,27 @@ export default function BaseFactorySetup({
     };
 
     const handleItemSelect = (data) => {
-        setFilteredItemList(prevState => {
-            let updatedState = prevState.filter(item => item.id != data.id);
-            return updatedState;
-        });
+        if (isItemSelectionVisible) {
+            setFilteredItemList(prevState => {
+                let updatedState = prevState.filter(item => item.id != data.id);
+                return updatedState;
+            });
 
-        setSelectedItem(data)
-        setFactoryValue(prevState => ({ ...prevState, selectedItemId: data.id }))
+            setSelectedItem(data)
+            setFactoryValue(prevState => ({ ...prevState, selectedItemId: data.id }));
+
+        }
     }
 
     const handleClientRemove = (data) => {
-        setFilteredItemList(preMaterialList => {
-            return [data, ...preMaterialList];
-        });
-        setSelectedItem({});
-        setFactoryValue(prevState => ({ ...prevState, selectedItemId: null }))
+        if (isItemSelectionVisible) {
+
+            setFilteredItemList(preMaterialList => {
+                return [data, ...preMaterialList];
+            });
+            setSelectedItem({});
+            setFactoryValue(prevState => ({ ...prevState, selectedItemId: null }))
+        }
     }
 
     if (isLoading) {
@@ -112,24 +132,59 @@ export default function BaseFactorySetup({
             </Paper>
             <Space size={20} />
 
-            <Headding fontSize={20} title={'Selected Item'} style={{ fontWeight: 'bold' }}></Headding>
-            <GridView
-                list={Object.keys(selectedItem).length > 0 ? [selectedItem] : []}
-                handleHistoryToggle={() => false}
-                columnsFields={columnsFields}
-                handleTableRowClick={handleClientRemove}
-                isHistoryLinkVisible={false}
-            />
+            <div style={{ display: 'flex' }}>
 
-            <Space size={20} />
-            <Headding fontSize={20} title={'Choose Item'} style={{ fontWeight: 'bold' }}></Headding>
-            <GridView
-                list={filteredItemList}
-                handleHistoryToggle={() => false}
-                columnsFields={columnsFields}
-                handleTableRowClick={handleItemSelect}
-                isHistoryLinkVisible={false}
-            />
+                <Headding fontSize={20} title={'Configure Items'} style={{
+                    fontWeight: 'bold',
+                    alignItems: 'center',
+                    display: 'flex'
+                }}></Headding>
+                <FormGroup style={{ marginLeft: '20px' }}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                onClick={onClick}
+                                checked={state.checkedB}
+                                onChange={handleChange}
+                                name="checkedB"
+                                color="primary"
+                            />
+                        }
+                        label="Add/Remove Item"
+                    />
+                </FormGroup>
+            </div>
+
+            {
+                factoryValue.selectedItemId ?
+                    <>
+
+                        <Headding fontSize={20} title={'Selected Item'} style={{ fontWeight: 'bold' }}></Headding>
+                        <GridView
+                            list={selectedItem ? [selectedItem] : []}
+                            handleHistoryToggle={() => false}
+                            columnsFields={columnsFields}
+                            handleTableRowClick={handleClientRemove}
+                            isHistoryLinkVisible={false}
+                        />
+                    </> :
+                    <Headding fontSize={20} title={'No item Selected'} style={{ fontWeight: 'bold' }}></Headding>
+            }
+
+            {
+                isItemSelectionVisible &&
+                <>
+                    <Space size={20} />
+                    <Headding fontSize={20} title={'Choose Item'} style={{ fontWeight: 'bold' }}></Headding>
+                    <GridView
+                        list={filteredItemList}
+                        handleHistoryToggle={() => false}
+                        columnsFields={columnsFields}
+                        handleTableRowClick={handleItemSelect}
+                        isHistoryLinkVisible={false}
+                    />
+                </>
+            }
         </div>
     )
 }

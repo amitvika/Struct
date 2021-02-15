@@ -45,12 +45,12 @@ const ItemDetail = () => {
 	useEffect(() => {
 		(async () => {
 			setIsLoading(true);
-			const itemDetailResponse = await ItemAPI.getItemAPI(id)
-			setItemDetail(get(itemDetailResponse, 'data', {}));
+			const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
+			// setItemDetail(get(itemDetailResponse, 'data[0]', {}));
 
 			// const itemGeometryResponse = await ItemAPI.getItemAPI(id)
 			// if (itemGeometryResponse.data) {
-			setItemProperties(get(itemDetailResponse, 'data', {}));
+			setItemProperties(get(itemDetailResponse, 'data[0]', {}));
 			// setThreejsData(itemGeometryResponse.data)
 			// }
 
@@ -124,7 +124,7 @@ const ItemDetail = () => {
 						</Breadcrumbs>
 					</Paper>
 					<Paper style={{ padding: 10, margin: 10 }}>
-						<h4>Item Name: {itemDetail.name}</h4>
+						<h4>Item Name: {itemProperties.name}</h4>
 						<p>Item ID:{id}</p>
 					</Paper>
 				</Grid>
@@ -147,7 +147,7 @@ const ItemDetail = () => {
 							<Tab label="Current Usage" value={3} />
 							<Tab label="Item Type Configurations" value={4} />
 							{
-								itemDetail.vendorId && <Tab label="Vendor Details" value={5} />
+								itemProperties.vendorId && <Tab label="Vendor Details" value={5} />
 							}
 
 							<Tab label="Manufacture & processing" value={6} />

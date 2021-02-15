@@ -1,6 +1,7 @@
 const ItemModel = require("../models/Item.model");
 const FactoryModel = require("../models/factory.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
+
 // const nodeocc = require("node-occ");
 const occ = {}//nodeocc.occ;
 const path = require('path');
@@ -9,32 +10,18 @@ const { getObjectId } = require('../utils/helper')
 exports.get = async (req, res) => {
 	try {
 
-		let query = { deletedAt: null };
+		const query = buildQuery(req)
 
-		if (req.query.vendorId && req.query.search) {
-			query = {
-				$and: [{ vendorId: req.query.vendorId },
-				{ deletedAt: null },
-				{ name: { '$regex': new RegExp(`${req.query.search}`, "i") } }]
-			}
+		let items={};
+
+		if (query.length > 0) {
+			items = await ItemModel.aggregate(query)
 		}
-		else if (req.query.vendorId) {
-			query = { $and: [{ vendorId: req.query.vendorId }, { deletedAt: null }] }
-		}
-		else if (req.query.search) {
-			query = { $and: [{ name: { '$regex': new RegExp(`${req.query.search}`, "i") } }, { deletedAt: null }] }
+		else {
+			items = await ItemModel.find()
 		}
 
-		const options = {
-			page: req.query.page,
-			limit: req.query.limit,
-			populate: 'vendorId',
-			sort: { date: -1 },
-		};
-
-		const item = await ItemModel.find(query).populate('vendorId').sort({ date: -1 })
-
-		res.json(item);
+		res.json(items);
 
 	}
 	catch (error) {
@@ -43,58 +30,49 @@ exports.get = async (req, res) => {
 	};
 }
 
-exports.filterItems = async (req, res) => {
-	try {
+const buildQuery = (req) => {
+	let query = [];
 
-		let query = [];
-
-		if (req.query.search) {
-			query.push({ $match: { name: { '$regex': new RegExp(`${req.query.search}`, "i") } } })
-		}
-
-		if (req.query.itemType) {
-			query.push({
-				$match: {
-					'itemTypeConfiguration.itemType': { '$regex': new RegExp(`${req.query.itemType}`, "i") }
-				}
-			})
-		}
-
-		if (req.query.itemCategory) {
-			query.push({
-				$match: {
-					'itemGeometry.generalGeomerty': { '$regex': new RegExp(`${req.query.itemCategory}`, "i") }
-				}
-			})
-		}
-
-		if (req.query.assemblyType) {
-			query.push({
-				$match: {
-					'assemblyType': req.query.assemblyType
-				}
-			})
-		}
-
-		if (req.query.client_id) {
-			query.push({
-				$match: {
-					'selectedClientId': getObjectId(req.query.client_id)
-				}
-			})
-		}
-
-		console.log(JSON.stringify(query))
-
-		const item = await ItemModel.aggregate(query)
-
-		res.json(item);
-
+	if (req.query.id) {
+		query.push({ $match: { _id: getObjectId(req.query.id) } })
 	}
-	catch (error) {
-		console.log('====', error)
-		res.status(500).send(error)
-	};
+
+	if (req.query.search) {
+		query.push({ $match: { name: { '$regex': new RegExp(`${req.query.search}`, "i") } } })
+	}
+
+	if (req.query.itemType) {
+		query.push({
+			$match: {
+				'itemGeometry.itemType': { '$regex': new RegExp(`${req.query.itemType}`, "i") }
+			}
+		})
+	}
+
+	if (req.query.itemCategory) {
+		query.push({
+			$match: {
+				'itemGeometry.generalGeomerty': { '$regex': new RegExp(`${req.query.itemCategory}`, "i") }
+			}
+		})
+	}
+
+	if (req.query.assemblyType) {
+		query.push({
+			$match: {
+				'assemblyType': req.query.assemblyType
+			}
+		})
+	}
+
+	if (req.query.client_id) {
+		query.push({
+			$match: {
+				'selectedClientId': getObjectId(req.query.client_id)
+			}
+		})
+	}
+	return query
 }
 
 exports.getAll = async (req, res) => {
@@ -140,11 +118,11 @@ exports.getOne = async (req, res) => {
 
 		const item = await ItemModel.findById(req.params.id);
 
-		const factory = await FactoryModel.find({ selectedItemId: req.params.id });
+		// const factory = await FactoryModel.find({ selectedItemId: req.params.id });
 
-		if (factory) {
-			item.itemGeometry.itemType = 'Structure';
-		}
+		// if (factory) {
+		// 	item.itemGeometry.itemType = 'Structure';
+		// }
 		res.json(item);
 	}
 	catch (error) {

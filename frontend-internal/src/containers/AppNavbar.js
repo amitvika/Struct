@@ -146,19 +146,21 @@ const AppNavbar = () => {
           >
             Items
             </NavLink>
+
             <NavLink
             className="navbar-text"
             to='/factories'
             tag={RRNavLink}>
             Factories
             </NavLink>
-          {/* <NavLink
+
+          <NavLink
             className="navbar-text"
-            to='/process-groups'
+            to='/'
             tag={RRNavLink}
           >
-            Process Groups
-            </NavLink> */}
+            Floorplan Setup
+            </NavLink>
 
           <NavLink className="navbar-text mr-2 disabled">|</NavLink>
 

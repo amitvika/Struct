@@ -83,7 +83,7 @@ const Items = () => {
 	};
 
 	const fetchItems = async (query) => {
-		
+
 		try {
 			setIsLoading(true);
 
@@ -169,6 +169,7 @@ const Items = () => {
 						handleTableRowClick={handleTableRowClick}
 						columns={columns}
 						setColumns={setColumns}
+						isActionHidden={true}
 					/>
 
 			}

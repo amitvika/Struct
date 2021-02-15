@@ -72,7 +72,7 @@ export default function ItemSelectionModal({
 
 	const fetchData = ({ query = '' }) => {
 
-		ItemAPI.filterItemsAPI(query)
+		ItemAPI.getItemsAPI(query)
 			.then(res => {
 				if (res.data) {
 					setItemList(res.data)

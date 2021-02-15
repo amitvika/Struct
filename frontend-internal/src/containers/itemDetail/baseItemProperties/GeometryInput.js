@@ -160,20 +160,6 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 						<span>{itemProperties.assemblyType}</span>
 					</Grid>
 
-					{/* <Grid item xs={4}>
-						<Headding bold title={'End Product'} />
-					</Grid>
-					<Grid item xs={8}>
-						<Checkbox
-							checked={itemGeometry.isEndProductSelected}
-							size="large"
-							// label="View GridView"
-							onChange={(event) => {
-								handleOnChange('isEndProductSelected', event.target.checked)
-							}}
-						/>
-					</Grid> */}
-
 					<Grid item xs={4}>
 						<Headding bold title={'Item Type'} />
 					</Grid>
@@ -236,7 +222,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 										{ label: "Yes", value: "Yes" },
 										{ label: "No", value: "No" }]}
 									onChange={(data) => handleOnChange('mixture', data.value)}
-									value={itemGeometry.assembly && { label: itemGeometry.mixture }}
+									value={itemGeometry.mixture && { label: itemGeometry.mixture }}
 								/>
 							</Grid>
 						</>
