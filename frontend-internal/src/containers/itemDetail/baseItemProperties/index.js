@@ -119,7 +119,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
       {
         <>
           <Paper style={{ padding: 20, margin: 10 }}>
-            <Headding fontSize={24} bold title={'Cad File or Assembly File Upload'} />
+            <Headding fontSize={24} bold title={'Upload Cad'} />
             {isStepLoaded ?
               <Button
                 className="mt-2 mb-3"

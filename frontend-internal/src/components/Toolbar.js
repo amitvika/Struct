@@ -13,6 +13,8 @@ export default function Toolbar({
 	handleShowDelete,
 	isHistoryModalOpened,
 	handleHistoryToggle,
+	isDeleteCheckboxVisible = true,
+	isHistoryCheckboxVisible = true,
 	...restProps
 }) {
 	return (
@@ -28,22 +30,28 @@ export default function Toolbar({
 							onClick={() => setIsGridViewSelected(!isGridViewSelected)}
 						/>
 					</Grid>
+					{
+						isDeleteCheckboxVisible &&
+						<Grid item sm sm={12}>
+							<Checkbox
+								checked={isDeletedItemVisible}
+								label="Show Deletions"
+								onChange={handleShowDelete}
+							/>
+						</Grid>
+					}
 
-					<Grid item sm sm={12}>
-						<Checkbox
-							checked={isDeletedItemVisible}
-							label="Show Deletions"
-							onChange={handleShowDelete}
-						/>
-					</Grid>
-
-					<Grid item sm sm={12}>
-						<Checkbox
-							checked={isHistoryModalOpened}
-							label="Show History"
-							onChange={handleHistoryToggle}
-						/>
-					</Grid>
+					{
+						isHistoryCheckboxVisible &&
+						<Grid item sm sm={12}>
+							<Checkbox
+								checked={isHistoryModalOpened}
+								label="Show History"
+								onChange={handleHistoryToggle}
+							/>
+						</Grid>
+					}
+					
 				</Grid>
 				<Grid item sm sm={10}>
 					<Grid item sm sm={12} style={{ display: 'flex' }}>

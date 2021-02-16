@@ -10,7 +10,7 @@ export default function TableView({
   clientList = [],
   columns,
   setColumns,
-  isActionHidden = false
+  isActionVisible = true
 }) {
 
   useEffect(() => {
@@ -59,8 +59,8 @@ export default function TableView({
           onRowAdd: (newData, oldData) => handleAdd(newData, oldData),
           onRowUpdate: (newData, oldData) => handleUpdate(newData, oldData),
           onRowDelete: oldData => handleDelete(oldData),
-          isEditHidden: rowData => isActionHidden,
-          isDeleteHidden: rowData => isActionHidden,
+          isEditHidden: rowData => isActionVisible,
+          isDeleteHidden: rowData => isActionVisible,
         }}
       />
     </div>

@@ -7,7 +7,7 @@ import Message from "./Message";
 import ProgressBar from "./ProgressBar";
 import STLConfirmationDialog from './STLConfirmationDialog';
 
-export default function FileUpload({ handleFileUpload, itemId, label = "Upload CAD File - STEP and STL files only" }) {
+export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DXF, GERBER" }) {
   //State
   const [file, setFile] = useState("");
   const [fileName, setFileName] = useState("");

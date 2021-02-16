@@ -55,7 +55,8 @@ export default function GridView({
 	handleHistoryToggle = () => { },
 	columnsFields,
 	handleTableRowClick,
-	isHistoryLinkVisible = true
+	isHistoryLinkVisible = true,
+	isInsideDetailPanel = false
 }) {
 	const classes = useStyles();
 
@@ -77,13 +78,14 @@ export default function GridView({
 	}
 
 	return (
-		<div className={'fixed-grid--around'}>
+		<div className={isInsideDetailPanel ? 'fixed-grid--around-350' : 'fixed-grid--around'}>
 			{list.map(product => {
 				return (
-					<div style={{ marginTop: '10px', marginBottom: '10px', width: '380px' }}>
+					<div style={{ marginTop: '10px', marginBottom: '10px', width: isInsideDetailPanel ? '350px' : '380px' }}>
 						<Paper className={classes.paper} onClick={() => handleTableRowClick(product)}>
 							<Grid container style={{
-								height: '100%'
+								height: '100%',
+								paddingBottom: '10px'
 							}}>
 								<Grid item sm sm={4} style={{ display: 'flex' }}>
 									<img className={classes.img} alt="complex" src={product.logoUrl || StructLogo} />

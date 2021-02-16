@@ -154,14 +154,6 @@ const AppNavbar = () => {
             Factories
             </NavLink>
 
-          <NavLink
-            className="navbar-text"
-            to='/'
-            tag={RRNavLink}
-          >
-            Floorplan Setup
-            </NavLink>
-
           <NavLink className="navbar-text mr-2 disabled">|</NavLink>
 
           <NavLink className="navbar-text" href="#" onClick={() => history.goBack()}>

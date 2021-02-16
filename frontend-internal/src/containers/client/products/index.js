@@ -214,6 +214,7 @@ export default function Products({
 									columnsFields={columnsFields}
 									handleTableRowClick={handleItemRemove}
 									isHistoryLinkVisible={false}
+									isInsideDetailPanel={true}
 								/>
 							</> :
 							<Headding fontSize={20} title={'No product Selected'} style={{ fontWeight: 'bold' }}></Headding>
@@ -230,6 +231,7 @@ export default function Products({
 								columnsFields={columnsFields}
 								handleTableRowClick={handleItemClick}
 								isHistoryLinkVisible={false}
+								isInsideDetailPanel={true}
 							/>
 						</>}
 

@@ -118,9 +118,9 @@ const FactoriesDetail = () => {
                             orientation="vertical"
                             variant="scrollable"
                             value={value}
-                            onChange={(event, newValue) => setValue(newValue)}
-                        >
+                            onChange={(event, newValue) => setValue(newValue)}>
                             <Tab label="Base Factory Setup" value={1} />
+                            <Tab label="Floorplan Setup" value={2}/>
 
                         </Tabs>
                     </Paper>

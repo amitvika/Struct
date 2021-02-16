@@ -142,6 +142,8 @@ const Client = () => {
 				filteredList={filteredClientList}
 				setFilteredList={setFilteredClientList}
 				columnsFields={columnsFields}
+				isDeleteCheckboxVisible={false}
+				isHistoryCheckboxVisible={false}
 			/>
 
 			{
@@ -151,13 +153,15 @@ const Client = () => {
 						handleHistoryToggle={handleHistoryToggle}
 						columnsFields={columnsFields}
 						handleTableRowClick={handleTableRowClick}
+						isHistoryLinkVisible={false}
+						isInsideDetailPanel={true}
 					/> :
 					<TableView
 						list={filteredClientList}
 						columns={columns}
 						setColumns={setColumns}
 						handleTableRowClick={handleTableRowClick}
-						isActionHidden={true}
+						isActionVisible={false}
 					/>
 
 			}

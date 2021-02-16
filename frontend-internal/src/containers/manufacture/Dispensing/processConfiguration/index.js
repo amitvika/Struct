@@ -43,31 +43,26 @@ export default function ProcessConfiguration() {
     }
 
     return (
-        <div>
-            {
-                isSubTabVisible ?
-                    <>
-                        <Grid container spacing={1} style={{ visibility: isSubTabVisible ? "visible" : "hidden", }}>
-                            {
-                                tabArray.map(tabName =>
-                                (
-                                    <Grid item xs={2.5}>
-                                        <Paper onClick={() => handleTabChange(tabName)}
-                                            style={{
-                                                backgroundColor: selectedTab === tabName ? "#343a40" : "",
-                                                color: selectedTab === tabName ? "white" : ""
-                                            }}
-                                            className={classes.tabPaper}>{tabName}</Paper>
+        <Paper elevation={3} className={classes.paper}>
+            <Grid container spacing={1}>
+                {
+                    tabArray.map(tabName =>
+                    (
+                        <Grid item>
+                            <Paper onClick={() => handleTabChange(tabName)}
+                                style={{
+                                    backgroundColor: selectedTab === tabName ? "#343a40" : "",
+                                    color: selectedTab === tabName ? "white" : ""
+                                }}
+                                className={classes.tabPaper}>{tabName}</Paper>
 
-                                    </Grid>
-                                )
-                                )
-                            }
                         </Grid>
-                    </> : null
-            }
+                    )
+                    )
+                }
+            </Grid>
 
-        </div>
+        </Paper>
 
     )
 }
