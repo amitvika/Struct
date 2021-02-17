@@ -17,7 +17,7 @@
     "*****Internal*****": "Internal Website",
     "internal": "cd frontend-internal && npm start",
     "internal-build": "cd frontend-internal && npm run build",
-    "internal-publish": "sudo mv ./frontend-internal/build/* /var/www/internal.struct.services"
+    "internal-publish": "sudo mv --force ./frontend-internal/build/* /var/www/internal.struct.services"
   },
   "repository": {
     "type": "git",
