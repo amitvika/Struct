@@ -15,7 +15,8 @@
     "design": "cd frontend-design-website && npm start",
     "*****Development*****": "Start development environment",
     "dev": "concurrently \"npm run server\" \"npm run internal\" ",
-    "dev-all": "concurrently \"npm run server\" \"npm run internal\" \"npm run public\" \"npm run design\" "
+    "dev-all": "concurrently \"npm run server\" \"npm run internal\" \"npm run public\" \"npm run design\" ",
+    "publish-internal": "sudo mv ./frontend-internal/build/* /var/www/internal.struct.services"
   },
   "repository": {
     "type": "git",

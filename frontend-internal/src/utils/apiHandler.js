@@ -1,4 +1,5 @@
 import axios from '../utils/axios';
+import get from 'lodash/get';
 
 export const request = async (path, data, method) => {
   const token = localStorage.getItem("token");
@@ -13,7 +14,7 @@ export const request = async (path, data, method) => {
     data
   })
     .catch(error => {
-      const { status } = error?.response;
+      const status = get(error, 'response.status');
 
       if (status === 401 && path !== '/api/auth/user') {
         window.localStorage.clear('token');
