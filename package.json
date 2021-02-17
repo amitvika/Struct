@@ -14,10 +14,12 @@
     "*****Development*****": "Start development environment",
     "dev": "concurrently \"npm run server\" \"npm run internal\" ",
     "dev-all": "concurrently \"npm run server\" \"npm run internal\" \"npm run public\" \"npm run design\" ",
+    "*****Backend*****": "Backend",
+    "backend-publish": "cd backend-node && pm2 stop index.js && pm2 restart index.js",
     "*****Internal*****": "Internal Website",
     "internal": "cd frontend-internal && npm start",
     "internal-build": "cd frontend-internal && npm run build",
-    "internal-publish": "sudo mv --force ./frontend-internal/build/* /var/www/internal.struct.services"
+    "internal-publish": "cd frontend-internal && sudo rm -rf /var/www/internal.struct.services/* && sudo cp ./build/* /var/www/internal.struct.services"
   },
   "repository": {
     "type": "git",

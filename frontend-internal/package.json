@@ -36,7 +36,6 @@
     "three-orbit-controls": "^82.1.0",
     "three-stl-loader": "^1.0.6"
   },
-  "proxy": "http://localhost:5000",
   "eslintConfig": {
     "extends": "react-app"
   },

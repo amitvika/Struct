@@ -6,7 +6,7 @@ export const request = async (path, data, method) => {
 
   return axios({
     method,
-    url: `http://localhost:3000${path}`,
+    url: `${process.env.REACT_APP_API}${path}`,
     headers: {
       'Content-Type': 'application/json',
       'x-auth-token': token

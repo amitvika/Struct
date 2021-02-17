@@ -71,14 +71,14 @@ export const login = (data) => dispatch => {
   })
 
   loginApi(data)
-    .then(res =>
+    .then(res => {
       dispatch({
         type: LOGIN_SUCCESS,
         payload: res.data //this is the response from the server
       })
+    }
     )
     .catch(err => {
-      console.log('---->>', err)
       // returnErrors(err.response.data, err.response.status, "LOGIN_FAIL");
       dispatch({
         type: LOGIN_FAIL

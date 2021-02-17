@@ -4,9 +4,11 @@ require('./config/dbConnection');
 const express = require("express"); //brings in express
 const app = express();
 const passport = require("passport");
+const cors = require('cors')
 
 global.MY_ROOT = __dirname
 
+app.use(cors())
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
