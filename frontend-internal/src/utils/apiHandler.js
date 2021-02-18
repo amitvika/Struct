@@ -6,7 +6,7 @@ export const request = async (path, data, method) => {
 
   return axios({
     method,
-    url: `https://api.struct.services${path}`,
+    url: `${process.env.REACT_APP_API}${path}`,
     headers: {
       'Content-Type': 'application/json',
       'x-auth-token': token
