@@ -9,7 +9,8 @@ export const request = async (path, data, method) => {
     url: `${process.env.REACT_APP_API}${path}`,
     headers: {
       'Content-Type': 'application/json',
-      'x-auth-token': token
+      'x-auth-token': token,
+      "Access-Control-Allow-Origin": "*"
     },
     data
   })
