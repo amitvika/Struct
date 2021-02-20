@@ -697,6 +697,7 @@ class GLTFRenderer extends Component {
 	};
   
 	onWindowResize = () => {
+		
 		if(this.node) {
 			 if(this.node.parentElement) {
 				const {clientHeight, clientWidth} = this.node.parentElement;
@@ -856,7 +857,7 @@ class GLTFRenderer extends Component {
 		}
 		return (
 		  <div
-			css={{ width: "100%", height: "100%" }}
+			style={{ width: "100%", height: "100%" }}
 			ref={el => (this.node = el)}
 		  />
 		);

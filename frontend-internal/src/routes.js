@@ -33,7 +33,7 @@ import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDeta
 import ItemDetail from "./containers/itemDetail/ItemDetail";
 
 // import Viewer from './page/3DViewer';
-import Viewer from './containers/gltf/DropZone'
+import Viewer from './containers/gltf/index'
 
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);
@@ -45,7 +45,7 @@ export default function AppRoutes() {
   }
   return (
     <Router>
-      <div>
+      <>
         {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
         <Switch>
@@ -81,7 +81,7 @@ export default function AppRoutes() {
             </Switch>
           </Layout>
         </Switch>
-      </div>
+      </>
     </Router>
   );
 }

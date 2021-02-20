@@ -3,18 +3,18 @@ import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
 
-import API from '../../../api/clients.api';
+import DocumentationAPI from '../../../api/documentation.api';
 
 import TableView from '../../../components/TableView';
 import GridView from '../../../components/GridView';
 import Toolbar from '../../../components/Toolbar';
 import DefaultContainer from '../../../components/DefaultContainer'
-import { columnsFields } from '../../../constants/client'
+import { documentationColumnsFields } from '../../../constants/client'
 
 import { useDispatch } from 'react-redux';
 // import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
-
+import get from 'lodash/get';
 
 const Documentation = () => {
 	let history = useHistory();
@@ -34,28 +34,25 @@ const Documentation = () => {
 
 
 	useEffect(() => {
-		fetchClientList();
+		fetchDocumentations();
 	}, []);
 
-	const fetchClientList = async () => {
+	const fetchDocumentations = async () => {
 		try {
 			setIsLoading(true);
 
-			const clientRes = await API.fetchClientsApi();
+			const res = await API.fetchClientsApi();
+			const documentations = get(res, 'data', []);
 
-			if (clientRes && clientRes.data) {
-				const clients = clientRes.data.map((x, index) => {
-					return {
-						id: x._id,
-						name: x.name,
-						created_by: x.createdByUserId.name,
-						deleted_at: x.deletedAt,
-						logoUrl: x.logoUrl
-					}
-				})
-				setClientList(clients)
-				setFilteredClientList(clients)
-			}
+			const clients = documentations.map((x, index) => {
+				return {
+					id: x._id,
+					name: x.name,
+				}
+			})
+			setClientList(clients)
+			setFilteredClientList(clients)
+
 			setIsLoading(false);
 
 		} catch (error) {

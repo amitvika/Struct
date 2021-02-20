@@ -21,10 +21,10 @@ const App = () => {
   return (
     <Provider store={store}>
       <ThemeProvider>
-        <div className="App">
+        <>
           <Alert />
           <AppRoutes />
-        </div>
+        </>
       </ThemeProvider>
 
     </Provider>

@@ -1,20 +1,24 @@
 import axios from 'axios';
 
-const host = `http://34.226.233.235:8000/`;
+// const host = `https://cadapi.struct.services/api/v0`;
+const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
+
+const url = `${baseURL}/api/v0`
+
 export const upload3DFile = async (data) => {
-    return axios.post(`${host}/upload/`, data)
+    return axios.post(`${url}/upload/`, data)
 };
 
 
 export const getGLTFJson = (id) => {
-    const convertURL = `${host}/convert?id=${id}`;
+    const convertURL = `${url}/convert?id=${id}`;
     return axios.get(convertURL)
 }
 
 export const getSplitFiles = (id) => {
-    const splitURL = `${host}/split?id=${id}`;
-	console.log(splitURL);
+    const splitURL = `${url}/split?id=${id}`;
+    console.log(splitURL);
     return axios.get(splitURL)
 }
 
-export const resourcePathURL = "./gltfconverter/Display/";// `http://localhost:8000/Media/`;
+export const resourcePathURL = `${baseURL}/Display/`; //http://localhost:8000/Media/`;
