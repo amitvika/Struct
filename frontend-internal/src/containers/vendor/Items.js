@@ -6,6 +6,7 @@ import ItemsAPI from '../../api/items.api';
 import ShowHistoryModal from "../ShowHistoryModal";
 import { withRouter } from 'react-router-dom';
 import ItemDetailView from './ItemDetailView';
+import get from 'lodash/get';
 
 class Items extends Component {
   state = {
@@ -38,8 +39,13 @@ class Items extends Component {
     isHistoryModalOpened: false,
     selectedItemId: '',
     isThreejsModalOpened: false,
-    selectedId: ''
+    selectedId: '',
+    itemList: []
   };
+
+  componentDidMount() {
+    this.fetchItems();
+  }
 
   handleHistoryToggle = ({ rowId }) => {
     this.setState({
@@ -68,40 +74,33 @@ class Items extends Component {
     );
   };
 
-  dataQuery = (query) => {
-    return new Promise(async (resolve, reject) => {
+  fetchItems = () => {
 
-      ItemsAPI
-        .getItemsAPI(`limit=${query.pageSize}&page=${query.page + 1}&vendorId=${this.props.vendorId}&search=${query.search}`)
-        .then(result => result.data)
-        .then(result => {
-          let rowData = result.docs;
+    ItemsAPI
+      .getItemsAPI(`vendorId=${this.props.vendorId}`)
+      .then(result => result.data)
+      .then(items => {
 
-          if (!rowData) {
-            rowData = []
-          }
-          rowData = rowData.map((item, index) => {
+        this.setState({
+          itemList: items.map((item, index) => {
             return {
               id: item._id,
               name: item.name,
               source: item.source,
               assemblyType: item.assemblyType
             };
-          });
-
-          resolve({
-            data: rowData,
-            page: result.page - 1,
-            totalCount: result.totalPages,
           })
         })
-        .catch(err => console.log(err));
-    })
+      })
+      .catch(err => console.log(err));
   }
 
   render() {
+
+    const { itemList } = this.state;
+
     return (
-      <div>
+      <>
 
         <ShowHistoryModal
           isVisible={this.state.isHistoryModalOpened}
@@ -122,7 +121,7 @@ class Items extends Component {
 
         <MaterialTable
           columns={this.state.columns}
-          data={query => this.dataQuery(query)}
+          data={this.state.itemList}
           title={`Items Supplied by: ${this.props.vendorName}`}
           options={{
             actionsColumnIndex: 5,
@@ -158,7 +157,14 @@ class Items extends Component {
               return ItemsAPI
                 .saveItemAPI({ name: newData.name, source: newData.source, vendorId: this.props.vendorId, assemblyType: newData.assemblyType })
                 .then(res => {
-                  this.retrieveFromDb();
+                  if (get(res, 'data')) {
+                    this.setState({
+                      itemList: [{
+                        id: get(res, 'data._id'),
+                        ...get(res, 'data')
+                      }, ...itemList]
+                    })
+                  }
                 })
                 .catch(error => {
                   console.log(error.data)
@@ -168,23 +174,42 @@ class Items extends Component {
               return ItemsAPI
                 .updateItemAPI(newData.id, { name: newData.name, source: newData.source, assemblyType: newData.assemblyType })
                 .then(res => {
-                  console.log(res.data);
-                  this.retrieveFromDb();
+
+                  // this.retrieveFromDb();
+                  if (get(res, 'data')) {
+                    const updatedItems = itemList.map(item => {
+                      if (newData.id === item.id) {
+                        return {
+                          id: get(res, 'data._id'),
+                          ...get(res, 'data')
+                        }
+                      }
+                      return item;
+                    })
+                    this.setState({
+                      itemList: updatedItems
+                    })
+                  }
                 })
-                .catch(err => console.log(err.data));
+                .catch(err => console.log(err));
             },
             onRowDelete: oldData => {
               return ItemsAPI.deleteItemAPI(oldData.id)
                 .then(res => {
-                  console.log(res.data);
-                  this.retrieveFromDb();
+                  if (get(res, 'data')) {
+                    const updatedItems = itemList.filter(item => oldData.id !== item.id);
+
+                    this.setState({
+                      itemList: updatedItems
+                    })
+                  }
                 })
                 .catch(err => console.log(err.data));
             }
 
           }}
         />
-      </div>
+      </>
     );
   }
 }

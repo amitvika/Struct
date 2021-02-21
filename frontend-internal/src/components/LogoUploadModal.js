@@ -87,7 +87,7 @@ export default function ImageUploadModal({
 		const formData = new FormData();
 		formData.append("file", file);
 		axios
-			.post("/api/upload-logo", formData)
+			.post(`${process.env.REACT_APP_API}/api/upload-logo`, formData)
 			.then(res => {
 				if (res.data.logoUrl) {
 					handleLogoChange(res.data)

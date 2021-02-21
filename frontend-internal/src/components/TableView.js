@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react'
 import MaterialTable, { MTableToolbar } from "material-table";
 
 export default function TableView({
-  handleAdd = () => { },
-  handleUpdate = () => { },
-  handleDelete = () => { },
+  handleAdd = () => Promise.resolve(),
+  handleUpdate = () => Promise.resolve(),
+  handleDelete = () => Promise.resolve(),
   handleTableRowClick = () => { },
   list,
   clientList = [],
   columns,
   setColumns,
-  isActionVisible = true
+  isActionHidden = false
 }) {
 
   useEffect(() => {
@@ -55,13 +55,11 @@ export default function TableView({
             handleTableRowClick(event)
           }
         }}
-        editable={{
+        editable={!isActionHidden ? {
           onRowAdd: (newData, oldData) => handleAdd(newData, oldData),
           onRowUpdate: (newData, oldData) => handleUpdate(newData, oldData),
-          onRowDelete: oldData => handleDelete(oldData),
-          isEditHidden: rowData => isActionVisible,
-          isDeleteHidden: rowData => isActionVisible,
-        }}
+          onRowDelete: oldData => handleDelete(oldData)
+        } : {}}
       />
     </div>
   )

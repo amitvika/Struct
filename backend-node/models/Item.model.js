@@ -38,6 +38,8 @@ const ItemSchema = new mongoose.Schema({
 	},
 	stl: { type: String },
 	fileId: { type: Number }
+}, {
+	timestamps: true
 });
 
 

@@ -25,7 +25,7 @@ SECRET_KEY = 'w@wcejh=knfz(4!9xrc9rj6*#_#0b^@55a-k@x1y12%b+xf0#x'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['34.226.233.235','localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['internal.struct.services','34.226.233.235','localhost', '127.0.0.1']
 
 
 # Application definition

@@ -12,7 +12,7 @@ exports.get = async (req, res) => {
 
 		const query = buildQuery(req)
 
-		let items={};
+		let items = [];
 
 		if (query.length > 0) {
 			items = await ItemModel.aggregate(query)
@@ -72,6 +72,16 @@ const buildQuery = (req) => {
 			}
 		})
 	}
+
+	if (req.query.vendorId) {
+		query.push({
+			$match: {
+				'vendorId': getObjectId(req.query.vendorId)
+			}
+		})
+	}
+
+	query.push({ $sort: { date: -1 } })
 	return query
 }
 
@@ -195,7 +205,7 @@ exports.update = async (req, res) => {
 
 		updateData.fileId = body.fileId || null;
 
-		if (body.itemGeometry.isEndProductSelected === false || body.selectedClientId === null) {
+		if ((body.itemGeometry && body.itemGeometry.isEndProductSelected === false) || body.selectedClientId === null) {
 			updateData.selectedClientId = null;
 		}
 
@@ -231,7 +241,7 @@ exports.delete = (req, res) => {
 				deletedAt: Date.now()
 			};
 			ItemModel.findByIdAndUpdate(req.params.id, saveObject)
-				.then(() => {
+				.then((saveObject) => {
 					const changeTracking = new ChangeTracking({
 						client: saveObject._id,
 						update: saveObject,
