@@ -20,8 +20,8 @@ import LogoView from '../../components/LogoView';
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { Spinner } from "reactstrap";
-import Documentation from "./documentation";
-
+import Documentation from "../documentation";
+import get from 'lodash/get';
 
 const ClientDetail = () => {
 	let { id } = useParams();
@@ -93,6 +93,10 @@ const ClientDetail = () => {
 
 
 	const renderPageSwitch = (index) => {
+		if (!get(clientData, '_id')) {
+			return null
+		}
+
 		switch (index) {
 			case 1:
 				return <Products clientData={clientData} clientId={id} handleClientUpdate={handleClientUpdate} />
@@ -189,7 +193,7 @@ const ClientDetail = () => {
 					</Paper>
 				</Grid>
 				<Grid item sm sm={10}>
-					<Paper style={{ padding: 20, margin: 10 }}>
+					<Paper style={{ padding: 10, margin: 10 }}>
 						{renderPageSwitch(value)}
 					</Paper>
 				</Grid>

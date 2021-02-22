@@ -59,6 +59,10 @@ const ItemDetail = () => {
 	}, []);
 
 	const renderPageSwitch = (index) => {
+		if (!get(itemProperties, '_id')) {
+			return null;
+		}
+
 		switch (index) {
 			case 0:
 				return "Add vendor items here";

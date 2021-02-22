@@ -1,6 +1,7 @@
+import isArray from 'lodash/isArray'
 export const mapItems = (itemArray) => {
 
-    if (Array.isArray(itemArray)) {
+    if (isArray(itemArray)) {
         return itemArray.map((item, index) => {
             return {
                 id: item._id,
@@ -14,3 +15,17 @@ export const mapItems = (itemArray) => {
         return []
     }
 }
+
+export const mapDocumentations = (data) => {
+    if (isArray(data)) {
+        return data.map((item, index) => {
+            return {
+                id: item._id,
+                name: item.name,
+            }
+        })
+    }
+    else {
+        return []
+    }
+} 

@@ -226,57 +226,9 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 								/>
 							</Grid>
 						</>
-						// :
-						// <Grid item xs={4}>
-						//   <Select
-						//     label="Assembly"
-						//     placeholder="Select"
-						//     options={[
-						//       { label: "Single Material Part", value: "Single Material Part" },
-						//       { label: "Multi Material Assembly", value: "Multi Material Assembly" }]}
-						//     onChange={(data) => handleOnChange('assembly', data.value)}
-						//     value={itemGeometry.assembly && { label: itemGeometry.assembly }}
-						//   />
-						// </Grid>
 					}
 				</Grid>
 
-
-
-
-
-
-				{/* {
-          itemGeometry.assembly === 'Multi Material Assembly' ?
-            <Grid item xs={4} >
-              <Select
-                isMulti
-                label="Material"
-                placeholder="Select"
-                options={[
-                  { label: "Polymer", value: "Polymer" },
-                  { label: "Metal", value: "Metal" },
-                  { label: "Ceramic", value: "Ceramic" }]}
-                onChange={(data) => data && handleOnChange('material', data.value)}
-                value={Array.isArray(itemGeometry.material)
-                  && itemGeometry.material.map(item => ({ label: item }))}
-              />
-            </Grid> : */}
-
-				{/* <Grid item xs={4} > */}
-
-				{/* <Select
-              label="Material"
-              placeholder="Select"
-              options={[
-                { label: "Polymer", value: "Polymer" },
-                { label: "Metal", value: "Metal" },
-                { label: "Ceramic", value: "Ceramic" }]}
-              onChange={(data) => data && handleOnChange('material', [data.value])}
-              value={Array.isArray(itemGeometry.material) && { label: itemGeometry.material[0] }}
-            /> */}
-				{/* </Grid> */}
-				{/* } */}
 			</Paper>
 			{
 				itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' &&

@@ -1,0 +1,25 @@
+.bdb-textarea label {
+  color: var(--BrewLogixBlue);
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.29;
+  margin-bottom: 5px;
+}
+
+.bdb-textarea textarea {
+  background-color: #e9f1f8;
+  border: 0;
+  border-radius: 3px;
+  color: var(--BrewLogixBlue);
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 40px;
+  outline: none;
+  padding: 11px;
+  width: -webkit-fill-available;
+}
+
+.bdb-textarea textarea::placeholder {
+  color: rgba(0, 59, 113, 0.5);
+}

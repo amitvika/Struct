@@ -4,6 +4,16 @@ import Checkbox from './atoms/Checkbox';
 import Headding from './atoms/Headding';
 import Space from './atoms/Space';
 import Filter from './Filter';
+import { makeStyles } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
+import AddIcon from '@material-ui/icons/AddBox';
+
+const useStyles = makeStyles((theme) => ({
+	button: {
+		margin: theme.spacing(1),
+	},
+}));
+
 
 export default function Toolbar({
 	title,
@@ -15,8 +25,11 @@ export default function Toolbar({
 	handleHistoryToggle,
 	isDeleteCheckboxVisible = true,
 	isHistoryCheckboxVisible = true,
+	isCustomAddButtonVisible = false,
+	handleAddButtonPress = () => { },
 	...restProps
 }) {
+	const classes = useStyles();
 	return (
 		<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
 			<Grid container>
@@ -30,16 +43,6 @@ export default function Toolbar({
 							onClick={() => setIsGridViewSelected(!isGridViewSelected)}
 						/>
 					</Grid>
-					{
-						isDeleteCheckboxVisible &&
-						<Grid item sm sm={12}>
-							<Checkbox
-								checked={isDeletedItemVisible}
-								label="Show Deletions"
-								onChange={handleShowDelete}
-							/>
-						</Grid>
-					}
 
 					{
 						isHistoryCheckboxVisible &&
@@ -51,7 +54,19 @@ export default function Toolbar({
 							/>
 						</Grid>
 					}
-					
+
+					{
+						isDeleteCheckboxVisible &&
+						<Grid item sm sm={12}>
+							<Checkbox
+								checked={isDeletedItemVisible}
+								label="View Archived"
+								onChange={handleShowDelete}
+							/>
+						</Grid>
+					}
+
+
 				</Grid>
 				<Grid item sm sm={10}>
 					<Grid item sm sm={12} style={{ display: 'flex' }}>
@@ -70,9 +85,14 @@ export default function Toolbar({
 						}
 					</Grid>
 					<Space size={30} />
-					<Grid item sm sm={10} style={{ display: 'flex', justifyContent: 'center' }}>
-						<Headding fontSize={30} title={title} style={{ fontWeight: 'bold' }}></Headding>
-
+					<Grid item sm sm={12} style={{ display: 'flex' }}>
+						<Headding fontSize={30} title={title} style={{ display: 'flex', flex: 1, fontWeight: 'bold', justifyContent: 'center' }}></Headding>
+						{
+							isCustomAddButtonVisible &&
+							<IconButton color="primary" aria-label="upload picture" component="span" onClick={handleAddButtonPress}>
+								<AddIcon />
+							</IconButton>
+						}
 					</Grid>
 				</Grid>
 			</Grid>
