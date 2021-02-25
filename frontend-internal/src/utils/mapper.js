@@ -22,6 +22,10 @@ export const mapDocumentations = (data) => {
             return {
                 id: item._id,
                 name: item.name,
+                category : item.category,
+                note: item.note,
+                created_by: item?.created_by?.name,
+                updated_by: item?.updated_by?.name
             }
         })
     }

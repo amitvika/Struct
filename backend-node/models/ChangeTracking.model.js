@@ -4,11 +4,6 @@ const Schema = mongoose.Schema;
 
 //Define the User model schema(filed structure)
 const ChangeTrackingSchema = new mongoose.Schema({
-  client: {
-    type: Schema.Types.ObjectId,
-    ref: "Client",
-    required: true
-  },
   model: {
     type: String,
     required: true
@@ -29,11 +24,9 @@ const ChangeTrackingSchema = new mongoose.Schema({
   updateType: {
     type: String,
     required: true
-  },
-  updatedObject: {
-    type: Schema.Types.ObjectId,
-    required: true
   }
+}, {
+  timestamps: true
 });
 
 ChangeTrackingSchema.plugin(mongoosePaginate);

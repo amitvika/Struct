@@ -11,25 +11,23 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { mapDocumentations } from '../../utils/mapper';
 import Toolbar from '../../components/Toolbar';
 import AddEditDocumentationModal from './AddEditDocumentationModal';
+import { NavLink, useParams } from "react-router-dom";
 import get from 'lodash/get';
 
 const Documentation = () => {
 	let history = useHistory();
 	const dispatch = useDispatch();
-
-	const { isAuthenticated, user } = useSelector(state => state.auth);
-
-	const [documentationList, setDocumentationList] = useState([]);
-	const [filteredDocumentationList, setFilteredDocumentationList] = useState([]);
+	let { id: client_id } = useParams();
 
 	const [isLoading, setIsLoading] = useState(false);
-
+	const [documentationList, setDocumentationList] = useState([]);
+	const [filteredDocumentationList, setFilteredDocumentationList] = useState([]);
 	const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
-	const [selectedClientId, setSelectedClientId] = useState('');
 	const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
 	const [isGridViewSelected, setIsGridViewSelected] = useState(true);
-
-	const [isModalOpened, setIsModalOpened]= useState(false);
+	const [isModalOpened, setIsModalOpened] = useState(false);
+	const [selectedDocument, setSelectedDocument] = useState(null);
+	const [isEditingDocument, setIsEditingDocument] = useState(false);
 
 	const [columns, setColumns] = useState([
 		{ title: "ID", field: "id", editable: "never", align: 'center' },
@@ -69,8 +67,7 @@ const Documentation = () => {
 					handleHistoryToggle({ rowId: rowData.id })
 				}}> Show History </span>
 		},
-	])
-
+	]);
 
 	useEffect(() => {
 		fetchDocumentations();
@@ -78,9 +75,12 @@ const Documentation = () => {
 
 	const fetchDocumentations = async () => {
 		try {
+			if (!client_id) {
+				return
+			}
 			setIsLoading(true);
 
-			const res = await DocumentationAPI.fetchDocumentations(``)
+			const res = await DocumentationAPI.fetchDocumentations(`client_id=${client_id}`)
 			const documentations = mapDocumentations(get(res, 'data', []));
 
 			setDocumentationList(documentations)
@@ -89,7 +89,6 @@ const Documentation = () => {
 			setIsLoading(false);
 
 		} catch (error) {
-			console.log('----->>Error', error)
 			dispatch(showErrorAlert({ message: 'Unable to fetch documenation' }));
 		}
 	};
@@ -112,7 +111,7 @@ const Documentation = () => {
 
 	const handleHistoryToggle = ({ rowId }) => {
 		setIsHistoryModalOpened(!isHistoryModalOpened);
-		setSelectedClientId(rowId)
+		// setSelectedDocument(rowId)
 	}
 
 
@@ -136,116 +135,66 @@ const Documentation = () => {
 	}
 
 
-	const addDocumentation = (newData) => {
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				{
-					const newClient = {
-						name: newData.name,
-						user: isAuthenticated
-							? user._id
-							: "Guest"
-					}; //
+	const handleDocumentationUpdate = (value) => {
+		let data = {
+			...value,
+			client_id
+		}
+		DocumentationAPI.upsertDocumentation(data)
+			.then(res => {
+				if (res.data) {
+					dispatch(showSuccessAlert({ message: 'Documentation updated' }));
 
-					DocumentationAPI.upsertDocumentation(newClient)
-						.then(res => {
-							if (res.data) {
-								dispatch(showSuccessAlert({ message: 'New client added' }));
+					const availableDoc = documentationList.find(document => document.id == res.data._id);
 
-								const updatedClientList = [
-									{ ...res.data, id: res.data._id },
-									...documentationList
-								];
-								setDocumentationList(updatedClientList);
-								const updatedFilteredList = [
-									{ ...res.data, id: res.data._id },
-									...filteredDocumentationList
-								];
-								setFilteredDocumentationList(updatedFilteredList)
-
-							}
-						})
-						.catch(err => {
-							dispatch(showErrorAlert({ message: 'Unable to add client' }));
-						});
-
-				}
-				resolve();
-			}, 10);
-		})
-	}
-
-	const updateDocumentation = (newData, oldData) => {
-		return new Promise((resolve, reject) => {
-
-			const data = {
-				name: newData.name,
-				user: user._id
-			}
-
-			API.updateDocumentationApi(newData.id, data)
-				.then(res => {
-					if (res.data) {
-						dispatch(showSuccessAlert({ message: 'Client updated successfully' }));
-
-						const updatedClientList = documentationList.map(client => {
-							if (client.id === newData.id) {
+					if (availableDoc) {
+						setDocumentationList(documentationList.map(document => {
+							if (document.id === res.data._id) {
 								return { ...res.data, id: res.data._id }
 							}
-							else {
-								return client
-							}
-						});
+							return document
+						}));
 
+						setFilteredDocumentationList(filteredDocumentationList.map(document => {
+							if (document.id === res.data._id) {
+								return { ...res.data, id: res.data._id }
+							}
+							return document
+						}))
+					}
+					else {
+						const updatedClientList = [
+							{ ...res.data, id: res.data._id },
+							...documentationList
+						];
 						setDocumentationList(updatedClientList);
-
-						const updatedFilteredList = filteredDocumentationList.map(client => {
-							if (client.id === newData.id) {
-								return { ...res.data, id: res.data._id }
-							}
-							else {
-								return client
-							}
-						})
+						const updatedFilteredList = [
+							{ ...res.data, id: res.data._id },
+							...filteredDocumentationList
+						];
 						setFilteredDocumentationList(updatedFilteredList)
-
 					}
 
-				})
-				.catch(err => {
-					dispatch(showErrorAlert({ message: 'Unable to update client' }));
-				});
-
-			resolve();
-		})
-	}
-
-	const deleteDocumentation = (oldData) => {
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				{
-					API.deleteDocumentationApi(oldData.id)
-						.then(res => {
-							const updatedClientList = documentationList.filter(client => client.id != oldData.id);
-							setDocumentationList(updatedClientList)
-
-							const updatedFilteredClientList = filteredDocumentationList.filter(client => client.id != oldData.id);
-							setFilteredDocumentationList(updatedFilteredClientList)
-
-							dispatch(showSuccessAlert({ message: 'Client removed successfully' }));
-						})
-						.catch(err => {
-							dispatch(showErrorAlert({ message: 'Unable to delete client' }));
-						});
 				}
-				resolve();
-			}, 1000);
-		})
+
+				setIsEditingDocument(false)
+			})
+			.catch(err => {
+				dispatch(showErrorAlert({ message: 'Unable to add documentation' }));
+			});
 	}
 
-	const handleTableRowClick = (event) => history.push(`/clients/${event.id}`)
+	const handleTableRowClick = (data) => {
+		setIsEditingDocument(true);
+		setSelectedDocument(data);
+		handleToggleModal();
+	}
 
 	const handleToggleModal = () => {
+		if(isModalOpened){
+			setSelectedDocument(null);
+			setIsEditingDocument(false);
+		}
 		setIsModalOpened(!isModalOpened)
 	}
 	if (isLoading) {
@@ -263,12 +212,15 @@ const Documentation = () => {
 		<DefaultContainer
 			isHistoryModalOpened={isHistoryModalOpened}
 			title={'Documentation'}
-			selectedId={selectedClientId}
+			selectedId={selectedDocument}
 			handleHistoryToggle={handleHistoryToggle}
 		>
 			<AddEditDocumentationModal
 				open={isModalOpened}
 				toggleModal={handleToggleModal}
+				handleDocumentationUpdate={handleDocumentationUpdate}
+				isEditingDocument={isEditingDocument}
+				selectedDocument={selectedDocument}
 			/>
 			<Toolbar
 				title={'Documentation'}
@@ -297,9 +249,6 @@ const Documentation = () => {
 					/> :
 					<TableView
 						list={filteredDocumentationList}
-						handleAdd={addDocumentation}
-						handleUpdate={updateDocumentation}
-						handleDelete={deleteDocumentation}
 						columns={columns}
 						handleTableRowClick={handleTableRowClick}
 						isActionHidden={true}
