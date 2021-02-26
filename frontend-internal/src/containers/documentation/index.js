@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
 import TableView from '../../components/TableView';
-import GridView from '../../components/GridView';
+import GridView from './GridView';
 import DefaultContainer from '../../components/DefaultContainer'
 import DocumentationAPI from '../../api/documentation.api';
 import { documentationColumnsFields } from '../../constants/client'
