@@ -24,6 +24,7 @@ export const mapDocumentations = (data) => {
                 name: item.name,
                 category : item.category,
                 note: item.note,
+                file_url: item.file_url,
                 created_by: item?.created_by?.name,
                 updated_by: item?.updated_by?.name
             }

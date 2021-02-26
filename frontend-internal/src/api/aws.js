@@ -4,8 +4,8 @@ import { getRequest } from '../utils/apiHandler';
 export const uploadFileS3Bucket = async (file) => {
     try {
         let fileParts = file.name.split('.');
-        let fileName = fileParts[0];
-        let fileType = fileParts[1];
+        let fileName = file.name;
+        let fileType = file.type //fileParts[1];
 
         console.log("Preparing the upload");
         const signedRes = await getRequest(`/sign_s3?fileName=${fileName}&fileType=${fileType}`);

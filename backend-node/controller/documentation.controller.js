@@ -61,6 +61,7 @@ exports.upsert = async (req, res) => {
         let documentation = await DocumentationModel.findById(req.body.id);
 
         if (documentation) {
+            req.body.created_by = documentation.created_by;
             req.body.updated_by = req.user.id;
             documentation = await DocumentationModel.findByIdAndUpdate(
                 req.body.id,

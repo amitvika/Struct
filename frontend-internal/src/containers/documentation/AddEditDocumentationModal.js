@@ -4,7 +4,6 @@ import Grid from '@material-ui/core/Grid';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 // import FileViewer from 'react-file-viewer';
-import PDFViewer from 'pdf-viewer-reactjs'
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import {
@@ -14,6 +13,7 @@ import {
     Headding
 } from '../../components';
 import { uploadFileS3Bucket } from '../../api/aws';
+import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -36,9 +36,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function AddDocumentationModal({ open, toggleModal, handleDocumentationUpdate, isEditingDocument, selectedDocument }) {
     const classes = useStyles();
-    const [file, setFile] = useState('---');
-    const [type, setType] = useState('pdf');
-
+    // const [docs, setdocs] = useState([]);
+    const [selectedFileName, setSelectedFileName] = useState('');
     const [documentValue, setdocumentValue] = useState({});
 
     useEffect(() => {
@@ -57,12 +56,14 @@ export default function AddDocumentationModal({ open, toggleModal, handleDocumen
         }))
     }
 
-    const onChange = async e => {
-        if (!e.target.files[0]) {
+    const onChange = async event => {
+        if (!event.target.files[0]) {
             return;
         }
-
-        await uploadFileS3Bucket(e.target.files[0])
+        setSelectedFileName(event.target.files[0].name)
+        const file_url = await uploadFileS3Bucket(event.target.files[0])
+        // setdocs([{ uri: fileUrl }]);
+        handleOnChange('file_url', file_url)
     };
 
     const handleSaveButton = () => {
@@ -83,11 +84,10 @@ export default function AddDocumentationModal({ open, toggleModal, handleDocumen
             BackdropComponent={Backdrop}
             BackdropProps={{
                 timeout: 500,
-            }}
-        >
+            }}>
             <Fade in={open}>
                 <div className={classes.paper}>
-                    <h2 id="simple-modal-title">Add Documentation</h2>
+                    <h2 id="simple-modal-title">{isEditingDocument ? 'Update ' : 'Add'} Documentation</h2>
                     <p id="simple-modal-description">
                         Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
       </p>
@@ -135,38 +135,30 @@ export default function AddDocumentationModal({ open, toggleModal, handleDocumen
                         <Grid item xs={4}>
                             <Headding bold title={'Upload File'} />
                         </Grid>
-                        <Grid item xs={8}>
-                            <Button
-                                variant="contained"
-                                component="label">
-                                Select File
+                        <Grid item xs={8} style={{ display: 'flex' }}>
+                            <div>
+                                <Button
+                                    variant="contained"
+                                    component="label">
+                                    Select File
                             <input
-                                    onChange={onChange}
-                                    type="file"
-                                    hidden
-                                />
-                            </Button>
+                                        onChange={onChange}
+                                        type="file"
+                                        hidden
+                                    />
+                                </Button>
+                            </div>
                         </Grid>
-                        {file &&
-
+                        {
+                            documentValue.file_url &&
                             <Grid item xs={12}>
-                                {/* <FileViewer
-                                fileType={type}
-                                filePath={file}
-                                errorComponent={<></>}
-                                onError={(err) => {
-                                    console.log(err)
-                                }} /> */}
-                                {/* <div style={{ height: '300px', overflow: 'scroll' }}> */}
-                                {/* <PDFViewer
-                                    document={{
-                                        url: 'https://arxiv.org/pdf/quant-ph/0410100.pdf',
-                                    }}
-                                    showThumbnail={{ scale: 2 }}
-                                /> */}
-                                {/* </div> */}
+                                <DocViewer
+                                    pluginRenderers={DocViewerRenderers}
+                                    documents={[{ uri: documentValue.file_url }]} />
                             </Grid>
                         }
+
+
 
                         <Grid item xs={6} className={classes.action_button}>
                             <Button variant="contained" color="secondary" onClick={toggleModal}>

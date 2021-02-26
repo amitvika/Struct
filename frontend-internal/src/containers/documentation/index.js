@@ -43,8 +43,8 @@ const Documentation = () => {
 			editable: "never"
 		},
 		{
-			title: "File Uploaded",
-			field: "file_upload",
+			title: "File URL",
+			field: "file_url",
 			editable: "never"
 		},
 		{
