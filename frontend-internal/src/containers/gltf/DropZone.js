@@ -1,16 +1,15 @@
 import React,{Component} from 'react';
 import Dropzone from 'react-dropzone';
-import request from 'axios';
-
-
 import GLTFRenderer from "./GltfRenderer";
 import Downloader from "./Downloader";
-import { upload3DFile, getGLTFJson, getSplitFiles } from '../../api/fileUpload.api'
+import { upload3DFile, getGLTFJson, getSplitFiles, getHierarchySplitFiles } from '../../api/fileUpload.api'
+import './style.css';
 
 const DEFAULTSPLITS={
 	"buffers":[],
 	"meshes":[],
-	"nodes":[]
+	"nodes":[],
+	"download":""
 };
 
 class DropZone extends Component{
@@ -20,6 +19,7 @@ class DropZone extends Component{
 			activefile: 0,
 			splitfiles:DEFAULTSPLITS,
 			activesplit: 0,
+			includeparts: 0,
 		}
    
     constructor() {
@@ -70,17 +70,47 @@ class DropZone extends Component{
 				this.setState({ activefile: id });
 				this.setState({ splitfiles: repos });
 				this.setState({ activesplit: id });
+				this.setState({ includeparts: 1});
+			});
+
+	};
+	getHierarchySplit = (id, includeParts, distancegap, anglegap) => {
+		getHierarchySplitFiles(id, includeParts, distancegap, anglegap)
+			.then(res => res.data)
+			.then((repos) => {
+				//console.log(repos);
+							
+				this.setState({ gltfjson: JSON.stringify(repos) });
+				this.setState({ activefile: id });
+				this.setState({ splitfiles: repos });
+				this.setState({ activesplit: id });
+				this.setState({ includeparts: includeParts ? 3:2 });
 			});
 
 	};
 	
     render() {
 	  
-		const files = this.state.files.map(files => (
-			<li key={files.filename}>
-				{/* <button style={{marginRight: '16px'}} value={files.filename} onClick={() => this.getView(files.id)} type='button'>{files.filename}-View</button> */}
-				<button value={files.filename} onClick={() => this.getSplit(files.id)} type='button'>{files.filename}</button>
-			</li>
+		const files = this.state.files.map( (files, index) => (
+			
+				<tr key={files.filename}>
+					<td>
+						{index+1}
+					</td>
+					<td>
+						{files.filename}
+					</td>
+					<td>
+						<button value={files.filename}  onClick={() => this.getSplit(files.id)} type='button'>Continuous</button>				
+					</td>
+					<td>
+						<button value={files.filename}  onClick={() => this.getHierarchySplit(files.id,false,0.1,0.5)} type='button'>Hierarchy</button>				
+					</td>
+					<td>
+						<button value={files.filename}  onClick={() => this.getHierarchySplit(files.id,true,0.1,0.5)} type='button'>Separate Minor Parts</button>				
+					</td>
+				</tr>						
+			
 		));
 
 		return (
@@ -96,7 +126,7 @@ class DropZone extends Component{
 						{ files && !!files.length &&
 							<aside>
 							  <h4>Click Button to Split and View the File</h4>
-							  <ul>{files}</ul>
+							  <table><tbody>{files}</tbody></table>
 							</aside>
 						}
 					  </section>
@@ -105,7 +135,7 @@ class DropZone extends Component{
 				  <Downloader splitfiles={this.state.splitfiles} activesplit={this.state.activesplit} />
 				</div>				
 				<div id="rowcontent">
-						<GLTFRenderer gltfjson={this.state.gltfjson} activefile={this.state.activefile} />						
+					<GLTFRenderer gltfjson={this.state.gltfjson} activefile={this.state.activefile} includeparts={this.state.includeparts} />						
 				</div>		
 			</div>
 		);

@@ -39,6 +39,8 @@ import { GUI } from 'dat.gui';
 import { resourcePathURL } from '../../api/fileUpload.api.js'
 
 const DEFAULT_CAMERA = '[default]';
+import './style.css';
+
 
 // glTF texture types by the loader .
 const MAP_NAMES = [
@@ -90,7 +92,7 @@ class GLTFRenderer extends Component {
     };
 	gltfJSON = "";
 	activeFile = 0;
-	
+	includeparts = 0;
 	constructor(props) {
 		super(props);
 		this.node = React.createRef();
@@ -697,7 +699,6 @@ class GLTFRenderer extends Component {
 	};
   
 	onWindowResize = () => {
-		
 		if(this.node) {
 			 if(this.node.parentElement) {
 				const {clientHeight, clientWidth} = this.node.parentElement;
@@ -811,6 +812,7 @@ class GLTFRenderer extends Component {
 	alter = () => {
 		this.gltfJSON = this.props.gltfjson;
 		this.activeFile = this.props.activefile;
+		this.includeparts = this.props.includeparts;
 		
 		if(this.gltfJSON!="") {
 			
@@ -844,9 +846,9 @@ class GLTFRenderer extends Component {
 	}
 
 	render() {
-		if( this.activeFile != this.props.activefile ) {
+		if( this.activeFile != this.props.activefile || this.includeparts != this.props.includeparts ) {
 			this.alter();		
-		}
+		}		
 		if(this.renderer) {
 			this.renderer.render( this.scene, this.activeCamera );
 			if (this.state.grid) {
@@ -857,7 +859,7 @@ class GLTFRenderer extends Component {
 		}
 		return (
 		  <div
-			style={{ width: "100%", height: "100%" }}
+			style={{ width: "100%", height: "500px" }}
 			ref={el => (this.node = el)}
 		  />
 		);

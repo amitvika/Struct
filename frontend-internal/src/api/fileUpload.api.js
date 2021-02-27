@@ -21,4 +21,10 @@ export const getSplitFiles = (id) => {
     return axios.get(splitURL)
 }
 
+export const getHierarchySplitFiles = (id, includeParts, distancegap, anglegap) => {
+    const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&distancegap=${distancegap}&anglegap=${anglegap}`;
+	console.log(splitURL);
+    return axios.get(splitURL)
+}
+
 export const resourcePathURL = `${baseURL}/Display/`; //http://localhost:8000/Media/`;

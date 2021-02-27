@@ -1,20 +1,23 @@
-
 #box {
-  display: flex;
-  flex-flow: column;
-  height: 100%;
+  min-height:100%;
+  display:block;
 }
 
 #rowheader {
+  display:block;
   width: 100%;
-  height: auto;
+  height:30%; 
+    overflow-y: scroll;
   background-color:red;
 }
 
-#rowcontent {
-  flex: 1 1 auto;
+#rowcontent {	
+  display:block;	
+  padding-bottom: 2px; 
+  height: 70%;
   background-color:blue;
 }
+
 .gui-wrap {
   position: absolute;
   top:0;
@@ -31,4 +34,38 @@
 
 .dg li.gui-stats:not(.folder) {
   height: auto;
+}
+  
+ul, #myUL {
+  list-style-type: none;
+}
+
+#myUL {
+  margin: 0;
+  padding: 0;
+}
+
+
+.caret {
+  cursor: pointer;
+  user-select: none; 
+}
+
+.caret::before {
+  content: "\25B6";
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.caret-down::before {
+  transform: rotate(90deg);
+}
+
+.nested {
+  display: none;
+}
+
+.active {
+  display: block;
 }
