@@ -31,6 +31,7 @@ import FactoryDetail from './containers/factories/FactoryDetail'
 import ProductDesignDetail from "./containers/productDesignDetail";
 import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
 import ItemDetail from "./containers/itemDetail/ItemDetail";
+import UserSetup from './containers/userSetup';
 
 // import Viewer from './page/3DViewer';
 import Viewer from './containers/gltf/index'
@@ -82,6 +83,8 @@ export default function AppRoutes() {
               <AppRoute authenticate path='/factories/:id' component={FactoryDetail} />
 
               <AppRoute authenticate path='/access-configuration/:id' component={AccessConfiguration} />
+
+              <AppRoute authenticate path="/user-setup" component={UserSetup} />
             </Switch>
           </Layout>
         </Switch>

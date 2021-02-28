@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
-import { useHistory } from "react-router-dom";
-import TableView from '../../components/TableView';
-import GridView from './GridView';
-import DefaultContainer from '../../components/DefaultContainer'
+
 import DocumentationAPI from '../../api/documentation.api';
-import { documentationColumnsFields } from '../../constants/client'
+import { documentationFields } from '../../constants/client'
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { mapDocumentations } from '../../utils/mapper';
-import Toolbar from '../../components/Toolbar';
+
+import TableGridView from '../../components/TableGridView';
+
 import AddEditDocumentationModal from './AddEditDocumentationModal';
 import { NavLink, useParams } from "react-router-dom";
 import get from 'lodash/get';
+import GridView from "./GridView";
 
 const Documentation = () => {
-	let history = useHistory();
+	
 	const dispatch = useDispatch();
 	let { id: client_id } = useParams();
 
@@ -29,49 +29,9 @@ const Documentation = () => {
 	const [selectedDocument, setSelectedDocument] = useState(null);
 	const [isEditingDocument, setIsEditingDocument] = useState(false);
 
-	const [columns, setColumns] = useState([
-		{ title: "ID", field: "id", editable: "never", align: 'center' },
-		{ title: "Name", field: "name" },
-		{
-			title: "Category",
-			field: "category",
-			editable: "never"
-		},
-		{
-			title: "Note",
-			field: "note",
-			editable: "never"
-		},
-		{
-			title: "File URL",
-			field: "file_url",
-			editable: "never"
-		},
-		{
-			title: "Created By",
-			field: "created_by",
-			editable: "never"
-		},
-		{
-			title: "Updated By",
-			field: "updated_By",
-			editable: "never"
-		},
-		{
-			title: 'History',
-			field: "id",
-			editable: "never",
-			render: rowData => rowData && <span style={{ cursor: 'pointer' }}
-				onClick={(event) => {
-					event.stopPropagation();
-					handleHistoryToggle({ rowId: rowData.id })
-				}}> Show History </span>
-		},
-	]);
-
-	useEffect(() => {
-		fetchDocumentations();
-	}, []);
+	// useEffect(() => {
+	// 	fetchDocumentations();
+	// }, []);
 
 	const fetchDocumentations = async () => {
 		try {
@@ -191,7 +151,7 @@ const Documentation = () => {
 	}
 
 	const handleToggleModal = () => {
-		if(isModalOpened){
+		if (isModalOpened) {
 			setSelectedDocument(null);
 			setIsEditingDocument(false);
 		}
@@ -209,53 +169,15 @@ const Documentation = () => {
 	}
 
 	return (
-		<DefaultContainer
-			isHistoryModalOpened={isHistoryModalOpened}
+		<TableGridView
 			title={'Documentation'}
-			selectedId={selectedDocument}
-			handleHistoryToggle={handleHistoryToggle}
-		>
-			<AddEditDocumentationModal
-				open={isModalOpened}
-				toggleModal={handleToggleModal}
-				handleDocumentationUpdate={handleDocumentationUpdate}
-				isEditingDocument={isEditingDocument}
-				selectedDocument={selectedDocument}
-			/>
-			<Toolbar
-				title={'Documentation'}
-				isGridViewSelected={isGridViewSelected}
-				setIsGridViewSelected={setIsGridViewSelected}
-				handleSearchBar={handleSearchBar}
-				isDeletedItemVisible={isDeletedItemVisible}
-				handleShowDelete={handleShowDelete}
-				isHistoryModalOpened={isHistoryModalOpened}
-				handleHistoryToggle={handleHistoryToggle}
-				list={documentationList}
-				filteredList={filteredDocumentationList}
-				setFilteredList={setFilteredDocumentationList}
-				columnsFields={documentationColumnsFields}
-				isCustomAddButtonVisible={true}
-				handleAddButtonPress={handleToggleModal}
-			/>
-
-			{
-				isGridViewSelected ?
-					<GridView
-						list={filteredDocumentationList}
-						handleHistoryToggle={handleHistoryToggle}
-						columnsFields={documentationColumnsFields}
-						handleTableRowClick={handleTableRowClick}
-					/> :
-					<TableView
-						list={filteredDocumentationList}
-						columns={columns}
-						handleTableRowClick={handleTableRowClick}
-						isActionHidden={true}
-					/>
-
-			}
-		</DefaultContainer >
+			fields={documentationFields}
+			mapFields={mapDocumentations}
+			fetchList={() => DocumentationAPI.fetchDocumentations(`client_id=${client_id}`)}
+			upsertListItem={(value) => DocumentationAPI.upsertDocumentation({ ...value, client_id })}
+			AddUpdateModal={AddEditDocumentationModal}
+			CustomGridView={GridView}
+		/>
 	);
 }
 

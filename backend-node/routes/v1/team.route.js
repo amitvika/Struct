@@ -1,0 +1,15 @@
+const express = require("express");
+const router = express.Router();
+
+const auth = require("../../middleware/auth");
+const checkAccess = require('../../middleware/checkAccess');
+const TeamController = require('../../controller/team.controller');
+
+router.use(auth);
+router.use(checkAccess);
+
+router.get("/", TeamController.get);
+
+router.post("/", TeamController.upsert);
+
+module.exports = router;

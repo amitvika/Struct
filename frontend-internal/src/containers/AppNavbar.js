@@ -190,7 +190,7 @@ const AppNavbar = () => {
                   <>
                     <DropdownItem
                       style={{ color: "black" }}
-                      onClick={() => history.push('/access-setup')}>
+                      onClick={() => history.push('/user-setup')}>
                      User Setup
                   </DropdownItem>
                     <DropdownItem divider />

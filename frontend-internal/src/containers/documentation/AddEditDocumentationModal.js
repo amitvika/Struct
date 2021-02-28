@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function AddDocumentationModal({ open, toggleModal, handleDocumentationUpdate, isEditingDocument, selectedDocument }) {
+export default function AddDocumentationModal({ open, toggleModal, handleUpdate, isEditingDocument, selectedDocument }) {
     const classes = useStyles();
     // const [docs, setdocs] = useState([]);
     const [selectedFileName, setSelectedFileName] = useState('');
@@ -68,7 +68,7 @@ export default function AddDocumentationModal({ open, toggleModal, handleDocumen
 
     const handleSaveButton = () => {
         if (documentValue) {
-            handleDocumentationUpdate(documentValue)
+            handleUpdate(documentValue)
         }
         toggleModal();
     }
@@ -87,7 +87,7 @@ export default function AddDocumentationModal({ open, toggleModal, handleDocumen
             }}>
             <Fade in={open}>
                 <div className={classes.paper}>
-                    <h2 id="simple-modal-title">{isEditingDocument ? 'Update ' : 'Add'} Documentation</h2>
+                    <h2 id="simple-modal-title">{isEditing ? 'Update ' : 'Add'} Documentation</h2>
                     <p id="simple-modal-description">
                         Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
       </p>

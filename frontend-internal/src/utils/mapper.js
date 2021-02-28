@@ -1,4 +1,5 @@
-import isArray from 'lodash/isArray'
+import isArray from 'lodash/isArray';
+
 export const mapItems = (itemArray) => {
 
     if (isArray(itemArray)) {
@@ -22,11 +23,26 @@ export const mapDocumentations = (data) => {
             return {
                 id: item._id,
                 name: item.name,
-                category : item.category,
+                category: item.category,
                 note: item.note,
                 file_url: item.file_url,
                 created_by: item?.created_by?.name,
                 updated_by: item?.updated_by?.name
+            }
+        })
+    }
+    else {
+        return []
+    }
+}
+
+export const mapTeams = (data) => {
+    if (isArray(data)) {
+        return data.map((item, index) => {
+            return {
+                id: item._id,
+                team_name: item.name,
+                number_of_members: isArray(item.members) ? item.members.length : 0,
             }
         })
     }
