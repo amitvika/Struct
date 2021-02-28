@@ -1,20 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-import Filter from '../../../components/Filter';
-import GridView from '../../../components/GridView';
-import Headding from '../../../components/atoms/Headding';
-import Space from '../../../components/atoms/Space';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 
 import {
-	Grid,
 	Paper,
 	Typography,
 	IconButton,
-
 } from '@material-ui/core';
 import { Spinner } from "reactstrap";
 
@@ -22,6 +13,7 @@ import { columnsFields } from '../../../constants/item'
 import ItemAPI from '../../../api/items.api';
 import ProductOptions from './productOptions'
 import { mapItems } from '../../../utils/mapper'
+import SelectorView from '../../../components/SelectorView'
 import get from 'lodash/get';
 
 export default function Products({
@@ -47,9 +39,9 @@ export default function Products({
 	};
 
 
-	useEffect(() => {
-		fetchItems();
-	}, [])
+	// useEffect(() => {
+	// 	fetchItems();
+	// }, [])
 
 	const fetchItems = async (query) => {
 		try {
@@ -162,79 +154,22 @@ export default function Products({
 							}}
 						>Configure Product: {selectedProduct.name}</Typography>
 					</Paper>
-					<ProductOptions />
+					<ProductOptions
+					/>
 				</> :
 
 				<>
-					<Space size={20} />
-
-					{/* Filter section */}
-					<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
-						<Grid container>
-							<Filter
-								list={itemList}
-								filteredList={filteredItemList}
-								setFilteredList={setFilteredItemList}
-								columnsFields={columnsFields}
-							/>
-						</Grid>
-					</Paper>
-					<Space size={20} />
-
-					<div style={{ display: 'flex' }}>
-
-						<Headding fontSize={20} title={'Configure Products'} style={{
-							fontWeight: 'bold',
-							alignItems: 'center',
-							display: 'flex'
-						}}></Headding>
-						<FormGroup style={{ marginLeft: '20px' }}>
-							<FormControlLabel
-								control={
-									<Checkbox
-										onClick={onClick}
-										checked={state.checkedB}
-										onChange={handleChange}
-										name="checkedB"
-										color="primary"
-									/>
-								}
-								label="Add/Remove Products"
-							/>
-						</FormGroup>
-					</div>
-
-					{
-						selectedItems.length > 0 ?
-							<>
-								<Headding fontSize={20} title={'Selected Products'} style={{ fontWeight: 'bold' }}></Headding>
-								<GridView
-									list={selectedItems}
-									handleHistoryToggle={() => false}
-									columnsFields={columnsFields}
-									handleTableRowClick={handleItemRemove}
-									isHistoryLinkVisible={false}
-									isInsideDetailPanel={true}
-								/>
-							</> :
-							<Headding fontSize={20} title={'No product Selected'} style={{ fontWeight: 'bold' }}></Headding>
-					}
-
-
-					{ isItemSelectionVisible &&
-						<>
-							<Space size={20} />
-							<Headding fontSize={20} title={'Choose Product'} style={{ fontWeight: 'bold' }}></Headding>
-							<GridView
-								list={filteredItemList}
-								handleHistoryToggle={() => false}
-								columnsFields={columnsFields}
-								handleTableRowClick={handleItemClick}
-								isHistoryLinkVisible={false}
-								isInsideDetailPanel={true}
-							/>
-						</>}
-
+					<SelectorView 
+						title={'Product'}
+						fetchList={ItemAPI.getItemsAPI}
+						selectedListItems={get(clientData, 'linkedItems', [])}
+						fields={columnsFields}
+						mapValues={mapItems}
+					// handleUpdate={(data) => handleClientUpdate({
+					// 	...clientData,
+					// 	linkedItems: [...clientData.linkedItems, data.id]
+					// })} 
+					/>
 				</>
 			}
 		</div >
