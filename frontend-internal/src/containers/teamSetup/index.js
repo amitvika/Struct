@@ -9,15 +9,11 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { mapTeams } from '../../utils/mapper';
 import AddEditTeamModal from './AddEditTeamModal';
 import TableGridView from '../../components/TableGridView';
-import get from 'lodash/get';
-
+import ManageTeamModal from './ManageTeamModal';
 
 const TeamSetup = ({
     fields
 }) => {
-
-    let history = useHistory();
-    const dispatch = useDispatch();
 
     return (
         <TableGridView
@@ -27,6 +23,8 @@ const TeamSetup = ({
             fetchList={UserSetupAPI.fetchTeams}
             upsertListItem={UserSetupAPI.upsertTeam}
             AddUpdateModal={AddEditTeamModal}
+            isManageTeamAvailable={true}
+            ManageTeamModal={ManageTeamModal}
         />
     );
 }

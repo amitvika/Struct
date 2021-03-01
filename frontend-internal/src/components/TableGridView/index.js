@@ -17,6 +17,8 @@ const TableGridView = ({
     fetchList,
     upsertListItem,
     AddUpdateModal,
+    ManageTeamModal,
+    isManageTeamAvailable = false
 }) => {
     const dispatch = useDispatch();
 
@@ -30,6 +32,8 @@ const TableGridView = ({
     const [isModalOpened, setIsModalOpened] = useState(false);
     const [selectedListItem, setSelectedListItem] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+
+    const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -128,8 +132,14 @@ const TableGridView = ({
     }
 
     const handleTableRowClick = (data) => {
-        setIsEditing(true);
         setSelectedListItem(data);
+
+        if (isManageTeamAvailable) {
+            setIsManageTeamModalOpened(true);
+            return
+        }
+
+        setIsEditing(true);
         handleToggleModal();
     }
 
@@ -190,6 +200,16 @@ const TableGridView = ({
                 isEditing={isEditing}
                 selectedListItem={selectedListItem}
             />
+
+            {
+                isManageTeamAvailable &&
+                <ManageTeamModal
+                    open={isManageTeamModalOpened}
+                    toggleModal={() => setIsManageTeamModalOpened(!isManageTeamModalOpened)}
+                    team={selectedListItem}
+                    handleUpdate={handleUpdate}
+                />
+            }
             <Toolbar
                 title={title}
                 isGridViewSelected={isGridViewSelected}

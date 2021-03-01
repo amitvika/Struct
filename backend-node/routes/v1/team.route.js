@@ -12,4 +12,6 @@ router.get("/", TeamController.get);
 
 router.post("/", TeamController.upsert);
 
+router.get("/users", TeamController.getUsers);
+
 module.exports = router;

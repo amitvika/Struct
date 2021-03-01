@@ -1,6 +1,7 @@
 const TeamModel = require("../models/team.modal");
 const ChangeTracking = require("../models/ChangeTracking.model");
 const { getObjectId } = require('../utils/helper')
+const UserModel = require("../models/User");
 
 exports.get = async (req, res) => {
     try {
@@ -87,4 +88,19 @@ exports.upsert = async (req, res) => {
         console.log('upsert', error)
         res.status(500).send(error)
     };
+}
+
+exports.getUsers = async (req, res) => {
+
+    try {
+        const users = await UserModel
+            .find()
+            .sort({ date: -1 });
+
+        res.json(users);
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).send(error)
+    }
 }
