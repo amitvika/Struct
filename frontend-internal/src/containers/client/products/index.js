@@ -75,7 +75,7 @@ export default function Products({
 					<SelectorView
 						title={'Product'}
 						fetchList={ItemAPI.getItemsAPI}
-						selectedListItems={get(clientData, 'linkedItems', [])}
+						alreadySelected={get(clientData, 'linkedItems', [])}
 						fields={columnsFields}
 						mapValues={mapItems}
 						handleUpdate={(data) => handleClientUpdate({

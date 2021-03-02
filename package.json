@@ -37,10 +37,6 @@
   },
   "homepage": "https://github.com/amitvika/Struct#readme",
   "dependencies": {
-    "client": "file:frontend-internal",
-    "concurrently": "^5.3.0",
-    "frontend-design-website": "file:frontend-design-website",
-    "frontend-web": "file:frontend-public",
-    "mernshop": "file:backend-node"
+    "concurrently": "^5.3.0"
   }
 }

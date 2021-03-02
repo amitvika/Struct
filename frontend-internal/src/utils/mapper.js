@@ -40,9 +40,10 @@ export const mapTeams = (data) => {
     if (isArray(data)) {
         return data.map((item, index) => {
             return {
-                id: item._id,
+                id: item._id || item.id,
                 team_name: item.name,
-                number_of_members: isArray(item.members) ? item.members.length : 0,
+                members: item.members,
+                number_of_members: isArray(item.members) ? item.members.length + '' : 0 + '',
             }
         })
     }

@@ -6,27 +6,29 @@ import get from 'lodash/get';
 
 export default function ManageTeamModal({ team, toggleModal, open, handleUpdate }) {
 
-    const handleMemberSelectChange = (data) => {
-        // handleUpdate({
-        //     ...team,
-        //     members: data
-        // })
-    }
-    return (
-        <Modal
-            title={'Manage Team'}
-            open={open}
-            toggleModal={toggleModal}>
+	const handleMemberSelectChange = (data) => {
+		handleUpdate({
+			...team,
+			members: data
+		})
+	}
 
-            <SelectorView
-                title={'Team'}
-                fetchList={UserSetupAPI.fetchUsers}
-                selectedListItems={get(team, 'members', [])}
-                fields={{ 'id': 'ID', 'name': 'Name' }}
-                mapValues={(data) => data}
-                handleUpdate={handleMemberSelectChange}
-                handleSelection={(data) => {}}
-            />
-        </Modal>
-    )
+	return (
+		<Modal
+			title={'Manage Team'}
+			open={open}
+			toggleModal={toggleModal}>
+
+			<SelectorView
+				title={'Team'}
+				fetchList={UserSetupAPI.fetchUsers}
+				alreadySelected={get(team, 'members', [])}
+				fields={{ 'id': 'ID', 'name': 'Name' }}
+				mapValues={(data) => data.map(item => ({ ...item, id: item._id }))}
+				handleUpdate={handleMemberSelectChange}
+				handleSelection={(data) => { }}
+			/>
+
+		</Modal>
+	)
 }
