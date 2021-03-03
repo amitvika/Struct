@@ -1,0 +1,37 @@
+.Chatbot_main {
+
+    position: fixed;
+    right: -37px;
+    margin: 38px;
+    bottom: 0;       
+    z-index: 999999
+}
+.Submit_btn {
+
+position: fixed;
+margin-top: -23px;
+right: 0;
+}
+.Chat_main {
+width: 500px;
+background-color: #b6b5b5;
+
+}
+.Chat_List {
+height: 350px;
+overflow-x: auto;
+}
+.Chat_ListItem {
+background-color: #8fd7f7;
+border-radius: 12px;
+}
+
+.Chat_InputField {
+height: 50px;
+}
+.Chat_btn {
+height: 50px;
+}
+.Text_Entries {
+
+}

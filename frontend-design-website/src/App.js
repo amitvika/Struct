@@ -2,6 +2,8 @@ import logo from './logo.svg';
 import './App.css';
 import Home from './page/home'
 import Header from './components/Header'
+import Chatbot from './containers/Chatbot';
+
 import {
   BrowserRouter as Router,
   Route,
@@ -13,13 +15,15 @@ import {
 function App() {
   return (
     <div>
-    <Header />
-    <Router>
-    
-      <Switch>
-        <Route exact path='/' component={Home}></Route>
-      </Switch>
-    </Router>
+      <Chatbot />
+      <Header />
+
+      <Router>
+
+        <Switch>
+          <Route exact path='/' component={Home}></Route>
+        </Switch>
+      </Router>
     </div>
   );
 }
