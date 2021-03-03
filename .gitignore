@@ -3,3 +3,5 @@ node_modules
 *.bin
 *.STEP
 *.STEP1
+
+__pycache__
