@@ -1,0 +1,43 @@
+.Chatbot_main {
+    position: fixed;
+    bottom: 0;
+    z-index: 999999;
+    right: -68px;
+    margin: 70px;
+    margin-bottom: 149px;
+}
+.Chat_btn{
+    width: 105px;
+    height: 107px;
+    border-radius: 50%;
+}
+.Submit_btn {
+
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    border-radius: 50%;
+    padding: 5px;
+    background: #9e9e9e;
+}
+.Chat_main {
+width: 500px;
+background-color: #b6b5b5;
+
+}
+.Chat_List {
+height: 350px;
+overflow-x: auto;
+}
+.Chat_ListItem {
+background-color: #8fd7f7;
+border-radius: 12px;
+}
+
+.Chat_InputField {
+height: 50px;
+}
+
+.Text_Entries {
+
+}
