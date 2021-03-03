@@ -41,6 +41,7 @@ const ItemDetail = () => {
 	const [itemDetail, setItemDetail] = useState({});
 	const [threejsData, setThreejsData] = useState({});
 	const [snackbarOptions, setSnackbarOptions] = useState({ isOpen: false, message: '' });
+	const [gltfjson, setgltfjson] = useState({});
 
 	useEffect(() => {
 		(async () => {
@@ -67,9 +68,11 @@ const ItemDetail = () => {
 			case 0:
 				return "Add vendor items here";
 			case 1:
-				return <BaseItemProperties itemId={id} itemProperties={itemProperties} setItemProperties={setItemProperties} threejsData={threejsData} />;
+				return <BaseItemProperties itemId={id} itemProperties={itemProperties}
+					setItemProperties={setItemProperties}
+					gltfjson={gltfjson} setgltfjson={setgltfjson} />;
 			case 2:
-				return <GeometricDimensioning />
+				return <GeometricDimensioning gltfjson={gltfjson}/>
 			case 3:
 				return <CurrentUsage itemId={id} />
 			case 4:

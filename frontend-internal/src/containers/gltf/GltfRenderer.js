@@ -859,7 +859,7 @@ class GLTFRenderer extends Component {
 		}
 		return (
 		  <div
-			style={{ width: "100%", height: "500px" }}
+			style={{ width: "100%", height: "900px" }}
 			ref={el => (this.node = el)}
 		  />
 		);

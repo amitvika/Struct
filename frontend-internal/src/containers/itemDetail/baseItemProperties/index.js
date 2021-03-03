@@ -26,14 +26,13 @@ import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action'
 import '../style.css';
 
 
-export default function BaseItemProperties({ itemId, itemProperties, setItemProperties, threejsData }) {
+export default function BaseItemProperties({ itemId, itemProperties, setItemProperties, gltfjson, setgltfjson }) {
   const dispatch = useDispatch()
 
   const [isLoading, setIsLoading] = useState(false);
   const [isStepLoaded, setIsStepLoaded] = useState(false);
   const [threejsObject, setThreejsObject] = useState({});
 
-  const [gltfjson, setgltfjson] = useState({});
   const [fileId, setFileId] = useState(0);
   const [files, setFiles] = useState([])
   const [isFileLoadingLoading, setIsFileLoadingLoading] = useState(false);
@@ -147,8 +146,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
         {
           isFileLoadingLoading && <CircularProgress />
         }
-        {/* <ThreejsViewer
-          data={threejsObject} isLoading={isLoading} /> */}
+
       </Paper>
     </div >
   )
