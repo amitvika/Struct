@@ -16,8 +16,8 @@ export default function NewChatbot() {
     const [value, setValue] = useState("");
 
     const handleSubmit = value => {
-        // setChatList(prev => [...prev, value])
-        setChatList([...data, { message: value, isExpert: false }])
+        setChatList(prev => [...prev, { message: value, isExpert: false }])
+        // setChatList([...data, { message: value, isExpert: false }])
         // setValue("")
     };
     const renderChat = () => {
@@ -33,22 +33,17 @@ export default function NewChatbot() {
                     message={item.message}
                     timeStamp={item.timeStamp}
                     imageUrl={item.imageUrl} />)
-
             }
         }
         );
     }
-
     return (
         <div className="ChatWindow">
             <div>CHATBOT</div>
-
             {renderChat()}
-
             <TextEntry
                 handleSubmit={handleSubmit}
             />
-
         </div>
 
     )
