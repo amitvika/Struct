@@ -94,8 +94,6 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
         setIsFileLoadingLoading(false);
         dispatch(showErrorAlert({ message: 'Unable to render file' }));
       })
-
-
   };
 
   const removeFile = (data) => {

@@ -21,6 +21,7 @@ import CurrentUsage from './currentUsage';
 import VendorDetails from './VendorDetails';
 import Manufacturing from '../manufacture/index2'
 import ClientSetup from './clientSetup';
+import Assembly from './assembly';
 
 import ItemTypeConfigurations from './ItemTypeConfigurations';
 import ItemAPI from '../../api/items.api';
@@ -72,7 +73,7 @@ const ItemDetail = () => {
 					setItemProperties={setItemProperties}
 					gltfjson={gltfjson} setgltfjson={setgltfjson} />;
 			case 2:
-				return <GeometricDimensioning gltfjson={gltfjson}/>
+				return <GeometricDimensioning gltfjson={gltfjson} />
 			case 3:
 				return <CurrentUsage itemId={id} />
 			case 4:
@@ -83,7 +84,9 @@ const ItemDetail = () => {
 				return <Manufacturing itemId={id} />;
 			case 7:
 				return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
-			default:
+			case 8:
+				 return <Assembly/>
+				default:
 				return "Undefined Tab Index";
 		}
 	}
@@ -149,13 +152,20 @@ const ItemDetail = () => {
 							}
 
 							{
-								itemProperties?.itemGeometry?.itemType && <Tab label="Geometric Dimensioning and Tolerances" value={2} />
+								itemProperties?.itemGeometry?.itemType &&
+								<Tab label="Geometric Dimensioning and Tolerances" value={2} />
+							}
+
+							<Tab label="Current Usage" value={8} />
+							{
+								// itemProperties.assemblyType === 'Multi-Item Assembly' && 
 							}
 							<Tab label="Current Usage" value={3} />
 							<Tab label="Item Type Configurations" value={4} />
 							{
 								itemProperties.vendorId && <Tab label="Vendor Details" value={5} />
 							}
+
 
 							<Tab label="Manufacture & processing" value={6} />
 
