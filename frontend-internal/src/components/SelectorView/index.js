@@ -10,8 +10,8 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 
 import {
-    Grid,
-    Paper
+	Grid,
+	Paper
 } from '@material-ui/core';
 import { Spinner } from "reactstrap";
 
@@ -22,224 +22,220 @@ import { Spinner } from "reactstrap";
 import get from 'lodash/get';
 
 export default function SelectorView({
-    title,
-    fetchList,
-    selectedListItems,
-    fields,
-    mapValues,
-    handleUpdate,
-    handleSelection
+	title,
+	fetchList,
+	alreadySelected,
+	fields,
+	mapValues,
+	handleUpdate,
+	handleSelection
 }) {
-    const [isLoading, setIsLoading] = useState(false);
-    const [itemList, setItemList] = useState([]);
-    const [filteredItemList, setFilteredItemList] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [itemList, setItemList] = useState([]);
+	const [filteredItemList, setFilteredItemList] = useState([]);
 
-    const [selectedItemList, setSelectedItemList] = useState([]);
-    const [filteredSelectedItemList, setSelectedFilteredItemList] = useState([]);
+	const [selectedItemList, setSelectedItemList] = useState([]);
+	const [filteredSelectedItemList, setSelectedFilteredItemList] = useState([]);
 
-    const [selectedProduct, setSelectedProduct] = useState({});
+	const [isItemSelectionVisible, setIsItemSelectionVisible] = useState(false);
 
-    const [isItemSelectionVisible, setIsItemSelectionVisible] = useState(false);
-
-    const onClick = () => setIsItemSelectionVisible(!isItemSelectionVisible);
-    const [state, setState] = useState({
-        checkedA: true,
-    });
-    const handleChange = (event) => {
-        setState({ ...state, [event.target.name]: event.target.checked });
-    };
+	const onClick = () => setIsItemSelectionVisible(!isItemSelectionVisible);
+	const [state, setState] = useState({
+		checkedA: true,
+	});
+	const handleChange = (event) => {
+		setState({ ...state, [event.target.name]: event.target.checked });
+	};
 
 
-    useEffect(() => {
-        fetchItems();
-    }, [])
+	useEffect(() => {
+		fetchItems();
+	}, [])
 
-    const fetchItems = async (query) => {
-        try {
-            setIsLoading(true);
+	const fetchItems = async (query) => {
+		console.log(alreadySelected);
+		try {
+			setIsLoading(true);
 
-            const itemRes = await fetchList();
+			const itemRes = await fetchList();
 
-            const items = get(itemRes, 'data', [])
+			const items = get(itemRes, 'data', [])
 
-            const mappedItems = mapValues(items.filter(item => {
-                if (selectedListItems) {
-                    return !selectedListItems.includes(item._id)
-                }
-                else {
-                    return true
-                }
-            }))
+			const mappedItems = mapValues(items.filter(item => {
+				if (alreadySelected) {
+					return !alreadySelected.includes(item._id)
+				}
+				else {
+					return true
+				}
+			}))
 
-            if (selectedListItems) {
-                const selectedItems = mapValues(items.filter(item => {
-                    const data = selectedListItems.includes(item._id);
-                    if (data) {
-                        return true
-                    }
-                    else {
-                        return false
-                    }
-                }
-                ))
-                setSelectedItemList(selectedItems);
-                setSelectedFilteredItemList(selectedItems);
-            }
+			if (alreadySelected) {
+				const selectedItems = mapValues(items.filter(item => {
+					const data = alreadySelected.includes(item._id);
+					if (data) {
+						return true
+					}
+					else {
+						return false
+					}
+				}
+				))
+				setSelectedItemList(selectedItems);
+				setSelectedFilteredItemList(selectedItems);
+			}
 
-            setItemList(mappedItems)
-            setFilteredItemList(mappedItems)
-            setIsLoading(false);
+			setItemList(mappedItems)
+			setFilteredItemList(mappedItems)
+			setIsLoading(false);
 
-        } catch (error) {
-            console.log('Error', error)
-        }
-    }
+		} catch (error) {
+			console.log('Error', error)
+		}
+	}
 
-    const handleItemClick = (data) => {
+	const handleItemClick = (data) => {
 
-        if (isItemSelectionVisible) {
-            setFilteredItemList(prevState => {
-                let updatedState = prevState.filter(item => item.id != data.id);
-                return updatedState;
-            });
+		if (isItemSelectionVisible) {
+			setFilteredItemList(prevState => {
+				let updatedState = prevState.filter(item => item.id != data.id);
+				return updatedState;
+			});
 
-            setSelectedItemList([...selectedItemList, data]);
+			const updatdSelected = [...selectedItemList, data]
+			setSelectedItemList(updatdSelected);
+			setSelectedFilteredItemList(updatdSelected)
 
-            handleUpdate([data.id, ...selectedListItems])
-            // handleUpdate({
-            //     ...clientData,
-            //     linkedItems: [...clientData.linkedItems, data.id]
-            // })
-        }
-        else {
-            handleSelection(data);
-        }
-    }
+			handleUpdate(updatdSelected.map(item => item.id));
+			// handleUpdate({
+			//     ...clientData,
+			//     linkedItems: [...clientData.linkedItems, data.id]
+			// })
+		}
+		else {
+			handleSelection(data);
+		}
+	}
 
-    const handleItemRemove = (data) => {
-        if (isItemSelectionVisible) {
+	const handleItemRemove = (data) => {
+		if (isItemSelectionVisible) {
 
-            setFilteredItemList(prevState => {
-                return [data, ...prevState];
-            });
+			setFilteredItemList(prevState => {
+				return [data, ...prevState];
+			});
 
-            setSelectedItemList(prevState => {
-                return prevState.filter(item => item.id != data.id);
-            });
+			const updatdSelected = selectedItemList.filter(item => item.id != data.id)
+			setSelectedItemList(updatdSelected);
 
-            handleUpdate(selectedListItems.filter(itemId => itemId !== data.id))
-            // handleUpdate({
-            //     ...clientData,
-            //     linkedItems: clientData.linkedItems.filter(itemId => itemId !== data.id)
-            // })
-        }
-        else {
-            handleSelection(data);
-        }
-    }
+			setSelectedFilteredItemList(updatdSelected)
 
-    const handleProductBreadcrumbSelect = () => {
-        handleSelection({});
-    }
-
-    if (isLoading) {
-        return (<div
-            style={{
-                display: "flex",
-                justifyContent: "center"
-            }}
-        >
-            <Spinner animation="border" />
-        </div>)
-    }
-
-    return (
-        <div>
+			handleUpdate(updatdSelected.map(item => item.id))
+			// handleUpdate({
+			//     ...clientData,
+			//     linkedItems: clientData.linkedItems.filter(itemId => itemId !== data.id)
+			// })
+		}
+		else {
+			handleSelection(data);
+		}
+	}
 
 
+	if (isLoading) {
+		return (<div
+			style={{
+				display: "flex",
+				justifyContent: "center"
+			}}
+		>
+			<Spinner animation="border" />
+		</div>)
+	}
 
-            <div style={{ display: 'flex' }}>
+	return (
+		<div>
+			<div style={{ display: 'flex' }}>
 
-                <Headding fontSize={20} title={`Configure ${title}`} style={{
-                    fontWeight: 'bold',
-                    alignItems: 'center',
-                    display: 'flex'
-                }}></Headding>
-                <FormGroup style={{ marginLeft: '20px' }}>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                onClick={onClick}
-                                checked={state.checkedB}
-                                onChange={handleChange}
-                                name="checkedB"
-                                color="primary"
-                            />
-                        }
-                        label={`Add/Remove  ${title}`}
-                    />
-                </FormGroup>
-            </div>
+				<Headding fontSize={20} title={`Configure ${title}`} style={{
+					fontWeight: 'bold',
+					alignItems: 'center',
+					display: 'flex'
+				}}></Headding>
+				<FormGroup style={{ marginLeft: '20px' }}>
+					<FormControlLabel
+						control={
+							<Checkbox
+								onClick={onClick}
+								checked={state.checkedB}
+								onChange={handleChange}
+								name="checkedB"
+								color="primary"
+							/>
+						}
+						label={`Add/Remove  ${title}`}
+					/>
+				</FormGroup>
+			</div>
 
-            {
-                selectedItemList.length > 0 ?
-                    <>
-                        {/* Filter section */}
-                        <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
-                            <Grid container>
-                                <Filter
-                                    list={selectedItemList}
-                                    filteredList={filteredSelectedItemList}
-                                    setFilteredList={setSelectedFilteredItemList}
-                                    columnsFields={fields}
-                                />
-                            </Grid>
-                        </Paper>
-                        <Space size={20} />
-                        <Headding fontSize={20} title={`Selected ${title}`} style={{ fontWeight: 'bold' }}></Headding>
-                        <GridView
-                            list={filteredSelectedItemList}
-                            handleHistoryToggle={() => false}
-                            columnsFields={fields}
-                            handleTableRowClick={handleItemRemove}
-                            isHistoryLinkVisible={false}
-                            isInsideDetailPanel={true}
-                        />
-                    </> :
-                    <Headding fontSize={20} title={`No ${title} Selected`} style={{ fontWeight: 'bold' }}></Headding>
-            }
+			{
+				selectedItemList.length > 0 ?
+					<>
+						{/* Filter section */}
+						<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
+							<Grid container>
+								<Filter
+									list={selectedItemList}
+									filteredList={filteredSelectedItemList}
+									setFilteredList={setSelectedFilteredItemList}
+									columnsFields={fields}
+								/>
+							</Grid>
+						</Paper>
+						<Space size={20} />
+						<Headding fontSize={20} title={`Selected ${title}`} style={{ fontWeight: 'bold' }}></Headding>
+						<GridView
+							list={filteredSelectedItemList}
+							handleHistoryToggle={() => false}
+							columnsFields={fields}
+							handleTableRowClick={handleItemRemove}
+							isHistoryLinkVisible={false}
+							isInsideDetailPanel={true}
+						/>
+					</> :
+					<Headding fontSize={20} title={`No ${title} Selected`} style={{ fontWeight: 'bold' }}></Headding>
+			}
 
 
 
 
-            { isItemSelectionVisible &&
-                <>
-                    {/* Filter section */}
-                    <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
-                        <Grid container>
-                            <Filter
-                                list={itemList}
-                                filteredList={filteredItemList}
-                                setFilteredList={setFilteredItemList}
-                                columnsFields={fields}
-                            />
-                        </Grid>
-                    </Paper>
+			{ isItemSelectionVisible &&
+				<>
+					{/* Filter section */}
+					<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
+						<Grid container>
+							<Filter
+								list={itemList}
+								filteredList={filteredItemList}
+								setFilteredList={setFilteredItemList}
+								columnsFields={fields}
+							/>
+						</Grid>
+					</Paper>
 
-                    <Space size={20} />
+					<Space size={20} />
 
-                    <Headding fontSize={20} title={`Choose ${title}`} style={{ fontWeight: 'bold' }}></Headding>
-                    <GridView
-                        list={filteredItemList}
-                        handleHistoryToggle={() => false}
-                        columnsFields={fields}
-                        handleTableRowClick={handleItemClick}
-                        isHistoryLinkVisible={false}
-                        isInsideDetailPanel={true}
-                    />
-                </>}
+					<Headding fontSize={20} title={`Choose ${title}`} style={{ fontWeight: 'bold' }}></Headding>
+					<GridView
+						list={filteredItemList}
+						handleHistoryToggle={() => false}
+						columnsFields={fields}
+						handleTableRowClick={handleItemClick}
+						isHistoryLinkVisible={false}
+						isInsideDetailPanel={true}
+					/>
+				</>}
 
-        </div >
-    )
+		</div >
+	)
 
 }
