@@ -349,6 +349,7 @@ export default function home() {
                         <a href="#" className="btn product-btn pr-2-btn">Explore More</a>
                     </div>
                 </section>
+               
                 <section className="reviews-area-pr-2">
                     <div className="container">
                         <div className="section-title">
