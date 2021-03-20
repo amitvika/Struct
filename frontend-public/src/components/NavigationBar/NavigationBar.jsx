@@ -4,6 +4,7 @@ import Routes from '../../Routes';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
+  Paper,
   AppBar,
   Toolbar,
   Typography,
@@ -95,7 +96,7 @@ const NavigationBar = (props) => {
                     <div  {...bindTrigger(popupState)} >
                       <AccountCircleIcon style={{ color: "white" }} fontSize="large" />
                     </div>
-                    <LoginPopup popupState={popupState}/>
+                    <LoginPopup popupState={popupState} />
                   </div>
 
                 )}
@@ -118,11 +119,15 @@ const NavigationBar = (props) => {
             {Routes.map((prop, key) => {
               return (
                 <NavLink to={prop.path} key={key}>
-                  <MenuItem style={{
-                    textAlign: "center",
-                  }} selected={activeRoute(prop.path)}>
-                    <ListItemText primary={prop.sidebarName} />
-                  </MenuItem>
+                  <Paper>
+                    <MenuItem style={{
+                      textAlign: "center",
+                    }}
+                      selected={activeRoute(prop.path)}>
+
+                      <ListItemText primary={prop.sidebarName} />
+                    </MenuItem>
+                  </Paper>
                 </NavLink>
               );
             })}

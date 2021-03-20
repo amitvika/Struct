@@ -75,7 +75,14 @@ export default function Index2(props) {
     }
 
     const handleTabChange2 = (tabName2) => {
-        setselectedSubTab(tabName2);
+        if(tabName2 ===  selectedSubTab){
+            setselectedSubTab('');
+        }
+        else {
+            setselectedSubTab(tabName2);
+
+        }
+
     }
 
     const renderDetailPanel = () => {
