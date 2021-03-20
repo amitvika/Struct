@@ -2,11 +2,14 @@ import React from 'react'
 import StickyLogo from '../assets/images/new_logo.png'
 import Logo from '../assets/images/logo_white.png'
 
-export default function Header({ nav, children }) {
+export default function Header({ nav, children, menuButton }) {
 
   return (
     <header className={`header ${nav ? 'stricky-fixed' : ''}`} id="stricky">
       <nav className="navbar navbar-default">
+        {
+          menuButton
+        }
         <div className="container">
           <div className="navbar-header">
             <a className="navbar-brand" href="#">

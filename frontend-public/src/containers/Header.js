@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import SharedHeader from 'shared-lib/src/components/Header';
-import { GoogleLogin } from 'react-google-login';
-import App from '../App';
-import {Link} from "react-router-dom"
+import {Link} from"react-router-dom"
 
 
 
-export default function Header() {
+export default function Header(props) {
+
+
 
   const [nav, setNav] = useState(false);
 
@@ -28,29 +28,28 @@ export default function Header() {
   }
 
   // Google Login
-  const handleLogin = async googleData => {
-    console.log(googleData);
-    const res = await fetch("/api/v1/auth/google", {
-      method: "POST",
-      body: JSON.stringify({
-        token: googleData.tokenId
-      }),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    const data = await res.json()
-    // store returned user somehow
-  }
+  // const handleLogin = async googleData => {
+    // history.push("/login")
+    // console.log(googleData);
+    // const res = await fetch("/api/v1/auth/google", {
+    //   method: "POST",
+    //   body: JSON.stringify({
+    //     token: googleData.tokenId
+    //   }),
+    //   headers: {
+    //     "Content-Type": "application/json"
+    //   }
+    // })
+    // const data = await res.json()
+    // // store returned user somehow
+  
 
 
 
   return (
-  
-    <SharedHeader nav={nav}>
-       
+
+    <SharedHeader nav={nav} menuButton={props.children}>
       <ul id="nav" className="nav navbar-nav menu">
-     
         <li className="menu-item">
           <a href="#">Design Quote</a>
           <ul className="sub-menu">
@@ -64,7 +63,7 @@ export default function Header() {
             <li className="menu-item"><a href="#">Book/eBook</a></li>
           </ul>
         </li>
-      
+
         <li className="menu-item">
           <a href="http://localhost:3002" target="_blank">Develop Products</a>
         </li>
@@ -79,33 +78,35 @@ export default function Header() {
             <li className="menu-item"><a href="#">Contact</a></li>
           </ul>
         </li>
-        
+
 
         <li className="menu-item">
-
-          <GoogleLogin
+          <Link to="/login">
+           Login
+          </Link>
+          {/* <GoogleLogin
             clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
             render={renderProps => (
-              <div style={{height: '100%'}}>
+              <div style={{ height: '100%' }}>
                 <a>
-              <button style={{
-                background: 'none', color: nav ? 'black' : 'white',
-                border: 'none'
-              }} onClick={renderProps.onClick} disabled={renderProps.disabled}>Google Log in </button>
-              </a>
-           </div>
+                  <button style={{
+                    background: 'none', color: nav ? 'black' : 'white',
+                    border: 'none'
+                  }} onClick={renderProps.onClick} disabled={renderProps.disabled}>Google Log in </button>
+                </a>
+              </div>
             )}
-            
+
             buttonText="Log in with Google"
             onSuccess={handleLogin}
             onFailure={handleLogin}
             cookiePolicy={'single_host_origin'}
           />
+        */}
         </li>
-
       </ul>
-    
+
     </SharedHeader>
-    
-    )
+
+  )
 }

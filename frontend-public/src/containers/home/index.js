@@ -9,8 +9,8 @@ import {Link} from "react-router-dom"
 
 export default function Home() {
     return (
-        <Link to="/">
-        <div>
+        
+        <div >
             <div className="hero-section" style={{ backgroundImage: `url(${RobotWeldingBackground})` }}>
                 <div className="hero-section-area paypal">
                     <div className="container paypal-flex">
@@ -160,6 +160,6 @@ export default function Home() {
                 </div>
             </section>
         </div>
-        </Link>
+       
     )
 }

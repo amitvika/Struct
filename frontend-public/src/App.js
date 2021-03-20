@@ -1,23 +1,53 @@
-import React from 'react';
-import Home from './pages/home';
-import Header from './containers/Header';
-import Footer from './containers/Footer';
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
-import Chatbot from './containers/Chatbot';
+import React, { Fragment } from 'react';
+import { BrowserRouter, Switch, Route as DefaultRoute } from 'react-router-dom';
+import Routes from './Routes';
+import NavigationBar from './components/NavigationBar/NavigationBar';
+import HomePageLayout from './components/Layout'
+import Home from './containers/home/index'
+import Login from './containers/login/index'
 
+const DefaultLayout = ({ children, title }) => (
+  <Fragment>
+    <NavigationBar title={title} />
+    {children}
+  </Fragment>
+)
 
-function App() {
+const LoginPageLayout = ({ children }) => <Fragment>{children}</Fragment>;
+
+const Route = ({
+  component: Component,
+  layout: Layout,
+  title,
+  ...rest
+}) => {
   return (
-    <BrowserRouter>
-      <div className="App">
-      <Chatbot />
-        <Header />
+    <DefaultRoute
+      {...rest}
+      render={props => (
+        <Layout title={title}>
+          <Component {...props} />
+        </Layout>
+      )}
+    />
+  )
+}
+
+const App = () => {
+  return (
+    <div>
+      <BrowserRouter>
         <Switch>
-          <Route path="/" component={Home} />
+          <Route exact path={'/'} component={Home} layout={HomePageLayout} />
+          <Route exact path={'/login'} component={Login} layout={LoginPageLayout} />
+
+          {Routes.map((route) => (
+            <Route exact path={route.path} key={route.path} title={route.sidebarName} component={route.component} layout={DefaultLayout}>
+            </Route>
+          ))}
         </Switch>
-        <Footer />
-      </div>
-    </BrowserRouter>
+      </BrowserRouter>
+    </div>
   );
 }
 
