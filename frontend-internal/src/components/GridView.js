@@ -79,7 +79,7 @@ export default function GridView({
 
 	return (
 		<div className={isInsideDetailPanel ? 'fixed-grid--around-350' : 'fixed-grid--around'}>
-			{list.map(product => {
+			{list.map((product) => {
 				return (
 					<div style={{ marginTop: '10px', marginBottom: '10px', width: isInsideDetailPanel ? '350px' : '380px' }}>
 						<Paper className={classes.paper} onClick={() => handleTableRowClick(product)}>
@@ -102,7 +102,7 @@ export default function GridView({
 												handleHistoryToggle({ rowId: product.id })
 											}}>
 												View History
-                		</Typography>
+												</Typography>
 										</Grid>
 									}
 								</Grid>

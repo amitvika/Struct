@@ -12,7 +12,7 @@ import {
 	CircularProgress
 } from "@material-ui/core";
 import MuiAlert from '@material-ui/lab/Alert';
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useParams, useHistory, useLocation } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 
 import BaseItemProperties from './baseItemProperties';
@@ -22,6 +22,7 @@ import VendorDetails from './VendorDetails';
 import Manufacturing from '../manufacture/index2'
 import ClientSetup from './clientSetup';
 import Assembly from './assembly';
+import Production from './production'
 
 import ItemTypeConfigurations from './ItemTypeConfigurations';
 import ItemAPI from '../../api/items.api';
@@ -32,11 +33,18 @@ function Alert(props) {
 	return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const ItemDetail = () => {
-	const dispatch = useDispatch()
 
-	const [value, setValue] = useState(1);
+function useQuery() {
+	return new URLSearchParams(useLocation().search);
+}
+
+const ItemDetail = () => {
+	const dispatch = useDispatch();
+	const history = useHistory();
 	let { id } = useParams();
+	let query = useQuery();
+
+	const [tabIndex, setTabIndex] = useState(1);
 	const [itemProperties, setItemProperties] = useState({});
 	const [isLoading, setIsLoading] = useState(true);
 	const [itemDetail, setItemDetail] = useState({});
@@ -45,6 +53,10 @@ const ItemDetail = () => {
 	const [gltfjson, setgltfjson] = useState({});
 
 	useEffect(() => {
+		if (query.get('tab')) {
+			setTabIndex(parseInt(query.get('tab')))
+		}
+
 		(async () => {
 			setIsLoading(true);
 			const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
@@ -60,12 +72,19 @@ const ItemDetail = () => {
 		})()
 	}, []);
 
-	const renderPageSwitch = (index) => {
+	const renderPageSwitch = () => {
 		if (!get(itemProperties, '_id')) {
 			return null;
 		}
 
-		switch (index) {
+		// let index = tabIndex;
+		// if (query.get('tab')) {
+		// 	index = query.get('tab')
+		// }
+
+		console.log(tabIndex)
+
+		switch (tabIndex) {
 			case 0:
 				return "Add vendor items here";
 			case 1:
@@ -85,8 +104,10 @@ const ItemDetail = () => {
 			case 7:
 				return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
 			case 8:
-				 return <Assembly/>
-				default:
+				return <Assembly />;
+			case 9:
+				return <Production />;
+			default:
 				return "Undefined Tab Index";
 		}
 	}
@@ -110,6 +131,15 @@ const ItemDetail = () => {
 		setSnackbarOptions({ isOpen: false })
 	}
 
+	const handleTabChange = (event, newTabIndex) => {
+		setTabIndex(newTabIndex)
+
+		history.push({
+			pathname: `/items/${id}`,
+			search: `?tab=${newTabIndex}`
+		})
+	}
+
 	if (isLoading) {
 		return <CircularProgress />;
 	}
@@ -123,12 +153,11 @@ const ItemDetail = () => {
 							style={{
 								display: "flex",
 								justifyContent: "center"
-							}}
-						>
+							}}>
 							<NavLink
 								to='/items'>
 								Items
-              </NavLink>
+								</NavLink>
 
 							<Typography color="textPrimary">Item Details</Typography>
 						</Breadcrumbs>
@@ -143,8 +172,8 @@ const ItemDetail = () => {
 						<Tabs
 							orientation="vertical"
 							variant="scrollable"
-							value={value}
-							onChange={(event, newValue) => setValue(newValue)}>
+							value={tabIndex}
+							onChange={handleTabChange}>
 							<Tab label="Base Item Properties" value={1} />
 							{
 								// itemProperties?.itemGeometry?.isEndProductSelected &&
@@ -168,6 +197,7 @@ const ItemDetail = () => {
 
 
 							<Tab label="Manufacture & processing" value={6} />
+							<Tab label="Production" value={9} />
 
 
 						</Tabs>
@@ -175,7 +205,7 @@ const ItemDetail = () => {
 				</Grid>
 				<Grid item sm sm={10}>
 					<Paper style={{ padding: 20, margin: 10 }}>
-						{renderPageSwitch(value)}
+						{renderPageSwitch()}
 					</Paper>
 				</Grid>
 			</Grid>

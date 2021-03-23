@@ -19,6 +19,7 @@ import FactoriesAPI from '../../api/factories.api';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
 import BaseFactorySetup from './baseFactorySetup'
+import ItemsInProduction from './itemsInProduction'
 
 import get from 'lodash/get';
 
@@ -65,12 +66,14 @@ const FactoriesDetail = () => {
     }
 
     const renderPageSwitch = (index) => {
-        if(!get(factoryValue, '_id')){
+        if (!get(factoryValue, '_id')) {
             return null
         }
         switch (index) {
             case 1:
                 return <BaseFactorySetup factoryId={id} setFactoryValue={setFactoryValue} factoryValue={factoryValue} />
+            case 2:
+                return <ItemsInProduction factoryId={id} setFactoryValue={setFactoryValue} factoryValue={factoryValue} />
             default:
                 return "Undefined Tab Index";
         }
@@ -120,7 +123,9 @@ const FactoriesDetail = () => {
                             value={value}
                             onChange={(event, newValue) => setValue(newValue)}>
                             <Tab label="Base Factory Setup" value={1} />
-                            <Tab label="Floorplan Setup" value={2}/>
+                            <Tab label="Items in Production" value={2} />
+                            <Tab label="Floorplan Setup" value={3} />
+                            <Tab label="Facility Capabilities" value={4} />
 
                         </Tabs>
                     </Paper>

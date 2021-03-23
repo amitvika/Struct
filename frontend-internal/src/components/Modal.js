@@ -3,6 +3,8 @@ import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import { makeStyles } from '@material-ui/core/styles';
+import { Paper, Grid } from '@material-ui/core';
+
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -14,17 +16,20 @@ const useStyles = makeStyles((theme) => ({
         display: 'block'
     },
     paper: {
+        display: "block",
         backgroundColor: theme.palette.background.paper,
         border: '2px solid #000',
         boxShadow: theme.shadows[5],
         padding: theme.spacing(2, 4, 3),
         marginLeft: '20%',
-        marginRight: '20%'
+        marginRight: '20%',
+
     },
 }));
 
 export default function MainModal({ title, open, toggleModal, children }) {
     const classes = useStyles();
+
 
     return (
         <Modal
@@ -39,13 +44,16 @@ export default function MainModal({ title, open, toggleModal, children }) {
                 timeout: 500,
             }}
         >
-            <Fade in={open}>
-                <div className={classes.paper}>
+            <Fade in={open} >
+                <Paper className={classes.paper} >
+
                     <h2 id="simple-modal-title">{title}</h2>
                     <p id="simple-modal-description">
-                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.</p>
+                       
+                        </p>
                     {children}
-                </div>
+                </Paper>
+
             </Fade>
         </Modal>
     )

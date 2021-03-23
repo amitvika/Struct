@@ -18,6 +18,7 @@ import LogoView from '../../components/LogoView';
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert, hideAlert } from '../../actions/alert.action';
+import IncomingVendorProducts from './IncomingVendorProducts'
 
 
 const VendorDetail = () => {
@@ -47,8 +48,10 @@ const VendorDetail = () => {
 
   const renderPageSwitch = (index) => {
     switch (index) {
-      case 1:
-        return <ItemContainer vendorName={vendorInfo.name} vendorId={id} />;
+      // case 1:
+      //   return <ItemContainer vendorName={vendorInfo.name} vendorId={id} />;
+      case 1: 
+      return <IncomingVendorProducts />
       case 2:
         return "pull reports base on items, and any details below";
       case 3:
@@ -132,7 +135,8 @@ const VendorDetail = () => {
               variant="scrollable"
               value={value}
               onChange={(event, newValue) => setValue(newValue)}>
-              <Tab label="Services" value={1} />
+              {/* <Tab label="Services" value={1} /> */}
+              <Tab label="Incoming Vendor Products" value={1} />
               <Tab label="Reports" value={2} />
               <Tab label="Service Agreement" value={3} />
               <Tab label="Payments" value={4} />

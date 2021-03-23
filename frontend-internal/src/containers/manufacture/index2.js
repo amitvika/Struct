@@ -10,6 +10,7 @@ import Maching from './machining';
 import InjectionCasting from './injectionCasting';
 import Dispensing from './Dispensing'
 import Storage from './Storage';
+import FullProcess from './fullProcess';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -62,9 +63,10 @@ export default function Index2(props) {
 
 
     const tabArray = ['Machining', 'Injection Casting', 'Assembly', 'Photolithography', 'Unpacking',
-        'PCB Assembly', 'Extrusion', '3D Printing', 'Forming',
-        ' Textile Assembly', 'Powder Stamping and Sintering', ' Coatings', ' Temperature and Gas Treatments',
-        ' Photochemical Machining', 'Storage', 'Dispensing', 'Holding', 'Separation and Refinement', 'Particulate/Liquid/Gas Mixing', 'Particulate Consolidation']
+        'PCB Assembly', 'Extrusion', '3D Printing', 'Forming', ' Textile Assembly',
+        'Powder Stamping and Sintering', ' Coatings', ' Temperature and Gas Treatments',
+        ' Photochemical Machining', 'Storage', 'Dispensing', 'Holding', 'Separation and Refinement',
+        'Particulate/Liquid/Gas Mixing', 'Particulate Consolidation']
 
     const subTabArray = ['Manufacturability Analysis', 'Process Configuration', 'Process Statistics and Analysis', 'Process Steps']
 
@@ -75,7 +77,7 @@ export default function Index2(props) {
     }
 
     const handleTabChange2 = (tabName2) => {
-        if(tabName2 ===  selectedSubTab){
+        if (tabName2 === selectedSubTab) {
             setselectedSubTab('');
         }
         else {
@@ -109,6 +111,11 @@ export default function Index2(props) {
         }
         else if (selectedTab === 'Storage') {
             return <Storage
+                {...props}
+                selectedSubTab={selectedSubTab} />
+        }
+        else if (selectedTab === 'Full Process') {
+            return <FullProcess
                 {...props}
                 selectedSubTab={selectedSubTab} />
         }
@@ -184,5 +191,5 @@ export default function Index2(props) {
                     </> : null
             }
         </>
-        )
+    )
 }

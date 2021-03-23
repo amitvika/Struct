@@ -3,14 +3,31 @@ import { Button, Link, Paper } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import MainModal from '../../../../components/Modal';
-// import MainModal from '../../../../components/Modal'
 
 const useStyles = makeStyles((theme) => ({
     root: {
         flexGrow: 1,
+    },
+    text: {
+        textAlign: "center",
+        fontSize: "x-large",
+        color: "#787676",
+        fontWeight: "600"
+    },
+    gridContainer: {
+        margin: "5px",
+    },
+    innerGrid: {
+        maxWidth: "19%",
+        textAlign: "center",
+    },
+    paper: {
+        color: " #65696c",
+    },
+    button: {
+        color: " #65696c",
+    },
 
-
-    }
 }))
 
 export default function ManufacturabilityAnalysis() {
@@ -26,24 +43,18 @@ export default function ManufacturabilityAnalysis() {
     return (
         <div className={classes.root}>
             <Paper>
-                <div style={{
-                    textAlign: "center",
-                    fontSize: "x-large",
-                    color: "#787676",
-                    fontWeight: "600"
-                }} elevation={3}>
-                    Key Factors
-                    </div>
-                <MainModal open={isModalOpened} toggleModal={toggleModal}/>
-                <Grid container spacing={3} style={{ margin: "5px", }}>
+                <div className={classes.text} elevation={3}>Key Factors</div>
+                <MainModal open={isModalOpened} toggleModal={toggleModal} />
+                <Grid className={classes.gridContainer} container spacing={3} >
                     {
                         tabArray.map((item) => (
 
-                            <Grid style={{ maxWidth: "19%", textAlign: "center", }} item xs={3} sm={3}>
+                            <Grid className={classes.innerGrid} item xs={3} sm={3}>
 
-                                
-                                    <Paper style={{ color: " #65696c", }} className={classes.paper} onClick={toggleModal}>
-                                    <Button style={{ color: " #65696c", }}>{item}</Button> </Paper>
+
+                                <Paper className={classes.paper} className={classes.paper} onClick={toggleModal}>
+                                    <Button className={classes.button} >{item}</Button>
+                                </Paper>
 
                             </Grid>
                         ))
