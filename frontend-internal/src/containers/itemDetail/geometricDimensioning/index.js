@@ -2,7 +2,7 @@ import React from 'react';
 import { AppBar, Toolbar, IconButton, Typography, Button } from '@material-ui/core';
 import { fade, makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
-import GLTFRenderer from '../../gltf/GltfRenderer';
+import GLTFRenderer from '../../../gltf/GltfRenderer';
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,

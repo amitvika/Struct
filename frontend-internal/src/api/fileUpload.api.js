@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // const host = `https://cadapi.struct.services/api/v0`;
-const baseURL = `https://cadapi.struct.services` //process.env.REACT_APP_GLTF_CONVERTER;
+const baseURL = `https://cadapi.struct.services`//process.env.REACT_APP_GLTF_CONVERTER;
 
 const url = `${baseURL}/api/v0`
 
@@ -22,9 +22,20 @@ export const getSplitFiles = (id) => {
 }
 
 export const getHierarchySplitFiles = (id, includeParts, distancegap, anglegap) => {
-    const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&distancegap=${distancegap}&anglegap=${anglegap}`;
-	console.log(splitURL);
+    const splitURL = `${url}/hsplit?id=${id}&includeparts=${includeParts}&distancegap=${distancegap}&anglegap=${anglegap}`;
+    console.log(splitURL);
     return axios.get(splitURL)
 }
 
+export const getAllTextures = () => {
+    const fetchURL = `${url}/textures`;
+    return axios.get(fetchURL)
+}
+
+export const getAllFiles = () => {
+    const fetchURL = `${url}/files`;
+    return axios.get(fetchURL)
+}
+
+export const resourcePathBase =  `${baseURL}/`; //"./gltfconverter/";//
 export const resourcePathURL = `${baseURL}/Display/`; //http://localhost:8000/Media/`;

@@ -5,9 +5,6 @@ import { Paper, Grid,Button } from '@material-ui/core';
 import FileUpload from '../../../components/FileUpload'
 import Input from '../../../components/atoms/Input';
 
-
-
-
 export default function IdentificationModal({ isModalOpened, toggleModal }) {
     return (
         <div>

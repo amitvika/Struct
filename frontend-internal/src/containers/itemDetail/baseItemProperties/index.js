@@ -19,7 +19,7 @@ import {
 import ProcessGroupAPI from '../../../api/processGroup.api'
 import ItemAPI from '../../../api/items.api';
 
-import GLTFRenderer from '../../gltf/GltfRenderer';
+import GLTFRenderer from '../../../gltf/GltfRenderer';
 import { upload3DFile, getGLTFJson } from '../../../api/fileUpload.api'
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
 

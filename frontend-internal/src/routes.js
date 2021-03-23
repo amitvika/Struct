@@ -34,7 +34,7 @@ import ItemDetail from "./containers/itemDetail/ItemDetail";
 import UserSetup from './containers/userSetup';
 
 // import Viewer from './page/3DViewer';
-import Viewer from './containers/gltf/index'
+import Viewer from './gltf/index'
 
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);
