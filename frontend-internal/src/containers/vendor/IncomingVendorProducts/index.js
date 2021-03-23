@@ -12,15 +12,18 @@ import { Spinner } from "reactstrap";
 import { columnsFields } from '../../../constants/item'
 import ItemAPI from '../../../api/items.api';
 // import ProductOptions from './productOptions'
-import ProductOptions from '../../../containers/client/products'
+import ProductOptions from './productOptions'
 
 import { mapItems } from '../../../utils/mapper'
 import SelectorView from '../../../components/SelectorView'
 import get from 'lodash/get';
 
+
+
+
+
 export default function IncomingVendorProducts({
 	clientId,
-	handleClientUpdate,
 	clientData
 }) {
 	const [isLoading, setIsLoading] = useState(false);
@@ -36,10 +39,14 @@ export default function IncomingVendorProducts({
 	const handleChange = (event) => {
 		setState({ ...state, [event.target.name]: event.target.checked });
 	};
-	
+
 	const handleProductBreadcrumbSelect = () => {
 		setSelectedProduct({});
 	}
+
+	
+
+
 
 	if (isLoading) {
 		return (<div
@@ -67,12 +74,11 @@ export default function IncomingVendorProducts({
 								alignItems: 'center',
 								fontSize: '20px'
 							}}
-						>Configure Product: {selectedProduct.name}</Typography>
+						>Orders</Typography>
 					</Paper>
 					<ProductOptions
 					/>
 				</> :
-
 				<>
 					<SelectorView
 						title={'Product'}
@@ -80,10 +86,7 @@ export default function IncomingVendorProducts({
 						alreadySelected={get(clientData, 'linkedItems', [])}
 						fields={columnsFields}
 						mapValues={mapItems}
-						handleUpdate={(data) => handleClientUpdate({
-							...clientData,
-							linkedItems: data
-						})}
+						handleUpdate={(data) => false}
 						handleSelection={(data) => setSelectedProduct(data)}
 					/>
 				</>

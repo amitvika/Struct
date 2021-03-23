@@ -220,6 +220,7 @@ const Vendors = () => {
       handleAlertClose={handleAlertClose}
       message={message}
       snackBarAlertType={snackBarAlertType}>
+        
 
       <Toolbar
         title={'Vendors'}

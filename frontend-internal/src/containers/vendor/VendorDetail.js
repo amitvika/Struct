@@ -11,7 +11,7 @@ import {
   Typography
 } from "@material-ui/core";
 
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useParams, useHistory, useLocation } from "react-router-dom";
 import ItemContainer from './Items';
 import VendorAPI from '../../api/vendor.api';
 import LogoView from '../../components/LogoView';
@@ -19,18 +19,28 @@ import LogoView from '../../components/LogoView';
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert, hideAlert } from '../../actions/alert.action';
 import IncomingVendorProducts from './IncomingVendorProducts'
+import get from 'lodash/get';
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 
 const VendorDetail = () => {
   const dispatch = useDispatch()
-
-  const [value, setValue] = useState(1);
-  const [vendorInfo, setVendorInfo] = useState({});
+  const history = useHistory();
   let { id } = useParams();
+  let query = useQuery();
+
+  const [tabIndex, setTabIndex] = useState(1);
+
+  const [vendorInfo, setVendorInfo] = useState({});
   const [snackbarOptions, setSnackbarOptions] = useState({ isOpen: false, message: '' });
 
-
   useEffect(() => {
+    if (query.get('tab')) {
+      setTabIndex(parseInt(query.get('tab')))
+    }
 
     VendorAPI.getVendorApi(id)
       .then(res => {
@@ -46,12 +56,17 @@ const VendorDetail = () => {
     }
   }, [id])
 
-  const renderPageSwitch = (index) => {
-    switch (index) {
+  const renderPageSwitch = () => {
+
+    if (!get(vendorInfo, '_id')) {
+      return null;
+    }
+
+    switch (tabIndex) {
       // case 1:
       //   return <ItemContainer vendorName={vendorInfo.name} vendorId={id} />;
-      case 1: 
-      return <IncomingVendorProducts />
+      case 1:
+        return <IncomingVendorProducts />
       case 2:
         return "pull reports base on items, and any details below";
       case 3:
@@ -69,6 +84,8 @@ const VendorDetail = () => {
   }
 
   const handleSave = () => {
+    itemProperties.itemId = undefined;
+
     syncWithServer(vendorInfo)
   }
 
@@ -92,6 +109,15 @@ const VendorDetail = () => {
 
     setVendorInfo(updatedValues);
     syncWithServer(updatedValues);
+  }
+
+  const handleTabChange = (event, newTabIndex) => {
+    setTabIndex(newTabIndex)
+
+    history.push({
+      pathname: `/vendors/${id}`,
+      search: `?tab=${newTabIndex}`
+    })
   }
 
   return (
@@ -133,8 +159,9 @@ const VendorDetail = () => {
             <Tabs
               orientation="vertical"
               variant="scrollable"
-              value={value}
-              onChange={(event, newValue) => setValue(newValue)}>
+              value={tabIndex}
+              onChange={handleTabChange}>
+              {/* onChange={(event, newValue) => setValue(newValue)}> */}
               {/* <Tab label="Services" value={1} /> */}
               <Tab label="Incoming Vendor Products" value={1} />
               <Tab label="Reports" value={2} />
@@ -147,7 +174,7 @@ const VendorDetail = () => {
         </Grid>
         <Grid item sm sm={10}>
           <Paper style={{ padding: 20, margin: 10 }}>
-            {renderPageSwitch(value)}
+            {renderPageSwitch()}
 
           </Paper>
         </Grid>

@@ -185,7 +185,7 @@ const ItemDetail = () => {
 								<Tab label="Geometric Dimensioning and Tolerances" value={2} />
 							}
 
-							<Tab label="Current Usage" value={8} />
+							<Tab label="Assembly" value={8} />
 							{
 								// itemProperties.assemblyType === 'Multi-Item Assembly' && 
 							}
