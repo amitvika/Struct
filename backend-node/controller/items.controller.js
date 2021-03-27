@@ -5,7 +5,8 @@ const ChangeTracking = require("../models/ChangeTracking.model");
 // const nodeocc = require("node-occ");
 const occ = {}//nodeocc.occ;
 const path = require('path');
-const { getObjectId } = require('../utils/helper')
+const { getObjectId } = require('../utils/helper');
+const _ = require('lodash');
 
 exports.get = async (req, res) => {
 	try {
@@ -205,6 +206,9 @@ exports.update = async (req, res) => {
 
 		updateData.gltfjson = body.gltfjson;
 
+		if ((_.get(body, 'gltfjson.tree', []).length > 0)) {
+			updateData.assemblyType = 'Multi-Item Assembly'
+		}
 
 		updateData.fileId = body.fileId || null;
 

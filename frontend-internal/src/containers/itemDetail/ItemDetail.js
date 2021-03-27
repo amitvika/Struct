@@ -60,10 +60,7 @@ const ItemDetail = () => {
 		(async () => {
 			setIsLoading(true);
 			const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
-			// setItemDetail(get(itemDetailResponse, 'data[0]', {}));
 
-			// const itemGeometryResponse = await ItemAPI.getItemAPI(id)
-			// if (itemGeometryResponse.data) {
 			setItemProperties(get(itemDetailResponse, 'data[0]', {}));
 			setgltfjson(get(itemDetailResponse, 'data[0].gltfjson', {}))
 
@@ -103,7 +100,8 @@ const ItemDetail = () => {
 			case 7:
 				return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
 			case 8:
-				return <Assembly />;
+				return <Assembly
+					assemblyTree={get(gltfjson, 'tree', [])} />;
 			case 9:
 				return <Production />;
 			default:
