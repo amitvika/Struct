@@ -15,6 +15,7 @@ import DefaultContainer from '../../../components/DefaultContainer';
 import IdentificationModal from './identificationModal'
 
 
+
 export default function ProductOptions() {
 
     let history = useHistory();
@@ -42,12 +43,13 @@ export default function ProductOptions() {
         // { title: "Source", field: "source" },
         {
             title: 'Identification',
-            field: "id",
+            field: "identification",
             editable: "never",
             render: rowData => rowData && <span style={{ cursor: 'pointer' }}
                 onClick={(event) => {
+                    toggleModal();
                     event.stopPropagation();
-                    handleIdentificationToggle({ rowId: rowData.id })
+                    // handleIdentificationToggle({ rowId: rowData.id })
                 }}> Indentification Modal </span>
         },
     ])
@@ -62,10 +64,10 @@ export default function ProductOptions() {
         }
     }
 
-    const handleIdentificationToggle = ({ rowId }) => {
-        setIsIdentificationModalOpened(!isIdentificationModalOpened);
-        setSelectedVendorId(rowId)
-    }
+    // const handleIndentificationToggle = ({ rowId }) => {
+    //     setIsIdentificationModalOpened(!isIdentificationModalOpened);
+    //     setSelectedVendorId(rowId)
+    // }
 
     const handleAlertClose = (event, reason) => {
         setSnackBar(!snackBar);
@@ -224,17 +226,17 @@ export default function ProductOptions() {
     return (
         <div >
             <DefaultContainer
-                isHistoryModalOpened={false}
+                // isHistoryModalOpened={false}
                 title={'Vendors'}
                 selectedId={selectedVendorId}
-                handleHistoryToggle={()=>{}}
+                handleIndentificationToggle={()=> toggleModal()}
                 snackBar={snackBar}
                 handleAlertClose={handleAlertClose}
                 message={message}
                 snackBarAlertType={snackBarAlertType}>
 
                 <IdentificationModal
-                    open={isModalOpened}
+                    isModalOpened={isModalOpened}
                     toggleModal={toggleModal}
                 />
 
@@ -245,8 +247,8 @@ export default function ProductOptions() {
                     // handleSearchBar={handleSearchBar}
                     isDeletedItemVisible={isDeletedItemVisible}
                     handleShowDelete={handleShowDelete}
-                    isHistoryModalOpened={false}
-                    handleHistoryToggle={()=>{}}
+                    // isHistoryModalOpened={false}
+                    handleIndentificationToggle={()=>toggleModal()}
                     list={vendorList}
                     filteredList={filteredVendorList}
                     setFilteredList={setFilteredVendorList}
@@ -260,7 +262,7 @@ export default function ProductOptions() {
                     isGridViewSelected ?
                         <GridView
                             list={filteredVendorList}
-                            handleHistoryToggle={()=>{}}
+                            handleIndentificationToggle={()=>toggleModal()}
                             columnsFields={columnsFields}
                             handleTableRowClick={handleTableRowClick} /> :
                         <TableView

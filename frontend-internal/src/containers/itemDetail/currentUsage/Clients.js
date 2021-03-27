@@ -130,7 +130,7 @@ const Client = () => {
 		<>
 
 			<Toolbar
-				title={'Clients'}
+				// title={'Clients'}
 				isGridViewSelected={isGridViewSelected}
 				setIsGridViewSelected={setIsGridViewSelected}
 				handleSearchBar={handleSearchBar}

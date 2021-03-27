@@ -180,7 +180,7 @@ const AppNavbar = () => {
             <UncontrolledDropdown nav inNavbar className="navbar-text">
               <DropdownToggle nav caret>
                 {isAuthenticated
-                  ? `Logged in as: ${user.email}`
+                  ? `Welcome: ${user.email}`
                   : "Not logged in"}
               </DropdownToggle>
 

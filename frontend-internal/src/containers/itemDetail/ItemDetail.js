@@ -191,9 +191,10 @@ const ItemDetail = () => {
 							}
 							<Tab label="Current Usage" value={3} />
 							<Tab label="Item Type Configurations" value={4} />
-							{
-								itemProperties.vendorId && <Tab label="Vendor Details" value={5} />
-							}
+							{/* {
+								itemProperties.vendorId && 
+								<Tab label="Vendor Details" value={5} />
+							} */}
 
 
 							<Tab label="Manufacture & processing" value={6} />

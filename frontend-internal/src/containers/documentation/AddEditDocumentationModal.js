@@ -87,9 +87,9 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
             }}>
             <Fade in={open}>
                 <div className={classes.paper}>
-                    <h2 id="simple-modal-title">{isEditing ? 'Update ' : 'Add'} Documentation</h2>
+                    <h2 id="simple-modal-title">{isEditingDocument ? 'Update ' : 'Add'} Documentation</h2>
                     <p id="simple-modal-description">
-                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                        {/* Duis mollis, est non commodo luctus, nisi erat porttitor ligula. */}
       </p>
                     <Grid className="section-padding-left" container spacing={4}>
 

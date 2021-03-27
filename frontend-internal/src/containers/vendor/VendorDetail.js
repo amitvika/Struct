@@ -20,6 +20,8 @@ import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert, hideAlert } from '../../actions/alert.action';
 import IncomingVendorProducts from './IncomingVendorProducts'
 import get from 'lodash/get';
+import SuppliedItems from './SuppliedItems'
+import ProductOptions from './SuppliedItems/productOptions'
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -41,6 +43,10 @@ const VendorDetail = () => {
     if (query.get('tab')) {
       setTabIndex(parseInt(query.get('tab')))
     }
+
+  }, [query.get('tab')]);
+
+  useEffect(() => {
 
     VendorAPI.getVendorApi(id)
       .then(res => {
@@ -70,14 +76,15 @@ const VendorDetail = () => {
       case 2:
         return "pull reports base on items, and any details below";
       case 3:
-        return "signed service agreement with the current state of config.  IF there is changed configs, those changes will show up here and will indicate to reduline the contract with those new items.  Also feature of auto generate the contract will be included";
+        return <SuppliedItems />
       case 4:
         return "Shows all items to be billed for over here. configure the payments period over here. checks printing and mailing api will be linked to this ";
       case 5:
         return "shows a log of all items that do not pass vailidation along with other client complaints";
       case 6:
         return "if this vendor is a client, shows payments and billing, along with a unified net payments/billing description";
-
+      case 10:
+        return <ProductOptions />
       default:
         return "Undefined Tab Index";
     }
@@ -165,10 +172,12 @@ const VendorDetail = () => {
               {/* <Tab label="Services" value={1} /> */}
               <Tab label="Incoming Vendor Products" value={1} />
               <Tab label="Reports" value={2} />
-              <Tab label="Service Agreement" value={3} />
+              {/* <Tab label="Service Agreement" value={3} /> */}
+              <Tab label="Supplied Items" value={3} />
               <Tab label="Payments" value={4} />
               <Tab label="Validation Failures" value={5} />
               <Tab label="Vendor as Client" value={6} />
+
             </Tabs>
           </Paper>
         </Grid>
