@@ -1,14 +1,6 @@
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
-//import request from 'axios';
-
-// import { Global, css } from "@emotion/core";//@linaria/core
-//import { Global, css } from "@linaria/core";
-// import { styles } from "./styles/css"
-
-
 import GLTFRenderer from "./GltfRenderer";
-//import Downloader from "./Downloader";
 import DisplayTree from "./DisplayTree";
 import Slider from "./Slider/components/Slider";
 import {
@@ -17,8 +9,6 @@ import {
 } from "./Tree/utils";
 import Select from "./DropDown";
 import { upload3DFile, getGLTFJson, getSplitFiles, getHierarchySplitFiles, getAllTextures, getAllFiles } from '../api/fileUpload.api'
-//import { NoToneMapping } from 'three';
-//import { runInThisContext } from 'vm';
 import './style.css';
 
 const DEFAULTSPLITS = {
@@ -634,13 +624,13 @@ class DropZone extends Component {
 
 	TableSplitPaneLeft = (props) => {
 
-		return <div {...props} className="split-pane-left" style={{ width: "100%", height: "100%" }}>{this.getFileList()}</div>
+		return <div {...props} style={{ width: "100%", height: "100%" }}>{this.getFileList()}</div>
 
 	};
 
 	TableSplitPaneRight = (props) => {
 
-		return <div {...props} className="split-pane-right" style={{ width: "100%", height: "100%" }} >
+		return <div {...props} style={{ width: "100%", height: "100%" }} >
 			<div id="rowcontent">
 				<GLTFRenderer gltfjson={this.state.gltfjson} gltfobj={this.state.gltfobj}
 					activefile={this.state.activefile} backcolor={this.state.datacolor}
@@ -653,9 +643,6 @@ class DropZone extends Component {
 			</div>
 		</div>;
 	};
-
-
-
 
 	onDrop = async (files) => {
 		this.setState({
@@ -690,6 +677,7 @@ class DropZone extends Component {
 
 		});
 	};
+
 	getFiles = () => {
 		this.setState({
 			files: [],
@@ -730,6 +718,7 @@ class DropZone extends Component {
 				this.setStateLoadingContent(false);
 			});
 	}
+
 	getView = (id) => {
 		this.setStateLoadingContent(true);
 		getGLTFJson(id)
@@ -802,6 +791,7 @@ class DropZone extends Component {
 			})
 
 	};
+
 	getHierarchySplit = (id, includeParts, index) => {
 		this.setStateLoadingContent(true);
 		getHierarchySplitFiles(id, includeParts,
@@ -894,6 +884,7 @@ class DropZone extends Component {
 			accent: '#bcd' // the colour used for row borders and empty file indicators
 		}
 	}
+
 	hierarchy = (
 		data = [],
 		{ idKey = 'id', parentKey = 'parentId', childrenKey = 'items' } = {}
@@ -913,66 +904,9 @@ class DropZone extends Component {
 		return tree;
 	}
 
-	/* toggleSubRow = (rows, id) => {
-		const rowIndex = rows.findIndex(r => r.id === id);
-		const row = rows[rowIndex];
-		const { children } = row;
-		if (!children) return rows;
-	  
-		const newRows = [...rows];
-		newRows[rowIndex] = { ...row, isExpanded: !row.isExpanded };
-		if (!row.isExpanded) {
-		  newRows.splice(rowIndex + 1, 0, ...children);
-		} else {
-		  newRows.splice(rowIndex + 1, children.length);
-		}
-		return newRows;
-	} */
-	/* dataColumns =  [
-			{
-				dataIndex: 'name',
-				sortable: false,
-				expandable: true,					
-				name: 'Assembly Name'
-				},
-		  
-			{
-				dataIndex: 'topLeft',
-				name: 'Top Left',
-				renderer: (ob) =>  {
-				  console.log(ob);
-				  return (
-					<>
-					{ ob.row.topLeft && (
-					  <div className="rdg-cell-value">
-					   
-						  x : {ob.row.topLeft[0] } y : {ob.row.topLeft[1] } z : {ob.row.topLeft[2] }
-					   
-					  </div>
-					)}
-					</>
-				  );
-				}
-			},
-		]; */
-
 	render() {
 
-
-		/* let dataRows = this.hierarchy(this.state.splitfiles.tree,{childrenKey:"children"});
-		console.log(dataRows);
-		if ( dataRows && !!dataRows.length)  { 
-			dataRows = {  
-				"root": {
-					"id":-1,
-					"Name":"Root",
-					"children": [dataRows]
-				}
-			}; 
-		};*/
-
 		return <>
-			{/* <div {...styles} /> */}
 			<table style={{ width: "100%", height: "100%" }} >
 				<tbody>
 					<tr>
@@ -987,13 +921,6 @@ class DropZone extends Component {
 			</table>
 
 		</>
-		/* return <>
-				<Global {...styles} /> 
-				<this.SplitPane>
-				<this.SplitPaneLeft />
-				<this.SplitPaneRight />			
-				</this.SplitPane>
-					 </> */
 	}
 }
 

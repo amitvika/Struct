@@ -67,11 +67,6 @@ export const styles = css`
 		margin: 0;
 		padding: 0;
 	}
-
-	table {
-    width: 100%;
-    table-layout: fixed;
-  }
   
 	.caret {
 		cursor: pointer;		

@@ -3,35 +3,6 @@
 	
 	}
 
-	#rowheader {
-		
-		width: 100%;
-		height:30%; 
-    	overflow-y: scroll;
-		background-color:red;
-	}
-
-	#rowcontent {	
-	
-		padding-bottom: 2px; 
-		height: 70%;
-		background-color:blue;
-	}
-
-	.gui-wrap {
-	  position: absolute;
-	  top:0;
-	  right: 0;
-	  bottom: 0;
-	  pointer-events: none;
-	}
-
-	.gui-wrap > .main {
-	  pointer-events: all;
-	  max-height: 100%;
-	  overflow: auto;
-	}
-
 	.dg li.gui-stats:not(.folder) {
 	  height: auto;
 	}
@@ -49,11 +20,6 @@
 		margin: 0;
 		padding: 0;
 	}
-
-	table {
-    width: 100%;
-    table-layout: fixed;
-  }
   
 	.caret {
 		cursor: pointer;		

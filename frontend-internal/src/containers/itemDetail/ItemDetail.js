@@ -65,8 +65,7 @@ const ItemDetail = () => {
 			// const itemGeometryResponse = await ItemAPI.getItemAPI(id)
 			// if (itemGeometryResponse.data) {
 			setItemProperties(get(itemDetailResponse, 'data[0]', {}));
-			// setThreejsData(itemGeometryResponse.data)
-			// }
+			setgltfjson(get(itemDetailResponse, 'data[0].gltfjson', {}))
 
 			setIsLoading(false);
 		})()

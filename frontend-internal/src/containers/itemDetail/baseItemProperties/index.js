@@ -20,7 +20,7 @@ import ProcessGroupAPI from '../../../api/processGroup.api'
 import ItemAPI from '../../../api/items.api';
 
 import GLTFRenderer from '../../../gltf/GltfRenderer';
-import { upload3DFile, getGLTFJson } from '../../../api/fileUpload.api'
+import { upload3DFile, getHierarchySplitFiles } from '../../../api/fileUpload.api'
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
 
 import '../style.css';
@@ -37,11 +37,11 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
   const [files, setFiles] = useState([])
   const [isFileLoadingLoading, setIsFileLoadingLoading] = useState(false);
 
-  useEffect(() => {
-    if (itemProperties.fileId) {
-      getView(itemProperties.fileId)
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (itemProperties.fileId) {
+  //     getView(itemProperties.fileId)
+  //   }
+  // }, [])
 
   const handleFileUpload = (data) => {
     setIsLoading(true);
@@ -82,9 +82,14 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
 
   const getView = (fileId) => {
     setIsFileLoadingLoading(true)
-    getGLTFJson(fileId)
+    getHierarchySplitFiles(fileId)
       .then(res => res.data)
       .then((data) => {
+        setItemProperties(prevData => ({
+          ...prevData,
+          gltfjson: data
+        }));
+
         setgltfjson(data)
         setIsFileLoadingLoading(false);
 
@@ -139,7 +144,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
       <Paper style={{ padding: 20, margin: 10 }}>
         {
           Object.keys(gltfjson).length > 0 && !isFileLoadingLoading &&
-          <GLTFRenderer gltfjson={gltfjson} activefile={fileId} />
+          <GLTFRenderer gltfjson={JSON.stringify(gltfjson)} activefile={fileId} />
         }
         {
           isFileLoadingLoading && <CircularProgress />

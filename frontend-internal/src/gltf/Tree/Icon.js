@@ -56,10 +56,15 @@ const Icon = (props) => {
         transition={{ duration: 1, ease: 'linear', loop: Infinity }}
         size={size}
         {...rest}
-        dangerouslySetInnerHTML={setHTML(icon ? AppIcons[icon] : null)}
-      ></IconContainer>
+      // dangerouslySetInnerHTML={setHTML(icon ? <img src={AppIcons[icon]} /> : null)}
+      >
+        <img style={{ width: '15px', height: '15px' }} src={AppIcons[icon]} />
+      </IconContainer>
     )
   ) : null
+
+
+  { console.log('--icon-', icon, AppIcons[icon]) }
 
   return Render
 }

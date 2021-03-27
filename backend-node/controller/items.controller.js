@@ -203,6 +203,9 @@ exports.update = async (req, res) => {
 			updateData.selectedClientId = body.selectedClientId;
 		}
 
+		updateData.gltfjson = body.gltfjson;
+
+
 		updateData.fileId = body.fileId || null;
 
 		if ((body.itemGeometry && body.itemGeometry.isEndProductSelected === false) || body.selectedClientId === null) {

@@ -33,7 +33,7 @@ const ItemSchema = new mongoose.Schema({
 	itemGeometry: { type: Object },
 	itemTypeConfiguration: { type: Object },
 	vendorDetails: { type: Object },
-	step: {
+	gltfjson: {
 		type: Object
 	},
 	stl: { type: String },

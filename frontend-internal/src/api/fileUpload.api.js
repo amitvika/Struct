@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // const host = `https://cadapi.struct.services/api/v0`;
-const baseURL = `https://cadapi.struct.services`//process.env.REACT_APP_GLTF_CONVERTER;
+const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
+// const baseURL = `https://cadapi.struct.services`
 
 const url = `${baseURL}/api/v0`
 
