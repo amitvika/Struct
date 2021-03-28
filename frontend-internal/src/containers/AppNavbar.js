@@ -27,7 +27,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from "../actions/authActions";
 import { setThemeAction } from '../actions/theme.action'
 
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Grow from '@material-ui/core/Grow';
+import Paper from '@material-ui/core/Paper';
+import Popper from '@material-ui/core/Popper';
+import MenuItem from '@material-ui/core/MenuItem';
+import MenuList from '@material-ui/core/MenuList';
+import { Typography } from "@material-ui/core";
 
 const ThemeSwitch = withStyles({
   switchBase: {
@@ -43,9 +51,28 @@ const ThemeSwitch = withStyles({
   track: {},
 })(Switch);
 
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+  },
+  paper: {
+    marginRight: theme.spacing(2),
+  },
+  profile_container: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer'
+  }
+}));
+
 const AppNavbar = () => {
   const dispatch = useDispatch();
   const history = useHistory();
+
+  const classes = useStyles();
+  const [open, setOpen] = React.useState(false);
+  const anchorRef = React.useRef(null);
 
   const { isAuthenticated, user } = useSelector(state => state.auth);
   const themeName = useSelector(state => state.theme.curThemeName);
@@ -82,6 +109,36 @@ const AppNavbar = () => {
       dispatch(setThemeAction({ themeName: 'lightTheme' }))
     }
   };
+
+
+  const handleToggle = () => {
+    setOpen((prevOpen) => !prevOpen);
+  };
+
+  const handleClose = (event) => {
+    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  function handleListKeyDown(event) {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      setOpen(false);
+    }
+  }
+
+  // return focus to the button when we transitioned from !open -> open
+  const prevOpen = React.useRef(open);
+  React.useEffect(() => {
+    if (prevOpen.current === true && open === false) {
+      anchorRef.current.focus();
+    }
+
+    prevOpen.current = open;
+  }, [open]);
 
   const authLinks = (
     <>
@@ -147,7 +204,7 @@ const AppNavbar = () => {
             Items
             </NavLink>
 
-            <NavLink
+          <NavLink
             className="navbar-text"
             to='/factories'
             tag={RRNavLink}>
@@ -169,15 +226,54 @@ const AppNavbar = () => {
           <Nav className="ml-auto " navbar>
             <div>
               <NavLink
-                className="navbar-text mt-2 mr-1"
+                className="navbar-text"
                 to='/configuration-history'
                 tag={RRNavLink}>
                 Configuration History
                 </NavLink>
-              <NavLink className="navbar-text mt-2 mr-1 disabled">|</NavLink>
+              <NavLink className="navbar-text disabled">|</NavLink>
             </div>
 
-            <UncontrolledDropdown nav inNavbar className="navbar-text">
+            <div className={classes.profile_container}>
+              <Typography
+                ref={anchorRef}
+                aria-controls={open ? 'menu-list-grow' : undefined}
+                aria-haspopup="true"
+                onClick={handleToggle}
+                style={{color: 'white', fontSize: 14}}
+              >
+                {isAuthenticated
+                  ? `Welcome: ${user.email}`
+                  : "Not logged in"}
+              </Typography>
+            </div>
+            <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+              {({ TransitionProps, placement }) => (
+                <Grow
+                  {...TransitionProps}
+                  style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+                >
+                  <Paper>
+                    <ClickAwayListener onClickAway={handleClose}>
+                      <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
+                        {user && user.userAccess && user.userAccess.access.OA_1_V && (
+                          <MenuItem onClick={() => history.push('/user-setup')}>User Setup</MenuItem>
+
+                        )}
+                        <MenuItem onClick={() => history.push('/view-access')}> View My Profile</MenuItem>
+                        <MenuItem>
+                          <Switch checked={lightThemeSelected} onChange={handleThemeChange} name="currentTheme" />
+                          {lightThemeSelected ? 'Dark' : 'Light'}
+                        </MenuItem>
+                        <MenuItem onClick={handleClose}>Logout</MenuItem>
+                      </MenuList>
+                    </ClickAwayListener>
+                  </Paper>
+                </Grow>
+              )}
+            </Popper>
+
+            {/* <UncontrolledDropdown nav inNavbar className="navbar-text">
               <DropdownToggle nav caret>
                 {isAuthenticated
                   ? `Welcome: ${user.email}`
@@ -214,11 +310,12 @@ const AppNavbar = () => {
 
                 {isAuthenticated ? authLinks : guestLinks}
               </DropdownMenu>
-            </UncontrolledDropdown>
+            </UncontrolledDropdown> */}
           </Nav>
         </Collapse>
       </Navbar>
     </div >
   );
 }
+
 export default AppNavbar;
