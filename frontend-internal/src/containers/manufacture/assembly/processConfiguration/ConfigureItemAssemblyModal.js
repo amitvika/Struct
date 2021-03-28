@@ -91,7 +91,7 @@ export default function ConfigureItemAssembly({
 									{ label: 'Weld', value: 'Weld' },
 									{ label: 'Brazing', value: 'Brazing' }
 								]}
-								value={selectedAssemblySequence?.fasteningMethods ? selectedAssemblySequence?.fasteningMethods : []}
+								value={selectedAssemblySequence?.fasteningMethods || []}
 								onChange={data => handleUpdateAssemblySequence({ fasteningMethods: data })}
 							/>
 						</Grid>
@@ -101,7 +101,7 @@ export default function ConfigureItemAssembly({
 								{
 									selectedAssemblySequence?.fasteningMethods && selectedAssemblySequence?.fasteningMethods.map(fs => {
 										return (
-											<FormControlLabel value={fs.label} control={<Radio onClick={handleChange} />} label={fs.label} />
+											<FormControlLabel value={fs} control={<Radio onClick={handleChange} />} label={fs} />
 										)
 									})
 								}

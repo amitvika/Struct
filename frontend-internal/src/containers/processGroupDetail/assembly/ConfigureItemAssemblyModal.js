@@ -86,11 +86,11 @@ export default function ConfigureItemAssembly({
 								return (
 									<Grid item xs={12} style={{ display: 'flex' }}>
 										<Grid item xs={6} style={{ alignItems: 'center', display: 'flex' }}>
-											<Headding title={fs.label}></Headding>
+											<Headding title={fs}></Headding>
 										</Grid>
 										<Grid item xs={6}>
 											<Radio
-												value={fs.label}
+												value={fs}
 												name="radio-button-demo"
 												inputProps={{ 'aria-label': 'A' }}
 											/>

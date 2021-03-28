@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-} from "reactstrap";
 import MaterialTable from "material-table";
 import ConfigurationHistoryAPI from '../api/configurationHistory.api';
+import Modal from './Modal';
 
 const ShowHistoryModal = ({ isVisible, pageName, selectedItemId, handleHistoryToggle }) => {
 
@@ -66,29 +62,28 @@ const ShowHistoryModal = ({ isVisible, pageName, selectedItemId, handleHistoryTo
   }
 
   return (
-    <div>
-      <Modal isOpen={isModalVisible} toggle={handleModalToggle}>
-        <ModalHeader toggle={handleModalToggle}>History</ModalHeader>
-        <ModalBody>
-          <MaterialTable
-            columns={[
-              { title: "Changed By", field: "user" },
-              { title: "Client", field: "client" },
-              { title: "Table", field: "model" },
-              { title: "Change Type", field: "type" },
-              { title: "Updated Item Id", field: "updatedItem" },
-              { title: "Change Date/Time", field: "time" }
-            ]}
-            data={query => handleQuery(query)}
-            title="Configuration History"
-            detailPanel={rowData => {
-              return "Update: " + JSON.stringify(rowData.update);
-            }}
-            onRowClick={(event, rowData, togglePanel) => togglePanel()}
-          />
-        </ModalBody>
-      </Modal>
-    </div>
+    <Modal
+      open={isModalVisible}
+      toggleModal={handleModalToggle}
+      title={'History'}
+    >
+      <MaterialTable
+        columns={[
+          { title: "Changed By", field: "user" },
+          { title: "Client", field: "client" },
+          { title: "Table", field: "model" },
+          { title: "Change Type", field: "type" },
+          { title: "Updated Item Id", field: "updatedItem" },
+          { title: "Change Date/Time", field: "time" }
+        ]}
+        data={query => handleQuery(query)}
+        title="Configuration History"
+        detailPanel={rowData => {
+          return "Update: " + JSON.stringify(rowData.update);
+        }}
+        onRowClick={(event, rowData, togglePanel) => togglePanel()}
+      />
+    </Modal>
   );
 }
 

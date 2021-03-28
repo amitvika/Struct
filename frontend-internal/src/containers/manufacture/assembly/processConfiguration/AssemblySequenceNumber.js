@@ -60,7 +60,7 @@ export default function AssemblySequenceNumber({
 					</Grid>
 					<Grid item xs={8} style={{ display: 'flex', flexDirection: 'column' }}>
 						{
-							data.fasteningMethods && data.fasteningMethods.map(fs => fs.label).join(', ')
+							data.fasteningMethods && data.fasteningMethods.join(', ')
 						}
 					</Grid>
 				</Grid>

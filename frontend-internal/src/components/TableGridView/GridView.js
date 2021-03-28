@@ -27,7 +27,8 @@ const useStyles = makeStyles((theme) => ({
 		cursor: 'pointer',
 		transition: '0.3s',
 		"&:hover, &:focus": {
-			backgroundColor: '#DCDCDC'
+			backgroundColor: '#DCDCDC',
+			color: "#000000"
 		}
 	},
 

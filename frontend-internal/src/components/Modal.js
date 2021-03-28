@@ -32,29 +32,31 @@ export default function MainModal({ title, open, toggleModal, children }) {
 
 
     return (
-        <Modal
-            aria-labelledby="transition-modal-title"
-            aria-describedby="transition-modal-description"
-            className={classes.modal}
-            open={open}
-            onClose={toggleModal}
-            closeAfterTransition
-            BackdropComponent={Backdrop}
-            BackdropProps={{
-                timeout: 500,
-            }}
-        >
-            <Fade in={open} >
-                <Paper className={classes.paper} >
+        <div>
+            <Modal
+                aria-labelledby="transition-modal-title"
+                aria-describedby="transition-modal-description"
+                className={classes.modal}
+                open={open}
+                onClose={toggleModal}
+                closeAfterTransition
+                BackdropComponent={Backdrop}
+                BackdropProps={{
+                    timeout: 500,
+                }}
+            >
+                <Fade in={open} >
+                    <Paper className={classes.paper} >
 
-                    <h2 id="simple-modal-title">{title}</h2>
-                    <p id="simple-modal-description">
-                       
+                        <h2 id="simple-modal-title">{title}</h2>
+                        <p id="simple-modal-description">
+
                         </p>
-                    {children}
-                </Paper>
+                        {children}
+                    </Paper>
 
-            </Fade>
-        </Modal>
+                </Fade>
+            </Modal>
+        </div>
     )
 }

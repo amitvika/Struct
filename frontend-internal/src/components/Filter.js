@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Grid, Paper, Icon, Button } from '@material-ui/core';
-import SelectCheckboxes from './atoms/SelectCheckboxes';
+import Select from './atoms/Select';
 
 export default function Filter({
 	list = [],
@@ -25,7 +25,7 @@ export default function Filter({
 				const fieldValues = selectedFields[key];
 
 				if (flag && fieldValues.length > 0) {
-					flag = fieldValues.some((f) => f.label === el[key]);
+					flag = fieldValues.some((f) => f === el[key]);
 				}
 			});
 
@@ -65,12 +65,21 @@ export default function Filter({
 			let tempValue = array[i][field];
 			if (tempValue && tempValue.trim().length > 0) {
 				flags[array[i][field]] = true;
-				output.push({ label: array[i][field], value: array[i][field] });
+				output.push(array[i][field]);
 			}
 		}
 		return output;
 	}
 
+
+	const getValues = (field) => {
+		if(selectedFields[field]){
+			return selectedFields[field]
+		}
+		else {
+			return [""]
+		}
+	}
 
 	const renderItem = () => {
 		let item = [];
@@ -78,10 +87,14 @@ export default function Filter({
 		Object.keys(columnsFields).forEach(fieldItem => {
 			item.push(
 				<Grid item sm sm={2}>
-					<SelectCheckboxes
+					<Select
+						isCheckbox
+						isMulti
 						onChange={(data) => handleChange(data, fieldItem)}
 						options={get_unique_options(fieldItem)}
-						placeholder={`Select ${columnsFields[fieldItem]}`} />
+						placeholder={`Select ${columnsFields[fieldItem]}`}
+						value={getValues(fieldItem)}
+					/>
 				</Grid>
 			)
 		})

@@ -2,15 +2,19 @@ import React, { useState } from 'react';
 import { MuiThemeProvider } from "@material-ui/core";
 import { getThemeByName } from './themes/base';
 import { useSelector } from 'react-redux';
+import CssBaseline from "@material-ui/core/CssBaseline";
 
 const ThemeProvider = (props) => {
-    const themeName =  useSelector(state => state.theme.curThemeName)
-    
+    const themeName = useSelector(state => state.theme.curThemeName)
+
     // Retrieve the theme object by theme name
     const theme = getThemeByName(themeName);
 
     return (
-        <MuiThemeProvider theme={theme}>{props.children}</MuiThemeProvider>
+        <MuiThemeProvider theme={theme}>
+            <CssBaseline />
+            {props.children}
+        </MuiThemeProvider>
     );
 }
 
