@@ -1,4 +1,4 @@
 import Input from './Input';
-import './style.css';
+// import './style.css';
 
 export default Input;

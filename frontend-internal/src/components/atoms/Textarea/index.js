@@ -1,4 +1,4 @@
 import Textarea from './Textarea';
-import './style.css';
+// import './style.css';
 
 export default Textarea;

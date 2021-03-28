@@ -27,7 +27,7 @@ const TableGridView = ({
 	const [filteredList, setFilteredList] = useState([]);
 
 	const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
-	const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
+	const [isViewArchivedChecked, setIsViewArchivedChecked] = useState(false);
 	const [isGridViewSelected, setIsGridViewSelected] = useState(true);
 	const [isModalOpened, setIsModalOpened] = useState(false);
 	const [selectedListItem, setSelectedListItem] = useState(null);
@@ -55,8 +55,8 @@ const TableGridView = ({
 	}, []);
 
 
-	const handleShowDelete = () => {
-
+	const handleViewArchived = () => {
+		setIsViewArchivedChecked(!isViewArchivedChecked)
 	};
 
 	const handleHistoryToggle = ({ rowId }) => {
@@ -149,7 +149,7 @@ const TableGridView = ({
 		if (isGridViewSelected) {
 			return (
 				<GridView
-					list={filteredList}
+					list={getFilteredList()}
 					handleHistoryToggle={handleHistoryToggle}
 					columnsFields={fields}
 					handleTableRowClick={handleTableRowClick}
@@ -160,13 +160,23 @@ const TableGridView = ({
 			return (
 
 				<TableView
-					list={filteredList}
+					list={getFilteredList()}
 					columns={fields}
 					handleTableRowClick={handleTableRowClick}
 					isActionHidden={true}
 				/>
 			)
 		}
+	}
+
+	const getFilteredList = () => {
+		return filteredList.filter(item => {
+			console.log(isViewArchivedChecked, item.is_archived)
+			if (isViewArchivedChecked == item.is_archived) {
+				return true;
+			}
+			return false
+		});
 	}
 
 	if (isLoading) {
@@ -209,12 +219,12 @@ const TableGridView = ({
 				isGridViewSelected={isGridViewSelected}
 				setIsGridViewSelected={setIsGridViewSelected}
 				handleSearchBar={handleSearchBar}
-				isDeletedItemVisible={isDeletedItemVisible}
-				handleShowDelete={handleShowDelete}
+				isViewArchivedChecked={isViewArchivedChecked}
+				handleViewArchived={handleViewArchived}
 				isHistoryModalOpened={isHistoryModalOpened}
 				handleHistoryToggle={handleHistoryToggle}
 				list={list}
-				filteredList={filteredList}
+				filteredList={getFilteredList()}
 				setFilteredList={setFilteredList}
 				columnsFields={fields}
 				isCustomAddButtonVisible={true}

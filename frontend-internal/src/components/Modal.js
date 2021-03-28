@@ -4,7 +4,7 @@ import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import { makeStyles } from '@material-ui/core/styles';
 import { Paper, Grid } from '@material-ui/core';
-
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -12,7 +12,6 @@ const useStyles = makeStyles((theme) => ({
         top: '10%',
         left: '10%',
         overflow: 'scroll',
-        height: '100%',
         display: 'block'
     },
     paper: {
@@ -32,31 +31,28 @@ export default function MainModal({ title, open, toggleModal, children }) {
 
 
     return (
-        <div>
-            <Modal
-                aria-labelledby="transition-modal-title"
-                aria-describedby="transition-modal-description"
-                className={classes.modal}
-                open={open}
-                onClose={toggleModal}
-                closeAfterTransition
-                BackdropComponent={Backdrop}
-                BackdropProps={{
-                    timeout: 500,
-                }}
-            >
-                <Fade in={open} >
-                    <Paper className={classes.paper} >
+        <Modal
+            aria-labelledby="transition-modal-title"
+            aria-describedby="transition-modal-description"
+            className={classes.modal}
+            open={open}
+            onClose={toggleModal}
+            closeAfterTransition
+            BackdropComponent={Backdrop}
+            BackdropProps={{
+                timeout: 500,
+            }}
+        >
+            <Fade in={open} >
+                <Paper className={classes.paper} >
 
-                        <h2 id="simple-modal-title">{title}</h2>
-                        <p id="simple-modal-description">
+                    <h2 id="simple-modal-title">{title}</h2>
+                    <p id="simple-modal-description">
 
-                        </p>
-                        {children}
-                    </Paper>
-
-                </Fade>
-            </Modal>
-        </div>
-    )
+                    </p>
+                    {children}
+                </Paper>
+            </Fade>
+        </Modal>
+    );
 }

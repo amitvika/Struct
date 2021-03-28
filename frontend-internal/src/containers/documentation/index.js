@@ -12,7 +12,6 @@ import TableGridView from '../../components/TableGridView';
 import AddEditDocumentationModal from './AddEditDocumentationModal';
 import { NavLink, useParams } from "react-router-dom";
 import get from 'lodash/get';
-import GridView from "./GridView";
 
 const Documentation = () => {
 	
@@ -176,7 +175,6 @@ const Documentation = () => {
 			fetchList={() => DocumentationAPI.fetchDocumentations(`client_id=${client_id}`)}
 			upsertListItem={(value) => DocumentationAPI.upsertDocumentation({ ...value, client_id })}
 			AddUpdateModal={AddEditDocumentationModal}
-			CustomGridView={GridView}
 		/>
 	);
 }

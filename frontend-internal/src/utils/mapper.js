@@ -27,7 +27,8 @@ export const mapDocumentations = (data) => {
                 note: item.note,
                 file_url: item.file_url,
                 created_by: item?.created_by?.name,
-                updated_by: item?.updated_by?.name
+                updated_by: item?.updated_by?.name,
+                is_archived: item?.is_archived
             }
         })
     }

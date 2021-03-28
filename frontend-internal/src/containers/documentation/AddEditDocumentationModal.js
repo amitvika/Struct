@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
-// import FileViewer from 'react-file-viewer';
-import Backdrop from '@material-ui/core/Backdrop';
-import Fade from '@material-ui/core/Fade';
 import {
     Select,
     Input,
     Textarea,
     Headding
 } from '../../components';
+import Modal from '../../components/Modal'
 import { uploadFileS3Bucket } from '../../api/aws';
 import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
+import Popover from '@material-ui/core/Popover';
+import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -25,29 +24,39 @@ const useStyles = makeStyles((theme) => ({
         display: 'block'
     },
     paper: {
-        backgroundColor: theme.palette.background.paper,
-        border: '2px solid #000',
-        boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
-        marginLeft: '20%',
-        marginRight: '20%'
+        padding: theme.spacing(1),
+    },
+    popover: {
+        pointerEvents: 'none',
     },
 }));
 
-export default function AddDocumentationModal({ open, toggleModal, handleUpdate, isEditingDocument, selectedDocument }) {
+export default function AddDocumentationModal({ open, toggleModal, handleUpdate, isEditingDocument, selectedListItem }) {
     const classes = useStyles();
     // const [docs, setdocs] = useState([]);
     const [selectedFileName, setSelectedFileName] = useState('');
     const [documentValue, setdocumentValue] = useState({});
 
+    const [anchorEl, setAnchorEl] = React.useState(null);
+
+    const handlePopoverOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handlePopoverClose = () => {
+        setAnchorEl(null);
+    };
+
+    const isPopoverOpen = Boolean(anchorEl);
+
     useEffect(() => {
-        if (selectedDocument) {
-            setdocumentValue(selectedDocument)
+        if (selectedListItem) {
+            setdocumentValue(selectedListItem)
         }
         else {
             setdocumentValue({});
         }
-    }, [selectedDocument])
+    }, [selectedListItem])
 
     const handleOnChange = (name, value) => {
         setdocumentValue(preValue => ({
@@ -73,106 +82,128 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
         toggleModal();
     }
 
+    const handleArchive = () => {
+        setdocumentValue(preValue => ({
+            ...preValue,
+            is_archived: preValue.is_archived ? false : true
+        }))
+
+    }
+
     return (
         <Modal
-            aria-labelledby="transition-modal-title"
-            aria-describedby="transition-modal-description"
-            className={classes.modal}
             open={open}
-            onClose={toggleModal}
-            closeAfterTransition
-            BackdropComponent={Backdrop}
-            BackdropProps={{
-                timeout: 500,
-            }}>
-            <Fade in={open}>
-                <div className={classes.paper}>
-                    <h2 id="simple-modal-title">{isEditingDocument ? 'Update ' : 'Add'} Documentation</h2>
-                    <p id="simple-modal-description">
-                        {/* Duis mollis, est non commodo luctus, nisi erat porttitor ligula. */}
-      </p>
-                    <Grid className="section-padding-left" container spacing={4}>
+            toggleModal={toggleModal}
+            title={`${isEditingDocument ? 'Update ' : 'Add'} Documentation`}
+        >
+            <Grid className="section-padding-left" container spacing={4}>
+                <Grid item xs={12} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        aria-owns={isPopoverOpen ? 'mouse-over-popover' : undefined}
+                        aria-haspopup="true"
+                        onMouseEnter={handlePopoverOpen}
+                        onMouseLeave={handlePopoverClose}
+                        onClick={handleArchive}>
+                        {`${documentValue.is_archived ? 'Unarchive' : 'Archive'}`}
+                    </Button>
+                    <Popover
+                        id="mouse-over-popover"
+                        className={classes.popover}
+                        classes={{
+                            paper: classes.paper,
+                        }}
+                        open={isPopoverOpen}
+                        anchorEl={anchorEl}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}
+                        onClose={handlePopoverClose}
+                        disableRestoreFocus
+                    >
+                        <Typography>Archive is the same thing as deleting except you can "un-delete" an item if you need it again</Typography>
+                    </Popover>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'Name'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                placeholder="Enter"
-                                type="text"
-                                onChange={(event) => handleOnChange('name', event.target.value)}
-                                value={documentValue.name}
-                            />
-                        </Grid>
+                </Grid>
+                <Grid item xs={4}>
+                    <Headding bold title={'Name'} />
+                </Grid>
+                <Grid item xs={8}>
+                    <Input
+                        placeholder="Enter"
+                        type="text"
+                        onChange={(event) => handleOnChange('name', event.target.value)}
+                        value={documentValue.name}
+                    />
+                </Grid>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'Category'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Select
-                                placeholder="Select"
-                                options={[
-                                    { label: "Requirements", value: "Requirements" },
-                                    { label: 'Service Agreement', value: 'Service Agreement' },
-                                    { label: 'Communications', value: 'Communications' }
-                                ]}
-                                onChange={(data) => handleOnChange('category', data.value)}
-                                value={documentValue.category && { label: documentValue.category }}
-                            />
-                        </Grid>
+                <Grid item xs={4}>
+                    <Headding bold title={'Category'} />
+                </Grid>
+                <Grid item xs={8}>
+                    <Select
+                        placeholder="Select"
+                        options={[
+                            { label: "Requirements", value: "Requirements" },
+                            { label: 'Service Agreement', value: 'Service Agreement' },
+                            { label: 'Communications', value: 'Communications' }
+                        ]}
+                        onChange={(data) => handleOnChange('category', data.value)}
+                        value={documentValue.category && { label: documentValue.category }}
+                    />
+                </Grid>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'Note'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Textarea
-                                placeholder="Enter"
-                                onChange={(event) => handleOnChange('note', event.target.value)}
-                                value={documentValue.note}
-                            />
-                        </Grid>
+                <Grid item xs={4}>
+                    <Headding bold title={'Note'} />
+                </Grid>
+                <Grid item xs={8}>
+                    <Textarea
+                        placeholder="Enter"
+                        onChange={(event) => handleOnChange('note', event.target.value)}
+                        value={documentValue.note}
+                    />
+                </Grid>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'Upload File'} />
-                        </Grid>
-                        <Grid item xs={8} style={{ display: 'flex' }}>
-                            <div>
-                                <Button
-                                    variant="contained"
-                                    component="label">
-                                    Select File
+                <Grid item xs={4}>
+                    <Headding bold title={'Upload File'} />
+                </Grid>
+                <Grid item xs={8} style={{ display: 'flex' }}>
+                    <div>
+                        <Button
+                            variant="contained"
+                            component="label">
+                            Select File
                             <input
-                                        onChange={onChange}
-                                        type="file"
-                                        hidden
-                                    />
-                                </Button>
-                            </div>
-                        </Grid>
-                        {
-                            documentValue.file_url &&
-                            <Grid item xs={12}>
-                                <DocViewer
-                                    pluginRenderers={DocViewerRenderers}
-                                    documents={[{ uri: documentValue.file_url }]} />
-                            </Grid>
-                        }
-
-
-
-                        <Grid item xs={6} className={classes.action_button}>
-                            <Button variant="contained" color="secondary" onClick={toggleModal}>
-                                Cancel
-                            </Button>
-                        </Grid>
-                        <Grid item xs={6} className={classes.action_button}>
-                            <Button variant="contained" color="primary" onClick={handleSaveButton}>
-                                {isEditingDocument ? 'Update' : 'Save'}
-                            </Button>
-                        </Grid>
+                                onChange={onChange}
+                                type="file"
+                                hidden
+                            />
+                        </Button>
+                    </div>
+                </Grid>
+                {
+                    documentValue.file_url &&
+                    <Grid item xs={12}>
+                        <DocViewer
+                            pluginRenderers={DocViewerRenderers}
+                            documents={[{ uri: documentValue.file_url }]} />
                     </Grid>
-                </div>
-            </Fade>
-        </Modal>
+                }
+
+
+                <Grid item xs={12} className={classes.action_button}>
+                    <Button variant="contained" color="primary" onClick={handleSaveButton} style={{ width: '100%' }}>
+                        {isEditingDocument ? 'Update' : 'Save'}
+                    </Button>
+                </Grid>
+            </Grid>
+
+        </Modal >
     );
 }

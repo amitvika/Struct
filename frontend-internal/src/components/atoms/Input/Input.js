@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import TextField from '@material-ui/core/TextField';
 
 // placeholder
-const Input = ({
+const InputComponent = ({
   disabled, label, htmlFor, size, width, rounded, field = {}, type, containerStyle, rightLabel, ...props
 }) => {
   // state
@@ -28,20 +29,27 @@ const Input = ({
         </label>
       )}
       <span className="inp-field-cont">
-        <input
+        {/* <input
           className={rightLabel && 'padding-right-input'}
           {...field}
           {...props}
           type={type === 'password' ? (isPasswordVisible ? 'text' : 'password') : type}
           disabled={disabled}
-        />
+        /> */}
+        <TextField
+          variant="outlined"
+          {...field}
+          {...props}
+          type={type === 'password' ? (isPasswordVisible ? 'text' : 'password') : type}
+          disabled={disabled}
+          style={{ width: '100%' }} />
         {rightLabel && <div className="input-right-label">{rightLabel}</div>}
       </span>
     </div>
   );
 };
 
-Input.propTypes = {
+InputComponent.propTypes = {
   htmlFor: PropTypes.string,
   label: PropTypes.string,
   size: PropTypes.string,
@@ -50,8 +58,8 @@ Input.propTypes = {
   field: PropTypes.shape()
 };
 
-Input.defaultProps = {
+InputComponent.defaultProps = {
   htmlFor: 'unnamed'
 };
 
-export default Input;
+export default InputComponent;

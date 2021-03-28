@@ -19,8 +19,8 @@ export default function Toolbar({
 	title,
 	isGridViewSelected,
 	setIsGridViewSelected,
-	isDeletedItemVisible,
-	handleShowDelete,
+	isViewArchivedChecked,
+	handleViewArchived,
 	isHistoryModalOpened,
 	handleHistoryToggle,
 	isDeleteCheckboxVisible = true,
@@ -59,9 +59,9 @@ export default function Toolbar({
 						isDeleteCheckboxVisible &&
 						<Grid item sm sm={12}>
 							<Checkbox
-								checked={isDeletedItemVisible}
+								checked={isViewArchivedChecked}
 								label="View Archived"
-								onChange={handleShowDelete}
+								onChange={handleViewArchived}
 							/>
 						</Grid>
 					}
