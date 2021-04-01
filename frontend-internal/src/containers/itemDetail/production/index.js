@@ -90,6 +90,22 @@ export default function Production(props) {
     setSelectedCard(data);
     setIsModalOpened(true);
   }
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleTableRowClick = (event) => {
+    history.push(`/Items/${event.id}`);
+  }
+
+  if (isLoading) {
+    return (<div
+      style={{
+        display: "flex",
+        justifyContent: "center"
+      }}
+    >
+      <Spinner animation="border" />
+    </div>)
+  }
 
   return (
     <>
@@ -133,6 +149,7 @@ export default function Production(props) {
       </MainModal>
 
       <GridView
+          handleTableRowClick={handleTableRowClick}
         list={[{ id: 1, name: 'Tesa' }, { id: 1, name: 'Tata' }]}
         handleHistoryToggle={() => false}
         columnsFields={{ id: 'ID', name: 'Name', 'Production Approval': 'Production Approval' }}

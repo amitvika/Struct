@@ -2,6 +2,8 @@ import { postRequest, getRequest, putRequest, deleteRequest } from '../utils/api
 
 const getItemsAPI = (query) => getRequest(`/api/items?${query}`);
 
+const addItemApi = (data) => postRequest(`/api/items`, data);
+
 const saveItemAPI = (data) => postRequest(`/api/items`, data);
 
 const updateItemAPI = (id, data) => putRequest(`/api/items/${id}`, data);
@@ -16,6 +18,7 @@ const getItemThreejsData = (id) => getRequest(`/api/items/${id}/three-model`);
 
 export default {
   getItemsAPI,
+  addItemApi,
   saveItemAPI,
   updateItemAPI,
   deleteItemAPI,

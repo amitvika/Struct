@@ -171,7 +171,7 @@ const TableGridView = ({
 
 	const getFilteredList = () => {
 		return filteredList.filter(item => {
-			console.log(isViewArchivedChecked, item.is_archived)
+			// console.log(isViewArchivedChecked, item.is_archived)
 			if (isViewArchivedChecked == item.is_archived) {
 				return true;
 			}

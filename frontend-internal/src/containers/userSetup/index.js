@@ -14,6 +14,8 @@ import MuiAlert from '@material-ui/lab/Alert';
 import { useDispatch } from 'react-redux';
 import get from 'lodash/get';
 import TeamSetup from '../teamSetup';
+import TeamTaskSetup from '../teamTaskSetup'
+import AccessSetup from '../accessSetup'
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
 function Alert(props) {
@@ -38,13 +40,17 @@ const UserSetup = () => {
 		switch (selectedTab) {
 			case 0:
 				return <TeamSetup />;
+			case 1:
+				return <TeamTaskSetup />;
+				case 2:
+					return <AccessSetup />
 			default:
 				return "Undefined Tab Index";
 		}
 	}
 
 	const handleSave = () => {
-	
+
 	}
 
 	const tabList = { "Team Setup": 0, "Team Tasks Setup": 1, "Access Setup": 2 }

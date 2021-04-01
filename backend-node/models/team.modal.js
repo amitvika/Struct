@@ -7,7 +7,7 @@ const TeamSchema = new mongoose.Schema({
     created_by: { type: Schema.Types.ObjectId, ref: "User", required: true },
     updated_by: { type: Schema.Types.ObjectId, ref: "User" },
     deleted_at: { type: Date },
-    is_deleted: { type: Boolean, default: false }
+    is_archived: { type: Boolean, default: false }
 }, {
     timestamps: true
 });

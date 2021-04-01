@@ -45,6 +45,7 @@ export const mapTeams = (data) => {
                 team_name: item.name,
                 members: item.members,
                 number_of_members: isArray(item.members) ? item.members.length + '' : 0 + '',
+                is_archived: item?.is_archived
             }
         })
     }

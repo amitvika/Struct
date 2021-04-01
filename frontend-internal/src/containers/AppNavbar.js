@@ -260,7 +260,7 @@ const AppNavbar = () => {
                           <MenuItem onClick={() => history.push('/user-setup')}>User Setup</MenuItem>
 
                         )}
-                        <MenuItem onClick={() => history.push('/view-access')}> View My Profile</MenuItem>
+                        <MenuItem onClick={() => history.push('viewMyProfile')}> View My Profile</MenuItem>
                         <MenuItem>
                           <Switch checked={lightThemeSelected} onChange={handleThemeChange} name="currentTheme" />
                           {lightThemeSelected ? 'Dark' : 'Light'}

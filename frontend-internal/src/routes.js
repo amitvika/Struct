@@ -32,6 +32,7 @@ import ProductDesignDetail from "./containers/productDesignDetail";
 import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
 import ItemDetail from "./containers/itemDetail/ItemDetail";
 import UserSetup from './containers/userSetup';
+import ViewMyProfile from './containers/viewMyProfile'
 
 // import Viewer from './page/3DViewer';
 import Viewer from './gltf/index'
@@ -64,6 +65,8 @@ export default function AppRoutes() {
                 <AppRoute authenticate exact path='/factories' component={Factories} />
                 <AppRoute authenticate path='/access-setup' component={AccessSetup} />
                 <AppRoute authenticate path='/view-access' component={ViewAccess} />
+                <AppRoute authenticate path='/viewMyProfile' component={ViewMyProfile} />
+
                 <AppRoute authenticate path='/configuration-history' component={ConfigurationHistory} />
               </Switch>
             </div>
