@@ -2,7 +2,8 @@ const TeamModel = require("../models/team.modal");
 const ChangeTracking = require("../models/ChangeTracking.model");
 const { getObjectId } = require('../utils/helper')
 const UserModel = require("../models/User");
-const { mapTeam, mapTeams } = require('../map/team')
+const { mapTeam, mapTeams } = require('../map/team');
+const { mapUser, mapUsers } = require('../map/user')
 
 exports.get = async (req, res) => {
 	try {
@@ -100,7 +101,7 @@ exports.getUsers = async (req, res) => {
 			.find()
 			.sort({ date: -1 })
 
-		res.json(users);
+		res.json(mapUsers(users));
 
 	} catch (error) {
 		console.log(error)

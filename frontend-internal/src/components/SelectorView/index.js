@@ -63,7 +63,7 @@ export default function SelectorView({
 
 			const mappedItems = mapValues(items.filter(item => {
 				if (alreadySelected) {
-					return !alreadySelected.includes(item._id)
+					return !alreadySelected.includes(item.id)
 				}
 				else {
 					return true
@@ -72,7 +72,7 @@ export default function SelectorView({
 
 			if (alreadySelected) {
 				const selectedItems = mapValues(items.filter(item => {
-					const data = alreadySelected.includes(item._id);
+					const data = alreadySelected.includes(item.id);
 					if (data) {
 						return true
 					}

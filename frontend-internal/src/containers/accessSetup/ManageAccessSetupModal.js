@@ -15,7 +15,7 @@ export default function ManageTeamModal({ team, toggleModal, open, handleUpdate 
 
 	return (
 		<Modal
-			title={'Manage Team'}
+			title={'Manage Access Roles'}
 			open={open}
 			toggleModal={toggleModal}
 			style={{ marginLeft: '10%', marginRight: '10%' }}>
@@ -25,7 +25,7 @@ export default function ManageTeamModal({ team, toggleModal, open, handleUpdate 
 				fetchList={UserSetupAPI.fetchUsers}
 				alreadySelected={get(team, 'members', [])}
 				fields={{ 'id': 'ID', 'name': 'Name' }}
-				mapValues={(data) => data.map(item => ({ ...item, id: item._id }))}
+				mapValues={(data) => data}
 				handleUpdate={handleMemberSelectChange}
 				handleSelection={(data) => { }}
 			/>

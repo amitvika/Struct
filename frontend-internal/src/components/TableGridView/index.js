@@ -14,7 +14,6 @@ import get from 'lodash/get';
 const TableGridView = ({
 	title,
 	fields = [],
-	mapFields,
 	fetchList,
 	upsertListItem,
 	// AddUpdateModal,

@@ -34,3 +34,24 @@ export const documentationFields = [
         editable: "never"
     }
 ]
+
+
+export const clientFields = [
+    { title: "ID", field: "id", editable: "never", align: 'center' },
+    { title: "Name", field: "name" , type:'text'},
+    {
+        title: "Created By",
+        field: "created_by",
+        editable: "never"
+    },
+    {
+        title: 'History',
+        field: "id",
+        editable: "never",
+        render: rowData => rowData && <span style={{ cursor: 'pointer' }}
+            onClick={(event) => {
+                event.stopPropagation();
+                // handleHistoryToggle({ rowId: rowData.id })
+            }}> Show History </span>
+    },
+]
