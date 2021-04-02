@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-
 import {
     Select,
     Input,
@@ -10,28 +9,28 @@ import {
 } from '../../components';
 import Modal from '../../components/Modal'
 
-export default function AddEditTeamModal({ open, toggleModal, handleUpdate, isEditing, selectedDocument }) {
-    const [documentValue, setdocumentValue] = useState({});
+export default function AddUpdateModal({ fields, open, toggleModal, handleUpdate, isEditing, selectedValue }) {
+    const [value, setValue] = useState({});
 
     useEffect(() => {
-        if (selectedDocument) {
-            setdocumentValue(selectedDocument)
+        if (selectedValue) {
+            setValue(selectedValue)
         }
         else {
-            setdocumentValue({});
+            setValue({});
         }
-    }, [selectedDocument])
+    }, [selectedValue])
 
     const handleOnChange = (name, value) => {
-        setdocumentValue(preValue => ({
+        setValue(preValue => ({
             ...preValue,
             [name]: value
         }))
     }
 
     const handleSaveButton = () => {
-        if (documentValue) {
-            handleUpdate(documentValue)
+        if (value) {
+            handleUpdate(value)
         }
         toggleModal();
     }
@@ -43,18 +42,25 @@ export default function AddEditTeamModal({ open, toggleModal, handleUpdate, isEd
             toggleModal={toggleModal}>
 
             <Grid className="section-padding-left" container spacing={4}>
+                {
+                    fields
+                        .filter(item => item.type)
+                        .map(item => {
+                            return (<> <Grid item xs={4}>
+                                <Headding bold title={item.title} />
+                            </Grid>
+                                <Grid item xs={8}>
+                                    <Input
+                                        placeholder="Enter"
+                                        type="text"
+                                        onChange={(event) => handleOnChange(item.field, event.target.value)}
+                                        value={value[item.field]}
+                                    />
+                                </Grid>
+                            </>)
 
-                <Grid item xs={4}>
-                    <Headding bold title={'Name'} />
-                </Grid>
-                <Grid item xs={8}>
-                    <Input
-                        placeholder="Enter"
-                        type="text"
-                        onChange={(event) => handleOnChange('name', event.target.value)}
-                        value={documentValue.name}
-                    />
-                </Grid>
+                        })
+                }
 
                 <Grid item xs={6}>
                     <Button variant="contained" color="secondary" onClick={toggleModal}>

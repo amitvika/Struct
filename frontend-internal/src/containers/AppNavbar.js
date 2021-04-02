@@ -240,7 +240,7 @@ const AppNavbar = () => {
                 aria-controls={open ? 'menu-list-grow' : undefined}
                 aria-haspopup="true"
                 onClick={handleToggle}
-                style={{color: 'white', fontSize: 14}}
+                style={{ color: 'white', fontSize: 14 }}
               >
                 {isAuthenticated
                   ? `Welcome: ${user.name} ${user.email}`
@@ -257,10 +257,16 @@ const AppNavbar = () => {
                     <ClickAwayListener onClickAway={handleClose}>
                       <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
                         {user && user.userAccess && user.userAccess.access.OA_1_V && (
-                          <MenuItem onClick={() => history.push('/user-setup')}>User Setup</MenuItem>
+                          <MenuItem onClick={() => {
+                            setOpen(false);
+                            history.push('/user-setup');
+                          }}>User Setup</MenuItem>
 
                         )}
-                        <MenuItem onClick={() => history.push('viewMyProfile')}> View My Profile</MenuItem>
+                        <MenuItem onClick={() => {
+                          setOpen(false);
+                          history.push('viewMyProfile');
+                        }}> View My Profile</MenuItem>
                         <MenuItem>
                           <Switch checked={lightThemeSelected} onChange={handleThemeChange} name="currentTheme" />
                           {lightThemeSelected ? 'Dark' : 'Light'}

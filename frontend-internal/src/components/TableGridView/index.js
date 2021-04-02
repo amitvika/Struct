@@ -8,6 +8,7 @@ import Toolbar from './Toolbar';
 
 import DefaultContainer from '../../components/DefaultContainer'
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
+import AddUpdateModal from './AddUpdateModal';
 import get from 'lodash/get';
 
 const TableGridView = ({
@@ -16,7 +17,7 @@ const TableGridView = ({
 	mapFields,
 	fetchList,
 	upsertListItem,
-	AddUpdateModal,
+	// AddUpdateModal,
 	ManageTeamModal,
 	isManageTeamAvailable = false
 }) => {
@@ -41,7 +42,7 @@ const TableGridView = ({
 				setIsLoading(true);
 
 				const res = await fetchList()
-				const mappedList = mapFields(get(res, 'data', []));
+				const mappedList = get(res, 'data', []);
 
 				setList(mappedList)
 				setFilteredList(mappedList)
@@ -92,15 +93,15 @@ const TableGridView = ({
 				if (res.data) {
 					dispatch(showSuccessAlert({ message: `${title} updated` }));
 
-					const availableDoc = list.find(document => document.id == res.data._id);
+					const availableDoc = list.find(document => document.id == res.data.id);
 
 					if (availableDoc) {
-						const updatedList = mapFields(list.map(document => {
-							if (document.id === res.data._id) {
-								return { ...res.data, id: res.data._id }
+						const updatedList = list.map(document => {
+							if (document.id === res.data.id) {
+								return { ...res.data, id: res.data.id }
 							}
 							return document
-						}))
+						})
 
 						setList(updatedList);
 
@@ -108,7 +109,7 @@ const TableGridView = ({
 					}
 					else {
 						const updatedList = [
-							{ ...res.data, id: res.data._id },
+							{ ...res.data, id: res.data.id },
 							...list
 						];
 						setList(updatedList);
@@ -198,11 +199,12 @@ const TableGridView = ({
 			handleHistoryToggle={handleHistoryToggle}
 		>
 			<AddUpdateModal
+				fields={fields}
 				open={isModalOpened}
 				toggleModal={handleToggleModal}
 				handleUpdate={handleUpdate}
 				isEditing={isEditing}
-				selectedListItem={selectedListItem}
+				selectedValue={selectedListItem}
 			/>
 
 			{

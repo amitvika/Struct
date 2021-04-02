@@ -2,6 +2,7 @@ const TeamModel = require("../models/team.modal");
 const ChangeTracking = require("../models/ChangeTracking.model");
 const { getObjectId } = require('../utils/helper')
 const UserModel = require("../models/User");
+const { mapTeam, mapTeams } = require('../map/team')
 
 exports.get = async (req, res) => {
 	try {
@@ -16,7 +17,7 @@ exports.get = async (req, res) => {
 				.populate("created_by")
 				.populate("updated_by")
 				.sort({ updatedAt: -1 })
-				
+
 		}
 		else {
 			teams = await TeamModel
@@ -25,10 +26,10 @@ exports.get = async (req, res) => {
 				.populate("created_by",)
 				.populate("updated_by")
 				.sort({ updatedAt: -1 })
-				
+
 		}
 
-		res.json(teams);
+		res.json(mapTeams(teams));
 
 	}
 	catch (error) {
@@ -84,7 +85,7 @@ exports.upsert = async (req, res) => {
 		});
 		await changeTracking.save();
 
-		res.json(team)
+		res.json(mapTeam(team))
 	}
 	catch (error) {
 		console.log('upsert', error)

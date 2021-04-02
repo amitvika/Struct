@@ -1,7 +1,7 @@
 import React from 'react';
 import Modal from '../../components/Modal';
 import SelectorView from '../../components/SelectorView';
-import UserSetupAPI from '../../api/userSetup.api';
+import UserSetupAPI from '../../api/teamSetup.api';
 import get from 'lodash/get';
 
 export default function ManageTeamModal({ team, toggleModal, open, handleUpdate }) {
