@@ -110,8 +110,6 @@ export default function Production(props) {
     </div>)
   }
 
-
-
   return (
     <>
       <Heading>Production Approval</Heading>
