@@ -6,8 +6,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import InputBase from '@material-ui/core/InputBase';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -31,8 +29,8 @@ const BootstrapInput = withStyles((theme) => ({
     position: 'relative',
     backgroundColor: theme.palette.background.paper,
     border: '1px solid #ced4da',
-    fontSize: 16,
-    padding: '10px 26px 10px 12px',
+    fontSize: 14,
+    padding: '8px',
     transition: theme.transitions.create(['border-color', 'box-shadow']),
     // Use the system font instead of the default Roboto font.
     fontFamily: [
@@ -88,7 +86,7 @@ const SelectExample = ({
           value={value}
           input={<BootstrapInput />}
           renderValue={(selected) => {
-              return <em>{placeholder}</em>;
+              return <span>{placeholder}</span>;
           }}
         >
           <MenuItem disabled value="">

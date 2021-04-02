@@ -62,7 +62,12 @@ const ItemDetail = () => {
 			const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
 
 			setItemProperties(get(itemDetailResponse, 'data[0]', {}));
-			setgltfjson(get(itemDetailResponse, 'data[0].gltfjson', {}))
+
+			const tempGLTFJSon = get(itemDetailResponse, 'data[0].gltfjson', {});
+			if (tempGLTFJSon !== null && tempGLTFJSon !== undefined) {
+				setgltfjson(tempGLTFJSon)
+
+			}
 
 			setIsLoading(false);
 		})()

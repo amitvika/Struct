@@ -6,18 +6,26 @@ import TableView from '../../../../components/TableView';
 import API from '.././../../../api/items.api';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
-import moment from 'moment';
+import TextField from '@material-ui/core/TextField';
+
+
 
 
 const useStyles = makeStyles({
     table: {
         minWidth: 650,
     },
+    textField: {
+
+        width: 200,
+    },
 });
 
 
 
 export default function DenseTable() {
+    const [value, setValue] = React.useState(new Date());
+
     let history = useHistory();
 
     const [ItemList, setItemList] = useState([]);
@@ -30,12 +38,26 @@ export default function DenseTable() {
     const classes = useStyles();
     const [filteredItemList, setFilteredItemList] = useState([]);
     const [isModalOpened, setIsModalOpened] = React.useState(false);
+    const [selectedItemId, setSelectedItemId] = useState('');
+
 
     const [columns, setColumns] = useState([
         { title: 'ID', field: 'id' },
         { title: 'Name', field: 'name' },
         { title: 'Quantity', field: 'quantity' },
-        { title: 'Production Start Date', field: 'productionStartDate',   },
+        {
+            title: 'Production Start Date', field: 'productionStartDate', render: rowData => rowData && <span>{
+                <TextField
+                id="date"
+                label="Select Date"
+                type="date"
+                className={classes.textField}
+                InputLabelProps={{
+                    shrink: true,
+                }}
+            />
+            }</span>
+        },
         { title: 'Production End Date', field: 'productionEndDate', type: 'numeric', render: rowData => rowData && <span>12/31/2999</span> },
         {
             title: 'Select Factory',
@@ -45,18 +67,46 @@ export default function DenseTable() {
                 onClick={(event) => {
                     event.stopPropagation();
                     toggleModal({ rowId: rowData.id })
-                }}> Select Factory </span>
+                }}> Select</span>
         },
     ])
 
-
-    const toggleModal = () => {
+    const toggleModal = ({ rowId }) => {
         setIsModalOpened(!isModalOpened)
+        setSelectedItemId(rowId)
+
     }
 
     useEffect(() => {
         fetchItemList();
     }, []);
+
+
+    const handleTableRowClick = (event) => {
+        history.push(`/items/${event.id}`);
+    }
+
+    if (isLoading) {
+        return (<div
+            style={{
+                display: "flex",
+                justifyContent: "center"
+            }}
+        >
+            <Spinner animation="border" />
+        </div>)
+    }
+    const alertForError = (err) => {
+        setIsLoading(false);
+        if (err.response && err.response.data) {
+            setMessage(err.response.data.message);
+            setSnackBarAlertType("error");
+            setSnackBar(true);
+        }
+    }
+    const handleAlertClose = (event, reason) => {
+        setSnackBar(!snackBar);
+    };
 
     const fetchItemList = async () => {
         try {
@@ -129,32 +179,6 @@ export default function DenseTable() {
         })
     }
 
-    const handleTableRowClick = (event) => {
-        history.push(`/items/${event.id}`);
-    }
-
-    if (isLoading) {
-        return (<div
-            style={{
-                display: "flex",
-                justifyContent: "center"
-            }}
-        >
-            <Spinner animation="border" />
-        </div>)
-    }
-    const alertForError = (err) => {
-        setIsLoading(false);
-        if (err.response && err.response.data) {
-            setMessage(err.response.data.message);
-            setSnackBarAlertType("error");
-            setSnackBar(true);
-        }
-    }
-    const handleAlertClose = (event, reason) => {
-        setSnackBar(!snackBar);
-    };
-
     const updateItem = (newData, oldData) => {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
@@ -195,13 +219,14 @@ export default function DenseTable() {
             }, 1000);
         })
     }
-  
+
 
     return (
         <Paper>
+
             <MainModal open={isModalOpened} toggleModal={toggleModal}>
                 Hello
-                </MainModal>
+            </MainModal>
             <div
                 style={{
                     textAlign: "center",
@@ -213,7 +238,6 @@ export default function DenseTable() {
                 }}>
                 Add Production Setup
             </div>
-            {/* <MainModal open={isModalOpened} toggleModal={toggleModal}/> */}
             <TableView
                 list={filteredItemList}
                 handleAdd={addItem}
@@ -225,32 +249,6 @@ export default function DenseTable() {
             >
             </TableView>
 
-
-            {/* <MaterialTable
-                title="Multiple Actions Preview"
-                columns={[
-                    { title: 'ID', field: 'id' },
-                    { title: 'Name', field: 'name' },
-                    { title: 'Quantity', field: 'quantity' },
-                    { title: 'Production Start Date', field: 'productionStartDate', type: 'numeric' },
-                    { title: 'Production End Date', field: 'productionEndDate', type: 'numeric' },
-
-
-                ]}
-                data={[
-                    { id: 'Mehmet', name: 'Danver', quantity: 'Baran', productionStartDate: 1987, productionEndDate: '6312/31/2999' },
-                ]}
-                actions={[
-                    {
-                        icon: 'Select Factory',
-                        tooltip: 'Select Factory',
-                        onClick: () => toggleModal()
-                    }
-                ]}
-                options={{
-                    actionsColumnIndex: -1
-                }}
-            /> */}
         </Paper>
 
     );

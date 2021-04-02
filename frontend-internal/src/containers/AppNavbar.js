@@ -243,7 +243,7 @@ const AppNavbar = () => {
                 style={{color: 'white', fontSize: 14}}
               >
                 {isAuthenticated
-                  ? `Welcome: ${user.email}`
+                  ? `Welcome: ${user.name} ${user.email}`
                   : "Not logged in"}
               </Typography>
             </div>

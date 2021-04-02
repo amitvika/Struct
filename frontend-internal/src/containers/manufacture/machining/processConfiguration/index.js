@@ -7,7 +7,7 @@ import {
 } from "@material-ui/core";
 
 import ItemsAPI from '../../../../api/items.api';
-import ThreeDViewer from "../../../../components/sharedFunctionComponents/ThreeDViewer";
+// import ThreeDViewer from "../../../../components/sharedFunctionComponents/ThreeDViewer";
 import FileUpload from "../../../../components/sharedFunctionComponents/FileUpload";
 import CppTest from "../../../../components/sharedFunctionComponents/CppTest";
 
@@ -55,7 +55,7 @@ export default function Machining() {
                     <CppTest />
                 </Grid>
                 <Grid item xs={12} >
-                    <ThreeDViewer />
+                    {/* <ThreeDViewer /> */}
                 </Grid>
                 <Grid item xs={4} >
                     <Button color="primary"> Generate toolpath</Button>

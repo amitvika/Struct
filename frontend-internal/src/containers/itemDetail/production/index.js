@@ -8,6 +8,8 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Heading from '../../../components/atoms/Headding'
 import GridView from '../../../components/GridView';
 import { useSelector } from 'react-redux';
+import API from '../../../api/items.api';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Production(props) {
+  const [filteredItemList, setFilteredItemList] = useState([]);
   const classes = useStyles();
   const [isModalOpened, setIsModalOpened] = useState(false);
   const [checked, setChecked] = useState(true);
@@ -107,6 +110,8 @@ export default function Production(props) {
     </div>)
   }
 
+
+
   return (
     <>
       <Heading>Production Approval</Heading>
@@ -149,13 +154,17 @@ export default function Production(props) {
       </MainModal>
 
       <GridView
-          handleTableRowClick={handleTableRowClick}
+        handleTableRowClick={handleTableRowClick}
         list={[{ id: 1, name: 'Tesa' }, { id: 1, name: 'Tata' }]}
         handleHistoryToggle={() => false}
-        columnsFields={{ id: 'ID', name: 'Name', 'Production Approval': 'Production Approval' }}
+        columnsFields={{ id: 'ID', name: 'Name', 'Production Approval' : 'Production Approval' }}
         isHistoryLinkVisible={false}
         handleTableRowClick={handleCardSelect}
       />
     </>
   )
 }
+// list = { filteredVendorList }
+// handleHistoryToggle = { handleHistoryToggle }
+// columnsFields = { columnsFields }
+// handleTableRowClick = { handleTableRowClick }

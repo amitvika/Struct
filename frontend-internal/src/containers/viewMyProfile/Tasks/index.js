@@ -11,21 +11,24 @@ import AddEditTeamModal from './AddEditTeamModal'
 import TableGridView from '../../../components/TableGridView';
 import ManageTeamModal from './ManageTeamModal';
 
+
 const Tasks = ({
     fields
 }) => {
 
     return (
-        <TableGridView
-            title={'Tasks'}
-            fields={TasksFields}
-            mapFields={mapTeams}
-            fetchList={ViewMyProfileAPI.fetchTeams}
-            upsertListItem={ViewMyProfileAPI.upsertTeam}
-            AddUpdateModal={AddEditTeamModal}
-            isManageTeamAvailable={true}
-            ManageTeamModal={ManageTeamModal}
-        />
+        <div>
+            <TableGridView
+                title={'Tasks'}
+                fields={TasksFields}
+                mapFields={mapTeams}
+                fetchList={ViewMyProfileAPI.fetchTeams}
+                upsertListItem={ViewMyProfileAPI.upsertTeam}
+                AddUpdateModal={AddEditTeamModal}
+                isManageTeamAvailable={true}
+                ManageTeamModal={ManageTeamModal}
+            />
+        </div>
     );
 }
 

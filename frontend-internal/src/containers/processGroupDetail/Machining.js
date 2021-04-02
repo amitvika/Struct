@@ -7,7 +7,7 @@ import {
 
 import ItemsAPI from '../../api/items.api';
 
-import ThreeDViewer from "../../components/sharedFunctionComponents/ThreeDViewer";
+// import ThreeDViewer from "../../components/sharedFunctionComponents/ThreeDViewer";
 import FileUpload from "../../components/sharedFunctionComponents/FileUpload";
 import CppTest from "../../components/sharedFunctionComponents/CppTest";
 
@@ -46,7 +46,7 @@ export default function Machining() {
           <CppTest />
         </Grid>
         <Grid item xs={12} >
-          <ThreeDViewer />
+          {/* <ThreeDViewer /> */}
           {/* <ThreejsViewer data={{ step: MeshJSON }} /> */}
         </Grid>
         <Grid item xs={4} >
