@@ -17,7 +17,8 @@ export default function ManageTeamModal({ team, toggleModal, open, handleUpdate 
 		<Modal
 			title={'Manage Team'}
 			open={open}
-			toggleModal={toggleModal}>
+			toggleModal={toggleModal}
+			style={{ marginLeft: '10%', marginRight: '10%' }}>
 
 			<SelectorView
 				title={'Team'}

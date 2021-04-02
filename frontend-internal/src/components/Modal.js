@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function MainModal({ title, open, toggleModal, children }) {
+export default function MainModal({ title, open, toggleModal, children, style = {} }) {
     const classes = useStyles();
 
 
@@ -44,7 +44,7 @@ export default function MainModal({ title, open, toggleModal, children }) {
             }}
         >
             <Fade in={open} >
-                <Paper className={classes.paper} >
+                <Paper className={classes.paper} style={{ ...style }}>
 
                     <h2 id="simple-modal-title">{title}</h2>
                     <p id="simple-modal-description">

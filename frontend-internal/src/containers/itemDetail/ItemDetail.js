@@ -11,8 +11,7 @@ import {
 	Typography,
 	CircularProgress
 } from "@material-ui/core";
-import MuiAlert from '@material-ui/lab/Alert';
-import { NavLink, useParams, useHistory, useLocation } from "react-router-dom";
+import { NavLink, useParams, useHistory } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 
 import BaseItemProperties from './baseItemProperties';
@@ -28,15 +27,7 @@ import ItemTypeConfigurations from './ItemTypeConfigurations';
 import ItemAPI from '../../api/items.api';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import get from 'lodash/get';
-
-function Alert(props) {
-	return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-
-
-function useQuery() {
-	return new URLSearchParams(useLocation().search);
-}
+import { useQuery } from '../../utils/customHooks'
 
 const ItemDetail = () => {
 	const dispatch = useDispatch();
@@ -47,9 +38,6 @@ const ItemDetail = () => {
 	const [tabIndex, setTabIndex] = useState(1);
 	const [itemProperties, setItemProperties] = useState({});
 	const [isLoading, setIsLoading] = useState(true);
-	const [itemDetail, setItemDetail] = useState({});
-	const [threejsData, setThreejsData] = useState({});
-	const [snackbarOptions, setSnackbarOptions] = useState({ isOpen: false, message: '' });
 	const [gltfjson, setgltfjson] = useState({});
 
 	useEffect(() => {
@@ -77,13 +65,6 @@ const ItemDetail = () => {
 		if (!get(itemProperties, '_id')) {
 			return null;
 		}
-
-		// let index = tabIndex;
-		// if (query.get('tab')) {
-		// 	index = query.get('tab')
-		// }
-
-		console.log(tabIndex)
 
 		switch (tabIndex) {
 			case 0:
@@ -127,10 +108,6 @@ const ItemDetail = () => {
 			.catch(error => {
 				dispatch(showErrorAlert({ message: 'Unable to save info' }));
 			})
-	}
-
-	const handleSnackbarClose = () => {
-		setSnackbarOptions({ isOpen: false })
 	}
 
 	const handleTabChange = (event, newTabIndex) => {
@@ -225,11 +202,6 @@ const ItemDetail = () => {
 					onClick={handleSave}>
 					Save
           </Button>
-			</Snackbar>
-			<Snackbar open={snackbarOptions.isOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-				<Alert onClose={handleSnackbarClose} severity="success">
-					{snackbarOptions.message}
-				</Alert>
 			</Snackbar>
 		</>
 	);

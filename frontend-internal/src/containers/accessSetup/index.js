@@ -1,9 +1,22 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
 
-export default function AccessSetup() {
+import AccessSetupAPI from '../../api/accessSetup.api';
+import { accessSetupFields } from '../../constants/accessSetup'
+import TableGridView from '../../components/TableGridView';
+import ManageAccessSetupModal from './ManageAccessSetupModal';
+
+const TeamSetup = () => {
+
     return (
-        <div>
-            AccessSetup
-        </div>
-    )
+        <TableGridView
+            title={'Access Setup'}
+            fields={accessSetupFields}
+            fetchList={AccessSetupAPI.fetchAccessSetup}
+            upsertListItem={AccessSetupAPI.upsertAccessSetup}
+            isManageTeamAvailable={true}
+            ManageTeamModal={ManageAccessSetupModal}
+        />
+    );
 }
+
+export default TeamSetup;

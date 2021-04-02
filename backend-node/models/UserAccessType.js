@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 var Schema = mongoose.Schema;
-//Define the User model schema(filed structure)
+
 const UserAccessTypeSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -13,11 +13,16 @@ const UserAccessTypeSchema = new mongoose.Schema({
   deletedAt: {
     type: Date
   },
+  created_by: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  updated_by: { type: Schema.Types.ObjectId, ref: "User" },
+  archived_date: { type: Date },
+  is_archived: { type: Boolean, default: false },
   access: {
     type: Object
   }
+}, {
+  timestamps: true
 });
-//this converts the schema into a model
+
 const UserAccessType = mongoose.model("UserAccessType", UserAccessTypeSchema);
-//allows for exporting the schema
 module.exports = UserAccessType;

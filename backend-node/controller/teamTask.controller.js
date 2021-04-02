@@ -89,18 +89,3 @@ exports.upsert = async (req, res) => {
 		res.status(500).send(error)
 	};
 }
-
-exports.getUsers = async (req, res) => {
-
-	try {
-		const users = await UserModel
-			.find()
-			.sort({ date: -1 })
-
-		res.json(users);
-
-	} catch (error) {
-		console.log(error)
-		res.status(500).send(error)
-	}
-}

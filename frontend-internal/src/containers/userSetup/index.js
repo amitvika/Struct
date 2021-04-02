@@ -1,34 +1,29 @@
 import React, { useState, useEffect, Fragment } from "react";
-
-import Button from "@material-ui/core/Button"
 import Paper from "@material-ui/core/Paper"
 import Tab from "@material-ui/core/Tab"
 import Tabs from "@material-ui/core/Tabs"
-import Box from "@material-ui/core/Box"
 import Grid from "@material-ui/core/Grid"
-import Breadcrumbs from "@material-ui/core/Breadcrumbs"
-import Typography from "@material-ui/core/Typography"
 import CircularProgress from "@material-ui/core/CircularProgress"
-import MuiAlert from '@material-ui/lab/Alert';
 
-import { useDispatch } from 'react-redux';
-import get from 'lodash/get';
+import { useHistory } from "react-router-dom";
+import { useQuery } from '../../utils/customHooks'
+
 import TeamSetup from '../teamSetup';
 import TeamTaskSetup from '../teamTaskSetup'
 import AccessSetup from '../accessSetup'
-import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-
-function Alert(props) {
-	return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
 
 const UserSetup = () => {
-	const dispatch = useDispatch()
+	const history = useHistory();
+	let query = useQuery();
 
-	const [selectedTab, setSelectedTab] = useState(0);
 	const [isLoading, setIsLoading] = useState(true);
+	const [tabIndex, setTabIndex] = useState(0);
 
 	useEffect(() => {
+		if (query.get('tab')) {
+			setTabIndex(parseInt(query.get('tab')))
+		}
+
 		(async () => {
 			setIsLoading(true);
 
@@ -37,23 +32,26 @@ const UserSetup = () => {
 	}, []);
 
 	const renderPageSwitch = () => {
-		switch (selectedTab) {
+		switch (tabIndex) {
 			case 0:
 				return <TeamSetup />;
 			case 1:
 				return <TeamTaskSetup />;
-				case 2:
-					return <AccessSetup />
+			case 2:
+				return <AccessSetup />
 			default:
 				return "Undefined Tab Index";
 		}
 	}
 
-	const handleSave = () => {
+	const handleTabChange = (event, newTabIndex) => {
+		setTabIndex(newTabIndex)
 
+		history.push({
+			pathname: `/user-setup`,
+			search: `?tab=${newTabIndex}`
+		})
 	}
-
-	const tabList = { "Team Setup": 0, "Team Tasks Setup": 1, "Access Setup": 2 }
 
 	if (isLoading) {
 		return <CircularProgress />;
@@ -73,8 +71,8 @@ const UserSetup = () => {
 						<Tabs
 							orientation="vertical"
 							variant="scrollable"
-							value={selectedTab}
-							onChange={(event, newValue) => setSelectedTab(newValue)}>
+							value={tabIndex}
+							onChange={handleTabChange}>
 
 							<Tab label="Team Setup" value={0} />
 							<Tab label="Team Tasks Setup" value={1} />

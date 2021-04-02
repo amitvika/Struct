@@ -28,6 +28,7 @@ router.use("/factory", require("./factory.route"));
 router.use("/documentation", require("./documentation.route"));
 router.use("/team", require("./team.route"));
 router.use("/teamTask", require("./teamTask.route"));
+router.use("/accessSetup", require("./accessSetup.route"));
 
 router.post('/upload-logo', Upload.uploadLogo(), (req, res) => {
   res.send({ logoName: req.file.filename, logoUrl: `http://${req.headers.host}/logo/${req.file.filename}` })
