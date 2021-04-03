@@ -22,6 +22,7 @@ import Manufacturing from '../manufacture/index2'
 import ClientSetup from './clientSetup';
 import Assembly from './assembly';
 import Production from './production'
+import SurfaceFinishAndTreatment from './SurfaceFinishAndTreatment';
 
 import ItemTypeConfigurations from './ItemTypeConfigurations';
 import ItemAPI from '../../api/items.api';
@@ -90,6 +91,8 @@ const ItemDetail = () => {
 					assemblyTree={get(gltfjson, 'tree', [])} />;
 			case 9:
 				return <Production />;
+			case 10:
+				return <SurfaceFinishAndTreatment />
 			default:
 				return "Undefined Tab Index";
 		}
@@ -159,10 +162,10 @@ const ItemDetail = () => {
 								// <Tab label="Client Setup" value={7} />
 							}
 
-							{
-								itemProperties?.itemGeometry?.itemType &&
+							{/* { */}
+								// itemProperties?.itemGeometry?.itemType &&
 								<Tab label="Geometric Dimensioning and Tolerances" value={2} />
-							}
+							{/* } */}
 
 							<Tab label="Assembly" value={8} />
 							{
@@ -178,6 +181,7 @@ const ItemDetail = () => {
 
 							<Tab label="Manufacture & processing" value={6} />
 							<Tab label="Production" value={9} />
+							<Tab label="Surface Finish and Treatment" value={10} />
 
 
 						</Tabs>

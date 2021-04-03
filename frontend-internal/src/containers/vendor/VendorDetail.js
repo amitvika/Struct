@@ -171,7 +171,7 @@ const VendorDetail = () => {
               {/* onChange={(event, newValue) => setValue(newValue)}> */}
               {/* <Tab label="Services" value={1} /> */}
               <Tab label="Incoming Vendor Products" value={1} />
-              <Tab label="Reports" value={2} />
+              {/* <Tab label="Reports" value={2} /> */}
               {/* <Tab label="Service Agreement" value={3} /> */}
               <Tab label="Supplied Items" value={3} />
               <Tab label="Payments" value={4} />
