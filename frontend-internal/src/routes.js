@@ -65,7 +65,6 @@ export default function AppRoutes() {
                 <AppRoute authenticate exact path='/factories' component={Factories} />
                 <AppRoute authenticate path='/access-setup' component={AccessSetup} />
                 <AppRoute authenticate path='/view-access' component={ViewAccess} />
-                <AppRoute authenticate path='/viewMyProfile' component={ViewMyProfile} />
 
                 <AppRoute authenticate path='/configuration-history' component={ConfigurationHistory} />
               </Switch>
@@ -86,6 +85,8 @@ export default function AppRoutes() {
               <AppRoute authenticate path='/access-configuration/:id' component={AccessConfiguration} />
 
               <AppRoute authenticate path="/user-setup" component={UserSetup} />
+
+              <AppRoute authenticate path='/viewMyProfile' component={ViewMyProfile} />
             </Switch>
           </Layout>
         </Switch>

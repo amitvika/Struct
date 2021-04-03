@@ -39,6 +39,7 @@ exports.get = async (req, res) => {
 	};
 }
 
+
 const buildQuery = (req) => {
 	let query = { $and: [] };
 
@@ -60,6 +61,26 @@ const buildQuery = (req) => {
 
 	// query.push({ $sort: { date: -1 } })
 	return query
+}
+
+exports.getMyTeams = async (req, res) => {
+	try {
+
+		const query = { members: getObjectId(req.user.id) }
+
+		console.log(req.user.id, query)
+
+		let teams = await TeamModel.find(query)
+			.populate("members")
+			.sort({ updatedAt: -1 })
+
+		res.json(mapTeams(teams));
+
+	}
+	catch (error) {
+		console.log('get', error)
+		res.status(500).send(error)
+	};
 }
 
 exports.upsert = async (req, res) => {

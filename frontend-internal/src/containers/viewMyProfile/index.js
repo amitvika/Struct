@@ -1,22 +1,16 @@
 import React, { useState, useEffect, Fragment } from "react";
 
-import Button from "@material-ui/core/Button"
 import Paper from "@material-ui/core/Paper"
 import Tab from "@material-ui/core/Tab"
 import Tabs from "@material-ui/core/Tabs"
-import Box from "@material-ui/core/Box"
 import Grid from "@material-ui/core/Grid"
-import Breadcrumbs from "@material-ui/core/Breadcrumbs"
-import Typography from "@material-ui/core/Typography"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import MuiAlert from '@material-ui/lab/Alert';
-import { useSelector } from 'react-redux';
-import { useParams } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import { useParams, useHistory } from "react-router-dom";
 
+import { useQuery } from '../../utils/customHooks'
 
-
-import { useDispatch } from 'react-redux';
-import get from 'lodash/get';
 import ViewAccess from '../../page/ViewAccess'
 import MyTeam from './myTeam';
 import MyCreatedObjects from './myCreatedObjects'
@@ -29,16 +23,19 @@ function Alert(props) {
 }
 
 const ViewMyProfile = () => {
-	const { isAuthenticated, user } = useSelector(state => state.auth);
-	let { id } = useParams();
+	const user = useSelector(state => state.auth.user);
 
+	const history = useHistory();
+	let query = useQuery();
 
-	const dispatch = useDispatch()
-
-	const [selectedTab, setSelectedTab] = useState(0);
+	const [tabIndex, setTabIndex] = useState(0);
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
+		if (query.get('tab')) {
+			setTabIndex(parseInt(query.get('tab')))
+		}
+
 		(async () => {
 			setIsLoading(true);
 
@@ -47,7 +44,7 @@ const ViewMyProfile = () => {
 	}, []);
 
 	const renderPageSwitch = () => {
-		switch (selectedTab) {
+		switch (tabIndex) {
 			case 0:
 				return <MyTeam />;
 			case 1:
@@ -61,8 +58,13 @@ const ViewMyProfile = () => {
 		}
 	}
 
-	const handleSave = () => {
+	const handleTabChange = (event, newTabIndex) => {
+		setTabIndex(newTabIndex)
 
+		history.push({
+			pathname: `/viewMyProfile`,
+			search: `?tab=${newTabIndex}`
+		})
 	}
 
 	const tabList = { "My Teams": 0, "My Access": 1, "My Created Objects": 2, "Tasks": 3 }
@@ -75,26 +77,24 @@ const ViewMyProfile = () => {
 		<>
 			<Grid container>
 				<Grid item sm sm={12}>
-					<Paper style={{ display: 'flex', justifyContent: 'center', padding: 10, margin: 10 }}>
+					{/* <Paper style={{ display: 'flex', justifyContent: 'center', padding: 10, margin: 10 }}>
 						<h4>View My Profile</h4>
-					</Paper>
+					</Paper> */}
 					<Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
 						<div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-							<h4>User: </h4>
-							<p> ID:{id}</p>
+							<h4>User: {user && user.name}</h4>
+							<p> ID:{user && user._id}</p>
 						</div>
 					</Paper>
 				</Grid>
-
-
 
 				<Grid item sm={2}>
 					<Paper style={{ padding: 20, margin: 10 }}>
 						<Tabs
 							orientation="vertical"
 							variant="scrollable"
-							value={selectedTab}
-							onChange={(event, newValue) => setSelectedTab(newValue)}>
+							value={tabIndex}
+							onChange={handleTabChange}>
 
 							<Tab label="My Teams" value={0} />
 							<Tab label="My Access" value={1} />

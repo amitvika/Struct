@@ -1,31 +1,21 @@
 
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { Spinner } from "reactstrap";
-import { useHistory } from "react-router-dom";
 
 import UserSetupAPI from '../../../api/teamSetup.api';
 import { teamSetupFields } from '../../../constants/team'
-import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
-import { mapTeams } from '../../../utils/mapper';
 import TableGridView from '../../../components/TableGridView';
-// import ManageTeamModal from '../../ManageTeamModal';
-import ManageTeamModal from '../../teamSetup/ManageTeamModal'
+import TeamMemberModal from './TeamMemberModal'
 
-const MyTeam = ({
-    fields
-}) => {
+const MyTeam = ({ }) => {
 
     return (
         <TableGridView
-            title={'Team Setup'}
+            title={'My Teams'}
             fields={teamSetupFields}
-            mapFields={mapTeams}
-            fetchList={UserSetupAPI.fetchTeams}
-            upsertListItem={UserSetupAPI.upsertTeam}
-            // AddUpdateModal={AddEditTeamModal}
+            fetchList={UserSetupAPI.fetchMyTeams}
+            isCustomAddButtonVisible={false}
+            ManageTeamModal={TeamMemberModal}
             isManageTeamAvailable={true}
-            ManageTeamModal={ManageTeamModal}
         />
     );
 }

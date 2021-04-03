@@ -2,6 +2,8 @@ import { postRequest, getRequest, putRequest, deleteRequest } from '../utils/api
 
 const fetchTeams = (query) => getRequest(`/api/team?${query}`);
 
+const fetchMyTeams = (query) => getRequest(`/api/team/my`);
+
 const upsertTeam = (data) => postRequest('/api/team', data);
 
 const fetchUsers = () => getRequest(`/api/team/users`);
@@ -16,6 +18,7 @@ const upsertTeamTask = (data) => postRequest('/api/teamTask', data);
 
 export default {
     fetchTeams,
+    fetchMyTeams,
     upsertTeam,
     fetchUsers,
     fetchTeamTask,

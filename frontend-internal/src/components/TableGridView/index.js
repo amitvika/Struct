@@ -15,10 +15,10 @@ const TableGridView = ({
 	title,
 	fields = [],
 	fetchList,
-	upsertListItem,
-	// AddUpdateModal,
+	upsertListItem = () => { },
 	ManageTeamModal,
-	isManageTeamAvailable = false
+	isManageTeamAvailable = false,
+	isCustomAddButtonVisible = true
 }) => {
 	const dispatch = useDispatch();
 
@@ -228,7 +228,7 @@ const TableGridView = ({
 				filteredList={getFilteredList()}
 				setFilteredList={setFilteredList}
 				columnsFields={fields}
-				isCustomAddButtonVisible={true}
+				isCustomAddButtonVisible={isCustomAddButtonVisible}
 				handleAddButtonPress={handleToggleModal}
 			/>
 
