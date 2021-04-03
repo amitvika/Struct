@@ -86,7 +86,7 @@ const SelectExample = ({
           value={value}
           input={<BootstrapInput />}
           renderValue={(selected) => {
-              return <span>{placeholder}</span>;
+            return <span>{placeholder}</span>;
           }}
         >
           <MenuItem disabled value="">
@@ -150,7 +150,7 @@ const SelectExample = ({
     <>
       {/* <FormControl className={classes.formControl}>
         <InputLabel id="demo-mutiple-name-label">{placeholder}</InputLabel> */}
-        {render()}
+      {render()}
       {/* </FormControl> */}
 
     </>

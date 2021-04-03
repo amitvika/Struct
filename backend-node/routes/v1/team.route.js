@@ -14,4 +14,5 @@ router.post("/", TeamController.upsert);
 
 router.get("/users", TeamController.getUsers);
 
+router.put('/access-role', TeamController.assignAccessRolesToTeams)
 module.exports = router;

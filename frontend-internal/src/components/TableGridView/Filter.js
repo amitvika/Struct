@@ -24,7 +24,7 @@ export default function Filter({
 			Object.keys(selectedFields).forEach(key => {
 				const fieldValues = selectedFields[key];
 
-				if (flag && fieldValues.length > 0) {
+				if (flag && fieldValues.length > 0 && fieldValues.length !== 1) {
 					flag = fieldValues.some((f) => f === el[key]);
 				}
 			});
@@ -36,6 +36,7 @@ export default function Filter({
 	}
 
 	const handleChange = (data, field) => {
+
 		setSelectedFieldOptions(get_unique_options(field))
 
 		setSelectedFields(prev => {
@@ -72,9 +73,9 @@ export default function Filter({
 		return output;
 	}
 
-	const getValues = (field) => {
-		if (selectedFields[field]) {
-			return selectedFields[field]
+	const getValues = (item) => {
+		if (selectedFields[item.field]) {
+			return selectedFields[item.field]
 		}
 		else {
 			return [""]
@@ -84,9 +85,11 @@ export default function Filter({
 	const renderItem = () => {
 		let item = [];
 
+		let sizeOfEachEl = parseInt(10 / Object.keys(columnsFields).length);
+
 		columnsFields.map(fieldItem => {
 			item.push(
-				<Grid item sm sm={2}>
+				<Grid item sm sm={sizeOfEachEl}>
 					<Select
 						isCheckbox
 						isMulti

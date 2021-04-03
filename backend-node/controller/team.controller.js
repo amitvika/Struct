@@ -46,6 +46,10 @@ const buildQuery = (req) => {
 		query.$and.push({ _id: getObjectId(req.query.id) });
 	}
 
+	if (req.query.accessId) {
+		query.$and.push({ accessId: getObjectId(req.query.accessId) });
+	}
+
 	if (req.query.client_id) {
 		query.$and.push({ client_id: getObjectId(req.query.client_id) })
 	}
@@ -92,6 +96,27 @@ exports.upsert = async (req, res) => {
 		console.log('upsert', error)
 		res.status(500).send(error)
 	};
+}
+
+exports.assignAccessRolesToTeams = async (req, res) => {
+	try {
+		const teamIds = req.body.teamIds;
+		const accessId = req.body.accessId;
+
+		const updatedTeams = await TeamModel.updateMany(
+			{ _id: { $in: teamIds.map(id => getObjectId(id)) } },
+			{ $set: { accessId: accessId } },
+			{ new: true }
+		);
+
+
+		res.json(mapTeams(updatedTeams))
+
+	}
+	catch (err) {
+		console.log('upsert', error)
+		res.status(500).send(error)
+	}
 }
 
 exports.getUsers = async (req, res) => {

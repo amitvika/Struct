@@ -44,9 +44,11 @@ export default function IncomingVendorProducts({
 		setSelectedProduct({});
 	}
 
-	
-
-
+	const fetchSelectedList = () => {
+		return new Promise((resolve, reject) => {
+			resolve(get(clientData, 'linkedItems', []))
+		})
+	}
 
 	if (isLoading) {
 		return (<div
@@ -83,7 +85,7 @@ export default function IncomingVendorProducts({
 					<SelectorView
 						title={'Product'}
 						fetchList={ItemAPI.getItemsAPI}
-						alreadySelected={get(clientData, 'linkedItems', [])}
+						fetchSelectedList={fetchSelectedList}
 						fields={columnsFields}
 						mapValues={mapItems}
 						handleUpdate={(data) => false}

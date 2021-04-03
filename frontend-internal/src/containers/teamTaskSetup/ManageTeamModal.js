@@ -13,6 +13,12 @@ export default function ManageTeamModal({ team, toggleModal, open, handleUpdate 
 		})
 	}
 
+	const fetchSelectedList = () => {
+		return new Promise((resolve, reject) => {
+			resolve(get(team, 'members', []))
+		})
+	}
+
 	return (
 		<Modal
 			title={'Manage Team'}
@@ -22,7 +28,7 @@ export default function ManageTeamModal({ team, toggleModal, open, handleUpdate 
 			<SelectorView
 				title={'Team'}
 				fetchList={UserSetupAPI.fetchUsers}
-				alreadySelected={get(team, 'members', [])}
+				fetchSelectedList={fetchSelectedList}
 				fields={{ 'id': 'ID', 'name': 'Name' }}
 				mapValues={(data) => data.map(item => ({ ...item, id: item._id }))}
 				handleUpdate={handleMemberSelectChange}

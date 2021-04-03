@@ -73,7 +73,7 @@ export default function Filter({
 
 
 	const getValues = (field) => {
-		if(selectedFields[field]){
+		if (selectedFields[field]) {
 			return selectedFields[field]
 		}
 		else {
@@ -83,10 +83,11 @@ export default function Filter({
 
 	const renderItem = () => {
 		let item = [];
+		let sizeOfEachEl = parseInt(9 / Object.keys(columnsFields).length);
 
 		Object.keys(columnsFields).forEach(fieldItem => {
 			item.push(
-				<Grid item sm sm={2}>
+				<Grid item sm sm={sizeOfEachEl}>
 					<Select
 						isCheckbox
 						isMulti

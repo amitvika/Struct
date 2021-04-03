@@ -34,7 +34,7 @@ export default function Products({
 	const handleChange = (event) => {
 		setState({ ...state, [event.target.name]: event.target.checked });
 	};
-	
+
 	const handleProductBreadcrumbSelect = () => {
 		setSelectedProduct({});
 	}
@@ -48,6 +48,12 @@ export default function Products({
 		>
 			<Spinner animation="border" />
 		</div>)
+	}
+
+	const fetchSelectedList = () => {
+		return new Promise((resole, reject) => {
+			resole(get(clientData, 'linkedItems', []));
+		})
 	}
 
 	return (
@@ -75,7 +81,7 @@ export default function Products({
 					<SelectorView
 						title={'Product'}
 						fetchList={ItemAPI.getItemsAPI}
-						alreadySelected={get(clientData, 'linkedItems', [])}
+						fetchSelectedList={fetchSelectedList}
 						fields={columnsFields}
 						mapValues={mapItems}
 						handleUpdate={(data) => handleClientUpdate({

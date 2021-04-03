@@ -15,20 +15,16 @@ import {
 } from '@material-ui/core';
 import { Spinner } from "reactstrap";
 
-// import { columnsFields } from '../../../constants/item'
-
-// import { mapItems } from '../../../utils/mapper';
-
 import get from 'lodash/get';
 
 export default function SelectorView({
 	title,
 	fetchList,
-	alreadySelected,
 	fields,
 	mapValues,
 	handleUpdate,
-	handleSelection
+	handleSelection,
+	fetchSelectedList
 }) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [itemList, setItemList] = useState([]);
@@ -53,11 +49,12 @@ export default function SelectorView({
 	}, [])
 
 	const fetchItems = async (query) => {
-		console.log(alreadySelected);
 		try {
 			setIsLoading(true);
 
 			const itemRes = await fetchList();
+			const alreadySelected = await fetchSelectedList();
+
 
 			const items = get(itemRes, 'data', [])
 

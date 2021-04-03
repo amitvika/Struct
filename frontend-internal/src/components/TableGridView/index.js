@@ -211,7 +211,7 @@ const TableGridView = ({
 				<ManageTeamModal
 					open={isManageTeamModalOpened}
 					toggleModal={() => setIsManageTeamModalOpened(!isManageTeamModalOpened)}
-					team={selectedListItem}
+					selectedValue={selectedListItem}
 					handleUpdate={handleUpdate}
 				/>
 			}

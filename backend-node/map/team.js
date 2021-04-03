@@ -17,6 +17,7 @@ exports.mapTeam = (item) => {
         id: item._id || item.id,
         name: item.name,
         members: item.members,
+        accessId: item.accessId,
         number_of_members: isArray(item.members) ? item.members.length + '' : 0 + '',
         is_archived: item.is_archived
     }

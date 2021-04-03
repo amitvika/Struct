@@ -4,12 +4,18 @@ import SelectorView from '../../components/SelectorView';
 import UserSetupAPI from '../../api/teamSetup.api';
 import get from 'lodash/get';
 
-export default function ManageTeamModal({ team, toggleModal, open, handleUpdate }) {
+export default function ManageTeamModal({ selectedValue, toggleModal, open, handleUpdate }) {
 
 	const handleMemberSelectChange = (data) => {
 		handleUpdate({
-			...team,
+			...selectedValue,
 			members: data
+		})
+	}
+
+	const fetchSelectedList = () => {
+		return new Promise((resolve, reject) => {
+			resolve(get(selectedValue, 'members', []))
 		})
 	}
 
@@ -23,7 +29,7 @@ export default function ManageTeamModal({ team, toggleModal, open, handleUpdate 
 			<SelectorView
 				title={'Team'}
 				fetchList={UserSetupAPI.fetchUsers}
-				alreadySelected={get(team, 'members', [])}
+				fetchSelectedList={fetchSelectedList}
 				fields={{ 'id': 'ID', 'name': 'Name' }}
 				mapValues={(data) => data.map(item => ({ ...item, id: item._id }))}
 				handleUpdate={handleMemberSelectChange}
