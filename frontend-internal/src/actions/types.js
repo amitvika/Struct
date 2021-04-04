@@ -35,3 +35,8 @@ export const CLIENTS_SUCCESS = "CLIENTS_SUCCESS";
 export const CLIENTS_ERROR = "CLIENTS_ERROR";
 
 export const SET_THEME = "SET_THEME";
+
+
+export const TEAMS_LOADING = "TEAMS_LOADING";
+export const TEAMS_SUCCESS = "TEAMS_SUCCESS";
+export const TEAMS_ERROR = "TEAMS_ERROR";

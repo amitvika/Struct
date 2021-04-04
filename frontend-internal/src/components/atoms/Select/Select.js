@@ -130,7 +130,7 @@ const SelectExample = ({
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={value && value.label}
+          value={value && value.label ? value.label : value}
           onChange={handleChange}
           input={<BootstrapInput />}>
           <MenuItem disabled value="">

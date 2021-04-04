@@ -8,7 +8,7 @@ import Toolbar from './Toolbar';
 
 import DefaultContainer from '../../components/DefaultContainer'
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-import AddUpdateModal from './AddUpdateModal';
+import CommonAddUpdateModal from './AddUpdateModal';
 import get from 'lodash/get';
 
 const TableGridView = ({
@@ -17,6 +17,7 @@ const TableGridView = ({
 	fetchList,
 	upsertListItem = () => { },
 	ManageTeamModal,
+	AddUpdateModal = CommonAddUpdateModal,
 	isManageTeamAvailable = false,
 	isCustomAddButtonVisible = true
 }) => {
@@ -197,17 +198,18 @@ const TableGridView = ({
 			selectedId={selectedListItem}
 			handleHistoryToggle={handleHistoryToggle}
 		>
-			<AddUpdateModal
+			{ isModalOpened && selectedListItem && <AddUpdateModal
+				title={title}
 				fields={fields}
 				open={isModalOpened}
 				toggleModal={handleToggleModal}
 				handleUpdate={handleUpdate}
 				isEditing={isEditing}
 				selectedValue={selectedListItem}
-			/>
+			/>}
 
 			{
-				isManageTeamAvailable &&
+				isManageTeamAvailable && selectedListItem &&
 				<ManageTeamModal
 					open={isManageTeamModalOpened}
 					toggleModal={() => setIsManageTeamModalOpened(!isManageTeamModalOpened)}

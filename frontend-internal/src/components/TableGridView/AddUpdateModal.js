@@ -9,7 +9,7 @@ import {
 } from '../../components';
 import Modal from '../../components/Modal'
 
-export default function AddUpdateModal({ fields, open, toggleModal, handleUpdate, isEditing, selectedValue }) {
+export default function AddUpdateModal({ title, fields, open, toggleModal, handleUpdate, isEditing, selectedValue }) {
     const [value, setValue] = useState({});
 
     useEffect(() => {
@@ -35,32 +35,51 @@ export default function AddUpdateModal({ fields, open, toggleModal, handleUpdate
         toggleModal();
     }
 
+    const renderView = () => {
+        return fields
+            .filter(item => item.type)
+            .map(item => {
+                return (<>
+                    <Grid item xs={4}>
+                        <Headding bold title={item.title} />
+                    </Grid>
+                    <Grid item xs={8}>
+                        {renderField(item)}
+                    </Grid>
+                </>)
+
+            })
+    }
+
+    const renderField = (item) => {
+        if (item.type === 'text') {
+            return (
+                <Input
+                    placeholder="Enter"
+                    type="text"
+                    onChange={(event) => handleOnChange(item.field, event.target.value)}
+                    value={value[item.field]}
+                />)
+        }
+        // else if (item.type === 'select') {
+        //     return (
+        //         <Select
+        //             onChange={(data) => handleOnChange(data, item.field)}
+        //             options={[]}
+        //             placeholder={`Select ${item.title}`}
+        //             value={value[item.field]} />
+        //     )
+        // }
+    }
+
     return (
         <Modal
-            title={isEditing ? 'Update Team' : 'Add Team'}
+            title={`${isEditing ? 'Update' : 'Add'} ${title}`}
             open={open}
             toggleModal={toggleModal}>
 
             <Grid className="section-padding-left" container spacing={4}>
-                {
-                    fields
-                        .filter(item => item.type)
-                        .map(item => {
-                            return (<> <Grid item xs={4}>
-                                <Headding bold title={item.title} />
-                            </Grid>
-                                <Grid item xs={8}>
-                                    <Input
-                                        placeholder="Enter"
-                                        type="text"
-                                        onChange={(event) => handleOnChange(item.field, event.target.value)}
-                                        value={value[item.field]}
-                                    />
-                                </Grid>
-                            </>)
-
-                        })
-                }
+                {renderView()}
 
                 <Grid item xs={6}>
                     <Button variant="contained" color="secondary" onClick={toggleModal}>

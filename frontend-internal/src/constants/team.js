@@ -12,5 +12,6 @@ export const teamSetupFields = [
 export const teamTaskSetupFields = [
     { title: "ID", field: "id", editable: "never", align: 'center' },
     { title: "Name", field: "name", type: 'text' },
-    { title: "Description", field: "description", type: 'text' }
+    { title: "Description", field: "description", type: 'text' },
+    { title: "Team", field: "teamId", type: 'select' },
 ]
