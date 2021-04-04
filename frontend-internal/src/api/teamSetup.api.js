@@ -12,9 +12,9 @@ const assignAccessRoleToTeams = (data) => putRequest('/api/team/access-role', da
 
 const fetchTeamTask = (query) => getRequest(`/api/teamTask?${query}`);
 
+const fetchMyTeamTask = (query) => getRequest(`/api/teamTask/my-teams`);
+
 const upsertTeamTask = (data) => postRequest('/api/teamTask', data);
-
-
 
 export default {
     fetchTeams,
@@ -23,5 +23,6 @@ export default {
     fetchUsers,
     fetchTeamTask,
     upsertTeamTask,
+    fetchMyTeamTask,
     assignAccessRoleToTeams
 }

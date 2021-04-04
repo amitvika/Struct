@@ -1,8 +1,10 @@
 const TeamTaskModel = require("../models/teamTask.modal");
+const TeamModel = require("../models/team.modal");
 const ChangeTracking = require("../models/ChangeTracking.model");
 const { getObjectId } = require('../utils/helper')
 const UserModel = require("../models/User");
-const { mapTeamTask, mapTeamTasks } = require('../map/teamTask')
+const { mapTeamTask, mapTeamTasks, mapMyTeamTasks } = require('../map/teamTask');
+
 
 exports.get = async (req, res) => {
 	try {
@@ -71,6 +73,7 @@ exports.upsert = async (req, res) => {
 		}
 		else {
 			req.body.created_by = req.user.id;
+
 			team = await TeamTaskModel.create(req.body);
 		}
 

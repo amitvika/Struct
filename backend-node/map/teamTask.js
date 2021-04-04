@@ -13,7 +13,7 @@ exports.mapTeamTasks = (data) => {
 }
 
 
-exports.mapTeamTask = (item) => {
+exports.mapTeamTask = (item = {}) => {
     return {
         id: item._id || item.id,
         name: item.name,
@@ -21,5 +21,21 @@ exports.mapTeamTask = (item) => {
         teamId: get(item, 'teamId._id', ''),
         description: item.description,
         is_archived: item.is_archived
+    }
+}
+
+
+exports.mapMyTeamTasks = (data) => {
+    if (isArray(data)) {
+        return data.map((item, index) => {
+            return {
+                ...this.mapTeamTask(get(item, 'teamtasks', {})),
+                team_name: get(item, 'name', ''),
+                teamId: get(item, '_id', ''),
+            }
+        })
+    }
+    else {
+        return []
     }
 }

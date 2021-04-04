@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { Spinner } from "reactstrap";
-import { useHistory } from "react-router-dom";
 
-import ViewMyProfileAPI from '../../../api/viewMyProfile.api';
+import TaskAPI from '../../../api/task.api';
 import { TasksFields } from '../../../constants/tasksItem'
-// import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-import { mapTeams } from '../../../utils/mapper';
-import AddEditTeamModal from './AddEditTeamModal'
+
+import AddUpdateModal from './AddUpdateModal'
 import TableGridView from '../../../components/TableGridView';
 import ManageTeamModal from './ManageTeamModal';
+import { useDispatch, } from 'react-redux'
+import { fetchTeamAction } from '../../../actions/team.action'
 
+const Tasks = ({ }) => {
 
-const Tasks = ({
-    fields
-}) => {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(fetchTeamAction())
+    }, []);
 
     return (
         <div>
             <TableGridView
                 title={'Tasks'}
                 fields={TasksFields}
-                mapFields={mapTeams}
-                fetchList={ViewMyProfileAPI.fetchTeams}
-                upsertListItem={ViewMyProfileAPI.upsertTeam}
-                AddUpdateModal={AddEditTeamModal}
+                fetchList={TaskAPI.fetchTasks}
+                upsertListItem={TaskAPI.upsertTask}
+                AddUpdateModal={AddUpdateModal}
                 isManageTeamAvailable={true}
                 ManageTeamModal={ManageTeamModal}
             />

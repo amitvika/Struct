@@ -198,7 +198,7 @@ const TableGridView = ({
 			selectedId={selectedListItem}
 			handleHistoryToggle={handleHistoryToggle}
 		>
-			{ isModalOpened && selectedListItem && <AddUpdateModal
+			{ isModalOpened && <AddUpdateModal
 				title={title}
 				fields={fields}
 				open={isModalOpened}
@@ -209,7 +209,7 @@ const TableGridView = ({
 			/>}
 
 			{
-				isManageTeamAvailable && selectedListItem &&
+				isManageTeamAvailable &&
 				<ManageTeamModal
 					open={isManageTeamModalOpened}
 					toggleModal={() => setIsManageTeamModalOpened(!isManageTeamModalOpened)}

@@ -4,6 +4,7 @@ const { getObjectId } = require('../utils/helper')
 const UserModel = require("../models/User");
 const { mapTeam, mapTeams } = require('../map/team');
 const { mapUser, mapUsers } = require('../map/user')
+const _ = require('lodash')
 
 exports.get = async (req, res) => {
 	try {
@@ -96,6 +97,7 @@ exports.upsert = async (req, res) => {
 		}
 		else {
 			req.body.created_by = req.user.id;
+			// req.body.members = mergeArray([_.get(req, 'body.members', [])], [req.user.id]);
 			team = await TeamModel.create(req.body);
 		}
 
@@ -151,4 +153,8 @@ exports.getUsers = async (req, res) => {
 		console.log(error)
 		res.status(500).send(error)
 	}
+}
+
+const mergeArray = (arr) => {
+	return _.spread(_.union);
 }
