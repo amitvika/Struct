@@ -1,8 +1,9 @@
 const AccessSetup = require("../models/UserAccessType");
 const ChangeTracking = require("../models/ChangeTracking.model");
-const { getObjectId } = require('../utils/helper')
+const TeamModel = require("../models/team.modal");
 
-const { mapAccessSetup, mapAccessSetups } = require('../map/accessSetup')
+const { getObjectId } = require('../utils/helper');
+const { mapAccessSetup, mapAccessSetups } = require('../map/accessSetup');
 
 exports.get = async (req, res) => {
 	try {
@@ -80,4 +81,48 @@ exports.upsert = async (req, res) => {
 		console.log('upsert', error)
 		res.status(500).send(error)
 	};
+}
+
+
+exports.getMyAccess = async (req, res) => {
+	try {
+
+		let query = { $and: [] };
+		query.$and.push({
+			"accessId": { "$exists": true }
+		});
+		query.$and.push({
+			"members": getObjectId(req.user.id)
+		});
+
+		let teams = await TeamModel.find(query)
+			.populate('accessId');
+
+		res.json(mergeAndFilterAccess(teams))
+
+	}
+	catch (error) {
+		console.log('getMyAccess', error)
+		res.status(500).send(error)
+	};
+}
+
+
+const mergeAndFilterAccess = (teams) => {
+
+	return teams
+		.map(team => {
+			let access = team.accessId.access;
+
+			const filtered = Object.keys(access)
+				.filter(key => access[key] === true)
+				.reduce((obj, key) => {
+					obj[key] = access[key];
+					return obj;
+				}, {});
+			return filtered
+		})
+		.reduce((result, current) => {
+			return Object.assign(result, current);
+		}, {});
 }

@@ -11,7 +11,7 @@ import { useParams, useHistory } from "react-router-dom";
 
 import { useQuery } from '../../utils/customHooks'
 
-import ViewAccess from '../../page/ViewAccess'
+import MyAccess from './myAccess'
 import MyTeam from './myTeam';
 import MyCreatedObjects from './myCreatedObjects'
 import Tasks from './Tasks'
@@ -48,7 +48,7 @@ const ViewMyProfile = () => {
 			case 0:
 				return <MyTeam />;
 			case 1:
-				return <ViewAccess />;
+				return <MyAccess />;
 			case 2:
 				return <MyCreatedObjects />
 			case 3:

@@ -11,18 +11,10 @@ export default function ClientBasedAccess({ userAccessLoaded, access, clientList
   const isLoading = useSelector(state => state.access.isCBALoading);
   const data = useSelector(state => state.access.cba);
 
-  // useEffect(() => {
-  //   if (userAccessLoaded) {
-  //     dispatch(fetchClientAction(access))
-  //   }
-  // }, [userAccessLoaded]);
-
   const refactorData = () => {
     return clientList.map((x, index) => {
       if (access[x._id]) {
-        // this.setState({
-        //   [x._id]: true
-        // });
+        
         return {
           clientId: x._id,
           client: x.name,

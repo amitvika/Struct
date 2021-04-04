@@ -12,4 +12,6 @@ router.get("/", TeamTaskController.get);
 
 router.post("/", TeamTaskController.upsert);
 
+router.get("/my-access", TeamTaskController.getMyAccess);
+
 module.exports = router;

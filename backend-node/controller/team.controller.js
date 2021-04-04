@@ -68,8 +68,6 @@ exports.getMyTeams = async (req, res) => {
 
 		const query = { members: getObjectId(req.user.id) }
 
-		console.log(req.user.id, query)
-
 		let teams = await TeamModel.find(query)
 			.populate("members")
 			.sort({ updatedAt: -1 })
