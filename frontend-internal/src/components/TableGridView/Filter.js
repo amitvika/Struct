@@ -87,9 +87,9 @@ export default function Filter({
 
 		let sizeOfEachEl = parseInt(10 / Object.keys(columnsFields).length);
 
-		columnsFields.map(fieldItem => {
+		columnsFields.map((fieldItem, index) => {
 			item.push(
-				<Grid item sm sm={sizeOfEachEl}>
+				<Grid item sm sm={sizeOfEachEl} key={`filter_${index}`}>
 					<Select
 						isCheckbox
 						isMulti

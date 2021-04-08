@@ -14,6 +14,7 @@ exports.get = async (req, res) => {
 		if (query.$and.length > 0) {
 			tasks = await TaskModel.find(query)
 				.populate('assigned_team')
+				.populate('team_task')
 				.populate('assigned_to')
 				.populate('created_team')
 				.populate('created_by')
@@ -24,6 +25,7 @@ exports.get = async (req, res) => {
 			tasks = await TaskModel
 				.find()
 				.populate('assigned_team')
+				.populate('team_task')
 				.populate('assigned_to')
 				.populate('created_team')
 				.populate('created_by')
@@ -93,11 +95,12 @@ exports.upsert = async (req, res) => {
 
 		task = await TaskModel.findById(req.body.id)
 			.populate('assigned_team')
+			.populate('team_task')
 			.populate('assigned_to')
 			.populate('created_team')
 			.populate('created_by');
 
-		res.json(mapTask(team))
+		res.json(mapTask(task))
 	}
 	catch (error) {
 		console.log('upsert', error)

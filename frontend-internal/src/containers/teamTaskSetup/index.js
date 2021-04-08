@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 
-import TeamSetupAPI from '../../api/teamSetup.api';
+import TeamSetupAPI from '../../api/teamTask.api';
 import { teamTaskSetupFields } from '../../constants/team'
 import TableGridView from '../../components/TableGridView';
 import AddUpdateModal from './AddUpdateModal';
 import { useDispatch, } from 'react-redux'
-import { fetchTeamAction } from '../../actions/team.action'
+import { fetchMyTeamAction } from '../../actions/team.action'
 
 const TeamTaskSetup = () => {
     const dispatch = useDispatch();
     
     useEffect(() => {
-        dispatch(fetchTeamAction())
+        dispatch(fetchMyTeamAction())
     }, []);
    
     return (

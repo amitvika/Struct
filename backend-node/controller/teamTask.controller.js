@@ -47,6 +47,11 @@ const buildQuery = (req) => {
 		query.$and.push({ created_by: getObjectId(req.user.id) });
 	}
 
+	if (req.query.teamId) {
+		query.$and.push({ teamId: getObjectId(req.query.teamId) });
+	}
+
+
 	if (req.query.name) {
 		query.$and.push({ name: { '$regex': new RegExp(`${req.query.name}`, "i") } })
 	}

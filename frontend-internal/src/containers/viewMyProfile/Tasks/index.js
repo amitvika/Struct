@@ -5,16 +5,17 @@ import { TasksFields } from '../../../constants/tasksItem'
 
 import AddUpdateModal from './AddUpdateModal'
 import TableGridView from '../../../components/TableGridView';
-import ManageTeamModal from './ManageTeamModal';
+import ManageTaskModal from './ManageTaskModal';
 import { useDispatch, } from 'react-redux'
-import { fetchTeamAction } from '../../../actions/team.action'
+import { fetchMyTeamAction } from '../../../actions/team.action'
 
 const Tasks = ({ }) => {
 
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(fetchTeamAction())
+        dispatch(fetchMyTeamAction());
+
     }, []);
 
     return (
@@ -26,7 +27,7 @@ const Tasks = ({ }) => {
                 upsertListItem={TaskAPI.upsertTask}
                 AddUpdateModal={AddUpdateModal}
                 isManageTeamAvailable={true}
-                ManageTeamModal={ManageTeamModal}
+                ManageTeamModal={ManageTaskModal}
             />
         </div>
     );
