@@ -158,8 +158,10 @@ const VendorDetail = () => {
               logoUrl={vendorInfo.logoUrl}
               handleLogoChange={handleLogoChange}
               name={vendorInfo.name} />
-          </Paper>
+            <div style={{ display: "flex", marginLeft: "20rem", alignItems: "flex-end" }}>
+              <h1>Orders</h1></div>
 
+          </Paper>
         </Grid>
         <Grid item sm={2}>
           <Paper style={{ padding: 20, margin: 10 }}>
