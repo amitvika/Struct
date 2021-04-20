@@ -10,7 +10,8 @@ export default function TableView({
   clientList = [],
   columns,
   setColumns,
-  isActionHidden = false
+  isActionHidden = false,
+  title=''
 }) {
 
   useEffect(() => {
@@ -35,9 +36,9 @@ export default function TableView({
       <MaterialTable
         columns={columns}
         data={list}
-        // title="New Product Design"
+        title={title}
         options={{
-          actionsColumnIndex: 5,
+          actionsColumnIndex: 6,
           addRowPosition: "first",
           exportButton: false,
           exportFileName: "Client",

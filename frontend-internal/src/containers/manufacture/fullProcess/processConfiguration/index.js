@@ -3,40 +3,20 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import MainModal from '../../../../components/Modal'
 import TableView from '../../../../components/TableView';
-import API from '.././../../../api/items.api';
+import ProductionAPI from '.././../../../api/production.api';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
-import TextField from '@material-ui/core/TextField';
+import get from 'lodash/get';
 
-
-
-
-const useStyles = makeStyles({
-    table: {
-        minWidth: 650,
-    },
-    textField: {
-
-        width: 200,
-    },
-});
-
-
-
-export default function DenseTable() {
-    const [value, setValue] = React.useState(new Date());
+export default function ProductionTable() {
 
     let history = useHistory();
 
-    const [ItemList, setItemList] = useState([]);
+    const [list, setList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState('');
-    const [snackBar, setSnackBar] = useState(false);
-    const [snackBarAlertType, setSnackBarAlertType] = useState('');
     const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
     const [isGridViewSelected, setIsGridViewSelected] = useState(true);
-    const classes = useStyles();
-    const [filteredItemList, setFilteredItemList] = useState([]);
+    const [filteredList, setFilteredList] = useState([]);
     const [isModalOpened, setIsModalOpened] = React.useState(false);
     const [selectedItemId, setSelectedItemId] = useState('');
 
@@ -44,21 +24,9 @@ export default function DenseTable() {
     const [columns, setColumns] = useState([
         { title: 'ID', field: 'id' },
         { title: 'Name', field: 'name' },
-        { title: 'Quantity', field: 'quantity' },
-        {
-            title: 'Production Start Date', field: 'productionStartDate', render: rowData => rowData && <span>{
-                <TextField
-                id="date"
-                label="Select Date"
-                type="date"
-                className={classes.textField}
-                InputLabelProps={{
-                    shrink: true,
-                }}
-            />
-            }</span>
-        },
-        { title: 'Production End Date', field: 'productionEndDate', type: 'numeric', render: rowData => rowData && <span>12/31/2999</span> },
+        { title: 'Quantity', field: 'quantity', type: 'numeric' },
+        { title: 'Production Start Date', field: 'start_date', type: 'date' },
+        { title: 'Production End Date', field: 'end_date', type: 'date' },
         {
             title: 'Select Factory',
             field: "id",
@@ -78,7 +46,7 @@ export default function DenseTable() {
     }
 
     useEffect(() => {
-        fetchItemList();
+        fetchList();
     }, []);
 
 
@@ -96,65 +64,25 @@ export default function DenseTable() {
             <Spinner animation="border" />
         </div>)
     }
-    const alertForError = (err) => {
-        setIsLoading(false);
-        if (err.response && err.response.data) {
-            setMessage(err.response.data.message);
-            setSnackBarAlertType("error");
-            setSnackBar(true);
-        }
-    }
+
     const handleAlertClose = (event, reason) => {
-        setSnackBar(!snackBar);
     };
 
-    const fetchItemList = async () => {
+    const fetchList = async () => {
         try {
             setIsLoading(true);
 
-            const ItemRes = await API.getItemsAPI();
+            const productionRes = await ProductionAPI.fetchProductions();
 
-            if (ItemRes && ItemRes.data) {
-                const items = ItemRes.data.map((x, index) => {
-                    return {
-                        id: x._id,
-                        name: x.name,
-                        source: x.source,
-                        logoUrl: x.logoUrl
-                    }
-                })
-
-                setItemList(items)
-                setFilteredItemList(items)
-            }
+            const productionList = get(productionRes, 'data', []);
+            setList(productionList)
+            setFilteredList(productionList)
             setIsLoading(false);
 
         } catch (error) {
             console.log(error)
-            alertForError(error)
         }
     };
-
-
-    const fetchList = (query) => {
-        API
-            .getItemsAPI(`limit=${query.pageSize}&page=${query.page + 1}&search=${query.search}`)
-            .then(result => {
-                let rowData = result.docs;
-
-                rowData = rowData.map((item, index) => {
-                    return {
-                        id: item._id,
-                        name: item.name,
-                        source: item.source
-                    };
-                });
-
-            })
-            .catch(err => console.log(err));
-
-    }
-
 
     const addItem = (newData) => {
         return new Promise((resolve, reject) => {
@@ -167,10 +95,9 @@ export default function DenseTable() {
 
                     API.addItemApi(newClient)
                         .then(res => {
-                            fetchItemList();
+                            fetchList();
                         })
                         .catch(err => {
-                            alertForError(err)
                         });
 
                 }
@@ -191,10 +118,9 @@ export default function DenseTable() {
 
                     API.updateItemAPI(newData.id, data)
                         .then(res => {
-                            fetchItemList()
+                            fetchList()
                         })
                         .catch(err => {
-                            alertForError(err)
                         });
 
                 }
@@ -209,10 +135,9 @@ export default function DenseTable() {
                 {
                     API.deleteItemAPI(oldData.id)
                         .then(res => {
-                            fetchItemList();
+                            fetchList();
                         })
                         .catch(err => {
-                            alertForError(err)
                         });
                 }
                 resolve();
@@ -223,23 +148,13 @@ export default function DenseTable() {
 
     return (
         <Paper>
-
             <MainModal open={isModalOpened} toggleModal={toggleModal}>
                 Hello
             </MainModal>
-            <div
-                style={{
-                    textAlign: "center",
-                    fontWeight: "600",
-                    fontSize: "larger",
-                    color: "grey",
-                    height: "33px",
-                    margin: "22px"
-                }}>
-                Add Production Setup
-            </div>
+
             <TableView
-                list={filteredItemList}
+                title={'Add Production Setup'}
+                list={filteredList}
                 handleAdd={addItem}
                 handleUpdate={updateItem}
                 handleDelete={deleteItem}
