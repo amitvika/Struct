@@ -40,13 +40,15 @@ const buildQuery = (req) => {
 		query.$and.push({ _id: getObjectId(req.query.id) });
 	}
 
-	if (req.user.id) {
-		query.$and.push({ created_by: getObjectId(req.user.id) });
+	if (req.query.item_id) {
+		query.$and.push({ item_id: getObjectId(req.query.item_id) });
 	}
 
 	if (req.query.name) {
 		query.$and.push({ name: { '$regex': new RegExp(`${req.query.name}`, "i") } })
 	}
+
+	query.$and.push({ is_archived: false });
 
 	return query
 }
@@ -54,13 +56,13 @@ const buildQuery = (req) => {
 exports.upsert = async (req, res) => {
 	try {
 		let actionType;
-		let task = await ProductionModel.findById(req.body.id);
+		let production = await ProductionModel.findById(req.body.id);
 
-		if (task) {
+		if (production) {
 			actionType = "Update";
-			req.body.created_by = task.created_by;
+			req.body.created_by = production.created_by;
 			req.body.updated_by = req.user.id;
-			task = await ProductionModel.findByIdAndUpdate(
+			production = await ProductionModel.findByIdAndUpdate(
 				req.body.id,
 				{ $set: req.body },
 				{ new: true });
@@ -69,12 +71,12 @@ exports.upsert = async (req, res) => {
 			actionType = "Add";
 			req.body.created_by = req.user.id;
 
-			task = await ProductionModel.create(req.body);
+			production = await ProductionModel.create(req.body);
 		}
 
 		const changeTracking = new ChangeTracking({
 			client: req.body.id,
-			update: task,
+			update: production,
 			model: "Production",
 			updateType: actionType,
 			updatedObject: req.body.id,
@@ -82,9 +84,9 @@ exports.upsert = async (req, res) => {
 		});
 		await changeTracking.save();
 
-		task = await ProductionModel.findById(req.body.id)
+		production = await ProductionModel.findById(production._id)
 
-		res.json(mapProduction(task))
+		res.json(mapProduction(production))
 	}
 	catch (error) {
 		console.log('upsert', error)
@@ -93,3 +95,34 @@ exports.upsert = async (req, res) => {
 }
 
 
+
+exports.approveItemForProduction = async (req, res) => {
+	try {
+
+		letproduction = await ProductionModel.findByIdAndUpdate(
+			req.body.id,
+			{
+				$set: {
+					isApprovedforProduction: req.body.isApprovedforProduction,
+					productionApprovedBy: req.user.id
+				}
+			},
+			{ new: true });
+
+		const changeTracking = new ChangeTracking({
+			client: req.body.id,
+			update: production,
+			model: "Production",
+			updateType: 'Approve Item for production',
+			updatedObject: req.body.id,
+			updatedBy: req.user.id
+		});
+		await changeTracking.save();
+
+		res.json(mapProduction(production))
+	}
+	catch (error) {
+		console.log('upsert', error)
+		res.status(500).send(error)
+	};
+}

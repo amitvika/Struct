@@ -8,6 +8,8 @@ const ProductionSchema = new mongoose.Schema({
     end_date: { type: Date, default: Date.now() },
     factory_id: { type: Schema.Types.ObjectId, ref: "Factory" },
     item_id: { type: Schema.Types.ObjectId, ref: "Item" },
+    isApprovedforProduction: { type: Boolean, default: false },
+    productionApprovedBy: { type: Schema.Types.ObjectId, ref: "User" },
     created_by: { type: Schema.Types.ObjectId, ref: "User" },
     updated_by: { type: Schema.Types.ObjectId, ref: "User" },
     is_archived: { type: Boolean, default: false }

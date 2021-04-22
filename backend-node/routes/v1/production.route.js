@@ -12,4 +12,6 @@ router.get("/", ProductionController.get);
 
 router.post("/", ProductionController.upsert);
 
+router.put("/approve", ProductionController.approveItemForProduction);
+
 module.exports = router;

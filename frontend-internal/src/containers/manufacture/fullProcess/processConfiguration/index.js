@@ -1,32 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import MainModal from '../../../../components/Modal'
 import TableView from '../../../../components/TableView';
 import ProductionAPI from '.././../../../api/production.api';
 import { Spinner } from "reactstrap";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import get from 'lodash/get';
+import { useDispatch, useSelector } from 'react-redux';
+import { showErrorAlert, showSuccessAlert } from '../../../../actions/alert.action';
+import {
+    MuiPickersUtilsProvider,
+    DatePicker
+} from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
+import moment from 'moment';
+import SelectFactoryModal from './SelectFactoryModal'
 
 export default function ProductionTable() {
 
     let history = useHistory();
+    const dispatch = useDispatch();
+    let { id: item_id } = useParams();
 
     const [list, setList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
-    const [isGridViewSelected, setIsGridViewSelected] = useState(true);
     const [filteredList, setFilteredList] = useState([]);
     const [isModalOpened, setIsModalOpened] = React.useState(false);
-    const [selectedItemId, setSelectedItemId] = useState('');
-
+    const [selectedValue, setSelectedValue] = useState({});
 
     const [columns, setColumns] = useState([
-        { title: 'ID', field: 'id' },
+        { title: 'ID', field: 'id', editable: "never" },
         { title: 'Name', field: 'name' },
         { title: 'Quantity', field: 'quantity', type: 'numeric' },
-        { title: 'Production Start Date', field: 'start_date', type: 'date' },
-        { title: 'Production End Date', field: 'end_date', type: 'date' },
+        {
+            title: 'Production Start Date',
+            field: 'start_date',
+            type: 'date',
+            render: rowData => moment(rowData.start_date).format('DD/MM/YYYY'),
+            editComponent: (props) => <CustomDatePicker {...props} />
+        },
+        {
+            title: 'Production End Date',
+            field: 'end_date',
+            type: 'date',
+            render: rowData => moment(rowData.end_date).format('DD/MM/YYYY'),
+            editComponent: (props) => <CustomDatePicker {...props} />
+        },
         {
             title: 'Select Factory',
             field: "id",
@@ -34,15 +53,37 @@ export default function ProductionTable() {
             render: rowData => rowData && <span style={{ cursor: 'pointer' }}
                 onClick={(event) => {
                     event.stopPropagation();
-                    toggleModal({ rowId: rowData.id })
+                    toggleModal(rowData)
                 }}> Select</span>
         },
     ])
 
-    const toggleModal = ({ rowId }) => {
-        setIsModalOpened(!isModalOpened)
-        setSelectedItemId(rowId)
+    const CustomDatePicker = (props) => (
+        <MuiPickersUtilsProvider utils={DateFnsUtils}
+            locale={props.dateTimePickerLocalization}>
+            <DatePicker
+                format="dd/MM/yyyy"
+                value={props.value || null}
+                onChange={props.onChange}
+                clearable
+                InputProps={{
+                    style: {
+                        fontSize: 13,
+                    }
+                }}
+            />
+        </MuiPickersUtilsProvider>
+    )
 
+    const toggleModal = (data) => {
+        if (!isModalOpened) {
+            setSelectedValue(data);
+        }
+        else {
+            setSelectedValue({});
+        }
+
+        setIsModalOpened(!isModalOpened);
     }
 
     useEffect(() => {
@@ -51,7 +92,91 @@ export default function ProductionTable() {
 
 
     const handleTableRowClick = (event) => {
-        history.push(`/items/${event.id}`);
+        // history.push(`/items/${event.id}`);
+    }
+
+    const handleAlertClose = (event, reason) => {
+    };
+
+    const fetchList = async () => {
+        try {
+            setIsLoading(true);
+
+            const productionRes = await ProductionAPI.fetchProductions(`item_id=${item_id}`);
+
+            const productionList = get(productionRes, 'data', []);
+
+            setList(productionList)
+            setFilteredList(productionList)
+            setIsLoading(false);
+
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+    const upsertItem = (newData) => {
+        return new Promise((resolve, reject) => {
+            ProductionAPI.upsertProduction(newData)
+                .then(res => {
+                    if (res.data) {
+                        dispatch(showSuccessAlert({ message: `Production updated` }));
+
+                        const availableDoc = list.find(document => document.id == res.data.id);
+
+                        if (availableDoc) {
+                            const updatedList = list.map(document => {
+                                if (document.id === res.data.id) {
+                                    return { ...res.data, id: res.data.id }
+                                }
+                                return document
+                            })
+
+                            setList(updatedList);
+
+                            setFilteredList(updatedList)
+                        }
+                        else {
+                            const updatedList = [
+                                { ...res.data, id: res.data.id },
+                                ...list
+                            ];
+                            setList(updatedList);
+
+                            setFilteredList(updatedList)
+                        }
+
+                    }
+                    toggleModal();
+                    resolve();
+                })
+                .catch(err => {
+                    dispatch(showErrorAlert({ message: `Unable to update Production` }));
+                    reject();
+                });
+        })
+
+    }
+
+    const addItem = (newData) => {
+        let updateValue = { ...newData, item_id }
+        return upsertItem(updateValue)
+    }
+
+    const updateItem = (newData, oldData) => {
+        return upsertItem(newData)
+    }
+
+    const deleteItem = (oldData) => {
+        let updateValue = { ...oldData, is_archived: true }
+        return upsertItem(updateValue)
+    }
+
+    const assignFactory = (value) => {
+        if (Object.keys(value).length > 0) {
+            upsertItem(value)
+        }
+
     }
 
     if (isLoading) {
@@ -65,92 +190,17 @@ export default function ProductionTable() {
         </div>)
     }
 
-    const handleAlertClose = (event, reason) => {
-    };
-
-    const fetchList = async () => {
-        try {
-            setIsLoading(true);
-
-            const productionRes = await ProductionAPI.fetchProductions();
-
-            const productionList = get(productionRes, 'data', []);
-            setList(productionList)
-            setFilteredList(productionList)
-            setIsLoading(false);
-
-        } catch (error) {
-            console.log(error)
-        }
-    };
-
-    const addItem = (newData) => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                {
-                    const newClient = {
-                        name: newData.name,
-                        source: newData.source
-                    }; //
-
-                    API.addItemApi(newClient)
-                        .then(res => {
-                            fetchList();
-                        })
-                        .catch(err => {
-                        });
-
-                }
-                resolve();
-            }, 10);
-        })
-    }
-
-    const updateItem = (newData, oldData) => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                {
-                    console.log(newData.client);
-                    const data = {
-                        name: newData.name,
-                        source: newData.source
-                    }
-
-                    API.updateItemAPI(newData.id, data)
-                        .then(res => {
-                            fetchList()
-                        })
-                        .catch(err => {
-                        });
-
-                }
-                resolve();
-            }, 1000);
-        })
-    }
-
-    const deleteItem = (oldData) => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                {
-                    API.deleteItemAPI(oldData.id)
-                        .then(res => {
-                            fetchList();
-                        })
-                        .catch(err => {
-                        });
-                }
-                resolve();
-            }, 1000);
-        })
-    }
-
-
     return (
         <Paper>
-            <MainModal open={isModalOpened} toggleModal={toggleModal}>
-                Hello
-            </MainModal>
+            {
+                isModalOpened &&
+                <SelectFactoryModal
+                    isModalOpened={isModalOpened}
+                    toggleModal={toggleModal}
+                    selectedValue={selectedValue}
+                    setSelectedValue={setSelectedValue}
+                    assignFactory={assignFactory} />
+            }
 
             <TableView
                 title={'Add Production Setup'}

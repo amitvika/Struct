@@ -1,54 +1,22 @@
-import React, { useState } from 'react'
-import { makeStyles } from '@material-ui/core/styles';
-import MainModal from '../../../components/Modal'
-import { Paper, Grid } from '@material-ui/core';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Heading from '../../../components/atoms/Headding'
+import React, { useState, useEffect } from 'react'
+import Heading from '../../../components/atoms/Headding';
 import GridView from '../../../components/GridView';
 import { useSelector } from 'react-redux';
-import API from '../../../api/items.api';
-
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  paper: {
-
-    padding: theme.spacing(2),
-    margin: '10px 2px 10px 2px',
-    maxWidth: 400,
-    minWidth: 400,
-    cursor: 'pointer',
-    transition: '0.3s',
-    "&:hover, &:focus": {
-      backgroundColor: '#DCDCDC'
-    }
-  },
-
-  image: {
-    width: 55,
-    height: 70,
-  },
-  img: {
-    margin: 'auto',
-    display: 'block',
-    maxWidth: '100%',
-    maxHeight: '100%',
-  },
-}));
+import ProductionAPI from './../../../api/production.api';
+import { useParams } from "react-router-dom";
+import { Spinner } from "reactstrap";
+import get from 'lodash/get';
+import ProductionApprovalModal from './ProductionApprovalModal'
 
 export default function Production(props) {
-  const [filteredItemList, setFilteredItemList] = useState([]);
-  const classes = useStyles();
   const [isModalOpened, setIsModalOpened] = useState(false);
-  const [checked, setChecked] = useState(true);
-  const [state, setState] = useState({});
-  const [showText, setShowText] = useState();
-  const [selectedCard, setSelectedCard] = useState(-1);
+  const [selectedValue, setSelectedValue] = useState({});
   const { user } = useSelector(state => state.auth);
+  const [isLoading, setIsLoading] = useState(false);
+  let { id: item_id } = useParams();
+
+  const [list, setList] = useState([]);
+
   const [approvalList, setApprovalList] = useState([
     {
       id: 1,
@@ -67,36 +35,46 @@ export default function Production(props) {
     }])
 
   const toggleModal = () => {
-    setIsModalOpened(!isModalOpened)
+    setIsModalOpened(false);
+    setSelectedValue({})
   }
 
-  const handleApprovalStatus = (data) => {
-
-    const updatedApprovalList = approvalList.map(approvalItem => {
-      if (approvalItem.id === data.id) {
-        return {
-          ...approvalItem,
-          isApproved: approvalItem.isApproved ? false : true
-        }
-      }
-      return approvalItem
-
-    });
-
-    setApprovalList(updatedApprovalList)
-
-    // setState({ ...state, [event.target.name]: event.target.checked });
-    // setShowText(!showText);
-  }
 
   const handleCardSelect = (data) => {
-    setSelectedCard(data);
+    setSelectedValue(data);
     setIsModalOpened(true);
   }
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleTableRowClick = (event) => {
-    history.push(`/Items/${event.id}`);
+
+  useEffect(() => {
+    fetchList()
+  }, [])
+
+  const fetchList = async () => {
+    try {
+      setIsLoading(true);
+
+      const productionRes = await ProductionAPI.fetchProductions(`item_id=${item_id}`);
+
+      const productionList = get(productionRes, 'data', []);
+
+      setList(productionList)
+      setIsLoading(false);
+
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const handleApproveItemForProduction = (data) => {
+    ProductionAPI.approveItemForProduction(data)
+      .then(res => {
+        console.log(res)
+
+      })
+      .catch(error => {
+        console.log(error)
+      })
   }
 
   if (isLoading) {
@@ -113,56 +91,29 @@ export default function Production(props) {
   return (
     <>
       <Heading>Production Approval</Heading>
-      <MainModal open={isModalOpened} toggleModal={toggleModal} >
-        <Paper style={{ padding: 10 }}>
-
-          <Grid container spacing={4}>
-            <Grid item xs={4}>ID</Grid>
-            <Grid item xs={8}>{selectedCard.id}</Grid>
-
-            <Grid item xs={4}>Name</Grid>
-            <Grid item xs={8}>{selectedCard.name}</Grid>
-
-          </Grid>
-
-          <Heading>Approvals</Heading>
-
-          <Grid container spacing={4}>
-            {
-              approvalList.map(approval => {
-                return (<>
-                  <Grid item xs={approval.isApproved ? 6 : 12}>
-                    <FormControlLabel
-                      control={<Checkbox onClick={() => handleApprovalStatus(approval)} />}
-                      label="Approved For Production"
-                    />
-                  </Grid>
-                  {approval.isApproved ?
-                    <Grid item xs={6}>{user.email} has approved for production at </Grid> :
-                    null
-
-                  }
-                </>)
-
-              })
-            }
-          </Grid>
-
-        </Paper>
-      </MainModal>
+      {isModalOpened &&
+        <ProductionApprovalModal
+          isModalOpened={isModalOpened}
+          toggleModal={toggleModal}
+          selectedValue={selectedValue}
+          setSelectedValue={setSelectedValue}
+          handleApproveItemForProduction={handleApproveItemForProduction}
+        />}
 
       <GridView
-        handleTableRowClick={handleTableRowClick}
-        list={[{ id: 1, name: 'Tesa' }, { id: 1, name: 'Tata' }]}
+        list={list}
         handleHistoryToggle={() => false}
-        columnsFields={{ id: 'ID', name: 'Name', 'Production Approval' : 'Production Approval' }}
+        columnsFields={{
+          id: 'ID',
+          name: 'Name',
+          quantity: 'Quantity',
+          start_date: 'Start date',
+          end_date: 'End date',
+          'Production Approval': 'Production Approval'
+        }}
         isHistoryLinkVisible={false}
         handleTableRowClick={handleCardSelect}
       />
     </>
   )
 }
-// list = { filteredVendorList }
-// handleHistoryToggle = { handleHistoryToggle }
-// columnsFields = { columnsFields }
-// handleTableRowClick = { handleTableRowClick }

@@ -186,12 +186,13 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 					</Grid>
 
 					<Grid item xs={4} style={{ display: 'flex' }} >
+						
 						<Headding bold title={'Item Category'}>
 						</Headding>
 						<Icon style={{ marginLeft: '18px' }} id="TooltipExample">info</Icon>
 						<Tooltip placement="top" isOpen={tooltipOpen} target="TooltipExample" toggle={toggleTooltip}>
 							This allows for selection of the general geometry or matter state of the item. The downstream impacts include how the item is handled and transported within Struct Production Systems
-            </Tooltip>
+                        </Tooltip>
 					</Grid>
 					<Grid item xs={8} >
 						<Select
