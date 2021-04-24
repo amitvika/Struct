@@ -1,5 +1,6 @@
 const Client = require("../models/client.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
+const GoDaddyAPI = require('../config/godaddy');
 
 exports.get = async (req, res) => {
 	const access = req.access;
@@ -11,7 +12,7 @@ exports.get = async (req, res) => {
 			"deletedAt": { "$exists": false }
 		});
 
-		if(req.query.item_id){
+		if (req.query.item_id) {
 			query.$and.push({
 				"linkedItems": req.query.item_id
 			});
@@ -154,8 +155,8 @@ exports.delete = (req, res) => {
 exports.update = async (req, res) => {
 	const saveObject = {
 		name: req.body.name,
-		websiteName: req.body.websiteName,
-		isSiteVisible: req.body.isSiteVisible,
+		// websiteName: req.body.websiteName,
+		// isSiteVisible: req.body.isSiteVisible,
 		logoName: req.body.logoName,
 		logoUrl: req.body.logoUrl,
 		linkedItems: req.body.linkedItems
@@ -163,14 +164,8 @@ exports.update = async (req, res) => {
 
 	try {
 
-		const client = await Client.findOne({ $and: [{ _id: { $ne: req.params.id } }, { websiteName: req.body.websiteName }] });
-
-		if (req.body.websiteName && client) {
-			res.send({ success: true, message: 'Website Name already taken', isWebsiteNameAvailable: false })
-			return
-		}
-
-		const updateClient = await Client.findByIdAndUpdate(req.params.id, { $set: saveObject }, { new: true })
+		const updateClient = await Client
+			.findByIdAndUpdate(req.params.id, { $set: saveObject }, { new: true })
 			.populate("createdByUserId", "name")
 
 		const changeTracking = new ChangeTracking({
@@ -190,4 +185,31 @@ exports.update = async (req, res) => {
 		console.log(error)
 		res.status(500).json({ success: false })
 	}
+}
+
+exports.createPersonalSubdomain = async (req, res) => {
+
+	try {
+
+		const client = await Client.findOne(
+			{
+				$and: [{
+					_id: {
+						$ne: req.params.id
+					}
+				},
+				{ websiteName: req.body.websiteName }]
+			});
+
+		if (req.body.websiteName && client) {
+			res.send({ success: true, message: 'Website Name already taken', isWebsiteNameAvailable: false })
+			return
+		}
+
+
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({ success: false })
+	}
+
 }
