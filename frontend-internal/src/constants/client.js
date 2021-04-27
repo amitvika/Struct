@@ -1,4 +1,4 @@
-export const columnsFields = { 'id': 'ID', 'name': 'Name', 'created_by': 'Created By','description' : 'Description' };
+export const columnsFields = { 'id': 'ID', 'name': 'Name', 'created_by': 'Created By' };
 
 export const documentationFields = [
     { title: "ID", field: "id", editable: "never", align: 'center' },

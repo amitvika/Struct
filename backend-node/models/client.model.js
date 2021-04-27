@@ -6,7 +6,7 @@ const ClientSchema = new mongoose.Schema({
 	date: { type: Date, default: Date.now },
 	deletedAt: { type: Date },
 	websiteName: { type: String },
-	isSiteVisible: { type: String },
+	isSiteVisible: { type: Boolean, default: false },
 	isDeleted: { type: Boolean, default: false },
 	logoName: { type: String },
 	logoUrl: { type: String },

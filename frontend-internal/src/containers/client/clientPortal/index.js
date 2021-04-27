@@ -24,6 +24,7 @@ export default function ClientPortal({ clientData, handleClientUpdate, isWebsite
 	}
 
 	const handleChange = (event) => {
+		setIsClientSiteUpdated(true);
 		handleClientUpdate({ ...clientData, isSiteVisible: event.target.checked });
 	};
 

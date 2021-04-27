@@ -202,7 +202,7 @@ exports.createPersonalSubdomain = async (req, res) => {
 				{ websiteName: req.body.websiteName }]
 			});
 
-		if (req.body.websiteName && client ) {
+		if (req.body.websiteName && client) {
 			return res.send({ success: true, message: 'Website Name already taken', isWebsiteNameAvailable: false })
 		}
 
@@ -216,28 +216,40 @@ exports.createPersonalSubdomain = async (req, res) => {
 
 				let recordList = await GoDaddyAPI.getSubdomains();
 
-				recordList = recordList.map(record => {
-					if (record.name === currentClient.websiteName) {
-						return ({
-							...record,
-							name: req.body.websiteName
-						})
-					}
-					else {
-						return record;
-					}
-				})
+				if (req.body.isSiteVisible) {
+					recordList = recordList.map(record => {
+						if (record.name === currentClient.websiteName) {
+							return ({
+								...record,
+								name: req.body.websiteName
+							})
+						}
+						else {
+							return record;
+						}
+					})
+				}
+				else {
+					recordList = recordList.filter(record => {
+						if (record.name === currentClient.websiteName) {
+							return false
+						}
+						else {
+							return true;
+						}
+					})
+				}
 
 				subdomain = await GoDaddyAPI.updateSubDomainName({ recordList });
-				console.log('Updated domain', subdomain)
+				console.log('Updated domain', recordList)
 			}
-			else {
+			else if(req.body.isSiteVisible){
 				subdomain = await GoDaddyAPI.addNewSubdomain({ name: req.body.websiteName });
 				console.log('Added domain', subdomain)
 			}
 
 		}
-		else {
+		else if(req.body.isSiteVisible){
 			subdomain = await GoDaddyAPI.addNewSubdomain({ name: req.body.websiteName });
 			console.log('Added domain', subdomain)
 		}
