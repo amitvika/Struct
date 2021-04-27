@@ -9,6 +9,7 @@ const cors = require('cors')
 global.MY_ROOT = __dirname
 
 app.use(cors());
+app.options('*', cors());
 
 app.use(passport.initialize());
 app.use(passport.session());
