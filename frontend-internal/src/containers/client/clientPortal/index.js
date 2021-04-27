@@ -9,9 +9,11 @@ import Headding from '../../../components/atoms/Headding';
 import Input from '../../../components/atoms/Input';
 import Space from '../../../components/atoms/Space';
 import ClientAPI from '../../../api/clients.api';
+import { useDispatch } from 'react-redux';
+import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
 
 export default function ClientPortal({ clientData, handleClientUpdate, isWebsiteNameAvailable }) {
-
+	const dispatch = useDispatch();
 	const [isClientSiteUpdated, setIsClientSiteUpdated] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -35,10 +37,12 @@ export default function ClientPortal({ clientData, handleClientUpdate, isWebsite
 		ClientAPI.configureSubdomain(clientData._id, { websiteName: clientData.websiteName, isSiteVisible: clientData.isSiteVisible })
 			.then(res => {
 				setIsLoading(false);
+				dispatch(showSuccessAlert({ message: 'All data is saved' }));
 			})
 			.catch(err => {
 				setIsLoading(false);
-				console.log('Error', err)
+				console.log('Error', err);
+				dispatch(showErrorAlert({ message: 'Unable to save data' }));
 			})
 	}
 
