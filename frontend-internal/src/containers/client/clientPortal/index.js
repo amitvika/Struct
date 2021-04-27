@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
-import {
-	Grid,
-	Link,
-	Checkbox
-} from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import Link from '@material-ui/core/Link';
+import Checkbox from '@material-ui/core/Checkbox';
+import Button from '@material-ui/core/Button';
+import LinearProgress from '@material-ui/core/LinearProgress';
+
 import Headding from '../../../components/atoms/Headding';
 import Input from '../../../components/atoms/Input';
 import Space from '../../../components/atoms/Space';
+import ClientAPI from '../../../api/clients.api';
 
 export default function ClientPortal({ clientData, handleClientUpdate, isWebsiteNameAvailable }) {
+
+	const [isClientSiteUpdated, setIsClientSiteUpdated] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const handleSiteNameChange = (event) => {
 		event.persist();
 		if (event.target !== null) {
+			setIsClientSiteUpdated(true);
 			handleClientUpdate({ ...clientData, websiteName: event.target.value });
 		}
 	}
@@ -20,6 +26,20 @@ export default function ClientPortal({ clientData, handleClientUpdate, isWebsite
 	const handleChange = (event) => {
 		handleClientUpdate({ ...clientData, isSiteVisible: event.target.checked });
 	};
+
+	const handleSubmit = () => {
+		setIsClientSiteUpdated(false);
+
+		setIsLoading(true);
+		ClientAPI.configureSubdomain(clientData._id, { websiteName: clientData.websiteName, isSiteVisible: clientData.isSiteVisible })
+			.then(res => {
+				setIsLoading(false);
+			})
+			.catch(err => {
+				setIsLoading(false);
+				console.log('Error', err)
+			})
+	}
 
 	return (
 		<div>
@@ -65,6 +85,20 @@ export default function ClientPortal({ clientData, handleClientUpdate, isWebsite
 							</Grid>
 						</Grid>
 					</>
+				}
+
+				{isLoading && <Grid item xs={12}>
+
+					<LinearProgress />
+				</Grid>}
+
+				{
+					isClientSiteUpdated &&
+					<Grid item xs={12}>
+						<Button variant="contained" color="primary" onClick={handleSubmit}>
+							Configure Client site
+						</Button>
+					</Grid>
 				}
 			</Grid>
 

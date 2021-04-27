@@ -1,3 +1,5 @@
+const fetch = require("node-fetch");
+
 exports.addNewSubdomain = ({ name }) => {
 
     return new Promise((resolve, reject) => {
@@ -6,14 +8,14 @@ exports.addNewSubdomain = ({ name }) => {
             reject()
         }
 
-        const payload = [
+        const payload = JSON.stringify([
             {
                 "data": "54.211.178.127",
                 "name": name,
                 "ttl": 1000,
                 "type": "A"
             }
-        ];
+        ]);
 
         const url = `https://api.godaddy.com/v1/domains/struct.services/records`;
         APIHelper({ url, method: "PATCH", payload })
@@ -25,10 +27,10 @@ exports.addNewSubdomain = ({ name }) => {
     })
 }
 
-exports.isDomainAlreadyExist = ({ name }) => {
+exports.isSubDomainAlreadyExist = ({ name }) => {
     return new Promise((resolve, reject) => {
         const url = `https://api.godaddy.com/v1/domains/struct.services/records/A/${name}`;
-        APIHelper({ url, method: "GET", data })
+        APIHelper({ url, method: "GET" })
             .then(data => data.json())
             .then(data => {
                 if (data.length > 0) {
@@ -44,19 +46,27 @@ exports.isDomainAlreadyExist = ({ name }) => {
     })
 }
 
-
-exports.updateSubDomainName = ({ name }) => {
+exports.getSubdomains = () => {
     return new Promise((resolve, reject) => {
-        const payload = [
-            {
-                "data": "54.211.178.127",
-                "name": name,
-                "ttl": 1000,
-                "type": "A"
-            }
-        ];
+        const url = `https://api.godaddy.com/v1/domains/struct.services/records/A`;
+        APIHelper({ url, method: "GET" })
+            .then(data => data.json())
+            .then(data => {
+               resolve(data);
+            })
+            .catch(error => {
+                reject(error);
+            })
+    })
+}
 
-        const url = `https://api.godaddy.com/v1/domains/struct.services/records/A/${name}`;
+
+exports.updateSubDomainName = ({ recordList }) => {
+    return new Promise((resolve, reject) => {
+        const payload = JSON.stringify(recordList);
+
+        const url = `https://api.godaddy.com/v1/domains/struct.services/records/A`;
+        
         APIHelper({ url, method: "PUT", payload })
             .then(data => resolve('Subdomain updated sucessfully'))
             .catch(error => {
@@ -65,7 +75,7 @@ exports.updateSubDomainName = ({ name }) => {
     })
 }
 
-const APIHelper = ({ url, method, payload = {} }) => {
+const APIHelper = ({ url, method, payload }) => {
     return fetch(url, {
         method,
         headers: {
@@ -73,6 +83,6 @@ const APIHelper = ({ url, method, payload = {} }) => {
             'Content-Type': 'application/json',
             "Authorization": "sso-key eoWr8zUBfscJ_S2obcNwns1usSR5TyKqkj9:X2MVbJexRRJcWZ3Qn2v16e"
         },
-        body: JSON.stringify(payload)
+        body: payload
     })
 }

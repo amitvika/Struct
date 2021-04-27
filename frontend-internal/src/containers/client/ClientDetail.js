@@ -11,7 +11,7 @@ import {
 	Link
 } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useParams, useHistory } from "react-router-dom";
 import API from '../../api/clients.api';
 import Products from './products'
 import ClientPortal from './clientPortal';
@@ -22,17 +22,25 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { Spinner } from "reactstrap";
 import Documentation from "../documentation";
 import get from 'lodash/get';
+import { useQuery } from '../../utils/customHooks'
 
 const ClientDetail = () => {
 	let { id } = useParams();
-	const dispatch = useDispatch()
+	let query = useQuery();
+	const history = useHistory();
+	const dispatch = useDispatch();
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [value, setValue] = useState(1);
 	const [clientData, setClientData] = useState({});
 	const [isWebsiteNameAvailable, setIsWebsiteNameAvailable] = useState(true);
+	const [tabIndex, setTabIndex] = useState(1);
 
 	useEffect(() => {
+		if (query.get('tab')) {
+			setTabIndex(parseInt(query.get('tab')))
+		}
+
 		setIsLoading(true)
 		API.fetchClientApi(id)
 			.then(res => {
@@ -53,7 +61,6 @@ const ClientDetail = () => {
 	const handleSave = () => {
 		syncWithServer(clientData)
 	}
-
 
 	const syncWithServer = (data) => {
 
@@ -97,7 +104,7 @@ const ClientDetail = () => {
 			return null
 		}
 
-		switch (index) {
+		switch (tabIndex) {
 			case 1:
 				return <Products clientData={clientData} clientId={id} handleClientUpdate={handleClientUpdate} />
 
@@ -127,6 +134,15 @@ const ClientDetail = () => {
 			default:
 				return "Undefined Tab Index";
 		}
+	}
+
+	const handleTabChange = (event, newTabIndex) => {
+		setTabIndex(newTabIndex)
+
+		history.push({
+			pathname: `/clients/${id}`,
+			search: `?tab=${newTabIndex}`
+		})
 	}
 
 	if (isLoading) {
@@ -174,8 +190,8 @@ const ClientDetail = () => {
 						<Tabs
 							orientation="vertical"
 							variant="scrollable"
-							value={value}
-							onChange={(event, newValue) => setValue(newValue)}
+							value={tabIndex}
+							onChange={handleTabChange}
 						>
 							<Tab label="Contract Manufacturing Products" value={1} />
 							<Tab label="Client Portal" value={2} />

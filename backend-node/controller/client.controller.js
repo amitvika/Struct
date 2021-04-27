@@ -1,6 +1,7 @@
 const Client = require("../models/client.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
 const GoDaddyAPI = require('../config/godaddy');
+const _ = require('lodash');
 
 exports.get = async (req, res) => {
 	const access = req.access;
@@ -201,15 +202,59 @@ exports.createPersonalSubdomain = async (req, res) => {
 				{ websiteName: req.body.websiteName }]
 			});
 
-		if (req.body.websiteName && client) {
-			res.send({ success: true, message: 'Website Name already taken', isWebsiteNameAvailable: false })
-			return
+		if (req.body.websiteName && client ) {
+			return res.send({ success: true, message: 'Website Name already taken', isWebsiteNameAvailable: false })
 		}
 
+		const currentClient = await Client.findById(req.params.id);
+		let subdomain;
+		if (_.get(currentClient, 'websiteName', '').length > 0) {
+
+			//check if old subdmain exsits
+			const isSubDomainAlreadyExist = await GoDaddyAPI.isSubDomainAlreadyExist({ name: currentClient.websiteName });
+			if (isSubDomainAlreadyExist) {
+
+				let recordList = await GoDaddyAPI.getSubdomains();
+
+				recordList = recordList.map(record => {
+					if (record.name === currentClient.websiteName) {
+						return ({
+							...record,
+							name: req.body.websiteName
+						})
+					}
+					else {
+						return record;
+					}
+				})
+
+				subdomain = await GoDaddyAPI.updateSubDomainName({ recordList });
+				console.log('Updated domain', subdomain)
+			}
+			else {
+				subdomain = await GoDaddyAPI.addNewSubdomain({ name: req.body.websiteName });
+				console.log('Added domain', subdomain)
+			}
+
+		}
+		else {
+			subdomain = await GoDaddyAPI.addNewSubdomain({ name: req.body.websiteName });
+			console.log('Added domain', subdomain)
+		}
+
+		const updateClient = await Client
+			.findByIdAndUpdate(req.params.id, {
+				$set: {
+					isSiteVisible: req.body.isSiteVisible,
+					websiteName: req.body.websiteName
+				}
+			}, { new: true })
+
+		res.send({ success: true, message: 'Domain created successfully', isWebsiteNameAvailable: false })
 
 	} catch (error) {
 		console.log(error)
-		res.status(500).json({ success: false })
+		res.status(500).json({ success: false, message: 'Unable to process your request', })
 	}
 
 }

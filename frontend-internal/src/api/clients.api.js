@@ -1,4 +1,4 @@
-import { postRequest, getRequest, putRequest, deleteRequest } from '../utils/apiHandler';
+import { postRequest, getRequest, putRequest, deleteRequest, patchRequest } from '../utils/apiHandler';
 
 export const fetchClientsApi = (query) => getRequest(`/api/clients?${query}`);
 
@@ -8,6 +8,8 @@ const addClientApi = (data) => postRequest('/api/clients', data);
 
 const updateClientApi = (id, data) => putRequest(`/api/clients/${id}`, data);
 
+const configureSubdomain = (id, data) => patchRequest(`/api/clients/${id}/configure-domain`, data);
+
 const deleteClientApi = (id) => deleteRequest(`/api/clients/${id}`);
 
 export default {
@@ -15,5 +17,6 @@ export default {
   fetchClientApi,
   addClientApi,
   updateClientApi,
-  deleteClientApi
+  deleteClientApi,
+  configureSubdomain
 }

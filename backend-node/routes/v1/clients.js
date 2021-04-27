@@ -18,4 +18,6 @@ router.delete("/:id", hasPermissionForClientEdit, ClientController.delete);
 
 router.put("/:id", hasPermissionForClientEdit, ClientController.update);
 
+router.patch("/:id/configure-domain", hasPermissionForClientEdit, ClientController.createPersonalSubdomain);
+
 module.exports = router;
