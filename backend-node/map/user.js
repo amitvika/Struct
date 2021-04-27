@@ -2,9 +2,11 @@ const isArray = require('lodash/isArray');
 
 exports.mapUsers = (data) => {
     if (isArray(data)) {
-        return data.map((item, index) => {
-            return this.mapUser(item)
-        })
+        return data
+            .filter(item => item !== null)
+            .map((item, index) => {
+                return this.mapUser(item)
+            })
     }
     else {
         return []

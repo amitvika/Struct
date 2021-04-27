@@ -180,6 +180,15 @@ const TableGridView = ({
 		});
 	}
 
+
+	const handleTeamModalToggle = () => {
+		if (isManageTeamModalOpened) {
+			setSelectedListItem(null);
+			setIsEditing(false);
+		}
+		setIsManageTeamModalOpened(!isManageTeamModalOpened);
+	}
+
 	if (isLoading) {
 		return (<div
 			style={{
@@ -212,7 +221,7 @@ const TableGridView = ({
 				isManageTeamAvailable &&
 				<ManageTeamModal
 					open={isManageTeamModalOpened}
-					toggleModal={() => setIsManageTeamModalOpened(!isManageTeamModalOpened)}
+					toggleModal={handleTeamModalToggle}
 					selectedValue={selectedListItem}
 					handleUpdate={handleUpdate}
 				/>

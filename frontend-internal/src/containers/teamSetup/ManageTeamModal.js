@@ -31,7 +31,7 @@ export default function ManageTeamModal({ selectedValue, toggleModal, open, hand
 				fetchList={UserSetupAPI.fetchUsers}
 				fetchSelectedList={fetchSelectedList}
 				fields={{ 'id': 'ID', 'name': 'Name' }}
-				mapValues={(data) => data.map(item => ({ ...item, id: item._id }))}
+				mapValues={(data) => data}
 				handleUpdate={handleMemberSelectChange}
 				handleSelection={(data) => { }}
 			/>

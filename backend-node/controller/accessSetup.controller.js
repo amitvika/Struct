@@ -14,12 +14,14 @@ exports.get = async (req, res) => {
 
 		if (query.$and.length > 0) {
 			teams = await AccessSetup.find(query)
+				.populate('created_by')
 				.sort({ updatedAt: -1 })
 
 		}
 		else {
 			teams = await AccessSetup
 				.find()
+				.populate('created_by')
 				.sort({ updatedAt: -1 })
 
 		}
@@ -74,6 +76,9 @@ exports.upsert = async (req, res) => {
 			updatedBy: req.user.id
 		});
 		await changeTracking.save();
+
+		team = await AccessSetup.findById(req.body.id)
+			.populate('created_by')
 
 		res.json(mapAccessSetup(team))
 	}

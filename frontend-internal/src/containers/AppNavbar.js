@@ -224,15 +224,14 @@ const AppNavbar = () => {
 
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto " navbar>
-            <div>
-              <NavLink
-                className="navbar-text"
-                to='/configuration-history'
-                tag={RRNavLink}>
-                Configuration History
+
+            <NavLink
+              className="navbar-text"
+              to='/viewMyProfile?tab=3'
+              tag={RRNavLink}>
+              My Tasks
                 </NavLink>
-              <NavLink className="navbar-text disabled">|</NavLink>
-            </div>
+            <NavLink className="navbar-text disabled">|</NavLink>
 
             <div className={classes.profile_container}>
               <Typography
@@ -256,21 +255,31 @@ const AppNavbar = () => {
                   <Paper>
                     <ClickAwayListener onClickAway={handleClose}>
                       <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                        {user && user.userAccess && user.userAccess.access.OA_1_V && (
-                          <MenuItem onClick={() => {
+                        <MenuItem
+                          onClick={() => {
                             setOpen(false);
-                            history.push('/user-setup');
-                          }}>User Setup</MenuItem>
+                            history.push('/configuration-history');
+                          }}> Configuration History</MenuItem>
 
+                        {user && user.userAccess && user.userAccess.access.OA_1_V && (
+                          <MenuItem
+                            onClick={() => {
+                              setOpen(false);
+                              history.push('/user-setup');
+                            }}>User Setup</MenuItem>
                         )}
-                        <MenuItem onClick={() => {
-                          setOpen(false);
-                          history.push('viewMyProfile');
-                        }}> View My Profile</MenuItem>
+
+                        <MenuItem
+                          onClick={() => {
+                            setOpen(false);
+                            history.push('/viewMyProfile');
+                          }}> View My Profile</MenuItem>
+
                         <MenuItem>
                           <Switch checked={lightThemeSelected} onChange={handleThemeChange} name="currentTheme" />
                           {lightThemeSelected ? 'Dark' : 'Light'}
                         </MenuItem>
+
                         <MenuItem onClick={handleClose}>Logout</MenuItem>
                       </MenuList>
                     </ClickAwayListener>
