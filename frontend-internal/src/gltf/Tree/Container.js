@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+//import * as React from 'react'
+import {  useState } from "react";
 import styled from 'styled-components'
 import { motion } from 'framer-motion'
 import NodeElement from './NodeElement'
@@ -53,15 +54,15 @@ const Container = (props) => {
   const [_isOpen, _setIsOpen] = useState(
     Array(_containerItems.length).fill(false)
   ) // keeping track of open folders
-
-
+ 
+  
   return (
     <_Container parent={parent}>
       <_DropZone>
         {!!_containerItems.length &&
           _containerItems.map((item, k) => {
-            if (item.leaf) {
-
+            if(item.leaf) {
+             
               return (
                 <LeafElement
                   data={item}
@@ -81,7 +82,7 @@ const Container = (props) => {
                 />
               )
             } else {
-
+              
               return (
                 <_Content key={k}>
                   <NodeElement
@@ -158,7 +159,7 @@ const Container = (props) => {
                 </_Content>
               )
             }
-
+            
           })}
       </_DropZone>
     </_Container>
@@ -170,16 +171,16 @@ Container.defaultProps = {
   parent: null,
   level: 0,
   selected: null,
-  onSelect: () => { },
+  onSelect: () => {},
   currentTheme: 'dark',
   showEmptyItems: false,
   iconSet: null,
   noIcons: undefined,
   structure: true,
-  disectparts: false,
-  selectitems: true,
-  firstshell: null,
-  secondshell: null,
+  disectparts : false,
+  selectitems : true,
+  firstshell : null,
+  secondshell : null,
 }
 
 export default Container

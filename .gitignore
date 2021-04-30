@@ -3,5 +3,15 @@ node_modules
 *.bin
 *.STEP
 *.STEP1
-
+*.pyc
+*.step
+*.pickle
+*.iges
+*.stp
+*.igs
+*.stl
+*.brep
+*.dxf
 __pycache__
+*.sqlite3
+*.sqbpro

@@ -1,31 +1,31 @@
 from math import radians
 
-from OCP.BRepBndLib import brepbndlib_Add, brepbndlib_AddOptimal, brepbndlib_AddOBB
-from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakePrism
-from OCP.BRepBuilderAPI import (BRepBuilderAPI_MakeEdge,
+from OCC.Core.BRepBndLib import brepbndlib_Add, brepbndlib_AddOptimal, brepbndlib_AddOBB
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakePrism
+from OCC.Core.BRepBuilderAPI import (BRepBuilderAPI_MakeEdge,
                                      BRepBuilderAPI_MakeVertex,
                                      BRepBuilderAPI_MakeWire,
                                      BRepBuilderAPI_MakeFace, BRepBuilderAPI_MakeEdge2d,
                                      BRepBuilderAPI_Transform)
-from OCP.BRepBuilderAPI import BRepBuilderAPI_GTransform
-from OCP.BRepFill import BRepFill_Filling
-from OCP.Bnd import Bnd_Box, Bnd_OBB
-from OCP.GeomAbs import (GeomAbs_C0, GeomAbs_Plane, GeomAbs_Cylinder, GeomAbs_Cone,
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_GTransform
+from OCC.Core.BRepFill import BRepFill_Filling
+from OCC.Core.Bnd import Bnd_Box, Bnd_OBB
+from OCC.Core.GeomAbs import (GeomAbs_C0, GeomAbs_Plane, GeomAbs_Cylinder, GeomAbs_Cone,
                               GeomAbs_Sphere, GeomAbs_Torus, GeomAbs_BezierSurface, GeomAbs_BSplineSurface,
                               GeomAbs_SurfaceOfRevolution, GeomAbs_SurfaceOfExtrusion, GeomAbs_OffsetSurface,
                               GeomAbs_OtherSurface)
-from OCP.BRepAdaptor import BRepAdaptor_Surface, BRepAdaptor_Curve
-from OCP.GeomAPI import GeomAPI_PointsToBSpline
-from OCP.GProp import GProp_GProps
-from OCP.BRepGProp import (brepgprop_LinearProperties,
+from OCC.Core.BRepAdaptor import BRepAdaptor_Surface, BRepAdaptor_Curve
+from OCC.Core.GeomAPI import GeomAPI_PointsToBSpline
+from OCC.Core.GProp import GProp_GProps
+from OCC.Core.BRepGProp import (brepgprop_LinearProperties,
                                 brepgprop_SurfaceProperties,
                                 brepgprop_VolumeProperties)
-from OCP.TColgp import TColgp_Array1OfPnt
-from OCP.TopoDS import TopoDS_Face
-from OCP.gp import (gp_Vec, gp_Pnt, gp_Trsf, gp_OX, gp_OY,
+from OCC.Core.TColgp import TColgp_Array1OfPnt
+from OCC.Core.TopoDS import TopoDS_Face
+from OCC.Core.gp import (gp_Vec, gp_Pnt, gp_Trsf, gp_OX, gp_OY,
                          gp_OZ, gp_XYZ, gp_Ax2, gp_Dir, gp_GTrsf, gp_Mat)
 
-from OCP.Extend.TopologyUtils import is_edge, is_face
+from OCC.Core.Extend.TopologyUtils import is_edge, is_face
 
 #
 # assert utils

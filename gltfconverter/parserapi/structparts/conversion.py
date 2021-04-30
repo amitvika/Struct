@@ -6,7 +6,6 @@ from OCC.Core.StlAPI import stlapi_Read, StlAPI_Writer
 from OCC.Core.BRep import BRep_Builder
 from OCC.Core.gp import gp_Pnt, gp_Dir, gp_Pnt2d
 from OCC.Core.Bnd import Bnd_Box2d
-from OCC.Core.TopoDS import TopoDS_Compound
 from OCC.Core.IGESControl import IGESControl_Reader, IGESControl_Writer
 from OCC.Core.STEPControl import STEPControl_Reader, STEPControl_Writer, STEPControl_AsIs
 from OCC.Core.Interface import Interface_Static_SetCVal
@@ -20,8 +19,15 @@ from OCC.Core.TCollection import TCollection_ExtendedString
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from OCC.Core.TopLoc import TopLoc_Location
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
-
-from OCC.Extend.TopologyUtils import (TopologyExplorer, discretize_edge, get_sorted_hlr_edges,
+from OCC.Core.BRepTools import breptools_Read
+from OCC.Core.TopoDS import (topods, TopoDS_Wire, TopoDS_Vertex, TopoDS_Edge,
+                        TopoDS_Face, TopoDS_Shell, TopoDS_Solid,
+                        TopoDS_Compound, TopoDS_CompSolid, topods_Edge,
+                        topods_Vertex, TopoDS_Iterator)
+from OCC.Core.TopAbs import (TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE,
+                        TopAbs_SHELL, TopAbs_SOLID, TopAbs_COMPOUND,
+                        TopAbs_COMPSOLID)
+from .structquery.occ_impl.OCCExtend.TopologyUtils import (TopologyExplorer, discretize_edge, get_sorted_hlr_edges,
                                       list_of_shapes_to_compound)
 
 
@@ -31,10 +37,41 @@ try:
 except ImportError:
     HAVE_SVGWRITE = False
 
+def GetSolidsFromCompund(mycompund,shapesList):    
+    
+    
+    if mycompund.ShapeType()==TopAbs_COMPSOLID:
+        topology = TopologyExplorer(mycompund,ignore_orientation=False)
+        mycompounds = topology.compounds() 
+        for mycomps in mycompounds:
+            shapesList = GetSolidsFromCompund(mycomps,shapesList)
+        mysolids =topology.solids()
+        for mysolid in mysolids:
+            shapesList = GetSolidsFromCompund(mysolid,shapesList)
+        if(len(shapesList)>=1) :
+            return shapesList
+    if mycompund.ShapeType()==TopAbs_COMPOUND:
+        topology = TopologyExplorer(mycompund,ignore_orientation=False)          
+        mysolids =topology.solids()
+        for mysolid in mysolids:
+            shapesList = GetSolidsFromCompund(mysolid,shapesList)
+        if(len(shapesList)>=1) :
+            return shapesList
+    #mywires = topology.wires()
+    #myshells = topology.shells()
+    #myfaces = topology.faces()
+    #myedges = topology.edges()
+    #myvertices = topology.vertices()  
+    #if mycompund.ShapeType()==TopAbs_SOLID:
+    compound, _ = list_of_shapes_to_compound([mycompund])
+    shapesList.append(compound)
+    return shapesList    
+    
+
 ##########################
 # Step import and export #
 ##########################
-def read_step_file(filename, as_compound=True, verbosity=True):
+def read_step_file(filename, as_compound=False, verbosity=False):
     """ read the STEP file and returns a compound
     filename: the file path
     verbosity: optional, False by default.
@@ -63,25 +100,16 @@ def read_step_file(filename, as_compound=True, verbosity=True):
         if _nbs == 0:
             raise AssertionError("No shape to transfer.")
         elif _nbs == 1:  # most cases
-           
+            print("Number of shapes:", _nbs)
+            shps=[]
             mycompund = step_reader.Shape(1)
             if as_compound:
                 return [mycompund]
-            
-            topology = TopologyExplorer(mycompund,ignore_orientation=False)
-            
-            mysolids =topology.solids()
-            
-            mycompsolids = topology.comp_solids()
-            
-            shps=[]
-            for mysolid in mysolids:
-                compound, result = list_of_shapes_to_compound([mysolid])
-                shps.append(compound)
-            for mycompsolid in mycompsolids:
-                compound, result = list_of_shapes_to_compound([mycompsolid])
-                shps.append(compound)                
-            print(shps)
+            shps=GetSolidsFromCompund(mycompund,shps)                   
+            if(len(shps)==0) :
+                return [mycompund]        
+                         
+            #print(shps)
             return shps
         elif _nbs > 1:
             print("Number of shapes:", _nbs)
@@ -93,8 +121,7 @@ def read_step_file(filename, as_compound=True, verbosity=True):
                     if as_compound:
                         shps.append(new_shp)                        
                     else :
-                        compound, result = list_of_shapes_to_compound([new_shp])
-                        shps.append(compound)
+                        shps=GetSolidsFromCompund(new_shp,shps)
             if as_compound:
                 compound, result = list_of_shapes_to_compound(shps)
                 if not result:
@@ -193,7 +220,7 @@ def read_step_file_with_names_colors(filename):
         #print("Nb components  :", l_comps.Length())
         #print()
         name = lab.GetLabelName()
-        print("Name :", name)
+        #print("Name :", name)
 
         if shape_tool.IsAssembly(lab):
             l_c = TDF_LabelSequence()
@@ -364,24 +391,62 @@ def write_stl_file(a_shape, filename, mode="ascii", linear_deflection=0.9, angul
         raise IOError("File not written to disk.")
 
 
-def read_stl_file(filename):
+def read_stl_file(filename, as_compound=False):
     """ opens a stl file, reads the content, and returns a BRep topods_shape object
     """
     if not os.path.isfile(filename):
         raise FileNotFoundError("%s not found." % filename)
-
+    shapes = []
     the_shape = TopoDS_Shape()
     stlapi_Read(the_shape, filename)
 
     if the_shape.IsNull():
         raise AssertionError("Shape is null.")
+    
+    shapes = GetSolidsFromCompund(the_shape,shapes)
+    if(len(shapes)==0) :
+        return [the_shape]
+    else :
+        if as_compound:
+            compound, result = list_of_shapes_to_compound(shapes)
+            if not result:
+                print("Warning: all shapes were not added to the compound")
+            return [compound]
+        else:
+            print("Warning, returns a list of shapes.")
+            return shapes
+        
 
-    return the_shape
+def read_brep_file(filename, as_compound=False):
+    """ opens a stl file, reads the content, and returns a BRep topods_shape object
+    """
+    if not os.path.isfile(filename):
+        raise FileNotFoundError("%s not found." % filename)
+    shapes = []
+    the_shape = TopoDS_Shape()  
+    the_builder = BRep_Builder()
+    breptools_Read(the_shape, filename, the_builder)
+   
+    if the_shape.IsNull():
+        raise AssertionError("Shape is null.")
+    shapes = GetSolidsFromCompund(the_shape,shapes)
+    if(len(shapes)==0) :
+        return [the_shape]
+    else :
+        if as_compound:
+            compound, result = list_of_shapes_to_compound(shapes)
+            if not result:
+                print("Warning: all shapes were not added to the compound")
+            return [compound]
+        else:
+            print("Warning, returns a list of shapes.")
+            return shapes
+    
 
 ######################
 # IGES import/export #
 ######################
-def read_iges_file(filename, return_as_shapes=False, verbosity=False, visible_only=False):
+def read_iges_file(filename, as_compound=False, verbosity=False, visible_only=False):
     """ read the IGES file and returns a compound
     filename: the file path
     return_as_shapes: optional, False by default. If True returns a list of shapes,
@@ -402,10 +467,15 @@ def read_iges_file(filename, return_as_shapes=False, verbosity=False, visible_on
             failsonly = False
             iges_reader.PrintCheckLoad(failsonly, IFSelect_ItemsByEntity)
             iges_reader.PrintCheckTransfer(failsonly, IFSelect_ItemsByEntity)
-        iges_reader.TransferRoots()
         nbr = iges_reader.NbRootsForTransfer()
+        if nbr >= 1:
+            print("Transfering",nbr,"roots from", filename)
+            iges_reader.TransferRoots()
+            nbr = 1      
+        
         for _ in range(1, nbr+1):
             nbs = iges_reader.NbShapes()
+            print("Transfering",nbs,"entities from", nbr, "roots of", filename)
             if nbs == 0:
                 print("At least one shape in IGES cannot be transfered")
             elif nbr == 1 and nbs == 1:
@@ -413,23 +483,32 @@ def read_iges_file(filename, return_as_shapes=False, verbosity=False, visible_on
                 if a_res_shape.IsNull():
                     print("At least one shape in IGES cannot be transferred")
                 else:
-                    _shapes.append(a_res_shape)
+                    if as_compound:
+                        _shapes.append(a_res_shape)
+                    else :
+                        _shapes = GetSolidsFromCompund(a_res_shape,_shapes)
+                    #print("Shape No", nbr, nbs)
             else:
                 for i in range(1, nbs+1):
                     a_shape = iges_reader.Shape(i)
                     if a_shape.IsNull():
-                        print("At least one shape in STEP cannot be transferred")
+                        print("At least one shape in IGES cannot be transferred")
                     else:
-                        _shapes.append(a_shape)
+                        if as_compound:
+                            _shapes.append(a_shape)
+                        else :
+                            _shapes = GetSolidsFromCompund(a_shape,_shapes)
+                        #_shapes.append(a_shape)
+                        #print("Shape No", nbr, nbs)
     # if not return as shapes
     # create a compound and store all shapes
-    if not return_as_shapes:
+    if as_compound:
         builder = BRep_Builder()
         compound = TopoDS_Compound()
         builder.MakeCompound(compound)
         for s in _shapes:
             builder.Add(compound, s)
-        _shapes = compound
+        _shapes = [compound]
     return _shapes
 
 def write_iges_file(a_shape, filename):

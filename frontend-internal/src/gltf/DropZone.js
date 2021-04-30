@@ -1,108 +1,131 @@
-import React, { Component } from 'react';
-import Dropzone from 'react-dropzone';
+import React,{Component} from 'react';
+//import Dropzone from 'react-dropzone';
+
+//import request from 'axios';
+
+import { Global } from "@emotion/core";//@linaria/core
+//import { Global, css } from "@linaria/core";
+import {styles} from "./styles/css"
+import { motion } from 'framer-motion'
+import styled from 'styled-components'
+import DisplaySpinner from "./DisplaySpinner"
 import GLTFRenderer from "./GltfRenderer";
+import Downloader from "./Downloader";
 import DisplayTree from "./DisplayTree";
-import Slider from "./Slider/components/Slider";
-import {
-	rgbToHex, getTexture, prettyPrintArray, getFloat,
-	SELECTBACKCOLOR, SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTMATERIRAL, SELECTTICK
-} from "./Tree/utils";
-import Select from "./DropDown";
-import { upload3DFile, getGLTFJson, getSplitFiles, getHierarchySplitFiles, getAllTextures, getAllFiles } from '../api/fileUpload.api'
-import './style.css';
 
-const DEFAULTSPLITS = {
-	"buffers": [],
-	"meshes": [],
-	"nodes": [],
-	"download": "",
-	"tree": [],
-	"btree": [],
+import { SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR, 
+		DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR,DEFAULTTOUCHCOLOR,
+		getTexture, SELECT2DTEXTURE, SELECT3DTEXTURE, 
+		SELECTMATERIRAL, SELECTDISTANCE, SELECTSHOWINFO,
+		SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER, SELECTMEASURE,
+		SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE, prettyPrintArray } from "./Tree/utils";
+import Icon from './Tree/Icon'
+
+//import Select from "./DropDown";
+import ShowShapeInfo from "./ShowShapeInfo"
+import GetFilesList from "./GetFilesList"
+
+import { upload3DFile, getGLTFJson, getSplitFiles, getHierarchySplitFiles, getPartsStackableInfo,
+			getAllTextures, getAllFiles, getShapeInfo, fetchShapeInfo } from '../api/fileUpload.api'
+//import { NoToneMapping } from 'three';
+//import { runInThisContext } from 'vm';
+
+import DistanceCalculator from "./DistanceCalculator"
+
+
+const DEFAULTSPLITS={
+	"buffers":[],
+	"meshes":[],
+	"nodes":[],
+	"download":"",
+	"tree":[],
+	"btree":[],
+	"stackable":[]
 };
 
-const MOVEONLY = 1;
-const ROTATEONLY = 2;
-
-const CONTINUOUSSPLIT = 1;
-const HIERARCHYSPLIT = 2;
-const HIERARCHYMINOR = 3;
-const CONTINUOUSMINOR = 4;
-
-const DEFAULTCOLOR = rgbToHex(0.8, 0.8, 0.8);
 const DEFAULTTEXTURE = getTexture(null);
-const DEFAULTDISTANCEGAP = 0.1;
-const DEFAULTANGLEGAP = 0.5;
-const DEFAULTDISECT = false;
-const DefaultMaterials = [
-	{ "id": 1, "name": "Basic" },
-	{ "id": 2, "name": "Lambert" },
-	{ "id": 3, "name": "Phong" },
-	{ "id": 4, "name": "Standard" },
-	{ "id": 5, "name": "Physical" }
-]
-const DEFAULTMATERIALTYPE = [{ "id": 1, "name": "Basic" }];
-
-const DEFAULTDISTANCEDATA = {
-	"distance": null,
-	"points1": [],
-	"points2": []
-};
-
+const DEFAULTMATERIALNAME = "Basic";
+const __Button = styled(motion.div)`
+.buttonTrue {
+    display: inline-block;
+    padding: 5px 12px;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #E866E8;
+    background-color: #179917;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 2px #999;
+  }
+  
+  .buttonFalse {
+    display: inline-block;
+    padding: 5px 12px;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #E800E8;
+    background-color: #17FF17;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 2px #999;
+  }
+  
+`;
 const splitPaneContext = React.createContext();
-class DropZone extends Component {
+class DropZone extends Component{
 	state = {
-		files: [],
-		gltfjson: "",
-		gltfobj: DEFAULTSPLITS,
-		activefile: 0,
-		splitfiles: DEFAULTSPLITS,
-		activesplit: 0,
-		includeparts: 0,
-		loadingContent: false,
-		distancegap: [],
-		anglegap: [],
-		changedata: [],
-		whatchanged: 0,
-		datacolor: DEFAULTCOLOR,
-		data2values: DEFAULTTEXTURE,
-		data3values: DEFAULTTEXTURE,
-		dataselection: 0,
-		textures: [],
-		disect: [],
-		selectedindex: -1,
-		materialtype: [],
-		firstshell: null,
-		secondshell: null,
-		xmove: 0.0,
-		ymove: 0.0,
-		zmove: 0.0,
-		xrotate: 0.0,
-		yrotate: 0.0,
-		zrotate: 0.0,
-		distancedata: DEFAULTDISTANCEDATA,
-	}
+			files: [],
+			gltfjson: "",
+			gltfobj:DEFAULTSPLITS,
+			activefile: 0,
+			splitfiles:DEFAULTSPLITS,			 
+			loadingContent : false,			
+			changedata : [],
+			whatchanged:0,
+			databackcolor: DEFAULTBACKCOLOR,
+			dataselectcolor: DEFAULTSELECTCOLOR,
+			datatouchcolor: DEFAULTTOUCHCOLOR,
+			data2values: DEFAULTTEXTURE,
+			data3values: DEFAULTTEXTURE,
+			dataselection : 0,
+			textures:[],			
+			selectedindex:-1,			
+			firstshell:null,
+			secondshell:null,	
+			materialname:DEFAULTMATERIALNAME,
+			disectstruct: false,
+			showdisect:false,
+			showshapeinfo: false,	
+			showinfoonselect : false,
+			currentdata:[],
+			fetchinfo:[],	
+			selectedOption:SELECTMEASURE,
+			splitMethod:0,
+			selectedObjects:[]
+		}
+    
+	resetOption = true;
 
-	constructor(props) {
-		super(props);
+    constructor(props) {
+    	super(props);
+		
+	}	
 
-	}
-	componentDidMount() {
+	componentDidMount(){
 		this.getTextures();
 	}
-	getSpinner = () => {
-		return (this.state.loadingContent && (
-			<div><img style={{
-				width: '90px', objectFit: 'scale-down',
-				position: 'absolute', opacity: '0.95', align: 'middle'
-			}}
-				src={require("./assets/images/spinner.gif")} /></div>)
-		);
-	}
+	
 	setStateLoadingContent = (stage) => {
-		this.setState({ loadingContent: stage });
+		this.setState({ loadingContent : stage } );
 	}
-
-	SplitPane = ({ children, ...props }) => {
+	
+	SplitPane= ({ children, ...props }) => {
 		const [leftWidth, setLeftWidth] = React.useState(null);
 		const separatorXPosition = React.useRef(null);
 
@@ -125,7 +148,7 @@ class DropZone extends Component {
 			// }
 			/* console.log("my ref",splitPaneRef);
 			console.log("my ref c",splitPaneRef.current); */
-			const splitPaneWidth = splitPaneRef.current.clientWidth;
+			//const splitPaneWidth = splitPaneRef.current.clientWidth;
 
 			// if (newLeftWidth >= splitPaneWidth) {
 			//   return leftWidth !== splitPaneWidth && setLeftWidth(splitPaneWidth);
@@ -147,747 +170,825 @@ class DropZone extends Component {
 			};
 		});
 		//console.log(children);
-		return <div {...props} className="split-pane" ref={splitPaneRef}>
-			<splitPaneContext.Provider value={{ leftWidth, setLeftWidth }}>
-				{children[0]}
-
-				<div width="150" height="100" className="separator" onMouseDown={onMouseDown}>
-
-				</div>
-				{children[1]}
-			</splitPaneContext.Provider>
-		</div>
-
+		return ( <div {...props} className="split-pane" ref={splitPaneRef}>
+					<splitPaneContext.Provider value={{ leftWidth, setLeftWidth }}>
+						{children[0]}
+						
+						<div width="150" height="100" className="separator"  onMouseDown={onMouseDown}>
+						
+						</div>
+						{children[1]}
+					</splitPaneContext.Provider>
+				</div> );
+		
+	}
+	
+	onlyfaces = (name) => {
+		
+		const first4chars=name.slice(0,4);
+		const first6chars=name.slice(0,6);		
+		if ( (first4chars == "EDGE") || (first6chars == "VERTEX") )   {
+			return false;
+		} 
+		return true;	
 	}
 
-	getFileList = () => {
-		const files = this.state.files.map((files, index) => (
+	findMyParentChilds = (mynode) => {
+		//console.log(this.state.selectedOption,SELECTSOLID,this.state.selectedOption != SELECTSOLID);
+		if ( ( ( this.state.selectedOption != SELECTSOLID ) || 
+			(this.state.splitMethod!=SELECTDISECTPARTS) ) && this.resetOption ) {
+			return [mynode];
+		}
+		var myParentID = -1;
+		for(var i=0;i<this.state.splitfiles.btree.length;i++){
+			if(this.state.splitfiles.btree[i].name==mynode.name){
+				myParentID = this.state.splitfiles.btree[i].parentId;
+				break;
+			}
+		}		
+		var myMaterials=[];
+		if(myParentID != -1) {			
+			for(var i=0;i<this.state.splitfiles.btree.length;i++){
+				if(this.state.splitfiles.btree[i].parentId==myParentID){
+					var myChild=this.findMyMaterial(this.state.splitfiles.btree[i]);
+					if(myChild){
+						if(this.onlyfaces(myChild.name)) {
+							myMaterials.push(myChild);
+						}	
+					}					
+				}
+			}
+		} 
+		if(myMaterials.length!=0) {
+			return myMaterials;
+		}
+		return [mynode];		
+	}
 
-			<tr key={files.id}>
-				<td>
-					{index + 1}
-				</td>
-				<td>
-					{files.filename}
-				</td>
-				{/* //From Cadquery, there is no way to get distance between 2 shells, and also complex to disect shapes, hence commented,
-					<td>
-					<button value={files.filename}  onClick={
-						() => this.getSplit(files.id,false,index)} type='button'>FullRead</button>				
-					</td> */}
-				<td>
-					<button value={files.filename} onClick={
-						() => this.getSplit(files.id, true, index)} type='button'>Continuous</button>
-				</td>
-				<td>
-					<button value={files.filename} onClick={
-						() => this.getHierarchySplit(files.id, false, index)} type='button'>Hierarchy</button>
-				</td>
-				<td>
-					<button value={files.filename} onClick={
-						() => this.getHierarchySplit(files.id, true, index)} type='button'>Disect Parts</button>
-				</td>
+	findMyMaterial = (data) => {
+		if(this.state.splitfiles.btree) {
+			
+			for(var i=0;i<this.state.splitfiles.btree.length;i++){
+				//console.log(this.state.splitfiles.btree[i].name,data.name,(this.state.splitfiles.btree[i].name==data.name))
+				if(this.state.splitfiles.btree[i].name==data.name){
+					return this.state.splitfiles.btree[i];
+				}
+			}			
+		};		
+		return null;
+	}
 
-				<td>
 
-					<Slider
 
-						value={this.state.distancegap[index]}
-						min={0.01}
-						max={10}
-						step={0.01}
-						onChange={(e) => {
-							var distancegap = this.state.distancegap;
-							distancegap[index] = e;
-							this.setState({
-								distancegap: distancegap,
-								dataselection: 0
+	fetchShapeInformation=()=> {
+		fetchShapeInfo(this.state.splitfiles.btree)
+			.then( res =>  {
+				this.setState({
+					fetchinfo:  res.data				  
+				});
+				//console.log(res.data);	
+				this.setStateLoadingContent(false);				
+			})
+			.catch(err => {
+				console.log('Error -->> ', err)
+				this.setStateLoadingContent(false);	
+			});
+	};
+						
+				
+	getFileList= () => {
+		
+		//console.log("SelecetdObjects",this.state.selectedObjects);
+		
+		//console.log(this.state.splitfiles);
+
+		return (<div>
+		<DisplaySpinner loadingContent={this.state.loadingContent} />		
+		<div id="rowheader">
+			<GetFilesList onDrop ={this.onDrop} onChange={this.onChange} getFiles={this.getFiles} />
+			{ this.state.splitfiles.stackable && this.state.splitfiles.stackable.length>0 && (<div>
+				<h3>Parts Stackable Info
+				<br></br>Top: {prettyPrintArray(this.state.splitfiles.stackable[0].top)}
+				<br></br>Bottom: {prettyPrintArray(this.state.splitfiles.stackable[0].bottom)} 
+				<br></br>Right: {prettyPrintArray(this.state.splitfiles.stackable[0].right)}
+				<br></br>Left: {prettyPrintArray(this.state.splitfiles.stackable[0].left)} 
+				<br></br>Front: {prettyPrintArray(this.state.splitfiles.stackable[0].front)} 
+				<br></br>Back: {prettyPrintArray(this.state.splitfiles.stackable[0].back)} 
+				</h3>
+			</div>)}
+			<Downloader files={this.state.files} 
+						getSplit={this.getSplit} 
+						getHierarchySplit={this.getHierarchySplit}
+						getPartsStackable={this.getPartsStackable}
+						setShowInfo={this.setShowInfo} />
+			{/* <button value={"Fetch"}  
+				onClick={() => {
+					this.fetchShapeInformation();					
+				} } type='button'>
+				Get Shape Details
+			</button>	 */}
+			
+			<div style={{ Width: "100%"}}>
+				<DisplayTree theme={'my-theme'} customTheme={this.myTheme} grow={true}
+					nodes={this.state.splitfiles.btree} 
+					textures={this.state.textures.textures2D} 
+					structure={true}
+					firstshell={this.state.firstshell}
+					secondshell={this.state.secondshell}
+					disectparts = {this.state.selectedindex==-1?false:this.state.showdisect}
+					onSelect={
+						(data,what)=>{
+						this.setState({
+							changedata:data,
+							whatchanged:what								
+						});
+						if(what==SELECTDISTANCE){
+							//console.log(data);
+							this.changeStateOfSelection(data,null);		
+						}	
+						if(what==SELECTSHOWINFO) {
+							this.getShapeInformation(data);
+						}		
+						//console.log(data,what)
+					}}
+				/>			
+			</div>				
+			<DistanceCalculator stepfile={this.state.selectedindex==-1?"No Shells Selected":this.getBaseName(this.state.files[this.state.selectedindex].filename)}
+				firstshell={this.state.firstshell}
+				secondshell={this.state.secondshell}
+			/>					   
+		</div>
+	   </div>);
+	}
+
+	getBaseName = (filename) => {
+		
+		return (filename.substring(0, filename.lastIndexOf('.')) || filename || "") ;
+	}
+	
+	getShapeInformation = (data) => {
+		if(this.state.disectstruct) {
+			this.setState({						
+				currentdata : data,
+				showshapeinfo: true,
+			});
+		} else {
+			this.setStateLoadingContent(true);
+			getShapeInfo(data.step.slice(0, -5))
+			.then(res => res.data)
+			.then((repos) => {
+				this.setStateLoadingContent(false);
+				this.setState({						
+					currentdata : {"name":data.name,
+									"structures":repos
+								},
+					showshapeinfo: true,
+				});
+			});	
+		}
+	}
+
+	changeStateOfSelection = (data,event) => {
+		if(this.state.selectedOption==SELECTMEASURE) {
+			if(data.selectedshell) {
+				if(!this.state.firstshell) {
+					const firstshell = data;
+					this.setState({
+						firstshell:firstshell
+					})
+					//console.log("FirstShell",firstshell,this.state.firstshell);
+				} else {
+					if(!this.state.secondshell) {
+						const secondshell = data;
+						this.setState({
+							secondshell:secondshell
+						});
+						//console.log("SecondShell",secondshell,this.state.secondshell);					
+					} else {					
+						this.state.firstshell.selectedshell = false;
+						const secondshell = this.state.secondshell;
+						this.setState({
+							firstshell :secondshell,
+							secondshell:data
+						});																				
+						//console.log("First and second",this.state.firstshell,this.state.secondshell,data)
+					}
+				}
+				if(this.state.showinfoonselect) {
+					this.getShapeInformation(data);	
+				}							
+			} else {
+				if(this.state.firstshell&&(this.state.firstshell.name==data.name)){				
+					this.state.firstshell.selectedshell = false;
+					const secondshell = this.state.secondshell;
+					this.setState({
+						firstshell :secondshell,
+						secondshell: null
+					});	
+					
+				} else {
+					if(this.state.secondshell&&(this.state.secondshell.name==data.name)){					
+						this.state.secondshell.selectedshell = false;
+						this.setState({
+							secondshell: null
+						});											
+					} else {
+						//console.log("This condition is not possible");
+					}
+				}
+			}
+		} else {
+			if(data){
+				var toAdd = true;
+				if(event) {
+					toAdd = event.ctrlKey;
+				}
+				if(!toAdd){
+					this.state.selectedObjects.forEach(element => {
+						if(data.name!=element.name) {
+							element.selectedshell = false;
+						}
+					});
+				}
+				const myAllChilds = this.findMyParentChilds(data);
+				//console.log(myAllChilds);
+				myAllChilds.forEach(elementdata => {
+					elementdata.selectedshell = data.selectedshell;
+					if(toAdd) {
+						if(data.selectedshell) {
+							var alreadyPresent = false;					
+							for(var i=0;i<this.state.selectedObjects.length;i++) {
+								if(elementdata.name==this.state.selectedObjects[i].name) {
+									alreadyPresent = true;
+									break;
+								}
+							}					
+							if(!alreadyPresent) {
+								this.setState(prevState => ({
+									selectedObjects: [...prevState.selectedObjects, elementdata]					  
+								}));
+								
+							}										
+						} else {
+							
+							var selectedObjects = [];
+							this.state.selectedObjects.forEach(element => {
+								if(elementdata.name!=element.name) {
+									selectedObjects.push(element);
+								} 
 							});
-							// console.log(e) 
-						}}
+							this.setState({selectedObjects:selectedObjects});
+						}	
+					} else {						
+						
+						if(data.selectedshell) {
+							this.setState({selectedObjects:myAllChilds});
+						} else {
+							this.setState({selectedObjects:[]});
+						}
+						
+					}
+				});		
+				
+			}						
+		}		
+	}		
+	
+	SplitPaneLeft = (props) => {
+	  const leftRef = React.createRef();
+	  const { leftWidth, setLeftWidth } = React.useContext(splitPaneContext);
+	
+	  React.useEffect(() => {
+		if (!leftWidth) {
+			// console.log("I am seee")
+		  setLeftWidth(leftRef.current.clientWidth);
+		  leftRef.current.style.flex = "row";
+		  return;
+		}
+	
+		leftRef.current.style.width = `${leftWidth}px`;
+	  }, [leftWidth]);
+	  
+	  
+		return <div {...props} className="split-pane-left" ref={leftRef} css={{ width: "100%", height: "100%" }}>
+			  {this.getFileList()}
+			  </div>
+	};
+	
+	
+	SplitPaneRight=(props) => {
+	    
+	  	return  this.TableSplitPaneRight(props);
+	};
+	
+	TableSplitPaneLeft =(props)  => {
+		
+		return <div {...props} className="split-pane-left" css={{ width: "100%", height: "100%" }}>{this.getFileList()}</div>
+		
+	};
+	
+	resetSelections = () => {
+		if(this.state.secondshell) {
+			this.state.secondshell.selectedshell = false;											
+		}
+		if(this.state.firstshell) {
+			this.state.firstshell.selectedshell = false;											
+		}
+		this.state.selectedObjects.forEach(element => {
+			element.selectedshell = false;
+		});											
+		this.setState(
+			{ 	selectedObjects:[],
+				firstshell:null,
+				secondshell:null
+			});
+	}
 
-					/>
-				Distance Gap:
-				<input style={{ width: '50px' }} type="number"
-						value={this.state.distancegap[index]}
-						min={0.01}
-						max={10}
-						step={0.01}
-						onChange={(e) => {
-							var distancegap = this.state.distancegap;
-							distancegap[index] = getFloat(e.target.value);
-							this.setState({
-								distancegap: distancegap,
-								dataselection: 0
-							})
-						}} />
+	selectAllSelectedSolids = () => {
+		var copy_selectobjects = [];
+		this.state.selectedObjects.forEach(element => {
+			copy_selectobjects.push(element);			
+		});
+		this.resetOption = false;
+		copy_selectobjects.forEach(meshmaterial => {
+			const myAllChilds = this.findMyParentChilds(meshmaterial);
+			//console.log(myAllChilds);
+			myAllChilds.forEach(elementdata => {							
+				var alreadyPresent = false;
+				for(var i=0;i<this.state.selectedObjects.length;i++) {
+					if(elementdata.name==this.state.selectedObjects[i].name) {
+						alreadyPresent = true;
+						break;
+					}
+				}						
+				if(!alreadyPresent) {
+					this.state.selectedObjects.push(elementdata);
+					elementdata.selectedshell = true;
+				}	
+			});
+		});		
+		this.resetOption = true;
+	}
+
+	TableSplitPaneRight=(props) => {
+		const selectedObjects = this.state.selectedObjects.map( (data, index) => (
+			<tr key={data.id}>
+				<td>
+					{index+1}
 				</td>
 				<td>
-
-					<Slider
-
-						value={this.state.anglegap[index]}
-						min={0.1}
-						max={360}
-						step={0.1}
-						onChange={(e) => {
-							var anglegap = this.state.anglegap;
-							anglegap[index] = e;
-							this.setState({
-								anglegap: anglegap,
-								dataselection: 0
-							});
-							// console.log(e) 
-						}}
-
-					/>
-				Angle Gap:
-				<input style={{ width: '50px' }} type="number"
-						value={this.state.anglegap[index]}
-						min={0.1}
-						max={360}
-						step={0.1}
-						onChange={(e) => {
-							var anglegap = this.state.anglegap;
-							anglegap[index] = getFloat(e.target.value);
-							this.setState({
-								anglegap: anglegap,
-								dataselection: 0
-							})
-						}} />
-
-				</td>
+					{data.name}
+				</td> 
 				<td>
-					<label>
-						<input type="checkbox"
-
-							defaultChecked={this.state.disect[index]}
-							onChange={() => {
-								var disect = this.state.disect;
-								disect[index] = !disect[index];
-								this.setState({
-									disect: disect,
-									dataselection: 0
-								});
-								// console.log(e) 
-							}} />
-				Disect Structure
-				</label>
-				</td>
-				<td>
-					Material:
-					<div style={{ maxWidth: "350px", margin: "0 auto", minWidth: "100px" }}>
-						<Select options={DefaultMaterials} multi={false} placeholder="Select Material Type"
-							labelField={"name"} valueField={"id"} dropdownHeight={'200px'}
-							values={this.state.materialtype[index]}
-							onChange={
-								datavalues => {
-									if (datavalues && !!datavalues.length) {
-										var materialtype = this.state.materialtype;
-										materialtype[index] = datavalues;
-										this.setState({
-											materialtype: materialtype,
-											dataselection: SELECTMATERIRAL
-										});
-									}
-
-								}}
-						/>
-					</div>
+					{data.display}
 				</td>
 			</tr>
-
-		));
-		//console.log(files)
-		return <div><div style={{ position: 'absolute', top: '40%', left: '50%' }}>
-			{this.getSpinner()} </div>
-			<div id="rowheader">
-				<table>
-					<tbody>
-						<tr>
-							<td>
-								<Dropzone onDrop={this.onDrop}>
-									{({ getRootProps, getInputProps }) => (
-										<section className="container">
-											<div {...getRootProps({ className: 'dropzone' })}>
-												<input {...getInputProps()} />
-												<p>Try dropping some files here, or click to select files to upload.</p>
-											</div>
-										</section>
-									)}
-								</Dropzone>
-							</td>
-							<td>
-								<button value={"View"} onClick={() => this.getFiles()} type='button'>
-									View Uploaded Files
+		) );
+		return  <div {...props} className="split-pane-right" css={{ width: "100%", height: "100%" }} >
+					{this.state.splitMethod!=0 && (
+						<__Button>
+							<button value={"Solid"}  
+								className={(this.state.selectedOption==SELECTSOLID)?"buttonTrue":"buttonFalse"}
+								onClick={() => {
+									
+									const previousSelectedOption=this.state.selectedOption;
+									this.setState({selectedOption:SELECTSOLID});
+									if(previousSelectedOption==SELECTMEASURE) {
+										this.resetSelections();
+									}
+									this.selectAllSelectedSolids();
+									//console.log(this.state.selectedOption);					
+								} } type='button'>
+								<Icon
+									size="large"
+									icon="solid"
+									theme={'my-theme'} customTheme={this.myTheme}							
+								></Icon>
+								Select Solids
 							</button>
-							</td>
-							<td>
-								Color:
-								<input
-									type="color"
-									defaultValue={this.state.datacolor}
-									onChange={
-										event => {
-											if (event && event.target) {
-												//console.log("1",state)
-												this.setState({
-													datacolor: event.target.value,
-													dataselection: SELECTBACKCOLOR
-												});
-
-											}
-
+							&nbsp;	
+							{this.state.splitMethod==SELECTDISECTPARTS && (
+								<span>
+									<button value={"Face"} 
+									className={(this.state.selectedOption==SELECTFACE)?"buttonTrue":"buttonFalse"} 
+									onClick={() => {
+										const previousSelectedOption=this.state.selectedOption;
+										this.setState({selectedOption:SELECTFACE});
+										if(previousSelectedOption==SELECTMEASURE) {
+											this.resetSelections();
 										}
-									}
-								/>
-							</td>
-							<td>
-								2D Texture:
-							<div style={{ maxWidth: "350px", margin: "0 auto", minWidth: "100px" }}>
-									<Select options={this.state.textures.textures2D} multi={false} placeholder="Select 2D Texture"
-										labelField={"id"} valueField={"name"} dropdownHeight={'200px'}
-										values={this.state.data2values}
-										onChange={
-											datavalues => {
-												if (datavalues && !!datavalues.length) {
-
-													this.setState({
-														data2values: datavalues,
-														dataselection: SELECT2DTEXTURE
-													});
-
-												}
-
-											}}
-									/>
-								</div>
-							</td>
-							<td>
-								3D Texture:
-							<div style={{ maxWidth: "350px", margin: "0 auto", minWidth: "100px" }}>
-									<Select options={this.state.textures.textures3D} multi={false} placeholder="Select 3D Texture"
-										labelField={"id"} valueField={"name"} dropdownHeight={'200px'}
-										values={this.state.data3values}
-										onChange={
-											datavalues => {
-												if (datavalues && !!datavalues.length) {
-													this.setState({
-														data3values: datavalues,
-														dataselection: SELECT3DTEXTURE
-													});
-												}
-
-											}}
-									/>
-								</div>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				{files && !!files.length &&
-					<aside>
-						<h4>Click Button to Split and View the File</h4>
-						<table><tbody>{files}</tbody></table>
-					</aside>
-				}
-				<div style={{ Width: "100%" }}>
-					<DisplayTree theme={'my-theme'} customTheme={this.myTheme} grow={true}
-						nodes={this.state.splitfiles.btree}
-						textures={this.state.textures.textures2D}
-						structure={true}
-						firstshell={this.state.firstshell}
-						secondshell={this.state.secondshell}
-						disectparts={this.state.selectedindex == -1 ? false : this.state.disect[this.state.selectedindex]}
-						onSelect={
-							(data, what) => {
-								this.setState({
-									changedata: data,
-									whatchanged: what
-								});
-								if (what == SELECTTICK) {
-									//console.log(data);
-									if (data.selected) {
-										if (!this.state.firstshell) {
-											this.setState({
-												firstshell: data
-											})
-											//this.state.firstshell = data;
-											//console.log("firstshell",this.state.firstshell);
-										} else {
-											if (!this.state.secondshell) {
-												this.setState({
-													secondshell: data
-												})
-												//this.state.secondshell = data;
-												//console.log("secondshell",this.state.secondshell);
-											} else {
-												this.state.firstshell.selected = false;
-												const secondshell = this.state.secondshell;
-												this.setState({
-													firstshell: secondshell,
-													secondshell: data
-												});
-												//console.log("First and second",this.state.firstshell,this.state.secondshell)
-											}
+										//console.log(this.state.selectedOption);					
+									} } type='button'>
+									<Icon
+										size="large"
+										icon="face"	
+										theme={'my-theme'} customTheme={this.myTheme}							
+									></Icon>
+									Select Faces
+								</button>
+								&nbsp;	
+								<button value={"Edge"} 
+									className={(this.state.selectedOption==SELECTEDGE)?"buttonTrue":"buttonFalse"} 
+									onClick={() => {
+										const previousSelectedOption=this.state.selectedOption;
+										this.setState({selectedOption:SELECTEDGE});
+										if(previousSelectedOption==SELECTMEASURE) {
+											this.resetSelections();
 										}
-
-									} else {
-										if (this.state.firstshell && (this.state.firstshell.name == data.name)) {
-											this.state.firstshell.selected = false;
-											const secondshell = this.state.secondshell;
-											this.setState({
-												firstshell: secondshell,
-												secondshell: null
-											});
-
-										} else {
-											if (this.state.secondshell && (this.state.secondshell.name == data.name)) {
-												this.state.secondshell.selected = false;
-												this.setState({
-													secondshell: null
-												});
-											} else {
-												//console.log("This condition is not possible");
-											}
+										//console.log(this.state.selectedOption);					
+									} } type='button'>
+									<Icon
+										size="large"
+										icon="edge"	
+										theme={'my-theme'} customTheme={this.myTheme}							
+									></Icon>
+									Select Edges
+								</button>
+								&nbsp;	
+								<button value={"Corner"}  
+									className={(this.state.selectedOption==SELECTCORNER)?"buttonTrue":"buttonFalse"}
+									onClick={() => {
+										const previousSelectedOption=this.state.selectedOption;
+										this.setState({selectedOption:SELECTCORNER});
+										if(previousSelectedOption==SELECTMEASURE) {
+											this.resetSelections();
 										}
-									}
-								}
-								//console.log(data,what)
-							}}
-					/>
-				</div>
-				{this.state.selectedindex != -1 && !this.state.firstshell && (
-					<div>
-						ID : {this.state.files[this.state.selectedindex].filename.slice(0, -5)}
-					</div>
-				)}
-				{this.state.firstshell && (
-					<table>
-						<tbody>
-							<tr>
-								<td>
-									File :<br></br>
-									{this.state.selectedindex == -1 ? "Error in selection" : this.state.files[this.state.selectedindex].filename.slice(0, -5)}
-								</td>
-								<td>
-									First Shell:<br></br> {this.state.firstshell.name}
-								</td>
-								{this.state.secondshell && (
-									<>
-										<td>
-											Second Shell:<br></br> {this.state.secondshell.name}
-										</td>
-										<td>
-											Move:
-									<br></br>X :
-									<input style={{ width: '50px' }} type="number"
-												value={this.state.xmove}
-												min={0}
-												max={10}
-												step={0.1}
-												onChange={(e) => {
-													const xmove = getFloat(e.target.value);
-													this.setState({
-														xmove: xmove,
-														dataselection: 0
-													})
-												}} />
-											<br></br>Y :
-									<input style={{ width: '50px' }} type="number"
-												value={this.state.ymove}
-												min={0}
-												max={10}
-												step={0.1}
-												onChange={(e) => {
-													const ymove = getFloat(e.target.value);
-													this.setState({
-														ymove: ymove,
-														dataselection: 0
-													})
-												}} />
-											<br></br>Z :
-									<input style={{ width: '50px' }} type="number"
-												value={this.state.zmove}
-												min={0}
-												max={10}
-												step={0.1}
-												onChange={(e) => {
-													const zmove = getFloat(e.target.value);
-													this.setState({
-														zmove: zmove,
-														dataselection: 0
-													})
-												}} />
-										</td>
-										<td>
-											Rotate:
-									<br></br>XY :
-									<input style={{ width: '50px' }} type="number"
-												value={this.state.zrotate}
-												min={0}
-												max={10}
-												step={0.1}
-												onChange={(e) => {
-													const zrotate = getFloat(e.target.value);
-													this.setState({
-														zrotate: zrotate,
-														dataselection: 0
-													})
-												}} />
-											<br></br>XZ :
-									<input style={{ width: '50px' }} type="number"
-												value={this.state.yrotate}
-												min={0}
-												max={10}
-												step={0.1}
-												onChange={(e) => {
-													const yrotate = getFloat(e.target.value);
-													this.setState({
-														yrotate: yrotate,
-														dataselection: 0
-													})
-												}} />
-											<br></br>YZ :
-									<input style={{ width: '50px' }} type="number"
-												value={this.state.xrotate}
-												min={0}
-												max={10}
-												step={0.1}
-												onChange={(e) => {
-													const xrotate = getFloat(e.target.value);
-													this.setState({
-														xrotate: xrotate,
-														dataselection: 0
-													})
-												}} />
-										</td>
-										<td>
-											<button value={"Move"}
-												onClick={() => {
-													this.getTransformation(MOVEONLY);
-												}} type='button'>
-												Move <br></br> And<br></br> Find <br></br> Minimum <br></br> Distance
-									</button>
-										</td>
-										<td>
-											<button value={"Rotate"}
-												onClick={() => {
-													this.getTransformation(ROTATEONLY);
-												}} type='button'>
-												Rotate <br></br> And <br></br>Find<br></br> Minimum<br></br> Distance
-									</button>
-										</td>
-									</>
-								)}
-							</tr>
-							{this.state.distancedata.distance !== null && (
-								<tr>
-									<td colSpan="7">
-										{prettyPrintArray(this.state.distancedata, 120)}
-									</td>
-								</tr>
+										//console.log(this.state.selectedOption);					
+									} } type='button'>
+									<Icon
+										size="large"
+										icon="corner"
+										theme={'my-theme'} customTheme={this.myTheme}							
+									></Icon>
+									Select Corners
+								</button>
+								&nbsp;
+								</span>
 							)}
-						</tbody>
-					</table>
-				)}
-			</div>
-		</div>
+							{this.state.splitMethod!=SELECTSTACKABLE && (
+							<span>																	
+							<button value={"measure"}  
+								className={(this.state.selectedOption==SELECTMEASURE)?"buttonTrue":"buttonFalse"}
+								onClick={() => {
+									const previousSelectedOption=this.state.selectedOption;
+									this.setState({selectedOption:SELECTMEASURE});
+									if(previousSelectedOption!=SELECTMEASURE) {
+										this.resetSelections();
+									}									
+									//console.log(this.state.selectedOption);						
+								} } type='button'>
+								<Icon
+									size="large"
+									icon="measure"	
+									theme={'my-theme'} customTheme={this.myTheme}						
+								></Icon>
+								Find Distance
+							</button>	
+							</span>
+							)}					
+						</__Button>
+					)}
+					
+					<div id="rowcontent">
+						<GLTFRenderer  gltfjson={this.state.gltfjson} gltfobj={this.state.gltfobj} 
+						activefile={this.state.activefile} 
+						backcolor={this.state.databackcolor}
+						selectcolor={this.state.dataselectcolor}
+						touchcolor={this.state.datatouchcolor}
+						selectedoption={this.state.selectedOption}
+						splitmethod={this.state.splitMethod}
+						changedata={this.state.changedata} 
+						data2texture={this.state.data2values[0].name} 
+						data3texture={this.state.data3values[0].name}
+						materialtype={this.state.selectedindex==-1? DEFAULTMATERIALNAME : this.state.materialname}
+						whatchanged={this.state.whatchanged} dataselection={this.state.dataselection}
+						onClick={
+						(data,what,event)=>{
+						if(what==SELECTDISTANCE){								
+							//console.log(data);
+							const mymesh=this.findMyMaterial(data);
+							mymesh.selectedshell = data.selectedshell;
+							//console.log("Before",this.state.firstshell,this.state.secondshell,mymesh);
+							if(mymesh) {
+								this.changeStateOfSelection(mymesh,event);
+							} 
+							//console.log("After",this.state.firstshell,this.state.secondshell,mymesh);
+									
+						}			
+						//console.log(data,what)
+					}} 
+						/>						
+					</div>
+					{ selectedObjects && !!selectedObjects.length && (
+						<aside>
+						<h6>Selected Objects
+						<table><tbody>{selectedObjects}</tbody></table>
+						</h6>
+						</aside>
+					)}
+					<div id="ShowShapeInfo">
+						<ShowShapeInfo showModal={this.state.showshapeinfo} 
+						data = {this.state.currentdata}
+						closeModal={()=>{								  
+							this.setState({
+								showshapeinfo : false
+							})								
+						}}/>
+					</div>
+				</div>;
+	};
+
+	onChange = (data,dataselection) => {
+		if(dataselection==SELECTBACKCOLOR) {
+			this.setState({
+				databackcolor: data,												
+				dataselection:SELECTBACKCOLOR
+			});	
+		}
+		if(dataselection==SELECT2DTEXTURE) {
+			this.setState({
+				data2values:data,												
+				dataselection:SELECT2DTEXTURE
+			});
+		}
+		if(dataselection==SELECT3DTEXTURE) {
+			this.setState({
+				data3values: data,												
+				dataselection:SELECT3DTEXTURE
+			});	
+		}
+		if(dataselection==SELECTTOUCHCOLOR) {
+			this.setState({
+				datatouchcolor: data,												
+				dataselection:SELECTTOUCHCOLOR
+			});	
+		}
+		if(dataselection==SELECTSELECTCOLOR) {
+			this.setState({
+				dataselectcolor: data,												
+				dataselection:SELECTSELECTCOLOR
+			});	
+		}
+		
 	}
 
-	SplitPaneLeft = (props) => {
-		const leftRef = React.createRef();
-		const { leftWidth, setLeftWidth } = React.useContext(splitPaneContext);
 
-		React.useEffect(() => {
-			if (!leftWidth) {
-				// console.log("I am seee")
-				setLeftWidth(leftRef.current.clientWidth);
-				leftRef.current.style.flex = "row";
-				return;
-			}
-
-			leftRef.current.style.width = `${leftWidth}px`;
-		}, [leftWidth]);
-
-
-		return <div {...props} className="split-pane-left" ref={leftRef} style={{ width: "100%", height: "100%" }}>
-			{this.getFileList()}
-		</div>
-	};
-
-
-	SplitPaneRight = (props) => {
-
-		return this.TableSplitPaneRight(props);
-	};
-
-	TableSplitPaneLeft = (props) => {
-
-		return <div {...props} style={{ width: "100%", height: "100%" }}>{this.getFileList()}</div>
-
-	};
-
-	TableSplitPaneRight = (props) => {
-
-		return <div {...props} style={{ width: "100%", height: "100%" }} >
-			<div id="rowcontent">
-				<GLTFRenderer gltfjson={this.state.gltfjson} gltfobj={this.state.gltfobj}
-					activefile={this.state.activefile} backcolor={this.state.datacolor}
-					includeparts={this.state.includeparts} changedata={this.state.changedata}
-					data2texture={this.state.data2values[0].name}
-					data3texture={this.state.data3values[0].name}
-					materialtype={this.state.selectedindex == -1 ? DEFAULTMATERIALTYPE[0].name : this.state.materialtype[this.state.selectedindex][0].name}
-					disectparts={this.state.selectedindex == -1 ? false : this.state.disect[this.state.selectedindex]}
-					whatchanged={this.state.whatchanged} dataselection={this.state.dataselection} />
-			</div>
-		</div>;
-	};
-
-	onDrop = async (files) => {
-		this.setState({
+    onDrop = async (files) => {		
+		this.setState({ 
 			files: [],
-			splitfiles: DEFAULTSPLITS,
-			distancegap: [],
-			anglegap: [],
-			disect: [],
-			materialtype: [],
-			selectedindex: -1,
+			splitfiles:DEFAULTSPLITS,			
+			selectedindex:-1,
+			splitMethod: 0
 		})
 		files.forEach(oneFile => {
-			var formData = new FormData();
-			formData.append('file', oneFile)
 			this.setStateLoadingContent(true);
-			upload3DFile(formData)
-				.then(res => {
+			upload3DFile(oneFile)
+				.then( res =>  {
 					this.setState(prevState => ({
-						files: [...prevState.files, res.data],
-						distancegap: [...prevState.distancegap, DEFAULTDISTANCEGAP],
-						anglegap: [...prevState.anglegap, DEFAULTANGLEGAP],
-						disect: [...prevState.disect, DEFAULTDISECT],
-						materialtype: [...prevState.materialtype, DEFAULTMATERIALTYPE],
+					  files: [...prevState.files, res.data]
+					  /* distancegap: [...prevState.distancegap,DEFAULTDISTANCEGAP],
+					  anglegap: [...prevState.anglegap,DEFAULTANGLEGAP],
+					  disect: [...prevState.disect,DEFAULTDISECT],
+					  materialtype : [...prevState.materialtype,DEFAULTMATERIALTYPE],	 */				  
 					}));
 					//console.log(res.data);	
-					this.setStateLoadingContent(false);
+					this.setStateLoadingContent(false);				
 				})
 				.catch(err => {
 					console.log('Error -->> ', err)
-					this.setStateLoadingContent(false);
+					this.setStateLoadingContent(false);	
 				});
 
 		});
 	};
-
-	getFiles = () => {
-		this.setState({
+	getFiles = () => {	
+		this.setState({ 
 			files: [],
-			splitfiles: DEFAULTSPLITS,
-			selectedindex: -1,
-		})
-		this.setStateLoadingContent(true);
+			splitfiles:DEFAULTSPLITS,
+			selectedindex:-1,
+			splitMethod: 0
+		})	
+		this.setStateLoadingContent(true);	
 		getAllFiles()
 			.then(res => res.data)
 			.then((repos) => {
 				//console.log(repos);
-				this.setState({
-					files: repos,
-					distancegap: new Array(repos.length).fill(DEFAULTDISTANCEGAP),
-					anglegap: new Array(repos.length).fill(DEFAULTANGLEGAP),
+				this.setState({ 
+					files:repos
+					/* distancegap: new Array(repos.length).fill(DEFAULTDISTANCEGAP),
+					anglegap:new Array(repos.length).fill(DEFAULTANGLEGAP),
 					disect: new Array(repos.length).fill(DEFAULTDISECT),
-					materialtype: new Array(repos.length).fill(DEFAULTMATERIALTYPE)
+					materialtype: new Array(repos.length).fill(DEFAULTMATERIALTYPE) */
 				});
-				this.setStateLoadingContent(false);
+				this.setStateLoadingContent(false);	
 			}).catch(err => {
 				console.log('Error -->> ', err)
-				this.setStateLoadingContent(false);
+				this.setStateLoadingContent(false);	
 			});
 	};
 
 	getTextures = () => {
-		this.setStateLoadingContent(true);
+		this.setStateLoadingContent(true);	
 		getAllTextures()
 			.then(res => res.data)
 			.then((repos) => {
 				//console.log("textures", repos);
-				this.setState({
+				this.setState({ 
 					textures: repos,
 				});
-				this.setStateLoadingContent(false);
+				this.setStateLoadingContent(false);	
 			}).catch(err => {
 				console.log('Error -->> ', err)
-				this.setStateLoadingContent(false);
+				this.setStateLoadingContent(false);	
 			});
 	}
 
 	getView = (id) => {
-		this.setStateLoadingContent(true);
+		this.setStateLoadingContent(true);	
 		getGLTFJson(id)
 			.then(res => res.data)
 			.then((repos) => {
 				//console.log(repos);
-				this.setState({
+				this.setState({ 
 					gltfjson: JSON.stringify(repos),
-					gltfobj: repos,
-					activefile: id,
-					splitfiles: repos,
-					activesplit: id,
-					dataselection: 0,
-					includeparts: 0,
-					firstshell: null,
-					secondshell: null,
+					gltfobj: repos, 
+				    activefile: id ,
+					splitfiles: repos ,				
+					dataselection:0 ,
+					firstshell : null,
+					secondshell : null,
 
 				});
-				this.state.splitfiles["btree"] = [];
+				this.state.splitfiles["stackable"]=[];
+				this.state.splitfiles["btree"]=[];
 				this.state.splitfiles.tree.forEach(element => {
-					if (element.bin) {
-						element["selected"] = false;
+					if(element.bin) {
+						element["selected"]=false;
 						this.state.splitfiles.btree.push(element);
 						//console.log("Adding", element);
 					}
 					//console.log("Not Adding", element);					
 				});
+				this.setStateLoadingContent(false);	
+			}).catch(err => {
+				console.log('Error -->> ', err)
+				this.setStateLoadingContent(false);	
+			});
+
+	};
+	
+	getSplit = (id, includeParts, index, stateprops ) => {
+		this.setStateLoadingContent(true);	
+		//console.log("id",id);
+		getSplitFiles(id, includeParts, stateprops.distancegap[index], stateprops.anglegap[index],
+			stateprops.disect[index],0)
+			.then(res => res.data)
+			.then((repos) => {
+				//console.log(repos);
+							
+				this.setState({ 
+					selectedindex: index,
+					gltfjson: JSON.stringify(repos),
+					gltfobj: repos, 
+				    activefile: id.toString()+includeParts.toString()+
+								stateprops.distancegap[index].toString()+stateprops.anglegap[index].toString(),
+					splitfiles: repos ,
+					dataselection:0 ,
+					firstshell : null,
+					secondshell : null,	
+					materialname : stateprops.materialtype[index][0].name,
+					disectstruct : stateprops.disect[index],
+					showdisect: stateprops.showdisect[index],
+					showinfoonselect : 	stateprops.showinfoonselect[index],
+					splitMethod: SELECTCONTINOUS,
+					selectedObjects : []			 
+				});
+				this.state.splitfiles["stackable"]=[];
+				this.state.splitfiles["btree"]=[];
+				this.state.splitfiles.tree.forEach(element => {
+					if(element.bin) {
+						element["selected"]=false;
+						this.state.splitfiles.btree.push(element);
+					}					
+				});
 				this.setStateLoadingContent(false);
 			}).catch(err => {
 				console.log('Error -->> ', err)
+				this.setStateLoadingContent(false);	
+			})
+
+	};
+	
+	getHierarchySplit = (id, includeParts, index, stateprops, edgesize, vertexsize ) => {
+		this.setStateLoadingContent(true);	
+		getHierarchySplitFiles(id, includeParts, stateprops.distancegap[index], stateprops.anglegap[index], 
+			stateprops.disect[index],0,edgesize,vertexsize)
+			.then(res => res.data)
+			.then((repos) => {
+				//console.log(repos);					
+				this.setState({ 
+					selectedindex : index,
+					gltfjson: JSON.stringify(repos),
+					gltfobj: repos, 
+				    activefile: id.toString()+includeParts.toString()+
+								stateprops.distancegap[index].toString()+stateprops.anglegap[index].toString(),
+					splitfiles: repos , 
+					dataselection:0 ,
+					firstshell : null,
+					secondshell : null, 
+					materialname : stateprops.materialtype[index][0].name,
+					disectstruct : stateprops.disect[index],
+					showdisect: stateprops.showdisect[index],
+					showinfoonselect : 	stateprops.showinfoonselect[index],
+					splitMethod: includeParts?SELECTDISECTPARTS:SELECTHIRERACHY,
+					selectedObjects : []	 
+						
+				});		
+				this.state.splitfiles["stackable"]=[];		
+				this.state.splitfiles["btree"]=[];
+				this.state.splitfiles.tree.forEach(element => {
+					if(element.bin) {
+						element["selected"]=false;
+						this.state.splitfiles.btree.push(element);
+					}					
+				});
 				this.setStateLoadingContent(false);
+			}).catch(err => {
+				console.log('Error -->> ', err)
+				this.setStateLoadingContent(false);	
 			});
 
 	};
 
-	getSplit = (id, includeParts, index) => {
-		this.setStateLoadingContent(true);
+	getPartsStackable = (id, index, stateprops ) => {
+		this.setStateLoadingContent(true);	
 		//console.log("id",id);
-		getSplitFiles(id, includeParts,
-			this.state.distancegap[index], this.state.anglegap[index], this.state.disect[index],
-			this.state.xmove, this.state.ymove, this.state.zmove,
-			this.state.xrotate, this.state.yrotate, this.state.zrotate, 0, "", "")
+		getPartsStackableInfo(id, stateprops.distancegap[index], stateprops.anglegap[index])
 			.then(res => res.data)
 			.then((repos) => {
 				//console.log(repos);
-
-				this.setState({
+							
+				this.setState({ 
 					selectedindex: index,
 					gltfjson: JSON.stringify(repos),
-					gltfobj: repos,
-					activefile: id,
-					splitfiles: repos,
-					activesplit: id,
-					dataselection: 0,
-					includeparts: includeParts ? CONTINUOUSMINOR : CONTINUOUSSPLIT,
-					firstshell: null,
-					secondshell: null,
+					gltfobj: repos, 
+				    activefile: id.toString()+"Stack"+
+								stateprops.distancegap[index].toString()+stateprops.anglegap[index].toString(),
+					splitfiles: repos ,
+					dataselection:0 ,
+					firstshell : null,
+					secondshell : null,	
+					materialname : stateprops.materialtype[index][0].name,
+					disectstruct : stateprops.disect[index],
+					showdisect: stateprops.showdisect[index],
+					showinfoonselect : 	stateprops.showinfoonselect[index],
+					splitMethod: SELECTSTACKABLE,
+					selectedObjects : []			 
 				});
-				this.state.splitfiles["btree"] = [];
+				this.state.splitfiles["btree"]=[];
 				this.state.splitfiles.tree.forEach(element => {
-					if (element.bin) {
-						element["selected"] = false;
+					if(element.bin) {
+						element["selected"]=false;
 						this.state.splitfiles.btree.push(element);
-					}
+					}					
 				});
 				this.setStateLoadingContent(false);
 			}).catch(err => {
 				console.log('Error -->> ', err)
-				this.setStateLoadingContent(false);
+				this.setStateLoadingContent(false);	
 			})
 
 	};
 
-	getHierarchySplit = (id, includeParts, index) => {
-		this.setStateLoadingContent(true);
-		getHierarchySplitFiles(id, includeParts,
-			this.state.distancegap[index], this.state.anglegap[index], this.state.disect[index],
-			this.state.xmove, this.state.ymove, this.state.zmove,
-			this.state.xrotate, this.state.yrotate, this.state.zrotate, 0, "", "")
-			.then(res => res.data)
-			.then((repos) => {
-				//console.log(repos);					
-				this.setState({
-					selectedindex: index,
-					gltfjson: JSON.stringify(repos),
-					gltfobj: repos,
-					activefile: id,
-					splitfiles: repos,
-					activesplit: id,
-					dataselection: 0,
-					includeparts: includeParts ? HIERARCHYMINOR : HIERARCHYSPLIT,
-					firstshell: null,
-					secondshell: null,
-				});
-				this.state.splitfiles["btree"] = [];
-				this.state.splitfiles.tree.forEach(element => {
-					if (element.bin) {
-						element["selected"] = false;
-						this.state.splitfiles.btree.push(element);
-					}
-				});
-				this.setStateLoadingContent(false);
-			}).catch(err => {
-				console.log('Error -->> ', err)
-				this.setStateLoadingContent(false);
+	setShowInfo = (data, index) => {
+		if(this.state.selectedindex==index) {
+			this.setState({ 
+				showinfoonselect : data						
 			});
+		}		
+	}	
 
-	};
-
-	getTransformation = (moverotate) => {
-		this.setStateLoadingContent(true);
-		const index = this.state.selectedindex;
-		this.state.distancedata = DEFAULTDISTANCEDATA;
-		//console.log(index, this.state, this.state.files, this.state.files[index]);
-		(this.state.includeparts == CONTINUOUSMINOR || this.state.includeparts == CONTINUOUSSPLIT) ?
-			getSplitFiles(this.state.files[index].id,
-				(this.state.includeParts == CONTINUOUSMINOR),
-				this.state.distancegap[index], this.state.anglegap[index], this.state.disect[index],
-				this.state.xmove, this.state.ymove, this.state.zmove,
-				this.state.xrotate, this.state.yrotate, this.state.zrotate, moverotate,
-				this.state.firstshell.step.slice(0, -5), this.state.secondshell.step.slice(0, -5))
-				.then(res => res.data)
-				.then((repos) => {
-					//console.log(repos);
-
-					this.setState({
-						distancedata: repos,
-					});
-					//console.log(repos);
-					this.setStateLoadingContent(false);
-				}).catch(err => {
-					console.log('Error -->> ', err)
-					this.setStateLoadingContent(false);
-				}) :
-			getHierarchySplitFiles(this.state.files[index].id,
-				(this.state.includeparts == CONTINUOUSMINOR || this.state.includeparts == HIERARCHYMINOR),
-				this.state.distancegap[index], this.state.anglegap[index], this.state.disect[index],
-				this.state.xmove, this.state.ymove, this.state.zmove,
-				this.state.xrotate, this.state.yrotate, this.state.zrotate, moverotate,
-				this.state.firstshell.step.slice(0, -5), this.state.secondshell.step.slice(0, -5))
-				.then(res => res.data)
-				.then((repos) => {
-					//console.log(repos);
-
-					this.setState({
-						distancedata: repos,
-					});
-					//console.log(repos);
-					this.setStateLoadingContent(false);
-				}).catch(err => {
-					console.log('Error -->> ', err)
-					this.setStateLoadingContent(false);
-				})
-
-	};
-
+	setGLTFMaterial = (data, index) => {
+		if(this.state.selectedindex==index) {
+			this.setState({ 
+				materialname : data[0].name,
+				dataselect: SELECTMATERIRAL,		
+			});
+		}		
+	}	 
+	
 	myTheme = {
 		'my-theme': {
-			text: '#48b', // the colours used for foreground
-			bg: '#ffd', // the colours used for background
-			highlight: '#fd0', // the colours used for selected and hover items
-			decal: '#da2', // the colours used  for open folder indicators and icons
-			accent: '#bcd' // the colour used for row borders and empty file indicators
+		  text: '#48b', // the colours used for foreground
+		  bg: '#ffd', // the colours used for background
+		  highlight: '#fd0', // the colours used for selected and hover items
+		  decal: '#da2', // the colours used  for open folder indicators and icons
+		  accent: '#bcd' // the colour used for row borders and empty file indicators
 		}
 	}
-
 	hierarchy = (
-		data = [],
-		{ idKey = 'id', parentKey = 'parentId', childrenKey = 'items' } = {}
+		data = [], 
+		{idKey='id',parentKey='parentId',childrenKey='items'} = {}
 	) => {
 		const tree = [];
 		const childrenOf = {};
@@ -896,31 +997,95 @@ class DropZone extends Component {
 			childrenOf[id] = childrenOf[id] || [];
 			item[childrenKey] = childrenOf[id];
 			parentId !== null
-				? (
-					childrenOf[parentId] = childrenOf[parentId] || []
-				).push(item)
-				: tree.push(item);
+			? (
+				childrenOf[parentId] = childrenOf[parentId] || []
+				).push(item) 
+			: tree.push(item);
 		});
 		return tree;
 	}
+	
+	/* toggleSubRow = (rows, id) => {
+		const rowIndex = rows.findIndex(r => r.id === id);
+		const row = rows[rowIndex];
+		const { children } = row;
+		if (!children) return rows;
+	  
+		const newRows = [...rows];
+		newRows[rowIndex] = { ...row, isExpanded: !row.isExpanded };
+		if (!row.isExpanded) {
+		  newRows.splice(rowIndex + 1, 0, ...children);
+		} else {
+		  newRows.splice(rowIndex + 1, children.length);
+		}
+		return newRows;
+	} */
+    /* dataColumns =  [
+			{
+				dataIndex: 'name',
+				sortable: false,
+				expandable: true,					
+				name: 'Assembly Name'
+		  	},
+		  
+			{
+				dataIndex: 'topLeft',
+				name: 'Top Left',
+				renderer: (ob) =>  {
+				  console.log(ob);
+				  return (
+					<>
+					{ ob.row.topLeft && (
+					  <div className="rdg-cell-value">
+					   
+						  x : {ob.row.topLeft[0] } y : {ob.row.topLeft[1] } z : {ob.row.topLeft[2] }
+					   
+					  </div>
+					)}
+					</>
+				  );
+				}
+			},
+		]; */
 
-	render() {
-
+    render() {
+	     
+		
+        /* let dataRows = this.hierarchy(this.state.splitfiles.tree,{childrenKey:"children"});
+		console.log(dataRows);
+		if ( dataRows && !!dataRows.length)  { 
+			dataRows = {  
+				"root": {
+					"id":-1,
+					"Name":"Root",
+					"children": [dataRows]
+				}
+			}; 
+		};*/
+		
 		return <>
-			<table style={{ width: "100%", height: "100%" }} >
-				<tbody>
-					<tr>
-						<td style={{ paddingRight: "20px", padding: "5px" }} >
-							<this.TableSplitPaneLeft />
-						</td>
-						<td style={{ border: "1px solid blue", paddingLeft: "20px", padding: "5px" }} >
-							<this.TableSplitPaneRight />
-						</td>
+				<Global {...styles} /> 
+				<table css={{ width: "100%", height: "100%" }} >
+					<tbody>
+					<tr> 
+					<td css={{ paddingRight:"20px" , padding:"5px" }} >
+						<this.TableSplitPaneLeft />	
+					</td>
+					<td css={{ border: "1px solid blue", paddingLeft:"20px" , padding:"5px" }} >
+						<this.TableSplitPaneRight />	
+					</td>
 					</tr>
-				</tbody>
-			</table>
-
-		</>
+					</tbody>
+				</table>							
+				
+				</>
+		/* return <>
+				<Global {...styles} /> 
+				<this.SplitPane>
+				<this.SplitPaneLeft />
+				<this.SplitPaneRight />			
+				</this.SplitPane>
+		   	   </> */
 	}
 }
 

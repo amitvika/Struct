@@ -5,16 +5,21 @@ from io import BytesIO
 from itertools import chain
 from copy import copy, deepcopy
 import json
+import pickle
 from collections import defaultdict
 import numpy
-
+import html
+from glob import glob
 from ..structquery import Vector
 
 from . import Exporter, register_exporter
 from .. import __version__
 from .. import Component, Part, Assembly
-from ..utils import CoordSystem, measure_time
+from ..structquery import assembly
 
+from ..utils import CoordSystem, measure_time
+#from ..structquery.occ_impl.OCPTopologyUtils import dumpTopologyStructures
+from ..structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures
 import logging
 log = logging.getLogger(__name__)
 
@@ -237,6 +242,112 @@ class ShapeBuffer(object):
         buffer.seek(0)
         return buffer.read()
 
+class UVBuffer(object):
+    
+    def __init__(self, max_index=0xff):
+        """
+        :param max_index: maximum index number, if > 65535, 4-byte integers are used
+        :type max_index: :class:`long`
+        """
+        self.uv_data = BytesIO()  # uv positions
+        
+
+        # indices number format
+        self.max_index = max_index
+        
+
+    @property
+    def uv_len(self):
+        """
+        Number of bytes in ``uv_data`` buffer.
+        """
+        return self.uv_data.tell()
+
+    @property
+    def uv_offset(self):
+        """
+        Offset (in bytes) of the ``uv_data`` buffer.
+        """
+        return 0
+
+    @property
+    def uv_size(self):
+        r"""
+        Size of ``uv_data`` in groups of 3 floats
+        (ie: number of :math:`2 \times 4` byte groups)
+        
+        """
+        # size of position buffer, in groups of 3 floats
+        return self.uv_len / (2 * 4)
+
+   
+
+    def __len__(self):
+        return self.uv_len 
+
+    def add_uv(self, u, v):
+        """
+        Add a ``VEC2` of ``floats`` to the ``uv_data`` buffer
+        """
+        self.uv_data.write(
+            struct.pack('<f', u) +
+            struct.pack('<f', v) 
+        )
+
+        
+
+    
+
+    def buffer_iter(self, block_size=1024):
+        """
+        Iterate through chunks of the vertices, and indices buffers seamlessly.
+
+        .. note::
+
+            To see a usage example, look at the :class:`ShapeBuffer` description.
+        """
+        streams = (
+            self.uv_data,
+        )
+        #print("UVData=",self.uv_data)
+        #print("UVDstreamsata=",streams)
+        # Chain streams seamlessly
+        for stream in streams:
+            stream.seek(0)
+            while True:
+                chunk = stream.read(block_size)
+                #print("chunk=",chunk)
+                if chunk:
+                    yield chunk
+                else:
+                    break
+
+        # When complete, each stream position should be reset;
+        #   back to the end of the stream.
+
+    def read(self):
+        """
+        Read buffer out as a single stream.
+
+        .. warning::
+
+            Avoid using this function!
+
+            **Why?** This is a *convenience* function; it doesn't encourage good
+            memory management.
+
+            All memory required for a mesh is duplicated, and returned as a
+            single :class:`str`. So at best, using this function will double
+            the memory required for a single model.
+
+            **Instead:** Wherever possible, please use :meth:`buffer_iter`.
+        """
+        buffer = BytesIO()
+        for chunk in self.buffer_iter():
+            log.debug('buffer.write(%r)', chunk)
+            buffer.write(chunk)
+        buffer.seek(0)
+        return buffer.read()
 
 @register_exporter('mstep', Component)
 class MSTEPExporter(Exporter):
@@ -347,11 +458,10 @@ class MSTEPExporter(Exporter):
         "materials": [],
         "bufferViews": [],
         "buffers": [],
+        "tree":[],
     }
 
-    # error tolerance of vertices to true face value, only relevant for curved surfaces.
-    #tolerance = 0.01
-
+    
     def __init__(self, *args, **kwargs):
         super(MSTEPExporter, self).__init__(*args, **kwargs)
 
@@ -359,22 +469,33 @@ class MSTEPExporter(Exporter):
         self.mstep_dict = deepcopy(self.TEMPLATE)
         self.scene_min = None
         self.scene_max = None
+        self.myParentId = None
+        self.fileId = 0
+        self.binId = 0
+        self.uniqueid = 0
+        self.createFile = True
+        self.validFilenameChars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-    def __call__(self, filename='out.mstep', embed=False, tolerance=0.1):
+    def __call__(self, filename='out.mstep', embed=False, tolerance=0.1, angularTolerance=0.5, disectparts=False, moverotate=0):
         """
         :param filename: name of ``.mstep`` file to export
         :type filename: :class:`str`
         :param embed: if True, binary content is embedded in json object.
         :type embed: :class:`bool`
-        :param tolerance: tolerance level of tessellation.
+        :param tolerance: tolerance level of tessellation between distance.
         :type tolerance: :class:`float`
+        :param angularTolerance: tolerance level of tessellation between angle.
+        :type angularTolerance: :class:`float`
         """
 
-        def add(obj, filename, name, origin, parent_node_index=0, tolerance = 0.01):
+        def add(obj, filename, name, origin, parent_node_index=0):
             split = os.path.splitext(filename)
 
             if isinstance(obj, Assembly):
                 print("Reading assembly", filename)
+                myMeshDic = self.updateParentChild(name,None)
+                self.myParentId = myMeshDic["id"]
+
                 # --- Assembly
                 obj_world_coords = obj.world_coords
                 if obj_world_coords is None:
@@ -385,8 +506,8 @@ class MSTEPExporter(Exporter):
                 node_index = len(self.mstep_dict['nodes'])
                 node = {}
                 node.update(self.coordsys_dict(relative_coordsys))
-                if name:
-                    node['name'] = name
+                self.updateName(name,node)
+                
                 self.mstep_dict['nodes'].append(node)
 
                 # Add this node to its parent
@@ -395,7 +516,7 @@ class MSTEPExporter(Exporter):
                 print("Serving assembly with ", len(obj.components.items()), " Components")
                 for (child_name, child) in obj.components.items():
                     # Full name of child (including '.' separated list of all parents)
-                    full_name = "%s.%s" % (name, child_name)
+                    #full_name = "%s.%s" % (name, child_name)
 
                     # Recursively add children
                     add(
@@ -404,7 +525,6 @@ class MSTEPExporter(Exporter):
                         name="%s.%s" % (name, child_name),
                         origin=obj_world_coords,
                         parent_node_index=node_index,
-                        tolerance = tolerance,
                     )
 
             else:
@@ -416,9 +536,17 @@ class MSTEPExporter(Exporter):
                     name=name,
                     origin=origin,
                     parent_idx=parent_node_index,
-                    tolerance = tolerance,
+                   
                 )
         
+        _, tail = os.path.split(filename)
+        pathfilename, _ = os.path.splitext(tail)
+        self.basefilename = pathfilename
+        self.distancegap = tolerance
+        self.anglegap = angularTolerance
+        self.disectparts = disectparts
+        self.myParentId = None
+        self.createFile = (moverotate==0)
         split = os.path.splitext(filename)
         if self.obj.world_coords is None:
             self.obj.world_coords = CoordSystem()
@@ -430,13 +558,104 @@ class MSTEPExporter(Exporter):
             filename="%s.bin" % split[0],
             origin=self.obj.world_coords,
             name=os.path.splitext(os.path.basename(filename))[0],
-            tolerance = tolerance,
         )
         
         # Write self.mstep_dict to file as JSON string
         with open(filename, 'w') as fh:
             fh.write(json.dumps(self.mstep_dict, sort_keys=True, indent=2))
         return self.mstep_dict
+
+    def getBaseFileName(self):
+        return self.basefilename+"C"+str(self.distancegap)+str(self.anglegap)+str(self.fileId)
+    
+    def updateParentChild(self,name,aShape):
+        dictionaryLen = len(self.mstep_dict['tree'])
+        self.uniqueid = dictionaryLen+1
+        mesher_dict = {
+            "id":self.uniqueid,
+            "parentId":self.myParentId,
+            "step":None,
+            "name":None, 
+            "topLeft" : [None,None,None],
+            "bottomRight" : [None,None,None],
+            'indent': self.myParentId, 
+            "leaf":False,  
+            "R":None,
+            "G":None,
+            "B":None,
+            "A":None,
+            "texture":None,
+            "metallicFactor":None,
+            "roughnessFactor":None,
+            "structures" : [],
+            "bin":None,        
+            }
+        
+        self.updateName(name, mesher_dict,0,True)
+        if aShape and self.disectparts:
+            returnDict = []
+            dumpTopologyStructures(aShape,level=0,parentId=[None],returnStructure=returnDict)
+            mesher_dict["structures"] = returnDict  
+        self.mstep_dict['tree'].append(mesher_dict)
+        return mesher_dict
+    
+    def validFileName(self,filename):
+        try:
+            cleanedFilename = filename #unicodedata.normalize('NFKD', filename).encode('ASCII', 'ignore')
+            #print("CleanedFileName",cleanedFilename)
+            #print("Valid chars", self.validFilenameChars)
+            return ''.join(c for c in cleanedFilename if c in self.validFilenameChars)
+        except Exception as e:
+            print("Error2:",e)
+
+    def updateName(self,name,forNodes,addOne=0,display=False):
+        suffix = "C"+str(self.distancegap)+str(self.anglegap)+" "+str(self.uniqueid+addOne)
+        if name:
+            forNodes['name'] = html.escape(self.validFileName(name+" "+suffix))
+        else:
+            forNodes['name'] = html.escape(self.validFileName("No Name"+" "+suffix))
+        if display:
+            if name:
+                forNodes['display'] = html.escape(name+" "+suffix)
+            else:
+                forNodes['display'] = html.escape("No Name"+" "+suffix)
+
+    def updateParentDimensions(self, currentdict):
+        for parentDict in self.mstep_dict['tree'] :
+            #print(parentDict,currentdict)
+            if parentDict["id"] == currentdict["parentId"]:
+                if currentdict["bin"] is not None:
+                    parentDict["bin"] = currentdict["bin"]                
+                if currentdict["topLeft"][0] is not None:
+                    if parentDict["topLeft"][0] is not None:
+                        parentDict["topLeft"] = _list3_min(
+                        parentDict["topLeft"], currentdict["topLeft"]
+                        )
+                    else:
+                        parentDict["topLeft"] = currentdict["topLeft"]
+                if currentdict["bottomRight"][0] is not None:
+                    if parentDict["bottomRight"][0] is not None:
+                        parentDict["bottomRight"] = _list3_max(
+                        parentDict["bottomRight"], currentdict["bottomRight"]
+                        )
+                    else:               
+                        parentDict["bottomRight"] = currentdict["bottomRight"]
+                if(parentDict["parentId"]) :
+                    self.updateParentDimensions(parentDict)
+
+    def findDictionary(self, currentdict) :
+        dictionaryLen = len(self.mstep_dict['tree'])
+        currentPos = currentdict["id"]
+        #print(dictionaryLen,currentPos,currentdict)
+        if dictionaryLen > (currentPos-1)  and currentPos >= 1:
+            lastOne = self.mstep_dict['tree'][currentPos-1]
+            if lastOne["id"] == currentPos:
+                return lastOne        
+            for parentDict in self.mstep_dict['tree'] :
+                #print(parentDict,currentdict)
+                if parentDict["id"] == currentPos:
+                    return parentDict
+        return {}
 
     @classmethod
     def coordsys_dict(cls, coord_sys, matrix=True):
@@ -466,15 +685,14 @@ class MSTEPExporter(Exporter):
             # This is preferable since it's more human-readable.
         return node_update
 
-    @classmethod
-    def part_mesh(cls, part, tolerance):
+    
+    
+    def part_mesh(self, part):
         """
         Convert a part's object to a mesh.
 
         :param part: part being converted to a mesh
-        :type part: :class:`Part <structparts.Part>`
-        :param tolerance: tolerance level of tessellation.
-        :type tolerance: :class:`float`
+        :type part: :class:`Part <structparts.Part>`        
         :param world: if True, world coordinates are used
         :type world: :class:`bool`
         :return: list of (<vertices>, <indexes>)
@@ -492,26 +710,30 @@ class MSTEPExporter(Exporter):
             workplane = part.local_obj  # structquery.CQ instance
             
             shape = workplane.val()  # expecting a structquery.Solid instance
-            
+            #print("I have reached here workplane",shape)
+            tess = ([],[],[],shape)
             try:
                 if("tessellate" in dir(shape)) :
-                    
-                    tess = shape.tessellate(tolerance)
+                    try:
+
+                        tess1, tess2, tess3 = shape.tessellate(self.distancegap, self.anglegap)
+                        tess = tess1, tess2, tess3, shape
+                    except Exception as e:
+                        print("Error in tesselation", e)
                    
                 else :
-                    tess = ([],[])
+                    #print("I have reached here blank",dir(shape))
+                    tess = ([],[],[],shape)
             except:
-                tess = ([],[])
+                tess = ([],[],[],shape)
             return tess
 
-    @classmethod
-    def part_buffer(cls, part, tolerance):
+    
+    def part_buffer(self, part):
         """
         Export part's geometry as an asset binary stream.
         :param part: part being converted to a mesh
-        :type part: :class:`Part <structparts.Part>`
-        :param tolerance: tolerance level of tessellation.
-        :type tolerance: :class:`float`       
+        :type part: :class:`Part <structparts.Part>`              
         :param world: if True, use world coordinates, otherwise use local
         :type world: :class:`bool`
         :return: byte sream of exported geometry
@@ -536,7 +758,7 @@ class MSTEPExporter(Exporter):
         """
         
         # Get shape's mesh
-        (vertices, indices) = cls.part_mesh(part,tolerance)
+        (vertices, indices, uv, myshape) = self.part_mesh(part)
         #print(vertices,indices)
 
         if len(indices) != 0 :
@@ -545,10 +767,16 @@ class MSTEPExporter(Exporter):
             buff = ShapeBuffer(
                 max_index=numpy.matrix(indices).max(),
             )
+            uvbuff = UVBuffer(
+                max_index=numpy.matrix(indices).max(),
+            )
         else :
 
             # Create EmptyBuffer
             buff = ShapeBuffer(
+                max_index=0,
+            )
+            uvbuff = UVBuffer(
                 max_index=0,
             )
             #print("I am here", indices)
@@ -558,9 +786,13 @@ class MSTEPExporter(Exporter):
             buff.add_vertex(vert.x, vert.y, vert.z)
         for (i, j, k) in indices:
             buff.add_poly_index(i, j, k)
+        #print("UV=",uv)
+        for uv2d in uv:
+            #print("0",uv2d[0])
+            #print("1",uv2d[1])
+            uvbuff.add_uv(uv2d[0],uv2d[1])
+        return buff, len(indices), uvbuff, myshape   
 
-        return buff, len(indices)
-    
     def jsonOf(self, item):
         if item:
             return {
@@ -571,7 +803,7 @@ class MSTEPExporter(Exporter):
         else:
             return {}
 
-    def add_part(self, part, filename=None, name=None, origin=None, parent_idx=0,tolerance=0.01):
+    def add_part(self, part, filename=None, name=None, origin=None, parent_idx=0):
         """
         Adds the given ``part`` to ``self.mstep_dict``.
 
@@ -583,9 +815,7 @@ class MSTEPExporter(Exporter):
         :param name: name given to exported mesh (optional)
         :type name: :class:`str`
         :param parent_idx: index of parent node (everything is added to a hierarchy)
-        :type parent_idx: :class:`int`
-        :param tolerance: tolerance level of tessellation.
-        :type tolerance: :class:`float`
+        :type parent_idx: :class:`int`        
         :return: information about additions to the mstep dict
         :rtype: :class:`dict`
 
@@ -615,7 +845,7 @@ class MSTEPExporter(Exporter):
         # ----- Adding to: buffers
         with measure_time(log, 'buffers'):
              
-            buff, solidfound = self.part_buffer(part,tolerance)
+            buff, solidfound, uvbuff, myshape  = self.part_buffer(part)
             if( solidfound > 0 ) :
                
                 self.scene_min = _list3_min(
@@ -630,25 +860,65 @@ class MSTEPExporter(Exporter):
                 buffer_index = len(self.mstep_dict['buffers'])
                 buffer_dict = {
                     "byteLength": len(buff),
-                    "topleft" : (Vector(buff.vert_min) + part.world_coords.origin).toTuple(),
-                    "bottomright" : (Vector(buff.vert_max) + part.world_coords.origin).toTuple(),
-                    "origin": self.jsonOf(origin),
-                    "global": self.jsonOf(part.world_coords)
+                    #"topleft" : (Vector(buff.vert_min) + part.world_coords.origin).toTuple(),
+                    #"bottomright" : (Vector(buff.vert_max) + part.world_coords.origin).toTuple(),
+                    #"origin": self.jsonOf(origin),
+                    #"global": self.jsonOf(part.world_coords)
                 }
+                mesherDict = self.updateParentChild(name,myshape.wrapped)
+                #print("add_part", mesherDict)
+                mesher_dict = self.findDictionary(mesherDict)
+                #print("mesh",mesher_dict)
+                mesher_dict["topLeft"] = buff.vert_min
+                mesher_dict["bottomRight"] = buff.vert_max
+                mesher_dict["bin"] = True
+                self.updateParentDimensions(mesher_dict)
                 if filename:
                     # write mesh file
+                    self.fileId +=1
+                    self.binId +=1
+                    base_name = self.getBaseFileName()
+                    newfilename = "Display/"+base_name+".bin"
+                    if self.createFile :
+                        with open(newfilename, 'wb') as fh:
+                            for chunk in buff.buffer_iter():
+                                fh.write(chunk)
+                    buffer_dict['uri'] = os.path.basename(newfilename)
                     
-                    with open(filename, 'wb') as fh:
-                        for chunk in buff.buffer_iter():
-                            fh.write(chunk)
-                    buffer_dict['uri'] = os.path.basename(filename)
-                    split = os.path.splitext(filename)
-                    stepname = "%s.step" % split[0]
+                    #split = os.path.splitext(newfilename)
+                    stepname = "Display/"+base_name+".step"
                     # write step file
-                   
-                    part.exporter('step')(stepname)
-                    buffer_dict['name'] = os.path.basename(stepname)
-                    buffer_dict['step'] = os.path.basename(stepname)
+                    if self.createFile :
+                        part.exporter('step')(stepname)
+                        assembly.Assembly(myshape,name=None).save("Display/"+base_name+"c.step")
+                    try:
+                        picklefile = "Display/"+base_name+".pickle"
+                        with open(picklefile, 'wb') as f:
+                            # Pickle the 'data' dictionary using the highest protocol available.
+                            pickle.dump(myshape.wrapped, f, pickle.HIGHEST_PROTOCOL)
+                    except Exception as e:
+                        print(e,"File, %s has error" % picklefile)
+
+
+                    self.updateName(name,buffer_dict)
+                    #buffer_dict['name'] = os.path.basename(stepname)
+                    #buffer_dict['step'] = os.path.basename(stepname)
+                    mesher_dict["step"] = os.path.basename(stepname)
+
+                    """ mesher_dict["fileId"] = self.fileId
+                    mesher_dict["binId"] = self.binId """
+                    mesher_dict["leaf"]=True
+                    mesher_dict["R"] = 0.7529
+                    mesher_dict["G"] = 0.7529
+                    mesher_dict["B"] = 0.7529
+                    mesher_dict["A"] = 1
+                    mesher_dict["texture"] = ""
+                    mesher_dict["metallicFactor"] = 0.1
+                    mesher_dict["roughnessFactor"] = 0.7
+                    base64data = base64.b64encode(uvbuff.read()).decode('ascii')
+                    mesher_dict['uv64'] = "{data}".format(
+                        data=base64data,
+                    )
                 else:
                     # embed buffer data in URI
                     buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
@@ -739,8 +1009,7 @@ class MSTEPExporter(Exporter):
                             }
                         ],
                     }
-                    if name:
-                        mesh['name'] = name
+                    self.updateName(name,mesh)
                     self.mstep_dict['meshes'].append(mesh)
                     info['meshes'].append((mesh_index, mesh))
 
@@ -759,8 +1028,7 @@ class MSTEPExporter(Exporter):
                         "origin": self.jsonOf(origin),
                         "global": self.jsonOf(mycoord)
                     }
-                    if name:
-                        node['name'] = name
+                    self.updateName(name,node)
                     if origin:
                         node.update(self.coordsys_dict(part.world_coords - origin))
                     self.mstep_dict['nodes'].append(node)

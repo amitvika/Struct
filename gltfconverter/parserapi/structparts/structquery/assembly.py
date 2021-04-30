@@ -421,7 +421,7 @@ class Assembly(object):
         self, path: str, exportType: Optional[ExportLiterals] = None
     ) -> "Assembly":
         """
-        save as STEP or OCCT native XML file
+        save as STEP or OCC native XML file
         
         :param path: filepath
         :param exportType: export format (deafault: None, results in format being inferred form the path)

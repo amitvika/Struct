@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-__all__ = ['Topo', 'WireExplorer', 'dumpTopology']
+__all__ = ['Topo', 'WireExplorer', 'dumpTopology', 'dumpTopologyStructures', 'dumpTopologyFacesEdgesVertices']
 
 from OCC.Core.BRep import BRep_Tool
 
@@ -16,6 +16,7 @@ from OCC.Core.TopoDS import (topods, TopoDS_Wire, TopoDS_Vertex, TopoDS_Edge,
                         TopoDS_Face, TopoDS_Shell, TopoDS_Solid,
                         TopoDS_Compound, TopoDS_CompSolid, topods_Edge,
                         topods_Vertex, TopoDS_Iterator)
+from ..OCCExtend.ShapeFactory import (recognize_edge, recognize_face, recognize_shape)
 
 
 class WireExplorer(object):
@@ -189,7 +190,7 @@ class Topo(object):
 
     def _number_of_topo(self, iterable):
         n = 0
-        for i in iterable:
+        for _ in iterable:
             n += 1
         return n
 
@@ -365,7 +366,7 @@ class Topo(object):
 
     def number_of_edges_from_face(self, face):
         cnt = 0
-        for i in self._loop_topo(TopAbs_EDGE, face):
+        for _ in self._loop_topo(TopAbs_EDGE, face):
             cnt += 1
         return cnt
 
@@ -377,7 +378,7 @@ class Topo(object):
 
     def number_of_vertices_from_edge(self, edg):
         cnt = 0
-        for i in self._loop_topo(TopAbs_VERTEX, edg):
+        for _ in self._loop_topo(TopAbs_VERTEX, edg):
             cnt += 1
         return cnt
 
@@ -395,7 +396,7 @@ class Topo(object):
 
     def number_of_edges_from_wire(self, wire):
         cnt = 0
-        for i in self._loop_topo(TopAbs_EDGE, wire):
+        for _ in self._loop_topo(TopAbs_EDGE, wire):
             cnt += 1
         return cnt
 
@@ -416,7 +417,7 @@ class Topo(object):
 
     def number_of_wires_from_face(self, face):
         cnt = 0
-        for i in self._loop_topo(TopAbs_WIRE, face):
+        for _ in self._loop_topo(TopAbs_WIRE, face):
             cnt += 1
         return cnt
 
@@ -440,7 +441,7 @@ class Topo(object):
 
     def number_of_vertices_from_face(self, face):
         cnt = 0
-        for i in self._loop_topo(TopAbs_VERTEX, face):
+        for _ in self._loop_topo(TopAbs_VERTEX, face):
             cnt += 1
         return cnt
 
@@ -458,10 +459,75 @@ class Topo(object):
 
     def number_of_faces_from_solids(self, solid):
         cnt = 0
-        for i in self._loop_topo(TopAbs_FACE, solid):
+        for _ in self._loop_topo(TopAbs_FACE, solid):
             cnt += 1
         return cnt
 
+def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[]):
+    """
+     Print the details of an object from the top down
+    """
+    brt = BRep_Tool()
+    s = shape.ShapeType()
+    myhash = hash(shape)
+    dict = {"id":myhash,
+            "parentId":parentId[-1],
+            "type":shapeString(shape),
+            "indent": level,
+            "leaf": False}
+    if s == TopAbs_VERTEX:
+        pnt = brt.Pnt(topods_Vertex(shape))        
+        dict["Info"] =  {"x":pnt.X(),"y": pnt.Y(), "z":pnt.Z()}
+        dict["leaf"] = True
+    elif s == TopAbs_FACE:
+        dict["Info"] = recognize_face(shape)        
+    elif s == TopAbs_EDGE:        
+        dict["Info"] = recognize_edge(shape)
+    else:
+        dict["Info"] = recognize_shape(shape)
+    returnStructure.append(dict)
+    it = TopoDS_Iterator(shape)
+    parentId.append(myhash)
+    while it.More():
+        shp = it.Value()
+        it.Next()
+        dumpTopologyStructures(shp, level + 1,parentId=parentId, returnStructure=returnStructure)
+    parentId.pop()
+    return len(returnStructure)
+
+def hashTransCode(transform):
+    hashcode = ''
+    for i in range(1,4):
+        for j in range(1,5):
+            hashcode += str(transform.Value(i,j))
+    return hashcode
+
+def dumpTopologyFacesEdgesVertices(shape, face_dict={}, edge_dict={}, vertex_dict={}):
+    """
+     Print the details of an object from the top down
+    """
+    brt = BRep_Tool()
+    s = shape.ShapeType()
+    if s==TopAbs_EDGE:
+        myhash = str(hash(shape))+str(shape.Orientation())+hashTransCode(shape.Location().Transformation())
+    else:
+        myhash = str(hash(shape))    
+    if s == TopAbs_VERTEX:
+        if not myhash in vertex_dict:
+            vertex_dict[myhash]=shape        
+    elif s == TopAbs_FACE:
+        if not myhash in face_dict:
+            face_dict[myhash]=shape         
+    elif s == TopAbs_EDGE:        
+        if not myhash in edge_dict:
+            edge_dict[myhash]=shape     
+    it = TopoDS_Iterator(shape)    
+    while it.More():
+        shp = it.Value()
+        it.Next()
+        dumpTopologyFacesEdgesVertices(shp, face_dict=face_dict, edge_dict=edge_dict, vertex_dict=vertex_dict)
+    
+    return len(face_dict)+len(edge_dict)+len(vertex_dict)
 
 def dumpTopology(shape, level=0):
     """
@@ -502,3 +568,24 @@ def shapeTypeString(shape):
     if st == TopAbs_COMPSOLID:
         s = "Compsolid."
     return "%s: %i" % (s, hash(shape))
+
+def shapeString(shape):
+    st = shape.ShapeType()
+    s = "?"
+    if st == TopAbs_VERTEX:
+        s = "Vertex"
+    if st == TopAbs_SOLID:
+        s = "Solid"
+    if st == TopAbs_EDGE:
+        s = "Edge"
+    if st == TopAbs_FACE:
+        s = "Face"
+    if st == TopAbs_SHELL:
+        s = "Shell"
+    if st == TopAbs_WIRE:
+        s = "Wire"
+    if st == TopAbs_COMPOUND:
+        s = "Compound."
+    if st == TopAbs_COMPSOLID:
+        s = "Compsolid."
+    return s

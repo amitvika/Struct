@@ -16,8 +16,8 @@
    flex-direction: column;
    ${props => (props.grow ? 'flex-grow: 1' : '')};
    padding: 5px;
-   padding-bottom:100px;
-   padding-right:20px;
+   padding-bottom:5px;
+   padding-right:5px;
    overflow-y: auto;
    width: ${props => {
      return props.size && props.theme.app.sizes[props.size]
@@ -85,10 +85,10 @@
     width : 10%
   }
   .tdinfo {
-    width : 60%
+    width : 90%
   }
   .tdtype {
-    width : 40%
+    width : 10%
   }
  `
  

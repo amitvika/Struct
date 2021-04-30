@@ -3,8 +3,8 @@ from ...units import RAD2DEG
 from ..OCPShapes import Edge
 from .utils import toCompound
 
-from OCP.gp import gp_Dir
-from OCP.GeomConvert import GeomConvert
+from OCC.Core.gp import gp_Dir
+from OCC.Core.GeomConvert import geomconvert_CurveToBSplineCurve, geomconvert_SplitBSplineCurve # * # CurveToBSplineCurve, SplitBSplineCurve # GeomConvert_CompCurveToBSplineCurve #,SplitBSplineCurve
 
 import ezdxf
 
@@ -70,9 +70,9 @@ def _dxf_ellipse(e: Edge, msp: ezdxf.layouts.Modelspace, plane: Plane):
 def _dxf_spline(e: Edge, msp: ezdxf.layouts.Modelspace, plane: Plane):
 
     adaptor = e._geomAdaptor()
-    curve = GeomConvert.CurveToBSplineCurve_s(adaptor.Curve().Curve())
+    curve = geomconvert_CurveToBSplineCurve(adaptor.Curve().Curve())
 
-    spline = GeomConvert.SplitBSplineCurve_s(
+    spline = geomconvert_SplitBSplineCurve(
         curve, adaptor.FirstParameter(), adaptor.LastParameter(), CURVE_TOLERANCE
     )
 

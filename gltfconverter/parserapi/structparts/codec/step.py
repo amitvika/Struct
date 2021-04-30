@@ -11,7 +11,7 @@ from ..constraint import Fixed
 from ..structquery import cq 
  
 from ..structquery.occ_impl.OCPShapes import Shape
-from ..structquery.occ_impl import OCPDataExchange
+from .. import conversion
 
 @register_exporter('step', Part)
 class STEPExporter(Exporter):
@@ -144,7 +144,7 @@ class STEPAssemblyImporter(_STEPImporter):
                 return make
 
             # Import file
-            occ_shapes = OCPDataExchange.read_step_file(filename, as_compound=False)
+            occ_shapes = conversion.read_step_file(filename, as_compound=False)
             #print(occ_shapes)
             solids = []
             for shape in occ_shapes:
@@ -165,7 +165,74 @@ class STEPAssemblyImporter(_STEPImporter):
 
         def make_constraints(self):
             constraints = []
-            for (key, part) in self.components.items():
+            for (_, part) in self.components.items():
+                constraints.append(Fixed(part.mate_origin))
+            return constraints
+
+        # Create a class inheriting from our class
+        imported_type = type(mangled_name, (self.cls,), {
+            'make_components': make_components,
+            'make_constraints': make_constraints,
+        })
+        return imported_type()
+
+@register_importer('shape', Assembly)
+class SHAPEAssemblyImporter(_STEPImporter):
+    """
+    Import a shape from a STEP formatted file.
+
+    =============== ======================
+    **Name**        ``shape``
+    **Imports**     :class:`Assembly <structparts.Assembly>`
+    =============== ======================
+
+    .. note::
+
+        Step file is passed to :meth:`structquery.occ_impl.OCPimporters.importShape`
+        to do the hard work of extracting geometry.
+
+    **Multi-part STEP**
+
+    This importer is intended for ``STEP`` files with multiple separated meshes
+    defined.
+
+    Each mesh is imported into a nested :class:`Part <structparts.Part>` component.
+    """
+
+    def __call__(self, occ_shapes, filename):
+        
+        mangled_name = self._mangled_filename(filename)
+
+        def make_components(self):
+            # Part Builder
+            def _get_make(nested_obj):
+                def make(self):
+                    return cq.Workplane("XY").newObject([nested_obj])
+                return make
+
+            # Import file
+            #occ_shapes = OCPDataExchange.read_step_file(filename, as_compound=False)
+            #print(occ_shapes)
+            solids = []
+            for shape in occ_shapes:
+                solids.append(Shape.cast(shape))
+
+            obj = cq.Workplane("XY").newObject(solids)
+
+            components = {}
+            for (i, o) in enumerate(obj.objects):
+                idstr = '{:03g}'.format(i)
+                part_clsname = "%s_part%s" % (mangled_name, idstr)
+                part_cls = type(part_clsname, (Part, ), {
+                    'make': _get_make(o),
+                })
+                components['{:03g}'.format(i)] = part_cls()
+
+            return components
+
+        def make_constraints(self):
+            constraints = []
+            for (_, part) in self.components.items():
                 constraints.append(Fixed(part.mate_origin))
             return constraints
 

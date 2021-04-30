@@ -1,4 +1,4 @@
-// import { Global, css } from "@emotion/core";
+import { css } from "@emotion/core";
 export const styles = css`
 	* {
 	
@@ -35,6 +35,35 @@ export const styles = css`
 		height: 70%;
 		background-color:blue;
 	}
+  .buttonTrue {
+    display: inline-block;
+    padding: 15px 25px;
+    font-size: 24px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #17FF17;
+    background-color: yellow;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 9px #999;
+  }
+  
+  .buttonFalse {
+    display: inline-block;
+    padding: 15px 25px;
+    font-size: 24px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #E800E8;
+    background-color: red;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 9px #999;
+  }
 
 	.gui-wrap {
 	  position: absolute;
@@ -67,6 +96,11 @@ export const styles = css`
 		margin: 0;
 		padding: 0;
 	}
+
+	table {
+    width: 100%;
+    table-layout: fixed;
+  }
   
 	.caret {
 		cursor: pointer;		

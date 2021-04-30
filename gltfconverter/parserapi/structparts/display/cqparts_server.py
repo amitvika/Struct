@@ -1,10 +1,3 @@
-""" generate the files and notify the cqparts server
- look at https://github.com/zignig/cqparts-server
- copied and edited from web.py
- Copyright 2018 Peter Boin
- and Simon Kirkby 2018
-"""
-
 import os
 import time
 import tempfile

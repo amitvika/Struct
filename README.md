@@ -7,10 +7,13 @@ All the code, in one place
 
 - Install miniconda
 - start miniconda terminal
-- run `conda create  --name importexport -c cadquery -c conda-forge freecad=0.17 python=3.6 pip`
-- run `conda activate importexport`
-- cd `gltfconverter` directory
-- run `pip install -r requirements.txt`
+- run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy nptyping`
+- run `conda activate structquery`
+CD to `gltfconverter` directory
+- run `python manage.py makemigrations`
+- run `python manage.py migrate`
+- run `conda deactivate`
+
 
 ### React and Node
 
@@ -20,7 +23,7 @@ All the code, in one place
 
 #### GLTFConverter
 - cd `gltfconverter` folder
-- run `conda activate importexport` for activating virtual environment
+- run `conda activate structquery` for activating virtual environment
 - `python manage.py runserver localhost:8000`
 
 #### React and Node 

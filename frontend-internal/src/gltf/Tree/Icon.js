@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import { motion } from 'framer-motion'
 import styled from 'styled-components'
 import AppIcons from '../assets/images/icons'
@@ -24,8 +24,8 @@ const IconContainer = styled(motion.div)`
   svg {
     height: 100%;
     width: 100%;
-    fill: ${props => props.theme[props.currentTheme].decal};
-    stroke: ${props => props.theme[props.currentTheme].decal};
+    fill: ${props => props.theme && props.currentTheme ? props.theme[props.currentTheme].decal ? props.theme[props.currentTheme].decal: 24 : 24 };
+    stroke: ${props => props.theme && props.currentTheme ? props.theme[props.currentTheme].decal ? props.theme[props.currentTheme].decal: 24 : 24};
   }
 `
 
@@ -56,15 +56,10 @@ const Icon = (props) => {
         transition={{ duration: 1, ease: 'linear', loop: Infinity }}
         size={size}
         {...rest}
-      // dangerouslySetInnerHTML={setHTML(icon ? <img src={AppIcons[icon]} /> : null)}
-      >
-        <img style={{ width: '15px', height: '15px' }} src={AppIcons[icon]} />
-      </IconContainer>
+        dangerouslySetInnerHTML={setHTML(icon ? AppIcons[icon] : null)}
+      ></IconContainer>
     )
   ) : null
-
-
-  { console.log('--icon-', icon, AppIcons[icon]) }
 
   return Render
 }

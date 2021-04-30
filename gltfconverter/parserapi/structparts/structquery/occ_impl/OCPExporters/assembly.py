@@ -1,16 +1,16 @@
 import os.path
 
-from OCP.XSControl import XSControl_WorkSession
-from OCP.STEPCAFControl import STEPCAFControl_Writer
-from OCP.STEPControl import STEPControl_StepModelType
-from OCP.IFSelect import IFSelect_ReturnStatus
-from OCP.XCAFApp import XCAFApp_Application
-from OCP.XmlDrivers import (
+from OCC.Core.XSControl import XSControl_WorkSession
+from OCC.Core.STEPCAFControl import STEPCAFControl_Writer
+from OCC.Core.STEPControl import STEPControl_AsIs #STEPControl_StepModelType,STEPControl_AsIs
+from OCC.Core.IFSelect import  IFSelect_RetDone
+from OCC.Core.XCAFApp import XCAFApp_Application_GetApplication
+from OCC.Core.XmlDrivers import (
     XmlDrivers_DocumentStorageDriver,
     XmlDrivers_DocumentRetrievalDriver,
 )
-from OCP.TCollection import TCollection_ExtendedString, TCollection_AsciiString
-from OCP.PCDM import PCDM_StoreStatus
+from OCC.Core.TCollection import TCollection_ExtendedString, TCollection_AsciiString
+from OCC.Core.PCDM import PCDM_StoreStatus
 
 from ..OCPAssembly import AssemblyProtocol, toCAF
 
@@ -24,11 +24,11 @@ def exportAssembly(assy: AssemblyProtocol, path: str) -> bool:
     writer.SetColorMode(True)
     writer.SetLayerMode(True)
     writer.SetNameMode(True)
-    writer.Transfer(doc, STEPControl_StepModelType.STEPControl_AsIs)
+    writer.Transfer(doc, STEPControl_AsIs)
 
     status = writer.Write(path)
 
-    return status == IFSelect_ReturnStatus.IFSelect_RetDone
+    return status == IFSelect_RetDone
 
 
 def exportCAF(assy: AssemblyProtocol, path: str) -> bool:
@@ -38,7 +38,7 @@ def exportCAF(assy: AssemblyProtocol, path: str) -> bool:
     ext = ext[1:] if ext[0] == "." else ext
 
     _, doc = toCAF(assy)
-    app = XCAFApp_Application.GetApplication_s()
+    app = XCAFApp_Application_GetApplication()
 
     store = XmlDrivers_DocumentStorageDriver(
         TCollection_ExtendedString("Copyright: Open Cascade, 2001-2002")

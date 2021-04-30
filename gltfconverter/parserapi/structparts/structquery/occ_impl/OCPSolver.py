@@ -4,7 +4,7 @@ from nptyping import NDArray as Array
 from numpy import array, eye, zeros, pi
 from scipy.optimize import minimize
 
-from OCP.gp import gp_Vec, gp_Dir, gp_Pnt, gp_Trsf, gp_Quaternion
+from OCC.Core.gp import gp_Vec, gp_Dir, gp_Pnt, gp_Trsf, gp_Quaternion
 
 from .OCPGeometry import Location
 

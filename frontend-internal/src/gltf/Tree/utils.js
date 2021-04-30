@@ -5,12 +5,29 @@ export const SELECTTEXTURE = 2;
 export const SELECTMETAL = 3;
 export const SELECTROUGH = 4;
 export const SELECTOPAQUE = 5;
-export const SELECTTICK = 6;
+export const SELECTDISTANCE = 6;
 export const SELECTBACKCOLOR = 7;
 export const SELECT2DTEXTURE = 8;
 export const SELECT3DTEXTURE = 9;
 export const SELECTMATERIRAL = 10;
+export const SELECTSELECTCOLOR = 11;
+export const SELECTTOUCHCOLOR = 12;
+export const SELECTSHOWINFO = 13;
+export const SELECTSOLID = 14;
+export const SELECTFACE = 15;
+export const SELECTEDGE = 16;
+export const SELECTCORNER = 17;
+export const SELECTMEASURE = 18;
+export const SELECTTICK = 19;
+export const SELECTCONTINOUS = 20;
+export const SELECTHIRERACHY = 21;
+export const SELECTDISECTPARTS = 22;
+export const SELECTSTACKABLE = 23;
 
+export const DEFAULTSELECTCOLOR = "#17FF17";
+export const DEFAULTTOUCHCOLOR = "#FF1717";
+export const DEFAULTBACKCOLOR = "#E8FFE8";
+export const DEFAULTTEXTCOLOR = "#170017";
 
 export const hexToRGB = (hex) => {
     var c;
@@ -53,11 +70,18 @@ export const getTexture = (texture) => {
 export const prettyPrintArray= (json,maxlength=30) => {
   if(json) {
     if (typeof json === 'string') {
+      //console.log("I got String");
       return json
     }
     if (Array.isArray(json)) {
-      return json.toString();
+      //console.log("I got Array");
+      try {
+        return stringify(json, {maxlength:maxlength});
+      } catch (error) {
+        return json.toString();
+      }     
     }
+   
     return stringify(json, {maxlength:maxlength});  		
   }
   return "No Info"
