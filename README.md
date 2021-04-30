@@ -3,7 +3,7 @@ All the code, in one place
 
 ## Installation
 
-#### GLTFConverter
+#### GLTFConverter (first time only)
 
 - Install miniconda
 - start miniconda terminal
@@ -15,9 +15,9 @@ All the code, in one place
 - run `conda deactivate`
 
 
-### React and Node
+### React and Node (first time only)
 
-- First for setup, use `npm run setup` (first time only)
+- First for setup, use `npm run setup` 
 
 ## Run localy
 
