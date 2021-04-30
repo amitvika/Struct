@@ -9,7 +9,7 @@ All the code, in one place
 - start miniconda terminal
 - run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy nptyping`
 - run `conda activate structquery`
-CD to `gltfconverter` directory
+- CD to `gltfconverter` directory
 - run `python manage.py makemigrations`
 - run `python manage.py migrate`
 - run `conda deactivate`
