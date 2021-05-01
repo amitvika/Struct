@@ -1,6 +1,7 @@
 const FactoryModel = require("../models/factory.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
 var mongoose = require('mongoose');
+const { getObjectId } = require('../utils/helper')
 
 exports.get = async (req, res) => {
 
@@ -10,9 +11,9 @@ exports.get = async (req, res) => {
             "deletedAt": { "$exists": false }
         })
 
-        if (req.params.factory_id) {
+        if (req.query.factory_id) {
             query.$and.push({
-                "_id": req.params.factory_id
+                "_id": getObjectId(req.query.factory_id)
             })
         }
 
