@@ -11,10 +11,11 @@ export default function ProductionApprovalModal({
     isModalOpened,
     toggleModal,
     selectedValue,
-    setSelectedValue
+    setSelectedValue,
+    handleApproveItemForProduction
 }) {
 
-    const onChange = (ev) => {
+    const onChange = (event) => {
         setSelectedValue(prev => ({ ...prev, isApprovedforProduction: event.target.checked }))
     }
 
@@ -77,7 +78,7 @@ export default function ProductionApprovalModal({
                             variant="contained"
                             color="primary"
                             type="button"
-                            onClick={() => assignFactory(selectedValue)}>
+                            onClick={() => handleApproveItemForProduction(selectedValue)}>
                             OK
                     </Button>
                     </Grid>

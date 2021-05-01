@@ -216,6 +216,9 @@ exports.update = async (req, res) => {
 			updateData.selectedClientId = null;
 		}
 
+        if (body.compliance) {
+			updateData.compliance = body.compliance;
+		}
 
 		const updatedItem = await ItemModel.findByIdAndUpdate(req.params.id, updateData, { new: true })
 

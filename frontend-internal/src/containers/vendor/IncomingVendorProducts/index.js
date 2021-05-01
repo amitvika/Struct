@@ -18,10 +18,6 @@ import { mapItems } from '../../../utils/mapper'
 import SelectorView from '../../../components/SelectorView'
 import get from 'lodash/get';
 
-
-
-
-
 export default function IncomingVendorProducts({
 	clientId,
 	clientData

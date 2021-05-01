@@ -4,42 +4,48 @@ const Schema = mongoose.Schema;
 
 //Define the User model schema(filed structure)
 const ItemSchema = new mongoose.Schema({
-	name: {
-		type: String,
-		required: true
-	},
-	date: {
-		type: Date,
-		default: Date.now
-	},
-	vendorId: {
-		type: Schema.Types.ObjectId,
-		ref: "Vendor"
-	},
-	author: {
-		type: Schema.Types.ObjectId,
-		ref: "User",
-		required: true
-	},
-	isDeleted: { type: Boolean, default: false },
-	deletedAt: {
-		type: Date
-	},
-	selectedClientId: {
-		type: Schema.Types.ObjectId,
-		ref: "Client",
-	},
-	assemblyType: { type: String },
-	itemGeometry: { type: Object },
-	itemTypeConfiguration: { type: Object },
-	vendorDetails: { type: Object },
-	gltfjson: {
-		type: Object
-	},
-	stl: { type: String },
-	fileId: { type: Number }
+    name: {
+        type: String,
+        required: true
+    },
+    date: {
+        type: Date,
+        default: Date.now
+    },
+    vendorId: {
+        type: Schema.Types.ObjectId,
+        ref: "Vendor"
+    },
+    author: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: {
+        type: Date
+    },
+    selectedClientId: {
+        type: Schema.Types.ObjectId,
+        ref: "Client",
+    },
+    assemblyType: { type: String },
+    itemGeometry: { type: Object },
+    itemTypeConfiguration: { type: Object },
+    vendorDetails: { type: Object },
+    compliance: {
+        RoHS: { type: Boolean, default: false },
+        ISO: { type: Boolean, default: false },
+        CE: { type: Boolean, default: false },
+        FCC: { type: Boolean, default: false },
+    },
+    gltfjson: {
+        type: Object
+    },
+    stl: { type: String },
+    fileId: { type: Number }
 }, {
-	timestamps: true
+    timestamps: true
 });
 
 

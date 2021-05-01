@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import Select from '../../components/atoms/Select';
-import Input from '../../components/atoms/Input';
+import Select from '../../../components/atoms/Select';
+import Input from '../../../components/atoms/Input';
 import Grid from '@material-ui/core/Grid';
 
 export default function MachineTool_Workholding({ itemConfiguration, handleOnChange }) {

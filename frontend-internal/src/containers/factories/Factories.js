@@ -211,7 +211,7 @@ const Factories = () => {
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
 				{
-					API.deleteClientApi(oldData.id)
+					FactoriesAPI.deleteClientApi(oldData.id)
 						.then(res => {
 							const updatedFactoryList = factoryList.filter(client => client.id != oldData.id);
 							setFactoryList(updatedFactoryList)

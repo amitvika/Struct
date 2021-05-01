@@ -62,7 +62,7 @@ export default function GridView({
 	const classes = useStyles();
 
 	const renderItem = (data) => {
-		let item = []; +
+		let item = [];
 
 			Object.keys(columnsFields).forEach(fieldItem => {
 				item.push(

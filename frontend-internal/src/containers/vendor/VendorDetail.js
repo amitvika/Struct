@@ -91,7 +91,7 @@ const VendorDetail = () => {
   }
 
   const handleSave = () => {
-    itemProperties.itemId = undefined;
+    vendorInfo.itemId = undefined;
 
     syncWithServer(vendorInfo)
   }
@@ -172,10 +172,11 @@ const VendorDetail = () => {
               onChange={handleTabChange}>
               {/* onChange={(event, newValue) => setValue(newValue)}> */}
               {/* <Tab label="Services" value={1} /> */}
-              <Tab label="Incoming Vendor Products" value={1} />
+              {/* <Tab label="Incoming Vendor Products" value={1} /> */}
+              <Tab label="Supplied Items " value={1} />
               {/* <Tab label="Reports" value={2} /> */}
               {/* <Tab label="Service Agreement" value={3} /> */}
-              <Tab label="Supplied Items" value={3} />
+              {/* <Tab label="Supplied Items" value={3} /> */}
               <Tab label="Payments" value={4} />
               <Tab label="Validation Failures" value={5} />
               <Tab label="Vendor as Client" value={6} />

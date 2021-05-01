@@ -65,7 +65,7 @@ export default function GridView({
 	const classes = useStyles();
 
 	const renderItem = (data) => {
-		let item = []; +
+		let item = [];
 
 			columnsFields.map(fieldItem => {
 				item.push(

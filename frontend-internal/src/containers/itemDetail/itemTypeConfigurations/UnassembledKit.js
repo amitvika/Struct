@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
-import Heading from '../../components/atoms/Headding'
-import Select from '../../components/atoms/Select';
-import Input from '../../components/atoms/Input';
+
 import {
   Grid,
   Paper

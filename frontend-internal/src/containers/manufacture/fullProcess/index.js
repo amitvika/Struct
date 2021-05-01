@@ -1,5 +1,6 @@
 import React from 'react'
 import ProcessConfiguration from './processConfiguration'
+import ManufacturabilityAnalysis from './ManufacturabilityAnalysis'
 
 export default function FullProcess({ selectedSubTab }) {
 
@@ -9,6 +10,10 @@ export default function FullProcess({ selectedSubTab }) {
                 selectedSubTab === 'Process Configuration' ?
                     <ProcessConfiguration
                     /> : null
+            }
+             {
+                 selectedSubTab === 'Manufacturability Analysis' ?
+                        <ManufacturabilityAnalysis /> : null
             }
 
         </div>

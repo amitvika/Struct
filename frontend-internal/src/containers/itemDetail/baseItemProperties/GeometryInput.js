@@ -168,47 +168,49 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 							// label="Item Type"
 							placeholder="Select"
 							options={[
-								{ label: "Other", value: "Other" },
-								{ label: 'Machine - Actuator', value: 'Machine - Actuator' },
+								{ label: "Any Other Object/Item", value: "Any Other Object/Item" },
+								{ label: 'Submachine - Actuator', value: 'Submachine - Actuator' },
 								{ label: 'Machine - Motion Control', value: 'Machine - Motion Control' },
 								{ label: 'Machine - Tool/Workholding', value: 'Machine - Tool/Workholding' },
 								{ label: "Machine - Workpiece Environment Modification", value: "Machine - Workpiece Environment Modification" },
 								{ label: "Workholding - Pressure Vessel", value: "Workholding - Pressure Vessel" },
 								{ label: "Workholding - Liquid Container", value: "Workholding - Liquid Container" },
 								{ label: "Tool", value: "Tool" },
-								{ label: "Machine - Tool", value: "Machine - Tool" },
+								// { label: "Machine - Tool", value: "Machine - Tool" },
 								{ label: "Unassembled Kit", value: "Unassembled Kit" },
-								{ label: "Structure", value: 'Structure' }
+								{ label: "Building", value: 'Building' }
 							]}
 							onChange={(data) => handleOnChange('itemType', data.value)}
 							value={itemGeometry.itemType && { label: itemGeometry.itemType }}
 						/>
 					</Grid>
+					{itemGeometry.itemType === 'Any Other Object/Item' &&
+						<>
+							<Grid item xs={4} style={{ display: 'flex' }} >
 
-					<Grid item xs={4} style={{ display: 'flex' }} >
-						
-						<Headding bold title={'Item Category'}>
-						</Headding>
-						<Icon style={{ marginLeft: '18px' }} id="TooltipExample">info</Icon>
-						<Tooltip placement="top" isOpen={tooltipOpen} target="TooltipExample" toggle={toggleTooltip}>
-							This allows for selection of the general geometry or matter state of the item. The downstream impacts include how the item is handled and transported within Struct Production Systems
+								<Headding bold title={'Item Category'}>
+								</Headding>
+								<Icon style={{ marginLeft: '18px' }} id="TooltipExample">info</Icon>
+								<Tooltip placement="top" isOpen={tooltipOpen} target="TooltipExample" toggle={toggleTooltip}>
+									This allows for selection of the general geometry or matter state of the item. The downstream impacts include how the item is handled and transported within Struct Production Systems
                         </Tooltip>
-					</Grid>
-					<Grid item xs={8} >
-						<Select
-							// label="General Geometry"
-							placeholder="Select"
-							options={[
+							</Grid>
+							<Grid item xs={8} >
+								<Select
+									// label="General Geometry"
+									placeholder="Select"
+									options={[
 
-								{ label: ' Solid', value: ' Solid' },
-								{ label: "Bulk Powder/Particles/Grains", value: "Bulk Powder/Particles/Grains" },
-								{ label: "Liquid", value: "Liquid" },
-								{ label: "Gas", value: "Gas" }]}
-							onChange={(data) => handleOnChange('generalGeomerty', data.value)}
-							value={itemGeometry.generalGeomerty && { label: itemGeometry.generalGeomerty }}
-						/>
-					</Grid>
-
+										{ label: ' Solid', value: ' Solid' },
+										{ label: "Bulk Powder/Particles/Grains", value: "Bulk Powder/Particles/Grains" },
+										{ label: "Liquid", value: "Liquid" },
+										{ label: "Gas", value: "Gas" }]}
+									onChange={(data) => handleOnChange('generalGeomerty', data.value)}
+									value={itemGeometry.generalGeomerty && { label: itemGeometry.generalGeomerty }}
+								/>
+							</Grid>
+						</>
+					}
 
 					{itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' &&
 						<>

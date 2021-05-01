@@ -30,12 +30,12 @@ import ClientDetail from "./containers/client/ClientDetail";
 import FactoryDetail from './containers/factories/FactoryDetail'
 import ProductDesignDetail from "./containers/productDesignDetail";
 import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
-import ItemDetail from "./containers/itemDetail/ItemDetail";
+import ItemDetail from "./containers/itemDetail";
 import UserSetup from './containers/userSetup';
 import ViewMyProfile from './containers/viewMyProfile'
 
 // import Viewer from './page/3DViewer';
-import Viewer from './gltf/index'
+// import Viewer from './gltf/index'
 
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);
@@ -51,7 +51,7 @@ export default function AppRoutes() {
         <Switch>
           <Route exact path="/" component={Login} />
           <Route path="/register" component={Register} />
-          <Route path="/viewer" component={Viewer} />
+          {/* <Route path="/viewer" component={Viewer} /> */}
           <Layout>
 
             <div style={{ marginLeft: '7%', marginRight: '7%' }}>

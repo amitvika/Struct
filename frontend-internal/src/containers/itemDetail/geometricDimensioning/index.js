@@ -3,6 +3,7 @@ import { AppBar, Toolbar, IconButton, Typography, Button } from '@material-ui/co
 import { fade, makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import GLTFRenderer from '../../../gltf/GltfRenderer';
+
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -20,8 +21,11 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-export default function index({ gltfjson }) {
+
+
+export default function GeometricDimensioning({ gltfjson }) {
   const classes = useStyles();
+  
   return (
     <div>
       <Toolbar className={classes.toolbar}>

@@ -999,7 +999,7 @@ class GLTFRenderer extends Component {
 		
 					var u = yaw,
 						v = pitch;
-					uvs.push( new THREE.Vector2( u, v ) );
+					// uvs.push( new THREE.Vector2( u, v ) );
 				}
 				geometry.faceVertexUvs[ 0 ].push( uvs );
 			});

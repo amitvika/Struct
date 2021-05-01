@@ -6,7 +6,8 @@ import FileUpload from '../../../components/FileUpload'
 import Input from '../../../components/atoms/Input';
 
 export default function IdentificationModal({ isModalOpened, toggleModal }) {
-
+    const [identificationNumber, setIdentificationNumber] = useState([]);
+    
     return (
         <div>
             <MainModal open={isModalOpened} toggleModal={toggleModal}>
