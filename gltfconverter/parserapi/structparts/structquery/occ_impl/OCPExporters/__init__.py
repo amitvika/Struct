@@ -5,7 +5,7 @@ import io as StringIO
 from typing import IO, Optional, Union, cast
 from typing_extensions import Literal
 
-from OCP.VrmlAPI import VrmlAPI
+from OCC.Core.VrmlAPI import VrmlAPI_Writer
 
 from ...cq import Workplane
 from ...utils import deprecate
@@ -105,7 +105,7 @@ def export(
 
     elif exportType == ExportTypes.VRML:
         shape.mesh(tolerance, angularTolerance)
-        VrmlAPI.Write_s(shape.wrapped, fname)
+        VrmlAPI_Writer(shape.wrapped, fname)
 
     else:
         raise ValueError("Unknown export type")

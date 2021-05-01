@@ -191,7 +191,7 @@ class CoordSystem(Plane):
                 random.uniform(min, max),
                 random.uniform(min, max),
             )
-        import OCP
+        #import OCP
         while True:
             try:
                 return cls(
@@ -199,7 +199,7 @@ class CoordSystem(Plane):
                     xDir=rand_vect(-1, 1),
                     normal=rand_vect(-1, 1),
                 )
-            except OCP.Standard.Standard_ConstructionError:
+            except Exception:
                 # Raised if xDir & normal vectors are parallel.
                 # (the chance is very low, but it could happen)
                 continue

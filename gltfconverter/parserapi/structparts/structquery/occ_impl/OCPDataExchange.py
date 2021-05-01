@@ -1,8 +1,8 @@
 import os
-from OCP.TopoDS import TopoDS_Compound
-from OCP.IGESControl import IGESControl_Reader
-from OCP.STEPControl import STEPControl_Reader
-from OCP.IFSelect import IFSelect_RetDone, IFSelect_ItemsByEntity
+from OCC.Core.TopoDS import TopoDS_Compound
+from OCC.Core.IGESControl import IGESControl_Reader
+from OCC.Core.STEPControl import STEPControl_Reader
+from OCC.Core.IFSelect import IFSelect_RetDone, IFSelect_ItemsByEntity
 from .OCPTopologyUtils import (TopologyExplorer, list_of_shapes_to_compound)
 
 def getChildren(parent, count=0, depth = 0,returnshapes = [] ) :
@@ -17,7 +17,7 @@ def getChildren(parent, count=0, depth = 0,returnshapes = [] ) :
     for mysolid in list_of_solids:
         if mysolid: 
             count = count + 1
-            print(" I have reached here ", count, "depth", depth, length)
+            #print(" I have reached here ", count, "depth", depth, length)
             if(depth < 10 and length > 1 ) :  
                 
                 myChildren =  getChildren(mysolid,count=count, depth=depth, returnshapes=returnshapes)                                                 
@@ -92,8 +92,8 @@ def read_step_file(filename, as_compound=False, verbosity=False, visible_only=Fa
             return [compound]
         else:
             if myshapelen == 1:
-                mychildren = getChildren(myshapes[0])
-                print(mychildren)
+                #mychildren = getChildren(myshapes[0])
+                #print(mychildren)
                 topology = TopologyExplorer(myshapes[0],ignore_orientation=False)         
                 mysolids = topology.solids()
                 print("I am manually splitting the files",filename)
@@ -105,7 +105,7 @@ def read_step_file(filename, as_compound=False, verbosity=False, visible_only=Fa
                 if myretlen<=1:
                     print("Only one shape in", filename)
                     return myshapes
-                print("I have manually splitted the files",filename,"in to",myretlen)
+                #print("I have manually splitted the files",filename,"in to",myretlen)
                 return returnshapes
             else:
                 print("Program has splitted the files",filename,"in to",myshapelen)
@@ -158,7 +158,7 @@ def read_iges_file(filename, return_as_shapes=False, verbosity=False, visible_on
         if myshapelen == 0 :
             print("Warning: no shapes were return", filename)
             return myshapes
-        if as_compound:
+        if return_as_shapes:
             if myshapelen<=1 :
                 print("Only one shape in", filename)
                 return myshapes

@@ -1,24 +1,32 @@
 from typing import Any, Iterable, Iterator, List, Optional, Tuple
 from .OCPShapes import (Vertex, Edge, Face, Wire, Shell, Solid, Compound, Mixin3D)
-from OCP.BRep import BRep_Tool, BRep_Builder
-from OCP.BRepTools import BRepTools_WireExplorer
-from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt
-from OCP.HLRBRep import HLRBRep_Algo, HLRBRep_HLRToShape
-from OCP.HLRAlgo import HLRAlgo_Projector
-from OCP.TopAbs import (TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE,
+from OCC.Core.BRep import BRep_Tool, BRep_Builder
+from OCC.Core.BRepTools import BRepTools_WireExplorer
+from OCC.Core.gp import gp_Ax2, gp_Dir, gp_Pnt
+from OCC.Core.HLRBRep import HLRBRep_Algo, HLRBRep_HLRToShape
+from OCC.Core.HLRAlgo import HLRAlgo_Projector
+from OCC.Core.TopAbs import (TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE,
                              TopAbs_SHELL, TopAbs_SOLID, TopAbs_COMPOUND,
                              TopAbs_COMPSOLID, TopAbs_ShapeEnum)
-from OCP.TopExp import TopExp_Explorer
-from OCP.TopTools import (TopTools_IndexedDataMapOfShapeListOfShape)
-from OCP.TopoDS import (TopoDS, TopoDS_Wire, TopoDS_Vertex, TopoDS_Edge,
+from OCC.Core.TopExp import TopExp_Explorer
+from OCC.Core.TopTools import (TopTools_IndexedDataMapOfShapeListOfShape)
+from OCC.Core.TopoDS import (topods, TopoDS_Wire, TopoDS_Vertex, TopoDS_Edge,
                              TopoDS_Face, TopoDS_Shell, TopoDS_Solid, TopoDS_Shape,
-                             TopoDS_Compound, TopoDS_CompSolid, TopoDS_Edge,
-                             TopoDS_Vertex, TopoDS_Iterator)
-from OCP.GCPnts import (GCPnts_UniformAbscissa,
+                             TopoDS_Compound, TopoDS_CompSolid, topods_Edge,
+                             topods_Vertex, TopoDS_Iterator)
+from OCC.Core.GCPnts import (GCPnts_UniformAbscissa,
                              GCPnts_QuasiUniformDeflection,
                              GCPnts_UniformDeflection)
-from OCP.BRepAdaptor import BRepAdaptor_Curve
+ 
+from OCC.Core.GeomAbs import (GeomAbs_C0, 
+                              GeomAbs_Plane, GeomAbs_Cylinder, GeomAbs_Cone,GeomAbs_Sphere, GeomAbs_Torus,
+                              GeomAbs_BezierSurface, GeomAbs_BSplineSurface,GeomAbs_SurfaceOfRevolution, 
+                              GeomAbs_SurfaceOfExtrusion, GeomAbs_OffsetSurface, GeomAbs_OtherSurface,                               
+                              GeomAbs_Line, GeomAbs_Circle, GeomAbs_Ellipse, GeomAbs_Ellipse,GeomAbs_Hyperbola,
+                              GeomAbs_Parabola, GeomAbs_BezierCurve, GeomAbs_BSplineCurve, GeomAbs_OtherCurve)
 
+from OCC.Core.BRepAdaptor import BRepAdaptor_Surface, BRepAdaptor_Curve
+from .OCPShapes import Shape
 
 class WireExplorer:
     '''
@@ -272,24 +280,24 @@ class TopologyExplorer:
         return self._number_of_topo(self.ordered_edges_from_wire(wire))
     
 
-    # ======================================================================
+    """  # ======================================================================
     # EDGE <-> FACE
     # ======================================================================
     def faces_from_edge(self, edge: TopoDS_Edge):
-        """
+        
 
         :param edge:
         :return:
-        """
+        
         return self._map_shapes_and_ancestors(TopAbs_EDGE, TopAbs_FACE, edge)
 
     def number_of_faces_from_edge(self, edge: TopoDS_Edge) -> int:
-        """
+        
 
         :param edge:
         :return:
-        """
-        return self._number_shapes_ancestors(TopAbs_EDGE, TopAbs_FACE, edge)
+        
+        return self._number_shapes_ancestors(TopAbs_EDGE, TopAbs_FACE, edge) """
 
     def edges_from_face(self, face: TopoDS_Face) -> Iterator[TopoDS_Edge]:
         """
@@ -398,7 +406,185 @@ class TopologyExplorer:
             cnt += 1
         return cnt
 
+def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[]):
+    """
+     Print the details of an object from the top down
+    """
+    brt = BRep_Tool()
+    s = shape.ShapeType()
+    myhash = hash(shape)
+    dict = {"id":myhash,
+            "parentId":parentId[-1],
+            "type":shapeString(shape),
+            "indent": level,
+            "leaf": False}
+    if s == TopAbs_VERTEX:
+        pnt = brt.Pnt(TopoDS_Vertex(shape))        
+        dict["Info"] =  {"x":pnt.X(),"y": pnt.Y(),"z": pnt.Z()}
+        dict["leaf"] = True
+    elif s == TopAbs_FACE:
+        dict["Info"] = recognize_face(shape)        
+    elif s == TopAbs_EDGE:        
+        dict["Info"] = recognize_edge(shape)
+    returnStructure.append(dict)
+    #it = TopoDS_Iterator(Shape(shape))
+    #parentId.append(myhash)
+    #while it.More() and level < 10:
+    #    shp = it.Value()
+    #    it.Next()
+    #    dumpTopologyStructures(shp, level + 1,parentId=parentId, returnStructure=returnStructure)
+    #parentId.pop()
+    return len(returnStructure)
 
+def shapeString(shape):
+    st = shape.ShapeType()
+    s = "?"
+    if st == TopAbs_VERTEX:
+        s = "Vertex"
+    if st == TopAbs_SOLID:
+        s = "Solid"
+    if st == TopAbs_EDGE:
+        s = "Edge"
+    if st == TopAbs_FACE:
+        s = "Face"
+    if st == TopAbs_SHELL:
+        s = "Shell"
+    if st == TopAbs_WIRE:
+        s = "Wire"
+    if st == TopAbs_COMPOUND:
+        s = "Compound."
+    if st == TopAbs_COMPSOLID:
+        s = "Compsolid."
+    return s
+
+def getXYZ(co_ord):
+    return co_ord
+    #return (co_ord.X(), co_ord.Y(), co_ord.Z())
+
+##################################
+# Recognize functions
+##################################
+def recognize_face(topods_face):
+    """ returns True if the TopoDS_Face is a planar surface
+    """
+    if not isinstance(topods_face, TopoDS_Face):
+        return "Not a face", None, None
+    surf = BRepAdaptor_Surface(topods_face, True)
+    surf_type = surf.GetType()
+    if  surf_type == GeomAbs_Plane:
+        # look for the properties of the plane
+        # first get the related gp_Pln
+        gp_pln = surf.Plane()
+        entity = {}
+        entity['kind'] = "Plane"       
+        entity['location']  = getXYZ(gp_pln.Location().Coord())  # a point of the plane
+        entity['normal'] = getXYZ(gp_pln.Axis().Direction().Coord())  # the plane normal
+        return entity
+    elif surf_type == GeomAbs_Cylinder:
+        # look for the properties of the cylinder
+        # first get the related gp_Cyl
+        gp_cyl = surf.Cylinder()         
+        entity = {}
+        entity['kind'] = "Cylinder"
+        entity['location'] = getXYZ(gp_cyl.Axis().Location().Coord()) # a point of the axis
+        entity['direction'] = getXYZ(gp_cyl.Axis().Direction().Coord()) # the cylinder axis
+        entity['radius'] = gp_cyl.Radius()
+        entity['coefficients'] = gp_cyl.Coefficients()
+        # then export location and normal to the console output
+        return entity
+    elif surf_type == GeomAbs_Cone:
+        
+        gp_cone = surf.Cone()
+        entity = {}
+        entity['kind'] = "Cone"
+        entity['location'] =  getXYZ(gp_cone.Location().Coord())  # a point of the axis
+        entity['direction'] =  getXYZ(gp_cone.Axis().Direction().Coord())  # the cone axis
+        entity['position'] =  getXYZ(gp_cone.Position().Direction().Coord())  # a local coordinate point of the axis
+        entity['refradius'] = gp_cone.RefRadius()
+        entity['semiangle'] = gp_cone.SemiAngle()
+        # then export location and normal to the console output
+        return entity
+    elif surf_type == GeomAbs_Sphere:
+        
+        gp_sphere = surf.Sphere()
+        entity = {}
+        entity['kind'] = "Sphere"
+        entity['location'] = getXYZ(gp_sphere.Location().Coord())  # a point of the axis
+        entity['position'] =  getXYZ(gp_sphere.Position().Direction().Coord())  # a local coordinate point of the axis
+        entity['radius'] = gp_sphere.Radius()
+        #axis = gp_sphere.Axis().Direction()  # the sphere axis
+        # then export location and normal to the console output
+        return entity
+    elif surf_type == GeomAbs_Torus:
+        
+        gp_torus = surf.Torus()
+        entity = {}
+        entity['kind'] = "Torus"
+        entity['location'] = getXYZ(gp_torus.Location().Coord())  # a point of the axis
+        entity['direction'] =  getXYZ(gp_torus.Axis().Direction().Coord())  # a local coordinate point of the axis
+        entity['minorradius'] = gp_torus.MinorRadius()
+        entity['majorradius'] = gp_torus.MajorRadius()
+        #axis = gp_torus.Axis().Direction()  # the sphere axis
+        # then export location and normal to the console output
+        return entity
+    elif surf_type == GeomAbs_BezierSurface:
+        kind = "Bezier"
+        #gp_bezier = surf.Bezier()
+        #location = gp_bezier.Location()  # a point of the axis
+        #axis = gp_bezier.Axis().Direction()  # the bezier axis
+        # then export location and normal to the console output
+        return kind
+    elif surf_type == GeomAbs_BSplineSurface:
+        kind = "BSpline"
+        #gp_bspline = surf.BSpline()
+        #location = gp_bspline.Location()  # a point of the axis
+        #axis = gp_bezier.Axis().Direction()  # the BSpline axis
+        # then export location and normal to the console output
+        return kind
+    elif surf_type == GeomAbs_SurfaceOfRevolution:
+        kind = "Revolution"
+        return kind
+    elif surf_type == GeomAbs_SurfaceOfExtrusion:
+        kind = "Extrusion"
+        return kind
+    elif surf_type == GeomAbs_OffsetSurface:
+        kind = "Offset"
+        return kind
+    elif surf_type == GeomAbs_OtherSurface:
+        kind = "Others"
+        return kind
+    # nothing found
+    return "Unknown"
+
+##################################
+# Recognize functions
+##################################
+def recognize_edge(topods_edge):
+    """ returns True if the TopoDS_Face is a planar surface
+    """
+    if not isinstance(topods_edge, TopoDS_Edge):
+        return "Not a face", None, None
+    curve = BRepAdaptor_Curve(topods_edge)
+    curve_type = curve.GetType()
+    # nothing found
+    kind = "Unknown"
+    if  curve_type == GeomAbs_Line:
+        kind = "Line"              
+    elif curve_type == GeomAbs_Circle:
+        kind = "Circle"       
+    elif curve_type == GeomAbs_Ellipse:
+        kind = "Ellipse"        
+    elif curve_type == GeomAbs_Hyperbola:
+        kind = "Hyperbola"        
+    elif curve_type == GeomAbs_Parabola:
+        kind = "Parabola"        
+    elif curve_type == GeomAbs_BezierCurve:
+        kind = "Bezier"        
+    elif curve_type == GeomAbs_BSplineCurve:
+        kind = "BSpline"       
+    elif curve_type == GeomAbs_OtherCurve:
+        kind = "Other Curves"    
+    return kind
 def dump_topology_to_string(shape: TopoDS_Shape,
                             level: Optional[int]=0,
                             buffer: Optional[str]="") -> None:
@@ -408,7 +594,7 @@ def dump_topology_to_string(shape: TopoDS_Shape,
     brt = BRep_Tool()
     s = shape.ShapeType()
     if s == TopAbs_VERTEX:
-        pnt = brt.Pnt(topods_Vertex(shape))
+        pnt = brt.Pnt(TopoDS_Vertex(shape))
         print(".." * level  + "<Vertex %i: %s %s %s>\n" % (hash(shape), pnt.X(), pnt.Y(), pnt.Z()))
     else:
         print(".." * level, end="")

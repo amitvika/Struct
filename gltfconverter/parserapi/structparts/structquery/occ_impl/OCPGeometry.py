@@ -1,13 +1,23 @@
 import math
 
 from typing import overload, Sequence, Union, Tuple, Type, Optional
+from OCC.Core.gp import (
+    gp_Vec,
+    gp_Ax1,
+    gp_Ax3,
+    gp_Pnt,
+    gp_Dir,
+    gp_Trsf,
+    gp_GTrsf,
+    gp,
+    gp_XYZ,
+)
+from OCC.Core.Bnd import Bnd_Box
+from OCC.Core.BRepBndLib import brepbndlib_Add, brepbndlib_AddOptimal
+from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
+from OCC.Core.TopoDS import TopoDS_Shape
+from OCC.Core.TopLoc import TopLoc_Location
 
-from OCP.gp import gp_Vec, gp_Ax1, gp_Ax3, gp_Pnt, gp_Dir, gp_Trsf, gp_GTrsf, gp, gp_XYZ
-from OCP.Bnd import Bnd_Box
-from OCP.BRepBndLib import BRepBndLib
-from OCP.BRepMesh import BRepMesh_IncrementalMesh
-from OCP.TopoDS import TopoDS_Shape
-from OCP.TopLoc import TopLoc_Location
 
 TOL = 1e-2
 
@@ -161,13 +171,13 @@ class Vector(object):
         return self.wrapped.Angle(v.wrapped)
 
     def distanceToLine(self):
-        raise NotImplementedError("Have not needed this yet, but OCCT supports it!")
+        raise NotImplementedError("Have not needed this yet, but OCC Core supports it!")
 
     def projectToLine(self):
-        raise NotImplementedError("Have not needed this yet, but OCCT supports it!")
+        raise NotImplementedError("Have not needed this yet, but OCC Core supports it!")
 
     def distanceToPlane(self):
-        raise NotImplementedError("Have not needed this yet, but OCCT supports it!")
+        raise NotImplementedError("Have not needed this yet, but OCC Core supports it!")
 
     def projectToPlane(self, plane: "Plane") -> "Vector":
         """
@@ -207,7 +217,7 @@ class Vector(object):
 
     def transform(self, T: "Matrix") -> "Vector":
 
-        # to gp_Pnt to obey cq transformation convention (in OCP.vectors do not translate)
+        # to gp_Pnt to obey cq transformation convention (in OCC.Core.vectors do not translate)
         pnt = self.toPnt()
         pnt_t = pnt.Transformed(T.wrapped.Trsf())
 
@@ -285,15 +295,15 @@ class Matrix:
 
     def rotateX(self, angle: float):
 
-        self._rotate(gp.OX_s(), angle)
+        self._rotate(gp.OX(), angle)
 
     def rotateY(self, angle: float):
 
-        self._rotate(gp.OY_s(), angle)
+        self._rotate(gp.OY(), angle)
 
     def rotateZ(self, angle: float):
 
-        self._rotate(gp.OZ_s(), angle)
+        self._rotate(gp.OZ(), angle)
 
     def _rotate(self, direction: gp_Ax1, angle: float):
 
@@ -836,14 +846,14 @@ class BoundBox(object):
         bbox = Bnd_Box()
 
         if optimal:
-            BRepBndLib.AddOptimal_s(
+            brepbndlib_AddOptimal(
                 shape, bbox
             )  # this is 'exact' but expensive - not yet wrapped by PythonOCC
         else:
             mesh = BRepMesh_IncrementalMesh(shape, tol, True)
             mesh.Perform()
             # this is adds +margin but is faster
-            BRepBndLib.Add_s(shape, bbox, True)
+            brepbndlib_Add(shape, bbox, True)
 
         return cls(bbox)
 
@@ -865,7 +875,7 @@ class BoundBox(object):
 class Location(object):
     """Location in 3D space. Depending on usage can be absolute or relative.
 
-    This class wraps the TopLoc_Location class from OCCT. It can be used to move Shape
+    This class wraps the TopLoc_Location class from OCC Core. It can be used to move Shape
     objects in both relative and absolute manner. It is the preferred type to locate objects
     in CQ.
     """

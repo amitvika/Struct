@@ -7,6 +7,7 @@ from typing import (
     List,
     Sequence,
     Iterator,
+    Dict,
     Any,
     overload,
     TypeVar,
@@ -16,10 +17,10 @@ from typing_extensions import Literal, Protocol
 
 from .OCPGeometry import Vector, BoundBox, Plane, Location, Matrix
 
-import OCP.TopAbs as ta  # Tolopolgy type enum
-import OCP.GeomAbs as ga  # Geometry type enum
+import OCC.Core.TopAbs as ta  # Tolopolgy type enum
+import OCC.Core.GeomAbs as ga  # Geometry type enum
 
-from OCP.gp import (
+from OCC.Core.gp import (
     gp_Vec,
     gp_Pnt,
     gp_Ax1,
@@ -27,55 +28,50 @@ from OCP.gp import (
     gp_Ax3,
     gp_Dir,
     gp_Circ,
+    gp_Elips,
     gp_Trsf,
     gp_Pln,
+    gp_GTrsf,
     gp_Pnt2d,
     gp_Dir2d,
-    gp_Elips,
 )
 
-# Array of points (used for B-spline construction):
-from OCP.TColgp import TColgp_HArray1OfPnt
-
-# Array of vectors (used for B-spline interpolation):
-from OCP.TColgp import TColgp_Array1OfVec
-
-# Array of booleans (used for B-spline interpolation):
-from OCP.TColStd import TColStd_HArray1OfBoolean
-
-# Array of floats (used for B-spline interpolation):
-from OCP.TColStd import TColStd_HArray1OfReal
-
-from OCP.BRepAdaptor import (
+# collection of pints (used for spline construction)
+from OCC.Core.TColgp import TColgp_HArray1OfPnt
+from OCC.Core.BRepAdaptor import (
     BRepAdaptor_Curve,
     BRepAdaptor_CompCurve,
     BRepAdaptor_Surface,
     BRepAdaptor_HCurve,
     BRepAdaptor_HCompCurve,
 )
-from OCP.Adaptor3d import Adaptor3d_Curve, Adaptor3d_HCurve
-from OCP.BRepBuilderAPI import (
+from OCC.Core.BRepBuilderAPI import (
     BRepBuilderAPI_MakeVertex,
     BRepBuilderAPI_MakeEdge,
     BRepBuilderAPI_MakeFace,
     BRepBuilderAPI_MakePolygon,
     BRepBuilderAPI_MakeWire,
     BRepBuilderAPI_Sewing,
+    BRepBuilderAPI_MakeSolid,
     BRepBuilderAPI_Copy,
     BRepBuilderAPI_GTransform,
     BRepBuilderAPI_Transform,
     BRepBuilderAPI_Transformed,
     BRepBuilderAPI_RightCorner,
     BRepBuilderAPI_RoundCorner,
-    BRepBuilderAPI_MakeSolid,
 )
 
 # properties used to store mass calculation result
-from OCP.GProp import GProp_GProps
-from OCP.BRepGProp import BRepGProp_Face, BRepGProp  # used for mass calculation
-from OCP.BRepLProp import BRepLProp_CLProps  # local curve properties
+from OCC.Core.GProp import GProp_GProps
+from OCC.Core.BRepGProp import (
+    BRepGProp_Face,
+    brepgprop_LinearProperties,
+    brepgprop_SurfaceProperties,
+    brepgprop_VolumeProperties,
+)  # used for mass calculation
+from OCC.Core.BRepLProp import BRepLProp_CLProps  # local curve properties
 
-from OCP.BRepPrimAPI import (
+from OCC.Core.BRepPrimAPI import (
     BRepPrimAPI_MakeBox,
     BRepPrimAPI_MakeCone,
     BRepPrimAPI_MakeCylinder,
@@ -86,122 +82,141 @@ from OCP.BRepPrimAPI import (
     BRepPrimAPI_MakeSphere,
 )
 
-from OCP.TopExp import TopExp_Explorer  # Toplogy explorer
+from OCC.Core.TopExp import TopExp_Explorer,topexp_MapShapesAndAncestors  # Toplogy explorer
+from OCC.Core.BRepTools import breptools_UVBounds, breptools_OuterWire
 
 # used for getting underlying geoetry -- is this equvalent to brep adaptor?
-from OCP.BRep import BRep_Tool
+from OCC.Core.BRep import BRep_Tool, BRep_Tool_Degenerated
 
-from OCP.TopoDS import (
-    TopoDS,
-    TopoDS_Shape,
-    TopoDS_Builder,
-    TopoDS_Compound,
-    TopoDS_Iterator,
-    TopoDS_Wire,
-    TopoDS_Face,
-    TopoDS_Edge,
-    TopoDS_Vertex,
-    TopoDS_Solid,
-    TopoDS_Shell,
+from OCC.Core.TopoDS import (
+    topods_Vertex,  # downcasting functions
+    topods_Edge,
+    topods_Wire,
+    topods_Face,
+    topods_Shell,
+    topods_Compound,
+    topods_CompSolid,
+    topods_Solid,
 )
 
-from OCP.GC import GC_MakeArcOfCircle, GC_MakeArcOfEllipse  # geometry construction
-from OCP.GCE2d import GCE2d_MakeSegment
-from OCP.GeomAPI import GeomAPI_Interpolate, GeomAPI_ProjectPointOnSurf
+from OCC.Core.TopoDS import TopoDS_Compound, TopoDS_Builder, TopoDS_Iterator, TopoDS_Shape
 
-from OCP.BRepFill import BRepFill
+from OCC.Core.GC import GC_MakeArcOfCircle, GC_MakeArcOfEllipse  # geometry construction
+from OCC.Core.GCE2d import GCE2d_MakeSegment
+from OCC.Core.GeomAPI import GeomAPI_Interpolate, GeomAPI_ProjectPointOnSurf
 
-from OCP.BRepAlgoAPI import (
+from OCC.Core.BRepFill import brepfill_Shell, brepfill_Face
+
+
+from OCC.Core.BRepAlgoAPI import (
     BRepAlgoAPI_Common,
     BRepAlgoAPI_Fuse,
     BRepAlgoAPI_Cut,
     BRepAlgoAPI_BooleanOperation,
 )
-
-from OCP.Geom import (
+from OCC.Core.Geom import (
     Geom_ConicalSurface,
     Geom_CylindricalSurface,
     Geom_Surface,
     Geom_Plane,
 )
-from OCP.Geom2d import Geom2d_Line
 
-from OCP.BRepLib import BRepLib, BRepLib_FindSurface
+from OCC.Core.Geom2d import Geom2d_Line
 
-from OCP.BRepOffsetAPI import (
+from OCC.Core.BRepLib import breplib_BuildCurves3d
+
+from OCC.Core.BRepOffsetAPI import (
     BRepOffsetAPI_ThruSections,
     BRepOffsetAPI_MakePipeShell,
     BRepOffsetAPI_MakeThickSolid,
     BRepOffsetAPI_MakeOffset,
 )
 
-from OCP.BRepFilletAPI import BRepFilletAPI_MakeChamfer, BRepFilletAPI_MakeFillet
+from OCC.Core.BRepFilletAPI import BRepFilletAPI_MakeChamfer, BRepFilletAPI_MakeFillet
 
-from OCP.TopTools import TopTools_IndexedDataMapOfShapeListOfShape, TopTools_ListOfShape
-
-from OCP.TopExp import TopExp
-
-from OCP.ShapeFix import ShapeFix_Shape, ShapeFix_Solid
-
-from OCP.STEPControl import STEPControl_Writer, STEPControl_AsIs
-
-from OCP.BRepMesh import BRepMesh_IncrementalMesh
-from OCP.StlAPI import StlAPI_Writer
-
-from OCP.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
-
-from OCP.BRepTools import BRepTools
-
-from OCP.LocOpe import LocOpe_DPrism
-
-from OCP.BRepCheck import BRepCheck_Analyzer
-
-from OCP.Font import (
-    Font_FontMgr,
-    Font_BRepTextBuilder,
-    Font_FA_Regular,
-    Font_FA_Italic,
-    Font_FA_Bold,
-    Font_SystemFont,
+from OCC.Core.TopTools import (
+    TopTools_IndexedDataMapOfShapeListOfShape,
+    TopTools_ListOfShape,
 )
 
-from OCP.BRepFeat import BRepFeat_MakeDPrism
+from OCC.Core.TopExp import topexp_MapShapesAndAncestors
 
-from OCP.BRepClass3d import BRepClass3d_SolidClassifier
+from OCC.Core.ShapeFix import ShapeFix_Shape
 
-from OCP.TCollection import TCollection_AsciiString
+from OCC.Core.STEPControl import STEPControl_Writer, STEPControl_AsIs
 
-from OCP.TopLoc import TopLoc_Location
+from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
+from OCC.Core.StlAPI import StlAPI_Writer
 
-from OCP.GeomAbs import (
+from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
+
+from OCC.Core.BRepTools import breptools_Write
+
+#from OCC.Core.Visualization import Tesselator
+
+from OCC.Core.LocOpe import LocOpe_DPrism
+
+from OCC.Core.BRepCheck import BRepCheck_Analyzer
+
+from OCC.Core.Addons import text_to_brep, Font_FA_Regular, Font_FA_Italic, Font_FA_Bold
+
+from OCC.Core.BRepFeat import BRepFeat_MakeDPrism
+
+from OCC.Core.BRepClass3d import BRepClass3d_SolidClassifier
+from OCC.Core.GeomAbs import (
     GeomAbs_Shape,
     GeomAbs_C0,
     GeomAbs_Intersection,
     GeomAbs_JoinType,
 )
-from OCP.BRepOffsetAPI import BRepOffsetAPI_MakeFilling
-from OCP.BRepOffset import BRepOffset_MakeOffset, BRepOffset_Skin
 
-from OCP.BOPAlgo import BOPAlgo_GlueEnum
+from OCC.Extend.TopologyUtils import TopologyExplorer, WireExplorer
+from OCC.Core.GeomAbs import GeomAbs_Intersection
+from OCC.Core.BRepOffsetAPI import BRepOffsetAPI_MakeFilling
+from OCC.Core.BRepOffset import BRepOffset_MakeOffset, BRepOffset_Skin
+from OCC.Core.ShapeFix import ShapeFix_Wire
 
-from OCP.IFSelect import IFSelect_ReturnStatus
 
-from OCP.TopAbs import TopAbs_ShapeEnum, TopAbs_Orientation
+## Array of vectors (used for B-spline interpolation):
+from OCC.Core.TColgp import TColgp_Array1OfVec
 
-from OCP.ShapeAnalysis import ShapeAnalysis_FreeBounds
-from OCP.TopTools import TopTools_HSequenceOfShape
+# Array of booleans (used for B-spline interpolation):
+from OCC.Core.TColStd import TColStd_HArray1OfBoolean
 
-from OCP.GCPnts import GCPnts_AbscissaPoint
+# Array of floats (used for B-spline interpolation):
+from OCC.Core.TColStd import TColStd_HArray1OfReal
 
-from OCP.GeomFill import (
+
+from OCC.Core.Adaptor3d import Adaptor3d_Curve, Adaptor3d_HCurve
+
+from OCC.Core.BRepLib import BRepLib_FindSurface
+
+from OCC.Core.TCollection import TCollection_AsciiString
+
+from OCC.Core.TopLoc import TopLoc_Location
+
+
+from OCC.Core.BRepOffsetAPI import BRepOffsetAPI_MakeFilling
+from OCC.Core.BRepOffset import BRepOffset_MakeOffset, BRepOffset_Skin
+
+from OCC.Core.BOPAlgo import BOPAlgo_GlueEnum
+
+#from OCC.Core.IFSelect import IFSelect_ReturnStatus
+
+from OCC.Core.TopAbs import TopAbs_ShapeEnum, TopAbs_Orientation
+
+from OCC.Core.ShapeAnalysis import ShapeAnalysis_FreeBounds
+from OCC.Core.TopTools import TopTools_HSequenceOfShape
+
+from OCC.Core.GCPnts import GCPnts_AbscissaPoint
+
+from OCC.Core.GeomFill import (
     GeomFill_Frenet,
     GeomFill_CorrectedFrenet,
     GeomFill_TrihedronLaw,
 )
 
-# for catching exceptions
-from OCP.Standard import Standard_NoSuchObject, Standard_Failure
-
+ 
 from math import pi, sqrt
 import warnings
 
@@ -216,29 +231,31 @@ shape_LUT = {
     ta.TopAbs_FACE: "Face",
     ta.TopAbs_SHELL: "Shell",
     ta.TopAbs_SOLID: "Solid",
+    ta.TopAbs_COMPSOLID: "CompSolid",                                     
     ta.TopAbs_COMPOUND: "Compound",
 }
 
 shape_properties_LUT = {
     ta.TopAbs_VERTEX: None,
-    ta.TopAbs_EDGE: BRepGProp.LinearProperties_s,
-    ta.TopAbs_WIRE: BRepGProp.LinearProperties_s,
-    ta.TopAbs_FACE: BRepGProp.SurfaceProperties_s,
-    ta.TopAbs_SHELL: BRepGProp.SurfaceProperties_s,
-    ta.TopAbs_SOLID: BRepGProp.VolumeProperties_s,
-    ta.TopAbs_COMPOUND: BRepGProp.VolumeProperties_s,
+    ta.TopAbs_EDGE: brepgprop_LinearProperties ,
+    ta.TopAbs_WIRE: brepgprop_LinearProperties ,
+    ta.TopAbs_FACE: brepgprop_SurfaceProperties ,
+    ta.TopAbs_SHELL: brepgprop_SurfaceProperties ,
+    ta.TopAbs_SOLID: brepgprop_VolumeProperties ,
+    ta.TopAbs_COMPOUND: brepgprop_VolumeProperties ,
 }
 
 inverse_shape_LUT = {v: k for k, v in shape_LUT.items()}
 
 downcast_LUT = {
-    ta.TopAbs_VERTEX: TopoDS.Vertex_s,
-    ta.TopAbs_EDGE: TopoDS.Edge_s,
-    ta.TopAbs_WIRE: TopoDS.Wire_s,
-    ta.TopAbs_FACE: TopoDS.Face_s,
-    ta.TopAbs_SHELL: TopoDS.Shell_s,
-    ta.TopAbs_SOLID: TopoDS.Solid_s,
-    ta.TopAbs_COMPOUND: TopoDS.Compound_s,
+    ta.TopAbs_VERTEX: topods_Vertex,
+    ta.TopAbs_EDGE: topods_Edge,
+    ta.TopAbs_WIRE: topods_Wire,
+    ta.TopAbs_FACE: topods_Face,
+    ta.TopAbs_SHELL: topods_Shell,
+    ta.TopAbs_SOLID:  topods_Solid,
+    ta.TopAbs_COMPSOLID: topods_CompSolid,
+    ta.TopAbs_COMPOUND:  topods_Compound,
 }
 
 geom_LUT = {
@@ -248,6 +265,7 @@ geom_LUT = {
     ta.TopAbs_FACE: BRepAdaptor_Surface,
     ta.TopAbs_SHELL: "Shell",
     ta.TopAbs_SOLID: "Solid",
+    ta.TopAbs_SOLID: "CompSolid",                             
     ta.TopAbs_COMPOUND: "Compound",
 }
 
@@ -277,7 +295,7 @@ geom_LUT_EDGE = {
     ga.GeomAbs_OtherCurve: "OTHER",
 }
 
-Shapes = Literal["Vertex", "Edge", "Wire", "Face", "Shell", "Solid", "Compound"]
+Shapes = Literal["Vertex", "Edge", "Wire", "Face", "Shell", "Solid","CompSolid","Compound"]
 Geoms = Literal[
     "Vertex",
     "Wire",
@@ -371,7 +389,7 @@ class Shape(object):
     def cast(
         cls: Type["Shape"], obj: TopoDS_Shape, forConstruction: bool = False
     ) -> "Shape":
-        "Returns the right type of wrapper, given a OCCT object"
+        "Returns the right type of wrapper, given a OCC Core object"
 
         tr = None
 
@@ -383,6 +401,7 @@ class Shape(object):
             ta.TopAbs_FACE: Face,
             ta.TopAbs_SHELL: Shell,
             ta.TopAbs_SOLID: Solid,
+            ta.TopAbs_COMPSOLID: CompSolid,        
             ta.TopAbs_COMPOUND: Compound,
         }
 
@@ -404,7 +423,7 @@ class Shape(object):
 
         return writer.Write(self.wrapped, fileName)
 
-    def exportStep(self, fileName: str) -> IFSelect_ReturnStatus:
+    def exportStep(self, fileName: str) :
         """
         Export this shape to a STEP file
         """
@@ -419,7 +438,7 @@ class Shape(object):
         Export this shape to a BREP file
         """
 
-        return BRepTools.Write_s(self.wrapped, fileName)
+        return breptools_Write(self.wrapped, fileName)
 
     def geomType(self) -> Geoms:
         """
@@ -492,7 +511,7 @@ class Shape(object):
     def isValid(self) -> bool:
         """
         Returns True if no defect is detected on the shape S or any of its
-        subshapes. See the OCCT docs on BRepCheck_Analyzer::IsValid for a full
+        subshapes. See the OCC Core docs on BRepCheck_Analyzer::IsValid for a full
         description of what is checked.
         """
         return BRepCheck_Analyzer(self.wrapped).IsValid()
@@ -549,7 +568,7 @@ class Shape(object):
     def _center_of_mass(shape: "Shape") -> Vector:
 
         Properties = GProp_GProps()
-        BRepGProp.VolumeProperties_s(shape.wrapped, Properties)
+        brepgprop_VolumeProperties(shape.wrapped, Properties)
 
         return Vector(Properties.CentreOfMass())
 
@@ -660,6 +679,27 @@ class Shape(object):
 
         return list(out.values())
 
+    def _entitiesFrom(
+        self, child_type: Shapes, parent_type: Shapes
+    ) -> Dict["Shape", List["Shape"]]:
+
+        res = TopTools_IndexedDataMapOfShapeListOfShape()
+
+        TopTools_IndexedDataMapOfShapeListOfShape()
+        topexp_MapShapesAndAncestors(
+            self.wrapped,
+            inverse_shape_LUT[child_type],
+            inverse_shape_LUT[parent_type],
+            res,
+        )
+
+        out: Dict[Shape, List[Shape]] = {}
+        for i in range(1, res.Extent() + 1):
+            out[Shape.cast(res.FindKey(i))] = [
+                Shape.cast(el) for el in res.FindFromIndex(i)
+            ]
+
+        return out                  
     def Vertices(self) -> List["Vertex"]:
         """
         :returns: All the vertices in this Shape
@@ -675,7 +715,7 @@ class Shape(object):
         return [
             Edge(i)
             for i in self._entities("Edge")
-            if not BRep_Tool.Degenerated_s(TopoDS.Edge_s(i))
+            if not BRep_Tool_Degenerated(topods_Edge(i))
         ]
 
     def Compounds(self) -> List["Compound"]:
@@ -713,12 +753,18 @@ class Shape(object):
 
         return [Solid(i) for i in self._entities("Solid")]
 
+    def CompSolids(self) -> List["CompSolid"]:
+        """
+        :returns: All the compsolids in this Shape
+        """
+
+        return [CompSolid(i) for i in self._entities("CompSolid")]
     def Area(self) -> float:
         """
         :returns: The surface area of all faces in this Shape
         """
         Properties = GProp_GProps()
-        BRepGProp.SurfaceProperties_s(self.wrapped, Properties)
+        brepgprop_SurfaceProperties(self.wrapped, Properties)
 
         return Properties.Mass()
 
@@ -815,7 +861,7 @@ class Shape(object):
         transformations.
 
         If your transformation is only translation and rotation, it is safer to
-        use :py:meth:`transformShape`, which doesnt change the underlying type
+        use :py:meth:`transformShape`, which doesn't change the underlying type
         of the geometry, but cannot handle skew transformations.
 
         :param tMatrix: The transformation matrix
@@ -877,6 +923,8 @@ class Shape(object):
     def __hash__(self) -> int:
         return self.hashCode()
 
+    def __eq__(self, other) -> bool:
+        return self.isSame(other)
     def _bool_op(
         self,
         args: Iterable["Shape"],
@@ -947,26 +995,137 @@ class Shape(object):
         Generate traingulation if none exists.
         """
 
-        if not BRepTools.Triangulation_s(self.wrapped, tolerance):
-            #print(" I have started tessellating from OCC")
-            BRepMesh_IncrementalMesh(self.wrapped, tolerance, True, angularTolerance)
-            #print("I have completed mesh Tesselating")
+        #if not BRep_Tool().Triangulation(self.wrapped, tolerance):
+        #print(" I have started tessellating from OCC")
+        BRepMesh_IncrementalMesh(self.wrapped, tolerance, True, angularTolerance)
+        #print("I have completed mesh Tesselating")
+
+    def minmaxsum3D(self, max, min, sum, data):
+        #print("max,min,data", max, min,data)
+        xmax,ymax,zmax = max
+        xmin,ymin,zmin = min    
+        sx, sy, sz = sum  
+        x,y,z = data.x, data.y, data.z
+
+        if xmax < x:
+            xmax = x
+        if xmin > x:
+            xmin = x 
+        if ymax < y:
+            ymax = y
+        if ymin > y:
+            ymin = y 
+        if zmax < z:
+            zmax = z
+        if zmin > z:
+            zmin = z 
+
+        
+        max = (xmax,ymax,zmax)
+        min = (xmin,ymin,zmin)
+        sum = (sx+x, sy+y, sz+z)
+        return max, min, sum
+   
+    def max3D(self, max, min, udata, vdata):
+        #print("max,min,data", max, min,data)
+        xmax,ymax,zmax = max
+        xmin,ymin,zmin = min    
+            
+        x,y,z = udata
+
+        if xmax < x:
+            xmax = x        
+        if ymax < y:
+            ymax = y
+        if zmax < z:
+            zmax = z
+
+        x,y,z = vdata
+
+        if xmin > x:
+            xmin = x 
+        if ymin > y:
+            ymin = y         
+        if zmin > z:
+            zmin = z 
+
+        
+        max = (xmax,ymax,zmax)
+        min = (xmin,ymin,zmin)
+        return max, min  
+
+    """ def minmax(self, max,min,data):
+        
+        xmax,ymax,zmax = max
+        xmin,ymin,zmin = min    
+            
+        x,y,z = data.x,data.y,data.z
+
+        if xmax < x:
+            xmax = x
+        if xmin > x:
+            xmin = x 
+        if ymax < y:
+            ymax = y
+        if ymin > y:
+            ymin = y 
+        if zmax < z:
+            zmax = z
+        if zmin > z:
+            zmin = z 
+
+        if xmax:
+            if xmax < x:
+                xmax = x
+        else:
+            xmax = x
+        if ymax:
+            if ymax < y:
+                ymax = y
+        else:
+            ymax = y
+        if zmax:
+            if zmax < z:
+                zmax = z
+        else:
+            zmax = z
+        if xmin:
+            if xmin > x:
+                xmin = x
+        else:
+            xmin = x
+        if ymin:
+            if ymin > y:
+                ymin = y
+        else:
+            ymin = y
+        if zmin:
+            if zmin > z:
+                zmin = z
+        else:
+            zmin = z
+        max = (xmax,ymax,zmax)
+        min = (xmin,ymin,zmin)
+        return max, min  """ 
 
 
     def tessellate(
         self, tolerance: float, angularTolerance: float = 0.5
-    ) -> Tuple[List[Vector], List[Tuple[int, int, int]]]:
+    ) -> Tuple[List[Vector], List[Tuple[int, int, int]],List[Vector]]:
         #print("I have started Tesselating")
         self.mesh(tolerance, angularTolerance)
         #print("I have checked mesh Tesselating")
         vertices: List[Vector] = []
-        triangles: List[Tuple[int, int, int]] = []
-        offset = 0
-
+        triangles: List[Tuple[int, int, int]] = []        
+        uv: List[Vector]=[]  
+        offset = 0  
+        plane_min = (1e10, 1e10, 1e10)
+        plane_max = (-1e10, -1e10, -1e10)
+        uvPlane = []
         for f in self.Faces():
             #print("I am getting triangulation from", f)
             loc = TopLoc_Location()
-            poly = BRep_Tool.Triangulation_s(f.wrapped, loc)
+            poly = BRep_Tool().Triangulation(f.wrapped, loc)
             if poly:
                 Trsf = loc.Transformation()
                 reverse = (
@@ -974,13 +1133,20 @@ class Shape(object):
                     if f.wrapped.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
                     else False
                 )
-
+                vert = poly.Nodes()
                 # add vertices
                 vertices += [
                     Vector(v.X(), v.Y(), v.Z())
-                    for v in (v.Transformed(Trsf) for v in poly.Nodes())
+                    for v in (v.Transformed(Trsf) for v in vert)
                 ]
-
+                faces_min = (1e10, 1e10, 1e10)
+                faces_max = (-1e10, -1e10, -1e10)
+                faces_sum = (0,0,0)
+                length_vert = poly.NbNodes()
+                for i in range(length_vert):
+                    #print(vertices[i+offset])
+                    faces_max, faces_min, faces_sum = self.minmaxsum3D( faces_max, faces_min, faces_sum, vertices[i+offset] )                        
+                    #print("Face",faces_max, faces_min) 
                 # add triangles
                 triangles += [
                     (
@@ -996,13 +1162,66 @@ class Shape(object):
                     )
                     for t in poly.Triangles()
                 ]
+                if(length_vert>0):
+                    xmax,ymax,zmax = faces_max
+                    xmin,ymin,zmin = faces_min 
+                    sx, sy, sz = faces_sum
+                    plane_max, plane_min = self.max3D(plane_max, plane_min, faces_max, faces_min)
+                    deviationx = 0
+                    deviationy = 0
+                    deviationz = 0
+                    
+                    for i in range(length_vert):
+                        dataI = vertices[i+offset]
+                        x,y,z = dataI.x, dataI.y, dataI.z
+                        deviationx += (x*length_vert-sx)*(x*length_vert-sx) 
+                        deviationy += (y*length_vert-sy)*(y*length_vert-sy) 
+                        deviationz += (z*length_vert-sz)*(z*length_vert-sz)
 
+                    if deviationx <= deviationy and deviationx <= deviationz :
+                        #u_max, v_max = self.max2D(u_max,v_max,ymax-ymin,zmax-zmin)
+                        uvPlane +=[("YZ",length_vert)]                           
+                    elif deviationy <= deviationx and deviationy <= deviationz :
+                        #u_max, v_max = self.max2D(u_max,v_max,zmax-zmin,xmax-xmin)
+                        uvPlane +=[("ZX",length_vert)]   
+                    else:                            
+                        #u_max, v_max = self.max2D(u_max,v_max,xmax-xmin,ymax-ymin)
+                        uvPlane +=[("XY",length_vert)]   
                 offset += poly.NbNodes()
             else:
                 print("No facing info for", f)
+        xmax,ymax,zmax = plane_max
+        xmin,ymin,zmin = plane_min
+        uvxmax, uvymax, uvzmax = xmax-xmin, ymax-ymin, zmax-zmin
+        if uvxmax <= 0:
+            uvxmax = 1
+        if uvymax <= 0:
+            uvymax = 1
+        if uvzmax <= 0:
+            uvzmax = 1    
+        #print("UVPlane:",uvPlane)
+        offset = 0
+        for (planePos,vertLen) in uvPlane:  
+            #print("Plane:",planePos,vertLen)               
+            if planePos=="YZ" :
+                for i in range(vertLen):
+                    dataI = vertices[i+offset]
+                    x,y,z = dataI.x, dataI.y, dataI.z
+                    uv += [((y-ymin)/uvymax,(z-zmin)/uvzmax)]
+            if planePos=="ZX" :
+                for i in range(vertLen):
+                    dataI = vertices[i+offset]
+                    x,y,z = dataI.x, dataI.y, dataI.z
+                    uv += [((z-zmin)/uvzmax,(x-xmin)/uvxmax)]                
+            if planePos=="XY" :
+                for i in range(vertLen):
+                    dataI = vertices[i+offset]
+                    x,y,z = dataI.x, dataI.y, dataI.z
+                    uv += [((x-xmin)/uvxmax,(y-ymin)/uvymax)]
+            offset += vertLen
                 
         #print(" I am about to hang after this")
-        return vertices, triangles
+        return vertices, triangles, uv
 
     def _repr_html_(self):
         """
@@ -1034,7 +1253,7 @@ class Vertex(Shape):
     A Single Point in Space
     """
 
-    wrapped: TopoDS_Vertex
+    wrapped: topods_Vertex
 
     def __init__(self, obj: TopoDS_Shape, forConstruction: bool = False):
         """
@@ -1047,7 +1266,7 @@ class Vertex(Shape):
 
     def toTuple(self) -> Tuple[float, float, float]:
 
-        geom_point = BRep_Tool.Pnt_s(self.wrapped)
+        geom_point = BRep_Tool().Pnt(self.wrapped)
         return (geom_point.X(), geom_point.Y(), geom_point.Z())
 
     def Center(self) -> Vector:
@@ -1128,7 +1347,7 @@ class Mixin1D(object):
 
         curve = self._geomAdaptor()
 
-        l = GCPnts_AbscissaPoint.Length_s(curve)
+        l = GCPnts_AbscissaPoint.Length(curve)
         return GCPnts_AbscissaPoint(curve, l * d, 0).Parameter()
 
     def tangentAt(
@@ -1189,13 +1408,13 @@ class Mixin1D(object):
     def Center(self: Mixin1DProtocol) -> Vector:
 
         Properties = GProp_GProps()
-        BRepGProp.LinearProperties_s(self.wrapped, Properties)
+        brepgprop_LinearProperties(self.wrapped, Properties)
 
         return Vector(Properties.CentreOfMass())
 
     def Length(self: Mixin1DProtocol) -> float:
 
-        return GCPnts_AbscissaPoint.Length_s(self._geomAdaptor())
+        return GCPnts_AbscissaPoint.Length(self._geomAdaptor())
 
     def radius(self: Mixin1DProtocol) -> float:
         """
@@ -1209,13 +1428,13 @@ class Mixin1D(object):
         geom = self._geomAdaptor()
         try:
             circ = geom.Circle()
-        except (Standard_NoSuchObject, Standard_Failure) as e:
+        except Exception as e:
             raise ValueError("Shape could not be reduced to a circle") from e
         return circ.Radius()
 
     def IsClosed(self: Mixin1DProtocol) -> bool:
 
-        return BRep_Tool.IsClosed_s(self.wrapped)
+        return BRep_Tool().IsClosed(self.wrapped)
 
     def positionAt(
         self: Mixin1DProtocol,
@@ -1311,7 +1530,7 @@ class Edge(Shape, Mixin1D):
     A trimmed curve that represents the border of a face
     """
 
-    wrapped: TopoDS_Edge
+    wrapped: topods_Edge
 
     def _geomAdaptor(self) -> BRepAdaptor_Curve:
         """
@@ -1533,7 +1752,7 @@ class Wire(Shape, Mixin1D):
     A series of connected, ordered Edges, that typically bounds a Face
     """
 
-    wrapped: TopoDS_Wire
+    wrapped: topods_Wire
 
     def _geomAdaptor(self) -> BRepAdaptor_CompCurve:
         """
@@ -1569,7 +1788,7 @@ class Wire(Shape, Mixin1D):
         for e in Compound.makeCompound(listOfWires).Edges():
             edges_in.Append(e.wrapped)
 
-        ShapeAnalysis_FreeBounds.ConnectEdgesToWires_s(edges_in, tol, False, wires_out)
+        ShapeAnalysis_FreeBounds.ConnectEdgesToWires(edges_in, tol, False, wires_out)
 
         return [cls(el) for el in wires_out]
 
@@ -1718,7 +1937,7 @@ class Wire(Shape, Mixin1D):
 
         # 4. Convert to wire and fix building 3d geom from 2d geom
         w = BRepBuilderAPI_MakeWire(e).Wire()
-        BRepLib.BuildCurves3d_s(w, 1e-6, MaxSegment=2000)  # NB: preliminary values
+        breplib_BuildCurves3d(w, 1e-6, MaxSegment=2000)  # NB: preliminary values
 
         return cls(w)
 
@@ -1726,8 +1945,8 @@ class Wire(Shape, Mixin1D):
         """Attempt to stich wires"""
 
         wire_builder = BRepBuilderAPI_MakeWire()
-        wire_builder.Add(TopoDS.Wire_s(self.wrapped))
-        wire_builder.Add(TopoDS.Wire_s(other.wrapped))
+        wire_builder.Add(topods_Wire(self.wrapped))
+        wire_builder.Add(topods_Wire(other.wrapped))
         wire_builder.Build()
 
         return self.__class__(wire_builder.Wire())
@@ -1750,12 +1969,30 @@ class Wire(Shape, Mixin1D):
 
         obj = downcast(offset.Shape())
 
-        if isinstance(obj, TopoDS_Compound):
+        if isinstance(obj, topods_Compound) or isinstance(obj, TopoDS_Compound) :
             rv = [self.__class__(el.wrapped) for el in Compound(obj)]
         else:
             rv = [self.__class__(obj)]
 
         return rv
+
+    def fillet2D(self, radius: float, vertices: Iterable[Vertex]) -> "Wire":
+        """
+        Apply 2D fillet to a wire
+        """
+
+        f = Face.makeFromWires(self)
+
+        return f.fillet2D(radius, vertices).outerWire()
+
+    def chamfer2D(self, d: float, vertices: Iterable[Vertex]) -> "Wire":
+        """
+        Apply 2D chamfer to a wire
+        """
+
+        f = Face.makeFromWires(self)
+
+        return f.chamfer2D(d, vertices).outerWire()
 
 
 class Face(Shape):
@@ -1763,17 +2000,17 @@ class Face(Shape):
     a bounded surface that represents part of the boundary of a solid
     """
 
-    wrapped: TopoDS_Face
+    wrapped: topods_Face
 
     def _geomAdaptor(self) -> Geom_Surface:
         """
         Return the underlying geometry
         """
-        return BRep_Tool.Surface_s(self.wrapped)
+        return BRep_Tool().Surface(self.wrapped)
 
     def _uvBounds(self) -> Tuple[float, float, float, float]:
 
-        return BRepTools.UVBounds_s(self.wrapped)
+        return breptools_UVBounds(self.wrapped)
 
     def normalAt(self, locationVector: Optional[Vector] = None) -> Vector:
         """
@@ -1805,13 +2042,13 @@ class Face(Shape):
     def Center(self) -> Vector:
 
         Properties = GProp_GProps()
-        BRepGProp.SurfaceProperties_s(self.wrapped, Properties)
+        brepgprop_SurfaceProperties(self.wrapped, Properties)
 
         return Vector(Properties.CentreOfMass())
 
     def outerWire(self) -> Wire:
 
-        return Wire(BRepTools.OuterWire_s(self.wrapped))
+        return Wire(breptools_OuterWire(self.wrapped))
 
     def innerWires(self) -> List[Wire]:
 
@@ -1844,25 +2081,25 @@ class Face(Shape):
         :type edges: list of Edge
         :param continuity=GeomAbs_C0
         :type continuity: OCC.Core.GeomAbs continuity condition
-        :param Degree = 3 (OCCT default)
+        :param Degree = 3 (OCC Core default)
         :type Degree: Integer >= 2
-        :param NbPtsOnCur = 15 (OCCT default)
+        :param NbPtsOnCur = 15 (OCC Core default)
         :type: NbPtsOnCur Integer >= 15
-        :param NbIter = 2 (OCCT default)
+        :param NbIter = 2 (OCC Core default)
         :type: NbIterInteger >= 2
-        :param Anisotropie = False (OCCT default)
+        :param Anisotropie = False (OCC Core default)
         :type Anisotropie: Boolean
-        :param: Tol2d = 0.00001 (OCCT default)
+        :param: Tol2d = 0.00001 (OCC Core default)
         :type Tol2d: float > 0
-        :param Tol3d = 0.0001 (OCCT default)
+        :param Tol3d = 0.0001 (OCC Core default)
         :type Tol3dReal: float > 0
-        :param TolAng = 0.01 (OCCT default)
+        :param TolAng = 0.01 (OCC Core default)
         :type TolAngReal: float > 0
-        :param TolCurv = 0.1 (OCCT default)
+        :param TolCurv = 0.1 (OCC Core default)
         :type TolCurvReal: float > 0
-        :param MaxDeg = 8 (OCCT default)
+        :param MaxDeg = 8 (OCC Core default)
         :type MaxDegInteger: Integer >= 2 (?)
-        :param MaxSegments = 9 (OCCT default)
+        :param MaxSegments = 9 (OCC Core default)
         :type MaxSegments: Integer >= 2 (?)
         """
 
@@ -1931,9 +2168,9 @@ class Face(Shape):
         """
 
         if isinstance(edgeOrWire1, Wire):
-            return cls.cast(BRepFill.Shell_s(edgeOrWire1.wrapped, edgeOrWire2.wrapped))
+            return cls.cast(brepfill_Shell(edgeOrWire1.wrapped, edgeOrWire2.wrapped))
         else:
-            return cls.cast(BRepFill.Face_s(edgeOrWire1.wrapped, edgeOrWire2.wrapped))
+            return cls.cast(brepfill_Face(edgeOrWire1.wrapped, edgeOrWire2.wrapped))
 
     @classmethod
     def makeFromWires(
@@ -1953,13 +2190,51 @@ class Face(Shape):
 
         return cls(face).fix()
 
+    def fillet2D(self, radius: float, vertices: Iterable[Vertex]) -> "Face":
+        """
+        Apply 2D fillet to a face
+        """
+
+        fillet_builder = BRepFilletAPI_MakeFillet2d(self.wrapped)
+
+        for v in vertices:
+            fillet_builder.AddFillet(v.wrapped, radius)
+
+        fillet_builder.Build()
+
+        return self.__class__(fillet_builder.Shape())
+
+    def chamfer2D(self, d: float, vertices: Iterable[Vertex]) -> "Face":
+        """
+        Apply 2D chamfer to a face
+        """
+
+        chamfer_builder = BRepFilletAPI_MakeFillet2d(self.wrapped)
+        edge_map = self._entitiesFrom("Vertex", "Edge")
+
+        for v in vertices:
+            edges = edge_map[v]
+            if len(edges) < 2:
+                raise ValueError("Cannot chamfer at this location")
+
+            e1, e2 = edges
+
+            chamfer_builder.AddChamfer(
+                topods_Edge(e1.wrapped), topods_Edge(e2.wrapped), d, d
+            )
+
+        chamfer_builder.Build()
+
+        return self.__class__(chamfer_builder.Shape()).fix()
+
+          
 
 class Shell(Shape):
     """
     the outer boundary of a surface
     """
 
-    wrapped: TopoDS_Shell
+    wrapped: topods_Shell
 
     @classmethod
     def makeShell(cls: Type["Shell"], listOfFaces: Iterable[Face]) -> "Shell":
@@ -2006,7 +2281,7 @@ class Mixin3D(object):
 
         # make a edge --> faces mapping
         edge_face_map = TopTools_IndexedDataMapOfShapeListOfShape()
-        TopExp.MapShapesAndAncestors_s(
+        topexp_MapShapesAndAncestors(
             self.wrapped, ta.TopAbs_EDGE, ta.TopAbs_FACE, edge_face_map
         )
 
@@ -2023,7 +2298,7 @@ class Mixin3D(object):
         for e in nativeEdges:
             face = edge_face_map.FindFromKey(e).First()
             chamfer_builder.Add(
-                d1, d2, e, TopoDS.Face_s(face)
+                d1, d2, e, topods_Face(face)
             )  # NB: edge_face_map return a generic TopoDS_Shape
         return self.__class__(chamfer_builder.Shape())
 
@@ -2114,7 +2389,7 @@ class Solid(Shape, Mixin3D):
     a single solid
     """
 
-    wrapped: TopoDS_Solid
+    wrapped: topods_Solid
 
     @classmethod
     def interpPlate(
@@ -2143,25 +2418,25 @@ class Solid(Shape, Mixin3D):
         :type surf_pts: list of [x,y,z] float coordinates
         :param thickness = 0 (returns 2D surface if 0)
         :type thickness: float (may be negative or positive depending on thicknening direction)
-        :param Degree = 3 (OCCT default)
+        :param Degree = 3 (OCC Core default)
         :type Degree: Integer >= 2
-        :param NbPtsOnCur = 15 (OCCT default)
+        :param NbPtsOnCur = 15 (OCC Core default)
         :type: NbPtsOnCur Integer >= 15
-        :param NbIter = 2 (OCCT default)
+        :param NbIter = 2 (OCC Core default)
         :type: NbIterInteger >= 2
-        :param Anisotropie = False (OCCT default)
+        :param Anisotropie = False (OCC Core default)
         :type Anisotropie: Boolean
-        :param: Tol2d = 0.00001 (OCCT default)
+        :param: Tol2d = 0.00001 (OCC Core default)
         :type Tol2d: float > 0
-        :param Tol3d = 0.0001 (OCCT default)
+        :param Tol3d = 0.0001 (OCC Core default)
         :type Tol3dReal: float > 0
-        :param TolAng = 0.01 (OCCT default)
+        :param TolAng = 0.01 (OCC Core default)
         :type TolAngReal: float > 0
-        :param TolCurv = 0.1 (OCCT default)
+        :param TolCurv = 0.1 (OCC Core default)
         :type TolCurvReal: float > 0
-        :param MaxDeg = 8 (OCCT default)
+        :param MaxDeg = 8 (OCC Core default)
         :type MaxDegInteger: Integer >= 2 (?)
-        :param MaxSegments = 9 (OCCT default)
+        :param MaxSegments = 9 (OCC Core default)
         :type MaxSegments: Integer >= 2 (?)
         """
 
@@ -2402,8 +2677,8 @@ class Solid(Shape, Mixin3D):
 
     @classmethod
     def _extrudeAuxSpine(
-        cls: Type["Solid"], wire: TopoDS_Wire, spine: TopoDS_Wire, auxSpine: TopoDS_Wire
-    ) -> TopoDS_Shape:
+        cls: Type["Solid"], wire: topods_Wire, spine: topods_Wire, auxSpine: topods_Wire
+    ) -> TopoDS_Shape :
         """
         Helper function for extrudeLinearWithRotation
         """
@@ -2717,13 +2992,13 @@ class Solid(Shape, Mixin3D):
         """
 
         sorted_profiles = sortWiresByBuildOrder(profiles)
-        shape: Union[TopoDS_Shape, TopoDS_Solid] = self.wrapped
+        shape: Union[TopoDS_Shape, TopoDS_Solid]  = self.wrapped
         for p in sorted_profiles:
             face = Face.makeFromWires(p[0], p[1:])
             feat = BRepFeat_MakeDPrism(
                 shape,
                 face.wrapped,
-                basis.wrapped if basis else TopoDS_Face(),
+                basis.wrapped if basis else topods_Face(),
                 taper * DEG2RAD,
                 additive,
                 False,
@@ -2739,6 +3014,13 @@ class Solid(Shape, Mixin3D):
         return Solid(shape)
 
 
+class CompSolid(Shape, Mixin3D):
+    """
+    a single compsolid
+    """
+
+    wrapped: topods_CompSolid
+                               
 class Compound(Shape, Mixin3D):
     """
     a collection of disconnected solids
@@ -2791,7 +3073,7 @@ class Compound(Shape, Mixin3D):
             "italic": Font_FA_Italic,
         }[kind]
 
-        mgr = Font_FontMgr.GetInstance_s()
+        """ mgr = Font_FontMgr.GetInstance_s()
 
         if fontPath and mgr.CheckFont(TCollection_AsciiString(fontPath).ToCString()):
             font_t = Font_SystemFont(TCollection_AsciiString(fontPath))
@@ -2800,12 +3082,35 @@ class Compound(Shape, Mixin3D):
 
         else:
             font_t = mgr.FindFont(TCollection_AsciiString(font), font_kind)
-
+        
         builder = Font_BRepTextBuilder()
         text_flat = Shape(
             builder.Perform(font_t.FontName().ToCString(), size, font_kind, text)
         )
 
+        bb = text_flat.BoundingBox()
+
+        t = Vector()
+
+        if halign == "center":
+            t.x = -bb.xlen / 2
+        elif halign == "right":
+            t.x = -bb.xlen
+
+        if valign == "center":
+            t.y = -bb.ylen / 2
+        elif valign == "top":
+            t.y = -bb.ylen
+
+        text_flat = text_flat.translate(t)
+
+        vecNormal = text_flat.Faces()[0].normalAt() * height
+
+        text_3d = BRepPrimAPI_MakePrism(text_flat.wrapped, vecNormal.wrapped)
+
+        return cls(text_3d.Shape()).transformShape(position.rG)
+        """
+        text_flat = Shape(text_to_brep(text, font, font_kind, size, False))
         bb = text_flat.BoundingBox()
 
         t = Vector()

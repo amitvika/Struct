@@ -1,4 +1,8 @@
-import React, {  useState } from "react";
+/**
+ * COMPONENTS AND LIBS
+ */
+//import * as React from 'react'
+import {  useState } from "react";
 import { motion } from 'framer-motion'
 import styled, { ThemeProvider } from 'styled-components'
 import Container from './Tree/Container'
@@ -7,8 +11,6 @@ import Icon from './Tree/Icon'
 //STYLES
 import coreTheme from './styles/theme'
 import { _TdTexture } from './Tree/utils'
-
-
 const _Tree = styled(motion.div)`
   display: flex;
   flex-direction: column;
@@ -43,8 +45,32 @@ const _Tree = styled(motion.div)`
     border: 1px solid blue; 
     word-wrap: break-word;   
   }
+  .tdpart {
+    width: 26%
+  }
+  .tdselect {
+    width: 4%
+  }
+  .tdpos {
+    width: 12%
+  }
+  .tdtexture {
+    width : 15%
+  }
+  .tdcolor {
+    width : 6%
+  }
+  .tdslider {
+    width : 10%
+  }
+  .tdshow {
+    width : 7%
+  }
+  .tdstruct1 {
+    width : 22%
+  }
   .tdpart1 {
-    width: 25%
+    width: 22%
   }
   .tdselect1 {
     width: 3%
@@ -61,26 +87,8 @@ const _Tree = styled(motion.div)`
   .tdslider1 {
     width : 7%
   }
-  .tdstruct1 {
-    width : 25%
-  }
-  .tdpart {
-    width: 33%
-  }
-  .tdselect {
-    width: 4%
-  }
-  .tdpos {
-    width: 12%
-  }
-  .tdtexture {
-    width : 15%
-  }
-  .tdcolor {
+  .tdshow1 {
     width : 6%
-  }
-  .tdslider {
-    width : 10%
   }
   .tdinfo {
     width : 60%
@@ -156,6 +164,7 @@ const DisplayTree = (props) => {
                 <th className ={disectparts?"tdslider1":"tdslider"}>Metal</th>
                 <th className ={disectparts?"tdslider1":"tdslider"}>Rough</th>
                 <th className ={disectparts?"tdslider1":"tdslider"}>Opaque</th>
+                <th className ={disectparts?"tdshow1":"tdshow"}>Details</th>
                 {disectparts &&(
                   <th className = "tdstruct1" >Structure</th>    
                 )}                  

@@ -3,7 +3,8 @@ import { AppBar, Toolbar, IconButton, Typography, Button } from '@material-ui/co
 import { fade, makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import GLTFRenderer from '../../../gltf/GltfRenderer';
-
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY} from "../../../gltf/Tree/utils";
+const DEFAULTMATERIALNAME = "Basic";
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -46,7 +47,21 @@ export default function GeometricDimensioning({ gltfjson }) {
       </Toolbar>
       {
         Object.keys(gltfjson).length > 0 &&
-        <GLTFRenderer gltfjson={gltfjson} activefile={'fileId'} />
+        <GLTFRenderer  
+          gltfjson={JSON.stringify(gltfjson)} 
+          gltfobj={gltfjson} 
+          activefile={fileId} 
+          backcolor={DEFAULTBACKCOLOR}
+          selectcolor={DEFAULTSELECTCOLOR}
+          touchcolor={DEFAULTTOUCHCOLOR}
+          selectedoption={SELECTSOLID}
+          splitmethod={SELECTHIRERACHY}
+          changedata={[]} 
+          data2texture={null} 
+          data3texture={null}
+          materialtype={DEFAULTMATERIALNAME}
+          whatchanged={0} dataselection={0}         
+        />  
       }
     </div>
   )

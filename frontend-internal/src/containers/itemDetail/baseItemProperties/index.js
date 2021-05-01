@@ -22,10 +22,11 @@ import ItemAPI from '../../../api/items.api';
 import GLTFRenderer from '../../../gltf/GltfRenderer';
 import { upload3DFile, getHierarchySplitFiles } from '../../../api/fileUpload.api'
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY} from "../../../gltf/Tree/utils";
 
 import '../style.css';
 
-
+const DEFAULTMATERIALNAME = "Basic";
 export default function BaseItemProperties({ itemId, itemProperties, setItemProperties, gltfjson, setgltfjson }) {
   const dispatch = useDispatch()
 
@@ -36,7 +37,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
   const [fileId, setFileId] = useState(0);
   const [files, setFiles] = useState([])
   const [isFileLoadingLoading, setIsFileLoadingLoading] = useState(false);
-
+  
   // useEffect(() => {
   //   if (itemProperties.fileId) {
   //     getView(itemProperties.fileId)
@@ -144,7 +145,21 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
       <Paper style={{ padding: 20, margin: 10 }}>
         {
           Object.keys(gltfjson).length > 0 && !isFileLoadingLoading &&
-          <GLTFRenderer gltfjson={JSON.stringify(gltfjson)} activefile={fileId} />
+          <GLTFRenderer  
+            gltfjson={JSON.stringify(gltfjson)} 
+            gltfobj={gltfjson} 
+            activefile={fileId} 
+            backcolor={DEFAULTBACKCOLOR}
+            selectcolor={DEFAULTSELECTCOLOR}
+            touchcolor={DEFAULTTOUCHCOLOR}
+            selectedoption={SELECTSOLID}
+            splitmethod={SELECTHIRERACHY}
+            changedata={[]} 
+            data2texture={null} 
+            data3texture={null}
+            materialtype={DEFAULTMATERIALNAME}
+            whatchanged={0} dataselection={0}         
+          />          
         }
         {
           isFileLoadingLoading && <CircularProgress />

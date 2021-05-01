@@ -1,21 +1,21 @@
 from typing import Iterable, Tuple, Dict, overload, Optional
 from typing_extensions import Protocol
 
-from OCP.TDocStd import TDocStd_Document
-from OCP.TCollection import TCollection_ExtendedString
-from OCP.XCAFDoc import XCAFDoc_DocumentTool, XCAFDoc_ColorType
-from OCP.TDataStd import TDataStd_Name
-from OCP.TDF import TDF_Label
-from OCP.TopLoc import TopLoc_Location
-from OCP.Quantity import Quantity_ColorRGBA
+from OCC.Core.TDocStd import TDocStd_Document
+from OCC.Core.TCollection import TCollection_ExtendedString
+from OCC.Core.XCAFDoc import XCAFDoc_DocumentTool_ShapeTool, XCAFDoc_DocumentTool_ColorTool, XCAFDoc_ColorType
+from OCC.Core.TDataStd import TDataStd_Name
+from OCC.Core.TDF import TDF_Label
+from OCC.Core.TopLoc import TopLoc_Location
+from OCC.Core.Quantity import Quantity_ColorRGBA
 
 from .OCPGeometry import Location
 from .OCPShapes import Shape, Compound
-
+from OCC.Core.XCAFApp import XCAFApp_Application_GetApplication
 
 class Color(object):
     """
-    Wrapper for the OCCT color object Quantity_ColorRGBA.
+    Wrapper for the OCC Core color object Quantity_ColorRGBA.
     """
 
     wrapped: Quantity_ColorRGBA
@@ -45,7 +45,7 @@ class Color(object):
 
         if len(args) == 1:
             self.wrapped = Quantity_ColorRGBA()
-            exists = Quantity_ColorRGBA.ColorFromName_s(args[0], self.wrapped)
+            exists = Quantity_ColorRGBA.ColorFromName(args[0], self.wrapped)
             if not exists:
                 raise ValueError(f"Unknown color name: {args[0]}")
         elif len(args) == 3:
@@ -91,7 +91,7 @@ class AssemblyProtocol(Protocol):
 
 def setName(l: TDF_Label, name: str, tool):
 
-    TDataStd_Name.Set_s(l, TCollection_ExtendedString(name))
+    TDataStd_Name.Set(l, TCollection_ExtendedString(name))
 
 
 def setColor(l: TDF_Label, color: Color, tool):
@@ -104,23 +104,26 @@ def toCAF(
 ) -> Tuple[TDF_Label, TDocStd_Document]:
 
     # prepare a doc
+    app = XCAFApp_Application_GetApplication()                                           
     doc = TDocStd_Document(TCollection_ExtendedString("XmlOcaf"))
-    tool = XCAFDoc_DocumentTool.ShapeTool_s(doc.Main())
-    tool.SetAutoNaming_s(False)
-    ctool = XCAFDoc_DocumentTool.ColorTool_s(doc.Main())
+    app.InitDocument(doc)                    
+    tool = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
+    tool.SetAutoNaming(False)
+    ctool = XCAFDoc_DocumentTool_ColorTool(doc.Main())
 
     # add root
     top = tool.NewShape()
-    TDataStd_Name.Set_s(top, TCollection_ExtendedString("CQ assembly"))
+    TDataStd_Name.Set(top, TCollection_ExtendedString("Struct Assembly"))
 
     # add leafs and subassemblies
     subassys: Dict[str, Tuple[TDF_Label, Location]] = {}
     for k, v in assy.traverse():
         # leaf part
+        #print(len(v.children),k)
         lab = tool.NewShape()
         tool.SetShape(lab, Compound.makeCompound(v.shapes).wrapped)
         setName(lab, f"{k}_part", tool)
-
+        
         # assy part
         subassy = tool.NewShape()
         tool.AddComponent(subassy, lab, TopLoc_Location())

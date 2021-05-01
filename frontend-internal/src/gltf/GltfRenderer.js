@@ -28,19 +28,24 @@ import {
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
+  //ObjectSpaceNormalMap,
 } from "three";
 
 import { Float32BufferAttribute } from 'three/src/core/BufferAttribute.js';
-import Stats from 'three/examples/jsm/libs/stats.module.js';
+import  Stats  from 'three/examples/jsm/libs/stats.module.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js'; 
 
-import { GUI } from 'dat.gui';
 import { resourcePathURL, resourcePathBase } from '../api/fileUpload.api.js'
 import {SELECTCOLOR, SELECTTEXTURE, SELECTMETAL, SELECTROUGH, SELECTOPAQUE,
-	SELECTBACKCOLOR, SELECT2DTEXTURE, SELECT3DTEXTURE} from "./Tree/utils";
+		SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR, 
+		DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,DEFAULTTEXTCOLOR,
+		SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTDISTANCE,
+		SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTMEASURE, SELECTDISECTPARTS, 
+		SELECTSTACKABLE, hexToRGB } from "./Tree/utils";
+//import { ThemeConsumer } from "styled-components";
 
-	import './style.css';
 const DEFAULT_CAMERA = '[default]';
 
 // glTF texture types by the loader .
@@ -56,10 +61,8 @@ const MAP_NAMES = [
 ];
 
 const Preset = {ASSET_GENERATOR: 'assetgenerator'};
-const selectionColor = 0x2C6E49;
-const touchingColor = 0xCA5310;
-const backColor = 0xC1C1C1;
-Cache.enabled = true;
+
+Cache.enabled = false; //If it is true, sometime crashes..
 
 const traverseMaterials = (object, callback) => {
 	  object.traverse((node) => {
@@ -89,12 +92,13 @@ class GLTFRenderer extends Component {
       ambientColor: 0xFFFFFF,
       directIntensity: 0.8 * Math.PI, // TODO(#116)
       directColor: 0xFFFFFF,
-	  partsSelection: []
+	  partsSelection: [],
+	  intersectedShell: null	
+	    
     };
+	state_selectedObjects=[];
 	gltfJSON = "";
-	activeFile = 0;
-	includeparts = 0;
-	disectparts = false;
+	activeFile = 0;	
 	activeId = 0;
 	whatchanged = 0;
 	R = 0.7529000043869019;
@@ -104,10 +108,20 @@ class GLTFRenderer extends Component {
 	datametal = 0.1;
 	datarough = 0.7;
 	dataopaque = 1.0;
-	datacolor = "#C1C1C1";
+	databackcolor = DEFAULTBACKCOLOR;
+	dataselectcolor = DEFAULTSELECTCOLOR;
+	datatouchcolor = DEFAULTTOUCHCOLOR;
 	data2texture = "None";
 	data3texture = "None";
-
+	selectedshell = false;
+	firstshell = null;
+	secondshell = null;
+	clientX = 0;
+	clientY = 0;
+	INTERSECTED = null;
+	SELECTED = null;	
+	mouse = new Vector2( Infinity, Infinity );
+	selectedoption = SELECTMEASURE;
 	constructor(props) {
 		super(props);
 		this.node = React.createRef();
@@ -149,7 +163,7 @@ class GLTFRenderer extends Component {
 		this.renderer.physicallyCorrectLights = true;
 		this.renderer.outputEncoding = sRGBEncoding;
 		//console.log("back color",this.props.backcolor);
-		this.renderer.setClearColor( this.props.backcolor || backColor );
+		this.renderer.setClearColor( this.props.backcolor || DEFAULTBACKCOLOR );
 		this.renderer.setPixelRatio( window.devicePixelRatio );
 		this.renderer.setSize( this.node.clientWidth, this.node.clientHeight );
 
@@ -178,8 +192,10 @@ class GLTFRenderer extends Component {
 		
 		this.INTERSECTED = null;
 		this.SELECTED = null;
-		this.mouse3D = new Vector3( Infinity, Infinity,  0.5 );
+		//this.mouse3D = new Vector3( Infinity, Infinity,  0.5 );
 		this.mouse = new Vector2( Infinity, Infinity );
+		this.clientX = 0;
+		this.clientY = 0;
 		this.raycaster = new Raycaster();
 		
 		this.animate = this.animate.bind(this);
@@ -188,10 +204,14 @@ class GLTFRenderer extends Component {
 		this.renderer.domElement.addEventListener( 'mousemove', this.onMouseMove.bind(this), false );
 		this.renderer.domElement.addEventListener( 'click', this.onMouseClick.bind(this), false );
 		this.alter();
+		this.changeparts();
 		this.onWindowResize();
 	}
   
-	  
+	convertColor= (color) => {
+		const colorRGB = hexToRGB(color);
+		return new Color(colorRGB[0],colorRGB[1],colorRGB[2]);
+	}
 	animate = (time) => {
 
 		requestAnimationFrame( this.animate );
@@ -228,7 +248,9 @@ class GLTFRenderer extends Component {
 		this.clear();
 
 		const box = new Box3().setFromObject(object);
-		const size = box.getSize(new Vector3()).length();
+		const size3D = box.getSize(new Vector3());
+		const size = size3D.length() || 1;
+		
 		const center = box.getCenter(new Vector3());
 
 		this.controls.reset();
@@ -284,9 +306,31 @@ class GLTFRenderer extends Component {
 			this.state.addLights = false;
 		  } else if (node.isMesh) {
 				// TODO(https://github.com/mrdoob/three.js/pull/18235): Clean up.
+				
+				for(var i=0;i<this.state_selectedObjects.length;i++) {
+					if(node.name==this.state_selectedObjects[i].name) {
+						this.setSelectionColor(node);
+						this.state_selectedObjects[i]=node;
+						break;
+					}
+				}	
+				if(this.firstshell) {
+					if(node.name==this.firstshell.name) {
+						this.setSelectionColor(node);
+						this.firstshell=node;					
+					}
+				}
+				if(this.secondshell) {
+					if(node.name==this.secondshell.name) {
+						this.setSelectionColor(node);
+						this.secondshell=node;						
+					}
+				}
+				const visibility = this.visibllity(node.name,true);	
 				if(this.props.materialtype != "Basic") {
 					const materials = Array.isArray(node.material) 	? node.material : [node.material];
-					materials.forEach((material)=>{
+					materials.forEach((material)=>{						
+						material.visible = visibility;											
 						var prevMaterial = material;
 						if(this.props.materialtype=="Standard") {
 							material = new MeshStandardMaterial();
@@ -306,6 +350,11 @@ class GLTFRenderer extends Component {
 						
 						MeshBasicMaterial.prototype.copy.call( material, prevMaterial );
 					});	
+				} else {
+					const materials = Array.isArray(node.material) 	? node.material : [node.material];
+					materials.forEach((material)=>{
+						material.visible = visibility;												
+					});
 				}
 						
 				this.changeMaterialStats(node.material);	 
@@ -445,6 +494,7 @@ class GLTFRenderer extends Component {
 		});
 		
 		this.content.traverse((node) => {
+		 
 		  if (node.isMesh && node.skeleton && this.state.skeleton) {
 			const helper = new SkeletonHelper(node.skeleton.bones[0].parent);
 			helper.material.linewidth = 3;
@@ -506,25 +556,37 @@ class GLTFRenderer extends Component {
 		// Display controls.
 		const dispFolder = gui.addFolder('Display');
 		const sideCtrl = dispFolder.add(this.state, 'side',['Front','Back','Both']);
-		sideCtrl.onChange(() => this.updateDisplay());	
+		sideCtrl.onChange(() =>{ 
+			this.state.side =  sideCtrl.object.side;
+			this.updateDisplay()});	
 		const depthCtrl = dispFolder.add(this.state, 'opaque',['True','False','Self']);
-		depthCtrl.onChange(() => this.updateDisplay());	
+		depthCtrl.onChange(() => { 
+			this.state.opaque =  depthCtrl.object.opaque;
+			this.updateDisplay()});	
 		const wiremeshCtrl = dispFolder.add(this.state, 'wiremesh');
-		wiremeshCtrl.onChange(() => this.updateDisplay());
+		wiremeshCtrl.onChange(() => {
+			this.state.wiremesh = wiremeshCtrl.object.wiremesh;			
+			this.updateDisplay()});
 		const skeletonCtrl = dispFolder.add(this.state, 'skeleton');
-		skeletonCtrl.onChange(() => this.updateDisplay());
+		skeletonCtrl.onChange(() => {
+			this.state.skeleton=skeletonCtrl.object.skeleton;
+			this.updateDisplay()});
 		const gridCtrl = dispFolder.add(this.state, 'grid');
-		gridCtrl.onChange(() => this.updateDisplay());
+		gridCtrl.onChange(() => {
+			this.state.grid=gridCtrl.object.grid;
+			this.updateDisplay()});
 		dispFolder.add(this.controls, 'autoRotate');
 		dispFolder.add(this.controls, 'screenSpacePanning');
 
 		// Lighting controls.
 		const lightFolder = gui.addFolder('Lighting');
 		const encodingCtrl = lightFolder.add(this.state, 'textureEncoding', ['sRGB', 'Linear']);
-		encodingCtrl.onChange(() => this.updateTextureEncoding());
+		encodingCtrl.onChange(() => {
+			this.state.textureEncoding = encodingCtrl.object.textureEncoding;
+			this.updateTextureEncoding()});
 		lightFolder.add(this.renderer, 'outputEncoding', {sRGB: sRGBEncoding, Linear: LinearEncoding})
 		  .onChange(() => {
-			this.renderer.outputEncoding = Number(this.renderer.outputEncoding);
+			this.renderer.outputEncoding = Number(lightFolder.object.outputEncoding); // Number(this.renderer.outputEncoding);
 			traverseMaterials(this.content, (material) => {
 			  material.needsUpdate = true;
 			});
@@ -537,13 +599,21 @@ class GLTFRenderer extends Component {
 		  lightFolder.addColor(this.state, 'ambientColor'),
 		  lightFolder.add(this.state, 'directIntensity', 0, 4), // TODO(#116)
 		  lightFolder.addColor(this.state, 'directColor')
-		].forEach((ctrl) => ctrl.onChange(() => this.updateLights()));
+		].forEach((ctrl) => ctrl.onChange(() =>{ 
+			this.state.exposure = ctrl.object.exposure;
+			this.state.addLights = ctrl.object.addLights;
+			this.state.ambientIntensity = ctrl.object.ambientIntensity;
+			this.state.ambientColor = ctrl.object.ambientColor;
+			this.state.directIntensity = ctrl.object.directIntensity;
+			this.state.directColor = ctrl.object.directColor;
+			this.updateLights()}));
 
 		// Animation controls.
 		this.animFolder = gui.addFolder('Animation');
 		this.animFolder.domElement.style.display = 'none';
 		const playbackSpeedCtrl = this.animFolder.add(this.state, 'playbackSpeed', 0, 1);
 		playbackSpeedCtrl.onChange((speed) => {
+			this.state.playbackSpeed = playbackSpeedCtrl.object.playbackSpeed;
 		  if (this.mixer) this.mixer.timeScale = speed;
 		});
 		this.animFolder.add({playAll: () => this.playAllClips()}, 'playAll');
@@ -603,7 +673,9 @@ class GLTFRenderer extends Component {
 		  if (this.cameraCtrl) this.cameraCtrl.remove();
 		  const cameraOptions = [DEFAULT_CAMERA].concat(cameraNames);
 		  this.cameraCtrl = this.cameraFolder.add(this.state, 'camera', cameraOptions);
-		  this.cameraCtrl.onChange((name) => this.setCamera(name));
+		  this.cameraCtrl.onChange((name) => {
+			this.state.camera = this.cameraCtrl.object.camera;  
+			this.setCamera(name)});
 		}
 
 		if (morphMeshes.length) {
@@ -678,7 +750,9 @@ class GLTFRenderer extends Component {
 		}
 		this.state.partsSelection = this.ListBoxes[0];
 		this.partsCtrl=this.partsFolder.add(this.state,"partsSelection",this.ListBoxes,0);	
-		this.partsCtrl.onChange((name) => this.hiLightMesh(name));
+		this.partsCtrl.onChange((name) => {
+			this.state.partsSelection = this.partsCtrl.object.partsSelection;
+			this.hiLightMesh(name)});
 		
 	};
   
@@ -687,22 +761,20 @@ class GLTFRenderer extends Component {
 	  
 		for ( var i = 0; i < this.ListBoxes.length; i++ ) {
 			if( this.ListBoxes[i]==name ) {
-				if ( this.INTERSECTED) {
-					this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
-					this.INTERSECTED = null;
-				}
+				
 				if ( this.SELECTED ) {
-					this.SELECTED.material.color.setHex( this.SELECTED.currentHex );
+					this.SELECTED.material.emissive.setHex( this.SELECTED.currentEmissive );
 					this.SELECTED.partSelected = false;
 				}
 				if(this.ListValues[i]==this.partsMeshes.length) {
 					this.SELECTED = null;
-				} else {
-					
+				} else {					
 					this.SELECTED = this.partsMeshes[this.ListValues[i]];
 					this.SELECTED.partSelected = true;
-					this.SELECTED.currentHex = this.SELECTED.material.color.getHex();
-					this.SELECTED.material.color.setHex( this.props.selectionColor || selectionColor );
+					if((this.SELECTED.currentEmissive===null) || (typeof this.SELECTED.currentEmissive === 'undefined')){
+						this.SELECTED.currentEmissive = this.SELECTED.material.emissive.getHex();
+					}					
+					this.SELECTED.material.emissive.setHex(0xffffff-this.SELECTED.material.color.getHex());
 				}
 				
 				break;
@@ -745,14 +817,20 @@ class GLTFRenderer extends Component {
 				const {clientHeight, clientWidth} = this.node.parentElement;
 				this.defaultCamera.aspect = clientWidth / clientHeight;
 				this.defaultCamera.updateProjectionMatrix();
+				//console.log("Parent",clientWidth, clientHeight);
 				//this.vignette.style({aspect: this.defaultCamera.aspect});
-				this.renderer.setSize(clientWidth, clientHeight);
+				//this.renderer.setSize(clientWidth, clientHeight);
 			 } else {
 				this.defaultCamera.aspect = this.node.clientWidth / this.node.clientHeight;
 				this.defaultCamera.updateProjectionMatrix();
+				//console.log("Node",clientWidth, clientHeight);
 				//this.vignette.style({aspect: this.defaultCamera.aspect});
-				this.renderer.setSize(this.node.clientWidth, this.node.clientHeight);
+				//this.renderer.setSize(this.node.clientWidth, this.node.clientHeight);
 			 }
+			 const innerWidth = this.node? this.node.clientWidth : window.innerWidth;
+			 const innerHeight = this.node? this.node.clientHeight : window.innerHeight;
+			 //console.log("Node",innerWidth, innerHeight);
+			 this.renderer.setSize(innerWidth, innerHeight);
 		}
 		this.axesCamera.aspect = this.axesDiv.clientWidth / this.axesDiv.clientHeight;
 		this.axesCamera.updateProjectionMatrix();
@@ -764,19 +842,26 @@ class GLTFRenderer extends Component {
       
       	event.preventDefault();
 
-		this.mouse3D = new Vector3( ( event.clientX / window.innerWidth ) * 2 - 1,   
+		/* this.mouse3D = new Vector3( ( event.clientX / window.innerWidth ) * 2 - 1,   
 		  -( event.clientY / window.innerHeight ) * 2 + 1,  
-		  0.5 );    
-		var myrect = this.node.getBoundingClientRect();
+		  0.5 );   */  
+		const myrect = this.node ? this.node.getBoundingClientRect() : {"left":0,"top":0};
+		const leftShift = this.node?myrect.left:0;
+		const topShift = this.node?myrect.top:0;
+		const innerWidth = this.node? this.node.clientWidth : window.innerWidth;
+		const innerHeight = this.node? this.node.clientHeight : window.innerHeight;
+		
+		//console.log("Render",innerWidth,innerHeight, myrect.left, myrect.top)
 		//console.log( (myrect.left / myrect.width ),myrect);
 		// Detect light helper
 		//sets the mouse position with a coordinate system where the center of the screen is the origin 
 		//console.log(window)
 		//console.log(myrect.left, myrect.width,window.innerWidth, window.outerWidth-window.innerWidth,myrect.top, myrect.height, window.innerHeight, (window.outerHeight-window.innerHeight));
 
-		this.mouse.x = ( (event.clientX) / window.innerWidth )* 2 - 1 - ((myrect.left) / (window.innerWidth) );
-		this.mouse.y = - ( (event.clientY) / window.innerHeight )* 2 + 1 +((myrect.top) / (window.innerHeight) );
-		
+		this.mouse.x = ( (event.clientX-leftShift) / innerWidth )* 2 - 1   ;
+		this.mouse.y = - ( (event.clientY-topShift) / innerHeight )* 2 + 1  ;
+		this.clientX = event.clientX;
+		this.clientY = event.clientY;
 		//this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1 ;
 		//this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 		/*	if (this.dotGeometry)
@@ -794,11 +879,90 @@ class GLTFRenderer extends Component {
 	onMouseClick = ( event ) => {
       
       	if ( this.INTERSECTED !== null ) {
-			console.log( this.INTERSECTED.name || this.INTERSECTED );
+			//console.log("Before",this.INTERSECTED.material.color);
+			//console.log("Before", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
+			if(this.props.selectedoption==SELECTMEASURE || event.ctrlKey) {
+				this.INTERSECTED.selectedshell = !this.INTERSECTED.selectedshell;
+			} else {
+				this.INTERSECTED.selectedshell = true;
+			}		
+			//console.log("After", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );	
+			this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );			
+			this.changeStateOfSelection(this.INTERSECTED,event);
+			if(this.props.onClick) {
+				this.props.onClick(this.INTERSECTED, SELECTDISTANCE, event);
+			}
+			//console.log("After",this.INTERSECTED.material.color);
+			//if(this.INTERSECTED.selectedshell) this.INTERSECTED = null;
+		} else {
+			console.log(event.clientX,event.clientY);
 		}
       
 	};
-  
+
+	isObjectSame = (first,second) => {
+		if(!first&&!second) return true;
+		if(first && !second) return false;
+		if(!first && second) return false;
+		if(first.name==second.name) return true;
+		return false;
+	}
+
+	isObjectsSame = (first,secondArray) => {
+		if (!first && !secondArray.length) {
+			//console.log("I am returning true 0 length first null");
+			return true;
+		} 
+		if (!first && secondArray.length) {
+			//console.log("I am returning false first null");
+			return false;
+		} 
+		if (first && !secondArray.length) {
+			//console.log("I am returning false 0 length");
+			return false;
+		} 
+		var valToRet = false;
+		for(var i=0; i<secondArray.length;i++) {
+			if(first.name==secondArray[i].name) { 
+				valToRet = true;
+				break;				
+			}
+		}		
+		return valToRet;
+		
+	}
+
+	visibllity = (name, display) => {
+		const first4chars=name.slice(0,4);
+		const first6chars=name.slice(0,6);
+		var visible = false;
+		//console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
+		if  (first4chars == "EDGE")   {
+			visible = (this.props.selectedoption==SELECTEDGE) || ((this.props.selectedoption==SELECTCORNER) && (display)) || (this.props.selectedoption==SELECTMEASURE);
+		} else {
+			if (first6chars == "VERTEX") {
+				visible = (this.props.selectedoption==SELECTCORNER) || (this.props.selectedoption==SELECTMEASURE);
+			} else {
+				visible = ((this.props.selectedoption!=SELECTEDGE) && (this.props.selectedoption!=SELECTCORNER)) || (this.props.selectedoption==SELECTMEASURE) ;
+			}
+		}
+		return visible;
+	}
+
+	objectFilters = () => {
+		if(this.partsMeshes) {			
+			var objects=[];
+			this.partsMeshes.forEach(element => {
+				if(this.visibllity(element.name,false)){
+					objects.push(element);
+				}
+			});			
+			return objects;			
+		} else {
+			return this.scene.children;
+		}
+	}
+
 	raycast = () => {
 
 		
@@ -807,7 +971,7 @@ class GLTFRenderer extends Component {
 		this.raycaster.setFromCamera(this.mouse, this.activeCamera );    
 
 		//2. compute intersections (note the 2nd parameter)
-		var intersects = this.raycaster.intersectObjects( this.scene.children, true );
+		var intersects = this.raycaster.intersectObjects( this.objectFilters(), true );
 		
 		if ( intersects.length == 0 ) {
 			this.resetSelection();
@@ -827,17 +991,26 @@ class GLTFRenderer extends Component {
 				if ( this.INTERSECTED != intersects[ myObject ].object ) {
 				  
 					if ( this.INTERSECTED ) {
-						if(this.INTERSECTED.partSelected) {
-							this.INTERSECTED.material.color.setHex( this.props.selectionColor || selectionColor );
+						if(this.isObjectSame(this.INTERSECTED,this.firstshell) || 
+							this.isObjectSame(this.INTERSECTED,this.secondshell) ||
+							this.isObjectsSame(this.INTERSECTED,this.state_selectedObjects)) {
+							this.setSelectionColor(this.INTERSECTED);
+							//this.INTERSECTED.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR) ;
 						} else {
 							this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
 						}
 					}
 					this.INTERSECTED = intersects[ myObject ].object;
-					if(!this.INTERSECTED.partSelected) {
+					this.setTouchingColor(this.INTERSECTED);
+					this.setState({intersectedShell:this.INTERSECTED});
+					/* //if(!(this.isObjectSame(this.INTERSECTED,this.firstshell) || this.isObjectSame(this.INTERSECTED,this.secondshell))) {
+					if( (this.INTERSECTED.currentHex===null) || (typeof this.INTERSECTED.currentHex === 'undefined')){
 						this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
-					}
-					this.INTERSECTED.material.color.setHex( this.props.touchingColor || touchingColor );
+					} else {
+						//console.log("My color touch",this.INTERSECTED.currentHex);
+					}					
+					//}
+					this.INTERSECTED.material.color = this.convertColor( this.props.touchcolor || DEFAULTTOUCHCOLOR ); */
 					
 				}
 			} else {
@@ -861,10 +1034,9 @@ class GLTFRenderer extends Component {
 
 	alter = () => {
 		this.gltfJSON = this.props.gltfjson;
-		this.activeFile = this.props.activefile;
-		this.includeparts = this.props.includeparts;
-		this.disectparts = this.props.disectparts;
+		this.activeFile = this.props.activefile;		
 		this.materialtype = this.props.materialtype;
+		this.selectedoption = this.props.selectedoption;
 		if(this.gltfJSON!="") {
 			
 			this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');
@@ -878,8 +1050,8 @@ class GLTFRenderer extends Component {
 		
 	};
 
-	
-	updateChildsOfMine(myColor, myTexture, myMetal, myRough, myOpaque, myId, whatchanged) {
+		
+	updateChildsOfMine = (myColor, myTexture, myMetal, myRough, myOpaque, myId, whatchanged) => {
 		this.props.gltfobj.tree.forEach( element => {
 			if(element.parentId==myId) {
 				if(element.leaf) {
@@ -955,6 +1127,7 @@ class GLTFRenderer extends Component {
 		});
 
 	}
+
 	readUV = (data64) => {
 		
 		//console.log(data64);
@@ -1008,10 +1181,54 @@ class GLTFRenderer extends Component {
 		}
 		
 	}
+
+	onlyfaces = (name) => {
+		
+		const first4chars=name.slice(0,4);
+		const first6chars=name.slice(0,6);		
+		if ( (first4chars == "EDGE") || (first6chars == "VERTEX") )   {
+			return false;
+		} 
+		return true;	
+	}
+
+	findMyParentChilds = (mynode) => {
+		//console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
+		if ( ( this.props.selectedoption != SELECTSOLID ) || 
+			(this.props.splitmethod!=SELECTDISECTPARTS) ) {
+			return [mynode];
+		}
+		var myParentID = -1;
+		for(var i=0;i<this.props.gltfobj.tree.length;i++){
+			if(this.props.gltfobj.tree[i].name==mynode.name){
+				myParentID = this.props.gltfobj.tree[i].parentId;
+				break;
+			}
+		}		
+		var myMaterials=[];
+		if(myParentID != -1) {			
+			for(var i=0;i<this.props.gltfobj.tree.length;i++){
+				if(this.props.gltfobj.tree[i].parentId==myParentID){
+					var myChild=this.findMyMaterial(this.props.gltfobj.tree[i]);
+					if(myChild){
+						if(this.onlyfaces(myChild.name)) {
+							myMaterials.push(myChild);
+						}						
+					}					
+				}
+			}
+		} 
+		if(myMaterials.length!=0) {
+			return myMaterials;
+		}
+		return [mynode];		
+	}
+
+
 	findMyMaterial = (data) => {
 		if(this.partsMeshes) {
-			var i;
-			for(i=0;i<this.partsMeshes.length;i++){
+		
+			for(var i=0;i<this.partsMeshes.length;i++){
 				//console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
 				if(this.partsMeshes[i].name==data.name){
 					return this.partsMeshes[i];
@@ -1020,16 +1237,36 @@ class GLTFRenderer extends Component {
 		};		
 		return null;
 	}
+
 	changeBackground = () => {
-		if(this.datacolor != this.props.backcolor && (this.props.dataselection==SELECTBACKCOLOR) ) {
-			this.datacolor = this.props.backcolor;
-			//console.log(this.datacolor);
+		if(this.databackcolor != this.props.backcolor && (this.props.dataselection==SELECTBACKCOLOR) ) {
+			this.databackcolor = this.props.backcolor;
+			//console.log(this.databackcolor);
 			if(this.renderer) {
 				if(this.scene) {
 					this.scene.background = null;
 				}
-				this.renderer.setClearColor( this.datacolor || backColor );			
+				this.renderer.setClearColor( this.databackcolor || DEFAULTBACKCOLOR );			
 			}			
+		}
+		if(this.dataselectcolor != this.props.selectcolor && (this.props.dataselection==SELECTSELECTCOLOR) ) {
+			this.dataselectcolor = this.props.selectcolor;
+			if(this.firstshell){
+				if(this.firstshell.selectedshell) {
+					this.firstshell.material.color = this.convertColor(this.props.selectcolor||DEFAULTSELECTCOLOR);
+				}
+			}
+			if(this.secondshell){
+				if(this.secondshell.selectedshell) {
+					this.secondshell.material.color = this.convertColor(this.props.selectcolor||DEFAULTSELECTCOLOR);
+				}
+			}					
+		}
+		if(this.datatouchcolor != this.props.touchcolor && (this.props.dataselection==SELECTTOUCHCOLOR) ) {
+			this.datatouchcolor = this.props.touchcolor;
+			if(this.INTERSECTED) {
+				this.INTERSECTED.material.color = this.convertColor(this.props.touchcolor||DEFAULTTOUCHCOLOR);
+			}					
 		}
 		//console.log("data2texture",this.data2texture,"prp2",this.props.data2texture,this.props.dataselection )
 		if(this.data2texture != this.props.data2texture && (this.props.dataselection==SELECT2DTEXTURE) ) {
@@ -1047,7 +1284,7 @@ class GLTFRenderer extends Component {
 				this.scene.background = myTexture;
 				if(!myTexture){
 					if(this.renderer) {
-						this.renderer.setClearColor( this.datacolor || backColor );
+						this.renderer.setClearColor( this.databackcolor || DEFAULTBACKCOLOR );
 					}	
 				}
 			}			
@@ -1075,16 +1312,173 @@ class GLTFRenderer extends Component {
 				this.scene.background = myTexture;
 				if(!myTexture){
 					if(this.renderer) {
-						this.renderer.setClearColor( this.datacolor || backColor );
+						this.renderer.setClearColor( this.databackcolor || DEFAULTBACKCOLOR );
 					}	
 				}
 			}			
 		}
 	}
+
+	setTouchingColor = (meshmaterial) => {
+		/* if(!(this.isObjectSame(meshmaterial,this.firstshell)||this.isObjectSame(meshmaterial,this.firstshell ))) {
+			if( (meshmaterial.currentHex === null) || (typeof meshmaterial.currentHex === 'undefined')){
+				meshmaterial.currentHex = meshmaterial.material.color.getHex();
+			} else {
+				//console.log("My color1",meshmaterial.currentHex);
+			}
+		} else { */
+		if((meshmaterial.currentHex === null) || (typeof meshmaterial.currentHex === 'undefined')){
+			meshmaterial.currentHex = meshmaterial.material.color.getHex();
+		} else {
+			//console.log("My color2",meshmaterial.currentHex);
+		}
+		/*}*/
+		//console.log("before",meshmaterial.material.color);
+		meshmaterial.material.color=this.convertColor(this.props.touchcolor || DEFAULTTOUCHCOLOR); // this.props.distanceColor || distanceColor);						
+		//console.log("after",meshmaterial.material.color);
+	}
+
+	setSelectionColor = (meshmaterial) => {
+		/* if(!(this.isObjectSame(meshmaterial,this.firstshell)||this.isObjectSame(meshmaterial,this.firstshell ))) {
+			if( (meshmaterial.currentHex === null) || (typeof meshmaterial.currentHex === 'undefined')){
+				meshmaterial.currentHex = meshmaterial.material.color.getHex();
+			} else {
+				//console.log("My color1",meshmaterial.currentHex);
+			}
+		} else { */
+		if((meshmaterial.currentHex === null) || (typeof meshmaterial.currentHex === 'undefined')){
+			meshmaterial.currentHex = meshmaterial.material.color.getHex();
+		} else {
+			//console.log("My color2",meshmaterial.currentHex);
+		}
+		/*}*/
+		//console.log("before",meshmaterial.material.color);
+		meshmaterial.material.color=this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR); // this.props.distanceColor || distanceColor);						
+		//console.log("after",meshmaterial.material.color);
+	}
+
 	
+	changeStateOfSelection = (meshmaterial, event) => {		
+		if(meshmaterial && this.props.selectedoption==SELECTMEASURE){
+			if(meshmaterial.selectedshell) {
+				if(!this.firstshell) {
+					this.setSelectionColor(meshmaterial);				
+					//console.log(meshmaterial.material.color.getHex(),0xffffff-meshmaterial.material.color.getHex());
+					
+					this.firstshell = meshmaterial;
+					//console.log("firstshell",meshmaterial,this.firstshell,this.secondshell);
+				} else {
+					if(!this.secondshell) {
+						this.setSelectionColor(meshmaterial);
+						//console.log(meshmaterial.material.color.getHex(),0xffffff-meshmaterial.material.color.getHex());
+						
+						this.secondshell = meshmaterial;
+						//console.log("secondshell",meshmaterial,this.firstshell,this.secondshell);
+					} else {
+						this.setSelectionColor(meshmaterial);
+						//console.log(meshmaterial.material.color.getHex(),0xffffff-meshmaterial.material.color.getHex());
+						
+						this.firstshell.material.color.setHex( this.firstshell.currentHex );
+						this.firstshell.selectedshell = false;
+						this.firstshell = this.secondshell;
+						this.secondshell= meshmaterial;																						
+						//console.log("First and second",this.firstshell,this.secondshell,meshmaterial);
+					}
+				}
+				
+			} else {
+				if(this.firstshell&&(this.firstshell.name==meshmaterial.name)){
+					this.firstshell.material.color.setHex( this.firstshell.currentHex );
+					this.firstshell.selectedshell=false;
+					this.firstshell = this.secondshell;	
+					this.secondshell = null;				
+					//console.log("First and second making null",this.firstshell,this.secondshell)
+				} else {
+					if(this.secondshell&&(this.secondshell.name==meshmaterial.name)){
+						this.secondshell.material.color.setHex( this.secondshell.currentHex );
+						this.secondshell.selectedshell=false;
+						this.secondshell = null;
+						//console.log("First and second only null",this.firstshell,this.secondshell)										
+					} else {
+						//console.log("This condition is not possible");
+					}
+				}
+			}
+		} else {
+			if (meshmaterial){
+				var toAdd = true;
+				if(event) {
+					toAdd = event.ctrlKey;
+				}
+				if(!toAdd){
+					this.state_selectedObjects.forEach(elementobject => {
+						if(meshmaterial.name!=elementobject.name) {							
+							elementobject.selectedshell = false;
+							elementobject.material.color.setHex( elementobject.currentHex );
+						}
+					});
+				}
+				const myAllChilds = this.findMyParentChilds(meshmaterial);
+				myAllChilds.forEach(element => {
+					element.selectedshell = meshmaterial.selectedshell;
+					if(meshmaterial.selectedshell) {				
+						this.setSelectionColor(element);				
+					} else {
+						element.material.color.setHex( element.currentHex );
+					}					
+					if(toAdd) {
+						if(meshmaterial.selectedshell) {
+							var alreadyPresent = false;
+							for(var i=0;i<this.state_selectedObjects.length;i++) {
+								if(element.name==this.state_selectedObjects[i].name) {
+									alreadyPresent = true;
+									break;
+								}
+							}						
+							if(!alreadyPresent) {
+								this.state_selectedObjects.push(element);
+								/* this.setState(prevState => ({
+									selectedObjects: [...prevState.selectedObjects, meshmaterial]					  
+								})); */
+								//this.setSelectionColor(meshmaterial);
+							}
+							
+						} else {
+							var selectedObjects = [];
+							this.state_selectedObjects.forEach(elementobject => {
+								//console.log(meshmaterial.name,element.name);
+								if(element.name!=elementobject.name) {
+									selectedObjects.push(elementobject);
+								} else {
+									//meshmaterial.material.color.setHex( meshmaterial.currentHex );
+								}
+							});
+							this.state_selectedObjects = selectedObjects;
+							//this.setState({selectedObjects:selectedObjects});
+							
+						}	
+					} else {
+						
+						if(meshmaterial.selectedshell) {
+							this.state_selectedObjects=myAllChilds;
+							//this.setState({selectedObjects:[meshmaterial]});
+							//this.setSelectionColor(meshmaterial);
+						} else {
+							this.state_selectedObjects=[];
+							//this.setState({selectedObjects:[]});
+							//meshmaterial.material.color.setHex( meshmaterial.currentHex );
+						}
+						
+					}
+				});
+				
+			}
+		}			
+	}
+
 	changeparts = () => {
 		
-		const changedata = this.props.changedata || {};
+		const changedata = this.props.changedata;
 		
 		if( this.props.whatchanged != this.whatchanged || 
 			changedata.name != this.activeId ||
@@ -1097,11 +1491,13 @@ class GLTFRenderer extends Component {
 			( (this.props.whatchanged==SELECTROUGH) &&
 			  (this.datarough != changedata.roughnessFactor ) ) ||
 			( (this.props.whatchanged==SELECTOPAQUE) &&
-			  (this.dataopaque != changedata.A ) ) 
+			  (this.dataopaque != changedata.A ) ) ||
+			( (this.props.whatchanged==SELECTDISTANCE) &&
+			(this.selectedshell != changedata.selectedshell ) )   
 		  )
 		{
 			this.whatchanged = this.props.whatchanged;
-			this.activeId = changedata?.name;
+			this.activeId = changedata.name;
 						
 			if (this.props.whatchanged==SELECTCOLOR) { 
 				this.R = changedata.R; 
@@ -1241,32 +1637,129 @@ class GLTFRenderer extends Component {
 				}
 
 			}
+			if (this.props.whatchanged==SELECTDISTANCE) { 
+				//console.log(changedata);
+				this.selectedshell = changedata.selectedshell; 				
+				if(changedata.leaf) {
+					if( changedata.name ) {
+						//console.log(this.partsMeshes[changedata.binId-1]);
+						//const mymaterial = this.partsMeshes[element.binId-1].material;
+						const mymesh = this.findMyMaterial(changedata);
+						mymesh.selectedshell = changedata.selectedshell;
+						//console.log("Before",mymesh);
+						if(mymesh){
+							this.changeStateOfSelection(mymesh,null);
+						}
+						//console.log("After",mymesh);
+					}
+					
+				} 
+			}				
 		}	
 	}
-     
+    
 	changeMaterialStats(material) {
 		material.wireframe = this.state.wiremesh;
 		material.depthTest = true;
 		material.depthWrite = this.state.opaque == "True" ? true : this.state.opaque == "False" ? false : !material.transparent;
 		material.side = this.state.side == "Front" ? FrontSide : this.state.side == "Back" ? BackSide : DoubleSide;
+		//console.log(material);
+		 
 	}
 
 	resetSelection() {
 		if (this.INTERSECTED) {
-			if (this.INTERSECTED.partSelected) {
-				this.INTERSECTED.material.color.setHex(this.props.selectionColor || selectionColor);
+			if (this.isObjectSame(this.INTERSECTED,this.firstshell) || 
+				this.isObjectSame(this.INTERSECTED,this.secondshell)||
+				this.isObjectsSame(this.INTERSECTED,this.state_selectedObjects) ) {
+				this.setSelectionColor(this.INTERSECTED);
+				//this.INTERSECTED.material.color=this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR);
 			} else {
 				this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
 			}
 			this.INTERSECTED = null;
+			this.setState({intersectedShell:this.INTERSECTED});
+
 		}
 	}
 
+	getNameID = (name) => {
+		if ( ( this.props.selectedoption != SELECTSOLID ) || 
+			(this.props.splitmethod!=SELECTDISECTPARTS) ) {
+			return name;
+		}
+		var myParentID = -1;
+		for(var i=0;i<this.props.gltfobj.tree.length;i++){
+			if(this.props.gltfobj.tree[i].name==name){
+				myParentID = this.props.gltfobj.tree[i].parentId;
+				break;
+			}
+		}
+		var myParentName = "";
+		if(myParentID != -1) {
+			for(var i=0;i<this.props.gltfobj.tree.length;i++){
+				if(this.props.gltfobj.tree[i].id==myParentID){
+					myParentName = this.props.gltfobj.tree[i].name;
+					break;
+				}
+			}
+		}
+		if(myParentName!="") {
+			return myParentName;
+		}
+		return name;		
+	}
+	
+	selectAllSelectedSolids = () => {
+		var copy_selectobjects = [];
+		this.state_selectedObjects.forEach(element => {
+			copy_selectobjects.push(element);			
+		});
+		copy_selectobjects.forEach(meshmaterial => {
+			const myAllChilds = this.findMyParentChilds(meshmaterial);
+			//console.log(myAllChilds);
+			myAllChilds.forEach(elementdata => {							
+				var alreadyPresent = false;
+				for(var i=0;i<this.state_selectedObjects.length;i++) {
+					if(elementdata.name==this.state_selectedObjects[i].name) {
+						alreadyPresent = true;
+						break;
+					}
+				}						
+				if(!alreadyPresent) {
+					this.state_selectedObjects.push(elementdata);
+					elementdata.selectedshell = true;								
+					this.setSelectionColor(elementdata);
+				}	
+			});
+		});		
+	}
+
 	render() {
-		if( this.activeFile != this.props.activefile || 
-			this.includeparts != this.props.includeparts || 
-			this.disectparts != this.props.disectparts || 
-			this.materialtype != this.props.materialtype ) {
+		if( this.activeFile != this.props.activefile || 			
+			this.materialtype != this.props.materialtype || 
+			this.selectedoption != this.props.selectedoption) {
+			if(this.selectedoption==SELECTMEASURE || this.props.selectedoption==SELECTMEASURE) {
+				if(this.secondshell) {
+					this.secondshell.material.color.setHex(this.secondshell.currentHex);
+					this.secondshell.selectedshell = false;
+				}
+				if(this.firstshell) {
+					this.firstshell.material.color.setHex(this.firstshell.currentHex);
+					this.firstshell.selectedshell = false;
+				}
+				this.state_selectedObjects.forEach(element => {
+					element.material.color.setHex(element.currentHex);
+					element.selectedshell = false;
+				});
+				this.secondshell = null;
+				this.firstshell = null;
+				this.state_selectedObjects = [];
+				//this.setState({selectedObjects:[]});
+			}
+			if(this.props.selectedoption==SELECTSOLID) {
+				this.selectAllSelectedSolids();
+			}			
 			this.alter();		
 		}		
 		if(this.renderer) {
@@ -1277,13 +1770,30 @@ class GLTFRenderer extends Component {
 			  this.axesCamera.lookAt(this.axesScene.position)
 			  this.axesRenderer.render( this.axesScene, this.axesCamera );
 			}
-			this.changeparts()
+			this.changeparts();
 		}
+		
 		return (
 		  <div
-			style={{ width: "600px", height: "600px" }}
-			ref={el => (this.node = el)}
-		  />
+		    style={{ width: "800px", height: "600px" }}
+			ref={el => (this.node = el)}>
+			
+			<div
+				
+				style={{
+				display: this.state.intersectedShell  ? 'block' : 'block',
+				position: 'fixed',
+				top: this.clientY+10,
+				left: this.clientX+10,
+				color: DEFAULTTEXTCOLOR,
+				...this.props.style,
+				}}
+     		 >
+        		{this.state.intersectedShell? this.getNameID(this.state.intersectedShell.name): ""} 
+      		</div>
+		
+
+		</div>
 		);
 	}
 }

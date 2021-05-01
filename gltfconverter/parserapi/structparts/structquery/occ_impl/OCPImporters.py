@@ -7,17 +7,17 @@ from .OCPShapes import Shape, Edge, Face, sortWiresByBuildOrder, DEG2RAD
 
 import ezdxf
 
-from OCP.STEPControl import STEPControl_Reader
-from OCP.ShapeAnalysis import ShapeAnalysis_FreeBounds
-from OCP.TopTools import TopTools_HSequenceOfShape
-from OCP.gp import gp_Pnt
-from OCP.Geom import Geom_BSplineCurve
-from OCP.TColgp import TColgp_Array1OfPnt
-from OCP.TColStd import TColStd_Array1OfReal, TColStd_Array1OfInteger
-from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeEdge
+from OCC.Core.STEPControl import STEPControl_Reader
+from OCC.Core.ShapeAnalysis import ShapeAnalysis_FreeBounds
+from OCC.Core.TopTools import TopTools_HSequenceOfShape
+from OCC.Core.gp import gp_Pnt
+from OCC.Core.Geom import Geom_BSplineCurve
+from OCC.Core.TColgp import TColgp_Array1OfPnt
+from OCC.Core.TColStd import TColStd_Array1OfReal, TColStd_Array1OfInteger
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire
+from ctypes import *
 
-
-import OCP.IFSelect
+import OCC.Core.IFSelect
 
 RAD2DEG = 360.0 / (2 * pi)
 
@@ -60,7 +60,7 @@ def importStep(fileName):
     # Now read and return the shape
     reader = STEPControl_Reader()
     readStatus = reader.ReadFile(fileName)
-    if readStatus != OCP.IFSelect.IFSelect_RetDone:
+    if readStatus != OCC.Core.IFSelect.IFSelect_RetDone:
         raise ValueError("STEP File could not be loaded")
     for i in range(reader.NbRootsForTransfer()):
         reader.TransferRoot(i + 1)
@@ -140,7 +140,7 @@ def _dxf_spline(el):
         if el.weights:
             rational = True
 
-            weights = OCP.TColStd.TColStd_Array1OfReal(1, len(el.weights))
+            weights = OCC.Core.TColStd.TColStd_Array1OfReal(1, len(el.weights))
             for i, w in enumerate(el.weights):
                 weights.SetValue(i + 1, w)
 
@@ -195,22 +195,39 @@ def _dxf_convert(elements, tol):
 
     rv = []
     edges = []
-
+   
     for el in elements:
+        
         conv = DXF_CONVERTERS.get(el.dxf.dxftype)
         if conv:
             edges.extend(conv(el))
 
     if edges:
+      
         edges_in = TopTools_HSequenceOfShape()
-        wires_out = TopTools_HSequenceOfShape()
-
+       
+        #wires_out = TopTools_HSequenceOfShape()
+        _wire = BRepBuilderAPI_MakeWire()
         for e in edges:
-            edges_in.Append(e.wrapped)
-        ShapeAnalysis_FreeBounds.ConnectEdgesToWires_s(edges_in, tol, False, wires_out)
-
-        rv = [Shape.cast(el) for el in wires_out]
-
+            _wire.Add(e.wrapped)
+        _wire.Build()
+        _wire.IsDone()
+        #for e in edges:            
+        #    edges_in.Append(e.wrapped)
+        #ShapeAnalysis_FreeBounds.ConnectEdgesToWires(edges_in, tol, False, wires_out)
+       
+       
+        try:
+            #wires_pointer = wires_out
+            #print("I reached hrer1",wires_out,len(wires_out))
+            #wires_pointer = cast(wires_out, POINTER(TopTools_HSequenceOfShape)).value
+            #print("I reached hrer2",wires_pointer,len(wires_pointer))
+            #print(wires_pointer[0])
+            #rv = [Shape.cast(el) for el in wires_pointer]
+            rv = [Shape.cast(el) for el in _wire.Wire()]
+            #print("I reached here 3")
+        except Exception as e:
+            print(e)
     return rv
 
 
@@ -237,3 +254,27 @@ def importDXF(filename, tol=1e-6, exclude=[]):
                 faces.append(Face.makeFromWires(wire_set[0], wire_set[1:]))
 
     return cq.Workplane("XY").newObject(faces)
+
+def importDXFObjects(filename, tol=1e-6, exclude=[]):
+    """
+    Loads a DXF file into a structquery Workplane.
+    
+    :param fileName: The path and name of the DXF file to be imported
+    :param tol: The tolerance used for merging edges into wires (default: 1e-6)
+    :param exclude: a list of layer names not to import (default: [])
+    """
+
+    # normalize layer names to conform the DXF spec
+    exclude_lwr = [ex.lower() for ex in exclude]
+
+    dxf = ezdxf.readfile(filename)
+    faces = []
+
+    for name, layer in dxf.modelspace().groupby(dxfattrib="layer").items():
+        res = _dxf_convert(layer, tol) if name.lower() not in exclude_lwr else None
+        if res:
+            wire_sets = sortWiresByBuildOrder(res)
+            for wire_set in wire_sets:
+                faces.append(Face.makeFromWires(wire_set[0], wire_set[1:]))
+
+    return faces
