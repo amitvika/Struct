@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function GeometricDimensioning({ gltfjson }) {
+export default function GeometricDimensioning({ gltfjson, fileId='' }) {
   const classes = useStyles();
   
   return (
