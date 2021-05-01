@@ -55,7 +55,7 @@ export default function GridView({
 	list,
 	handleHistoryToggle = () => { },
 	columnsFields,
-	handleTableRowClick,
+	handleTableRowClick = () => { },
 	isHistoryLinkVisible = true,
 	isInsideDetailPanel = false
 }) {

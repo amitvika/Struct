@@ -28,6 +28,7 @@ exports.mapProduction = (item = {}) => {
         created_by_name: get(item, 'created_by.name', ''),
         created_by: get(item, 'created_by._id', ''),
         is_archived: item.is_archived,
+        item_id: item.item_id,
         productionApprovedBy: mapUserInfo(item.productionApprovedBy),
         isApprovedforProduction: item.isApprovedforProduction
     }
@@ -62,6 +63,14 @@ exports.mapProductionsForItem = (data) => {
 }
 
 const mapProductionForItem = (value) => {
-    return value.item_id
+    return {
+        _id: value.item_id._id,
+        name: value.item_id.name,
+        source: value.item_id.source,
+        production_name: value.name,
+        production_id: value.id,
+        isApprovedforProduction: value.isApprovedforProduction
+    }
+
 
 }

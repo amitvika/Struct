@@ -24,13 +24,14 @@ export default function Filter({
 			Object.keys(selectedFields).forEach(key => {
 				const fieldValues = selectedFields[key];
 
-				if (flag && fieldValues.length > 0) {
+				if (flag && fieldValues.length > 0 && fieldValues.length !== 1) {
 					flag = fieldValues.some((f) => f === el[key]);
 				}
 			});
 
 			return flag;
 		});
+
 
 		setFilteredList(myArrayFiltered)
 	}

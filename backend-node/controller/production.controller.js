@@ -2,7 +2,7 @@ const ProductionModel = require("../models/production.modal");
 const ChangeTracking = require("../models/ChangeTracking.model");
 const { getObjectId } = require('../utils/helper')
 const UserModel = require("../models/User");
-const { mapProduction, mapProductions,mapProductionsForItem } = require('../map/production');
+const { mapProduction, mapProductions, mapProductionsForItem } = require('../map/production');
 
 exports.get = async (req, res) => {
     try {
@@ -64,9 +64,13 @@ exports.upsert = async (req, res) => {
             actionType = "Update";
             req.body.created_by = production.created_by;
             req.body.updated_by = req.user.id;
+            req.body.productionApprovedBy = undefined;
+
+            let data = req.body;
+
             production = await ProductionModel.findByIdAndUpdate(
                 req.body.id,
-                { $set: req.body },
+                { $set: data },
                 { new: true });
         }
         else {
@@ -135,7 +139,7 @@ exports.itemInProduction = async (req, res) => {
     try {
         const factory_id = req.query.factory_id;
 
-        const query = { factory_id: getObjectId(factory_id) }
+        const query = { factory_id: getObjectId(factory_id), isApprovedforProduction: true }
 
         let productions = [];
 
@@ -144,7 +148,7 @@ exports.itemInProduction = async (req, res) => {
             .populate('item_id')
             .sort({ updatedAt: -1 })
 
-
+        console.log(productions.length)
         res.json(mapProductionsForItem(productions));
 
     }

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { useDispatch } from 'react-redux';
+
 import Heading from '../../../components/atoms/Headding';
 import GridView from '../../../components/GridView';
 import { useSelector } from 'react-redux';
@@ -7,113 +9,116 @@ import { useParams } from "react-router-dom";
 import { Spinner } from "reactstrap";
 import get from 'lodash/get';
 import ProductionApprovalModal from './ProductionApprovalModal'
+import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
 
 export default function Production(props) {
-  const [isModalOpened, setIsModalOpened] = useState(false);
-  const [selectedValue, setSelectedValue] = useState({});
-  const { user } = useSelector(state => state.auth);
-  const [isLoading, setIsLoading] = useState(false);
-  let { id: item_id } = useParams();
+    const dispatch = useDispatch();
 
-  const [list, setList] = useState([]);
+    const [isModalOpened, setIsModalOpened] = useState(false);
+    const [selectedValue, setSelectedValue] = useState({});
+    const { user } = useSelector(state => state.auth);
+    const [isLoading, setIsLoading] = useState(false);
+    let { id: item_id } = useParams();
 
-  const [approvalList, setApprovalList] = useState([
-    {
-      id: 1,
-      isApproved: false,
-      approvedBy: ''
-    },
-    {
-      id: 2,
-      isApproved: false,
-      approvedBy: ''
-    },
-    {
-      id: 3,
-      isApproved: false,
-      approvedBy: ''
-    }])
+    const [list, setList] = useState([]);
 
-  const toggleModal = () => {
-    setIsModalOpened(false);
-    setSelectedValue({})
-  }
+    const [approvalList, setApprovalList] = useState([
+        {
+            id: 1,
+            isApproved: false,
+            approvedBy: ''
+        },
+        {
+            id: 2,
+            isApproved: false,
+            approvedBy: ''
+        },
+        {
+            id: 3,
+            isApproved: false,
+            approvedBy: ''
+        }])
 
-
-  const handleCardSelect = (data) => {
-    setSelectedValue(data);
-    setIsModalOpened(true);
-  }
-
-
-  useEffect(() => {
-    fetchList()
-  }, [])
-
-  const fetchList = async () => {
-    try {
-      setIsLoading(true);
-
-      const productionRes = await ProductionAPI.fetchProductions(`item_id=${item_id}`);
-
-      const productionList = get(productionRes, 'data', []);
-
-      setList(productionList)
-      setIsLoading(false);
-
-    } catch (error) {
-      console.log(error)
+    const toggleModal = () => {
+        setIsModalOpened(false);
+        setSelectedValue({})
     }
-  };
 
-  const handleApproveItemForProduction = (data) => {
-    ProductionAPI.approveItemForProduction(data)
-      .then(res => {
-        console.log(res)
 
-      })
-      .catch(error => {
-        console.log(error)
-      })
-  }
+    const handleCardSelect = (data) => {
+        setSelectedValue(data);
+        setIsModalOpened(true);
+    }
 
-  if (isLoading) {
-    return (<div
-      style={{
-        display: "flex",
-        justifyContent: "center"
-      }}
-    >
-      <Spinner animation="border" />
-    </div>)
-  }
 
-  return (
-    <>
-      <Heading>Production Approval</Heading>
-      {isModalOpened &&
-        <ProductionApprovalModal
-          isModalOpened={isModalOpened}
-          toggleModal={toggleModal}
-          selectedValue={selectedValue}
-          setSelectedValue={setSelectedValue}
-          handleApproveItemForProduction={handleApproveItemForProduction}
-        />}
+    useEffect(() => {
+        fetchList()
+    }, [])
 
-      <GridView
-        list={list}
-        handleHistoryToggle={() => false}
-        columnsFields={{
-          id: 'ID',
-          name: 'Name',
-          quantity: 'Quantity',
-          start_date: 'Start date',
-          end_date: 'End date',
-          'Production Approval': 'Production Approval'
-        }}
-        isHistoryLinkVisible={false}
-        handleTableRowClick={handleCardSelect}
-      />
-    </>
-  )
+    const fetchList = async () => {
+        try {
+            setIsLoading(true);
+
+            const productionRes = await ProductionAPI.fetchProductions(`item_id=${item_id}`);
+
+            const productionList = get(productionRes, 'data', []);
+
+            setList(productionList)
+            setIsLoading(false);
+
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+    const handleApproveItemForProduction = (data) => {
+        ProductionAPI.approveItemForProduction(data)
+            .then(res => {
+                dispatch(showSuccessAlert({ message: 'Production status updated successfully' }));
+            })
+            .catch(error => {
+                dispatch(showErrorAlert({ message: 'Unable to save info' }));
+                console.log(error)
+            })
+    }
+
+    if (isLoading) {
+        return (<div
+            style={{
+                display: "flex",
+                justifyContent: "center"
+            }}
+        >
+            <Spinner animation="border" />
+        </div>)
+    }
+
+    return (
+        <>
+            <Heading>Production Approval</Heading>
+            {isModalOpened &&
+                <ProductionApprovalModal
+                    isModalOpened={isModalOpened}
+                    toggleModal={toggleModal}
+                    selectedValue={selectedValue}
+                    setSelectedValue={setSelectedValue}
+                    handleApproveItemForProduction={handleApproveItemForProduction}
+                />}
+
+            <GridView
+                list={list}
+                handleHistoryToggle={() => false}
+                columnsFields={{
+                    id: 'ID',
+                    name: 'Name',
+                    quantity: 'Quantity',
+                    start_date: 'Start date',
+                    end_date: 'End date',
+                    'Production Approval': 'Production Approval'
+                }}
+                isHistoryLinkVisible={false}
+                handleTableRowClick={handleCardSelect}
+            />
+        </>
+    )
 }
