@@ -1,86 +1,103 @@
-import React, { useState, useEffect } from 'react'
-import MaterialTable, { MTableToolbar } from "material-table";
-import { Grid, Paper, Tab, Tabs } from "@material-ui/core";
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import { green } from '@material-ui/core/colors';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-// import ClearIconbox from '@material-ui/icons/Clear';
-import { Button } from 'reactstrap';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import Favorite from '@material-ui/icons/Favorite';
+import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
+import { Paper, Grid, Button } from '@material-ui/core';
 
-const useStyles = makeStyles((theme) => ({
+
+
+const GreenCheckbox = withStyles({
     root: {
-        flexGrow: 1,
+      color: green[400],
+      '&$checked': {
+        color: green[600],
+      },
     },
-    paper: {
-        padding: theme.spacing(1),
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-        marginTop: '10px',
-        marginBottom: '10px'
-    },
-    tabPaper: {
-        padding: theme.spacing(1),
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-        cursor: 'pointer',
-        transition: '0.3s',
-        "&:hover, &:focus": {
-            backgroundColor: '#DCDCDC'
-        }
-    },
-}));
+    checked: {},
+  })((props) => <Checkbox color="default" {...props} />);
+  
 
 export default function ProcessConfiguration() {
-    const classes = useStyles();
-    const [isSubTabVisible, setisSubTabVisible] = useState(true);
-    const [selectedTab, setSelectedTab] = useState("");
-    const [checked, setChecked] = React.useState(true);
+  
 
-    const handleChange = (event) => {
-        setChecked(event.target.checked);
-    };
+    // const tabArray = ['Spool Based', 'Stacked', 'Grid', 'Grid-Stacked', 'Bulk Container', 'Liquid Vat',
+    // 'Pressure Vessel']   
+ 
+const [state, setState] = React.useState({
+    SpoolBased: false,
+    Stacked: false,
+    Grid: false,
+    GridStacked: false,
+    BulkContainer: false,
+    LiquidVat: false,
+    PressureVessel: false
+  });
 
+  const handleChange = (event) => {
+    setState({ ...state, [event.target.name]: event.target.checked });
+  };
 
+  return (
+    <Grid container spacing={1}>
 
-    const tabArray = ['Spool Based', 'Stacked', 'Grid', 'Grid-Stacked', 'Bulk Container', 'Liquid Vat',
-        'Pressure Vessel']
+    <FormGroup row>
+      <FormControlLabel
+        control={
+        <Checkbox checked={state.SpoolBased} onChange={handleChange} name="SpoolBased" />}
+        label="Spool Based"
+      />
+       <FormControlLabel
+        control={
+        <Checkbox checked={state.Stacked} onChange={handleChange} name="Stacked" />}
+        label="Stacked"
+      />
+       <FormControlLabel
+        control={
+        <Checkbox checked={state.Grid} onChange={handleChange} name="Grid" />}
+        label="Grid"
+      />
+       <FormControlLabel
+        control={
+        <Checkbox checked={state.GridStacked} onChange={handleChange} name="GridStacked" />}
+        label="Grid-Stacked"
+      />
+       <FormControlLabel
+        control={
+        <Checkbox checked={state.BulkContainer} onChange={handleChange} name="BulkContainer" />}
+        label="Bulk Container"
+      />
+       <FormControlLabel
+        control={
+        <Checkbox checked={state.LiquidVat} onChange={handleChange} name="LiquidVat" />}
+        label="Liquid Vat"
+      />
+       <FormControlLabel
+        control={
+        <Checkbox checked={state.PressureVessel} onChange={handleChange} name="PressureVessel" />}
+        label="Pressure Vessel"
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={state.checkedB}
+            onChange={handleChange}
+            name="checkedB"
+            color="primary"
+          />
+        }
+        label="Primary"
+      />
+     
+     
+    </FormGroup>
+    </Grid>
 
-    const handleTabChange = (tabName) => {
-        setSelectedTab(tabName);
-        setisSubTabVisible(false);
-
-    }
-    return (
-        <Paper elevation={3} className={classes.paper}>
-            <Grid container spacing={1}>
-                {
-                    tabArray.map(tabName =>
-                    (
-                        <Grid item style={{ display: "flex" }}>
-
-                            <Paper onClick={() => handleTabChange(tabName)}
-                                style={{
-                                    backgroundColor: selectedTab === tabName ? "#343a40" : "",
-                                    color: selectedTab === tabName ? "white" : ""
-                                }}
-                                className={classes.tabPaper} >
-                                <Checkbox
-                                    checked={checked}
-                                    onChange={handleChange}
-                                    inputProps={{ 'aria-label': 'primary checkbox' }}
-                                /> {tabName}
-                                
-                                    {/* <ClearIconbox /> */}
-                            
-                            </Paper>
-
-                        </Grid>
-                    )
-                    )
-                }
-            </Grid>
-
-        </Paper>
-
-    )
+  );
 }
 

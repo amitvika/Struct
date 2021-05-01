@@ -46,7 +46,7 @@ const Items = () => {
 			render: rowData => rowData && <span style={{ cursor: 'pointer' }}
 				onClick={(event) => {
 					event.stopPropagation();
-					this.handleHistoryToggle({ rowId: rowData.id })
+					handleHistoryToggle({ rowId: rowData.id })
 				}}> Show History </span>
 		}
 	])

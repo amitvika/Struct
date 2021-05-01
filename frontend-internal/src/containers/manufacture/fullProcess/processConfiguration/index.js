@@ -31,11 +31,12 @@ export default function ProductionTable() {
     const [columns, setColumns] = useState([
         { title: 'ID', field: 'id', editable: "never" },
         { title: 'Name', field: 'name' },
-        { title: 'Quantity', field: 'quantity', type: 'numeric' },
+        { title: 'Quantity', field: 'quantity', type: 'numeric', editable: "never" },
         {
             title: 'Production Start Date',
             field: 'start_date',
             type: 'date',
+            // value="2013-01-08",
             render: rowData => moment(rowData.start_date).format('DD/MM/YYYY'),
             editComponent: (props) => <CustomDatePicker {...props} />
         },
@@ -44,7 +45,7 @@ export default function ProductionTable() {
             field: 'end_date',
             type: 'date',
             render: rowData => moment(rowData.end_date).format('DD/MM/YYYY'),
-            editComponent: (props) => <CustomDatePicker {...props} />
+            editComponent: (props) => <CustomDatePicker {...props} value={props.value ? props.value : new Date('12/31/2099')} />
         },
         {
             title: 'Select Factory',
@@ -63,7 +64,7 @@ export default function ProductionTable() {
             locale={props.dateTimePickerLocalization}>
             <DatePicker
                 format="dd/MM/yyyy"
-                value={props.value || null}
+                value={props.value || new Date()}
                 onChange={props.onChange}
                 clearable
                 InputProps={{
@@ -133,8 +134,9 @@ export default function ProductionTable() {
                             })
 
                             setList(updatedList);
+                            setFilteredList(updatedList);
 
-                            setFilteredList(updatedList)
+                            setIsModalOpened(false);
                         }
                         else {
                             const updatedList = [
@@ -143,11 +145,12 @@ export default function ProductionTable() {
                             ];
                             setList(updatedList);
 
-                            setFilteredList(updatedList)
+                            setFilteredList(updatedList);
+
+                            toggleModal(res.data);
                         }
 
                     }
-                    toggleModal();
                     resolve();
                 })
                 .catch(err => {

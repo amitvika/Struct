@@ -68,7 +68,7 @@ export default function SelectorView({
 			}))
 
 			if (alreadySelected) {
-				const selectedItems = mapValues(items.filter(item => {
+                const selectedItems = mapValues(items.filter(item => {
 					const data = alreadySelected.includes(item.id);
 					if (data) {
 						return true

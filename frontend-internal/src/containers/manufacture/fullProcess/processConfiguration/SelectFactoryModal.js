@@ -6,7 +6,7 @@ import Select from '../../../../components/atoms/Select';
 import Headding from '../../../../components/atoms/Headding'
 import { Paper, Grid, Button } from '@material-ui/core';
 
-export default function SelectFactoryModal({ isModalOpened, toggleModal, selectedValue, setSelectedValue, assignFactory }) {
+export default function SelectFactoryModal({ isModalOpened, toggleModal, selectedValue = {}, setSelectedValue, assignFactory }) {
     const [factoriesOptions, setfactoriesOptions] = useState([]);
 
     useEffect(() => {

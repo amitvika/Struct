@@ -5,7 +5,7 @@ const ProductionSchema = new mongoose.Schema({
     name: { type: String, required: true },
     quantity: { type: Number },
     start_date: { type: Date, default: Date.now() },
-    end_date: { type: Date, default: Date.now() },
+    end_date: { type: Date, default: new Date('12/31/2099') },
     factory_id: { type: Schema.Types.ObjectId, ref: "Factory" },
     item_id: { type: Schema.Types.ObjectId, ref: "Item" },
     isApprovedforProduction: { type: Boolean, default: false },

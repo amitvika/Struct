@@ -52,7 +52,7 @@ export default function ProductionApprovalModal({
                     <Grid item xs={4}>
                         End Date
                     </Grid>
-                    <Grid item xs={8}>{moment(selectedValue.end_date).format('DD/MM/YYYY')}</Grid>
+                    <Grid item xs={8}>{moment(selectedValue.end_date).format('12/31/2999')}</Grid>
 
                     <Grid item xs={4}>
                         Approved for Production

@@ -18,7 +18,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 
 
 import { columnsFields } from '../../../constants/item'
-import ItemAPI from '../../../api/items.api';
+import ProductionAPI from '../../../api/production.api';
 import get from 'lodash/get';
 
 export default function ItemsInProduction({
@@ -43,14 +43,16 @@ export default function ItemsInProduction({
     };
 
     useEffect(() => {
-        fetchItemList();
+        if (factoryId) {
+            fetchItemList();
+        }
     }, [factoryId]);
 
     const fetchItemList = async () => {
         try {
             setIsLoading(true);
 
-            const itemRes = await ItemAPI.getItemsAPI(`itemType=Structure`);
+            const itemRes = await ProductionAPI.itemsInProduction(`factory_id=${factoryId}`);
 
             const items = get(itemRes, 'data', []).map((item, index) => {
                 return {
@@ -62,18 +64,6 @@ export default function ItemsInProduction({
             })
             setItemList(items)
             setFilteredItemList(items)
-
-            if (factoryValue.selectedItemId) {
-                const selectedItem = items.find(item => item.id === factoryValue.selectedItemId);
-                setSelectedItem(selectedItem);
-
-                setItemList(items.filter(item => item.id !== factoryValue.selectedItemId))
-                setFilteredItemList(items.filter(item => item.id !== factoryValue.selectedItemId))
-            }
-            else {
-                setItemList(items)
-                setFilteredItemList(items)
-            }
             setIsLoading(false);
 
         } catch (error) {
@@ -81,30 +71,6 @@ export default function ItemsInProduction({
             setIsLoading(false);
         }
     };
-
-    const handleItemSelect = (data) => {
-        if (isItemSelectionVisible) {
-            setFilteredItemList(prevState => {
-                let updatedState = prevState.filter(item => item.id != data.id);
-                return updatedState;
-            });
-
-            setSelectedItem(data)
-            setFactoryValue(prevState => ({ ...prevState, selectedItemId: data.id }));
-
-        }
-    }
-
-    const handleClientRemove = (data) => {
-        if (isItemSelectionVisible) {
-
-            setFilteredItemList(preMaterialList => {
-                return [data, ...preMaterialList];
-            });
-            setSelectedItem({});
-            setFactoryValue(prevState => ({ ...prevState, selectedItemId: null }))
-        }
-    }
 
     if (isLoading) {
         return (<div
@@ -132,59 +98,14 @@ export default function ItemsInProduction({
             </Paper>
             <Space size={20} />
 
-            <div style={{ display: 'flex' }}>
+            <Headding fontSize={20} title={itemList.length > 0 ? 'Items in Production' : 'No item In Production'} style={{ fontWeight: 'bold' }}></Headding>
+            <GridView
+                list={filteredItemList}
+                handleHistoryToggle={() => false}
+                columnsFields={columnsFields}
+                isHistoryLinkVisible={false}
+            />
 
-                <Headding fontSize={20} title={'Configure Items'} style={{
-                    fontWeight: 'bold',
-                    alignItems: 'center',
-                    display: 'flex'
-                }}></Headding>
-                <FormGroup style={{ marginLeft: '20px' }}>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                onClick={onClick}
-                                checked={state.checkedB}
-                                onChange={handleChange}
-                                name="checkedB"
-                                color="primary"
-                            />
-                        }
-                        label="Add/Remove Item"
-                    />
-                </FormGroup>
-            </div>
-
-            {
-                factoryValue.selectedItemId ?
-                    <>
-
-                        <Headding fontSize={20} title={'Selected Item'} style={{ fontWeight: 'bold' }}></Headding>
-                        <GridView
-                            list={selectedItem ? [selectedItem] : []}
-                            handleHistoryToggle={() => false}
-                            columnsFields={columnsFields}
-                            handleTableRowClick={handleClientRemove}
-                            isHistoryLinkVisible={false}
-                        />
-                    </> :
-                    <Headding fontSize={20} title={'No item Selected'} style={{ fontWeight: 'bold' }}></Headding>
-            }
-
-            {
-                isItemSelectionVisible &&
-                <>
-                    <Space size={20} />
-                    <Headding fontSize={20} title={'Choose Item'} style={{ fontWeight: 'bold' }}></Headding>
-                    <GridView
-                        list={filteredItemList}
-                        handleHistoryToggle={() => false}
-                        columnsFields={columnsFields}
-                        handleTableRowClick={handleItemSelect}
-                        isHistoryLinkVisible={false}
-                    />
-                </>
-            }
         </div>
     )
 }
