@@ -84,7 +84,7 @@ export default function Filter({
 
 	const renderItem = () => {
 		let item = [];
-		let sizeOfEachEl = parseInt(10 / Object.keys(columnsFields).length);
+		let sizeOfEachEl = parseInt(9 / Object.keys(columnsFields).length);
 
 		Object.keys(columnsFields).forEach(fieldItem => {
 			item.push(

@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(2, 4, 3),
         marginLeft: '20%',
         marginRight: '20%',
-        width: '100%',
+        // width: '100%',
         minHeight: '60%'
 
     },
@@ -37,7 +37,7 @@ export default function MainModal({ title, open, toggleModal, children, style = 
             aria-labelledby="transition-modal-title"
             aria-describedby="transition-modal-description"
             className={classes.modal}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            // style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             open={open}
             onClose={toggleModal}
             closeAfterTransition
