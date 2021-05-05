@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { getPartsStackableInfo } from '../../../api/fileUpload.api';
 import { useSelector } from 'react-redux'
 import { Paper, Grid } from '@material-ui/core';
-import { Headding } from '../../../components';
+// import { Headding } from '../../../components';
+import Heading from '../../../components/atoms/Headding';
+
 
 
 export default function Stackability() {
@@ -23,22 +25,48 @@ export default function Stackability() {
     return (
         <>
             {splitfiles.stackable && splitfiles.stackable.length > 0 && (
-                
-                <Paper  >
-                    <Headding style={{ textAlign: 'center' }}>
-                        Parts Stackable Info
-                    </Headding>
-                    <Grid>
-                        <b style={{ margin: "7px" }}> Any Direction:</b> {prettyPrintArray(splitfiles.stackable[0].direction)}
+                <Paper style={{ padding: 10 }}>
+
+                    <Grid container spacing={4}>
+                        <Grid item xs={12}>
+                            <Heading bold>Parts Stackable Info</Heading>
+                        </Grid>
+
+                        <Grid item xs={4}> Any Direction:</Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].direction)}</Grid>
+
+                        <Grid item xs={4}>
+                            Top:
+                     </Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].top)}</Grid>
+
+                        <Grid item xs={4}>
+                            Bottom:
+                     </Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].bottom)}</Grid>
+
+                        <Grid item xs={4}>
+                            Right:
+                     </Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].right)}</Grid>
+
+
+                        <Grid item xs={4}>
+                            Left:
+                     </Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].left)}</Grid>
+
+                        <Grid item xs={4}>
+                            Front:
+                     </Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].front)}</Grid>
+                        <Grid item xs={4}>
+                            Back:
+                     </Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].back)}</Grid>
+
+
                     </Grid>
-
-                    <Grid><b style={{ margin: "7px" }}> Top:</b>{prettyPrintArray(splitfiles.stackable[0].top)}</Grid>
-                    <Grid> <b style={{ margin: "7px" }}> Bottom:</b> {prettyPrintArray(splitfiles.stackable[0].bottom)}</Grid>
-                    <Grid> <b style={{ margin: "7px" }}> Right:</b> {prettyPrintArray(splitfiles.stackable[0].right)}</Grid>
-                    <Grid> <b style={{ margin: "7px" }}> Left: </b>{prettyPrintArray(splitfiles.stackable[0].left)}</Grid>
-                    <Grid> <b style={{ margin: "7px" }}> Front:</b> {prettyPrintArray(splitfiles.stackable[0].front)}</Grid>
-                    <Grid> <b style={{ margin: "7px" }}> Back: </b>{prettyPrintArray(splitfiles.stackable[0].back)}</Grid>
-
                 </Paper>
             )}
         </>
