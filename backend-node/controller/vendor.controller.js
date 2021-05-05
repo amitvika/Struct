@@ -90,7 +90,8 @@ exports.update = async (req, res) => {
       name: req.body.name,
       source: req.body.source,
       logoName: req.body.logoName,
-      logoUrl: req.body.logoUrl
+      logoUrl: req.body.logoUrl,
+      suppliedItems: req.body.suppliedItems
     };
 
     const updatedItem = await VendorModel.findByIdAndUpdate(req.params.id, saveObject, { new: true })

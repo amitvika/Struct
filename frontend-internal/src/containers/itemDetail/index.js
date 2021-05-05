@@ -24,11 +24,11 @@ import Assembly from './assembly';
 import Production from './production'
 import SurfaceFinishAndTreatment from './SurfaceFinishAndTreatment';
 import ComplianceAndCertifications from './ComplianceAndCertifications';
-import Compliance from './Compliance';
 
 import ItemTypeConfigurations from './itemTypeConfigurations';
 import ItemAPI from '../../api/items.api';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
+import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
 
@@ -52,7 +52,10 @@ const ItemDetail = () => {
             setIsLoading(true);
             const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
 
-            setItemProperties(get(itemDetailResponse, 'data[0]', {}));
+            const currentItem = get(itemDetailResponse, 'data[0]', {});
+            setItemProperties(currentItem);
+
+            dispatch(setCurrentItemAction(currentItem));
 
             const tempGLTFJSon = get(itemDetailResponse, 'data[0].gltfjson', {});
 
@@ -99,9 +102,7 @@ const ItemDetail = () => {
             case 10:
                 return <SurfaceFinishAndTreatment />
             case 11:
-                return <ComplianceAndCertifications />
-            case 12:
-                return <Compliance
+                return <ComplianceAndCertifications
                     itemValue={itemProperties}
                     setItemValue={setItemProperties} />
             default:
@@ -175,7 +176,7 @@ const ItemDetail = () => {
 
                             {/* { */}
 								// itemProperties?.itemGeometry?.itemType &&
-								<Tab label="Geometric Dimensioning and Tolerances" value={2} />
+								<Tab label="GD&T and Assembly Constraints" value={2} />
                             {/* } */}
 
                             <Tab label="Assembly" value={8} />
@@ -192,9 +193,8 @@ const ItemDetail = () => {
 
                             <Tab label="Manufacture & processing" value={6} />
                             <Tab label="Production" value={9} />
-                            <Tab label="Surface Finish and Treatment" value={10} />
+                            {/* <Tab label="Surface Finish and Treatment" value={10} /> */}
                             <Tab label="Compliance and Certifications" value={11} />
-                            <Tab label="Compliance" value={12} />
 
 
                         </Tabs>

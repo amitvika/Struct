@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, Link, Paper } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import MainModal from '../../../../components/Modal';
+import Stackability from '../../Stackability';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -28,41 +29,73 @@ const useStyles = makeStyles((theme) => ({
         color: " #65696c",
     },
 
-}))
+    paper: {
+        padding: theme.spacing(1),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+        marginTop: '10px',
+        marginBottom: '10px'
+    },
+    tabPaper: {
+        padding: theme.spacing(1),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+        cursor: 'pointer',
+        transition: '0.3s',
+        "&:hover, &:focus": {
+            backgroundColor: '#DCDCDC'
+        }
+    },
+}));
 
-export default function ManufacturabilityAnalysis() {
+
+
+export default function ManufacturabilityAnalysis({ id, distancegap, anglegap }) {
     const classes = useStyles();
+
     const [isModalOpened, setIsModalOpened] = React.useState(false);
+    const [selectedTab, setSelectedTab] = useState("");
 
 
     const toggleModal = () => {
         setIsModalOpened(!isModalOpened)
+
+    }
+
+    const handleTabChange = (tabName) => {
+        toggleModal();
+        setSelectedTab(tabName);
     }
 
     const tabArray = ["Stackability", "Fragility", "Size Constraints", "Quantity/Time", "Physical State"]
     return (
-        <div className={classes.root}>
-            <Paper>
-                <div className={classes.text} elevation={3}>Key Factors</div>
-                <MainModal open={isModalOpened} toggleModal={toggleModal} />
-                <Grid className={classes.gridContainer} container spacing={3} >
-                    {
-                        tabArray.map((item) => (
+        <>
+            <div className={classes.text} elevation={3}>Key Factors</div>
+            <MainModal open={isModalOpened} toggleModal={toggleModal} >
 
-                            <Grid className={classes.innerGrid} item xs={3} sm={3}>
+                {
+                    selectedTab === 'Stackability' ? <Stackability /> : null
 
+                }
+            </MainModal>
+            <Grid container spacing={1} >
+                {
+                    tabArray.map(tabName =>
+                    (
+                        <Grid item xs={2.5}>
+                            <Paper onClick={() => handleTabChange(tabName)}
 
-                                <Paper className={classes.paper} className={classes.paper} onClick={toggleModal}>
-                                    <Button className={classes.button} >{item}</Button>
-                                </Paper>
+                                style={{
+                                    backgroundColor: selectedTab === tabName ? "#343a40" : "",
+                                    color: selectedTab === tabName ? "white" : ""
+                                }}
+                                className={classes.tabPaper}>{tabName}</Paper>
 
-                            </Grid>
-                        ))
-                    }
-
-                </Grid>
-
-            </Paper>
-        </div>
+                        </Grid>
+                    )
+                    )
+                }
+            </Grid>
+        </>
     )
 }

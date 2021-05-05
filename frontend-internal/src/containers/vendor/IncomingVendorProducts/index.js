@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 import {
-	Paper,
-	Typography,
-	IconButton,
+    Paper,
+    Typography,
+    IconButton,
 } from '@material-ui/core';
 import { Spinner } from "reactstrap";
 
@@ -18,78 +18,60 @@ import { mapItems } from '../../../utils/mapper'
 import SelectorView from '../../../components/SelectorView'
 import get from 'lodash/get';
 
-export default function IncomingVendorProducts({
-	clientId,
-	clientData
-}) {
-	const [isLoading, setIsLoading] = useState(false);
+export default function IncomingVendorProducts({ setVendorValue, vendorValue }) {
+    const [isLoading, setIsLoading] = useState(false);
 
-	const [selectedProduct, setSelectedProduct] = useState({});
+    const [selectedProduct, setSelectedProduct] = useState({});
 
-	const [isItemSelectionVisible, setIsItemSelectionVisible] = useState(false);
+    const [isItemSelectionVisible, setIsItemSelectionVisible] = useState(false);
 
-	// const onClick = () => setIsItemSelectionVisible(!isItemSelectionVisible);
-	const [state, setState] = useState({
-		checkedA: true,
-	});
-	const handleChange = (event) => {
-		setState({ ...state, [event.target.name]: event.target.checked });
-	};
+    // const onClick = () => setIsItemSelectionVisible(!isItemSelectionVisible);
+    const [state, setState] = useState({
+        checkedA: true,
+    });
+    const handleChange = (event) => {
+        setState({ ...state, [event.target.name]: event.target.checked });
+    };
 
-	const handleProductBreadcrumbSelect = () => {
-		setSelectedProduct({});
-	}
+    const handleProductBreadcrumbSelect = () => {
+        setSelectedProduct({});
+    }
 
-	const fetchSelectedList = () => {
-		return new Promise((resolve, reject) => {
-			resolve(get(clientData, 'linkedItems', []))
-		})
-	}
+    const fetchSelectedList = () => {
+        return new Promise((resolve, reject) => {
+            resolve(get(vendorValue, 'suppliedItems', []))
+        })
+    }
 
-	if (isLoading) {
-		return (<div
-			style={{
-				display: "flex",
-				justifyContent: "center"
-			}}
-		>
-			<Spinner animation="border" />
-		</div>)
-	}
+    const handleItemSelect = (suppliedItems) => {
+        setVendorValue({ ...vendorValue, suppliedItems })
+    }
 
-	return (
-		<div>
-			{/* Breadcrum */}
-			{Object.keys(selectedProduct).length > 0 ?
-				<>
-					<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px', display: 'flex' }} >
-						<IconButton color="primary" onClick={handleProductBreadcrumbSelect} component="span">
-							<ArrowBackIcon />
-						</IconButton>
-						<Typography
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								fontSize: '20px'
-							}}
-						>Orders</Typography>
-					</Paper>
-					<ProductOptions
-					/>
-				</> :
-				<>
-					<SelectorView
-						title={'Product'}
-						fetchList={ItemAPI.getItemsAPI}
-						fetchSelectedList={fetchSelectedList}
-						fields={columnsFields}
-						mapValues={mapItems}
-						handleUpdate={(data) => false}
-						handleSelection={(data) => setSelectedProduct(data)}
-					/>
-				</>
-			}
-		</div >
-	)
+    if (isLoading) {
+        return (<div
+            style={{
+                display: "flex",
+                justifyContent: "center"
+            }}
+        >
+            <Spinner animation="border" />
+        </div>)
+    }
+
+    return (
+        <div>
+
+            <SelectorView
+                title={'Product'}
+                fetchList={ItemAPI.getItemsAPI}
+                fetchSelectedList={fetchSelectedList}
+                fields={columnsFields}
+                mapValues={mapItems}
+                handleUpdate={handleItemSelect}
+                handleSelection={(data) => setSelectedProduct(data)}
+            />
+
+        </div >
+    )
 
 }

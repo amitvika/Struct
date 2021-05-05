@@ -298,6 +298,7 @@ class DropZone extends Component{
 					disectparts = {this.state.selectedindex==-1?false:this.state.showdisect}
 					onSelect={
 						(data,what)=>{
+                            console.log('--->>',data,what)
 						this.setState({
 							changedata:data,
 							whatchanged:what								

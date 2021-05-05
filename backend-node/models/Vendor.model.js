@@ -21,6 +21,7 @@ const VendorSchema = new mongoose.Schema({
   deletedAt: {
     type: Date
   },
+  suppliedItems:[{ type: Schema.Types.ObjectId, ref: "Item" }],
   logoName: { type: String },
 	logoUrl: { type: String }
 });

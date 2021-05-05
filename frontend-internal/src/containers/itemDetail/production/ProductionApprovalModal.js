@@ -2,8 +2,6 @@ import React from 'react'
 import MainModal from '../../../components/Modal'
 import { Paper, Grid, Button } from '@material-ui/core';
 import Checkbox from '@material-ui/core/Checkbox';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Heading from '../../../components/atoms/Headding';
 import moment from 'moment';
 
@@ -54,6 +52,24 @@ export default function ProductionApprovalModal({
                     </Grid>
                     <Grid item xs={8}>{moment(selectedValue.end_date).format('12/31/2999')}</Grid>
 
+                    <Grid item xs={4}>
+                        Approved for Production
+                    </Grid>
+
+                    <Grid item xs={8}>
+                        <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
+                            onChange={onChange}
+                            checked={selectedValue.isApprovedforProduction} />
+                    </Grid>
+                    <Grid item xs={4}>
+                        Approved for Production
+                    </Grid>
+
+                    <Grid item xs={8}>
+                        <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
+                            onChange={onChange}
+                            checked={selectedValue.isApprovedforProduction} />
+                    </Grid>
                     <Grid item xs={4}>
                         Approved for Production
                     </Grid>
