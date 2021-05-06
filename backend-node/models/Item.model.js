@@ -39,6 +39,15 @@ const ItemSchema = new mongoose.Schema({
         CE: { type: Boolean, default: false },
         FCC: { type: Boolean, default: false },
     },
+    dispensing: {
+        SPOOLBASED: { type: Boolean, default: false },
+        STACKED: { type: Boolean, default: false },
+        GRID: { type: Boolean, default: false },
+        GRIDSTACKED: { type: Boolean, default: false },
+        BULKCONTAINER: { type: Boolean, default: false },
+        LIQUIDVAT: { type: Boolean, default: false },
+        PRESSUREVESSEL: { type: Boolean, default: false },
+    },
     gltfjson: {
         type: Object
     },

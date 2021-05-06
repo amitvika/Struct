@@ -46,7 +46,6 @@ export default function ProductionApprovalModal({
                     </Grid>
                     <Grid item xs={8}>{moment(selectedValue.start_date).format('DD/MM/YYYY')}</Grid>
 
-
                     <Grid item xs={4}>
                         End Date
                     </Grid>
@@ -55,34 +54,15 @@ export default function ProductionApprovalModal({
                     <Grid item xs={4}>
                         Approved for Production
                     </Grid>
-
                     <Grid item xs={8}>
                         <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
                             onChange={onChange}
                             checked={selectedValue.isApprovedforProduction} />
                     </Grid>
-                    <Grid item xs={4}>
-                        Approved for Production
-                    </Grid>
-
-                    <Grid item xs={8}>
-                        <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-                            onChange={onChange}
-                            checked={selectedValue.isApprovedforProduction} />
-                    </Grid>
-                    <Grid item xs={4}>
-                        Approved for Production
-                    </Grid>
-
-                    <Grid item xs={8}>
-                        <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-                            onChange={onChange}
-                            checked={selectedValue.isApprovedforProduction} />
-                    </Grid>
-
                     {selectedValue.isApprovedforProduction &&
                         <>
-                            <Grid item xs={4} />
+                            {/* <Grid item xs={4} /> */}
+                            {/* <Grid item xs={8}>{rowData => moment().format('DD/MM/YYYY')}</Grid> */}
                             {/* <Grid item xs={8}>{selectedValue.productionApprovedBy.name} has approved for production at </Grid> */}
                         </>
 

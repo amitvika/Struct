@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import MaterialTable, { MTableToolbar } from "material-table";
 import { Grid, Paper, Tab, Tabs } from "@material-ui/core";
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+import CollapseTab from './CollapseTab';
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -38,23 +40,7 @@ export default function ProcessConfiguration() {
     }
     return (
         <div>
-                <Grid container spacing={1} >
-                    {
-                        tabArray.map(tabName =>
-                        (
-                            <Grid item xs={2.5}>
-                                <Paper onClick={() => handleTabChange(tabName)}
-                                    style={{
-                                        backgroundColor: selectedTab === tabName ? "#343a40" : "",
-                                        color: selectedTab === tabName ? "white" : ""
-                                    }}
-                                    className={classes.tabPaper}>{tabName}</Paper>
-
-                            </Grid>
-                        )
-                        )
-                    }
-                </Grid>
-        </div>
+        <CollapseTab />
+    </div>
     )
 }

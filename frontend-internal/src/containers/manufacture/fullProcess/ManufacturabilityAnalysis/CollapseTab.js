@@ -4,6 +4,10 @@ import ListItem from '@material-ui/core/ListItem';
 import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import ClearIcon from '@material-ui/icons/Clear';
+import { Button, Grid, Paper } from '@material-ui/core';
+import Checkbox from '@material-ui/core/Checkbox';
+
 
 
 export default function NestedList() {
@@ -18,54 +22,145 @@ export default function NestedList() {
 
         }
     }
+    const [checked, setChecked] = React.useState(true);
 
+    const handleChange = (event) => {
+        setChecked(event.target.checked);
+    };
 
     return (
         <List component="nav">
-            <ListItem button onClick={() => handleListItem('Tab 1')} >
-                Tab 1
-                {currentTab === 'Tab 1' ? <ExpandLess /> : <ExpandMore />}
+            <Paper>
+            <div style={{ display: "flex" }}>
+            <ListItem button onClick={() => handleListItem('Spool Based')}>
+                Spool Based
+                {currentTab === 'Spool Based' ? <ExpandLess /> : <ExpandMore />}
+
             </ListItem>
-            <Collapse in={currentTab === 'Tab 1'} timeout="auto" unmountOnExit>
+            <Button><ClearIcon /></Button>
+                <Checkbox
+                    checked={checked}
+                    onChange={handleChange}
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                />
+                </div>
+            
+            <Collapse in={currentTab === 'Spool Based'} timeout="auto" unmountOnExit>
                 this is first tab
             </Collapse>
-            <ListItem button onClick={() => handleListItem('Tab 2')}>
-                Tab 2
-                {currentTab === 'Tab 2' ? <ExpandLess /> : <ExpandMore />}
+            </Paper>
+            <Paper>
 
+            <div style={{ display: "flex" }}>
+            <ListItem button onClick={() => handleListItem('Stacked')}>
+                Stacked 
+                {currentTab === 'Stacked' ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
-            <Collapse in={currentTab === 'Tab 2'} timeout="auto" unmountOnExit>
+            <Button><ClearIcon /></Button>
+                <Checkbox
+                    checked={checked}
+                    onChange={handleChange}
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                />
+                </div>
+            <Collapse in={currentTab === 'Stacked'} timeout="auto" unmountOnExit>
                 this is second tab
             </Collapse>
-            <ListItem button onClick={() => handleListItem('Tab 3')}>
-                Tab 3
-                {currentTab === 'Tab 3' ? <ExpandLess /> : <ExpandMore />}
+            </Paper>
+
+            <Paper>
+
+            <div style={{ display: "flex" }}>
+            <ListItem button onClick={() => handleListItem('Grid')}>
+                Grid 
+            
+                {currentTab === 'Grid' ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
-            <Collapse in={currentTab === 'Tab 3'} timeout="auto" unmountOnExit>
+            <Button><ClearIcon /></Button>
+                <Checkbox
+                    checked={checked}
+                    onChange={handleChange}
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                />
+                </div>
+            <Collapse in={currentTab === 'Grid'} timeout="auto" unmountOnExit>
                 This is third Tab
             </Collapse>
-            <ListItem button onClick={() => handleListItem('Tab 4')} >
-                Tab 4
-                {currentTab === 'Tab 4' ? <ExpandLess /> : <ExpandMore />}
-            </ListItem>
-            <Collapse in={currentTab === 'Tab 4'} timeout="auto" unmountOnExit>
+            </Paper>
+
+            <Paper>
+
+            <div style={{ display: "flex" }}>
+            <ListItem button onClick={() => handleListItem('Grid-Stacked')} >
+                Grid-Stacked 
+                {currentTab === 'Grid-Stacked' ? <ExpandLess /> : <ExpandMore />}
+            </ListItem><Button><ClearIcon /></Button>
+                <Checkbox
+                    checked={checked}
+                    onChange={handleChange}
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                />
+</div>
+            <Collapse in={currentTab === 'Grid-Stacked'} timeout="auto" unmountOnExit>
                 this is Fourth tab
             </Collapse>
-            <ListItem button onClick={() => handleListItem('Tab 5')}>
-                Tab 5
-                {currentTab === 'Tab 5' ? <ExpandLess /> : <ExpandMore />}
+            </Paper>
+
+            <Paper>
+
+            <div style={{ display: "flex" }}>
+            <ListItem button onClick={() => handleListItem('Bulk Container')}>
+                Bulk Container 
+                {currentTab === 'Bulk Container' ? <ExpandLess /> : <ExpandMore />}
 
             </ListItem>
-            <Collapse in={currentTab === 'Tab 5'} timeout="auto" unmountOnExit>
+            <Button><ClearIcon /></Button>
+                <Checkbox
+                    checked={checked}
+                    onChange={handleChange}
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                /></div>
+            <Collapse in={currentTab === 'Bulk Container'} timeout="auto" unmountOnExit>
                 this is Fifth tab
             </Collapse>
-            <ListItem button onClick={() => handleListItem('Tab 6')}>
-                Tab 6
-                {currentTab === 'Tab 6' ? <ExpandLess /> : <ExpandMore />}
+            </Paper>
+
+            <Paper>
+
+            <div style={{ display: "flex" }}>
+            <ListItem button onClick={() => handleListItem('Liquid Vat')}>
+                Liquid Vat 
+                {currentTab === 'Liquid Vat' ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
-            <Collapse in={currentTab === 'Tab 6'} timeout="auto" unmountOnExit>
+            <Button><ClearIcon /></Button>
+                <Checkbox
+                    checked={checked}
+                    onChange={handleChange}
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                /></div>
+            <Collapse in={currentTab === 'Liquid Vat'} timeout="auto" unmountOnExit>
                 This is sixth Tab
             </Collapse>
+            </Paper>
+
+            <Paper>
+
+            <div style={{ display: "flex" }}>
+            <ListItem button onClick={() => handleListItem('Pressure Vessel')}>
+                Pressure Vessel 
+                {currentTab === 'Pressure Vessel' ? <ExpandLess /> : <ExpandMore />}
+            </ListItem>
+            <Button><ClearIcon /></Button>
+                <Checkbox
+                    checked={checked}
+                    onChange={handleChange}
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                /></div>
+            <Collapse in={currentTab === 'Pressure Vessel'} timeout="auto" unmountOnExit>
+                This is seventh Tab
+            </Collapse>
+            </Paper>
+
         </List>
     );
 }
