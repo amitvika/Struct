@@ -177,6 +177,8 @@ const ItemDetail = () => {
                             {/* { */}
 								// itemProperties?.itemGeometry?.itemType &&
 								<Tab label="GD&T and Assembly Constraints" value={2} />
+                                <Tab label="Surface Finish and Treatment" value={10} />
+
                             {/* } */}
 
                             <Tab label="Assembly" value={8} />
@@ -193,7 +195,6 @@ const ItemDetail = () => {
 
                             <Tab label="Manufacture & processing" value={6} />
                             <Tab label="Production" value={9} />
-                            {/* <Tab label="Surface Finish and Treatment" value={10} /> */}
                             <Tab label="Compliance and Certifications" value={11} />
 
 

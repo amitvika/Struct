@@ -81,7 +81,6 @@ export default function GeometricDimensioning({ gltfjson, fileId = '' }) {
                         aria-label="scrollable auto tabs example"
                         classes={classes.ProcessTabs}>
 
-                        <Tab label="Surface Finish and Treatment"  />
                     </Tabs>
                 </AppBar>
 

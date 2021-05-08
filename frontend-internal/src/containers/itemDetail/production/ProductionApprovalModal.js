@@ -16,6 +16,7 @@ export default function ProductionApprovalModal({
     const onChange = (event) => {
         setSelectedValue(prev => ({ ...prev, isApprovedforProduction: event.target.checked }))
     }
+    const initialDate = new Date();
 
     return (
         <MainModal open={isModalOpened} toggleModal={toggleModal} >
@@ -61,8 +62,9 @@ export default function ProductionApprovalModal({
                     </Grid>
                     {selectedValue.isApprovedforProduction &&
                         <>
+                        
+
                             {/* <Grid item xs={4} /> */}
-                            {/* <Grid item xs={8}>{rowData => moment().format('DD/MM/YYYY')}</Grid> */}
                             {/* <Grid item xs={8}>{selectedValue.productionApprovedBy.name} has approved for production at </Grid> */}
                         </>
 
