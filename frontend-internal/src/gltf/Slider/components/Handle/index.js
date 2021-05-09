@@ -1,5 +1,3 @@
-/* @flow */
-
 import React, { Component } from 'react';
 import {  calculateStyle, getMousePosition } from '../../utils/handle';
 import { notSimilar } from '../../utils/common';

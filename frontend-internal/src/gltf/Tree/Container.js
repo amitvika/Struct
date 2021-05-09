@@ -13,15 +13,15 @@ import {
 
 
 
-const _Container = styled(motion.div)`
+const MotionContainer = styled(motion.div)`
   min-width: 0;
 `
 
-const _DropZone = styled(_Container)``
+const MotionDropZone = styled(MotionContainer)``
 
-const _Content = styled(_Container)``
+const MotionContent = styled(MotionContainer)``
 
-const _Children = styled(_Container)``
+const MotionChildren = styled(MotionContainer)``
 
 const Container = (props) => {
   // PROPS
@@ -57,8 +57,8 @@ const Container = (props) => {
  
   
   return (
-    <_Container parent={parent}>
-      <_DropZone>
+    <MotionContainer parent={parent}>
+      <MotionDropZone>
         {!!_containerItems.length &&
           _containerItems.map((item, k) => {
             if(item.leaf) {
@@ -84,7 +84,7 @@ const Container = (props) => {
             } else {
               
               return (
-                <_Content key={k}>
+                <MotionContent key={k}>
                   <NodeElement
                     data={item}
                     toggle={() =>
@@ -110,7 +110,7 @@ const Container = (props) => {
                     secondshell={secondshell}
                   />
                   {_isOpen[k] && (
-                    <_Children>
+                    <MotionChildren>
                       <Container
                         parent={item.id}
                         nodes={_containerAncestors[k]}
@@ -154,15 +154,15 @@ const Container = (props) => {
                           <Wrapper level={level + 1}>[No items]</Wrapper>
                         </Empty>
                       )}
-                    </_Children>
+                    </MotionChildren>
                   )}
-                </_Content>
+                </MotionContent>
               )
             }
             
           })}
-      </_DropZone>
-    </_Container>
+      </MotionDropZone>
+    </MotionContainer>
   )
 }
 

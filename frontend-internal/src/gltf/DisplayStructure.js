@@ -10,8 +10,8 @@
  
  //STYLES
  import coreTheme from './styles/theme'
- import { _TdTexture } from './Tree/utils'
- const _Tree = styled(motion.div)`
+ //import { _TdTexture } from './Tree/utils'
+ const MotionTree = styled(motion.div)`
    display: flex;
    flex-direction: column;
    ${props => (props.grow ? 'flex-grow: 1' : '')};
@@ -132,12 +132,12 @@
      _setSelected(selectedNode)
      onSelect(selectedNode,what)
    }
-   const classAppend = disectparts ? "1" : 0;
+   const classAppend = disectparts ? 1 : 0;
    //console.log("Tree", structure);
    return (
      <ThemeProvider theme={_theme}>
        
-       <_Tree
+       <MotionTree
          grow={grow}
          currentTheme={theme || 'dark'}
          size={size}
@@ -156,7 +156,7 @@
                  <th className ={disectparts?"tdslider1":"tdslider"}>Metal</th>
                  <th className ={disectparts?"tdslider1":"tdslider"}>Rough</th>
                  <th className ={disectparts?"tdslider1":"tdslider"}>Opaque</th>
-                 {disectparts &&(
+                 {classAppend &&(
                    <th className = "tdstruct1" >Structure</th>    
                  )}                  
                </tr>   
@@ -225,7 +225,7 @@
              )}
            </Loader>
          )}
-       </_Tree>
+       </MotionTree>
      </ThemeProvider>
    )
  }

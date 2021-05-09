@@ -36,10 +36,10 @@ export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DX
     }
 
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("itemId", itemId);
-    handleFileUpload(formData)
+    // const formData = new FormData();
+    // formData.append("file", file);
+    // formData.append("itemId", itemId);
+    handleFileUpload(file)
   };
 
   return (

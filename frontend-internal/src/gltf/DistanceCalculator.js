@@ -8,7 +8,13 @@ import DisplaySpinner from "./DisplaySpinner";
 const DEFAULTDISTANCEDATA = {
 	"distance":null,
 	"points1":[],
-	"points2":[]
+	"points2":[],
+    "coplaner":"",
+    "parallel":"",
+    "normal": "",
+    "opposite": "", 
+    "concentric":"",
+    "coradial": ""
 };
 const MOVEONLY=1;
 const ROTATEONLY=2;
@@ -31,8 +37,8 @@ class DistanceCalculator extends Component {
     static getDerivedStateFromProps(nextProps, prevState) {
 		//console.log(nextProps,prevState);
 		// do things with nextProps.someProp and prevState.cachedSomeProp
-		if ( (nextProps.firstshell != prevState.firstshell) && 
-             (nextProps.secondshell != prevState.secondshell) ) {
+		if ( (nextProps.firstshell !== prevState.firstshell) && 
+             (nextProps.secondshell !== prevState.secondshell) ) {
 			return {
 				firstshell: nextProps.firstshell,
                 secondshell : nextProps.secondshell,
@@ -47,9 +53,9 @@ class DistanceCalculator extends Component {
 	}
 	getTransformation = (moverotate) => {
 		this.setStateLoadingContent(true);	
-		
-		this.state.distancedata=DEFAULTDISTANCEDATA;
-		
+		this.setState({ 
+            distancedata:DEFAULTDISTANCEDATA,					 
+        });		
         getMinimumDistance(
             this.state.xmove,this.state.ymove,this.state.zmove,
             this.state.xrotate,this.state.yrotate,this.state.zrotate,moverotate,
@@ -176,14 +182,14 @@ class DistanceCalculator extends Component {
                                 <button value={"Move"}  
                                 onClick={() =>{ this.getTransformation(MOVEONLY);													
                                             }} type='button'>
-                                    Move <br></br> And<br></br> Find <br></br> Minimum <br></br> Distance
+                                    Move <br></br> And<br></br> Find <br></br> Minimum <br></br> Distance <br></br>And <br></br> Relation
                                 </button>
                             </td>
                             <td>
                                 <button value={"Rotate"}  
                                 onClick={() =>{ this.getTransformation(ROTATEONLY);													
                                             }} type='button'>
-                                    Rotate <br></br> And <br></br>Find<br></br> Minimum<br></br> Distance
+                                    Rotate <br></br> And <br></br>Find<br></br> Minimum<br></br> Distance <br></br>And <br></br> Relation
                                 </button>
                             </td>
                             </>

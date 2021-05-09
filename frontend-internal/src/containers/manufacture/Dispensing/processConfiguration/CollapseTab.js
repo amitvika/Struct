@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState} from 'react';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Collapse from '@material-ui/core/Collapse';
@@ -10,22 +10,19 @@ import Checkbox from '@material-ui/core/Checkbox';
 
 
 
-export default function NestedList() {
-    const [currentTab, setCurrentTab] = React.useState(true);
-    const [state, setState] = React.useState({
-        SPOOLBASED: false,
-        STACKED: false,
-        GRID: false,
-        GRIDSTACKED: false,
-        BULKCONTAINER: false,
-        LIQUIDVAT: false,
-        PRESSUREVESSEL: false
-      });
-      const handleChange = (event) => {
-        setState(event.target.checked);   
-       };
+export default function NestedList({ itemValue, setItemValue }) {
+    const [currentTab, setCurrentTab] = useState(true);
 
-    // const { SPOOLBASED, STACKED, GRID, GRIDSTACKED, BULKCONTAINER, LIQUIDVAT, PRESSUREVESSEL } = itemValue?.dispensing || {};
+    const { SPOOLBASED, STACKED, GRID, GRIDSTACKED, BULKCONTAINER, LIQUIDVAT, PRESSUREVESSEL } = itemValue?.dispensing || {};
+    const handleChange = (event) => {
+        setItemValue(prevValue => ({
+            ...prevValue,
+            dispensing: {
+                ...prevValue.dispensing,
+                [event.target.name]: event.target.checked
+            }
+        }));
+    };
 
     const handleListItem = (value) => {
         if (currentTab === value) {
@@ -37,9 +34,9 @@ export default function NestedList() {
         }
     }
    
-    const {SPOOLBASED, STACKED, GRID, GRIDSTACKED, BULKCONTAINER, LIQUIDVAT, PRESSUREVESSEL } = state;
+    // const {SPOOLBASED, STACKED, GRID, GRIDSTACKED, BULKCONTAINER, LIQUIDVAT, PRESSUREVESSEL } = state;
 
-    // const error = [SPOOLBASED, STACKED, GRID, GRIDSTACKED, BULKCONTAINER, LIQUIDVAT, PRESSUREVESSEL].filter((v) => v).length !== 2;
+    const error = [SPOOLBASED, STACKED, GRID, GRIDSTACKED, BULKCONTAINER, LIQUIDVAT, PRESSUREVESSEL].filter((v) => v).length !== 2;
     
     return (
         <List component="nav">

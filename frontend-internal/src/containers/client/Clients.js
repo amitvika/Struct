@@ -10,282 +10,293 @@ import GridView from '../../components/GridView';
 import Toolbar from '../../components/Toolbar';
 import DefaultContainer from '../../components/DefaultContainer'
 import { columnsFields } from '../../constants/client'
-
+import AddEditModal from './AddEditModal';
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
 const Client = () => {
-	let history = useHistory();
-	const dispatch = useDispatch();
+    let history = useHistory();
+    const dispatch = useDispatch();
 
-	const { isAuthenticated, user } = useSelector(state => state.auth);
+    const { isAuthenticated, user } = useSelector(state => state.auth);
 
-	const [clientList, setClientList] = useState([]);
-	const [filteredClientList, setFilteredClientList] = useState([]);
+    const [clientList, setClientList] = useState([]);
+    const [filteredClientList, setFilteredClientList] = useState([]);
 
-	const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-	const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
-	const [selectedClientId, setSelectedClientId] = useState('');
-	const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
-	const [isGridViewSelected, setIsGridViewSelected] = useState(true);
+    const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
+    const [selectedClientId, setSelectedClientId] = useState('');
+    const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
+    const [isGridViewSelected, setIsGridViewSelected] = useState(true);
+    const [isAddEditClientModalOpened, setIsAddEditClientModalOpened] = useState(false);
 
-	const [columns, setColumns] = useState([
-		{ title: "ID", field: "id", editable: "never", align: 'center' },
-		{ title: "Name", field: "name" },
-		{
-			title: "Created By",
-			field: "created_by",
-			editable: "never"
-		},
-		{
-			title: 'History',
-			field: "id",
-			editable: "never",
-			render: rowData => rowData && <span style={{ cursor: 'pointer' }}
-				onClick={(event) => {
-					event.stopPropagation();
-					handleHistoryToggle({ rowId: rowData.id })
-				}}> Show History </span>
-		},
-	])
+    const [columns, setColumns] = useState([
+        { title: "ID", field: "id", editable: "never", align: 'center' },
+        { title: "Name", field: "name" },
+        {
+            title: "Created By",
+            field: "created_by",
+            editable: "never"
+        },
+        {
+            title: 'History',
+            field: "id",
+            editable: "never",
+            render: rowData => rowData && <span style={{ cursor: 'pointer' }}
+                onClick={(event) => {
+                    event.stopPropagation();
+                    handleHistoryToggle({ rowId: rowData.id })
+                }}> Show History </span>
+        },
+    ])
 
-	useEffect(() => {
-		fetchClientList();
-	}, []);
+    useEffect(() => {
+        fetchClientList();
+    }, []);
 
-	const fetchClientList = async () => {
-		try {
-			setIsLoading(true);
+    const fetchClientList = async () => {
+        try {
+            setIsLoading(true);
 
-			const clientRes = await API.fetchClientsApi();
+            const clientRes = await API.fetchClientsApi();
 
-			if (clientRes && clientRes.data) {
-				const clients = clientRes.data.map((x, index) => {
-					return {
-						id: x._id,
-						name: x.name,
-						created_by: x.createdByUserId.name,
-						deleted_at: x.deletedAt,
-						logoUrl: x.logoUrl
-					}
-				})
-				setClientList(clients)
-				setFilteredClientList(clients)
-			}
-			setIsLoading(false);
+            if (clientRes && clientRes.data) {
+                const clients = clientRes.data.map((x, index) => {
+                    return {
+                        id: x._id,
+                        name: x.name,
+                        created_by: x.createdByUserId.name,
+                        deleted_at: x.deletedAt,
+                        logoUrl: x.logoUrl
+                    }
+                })
+                setClientList(clients)
+                setFilteredClientList(clients)
+            }
+            setIsLoading(false);
 
-		} catch (error) {
-			dispatch(showErrorAlert({ message: 'Unable to fetch clients' }));
-		}
-	};
-
-
-	const handleShowDelete = () => {
-		// const columns = this.state.columns;
-		// if (!this.state.isDeletedItemVisible) {
-		//   columns.push({ title: "Deleted At", field: "deleted_at" });
-		// } else {
-		//   columns.pop();
-		// }
-		// this.setState(
-		//   state => ({
-		//     isDeletedItemVisible: !state.isDeletedItemVisible
-		//   }),
-		// () => this.retrieveFromDb()
-		// );
-	};
-
-	const handleHistoryToggle = ({ rowId }) => {
-		setIsHistoryModalOpened(!isHistoryModalOpened);
-		setSelectedClientId(rowId)
-	}
+        } catch (error) {
+            dispatch(showErrorAlert({ message: 'Unable to fetch clients' }));
+        }
+    };
 
 
-	const handleSearchBar = (searchText, searchLabel) => {
-		console.log(searchText, searchLabel)
-		// const searchText = event.target.value;
-		if (searchText.length == 0) {
-			setFilteredClientList(clientList);
-		}
-		else {
-			setFilteredClientList(clientList.filter(product => {
-				const label = product[searchLabel]
-				if (label.includes(searchText)) {
-					return true;
-				}
-				else {
-					return false;
-				}
-			}))
-		}
-	}
+    const handleShowDelete = () => {
+        // const columns = this.state.columns;
+        // if (!this.state.isDeletedItemVisible) {
+        //   columns.push({ title: "Deleted At", field: "deleted_at" });
+        // } else {
+        //   columns.pop();
+        // }
+        // this.setState(
+        //   state => ({
+        //     isDeletedItemVisible: !state.isDeletedItemVisible
+        //   }),
+        // () => this.retrieveFromDb()
+        // );
+    };
+
+    const handleHistoryToggle = ({ rowId }) => {
+        setIsHistoryModalOpened(!isHistoryModalOpened);
+        setSelectedClientId(rowId)
+    }
 
 
-	const addClient = (newData) => {
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				{
-					const newClient = {
-						name: newData.name,
-						user: isAuthenticated
-							? user._id
-							: "Guest"
-					}; //
+    const handleSearchBar = (searchText, searchLabel) => {
+        console.log(searchText, searchLabel)
+        // const searchText = event.target.value;
+        if (searchText.length == 0) {
+            setFilteredClientList(clientList);
+        }
+        else {
+            setFilteredClientList(clientList.filter(product => {
+                const label = product[searchLabel]
+                if (label.includes(searchText)) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }))
+        }
+    }
 
-					API.addClientApi(newClient)
-						.then(res => {
-							if (res.data) {
-								dispatch(showSuccessAlert({ message: 'New client added' }));
 
-								const updatedClientList = [
-									{ ...res.data, id: res.data._id },
-									...clientList
-								];
-								setClientList(updatedClientList);
-								const updatedFilteredList = [
-									{ ...res.data, id: res.data._id },
-									...filteredClientList
-								];
-								setFilteredClientList(updatedFilteredList)
+    const addClient = (newData) => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                {
+                    const newClient = {
+                        name: newData.name,
+                        user: isAuthenticated
+                            ? user._id
+                            : "Guest"
+                    }; //
 
-							}
-						})
-						.catch(err => {
-							dispatch(showErrorAlert({ message: 'Unable to add client' }));
-						});
+                    API.addClientApi(newClient)
+                        .then(res => {
+                            if (res.data) {
+                                dispatch(showSuccessAlert({ message: 'New client added' }));
 
-				}
-				resolve();
-			}, 10);
-		})
-	}
+                                const updatedClientList = [
+                                    { ...res.data, id: res.data._id },
+                                    ...clientList
+                                ];
+                                setClientList(updatedClientList);
+                                const updatedFilteredList = [
+                                    { ...res.data, id: res.data._id, created_by: res.data.createdByUserId.name },
+                                    ...filteredClientList
+                                ];
+                                setFilteredClientList(updatedFilteredList)
 
-	const updateClient = (newData, oldData) => {
-		return new Promise((resolve, reject) => {
+                            }
+                        })
+                        .catch(err => {
+                            dispatch(showErrorAlert({ message: 'Unable to add client' }));
+                        });
 
-			const data = {
-				name: newData.name,
-				user: user._id
-			}
+                }
+                resolve();
+            }, 10);
+        })
+    }
 
-			API.updateClientApi(newData.id, data)
-				.then(res => {
-					if (res.data) {
-						dispatch(showSuccessAlert({ message: 'Client updated successfully' }));
+    const updateClient = (newData, oldData) => {
+        return new Promise((resolve, reject) => {
 
-						const updatedClientList = clientList.map(client => {
-							if (client.id === newData.id) {
-								return { ...res.data, id: res.data._id }
-							}
-							else {
-								return client
-							}
-						});
+            const data = {
+                name: newData.name,
+                user: user._id
+            }
 
-						setClientList(updatedClientList);
+            API.updateClientApi(newData.id, data)
+                .then(res => {
+                    if (res.data) {
+                        dispatch(showSuccessAlert({ message: 'Client updated successfully' }));
 
-						const updatedFilteredList = filteredClientList.map(client => {
-							if (client.id === newData.id) {
-								return { ...res.data, id: res.data._id }
-							}
-							else {
-								return client
-							}
-						})
-						setFilteredClientList(updatedFilteredList)
+                        const updatedClientList = clientList.map(client => {
+                            if (client.id === newData.id) {
+                                return { ...res.data, id: res.data._id }
+                            }
+                            else {
+                                return client
+                            }
+                        });
 
-					}
+                        setClientList(updatedClientList);
 
-				})
-				.catch(err => {
-					dispatch(showErrorAlert({ message: 'Unable to update client' }));
-				});
+                        const updatedFilteredList = filteredClientList.map(client => {
+                            if (client.id === newData.id) {
+                                return { ...res.data, id: res.data._id, created_by: res.data.createdByUserId.name }
+                            }
+                            else {
+                                return client
+                            }
+                        })
+                        setFilteredClientList(updatedFilteredList)
 
-			resolve();
-		})
-	}
+                    }
 
-	const deleteClient = (oldData) => {
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				{
-					API.deleteClientApi(oldData.id)
-						.then(res => {
-							const updatedClientList = clientList.filter(client => client.id != oldData.id);
-							setClientList(updatedClientList)
+                })
+                .catch(err => {
+                    dispatch(showErrorAlert({ message: 'Unable to update client' }));
+                });
 
-							const updatedFilteredClientList = filteredClientList.filter(client => client.id != oldData.id);
-							setFilteredClientList(updatedFilteredClientList)
+            resolve();
+        })
+    }
 
-							dispatch(showSuccessAlert({ message: 'Client removed successfully' }));
-						})
-						.catch(err => {
-							dispatch(showErrorAlert({ message: 'Unable to delete client' }));
-						});
-				}
-				resolve();
-			}, 1000);
-		})
-	}
+    const deleteClient = (oldData) => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                {
+                    API.deleteClientApi(oldData.id)
+                        .then(res => {
+                            const updatedClientList = clientList.filter(client => client.id != oldData.id);
+                            setClientList(updatedClientList)
 
-	const handleTableRowClick = (event) => history.push(`/clients/${event.id}`)
+                            const updatedFilteredClientList = filteredClientList.filter(client => client.id != oldData.id);
+                            setFilteredClientList(updatedFilteredClientList)
 
-	if (isLoading) {
-		return (<div
-			style={{
-				display: "flex",
-				justifyContent: "center"
-			}}
-		>
-			<Spinner animation="border" />
-		</div>)
-	}
+                            dispatch(showSuccessAlert({ message: 'Client removed successfully' }));
+                        })
+                        .catch(err => {
+                            dispatch(showErrorAlert({ message: 'Unable to delete client' }));
+                        });
+                }
+                resolve();
+            }, 1000);
+        })
+    }
 
-	return (
-		<DefaultContainer
-			isHistoryModalOpened={isHistoryModalOpened}
-			title={'Clients'}
-			selectedId={selectedClientId}
-			handleHistoryToggle={handleHistoryToggle}
-		>
+    const handleTableRowClick = (event) => history.push(`/clients/${event.id}`);
 
-			<Toolbar
-				title={'Clients'}
-				isGridViewSelected={isGridViewSelected}
-				setIsGridViewSelected={setIsGridViewSelected}
-				handleSearchBar={handleSearchBar}
-				isDeletedItemVisible={isDeletedItemVisible}
-				handleShowDelete={handleShowDelete}
-				isHistoryModalOpened={isHistoryModalOpened}
-				handleHistoryToggle={handleHistoryToggle}
-				list={clientList}
-				filteredList={filteredClientList}
-				setFilteredList={setFilteredClientList}
-				columnsFields={columnsFields}
-			/>
+    const toggleAddEditClientModal = () => {
+        setIsAddEditClientModalOpened(!isAddEditClientModalOpened)
+    }
 
-			{
-				isGridViewSelected ?
-					<GridView
-						list={filteredClientList}
-						handleHistoryToggle={handleHistoryToggle}
-						columnsFields={columnsFields}
-						handleTableRowClick={handleTableRowClick}
-					/> :
-					<TableView
-						list={filteredClientList}
-						handleAdd={addClient}
-						handleUpdate={updateClient}
-						handleDelete={deleteClient}
-						columns={columns}
-						setColumns={setColumns}
-						handleTableRowClick={handleTableRowClick}
-					/>
+    if (isLoading) {
+        return (<div
+            style={{
+                display: "flex",
+                justifyContent: "center"
+            }}
+        >
+            <Spinner animation="border" />
+        </div>)
+    }
 
-			}
-		</DefaultContainer >
-	);
+    return (
+        <DefaultContainer
+            isHistoryModalOpened={isHistoryModalOpened}
+            title={'Clients'}
+            selectedId={selectedClientId}
+            handleHistoryToggle={handleHistoryToggle}
+        >
+            <AddEditModal
+                isAddEditClientModalOpened={isAddEditClientModalOpened}
+                toggleAddEditClientModal={toggleAddEditClientModal} />
+
+
+            <Toolbar
+                title={'Clients'}
+                isGridViewSelected={isGridViewSelected}
+                setIsGridViewSelected={setIsGridViewSelected}
+                handleSearchBar={handleSearchBar}
+                isDeletedItemVisible={isDeletedItemVisible}
+                handleShowDelete={handleShowDelete}
+                isHistoryModalOpened={isHistoryModalOpened}
+                handleHistoryToggle={handleHistoryToggle}
+                list={clientList}
+                filteredList={filteredClientList}
+                setFilteredList={setFilteredClientList}
+                columnsFields={columnsFields}
+                isCustomAddButtonVisible={true}
+                handleAddButtonPress={toggleAddEditClientModal}
+            />
+
+            {
+                isGridViewSelected ?
+                    <GridView
+                        list={filteredClientList}
+                        handleHistoryToggle={handleHistoryToggle}
+                        columnsFields={columnsFields}
+                        handleTableRowClick={handleTableRowClick}
+                    /> :
+                    <TableView
+                        list={filteredClientList}
+                        handleAdd={addClient}
+                        handleUpdate={updateClient}
+                        handleDelete={deleteClient}
+                        columns={columns}
+                        setColumns={setColumns}
+                        handleTableRowClick={handleTableRowClick}
+                    />
+
+            }
+        </DefaultContainer >
+    );
 }
 
 export default Client;

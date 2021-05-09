@@ -10,8 +10,8 @@ import Icon from './Tree/Icon'
 
 //STYLES
 import coreTheme from './styles/theme'
-import { _TdTexture } from './Tree/utils'
-const _Tree = styled(motion.div)`
+//import { _TdTexture } from './Tree/utils'
+const MotionTree = styled(motion.div)`
   display: flex;
   flex-direction: column;
   ${props => (props.grow ? 'flex-grow: 1' : '')};
@@ -145,7 +145,7 @@ const DisplayTree = (props) => {
   return (
     <ThemeProvider theme={_theme}>
       
-      <_Tree
+      <MotionTree
         grow={grow}
         currentTheme={theme || 'dark'}
         size={size}
@@ -238,7 +238,7 @@ const DisplayTree = (props) => {
             )}
           </Loader>
         )}
-      </_Tree>
+      </MotionTree>
     </ThemeProvider>
   )
 }

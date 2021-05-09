@@ -1,18 +1,12 @@
-/* @flow */
-
 import React, { Component } from 'react';
 import Track from '../Track';
 import Handle from '../Handle';
 import styles from './styles';
 import {
   has,
-  stepValidator,
   getValueOrAlt,
 } from '../../utils/common';
-import {
-  valueValidator,
-  defaultValueValidator,
-} from '../../utils/slider';
+
 
 export default class Slider extends Component {
 
@@ -182,7 +176,7 @@ export default class Slider extends Component {
 
   _afterChange = (value) => {
     if (this.props.afterChange) {
-      myvalue = getValueOrAlt(value, this.state.value);
+      const myvalue = getValueOrAlt(value, this.state.value);
       if(myvalue) {
         this.props.afterChange(myvalue);
       }
@@ -253,6 +247,7 @@ export default class Slider extends Component {
         aria-valuemin={min}
         aria-valuemax={max}
         aria-valuetext={value}
+        aria-valuenow={value}
         aria-orientation={orientation}
         aria-disabled={disabled}
         aria-readonly={readOnly}

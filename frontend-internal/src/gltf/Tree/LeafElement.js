@@ -8,7 +8,7 @@ import { resourcePathURL } from '../../api/fileUpload.api';
 import Slider from "../Slider/components/Slider";
 import Select from "../DropDown";
 import {SELECTCOLOR, SELECTTEXTURE, SELECTMETAL, SELECTROUGH, SELECTOPAQUE, SELECTDISTANCE, SELECTSHOWINFO,
-          hexToRGB,rgbToHex,getTexture,prettyPrintArray,getFloat, } from "./utils";
+          hexToRGB,rgbToHex,getTexture,prettyPrintArray,getFloat } from "./utils";
 import DisplayStructure from '../DisplayStructure';
 
 const LeafElement = (props) => {
@@ -22,10 +22,7 @@ const LeafElement = (props) => {
     noIcons,
     textures,
     structure,
-    disectparts,
-    selectitems,
-    firstshell,
-    secondshell,
+    disectparts
   } = props
   
   

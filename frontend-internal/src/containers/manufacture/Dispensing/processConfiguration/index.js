@@ -10,19 +10,6 @@ import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 import { Paper, Grid, Button } from '@material-ui/core';
 import CollapseTab from './CollapseTab';
-
-
-
-
-const GreenCheckbox = withStyles({
-    root: {
-      color: green[400],
-      '&$checked': {
-        color: green[600],
-      },
-    },
-    checked: {},
-  })((props) => <Checkbox color="default" {...props} />);
   
 
 export default function ProcessConfiguration() {
@@ -32,7 +19,8 @@ export default function ProcessConfiguration() {
     // 'Pressure Vessel']   
  
   return (
-    <CollapseTab/>
+    <CollapseTab
+    />
 
   );
 }

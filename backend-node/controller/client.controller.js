@@ -79,7 +79,7 @@ exports.create = async (req, res) => {
 			throw { message: 'Unable to save client' }
 		}
 
-		newClient = newClient
+		newClient = await Client
 			.findById(newClient._id)
 			.populate("createdByUserId", "name")
 
@@ -93,7 +93,6 @@ exports.create = async (req, res) => {
 		});
 
 		await changeTracking.save();
-
 		res.json(newClient);
 	} catch (error) {
 		console.log(error)

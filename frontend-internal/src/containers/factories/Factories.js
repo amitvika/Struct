@@ -10,283 +10,294 @@ import GridView from '../../components/GridView';
 import Toolbar from '../../components/Toolbar';
 import DefaultContainer from '../../components/DefaultContainer'
 import { columnsFields } from '../../constants/client'
+import AddEditModal from './AddEditModal'
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
 const Factories = () => {
-	let history = useHistory();
-	const dispatch = useDispatch();
+    let history = useHistory();
+    const dispatch = useDispatch();
 
-	const { isAuthenticated, user } = useSelector(state => state.auth);
+    const { isAuthenticated, user } = useSelector(state => state.auth);
 
-	const [factoryList, setFactoryList] = useState([]);
-	const [filteredFactoryList, setFilteredFactoryList] = useState([]);
+    const [factoryList, setFactoryList] = useState([]);
+    const [filteredFactoryList, setFilteredFactoryList] = useState([]);
 
-	const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-	const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
-	const [selectedClientId, setSelectedClientId] = useState('');
-	const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
-	const [isGridViewSelected, setIsGridViewSelected] = useState(true);
+    const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
+    const [selectedClientId, setSelectedClientId] = useState('');
+    const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
+    const [isGridViewSelected, setIsGridViewSelected] = useState(true);
 
-	const [columns, setColumns] = useState([
-		{ title: "ID", field: "id", editable: "never", align: 'center' },
-		{ title: "Name", field: "name" },
-		{
-			title: 'History',
-			field: "id",
-			editable: "never",
-			render: rowData => rowData && <span style={{ cursor: 'pointer' }}
-				onClick={(event) => {
-					event.stopPropagation();
-					handleHistoryToggle({ rowId: rowData.id })
-				}}> Show History </span>
-		},
-	])
+    const [isAddEditFactoryModalOpened, setIsAddEditFactoryModalOpened] = useState(false);
 
-	useEffect(() => {
-		fetchFactoryList();
-	}, []);
+    const [columns, setColumns] = useState([
+        { title: "ID", field: "id", editable: "never", align: 'center' },
+        { title: "Name", field: "name" },
+        {
+            title: 'History',
+            field: "id",
+            editable: "never",
+            render: rowData => rowData && <span style={{ cursor: 'pointer' }}
+                onClick={(event) => {
+                    event.stopPropagation();
+                    handleHistoryToggle({ rowId: rowData.id })
+                }}> Show History </span>
+        },
+    ])
 
-	const fetchFactoryList = async () => {
-		try {
-			setIsLoading(true);
+    useEffect(() => {
+        fetchFactoryList();
+    }, []);
 
-			const factoriesRes = await FactoriesAPI.fetchFactories()
+    const fetchFactoryList = async () => {
+        try {
+            setIsLoading(true);
 
-			if (factoriesRes && factoriesRes.data) {
-				const clients = factoriesRes.data.map((x, index) => {
-					return {
-						id: x._id,
-						name: x.name,
-						created_by: x.author?.name,
-					}
-				})
-				setFactoryList(clients)
-				setFilteredFactoryList(clients)
-			}
-			setIsLoading(false);
+            const factoriesRes = await FactoriesAPI.fetchFactories()
 
-		} catch (error) {
-			console.log('Error', error)
-			setIsLoading(false);
-			dispatch(showErrorAlert({ message: 'Unable to fetch factories' }));
-		}
-	};
+            if (factoriesRes && factoriesRes.data) {
+                const clients = factoriesRes.data.map((x, index) => {
+                    return {
+                        id: x._id,
+                        name: x.name,
+                        created_by: x.author?.name,
+                    }
+                })
+                setFactoryList(clients)
+                setFilteredFactoryList(clients)
+            }
+            setIsLoading(false);
 
-
-	const handleShowDelete = () => {
-		// const columns = this.state.columns;
-		// if (!this.state.isDeletedItemVisible) {
-		//   columns.push({ title: "Deleted At", field: "deleted_at" });
-		// } else {
-		//   columns.pop();
-		// }
-		// this.setState(
-		//   state => ({
-		//     isDeletedItemVisible: !state.isDeletedItemVisible
-		//   }),
-		// () => this.retrieveFromDb()
-		// );
-	};
-
-	const handleHistoryToggle = ({ rowId }) => {
-		setIsHistoryModalOpened(!isHistoryModalOpened);
-		setSelectedClientId(rowId)
-	}
+        } catch (error) {
+            console.log('Error', error)
+            setIsLoading(false);
+            dispatch(showErrorAlert({ message: 'Unable to fetch factories' }));
+        }
+    };
 
 
-	const handleSearchBar = (searchText, searchLabel) => {
-		console.log(searchText, searchLabel)
-		// const searchText = event.target.value;
-		if (searchText.length == 0) {
-			setFilteredFactoryList(factoryList);
-		}
-		else {
-			setFilteredFactoryList(factoryList.filter(product => {
-				const label = product[searchLabel]
-				if (label.includes(searchText)) {
-					return true;
-				}
-				else {
-					return false;
-				}
-			}))
-		}
-	}
+    const handleShowDelete = () => {
+        // const columns = this.state.columns;
+        // if (!this.state.isDeletedItemVisible) {
+        //   columns.push({ title: "Deleted At", field: "deleted_at" });
+        // } else {
+        //   columns.pop();
+        // }
+        // this.setState(
+        //   state => ({
+        //     isDeletedItemVisible: !state.isDeletedItemVisible
+        //   }),
+        // () => this.retrieveFromDb()
+        // );
+    };
+
+    const handleHistoryToggle = ({ rowId }) => {
+        setIsHistoryModalOpened(!isHistoryModalOpened);
+        setSelectedClientId(rowId)
+    }
+    const toggleAddEditFactoryModal = () => {
+        setIsAddEditFactoryModalOpened(!isAddEditFactoryModalOpened)
+    }
+
+    const handleSearchBar = (searchText, searchLabel) => {
+        console.log(searchText, searchLabel)
+        // const searchText = event.target.value;
+        if (searchText.length == 0) {
+            setFilteredFactoryList(factoryList);
+        }
+        else {
+            setFilteredFactoryList(factoryList.filter(product => {
+                const label = product[searchLabel]
+                if (label.includes(searchText)) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }))
+        }
+    }
 
 
-	const addFactory = (newData) => {
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				{
-					const data = {
-						name: newData.name,
-						author: isAuthenticated
-							? user._id
-							: "Guest"
-					}; //
+    const addFactory = (newData) => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                {
+                    const data = {
+                        name: newData.name,
+                        author: isAuthenticated
+                            ? user._id
+                            : "Guest"
+                    }; //
 
-					FactoriesAPI.upsertFactoryApi(data)
-						.then(res => {
-							if (res.data) {
-								dispatch(showSuccessAlert({ message: 'New factories added' }));
+                    FactoriesAPI.upsertFactoryApi(data)
+                        .then(res => {
+                            if (res.data) {
+                                dispatch(showSuccessAlert({ message: 'New factories added' }));
 
-								const updatedFactoryList = [
-									{ ...res.data, id: res.data._id },
-									...factoryList
-								];
-								setFactoryList(updatedFactoryList);
-								const updatedFilteredList = [
-									{ ...res.data, id: res.data._id },
-									...filteredFactoryList
-								];
-								setFilteredFactoryList(updatedFilteredList)
+                                const updatedFactoryList = [
+                                    { ...res.data, id: res.data._id },
+                                    ...factoryList
+                                ];
+                                setFactoryList(updatedFactoryList);
+                                const updatedFilteredList = [
+                                    { ...res.data, id: res.data._id },
+                                    ...filteredFactoryList
+                                ];
+                                setFilteredFactoryList(updatedFilteredList)
 
-							}
-						})
-						.catch(err => {
-							dispatch(showErrorAlert({ message: 'Unable to add factories' }));
-						});
+                            }
+                        })
+                        .catch(err => {
+                            dispatch(showErrorAlert({ message: 'Unable to add factories' }));
+                        });
 
-				}
-				resolve();
-			}, 10);
-		})
-	}
+                }
+                resolve();
+            }, 10);
+        })
+    }
 
-	const updateFactory = (newData, oldData) => {
+    const updateFactory = (newData, oldData) => {
 
-		return new Promise((resolve, reject) => {
-			console.log("edit button")
-			const data = {
-				name: newData.name,
-				user: user._id
-			}
-			try {
-				FactoriesAPI.upsertFactoryApi(newData.id, data)
-					.then(res => {
-						if (res.data) {
-							dispatch(showSuccessAlert({ message: 'factories updated successfully' }));
+        return new Promise((resolve, reject) => {
+            console.log("edit button")
+            const data = {
+                id: newData.id,
+                name: newData.name,
+                user: user._id
+            }
+            try {
+                FactoriesAPI.upsertFactoryApi(data)
+                    .then(res => {
+                        if (res.data) {
+                            dispatch(showSuccessAlert({ message: 'factories updated successfully' }));
 
-							const updatedFactoryList = factoryList.map(client => {
-								if (client.id === newData.id) {
-									return { ...res.data, id: res.data._id }
-								}
-								else {
-									return client
-								}
-							});
+                            const updatedFactoryList = factoryList.map(client => {
+                                if (client.id === newData.id) {
+                                    return { ...res.data, id: res.data._id }
+                                }
+                                else {
+                                    return client
+                                }
+                            });
 
-							setFactoryList(updatedFactoryList);
+                            setFactoryList(updatedFactoryList);
 
-							const updatedFilteredList = filteredFactoryList.map(client => {
-								if (client.id === newData.id) {
-									return { ...res.data, id: res.data._id }
-								}
-								else {
-									return client
-								}
-							})
-							setFilteredFactoryList(updatedFilteredList)
+                            const updatedFilteredList = filteredFactoryList.map(client => {
+                                if (client.id === newData.id) {
+                                    return { ...res.data, id: res.data._id }
+                                }
+                                else {
+                                    return client
+                                }
+                            })
+                            setFilteredFactoryList(updatedFilteredList)
 
-						}
+                        }
 
-					})
-					.catch(err => {
-						dispatch(showErrorAlert({ message: 'Unable to update factories' }));
-					});
+                    })
+                    .catch(err => {
+                        dispatch(showErrorAlert({ message: 'Unable to update factories' }));
+                    });
 
-				resolve();
+                resolve();
 
-			} catch (error) {
-				console.log('Error', error)
-				reject(error)
-			}
-		})
-	}
+            } catch (error) {
+                console.log('Error', error)
+                reject(error)
+            }
+        })
+    }
 
-	const deleteClient = (oldData) => {
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				{
-					FactoriesAPI.deleteClientApi(oldData.id)
-						.then(res => {
-							const updatedFactoryList = factoryList.filter(client => client.id != oldData.id);
-							setFactoryList(updatedFactoryList)
+    const deleteClient = (oldData) => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                {
+                    FactoriesAPI.deleteClientApi(oldData.id)
+                        .then(res => {
+                            const updatedFactoryList = factoryList.filter(client => client.id != oldData.id);
+                            setFactoryList(updatedFactoryList)
 
-							const updatedFilteredFactoryList = filteredFactoryList.filter(client => client.id != oldData.id);
-							setFilteredFactoryList(updatedFilteredFactoryList)
+                            const updatedFilteredFactoryList = filteredFactoryList.filter(client => client.id != oldData.id);
+                            setFilteredFactoryList(updatedFilteredFactoryList)
 
-							dispatch(showSuccessAlert({ message: 'Factories removed successfully' }));
-						})
-						.catch(err => {
-							dispatch(showErrorAlert({ message: 'Unable to delete factories' }));
-						});
-				}
-				resolve();
-			}, 1000);
-		})
-	}
+                            dispatch(showSuccessAlert({ message: 'Factories removed successfully' }));
+                        })
+                        .catch(err => {
+                            dispatch(showErrorAlert({ message: 'Unable to delete factories' }));
+                        });
+                }
+                resolve();
+            }, 1000);
+        })
+    }
 
-	const handleTableRowClick = (event) => history.push(`/factories/${event.id}`)
+    const handleTableRowClick = (event) => history.push(`/factories/${event.id}`)
 
-	if (isLoading) {
-		return (<div
-			style={{
-				display: "flex",
-				justifyContent: "center"
-			}}
-		>
-			<Spinner animation="border" />
-		</div>)
-	}
+    if (isLoading) {
+        return (<div
+            style={{
+                display: "flex",
+                justifyContent: "center"
+            }}
+        >
+            <Spinner animation="border" />
+        </div>)
+    }
 
-	return (
-		<DefaultContainer
-			isHistoryModalOpened={isHistoryModalOpened}
-			title={'Factories'}
-			selectedId={selectedClientId}
-			handleHistoryToggle={handleHistoryToggle}
-		>
+    return (
+        <DefaultContainer
+            isHistoryModalOpened={isHistoryModalOpened}
+            title={'Factories'}
+            selectedId={selectedClientId}
+            handleHistoryToggle={handleHistoryToggle}
+        >
+            <AddEditModal
+                isAddEditFactoryModalOpened={isAddEditFactoryModalOpened}
+                toggleAddEditFactoryModal={toggleAddEditFactoryModal} />
 
-			<Toolbar
-				title={'Factories'}
-				isGridViewSelected={isGridViewSelected}
-				setIsGridViewSelected={setIsGridViewSelected}
-				handleSearchBar={handleSearchBar}
-				isDeletedItemVisible={isDeletedItemVisible}
-				handleShowDelete={handleShowDelete}
-				isHistoryModalOpened={isHistoryModalOpened}
-				handleHistoryToggle={handleHistoryToggle}
-				list={factoryList}
-				filteredList={filteredFactoryList}
-				setFilteredList={setFilteredFactoryList}
-				columnsFields={columnsFields}
-			/>
+            <Toolbar
+                title={'Factories'}
+                isGridViewSelected={isGridViewSelected}
+                setIsGridViewSelected={setIsGridViewSelected}
+                handleSearchBar={handleSearchBar}
+                isDeletedItemVisible={isDeletedItemVisible}
+                handleShowDelete={handleShowDelete}
+                isHistoryModalOpened={isHistoryModalOpened}
+                handleHistoryToggle={handleHistoryToggle}
+                list={factoryList}
+                filteredList={filteredFactoryList}
+                setFilteredList={setFilteredFactoryList}
+                columnsFields={columnsFields}
+                isCustomAddButtonVisible={true}
+                handleAddButtonPress={toggleAddEditFactoryModal}
+            />
 
-			{
-				isGridViewSelected ?
-					<GridView
-						list={filteredFactoryList}
-						handleHistoryToggle={handleHistoryToggle}
-						columnsFields={columnsFields}
-						handleTableRowClick={handleTableRowClick}
-					/> :
-					<TableView
-						list={filteredFactoryList}
-						handleAdd={addFactory}
-						handleUpdate={updateFactory}
-						handleDelete={deleteClient}
-						columns={columns}
-						setColumns={setColumns}
-						handleTableRowClick={handleTableRowClick}
-					/>
+            {
+                isGridViewSelected ?
+                    <GridView
+                        list={filteredFactoryList}
+                        handleHistoryToggle={handleHistoryToggle}
+                        columnsFields={columnsFields}
+                        handleTableRowClick={handleTableRowClick}
+                    /> :
+                    <TableView
+                        list={filteredFactoryList}
+                        handleAdd={addFactory}
+                        handleUpdate={updateFactory}
+                        handleDelete={deleteClient}
+                        columns={columns}
+                        setColumns={setColumns}
+                        handleTableRowClick={handleTableRowClick}
+                    />
 
-			}
-		</DefaultContainer >
-	);
+            }
+        </DefaultContainer >
+    );
 }
 
 export default Factories;

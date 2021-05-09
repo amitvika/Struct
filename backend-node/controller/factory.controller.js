@@ -43,7 +43,8 @@ exports.upsert = async (req, res) => {
         }
         else {
             const factoryModel = FactoryModel(req.body)
-            factory = await factoryModel.save()
+            factory = await factoryModel.save();
+            console.log(factory)
         }
 
         if (!factory) {
@@ -51,7 +52,7 @@ exports.upsert = async (req, res) => {
         }
 
         factory = await FactoryModel
-            .findById(id)
+            .findById(factory._id)
             .populate("author", "name")
 
         const changeTracking = new ChangeTracking({

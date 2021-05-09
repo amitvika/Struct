@@ -16,7 +16,8 @@ export default function ProductionApprovalModal({
     const onChange = (event) => {
         setSelectedValue(prev => ({ ...prev, isApprovedforProduction: event.target.checked }))
     }
-    const initialDate = new Date();
+    const today = new Date(),
+        dateCompo = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
 
     return (
         <MainModal open={isModalOpened} toggleModal={toggleModal} >
@@ -55,21 +56,21 @@ export default function ProductionApprovalModal({
                     <Grid item xs={4}>
                         Approved for Production
                     </Grid>
-                    <Grid item xs={8}>
-                        <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-                            onChange={onChange}
-                            checked={selectedValue.isApprovedforProduction} />
+                    <Grid xs={3}>
+                        <Grid>
+                            <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
+                                onChange={onChange}
+                                checked={selectedValue.isApprovedforProduction} />
+                        </Grid>
+                        {selectedValue.isApprovedforProduction &&
+                            <>
+                                <Grid item xs={8}><span>{dateCompo}</span></Grid>
+                                {/* <Grid item xs={4} /> */}
+                                {/* <Grid item xs={8}>{selectedValue.productionApprovedBy.name} has approved for production at </Grid> */}
+                            </>
+
+                        }
                     </Grid>
-                    {selectedValue.isApprovedforProduction &&
-                        <>
-                        
-
-                            {/* <Grid item xs={4} /> */}
-                            {/* <Grid item xs={8}>{selectedValue.productionApprovedBy.name} has approved for production at </Grid> */}
-                        </>
-
-                    }
-
                     <Grid item xs={12} style={{ textAlign: 'center' }}>
                         <Button
                             style={{ marginTop: '20px' }}

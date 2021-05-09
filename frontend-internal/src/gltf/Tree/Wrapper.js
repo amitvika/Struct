@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 
 
 
-const _Wrapper = styled(motion.div)`
+const MotionWrapper = styled(motion.div)`
   padding-left: calc(${props => `20px * ${props.level}`});
   min-height: 20px;
   display: flex;
@@ -14,7 +14,7 @@ const _Wrapper = styled(motion.div)`
 
 const Wrapper = (props) => {
   const { level, children } = props
-  return <_Wrapper level={level}>{children}</_Wrapper>
+  return <MotionWrapper level={level}>{children}</MotionWrapper>
 }
 
 Wrapper.defaultProps = {
