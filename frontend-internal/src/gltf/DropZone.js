@@ -353,7 +353,7 @@ class DropZone extends Component {
 					});
 				}
 				const myAllChilds = this.findMyParentChilds(data);
-				//console.log(myAllChilds);
+				console.log(myAllChilds);
 				myAllChilds.forEach(elementdata => {
 					elementdata.selectedshell = data.selectedshell;
 					if (toAdd) {

@@ -61,24 +61,10 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
 
       })
       .catch(err => {
-        console.log('Error -->> ', err)
         dispatch(showErrorAlert({ message: 'Unable to upload file at the moment' }));
         setIsLoading(false);
-      })
-
-    // ProcessGroupAPI
-    //   .uploadStepfile(data)
-    //   .then(res => {
-    //     setIsLoading(false);
-    //     if (res.data) {
-    //       setIsStepLoaded(true);
-    //       setThreejsObject(res.data)
-    //     }
-    //   })
-    //   .catch(error => {
-    // console.log('----->>>>', error)
+      });
     setIsLoading(false);
-    // })
   }
 
   const getView = (fileId) => {

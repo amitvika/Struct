@@ -83,7 +83,7 @@ const ItemDetail = () => {
                     setItemProperties={setItemProperties}
                     gltfjson={gltfjson} setgltfjson={setgltfjson} />;
             case 2:
-                return <GeometricDimensioning gltfjson={gltfjson} />
+                return <GeometricDimensioning fileId={itemProperties.fileId} />
             case 3:
                 return <CurrentUsage itemId={id} />
             case 4:
@@ -91,9 +91,9 @@ const ItemDetail = () => {
             case 5:
                 return <VendorDetails />
             case 6:
-                return <Manufacturing 
-                itemValue={itemProperties}
-                setItemValue={setItemProperties}/>;
+                return <Manufacturing
+                    itemValue={itemProperties}
+                    setItemValue={setItemProperties} />;
             case 7:
                 return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
             case 8:
@@ -177,9 +177,9 @@ const ItemDetail = () => {
                             }
 
                             {/* { */}
-								// itemProperties?.itemGeometry?.itemType &&
-								<Tab label="GD&T and Assembly Constraints" value={2} />
-                                <Tab label="Surface Finish and Treatment" value={10} />
+                            {/* itemProperties?.itemGeometry?.itemType && */}
+                            <Tab label="GD&T and Assembly Constraints" value={2} />
+                            <Tab label="Surface Finish and Treatment" value={10} />
 
                             {/* } */}
 
