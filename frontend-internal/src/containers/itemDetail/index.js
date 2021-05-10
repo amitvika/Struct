@@ -12,7 +12,7 @@ import {
     CircularProgress
 } from "@material-ui/core";
 import { NavLink, useParams, useHistory } from "react-router-dom";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import BaseItemProperties from './baseItemProperties';
 import GeometricDimensioning from './geometricDimensioning';
@@ -38,6 +38,8 @@ const ItemDetail = () => {
     let { id } = useParams();
     let query = useQuery();
 
+    const currentItem = useSelector(state => state.item.currentItem);
+    const [dispensing, setDispensing] = useState({});
     const [tabIndex, setTabIndex] = useState(1);
     const [itemProperties, setItemProperties] = useState({});
     const [isLoading, setIsLoading] = useState(true);
@@ -52,10 +54,10 @@ const ItemDetail = () => {
             setIsLoading(true);
             const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
 
-            const currentItem = get(itemDetailResponse, 'data[0]', {});
-            setItemProperties(currentItem);
+            const _currentItem = get(itemDetailResponse, 'data[0]', {});
+            // setItemProperties(_currentItem);
 
-            dispatch(setCurrentItemAction(currentItem));
+            dispatch(setCurrentItemAction(_currentItem));
 
             const tempGLTFJSon = get(itemDetailResponse, 'data[0].gltfjson', {});
 
@@ -67,6 +69,12 @@ const ItemDetail = () => {
             setIsLoading(false);
         })()
     }, []);
+
+    useEffect(() =>{
+        if(currentItem){
+            setItemProperties(currentItem);
+        }
+    },[currentItem])
 
     const renderPageSwitch = () => {
         if (!get(itemProperties, '_id')) {
@@ -92,8 +100,7 @@ const ItemDetail = () => {
                 return <VendorDetails />
             case 6:
                 return <Manufacturing
-                    itemValue={itemProperties}
-                    setItemValue={setItemProperties} />;
+                />;
             case 7:
                 return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
             case 8:

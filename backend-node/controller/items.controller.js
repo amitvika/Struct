@@ -222,6 +222,12 @@ exports.update = async (req, res) => {
         if(body.dispensing) {
             updateData.dispensing = body.dispensing;
         }
+        if(body.fullProcess) {
+            updateData.fullProcess = body.fullProcess;
+        }
+        if(body.storage) {
+            updateData.storage = body.storage;
+        }
 
 		const updatedItem = await ItemModel.findByIdAndUpdate(req.params.id, updateData, { new: true })
 
