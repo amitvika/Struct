@@ -10,7 +10,7 @@ import GridView from '../../components/GridView';
 import Toolbar from '../../components/Toolbar';
 import DefaultContainer from '../../components/DefaultContainer'
 import { columnsFields } from '../../constants/client'
-import AddEditModal from './AddEditModal';
+import AddEditClientModal from './AddEditClientModal';
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
@@ -254,13 +254,14 @@ const Client = () => {
             selectedId={selectedClientId}
             handleHistoryToggle={handleHistoryToggle}
         >
-            <AddEditModal
+            <AddEditClientModal
                 isAddEditClientModalOpened={isAddEditClientModalOpened}
                 toggleAddEditClientModal={toggleAddEditClientModal} />
 
 
             <Toolbar
                 title={'Clients'}
+                
                 isGridViewSelected={isGridViewSelected}
                 setIsGridViewSelected={setIsGridViewSelected}
                 handleSearchBar={handleSearchBar}

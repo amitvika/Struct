@@ -100,7 +100,7 @@ const ItemDetail = () => {
                 return <VendorDetails />
             case 6:
                 return <Manufacturing
-                />;
+ />;
             case 7:
                 return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
             case 8:
