@@ -23,6 +23,8 @@ export default function Toolbar({
 	handleShowDelete,
 	isHistoryModalOpened,
 	handleHistoryToggle,
+    isAddEditLinkVisible,
+    handleAddEditToggle,
 	isDeleteCheckboxVisible = true,
 	isHistoryCheckboxVisible = true,
 	isCustomAddButtonVisible = false,

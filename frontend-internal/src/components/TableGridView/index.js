@@ -19,7 +19,8 @@ const TableGridView = ({
 	ManageTeamModal,
 	AddUpdateModal = CommonAddUpdateModal,
 	isManageTeamAvailable = false,
-	isCustomAddButtonVisible = true
+	isCustomAddButtonVisible = true,
+    isAddEditLinkVisible = true
 }) => {
 	const dispatch = useDispatch();
 
@@ -240,6 +241,7 @@ const TableGridView = ({
 				setFilteredList={setFilteredList}
 				columnsFields={fields}
 				isCustomAddButtonVisible={isCustomAddButtonVisible}
+                isAddEditLinkVisible={isAddEditLinkVisible}
 				handleAddButtonPress={handleToggleModal}
 			/>
 

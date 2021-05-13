@@ -192,9 +192,11 @@ export default function SelectorView({
                         <GridView
                             list={filteredSelectedItemList}
                             handleHistoryToggle={() => false}
+                            handleAddEditToggle={() => false}
                             columnsFields={fields}
                             handleTableRowClick={handleItemRemove}
                             isHistoryLinkVisible={false}
+                            isAddEditLinkVisible={false}
                             isInsideDetailPanel={true}
                         />
                     </> :
@@ -224,9 +226,11 @@ export default function SelectorView({
                     <GridView
                         list={filteredItemList}
                         handleHistoryToggle={() => false}
+                        handleAddEditToggle={() => false}
                         columnsFields={fields}
                         handleTableRowClick={handleItemClick}
                         isHistoryLinkVisible={false}
+                        isAddEditLinkVisible={false}
                         isInsideDetailPanel={true}
                     />
                 </>}

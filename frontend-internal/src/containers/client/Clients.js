@@ -13,6 +13,7 @@ import { columnsFields } from '../../constants/client'
 import AddEditClientModal from './AddEditClientModal';
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
+import { newColoumnsFields } from '../../constants/client'
 
 const Client = () => {
     let history = useHistory();
@@ -30,6 +31,10 @@ const Client = () => {
     const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
     const [isGridViewSelected, setIsGridViewSelected] = useState(true);
     const [isAddEditClientModalOpened, setIsAddEditClientModalOpened] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [selectedListItem, setSelectedListItem] = useState(null);
+
+
 
     const [columns, setColumns] = useState([
         { title: "ID", field: "id", editable: "never", align: 'center' },
@@ -197,7 +202,7 @@ const Client = () => {
                         setFilteredClientList(updatedFilteredList)
 
                     }
-
+                    setIsEditing(false)
                 })
                 .catch(err => {
                     dispatch(showErrorAlert({ message: 'Unable to update client' }));
@@ -233,8 +238,14 @@ const Client = () => {
     const handleTableRowClick = (event) => history.push(`/clients/${event.id}`);
 
     const toggleAddEditClientModal = () => {
+        if (isAddEditClientModalOpened) {
+            setSelectedListItem(null);
+            setIsEditing(false);
+        }
         setIsAddEditClientModalOpened(!isAddEditClientModalOpened)
+
     }
+
 
     if (isLoading) {
         return (<div
@@ -254,14 +265,22 @@ const Client = () => {
             selectedId={selectedClientId}
             handleHistoryToggle={handleHistoryToggle}
         >
-            <AddEditClientModal
-                isAddEditClientModalOpened={isAddEditClientModalOpened}
-                toggleAddEditClientModal={toggleAddEditClientModal} />
-
+            {
+                isAddEditClientModalOpened &&
+                <AddEditClientModal
+                    title={"Add Client"}
+                    fields={newColoumnsFields}
+                    isAddEditClientModalOpened={isAddEditClientModalOpened}
+                    toggleAddEditClientModal={toggleAddEditClientModal}
+                    updateClient={updateClient}
+                    isEditing={isEditing}
+                    selectedValue={selectedListItem}
+                    handleAdd={addClient}
+                />
+            }
 
             <Toolbar
                 title={'Clients'}
-                
                 isGridViewSelected={isGridViewSelected}
                 setIsGridViewSelected={setIsGridViewSelected}
                 handleSearchBar={handleSearchBar}

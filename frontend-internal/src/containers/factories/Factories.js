@@ -9,8 +9,9 @@ import TableView from '../../components/TableView';
 import GridView from '../../components/GridView';
 import Toolbar from '../../components/Toolbar';
 import DefaultContainer from '../../components/DefaultContainer'
-import { columnsFields } from '../../constants/client'
-import AddEditModal from './AddEditModal'
+import { columnsFields } from '../../constants/factory'
+import AddEditFactoryModal from './AddEditFactoryModal'
+import { newColoumnsFields } from '../../constants/factory'
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
@@ -27,11 +28,14 @@ const Factories = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
-    const [selectedClientId, setSelectedClientId] = useState('');
+    const [isAddEditModalOpened, setIsAddEditModalOpened] = useState(false);
+    const [selectedFactoryId, setSelectedFactoryId] = useState('');
     const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
     const [isGridViewSelected, setIsGridViewSelected] = useState(true);
 
     const [isAddEditFactoryModalOpened, setIsAddEditFactoryModalOpened] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [selectedListItem, setSelectedListItem] = useState(null);
 
     const [columns, setColumns] = useState([
         { title: "ID", field: "id", editable: "never", align: 'center' },
@@ -96,11 +100,24 @@ const Factories = () => {
 
     const handleHistoryToggle = ({ rowId }) => {
         setIsHistoryModalOpened(!isHistoryModalOpened);
-        setSelectedClientId(rowId)
+        setSelectedFactoryId(rowId)
     }
+
+    const handleAddEditToggle = ({ rowId }) => {
+        console.log("**********", rowId)
+        setIsAddEditModalOpened(!isAddEditModalOpened);
+        setSelectedFactoryId(rowId)
+
+    }
+
     const toggleAddEditFactoryModal = () => {
+        if (isAddEditFactoryModalOpened) {
+            setSelectedListItem(null);
+            setIsEditing(false);
+        }
         setIsAddEditFactoryModalOpened(!isAddEditFactoryModalOpened)
     }
+
 
     const handleSearchBar = (searchText, searchLabel) => {
         console.log(searchText, searchLabel)
@@ -253,12 +270,19 @@ const Factories = () => {
         <DefaultContainer
             isHistoryModalOpened={isHistoryModalOpened}
             title={'Factories'}
-            selectedId={selectedClientId}
+            selectedId={selectedFactoryId}
             handleHistoryToggle={handleHistoryToggle}
         >
-            <AddEditModal
+            <AddEditFactoryModal
+                title={'Factories'}
                 isAddEditFactoryModalOpened={isAddEditFactoryModalOpened}
-                toggleAddEditFactoryModal={toggleAddEditFactoryModal} />
+                toggleAddEditFactoryModal={toggleAddEditFactoryModal}
+                fields={newColoumnsFields}
+                updateFactory={updateFactory}
+                isEditing={isEditing}
+                selectedValue={selectedListItem}
+                addFactory={addFactory}
+            />
 
             <Toolbar
                 title={'Factories'}
@@ -282,8 +306,10 @@ const Factories = () => {
                     <GridView
                         list={filteredFactoryList}
                         handleHistoryToggle={handleHistoryToggle}
+                        handleEditButtonPress={toggleAddEditFactoryModal}
                         columnsFields={columnsFields}
                         handleTableRowClick={handleTableRowClick}
+                        isAddEditLinkVisible={true}
                     /> :
                     <TableView
                         list={filteredFactoryList}

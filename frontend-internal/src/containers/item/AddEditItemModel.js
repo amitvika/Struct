@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
+import MainModal from '../../components/Modal';
+import Modal from '@material-ui/core/Modal';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import {
@@ -7,31 +9,28 @@ import {
     Textarea,
     Headding
 } from '../../components';
-import MainModal from '../../components/Modal';
 
-
-export default function AddEditModal({
-    isAddEditFactoryModalOpened,
-    toggleAddEditFactoryModal
-}) {
+export default function AddEditItemModel({isAddEditItemModalOpened,toggleAddEditItemModal }) {
+    console.log("----",isAddEditItemModalOpened)
 
     return (
-        <MainModal open={isAddEditFactoryModalOpened} toggleModal={toggleAddEditFactoryModal}   >
-            <Grid className="section-padding-left" container spacing={4}>
-              hello
-            </Grid>
+        <MainModal open={isAddEditItemModalOpened}
+            toggleModal={toggleAddEditItemModal}
+            >
+            {/* // title={`${isEditing ? 'Update' : 'Add'} ${title}`}> */}
+
+
             <Grid className="section-padding-left" container spacing={4}>
                 {/* {renderView()} */}
 
                 <Grid item xs={6}>
-                    <Button variant="contained" color="secondary" >
+                    <Button variant="contained" color="secondary" onClick={toggleAddEditItemModal} >
                         Cancel
-                            </Button>
+                        </Button>
                 </Grid>
                 <Grid item xs={6}>
                     <Button variant="contained" color="primary" >
                         {/* {isEditing ? 'Update' : 'Save'} */}
-                        Save
                     </Button>
                 </Grid>
             </Grid>
