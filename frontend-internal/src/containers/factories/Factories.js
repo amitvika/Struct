@@ -110,10 +110,15 @@ const Factories = () => {
 
     }
 
-    const toggleAddEditFactoryModal = () => {
+    const toggleAddEditFactoryModal = (factory) => {
         if (isAddEditFactoryModalOpened) {
             setSelectedListItem(null);
+            // setSelectedListItem(" ")
             setIsEditing(false);
+        }
+        else {
+            setSelectedListItem(factory);
+            setIsEditing(true);
         }
         setIsAddEditFactoryModalOpened(!isAddEditFactoryModalOpened)
     }

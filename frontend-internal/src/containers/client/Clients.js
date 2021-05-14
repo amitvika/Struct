@@ -299,6 +299,9 @@ const Client = () => {
             {
                 isGridViewSelected ?
                     <GridView
+                        isAddEditLinkVisible={true}
+                        selectedId={selectedClientId}
+                        handleEditButtonPress={toggleAddEditClientModal}
                         list={filteredClientList}
                         handleHistoryToggle={handleHistoryToggle}
                         columnsFields={columnsFields}

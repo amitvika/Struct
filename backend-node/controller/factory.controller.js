@@ -42,9 +42,12 @@ exports.upsert = async (req, res) => {
                 { upsert: true, new: true });
         }
         else {
-            const factoryModel = FactoryModel(req.body)
+            const factoryModel = new FactoryModel({
+                name: req.body.name,
+                author: req.user.id
+            })
             factory = await factoryModel.save();
-            console.log(factory)
+
         }
 
         if (!factory) {

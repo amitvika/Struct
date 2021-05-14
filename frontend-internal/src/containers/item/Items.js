@@ -14,7 +14,7 @@ import { columnsFields } from '../../constants/item'
 import AddEditItemModal from './AddEditItemModel';
 import { newColoumnsFields} from '../../constants/item'
 
-const Items = () => {
+const Items = ({handleSave}) => {
     let history = useHistory();
 
     const { isAuthenticated, user } = useSelector(state => state.auth);
@@ -155,6 +155,10 @@ const Items = () => {
              <AddEditItemModal
             isAddEditItemModalOpened={isAddEditItemModalOpened}
             toggleAddEditItemModal={toggleAddEditItemModal}
+            // handleSave={handleSave}
+            // fields={newColoumnsFields}
+            // isEditing={isEditing}
+            // selectedValue={selectedListItem}
          />
             <Toolbar
                 title={"Items"}

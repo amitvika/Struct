@@ -102,21 +102,33 @@ export default function GridView({
 
                                     {
                                         isHistoryLinkVisible &&
-                                        <Grid item sm sm={12} className={classes.historyLink}>
+                                        <Grid item sm sm={12} style={{display: "flex"}} className={classes.historyLink}>
                                             <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={(event) => {
                                                 event.stopPropagation();
                                                 handleHistoryToggle({ rowId: product.id })
                                             }}>
                                                 View History
                                                 </Typography>
+                                            {
+                                                isAddEditLinkVisible &&
+                                                <IconButton >
+
+                                                    <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'right' }} onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleEditButtonPress(product)
+                                                    }}>
+                                                        <EditIcon />
+                                                    </Typography>
+                                                </IconButton>
+                                            }
                                         </Grid>
                                     }
-                                    {
+                                    {/* {
                                         isAddEditLinkVisible &&
                                         <Grid item sm sm={12} >
                                             <IconButton >
 
-                                                <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={(event) => {
+                                                <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'right' }} onClick={(event) => {
                                                     event.stopPropagation();
                                                     handleEditButtonPress({ rowId: product.id })
                                                 }}>
@@ -125,7 +137,7 @@ export default function GridView({
                                             </IconButton>
 
                                         </Grid>
-                                    }
+                                    } */}
 
 
                                 </Grid>

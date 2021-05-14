@@ -36,9 +36,9 @@ const ProductDesign = () => {
     const newColoumnsFields = [
         { title: "ID", field: "id", editable: "never", align: 'center' },
         { title: "Name", field: "name", type: 'text' },
-        {title: "Design Type", field: "design_type", type:"text"},
-        { title: "Updated By", field: "updated_by", type: "text"}
-    ] 
+        { title: "Design Type", field: "design_type", type: "text" },
+        { title: "Updated By", field: "updated_by", type: "text" }
+    ]
     const [columns, setColumns] = useState([
         { title: "ID", field: "id", editable: "never", align: 'center' },
         { title: "Name", field: "name" },
@@ -156,7 +156,7 @@ const ProductDesign = () => {
                         .then(res => {
                             fetchProductDesign()
                         })
-                        setIsEditing(false)
+                    setIsEditing(false)
                         .catch(err => {
                             alertForError(err)
                         });
