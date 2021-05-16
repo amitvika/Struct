@@ -11,7 +11,6 @@ import {
 } from '../../components';
 
 export default function AddEditItemModel({isAddEditItemModalOpened,toggleAddEditItemModal }) {
-    console.log("----",isAddEditItemModalOpened)
 
     return (
         <MainModal open={isAddEditItemModalOpened}

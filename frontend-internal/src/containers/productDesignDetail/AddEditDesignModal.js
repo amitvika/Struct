@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import MainModal from '../../components/Modal';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -8,9 +8,14 @@ import {
     Textarea,
     Headding
 } from '../../components';
+// import productDesignApi from '../../api/productDesign.api';
+import clientsApi, { fetchClientsApi } from '../../api/clients.api';
+import get from 'lodash/get';
 
-export default function AddEditDesignModal({ isAddEditDesignModalOpened, toggleAddEditDesignModal, title, fields, selectedValue, isEditing, addProductDesign }) {
+export default function AddEditDesignModal({ isAddEditDesignModalOpened,updateProductDesign, toggleAddEditDesignModal, title, fields, selectedValue, isEditing, addProductDesign }) {
     const [value, setValue] = useState({});
+
+    const [selectOptions, setSelectOptions] = useState([]);
     useEffect(() => {
         if (selectedValue) {
             setValue(selectedValue)
@@ -18,7 +23,27 @@ export default function AddEditDesignModal({ isAddEditDesignModalOpened, toggleA
         else {
             setValue({});
         }
+
     }, [selectedValue])
+    useEffect(() => {
+        clientsApi.fetchClientsApi()
+            .then(res => {
+                setSelectOptions(getOptions(get(res, 'data', [])));
+
+            })
+        return () => {
+
+        }
+    }, []);
+    const getOptions = (data) => {
+        return data.map(item => {
+            return ({
+                label: item.name,
+                value: item._id
+            })
+        })
+    }
+
 
     const renderView = () => {
         return fields
@@ -45,8 +70,8 @@ export default function AddEditDesignModal({ isAddEditDesignModalOpened, toggleA
 
     const handleSaveButton = async () => {
         if (value) {
-            console.log("--------",selectedValue,value)
-          await addProductDesign(value)
+            console.log("--------", selectedValue, value)
+            await  updateProductDesign(value)
         }
         toggleAddEditDesignModal();
     }
@@ -59,6 +84,16 @@ export default function AddEditDesignModal({ isAddEditDesignModalOpened, toggleA
                     onChange={(event) => handleOnChange(item.field, event.target.value)}
                     value={value[item.field]}
                 />)
+        }
+        else if (item.type === 'select') {
+            console.log(value[item.field])
+            return (
+                <Select
+                    onChange={(data) => handleOnChange(item.field, data.value)}
+                    options={selectOptions}
+                    placeholder={`Select ${item.title}`}
+                    value={value[item.field] || ''} />
+            )
         }
     }
     return (

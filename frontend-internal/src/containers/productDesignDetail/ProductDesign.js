@@ -36,8 +36,7 @@ const ProductDesign = () => {
     const newColoumnsFields = [
         { title: "ID", field: "id", editable: "never", align: 'center' },
         { title: "Name", field: "name", type: 'text' },
-        { title: "Design Type", field: "design_type", type: "text" },
-        { title: "Updated By", field: "updated_by", type: "text" }
+         { title: "Client", field: "Client" , type: 'select'}
     ]
     const [columns, setColumns] = useState([
         { title: "ID", field: "id", editable: "never", align: 'center' },
@@ -156,7 +155,7 @@ const ProductDesign = () => {
                         .then(res => {
                             fetchProductDesign()
                         })
-                    setIsEditing(false)
+                    // setIsEditing(false)
                         .catch(err => {
                             alertForError(err)
                         });
@@ -220,10 +219,14 @@ const ProductDesign = () => {
     const handleTableRowClick = (event) => {
         // history.push(`/product-design/${event.id}?product_name=${event.name}`);
     }
-    const toggleAddEditDesignModal = () => {
+    const toggleAddEditDesignModal = (product) => {
         if (isAddEditDesignModalOpened) {
             setIsEditing(null)
             setSelectedListItem(false)
+        }
+        else {
+            setSelectedListItem(product);
+            setIsEditing(true);
         }
         setIsAddEditDesignModalOpened(!isAddEditDesignModalOpened)
     }
@@ -252,10 +255,11 @@ const ProductDesign = () => {
         >
 
             <AddEditDesignModal
-                title={"Add Edit Product Design"}
+                title={"Product Design"}
                 toggleAddEditDesignModal={toggleAddEditDesignModal}
                 isAddEditDesignModalOpened={isAddEditDesignModalOpened}
                 addProductDesign={addProductDesign}
+                updateProductDesign={updateProductDesign}
                 fields={newColoumnsFields}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
@@ -284,6 +288,8 @@ const ProductDesign = () => {
                         handleHistoryToggle={handleHistoryToggle}
                         handleTableRowClick={handleTableRowClick}
                         columnsFields={columnsFields}
+                        handleEditButtonPress={toggleAddEditDesignModal}
+                        isAddEditLinkVisible={true}
                     /> :
                     <TableView
                         title={"New Product Design"}

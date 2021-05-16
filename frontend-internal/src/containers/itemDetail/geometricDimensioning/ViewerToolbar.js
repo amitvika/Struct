@@ -14,6 +14,7 @@ import {
 } from "@material-ui/core"
 
 import styled from 'styled-components'
+import SelectedFeatureMenu from './SelectedFeatureMenu';
 
 const myTheme = {
     'my-theme': {
@@ -138,26 +139,8 @@ export default function ViewerToolbar({
                 </MotionButton>
             )}
 
-            <Grid className="section-padding-left" container spacing={4}>
-                {selectedObjects && selectedObjects.map((item, index) => {
-                    return (
-                        <>
-                            <Grid item xs={2}>
-                                {index + 1}
-                            </Grid>
-
-                            <Grid item xs={5}>
-                                {item.name}
-                            </Grid>
-
-                            <Grid item xs={5}>
-                                {item.display}
-                            </Grid>
-                        </>
-                    )
-                })}
-
-            </Grid>
+            <SelectedFeatureMenu
+                featureList={selectedObjects} />
         </>
     )
 }

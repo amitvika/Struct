@@ -11,7 +11,7 @@ import {
 } from '../../components';
 
 export default function AddEditClientModal({
-    title, updateClient, isEditing, selectedValue, fields, handleAdd,
+    title, updateClient, isEditing, selectedValue, fields,
     isAddEditClientModalOpened,
     toggleAddEditClientModal
 }) {
@@ -53,7 +53,7 @@ export default function AddEditClientModal({
         console.log("----", value)
         if (value) {
 
-          await  handleAdd(value)
+          await  updateClient(value)
         }
         toggleAddEditClientModal();
     }

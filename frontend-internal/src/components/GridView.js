@@ -89,16 +89,20 @@ export default function GridView({
                 return (
                     <div style={{ marginTop: '10px', marginBottom: '10px', width: isInsideDetailPanel ? '350px' : '380px' }}>
                         <Paper className={classes.paper} onClick={() => handleTableRowClick(product)}>
+                           
                             <Grid container style={{
                                 height: '100%',
                                 paddingBottom: '10px'
                             }}>
+                                
                                 <Grid item sm sm={4} style={{ display: 'flex' }}>
                                     <img className={classes.img} alt="complex" src={product.logoUrl || StructLogo} />
+                    
                                 </Grid>
-                                <Grid item sm sm={8}>
-
+                            
+                                <Grid item sm sm={8} >
                                     {renderItem(product)}
+                                  
 
                                     {
                                         isHistoryLinkVisible &&
@@ -123,21 +127,7 @@ export default function GridView({
                                             }
                                         </Grid>
                                     }
-                                    {/* {
-                                        isAddEditLinkVisible &&
-                                        <Grid item sm sm={12} >
-                                            <IconButton >
-
-                                                <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'right' }} onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    handleEditButtonPress({ rowId: product.id })
-                                                }}>
-                                                    <EditIcon />
-                                                </Typography>
-                                            </IconButton>
-
-                                        </Grid>
-                                    } */}
+                                   
 
 
                                 </Grid>

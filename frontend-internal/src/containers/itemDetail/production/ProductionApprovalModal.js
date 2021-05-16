@@ -56,20 +56,20 @@ export default function ProductionApprovalModal({
                     <Grid item xs={4}>
                         Approved for Production
                     </Grid>
-                    <Grid xs={3}>
+                    <Grid xs={8}>
                         <Grid>
                             <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
                                 onChange={onChange}
                                 checked={selectedValue.isApprovedforProduction} />
-                        </Grid>
-                        {selectedValue.isApprovedforProduction &&
-                            <>
-                                <Grid item xs={8}><span>{dateCompo}</span></Grid>
-                                {/* <Grid item xs={4} /> */}
-                                {/* <Grid item xs={8}>{selectedValue.productionApprovedBy.name} has approved for production at </Grid> */}
-                            </>
+                            {selectedValue.isApprovedforProduction &&
+                                <>
+                                    <Grid item xs={8}><span>{dateCompo}</span></Grid>
+                                    {/* <Grid item xs={4} /> */}
+                                    {/* <Grid item xs={8}>{selectedValue.productionApprovedBy.name} has approved for production at </Grid> */}
+                                </>
 
-                        }
+                            }
+                        </Grid>
                     </Grid>
                     <Grid item xs={12} style={{ textAlign: 'center' }}>
                         <Button

@@ -11,7 +11,7 @@ import {
 } from '../../components';
 
 
-export default function AddEditFactoryModal({   title, isEditing, selectedValue, fields, addFactory,
+export default function AddEditFactoryModal({   title, isEditing, selectedValue, fields, addFactory, updateFactory,
     isAddEditFactoryModalOpened,
     toggleAddEditFactoryModal
 }) {
@@ -50,11 +50,10 @@ export default function AddEditFactoryModal({   title, isEditing, selectedValue,
     }
 
     const handleSaveButton = async  () => {
-        console.log("----", value)
         if (value) {
-
-          await  addFactory(value)
+        await  updateFactory(value)
         }
+
         toggleAddEditFactoryModal();
     }
     const renderField = (item) => {

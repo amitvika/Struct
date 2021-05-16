@@ -177,7 +177,6 @@ const Vendors = () => {
                         .then(res => {
                             fetchVendorList()
                         })
-                        setIsEditing(false)
                         .catch(err => {
                             alertForError(err)
                         });
@@ -204,10 +203,14 @@ const Vendors = () => {
             }, 1000);
         })
     }
-    const toggleAddEditVendorModal = () => {
+    const toggleAddEditVendorModal = (factory) => {
         if (isAddEditVendorModalOpened) {
             setSelectedListItem(null);
             setIsEditing(false);
+        }
+        else {
+            setSelectedListItem(factory);
+            setIsEditing(true);
         }
         setIsAddEditVendorModalOpened(!isAddEditVendorModalOpened)
     }
@@ -239,14 +242,14 @@ const Vendors = () => {
             snackBarAlertType={snackBarAlertType}>
 
             <AddEditVendorModal
-                title={"Add Vendor"}
+                title={"Vendor"}
                 isAddEditVendorModalOpened={isAddEditVendorModalOpened}
                 toggleAddEditVendorModal={toggleAddEditVendorModal}
                 addVendor={addVendor}
                 fields={newColoumnsFields}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
-
+                updateVendor={updateVendor}
             />
 
             <Toolbar
@@ -272,7 +275,9 @@ const Vendors = () => {
                         list={filteredVendorList}
                         handleHistoryToggle={handleHistoryToggle}
                         columnsFields={columnsFields}
-                        handleTableRowClick={handleTableRowClick} /> :
+                        handleTableRowClick={handleTableRowClick} 
+                        isAddEditLinkVisible={true}
+                        handleEditButtonPress={toggleAddEditVendorModal}/> :
                     <TableView
                         list={filteredVendorList}
                         handleAdd={addVendor}

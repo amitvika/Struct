@@ -202,7 +202,7 @@ const Client = () => {
                         setFilteredClientList(updatedFilteredList)
 
                     }
-                    setIsEditing(false)
+                    // setIsEditing(false)
                 })
                 .catch(err => {
                     dispatch(showErrorAlert({ message: 'Unable to update client' }));
@@ -237,10 +237,14 @@ const Client = () => {
 
     const handleTableRowClick = (event) => history.push(`/clients/${event.id}`);
 
-    const toggleAddEditClientModal = () => {
+    const toggleAddEditClientModal = (client) => {
         if (isAddEditClientModalOpened) {
             setSelectedListItem(null);
             setIsEditing(false);
+        }
+        else {
+            setSelectedListItem(client);
+            setIsEditing(true);
         }
         setIsAddEditClientModalOpened(!isAddEditClientModalOpened)
 
@@ -268,7 +272,7 @@ const Client = () => {
             {
                 isAddEditClientModalOpened &&
                 <AddEditClientModal
-                    title={"Add Client"}
+                    title={"Client"}
                     fields={newColoumnsFields}
                     isAddEditClientModalOpened={isAddEditClientModalOpened}
                     toggleAddEditClientModal={toggleAddEditClientModal}
@@ -306,6 +310,7 @@ const Client = () => {
                         handleHistoryToggle={handleHistoryToggle}
                         columnsFields={columnsFields}
                         handleTableRowClick={handleTableRowClick}
+                        sAddEditLinkVisible={true}
                     /> :
                     <TableView
                         list={filteredClientList}

@@ -9,7 +9,7 @@ import {
     Headding
 } from '../../components';
 
-export default function AddEditVendorModal({ isAddEditVendorModalOpened, toggleAddEditVendorModal, addVendor,fields, title, isEditing, selectedValue }) {
+export default function AddEditVendorModal({ isAddEditVendorModalOpened, toggleAddEditVendorModal, updateVendor,fields, title, isEditing, selectedValue }) {
     const [value, setValue] = useState({});
     useEffect(() => {
         if (selectedValue) {
@@ -46,7 +46,7 @@ export default function AddEditVendorModal({ isAddEditVendorModalOpened, toggleA
     const handleSaveButton = async () => {
         if (value) {
 
-            await addVendor(value)
+            await updateVendor(value)
         }
         toggleAddEditVendorModal();
     }

@@ -13,8 +13,7 @@ const ProcessGroupSchema = new mongoose.Schema({
   },
   client: {
     type: Schema.Types.ObjectId,
-    ref: "Client",
-    required: true
+    ref: "Client"
   },
   createdBy: {
     type: Schema.Types.ObjectId,
