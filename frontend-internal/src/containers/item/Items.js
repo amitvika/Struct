@@ -12,9 +12,11 @@ import DefaultContainer from '../../components/DefaultContainer';
 
 import { columnsFields } from '../../constants/item'
 import AddEditItemModal from './AddEditItemModel';
-import { newColoumnsFields} from '../../constants/item'
+import { newColoumnsFields } from '../../constants/item'
+import factoriesApi from "../../api/factories.api";
+import { showErrorAlert } from "../../actions/alert.action";
 
-const Items = ({handleSave}) => {
+const Items = ({ handleSave }) => {
     let history = useHistory();
 
     const { isAuthenticated, user } = useSelector(state => state.auth);
@@ -30,6 +32,8 @@ const Items = ({handleSave}) => {
     const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
     const [isGridViewSelected, setIsGridViewSelected] = useState(true);
     const [isAddEditItemModalOpened, setIsAddEditItemModalOpened] = useState(false);
+    const [isEditing, setIsEditing] = useState(false)
+    const [selectedListItem, setSelectedListItem] = useState(null)
 
     const [columns, setColumns] = useState([
         { title: "ID", field: "id", editable: "never" },
@@ -86,7 +90,6 @@ const Items = ({handleSave}) => {
     };
 
     const fetchItems = async (query) => {
-
         try {
             setIsLoading(true);
 
@@ -112,6 +115,54 @@ const Items = ({handleSave}) => {
         }
     }
 
+    const addItem = (newData) => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                {
+                    const newItem = {
+                        name: newData.name,
+                        source: newData
+                    };
+                    API.addItemApi(newItem)
+                        .then(res => {
+                            fetchItems();
+                        })
+                        .catch(err => {
+                            alertForError(err)
+                        })
+                }
+                resolve();
+            }, 10)
+        })
+    }
+
+    const updateItem = (newData, oldData) => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                {
+                    console.log(newData.item);
+                    const data = {
+                        name: newData.name,
+                        source: newData.source
+                    }
+
+                    API.updateItemAPI(newData.id, data)
+                        .then(res => {
+                            fetchItems()
+                        })
+                        .catch(err => {
+                            alertForError(err)
+                        });
+
+                }
+                resolve();
+            }, 1000);
+        })
+    }
+
+
+
+
     const handleHistoryToggle = ({ rowId }) => {
         setIsHistoryModalOpened(!isHistoryModalOpened);
         setSelectedItemId(rowId)
@@ -132,11 +183,15 @@ const Items = ({handleSave}) => {
         </div>)
     }
 
-    const toggleAddEditItemModal = () => {
-        // if (isAddEditItemModalOpened) {
-        //     setSelectedListItem(null);
-        //     setIsEditing(false);
-        // }
+    const toggleAddEditItemModal = (item) => {
+        if (isAddEditItemModalOpened) {
+            setSelectedListItem(null);
+            setIsEditing(false);
+        }
+        else {
+            setSelectedListItem(item);
+            setIsEditing(true);
+        }
         setIsAddEditItemModalOpened(!isAddEditItemModalOpened)
 
     }
@@ -152,14 +207,15 @@ const Items = ({handleSave}) => {
             message={message}
             snackBarAlertType={snackBarAlertType}>
 
-             <AddEditItemModal
-            isAddEditItemModalOpened={isAddEditItemModalOpened}
-            toggleAddEditItemModal={toggleAddEditItemModal}
-            // handleSave={handleSave}
-            // fields={newColoumnsFields}
-            // isEditing={isEditing}
-            // selectedValue={selectedListItem}
-         />
+            <AddEditItemModal
+                title={"Item"}
+                isAddEditItemModalOpened={isAddEditItemModalOpened}
+                toggleAddEditItemModal={toggleAddEditItemModal}
+                updateItem={updateItem}
+                fields={newColoumnsFields}
+                isEditing={isEditing}
+                selectedValue={selectedListItem}
+            />
             <Toolbar
                 title={"Items"}
                 isGridViewSelected={isGridViewSelected}
@@ -183,8 +239,11 @@ const Items = ({handleSave}) => {
                         handleHistoryToggle={handleHistoryToggle}
                         columnsFields={columnsFields}
                         handleTableRowClick={handleTableRowClick}
+                        isAddEditLinkVisible={true}
+                        handleEditButtonPress={toggleAddEditItemModal}
                     /> :
                     <TableView
+                        addItem={addItem}
                         title={"Items"}
                         list={filteredItemList}
                         handleTableRowClick={handleTableRowClick}
