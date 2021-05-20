@@ -9,25 +9,9 @@ import Paper from '@material-ui/core/Paper';
 
 export default function SelectedFeatureMenu({ featureList = [] }) {
 
-    const createData = () => {
-        return featureList.map(feature => {
-            console.log('--feature->>',feature)
-
-            if (feature.display.includes('VERTEXCube')) {
-                feature.location = feature.bottomRight.join(",")
-
-            }
-            else if (feature.display.includes('EDGECube')) {
-                feature.cornerLocation = `[${feature.bottomRight},${feature.topLeft} ]`
-            }
-            return feature;
-        })
-    }
-
     const renderTable = () => {
-        const rows = createData();
 
-        return rows.map((row) => (
+        return featureList.map((row) => (
             <TableRow key={row.name}>
                 <TableCell component="th" scope="row">
                     {row.name}
