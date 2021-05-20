@@ -12,7 +12,7 @@ import {
 import clientsApi, { fetchClientsApi } from '../../api/clients.api';
 import get from 'lodash/get';
 
-export default function AddEditDesignModal({ isAddEditDesignModalOpened,updateProductDesign, toggleAddEditDesignModal, title, fields, selectedValue, isEditing, addProductDesign }) {
+export default function AddEditDesignModal({ isAddEditDesignModalOpened, updateProductDesign, toggleAddEditDesignModal, title, fields, selectedValue, isEditing, addProductDesign }) {
     const [value, setValue] = useState({});
 
     const [selectOptions, setSelectOptions] = useState([]);
@@ -71,7 +71,7 @@ export default function AddEditDesignModal({ isAddEditDesignModalOpened,updatePr
     const handleSaveButton = async () => {
         if (value) {
             console.log("--------", selectedValue, value)
-            await  updateProductDesign(value)
+            await updateProductDesign(value)
         }
         toggleAddEditDesignModal();
     }

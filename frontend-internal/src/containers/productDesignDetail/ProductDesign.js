@@ -155,7 +155,7 @@ const ProductDesign = () => {
                         .then(res => {
                             fetchProductDesign()
                         })
-                    // setIsEditing(false)
+                    setIsEditing(false)
                         .catch(err => {
                             alertForError(err)
                         });
