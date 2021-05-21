@@ -70,11 +70,11 @@ const ItemDetail = () => {
         })()
     }, []);
 
-    useEffect(() =>{
-        if(currentItem){
+    useEffect(() => {
+        if (currentItem) {
             setItemProperties(currentItem);
         }
-    },[currentItem])
+    }, [currentItem])
 
     const renderPageSwitch = () => {
         if (!get(itemProperties, '_id')) {
@@ -100,7 +100,7 @@ const ItemDetail = () => {
                 return <VendorDetails />
             case 6:
                 return <Manufacturing
- />;
+                />;
             case 7:
                 return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
             case 8:
@@ -114,6 +114,26 @@ const ItemDetail = () => {
                 return <ComplianceAndCertifications
                     itemValue={itemProperties}
                     setItemValue={setItemProperties} />
+            case 12:
+                return "Functional Load and Simulation"
+            case 13:
+                return "Design Modifications"
+            case 14:
+                return "Software Loading for PCBs, ICs"
+            case 15:
+                return "Production Validations"
+            case 16:
+                return "Process Sharing"
+            case 17:
+                return "Warranty & Maintenance Management"
+            case 18:
+                return "Product Documentation"
+            case 19:
+                return "Recycling & Sustainability"
+            case 18:
+                return "Design Modifications"
+            case 19:
+                return "Production"
             default:
                 return "Undefined Tab Index";
         }
@@ -184,18 +204,25 @@ const ItemDetail = () => {
                                 // itemProperties?.itemGeometry?.isEndProductSelected &&
                                 // <Tab label="Client Setup" value={7} />
                             }
+
+                            {/* { */}
                             {/* itemProperties?.itemGeometry?.itemType && */}
                             <Tab label="GD&T and Assembly Constraints" value={2} />
                             <Tab label="Surface Finish and Treatment" value={10} />
-                            <Tab label="Functional Load and Simulation" />
-                            <Tab label="Design Modifications" />
-                            {/* <Tab label="Software Loading for PCBs, ICs" /> */}
+                            <Tab label="Functional Load and Simulation" value={12} />
+                            <Tab label="Design Modifications" value={13} />
+                            <Tab label="Software Loading for PCBs, ICs" value={14} />
+
+
+
+                            {/* } */}
+
                             <Tab label="Assembly" value={8} />
                             {
                                 // itemProperties.assemblyType === 'Multi-Item Assembly' && 
                             }
                             <Tab label="Current Usage" value={3} />
-                            
+
                             {/* {
 								itemProperties.vendorId && 
 								<Tab label="Vendor Details" value={5} />
@@ -203,15 +230,14 @@ const ItemDetail = () => {
 
 
                             <Tab label="Manufacture, Processing, & Process Simulation" value={6} />
-                            <Tab label="Production Validations" />
-                            <Tab label="Process Sharing" />
-                            <Tab label="Warranty & Maintenance Management" />
-                            <Tab label="Product Documentation" />
-                            <Tab label="Recycling & Sustainability" />
-                            <Tab label="Product Design Setup" />
-
-                            <Tab label="Production" value={9} />
+                            <Tab label="Production Validations" value={15} />
+                            <Tab label="Process Sharing" value={16} />
+                            <Tab label="Warranty & Maintenance Management" value={17} />
+                            <Tab label="Product Documentation" value={18} />
+                            <Tab label="Recycling & Sustainability" value={19} />
+                            <Tab label="Product Design Setup" value={20} />
                             <Tab label="Item Type Configurations" value={4} />
+                            <Tab label="Production" value={9} />
 
 
                         </Tabs>
