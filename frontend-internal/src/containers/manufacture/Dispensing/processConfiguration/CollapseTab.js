@@ -58,13 +58,13 @@ export default function NestedList({ setItemValue }) {
                     <ListItem button onClick={() => handleListItem('Spool Based')}>Spool Based
                 {currentTab === 'Spool Based' ? <ExpandLess /> : <ExpandMore />}
                     </ListItem>
-                    <Button><ClearIcon /></Button>
+                    {/* <Button><ClearIcon /></Button>
                     <Checkbox
                         name='spoolBased'
                         checked={spoolBased}
                         onChange={handleChange}
                         inputProps={{ 'aria-label': 'primary checkbox' }}
-                    />
+                    /> */}
                 </div>
 
                 <Collapse in={currentTab === 'Spool Based'} timeout="auto" unmountOnExit>
@@ -77,13 +77,13 @@ export default function NestedList({ setItemValue }) {
                     <ListItem button onClick={() => handleListItem('Stacked')}> Stacked
                 {currentTab === 'Stacked' ? <ExpandLess /> : <ExpandMore />}
                     </ListItem>
-                    <Button><ClearIcon /></Button>
+                    {/* <Button><ClearIcon /></Button>
                     <Checkbox
                         name='stacked'
                         checked={stacked}
                         onChange={handleChange}
                         inputProps={{ 'aria-label': 'primary checkbox' }}
-                    />
+                    /> */}
                 </div>
                 <Collapse in={currentTab === 'Stacked'} timeout="auto" unmountOnExit>
                     this is second tab
@@ -96,13 +96,13 @@ export default function NestedList({ setItemValue }) {
                     <ListItem button onClick={() => handleListItem('Grid')}> Grid
                 {currentTab === 'Grid' ? <ExpandLess /> : <ExpandMore />}
                     </ListItem>
-                    <Button><ClearIcon /></Button>
-                    <Checkbox
+                    {/* <Button><ClearIcon /></Button> */}
+                    {/* <Checkbox
                         name='grid'
                         checked={grid}
                         onChange={handleChange}
                         inputProps={{ 'aria-label': 'primary checkbox' }}
-                    />
+                    /> */}
                 </div>
                 <Collapse in={currentTab === 'Grid'} timeout="auto" unmountOnExit>
                     This is third Tab
@@ -114,13 +114,14 @@ export default function NestedList({ setItemValue }) {
                 <div style={{ display: "flex" }}>
                     <ListItem button onClick={() => handleListItem('Grid-Stacked')} > Grid-Stacked
                 {currentTab === 'Grid-Stacked' ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem><Button><ClearIcon /></Button>
-                    <Checkbox
+                    </ListItem>
+                    {/* <Button><ClearIcon /></Button> */}
+                    {/* <Checkbox
                         name='gridStacked'
                         checked={gridStacked}
                         onChange={handleChange}
                         inputProps={{ 'aria-label': 'primary checkbox' }}
-                    />
+                    /> */}
                 </div>
                 <Collapse in={currentTab === 'Grid-Stacked'} timeout="auto" unmountOnExit>
                     this is Fourth tab
@@ -132,13 +133,14 @@ export default function NestedList({ setItemValue }) {
                     <ListItem button onClick={() => handleListItem('Bulk Container')}> Bulk Container
                 {currentTab === 'Bulk Container' ? <ExpandLess /> : <ExpandMore />}
                     </ListItem>
-                    <Button><ClearIcon /></Button>
-                    <Checkbox
+                    {/* <Button><ClearIcon /></Button> */}
+                    {/* <Checkbox
                         name='bulkContainer'
                         checked={bulkContainer}
                         onChange={handleChange}
                         inputProps={{ 'aria-label': 'primary checkbox' }}
-                    /></div>
+                    /> */}
+                    </div>
                 <Collapse in={currentTab === 'Bulk Container'} timeout="auto" unmountOnExit>
                     this is Fifth tab
             </Collapse>
@@ -149,13 +151,14 @@ export default function NestedList({ setItemValue }) {
                     <ListItem button onClick={() => handleListItem('Liquid Vat')}> Liquid Vat
                 {currentTab === 'Liquid Vat' ? <ExpandLess /> : <ExpandMore />}
                     </ListItem>
-                    <Button><ClearIcon /></Button>
-                    <Checkbox
+                    {/* <Button><ClearIcon /></Button> */}
+                    {/* <Checkbox
                         name='liquidVat'
                         checked={liquidVat}
                         onChange={handleChange}
                         inputProps={{ 'aria-label': 'primary checkbox' }}
-                    /></div>
+                    /> */}
+                    </div>
                 <Collapse in={currentTab === 'Liquid Vat'} timeout="auto" unmountOnExit>
                     This is sixth Tab
             </Collapse>
@@ -166,13 +169,14 @@ export default function NestedList({ setItemValue }) {
                     <ListItem button onClick={() => handleListItem('Pressure Vessel')}>Pressure Vessel
                 {currentTab === 'Pressure Vessel' ? <ExpandLess /> : <ExpandMore />}
                     </ListItem>
-                    <Button><ClearIcon /></Button>
-                    <Checkbox
+                    {/* <Button><ClearIcon /></Button> */}
+                    {/* <Checkbox
                         name='pressure'
                         checked={pressure}
                         onChange={handleChange}
                         inputProps={{ 'aria-label': 'primary checkbox' }}
-                    /></div>
+                    /> */}
+                    </div>
                 <Collapse in={currentTab === 'Pressure Vessel'} timeout="auto" unmountOnExit>
                     This is seventh Tab
             </Collapse>

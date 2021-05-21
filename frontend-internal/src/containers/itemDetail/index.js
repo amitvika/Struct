@@ -177,7 +177,9 @@ const ItemDetail = () => {
                             variant="scrollable"
                             value={tabIndex}
                             onChange={handleTabChange}>
-                            <Tab label="Base Item Properties" value={1} />
+                            {/* <Tab label="Base Item Properties" value={1} /> */}
+                            <Tab label="Product Design or CAD Upload" value={1} />
+                            <Tab label="Compliance and Certifications" value={11} />
                             {
                                 // itemProperties?.itemGeometry?.isEndProductSelected &&
                                 // <Tab label="Client Setup" value={7} />
@@ -187,6 +189,11 @@ const ItemDetail = () => {
                             {/* itemProperties?.itemGeometry?.itemType && */}
                             <Tab label="GD&T and Assembly Constraints" value={2} />
                             <Tab label="Surface Finish and Treatment" value={10} />
+                            <Tab label="Functional Load and Simulation" />
+                            <Tab label="Design Modifications" />
+                            <Tab label="Software Loading for PCBs, ICs" />
+     
+
 
                             {/* } */}
 
@@ -195,16 +202,23 @@ const ItemDetail = () => {
                                 // itemProperties.assemblyType === 'Multi-Item Assembly' && 
                             }
                             <Tab label="Current Usage" value={3} />
-                            <Tab label="Item Type Configurations" value={4} />
+                            
                             {/* {
 								itemProperties.vendorId && 
 								<Tab label="Vendor Details" value={5} />
 							} */}
 
 
-                            <Tab label="Manufacture & processing" value={6} />
+                            <Tab label="Manufacture, Processing, & Process Simulation" value={6} />
+                            <Tab label="Production Validations" />
+                            <Tab label="Process Sharing" />
+                            <Tab label="Warranty & Maintenance Management" />
+                            <Tab label="Product Documentation" />
+                            <Tab label="Recycling & Sustainability" />
+                            <Tab label="Product Design Setup" />
+
                             <Tab label="Production" value={9} />
-                            <Tab label="Compliance and Certifications" value={11} />
+                            <Tab label="Item Type Configurations" value={4} />
 
 
                         </Tabs>

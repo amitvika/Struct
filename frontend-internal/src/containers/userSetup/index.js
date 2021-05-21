@@ -80,8 +80,8 @@ const UserSetup = () => {
 						</Tabs>
 					</Paper>
 				</Grid>
-				<Grid item sm sm={10}>
-					<Paper style={{ padding: 20, margin: 10 }}>
+				<Grid item sm sm={10} >
+					<Paper style={{ padding: 25, margin: 10 }}>
 						{renderPageSwitch()}
 					</Paper>
 				</Grid>
