@@ -61,15 +61,16 @@ export default function AddEditDesignModal({ isAddEditDesignModalOpened, updateP
             })
     }
 
-    const handleOnChange = (name, value) => {
+    const handleOnChange =  (name, value) => {
+       
         setValue(preValue => ({
             ...preValue,
             [name]: value
         }))
     }
 
-    const handleSaveButton = async () => {
-        if (value) {
+    const handleSaveButton = async (preValue) => {
+        if (value ===preValue) {
             console.log("--------", selectedValue, value)
             await updateProductDesign(value)
         }

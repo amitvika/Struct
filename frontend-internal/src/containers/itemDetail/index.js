@@ -184,19 +184,12 @@ const ItemDetail = () => {
                                 // itemProperties?.itemGeometry?.isEndProductSelected &&
                                 // <Tab label="Client Setup" value={7} />
                             }
-
-                            {/* { */}
                             {/* itemProperties?.itemGeometry?.itemType && */}
                             <Tab label="GD&T and Assembly Constraints" value={2} />
                             <Tab label="Surface Finish and Treatment" value={10} />
                             <Tab label="Functional Load and Simulation" />
                             <Tab label="Design Modifications" />
-                            <Tab label="Software Loading for PCBs, ICs" />
-     
-
-
-                            {/* } */}
-
+                            {/* <Tab label="Software Loading for PCBs, ICs" /> */}
                             <Tab label="Assembly" value={8} />
                             {
                                 // itemProperties.assemblyType === 'Multi-Item Assembly' && 
