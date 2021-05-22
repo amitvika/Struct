@@ -5,6 +5,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Heading from '../../../components/atoms/Headding';
 import moment from 'moment';
 
+
 export default function ProductionApprovalModal({
     isModalOpened,
     toggleModal,
@@ -15,6 +16,7 @@ export default function ProductionApprovalModal({
 
     const onChange = (event) => {
         setSelectedValue(prev => ({ ...prev, isApprovedforProduction: event.target.checked }))
+        
     }
     const today = new Date(),
         dateCompo = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();

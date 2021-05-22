@@ -31,7 +31,7 @@ export default function Toolbar({
 }) {
 	const classes = useStyles();
 	return (
-		<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
+		<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px'}} >
 			<Grid container>
 
 				<Grid item sm sm={2}>

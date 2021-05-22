@@ -8,33 +8,50 @@ import ClearIcon from '@material-ui/icons/Clear';
 import { Button, Grid, Paper } from '@material-ui/core';
 import Checkbox from '@material-ui/core/Checkbox';
 import { useSelector, useDispatch } from 'react-redux';
-import { setCurrentItemAction } from '../../../../actions/itemActions'
+import { setCurrentItemAction } from '../../../../actions/itemActions';
+import { getPartsStackableInfo } from '../../../../api/fileUpload.api'
+
 
 export default function NestedList({ setItemValue }) {
     const dispatch = useDispatch();
     const [currentTab, setCurrentTab] = useState(true);
-    const currentItem = useSelector(state => state.item.currentItem);
+    // const currentItem = useSelector(state => state.item.currentItem);
     const [dispensing, setDispensing] = useState({});
+
+    const currentItem = useSelector(state => state.item.currentItem);
+    const [splitfiles, setsplitfiles] = useState({});
 
     useEffect(() => {
 
         setDispensing(currentItem.dispensing)
 
     }, [currentItem])
-    
-    const handleChange = (event) => {
-        const updatedItem = {
-            ...currentItem,
-            dispensing: {
-                ...dispensing,
-                [event.target.name]: event.target.checked
-            }
-        };
 
 
-        dispatch(setCurrentItemAction(updatedItem));
+    useEffect(() => {
+        console.log("----", currentItem)
 
-    };
+        getPartsStackableInfo(currentItem.fileId)
+            .then(res => {
+                setsplitfiles(res.data);
+            })
+            .catch(err => {
+
+            })
+    }, []);
+    // const handleChange = (event) => {
+    //     const updatedItem = {
+    //         ...currentItem,
+    //         dispensing: {
+    //             ...dispensing,
+    //             [event.target.name]: event.target.checked
+    //         }
+    //     };
+
+
+    //     dispatch(setCurrentItemAction(updatedItem));
+
+    // };
 
     const handleListItem = (value) => {
         if (currentTab === value) {
@@ -45,143 +62,86 @@ export default function NestedList({ setItemValue }) {
 
         }
     }
-
-
-    const { spoolBased, stacked, grid, gridStacked, bulkContainer, liquidVat, pressure } = currentItem?.dispensing || {};
-
-    const error = [spoolBased, stacked, grid, gridStacked, bulkContainer, liquidVat, pressure].filter((v) => v).length !== 2;
-
     return (
-        <List component="nav">
-            <Paper>
-                <div style={{ display: "flex" }}>
-                    <ListItem button onClick={() => handleListItem('Spool Based')}>Spool Based
-                {currentTab === 'Spool Based' ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem>
-                    {/* <Button><ClearIcon /></Button>
-                    <Checkbox
-                        name='spoolBased'
-                        checked={spoolBased}
-                        onChange={handleChange}
-                        inputProps={{ 'aria-label': 'primary checkbox' }}
-                    /> */}
-                </div>
-
-                <Collapse in={currentTab === 'Spool Based'} timeout="auto" unmountOnExit>
-                    this is first tab
-            </Collapse>
-            </Paper>
-            <Paper>
-
-                <div style={{ display: "flex" }}>
-                    <ListItem button onClick={() => handleListItem('Stacked')}> Stacked
-                {currentTab === 'Stacked' ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem>
-                    {/* <Button><ClearIcon /></Button>
-                    <Checkbox
-                        name='stacked'
-                        checked={stacked}
-                        onChange={handleChange}
-                        inputProps={{ 'aria-label': 'primary checkbox' }}
-                    /> */}
-                </div>
-                <Collapse in={currentTab === 'Stacked'} timeout="auto" unmountOnExit>
-                    this is second tab
-            </Collapse>
-            </Paper>
-
-            <Paper>
-
-                <div style={{ display: "flex" }}>
-                    <ListItem button onClick={() => handleListItem('Grid')}> Grid
-                {currentTab === 'Grid' ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem>
-                    {/* <Button><ClearIcon /></Button> */}
-                    {/* <Checkbox
-                        name='grid'
-                        checked={grid}
-                        onChange={handleChange}
-                        inputProps={{ 'aria-label': 'primary checkbox' }}
-                    /> */}
-                </div>
-                <Collapse in={currentTab === 'Grid'} timeout="auto" unmountOnExit>
-                    This is third Tab
-            </Collapse>
-            </Paper>
-
-            <Paper>
-
-                <div style={{ display: "flex" }}>
-                    <ListItem button onClick={() => handleListItem('Grid-Stacked')} > Grid-Stacked
-                {currentTab === 'Grid-Stacked' ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem>
-                    {/* <Button><ClearIcon /></Button> */}
-                    {/* <Checkbox
-                        name='gridStacked'
-                        checked={gridStacked}
-                        onChange={handleChange}
-                        inputProps={{ 'aria-label': 'primary checkbox' }}
-                    /> */}
-                </div>
-                <Collapse in={currentTab === 'Grid-Stacked'} timeout="auto" unmountOnExit>
-                    this is Fourth tab
-            </Collapse>
-            </Paper>
-
-            <Paper>
-                <div style={{ display: "flex" }}>
-                    <ListItem button onClick={() => handleListItem('Bulk Container')}> Bulk Container
-                {currentTab === 'Bulk Container' ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem>
-                    {/* <Button><ClearIcon /></Button> */}
-                    {/* <Checkbox
-                        name='bulkContainer'
-                        checked={bulkContainer}
-                        onChange={handleChange}
-                        inputProps={{ 'aria-label': 'primary checkbox' }}
-                    /> */}
-                    </div>
-                <Collapse in={currentTab === 'Bulk Container'} timeout="auto" unmountOnExit>
-                    this is Fifth tab
-            </Collapse>
-            </Paper>
-
-            <Paper>
-                <div style={{ display: "flex" }}>
-                    <ListItem button onClick={() => handleListItem('Liquid Vat')}> Liquid Vat
-                {currentTab === 'Liquid Vat' ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem>
-                    {/* <Button><ClearIcon /></Button> */}
-                    {/* <Checkbox
-                        name='liquidVat'
-                        checked={liquidVat}
-                        onChange={handleChange}
-                        inputProps={{ 'aria-label': 'primary checkbox' }}
-                    /> */}
-                    </div>
-                <Collapse in={currentTab === 'Liquid Vat'} timeout="auto" unmountOnExit>
-                    This is sixth Tab
-            </Collapse>
-            </Paper>
-
-            <Paper>
-                <div style={{ display: "flex" }}>
-                    <ListItem button onClick={() => handleListItem('Pressure Vessel')}>Pressure Vessel
-                {currentTab === 'Pressure Vessel' ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem>
-                    {/* <Button><ClearIcon /></Button> */}
-                    {/* <Checkbox
-                        name='pressure'
-                        checked={pressure}
-                        onChange={handleChange}
-                        inputProps={{ 'aria-label': 'primary checkbox' }}
-                    /> */}
-                    </div>
-                <Collapse in={currentTab === 'Pressure Vessel'} timeout="auto" unmountOnExit>
-                    This is seventh Tab
-            </Collapse>
-            </Paper>
-
-        </List>
+        <>
+            {splitfiles.stackable && splitfiles.stackable.length > 0 && (
+                <List component="nav">
+                    <StackableChild
+                        title={"Any Direction"}
+                        handleListItem={handleListItem}
+                        currentTab={currentTab}
+                        stackValue={splitfiles.stackable[0].direction}
+                    />
+                    <StackableChild
+                        title={"Top"}
+                        handleListItem={handleListItem}
+                        currentTab={currentTab}
+                        stackValue={splitfiles.stackable[0].top}
+                    />
+                    <StackableChild
+                        title={"Bottom"}
+                        handleListItem={handleListItem}
+                        currentTab={currentTab}
+                        stackValue={splitfiles.stackable[0].bottom}
+                    />
+                    <StackableChild
+                        title={"Right"}
+                        handleListItem={handleListItem}
+                        currentTab={currentTab}
+                        stackValue={splitfiles.stackable[0].right}
+                    />
+                    <StackableChild
+                        title={"Left"}
+                        handleListItem={handleListItem}
+                        currentTab={currentTab}
+                        stackValue={splitfiles.stackable[0].left}
+                    />
+                    <StackableChild
+                        title={"Front"}
+                        handleListItem={handleListItem}
+                        currentTab={currentTab}
+                        stackValue={splitfiles.stackable[0].front}
+                    />
+                    <StackableChild
+                        title={"Back"}
+                        handleListItem={handleListItem}
+                        currentTab={currentTab}
+                        stackValue={splitfiles.stackable[0].back}
+                    />
+                </List>
+            )}
+        </>
     );
+}
+
+export const prettyPrintArray = (json, maxlength = 30) => {
+    if (json) {
+        return JSON.stringify(json)
+    }
+    return "No Info"
+}
+
+const StackableChild = ({ title, currentTab, handleListItem, stackValue }) => {
+    return (
+        <Grid>
+            <Paper style={{
+                marginTop: "7px",
+                backgroundColor: stackValue ? "#349E28" : '',
+                color: stackValue ? "white" : ""
+            }}>
+                <div style={{ display: "display" }}>
+                    <ListItem button onClick={() => handleListItem(title)}>{title}
+                        {currentTab === title ? <ExpandLess /> : <ExpandMore />}
+                    </ListItem>
+                </div>
+            </Paper>
+
+            <Collapse in={currentTab === title}
+                timeout="auto"
+                unmountOnExit>
+                {prettyPrintArray(stackValue)}
+            </Collapse>
+
+        </Grid>
+    )
 }

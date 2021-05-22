@@ -88,19 +88,20 @@ export default function GridView({
             {list.map((product) => {
                 return (
                     <div style={{ marginTop: '10px', marginBottom: '10px', width: isInsideDetailPanel ? '350px' : '380px' }}>
-                        <Paper className={classes.paper} onClick={() => handleTableRowClick(product)}>
+                        <Paper className={classes.paper} onClick={() => handleTableRowClick(product)} >
                            
                             <Grid container style={{
                                 height: '100%',
-                                paddingBottom: '10px'
-                            }}>
+                                paddingBottom: '10px',
+                            
+                            }}  >
                                 
                                 <Grid item sm sm={4} style={{ display: 'flex' }}>
                                     <img className={classes.img} alt="complex" src={product.logoUrl || StructLogo} />
                     
                                 </Grid>
                             
-                                <Grid item sm sm={8} >
+                                <Grid item sm sm={8}  >
                                     {renderItem(product)}
                                   
 
