@@ -36,10 +36,9 @@ exports.upsert = async (req, res) => {
         let factory;
         let id = req.body.id || req.body._id
         if (id) {
-            factory = await FactoryModel.updateOne(
-                { _id: id },
-                req.body,
-                { upsert: true, new: true });
+            factory = await FactoryModel.findByIdAndUpdate(id,
+                { $set: req.body },
+                { new: true });
         }
         else {
             const factoryModel = new FactoryModel({

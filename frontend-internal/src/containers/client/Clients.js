@@ -30,7 +30,7 @@ const Client = () => {
     const [selectedClientId, setSelectedClientId] = useState('');
     const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
     const [isGridViewSelected, setIsGridViewSelected] = useState(true);
-    const [isAddEditClientModalOpened, setIsAddEditClientModalOpened] = useState(false);
+    const [isAddEditModalOpened, setIsAddEditModalOpened] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [selectedListItem, setSelectedListItem] = useState(null);
 
@@ -237,17 +237,24 @@ const Client = () => {
 
     const handleTableRowClick = (event) => history.push(`/clients/${event.id}`);
 
-    const toggleAddEditClientModal = (client) => {
-        if (isAddEditClientModalOpened) {
+    const toggleAddEditModal = () => {
+        if (isAddEditModalOpened) {
+            setSelectedListItem(null);
+            setIsEditing(false);
+        }
+        setIsAddEditModalOpened(!isAddEditModalOpened)
+
+    }
+    const toggleEditModal = (client) => {
+        if (isAddEditModalOpened) {
             setSelectedListItem(null);
             setIsEditing(false);
         }
         else {
-            setSelectedListItem(client);
-            setIsEditing(true);
+            setSelectedListItem(client)
+            setIsEditing(true)
         }
-        setIsAddEditClientModalOpened(!isAddEditClientModalOpened)
-
+        setIsAddEditModalOpened(!isAddEditModalOpened)
     }
 
 
@@ -269,19 +276,16 @@ const Client = () => {
             selectedId={selectedClientId}
             handleHistoryToggle={handleHistoryToggle}
         >
-            {
-                isAddEditClientModalOpened &&
+          
                 <AddEditClientModal
                     title={"Client"}
                     fields={newColoumnsFields}
-                    isAddEditClientModalOpened={isAddEditClientModalOpened}
-                    toggleAddEditClientModal={toggleAddEditClientModal}
-                    updateClient={updateClient}
+                    isAddEditClientModalOpened={isAddEditModalOpened}
+                    toggleAddEditClientModal={toggleAddEditModal}
+                    updateClient={isEditing? updateClient: addClient}
                     isEditing={isEditing}
                     selectedValue={selectedListItem}
-                    handleAdd={addClient}
                 />
-            }
 
             <Toolbar
                 title={'Clients'}
@@ -297,7 +301,7 @@ const Client = () => {
                 setFilteredList={setFilteredClientList}
                 columnsFields={columnsFields}
                 isCustomAddButtonVisible={true}
-                handleAddButtonPress={toggleAddEditClientModal}
+                handleAddButtonPress={toggleAddEditModal}
             />
 
             {
@@ -305,12 +309,12 @@ const Client = () => {
                     <GridView
                         isAddEditLinkVisible={true}
                         selectedId={selectedClientId}
-                        handleEditButtonPress={toggleAddEditClientModal}
                         list={filteredClientList}
                         handleHistoryToggle={handleHistoryToggle}
                         columnsFields={columnsFields}
                         handleTableRowClick={handleTableRowClick}
                         sAddEditLinkVisible={true}
+                        handleEditButtonPress={toggleEditModal}
                     /> :
                     <TableView
                         list={filteredClientList}

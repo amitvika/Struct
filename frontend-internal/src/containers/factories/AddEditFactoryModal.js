@@ -12,8 +12,8 @@ import {
 
 
 export default function AddEditFactoryModal({   title, isEditing, selectedValue, fields, addFactory, updateFactory,
-    isAddEditFactoryModalOpened,
-    toggleAddEditFactoryModal
+    isAddEditModalOpened,
+    toggleAddEditModal
 }) {
     const [value, setValue] = useState({});
 
@@ -54,7 +54,7 @@ export default function AddEditFactoryModal({   title, isEditing, selectedValue,
         await  updateFactory(value)
         }
 
-        toggleAddEditFactoryModal();
+        toggleAddEditModal();
     }
     const renderField = (item) => {
         if (item.type === 'text') {
@@ -68,8 +68,8 @@ export default function AddEditFactoryModal({   title, isEditing, selectedValue,
         }
     }
     return (
-            <MainModal open={isAddEditFactoryModalOpened}
-                toggleModal={toggleAddEditFactoryModal}
+            <MainModal open={isAddEditModalOpened}
+                toggleModal={toggleAddEditModal}
                 title={`${isEditing ? 'Update' : 'Add'} ${title}`}>
 
 
@@ -77,7 +77,7 @@ export default function AddEditFactoryModal({   title, isEditing, selectedValue,
                     {renderView()}
 
                     <Grid item xs={6}>
-                        <Button variant="contained" color="secondary" onClick={toggleAddEditFactoryModal} >
+                        <Button variant="contained" color="secondary" onClick={toggleAddEditModal} >
                             Cancel
                         </Button>
                     </Grid>

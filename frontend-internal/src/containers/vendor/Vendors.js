@@ -29,7 +29,7 @@ const Vendors = () => {
     const [selectedVendorId, setSelectedVendorId] = useState('');
     const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
     const [isGridViewSelected, setIsGridViewSelected] = useState(true);
-    const [isAddEditVendorModalOpened, setIsAddEditVendorModalOpened] = useState(false)
+    const [isAddEditModalOpened, setIsAddEditModalOpened] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
     const [selectedListItem, setSelectedListItem] = useState(null);
 
@@ -203,17 +203,25 @@ const Vendors = () => {
             }, 1000);
         })
     }
-    const toggleAddEditVendorModal = (factory) => {
-        if (isAddEditVendorModalOpened) {
+    const toggleAddEditModal = () => {
+        if (isAddEditModalOpened) {
             setSelectedListItem(null);
             setIsEditing(false);
         }
-        else {
-            setSelectedListItem(factory);
-            setIsEditing(true);
-        }
-        setIsAddEditVendorModalOpened(!isAddEditVendorModalOpened)
+        setIsAddEditModalOpened(!isAddEditModalOpened)
     }
+    const toggleEditModal = (vendor) => {
+        if(isAddEditModalOpened) {
+            setSelectedListItem(null);
+            setIsEditing(false)
+        }
+        else {
+            setSelectedListItem(vendor)
+            setIsEditing(true)
+        }
+        setIsAddEditModalOpened(!isAddEditModalOpened)
+    }
+
 
     const handleTableRowClick = (event) => {
         history.push(`/vendors/${event.id}`);
@@ -243,13 +251,13 @@ const Vendors = () => {
 
             <AddEditVendorModal
                 title={"Vendor"}
-                isAddEditVendorModalOpened={isAddEditVendorModalOpened}
-                toggleAddEditVendorModal={toggleAddEditVendorModal}
-                addVendor={addVendor}
+                isAddEditModalOpened={isAddEditModalOpened}
+                toggleAddEditModal={toggleAddEditModal}
+                updateVendor={isEditing ? updateVendor: addVendor}
                 fields={newColoumnsFields}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
-                updateVendor={updateVendor}
+                
             />
 
             <Toolbar
@@ -266,7 +274,7 @@ const Vendors = () => {
                 setFilteredList={setFilteredVendorList}
                 columnsFields={columnsFields}
                 isCustomAddButtonVisible={true}
-                handleAddButtonPress={toggleAddEditVendorModal}
+                handleAddButtonPress={toggleAddEditModal}
             />
 
             {
@@ -277,7 +285,7 @@ const Vendors = () => {
                         columnsFields={columnsFields}
                         handleTableRowClick={handleTableRowClick} 
                         isAddEditLinkVisible={true}
-                        handleEditButtonPress={toggleAddEditVendorModal}/> :
+                        handleEditButtonPress={toggleEditModal}/> :
                     <TableView
                         list={filteredVendorList}
                         handleAdd={addVendor}

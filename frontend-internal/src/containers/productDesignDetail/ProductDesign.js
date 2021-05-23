@@ -28,7 +28,7 @@ const ProductDesign = () => {
     const [selectedProductDesignId, setSelectedProductDesignId] = useState('');
     const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
     const [isGridViewSelected, setIsGridViewSelected] = useState(true);
-    const [isAddEditDesignModalOpened, setIsAddEditDesignModalOpened] = useState(false);
+    const [isAddEditModalOpened, setIsAddEditModalOpened] = useState(false);
     const [isEditing, setIsEditing] = useState(false)
     const [selectedListItem, setSelectedListItem] = useState(null);
 
@@ -219,16 +219,24 @@ const ProductDesign = () => {
     const handleTableRowClick = (event) => {
         // history.push(`/product-design/${event.id}?product_name=${event.name}`);
     }
-    const toggleAddEditDesignModal = (product) => {
-        if (isAddEditDesignModalOpened) {
-            setIsEditing(null)
+    const toggleAddEditModal = () => {
+        if (isAddEditModalOpened) {
+            setIsEditing(false)
             setSelectedListItem(false)
         }
-        else {
-            setSelectedListItem(product);
-            setIsEditing(true);
+        setIsAddEditModalOpened(!isAddEditModalOpened)
+    }
+    const toggleEditModal = (product) => {
+        if(isAddEditModalOpened) {
+            setIsEditing(false) 
+            setSelectedListItem(null) 
         }
-        setIsAddEditDesignModalOpened(!isAddEditDesignModalOpened)
+        else {
+            setIsEditing(true)
+            setSelectedListItem(product)
+        }
+        setIsAddEditModalOpened(!isAddEditModalOpened)
+
     }
 
     if (isLoading) {
@@ -256,10 +264,9 @@ const ProductDesign = () => {
 
             <AddEditDesignModal
                 title={"Product Design"}
-                toggleAddEditDesignModal={toggleAddEditDesignModal}
-                isAddEditDesignModalOpened={isAddEditDesignModalOpened}
-                addProductDesign={addProductDesign}
-                updateProductDesign={updateProductDesign}
+                toggleAddEditDesignModal={toggleAddEditModal}
+                isAddEditDesignModalOpened={isAddEditModalOpened}
+                updateProductDesign={isEditing ? updateProductDesign:addProductDesign}
                 fields={newColoumnsFields}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
@@ -278,7 +285,7 @@ const ProductDesign = () => {
                 setFilteredList={setFilteredProductDesignList}
                 columnsFields={columnsFields}
                 isCustomAddButtonVisible={true}
-                handleAddButtonPress={toggleAddEditDesignModal}
+                handleAddButtonPress={toggleAddEditModal}
             />
 
             {
@@ -288,7 +295,7 @@ const ProductDesign = () => {
                         handleHistoryToggle={handleHistoryToggle}
                         handleTableRowClick={handleTableRowClick}
                         columnsFields={columnsFields}
-                        handleEditButtonPress={toggleAddEditDesignModal}
+                        handleEditButtonPress={toggleEditModal}
                         isAddEditLinkVisible={true}
                     /> :
                     <TableView

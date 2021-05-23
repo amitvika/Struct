@@ -183,7 +183,15 @@ const Items = ({ handleSave }) => {
         </div>)
     }
 
-    const toggleAddEditItemModal = (item) => {
+    const toggleAddItemModal = (item) => {
+        if (isAddEditItemModalOpened) {
+            setSelectedListItem(null);
+            setIsEditing(false);
+        }
+        setIsAddEditItemModalOpened(!isAddEditItemModalOpened)
+    }
+
+    const toggleEditItemModal = (item) => {
         if (isAddEditItemModalOpened) {
             setSelectedListItem(null);
             setIsEditing(false);
@@ -210,8 +218,8 @@ const Items = ({ handleSave }) => {
             <AddEditItemModal
                 title={"Item"}
                 isAddEditItemModalOpened={isAddEditItemModalOpened}
-                toggleAddEditItemModal={toggleAddEditItemModal}
-                updateItem={updateItem}
+                toggleAddEditItemModal={toggleAddItemModal}
+                updateItem={isEditing ? updateItem : addItem}
                 fields={newColoumnsFields}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
@@ -229,7 +237,7 @@ const Items = ({ handleSave }) => {
                 setFilteredList={setFilteredItemList}
                 columnsFields={columnsFields}
                 isCustomAddButtonVisible={true}
-                handleAddButtonPress={toggleAddEditItemModal}
+                handleAddButtonPress={toggleAddItemModal}
             />
 
             {
@@ -240,7 +248,7 @@ const Items = ({ handleSave }) => {
                         columnsFields={columnsFields}
                         handleTableRowClick={handleTableRowClick}
                         isAddEditLinkVisible={true}
-                        handleEditButtonPress={toggleAddEditItemModal}
+                        handleEditButtonPress={toggleEditItemModal}
                     /> :
                     <TableView
                         addItem={addItem}

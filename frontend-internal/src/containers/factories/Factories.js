@@ -28,12 +28,11 @@ const Factories = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
-    const [isAddEditModalOpened, setIsAddEditModalOpened] = useState(false);
     const [selectedFactoryId, setSelectedFactoryId] = useState('');
     const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
     const [isGridViewSelected, setIsGridViewSelected] = useState(true);
 
-    const [isAddEditFactoryModalOpened, setIsAddEditFactoryModalOpened] = useState(false);
+    const [isAddEditModalOpened, setIsAddEditModalOpened] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [selectedListItem, setSelectedListItem] = useState(null);
 
@@ -103,25 +102,6 @@ const Factories = () => {
         setSelectedFactoryId(rowId)
     }
 
-    const handleAddEditToggle = ({ rowId }) => {
-        console.log("**********", rowId)
-        setIsAddEditModalOpened(!isAddEditModalOpened);
-        setSelectedFactoryId(rowId)
-
-    }
-
-    const toggleAddEditFactoryModal = (factory) => {
-        if (isAddEditFactoryModalOpened) {
-            setSelectedListItem(null);
-            // setSelectedListItem(" ")
-            setIsEditing(false);
-        }
-        else {
-            setSelectedListItem(factory);
-            setIsEditing(true);
-        }
-        setIsAddEditFactoryModalOpened(!isAddEditFactoryModalOpened)
-    }
 
 
     const handleSearchBar = (searchText, searchLabel) => {
@@ -258,6 +238,27 @@ const Factories = () => {
         })
     }
 
+    const toggleAddEditModal = () => {
+        if (isAddEditModalOpened) {
+            setSelectedListItem(null);
+            setIsEditing(false);
+        }
+        setIsAddEditModalOpened(!isAddEditModalOpened)
+    }
+    const toggleEditModal = (factory) => {
+        if (isAddEditModalOpened) {
+            setSelectedFactoryId(null);
+            setIsEditing(false)
+        }
+        else {
+            setSelectedListItem(factory);
+            setIsEditing(true)
+        }
+        setIsAddEditModalOpened(!isAddEditModalOpened)
+
+    }
+
+
     const handleTableRowClick = (event) => history.push(`/factories/${event.id}`)
 
     if (isLoading) {
@@ -280,13 +281,13 @@ const Factories = () => {
         >
             <AddEditFactoryModal
                 title={'Factories'}
-                isAddEditFactoryModalOpened={isAddEditFactoryModalOpened}
-                toggleAddEditFactoryModal={toggleAddEditFactoryModal}
+                isAddEditModalOpened={isAddEditModalOpened}
+                toggleAddEditModal={toggleAddEditModal}
                 fields={newColoumnsFields}
-                updateFactory={updateFactory}
+                updateFactory={isEditing ? updateFactory : addFactory}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
-                addFactory={addFactory}
+               
             />
 
             <Toolbar
@@ -303,7 +304,7 @@ const Factories = () => {
                 setFilteredList={setFilteredFactoryList}
                 columnsFields={columnsFields}
                 isCustomAddButtonVisible={true}
-                handleAddButtonPress={toggleAddEditFactoryModal}
+                handleAddButtonPress={toggleAddEditModal}
             />
 
             {
@@ -311,10 +312,10 @@ const Factories = () => {
                     <GridView
                         list={filteredFactoryList}
                         handleHistoryToggle={handleHistoryToggle}
-                        handleEditButtonPress={toggleAddEditFactoryModal}
                         columnsFields={columnsFields}
                         handleTableRowClick={handleTableRowClick}
                         isAddEditLinkVisible={true}
+                        handleEditButtonPress={toggleEditModal}
                     /> :
                     <TableView
                         list={filteredFactoryList}

@@ -70,8 +70,7 @@ export default function AddEditDesignModal({ isAddEditDesignModalOpened, updateP
     }
 
     const handleSaveButton = async (preValue) => {
-        if (value ===preValue) {
-            console.log("--------", selectedValue, value)
+        if (value) {
             await updateProductDesign(value)
         }
         toggleAddEditDesignModal();

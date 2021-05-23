@@ -9,7 +9,7 @@ import {
     Headding
 } from '../../components';
 
-export default function AddEditVendorModal({ isAddEditVendorModalOpened, toggleAddEditVendorModal, updateVendor,fields, title, isEditing, selectedValue }) {
+export default function AddEditVendorModal({ isAddEditModalOpened, toggleAddEditModal, updateVendor,fields, title, isEditing, selectedValue }) {
     const [value, setValue] = useState({});
     useEffect(() => {
         if (selectedValue) {
@@ -48,7 +48,7 @@ export default function AddEditVendorModal({ isAddEditVendorModalOpened, toggleA
 
             await updateVendor(value)
         }
-        toggleAddEditVendorModal();
+        toggleAddEditModal();
     }
     const renderField = (item) => {
         if (item.type === 'text') {
@@ -63,8 +63,8 @@ export default function AddEditVendorModal({ isAddEditVendorModalOpened, toggleA
     }
     return (
         <MainModal
-            open={isAddEditVendorModalOpened}
-            toggleModal={toggleAddEditVendorModal}
+            open={isAddEditModalOpened}
+            toggleModal={toggleAddEditModal}
             title={`${isEditing ? 'Update' : 'Add'} ${title}`}>
 
 
@@ -72,7 +72,7 @@ export default function AddEditVendorModal({ isAddEditVendorModalOpened, toggleA
                 {renderView()}
 
                 <Grid item xs={6}>
-                    <Button variant="contained" color="secondary" onClick={toggleAddEditVendorModal} >
+                    <Button variant="contained" color="secondary" onClick={toggleAddEditModal} >
                         Cancel
                     </Button>
                 </Grid>
