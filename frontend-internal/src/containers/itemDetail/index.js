@@ -191,7 +191,7 @@ const ItemDetail = () => {
                     </Paper>
                 </Grid>
                 <Grid item sm={2}>
-                    <Paper style={{ padding: 20, margin: 10 }}>
+                    <Paper style={{ padding: 20, margin: 10 ,marginBottom: "70px"}}>
                         <Tabs
                             orientation="vertical"
                             variant="scrollable"
@@ -236,7 +236,8 @@ const ItemDetail = () => {
                             <Tab label="Product Documentation" value={18} />
                             <Tab label="Recycling & Sustainability" value={19} />
                             <Tab label="Product Design Setup" value={20} />
-                            <Tab label="Item Type Configurations" value={4} />
+                            {/* <Tab label="Item Type Configurations" value={4} /> */}
+                            <Tab label ="Internal Use Product Configurations" value={4} />
                             <Tab label="Production" value={9} />
 
 

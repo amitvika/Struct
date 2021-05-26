@@ -89,7 +89,7 @@ export default function Filter({
 
 		columnsFields.map((fieldItem, index) => {
 			item.push(
-				<Grid item sm sm={sizeOfEachEl} key={`filter_${index}`}>
+				<Grid item sm sm={sizeOfEachEl} style={{marginLeft: "7px"}} key={`filter_${index}`}>
 					<Select
 						isCheckbox
 						isMulti

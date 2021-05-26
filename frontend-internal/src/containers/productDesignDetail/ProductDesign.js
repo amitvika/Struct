@@ -36,7 +36,7 @@ const ProductDesign = () => {
     const newColoumnsFields = [
         { title: "ID", field: "id", editable: "never", align: 'center' },
         { title: "Name", field: "name", type: 'text' },
-         { title: "Client", field: "Client" , type: 'select'}
+        //  { title: "Client", field: "Client" , type: 'select'}
     ]
     const [columns, setColumns] = useState([
         { title: "ID", field: "id", editable: "never", align: 'center' },

@@ -11,6 +11,7 @@ const useStyles = makeStyles((theme) => ({
     formControl: {
         margin: theme.spacing(1),
         minWidth: 120,
+
     },
     selectEmpty: {
         marginTop: theme.spacing(2),
@@ -104,6 +105,7 @@ const SelectExample = ({
                     }}
                     MenuProps={MenuProps}
                 >
+                  
                     <MenuItem disabled value="">
                         <em>{placeholder}</em>
                     </MenuItem>
@@ -129,7 +131,7 @@ const SelectExample = ({
                     onChange={onChange}
                     input={<BootstrapInput />}
                     MenuProps={MenuProps}>
-                    <MenuItem disabled value="">
+                    <MenuItem disabled value=""> 
                         <em>{placeholder}</em>
                     </MenuItem>
                     {

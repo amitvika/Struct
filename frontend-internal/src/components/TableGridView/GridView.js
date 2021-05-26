@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold'
     },
     paper: {
+        
         height: '100%',
         width: '100%',
         cursor: 'pointer',
@@ -106,7 +107,7 @@ export default function GridView({
     }
 
     return (
-        <div className={isInsideDetailPanel ? 'fixed-grid--around-350' : 'fixed-grid--around'}>
+        <div className={isInsideDetailPanel ? 'fixed-grid--around-350' : 'fixed-grid--around'} style={{marginLeft: "-15px",marginRight: "-15px",}}>
             {list.map(product => {
                 return (
                     <div style={{ marginTop: '10px', marginBottom: '10px', width: isInsideDetailPanel ? '350px' : '380px' }}>

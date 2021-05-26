@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import MainModal from '../../../components/Modal'
 import { Paper, Grid, Button } from '@material-ui/core';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -13,10 +13,13 @@ export default function ProductionApprovalModal({
     setSelectedValue,
     handleApproveItemForProduction
 }) {
+    // const [state, setState] = useState({
+        
+    // });
 
     const onChange = (event) => {
         setSelectedValue(prev => ({ ...prev, isApprovedforProduction: event.target.checked }))
-        
+
     }
     const today = new Date(),
         dateCompo = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
@@ -58,36 +61,39 @@ export default function ProductionApprovalModal({
                     <Grid item xs={4}>
                         Approved for Production
                     </Grid>
-                    <Grid xs={8} style={{display: "flex"}}>
-                            <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-                                onChange={onChange}
-                                checked={selectedValue.isApprovedforProduction} />
-                            {selectedValue.isApprovedforProduction &&
-                                    <Grid item xs={8} style={{margin: "auto"}}>{selectedValue.productionApprovedBy.name}  {dateCompo}</Grid>
-                            }
-                        </Grid>
-                        <Grid item xs={4}>
+                    <Grid xs={8} style={{ display: "flex" }}>
+                        <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
+                            name="approval1"
+                            onChange={onChange}
+                            checked={selectedValue.isApprovedforProduction} />
+                        {selectedValue.isApprovedforProduction &&
+                            <Grid item xs={8} style={{ margin: "auto" }}>{selectedValue.productionApprovedBy.name}  {dateCompo}</Grid>
+                        }
+                    </Grid>
+                    <Grid item xs={4}>
                         Approved for Production
                     </Grid>
-                    <Grid xs={8} style={{display: "flex"}}>
-                            <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-                                onChange={onChange}
-                                checked={selectedValue.isApprovedforProduction} />
-                            {selectedValue.isApprovedforProduction &&
-                                    <Grid item xs={8} style={{margin: "auto"}}>{selectedValue.productionApprovedBy.name}  {dateCompo}</Grid>
-                            }
-                        </Grid>
-                        <Grid item xs={4}>
+                    <Grid xs={8} style={{ display: "flex" }}>
+                        <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
+                            name="approval2"
+                            onChange={onChange}
+                            checked={selectedValue.isApprovedforProduction} />
+                        {selectedValue.isApprovedforProduction &&
+                            <Grid item xs={8} style={{ margin: "auto" }}>{selectedValue.productionApprovedBy.name}  {dateCompo}</Grid>
+                        }
+                    </Grid>
+                    <Grid item xs={4}>
                         Approved for Production
                     </Grid>
-                    <Grid xs={8} style={{display: "flex"}}>
-                            <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-                                onChange={onChange}
-                                checked={selectedValue.isApprovedforProduction} />
-                            {selectedValue.isApprovedforProduction &&
-                                    <Grid item xs={8} style={{margin: "auto"}}>{selectedValue.productionApprovedBy.name}  {dateCompo}</Grid>
-                            }
-                        </Grid>
+                    <Grid xs={8} style={{ display: "flex" }}>
+                        <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
+                            name="approval3"
+                            onChange={onChange}
+                            checked={selectedValue.isApprovedforProduction} />
+                        {selectedValue.isApprovedforProduction &&
+                            <Grid item xs={8} style={{ margin: "auto" }}>{selectedValue.productionApprovedBy.name}  {dateCompo}</Grid>
+                        }
+                    </Grid>
                     <Grid item xs={12} style={{ textAlign: 'center' }}>
                         <Button
                             style={{ marginTop: '20px' }}

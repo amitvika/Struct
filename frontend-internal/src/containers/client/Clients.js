@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
+import { makeStyles } from '@material-ui/core/styles';
+import { Grid, Paper } from '@material-ui/core';
 
 import API from '../../api/clients.api';
 
@@ -14,8 +16,35 @@ import AddEditClientModal from './AddEditClientModal';
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { newColoumnsFields } from '../../constants/client'
+import IconButton from '@material-ui/core/IconButton';
+import AddIcon from '@material-ui/icons/AddBox';
+import InputBase from '@material-ui/core/InputBase';
+import SearchIcon from '@material-ui/icons/Search';
+const useStyles = makeStyles((theme) => ({
+    button: {
+        margin: theme.spacing(1),
+    },
+    Paper: {
+        padding: '2px 4px',
+        display: 'flex',
+        alignItems: 'center',
+        width: 400,
+    },
+    input: {
+        marginLeft: theme.spacing(1),
+        flex: 1,
+    },
+    iconButton: {
+        padding: 10,
+    },
+    divider: {
+        height: 28,
+        margin: 4,
+    },
+}));
 
 const Client = () => {
+    const classes = useStyles();
     let history = useHistory();
     const dispatch = useDispatch();
 
@@ -34,6 +63,30 @@ const Client = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [selectedListItem, setSelectedListItem] = useState(null);
 
+    const [searchTerm, setSearchTerm] = useState('')
+    const handleSearchInput = (event) => {
+        let searchText = event.target.value
+        setSearchTerm(searchText)
+
+        let fiteredData = clientList.filter((item) => {
+
+            if (searchText === "") {
+                return item
+            }
+            else if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
+                return item
+            }
+            else if (item.id.toLowerCase().includes(searchText.toLowerCase())) {
+                return item
+            }
+            else if (item.created_by.toLowerCase().includes(searchText.toLowerCase())) {
+                return item
+            }
+
+        }
+        )
+        setFilteredClientList(fiteredData)
+    }
 
 
     const [columns, setColumns] = useState([
@@ -276,16 +329,19 @@ const Client = () => {
             selectedId={selectedClientId}
             handleHistoryToggle={handleHistoryToggle}
         >
-          
-                <AddEditClientModal
-                    title={"Client"}
-                    fields={newColoumnsFields}
-                    isAddEditClientModalOpened={isAddEditModalOpened}
-                    toggleAddEditClientModal={toggleAddEditModal}
-                    updateClient={isEditing? updateClient: addClient}
-                    isEditing={isEditing}
-                    selectedValue={selectedListItem}
-                />
+            <div>
+
+ 
+            </div>
+            <AddEditClientModal
+                title={"Client"}
+                fields={newColoumnsFields}
+                isAddEditClientModalOpened={isAddEditModalOpened}
+                toggleAddEditClientModal={toggleAddEditModal}
+                updateClient={isEditing ? updateClient : addClient}
+                isEditing={isEditing}
+                selectedValue={selectedListItem}
+            />
 
             <Toolbar
                 title={'Clients'}
@@ -302,6 +358,8 @@ const Client = () => {
                 columnsFields={columnsFields}
                 isCustomAddButtonVisible={true}
                 handleAddButtonPress={toggleAddEditModal}
+                isSearchBarVisible={true}
+                handleSearchInput={handleSearchInput}
             />
 
             {
