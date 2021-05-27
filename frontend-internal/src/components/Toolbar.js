@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
         padding: '2px 4px',
         display: 'flex',
         alignItems: 'center',
-        width: 400,
+        width: 200,
     },
     input: {
         marginLeft: theme.spacing(1),
@@ -117,7 +117,7 @@ export default function Toolbar({
                             <Paper component="form" className={classes.Paper}>
                                 <InputBase
                                     className={classes.input}
-                                    placeholder="Search "
+                                    placeholder="Search FIelds"
                                     inputProps={{ 'aria-label': 'search google maps' }}
                                     onChange={handleSearchInput}
                                 />

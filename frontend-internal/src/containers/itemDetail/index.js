@@ -99,8 +99,7 @@ const ItemDetail = () => {
             case 5:
                 return <VendorDetails />
             case 6:
-                return <Manufacturing
-                />;
+                return <Manufacturing />;
             case 7:
                 return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
             case 8:
@@ -130,10 +129,8 @@ const ItemDetail = () => {
                 return "Product Documentation"
             case 19:
                 return "Recycling & Sustainability"
-            case 18:
-                return "Design Modifications"
-            case 19:
-                return "Production"
+            case 20:
+                return "Design Product Design"
             default:
                 return "Undefined Tab Index";
         }

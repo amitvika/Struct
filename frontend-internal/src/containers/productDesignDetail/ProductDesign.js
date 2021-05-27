@@ -68,6 +68,29 @@ const ProductDesign = () => {
                 }}> Show History </span>
         },
     ])
+    
+    
+    const [searchTerm, setSearchTerm] = useState('')
+    const handleSearchInput = (event) => {
+        let searchText = event.target.value
+        setSearchTerm(searchText)
+
+        let fiteredData = productDesignList.filter((item) => {
+
+            if (searchText === "") {
+                return item
+            }
+            else if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
+                return item
+            }
+            else if (item.id.toLowerCase().includes(searchText.toLowerCase())) {
+                return item
+            }
+
+        }
+        )
+        setFilteredProductDesignList(fiteredData)
+    }
 
     useEffect(() => {
         fetchClientList();
@@ -286,6 +309,8 @@ const ProductDesign = () => {
                 columnsFields={columnsFields}
                 isCustomAddButtonVisible={true}
                 handleAddButtonPress={toggleAddEditModal}
+                isSearchBarVisible={true}
+                handleSearchInput={handleSearchInput}
             />
 
             {

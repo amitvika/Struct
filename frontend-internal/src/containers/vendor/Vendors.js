@@ -34,6 +34,28 @@ const Vendors = () => {
     const [selectedListItem, setSelectedListItem] = useState(null);
 
 
+    const [searchTerm, setSearchTerm] = useState('')
+    const handleSearchInput = (event) => {
+        let searchText = event.target.value
+        setSearchTerm(searchText)
+
+        let fiteredData = vendorList.filter((item) => {
+
+            if (searchText === "") {
+                return item
+            }
+            else if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
+                return item
+            }
+            else if (item.id.toLowerCase().includes(searchText.toLowerCase())) {
+                return item
+            }
+
+        }
+        )
+        setFilteredVendorList(fiteredData)
+    }
+
     const [columns, setColumns] = useState([
         { title: "ID", field: "id", editable: "never", align: 'center' },
         { title: "Name", field: "name" },
@@ -275,6 +297,8 @@ const Vendors = () => {
                 columnsFields={columnsFields}
                 isCustomAddButtonVisible={true}
                 handleAddButtonPress={toggleAddEditModal}
+                isSearchBarVisible={true}
+                handleSearchInput={handleSearchInput}
             />
 
             {

@@ -51,6 +51,27 @@ const Factories = () => {
         },
     ])
 
+    const [searchTerm, setSearchTerm] = useState('')
+    const handleSearchInput = (event) => {
+        let searchText = event.target.value
+        setSearchTerm(searchText)
+
+        let fiteredData = factoryList.filter((item) => {
+
+            if (searchText === "") {
+                return item
+            }
+            else if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
+                return item
+            }
+            else if (item.id.toLowerCase().includes(searchText.toLowerCase())) {
+                return item
+            }
+
+        }
+        )
+        setFilteredFactoryList(fiteredData)
+    }
     useEffect(() => {
         fetchFactoryList();
     }, []);
@@ -287,7 +308,7 @@ const Factories = () => {
                 updateFactory={isEditing ? updateFactory : addFactory}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
-               
+
             />
 
             <Toolbar
@@ -305,6 +326,8 @@ const Factories = () => {
                 columnsFields={columnsFields}
                 isCustomAddButtonVisible={true}
                 handleAddButtonPress={toggleAddEditModal}
+                isSearchBarVisible={true}
+                handleSearchInput={handleSearchInput}
             />
 
             {
