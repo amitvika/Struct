@@ -210,29 +210,42 @@ export default function GeometricDimensioning({ fileId }) {
     }
 
     const getShapeInformation = (data) => {
-        if (state.disectstruct) {
-            setState({
-                currentdata: data,
-                showshapeinfo: true,
-            });
-        } else {
-            setIsLoading(true);
+        return new Promise((resolve, reject) => {
             getShapeInfo(data.step.slice(0, -5))
                 .then(res => res.data)
                 .then((repos) => {
-                    setIsLoading(false);
-                    setState({
-                        currentdata: {
-                            "name": data.name,
-                            "structures": repos
-                        },
-                        showshapeinfo: true,
-                    });
+                    if (!repos[0]) {
+                        resolve(data);
+                        return;
+                    }
+
+                    if (repos[0].type === 'Edge') {
+                        data.cornerLocation = `${JSON.stringify(repos[1].Info)}  ${JSON.stringify(repos[2].Info)}`;
+                    }
+                    else if (repos[0].type === 'Vertex') {
+                        data.location = `${JSON.stringify(repos[0].Info)}`;
+                    }
+                    else if (repos[0].type === 'Face') {
+                        // data.location = `${repos[0].Info}`;
+                        let edgeList = [];
+                        repos.map(item => {
+                            edgeList.push(item.id);
+                        });
+                        data.edgeList = edgeList;
+                    }
+                    resolve(data);
+                })
+                .catch(error => {
+                    console.log('Error', error);
+                    resolve(data)
                 });
-        }
+        })
     }
 
-    const changeStateOfSelection = (data, event) => {
+    const changeStateOfSelection = async (data, event) => {
+
+        data = await getShapeInformation(data);
+
         if (selectedOption == SELECTMEASURE) {
             if (data.selectedshell) {
                 if (!state.firstshell) {
@@ -257,9 +270,6 @@ export default function GeometricDimensioning({ fileId }) {
                         });
                         //console.log("First and second",this.state.firstshell,this.state.secondshell,data)
                     }
-                }
-                if (state.showinfoonselect) {
-                    getShapeInformation(data);
                 }
             } else {
                 if (state.firstshell && (state.firstshell.name == data.name)) {
@@ -325,7 +335,6 @@ export default function GeometricDimensioning({ fileId }) {
                             setState({ selectedObjects: tempSelectedObjects });
                         }
                     } else {
-                        console.log('2 : ', myAllChilds);
                         if (data.selectedshell) {
                             setState({ selectedObjects: myAllChilds });
                         } else {
