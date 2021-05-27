@@ -14,14 +14,14 @@ exports.get = async (req, res) => {
         if (query.$and.length > 0) {
             productions = await ProductionModel
                 .find(query)
-                .populate('productionApprovedBy')
+                .populate('approval_list.author')
                 .sort({ updatedAt: -1 })
 
         }
         else {
             productions = await ProductionModel
                 .find()
-                .populate('productionApprovedBy')
+                .populate('approval_list.author')
                 .sort({ updatedAt: -1 })
 
         }
@@ -105,13 +105,18 @@ exports.upsert = async (req, res) => {
 exports.approveItemForProduction = async (req, res) => {
     try {
 
-        let production = await ProductionModel.findByIdAndUpdate(
-            req.body.id,
+        let production = await ProductionModel.findById(req.params.id)
+        let isApprovedforProduction = false;
+
+        if (production && production.approval_list) {
+            isApprovedforProduction = production.approval_list.length == 2 ? true : false;
+        }
+
+        production = await ProductionModel.findByIdAndUpdate(
+            req.params.id,
             {
-                $set: {
-                    isApprovedforProduction: req.body.isApprovedforProduction,
-                    productionApprovedBy: req.user.id
-                }
+                $push: { "approval_list": req.body },
+                $set: { isApprovedforProduction: isApprovedforProduction }
             },
             { new: true })
 
@@ -125,7 +130,8 @@ exports.approveItemForProduction = async (req, res) => {
         });
         await changeTracking.save();
 
-        production = await ProductionModel.findById(production._id).populate('productionApprovedBy');
+        production = await ProductionModel.findById(production._id)
+            .populate('approval_list.author');
 
         res.json(mapProduction(production))
     }

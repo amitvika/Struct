@@ -12,7 +12,7 @@ router.get("/", ProductionController.get);
 
 router.post("/", ProductionController.upsert);
 
-router.put("/approve", ProductionController.approveItemForProduction);
+router.put("/:id/approve", ProductionController.approveItemForProduction);
 
 router.get("/items-in-production", ProductionController.itemInProduction);
 

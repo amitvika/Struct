@@ -30,7 +30,8 @@ exports.mapProduction = (item = {}) => {
         is_archived: item.is_archived,
         item_id: item.item_id,
         productionApprovedBy: mapUserInfo(item.productionApprovedBy),
-        isApprovedforProduction: item.isApprovedforProduction
+        isApprovedforProduction: item.isApprovedforProduction,
+        approval_list: mapApprovalList(item.approval_list)
     }
 }
 
@@ -69,8 +70,25 @@ const mapProductionForItem = (value) => {
         source: value.item_id.source,
         production_name: value.name,
         production_id: value.id,
-        isApprovedforProduction: value.isApprovedforProduction
+        isApprovedforProduction: value.isApprovedforProduction,
+        approval_list: mapApprovalList(value.approval_list)
+    }
+}
+
+const mapApprovalList = (approvalList) => {
+    if (!approvalList) {
+        return []
     }
 
+    return approvalList
+        .filter(item => item.author)
+        .map(item => {
+            return {
+                author: item.author._id,
+                author_name: item.author.name,
+                approval_time: item.time,
+                is_checked: item.isApproved
+            }
+        })
 
 }

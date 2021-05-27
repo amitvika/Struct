@@ -71,10 +71,19 @@ export default function Production(props) {
         }
     };
 
-    const handleApproveItemForProduction = (data) => {
-        ProductionAPI.approveItemForProduction(data)
+    const handleApproveItemForProduction = (productionId, data) => {
+        setIsModalOpened(false);
+        ProductionAPI.approveItemForProduction(productionId, data)
             .then(res => {
-                dispatch(showSuccessAlert({ message: 'Production status updated successfully' }));
+
+                setList(list.map(production => {
+                    if (production.id === get(res, 'data.id')) {
+                        return res.data;
+                    }
+                    return production;
+                }))
+
+                dispatch(showSuccessAlert({ message: 'Production approved for production' }));
             })
             .catch(error => {
                 dispatch(showErrorAlert({ message: 'Unable to save info' }));
@@ -114,7 +123,7 @@ export default function Production(props) {
                     quantity: 'Quantity',
                     start_date: 'Start date',
                     end_date: 'End date',
-                    'Production Approval': 'Production Approval'
+                    isApprovedforProduction: 'Production Approval'
                 }}
                 isHistoryLinkVisible={false}
                 handleTableRowClick={handleCardSelect}

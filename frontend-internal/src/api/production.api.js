@@ -4,7 +4,7 @@ const fetchProductions = (query) => getRequest(`/api/production?${query}`);
 
 const upsertProduction = (data) => postRequest('/api/production', data);
 
-const approveItemForProduction = (data) => putRequest(`/api/production/approve`, data);
+const approveItemForProduction = (id, data) => putRequest(`/api/production/${id}/approve`, data);
 
 const itemsInProduction = (query) => getRequest(`/api/production/items-in-production?${query}`);
 
