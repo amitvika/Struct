@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
         padding: '2px 4px',
         display: 'flex',
         alignItems: 'center',
-        width: 200,
+        width: '100%'
     },
     input: {
         marginLeft: theme.spacing(1),
@@ -121,7 +121,7 @@ export default function Toolbar({
 
                     {
                         isSearchBarVisible &&
-                        <Grid item xs={3}>
+                        <Grid item xs={2}>
                             <Paper component="form" className={classes.Paper}>
                                 <InputBase
                                     className={classes.input}

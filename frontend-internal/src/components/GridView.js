@@ -37,6 +37,7 @@ const useStyles = makeStyles((theme) => ({
     },
     img: {
         margin: 'auto',
+        padding: '5px',
         display: 'block',
         maxWidth: '96px',
         maxHeight: '96px',
@@ -96,38 +97,43 @@ export default function GridView({
 
                             }}  >
 
-                                <Grid item sm sm={4} style={{ display: 'flex' }}>
+                                <Grid item xs={3} style={{ display: 'flex' }}>
                                     <img className={classes.img} alt="complex" src={product.logoUrl || StructLogo} />
 
                                 </Grid>
 
-                                <Grid container sm sm={8}  >
+                                <Grid container xs={9} >
                                     {renderItem(product)}
-
-
+                                </Grid>
+                                <Grid container xs={12} >
                                     {
                                         isHistoryLinkVisible &&
-                                        <Grid item sm sm={12} style={{ display: "flex" }} className={classes.historyLink}>
+                                        <Grid item xs style={{ display: "flex" }} className={classes.historyLink}>
                                             <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={(event) => {
                                                 event.stopPropagation();
                                                 handleHistoryToggle({ rowId: product.id })
                                             }}>
                                                 View History
                                                 </Typography>
-                                            {
-                                                isAddEditLinkVisible &&
-                                                <IconButton >
-
-                                                    <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'right' }} onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        handleEditButtonPress(product)
-                                                    }}>
-                                                        <EditIcon />
-                                                    </Typography>
-                                                </IconButton>
-                                            }
                                         </Grid>
                                     }
+
+                                    {
+                                        isAddEditLinkVisible &&
+                                        <Grid item xs >
+
+                                            <IconButton >
+
+                                                <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'right' }} onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    handleEditButtonPress(product)
+                                                }}>
+                                                    <EditIcon />
+                                                </Typography>
+                                            </IconButton>
+                                        </Grid>
+                                    }
+
 
 
 
