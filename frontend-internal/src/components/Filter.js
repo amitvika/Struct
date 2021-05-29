@@ -4,125 +4,123 @@ import { Grid, Paper, Icon, Button } from '@material-ui/core';
 import Select from './atoms/Select';
 
 export default function Filter({
-	list = [],
-	filteredList = [],
-	setFilteredList,
-	columnsFields = []
+    list = [],
+    filteredList = [],
+    setFilteredList,
+    columnsFields = []
 }) {
-	const [selectedFieldName, setSelectedFieldName] = useState('');
-	const [selectedFieldOptions, setSelectedFieldOptions] = useState([]);
-	const [selectedFields, setSelectedFields] = useState({});
+    const [selectedFieldName, setSelectedFieldName] = useState('');
+    const [selectedFieldOptions, setSelectedFieldOptions] = useState([]);
+    const [selectedFields, setSelectedFields] = useState({});
 
-	useEffect(() => {
-		filtered();
-	}, [selectedFields])
+    useEffect(() => {
+        filtered();
+    }, [selectedFields])
 
-	const filtered = () => {
-		const myArrayFiltered = list.filter((el) => {
-			let flag = true;
+    const filtered = () => {
+        const myArrayFiltered = list.filter((el) => {
+            let flag = true;
 
-			Object.keys(selectedFields).forEach(key => {
-				const fieldValues = selectedFields[key];
+            Object.keys(selectedFields).forEach(key => {
+                const fieldValues = selectedFields[key];
 
-				if (flag && fieldValues.length > 0 && fieldValues.length !== 1) {
-					flag = fieldValues.some((f) => f === el[key]);
-				}
-			});
+                if (flag && fieldValues.length > 0 && fieldValues.length !== 1) {
+                    flag = fieldValues.some((f) => f === el[key]);
+                }
+            });
 
-			return flag;
-		});
-
-
-		setFilteredList(myArrayFiltered)
-	}
-
-	const handleChange = (data, field) => {
-		setSelectedFieldOptions(get_unique_options(field))
-
-		setSelectedFields(prev => {
-			return {
-				...prev,
-				[field]: data
-			}
-		});
-		setSelectedFieldName(field)
-	}
+            return flag;
+        });
 
 
-	const get_unique_options = (field) => {
-		if (field === selectedFieldName) {
-			return selectedFieldOptions;
-		}
+        setFilteredList(myArrayFiltered)
+    }
 
-		const array = filteredList;
+    const handleChange = (data, field) => {
+        setSelectedFieldOptions(get_unique_options(field))
 
-		let flags = [], output = [], l = array.length, i;
-
-		for (i = 0; i < l; i++) {
-			if (flags[array[i][field]]) {
-				continue;
-			}
-
-			let tempValue = array[i][field];
-			if (tempValue && tempValue.trim().length > 0) {
-				flags[array[i][field]] = true;
-				output.push(array[i][field]);
-			}
-		}
-		return output;
-	}
+        setSelectedFields(prev => {
+            return {
+                ...prev,
+                [field]: data
+            }
+        });
+        setSelectedFieldName(field)
+    }
 
 
-	const getValues = (field) => {
-		if (selectedFields[field]) {
-			return selectedFields[field]
-		}
-		else {
-			return [""]
-		}
-	}
+    const get_unique_options = (field) => {
+        if (field === selectedFieldName) {
+            return selectedFieldOptions;
+        }
 
-	const renderItem = () => {
-		let item = [];
-		let sizeOfEachEl = parseInt(9 / Object.keys(columnsFields).length);
+        const array = filteredList;
 
-		Object.keys(columnsFields).forEach(fieldItem => {
-			item.push(
-				<Grid item sm sm={sizeOfEachEl} style={{marginRight: '10px'}}>
-					<Select
-						isCheckbox
-						isMulti
-						onChange={(data) => handleChange(data, fieldItem)}
-						options={get_unique_options(fieldItem)}
-						placeholder={`Select ${columnsFields[fieldItem]}`}
-						value={getValues(fieldItem)}
-					/>
-				</Grid>
-			)
-		})
-		return item;
-	}
+        let flags = [], output = [], l = array.length, i;
 
-	return (
-		<>
-			<Grid item sm sm={1} style={{ display: 'flex', justifyContent: 'center' }}>
-				<Icon style={{ marginTop: '10px' }}>search</Icon>
-			</Grid>
-			<Grid item sm sm={1}>
-				<Button
-					variant="contained"
-					color="primary"
-					type="button"
-					onClick={() => {
-						setFilteredList(list)
-						setSelectedFields({})
-					}}>
-					Clear
+        for (i = 0; i < l; i++) {
+            if (flags[array[i][field]]) {
+                continue;
+            }
+
+            let tempValue = array[i][field];
+            if (tempValue && tempValue.trim().length > 0) {
+                flags[array[i][field]] = true;
+                output.push(array[i][field]);
+            }
+        }
+        return output;
+    }
+
+
+    const getValues = (field) => {
+        if (selectedFields[field]) {
+            return selectedFields[field]
+        }
+        else {
+            return [""]
+        }
+    }
+
+    const renderItem = () => {
+        let item = [];
+        // let sizeOfEachEl = parseInt(9 / Object.keys(columnsFields).length);
+
+        Object.keys(columnsFields).forEach(fieldItem => {
+            item.push(
+                <Grid item xs style={{ marginRight: '10px' }}>
+                    <Select
+                        isCheckbox
+                        isMulti
+                        onChange={(data) => handleChange(data, fieldItem)}
+                        options={get_unique_options(fieldItem)}
+                        placeholder={`Select ${columnsFields[fieldItem]}`}
+                        value={getValues(fieldItem)}
+                    />
+                </Grid>
+            )
+        })
+        return item;
+    }
+
+    return (
+        <Grid container>
+            <Grid item xs={2} style={{ display: 'flex', justifyContent: 'center' }}>
+                <Icon style={{ marginTop: '10px' }}>search</Icon>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    type="button"
+                    onClick={() => {
+                        setFilteredList(list)
+                        setSelectedFields({})
+                    }}>
+                    Clear
           </Button>
-			</Grid>
-			{
-				renderItem()
-			}
-		</>
-	)
+            </Grid>
+            {
+                renderItem()
+            }
+        </Grid>
+    )
 }

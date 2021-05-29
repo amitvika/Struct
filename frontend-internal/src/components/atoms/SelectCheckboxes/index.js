@@ -1,4 +1,4 @@
 import Select from './SelectCheckboxes';
-import './style.css';
+// import './style.css';
 
 export default Select;

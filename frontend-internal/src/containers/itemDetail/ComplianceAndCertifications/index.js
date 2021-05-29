@@ -1,10 +1,10 @@
-import React,{useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentItemAction } from '../../../actions/itemActions'
@@ -39,35 +39,35 @@ export default function ComplianceAndCertifications({ itemValue, setItemValue })
                 [event.target.name]: event.target.checked
             }
         };
-   
-        
+
+
         dispatch(setCurrentItemAction(updatedItem));
-        
+
     };
-    
+
     const handleListItem = (value) => {
         if (currentTab === value) {
             setCurrentTab(null);
         }
         else {
             setCurrentTab(value)
-            
+
         }
     }
-        
-    
+
+
     const { RoHS, ISO, CE, FCC } = currentItem?.compliance || {};
 
 
     const error = [RoHS, ISO, CE, FCC].filter((v) => v).length !== 2;
 
     return (
-        <div className={classes.root}>
+        <Paper style={{ margin: 10, padding: 10 }}>
             <FormControl component="fieldset" className={classes.formControl}>
                 {/* <FormLabel component="legend">Assign responsibility</FormLabel> */}
                 <FormGroup>
                     <FormControlLabel
-                        control={<Checkbox   checked={RoHS} onChange={handleChange} name="RoHS" />}
+                        control={<Checkbox checked={RoHS} onChange={handleChange} name="RoHS" />}
                         label="RoHS"
                     />
                     <FormControlLabel
@@ -85,6 +85,6 @@ export default function ComplianceAndCertifications({ itemValue, setItemValue })
                 </FormGroup>
                 {/* <FormHelperText>Be careful</FormHelperText> */}
             </FormControl>
-        </div>
+        </Paper>
     );
 }

@@ -188,7 +188,7 @@ const ItemDetail = () => {
                     </Paper>
                 </Grid>
                 <Grid item sm={2}>
-                    <Paper style={{ padding: 20, margin: 10 ,marginBottom: "70px"}}>
+                    <Paper style={{ margin: 10, marginBottom: "70px" }}>
                         <Tabs
                             orientation="vertical"
                             variant="scrollable"
@@ -234,7 +234,7 @@ const ItemDetail = () => {
                             <Tab label="Recycling & Sustainability" value={19} />
                             <Tab label="Product Design Setup" value={20} />
                             {/* <Tab label="Item Type Configurations" value={4} /> */}
-                            <Tab label ="Internal Use Product Configurations" value={4} />
+                            <Tab label="Internal Use Product Configurations" value={4} />
                             <Tab label="Production" value={9} />
 
 
@@ -242,9 +242,9 @@ const ItemDetail = () => {
                     </Paper>
                 </Grid>
                 <Grid item sm sm={10}>
-                    <Paper style={{ padding: 20, margin: 10 }}>
-                        {renderPageSwitch()}
-                    </Paper>
+                    {/* <Paper style={{ margin: 10 }}> */}
+                    {renderPageSwitch()}
+                    {/* </Paper> */}
                 </Grid>
             </Grid>
             <Snackbar

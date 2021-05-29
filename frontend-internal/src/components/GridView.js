@@ -8,8 +8,7 @@ import {
 } from '@material-ui/core';
 import './style.css'
 import EditIcon from '@material-ui/icons/Edit';
-
-
+import Box from '@material-ui/core/Box';
 import StructLogo from '../assets/images/struct_logo.png';
 
 
@@ -41,6 +40,9 @@ const useStyles = makeStyles((theme) => ({
         display: 'block',
         maxWidth: '96px',
         maxHeight: '96px',
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain'
     },
     historyLink: {
         margin: '10px',
@@ -71,43 +73,41 @@ export default function GridView({
 
         Object.keys(columnsFields).forEach(fieldItem => {
             item.push(
-                <Grid item sm sm={12} className={classes.fieldItem}>
-                    <div >
-                        <span className={classes.boldtablecell}>{columnsFields[fieldItem]}</span>
-                        {`: `}
-                        <span className={classes.tableCell}>{` ${data[fieldItem] != undefined || data[fieldItem] != null ? data[fieldItem] : ''}`}</span>
-                    </div>
-                </Grid>
+                <Grid item sm sm={12}>
+                    <Typography variant="subtitle2" gutterBottom noWrap={true}>
+                        {`${columnsFields[fieldItem]} : ${data[fieldItem] != undefined || data[fieldItem] != null ? data[fieldItem] : ''}`}
+                    </Typography>
+                </Grid >
             )
         })
         return item;
     }
 
     return (
-        <div className={isInsideDetailPanel ? 'fixed-grid--around-350' : 'fixed-grid--around'}>
+        <Grid container spacing={2}>
             {list.map((product) => {
                 return (
-                    <div style={{ marginTop: '10px', marginBottom: '10px', width: isInsideDetailPanel ? '350px' : '380px' }}>
+                    <Grid item xs={6} sm={3}>
                         <Paper className={classes.paper} onClick={() => handleTableRowClick(product)} >
-                           
+
                             <Grid container style={{
                                 height: '100%',
                                 paddingBottom: '10px',
-                            
+
                             }}  >
-                                
+
                                 <Grid item sm sm={4} style={{ display: 'flex' }}>
                                     <img className={classes.img} alt="complex" src={product.logoUrl || StructLogo} />
-                    
+
                                 </Grid>
-                            
-                                <Grid item sm sm={8}  >
+
+                                <Grid container sm sm={8}  >
                                     {renderItem(product)}
-                                  
+
 
                                     {
                                         isHistoryLinkVisible &&
-                                        <Grid item sm sm={12} style={{display: "flex"}} className={classes.historyLink}>
+                                        <Grid item sm sm={12} style={{ display: "flex" }} className={classes.historyLink}>
                                             <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={(event) => {
                                                 event.stopPropagation();
                                                 handleHistoryToggle({ rowId: product.id })
@@ -128,18 +128,18 @@ export default function GridView({
                                             }
                                         </Grid>
                                     }
-                                   
+
 
 
                                 </Grid>
                             </Grid>
                         </Paper>
-                    </div>
+                    </Grid>
                 )
             })
             }
 
-        </div >
+        </Grid >
 
     )
 }

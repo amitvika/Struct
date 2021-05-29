@@ -15,7 +15,7 @@ import {
 import DateFnsUtils from "@date-io/date-fns";
 import moment from 'moment';
 import { reject } from 'lodash';
-import ProductionApprovalModal from './productionModal';
+import ApprovalModal from '../../../components/ApprovalModal';
 export default function Autoscaling() {
 
     let history = useHistory();
@@ -206,7 +206,7 @@ export default function Autoscaling() {
         <Paper>
             {
                 isModalOpened &&
-                <ProductionApprovalModal
+                <ApprovalModal
                     isModalOpened={isModalOpened}
                     toggleModal={toggleModal}
                     selectedValue={selectedValue}

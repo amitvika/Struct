@@ -12,6 +12,9 @@ import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import DirectionsIcon from '@material-ui/icons/Directions';
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
+
 
 const useStyles = makeStyles((theme) => ({
     button: {
@@ -49,7 +52,7 @@ export default function Toolbar({
     isDeleteCheckboxVisible = true,
     isHistoryCheckboxVisible = true,
     isCustomAddButtonVisible = false,
-    isSearchBarVisible= false,
+    isSearchBarVisible = false,
     handleAddButtonPress = () => { },
     handleSearchInput = () => { },
     ...restProps
@@ -58,20 +61,19 @@ export default function Toolbar({
     return (
         <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
             <Grid container>
-
-                <Grid item sm sm={2}>
-                    <Grid item sm sm={12}>
+                <Grid item xs={2}>
+                    <Grid item xs>
                         <Checkbox
                             checked={isGridViewSelected}
                             size="large"
                             label="View GridView"
-                            onClick={() => setIsGridViewSelected(!isGridViewSelected)}
+                            onChange={() => setIsGridViewSelected(!isGridViewSelected)}
                         />
                     </Grid>
 
                     {
                         isHistoryCheckboxVisible &&
-                        <Grid item sm sm={12}>
+                        <Grid item xs>
                             <Checkbox
                                 checked={isHistoryModalOpened}
                                 label="Show History"
@@ -82,7 +84,7 @@ export default function Toolbar({
 
                     {
                         isDeleteCheckboxVisible &&
-                        <Grid item sm sm={12}>
+                        <Grid item xs>
                             <Checkbox
                                 checked={isDeletedItemVisible}
                                 label="View Archived"
@@ -93,27 +95,33 @@ export default function Toolbar({
 
 
                 </Grid>
-                <Grid item sm sm={10}>
-                    <Grid item sm sm={12} style={{ display: 'flex' }}>
-                        <Filter
-                            {...restProps} />
-                        {
-                            title === 'Items' &&
-                            <Grid item sm sm={3} style={{ display: 'flex', flexDirection: 'column' }}>
-                                <Checkbox
-                                    label="Unused by Other Items"
-                                />
-                                <Checkbox
-                                    label="Unused by Clients"
-                                />
-                            </Grid>
-                        }
+                <Grid item xs>
+                    <Filter
+                        {...restProps} />
+                </Grid>
+                {
+                    title === 'Items' &&
+                    <Grid item xs={2} style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Checkbox
+                            label="Unused by Other Items"
+                        />
+                        <Checkbox
+                            label="Unused by Clients"
+                        />
                     </Grid>
-                    <Space size={30} />
-                    <Grid item sm sm={12} style={{ display: 'flex' }}>
-                        <Headding fontSize={30} title={title} style={{ display: 'flex', flex: 1, fontWeight: 'bold', justifyContent: 'center' }}></Headding>
-                        {
-                            isSearchBarVisible &&
+                }
+
+                <Space size={30} />
+                <Grid container spacing={3}>
+                    <Grid item xs>
+                        <Box textAlign="center" m={1}>
+                            <Headding as={'h4'} title={title}></Headding>
+                        </Box>
+                    </Grid>
+
+                    {
+                        isSearchBarVisible &&
+                        <Grid item xs={3}>
                             <Paper component="form" className={classes.Paper}>
                                 <InputBase
                                     className={classes.input}
@@ -127,15 +135,18 @@ export default function Toolbar({
                                     />
                                 </IconButton>
                             </Paper>
-                        }
-                        {
-                            isCustomAddButtonVisible &&
+                        </Grid>
+                    }
+                    {
+                        isCustomAddButtonVisible &&
+                        <Grid item xs={1}>
                             <IconButton color="primary" aria-label="upload picture" component="span" onClick={handleAddButtonPress}>
                                 <AddIcon />
                             </IconButton>
-                        }
-                    </Grid>
+                        </Grid>
+                    }
                 </Grid>
+
             </Grid>
         </Paper >
     )

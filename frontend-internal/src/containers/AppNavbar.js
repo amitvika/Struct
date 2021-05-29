@@ -239,7 +239,7 @@ const AppNavbar = () => {
                 aria-controls={open ? 'menu-list-grow' : undefined}
                 aria-haspopup="true"
                 onClick={handleToggle}
-                style={{ color: 'white', fontSize: 14 }}
+                style={{ color: 'white'}}
               >
                 {isAuthenticated
                   ? `Welcome: ${user.name} ${user.email}`

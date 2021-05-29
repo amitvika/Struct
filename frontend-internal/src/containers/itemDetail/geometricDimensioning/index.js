@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     Grid,
-    CircularProgress
+    CircularProgress,
+    Paper
 } from "@material-ui/core"
 import Viewer from './Viewer';
 import ViewerToolbar from './ViewerToolbar';
@@ -363,23 +364,26 @@ export default function GeometricDimensioning({ fileId }) {
     }
 
     return (
-        <Grid className="section-padding-left" container spacing={4}>
-            <Grid item xs={6}>
-                <Viewer
-                    {...state}
-                    selectedOption={selectedOption}
-                    handleModelClick={handleModelClick}
-                ></Viewer>
-            </Grid>
+        <Paper style={{ margin: 10, padding: 10 }}>
 
-            <Grid item xs={6}>
-                <ViewerToolbar
-                    {...state}
-                    selectedOption={selectedOption}
-                    setSelectedOption={setSelectedOption}
-                    resetSelections={resetSelections}
-                    selectAllSelectedSolids={selectAllSelectedSolids} />
+            <Grid container spacing={4}>
+                <Grid item xs={6}>
+                    <Viewer
+                        {...state}
+                        selectedOption={selectedOption}
+                        handleModelClick={handleModelClick}
+                    ></Viewer>
+                </Grid>
+
+                <Grid item xs={6}>
+                    <ViewerToolbar
+                        {...state}
+                        selectedOption={selectedOption}
+                        setSelectedOption={setSelectedOption}
+                        resetSelections={resetSelections}
+                        selectAllSelectedSolids={selectAllSelectedSolids} />
+                </Grid>
             </Grid>
-        </Grid>
+        </Paper>
     )
 }

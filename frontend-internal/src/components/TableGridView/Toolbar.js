@@ -40,7 +40,7 @@ export default function Toolbar({
 							checked={isGridViewSelected}
 							size="large"
 							label="View GridView"
-							onClick={() => setIsGridViewSelected(!isGridViewSelected)}
+							onChange={() => setIsGridViewSelected(!isGridViewSelected)}
 						/>
 					</Grid>
 

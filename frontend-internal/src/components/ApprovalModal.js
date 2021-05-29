@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import MainModal from '../../../components/Modal'
+import MainModal from './Modal'
 import { Paper, Grid, Button } from '@material-ui/core';
 import Checkbox from '@material-ui/core/Checkbox';
-import Heading from '../../../components/atoms/Headding';
+import Heading from './atoms/Headding';
 import moment from 'moment';
-import GridView from '../../../components/GridView';
+// import GridView from '../../../components/GridView';
 import { useSelector } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
@@ -21,8 +21,7 @@ export default function ProductionApprovalModal({
 
     const [currentApproval, setCurrentApproval] = useState({ author_name: '', author: "", date: '1223', isChecked: false })
 
-    const 
-    onChange = (event) => {
+    const onChange = (event) => {
 
         if (event.target.checked) {
             setCurrentApproval({ author: user._id, author_name: user.name, date: '1223', isChecked: true })
@@ -72,7 +71,7 @@ export default function ProductionApprovalModal({
         }
 
         return list
-    }
+    } 
 
     return (
         <MainModal open={isModalOpened} toggleModal={toggleModal} >
@@ -102,7 +101,7 @@ export default function ProductionApprovalModal({
                         Start Date
                     </Grid>
                     <Grid item xs={8}>{moment(selectedValue.start_date).format('DD/MM/YYYY')}</Grid>
-
+                    
                     <Grid item xs={4}>
                         End Date
                     </Grid>

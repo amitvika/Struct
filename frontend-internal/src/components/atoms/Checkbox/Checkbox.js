@@ -23,17 +23,17 @@ const Checkbox = ({
 
   return (
     <div
-      style={containerStyle}
-      onClick={onClick}
-      className={classNames('bdb-checkbox', size && `bdb-checkbox--size-${size}`, bold && 'bdb-checkbox--bold')}
+    //   style={containerStyle}
+    //   onClick={onClick}
+    //   className={classNames('bdb-checkbox', size && `bdb-checkbox--size-${size}`, bold && 'bdb-checkbox--bold')}
     >
       <CheckboxUI
         checked={checked}
-        className={classNames('brewery-checkbox', greyDesign && 'brewery-checkbox--grey')}
+        // className={classNames('brewery-checkbox', greyDesign && 'brewery-checkbox--grey')}
         color="primary"
         id={id}
-        checkedIcon={<span className="brewery-checkbox--checked" />}
-        icon={<span className="brewery-checkbox--icon" />}
+        // checkedIcon={<span className="brewery-checkbox--checked" />}
+        // icon={<span className="brewery-checkbox--icon" />}
         onChange={onChange}
         disableRipple={readonly}
         {...field}
