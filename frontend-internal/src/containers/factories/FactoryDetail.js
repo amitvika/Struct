@@ -20,6 +20,7 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
 import BaseFactorySetup from './baseFactorySetup'
 import ItemsInProduction from './itemsInProduction'
+import Autoscaling from './autoscaling'
 
 import get from 'lodash/get';
 
@@ -74,6 +75,8 @@ const FactoriesDetail = () => {
                 return <BaseFactorySetup factoryId={id} setFactoryValue={setFactoryValue} factoryValue={factoryValue} />
             case 2:
                 return <ItemsInProduction factoryId={id} setFactoryValue={setFactoryValue} factoryValue={factoryValue} />
+            case 3:
+                return <Autoscaling />
             default:
                 return "Undefined Tab Index";
         }
@@ -124,8 +127,9 @@ const FactoriesDetail = () => {
                             onChange={(event, newValue) => setValue(newValue)}>
                             <Tab label="Base Factory Setup" value={1} />
                             <Tab label="Items in Production" value={2} />
-                            <Tab label="Floorplan Setup" value={3} />
+                            <Tab label="Floorplan Setup"  />
                             <Tab label="Facility Capabilities" value={4} />
+                            <Tab label="Autoscaling" value={3} />
 
                         </Tabs>
                     </Paper>

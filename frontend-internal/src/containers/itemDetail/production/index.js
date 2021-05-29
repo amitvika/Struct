@@ -10,6 +10,7 @@ import { Spinner } from "reactstrap";
 import get from 'lodash/get';
 import ProductionApprovalModal from './ProductionApprovalModal'
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
+import SimpleBackdrop from '../../../components/Backdrop';
 
 export default function Production(props) {
     const dispatch = useDispatch();
@@ -72,6 +73,7 @@ export default function Production(props) {
     };
 
     const handleApproveItemForProduction = (productionId, data) => {
+        setIsLoading(true)
         setIsModalOpened(false);
         ProductionAPI.approveItemForProduction(productionId, data)
             .then(res => {
@@ -82,28 +84,18 @@ export default function Production(props) {
                     }
                     return production;
                 }))
-
+                setIsLoading(false)
                 dispatch(showSuccessAlert({ message: 'Production approved for production' }));
             })
             .catch(error => {
                 dispatch(showErrorAlert({ message: 'Unable to save info' }));
-                console.log(error)
+                setIsLoading(false)
             })
-    }
-
-    if (isLoading) {
-        return (<div
-            style={{
-                display: "flex",
-                justifyContent: "center"
-            }}
-        >
-            <Spinner animation="border" />
-        </div>)
     }
 
     return (
         <>
+            <SimpleBackdrop open={isLoading} />
             <Heading>Production Approval</Heading>
             {isModalOpened &&
                 <ProductionApprovalModal
@@ -130,4 +122,4 @@ export default function Production(props) {
             />
         </>
     )
-}
+} 
