@@ -10,13 +10,13 @@ router.use(checkAccess);
 
 router.get("/", ClientController.get);
 
-router.get("/:id", ClientController.getOne);
+// router.get("/:id", ClientController.getOne);
 
-router.post("/", hasPermissionForClientEdit, ClientController.create);
+router.post("/", hasPermissionForClientEdit, ClientController.upsert);
 
-router.delete("/:id", hasPermissionForClientEdit, ClientController.delete);
+// router.delete("/:id", hasPermissionForClientEdit, ClientController.delete);
 
-router.put("/:id", hasPermissionForClientEdit, ClientController.update);
+// router.put("/:id", hasPermissionForClientEdit, ClientController.update);
 
 router.patch("/:id/configure-domain", hasPermissionForClientEdit, ClientController.createPersonalSubdomain);
 

@@ -86,9 +86,8 @@ export default function Filter({
         let item = [];
 
         let sizeOfEachEl = parseInt(9 / Object.keys(columnsFields).length);
-
         columnsFields
-            .filter(fieldItem => fieldItem.isFilterColumn ? fieldItem.isFilterColumn : true)
+            .filter(fieldItem => fieldItem.isFilterColumn === false ? fieldItem.isFilterColumn : true)
             .map((fieldItem, index) => {
                 item.push(
                     <Grid item sm sm={sizeOfEachEl} style={{ marginLeft: "7px" }} key={`filter_${index}`}>

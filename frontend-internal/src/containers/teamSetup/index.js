@@ -15,7 +15,7 @@ const TeamSetup = ({
             fields={teamSetupFields}
             fetchList={UserSetupAPI.fetchTeams}
             upsertListItem={UserSetupAPI.upsertTeam}
-            isManageTeamAvailable={true}
+            isManageTeamVisible={true}
             ManageTeamModal={ManageTeamModal}
         />
     );

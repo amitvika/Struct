@@ -76,7 +76,9 @@ export default function GridView({
     const renderItem = (data) => {
         let item = [];
 
-        columnsFields.map(fieldItem => {
+        columnsFields
+        .filter(fieldItem => fieldItem.isGridViewVisible === false ? fieldItem.isGridViewVisible : true)
+        .map(fieldItem => {
             item.push(
                 <Grid item sm sm={12}>
                     <Typography variant="subtitle2" gutterBottom noWrap={true}>

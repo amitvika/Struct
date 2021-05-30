@@ -24,7 +24,7 @@ import ConfigurationHistory from './page/ConfigurationHistory';
 import AccessConfiguration from './page/AccessConfiguration';
 import ViewAccess from './page/ViewAccess';
 import Factories from './containers/factories/Factories';
-import Clients from './containers/client/Clients';
+import Clients from './containers/client';
 import ClientDetail from "./containers/client/ClientDetail";
 
 import FactoryDetail from './containers/factories/FactoryDetail'

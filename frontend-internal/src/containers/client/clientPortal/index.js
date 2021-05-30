@@ -21,20 +21,20 @@ export default function ClientPortal({ clientData, handleClientUpdate, isWebsite
 		event.persist();
 		if (event.target !== null) {
 			setIsClientSiteUpdated(true);
-			handleClientUpdate({ ...clientData, websiteName: event.target.value });
+			handleClientUpdate({ ...clientData, domain_name: event.target.value });
 		}
 	}
 
 	const handleChange = (event) => {
 		setIsClientSiteUpdated(true);
-		handleClientUpdate({ ...clientData, isSiteVisible: event.target.checked });
+		handleClientUpdate({ ...clientData, is_domain_active: event.target.checked });
 	};
 
 	const handleSubmit = () => {
 		setIsClientSiteUpdated(false);
 
 		setIsLoading(true);
-		ClientAPI.configureSubdomain(clientData._id, { websiteName: clientData.websiteName, isSiteVisible: clientData.isSiteVisible })
+		ClientAPI.configureSubdomain(clientData.id, { domain_name: clientData.domain_name, is_domain_active: clientData.is_domain_active })
 			.then(res => {
 				setIsLoading(false);
 				dispatch(showSuccessAlert({ message: 'All data is saved' }));
@@ -60,11 +60,11 @@ export default function ClientPortal({ clientData, handleClientUpdate, isWebsite
 				<Grid item xs={8}>
 					<Checkbox
 						inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-						checked={clientData.isSiteVisible}
+						checked={clientData.is_domain_active}
 						onChange={handleChange} />
 				</Grid>
 				{
-					clientData.isSiteVisible &&
+					clientData.is_domain_active &&
 					<>
 						<Grid item xs={4}>
 							<Headding bold title={'Client Site URL'} />
@@ -75,17 +75,17 @@ export default function ClientPortal({ clientData, handleClientUpdate, isWebsite
 									placeholder="Enter website name"
 									type="text"
 									onChange={handleSiteNameChange}
-									value={clientData.websiteName}
+									value={clientData.domain_name}
 								/>
 							</Grid>
 							<Grid item xs={6} style={{ color: isWebsiteNameAvailable ? 'green' : 'red' }}>
 								{
-									isWebsiteNameAvailable && clientData.websiteName && clientData.websiteName.length > 0 &&
+									isWebsiteNameAvailable && clientData.domain_name && clientData.domain_name.length > 0 &&
 									<Link color="inherit"
-										onClick={() => window.open(`http://${clientData.websiteName}.struct.services`, "_blank")}>{`${clientData.websiteName}.struct.services`}</Link>
+										onClick={() => window.open(`http://${clientData.domain_name}.struct.services`, "_blank")}>{`${clientData.domain_name}.struct.services`}</Link>
 								}
 								{
-									!isWebsiteNameAvailable && <span>{`${clientData.websiteName}.struct.services `}***Website Name Already Taken***</span>
+									!isWebsiteNameAvailable && <span>{`${clientData.domain_name}.struct.services `}***Website Name Already Taken***</span>
 								}
 							</Grid>
 						</Grid>

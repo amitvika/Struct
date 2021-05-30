@@ -13,7 +13,7 @@ const TeamSetup = () => {
             fields={accessSetupFields}
             fetchList={AccessSetupAPI.fetchAccessSetup}
             upsertListItem={AccessSetupAPI.upsertAccessSetup}
-            isManageTeamAvailable={true}
+            isManageTeamVisible={true}
             ManageTeamModal={ManageAccessSetupModal}
         />
     );

@@ -15,7 +15,7 @@ const MyTeam = ({ }) => {
             fetchList={UserSetupAPI.fetchMyTeams}
             isCustomAddButtonVisible={false}
             ManageTeamModal={TeamMemberModal}
-            isManageTeamAvailable={true}
+            isManageTeamVisible={true}
         />
     );
 }

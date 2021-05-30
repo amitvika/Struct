@@ -160,7 +160,7 @@ const Client = () => {
                         columns={columns}
                         setColumns={setColumns}
                         handleTableRowClick={handleTableRowClick}
-                        isActionHidden={false}
+                        isAddEditActionsEnabled={false}
                     />
 
             }

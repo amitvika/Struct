@@ -52,7 +52,7 @@ export default function Products({
 
 	const fetchSelectedList = () => {
 		return new Promise((resole, reject) => {
-			resole(get(clientData, 'linkedItems', []));
+			resole(get(clientData, 'linked_items', []));
 		})
 	}
 
@@ -86,7 +86,7 @@ export default function Products({
 						mapValues={mapItems}
 						handleUpdate={(data) => handleClientUpdate({
 							...clientData,
-							linkedItems: data
+							linked_items: data
 						})}
 						handleSelection={(data) => setSelectedProduct(data)}
 					/>

@@ -10,7 +10,7 @@ export default function TableView({
   clientList = [],
   columns,
   setColumns,
-  isActionHidden = false,
+  isAddEditActionsEnabled = false,
   title=''
 }) {
 
@@ -56,7 +56,7 @@ export default function TableView({
             handleTableRowClick(event)
           }
         }}
-        editable={!isActionHidden ? {
+        editable={!isAddEditActionsEnabled ? {
           onRowAdd: (newData, oldData) => handleAdd(newData, oldData),
           onRowUpdate: (newData, oldData) => handleUpdate(newData, oldData),
           onRowDelete: oldData => handleDelete(oldData)

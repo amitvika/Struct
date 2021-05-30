@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function AddDocumentationModal({ open, toggleModal, handleUpdate, isEditingDocument, selectedListItem }) {
+export default function AddDocumentationModal({ open, toggleModal, handleUpdate, isEditing, selectedValue }) {
     const classes = useStyles();
     // const [docs, setdocs] = useState([]);
     const [selectedFileName, setSelectedFileName] = useState('');
@@ -50,13 +50,14 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
     const isPopoverOpen = Boolean(anchorEl);
 
     useEffect(() => {
-        if (selectedListItem) {
-            setdocumentValue(selectedListItem)
+        if (selectedValue) {
+            setdocumentValue(selectedValue)
         }
         else {
             setdocumentValue({});
         }
-    }, [selectedListItem])
+        console.log(selectedValue)
+    }, [selectedValue])
 
     const handleOnChange = (name, value) => {
         setdocumentValue(preValue => ({
@@ -94,7 +95,7 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
         <Modal
             open={open}
             toggleModal={toggleModal}
-            title={`${isEditingDocument ? 'Update ' : 'Add'} Documentation`}
+            title={`${isEditing ? 'Update ' : 'Add'} Documentation`}
         >
             <Grid className="section-padding-left" container spacing={4}>
                 <Grid item xs={12} style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -199,7 +200,7 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
 
                 <Grid item xs={12} className={classes.action_button}>
                     <Button variant="contained" color="primary" onClick={handleSaveButton} style={{ width: '100%' }}>
-                        {isEditingDocument ? 'Update' : 'Save'}
+                        {isEditing ? 'Update' : 'Save'}
                     </Button>
                 </Grid>
             </Grid>

@@ -1,6 +1,7 @@
 const DocumentationModel = require("../models/documentation.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
 const { getObjectId } = require('../utils/helper')
+const { mapDocumentations, mapDocumentation } = require('../map/documentations')
 
 exports.get = async (req, res) => {
     try {
@@ -23,7 +24,7 @@ exports.get = async (req, res) => {
                 .sort({ updatedAt: -1 })
         }
 
-        res.json(documentations);
+        res.json(mapDocumentations(documentations));
 
     }
     catch (error) {
@@ -83,7 +84,7 @@ exports.upsert = async (req, res) => {
         });
         await changeTracking.save();
 
-        res.json(documentation)
+        res.json(mapDocumentation(documentation))
     }
     catch (error) {
         console.log('upsert', error)

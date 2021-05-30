@@ -26,7 +26,7 @@ const Tasks = ({ }) => {
                 fetchList={TaskAPI.fetchTasks}
                 upsertListItem={TaskAPI.upsertTask}
                 AddUpdateModal={AddUpdateModal}
-                isManageTeamAvailable={true}
+                isManageTeamVisible={true}
                 ManageTeamModal={ManageTaskModal}
             />
         </div>

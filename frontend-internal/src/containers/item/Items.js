@@ -277,7 +277,7 @@ const Items = ({ handleSave }) => {
                         handleTableRowClick={handleTableRowClick}
                         columns={columns}
                         setColumns={setColumns}
-                        isActionHidden={true}
+                        isAddEditActionsEnabled={false}
                     />
 
             }

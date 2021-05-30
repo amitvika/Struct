@@ -3,7 +3,7 @@ export const columnsFields = [
     { title: "Name", field: "name", type: 'text' },
     {
         title: "Created By",
-        field: "created_by",
+        field: "created_by_name",
         editable: "never"
     },
     {
@@ -11,6 +11,7 @@ export const columnsFields = [
         field: "id",
         editable: "never",
         isFilterColumn: false,
+        isGridViewVisible: false,
         render: rowData => rowData && <span style={{ cursor: 'pointer' }}
             onClick={(event) => {
                 event.stopPropagation();
