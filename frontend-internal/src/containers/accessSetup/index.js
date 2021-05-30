@@ -5,7 +5,7 @@ import { accessSetupFields } from '../../constants/accessSetup'
 import TableGridView from '../../components/TableGridView';
 import ManageAccessSetupModal from './ManageAccessSetupModal';
 
-const TeamSetup = () => {
+const TeamSetup = ({ handleTabChange }) => {
 
     return (
         <TableGridView
@@ -15,6 +15,7 @@ const TeamSetup = () => {
             upsertListItem={AccessSetupAPI.upsertAccessSetup}
             isManageTeamVisible={true}
             ManageTeamModal={ManageAccessSetupModal}
+            handleItemClick={(id) => handleTabChange({}, 3, id)}
         />
     );
 }
