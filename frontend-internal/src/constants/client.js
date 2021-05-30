@@ -1,8 +1,22 @@
-export const columnsFields = { 'id': 'ID', 'name': 'Name', 'created_by': 'Created By' };
-
-export const newColoumnsFields = [
+export const columnsFields = [
     { title: "ID", field: "id", editable: "never", align: 'center' },
     { title: "Name", field: "name", type: 'text' },
+    {
+        title: "Created By",
+        field: "created_by",
+        editable: "never"
+    },
+    {
+        title: 'History',
+        field: "id",
+        editable: "never",
+        isFilterColumn: false,
+        render: rowData => rowData && <span style={{ cursor: 'pointer' }}
+            onClick={(event) => {
+                event.stopPropagation();
+                // handleHistoryToggle({ rowId: rowData.id })
+            }}> Show History </span>
+    },
 ]
 
 export const documentationFields = [
@@ -43,7 +57,7 @@ export const documentationFields = [
 
 export const clientFields = [
     { title: "ID", field: "id", editable: "never", align: 'center' },
-    { title: "Name", field: "name" , type:'text'},
+    { title: "Name", field: "name", type: 'text' },
     {
         title: "Created By",
         field: "created_by",

@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold'
     },
     paper: {
-        
+
         height: '100%',
         width: '100%',
         cursor: 'pointer',
@@ -41,9 +41,13 @@ const useStyles = makeStyles((theme) => ({
     },
     img: {
         margin: 'auto',
+        padding: '5px',
         display: 'block',
         maxWidth: '96px',
         maxHeight: '96px',
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain'
     },
     historyLink: {
         margin: '10px',
@@ -74,12 +78,12 @@ export default function GridView({
 
         columnsFields.map(fieldItem => {
             item.push(
-                <Grid item sm sm={12} className={classes.fieldItem}>
-                    <div >
+                <Grid item sm sm={12}>
+                     <Typography variant="subtitle2" gutterBottom noWrap={true}>
                         <span className={classes.boldtablecell}>{fieldItem.title}</span>
                         {`: `}
                         <span className={classes.tableCell}>{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
-                    </div>
+                    </Typography>
                 </Grid>
             )
         })
@@ -107,10 +111,12 @@ export default function GridView({
     }
 
     return (
-        <div className={isInsideDetailPanel ? 'fixed-grid--around-350' : 'fixed-grid--around'} style={{marginLeft: "-15px",marginRight: "-15px",}}>
+        <Grid container spacing={2}>
+            {/* // <div className={isInsideDetailPanel ? 'fixed-grid--around-350' : 'fixed-grid--around'} style={{ marginLeft: "-15px", marginRight: "-15px", }}> */}
             {list.map(product => {
                 return (
-                    <div style={{ marginTop: '10px', marginBottom: '10px', width: isInsideDetailPanel ? '350px' : '380px' }}>
+                    <Grid item xs={6} sm={3}>
+                        {/* <div style={{ marginTop: '10px', marginBottom: '10px', width: isInsideDetailPanel ? '350px' : '380px' }}> */}
                         <Paper className={classes.paper} onClick={() => handleTableRowClick(product)}
                             style={{ backgroundColor: `${product.is_archived ? '#d0cece' : '#ffffff'}` }}>
                             <Grid container style={{
@@ -142,7 +148,7 @@ export default function GridView({
                                         <Grid item sm sm={12} >
                                             <IconButton >
                                                 <Typography >
-                                                    <EditIcon onClick={handleAddButtonPress}/>
+                                                    <EditIcon onClick={handleAddButtonPress} />
                                                 </Typography>
                                             </IconButton>
 
@@ -151,12 +157,12 @@ export default function GridView({
                                 </Grid>
                             </Grid>
                         </Paper>
-                    </div>
+                    </Grid>
                 )
             })
             }
 
-        </div >
+        </Grid>
 
     )
 }

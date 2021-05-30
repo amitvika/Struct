@@ -5,9 +5,9 @@ import { useHistory } from "react-router-dom";
 
 import API from '../../api/processGroup.api';
 import ClientAPI from '../../api/clients.api';
-import Toolbar from '../../components/Toolbar';
-import TableView from '../../components/TableView';
-import GridView from '../../components/GridView';
+import Toolbar from '../../components/TableGridView/Toolbar';
+import TableView from '../../components/TableGridView/TableView';
+import GridView from '../../components/TableGridView/GridView';
 import DefaultContainer from '../../components/DefaultContainer';
 
 

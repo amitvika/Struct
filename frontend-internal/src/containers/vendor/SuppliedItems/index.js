@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
 import { useHistory, useParams } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { Spinner } from "reactstrap";
 
-
-
 import API from '../../../api/vendor.api';
-import Toolbar from '../../../components/Toolbar';
-import TableView from '../../../components/TableView';
-import GridView from '../../../components/GridView';
+import Toolbar from '../../../components/TableGridView/Toolbar';
+import TableView from '../../../components/TableGridView/TableView';
+import GridView from '../../../components/TableGridView/GridView';
 import DefaultContainer from '../../../components/DefaultContainer';
-// import IdentificationModal from './identificationModal'
-import ProductOptions from './productOptions'
-
 
 
 export default function SuppliedItems() {
@@ -42,10 +35,10 @@ export default function SuppliedItems() {
         { title: "Estimated Delivery Date", field: "estimatedDeliveryDate" },
         { title: "Item Quantity", field: "itemQuantity" },
         { title: "Unit Cost", field: "unitCost" },
-        // { title: "Source", field: "source" },
         {
             title: 'Identification',
             field: "identification",
+            isFilterColumn: false,
             editable: "never",
             render: rowData => rowData && <span style={{ cursor: 'pointer' }}
                 onClick={(event) => {

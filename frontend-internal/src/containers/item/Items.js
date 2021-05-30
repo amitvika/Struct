@@ -5,16 +5,13 @@ import { useHistory } from "react-router-dom";
 
 import API from '../../api/items.api';
 
-import Toolbar from '../../components/Toolbar';
-import GridView from '../../components/GridView';
-import TableView from '../../components/TableView';
+import Toolbar from '../../components/TableGridView/Toolbar';
+import GridView from '../../components/TableGridView/GridView';
+import TableView from '../../components/TableGridView/TableView';
 import DefaultContainer from '../../components/DefaultContainer';
 
 import { columnsFields } from '../../constants/item'
 import AddEditItemModal from './AddEditItemModel';
-import { newColoumnsFields } from '../../constants/item'
-import factoriesApi from "../../api/factories.api";
-import { showErrorAlert } from "../../actions/alert.action";
 
 const Items = ({ handleSave }) => {
     let history = useHistory();
@@ -241,7 +238,7 @@ const Items = ({ handleSave }) => {
                 isAddEditItemModalOpened={isAddEditItemModalOpened}
                 toggleAddEditItemModal={toggleAddItemModal}
                 updateItem={isEditing ? updateItem : addItem}
-                fields={newColoumnsFields}
+                fields={columnsFields}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
             />

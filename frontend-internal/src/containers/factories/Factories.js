@@ -5,14 +5,12 @@ import { useHistory } from "react-router-dom"
 
 import FactoriesAPI from '../../api/factories.api';
 
-import TableView from '../../components/TableView';
-import GridView from '../../components/GridView';
-import Toolbar from '../../components/Toolbar';
+import TableView from '../../components/TableGridView/TableView';
+import GridView from '../../components/TableGridView/GridView';
+import Toolbar from '../../components/TableGridView/Toolbar';
 import DefaultContainer from '../../components/DefaultContainer'
 import { columnsFields } from '../../constants/factory'
 import AddEditFactoryModal from './AddEditFactoryModal'
-import { newColoumnsFields } from '../../constants/factory'
-
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
@@ -304,7 +302,7 @@ const Factories = () => {
                 title={'Factories'}
                 isAddEditModalOpened={isAddEditModalOpened}
                 toggleAddEditModal={toggleAddEditModal}
-                fields={newColoumnsFields}
+                fields={columnsFields}
                 updateFactory={isEditing ? updateFactory : addFactory}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}

@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
-import Filter from '../../../components/Filter';
-import GridView from '../../../components/GridView';
+import Filter from '../../../components/TableGridView/Filter';
+import GridView from '../../../components/TableGridView/GridView';
 import Headding from '../../../components/atoms/Headding'
 import Space from '../../../components/atoms/Space';
 
 import {
     Grid,
-    Typography,
-    makeStyles,
     Paper,
 } from '@material-ui/core';
 import { Spinner } from "reactstrap";
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-
 
 import { columnsFields } from '../../../constants/item'
 import ProductionAPI from '../../../api/production.api';

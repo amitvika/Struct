@@ -6,9 +6,9 @@ import { useHistory } from "react-router-dom";
 import API from '../../api/productDesign.api';
 import { fetchClientsApi } from '../../api/clients.api';
 
-import Toolbar from '../../components/Toolbar';
-import GridView from '../../components/GridView';
-import TableView from '../../components/TableView';
+import Toolbar from '../../components/TableGridView/Toolbar';
+import GridView from '../../components/TableGridView/GridView';
+import TableView from '../../components/TableGridView/TableView';
 import DefaultContainer from '../../components/DefaultContainer'
 import AddEditDesignModal from './AddEditDesignModal'
 
@@ -32,35 +32,27 @@ const ProductDesign = () => {
     const [isEditing, setIsEditing] = useState(false)
     const [selectedListItem, setSelectedListItem] = useState(null);
 
-    const columnsFields = { 'id': 'ID', 'name': 'Name', 'design_type': 'Design Type', 'updated_by': 'Updated By', 'created_by': 'Created By' };
-    const newColoumnsFields = [
+    const [columnsFields, setColumns] = useState([
         { title: "ID", field: "id", editable: "never", align: 'center' },
         { title: "Name", field: "name", type: 'text' },
-        //  { title: "Client", field: "Client" , type: 'select'}
-    ]
-    const [columns, setColumns] = useState([
-        { title: "ID", field: "id", editable: "never", align: 'center' },
-        { title: "Name", field: "name" },
         {
             title: "Design Type",
             field: "design_type"
         },
         {
             title: "Updated By",
-            field: "updated_by"
+            field: "updated_by",
         },
         {
             title: "Created By",
             field: "created_by",
-            editable: "never",
-            initialEditValue: isAuthenticated
-                ? user.name
-                : "Guest"
+            editable: "never"
         },
         {
             title: 'History',
             field: "id",
             editable: "never",
+            isFilterColumn: false,
             render: rowData => rowData && <span style={{ cursor: 'pointer' }}
                 onClick={(event) => {
                     event.stopPropagation();
@@ -68,8 +60,8 @@ const ProductDesign = () => {
                 }}> Show History </span>
         },
     ])
-    
-    
+
+
     const [searchTerm, setSearchTerm] = useState('')
     const handleSearchInput = (event) => {
         let searchText = event.target.value
@@ -178,7 +170,7 @@ const ProductDesign = () => {
                         .then(res => {
                             fetchProductDesign()
                         })
-                   
+
                         .catch(err => {
                             alertForError(err)
                         });
@@ -250,9 +242,9 @@ const ProductDesign = () => {
         setIsAddEditModalOpened(!isAddEditModalOpened)
     }
     const toggleEditModal = (product) => {
-        if(isAddEditModalOpened) {
-            setIsEditing(false) 
-            setSelectedListItem(null) 
+        if (isAddEditModalOpened) {
+            setIsEditing(false)
+            setSelectedListItem(null)
         }
         else {
             setIsEditing(true)
@@ -289,8 +281,8 @@ const ProductDesign = () => {
                 title={"Product Design"}
                 toggleAddEditDesignModal={toggleAddEditModal}
                 isAddEditDesignModalOpened={isAddEditModalOpened}
-                updateProductDesign={isEditing ? updateProductDesign:addProductDesign}
-                fields={newColoumnsFields}
+                updateProductDesign={isEditing ? updateProductDesign : addProductDesign}
+                fields={columnsFields}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
             />
@@ -331,7 +323,7 @@ const ProductDesign = () => {
                         handleUpdate={updateProductDesign}
                         handleDelete={deleteProductDesign}
                         handleTableRowClick={handleTableRowClick}
-                        columns={columns}
+                        columns={columnsFields}
                         setColumns={setColumns}
                     />
             }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux';
 
 import Heading from '../../../components/atoms/Headding';
-import GridView from '../../../components/GridView';
+import GridView from '../../../components/TableGridView/GridView';
 import { useSelector } from 'react-redux';
 import ProductionAPI from './../../../api/production.api';
 import { useParams } from "react-router-dom";

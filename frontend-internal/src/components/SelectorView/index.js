@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-import Filter from '../Filter';
-import GridView from '../GridView';
+import Filter from '../TableGridView/Filter';
+import GridView from '../TableGridView/GridView';
 import Headding from '../atoms/Headding';
 import Space from '../atoms/Space';
 

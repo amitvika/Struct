@@ -4,14 +4,13 @@ import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
 
 import API from '../../api/vendor.api';
-import Toolbar from '../../components/Toolbar';
-import TableView from '../../components/TableView';
-import GridView from '../../components/GridView';
+import Toolbar from '../../components/TableGridView/Toolbar';
+import TableView from '../../components/TableGridView/TableView';
+import GridView from '../../components/TableGridView/GridView';
 import DefaultContainer from '../../components/DefaultContainer';
 import AddEditVendorModal from './AddEditVendorModal'
 
 import { useDispatch } from 'react-redux';
-import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
 const Vendors = () => {
     let history = useHistory();
@@ -56,14 +55,15 @@ const Vendors = () => {
         setFilteredVendorList(fiteredData)
     }
 
-    const [columns, setColumns] = useState([
+    const [columnsFields, setColumns] = useState([
         { title: "ID", field: "id", editable: "never", align: 'center' },
-        { title: "Name", field: "name" },
+        { title: "Name", field: "name", type: 'text' },
         // { title: "Source", field: "source" },
         {
             title: 'History',
             field: "id",
             editable: "never",
+            isFilterColumn: false,
             render: rowData => rowData && <span style={{ cursor: 'pointer' }}
                 onClick={(event) => {
                     event.stopPropagation();
@@ -71,11 +71,6 @@ const Vendors = () => {
                 }}> Show History </span>
         },
     ])
-    const columnsFields = { 'id': 'ID', 'name': 'Name' };
-    const newColoumnsFields = [
-        { title: "ID", field: "id", editable: "never", align: 'center' },
-        { title: "Name", field: "name", type: 'text' },
-    ]
 
     const alertForError = (err) => {
         setIsLoading(false);
@@ -233,7 +228,7 @@ const Vendors = () => {
         setIsAddEditModalOpened(!isAddEditModalOpened)
     }
     const toggleEditModal = (vendor) => {
-        if(isAddEditModalOpened) {
+        if (isAddEditModalOpened) {
             setSelectedListItem(null);
             setIsEditing(false)
         }
@@ -275,11 +270,11 @@ const Vendors = () => {
                 title={"Vendor"}
                 isAddEditModalOpened={isAddEditModalOpened}
                 toggleAddEditModal={toggleAddEditModal}
-                updateVendor={isEditing ? updateVendor: addVendor}
-                fields={newColoumnsFields}
+                updateVendor={isEditing ? updateVendor : addVendor}
+                fields={columnsFields}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
-                
+
             />
 
             <Toolbar
@@ -307,16 +302,16 @@ const Vendors = () => {
                         list={filteredVendorList}
                         handleHistoryToggle={handleHistoryToggle}
                         columnsFields={columnsFields}
-                        handleTableRowClick={handleTableRowClick} 
+                        handleTableRowClick={handleTableRowClick}
                         isAddEditLinkVisible={true}
-                        handleEditButtonPress={toggleEditModal}/> :
+                        handleEditButtonPress={toggleEditModal} /> :
                     <TableView
                         list={filteredVendorList}
                         handleAdd={addVendor}
                         handleUpdate={updateVendor}
                         handleDelete={deleteVendor}
                         handleTableRowClick={handleTableRowClick}
-                        columns={columns}
+                        columns={columnsFields}
                         setColumns={setColumns}
 
                     />

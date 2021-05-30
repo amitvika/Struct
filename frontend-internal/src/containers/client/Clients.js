@@ -7,19 +7,15 @@ import { Grid, Paper } from '@material-ui/core';
 
 import API from '../../api/clients.api';
 
-import TableView from '../../components/TableView';
-import GridView from '../../components/GridView';
-import Toolbar from '../../components/Toolbar';
+import TableView from '../../components/TableGridView/TableView';
+import GridView from '../../components/TableGridView/GridView';
+import Toolbar from '../../components/TableGridView/Toolbar';
 import DefaultContainer from '../../components/DefaultContainer'
-import { columnsFields } from '../../constants/client'
 import AddEditClientModal from './AddEditClientModal';
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-import { newColoumnsFields } from '../../constants/client'
-import IconButton from '@material-ui/core/IconButton';
-import AddIcon from '@material-ui/icons/AddBox';
-import InputBase from '@material-ui/core/InputBase';
-import SearchIcon from '@material-ui/icons/Search';
+import { columnsFields } from '../../constants/client';
+
 const useStyles = makeStyles((theme) => ({
     button: {
         margin: theme.spacing(1),
@@ -335,7 +331,7 @@ const Client = () => {
             </div>
             <AddEditClientModal
                 title={"Client"}
-                fields={newColoumnsFields}
+                fields={columnsFields}
                 isAddEditClientModalOpened={isAddEditModalOpened}
                 toggleAddEditClientModal={toggleAddEditModal}
                 updateClient={isEditing ? updateClient : addClient}

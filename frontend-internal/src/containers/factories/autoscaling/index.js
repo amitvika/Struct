@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import TableView from '../../../components/TableView';
+import TableView from '../../../components/TableGridView/TableView';
 import ProductionAPI from '.././../../api/production.api';
 import { Spinner } from "reactstrap";
 import { useHistory, useParams } from "react-router-dom";
