@@ -64,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
 export default function GridView({
     list,
     handleHistoryToggle = () => { },
-    handleAddButtonPress = () => { },
+    handleEditButtonPress = () => { },
     columnsFields,
     handleTableRowClick,
     isHistoryLinkVisible = true,
@@ -79,7 +79,7 @@ export default function GridView({
         columnsFields.map(fieldItem => {
             item.push(
                 <Grid item sm sm={12}>
-                     <Typography variant="subtitle2" gutterBottom noWrap={true}>
+                    <Typography variant="subtitle2" gutterBottom noWrap={true}>
                         <span className={classes.boldtablecell}>{fieldItem.title}</span>
                         {`: `}
                         <span className={classes.tableCell}>{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
@@ -147,8 +147,12 @@ export default function GridView({
                                         isAddEditLinkVisible &&
                                         <Grid item sm sm={12} >
                                             <IconButton >
-                                                <Typography >
-                                                    <EditIcon onClick={handleAddButtonPress} />
+
+                                                <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'right' }} onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    handleEditButtonPress(product)
+                                                }}>
+                                                    <EditIcon />
                                                 </Typography>
                                             </IconButton>
 

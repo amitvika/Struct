@@ -109,17 +109,17 @@ export default function Production(props) {
             <GridView
                 list={list}
                 handleHistoryToggle={() => false}
-                columnsFields={{
-                    id: 'ID',
-                    name: 'Name',
-                    quantity: 'Quantity',
-                    start_date: 'Start date',
-                    end_date: 'End date',
-                    isApprovedforProduction: 'Production Approval'
-                }}
+                columnsFields={[
+                    { field: 'id', title: 'ID' },
+                    { field: 'name', title: 'Name' },
+                    { field: 'quantity', title: 'Quantity' },
+                    { field: 'start_date', title: 'Start date' },
+                    { field: 'end_date', title: 'End date' },
+                    { field: 'isApprovedforProduction', title: 'Production Approval' }
+                ]}
                 isHistoryLinkVisible={false}
                 handleTableRowClick={handleCardSelect}
             />
         </>
     )
-} 
+}
