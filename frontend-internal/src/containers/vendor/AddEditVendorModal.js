@@ -65,7 +65,7 @@ export default function AddEditVendorModal({ isAddEditModalOpened, toggleAddEdit
         <MainModal
             open={isAddEditModalOpened}
             toggleModal={toggleAddEditModal}
-            title={`${isEditing ? 'Update' : 'Add'} ${title}`}>
+            title={`${isEditing ? `Update ${selectedValue.name}` : 'Add'} ${title}`}>
 
 
             <Grid className="section-padding-left" container spacing={4}>

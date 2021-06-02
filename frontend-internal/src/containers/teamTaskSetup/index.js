@@ -21,6 +21,7 @@ const TeamTaskSetup = () => {
             fetchList={TeamSetupAPI.fetchTeamTask}
             upsertListItem={TeamSetupAPI.upsertTeamTask}
             AddUpdateModal={AddUpdateModal}
+        
         />
     );
 }

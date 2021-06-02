@@ -234,7 +234,8 @@ const Items = ({ handleSave }) => {
             snackBarAlertType={snackBarAlertType}>
 
             <AddEditItemModal
-                title={"Item"}
+                // title={"Item"}
+                title={isEditing? "" : "Item"}
                 isAddEditItemModalOpened={isAddEditItemModalOpened}
                 toggleAddEditItemModal={toggleAddItemModal}
                 updateItem={isEditing ? updateItem : addItem}

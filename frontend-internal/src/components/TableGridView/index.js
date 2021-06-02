@@ -36,7 +36,7 @@ const TableGridView = ({
     const [isModalOpened, setIsModalOpened] = useState(false);
     const [selectedListItem, setSelectedListItem] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
-
+    const [searchTerm, setSearchTerm] = useState('')
     const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
 
     useEffect(() => {
@@ -73,26 +73,45 @@ const TableGridView = ({
         setIsHistoryModalOpened(!isHistoryModalOpened);
         // setselectedListItem(rowId)
     }
+    const handleSearchBar = (event) => {
+        let searchText = event.target.value
+        setSearchTerm(searchText)
 
+        let fiteredData = list.filter((item) => {
 
-    const handleSearchBar = (searchText, searchLabel) => {
-        console.log(searchText, searchLabel)
-        // const searchText = event.target.value;
-        if (searchText.length == 0) {
-            setFilteredList(list);
+            if (searchText === "") {
+                return item
+            }
+            else if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
+                return item
+            }
+            else if (item.id.toLowerCase().includes(searchText.toLowerCase())) {
+                return item
+            }
+
         }
-        else {
-            setFilteredList(list.filter(product => {
-                const label = product[searchLabel]
-                if (label.includes(searchText)) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            }))
-        }
+        )
+        setFilteredList(fiteredData)
     }
+
+    // const handleSearchBar = (searchText, searchLabel) => {
+    //     console.log(searchText, searchLabel)
+    //     // const searchText = event.target.value;
+    //     if (searchText.length == 0) {
+    //         setFilteredList(list);
+    //     }
+    //     else {
+    //         setFilteredList(list.filter(product => {
+    //             const label = product[searchLabel]
+    //             if (label.includes(searchText)) {
+    //                 return true;
+    //             }
+    //             else {
+    //                 return false;
+    //             }
+    //         }))
+    //     }
+    // }
 
 
     const upsertItem = (value) => {
@@ -172,6 +191,18 @@ const TableGridView = ({
         }
         setIsModalOpened(!isModalOpened)
     }
+    const handleEditModal = (item) => {
+        if (isModalOpened) {
+            setSelectedListItem(null);
+            setIsEditing(false)
+        }
+        else {
+            setSelectedListItem(item)
+            setIsEditing(true)
+        }
+        setIsModalOpened(!isModalOpened)
+        console.log("-------", item.name)
+    }
 
     const renderView = () => {
         if (isGridViewSelected) {
@@ -181,7 +212,8 @@ const TableGridView = ({
                     handleHistoryToggle={handleHistoryToggle}
                     columnsFields={fields}
                     handleTableRowClick={handleTableRowClick}
-                />
+                    toggleModal={handleEditModal}
+                    handleEditButtonPress={handleEditModal} />
             )
         }
         else {
@@ -218,6 +250,8 @@ const TableGridView = ({
         setIsManageTeamModalOpened(!isManageTeamModalOpened);
     }
 
+   
+
     if (isLoading) {
         return (<div
             style={{
@@ -237,7 +271,7 @@ const TableGridView = ({
             handleHistoryToggle={handleHistoryToggle}
         >
             { isModalOpened && <AddUpdateModal
-                title={title}
+                title={isEditing ? "" : title}
                 fields={fields}
                 open={isModalOpened}
                 toggleModal={handleToggleModal}
@@ -271,6 +305,8 @@ const TableGridView = ({
                 isCustomAddButtonVisible={isCustomAddButtonVisible}
                 isAddEditLinkVisible={isAddEditLinkVisible}
                 handleAddButtonPress={handleToggleModal}
+                isSearchBarVisible={true}
+                handleSearchInput={handleSearchBar}
             />
 
             {renderView()}

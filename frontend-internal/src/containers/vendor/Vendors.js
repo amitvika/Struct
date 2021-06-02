@@ -267,7 +267,8 @@ const Vendors = () => {
             snackBarAlertType={snackBarAlertType}>
 
             <AddEditVendorModal
-                title={"Vendor"}
+                // title={"Vendor"}
+                title={isEditing? "" : "Vendor"}
                 isAddEditModalOpened={isAddEditModalOpened}
                 toggleAddEditModal={toggleAddEditModal}
                 updateVendor={isEditing ? updateVendor : addVendor}

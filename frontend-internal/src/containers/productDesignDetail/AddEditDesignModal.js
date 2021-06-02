@@ -12,7 +12,7 @@ import {
 import clientsApi, { fetchClientsApi } from '../../api/clients.api';
 import get from 'lodash/get';
 
-export default function AddEditDesignModal({ isAddEditDesignModalOpened, updateProductDesign, toggleAddEditDesignModal, title, fields, selectedValue, isEditing, addProductDesign }) {
+export default function AddEditDesignModal({ product,isAddEditDesignModalOpened, updateProductDesign, toggleAddEditDesignModal, title, fields, selectedValue, isEditing, addProductDesign }) {
     const [value, setValue] = useState({});
 
     const [selectOptions, setSelectOptions] = useState([]);
@@ -100,7 +100,7 @@ export default function AddEditDesignModal({ isAddEditDesignModalOpened, updateP
         <MainModal
             open={isAddEditDesignModalOpened}
             toggleModal={toggleAddEditDesignModal}
-            title={`${isEditing ? 'Update' : 'Add'} ${title}`}>
+            title={`${isEditing ? `Update ${selectedValue.name}` : 'Add'} ${title}`}>
 
             <Grid className="section-padding-left" container spacing={4}>
                 {renderView()}

@@ -278,7 +278,7 @@ const ProductDesign = () => {
         >
 
             <AddEditDesignModal
-                title={"Product Design"}
+                title={isEditing ? " " : "Product Design"}
                 toggleAddEditDesignModal={toggleAddEditModal}
                 isAddEditDesignModalOpened={isAddEditModalOpened}
                 updateProductDesign={isEditing ? updateProductDesign : addProductDesign}

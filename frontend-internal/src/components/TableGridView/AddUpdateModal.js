@@ -74,7 +74,7 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
 
     return (
         <Modal
-            title={`${isEditing ? 'Update' : 'Add'} ${title}`}
+            title={`${isEditing ? `Update ${selectedValue.name}` : 'Add'} ${title}`}
             open={open}
             toggleModal={toggleModal}>
 

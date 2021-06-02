@@ -7,6 +7,7 @@ import moment from 'moment';
 // import GridView from '../../../components/GridView';
 import { useSelector } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Headding from './atoms/Headding';
 
 export default function ProductionApprovalModal({
     isModalOpened,
@@ -14,7 +15,9 @@ export default function ProductionApprovalModal({
     selectedValue,
     setSelectedValue,
     handleApproveItemForProduction,
-    list
+    list,
+    fields,
+    title
 }) {
 
     const { user } = useSelector(state => state.auth);
@@ -31,6 +34,23 @@ export default function ProductionApprovalModal({
         }
     }
 
+    const renderView = () => {
+        return fields
+
+            .map(item => {
+                return (<>
+                    <Grid item xs={4}>
+                        {item.title}
+                    </Grid>
+                    <Grid item xs={8}>
+                        {selectedValue[item.field]}
+                    </Grid>
+                </>)
+
+            })
+    }
+
+
 
     const renderProductionApprovalActions = () => {
         let approvalList = selectedValue.approval_list || []
@@ -39,7 +59,11 @@ export default function ProductionApprovalModal({
         list.push(
             approvalList.map(approvalItem => {
                 return (
-                    <Grid container xs={12} style={{ textAlign: 'center' }}>
+                    <>
+                     <Grid item xs={4}>
+                      Approved
+                    </Grid>
+                    <Grid container xs={8} style={{ textAlign: 'center' }}>
                         <FormControlLabel
                             control={
                                 <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
@@ -50,13 +74,15 @@ export default function ProductionApprovalModal({
                             label={`Approved By ${approvalItem.author_name} on ${moment(approvalItem.approval_time).format('DD/MM/YYYY HH:mm:ss')}`}
                         />
                     </Grid>
+                    </>
                 )
             })
         )
 
         if (approvalList.length < 3) {
             list.push(
-                <Grid container xs={12} style={{ textAlign: 'center' }}>
+                <Grid container xs={12}>
+                    Approved
                     <FormControlLabel
                         control={
                             <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
@@ -65,13 +91,14 @@ export default function ProductionApprovalModal({
                             />
                         }
                         label={`${currentApproval.isChecked ? currentApproval.author_name : ''}`}
-                    />
+                    >
+                    </FormControlLabel>
                 </Grid>
             )
         }
 
         return list
-    } 
+    }
 
     return (
         <MainModal open={isModalOpened} toggleModal={toggleModal} >
@@ -81,43 +108,13 @@ export default function ProductionApprovalModal({
                     <Grid item xs={12}>
                         <Heading bold>Production Approval</Heading>
                     </Grid>
+                    {renderView()}
 
-                    <Grid item xs={4}>
-                        ID
-                    </Grid>
-                    <Grid item xs={8}>{selectedValue.id}</Grid>
-
-                    <Grid item xs={4}>
-                        Name
-                    </Grid>
-                    <Grid item xs={8}>{selectedValue.name}</Grid>
-
-                    <Grid item xs={4}>
-                        Quantity
-                    </Grid>
-                    <Grid item xs={8}>{selectedValue.quantity}</Grid>
-
-                    <Grid item xs={4}>
-                        Start Date
-                    </Grid>
-                    <Grid item xs={8}>{moment(selectedValue.start_date).format('DD/MM/YYYY')}</Grid>
-                    
-                    <Grid item xs={4}>
-                        End Date
-                    </Grid>
-                    <Grid item xs={8}>{moment(selectedValue.end_date).format('12/31/2999')}</Grid>
-
-                    <Grid item xs={4}>
-                        Approved for Production
-                    </Grid>
-                    <Grid container xs={8} style={{ display: "flex" }}>
+                    <Grid container xs={4}>
                         {
                             renderProductionApprovalActions()
                         }
-
                     </Grid>
-
-
                     <Grid item xs={12} style={{ textAlign: 'center' }}>
                         <Button
                             style={{ marginTop: '20px' }}

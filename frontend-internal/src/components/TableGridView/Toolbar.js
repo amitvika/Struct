@@ -99,8 +99,8 @@ export default function Toolbar({
 
                         {
                             isSearchBarVisible &&
-                            <Grid item xs={2}>
-                                <Paper component="form" className={classes.Paper}>
+                            <Grid item xs={2} >
+                                <Paper component="form" style={{display: "flex", width: "130px"}}>
                                     <InputBase
                                         className={classes.input}
                                         placeholder="Search FIelds"

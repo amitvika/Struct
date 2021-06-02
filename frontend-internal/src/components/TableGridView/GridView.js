@@ -68,7 +68,7 @@ export default function GridView({
     columnsFields,
     handleTableRowClick,
     isHistoryLinkVisible = true,
-    isAddEditLinkVisible = true,
+    isAddEditLinkVisible = false,
     isInsideDetailPanel = false
 }) {
     const classes = useStyles();

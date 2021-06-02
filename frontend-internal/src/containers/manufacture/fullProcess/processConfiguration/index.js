@@ -201,7 +201,8 @@ export default function ProductionTable() {
                     toggleModal={toggleModal}
                     selectedValue={selectedValue}
                     setSelectedValue={setSelectedValue}
-                    assignFactory={assignFactory} />
+                    assignFactory={assignFactory} 
+                    quantity={true} />
             }
 
             <TableView
@@ -213,6 +214,7 @@ export default function ProductionTable() {
                 handleTableRowClick={handleTableRowClick}
                 columns={columns}
                 setColumns={setColumns}
+                isAddEditActionsEnabled={true}
             >
             </TableView>
 

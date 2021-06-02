@@ -212,7 +212,8 @@ export default function Autoscaling() {
                     selectedValue={selectedValue}
                     setSelectedValue={setSelectedValue}
                     assignFactory={assignFactory}
-                    handleApproveItemForProduction={handleApproveItemForProduction} />
+                    handleApproveItemForProduction={handleApproveItemForProduction} 
+                    fields={columns}/>
             }
 
             <TableView
@@ -224,6 +225,7 @@ export default function Autoscaling() {
                 handleTableRowClick={handleTableRowClick}
                 columns={columns}
                 setColumns={setColumns}
+                isAddEditActionsEnabled={true}
             >
             </TableView>
 

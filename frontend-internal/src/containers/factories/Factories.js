@@ -299,7 +299,8 @@ const Factories = () => {
             handleHistoryToggle={handleHistoryToggle}
         >
             <AddEditFactoryModal
-                title={'Factories'}
+                // title={'Factories'}
+                title={isEditing? "" : "Factory"}
                 isAddEditModalOpened={isAddEditModalOpened}
                 toggleAddEditModal={toggleAddEditModal}
                 fields={columnsFields}
