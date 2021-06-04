@@ -59,7 +59,7 @@ return (
         }
 
         {
-            itemGeometry.itemType === 'Machine - Tool/Workholding' &&
+            itemGeometry.itemType === 'Machine - Compound/Tool/Workholding' &&
             <MachineTool_Workholding
                 itemConfiguration={itemConfiguration}
                 handleOnChange={handleOnChange}

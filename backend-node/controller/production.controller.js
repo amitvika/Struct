@@ -1,7 +1,6 @@
 const ProductionModel = require("../models/production.modal");
 const ChangeTracking = require("../models/ChangeTracking.model");
 const { getObjectId } = require('../utils/helper')
-const UserModel = require("../models/User");
 const { mapProduction, mapProductions, mapProductionsForItem } = require('../map/production');
 
 exports.get = async (req, res) => {
@@ -115,7 +114,7 @@ exports.approveItemForProduction = async (req, res) => {
         production = await ProductionModel.findByIdAndUpdate(
             req.params.id,
             {
-                $push: { "approval_list": req.body },
+                $push: { "approval_list": { author: req.user.id, is_approved: true } },
                 $set: { isApprovedforProduction: isApprovedforProduction }
             },
             { new: true })

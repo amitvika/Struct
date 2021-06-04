@@ -80,11 +80,11 @@ const ClientDetail = () => {
             })
     }
 
-    const handleLogoChange = ({ logo_name, logo_url }) => {
+    const handleLogoChange = ({ logoName, logoUrl }) => {
         const updatedValues = {
             ...clientData,
-            logo_name,
-            logo_url
+            logo_name: logoName,
+            logo_url: logoUrl
         };
 
         setClientData(updatedValues);
@@ -178,7 +178,7 @@ const ClientDetail = () => {
                             <p>Client ID:{id}</p>
                         </div>
                         <LogoView
-                            logoUrl={clientData.logoUrl}
+                            logoUrl={clientData.logo_url}
                             handleLogoChange={handleLogoChange}
                             name={clientData.name} />
                     </Paper>

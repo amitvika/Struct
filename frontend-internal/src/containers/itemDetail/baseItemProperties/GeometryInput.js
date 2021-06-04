@@ -168,16 +168,16 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 							// label="Item Type"
 							placeholder="Select"
 							options={[
-								{ label: "Any Other Object/Item", value: "Any Other Object/Item" },
-								{ label: 'Submachine - Actuator', value: 'Submachine - Actuator' },
+								{ label: 'Machine - Actuator', value: 'Submachine - Actuator' },
 								{ label: 'Machine - Motion Control', value: 'Machine - Motion Control' },
-								{ label: 'Machine - Tool/Workholding', value: 'Machine - Tool/Workholding' },
-								{ label: "Machine - Workpiece Environment Modification", value: "Machine - Workpiece Environment Modification" },
-								{ label: "Workholding - Pressure Vessel", value: "Workholding - Pressure Vessel" },
-								{ label: "Workholding - Liquid Container", value: "Workholding - Liquid Container" },
-								{ label: "Tool", value: "Tool" },
+								{ label: 'Machine - Compound/Tool/Workholding', value: 'Machine - Compound/Tool/Workholding' },
+								// { label: "Machine - Workpiece Environment Modification", value: "Machine - Workpiece Environment Modification" },
+								// { label: "Workholding - Pressure Vessel", value: "Workholding - Pressure Vessel" },
+								// { label: "Workholding - Liquid Container", value: "Workholding - Liquid Container" },
+								// { label: "Tool", value: "Tool" },
 								// { label: "Machine - Tool", value: "Machine - Tool" },
 								{ label: "Unassembled Kit", value: "Unassembled Kit" },
+                                { label: "Structure and/or Facade", value: "Any Other Object/Item" },
 								{ label: "Building", value: 'Building' }
 							]}
 							onChange={(data) => handleOnChange('itemType', data.value)}

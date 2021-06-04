@@ -10,7 +10,7 @@ const ProductionSchema = new mongoose.Schema({
     item_id: { type: Schema.Types.ObjectId, ref: "Item" },
     approval_list: [{
         author: { type: Schema.Types.ObjectId, ref: "User" },
-        isApproved: { type: Boolean, default: false },
+        is_approved: { type: Boolean, default: false },
         time: { type: Date, default: Date.now() },
     }],
     isApprovedforProduction: { type: Boolean, default: false },

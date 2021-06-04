@@ -14,7 +14,7 @@ export default function ProductionApprovalModal({
     toggleModal,
     selectedValue,
     setSelectedValue,
-    handleApproveItemForProduction,
+    handleApproval,
     list,
     fields,
     title,
@@ -58,7 +58,6 @@ export default function ProductionApprovalModal({
         let list = [];
 
         list = approvalList.map(approvalItem => {
-            console.log("===",approvalItem)
             return (
                 <>
                     <Grid item xs={4}>
@@ -80,7 +79,7 @@ export default function ProductionApprovalModal({
         })
 
         if (approvalList.length < 3) {
-           
+
             list.push(
                 <Grid container xs={12}>
                     Approved
@@ -123,7 +122,7 @@ export default function ProductionApprovalModal({
                             color="primary"
                             type="button"
                             disabled={!currentApproval.isChecked}
-                            onClick={() => handleApproveItemForProduction(selectedValue.id, currentApproval)}>
+                            onClick={() => handleApproval(selectedValue.id, currentApproval)}>
                             OK
                      </Button>
                     </Grid>

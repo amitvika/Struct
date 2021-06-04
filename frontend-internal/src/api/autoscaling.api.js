@@ -1,16 +1,16 @@
 import { postRequest, getRequest, putRequest, deleteRequest } from '../utils/apiHandler';
 
-const fetchProductions = (query) => getRequest(`/api/production?${query}`);
+const fetchAutoscalings = (query) => getRequest(`/api/autoscaling?${query}`);
 
-const upsertProduction = (data) => postRequest('/api/production', data);
+const upsertAutoscaling = (data) => postRequest('/api/autoscaling', data);
 
-const approveItemForProduction = (id, data) => putRequest(`/api/production/${id}/approve`, data);
+const approveItemForAutoscaling = (id, data) => putRequest(`/api/autoscaling/${id}/approve`, data);
 
-const itemsInProduction = (query) => getRequest(`/api/production/items-in-production?${query}`);
+const itemsInAutoscaling = (query) => getRequest(`/api/autoscaling/items-in-autoscaling?${query}`);
 
 export default {
-    fetchProductions,
-    upsertProduction,
-    approveItemForProduction,
-    itemsInProduction
+    fetchAutoscalings,
+    upsertAutoscaling,
+    approveItemForAutoscaling,
+    itemsInAutoscaling
 }

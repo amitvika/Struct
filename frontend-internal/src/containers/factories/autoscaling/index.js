@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import TableView from '../../../components/TableGridView/TableView';
-import ProductionAPI from '.././../../api/autoscaling.api';
+import AutoscalingAPI from '.././../../api/autoscaling.api';
 import { Spinner } from "reactstrap";
 import { useHistory, useParams } from "react-router-dom";
 import get from 'lodash/get';
@@ -31,7 +31,7 @@ export default function Autoscaling() {
         { title: 'ID', field: 'id', editable: "never" },
         { title: 'Name', field: 'name' },
         {
-            title: 'Production Start Date',
+            title: 'Autoscaling Start Date',
             field: 'start_date',
             type: 'date',
             // value="2013-01-08",
@@ -39,7 +39,7 @@ export default function Autoscaling() {
             editComponent: (props) => <CustomDatePicker {...props} />
         },
         {
-            title: 'Production End Date',
+            title: 'Autoscaling End Date',
             field: 'end_date',
             type: 'date',
             render: rowData => moment(rowData.end_date).format('DD/MM/YYYY'),
@@ -94,7 +94,7 @@ export default function Autoscaling() {
         try {
             setIsLoading(true);
 
-            const productionRes = await ProductionAPI.fetchProductions(`item_id=${item_id}`);
+            const productionRes = await AutoscalingAPI.fetchAutoscalings(`factory_id=${item_id}`);
 
             const productionList = get(productionRes, 'data', []);
 
@@ -109,10 +109,10 @@ export default function Autoscaling() {
 
     const upsertItem = (newData) => {
         return new Promise((resolve, reject) => {
-            ProductionAPI.upsertProduction(newData)
+            AutoscalingAPI.upsertAutoscaling(newData)
                 .then(res => {
                     if (res.data) {
-                        dispatch(showSuccessAlert({ message: `Production updated` }));
+                        dispatch(showSuccessAlert({ message: `Autoscaling updated` }));
 
                         const availableDoc = list.find(document => document.id == res.data.id);
 
@@ -145,16 +145,16 @@ export default function Autoscaling() {
                     resolve();
                 })
                 .catch(err => {
-                    dispatch(showErrorAlert({ message: `Unable to update Production` }));
+                    dispatch(showErrorAlert({ message: `Unable to update Autoscaling` }));
                     reject();
                 });
         })
 
     }
-    const handleApproveItemForProduction = (productionId, data) => {
+    const handleApproval = (productionId, data) => {
         setIsLoading(true)
         setIsModalOpened(false);
-        ProductionAPI.approveItemForProduction(productionId, data)
+        AutoscalingAPI.approveItemForAutoscaling(productionId, data)
             .then(res => {
 
                 setList(list.map(production => {
@@ -164,7 +164,7 @@ export default function Autoscaling() {
                     return production;
                 }))
                 setIsLoading(false)
-                dispatch(showSuccessAlert({ message: 'Production approved for production' }));
+                dispatch(showSuccessAlert({ message: 'Autoscaling approved for production' }));
             })
             .catch(error => {
                 dispatch(showErrorAlert({ message: 'Unable to save info' }));
@@ -215,13 +215,13 @@ export default function Autoscaling() {
                     selectedValue={selectedValue}
                     setSelectedValue={setSelectedValue}
                     assignFactory={assignFactory}
-                    handleApproveItemForProduction={handleApproveItemForProduction}
+                    handleApproval={handleApproval}
                     fields={columns} 
                     />
             }
 
             <TableView
-                title={'Add Production Setup'}
+                title={'Add Autoscaling Setup'}
                 list={filteredList}
                 handleAdd={addItem}
                 handleUpdate={updateItem}
