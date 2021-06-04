@@ -73,45 +73,26 @@ const TableGridView = ({
         setIsHistoryModalOpened(!isHistoryModalOpened);
         // setselectedListItem(rowId)
     }
+   
+
     const handleSearchBar = (event) => {
         let searchText = event.target.value
         setSearchTerm(searchText)
 
-        let fiteredData = list.filter((item) => {
+        const filteredData = list.filter((item) => {
+            for (const key in item) {
+                const currentValue = item[key]
+                console.log("current value", currentValue)
+                if (typeof currentValue === "string" && currentValue.includes(searchText)) {
 
-            if (searchText === "") {
-                return item
+                    return true;
+                }
             }
-            else if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
-                return item
-            }
-            else if (item.id.toLowerCase().includes(searchText.toLowerCase())) {
-                return item
-            }
-
-        }
-        )
-        setFilteredList(fiteredData)
+            return false
+        })
+        setFilteredList(filteredData)
     }
 
-    // const handleSearchBar = (searchText, searchLabel) => {
-    //     console.log(searchText, searchLabel)
-    //     // const searchText = event.target.value;
-    //     if (searchText.length == 0) {
-    //         setFilteredList(list);
-    //     }
-    //     else {
-    //         setFilteredList(list.filter(product => {
-    //             const label = product[searchLabel]
-    //             if (label.includes(searchText)) {
-    //                 return true;
-    //             }
-    //             else {
-    //                 return false;
-    //             }
-    //         }))
-    //     }
-    // }
 
 
     const upsertItem = (value) => {
@@ -250,7 +231,7 @@ const TableGridView = ({
         setIsManageTeamModalOpened(!isManageTeamModalOpened);
     }
 
-   
+
 
     if (isLoading) {
         return (<div

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import TableView from '../../../components/TableGridView/TableView';
-import ProductionAPI from '.././../../api/production.api';
+import ProductionAPI from '.././../../api/autoscaling.api';
 import { Spinner } from "reactstrap";
 import { useHistory, useParams } from "react-router-dom";
 import get from 'lodash/get';
@@ -26,6 +26,7 @@ export default function Autoscaling() {
     const [filteredList, setFilteredList] = useState([]);
     const [isModalOpened, setIsModalOpened] = React.useState(false);
     const [selectedValue, setSelectedValue] = useState({});
+    const [approval, setApproval] = useState([])
     const [columns, setColumns] = useState([
         { title: 'ID', field: 'id', editable: "never" },
         { title: 'Name', field: 'name' },
@@ -52,9 +53,11 @@ export default function Autoscaling() {
                 onClick={(event) => {
                     event.stopPropagation();
                     toggleModal(rowData)
-                }}> Approval</span>
+                }}>{list? "Approved" : "Not Approved"}</span>
         },
     ])
+
+
     const CustomDatePicker = (props) => (
         <MuiPickersUtilsProvider utils={DateFnsUtils}
             locale={props.dateTimePickerLocalization}>
@@ -212,8 +215,9 @@ export default function Autoscaling() {
                     selectedValue={selectedValue}
                     setSelectedValue={setSelectedValue}
                     assignFactory={assignFactory}
-                    handleApproveItemForProduction={handleApproveItemForProduction} 
-                    fields={columns}/>
+                    handleApproveItemForProduction={handleApproveItemForProduction}
+                    fields={columns} 
+                    />
             }
 
             <TableView

@@ -7,7 +7,7 @@ import moment from 'moment';
 // import GridView from '../../../components/GridView';
 import { useSelector } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Headding from './atoms/Headding';
+
 
 export default function ProductionApprovalModal({
     isModalOpened,
@@ -17,7 +17,8 @@ export default function ProductionApprovalModal({
     handleApproveItemForProduction,
     list,
     fields,
-    title
+    title,
+    approvalList
 }) {
 
     const { user } = useSelector(state => state.auth);
@@ -56,12 +57,12 @@ export default function ProductionApprovalModal({
         let approvalList = selectedValue.approval_list || []
         let list = [];
 
-        list.push(
-            approvalList.map(approvalItem => {
-                return (
-                    <>
-                     <Grid item xs={4}>
-                      Approved
+        list = approvalList.map(approvalItem => {
+            console.log("===",approvalItem)
+            return (
+                <>
+                    <Grid item xs={4}>
+                        Approved
                     </Grid>
                     <Grid container xs={8} style={{ textAlign: 'center' }}>
                         <FormControlLabel
@@ -74,12 +75,12 @@ export default function ProductionApprovalModal({
                             label={`Approved By ${approvalItem.author_name} on ${moment(approvalItem.approval_time).format('DD/MM/YYYY HH:mm:ss')}`}
                         />
                     </Grid>
-                    </>
-                )
-            })
-        )
+                </>
+            )
+        })
 
         if (approvalList.length < 3) {
+           
             list.push(
                 <Grid container xs={12}>
                     Approved
@@ -124,7 +125,7 @@ export default function ProductionApprovalModal({
                             disabled={!currentApproval.isChecked}
                             onClick={() => handleApproveItemForProduction(selectedValue.id, currentApproval)}>
                             OK
-                    </Button>
+                     </Button>
                     </Grid>
                 </Grid>
 
