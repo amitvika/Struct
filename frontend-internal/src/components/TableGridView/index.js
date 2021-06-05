@@ -36,7 +36,6 @@ const TableGridView = ({
     const [isModalOpened, setIsModalOpened] = useState(false);
     const [selectedListItem, setSelectedListItem] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('')
     const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
 
     useEffect(() => {
@@ -73,27 +72,6 @@ const TableGridView = ({
         setIsHistoryModalOpened(!isHistoryModalOpened);
         // setselectedListItem(rowId)
     }
-   
-
-    const handleSearchBar = (event) => {
-        let searchText = event.target.value
-        setSearchTerm(searchText)
-
-        const filteredData = list.filter((item) => {
-            for (const key in item) {
-                const currentValue = item[key]
-                console.log("current value", currentValue)
-                if (typeof currentValue === "string" && currentValue.includes(searchText)) {
-
-                    return true;
-                }
-            }
-            return false
-        })
-        setFilteredList(filteredData)
-    }
-
-
 
     const upsertItem = (value) => {
 
@@ -274,7 +252,6 @@ const TableGridView = ({
                 title={title}
                 isGridViewSelected={isGridViewSelected}
                 setIsGridViewSelected={setIsGridViewSelected}
-                handleSearchBar={handleSearchBar}
                 isViewArchivedChecked={isViewArchivedChecked}
                 handleViewArchived={handleViewArchived}
                 isHistoryModalOpened={isHistoryModalOpened}
@@ -287,7 +264,6 @@ const TableGridView = ({
                 isAddEditLinkVisible={isAddEditLinkVisible}
                 handleAddButtonPress={handleToggleModal}
                 isSearchBarVisible={true}
-                handleSearchInput={handleSearchBar}
             />
 
             {renderView()}

@@ -2,16 +2,45 @@ import React, { useState, useEffect } from 'react';
 
 import { Grid, Paper, Icon, Button } from '@material-ui/core';
 import Select from '../atoms/Select';
+import InputBase from '@material-ui/core/InputBase';
+import SearchIcon from '@material-ui/icons/Search';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import InputAdornment from '@material-ui/core/InputAdornment';
+
+const useStyles = makeStyles((theme) => ({
+    root: {
+        padding: '2px 4px',
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
+    },
+    input: {
+        marginLeft: theme.spacing(1),
+        flex: 1,
+    },
+    iconButton: {
+        padding: 10,
+    },
+    divider: {
+        height: 28,
+        margin: 4,
+    },
+}));
 
 export default function Filter({
     list = [],
     filteredList = [],
     setFilteredList,
-    columnsFields = []
+    columnsFields = [],
+    isSearchBarVisible = false,
 }) {
+    const classes = useStyles();
+
     const [selectedFieldName, setSelectedFieldName] = useState('');
     const [selectedFieldOptions, setSelectedFieldOptions] = useState([]);
     const [selectedFields, setSelectedFields] = useState({});
+    const [searchTerm, setSearchTerm] = useState('')
 
     useEffect(() => {
         filtered();
@@ -82,15 +111,36 @@ export default function Filter({
         }
     }
 
+    const handleSearchInput = (event) => {
+        let searchText = event.target.value
+        setSearchTerm(searchText)
+
+        const filteredData = list.filter((item) => {
+            for (const key in item) {
+                const currentValue = item[key]
+                console.log("current value", currentValue)
+                if (typeof currentValue === "string" && currentValue.includes(searchText)) {
+
+                    return true;
+                }
+            }
+            return false
+        })
+        setFilteredList(filteredData)
+    }
+
     const renderItem = () => {
         let item = [];
-
-        let sizeOfEachEl = parseInt(9 / Object.keys(columnsFields).length);
+        let columns = Object.keys(columnsFields).length;
+        if (isSearchBarVisible) {
+            columns += 1;
+        }
+        let sizeOfEachEl = parseInt(10 / columns);
         columnsFields
             .filter(fieldItem => fieldItem.isFilterColumn === false ? fieldItem.isFilterColumn : true)
             .map((fieldItem, index) => {
                 item.push(
-                    <Grid item sm sm={sizeOfEachEl} style={{ marginLeft: "7px" }} key={`filter_${index}`}>
+                    <Grid item sm sm={sizeOfEachEl} style={{ marginLeft: "7px" }} key={`${fieldItem.field}`}>
                         <Select
                             isCheckbox
                             isMulti
@@ -100,7 +150,41 @@ export default function Filter({
                             value={getValues(fieldItem)} />
                     </Grid>
                 )
-            })
+            });
+
+        if (isSearchBarVisible) {
+            item.push(
+                <Grid item sm sm={sizeOfEachEl} style={{ marginLeft: "7px" }} key={`search_box`}>
+                    {/* <Paper component="div" className={classes.root}>
+
+                        <InputBase
+                            className={classes.input}
+                            placeholder="Search FIelds"
+                            inputProps={{ 'aria-label': 'search google maps' }}
+                            onChange={handleSearchInput}
+                        />
+
+                        <IconButton type="button" aria-label="search" className={classes.iconButton}>
+                            <SearchIcon
+                            />
+                        </IconButton>
+                    </Paper> */}
+                    <TextField
+                        className={classes.margin}
+                        id="input-with-icon-textfield"
+                        variant="outlined"
+                        size="small"
+                        onChange={handleSearchInput}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Grid>)
+        }
         return item;
     }
 
@@ -115,8 +199,9 @@ export default function Filter({
                     color="primary"
                     type="button"
                     onClick={() => {
-                        setFilteredList(list)
-                        setSelectedFields({})
+                        setFilteredList(list);
+                        setSelectedFields({});
+                        setSearchTerm('');
                     }}>
                     Clear
           </Button>

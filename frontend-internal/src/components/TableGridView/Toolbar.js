@@ -4,19 +4,9 @@ import Checkbox from '../atoms/Checkbox';
 import Headding from '../atoms/Headding';
 import Space from '../atoms/Space';
 import Filter from './Filter';
-import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/AddBox';
-import InputBase from '@material-ui/core/InputBase';
-import SearchIcon from '@material-ui/icons/Search';
 import Box from '@material-ui/core/Box';
-
-const useStyles = makeStyles((theme) => ({
-    button: {
-        margin: theme.spacing(1),
-    },
-}));
-
 
 export default function Toolbar({
     title,
@@ -30,11 +20,8 @@ export default function Toolbar({
     isHistoryCheckboxVisible = true,
     isCustomAddButtonVisible = false,
     handleAddButtonPress = () => { },
-    isSearchBarVisible = false,
-    handleSearchInput = () => { },
     ...restProps
 }) {
-    const classes = useStyles();
     return (
         <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
             <Grid container>
@@ -78,27 +65,6 @@ export default function Toolbar({
                         <Filter
                             {...restProps} />
                         {
-                            isSearchBarVisible &&
-                            <Grid item xs={2} >
-                                <Paper component="form" style={{
-                                    display: "flex", width: "130px", marginLeft: "7px",
-                                    height: "34px"
-                                }}>
-                                    <InputBase
-                                        className={classes.input}
-                                        placeholder="Search FIelds"
-                                        inputProps={{ 'aria-label': 'search google maps' }}
-                                        onChange={handleSearchInput}
-                                    />
-
-                                    <IconButton type="submit" aria-label="search">
-                                        <SearchIcon
-                                        />
-                                    </IconButton>
-                                </Paper>
-                            </Grid>
-                        }
-                        {
                             title === 'Items' &&
                             <Grid item sm sm={3} style={{ display: 'flex', flexDirection: 'column' }}>
                                 <Checkbox
@@ -117,25 +83,6 @@ export default function Toolbar({
                                 <Headding as={'h4'} title={title}></Headding>
                             </Box>
                         </Grid>
-
-                        {/* {
-                            isSearchBarVisible &&
-                            <Grid item xs={2} >
-                                <Paper component="form" style={{display: "flex", width: "130px"}}>
-                                    <InputBase
-                                        className={classes.input}
-                                        placeholder="Search FIelds"
-                                        inputProps={{ 'aria-label': 'search google maps' }}
-                                        onChange={handleSearchInput}
-                                    />
-
-                                    <IconButton type="submit" aria-label="search">
-                                        <SearchIcon
-                                        />
-                                    </IconButton>
-                                </Paper>
-                            </Grid>
-                        } */}
                         {
                             isCustomAddButtonVisible &&
                             <Grid item xs={1}>
