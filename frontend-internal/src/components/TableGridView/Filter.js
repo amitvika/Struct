@@ -4,9 +4,14 @@ import { Grid, Paper, Icon, Button } from '@material-ui/core';
 import Select from '../atoms/Select';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
+
+import Table from '@material-ui/core/Table';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -27,6 +32,15 @@ const useStyles = makeStyles((theme) => ({
         margin: 4,
     },
 }));
+
+const StyledTableCell = withStyles((theme) => ({
+    root: {
+        paddingLeft: '5px',
+        paddingRight: '5px',
+        borderBottom: "none",
+        justifyContent: 'center'
+    }
+}))(TableCell);
 
 export default function Filter({
     list = [],
@@ -135,12 +149,12 @@ export default function Filter({
         if (isSearchBarVisible) {
             columns += 1;
         }
-        let sizeOfEachEl = parseInt(10 / columns);
+        let sizeOfEachEl = parseInt(90 / columns);
         columnsFields
             .filter(fieldItem => fieldItem.isFilterColumn === false ? fieldItem.isFilterColumn : true)
             .map((fieldItem, index) => {
                 item.push(
-                    <Grid item sm sm={sizeOfEachEl} style={{ marginLeft: "7px" }} key={`${fieldItem.field}`}>
+                    <StyledTableCell width={`${sizeOfEachEl}%`} key={`${fieldItem.field}`}>
                         <Select
                             isCheckbox
                             isMulti
@@ -148,33 +162,22 @@ export default function Filter({
                             options={get_unique_options(fieldItem.field)}
                             placeholder={`Select ${fieldItem.title}`}
                             value={getValues(fieldItem)} />
-                    </Grid>
+                    </StyledTableCell>
                 )
             });
 
         if (isSearchBarVisible) {
             item.push(
-                <Grid item sm sm={sizeOfEachEl} style={{ marginLeft: "7px" }} key={`search_box`}>
-                    {/* <Paper component="div" className={classes.root}>
+                <StyledTableCell width={`${sizeOfEachEl}%`} key={`search_box`}>
 
-                        <InputBase
-                            className={classes.input}
-                            placeholder="Search FIelds"
-                            inputProps={{ 'aria-label': 'search google maps' }}
-                            onChange={handleSearchInput}
-                        />
-
-                        <IconButton type="button" aria-label="search" className={classes.iconButton}>
-                            <SearchIcon
-                            />
-                        </IconButton>
-                    </Paper> */}
                     <TextField
                         className={classes.margin}
                         id="input-with-icon-textfield"
                         variant="outlined"
                         size="small"
                         onChange={handleSearchInput}
+                        value={searchTerm}
+                        placeholder={'Enter'}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -183,32 +186,39 @@ export default function Filter({
                             ),
                         }}
                     />
-                </Grid>)
+                </StyledTableCell>
+            )
         }
         return item;
     }
 
     return (
         <>
-            <Grid item sm sm={1} style={{ display: 'flex', justifyContent: 'center' }}>
-                <Icon style={{ marginTop: '10px' }}>search</Icon>
+            <Grid item sm sm={10}>
+                <Table className={classes.table} aria-label="simple table">
+                    <TableHead>
+                        <TableRow>
+                            <StyledTableCell width={`5%`}>
+                                <Icon style={{ marginTop: '10px' }}>search</Icon>
+                            </StyledTableCell>
+                            <StyledTableCell width={`5%`}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    type="button"
+                                    value="Clear"
+                                    onClick={() => {
+                                        setFilteredList(list);
+                                        setSelectedFields({});
+                                        setSearchTerm('');
+                                    }} >Clear</Button>
+                            </StyledTableCell>
+
+                            {renderItem()}
+                        </TableRow>
+                    </TableHead>
+                </Table>
             </Grid>
-            <Grid item sm sm={1}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    type="button"
-                    onClick={() => {
-                        setFilteredList(list);
-                        setSelectedFields({});
-                        setSearchTerm('');
-                    }}>
-                    Clear
-          </Button>
-            </Grid>
-            {
-                renderItem()
-            }
         </>
     )
 }
