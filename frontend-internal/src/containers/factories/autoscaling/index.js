@@ -14,13 +14,13 @@ import {
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import moment from 'moment';
-import { reject } from 'lodash';
 import ApprovalModal from '../../../components/ApprovalModal';
+import SimpleBackdrop from '../../../components/Backdrop';
 export default function Autoscaling() {
 
     let history = useHistory();
     const dispatch = useDispatch();
-    let { id: item_id } = useParams();
+    let { id: factory_id } = useParams();
     const [list, setList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [filteredList, setFilteredList] = useState([]);
@@ -49,11 +49,12 @@ export default function Autoscaling() {
             title: 'Approval',
             field: "id",
             editable: "never",
+            isGridViewVisible: false,
             render: rowData => rowData && <span style={{ cursor: 'pointer' }}
                 onClick={(event) => {
                     event.stopPropagation();
                     toggleModal(rowData)
-                }}>{list? "Approved" : "Not Approved"}</span>
+                }}>{rowData.approval_list.length === 3 ? "Approved" : "Not Approved"}</span>
         },
     ])
 
@@ -94,7 +95,7 @@ export default function Autoscaling() {
         try {
             setIsLoading(true);
 
-            const productionRes = await AutoscalingAPI.fetchAutoscalings(`factory_id=${item_id}`);
+            const productionRes = await AutoscalingAPI.fetchAutoscalings(`factory_id=${factory_id}`);
 
             const productionList = get(productionRes, 'data', []);
 
@@ -151,19 +152,21 @@ export default function Autoscaling() {
         })
 
     }
-    const handleApproval = (productionId, data) => {
+    const handleApproval = (autoscalingId, data) => {
         setIsLoading(true)
         setIsModalOpened(false);
-        AutoscalingAPI.approveItemForAutoscaling(productionId, data)
+        AutoscalingAPI.approveItemForAutoscaling(autoscalingId, data)
             .then(res => {
-
-                setList(list.map(production => {
+                const updatedList = list.map(production => {
                     if (production.id === get(res, 'data.id')) {
                         return res.data;
                     }
                     return production;
-                }))
-                setIsLoading(false)
+                });
+                setList(updatedList);
+                setFilteredList(updatedList);
+
+                setIsLoading(false);
                 dispatch(showSuccessAlert({ message: 'Autoscaling approved for production' }));
             })
             .catch(error => {
@@ -172,7 +175,7 @@ export default function Autoscaling() {
             })
     }
     const addItem = (newData) => {
-        let updateValue = { ...newData, item_id }
+        let updateValue = { ...newData, factory_id }
         return upsertItem(updateValue)
     }
 
@@ -194,45 +197,38 @@ export default function Autoscaling() {
     const handleTableRowClick = (event) => {
         // history.push(`/items/${event.id}`);
     }
-    if (isLoading) {
-        return (<div
-            style={{
-                display: "flex",
-                justifyContent: "center"
-            }}
-        >
-            <Spinner animation="border" />
-        </div>)
-    }
-
+    
     return (
-        <Paper>
-            {
-                isModalOpened &&
-                <ApprovalModal
-                    isModalOpened={isModalOpened}
-                    toggleModal={toggleModal}
-                    selectedValue={selectedValue}
-                    setSelectedValue={setSelectedValue}
-                    assignFactory={assignFactory}
-                    handleApproval={handleApproval}
-                    fields={columns} 
+        <>
+            <SimpleBackdrop isLoading={isLoading}/>
+            <Paper>
+                {
+                    isModalOpened &&
+                    <ApprovalModal
+                        isModalOpened={isModalOpened}
+                        toggleModal={toggleModal}
+                        selectedValue={selectedValue}
+                        setSelectedValue={setSelectedValue}
+                        assignFactory={assignFactory}
+                        handleApproval={handleApproval}
+                        fields={columns}
                     />
-            }
+                }
 
-            <TableView
-                title={'Add Autoscaling Setup'}
-                list={filteredList}
-                handleAdd={addItem}
-                handleUpdate={updateItem}
-                handleDelete={deleteItem}
-                handleTableRowClick={handleTableRowClick}
-                columns={columns}
-                setColumns={setColumns}
-                isAddEditActionsEnabled={true}
-            >
-            </TableView>
+                <TableView
+                    title={'Add Autoscaling Setup'}
+                    list={filteredList}
+                    handleAdd={addItem}
+                    handleUpdate={updateItem}
+                    handleDelete={deleteItem}
+                    handleTableRowClick={handleTableRowClick}
+                    columns={columns}
+                    setColumns={setColumns}
+                    isAddEditActionsEnabled={true}
+                >
+                </TableView>
 
-        </Paper>
+            </Paper>
+        </>
     )
 }

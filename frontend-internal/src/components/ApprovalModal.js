@@ -37,7 +37,7 @@ export default function ProductionApprovalModal({
 
     const renderView = () => {
         return fields
-
+            .filter(fieldItem => fieldItem.isGridViewVisible === false ? fieldItem.isGridViewVisible : true)
             .map(item => {
                 return (<>
                     <Grid item xs={4}>
@@ -56,14 +56,10 @@ export default function ProductionApprovalModal({
     const renderProductionApprovalActions = () => {
         let approvalList = selectedValue.approval_list || []
         let list = [];
-
         list = approvalList.map(approvalItem => {
             return (
                 <>
-                    <Grid item xs={4}>
-                        Approved
-                    </Grid>
-                    <Grid container xs={8} style={{ textAlign: 'center' }}>
+                    <Grid container xs={12} style={{ textAlign: 'center' }}>
                         <FormControlLabel
                             control={
                                 <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
@@ -79,10 +75,8 @@ export default function ProductionApprovalModal({
         })
 
         if (approvalList.length < 3) {
-
             list.push(
-                <Grid container xs={12}>
-                    Approved
+                <Grid container xs={12} style={{ textAlign: 'center' }}>
                     <FormControlLabel
                         control={
                             <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
@@ -110,11 +104,14 @@ export default function ProductionApprovalModal({
                     </Grid>
                     {renderView()}
 
-                    <Grid container xs={4}>
-                        {
-                            renderProductionApprovalActions()
-                        }
+                    <Grid item xs={4}>
+                        Approved for Production
                     </Grid>
+                    <Grid container xs={8} style={{ display: "flex" }}>
+                        {renderProductionApprovalActions()}
+                    </Grid>
+
+
                     <Grid item xs={12} style={{ textAlign: 'center' }}>
                         <Button
                             style={{ marginTop: '20px' }}
