@@ -30,10 +30,10 @@ export default function ManageTeamModal({ selectedValue, toggleModal, open, hand
             style={{ marginLeft: '10%', marginRight: '10%' }}>
 
             <SelectorView
-                title={'Team'}
+                title={'Users'}
                 fetchList={UserSetupAPI.fetchUsers}
                 fetchSelectedList={fetchSelectedList}
-                fields={[{ title: "ID", field: "id" }, { title: "Name", field: "name" }]}
+                fields={[{ title: "ID", field: "id" }, { title: "Name", field: "name" },{title: "E-mail", field: "email"}]}
                 mapValues={(data) => data}
                 handleUpdate={handleMemberSelectChange}
                 handleSelection={(data) => { }}

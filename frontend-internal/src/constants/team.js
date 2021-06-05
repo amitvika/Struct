@@ -5,7 +5,7 @@ export const teamSetupFields = [
         title: "Number of Team Members",
         field: "number_of_members",
         editable: "never"
-    }
+    },
 ]
 
 

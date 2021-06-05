@@ -3,7 +3,8 @@ import GLTFRenderer from '../../../gltf/GltfRenderer';
 import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY } from "../../../gltf/Tree/utils";
 const DEFAULTMATERIALNAME = "Basic";
 
-export default function Viewer({ gltfjson = {}, fileId = '', selectedOption, splitMethod, handleModelClick }) {
+export default function Viewer({ gltfjson = {}, fileId = '', selectedOption = SELECTSOLID, splitMethod = SELECTHIRERACHY,
+    handleModelClick = () => { } }) {
     return (
         <div>
             {

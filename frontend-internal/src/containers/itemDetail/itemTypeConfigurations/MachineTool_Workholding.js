@@ -3,8 +3,14 @@ import Select from '../../../components/atoms/Select';
 import Input from '../../../components/atoms/Input';
 import Grid from '@material-ui/core/Grid';
 import Heading from '../../../components/atoms/Headding'
+import GeometricDimensioning from '../geometricDimensioning'
+import GLTFRenderer from '../../../gltf/GltfRenderer'
+import { Paper } from '@material-ui/core';
+import CircularProgress from '@material-ui/core'
+import Viewer from '../geometricDimensioning/Viewer'
+import Headding from '../../../components/atoms/Headding';
 
-export default function MachineTool_Workholding({ itemConfiguration, handleOnChange }) {
+export default function MachineTool_Workholding({ itemConfiguration, handleOnChange, gltfjson, setgltfjson }) {
     return (
         <>
             <Grid item xs={4} >
@@ -20,6 +26,19 @@ export default function MachineTool_Workholding({ itemConfiguration, handleOnCha
                     onChange={(data) => handleOnChange('machineToolWorkholding', data.value)}
                     value={itemConfiguration.machineToolWorkholding && { label: itemConfiguration.machineToolWorkholding }}
                 />
+
+            </Grid>
+
+            <Grid container spacing={4} style={{display: "block"}}>
+                <Grid style={{textAlign: "center",marginLeft: "230px"}}>
+                <Headding >Custom Selections</Headding>
+                </Grid>
+                <Grid item xs={6}>
+                    <Viewer
+                        gltfjson={gltfjson}
+                        setgltfjson={setgltfjson}
+                    />
+                </Grid>
             </Grid>
             {
                 itemConfiguration.machineToolWorkholding === 'Workholding' &&

@@ -95,7 +95,12 @@ const ItemDetail = () => {
             case 3:
                 return <CurrentUsage itemId={id} />
             case 4:
-                return <ItemTypeConfigurations itemId={id} itemProperties={itemProperties} setItemProperties={setItemProperties} />
+                return <ItemTypeConfigurations
+                    itemId={id}
+                    itemProperties={itemProperties}
+                    setItemProperties={setItemProperties}
+                    gltfjson={gltfjson}
+                    setgltfjson={setgltfjson} />
             case 5:
                 return <VendorDetails />
             case 6:
@@ -189,43 +194,23 @@ const ItemDetail = () => {
                 </Grid>
                 <Grid item sm={2}>
                     <Paper style={{ margin: 10, marginBottom: "70px" }}>
+
                         <Tabs
                             orientation="vertical"
                             variant="scrollable"
                             value={tabIndex}
                             onChange={handleTabChange}>
-                            {/* <Tab label="Base Item Properties" value={1} /> */}
                             <Tab label="1. Product Design or CAD Upload" value={1} />
                             <Tab label="2. Compliance and Certifications" value={11} />
-                            {
-                                // itemProperties?.itemGeometry?.isEndProductSelected &&
-                                // <Tab label="Client Setup" value={7} />
-                            }
 
-                            {/* { */}
-                            {/* itemProperties?.itemGeometry?.itemType && */}
                             <Tab label="3. GD&T and Assembly Constraints" value={2} />
                             <Tab label="4. Surface Finish and Treatment" value={10} />
                             <Tab label="5. Functional Load and Simulation" value={12} />
                             <Tab label="6. Design Modifications" value={13} />
                             <Tab label="7. Software Loading for PCBs, ICs" value={14} />
-
-
-
-                            {/* } */}
-
                             <Tab label="8. Assembly" value={8} />
-                            {
-                                // itemProperties.assemblyType === 'Multi-Item Assembly' && 
-                            }
+
                             <Tab label="9. Current Usage" value={3} />
-
-                            {/* {
-								itemProperties.vendorId && 
-								<Tab label="Vendor Details" value={5} />
-							} */}
-
-
                             <Tab label="10. Manufacture, Processing, & Process Simulation" value={6} />
                             <Tab label="11. Production Validations" value={15} />
                             <Tab label="12. Process Sharing" value={16} />
@@ -233,8 +218,7 @@ const ItemDetail = () => {
                             <Tab label="14. Product Documentation" value={18} />
                             <Tab label="15. Recycling & Sustainability" value={19} />
                             <Tab label="16. Product Design Setup" value={20} />
-                            {/* <Tab label="Item Type Configurations" value={4} /> */}
-                            <Tab label="17. Internal Use Product Configurations" value={4} />
+                            <Tab label="17.Internal Use Product Configurations" value={4} />
                             <Tab label="18. Production" value={9} />
 
 

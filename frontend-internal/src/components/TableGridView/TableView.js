@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import MaterialTable, { MTableToolbar } from "material-table";
+import Headding from '../atoms/Headding';
 
 export default function TableView({
   handleAdd = () => Promise.resolve(),
@@ -10,7 +11,8 @@ export default function TableView({
   clientList = [],
   columns,
   setColumns,
-  isAddEditActionsEnabled = false
+  isAddEditActionsEnabled = false,
+  title
 }) {
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function TableView({
       <MaterialTable
         columns={columns}
         data={list}
-        // title="New Product Design"
+        title={title}
         options={{
           actionsColumnIndex: 5,
           addRowPosition: "first",

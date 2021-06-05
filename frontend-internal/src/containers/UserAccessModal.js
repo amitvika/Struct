@@ -148,14 +148,14 @@ class UserAccessModal extends Component {
   render() {
     return (
       <div>
-        <Button
+        {/* <Button
           className="mt-2 mb-3"
           variant="contained"
           color="primary"
           onClick={this.toggle}
         >
           Assign Users
-        </Button>
+        </Button> */}
         <Modal size={"lg"} isOpen={this.state.modal} toggle={this.toggle}>
           <ModalHeader toggle={this.toggle}>
             <div title="Please click each row you would like to move from one table to the other.  Save the changes with the save button to the bottom right">

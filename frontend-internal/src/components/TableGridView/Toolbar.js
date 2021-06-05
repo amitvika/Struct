@@ -78,6 +78,27 @@ export default function Toolbar({
                         <Filter
                             {...restProps} />
                         {
+                            isSearchBarVisible &&
+                            <Grid item xs={2} >
+                                <Paper component="form" style={{
+                                    display: "flex", width: "130px", marginLeft: "7px",
+                                    height: "34px"
+                                }}>
+                                    <InputBase
+                                        className={classes.input}
+                                        placeholder="Search FIelds"
+                                        inputProps={{ 'aria-label': 'search google maps' }}
+                                        onChange={handleSearchInput}
+                                    />
+
+                                    <IconButton type="submit" aria-label="search">
+                                        <SearchIcon
+                                        />
+                                    </IconButton>
+                                </Paper>
+                            </Grid>
+                        }
+                        {
                             title === 'Items' &&
                             <Grid item sm sm={3} style={{ display: 'flex', flexDirection: 'column' }}>
                                 <Checkbox
@@ -97,7 +118,7 @@ export default function Toolbar({
                             </Box>
                         </Grid>
 
-                        {
+                        {/* {
                             isSearchBarVisible &&
                             <Grid item xs={2} >
                                 <Paper component="form" style={{display: "flex", width: "130px"}}>
@@ -114,7 +135,7 @@ export default function Toolbar({
                                     </IconButton>
                                 </Paper>
                             </Grid>
-                        }
+                        } */}
                         {
                             isCustomAddButtonVisible &&
                             <Grid item xs={1}>
