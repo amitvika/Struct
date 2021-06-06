@@ -62,10 +62,10 @@ export default function Header() {
         return (<Toolbar className={classes.toolbar}>
             {structLogo}
             <Box component="div" className={classes.menuContainer}>
-                <Box component="div" style={{ display: 'flex' }}>
+                <Box component="div" key={`primary_list`} style={{ display: 'flex' }}>
                     {getMenuButtons()}
                 </Box>
-                <Box component="div" style={{ display: 'flex' }}>
+                <Box component="div" key={`secondary_list`}  style={{ display: 'flex' }}>
                     {getSecondMenu()}
                 </Box>
             </Box>
@@ -87,6 +87,7 @@ export default function Header() {
         let menuItems = headersData.map(({ label, href }) => {
             return (
                 <Button
+                    key={`primary_button_${label}`}
                     {...{
                         key: label,
                         color: "inherit",
@@ -101,9 +102,11 @@ export default function Header() {
         });
 
         menuItems.push(<Button
+            key='back_button'
             {...{
                 key: 'back_button',
                 color: "inherit",
+                to: '#',
                 component: RouterLink,
                 className: classes.menuButton
             }}
@@ -114,9 +117,11 @@ export default function Header() {
         </Button>)
 
         menuItems.push(<Button
+            key='forward_button'
             {...{
                 key: 'forward_button',
                 color: "inherit",
+                to: '#',
                 component: RouterLink,
                 className: classes.menuButton
             }}
@@ -133,6 +138,7 @@ export default function Header() {
 
         menuItems.push(
             <Button
+                key='viewMyProfile'
                 {...{
                     key: 'viewMyProfile',
                     color: "inherit",
@@ -148,10 +154,12 @@ export default function Header() {
         menuItems.push(
             <>
                 <Button
+                    key='user_profile'
                     ref={anchorRef}
                     aria-controls={open ? 'menu-list-grow' : undefined}
                     aria-haspopup="true"
                     onClick={handleToggle}
+
                     className={classes.menuButton}
                 >
                     {isAuthenticated
@@ -167,15 +175,24 @@ export default function Header() {
                             <Paper>
                                 <ClickAwayListener onClickAway={handleClose}>
                                     <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                                        <MenuItem onClick={() => handleLink('/configuration-history')}>Configuration History</MenuItem>
-                                        <MenuItem onClick={() => handleLink('/user-setup')}>User Setup</MenuItem>
-                                        <MenuItem onClick={() => handleLink('/viewMyProfile')}>My Profile</MenuItem>
-                                        <MenuItem>
+                                        <MenuItem
+                                            key={`configuration-history_link`}
+                                            onClick={() => handleLink('/configuration-history')}>Configuration History</MenuItem>
+                                        <MenuItem
+                                            key={`user_setup_link`}
+                                            onClick={() => handleLink('/user-setup')}>User Setup</MenuItem>
+                                        <MenuItem
+                                            key={`my_profile_link`}
+                                            onClick={() => handleLink('/viewMyProfile')}>My Profile</MenuItem>
+                                        <MenuItem
+                                            key={`theme_changer`}>
                                             <Switch checked={lightThemeSelected} onChange={handleThemeChange} name="currentTheme" />
                                             {lightThemeSelected ? 'Dark' : 'Light'}
                                         </MenuItem>
 
-                                        <MenuItem onClick={handleClose}>Logout</MenuItem>
+                                        <MenuItem
+                                            key={`logout_link`}
+                                            onClick={handleClose}>Logout</MenuItem>
                                     </MenuList>
                                 </ClickAwayListener>
                             </Paper>

@@ -9,7 +9,7 @@ import {
     Headding
 } from '../../components';
 
-export default function AddEditVendorModal({ isAddEditItemModalOpened, toggleAddEditItemModal, updateItem,fields, title, isEditing, selectedValue }) {
+export default function AddEditVendorModal({ isAddEditItemModalOpened, toggleAddEditItemModal, updateItem, fields, title, isEditing, selectedValue }) {
     const [value, setValue] = useState({});
     useEffect(() => {
         if (selectedValue) {
@@ -24,14 +24,16 @@ export default function AddEditVendorModal({ isAddEditItemModalOpened, toggleAdd
         return fields
             .filter(item => item.type)
             .map(item => {
-                return (<>
-                    <Grid item xs={4}>
-                        <Headding bold title={item.title} />
+                return (
+                    <Grid container key={`render_view_${item.title}`}>
+                        <Grid item xs={4}>
+                            <Headding bold title={item.title} />
+                        </Grid>
+                        <Grid item xs={8}>
+                            {renderField(item)}
+                        </Grid>
                     </Grid>
-                    <Grid item xs={8}>
-                        {renderField(item)}
-                    </Grid>
-                </>)
+                )
 
             })
     }

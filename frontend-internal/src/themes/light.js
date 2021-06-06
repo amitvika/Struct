@@ -20,5 +20,14 @@ export const lightTheme = createMuiTheme({
     header: {
         backgroundColor: '#252525',
         color: '#ffffff'
+    },
+    overrides: {
+        MuiOutlinedInput: {
+            root: {
+                "& $notchedOutline": {
+                    top: 0
+                },
+            }
+        }
     }
 });

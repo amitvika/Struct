@@ -57,16 +57,17 @@ export default function Toolbar({
                             />
                         </Grid>
                     }
-
-
                 </Grid>
-                <Grid item sm sm={10}>
-                    <Grid item sm sm={12} style={{ display: 'flex' }}>
-                        <Filter
-                            {...restProps} />
+                <Grid item sm={10}>
+                    <Grid container>
+
+                        <Grid item sm sm={title === 'Items' ? 10 : 12} style={{ display: 'flex' }}>
+                            <Filter
+                                {...restProps} />
+                        </Grid>
                         {
                             title === 'Items' &&
-                            <Grid item sm sm={3} style={{ display: 'flex', flexDirection: 'column' }}>
+                            <Grid item sm sm={2} style={{ display: 'flex', flexDirection: 'column' }}>
                                 <Checkbox
                                     label="Unused by Other Items"
                                 />
@@ -75,24 +76,24 @@ export default function Toolbar({
                                 />
                             </Grid>
                         }
-                    </Grid>
-                    <Space size={30} />
-                    <Grid container spacing={3}>
-                        <Grid item xs>
-                            <Box textAlign="center" m={1}>
-                                <Headding as={'h4'} title={title}></Headding>
-                            </Box>
-                        </Grid>
-                        {
-                            isCustomAddButtonVisible &&
-                            <Grid item xs={1}>
-                                <IconButton color="primary" aria-label="upload picture" component="span" onClick={handleAddButtonPress}>
-                                    <AddIcon />
-                                </IconButton>
+                        <Space size={30} />
+                        <Grid container spacing={3}>
+                            <Grid item xs>
+                                <Box textAlign="center" m={1}>
+                                    <Headding as={'h4'} title={title}></Headding>
+                                </Box>
                             </Grid>
-                        }
-                    </Grid>
+                            {
+                                isCustomAddButtonVisible &&
+                                <Grid item xs={1}>
+                                    <IconButton color="primary" aria-label="upload picture" component="span" onClick={handleAddButtonPress}>
+                                        <AddIcon />
+                                    </IconButton>
+                                </Grid>
+                            }
+                        </Grid>
 
+                    </Grid>
                 </Grid>
             </Grid>
         </Paper >

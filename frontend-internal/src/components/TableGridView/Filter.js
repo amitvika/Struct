@@ -178,6 +178,7 @@ export default function Filter({
                         onChange={handleSearchInput}
                         value={searchTerm}
                         placeholder={'Enter'}
+                        style={{ top: 0 }}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -193,32 +194,28 @@ export default function Filter({
     }
 
     return (
-        <>
-            <Grid item sm sm={10}>
-                <Table className={classes.table} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <StyledTableCell width={`5%`}>
-                                <Icon style={{ marginTop: '10px' }}>search</Icon>
-                            </StyledTableCell>
-                            <StyledTableCell width={`5%`}>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    type="button"
-                                    value="Clear"
-                                    onClick={() => {
-                                        setFilteredList(list);
-                                        setSelectedFields({});
-                                        setSearchTerm('');
-                                    }} >Clear</Button>
-                            </StyledTableCell>
+        <Table className={classes.table} aria-label="simple table">
+            <TableHead>
+                <TableRow>
+                    <StyledTableCell width={`5%`}>
+                        <Icon style={{ marginTop: '10px' }}>search</Icon>
+                    </StyledTableCell>
+                    <StyledTableCell width={`5%`}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            type="button"
+                            value="Clear"
+                            onClick={() => {
+                                setFilteredList(list);
+                                setSelectedFields({});
+                                setSearchTerm('');
+                            }} >Clear</Button>
+                    </StyledTableCell>
 
-                            {renderItem()}
-                        </TableRow>
-                    </TableHead>
-                </Table>
-            </Grid>
-        </>
+                    {renderItem()}
+                </TableRow>
+            </TableHead>
+        </Table>
     )
 }

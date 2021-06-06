@@ -77,18 +77,18 @@ export default function GridView({
         let item = [];
 
         columnsFields
-        .filter(fieldItem => fieldItem.isGridViewVisible === false ? fieldItem.isGridViewVisible : true)
-        .map(fieldItem => {
-            item.push(
-                <Grid item sm sm={12}>
-                    <Typography variant="subtitle2" gutterBottom noWrap={true}>
-                        <span className={classes.boldtablecell}>{fieldItem.title}</span>
-                        {`: `}
-                        <span className={classes.tableCell}>{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
-                    </Typography>
-                </Grid>
-            )
-        })
+            .filter(fieldItem => fieldItem.isGridViewVisible === false ? fieldItem.isGridViewVisible : true)
+            .map(fieldItem => {
+                item.push(
+                    <Grid item sm sm={12} key={`${fieldItem.title}_${data[fieldItem.field]}`}>
+                        <Typography variant="subtitle2" gutterBottom noWrap={true}>
+                            <span className={classes.boldtablecell}>{fieldItem.title}</span>
+                            {`: `}
+                            <span className={classes.tableCell}>{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
+                        </Typography>
+                    </Grid>
+                )
+            })
         return item;
     }
 
@@ -114,14 +114,12 @@ export default function GridView({
 
     return (
         <Grid container spacing={2}>
-            {/* // <div className={isInsideDetailPanel ? 'fixed-grid--around-350' : 'fixed-grid--around'} style={{ marginLeft: "-15px", marginRight: "-15px", }}> */}
             {list.map(product => {
                 return (
-                    <Grid item xs={6} sm={3}>
-                        {/* <div style={{ marginTop: '10px', marginBottom: '10px', width: isInsideDetailPanel ? '350px' : '380px' }}> */}
+                    <Grid item xs={6} sm={3} key={product.id}>
                         <Paper className={classes.paper} onClick={() => handleTableRowClick(product)}
-                            // style={{ backgroundColor: `${product.is_archived ? '#d0cece' : '#ffffff'}` }}
-                            >
+                        // style={{ backgroundColor: `${product.is_archived ? '#d0cece' : '#ffffff'}` }}
+                        >
                             <Grid container style={{
                                 height: '100%',
                                 paddingBottom: '10px'
@@ -149,12 +147,12 @@ export default function GridView({
                                     {
                                         isAddEditLinkVisible &&
                                         <Grid item sm sm={12} >
-                                            <IconButton >
+                                            <IconButton onClick={(event) => {
+                                                event.stopPropagation();
+                                                handleEditButtonPress(product)
+                                            }}>
 
-                                                <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'right' }} onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    handleEditButtonPress(product)
-                                                }}>
+                                                <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'right' }}>
                                                     <EditIcon />
                                                 </Typography>
                                             </IconButton>
