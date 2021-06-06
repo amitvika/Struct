@@ -7,7 +7,7 @@ import {
 import { Spinner } from "reactstrap";
 import { useSelector } from 'react-redux';
 import AppRoute from './AppRoute';
-import Layout from './containers/Layout';
+import Layout from './components/Layout';
 import Login from './containers/Login';
 import Register from './page/RegisterPage';
 
@@ -28,9 +28,9 @@ import Factories from './containers/factories/Factories';
 import FactoryDetail from './containers/factories/FactoryDetail'
 
 import ProductDesign from './containers/productDesign';
-import ProductDesignDetail from "./containers/productDesign/detail";
+// import ProductDesignDetail from "./containers/productDesign/detail";
 
-import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
+// import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
 import ItemDetail from "./containers/itemDetail";
 import UserSetup from './containers/userSetup';
 import ViewMyProfile from './containers/viewMyProfile'
@@ -71,13 +71,13 @@ export default function AppRoutes() {
                             </Switch>
                         </div>
                         <Switch>
-                            <AppRoute authenticate path='/product-design/:id' component={ProductDesignDetail} />
+                            {/* <AppRoute authenticate path='/product-design/:id' component={ProductDesignDetail} /> */}
 
                             <AppRoute authenticate path='/clients/:id' component={ClientDetail} />
 
                             <AppRoute authenticate path='/vendors/:id' component={VendorDetail} />
 
-                            <AppRoute authenticate path='/process-groups/:id' component={ProcessGroupDetail} />
+                            {/* <AppRoute authenticate path='/process-groups/:id' component={ProcessGroupDetail} /> */}
 
                             <AppRoute authenticate path='/items/:id' component={ItemDetail} />
 

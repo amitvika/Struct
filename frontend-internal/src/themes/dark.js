@@ -4,7 +4,7 @@ export const darkTheme = createMuiTheme({
     palette: {
         type: "dark",
         background: {
-            default: "#222222"
+            default: "#000000"
         },
         primary: {
             main: "#000"
@@ -14,5 +14,12 @@ export const darkTheme = createMuiTheme({
     typography: {
         fontSize: 12,
         fontFamily: 'Raleway, Arial',
+        body1: {
+            fontSize: 12,
+        }
+    },
+    header: {
+        backgroundColor: '#000000',
+        color: '#ffffff'
     }
 });

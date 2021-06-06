@@ -12,7 +12,6 @@ import ClientObjectAccess from "../containers/viewAccess/ClientObjectAccess";
 import ClientBasedAccess from "../containers/viewAccess/ClientBasedAccess";
 import AccessConfig from '../api/accessConfig.api';
 import { fetchClientsApi } from '../api/access.api';
-import Layout from '../components/Layout';
 
 class ViewAccess extends Component {
 	state = {
@@ -155,7 +154,7 @@ class ViewAccess extends Component {
 
 	render() {
 		return (
-			<Layout>
+			<>
 				<div>
 					{this.state.tableLoaded && this.state.userAccessLoaded ? (
 						<div>
@@ -554,7 +553,7 @@ class ViewAccess extends Component {
 							</div>
 						)}
 				</div>
-			</Layout>
+			</>
 		);
 	}
 }

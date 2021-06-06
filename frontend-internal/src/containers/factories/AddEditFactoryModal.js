@@ -11,7 +11,7 @@ import {
 } from '../../components';
 
 
-export default function AddEditFactoryModal({   title, isEditing, selectedValue, fields, addFactory, updateFactory,
+export default function AddEditFactoryModal({ title, isEditing, selectedValue, fields, addFactory, updateFactory,
     isAddEditModalOpened,
     toggleAddEditModal
 }) {
@@ -30,14 +30,17 @@ export default function AddEditFactoryModal({   title, isEditing, selectedValue,
         return fields
             .filter(item => item.type)
             .map(item => {
-                return (<>
-                    <Grid item xs={4}>
-                        <Headding bold title={item.title} />
+                return (
+                    <Grid container key={`view_${item.title}`}>
+
+                        <Grid item xs={4}>
+                            <Headding bold title={item.title} />
+                        </Grid>
+                        <Grid item xs={8}>
+                            {renderField(item)}
+                        </Grid>
                     </Grid>
-                    <Grid item xs={8}>
-                        {renderField(item)}
-                    </Grid>
-                </>)
+                )
 
             })
     }
@@ -49,9 +52,9 @@ export default function AddEditFactoryModal({   title, isEditing, selectedValue,
         }))
     }
 
-    const handleSaveButton = async  () => {
+    const handleSaveButton = async () => {
         if (value) {
-        await  updateFactory(value)
+            await updateFactory(value)
         }
 
         toggleAddEditModal();
@@ -68,25 +71,25 @@ export default function AddEditFactoryModal({   title, isEditing, selectedValue,
         }
     }
     return (
-            <MainModal open={isAddEditModalOpened}
-                toggleModal={toggleAddEditModal}
-                title={`${isEditing ? `Update ${selectedValue.name}` : 'Add'} ${title}`}>
+        <MainModal open={isAddEditModalOpened}
+            toggleModal={toggleAddEditModal}
+            title={`${isEditing ? `Update ${selectedValue.name}` : 'Add'} ${title}`}>
 
 
-                <Grid className="section-padding-left" container spacing={4}>
-                    {renderView()}
+            <Grid className="section-padding-left" container spacing={4}>
+                {renderView()}
 
-                    <Grid item xs={6}>
-                        <Button variant="contained" color="secondary" onClick={toggleAddEditModal} >
-                            Cancel
+                <Grid item xs={6}>
+                    <Button variant="contained" color="secondary" onClick={toggleAddEditModal} >
+                        Cancel
                         </Button>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Button variant="contained" color="primary" onClick={handleSaveButton} >
-                            {isEditing ? 'Update' : 'Save'}
-                        </Button>
-                    </Grid>
                 </Grid>
-            </MainModal>
+                <Grid item xs={6}>
+                    <Button variant="contained" color="primary" onClick={handleSaveButton} >
+                        {isEditing ? 'Update' : 'Save'}
+                    </Button>
+                </Grid>
+            </Grid>
+        </MainModal>
     )
 }

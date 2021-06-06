@@ -23,7 +23,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
 import { NavLink } from 'react-router-dom'
 import AccessConfigurationAPI from '../api/accessConfig.api'
-import Layout from '../components/Layout';
 
 const AccessConfiguration = (props) => {
     const dispatch = useDispatch();
@@ -207,7 +206,7 @@ const AccessConfiguration = (props) => {
     }
 
     return (
-        <Layout>
+        <>
             <div>
                 <Snackbar
                     open={localState.snackBar}
@@ -344,7 +343,7 @@ const AccessConfiguration = (props) => {
                     </div>
                 )}
             </div>
-        </Layout>
+        </>
     );
 }
 

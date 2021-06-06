@@ -120,7 +120,8 @@ export default function GridView({
                     <Grid item xs={6} sm={3}>
                         {/* <div style={{ marginTop: '10px', marginBottom: '10px', width: isInsideDetailPanel ? '350px' : '380px' }}> */}
                         <Paper className={classes.paper} onClick={() => handleTableRowClick(product)}
-                            style={{ backgroundColor: `${product.is_archived ? '#d0cece' : '#ffffff'}` }}>
+                            // style={{ backgroundColor: `${product.is_archived ? '#d0cece' : '#ffffff'}` }}
+                            >
                             <Grid container style={{
                                 height: '100%',
                                 paddingBottom: '10px'

@@ -16,5 +16,9 @@ export const lightTheme = createMuiTheme({
         body1: {
             fontSize: 12,
         }
+    },
+    header: {
+        backgroundColor: '#252525',
+        color: '#ffffff'
     }
 });

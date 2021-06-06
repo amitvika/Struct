@@ -6,7 +6,6 @@ import { changePage } from "../actions/pageActions";
 import Checkbox from "@material-ui/core/Checkbox";
 import PropTypes from "prop-types";
 import UserAccessTypesAPI from '../api/access.api'
-import Layout from '../components/Layout';
 
 class AccessSetup extends Component {
     state = {
@@ -97,7 +96,7 @@ class AccessSetup extends Component {
     render() {
         const { user } = this.props.auth;
         return (
-            <Layout>
+            <>
                 <div>
                     {this.state.tableLoaded ? (
                         <MaterialTable
@@ -224,7 +223,7 @@ class AccessSetup extends Component {
                         </div>
                     )}
                 </div>
-            </Layout>
+            </>
         );
     }
 }

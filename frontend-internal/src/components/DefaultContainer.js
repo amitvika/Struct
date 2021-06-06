@@ -3,12 +3,10 @@ import React from 'react'
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import HistoryModal from "./HistoryModal";
-import Layout from './Layout'
-import AddUpdateModal from '../components/TableGridView/AddUpdateModal';
 
 export default function DefaultContainer(props) {
     return (
-        <Layout>
+        <>
             <HistoryModal
                 isVisible={props.isHistoryModalOpened}
                 pageName={props.title}
@@ -26,6 +24,6 @@ export default function DefaultContainer(props) {
                 </MuiAlert>
             </Snackbar>
             {props.children}
-        </Layout>
+        </>
     )
 }
