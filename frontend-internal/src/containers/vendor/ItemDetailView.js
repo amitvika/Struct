@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import ItemsAPI from '../../api/items.api';
 import {
-  ThreejsViewer
+//   ThreejsViewer
 } from '../../components';
 
 export default function ThreejsViewModal({ itemId = '', isVisible = false, closeModal }) {
@@ -29,7 +29,7 @@ export default function ThreejsViewModal({ itemId = '', isVisible = false, close
 
   return (
     <div className="Vendor_modal" style={{ width: '500px', height: '500px' }}>
-      <ThreejsViewer data={threejsObject} isLoading={isLoading}/>
+      {/* <ThreejsViewer data={threejsObject} isLoading={isLoading}/> */}
     </div>
   )
 

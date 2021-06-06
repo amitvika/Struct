@@ -7,7 +7,7 @@ import {
 } from "reactstrap";
 
 import {
-  ThreejsViewer
+//   ThreejsViewer
 } from '../../../components';
 
 export default class AssemblyThreejsView extends Component {
@@ -19,9 +19,9 @@ export default class AssemblyThreejsView extends Component {
         <ModalHeader toggle={handleModalToggle}>Thressjs</ModalHeader>
         <ModalBody>
           <div style={{ height: '40vh' }}>
-            <ThreejsViewer isLoading={false}
+            {/* <ThreejsViewer isLoading={false}
               data={MeshJSON}
-            ></ThreejsViewer>
+            ></ThreejsViewer> */}
           </div >
         </ModalBody>
       </Modal>

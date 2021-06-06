@@ -11,7 +11,7 @@ import { useDispatch } from 'react-redux';
 import GeometryInput from './GeometryInput';
 
 import {
-  ThreejsViewer,
+//   ThreejsViewer,
   Headding,
   FileUpload
 } from '../../../components';

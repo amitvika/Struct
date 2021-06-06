@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import FileUpload from '../../components/FileUpload';
 import ProcessGroupAPI from '../../api/processGroup.api'
 import CircularProgress from '@material-ui/core/CircularProgress';
-import {
-  ThreejsViewer
-} from '../../components';
+// import {
+//   ThreejsViewer
+// } from '../../components';
 
 export default class ProcessHelper extends Component {
 
@@ -42,10 +42,10 @@ export default class ProcessHelper extends Component {
       <div>
         {this.state.isFileUploading && <CircularProgress />}
         <FileUpload handleFileUpload={this.handleFileUpload} />
-        <ThreejsViewer
+        {/* <ThreejsViewer
           isLoading={this.state.isFileUploading}
           data={this.state.jsonMesh}
-        />
+        /> */}
       </div >
     )
   }

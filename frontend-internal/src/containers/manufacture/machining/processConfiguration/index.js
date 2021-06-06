@@ -7,9 +7,7 @@ import {
 } from "@material-ui/core";
 
 import ItemsAPI from '../../../../api/items.api';
-// import ThreeDViewer from "../../../../components/sharedFunctionComponents/ThreeDViewer";
-import FileUpload from "../../../../components/sharedFunctionComponents/FileUpload";
-import CppTest from "../../../../components/sharedFunctionComponents/CppTest";
+import FileUpload from "../../../../components/FileUpload";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -52,7 +50,7 @@ export default function Machining() {
 
                 </Grid>
                 <Grid item xs={12} >
-                    <CppTest />
+                    {/* <CppTest /> */}
                 </Grid>
                 <Grid item xs={12} >
                     {/* <ThreeDViewer /> */}

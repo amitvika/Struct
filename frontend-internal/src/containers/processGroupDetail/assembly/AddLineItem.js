@@ -8,7 +8,7 @@ import {
 import {
   Input,
   Headding,
-  ThreejsViewer
+//   ThreejsViewer
 } from '../../../components';
 import ItemAPI from '../../../api/items.api';
 
@@ -81,7 +81,7 @@ export default function AddLineItem({ processGroupName = '', name = '', addItemT
         </Grid>
 
         <Grid item xs={4}>
-          <ThreejsViewer data={{}} />
+          {/* <ThreejsViewer data={{}} /> */}
         </Grid>
       </Grid>
     </Paper>

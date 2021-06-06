@@ -7,9 +7,9 @@ import {
   Dropdown, DropdownToggle, DropdownMenu, DropdownItem,
   Tooltip
 } from "reactstrap";
-import {
-  ThreejsViewer
-} from '../../components';
+// import {
+//   ThreejsViewer
+// } from '../../components';
 
 import ItemsAPI from '../../api/items.api';
 import AssemblyProcessAPI from '../../api/assemblyProcess.api';
@@ -100,7 +100,7 @@ export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisibl
         <ModalBody>
           <div style={{ display: 'flex', flexDirection: 'row', height: '75vh' }}>
             <div style={{ width: '70%' }}>
-              <ThreejsViewer data={threejsObject} isLoading={isLoading} />
+              {/* <ThreejsViewer data={threejsObject} isLoading={isLoading} /> */}
             </ div>
             <Tooltip placement="right" isOpen={tooltipOpen} target="TooltipExample" toggle={toggle}>
               {

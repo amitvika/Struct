@@ -12,7 +12,7 @@ import {
 import {
 	Select,
 	Headding,
-	ThreejsViewer,
+	// ThreejsViewer,
 	Space
 } from '../../../components';
 
@@ -35,7 +35,7 @@ export default function ConfigureItemAssembly({
 			<ModalBody style={{ minHeight: 400 }}>
 				<Grid className="section-padding-left" container spacing={2}>
 					<Grid item xs={8} >
-						<ThreejsViewer data={threejsObject} isLoading={isLoading} />
+						{/* <ThreejsViewer data={threejsObject} isLoading={isLoading} /> */}
 					</Grid>
 
 					<Grid item xs={4} >

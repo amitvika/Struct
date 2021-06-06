@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {
-  ThreejsViewer
+//   ThreejsViewer
 } from '../components';
 import MeshJSON from '../assets/mesh.json'
 
@@ -10,7 +10,7 @@ export default class Viewer extends Component {
     return (
       <div>
         <div style={{ height: '80vh' }} >
-          <ThreejsViewer data={MeshJSON} isLoading={false} />
+          {/* <ThreejsViewer data={MeshJSON} isLoading={false} /> */}
         </div>
 
       </div >
