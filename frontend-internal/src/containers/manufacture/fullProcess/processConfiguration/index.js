@@ -202,7 +202,8 @@ export default function ProductionTable() {
                     selectedValue={selectedValue}
                     setSelectedValue={setSelectedValue}
                     assignFactory={assignFactory} 
-                    quantity={true} />
+                    quantity={true}
+                    fields={columns} />
             }
 
             <TableView

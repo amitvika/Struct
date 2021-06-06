@@ -5,9 +5,13 @@ import get from 'lodash/get';
 import Select from '../../../../components/atoms/Select';
 import Headding from '../../../../components/atoms/Headding'
 import { Paper, Grid, Button } from '@material-ui/core';
+import { useDispatch, useSelector } from 'react-redux';
+import SelectorView from '../../../../components/SelectorView'
 
-export default function SelectFactoryModal({ isModalOpened, toggleModal, selectedValue = {}, setSelectedValue, assignFactory }) {
-    const [factoriesOptions, setfactoriesOptions] = useState([]);
+export default function SelectFactoryModal({ isModalOpened,fields, toggleModal, selectedValue = {},
+     setSelectedValue, assignFactory,itemId,itemProperties,setItemProperties,fetchList }) {
+    const [factoriesOptions, setfactoriesOptions] = useState([])
+    const dispatch = useDispatch();
 
     useEffect(() => {
         FactoriesAPI.fetchFactories()
@@ -52,6 +56,16 @@ export default function SelectFactoryModal({ isModalOpened, toggleModal, selecte
                         placeholder={`Select Factory`}
                         value={`${selectedValue.factory_id}`} />
                 </Grid>
+
+                <SelectorView
+						title={'Factory'}
+						fetchList={fetchList}
+						fetchSelectedList={itemProperties}
+						fields={fields}
+						// mapValues={mapItems}
+						handleUpdate={setItemProperties}
+						handleSelection={(data) => setSelectedValue(data)}
+					/>
                 <Grid item xs={4} style={{ textAlign: 'center' }}>
                     <Button
                         style={{ marginTop: '20px' }}
