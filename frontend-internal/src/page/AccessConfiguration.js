@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Spinner, Alert } from "reactstrap";
-import { tokenConfig } from "../actions/authActions";
-import store from "../store";
+import { Spinner, } from "reactstrap";
 import Card from "@material-ui/core/Card";
 import {
     Button,
     Snackbar,
-    Checkbox,
-    Link,
     Breadcrumbs,
     Typography,
     Paper,
@@ -25,14 +20,13 @@ import ProcessGroupObjectAccess from '../containers/accessConfig/ProcessGroupObj
 import ProcessObjectAccess from '../containers/accessConfig/ProcessObjectAccess';
 import { getUserAccessConfigurationAction } from '../actions/accessConfig.action';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { NavLink } from 'react-router-dom'
 import AccessConfigurationAPI from '../api/accessConfig.api'
 import Layout from '../components/Layout';
 
 const AccessConfiguration = (props) => {
     const dispatch = useDispatch();
-    const history = useHistory();
     const { id } = useParams();
 
     const [localState, setLocalState] = useState({
@@ -141,7 +135,7 @@ const AccessConfiguration = (props) => {
                 throw { message: 'Unable update info' }
             }
             console.log('--->>', userAccessUsers)
-            const updateAccesConfigForUser = await AccessConfigurationAPI
+            await AccessConfigurationAPI
                 .updateUserAccessConfigurationForUserAPI(localState.userAccessId, {
                     users: userAccessUsers,
                     user: user,
@@ -197,87 +191,6 @@ const AccessConfiguration = (props) => {
             }
         });
         console.log(localState);
-    };
-
-    const retrieveClientsFromDb = access => {
-        this.setState(state => ({
-            tableLoaded: false,
-            rowData1: state.rowData1
-        }));
-        axios
-            .get("/api/clients")
-            .then(res => {
-                /*
-                var rowData = res.data.filter((x, index) => {
-                    return x.deletedAt == null;
-                });*/
-
-                var rowData = res.data;
-
-                rowData.forEach(element => {
-                    this.setState({
-                        [element._id]: false
-                    });
-                });
-                var rowData1 = rowData.map((x, index) => {
-                    if (access == null) {
-                        return {
-                            clientId: x._id,
-                            client: x.name,
-                            allow: (
-                                <Checkbox
-                                    color="primary"
-                                    name={x._id}
-                                    onChange={updateAccessState}
-                                />
-                            )
-                        };
-                    } else if (access[x._id]) {
-                        this.setState({
-                            [x._id]: true
-                        });
-                        return {
-                            clientId: x._id,
-                            client: x.name,
-                            allow: (
-                                <Checkbox
-                                    color="primary"
-                                    name={x._id}
-                                    defaultChecked
-                                    onChange={updateAccessState}
-                                />
-                            )
-                        };
-                    } else {
-                        return {
-                            clientId: x._id,
-                            client: x.name,
-                            allow: (
-                                <Checkbox
-                                    color="primary"
-                                    name={x._id}
-                                    onChange={updateAccessState}
-                                />
-                            )
-                        };
-                    }
-                });
-
-                this.setState(state => ({
-                    tableLoaded: true,
-                    rowData1
-                }));
-            })
-            .catch(err => console.log(err));
-    };
-
-    const updateClientAccessState = id => {
-        setLocalState(state => {
-            return {
-                ...state,
-                [id]: !state[id]
-            }
-        });
     };
 
     const handleClose = (event, reason) => {

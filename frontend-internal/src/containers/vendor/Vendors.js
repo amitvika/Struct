@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
 
@@ -14,8 +13,6 @@ import { useDispatch } from 'react-redux';
 
 const Vendors = () => {
     let history = useHistory();
-
-    const dispatch = useDispatch();
 
     const [vendorList, setVendorList] = useState([]);
     const [filteredVendorList, setFilteredVendorList] = useState([]);

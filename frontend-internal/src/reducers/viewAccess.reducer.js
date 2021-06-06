@@ -4,7 +4,7 @@ const initialState = {
   isCBALoading: false,
 }
 
-export default function (state = initialState, action) {
+export default function viewAccessReducer(state = initialState, action) {
   switch (action.type) {
     case Types.CBA_LOADING:
       return {

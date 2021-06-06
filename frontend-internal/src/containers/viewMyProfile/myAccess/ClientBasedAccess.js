@@ -1,14 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import MaterialTable from "material-table";
 import Checkbox from "@material-ui/core/Checkbox";
 import InfoIcon from "@material-ui/icons/Info";
 import { Spinner } from "reactstrap";
-import { useDispatch, useSelector } from 'react-redux';
-// import { fetchClientAction } from '../../actions/viewAccess.action';
+import {  useSelector } from 'react-redux';
 
 export default function ClientBasedAccess({ userAccessLoaded = true, access = {}, clientList = [] }) {
   const isLoading = useSelector(state => state.access.isCBALoading);
-  // const data = useSelector(state => state.access.cba);
 
   const refactorData = () => {
     return clientList.map((x, index) => {

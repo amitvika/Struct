@@ -6,7 +6,7 @@ const initialState = {
     isVisible: false
 }
 
-export default function (state = initialState, action) {
+export default function alertReducer(state = initialState, action) {
     switch (action.type) {
         case SHOW_ALERT_SUCCESS:
             return {

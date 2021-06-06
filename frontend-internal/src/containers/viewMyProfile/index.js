@@ -5,9 +5,8 @@ import Tab from "@material-ui/core/Tab"
 import Tabs from "@material-ui/core/Tabs"
 import Grid from "@material-ui/core/Grid"
 import CircularProgress from "@material-ui/core/CircularProgress"
-import MuiAlert from '@material-ui/lab/Alert';
-import { useSelector, useDispatch } from 'react-redux';
-import { useParams, useHistory } from "react-router-dom";
+import { useSelector } from 'react-redux';
+import { useHistory } from "react-router-dom";
 
 import { useQuery } from '../../utils/customHooks'
 
@@ -16,11 +15,6 @@ import MyTeam from './myTeam';
 import MyCreatedObjects from './myCreatedObjects'
 import Tasks from './Tasks'
 
-import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-
-function Alert(props) {
-	return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
 
 const ViewMyProfile = () => {
 	const user = useSelector(state => state.auth.user);
@@ -66,8 +60,6 @@ const ViewMyProfile = () => {
 			search: `?tab=${newTabIndex}`
 		})
 	}
-
-	const tabList = { "My Teams": 0, "My Access": 1, "My Created Objects": 2, "Tasks": 3 }
 
 	if (isLoading) {
 		return <CircularProgress />;

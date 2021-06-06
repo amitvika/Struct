@@ -7,12 +7,6 @@ import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import SelectorView from '../../../components/SelectorView'
-import { columnsFields } from '../../../constants/item'
-import ItemAPI from '../../../api/items.api';
-import get from 'lodash/get';
-import { mapItems } from '../../../utils/mapper'
-
 
 import {
     Paper,

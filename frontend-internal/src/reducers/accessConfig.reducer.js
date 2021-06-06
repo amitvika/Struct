@@ -5,7 +5,7 @@ const initialState = {
   isLoading: false,
 }
 
-export default function (state = initialState, action) {
+export default function accessConfig(state = initialState, action) {
   switch (action.type) {
     case Types.ACCESS_CONFIGURATION_LOADING:
       return {

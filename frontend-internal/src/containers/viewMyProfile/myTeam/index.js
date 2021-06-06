@@ -1,12 +1,11 @@
-
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 import UserSetupAPI from '../../../api/teamSetup.api';
 import { teamSetupFields } from '../../../constants/team'
 import TableGridView from '../../../components/TableGridView';
 import TeamMemberModal from './TeamMemberModal'
 
-const MyTeam = ({ }) => {
+const MyTeam = () => {
 
     return (
         <TableGridView

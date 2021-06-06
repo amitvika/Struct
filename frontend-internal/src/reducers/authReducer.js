@@ -17,7 +17,7 @@ const initialState = {
   isLoginStarted: false
 };
 
-export default function (state = initialState, action) {
+export default function authReducer(state = initialState, action) {
   // console.log('=======>>>>',action)
   switch (action.type) {
     case USER_LOADING:

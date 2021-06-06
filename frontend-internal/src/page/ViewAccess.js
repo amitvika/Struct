@@ -1,8 +1,7 @@
-import axios from "axios";
-import MaterialTable from "material-table";
 import React, { Component } from "react";
+import MaterialTable from "material-table";
 import { connect } from "react-redux";
-import { Spinner, Alert } from "reactstrap";
+import { Spinner } from "reactstrap";
 import Card from "@material-ui/core/Card";
 import { changePage } from "../actions/pageActions";
 import Checkbox from "@material-ui/core/Checkbox";

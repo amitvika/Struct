@@ -5,7 +5,7 @@ const initialState = {
   isLoading: false,
 }
 
-export default function (state = initialState, action) {
+export default function clientReducer(state = initialState, action) {
   switch (action.type) {
     case Types.CLIENTS_LOADING:
       return {
