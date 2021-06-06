@@ -32,6 +32,7 @@ router.use("/accessSetup", require("./accessSetup.route"));
 router.use("/task", require("./task.route"));
 router.use("/production", require("./production.route"));
 router.use("/autoscaling", require("./autoscaling.route"));
+router.use("/productDesign", require("./productDesign.route"));
 
 router.post('/upload-logo', Upload.uploadLogo(), (req, res) => {
   res.send({ logoName: req.file.filename, logoUrl: `http://${req.headers.host}/logo/${req.file.filename}` })

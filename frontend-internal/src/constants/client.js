@@ -15,7 +15,6 @@ export const columnsFields = [
         render: rowData => rowData && <span style={{ cursor: 'pointer' }}
             onClick={(event) => {
                 event.stopPropagation();
-                // handleHistoryToggle({ rowId: rowData.id })
             }}> Show History </span>
     },
 ]

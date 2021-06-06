@@ -47,7 +47,7 @@ const TableGridView = ({
                 const mappedList = get(res, 'data', []);
 
                 setList(mappedList)
-                setFilteredList(mappedList.filter(item => !item.is_archived))
+                setFilteredList(mappedList.filter(item => item.is_archived))
 
                 setIsLoading(false);
 
