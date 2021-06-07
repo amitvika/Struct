@@ -1,15 +1,11 @@
 {
-  "name": "mernshop",
+  "name": "@ravibasil/backend-app",
   "version": "1.0.0",
   "description": "",
   "gypfile": true,
   "main": "index.js",
   "scripts": {
-    "client-install": "npm install --prefix client",
-    "start": "node index.js",
-    "server": "nodemon index.js",
-    "client": "npm start --prefix client",
-    "build": "node-gyp rebuild"
+    "start": "nodemon index.js"
   },
   "keywords": [],
   "author": "",

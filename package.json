@@ -8,6 +8,9 @@
     "start": "yarn workspace @ravibasil/internal-app run start",
     "build": "yarn workspace @ravibasil/internal-app run build",
     "start-design": "yarn workspace @ravibasil/design-app run start",
-    "build-design": "yarn workspace @ravibasil/design-app run build"
+    "build-design": "yarn workspace @ravibasil/design-app run build",
+    "start-public": "yarn workspace @ravibasil/public-app run start",
+    "build-public": "yarn workspace @ravibasil/public-app run build",
+    "server": "yarn workspace @ravibasil/backend-app start"
   }
 }
