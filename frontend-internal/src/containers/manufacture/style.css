@@ -1,5 +1,0 @@
-.ProcessTabs{
-    grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
-    justify-items: center;
-    display: grid;
-}
