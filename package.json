@@ -1,42 +1,11 @@
 {
   "name": "struct",
-  "version": "1.0.0",
-  "description": "All the code, in one place",
-  "main": "index.js",
-  "scripts": {
-    "setup": "npm install  ./ && npm install ./frontend-internal && npm install  ./backend-node  && npm install ./frontend-public && npm install ./frontend-design-website",
-    "*****Server*****": "Node backend",
-    "server": "cd backend-node && npm run server",
-    "*****Public Website*****": "Public website",
-    "public": "cd frontend-public && npm start",
-    "*****Design Website*****": "Design website",
-    "design": "cd frontend-design-website && npm start",
-    "*****Development*****": "Start development environment",
-    "dev": "concurrently \"npm run server\" \"npm run internal\" ",
-    "dev-all": "concurrently \"npm run server\" \"npm run internal\" \"npm run public\" \"npm run design\" ",
-    "*****Backend*****": "Backend",
-    "backend-publish": "cd backend-node && pm2 stop index.js && pm2 restart index.js",
-    "*****Internal*****": "Internal Website",
-    "internal": "cd frontend-internal && npm start",
-    "internal-build": "cd frontend-internal && npm run build",
-    "internal-publish": "sudo rm -rf /var/www/internal.struct.services/* && sudo mv ./frontend-internal/build/* /var/www/internal.struct.services"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/amitvika/Struct.git"
-  },
-  "keywords": [
-    "react",
-    "node",
-    "cad"
+  "private": true,
+  "workspaces": [
+    "packages/*"
   ],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/amitvika/Struct/issues"
-  },
-  "homepage": "https://github.com/amitvika/Struct#readme",
-  "dependencies": {
-    "concurrently": "^5.3.0"
+  "scripts": {
+    "start": "yarn workspace @ravibasil/internal-app run start",
+    "build": "yarn workspace @ravibasil/internal-app run build"
   }
 }

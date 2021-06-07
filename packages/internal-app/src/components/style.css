@@ -1,0 +1,13 @@
+.fixed-grid--around{
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(370px,1fr));
+	justify-items: center;
+	margin-left: -40px;
+    margin-right: -40px;
+  }
+
+.fixed-grid--around-350{
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(350px,1fr));
+	justify-items: center;
+}

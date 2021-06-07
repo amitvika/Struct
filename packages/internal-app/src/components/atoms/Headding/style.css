@@ -1,0 +1,46 @@
+.bdb-heading {
+  color: var(--BrewLogixBlue);
+  font-size: 18px;
+  line-height: 1.22;
+}
+
+h1.bdb-heading {
+  font-weight: bold;
+  margin: 0;
+}
+
+h3.bdb-heading {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+}
+
+h5.bdb-heading {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+p.bdb-heading {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+small.bdb-heading {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.bdb-heading--bold {
+  font-weight: bold !important;
+}
+
+/* align */
+
+.bdb-heading--center {
+  text-align: center;
+}
+
+.bdb-heading--clickable {
+  cursor: pointer;
+}
