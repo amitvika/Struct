@@ -6,6 +6,8 @@
   ],
   "scripts": {
     "start": "yarn workspace @ravibasil/internal-app run start",
-    "build": "yarn workspace @ravibasil/internal-app run build"
+    "build": "yarn workspace @ravibasil/internal-app run build",
+    "start-design": "yarn workspace @ravibasil/design-app run start",
+    "build-design": "yarn workspace @ravibasil/design-app run build"
   }
 }
