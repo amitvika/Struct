@@ -18,7 +18,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 
 
-import { columnsFields } from '../../../constants/item'
+import { columnsFields } from '@ravibasil/common/constants/item'
 import get from 'lodash/get';
 
 export default function BaseFactorySetup({

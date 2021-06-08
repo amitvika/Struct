@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink, useParams } from "react-router-dom";
 
 import DocumentationAPI from '@ravibasil/common/api/documentation.api';
-import { documentationFields } from '../../constants/client'
+import { documentationFields } from '@ravibasil/common/constants/client'
 
 import TableGridView from '@ravibasil/common/components/TableGridView';
 

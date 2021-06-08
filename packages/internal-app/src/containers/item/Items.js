@@ -8,7 +8,7 @@ import TableView from '@ravibasil/common/components/TableGridView/TableView';
 import DefaultContainer from '@ravibasil/common/components/DefaultContainer';
 import Backdrop from '@ravibasil/common/components/Backdrop';
 
-import { columnsFields } from '../../constants/item'
+import { columnsFields } from '@ravibasil/common/constants/item'
 import AddEditItemModal from './AddEditItemModel';
 
 const Items = ({ handleSave }) => {

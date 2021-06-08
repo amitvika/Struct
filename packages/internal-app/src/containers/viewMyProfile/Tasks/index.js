@@ -3,10 +3,10 @@ import { useDispatch } from 'react-redux'
 
 import TableGridView from '@ravibasil/common/components/TableGridView';
 import TaskAPI from '@ravibasil/common/api/task.api';
+import { TasksFields } from '@ravibasil/common/constants/tasksItem'
 
 import AddUpdateModal from './AddUpdateModal'
 import ManageTaskModal from './ManageTaskModal';
-import { TasksFields } from '../../../constants/tasksItem'
 import { fetchMyTeamAction } from '../../../actions/team.action'
 
 const Tasks = ({ }) => {

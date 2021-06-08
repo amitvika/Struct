@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { MuiThemeProvider } from "@material-ui/core";
-import { getThemeByName } from './themes/base';
+import { getThemeByName } from '@ravibasil/common/themes/base';
 import { useSelector } from 'react-redux';
 import CssBaseline from "@material-ui/core/CssBaseline";
 

@@ -9,9 +9,10 @@ import TableView from '@ravibasil/common/components/TableGridView/TableView';
 import GridView from '@ravibasil/common/components/TableGridView/GridView';
 import Toolbar from '@ravibasil/common/components/TableGridView/Toolbar';
 import DefaultContainer from '@ravibasil/common/components/DefaultContainer'
+import { columnsFields } from '@ravibasil/common/constants/factory';
+
 import AddEditFactoryModal from './AddEditFactoryModal'
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-import { columnsFields } from '../../constants/factory'
 
 const Factories = () => {
     let history = useHistory();

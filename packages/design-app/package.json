@@ -40,5 +40,6 @@
   "devDependencies": {
     "customize-cra": "^1.0.0",
     "react-app-rewired": "^2.1.8"
-  }
+  },
+  "proxy": "https://api.struct.services"
 }

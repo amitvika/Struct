@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import UserSetupAPI from '@ravibasil/common/api/teamSetup.api';
 import TableGridView from '@ravibasil/common/components/TableGridView';
-import { teamSetupFields } from '../../constants/team'
+import { teamSetupFields } from '@ravibasil/common/constants/team'
 import ManageTeamModal from './ManageTeamModal';
 
 const TeamSetup = ({

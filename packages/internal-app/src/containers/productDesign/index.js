@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
 
 import ProductDesignAPI from '@ravibasil/common/api/productDesign.api';
 import TableGridView from '@ravibasil/common/components/TableGridView';
-import { fields } from '../../constants/productDesign'
+import { fields } from '@ravibasil/common/constants/productDesign'
 
 const ProductDesign = () => {
     let history = useHistory();

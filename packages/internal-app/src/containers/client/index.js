@@ -2,7 +2,7 @@ import React from "react";
 
 import TableGridView from '@ravibasil/common/components/TableGridView';
 import ClientAPI from '@ravibasil/common/api/clients.api';
-import { columnsFields } from '../../constants/client'
+import { columnsFields } from '@ravibasil/common/constants/client'
 import { useHistory } from "react-router-dom";
 
 const Client = () => {

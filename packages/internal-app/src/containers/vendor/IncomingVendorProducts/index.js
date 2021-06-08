@@ -4,7 +4,7 @@ import { Spinner } from "reactstrap";
 import SelectorView from '@ravibasil/common/components/SelectorView';
 import ItemAPI from '@ravibasil/common/api/items.api';
 
-import { columnsFields } from '../../../constants/item'
+import { columnsFields } from '@ravibasil/common/constants/item'
 import { mapItems } from '../../../utils/mapper'
 import get from 'lodash/get';
 

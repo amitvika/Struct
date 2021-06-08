@@ -1,4 +1,4 @@
-import { getRequest, postRequest, putRequest, deleteRequest } from '../utils/apiHandler';
+import { getRequest, postRequest } from '../utils/apiHandler';
 
 const fetchProductDesigns = (query) => getRequest(`/api/productDesign?${query}`);
 

@@ -8,7 +8,7 @@ import API from '@ravibasil/common/api/clients.api';
 import TableView from '@ravibasil/common/components/TableGridView/TableView';
 import GridView from '@ravibasil/common/components/TableGridView/GridView';
 import Toolbar from '@ravibasil/common/components/TableGridView/Toolbar';
-import { columnsFields } from '../../../constants/client';
+import { columnsFields } from '@ravibasil/common/constants/client';
 
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
 import get from 'lodash/get';

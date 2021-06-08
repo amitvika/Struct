@@ -1,8 +1,8 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import { AppBar, Toolbar, makeStyles } from "@material-ui/core";
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
-import { useHistory, Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import Box from '@material-ui/core/Box';
 
 const useStyles = makeStyles((theme) => ({
@@ -41,12 +41,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Header() {
     const classes = useStyles();
-    // const dispatch = useDispatch();
-    const history = useHistory();
-    // const { isAuthenticated, user } = useSelector(state => state.auth);
-    const [open, setOpen] = useState(false);
-    const [lightThemeSelected, setLightThemeSelected] = useState(false);
-    const anchorRef = useRef(null);
 
     const displayDesktop = () => {
         return (<Toolbar className={classes.toolbar}>
@@ -86,31 +80,6 @@ export default function Header() {
     };
 
 
-    const handleLink = (path) => {
-        setOpen(false);
-        history.push(path);
-    }
-
-    const handleToggle = () => {
-        setOpen((prevOpen) => !prevOpen);
-    };
-
-
-    const handleListKeyDown = (event) => {
-        if (event.key === 'Tab') {
-            event.preventDefault();
-            setOpen(false);
-        }
-    }
-
-    const handleClose = (event) => {
-        if (anchorRef.current && anchorRef.current.contains(event.target)) {
-            return;
-        }
-
-        setOpen(false);
-    };
-
     return (
         <header>
             <AppBar className={classes.header}>{displayDesktop()}</AppBar>
@@ -126,26 +95,26 @@ const headersData = [
     },
     {
         label: "Product",
-        // href: "/clients",
+        href: "/clients",
     },
     {
         label: "CAD",
-        // href: "/vendors",
+        href: "/vendors",
     },
     {
         label: "PCB",
-        // href: "/items",
+        href: "/items",
     },
     {
         label: "Silicon",
-        // href: "/items",
+        href: "/items",
     },
     {
         label: "Clothes",
-        // href: "/items",
+        href: "/items",
     },
     {
         label: "Architecture",
-        // href: "/items",
+        href: "/items",
     },
 ];

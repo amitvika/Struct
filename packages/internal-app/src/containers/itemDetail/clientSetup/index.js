@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 import { Spinner } from "reactstrap";
 
-import { columnsFields } from '../../../constants/client'
+import { columnsFields } from '@ravibasil/common/constants/client'
 import API from '@ravibasil/common/api/clients.api';
 
 

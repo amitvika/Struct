@@ -11,7 +11,7 @@ import {
 } from '@material-ui/core';
 import { Spinner } from "reactstrap";
 
-import { columnsFields } from '../../../constants/item'
+import { columnsFields } from '@ravibasil/common/constants/item'
 import ProductionAPI from '@ravibasil/common/api/production.api';
 import get from 'lodash/get';
 
