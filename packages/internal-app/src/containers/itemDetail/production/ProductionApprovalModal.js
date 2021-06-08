@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import MainModal from '../../../components/Modal'
-import { Paper, Grid, Button } from '@material-ui/core';
-import Checkbox from '@material-ui/core/Checkbox';
-import Heading from '../../../components/atoms/Headding';
 import { useSelector } from 'react-redux';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import moment from 'moment';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { Paper, Grid, Button } from '@material-ui/core';
+import MainModal from '@ravibasil/common/components/Modal'
+import Heading from '@ravibasil/common/components/atoms/Headding';
 
 export default function ProductionApprovalModal({
     isModalOpened,

@@ -6,8 +6,8 @@ import {
     Input,
     Textarea,
     Headding
-} from '../../components';
-import Modal from '../../components/Modal';
+} from '@ravibasil/common/components';
+import Modal from '@ravibasil/common/components/Modal';
 import { useSelector } from 'react-redux'
 
 export default function AddUpdateModal({ title, fields, open, toggleModal, handleUpdate, isEditing, selectedValue }) {

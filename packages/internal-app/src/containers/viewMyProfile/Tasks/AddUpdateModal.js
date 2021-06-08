@@ -1,5 +1,5 @@
 import React from 'react';
-import Modal from '../../../components/Modal';
+import Modal from '@ravibasil/common/components/Modal';
 import TaskForm from './TaskForm';
 
 export default function AddUpdateModal({ title, open, toggleModal, isEditing, ...rest }) {

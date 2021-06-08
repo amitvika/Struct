@@ -7,17 +7,15 @@ import {
     Tabs,
     Grid,
     Breadcrumbs,
-    Link,
     Typography
 } from "@material-ui/core";
 
 import { NavLink, useParams, useHistory, useLocation } from "react-router-dom";
-import ItemContainer from './Items';
-import VendorAPI from '../../api/vendor.api';
-import LogoView from '../../components/LogoView';
+import VendorAPI from '@ravibasil/common/api/vendor.api';
+import LogoView from '@ravibasil/common/components/LogoView';
 
 import { useDispatch } from 'react-redux';
-import { showErrorAlert, showSuccessAlert, hideAlert } from '../../actions/alert.action';
+import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import IncomingVendorProducts from './IncomingVendorProducts'
 import get from 'lodash/get';
 import SuppliedItems from './SuppliedItems'
@@ -37,7 +35,6 @@ const VendorDetail = () => {
     const [tabIndex, setTabIndex] = useState(1);
 
     const [vendorInfo, setVendorInfo] = useState({});
-    const [snackbarOptions, setSnackbarOptions] = useState({ isOpen: false, message: '' });
 
     useEffect(() => {
         if (query.get('tab')) {

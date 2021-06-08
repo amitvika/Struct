@@ -4,12 +4,12 @@ import {
   Grid,
   Button
 } from "@material-ui/core";
-import Headding from '../../components/atoms/Headding';
-import Space from '../../components/atoms/Space';
-import Select from '../../components/atoms/Select';
+import Headding from '@ravibasil/common/components/atoms/Headding';
+import Space from '@ravibasil/common/components/atoms/Space';
+import Select from '@ravibasil/common/components/atoms/Select';
 
-import FileUpload from '../../components/FileUpload';
-import Input from '../../components/atoms/Input';
+import FileUpload from '@ravibasil/common/components/FileUpload';
+import Input from '@ravibasil/common/components/atoms/Input';
 
 export default function VendorDetails() {
   const [identificationNumber, setIdentificationNumber] = useState([]);

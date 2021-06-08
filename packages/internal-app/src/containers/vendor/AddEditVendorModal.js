@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import MainModal from '../../components/Modal';
+import MainModal from '@ravibasil/common/components/Modal';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import {
-    Select,
     Input,
-    Textarea,
     Headding
-} from '../../components';
+} from '@ravibasil/common/components';
 
 export default function AddEditVendorModal({ isAddEditModalOpened, toggleAddEditModal, updateVendor, fields, title, isEditing, selectedValue }) {
     const [value, setValue] = useState({});

@@ -1,17 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { Spinner } from "reactstrap";
+import React from "react";
+import { NavLink, useParams } from "react-router-dom";
 
-import DocumentationAPI from '../../api/documentation.api';
+import DocumentationAPI from '@ravibasil/common/api/documentation.api';
 import { documentationFields } from '../../constants/client'
-import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-// import { mapDocumentations } from '../../utils/mapper';
 
-import TableGridView from '../../components/TableGridView';
+import TableGridView from '@ravibasil/common/components/TableGridView';
 
 import AddEditDocumentationModal from './AddEditDocumentationModal';
-import { NavLink, useParams } from "react-router-dom";
-import get from 'lodash/get';
 
 const Documentation = () => {
 	let { id: client_id } = useParams();

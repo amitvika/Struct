@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import MainModal from '../../components/Modal';
-import Modal from '@material-ui/core/Modal';
+import MainModal from '@ravibasil/common/components/Modal';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import {
-    Select,
     Input,
-    Textarea,
     Headding
-} from '../../components';
+} from '@ravibasil/common/components';
 
 
 export default function AddEditFactoryModal({ title, isEditing, selectedValue, fields, addFactory, updateFactory,

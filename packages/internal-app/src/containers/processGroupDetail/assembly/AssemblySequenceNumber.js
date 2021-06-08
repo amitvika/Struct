@@ -5,7 +5,7 @@ import {
 	Icon,
 	Button,
 } from "@material-ui/core";
-import Headding from '../../../components/atoms/Headding';
+import Headding from '@ravibasil/common/components/atoms/Headding';
 
 import { Link } from 'react-router-dom';
 

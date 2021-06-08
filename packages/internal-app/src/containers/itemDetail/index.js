@@ -26,7 +26,7 @@ import SurfaceFinishAndTreatment from './SurfaceFinishAndTreatment';
 import ComplianceAndCertifications from './ComplianceAndCertifications';
 
 import ItemTypeConfigurations from './itemTypeConfigurations';
-import ItemAPI from '../../api/items.api';
+import ItemAPI from '@ravibasil/common/api/items.api';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';

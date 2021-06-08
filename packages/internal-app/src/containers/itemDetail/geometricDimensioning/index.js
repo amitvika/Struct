@@ -6,7 +6,7 @@ import {
 } from "@material-ui/core"
 import Viewer from './Viewer';
 import ViewerToolbar from './ViewerToolbar';
-import { getHierarchySplitFiles, getShapeInfo } from '../../../api/fileUpload.api'
+import { getHierarchySplitFiles, getShapeInfo } from '@ravibasil/common/api/fileUpload.api'
 import {
     SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
     DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,

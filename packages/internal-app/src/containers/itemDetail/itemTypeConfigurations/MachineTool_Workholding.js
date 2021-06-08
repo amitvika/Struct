@@ -1,14 +1,10 @@
 import React, { useState } from 'react'
-import Select from '../../../components/atoms/Select';
-import Input from '../../../components/atoms/Input';
+import Select from '@ravibasil/common/components/atoms/Select';
+import Input from '@ravibasil/common/components/atoms/Input';
 import Grid from '@material-ui/core/Grid';
-import Heading from '../../../components/atoms/Headding'
-import GeometricDimensioning from '../geometricDimensioning'
-import GLTFRenderer from '../../../gltf/GltfRenderer'
-import { Paper } from '@material-ui/core';
-import CircularProgress from '@material-ui/core'
+import Heading from '@ravibasil/common/components/atoms/Headding'
 import Viewer from '../geometricDimensioning/Viewer'
-import Headding from '../../../components/atoms/Headding';
+import Headding from '@ravibasil/common/components/atoms/Headding';
 
 export default function MachineTool_Workholding({ itemConfiguration, handleOnChange, gltfjson, setgltfjson }) {
     return (

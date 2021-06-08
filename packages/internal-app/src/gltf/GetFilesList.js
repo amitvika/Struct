@@ -13,7 +13,7 @@ import {
 } from "./Tree/utils";
 import Select from "./DropDown";
 
-import { getAllTextures } from '../api/fileUpload.api'
+import { getAllTextures } from '@ravibasil/common/api/fileUpload.api'
 //import { NoToneMapping } from 'three';
 //import { runInThisContext } from 'vm';
 

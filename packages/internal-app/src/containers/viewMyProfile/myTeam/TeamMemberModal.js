@@ -1,7 +1,5 @@
 import React from 'react';
-import Modal from '../../../components/Modal';
-// import UserSetupAPI from '../../api/teamSetup.api';
-// import get from 'lodash/get';
+import Modal from '@ravibasil/common/components/Modal';
 
 export default function TeamMemberModal({ selectedValue, toggleModal, open }) {
 

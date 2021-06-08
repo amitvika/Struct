@@ -3,12 +3,11 @@ import { useHistory, useParams } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { Spinner } from "reactstrap";
 
-import API from '../../../api/vendor.api';
-import Toolbar from '../../../components/TableGridView/Toolbar';
-import TableView from '../../../components/TableGridView/TableView';
-import GridView from '../../../components/TableGridView/GridView';
-import DefaultContainer from '../../../components/DefaultContainer';
-
+import API from '@ravibasil/common/api/vendor.api';
+import Toolbar from '@ravibasil/common/components/TableGridView/Toolbar';
+import TableView from '@ravibasil/common/components/TableGridView/TableView';
+import GridView from '@ravibasil/common/components/TableGridView/GridView';
+import DefaultContainer from '@ravibasil/common/components/DefaultContainer';
 
 export default function SuppliedItems() {
 
@@ -24,7 +23,6 @@ export default function SuppliedItems() {
     const [message, setMessage] = useState('');
     const [snackBar, setSnackBar] = useState(false);
     const [snackBarAlertType, setSnackBarAlertType] = useState('');
-    const [isIdentificationModalOpened, setIsIdentificationModalOpened] = useState(false);
     const [selectedVendorId, setSelectedVendorId] = useState('');
     const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
     const [isGridViewSelected, setIsGridViewSelected] = useState(true);

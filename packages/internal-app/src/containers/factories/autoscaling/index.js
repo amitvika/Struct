@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import TableView from '../../../components/TableGridView/TableView';
-import AutoscalingAPI from '.././../../api/autoscaling.api';
+import TableView from '@ravibasil/common/components/TableGridView/TableView';
+import AutoscalingAPI from '@ravibasil/common/api/autoscaling.api';
 import { Spinner } from "reactstrap";
 import { useHistory, useParams } from "react-router-dom";
 import get from 'lodash/get';
@@ -14,8 +14,9 @@ import {
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import moment from 'moment';
-import ApprovalModal from '../../../components/ApprovalModal';
-import SimpleBackdrop from '../../../components/Backdrop';
+import ApprovalModal from '@ravibasil/common/components/ApprovalModal';
+import SimpleBackdrop from '@ravibasil/common/components/Backdrop';
+
 export default function Autoscaling() {
 
     let history = useHistory();

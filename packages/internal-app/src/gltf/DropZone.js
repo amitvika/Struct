@@ -22,7 +22,7 @@ import GetFilesList from "./GetFilesList"
 import {
 	upload3DFile, getGLTFJson, getSplitFiles, getHierarchySplitFiles, getPartsStackableInfo,
 	getAllTextures, getAllFiles, getShapeInfo, fetchShapeInfo
-} from '../api/fileUpload.api'
+} from '@ravibasil/common/api/fileUpload.api'
 
 import DistanceCalculator from "./DistanceCalculator"
 import './styles/style.css';

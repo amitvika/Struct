@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { useDispatch } from 'react-redux';
-
-import Heading from '../../../components/atoms/Headding';
-import GridView from '../../../components/TableGridView/GridView';
-import { useSelector } from 'react-redux';
-import ProductionAPI from './../../../api/production.api';
+import { useDispatch,useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
-import { Spinner } from "reactstrap";
 import get from 'lodash/get';
+
+import Heading from '@ravibasil/common/components/atoms/Headding';
+import GridView from '@ravibasil/common/components/TableGridView/GridView';
+import ProductionAPI from '@ravibasil/common/api/production.api';
 import ProductionApprovalModal from './ProductionApprovalModal'
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
-import SimpleBackdrop from '../../../components/Backdrop';
+import SimpleBackdrop from '@ravibasil/common/components/Backdrop';
 
 export default function Production(props) {
     const dispatch = useDispatch();

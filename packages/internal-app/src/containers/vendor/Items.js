@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import MaterialTable from "material-table";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
-import ItemsAPI from '../../api/items.api';
+import ItemsAPI from '@ravibasil/common/api/items.api';
 import ShowHistoryModal from "../ShowHistoryModal";
 import { withRouter } from 'react-router-dom';
 import ItemDetailView from './ItemDetailView';

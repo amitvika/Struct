@@ -1,5 +1,5 @@
 import * as Types from "./types";
-import TeamSetupAPI from '../api/teamSetup.api';
+import TeamSetupAPI from '@ravibasil/common/api/teamSetup.api';
 
 export const fetchMyTeamAction = () => (dispatch, getState) => {
     dispatch({ type: Types.TEAMS_LOADING }); //sets idloading to true

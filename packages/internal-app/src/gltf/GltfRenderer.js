@@ -38,7 +38,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
 
-import { resourcePathURL, resourcePathBase } from '../api/fileUpload.api.js'
+import { resourcePathURL, resourcePathBase } from '@ravibasil/common/api/fileUpload.api.js'
 import {
     SELECTCOLOR, SELECTTEXTURE, SELECTMETAL, SELECTROUGH, SELECTOPAQUE,
     SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,

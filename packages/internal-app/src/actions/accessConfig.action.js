@@ -1,5 +1,5 @@
 import * as Types from "./types";
-import { getUserAccessConfiguration } from '../api/accessConfig.api';
+import { getUserAccessConfiguration } from '@ravibasil/common/api/accessConfig.api';
 
 export const getUserAccessConfigurationAction = (id) => (dispatch) => {
   dispatch({ type: Types.ACCESS_CONFIGURATION_LOADING }); //sets idloading to true

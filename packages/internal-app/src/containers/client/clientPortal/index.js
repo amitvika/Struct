@@ -5,10 +5,10 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import Headding from '../../../components/atoms/Headding';
-import Input from '../../../components/atoms/Input';
-import Space from '../../../components/atoms/Space';
-import ClientAPI from '../../../api/clients.api';
+import Headding from '@ravibasil/common/components/atoms/Headding';
+import Input from '@ravibasil/common/components/atoms/Input';
+import Space from '@ravibasil/common/components/atoms/Space';
+import ClientAPI from '@ravibasil/common/api/clients.api';
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
 

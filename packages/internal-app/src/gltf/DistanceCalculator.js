@@ -1,6 +1,6 @@
 import React,{Component} from 'react';
 
-import { getMinimumDistance } from '../api/fileUpload.api';
+import { getMinimumDistance } from '@ravibasil/common/api/fileUpload.api';
 import { prettyPrintArray,getFloat } from "./Tree/utils";
 import DisplaySpinner from "./DisplaySpinner";
 

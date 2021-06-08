@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom"
 
-import FactoriesAPI from '../../api/factories.api';
+import FactoriesAPI from '@ravibasil/common/api/factories.api';
 
-import TableView from '../../components/TableGridView/TableView';
-import GridView from '../../components/TableGridView/GridView';
-import Toolbar from '../../components/TableGridView/Toolbar';
-import DefaultContainer from '../../components/DefaultContainer'
-import { columnsFields } from '../../constants/factory'
+import TableView from '@ravibasil/common/components/TableGridView/TableView';
+import GridView from '@ravibasil/common/components/TableGridView/GridView';
+import Toolbar from '@ravibasil/common/components/TableGridView/Toolbar';
+import DefaultContainer from '@ravibasil/common/components/DefaultContainer'
 import AddEditFactoryModal from './AddEditFactoryModal'
-import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
+import { columnsFields } from '../../constants/factory'
 
 const Factories = () => {
     let history = useHistory();

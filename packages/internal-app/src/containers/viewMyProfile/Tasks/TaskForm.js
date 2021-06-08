@@ -6,9 +6,9 @@ import {
     Input,
     Textarea,
     Headding
-} from '../../../components';
+} from '@ravibasil/common/components';
 import { useSelector } from 'react-redux';
-import TeamTaskSetup from '../../../api/teamTask.api'
+import TeamTaskSetup from '@ravibasil/common/api/teamTask.api'
 
 export default function TaskForm({ handleUpdate, selectedValue, toggleModal, isEditing }) {
     const [value, setValue] = useState({});

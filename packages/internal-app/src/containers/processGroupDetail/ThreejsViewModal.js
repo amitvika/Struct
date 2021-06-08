@@ -7,12 +7,8 @@ import {
   Dropdown, DropdownToggle, DropdownMenu, DropdownItem,
   Tooltip
 } from "reactstrap";
-// import {
-//   ThreejsViewer
-// } from '../../components';
-
-import ItemsAPI from '../../api/items.api';
-import AssemblyProcessAPI from '../../api/assemblyProcess.api';
+import ItemsAPI from '@ravibasil/common/api/items.api';
+import AssemblyProcessAPI from '@ravibasil/common/api/assemblyProcess.api';
 
 export default function ThreejsViewModal({ isVisible = false, setIsThreejsVisible, assemblyProcessData = {} }) {
   const [isModalVisible, setIsModalVisible] = useState(isVisible);

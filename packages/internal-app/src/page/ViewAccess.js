@@ -10,8 +10,8 @@ import CardContent from "@material-ui/core/CardContent";
 import OperationAccess from "../containers/viewAccess/OperationAccess";
 import ClientObjectAccess from "../containers/viewAccess/ClientObjectAccess";
 import ClientBasedAccess from "../containers/viewAccess/ClientBasedAccess";
-import AccessConfig from '../api/accessConfig.api';
-import { fetchClientsApi } from '../api/access.api';
+import AccessConfig from '@ravibasil/common/api/accessConfig.api';
+import { fetchClientsApi } from '@ravibasil/common/api/access.api';
 
 class ViewAccess extends Component {
 	state = {

@@ -1,4 +1,4 @@
-import axios from '../utils/axios';
+import axios from 'axios';
 import get from 'lodash/get';
 
 export const request = async (path, data, method) => {

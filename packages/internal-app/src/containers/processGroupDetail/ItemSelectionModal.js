@@ -5,9 +5,9 @@ import {
 	ModalBody
 } from "reactstrap";
 import Grid from '@material-ui/core/Grid';
-import Select from '../../components/atoms/Select';
-import Input from '../../components/atoms/Input';
-import Headding from '../../components/atoms/Headding';
+import Select from '@ravibasil/common/components/atoms/Select';
+import Input from '@ravibasil/common/components/atoms/Input';
+import Headding from '@ravibasil/common/components/atoms/Headding';
 import {
 	Table,
 	TableBody,
@@ -21,7 +21,7 @@ import {
 	CircularProgress
 } from "@material-ui/core";
 import { Link } from 'react-router-dom';
-import ItemAPI from '../../api/items.api';
+import ItemAPI from '@ravibasil/common/api/items.api';
 
 import './style.css';
 

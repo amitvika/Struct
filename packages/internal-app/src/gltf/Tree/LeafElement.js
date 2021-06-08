@@ -4,7 +4,7 @@ import Wrapper from './Wrapper'
 import Icon from './Icon'
 import { NodeText } from './Text'
 import { Element } from './Elements'
-import { resourcePathURL } from '../../api/fileUpload.api';
+import { resourcePathURL } from '@ravibasil/common/api/fileUpload.api';
 import Slider from "../Slider/components/Slider";
 import Select from "../DropDown";
 import {SELECTCOLOR, SELECTTEXTURE, SELECTMETAL, SELECTROUGH, SELECTOPAQUE, SELECTDISTANCE, SELECTSHOWINFO,

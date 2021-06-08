@@ -1,8 +1,8 @@
 import React from "react";
 
-import UserSetupAPI from '../../../api/teamSetup.api';
+import UserSetupAPI from '@ravibasil/common/api/teamSetup.api';
+import TableGridView from '@ravibasil/common/components/TableGridView';
 import { teamSetupFields } from '../../../constants/team'
-import TableGridView from '../../../components/TableGridView';
 import TeamMemberModal from './TeamMemberModal'
 
 const MyTeam = () => {

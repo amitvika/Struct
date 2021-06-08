@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import ProcessConfiguration from './processConfiguration'
-import API from '../../../api/assemblyManufacture.api'
+import API from '@ravibasil/common/api/assemblyManufacture.api'
 
 export default function Assembly({ selectedSubTab, itemId }) {
 

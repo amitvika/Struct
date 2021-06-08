@@ -8,7 +8,7 @@ import {
 
 import FileUpload from "./FileUpload";
 import GLTFRenderer from '../../../../gltf/GltfRenderer';
-import { upload3DFile, getGLTFJson } from '../../../../api/fileUpload.api'
+import { upload3DFile, getGLTFJson } from '@ravibasil/common/api/fileUpload.api'
 import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY} from "../../../../gltf/Tree/utils";
 const DEFAULTMATERIALNAME = "Basic";
 

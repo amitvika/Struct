@@ -15,7 +15,7 @@ import { NavLink, useParams } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { Spinner } from "reactstrap";
 
-import FactoriesAPI from '../../api/factories.api';
+import FactoriesAPI from '@ravibasil/common/api/factories.api';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
 import BaseFactorySetup from './baseFactorySetup'

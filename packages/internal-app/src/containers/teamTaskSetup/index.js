@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-
-import TeamSetupAPI from '../../api/teamTask.api';
-import { teamTaskSetupFields } from '../../constants/team'
-import TableGridView from '../../components/TableGridView';
-import AddUpdateModal from './AddUpdateModal';
 import { useDispatch, } from 'react-redux'
+
+import TeamSetupAPI from '@ravibasil/common/api/teamTask.api';
+import { teamTaskSetupFields } from '../../constants/team'
+import TableGridView from '@ravibasil/common/components/TableGridView';
+import AddUpdateModal from './AddUpdateModal';
 import { fetchMyTeamAction } from '../../actions/team.action'
 
 const TeamTaskSetup = () => {

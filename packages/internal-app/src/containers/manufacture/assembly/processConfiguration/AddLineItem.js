@@ -10,9 +10,9 @@ import {
   Input,
   Headding,
 //   ThreejsViewer
-} from '../../../../components';
+} from '@ravibasil/common/components';
 
-import ItemAPI from '../../../../api/items.api';
+import ItemAPI from '@ravibasil/common/api/items.api';
 
 export default function AddLineItem({ processGroupName = '', name = '', addItemToAssembly, assemblyProcessData }) {
   const [item, setItem] = useState({});

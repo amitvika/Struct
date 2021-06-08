@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-import Filter from '../../../components/TableGridView/Filter';
-import GridView from '../../../components/TableGridView/GridView';
-import Headding from '../../../components/atoms/Headding'
-import Space from '../../../components/atoms/Space';
+import Filter from '@ravibasil/common/components/TableGridView/Filter';
+import GridView from '@ravibasil/common/components/TableGridView/GridView';
+import Headding from '@ravibasil/common/components/atoms/Headding'
+import Space from '@ravibasil/common/components/atoms/Space';
+import ItemAPI from '@ravibasil/common/api/items.api';
 
 import {
     Grid,
@@ -18,7 +19,6 @@ import Checkbox from '@material-ui/core/Checkbox';
 
 
 import { columnsFields } from '../../../constants/item'
-import ItemAPI from '../../../api/items.api';
 import get from 'lodash/get';
 
 export default function BaseFactorySetup({

@@ -11,7 +11,7 @@ import {
 } from "./types";
 import { returnErrors } from "./errorActions";
 import store from "../store";
-import { loginApi, registrationApi, loadUserApi } from '../api/auth';
+import { loginApi, registrationApi, loadUserApi } from '@ravibasil/common/api/auth';
 
 export const loadUser = () => (dispatch, getState) => {
   dispatch({ type: USER_LOADING }); //sets idloading to true

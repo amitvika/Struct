@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getPartsStackableInfo } from '../../../api/fileUpload.api';
+import { getPartsStackableInfo } from '@ravibasil/common/api/fileUpload.api';
 import { useSelector } from 'react-redux'
 import { Paper, Grid } from '@material-ui/core';
 // import { Headding } from '../../../components';
-import Heading from '../../../components/atoms/Headding';
+import Heading from '@ravibasil/common/components/atoms/Headding';
 
 
 

@@ -4,6 +4,8 @@ import {
     Switch,
     Route
 } from "react-router-dom";
+import './utils/axios';
+
 import { Spinner } from "reactstrap";
 import { useSelector } from 'react-redux';
 import AppRoute from './AppRoute';
@@ -28,9 +30,6 @@ import Factories from './containers/factories/Factories';
 import FactoryDetail from './containers/factories/FactoryDetail'
 
 import ProductDesign from './containers/productDesign';
-// import ProductDesignDetail from "./containers/productDesign/detail";
-
-// import ProcessGroupDetail from "./containers/processGroupDetail/ProcessGroupDetail";
 import ItemDetail from "./containers/itemDetail";
 import UserSetup from './containers/userSetup';
 import ViewMyProfile from './containers/viewMyProfile'

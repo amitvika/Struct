@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 
-import Filter from '../../../components/TableGridView/Filter';
-import GridView from '../../../components/TableGridView/GridView';
-import Headding from '../../../components/atoms/Headding'
-import Space from '../../../components/atoms/Space';
+import Filter from '@ravibasil/common/components/TableGridView/Filter';
+import GridView from '@ravibasil/common/components/TableGridView/GridView';
+import Headding from '@ravibasil/common/components/atoms/Headding'
+import Space from '@ravibasil/common/components/atoms/Space';
 
 import {
     Grid,
@@ -12,7 +12,7 @@ import {
 import { Spinner } from "reactstrap";
 
 import { columnsFields } from '../../../constants/item'
-import ProductionAPI from '../../../api/production.api';
+import ProductionAPI from '@ravibasil/common/api/production.api';
 import get from 'lodash/get';
 
 export default function ItemsInProduction({

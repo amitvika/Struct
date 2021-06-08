@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 
-import AccessSetupAPI from '../../api/accessSetup.api';
+import AccessSetupAPI from '@ravibasil/common/api/accessSetup.api';
+import TableGridView from '@ravibasil/common/components/TableGridView';
 import { accessSetupFields } from '../../constants/accessSetup'
-import TableGridView from '../../components/TableGridView';
 import ManageAccessSetupModal from './ManageAccessSetupModal';
 
 const TeamSetup = ({ handleTabChange }) => {

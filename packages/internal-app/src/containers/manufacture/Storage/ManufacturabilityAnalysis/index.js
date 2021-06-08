@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Button, Link, Paper } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
-import MainModal from '../../../../components/Modal';
+import MainModal from '@ravibasil/common/components/Modal';
 import Stackability from '../../Stackability';
 
 const useStyles = makeStyles((theme) => ({

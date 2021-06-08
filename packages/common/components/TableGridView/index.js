@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 
 import TableView from './TableView';
 import GridView from './GridView';
 import Toolbar from './Toolbar';
 
-import DefaultContainer from '../../components/DefaultContainer'
-import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
+import DefaultContainer from '../../components/DefaultContainer';
 import CommonAddUpdateModal from './AddUpdateModal';
+import Backdrop from '../Backdrop';
 import get from 'lodash/get';
 
 const TableGridView = ({
@@ -22,9 +21,10 @@ const TableGridView = ({
     isCustomAddButtonVisible = true,
     isAddEditLinkVisible = true,
     isAddEditActionsEnabled = false,
-    handleItemClick
+    handleItemClick,
+    showSuccessAlert,
+    showErrorAlert
 }) => {
-    const dispatch = useDispatch();
 
     const [isLoading, setIsLoading] = useState(false);
     const [list, setList] = useState([]);
@@ -52,7 +52,7 @@ const TableGridView = ({
                 setIsLoading(false);
 
             } catch (error) {
-                dispatch(showErrorAlert({ message: `Unable to fetch ${title}` }));
+                showErrorAlert({ message: `Unable to fetch ${title}` });
             }
         })()
     }, []);
@@ -78,7 +78,7 @@ const TableGridView = ({
         return upsertListItem(value)
             .then(res => {
                 if (res.data) {
-                    dispatch(showSuccessAlert({ message: `${title} updated` }));
+                    showSuccessAlert({ message: `${title} updated` });
 
                     const availableDoc = list.find(document => document.id == res.data.id);
 
@@ -109,7 +109,7 @@ const TableGridView = ({
                 setIsEditing(false)
             })
             .catch(err => {
-                dispatch(showErrorAlert({ message: `Unable to update ${title}` }));
+                showErrorAlert({ message: `Unable to update ${title}` });
             });
     }
 
@@ -159,8 +159,7 @@ const TableGridView = ({
             setSelectedListItem(item)
             setIsEditing(true)
         }
-        setIsModalOpened(!isModalOpened)
-        console.log("-------", item.name)
+        setIsModalOpened(!isModalOpened);
     }
 
     const renderView = () => {
@@ -209,65 +208,55 @@ const TableGridView = ({
         setIsManageTeamModalOpened(!isManageTeamModalOpened);
     }
 
-
-
-    if (isLoading) {
-        return (<div
-            style={{
-                display: "flex",
-                justifyContent: "center"
-            }}
-        >
-            <Spinner animation="border" />
-        </div>)
-    }
-
     return (
-        <DefaultContainer
-            title={title}
-            isHistoryModalOpened={isHistoryModalOpened}
-            selectedId={selectedListItem}
-            handleHistoryToggle={handleHistoryToggle}
-        >
-            { isModalOpened && <AddUpdateModal
-                title={isEditing ? "" : title}
-                fields={fields}
-                open={isModalOpened}
-                toggleModal={handleToggleModal}
-                handleUpdate={handleUpdate}
-                isEditing={isEditing}
-                selectedValue={selectedListItem}
-            />}
-
-            {
-                isManageTeamVisible &&
-                <ManageTeamModal
-                    open={isManageTeamModalOpened}
-                    toggleModal={handleTeamModalToggle}
-                    selectedValue={selectedListItem}
-                    handleUpdate={handleUpdate}
-                />
-            }
-            <Toolbar
+        <>
+            <Backdrop isLoading={isLoading} />
+            <DefaultContainer
                 title={title}
-                isGridViewSelected={isGridViewSelected}
-                setIsGridViewSelected={setIsGridViewSelected}
-                isViewArchivedChecked={isViewArchivedChecked}
-                handleViewArchived={handleViewArchived}
                 isHistoryModalOpened={isHistoryModalOpened}
+                selectedId={selectedListItem}
                 handleHistoryToggle={handleHistoryToggle}
-                list={list}
-                filteredList={getFilteredList()}
-                setFilteredList={setFilteredList}
-                columnsFields={fields}
-                isCustomAddButtonVisible={isCustomAddButtonVisible}
-                isAddEditLinkVisible={isAddEditLinkVisible}
-                handleAddButtonPress={handleToggleModal}
-                isSearchBarVisible={true}
-            />
+            >
+                {isModalOpened && <AddUpdateModal
+                    title={isEditing ? "" : title}
+                    fields={fields}
+                    open={isModalOpened}
+                    toggleModal={handleToggleModal}
+                    handleUpdate={handleUpdate}
+                    isEditing={isEditing}
+                    selectedValue={selectedListItem}
+                />}
 
-            {renderView()}
-        </DefaultContainer >
+                {
+                    isManageTeamVisible &&
+                    <ManageTeamModal
+                        open={isManageTeamModalOpened}
+                        toggleModal={handleTeamModalToggle}
+                        selectedValue={selectedListItem}
+                        handleUpdate={handleUpdate}
+                    />
+                }
+                <Toolbar
+                    title={title}
+                    isGridViewSelected={isGridViewSelected}
+                    setIsGridViewSelected={setIsGridViewSelected}
+                    isViewArchivedChecked={isViewArchivedChecked}
+                    handleViewArchived={handleViewArchived}
+                    isHistoryModalOpened={isHistoryModalOpened}
+                    handleHistoryToggle={handleHistoryToggle}
+                    list={list}
+                    filteredList={getFilteredList()}
+                    setFilteredList={setFilteredList}
+                    columnsFields={fields}
+                    isCustomAddButtonVisible={isCustomAddButtonVisible}
+                    isAddEditLinkVisible={isAddEditLinkVisible}
+                    handleAddButtonPress={handleToggleModal}
+                    isSearchBarVisible={true}
+                />
+
+                {renderView()}
+            </DefaultContainer >
+        </>
     );
 }
 

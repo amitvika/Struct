@@ -7,8 +7,8 @@ import {
     Input,
     Textarea,
     Headding
-} from '../../components';
-import Modal from '../../components/Modal'
+} from '@ravibasil/common/components';
+import Modal from '@ravibasil/common/components/Modal'
 
 export default function AddEditTeamModal({ open, toggleModal, handleUpdate, isEditing, selectedDocument }) {
     const [documentValue, setdocumentValue] = useState({});

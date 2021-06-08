@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Paper from '@material-ui/core/Paper';
-import TableView from '../../../../components/TableGridView/TableView';
-import ProductionAPI from '.././../../../api/production.api';
 import { Spinner } from "reactstrap";
-import { useHistory, useParams } from "react-router-dom";
 import get from 'lodash/get';
+import { useHistory, useParams } from "react-router-dom";
+
+import TableView from '@ravibasil/common/components/TableGridView/TableView';
+import ProductionAPI from '@ravibasil/common/api/production.api';
 import { useDispatch, useSelector } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../../../actions/alert.action';
 import {

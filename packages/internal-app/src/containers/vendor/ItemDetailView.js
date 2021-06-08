@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import ItemsAPI from '../../api/items.api';
-import {
-//   ThreejsViewer
-} from '../../components';
+import ItemsAPI from '@ravibasil/common/api/items.api';
 
 export default function ThreejsViewModal({ itemId = '', isVisible = false, closeModal }) {
   const [threejsObject, setThreejsObject] = useState({});

@@ -22,7 +22,7 @@ import { getUserAccessConfigurationAction } from '../actions/accessConfig.action
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
 import { NavLink } from 'react-router-dom'
-import AccessConfigurationAPI from '../api/accessConfig.api'
+import AccessConfigurationAPI from '@ravibasil/common/api/accessConfig.api'
 
 const AccessConfiguration = (props) => {
     const dispatch = useDispatch();

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import MainModal from '../../../../components/Modal';
-import FactoriesAPI from '../../../../api/factories.api';
 import get from 'lodash/get';
-import Select from '../../../../components/atoms/Select';
-import Headding from '../../../../components/atoms/Headding'
+import MainModal from '@ravibasil/common/components/Modal';
+import FactoriesAPI from '@ravibasil/common/api/factories.api';
+import Select from '@ravibasil/common/components/atoms/Select';
+import Headding from '@ravibasil/common/components/atoms/Headding'
 import { Paper, Grid, Button } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import SelectorView from '../../../../components/SelectorView'
+import SelectorView from '@ravibasil/common/components/SelectorView';
 
 export default function SelectFactoryModal({ isModalOpened,fields, toggleModal, selectedValue = {},
      setSelectedValue, assignFactory,itemId,itemProperties,setItemProperties,fetchList }) {

@@ -6,8 +6,8 @@ import {
     makeStyles
 } from "@material-ui/core";
 
-import ItemsAPI from '../../../../api/items.api';
-import FileUpload from "../../../../components/FileUpload";
+import ItemsAPI from '@ravibasil/common/api/items.api';
+import FileUpload from "@ravibasil/common/components/FileUpload";
 
 const useStyles = makeStyles((theme) => ({
     paper: {

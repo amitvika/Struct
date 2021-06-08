@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
-import MainModal from './Modal'
 import { Paper, Grid, Button } from '@material-ui/core';
 import Checkbox from '@material-ui/core/Checkbox';
-import Heading from './atoms/Headding';
 import moment from 'moment';
 // import GridView from '../../../components/GridView';
 import { useSelector } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-
+import Heading from '@ravibasil/common/components/atoms/Headding';
+import MainModal from './Modal'
 
 export default function ProductionApprovalModal({
     isModalOpened,

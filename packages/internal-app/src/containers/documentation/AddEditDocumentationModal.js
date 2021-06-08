@@ -7,9 +7,9 @@ import {
     Input,
     Textarea,
     Headding
-} from '../../components';
-import Modal from '../../components/Modal'
-import { uploadFileS3Bucket } from '../../api/aws';
+} from '@ravibasil/common/components';
+import Modal from '@ravibasil/common/components/Modal'
+import { uploadFileS3Bucket } from '@ravibasil/common/api/aws';
 import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 import Popover from '@material-ui/core/Popover';
 import Typography from '@material-ui/core/Typography';

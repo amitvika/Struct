@@ -9,11 +9,11 @@ import {
 } from '@material-ui/core';
 import { Spinner } from "reactstrap";
 
+import SelectorView from '@ravibasil/common/components/SelectorView';
+import ItemAPI from '@ravibasil/common/api/items.api';
 import { columnsFields } from '../../../constants/item'
-import ItemAPI from '../../../api/items.api';
 import ProductOptions from './productOptions'
 import { mapItems } from '../../../utils/mapper'
-import SelectorView from '../../../components/SelectorView'
 import get from 'lodash/get';
 
 export default function Products({

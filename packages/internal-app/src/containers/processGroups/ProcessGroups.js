@@ -3,12 +3,12 @@ import { useSelector } from 'react-redux';
 import { Spinner } from "reactstrap";
 import { useHistory } from "react-router-dom";
 
-import API from '../../api/processGroup.api';
-import ClientAPI from '../../api/clients.api';
-import Toolbar from '../../components/TableGridView/Toolbar';
-import TableView from '../../components/TableGridView/TableView';
-import GridView from '../../components/TableGridView/GridView';
-import DefaultContainer from '../../components/DefaultContainer';
+import API from '@ravibasil/common/api/processGroup.api';
+import ClientAPI from '@ravibasil/common/api/clients.api';
+import Toolbar from '@ravibasil/common/components/TableGridView/Toolbar';
+import TableView from '@ravibasil/common/components/TableGridView/TableView';
+import GridView from '@ravibasil/common/components/TableGridView/GridView';
+import DefaultContainer from '@ravibasil/common/components/DefaultContainer';
 
 
 const ProcessGroups = () => {

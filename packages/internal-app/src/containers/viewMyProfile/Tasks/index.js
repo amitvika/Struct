@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from 'react-redux'
 
-import TaskAPI from '../../../api/task.api';
-import { TasksFields } from '../../../constants/tasksItem'
+import TableGridView from '@ravibasil/common/components/TableGridView';
+import TaskAPI from '@ravibasil/common/api/task.api';
 
 import AddUpdateModal from './AddUpdateModal'
-import TableGridView from '../../../components/TableGridView';
 import ManageTaskModal from './ManageTaskModal';
-import { useDispatch, } from 'react-redux'
+import { TasksFields } from '../../../constants/tasksItem'
 import { fetchMyTeamAction } from '../../../actions/team.action'
 
 const Tasks = ({ }) => {

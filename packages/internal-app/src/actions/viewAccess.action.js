@@ -1,5 +1,5 @@
 import * as Types from "./types";
-import { fetchClientsApi } from '../api/access.api';
+import { fetchClientsApi } from '@ravibasil/common/api/access.api';
 
 export const fetchClientAction = () => (dispatch, getState) => {
   dispatch({ type: Types.CBA_LOADING }); //sets idloading to true

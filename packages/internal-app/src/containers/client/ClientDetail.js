@@ -5,17 +5,16 @@ import {
     Paper,
     Tab,
     Tabs,
-    Box,
     Grid,
     Breadcrumbs,
     Link
 } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import { NavLink, useParams, useHistory } from "react-router-dom";
-import API from '../../api/clients.api';
+import API from '@ravibasil/common/api/clients.api';
 import Products from './products'
 import ClientPortal from './clientPortal';
-import LogoView from '../../components/LogoView';
+import LogoView from '@ravibasil/common/components/LogoView';
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';

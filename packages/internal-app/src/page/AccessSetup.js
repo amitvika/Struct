@@ -5,7 +5,7 @@ import { Spinner } from "reactstrap";
 import { changePage } from "../actions/pageActions";
 import Checkbox from "@material-ui/core/Checkbox";
 import PropTypes from "prop-types";
-import UserAccessTypesAPI from '../api/access.api'
+import UserAccessTypesAPI from '@ravibasil/common/api/access.api'
 
 class AccessSetup extends Component {
     state = {

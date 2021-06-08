@@ -1,10 +1,7 @@
 import React, { Component } from 'react'
-import FileUpload from '../../components/FileUpload';
-import ProcessGroupAPI from '../../api/processGroup.api'
+import FileUpload from '@ravibasil/common/components/FileUpload';
+import ProcessGroupAPI from '@ravibasil/common/api/processGroup.api'
 import CircularProgress from '@material-ui/core/CircularProgress';
-// import {
-//   ThreejsViewer
-// } from '../../components';
 
 export default class ProcessHelper extends Component {
 

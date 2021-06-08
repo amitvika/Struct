@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from 'react-redux';
-
 import { useHistory } from "react-router-dom";
 
-import API from '../../api/items.api';
-
+import API from '@ravibasil/common/api/items.api';
 import Toolbar from '@ravibasil/common/components/TableGridView/Toolbar';
 import GridView from '@ravibasil/common/components/TableGridView/GridView';
 import TableView from '@ravibasil/common/components/TableGridView/TableView';
-import DefaultContainer from '../../components/DefaultContainer';
+import DefaultContainer from '@ravibasil/common/components/DefaultContainer';
+import Backdrop from '@ravibasil/common/components/Backdrop';
 
 import { columnsFields } from '../../constants/item'
 import AddEditItemModal from './AddEditItemModel';
-import Backdrop from '@ravibasil/common/components/Backdrop';
 
 const Items = ({ handleSave }) => {
     let history = useHistory();
-
-    const { isAuthenticated, user } = useSelector(state => state.auth);
 
     const [itemList, setItemList] = useState([]);
     const [filteredItemList, setFilteredItemList] = useState([]);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import MaterialTable, { MTableToolbar } from "material-table";
-import AssemblyProcessAPI from '../../../api/assemblyProcess.api';
+import AssemblyProcessAPI from '@ravibasil/common/api/assemblyProcess.api';
 
 export default function AssemblyTable({ processId, setIsThreejsVisible, setAssemblyProcessData }) {
   const [columns, setColumns] = useState([

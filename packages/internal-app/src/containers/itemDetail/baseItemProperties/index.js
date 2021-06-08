@@ -11,16 +11,14 @@ import { useDispatch } from 'react-redux';
 import GeometryInput from './GeometryInput';
 
 import {
-//   ThreejsViewer,
   Headding,
   FileUpload
-} from '../../../components';
+} from '@ravibasil/common/components';
+import { upload3DFile, getHierarchySplitFiles } from '@ravibasil/common/api/fileUpload.api'
 
-import ProcessGroupAPI from '../../../api/processGroup.api'
-import ItemAPI from '../../../api/items.api';
+import ItemAPI from '@ravibasil/common/api/items.api';
 
 import GLTFRenderer from '../../../gltf/GltfRenderer';
-import { upload3DFile, getHierarchySplitFiles } from '../../../api/fileUpload.api'
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
 import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY} from "../../../gltf/Tree/utils";
 

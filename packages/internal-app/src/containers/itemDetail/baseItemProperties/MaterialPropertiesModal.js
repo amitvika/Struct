@@ -10,8 +10,8 @@ import {
   Icon,
 } from "@material-ui/core";
 
-import Headding from '../../../components/atoms/Headding';
-import MaterialAPI from '../../../api/material.api';
+import Headding from '@ravibasil/common/components/atoms/Headding';
+import MaterialAPI from '@ravibasil/common/api/material.api';
 
 export default function MaterialProperties({ materialProperties = {}, toggleMaterialProperties, isMaterialPropertiesModalOpen }) {
   const [hierarchy, setHierarchy] = useState(null);

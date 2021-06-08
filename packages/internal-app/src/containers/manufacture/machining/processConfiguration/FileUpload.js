@@ -3,23 +3,17 @@ import {
   Col,
   Form,
   FormGroup,
-  Label,
-  Input,
-  FormText,
   CustomInput
 } from "reactstrap";
 import { Button } from "@material-ui/core";
-import axios from "axios";
 
 export default function FileUpload({ handleFileUpload, getFiles }) {
   //State
   const [file, setFile] = useState("");
-  const [fileName, setFileName] = useState("");
 
   const onChange = e => {
     e.preventDefault();
     setFile(e.target.files[0]);
-    setFileName(e.target.files[0].name);
   };
 
   const onSubmit = e => {

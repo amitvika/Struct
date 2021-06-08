@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import MainModal from '../../../components/Modal'
-import Headding from '../../../components/atoms/Headding'
 import { Paper, Grid, Button } from '@material-ui/core';
-import FileUpload from '../../../components/FileUpload'
-import Input from '../../../components/atoms/Input';
+import MainModal from '@ravibasil/common/components/Modal'
+import Headding from '@ravibasil/common/components/atoms/Headding'
+import FileUpload from '@ravibasil/common/components/FileUpload'
+import Input from '@ravibasil/common/components/atoms/Input';
 
 export default function IdentificationModal({ isModalOpened, toggleModal }) {
     const [identificationNumber, setIdentificationNumber] = useState([]);

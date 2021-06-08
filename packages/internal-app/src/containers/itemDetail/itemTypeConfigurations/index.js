@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import Grid from '@material-ui/core/Grid';
 import MaterialTable from "material-table";
 
-import Select from '../../../components/atoms/Select';
-import Input from '../../../components/atoms/Input';
+import Select from '@ravibasil/common/components/atoms/Select';
+import Input from '@ravibasil/common/components/atoms/Input';
 import ToolTypeOptions from './ToolTypeOptions';
 import MachineTool_Workholding from './MachineTool_Workholding';
 import UnassembledKit from './UnassembledKit';

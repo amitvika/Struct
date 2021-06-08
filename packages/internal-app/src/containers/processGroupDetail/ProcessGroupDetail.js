@@ -20,7 +20,7 @@ import AddIcon from "@material-ui/icons/Add";
 import BootstrapTable from "react-bootstrap-table-next";
 import filterFactory, { textFilter } from "react-bootstrap-table2-filter";
 import { NavLink } from "react-router-dom";
-import ConfirmDialog from '../../components/atoms/ConfirmDialog';
+import ConfirmDialog from '@ravibasil/common/components/atoms/ConfirmDialog';
 
 import NewProcessAdd from "./newProcessAdd";
 import Machining from "./Machining";
@@ -29,8 +29,8 @@ import InjectionCasting from "./injectionCasting/index";
 import ProcessHelper from "./ProcessHelper";
 import Assembly from "./assembly";
 
-import ProcessAPI from '../../api/process.api';
-import ProcessGroupAPI from '../../api/processGroup.api';
+import ProcessAPI from '@ravibasil/common/api/process.api';
+import ProcessGroupAPI from '@ravibasil/common/api/processGroup.api';
 
 class ProcessGroupDetail extends Component {
   state = {

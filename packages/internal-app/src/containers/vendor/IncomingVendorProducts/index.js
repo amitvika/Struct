@@ -1,21 +1,11 @@
-import React, { useState, useEffect } from 'react';
-
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-
-import {
-    Paper,
-    Typography,
-    IconButton,
-} from '@material-ui/core';
+import React, { useState } from 'react';
 import { Spinner } from "reactstrap";
 
-import { columnsFields } from '../../../constants/item'
-import ItemAPI from '../../../api/items.api';
-// import ProductOptions from './productOptions'
-import ProductOptions from './productOptions'
+import SelectorView from '@ravibasil/common/components/SelectorView';
+import ItemAPI from '@ravibasil/common/api/items.api';
 
+import { columnsFields } from '../../../constants/item'
 import { mapItems } from '../../../utils/mapper'
-import SelectorView from '../../../components/SelectorView'
 import get from 'lodash/get';
 
 export default function IncomingVendorProducts({ setVendorValue, vendorValue }) {
@@ -23,9 +13,6 @@ export default function IncomingVendorProducts({ setVendorValue, vendorValue }) 
 
     const [selectedProduct, setSelectedProduct] = useState({});
 
-    const [isItemSelectionVisible, setIsItemSelectionVisible] = useState(false);
-
-    // const onClick = () => setIsItemSelectionVisible(!isItemSelectionVisible);
     const [state, setState] = useState({
         checkedA: true,
     });

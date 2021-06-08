@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import OperationAccess from "./OperationAccess";
 import ClientBasedAccess from "./ClientBasedAccess";
-import ClientAPI from '../../../api/clients.api';
-import AccessSetupAPI from '../../../api/accessSetup.api';
+import ClientAPI from '@ravibasil/common/api/clients.api';
+import AccessSetupAPI from '@ravibasil/common/api/accessSetup.api';
 import get from 'lodash/get';
 
 import ClientObjectAccess from './ClientObjectAccess';

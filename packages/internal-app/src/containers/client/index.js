@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
-
-import ClientAPI from '../../api/clients.api';
-import { columnsFields } from '../../constants/client'
 import TableGridView from '@ravibasil/common/components/TableGridView';
+import ClientAPI from '@ravibasil/common/api/clients.api';
+import { columnsFields } from '../../constants/client'
 import { useHistory } from "react-router-dom";
 
 const Client = () => {

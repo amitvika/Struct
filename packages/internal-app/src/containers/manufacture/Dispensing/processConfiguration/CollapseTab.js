@@ -9,7 +9,7 @@ import { Button, Grid, Paper } from '@material-ui/core';
 import Checkbox from '@material-ui/core/Checkbox';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentItemAction } from '../../../../actions/itemActions';
-import { getPartsStackableInfo } from '../../../../api/fileUpload.api'
+import { getPartsStackableInfo } from '@ravibasil/common/api/fileUpload.api'
 
 
 export default function NestedList({ setItemValue }) {

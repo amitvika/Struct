@@ -3,11 +3,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Spinner } from "reactstrap";
 import { useHistory, useParams } from "react-router-dom";
 
-import API from '../../../api/clients.api';
+import API from '@ravibasil/common/api/clients.api';
 
-import TableView from '../../../components/TableGridView/TableView';
-import GridView from '../../../components/TableGridView/GridView';
-import Toolbar from '../../../components/TableGridView/Toolbar';
+import TableView from '@ravibasil/common/components/TableGridView/TableView';
+import GridView from '@ravibasil/common/components/TableGridView/GridView';
+import Toolbar from '@ravibasil/common/components/TableGridView/Toolbar';
 import { columnsFields } from '../../../constants/client';
 
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
