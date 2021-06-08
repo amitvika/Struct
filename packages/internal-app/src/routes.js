@@ -48,7 +48,6 @@ export default function AppRoutes() {
     }
     return (
         <Router>
-            <>
                 <Switch>
                     <Route exact path="/" component={Login} />
                     <Route path="/register" component={Register} />
@@ -91,7 +90,6 @@ export default function AppRoutes() {
                         </Switch>
                     </Layout>
                 </Switch>
-            </>
         </Router>
     );
 }

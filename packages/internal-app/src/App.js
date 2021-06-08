@@ -22,7 +22,7 @@ const App = () => {
     <Provider store={store}>
       <ThemeProvider>
         <>
-          <Alert />
+          <Alert />   
           <AppRoutes />
         </>
       </ThemeProvider>

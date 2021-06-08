@@ -65,7 +65,7 @@ export default function Header() {
                 <Box component="div" key={`primary_list`} style={{ display: 'flex' }}>
                     {getMenuButtons()}
                 </Box>
-                <Box component="div" key={`secondary_list`}  style={{ display: 'flex' }}>
+                <Box component="div" key={`secondary_list`} style={{ display: 'flex' }}>
                     {getSecondMenu()}
                 </Box>
             </Box>
@@ -192,7 +192,7 @@ export default function Header() {
 
                                         <MenuItem
                                             key={`logout_link`}
-                                            onClick={handleClose}>Logout</MenuItem>
+                                            onClick={handleLogout}>Logout</MenuItem>
                                     </MenuList>
                                 </ClickAwayListener>
                             </Paper>
@@ -240,6 +240,12 @@ export default function Header() {
 
         setOpen(false);
     };
+
+    const handleLogout = () => {
+
+        dispatch(logout());
+        history.replace('/')
+    }
 
     return (
         <header>
