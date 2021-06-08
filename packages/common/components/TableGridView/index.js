@@ -22,8 +22,8 @@ const TableGridView = ({
     isAddEditLinkVisible = true,
     isAddEditActionsEnabled = false,
     handleItemClick,
-    showSuccessAlert,
-    showErrorAlert
+    showSuccessAlert = () => { },
+    showErrorAlert = () => { }
 }) => {
 
     const [isLoading, setIsLoading] = useState(false);
@@ -43,11 +43,13 @@ const TableGridView = ({
             try {
                 setIsLoading(true);
 
-                const res = await fetchList()
+                // const res = await fetchList()
+
                 const mappedList = get(res, 'data', []);
 
+
                 setList(mappedList)
-                setFilteredList(mappedList.filter(item => item.is_archived))
+                setFilteredList(mappedList.filter(item => !item.is_archived))
 
                 setIsLoading(false);
 
@@ -59,13 +61,14 @@ const TableGridView = ({
 
 
     const handleViewArchived = () => {
-        setIsViewArchivedChecked(!isViewArchivedChecked);
         if (isViewArchivedChecked) {
             setFilteredList(list.filter(item => !item.is_archived));
         }
         else {
             setFilteredList(list.filter(item => item.is_archived));
         }
+
+        setIsViewArchivedChecked(!isViewArchivedChecked);
     };
 
     const handleHistoryToggle = ({ rowId }) => {
@@ -166,7 +169,7 @@ const TableGridView = ({
         if (isGridViewSelected) {
             return (
                 <GridView
-                    list={getFilteredList()}
+                    list={filteredList}
                     handleHistoryToggle={handleHistoryToggle}
                     columnsFields={fields}
                     handleTableRowClick={handleTableRowClick}
@@ -177,7 +180,7 @@ const TableGridView = ({
         else {
             return (
                 <TableView
-                    list={getFilteredList()}
+                    list={filteredList}
                     columns={fields}
                     handleTableRowClick={handleTableRowClick}
                     isAddEditActionsEnabled={isAddEditActionsEnabled}
@@ -187,16 +190,6 @@ const TableGridView = ({
                 />
             )
         }
-    }
-
-    const getFilteredList = () => {
-        return filteredList.filter(item => {
-            // console.log(isViewArchivedChecked, item.is_archived)
-            if (isViewArchivedChecked == item.is_archived) {
-                return true;
-            }
-            return false
-        });
     }
 
 
@@ -245,7 +238,7 @@ const TableGridView = ({
                     isHistoryModalOpened={isHistoryModalOpened}
                     handleHistoryToggle={handleHistoryToggle}
                     list={list}
-                    filteredList={getFilteredList()}
+                    filteredList={filteredList}
                     setFilteredList={setFilteredList}
                     columnsFields={fields}
                     isCustomAddButtonVisible={isCustomAddButtonVisible}

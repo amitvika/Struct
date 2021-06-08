@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
-import { useHistory } from "react-router-dom";
 
 import ProductDesignAPI from '@ravibasil/common/api/productDesign.api';
 import TableGridView from '@ravibasil/common/components/TableGridView';
 import { fields } from '@ravibasil/common/constants/productDesign'
 
 const ProductDesign = () => {
-    let history = useHistory();
+  
     const handleItemClick = (id) => {};
 
     useEffect(() =>{
