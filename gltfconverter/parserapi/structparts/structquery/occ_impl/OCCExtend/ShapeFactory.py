@@ -38,6 +38,7 @@ from OCC.Core.TColStd import (TColStd_Array1OfInteger, TColStd_Array1OfReal, TCo
 from OCC.Core.TColgp import TColgp_Array1OfPnt, TColgp_Array2OfPnt
 
 from .TopologyUtils import is_edge, is_face, TopologyExplorer
+import pickle
 
 #
 # assert utils
@@ -285,6 +286,25 @@ def returnStackableFaces(part,corner1, corner2, dimension):
                 "dimension":dimension
             }]
 
+def get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs):
+    if(face=="Hole"):
+        #print("I am hole")
+        xdirection = abs(xmaxs-xmins)
+        ydirection = abs(ymaxs-ymins)
+        zdirection = abs(zmaxs-zmins)
+        if ( (xdirection<ydirection) and (xdirection<zdirection) ):
+            #return abs(xmins-xmin)
+            return abs(xmaxs-xmin)
+        if ( (ydirection<xdirection) and (ydirection<zdirection) ):
+            #return abs(ymins-ymin)
+            return abs(ymaxs-ymin)
+        if ( (zdirection<xdirection) and (zdirection<ydirection) ):
+            #return abs(zmins-zmin)
+            return abs(zmaxs-zmin)        
+        return min(abs(xmax-xmin),abs(ymax-ymin),abs(zmax-zmin))
+    #print("I am not a hole")
+    return 0
+
 def get_part_stackable_right(part, dimension, face_dict, tol=0.1):
     xmin, ymin, zmin, xmax, ymax, zmax = dimension    
     xpos = xmax-tol
@@ -292,19 +312,34 @@ def get_part_stackable_right(part, dimension, face_dict, tol=0.1):
         xpos = xmin 
     if(xpos==xmax):
         return [{
-                "face":"Surface",
-                "dimension":dimension
-            }] 
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
     faces = []
-    for hash_solidface, (solidface, boundingitems, face) in face_dict.items():
+    for hash_solidface, (solidface, boundingitems, face, direction, facetype ) in face_dict.items():
         xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = boundingitems   
         if abs(xmax-xmaxs) <= tol:
-            faces.append({"face":face, "dimension":boundingitems})
+            faces.append({
+                "face":facetype,
+                "surface":face, 
+                "id":hash_solidface, 
+                "dimension":boundingitems,
+                "direction": direction,
+                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                })    
     if(len(faces)==0):
-         return [{
-                "face":"Open",
-                "dimension":dimension
-            }] 
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0            
+        }] 
     return faces    
     """ corner1 = gp_Pnt(xmax-1, ymin, zmin)
     corner2 = gp_Pnt(xmax+1, ymax, zmax)
@@ -350,19 +385,34 @@ def get_part_stackable_left(part, dimension, face_dict, tol=0.1):
         xpos = xmax 
     if(xpos==xmin):
         return [{
-                "face":"Surface",
-                "dimension":dimension
-            }] 
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
     faces = []
-    for hash_solidface, (solidface, boundingitems, face) in face_dict.items():
+    for hash_solidface, (solidface, boundingitems, face, direction, facetype ) in face_dict.items():
         xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = boundingitems   
         if abs(xmin-xmins) <= tol:
-            faces.append({"face":face, "dimension":boundingitems})
+            faces.append({
+                "face":facetype,
+                "surface":face, 
+                "id":hash_solidface, 
+                "dimension":boundingitems,
+                "direction": direction,
+                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                })    
     if(len(faces)==0):
-         return [{
-                "face":"Open",
-                "dimension":dimension
-            }] 
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
     return faces    
     """ corner1 = gp_Pnt(xmin-1, ymin, zmin)
     corner2 = gp_Pnt(xmin+1, ymax, zmax)      
@@ -409,19 +459,34 @@ def get_part_stackable_front(part, dimension, face_dict, tol=0.1):
         ypos = ymin 
     if(ypos==ymax):
         return [{
-                "face":"Surface",
-                "dimension":dimension
-            }] 
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
     faces = []
-    for hash_solidface, (solidface, boundingitems, face) in face_dict.items():
+    for hash_solidface, (solidface, boundingitems, face, direction, facetype ) in face_dict.items():
         xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = boundingitems   
         if abs(ymax-ymaxs) <= tol:
-            faces.append({"face":face, "dimension":boundingitems})
+            faces.append({
+                "face":facetype,
+                "surface":face, 
+                "id":hash_solidface, 
+                "dimension":boundingitems,
+                "direction": direction,
+                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                })    
     if(len(faces)==0):
-         return [{
-                "face":"Open",
-                "dimension":dimension
-            }] 
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
     return faces    
     """ corner1 = gp_Pnt(xmin, ymax-1, zmin)
     corner2 = gp_Pnt(xmax, ymax+1, zmax)      
@@ -466,19 +531,34 @@ def get_part_stackable_back(part, dimension, face_dict, tol=0.1):
         ypos = ymax 
     if(ypos==ymin):
         return [{
-                "face":"Surface",
-                "dimension":dimension
-            }] 
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
     faces = []
-    for hash_solidface, (solidface, boundingitems, face) in face_dict.items():
+    for hash_solidface, (solidface, boundingitems, face, direction, facetype ) in face_dict.items():
         xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = boundingitems   
         if abs(ymin-ymins) <= tol:
-            faces.append({"face":face, "dimension":boundingitems})
+            faces.append({
+                "face":facetype,
+                "surface":face, 
+                "id":hash_solidface, 
+                "dimension":boundingitems,
+                "direction": direction,
+                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                })    
     if(len(faces)==0):
-         return [{
-                "face":"Open",
-                "dimension":dimension
-            }] 
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
     return faces    
     """ corner1 = gp_Pnt(xmin, ymin-1, zmin)
     corner2 = gp_Pnt(xmax, ymin+1, zmax)      
@@ -523,19 +603,34 @@ def get_part_stackable_top(part, dimension, face_dict, tol=0.1):
         zpos = zmax 
     if(zpos==zmin):
         return [{
-                "face":"Surface",
-                "dimension":dimension
-            }] 
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
     faces = []
-    for hash_solidface, (solidface, boundingitems, face) in face_dict.items():
+    for hash_solidface, (solidface, boundingitems, face, direction, facetype ) in face_dict.items():
         xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = boundingitems   
         if abs(zmin-zmins) <= tol:
-            faces.append({"face":face, "dimension":boundingitems})
+            faces.append({
+                "face":facetype,
+                "surface":face, 
+                "id":hash_solidface, 
+                "dimension":boundingitems,
+                "direction": direction,
+                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                })    
     if(len(faces)==0):
-         return [{
-                "face":"Open",
-                "dimension":dimension
-            }] 
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
     return faces    
     """ corner1 = gp_Pnt(xmin, ymin, zmin-1)
     corner2 = gp_Pnt(xmax, ymax, zmin+1)      
@@ -581,19 +676,34 @@ def get_part_stackable_bottom(part, dimension, face_dict, tol=0.1):
         zpos = zmin 
     if(zpos==zmax):
         return [{
-                "face":"Surface",
-                "dimension":dimension
-            }] 
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
     faces = []
-    for hash_solidface, (solidface, boundingitems, face) in face_dict.items():
+    for hash_solidface, (solidface, boundingitems, face, direction, facetype ) in face_dict.items():
         xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = boundingitems   
         if abs(zmax-zmaxs) <= tol:
-            faces.append({"face":face, "dimension":boundingitems})
+            faces.append({
+                "face":facetype,
+                "surface":face, 
+                "id":hash_solidface, 
+                "dimension":boundingitems,
+                "direction": direction,
+                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                })    
     if(len(faces)==0):
-         return [{
-                "face":"Open",
-                "dimension":dimension
-            }] 
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
     return faces    
     """ corner1 = gp_Pnt(xmin, ymin, zmax-1)
     corner2 = gp_Pnt(xmax, ymax, zmax+1)      
@@ -631,11 +741,119 @@ def get_part_stackable_bottom(part, dimension, face_dict, tol=0.1):
         return "Open"
     return "Close"  """
 
+def get_part_stackable_directions(part, dimension, face_dict, tol=0.1):
+    xmin, ymin, zmin, xmax, ymax, zmax = dimension      
+    zpos = zmax-tol
+    if zpos < zmin:
+        zpos = zmin 
+    if(zpos==zmax):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    zpos = zmin+tol
+    if zpos > zmax:
+        zpos = zmax 
+    if(zpos==zmin):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    ypos = ymin+tol
+    if ypos > ymax:
+        ypos = ymax 
+    if(ypos==ymin):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    ypos = ymax-tol
+    if ypos < ymin:
+        ypos = ymin 
+    if(ypos==ymax):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    xpos = xmin+tol
+    if xpos > xmax:
+        xpos = xmax 
+    if(xpos==xmin):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    xpos = xmax-tol
+    if xpos < xmin:
+        xpos = xmin 
+    if(xpos==xmax):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    faces = []
+    for hash_solidface, (solidface, boundingitems, face, direction, facetype ) in face_dict.items():
+        xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = boundingitems   
+        if (
+            (abs(zmax-zmaxs) <= tol) or
+            (abs(zmin-zmins) <= tol) or
+            (abs(ymin-ymins) <= tol) or
+            (abs(ymax-ymaxs) <= tol) or
+            (abs(xmin-xmins) <= tol) or
+            (abs(xmax-xmaxs) <= tol) ):
+
+            faces.append({
+                "face":facetype,
+                "surface":face, 
+                "id":hash_solidface, 
+                "dimension":boundingitems,
+                "direction": direction,
+                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                })
+        
+
+    if(len(faces)==0):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    return faces    
+    
+
+
 def get_part_stackable_positions(part, face_dict, tol=0.1, anggap=0.5):
     dimension = get_bounding_details(part)
     ret_dict = {}      
     try:
-        print("Checking Top")
+        #print("Checking Top")
         ret_dict["top"]=get_part_stackable_top(part, dimension, face_dict, tol)
     except Exception as e:
         try:
@@ -643,7 +861,7 @@ def get_part_stackable_positions(part, face_dict, tol=0.1, anggap=0.5):
         except:
             ret_dict["top"]="Error"
     try:
-        print("Checking Bottom")
+        #print("Checking Bottom")
         ret_dict["bottom"]=get_part_stackable_bottom(part, dimension, face_dict, tol)
     except Exception as e:
         try:
@@ -651,7 +869,7 @@ def get_part_stackable_positions(part, face_dict, tol=0.1, anggap=0.5):
         except:
             ret_dict["bottom"]="Error"
     try:
-        print("Checking Right")
+        #print("Checking Right")
         ret_dict["right"]=get_part_stackable_right(part, dimension, face_dict, tol)
     except Exception as e:
         try:
@@ -659,7 +877,7 @@ def get_part_stackable_positions(part, face_dict, tol=0.1, anggap=0.5):
         except:
             ret_dict["right"]="Error"
     try:
-        print("Checking Left")
+        #print("Checking Left")
         ret_dict["left"]=get_part_stackable_left(part, dimension, face_dict, tol)
     except Exception as e:
         try:
@@ -667,23 +885,969 @@ def get_part_stackable_positions(part, face_dict, tol=0.1, anggap=0.5):
         except:
             ret_dict["left"]="Error"
     try:
-        print("Checking Front")
+        #print("Checking Front")
         ret_dict["front"]=get_part_stackable_front(part, dimension, face_dict, tol)
     except Exception as e:
         try:
             ret_dict["front"]=str(e)
         except:
-            ret_dict["front"]="Error"
+            ret_dict["front"]="Error"   
+    
     try:
-        print("Checking Back")
+        #print("Checking Back")
         ret_dict["back"]=get_part_stackable_back(part, dimension, face_dict, tol)
     except Exception as e:
         try:
             ret_dict["back"]=str(e)
         except:
-            ret_dict["back"]="Error"    
-    return ret_dict
+            ret_dict["back"]="Error" 
+    
+    try:
+        #print("Checking Back")
+        ret_dict["direction"]=get_part_stackable_directions(part, dimension, face_dict, tol)
+    except Exception as e:
+        try:
+            ret_dict["direction"]=str(e)
+        except:
+            ret_dict["direction"]="Error"  
 
+    return ret_dict
+""" 
+def getDepthRight(uvPlane, hash_face, face, xmax ):
+    if(face=="Hole"):        
+        maxDist =  1e10
+        depth = 1e10
+        for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Solid") and (position=="YZ") and (hash_solidface != hash_face):                   
+                xmaxs, _, _ = faces_max   
+                if (position=="YZ") and ((xmax-xmaxs) <= maxDist):
+                    depth = xmax-xmaxs
+                    maxDist = depth
+        return depth 
+    else:        
+        minDist =  0
+        depth = 0
+        for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Hole") and (position=="YZ") and (hash_solidface != hash_face):                   
+                xmaxs, _, _ = faces_max   
+                if (position=="YZ") and ((xmaxs-xmax) >= minDist):
+                    depth = xmaxs-xmax
+                    minDist = depth
+        return depth              
+          
+
+def getDepthLeft(uvPlane, hash_face, face, xmin):
+    if(face=="Hole"):
+        maxDist =  1e10
+        depth = 1e10
+        for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Solid") and (position=="YZ") and (hash_solidface != hash_face):
+                xmins, _, _ = faces_min                     
+                if (position=="YZ") and ((xmins-xmin) <= maxDist):
+                    depth = xmins-xmin
+                    maxDist = depth
+        return depth 
+    else:
+        minDist =  0
+        depth = 0
+        for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Hole") and (position=="YZ") and (hash_solidface != hash_face):
+                xmins, _, _ = faces_min                     
+                if (position=="YZ") and ((xmin-xmins) >= minDist):
+                    depth = xmin-xmins
+                    minDist = depth
+        return depth             
+           
+
+def getDepthBack(uvPlane, hash_face, face, ymax):
+    if(face=="Hole"):
+        maxDist =  1e10
+        depth = 1e10
+        for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Solid") and (position=="XZ") and (hash_solidface != hash_face):                   
+                _, ymaxs, _ = faces_max   
+                if (position=="XZ") and ((ymax-ymaxs) <= maxDist):
+                    depth = ymax-ymaxs
+                    maxDist = depth
+        return depth 
+    else:
+        minDist =  0
+        depth = 0
+        for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Solid") and (position=="XZ") and (hash_solidface != hash_face):                   
+                _, ymaxs, _ = faces_max   
+                if (position=="XZ") and ((ymaxs-ymax) >= minDist):
+                    depth = ymaxs-ymax
+                    minDist = depth
+        return depth     
+
+def getDepthFront(uvPlane, hash_face, face, ymin):
+    if(face=="Hole"):
+        maxDist =  1e10
+        depth = 1e10
+        for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Solid") and (position=="XZ") and (hash_solidface != hash_face):
+                _, ymins, _ = faces_min                     
+                if (position=="XZ") and ((ymins-ymin) <= maxDist):
+                    depth = ymins-ymin
+                    maxDist = depth
+        return depth    
+    else:
+        minDist =  0
+        depth = 0
+        for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Hole") and (position=="XZ") and (hash_solidface != hash_face):
+                _, ymins, _ = faces_min                     
+                if (position=="XZ") and ((ymin-ymins) >= minDist):
+                    depth = ymin-ymins
+                    minDist = depth
+        return depth           
+
+def getDepthTop(uvPlane, hash_face, face, zmax):
+    if(face=="Hole"):
+        maxDist =  1e10
+        depth = 1e10
+        print (uvPlane,"Hole")
+        for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Solid") and (position=="XY") and (hash_solidface != hash_face):                    
+                _, _, zmaxs = faces_max   
+                if (position=="XY") and ((zmax-zmaxs) <= maxDist):
+                    depth = zmax-zmaxs
+                    maxDist = depth
+        print("Depth got is", depth)
+        return depth
+    else:
+        minDist =  0
+        depth = 0
+        print (uvPlane,"Solid")
+        for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Solid") and (position=="XY") and (hash_solidface != hash_face):                    
+                _, _, zmaxs = faces_max   
+                if (position=="XY") and ((zmaxs-zmax) >= minDist):
+                    depth = zmaxs-zmax
+                    minDist = depth
+        print("Depth got is", depth)
+        return depth   
+    
+def getDepthBottom(uvPlane, hash_face, face, zmin):
+    if(face=="Hole"):
+        maxDist =  1e10
+        depth = 1e10
+        for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Solid") and (position=="YZ") and (hash_solidface != hash_face):
+                _, _, zmins = faces_min                      
+                if (position=="XY") and ((zmins-zmin) <= maxDist):
+                    depth = zmins-zmin
+                    maxDist = depth
+        return depth             
+    else:
+        minDist =  0
+        depth = 0
+        for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+            if (face=="Hole") and (position=="YZ") and (hash_solidface != hash_face):
+                _, _, zmins = faces_min                      
+                if (position=="XY") and ((zmin-zmins) >= minDist):
+                    depth = zmin-zmins
+                    minDist = depth
+        return depth             
+          
+
+def getDepth(uvPlane, hash_face, face, plane, xmin, ymin, zmin, xmax, ymax, zmax):
+    if(face=="Hole"):
+        if plane=="Right":
+            maxDist =  1e10
+            depth = 1e10
+            for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Solid") and (plane=="YZ") and (hash_solidface != hash_face):                   
+                    xmaxs, _, _ = faces_max   
+                    if (position=="YZ") and ((xmax-xmaxs) <= maxDist):
+                        depth = xmax-xmaxs
+                        maxDist = depth
+            return depth              
+        if plane=="Back":    
+            maxDist =  1e10
+            depth = 1e10
+            for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Solid") and (position=="XZ") and (hash_solidface != hash_face):                   
+                    _, ymaxs, _ = faces_max   
+                    if (position=="XZ") and ((ymax-ymaxs) <= maxDist):
+                        depth = ymax-ymaxs
+                        maxDist = depth
+            return depth            
+        if plane=="Top": 
+            maxDist =  1e10
+            depth = 1e10
+            for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Solid") and (position=="XY") and (hash_solidface != hash_face):                    
+                    _, _, zmaxs = faces_max   
+                    if (position=="XY") and ((zmax-zmaxs) <= maxDist):
+                        depth = zmax-zmaxs
+                        maxDist = depth
+            return depth             
+        if plane=="Left":
+            maxDist =  1e10
+            depth = 1e10
+            for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Solid") and (position=="YZ") and (hash_solidface != hash_face):
+                    xmins, _, _ = faces_min                     
+                    if (position=="YZ") and ((xmins-xmin) <= maxDist):
+                        depth = xmins-xmin
+                        maxDist = depth
+            return depth             
+        if plane=="Front":
+            maxDist =  1e10
+            depth = 1e10
+            for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Solid") and (position=="XZ") and (hash_solidface != hash_face):
+                    _, ymins, _ = faces_min                     
+                    if (position=="XZ") and ((ymins-ymin) <= maxDist):
+                        depth = ymins-ymin
+                        maxDist = depth
+            return depth    
+        if plane=="Bottom": 
+            maxDist =  1e10
+            depth = 1e10
+            for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Solid") and (position=="YZ") and (hash_solidface != hash_face):
+                    _, _, zmins = faces_min                      
+                    if (position=="XY") and ((zmins-zmin) <= maxDist):
+                        depth = zmins-zmin
+                        maxDist = depth
+            return depth             
+        return 0
+    else:
+        if plane=="Right":
+            minDist =  0
+            depth = 0
+            for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Hole") and (position=="YZ") and (hash_solidface != hash_face):                   
+                    xmaxs, _, _ = faces_max   
+                    if (position=="YZ") and ((xmaxs-xmax) >= minDist):
+                        depth = xmaxs-xmax
+                        minDist = depth
+            return depth              
+        if plane=="Back":    
+            minDist =  0
+            depth = 0
+            for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Solid") and (position=="XZ") and (hash_solidface != hash_face):                   
+                    _, ymaxs, _ = faces_max   
+                    if (position=="XZ") and ((ymaxs-ymax) >= minDist):
+                        depth = ymaxs-ymax
+                        minDist = depth
+            return depth            
+        if plane=="Top": 
+            minDist =  0
+            depth = 0
+            for (position,_, faces_max, _, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Solid") and (position=="XY") and (hash_solidface != hash_face):                    
+                    _, _, zmaxs = faces_max   
+                    if (position=="XY") and ((zmaxs-zmax) >= minDist):
+                        depth = zmaxs-zmax
+                        minDist = depth
+            return depth             
+        if plane=="Left":
+            minDist =  0
+            depth = 0
+            for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Hole") and (position=="YZ") and (hash_solidface != hash_face):
+                    xmins, _, _ = faces_min                     
+                    if (position=="YZ") and ((xmin-xmins) >= minDist):
+                        depth = xmin-xmins
+                        minDist = depth
+            return depth             
+        if plane=="Front":
+            minDist =  0
+            depth = 0
+            for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Hole") and (position=="XZ") and (hash_solidface != hash_face):
+                    _, ymins, _ = faces_min                     
+                    if (position=="XZ") and ((ymin-ymins) >= minDist):
+                        depth = ymin-ymins
+                        minDist = depth
+            return depth    
+        if plane=="Bottom": 
+            minDist =  0
+            depth = 0
+            for (position,_, _, faces_min, hash_solidface, face, _, _) in uvPlane:
+                if (face=="Hole") and (position=="YZ") and (hash_solidface != hash_face):
+                    _, _, zmins = faces_min                      
+                    if (position=="XY") and ((zmin-zmins) >= minDist):
+                        depth = zmin-zmins
+                        minDist = depth
+            return depth             
+        return 0  """   
+""" def getDepthRight(uvPlane, xmax, ytol, ztol):            
+    minDist, myface = -1e10 , ((1e10,1e10,1e10), (-1e10,-1e10,-1e10), "No Face", "Not Known", "No Direction" , "UnKnown")            
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        if (position=="YZ") or (position=="ZY") :                   
+            #xmaxs, _, _ = faces_max  
+
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max
+            
+            if (xmaxs > minDist) and ((ymaxs-ymins) > ytol) and ((zmaxs-zmins) > ztol) :
+                minDist, myface = xmaxs, (faces_max, faces_min, hash_solidface, face, direction, facetype) 
+    if minDist== -1e10:  
+        return 0, myface
+    else:                
+        return (xmax-minDist), myface              
+          
+
+def getDepthLeft(uvPlane, xmin, ytol, ztol):    
+    maxDist, myface = 1e10, ((1e10,1e10,1e10), (-1e10,-1e10,-1e10), "No Face", "Not Known", "No Direction" , "UnKnown")          
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        if (position=="YZ") or (position=="ZY") :
+            #xmins, _, _ = faces_min 
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max                    
+            if (xmins < maxDist) and ((ymaxs-ymins) > ytol) and ((zmaxs-zmins) > ztol) :
+                maxDist, myface = xmins, (faces_max, faces_min, hash_solidface, face, direction, facetype)                   
+    if maxDist == 1e10:  
+        return 0, myface
+    else:                
+        return (maxDist-xmin), myface                
+           
+
+def getDepthBack(uvPlane, ymax, ztol, xtol):    
+    minDist, myface = -1e10 , ((1e10,1e10,1e10), (-1e10,-1e10,-1e10), "No Face", "Not Known", "No Direction" , "UnKnown")        
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        #osition,facetype)
+        if (position=="XZ") or (position=="ZX") :                   
+            #_, ymaxs, _ = faces_max 
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max   
+            if (ymaxs > minDist) and ((xmaxs-xmins) > xtol) and ((zmaxs-zmins) > ztol) :
+                minDist, myface = ymaxs, (faces_max, faces_min, hash_solidface, face, direction, facetype)                    
+    if minDist== -1e10:  
+        return 0, myface
+    else:                
+        return (ymax-minDist), myface     
+
+def getDepthFront(uvPlane, ymin, ztol, xtol):     
+    maxDist, myface = 1e10, ((1e10,1e10,1e10), (-1e10,-1e10,-1e10), "No Face", "Not Known", "No Direction" , "UnKnown")                 
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        if (position=="XZ") or (position=="ZX") :
+            #_, ymins, _ = faces_min
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max                      
+            if (ymins < maxDist) and ((xmaxs-xmins) > xtol) and ((zmaxs-zmins) > ztol) :
+                maxDist, myface = ymins, (faces_max, faces_min, hash_solidface, face, direction, facetype)                    
+    if maxDist == 1e10:  
+        return 0, myface
+    else:                
+        return (maxDist-ymin), myface            
+
+def getDepthTop(uvPlane, zmax, xtol, ytol):    
+    minDist, myface = -1e10, ((1e10,1e10,1e10), (-1e10,-1e10,-1e10), "No Face", "Not Known", "No Direction" , "UnKnown")         
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        if (position=="XY") or (position=="YX"):                    
+            #_, _, zmaxs = faces_max
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max    
+            #print("Getting",(xmaxs-xmins),xtol,(ymaxs-ymins),ytol, ((xmaxs-xmins) > xtol) and ((ymaxs-ymins) > ytol) )
+            if (zmaxs > minDist) and ((xmaxs-xmins) > xtol) and ((ymaxs-ymins) > ytol) :                   
+                minDist, myface = zmaxs, (faces_max, faces_min, hash_solidface, face, direction, facetype)        
+    if minDist== -1e10:  
+        return 0, myface
+    else:                
+        return (zmax-minDist), myface    
+    
+def getDepthBottom(uvPlane, zmin, xtol, ytol):     
+    maxDist, myface =  1e10 , ((1e10,1e10,1e10), (-1e10,-1e10,-1e10), "No Face", "Not Known", "No Direction" , "UnKnown") 
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        if (position=="XY") or (position=="YX"): 
+            #_, _, zmins = faces_min 
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max                      
+            if (zmins < maxDist) and ((xmaxs-xmins) > xtol) and ((ymaxs-ymins) > ytol) :                    
+                maxDist, myface = zmins, (faces_max, faces_min, hash_solidface, face, direction, facetype)
+    if maxDist == 1e10:  
+        return 0, myface
+    else:                
+        return (maxDist-zmin), myface  """
+
+def getDepthRight(uvPlane, xmax, ytol, ztol):            
+    minDist, myface = -1e10 , []            
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        if (position=="YZ") or (position=="ZY") :                   
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max
+            if (xmaxs > minDist) and ((ymaxs-ymins) > ytol) and ((zmaxs-zmins) > ztol) :
+                minDist = xmaxs 
+    if minDist== -1e10:  
+        return 0, myface
+    else:   
+        for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+            if (position=="YZ") or (position=="ZY") :              
+                xmins, ymins, zmins = faces_min
+                xmaxs, ymaxs, zmaxs = faces_max                
+                if (xmaxs == minDist) and ((ymaxs-ymins) > ytol) and ((zmaxs-zmins) > ztol) :
+                   myface.append((faces_max, faces_min, hash_solidface, face, direction, facetype))             
+        return (xmax-minDist), myface              
+          
+
+def getDepthLeft(uvPlane, xmin, ytol, ztol):    
+    maxDist, myface = 1e10, []         
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        if (position=="YZ") or (position=="ZY") :
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max                    
+            if (xmins < maxDist) and ((ymaxs-ymins) > ytol) and ((zmaxs-zmins) > ztol) :
+                maxDist = xmins                   
+    if maxDist == 1e10:  
+        return 0, myface
+    else: 
+        for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+            if (position=="YZ") or (position=="ZY") :
+                xmins, ymins, zmins = faces_min
+                xmaxs, ymaxs, zmaxs = faces_max                    
+                if (xmins == maxDist) and ((ymaxs-ymins) > ytol) and ((zmaxs-zmins) > ztol) :
+                    myface.append((faces_max, faces_min, hash_solidface, face, direction, facetype))                
+        return (maxDist-xmin), myface                
+           
+
+def getDepthBack(uvPlane, ymax, ztol, xtol):    
+    minDist, myface = -1e10 , []       
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        if (position=="XZ") or (position=="ZX") :                   
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max   
+            if (ymaxs > minDist) and ((xmaxs-xmins) > xtol) and ((zmaxs-zmins) > ztol) :
+                minDist = ymaxs                   
+    if minDist== -1e10:  
+        return 0, myface
+    else:   
+        for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+            if (position=="XZ") or (position=="ZX") :                   
+                xmins, ymins, zmins = faces_min
+                xmaxs, ymaxs, zmaxs = faces_max   
+                if (ymaxs == minDist) and ((xmaxs-xmins) > xtol) and ((zmaxs-zmins) > ztol) :
+                    myface.append((faces_max, faces_min, hash_solidface, face, direction, facetype))              
+        return (ymax-minDist), myface     
+
+def getDepthFront(uvPlane, ymin, ztol, xtol):     
+    maxDist, myface = 1e10, []                
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        if (position=="XZ") or (position=="ZX") :            
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max                      
+            if (ymins < maxDist) and ((xmaxs-xmins) > xtol) and ((zmaxs-zmins) > ztol) :
+                maxDist = ymins                    
+    if maxDist == 1e10:  
+        return 0, myface
+    else:    
+        for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+            if (position=="XZ") or (position=="ZX") :            
+                xmins, ymins, zmins = faces_min
+                xmaxs, ymaxs, zmaxs = faces_max                      
+                if (ymins == maxDist) and ((xmaxs-xmins) > xtol) and ((zmaxs-zmins) > ztol) :
+                    myface.append((faces_max, faces_min, hash_solidface, face, direction, facetype))             
+        return (maxDist-ymin), myface            
+
+def getDepthTop(uvPlane, zmax, xtol, ytol):    
+    minDist, myface = -1e10, []        
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        if (position=="XY") or (position=="YX"): 
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max    
+            #print("Getting",(xmaxs-xmins),xtol,(ymaxs-ymins),ytol, ((xmaxs-xmins) > xtol) and ((ymaxs-ymins) > ytol) )
+            if (zmaxs > minDist) and ((xmaxs-xmins) > xtol) and ((ymaxs-ymins) > ytol) :                   
+                minDist = zmaxs         
+    if minDist== -1e10:  
+        return 0, myface
+    else: 
+        for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+            if (position=="XY") or (position=="YX"): 
+                xmins, ymins, zmins = faces_min
+                xmaxs, ymaxs, zmaxs = faces_max    
+                #print("Getting",(xmaxs-xmins),xtol,(ymaxs-ymins),ytol, ((xmaxs-xmins) > xtol) and ((ymaxs-ymins) > ytol) )
+                if (zmaxs == minDist) and ((xmaxs-xmins) > xtol) and ((ymaxs-ymins) > ytol) :                   
+                    myface.append((faces_max, faces_min, hash_solidface, face, direction, facetype))                 
+        return (zmax-minDist), myface    
+    
+def getDepthBottom(uvPlane, zmin, xtol, ytol):     
+    maxDist, myface =  1e10 , [] 
+    for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+        if (position=="XY") or (position=="YX"): 
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max                      
+            if (zmins < maxDist) and ((xmaxs-xmins) > xtol) and ((ymaxs-ymins) > ytol) :                    
+                maxDist = zmins
+    if maxDist == 1e10:  
+        return 0, myface
+    else:    
+        for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+            if (position=="XY") or (position=="YX"): 
+                xmins, ymins, zmins = faces_min
+                xmaxs, ymaxs, zmaxs = faces_max                      
+                if (zmins == maxDist) and ((xmaxs-xmins) > xtol) and ((ymaxs-ymins) > ytol) :                    
+                    myface.append((faces_max, faces_min, hash_solidface, face, direction, facetype))            
+        return (maxDist-zmin), myface 
+ 
+def getDepth(uvPlane, plane, xmin, ymin, zmin, xmax, ymax, zmax, xtol, ytol, ztol):    
+    if plane=="Right":
+        return getDepthRight(uvPlane,xmax, ytol, ztol)              
+    if plane=="Back":    
+        return getDepthBack(uvPlane,ymax, ztol, xtol)        
+    if plane=="Top": 
+        return getDepthTop(uvPlane,zmax, xtol, ytol)            
+    if plane=="Left":
+        return getDepthLeft(uvPlane,xmin, ytol, ztol)        
+    if plane=="Front":
+        return getDepthFront(uvPlane,ymin, ztol, xtol)   
+    if plane=="Bottom": 
+        return getDepthBottom(uvPlane,zmin, xtol, ytol)              
+    return 0, ((1e10,1e10,1e10), (-1e10,-1e10,-1e10), "No Face", "Not Known", "No Direction" , "UnKnown") 
+  
+def minimumDepth(faces, dimension):
+    myface = {
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0            
+        }
+    if(len(faces)==0):
+        return [myface]
+    minDepth = 1e10     
+    for oneFace in faces:
+        if(oneFace["depth"] < minDepth):            
+            minDepth = oneFace["depth"]
+    retfaces = []
+    for oneFace in faces:
+        if(oneFace["depth"] == minDepth):
+            retfaces.append(oneFace)
+    return retfaces
+           
+def getPartStackableRight(face_dict, tol=0.1, anggap=0.1):
+    dimension, outputShapes = face_dict 
+    #xmin, _, _, xmax, _, _ = dimension 
+    xmin, ymin, zmin, xmax, ymax, zmax = dimension    
+    xpos = xmax-tol
+    if xpos < xmin:
+        xpos = xmin 
+    if(xpos==xmax):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    ytol = abs(ymax-ymin)*anggap
+    ztol = abs(zmax-zmin)*anggap
+    faces = []
+    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+        depth, myFaces = getDepthRight(uvPlane,xmax,ytol,ztol)
+        for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
+            if(hash_solidface != "No Face"):
+                faces.append({
+                    "face":facetype,
+                    "surface":face, 
+                    "id":hash_solidface, 
+                    "dimension":(faces_min,faces_max),
+                    "direction": direction,
+                    "depth":depth 
+                    }) 
+    return minimumDepth(faces,dimension)
+
+def getPartStackableLeft(face_dict, tol=0.1, anggap=0.1):
+    dimension, outputShapes = face_dict 
+    #xmin, _, _, xmax, _, _ = dimension 
+    xmin, ymin, zmin, xmax, ymax, zmax = dimension   
+    xpos = xmin+tol
+    if xpos > xmax:
+        xpos = xmax 
+    if(xpos==xmin):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    ytol = abs(ymax-ymin)*anggap
+    ztol = abs(zmax-zmin)*anggap
+    faces = []
+    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+        depth, myFaces = getDepthLeft(uvPlane,xmin,ytol,ztol)
+        for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
+            if(hash_solidface != "No Face"):
+                faces.append({
+                    "face":facetype,
+                    "surface":face, 
+                    "id":hash_solidface, 
+                    "dimension":(faces_min,faces_max),
+                    "direction": direction,
+                    "depth":depth 
+                    })     
+    return minimumDepth(faces,dimension)        
+
+def getPartStackableBack(face_dict, tol=0.1, anggap=0.1):
+    dimension, outputShapes = face_dict 
+    #_, ymin, _, _, ymax, _ = dimension   
+    xmin, ymin, zmin, xmax, ymax, zmax = dimension        
+    ypos = ymax-tol
+    if ypos < ymin:
+        ypos = ymin 
+    if(ypos==ymax):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    xtol = abs(xmax-xmin)*anggap
+    ztol = abs(zmax-zmin)*anggap
+    faces = []
+    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+        depth, myFaces = getDepthBack(uvPlane,ymax,ztol,xtol)
+        for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
+            if(hash_solidface != "No Face"):
+                faces.append({
+                    "face":facetype,
+                    "surface":face, 
+                    "id":hash_solidface, 
+                    "dimension":(faces_min,faces_max),
+                    "direction": direction,
+                    "depth":depth 
+                    })      
+    return minimumDepth(faces,dimension)  
+    
+
+def getPartStackableFront(face_dict, tol=0.1, anggap=0.1):
+    dimension, outputShapes = face_dict 
+    #_, ymin, _, _, ymax, _ = dimension   
+    xmin, ymin, zmin, xmax, ymax, zmax = dimension          
+    ypos = ymin+tol
+    if ypos > ymax:
+        ypos = ymax 
+    if(ypos==ymin):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    xtol = abs(xmax-xmin)*anggap
+    ztol = abs(zmax-zmin)*anggap
+    faces = []
+    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+        depth, myFaces = getDepthFront(uvPlane,ymin,ztol,xtol)
+        for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
+            if(hash_solidface != "No Face"):
+                faces.append({
+                    "face":facetype,
+                    "surface":face, 
+                    "id":hash_solidface, 
+                    "dimension":(faces_min,faces_max),
+                    "direction": direction,
+                    "depth":depth 
+                    })      
+    return minimumDepth(faces,dimension)      
+
+def getPartStackableBottom(face_dict, tol=0.1, anggap=0.1):
+    dimension, outputShapes = face_dict 
+    #_, _, zmin, _, _, zmax = dimension
+    xmin, ymin, zmin, xmax, ymax, zmax = dimension      
+    zpos = zmin+tol
+    if zpos > zmax:
+        zpos = zmax 
+    if(zpos==zmin):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    ytol = abs(ymax-ymin)*anggap
+    xtol = abs(xmax-xmin)*anggap
+    faces = []
+    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+        depth, myFaces = getDepthBottom(uvPlane,zmin,xtol,ytol)
+        for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
+            if(hash_solidface != "No Face"):
+                faces.append({
+                    "face":facetype,
+                    "surface":face, 
+                    "id":hash_solidface, 
+                    "dimension":(faces_min,faces_max),
+                    "direction": direction,
+                    "depth":depth 
+                    })       
+    return minimumDepth(faces,dimension)      
+
+def getPartStackableTop(face_dict, tol=0.1, anggap=0.1):
+    #print(face_dict)
+    #print("Done1")
+    dimension, outputShapes = face_dict 
+    #print(dimension)
+    #print("Done2")
+    #print(outputShapes)
+    #print("Done3")
+    #print("Total Dimension", dimension)
+
+    #_, _, zmin, _, _, zmax = dimension
+    xmin, ymin, zmin, xmax, ymax, zmax = dimension       
+    zpos = zmax-tol
+    if zpos < zmin:
+        zpos = zmin 
+    if(zpos==zmax):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    
+    ytol = abs(ymax-ymin)*anggap
+    xtol = abs(xmax-xmin)*anggap
+    faces = []
+    #print("Before for loooooooooooooooooop")
+    for _, (_,_, _, _, _, _, _, _, _,basename, uvPlane) in outputShapes.items():  
+
+        """ try:
+
+            with open("Display/"+basename+".pickle", 'rb') as f:
+                # The protocol version used is detected automatically, so we do not
+                # have to specify it.
+                myface = pickle.load(f)  
+                afterSave = recognize_direction(myface)
+                print("AfterSave", afterSave)
+
+        except Exception as e:
+            print("Error while loading",basename,e)  """ 
+        #print("Processing face", basename)
+        #print(uvPlane)
+        #print("Done ,,,,,,yvplane")        
+        depth, myFaces = getDepthTop(uvPlane,zmax,xtol,ytol)
+        for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
+            if(hash_solidface != "No Face"):
+                faces.append({
+                    "face":facetype,
+                    "surface":face, 
+                    "id":hash_solidface, 
+                    "dimension":(faces_min,faces_max),
+                    "direction": direction,
+                    "depth":depth 
+                    })
+            #print("Faces Dimension", faces_max, faces_min)      
+    #print("Done my duty")
+    return minimumDepth(faces,dimension)    
+    
+def getPartStackableDirections(face_dict, tol=0.1, anggap=0.1):
+    dimension, outputShapes = face_dict 
+    xmin, ymin, zmin, xmax, ymax, zmax = dimension      
+    zpos = zmax-tol
+    if zpos < zmin:
+        zpos = zmin 
+    if(zpos==zmax):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    zpos = zmin+tol
+    if zpos > zmax:
+        zpos = zmax 
+    if(zpos==zmin):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    ypos = ymin+tol
+    if ypos > ymax:
+        ypos = ymax 
+    if(ypos==ymin):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    ypos = ymax-tol
+    if ypos < ymin:
+        ypos = ymin 
+    if(ypos==ymax):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    xpos = xmin+tol
+    if xpos > xmax:
+        xpos = xmax 
+    if(xpos==xmin):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    xpos = xmax-tol
+    if xpos < xmin:
+        xpos = xmin 
+    if(xpos==xmax):
+        return [{
+            "face":"No Face",
+            "surface":"Unknown",
+            "id":"No Id",
+            "dimension":dimension,
+            "direction":"No Direction",
+            "depth":0
+        }] 
+    xtol = abs(xmax-xmin)*anggap
+    ytol = abs(ymax-ymin)*anggap
+    ztol = abs(zmax-zmin)*anggap
+    faces = []
+    #print(outputShapes)
+    TopNotFound = True
+    BottomNotFound = True
+    FrontNotFound = True
+    BackNotFound = True
+    RightNotFound = True
+    LeftNotFound = True
+    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+        for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
+            xmins, ymins, zmins = faces_min
+            xmaxs, ymaxs, zmaxs = faces_max
+            plane = ""  
+            if (abs(zmax-zmaxs) <= tol) and ( (position=="XY") or (position=="YX") )  and TopNotFound:
+                plane = "Top" 
+                TopNotFound=False
+            if  (abs(zmin-zmins) <= tol) and ( (position=="XY") or (position=="YX") ) and BottomNotFound:
+                plane = "Bottom" 
+                BottomNotFound=False
+            if (abs(ymin-ymins) <= tol)  and ( (position=="XZ") or (position=="ZX") ) and FrontNotFound:
+                plane = "Front" 
+                FrontNotFound=False    
+            if (abs(ymax-ymaxs) <= tol) and ( (position=="XZ") or (position=="ZX") ) and BackNotFound:
+                plane = "Back" 
+                BackNotFound=False   
+            if  (abs(xmin-xmins) <= tol) and ( (position=="YZ") or (position=="ZY") )  and LeftNotFound:
+                plane = "Left" 
+                LeftNotFound=False
+            if (abs(xmax-xmaxs) <= tol)  and ( (position=="YZ") or (position=="ZY") ) and RightNotFound:
+                plane = "Right" 
+                RightNotFound=False
+            if ( plane != "" ):               
+                depth, myFaces = getDepth(uvPlane,plane,xmin, ymin, zmin, xmax, ymax, zmax, xtol, ytol, ztol)
+                for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
+                    if(hash_solidface == "No Face"):
+                        if ( plane == "Top" ):               
+                            TopNotFound=True
+                        if ( plane == "Bottom" ):               
+                            BottomNotFound=True
+                        if ( plane == "Front" ):               
+                            FrontNotFound=True
+                        if ( plane == "Back" ):               
+                            BackNotFound=True
+                        if ( plane == "Left" ):               
+                            LeftNotFound=True
+                        if ( plane == "Right" ):               
+                            RightNotFound=True            
+                    else:
+                        faces.append({
+                            "face":facetype,
+                            "surface":face, 
+                            "id":hash_solidface, 
+                            "dimension":(faces_min,faces_max),
+                            "direction": direction,
+                            "depth":depth 
+                            })               
+    return minimumDepth(faces,dimension)   
+
+
+def getPartStackablePositions(face_dict, tol=0.1, anggap=0.5): 
+    #dimension = get_bounding_details(part)
+    #print("Getting for positions",tol,anggap)
+    ret_dict = {}      
+    try:
+        #print("Checking Top")
+        ret_dict["top"]=getPartStackableTop(face_dict, tol, anggap)
+    except Exception as e:
+        try:
+            ret_dict["top"]=str(e)
+        except:
+            ret_dict["top"]="Error"
+    try:
+        #print("Checking Bottom")
+        ret_dict["bottom"]=getPartStackableBottom(face_dict, tol, anggap)
+    except Exception as e:
+        try:
+            ret_dict["bottom"]=str(e)
+        except:
+            ret_dict["bottom"]="Error"
+    try:
+        #print("Checking Right")
+        ret_dict["right"]=getPartStackableRight(face_dict, tol, anggap)
+    except Exception as e:
+        try:
+            ret_dict["right"]=str(e)
+        except:
+            ret_dict["right"]="Error"
+    try:
+        #print("Checking Left")
+        ret_dict["left"]=getPartStackableLeft(face_dict, tol, anggap)
+    except Exception as e:
+        try:
+            ret_dict["left"]=str(e)
+        except:
+            ret_dict["left"]="Error"
+    try:
+        #print("Checking Front")
+        ret_dict["front"]=getPartStackableFront(face_dict, tol, anggap)
+    except Exception as e:
+        try:
+            ret_dict["front"]=str(e)
+        except:
+            ret_dict["front"]="Error"   
+    
+    try:
+        #print("Checking Back")
+        ret_dict["back"]=getPartStackableBack(face_dict, tol, anggap)
+    except Exception as e:
+        try:
+            ret_dict["back"]=str(e)
+        except:
+            ret_dict["back"]="Error" 
+    
+    try:
+        #print("Checking Back")
+        ret_dict["direction"]=getPartStackableDirections(face_dict, tol, anggap)
+    except Exception as e:
+        try:
+            ret_dict["direction"]=str(e)
+        except:
+            ret_dict["direction"]="Error"  
+
+    return ret_dict
 
 def get_oriented_boundingbox(shape, optimal_OBB=True):
     """ return the oriented bounding box of the TopoDS_Shape `shape`
@@ -893,9 +2057,26 @@ def minimum_distance(shp1, shp2):
         min_dist_shp2.append(bdss.PointOnShape2(i).Coord())
     return min_dist, min_dist_shp1, min_dist_shp2
 
+def roundoff(point):
+    multiplier = 1
+    if(sys.maxsize/10000 > point) :
+        multiplier = 10000
+    else:
+        if(sys.maxsize/1000 > point) :
+            multiplier = 1000
+        else:
+            if(sys.maxsize/100 > point) :
+                multiplier = 100
+            else:
+                if(sys.maxsize/10 > point) :
+                    multiplier = 10
+                else:
+                    multiplier = 1   
+    
+    return round(point*multiplier,2) / multiplier
 
 def getXYZ(co_ord):
-    return co_ord
+    return (roundoff(co_ord.Coord(1)),roundoff(co_ord.Coord(2)),roundoff(co_ord.Coord(3)))
     #return (co_ord.X(), co_ord.Y(), co_ord.Z())
 
 def to_np_from_tcolstd_array1_real(tcol_array):
@@ -992,6 +2173,201 @@ def to_np_from_tcolstd_array2_real(tcol_array):
 ##################################
 # Recognize functions
 ##################################
+
+def recognize_entity(topods_face):
+    """ returns True if the TopoDS_Face is a planar surface
+    """
+    entity = {}
+    if not isinstance(topods_face, TopoDS_Face):
+        entity['kind'] = "Not a face"
+        return entity
+
+    entity['Fill'] = "Hole" if (topods_face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Solid"
+    #entity['dump'] = topods_face.DumpJsonToString()
+    xmin, ymin, zmin, xmax, ymax, zmax = get_bounding_details(topods_face)
+    entity['bound']=xmin, ymin, zmin, xmax, ymax, zmax
+    entity['center']= (xmin+xmax)/2.0, (ymin+ymax)/2.0, (zmin+zmax)/2.0
+    surf = BRepAdaptor_Surface(topods_face, True)
+    surf_type = surf.GetType()
+    if  surf_type == GeomAbs_Plane:
+        # look for the properties of the plane
+        # first get the related gp_Pln
+        gp_pln = surf.Plane()
+       
+        entity['kind'] = "Plane"       
+        entity['location']  = gp_pln.Location()   # a point of the plane
+        entity['position'] = gp_pln.Position()  # the plane normal
+        
+        return entity
+    elif surf_type == GeomAbs_Cylinder:
+        # look for the properties of the cylinder
+        # first get the related gp_Cyl
+        gp_cyl = surf.Cylinder()         
+       
+        entity['kind'] = "Cylinder"
+        entity['location'] =  gp_cyl.Location()  # a point of the axis
+        entity['position'] =  gp_cyl.Position()   # the cylinder axis
+        entity['radius'] = gp_cyl.Radius()
+        #entity['coefficients'] = gp_cyl.Coefficients()
+        # then export location and normal to the console output
+        return entity
+    elif surf_type == GeomAbs_Cone:
+        
+        gp_cone = surf.Cone()
+       
+        entity['kind'] = "Cone"
+        entity['location'] =   gp_cone.Location()   # a point of the axis       
+        entity['position'] =   gp_cone.Position()    # a local coordinate point of the axis
+        entity['refradius'] = gp_cone.RefRadius()
+        entity['semiangle'] = gp_cone.SemiAngle()
+        # then export location and normal to the console output
+        return entity
+    elif surf_type == GeomAbs_Sphere:
+        
+        gp_sphere = surf.Sphere()
+      
+        entity['kind'] = "Sphere"
+        entity['location'] =  gp_sphere.Location()   # a point of the axis
+        entity['position'] =   gp_sphere.Position()   # a local coordinate point of the axis
+        entity['radius'] = gp_sphere.Radius()
+        #axis = gp_sphere.Axis().Direction()  # the sphere axis
+        # then export location and normal to the console output
+        return entity
+    elif surf_type == GeomAbs_Torus:
+        
+        gp_torus = surf.Torus()
+       
+        entity['kind'] = "Torus"
+        entity['location'] =  gp_torus.Location()   # a point of the axis
+        entity['position'] =   gp_torus.Position()    # a local coordinate point of the axis
+        entity['minorradius'] = gp_torus.MinorRadius()
+        entity['majorradius'] = gp_torus.MajorRadius()
+        #axis = gp_torus.Axis().Direction()  # the sphere axis
+        # then export location and normal to the console output
+        return entity
+    elif surf_type == GeomAbs_BezierSurface:      
+        
+        entity['kind'] = "Bezier"
+        entity['location'] = "Bezier"
+        entity['position'] = "Bezier"
+        
+        return entity
+    elif surf_type == GeomAbs_BSplineSurface:
+        #gp_bspline = surf.BSpline()  
+        entity['kind'] = "BSpline"
+        entity['location'] = "BSpline"
+        entity['position'] = "BSpline"
+
+        return entity
+    elif surf_type == GeomAbs_SurfaceOfRevolution:
+        entity['kind'] = "Revolution"
+        return entity
+    elif surf_type == GeomAbs_SurfaceOfExtrusion:
+        entity['kind'] = "Extrusion"
+        return entity
+    elif surf_type == GeomAbs_OffsetSurface:
+        entity['kind'] = "Offset"
+        return entity
+    elif surf_type == GeomAbs_OtherSurface:
+        entity['kind'] = "Others"
+        return entity
+    # nothing found
+    entity['kind'] = "Unknown"
+    return entity
+
+
+
+def recognize_direction(topods_face):
+    """ returns True if the TopoDS_Face is a planar surface
+    """
+    entity = {}
+    if not isinstance(topods_face, TopoDS_Face):
+        return "Unknown", "No Direction", "Not a Face"
+
+    fill = "Hole" if (topods_face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Solid"
+    #entity['dump'] = topods_face.DumpJsonToString()
+    direction = "Unknown"
+    facetype = "Unknown"
+    surf = BRepAdaptor_Surface(topods_face, True)
+    surf_type = surf.GetType()
+    if  surf_type == GeomAbs_Plane:
+        # look for the properties of the plane
+        # first get the related gp_Pln
+        facetype = "Plane"
+        gp_pln = surf.Plane()      
+       
+        direction = getXYZ(gp_pln.Position().Direction())  # the plane normal
+       
+         
+    elif surf_type == GeomAbs_Cylinder:
+        # look for the properties of the cylinder
+        # first get the related gp_Cyl
+        facetype = "Cylinder"
+        gp_cyl = surf.Cylinder()         
+       
+        
+        direction = getXYZ(gp_cyl.Position().Direction()) # the cylinder axis
+        
+        #entity['coefficients'] = gp_cyl.Coefficients()
+        # then export location and normal to the console output
+         
+    elif surf_type == GeomAbs_Cone:
+        facetype = "Cone"
+        gp_cone = surf.Cone()
+       
+        direction  =  getXYZ(gp_cone.Position().Direction())  # a local coordinate point of the axis
+      
+        # then export location and normal to the console output
+         
+    elif surf_type == GeomAbs_Sphere:
+        facetype = "Sphere"
+        gp_sphere = surf.Sphere()
+        direction  =  getXYZ(gp_sphere.Position().Direction())  # a local coordinate point of the axis
+         
+        #axis = gp_sphere.Axis().Direction()  # the sphere axis
+        # then export location and normal to the console output
+       
+    elif surf_type == GeomAbs_Torus:
+        facetype = "Torus"
+        gp_torus = surf.Torus()
+       
+        direction  =  getXYZ(gp_torus.Position().Direction())  # a local coordinate point of the axis
+        
+        #axis = gp_torus.Axis().Direction()  # the sphere axis
+        # then export location and normal to the console output
+        
+    elif surf_type == GeomAbs_BezierSurface:      
+        facetype = "Bezier"
+        direction = "Bezier"
+        
+    elif surf_type == GeomAbs_BSplineSurface:
+        #gp_bspline = surf.BSpline()
+        facetype = "BSpline"  
+        direction = "BSpline"
+        
+    elif surf_type == GeomAbs_SurfaceOfRevolution:
+        facetype = "Revolution"
+        direction = "Revolution"
+        
+    elif surf_type == GeomAbs_SurfaceOfExtrusion:
+        facetype = "Extrusion"
+        direction = "Extrusion"
+        
+    elif surf_type == GeomAbs_OffsetSurface:
+        facetype = "Offset"
+        direction = "Offset"
+         
+    elif surf_type == GeomAbs_OtherSurface:
+        facetype = "Others"
+        direction = "Others"
+         
+    # nothing found
+   
+    return fill, direction, facetype
+
+##################################
+# Recognize functions
+##################################
 def recognize_face(topods_face):
     """ returns True if the TopoDS_Face is a planar surface
     """
@@ -1011,9 +2387,10 @@ def recognize_face(topods_face):
         gp_pln = surf.Plane()
        
         entity['kind'] = "Plane"       
-        entity['location']  = getXYZ(gp_pln.Location().Coord())  # a point of the plane
-        entity['normaldir'] = getXYZ(gp_pln.Position().Direction().Coord())  # the plane normal
-        entity['normalloc'] = getXYZ(gp_pln.Position().Location().Coord())  # the plane normal
+        entity['location']  = getXYZ(gp_pln.Location())  # a point of the plane
+        entity['normaldir'] = getXYZ(gp_pln.Position().Direction())  # the plane normal
+        entity['normalloc'] = getXYZ(gp_pln.Position().Location())  # the plane normal
+        entity['direction'] = getXYZ(gp_pln.Position().Direction())  # the plane normal
         return entity
     elif surf_type == GeomAbs_Cylinder:
         # look for the properties of the cylinder
@@ -1021,8 +2398,8 @@ def recognize_face(topods_face):
         gp_cyl = surf.Cylinder()         
        
         entity['kind'] = "Cylinder"
-        entity['location'] = getXYZ(gp_cyl.Position().Location().Coord()) # a point of the axis
-        entity['direction'] = getXYZ(gp_cyl.Position().Direction().Coord()) # the cylinder axis
+        entity['location'] = getXYZ(gp_cyl.Position().Location()) # a point of the axis
+        entity['direction'] = getXYZ(gp_cyl.Position().Direction()) # the cylinder axis
         entity['radius'] = gp_cyl.Radius()
         #entity['coefficients'] = gp_cyl.Coefficients()
         # then export location and normal to the console output
@@ -1032,8 +2409,8 @@ def recognize_face(topods_face):
         gp_cone = surf.Cone()
        
         entity['kind'] = "Cone"
-        entity['location'] =  getXYZ(gp_cone.Position().Location().Coord())  # a point of the axis       
-        entity['direction'] =  getXYZ(gp_cone.Position().Direction().Coord())  # a local coordinate point of the axis
+        entity['location'] =  getXYZ(gp_cone.Position().Location())  # a point of the axis       
+        entity['direction'] =  getXYZ(gp_cone.Position().Direction())  # a local coordinate point of the axis
         entity['refradius'] = gp_cone.RefRadius()
         entity['semiangle'] = gp_cone.SemiAngle()
         # then export location and normal to the console output
@@ -1043,8 +2420,8 @@ def recognize_face(topods_face):
         gp_sphere = surf.Sphere()
       
         entity['kind'] = "Sphere"
-        entity['location'] = getXYZ(gp_sphere.Position().Location().Coord())  # a point of the axis
-        entity['direction'] =  getXYZ(gp_sphere.Position().Direction().Coord())  # a local coordinate point of the axis
+        entity['location'] = getXYZ(gp_sphere.Position().Location())  # a point of the axis
+        entity['direction'] =  getXYZ(gp_sphere.Position().Direction())  # a local coordinate point of the axis
         entity['radius'] = gp_sphere.Radius()
         #axis = gp_sphere.Axis().Direction()  # the sphere axis
         # then export location and normal to the console output
@@ -1054,8 +2431,8 @@ def recognize_face(topods_face):
         gp_torus = surf.Torus()
        
         entity['kind'] = "Torus"
-        entity['location'] = getXYZ(gp_torus.Position().Location().Coord())  # a point of the axis
-        entity['direction'] =  getXYZ(gp_torus.Position().Direction().Coord())  # a local coordinate point of the axis
+        entity['location'] = getXYZ(gp_torus.Position().Location())  # a point of the axis
+        entity['direction'] =  getXYZ(gp_torus.Position().Direction())  # a local coordinate point of the axis
         entity['minorradius'] = gp_torus.MinorRadius()
         entity['majorradius'] = gp_torus.MajorRadius()
         #axis = gp_torus.Axis().Direction()  # the sphere axis
@@ -1077,7 +2454,7 @@ def recognize_face(topods_face):
         for i in range(1,no_upoles+1):
             for j in range(1, no_vpoles+1):
                 try:
-                    poles.append(getXYZ(gp_bezier.Pole(i,j).Coord()))
+                    poles.append(getXYZ(gp_bezier.Pole(i,j)))
                     weights.append(gp_bezier.Weight(i,j)) 
                 except:
                     pass
@@ -1187,48 +2564,48 @@ def recognize_edge(topods_edge):
     if  curve_type == GeomAbs_Line:
         entity['kind'] = "Line" 
         gp_Line = curve.Line()
-        entity['location'] = getXYZ(gp_Line.Location().Coord()) 
-        entity['dirlocation'] = getXYZ(gp_Line.Position().Location().Coord())  # a point of the axis
-        entity['direction'] = getXYZ(gp_Line.Position().Direction().Coord())
+        entity['location'] = getXYZ(gp_Line.Location()) 
+        entity['dirlocation'] = getXYZ(gp_Line.Position().Location())  # a point of the axis
+        entity['direction'] = getXYZ(gp_Line.Position().Direction())
     elif curve_type == GeomAbs_Circle:
         entity['kind'] = "Circle"   
         gp_circle = curve.Circle()
         entity['radius'] = gp_circle.Radius()
-        entity['center'] = getXYZ(gp_circle.Location().Coord())
+        entity['center'] = getXYZ(gp_circle.Location())
     elif curve_type == GeomAbs_Ellipse:
         entity['kind'] = "Ellipse"   
         gp_ellipse = curve.Ellipse()
         entity['majorradius'] = gp_ellipse.MajorRadius()
         entity['minorradius'] = gp_ellipse.MinorRadius()
-        entity['center'] = getXYZ(gp_ellipse.Location().Coord())     
+        entity['center'] = getXYZ(gp_ellipse.Location())     
     elif curve_type == GeomAbs_Hyperbola:
         entity['kind'] = "Hyperbola" 
         gp_hyperbola = curve.Hyperbola()
         entity['major'] = gp_hyperbola.MajorRadius()
         entity['minor'] = gp_hyperbola.MinorRadius()
-        entity['location'] = getXYZ(gp_hyperbola.Position().Location().Coord())  # a point of the axis
-        entity['direction'] = getXYZ(gp_hyperbola.Position().Direction().Coord())
-        entity['center'] = getXYZ(gp_hyperbola.Location().Coord())       
+        entity['location'] = getXYZ(gp_hyperbola.Position().Location())  # a point of the axis
+        entity['direction'] = getXYZ(gp_hyperbola.Position().Direction())
+        entity['center'] = getXYZ(gp_hyperbola.Location())       
     elif curve_type == GeomAbs_Parabola:
         entity['kind'] = "Parabola"   
         gp_parabola = curve.Parabola()
         entity['focal'] = gp_parabola.Focal()        
-        entity['location'] = getXYZ(gp_parabola.Position().Location().Coord())  # a point of the axis
-        entity['direction'] = getXYZ(gp_parabola.Position().Direction().Coord())
-        entity['center'] = getXYZ(gp_parabola.Location().Coord())         
+        entity['location'] = getXYZ(gp_parabola.Position().Location())  # a point of the axis
+        entity['direction'] = getXYZ(gp_parabola.Position().Direction())
+        entity['center'] = getXYZ(gp_parabola.Location())         
     elif curve_type == GeomAbs_BezierCurve:
         entity['kind'] = "Bezier"   
         gp_bezier = curve.Bezier()   
         entity['degree'] = gp_bezier.Degree() 
-        entity['start'] = getXYZ(gp_bezier.StartPoint().Coord())
-        entity['end'] = getXYZ(gp_bezier.EndPoint().Coord())
+        entity['start'] = getXYZ(gp_bezier.StartPoint())
+        entity['end'] = getXYZ(gp_bezier.EndPoint())
         no_poles = gp_bezier.NbPoles() 
         entity['pole']=no_poles
         poles = []
         weights = []
         for i in range(1,no_poles+1):
             try:
-                poles.append(getXYZ(gp_bezier.Pole(i).Coord()))
+                poles.append(getXYZ(gp_bezier.Pole(i)))
                 weights.append(gp_bezier.Weight(i)) 
             except:
                 pass
@@ -1243,8 +2620,8 @@ def recognize_edge(topods_edge):
         entity['degree']=degree
         entity['periodic']=gp_nurbs.IsPeriodic()
         entity['rational']=gp_nurbs.IsRational()
-        entity['start'] = getXYZ(gp_nurbs.StartPoint().Coord())
-        entity['end'] = getXYZ(gp_nurbs.EndPoint().Coord())
+        entity['start'] = getXYZ(gp_nurbs.StartPoint())
+        entity['end'] = getXYZ(gp_nurbs.EndPoint())
         tcol_array = TColStd_Array1OfReal(1, knot)
         try:
             gp_nurbs.Knots(tcol_array) 

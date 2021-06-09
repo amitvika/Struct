@@ -40,9 +40,9 @@ except ImportError:
 def GetSolidsFromCompund(mycompund,shapesList):    
     
     
-    if mycompund.ShapeType()==TopAbs_COMPSOLID:
+    if mycompund.ShapeType()==TopAbs_COMPOUND:
         topology = TopologyExplorer(mycompund,ignore_orientation=False)
-        mycompounds = topology.compounds() 
+        mycompounds = topology.comp_solids() 
         for mycomps in mycompounds:
             shapesList = GetSolidsFromCompund(mycomps,shapesList)
         mysolids =topology.solids()
@@ -50,7 +50,7 @@ def GetSolidsFromCompund(mycompund,shapesList):
             shapesList = GetSolidsFromCompund(mysolid,shapesList)
         if(len(shapesList)>=1) :
             return shapesList
-    if mycompund.ShapeType()==TopAbs_COMPOUND:
+    if mycompund.ShapeType()==TopAbs_COMPSOLID:
         topology = TopologyExplorer(mycompund,ignore_orientation=False)          
         mysolids =topology.solids()
         for mysolid in mysolids:

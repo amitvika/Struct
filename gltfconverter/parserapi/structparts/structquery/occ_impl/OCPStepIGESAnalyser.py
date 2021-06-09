@@ -23,37 +23,37 @@ from glob import glob
 import logging
 log = logging.getLogger(__name__)
 
-from OCC.Core.STEPControl import STEPControl_Reader, STEPControl_Writer, STEPControl_AsIs
+from OCC.Core.STEPControl import  STEPControl_Writer, STEPControl_AsIs
 from OCC.Core.Interface import Interface_Static_SetCVal
 from OCC.Core.IFSelect import IFSelect_RetDone, IFSelect_ItemsByEntity
 from OCC.Core.TDF import TDF_Label, TDF_LabelSequence
-from OCC.Core.TCollection import TCollection_ExtendedString, TCollection_AsciiString
+from OCC.Core.TCollection import TCollection_ExtendedString
 from OCC.Core.TDocStd import TDocStd_Document
 from OCC.Core.XCAFApp import XCAFApp_Application_GetApplication
 from OCC.Core.XCAFDoc import (
-    XCAFDoc_DocumentTool, 
+    #XCAFDoc_DocumentTool, 
     XCAFDoc_DocumentTool_ShapeTool, 
     XCAFDoc_DocumentTool_ColorTool, 
     XCAFDoc_ColorType)
 from OCC.Core.TDataStd import TDataStd_Name
-from OCC.Core.XmlDrivers import (
-    XmlDrivers_DocumentStorageDriver,
-    XmlDrivers_DocumentRetrievalDriver,
-)
-from OCC.Core.PCDM import PCDM_StoreStatus
+#from OCC.Core.XmlDrivers import (
+#    XmlDrivers_DocumentStorageDriver,
+#    XmlDrivers_DocumentRetrievalDriver,
+#)
+#from OCC.Core.PCDM import PCDM_StoreStatus
 from OCC.Core.STEPCAFControl import STEPCAFControl_Reader, STEPCAFControl_Writer
 from OCC.Core.IGESCAFControl import IGESCAFControl_Reader
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from OCC.Core.TopLoc import TopLoc_Location
 from OCC.Core.BRepBuilderAPI import (
     BRepBuilderAPI_Transform, BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeFace )
-from OCC.Core.Tesselator import ShapeTesselator
+#from OCC.Core.Tesselator import ShapeTesselator
 from OCC.Core.BRep import BRep_Builder, BRep_Tool
 from OCC.Core.BRepOffsetAPI import BRepOffsetAPI_MakePipe
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
+#from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
-from OCC.Core.TopExp import TopExp_Explorer
+#from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import (
     TopoDS_Compound, topods_Face,TopoDS_Vertex, topods_Vertex, TopoDS_Iterator, TopoDS_Builder, TopoDS_Shape)
 from OCC.Core.BRepCheck import (BRepCheck_Shell, BRepCheck_Status)
@@ -68,15 +68,18 @@ from OCC.Core.TopAbs import (TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIR
                         TopAbs_COMPSOLID, TopAbs_Orientation)
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeSphere
 from OCC.Core.GeomAbs import GeomAbs_Line 
-from .OCCUtils.vertex import Vertex
+#from .OCCUtils.vertex import Vertex
 #from .OCCUtils import Topology
 from .OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices, Topo
 from .OCCExtend.TopologyUtils import list_of_shapes_to_compound
-from .. import cq, assembly
+from .. import assembly #,cq
  
 from .OCPShapes import Shape
 from .OCPAssembly import Color
-from ... import Assembly
+
+#from ... import Assembly
+from .OCCExtend.ShapeFactory import recognize_direction
+from ....thumbnail.thumbnail import createThumbnail
 
 @contextmanager
 def measure_time(log, name):
@@ -328,11 +331,11 @@ class UVBuffer(object):
     @property
     def uv_size(self):
         r"""
-        Size of ``uv_data`` in groups of 3 floats
+        Size of ``uv_data`` in groups of 2 floats
         (ie: number of :math:`2 \times 4` byte groups)
         
         """
-        # size of position buffer, in groups of 3 floats
+        # size of position buffer, in groups of 2 floats
         return self.uv_len / (2 * 4)
 
    
@@ -349,10 +352,6 @@ class UVBuffer(object):
             struct.pack('<f', v) 
         )
 
-        
-
-    
-
     def buffer_iter(self, block_size=1024):
         """
         Iterate through chunks of the vertices, and indices buffers seamlessly.
@@ -363,6 +362,388 @@ class UVBuffer(object):
         """
         streams = (
             self.uv_data,
+        )
+        #print("UVData=",self.uv_data)
+        #print("UVDstreamsata=",streams)
+        # Chain streams seamlessly
+        for stream in streams:
+            stream.seek(0)
+            while True:
+                chunk = stream.read(block_size)
+                #print("chunk=",chunk)
+                if chunk:
+                    yield chunk
+                else:
+                    break
+
+        # When complete, each stream position should be reset;
+        #   back to the end of the stream.
+
+    def read(self):
+        """
+        Read buffer out as a single stream.
+
+        .. warning::
+
+            Avoid using this function!
+
+            **Why?** This is a *convenience* function; it doesn't encourage good
+            memory management.
+
+            All memory required for a mesh is duplicated, and returned as a
+            single :class:`str`. So at best, using this function will double
+            the memory required for a single model.
+
+            **Instead:** Wherever possible, please use :meth:`buffer_iter`.
+        """
+        buffer = BytesIO()
+        for chunk in self.buffer_iter():
+            log.debug('buffer.write(%r)', chunk)
+            buffer.write(chunk)
+        buffer.seek(0)
+        return buffer.read()
+
+class TimeBuffer(object):
+    
+    def __init__(self, max_index=0xff):
+        """
+        :param max_index: maximum index number, if > 65535, 4-byte integers are used
+        :type max_index: :class:`long`
+        """
+        self.time_data = BytesIO()  # uv positions
+         # retain min/max values
+        self.time_min = 1e10
+        self.time_max = -1e10
+
+        # indices number format
+        self.max_index = max_index
+        
+
+    @property
+    def time_len(self):
+        """
+        Number of bytes in ``time_data`` buffer.
+        """
+        return self.time_data.tell()
+
+    @property
+    def time_offset(self):
+        """
+        Offset (in bytes) of the ``time_data`` buffer.
+        """
+        return 0
+
+    @property
+    def time_size(self):
+        r"""
+        Size of ``time_data`` in groups of 1 float
+        (ie: number of :math:`1 \times 4` byte groups)
+        
+        """
+        # size of position buffer, in groups of 1 float
+        return self.time_len / (1 * 4)
+
+   
+
+    def __len__(self):
+        return self.time_len 
+
+    def add_time(self, u):
+        """
+        Add a ``SCALAR` of ``floats`` to the ``time_data`` buffer
+        """
+        if self.time_len==0:
+            self.time_min = u
+            self.time_max = u
+        else:
+            if self.time_min > u:
+                self.time_min = u
+            if self.time_max < u:
+                self.time_max = u
+
+        self.time_data.write(
+            struct.pack('<f', u) 
+        )
+
+    def buffer_iter(self, block_size=1024):
+        """
+        Iterate through chunks of the vertices, and indices buffers seamlessly.
+
+        .. note::
+
+            To see a usage example, look at the :class:`ShapeBuffer` description.
+        """
+        streams = (
+            self.time_data,
+        )
+        #print("UVData=",self.uv_data)
+        #print("UVDstreamsata=",streams)
+        # Chain streams seamlessly
+        for stream in streams:
+            stream.seek(0)
+            while True:
+                chunk = stream.read(block_size)
+                #print("chunk=",chunk)
+                if chunk:
+                    yield chunk
+                else:
+                    break
+
+        # When complete, each stream position should be reset;
+        #   back to the end of the stream.
+
+    def read(self):
+        """
+        Read buffer out as a single stream.
+
+        .. warning::
+
+            Avoid using this function!
+
+            **Why?** This is a *convenience* function; it doesn't encourage good
+            memory management.
+
+            All memory required for a mesh is duplicated, and returned as a
+            single :class:`str`. So at best, using this function will double
+            the memory required for a single model.
+
+            **Instead:** Wherever possible, please use :meth:`buffer_iter`.
+        """
+        buffer = BytesIO()
+        for chunk in self.buffer_iter():
+            log.debug('buffer.write(%r)', chunk)
+            buffer.write(chunk)
+        buffer.seek(0)
+        return buffer.read()
+
+class TranslationBuffer(object):
+    
+    def __init__(self, max_index=0xff):
+        """
+        :param max_index: maximum index number, if > 65535, 4-byte integers are used
+        :type max_index: :class:`long`
+        """
+        self.translation_data = BytesIO()  # uv positions
+        self.translation_umin = 1e10
+        self.translation_umax = -1e10
+        self.translation_vmin = 1e10
+        self.translation_vmax = -1e10
+        self.translation_wmin = 1e10
+        self.translation_wmax = -1e10
+        # indices number format
+        self.max_index = max_index
+        
+
+    @property
+    def translation_len(self):
+        """
+        Number of bytes in ``translation_data`` buffer.
+        """
+        return self.translation_data.tell()
+
+    @property
+    def translation_offset(self):
+        """
+        Offset (in bytes) of the ``translation_data`` buffer.
+        """
+        return 0
+
+    @property
+    def translation_size(self):
+        r"""
+        Size of ``translation_data`` in groups of 3 floats
+        (ie: number of :math:`3 \times 4` byte groups)
+        
+        """
+        # size of position buffer, in groups of 3 floats
+        return self.translation_len / (3 * 4)
+
+   
+
+    def __len__(self):
+        return self.translation_len 
+
+    def add_translation(self, u, v, w):
+        """
+        Add a ``VEC3` of ``floats`` to the ``translation_data`` buffer
+        """
+        if self.translation_len==0:
+            self.translation_umin = u
+            self.translation_umax = u
+            self.translation_vmin = v
+            self.translation_vmax = v
+            self.translation_wmin = w
+            self.translation_wmax = w
+        else:
+            if self.translation_umin > u:
+                self.translation_umin = u
+            if self.translation_umax < u:
+                self.translation_umax = u
+            if self.translation_vmin > v:
+                self.translation_vmin = v
+            if self.translation_vmax < v:
+                self.translation_vmax = v
+            if self.translation_wmin > w:
+                self.translation_wmin = w
+            if self.translation_wmax < w:
+                self.translation_wmax = w
+        print("Translation",self.translation_len,self.translation_umin,self.translation_umax,self.translation_vmin,self.translation_vmax,self.translation_wmin,self.translation_wmax)
+        self.translation_data.write(
+            struct.pack('<f', u) +
+            struct.pack('<f', v) +
+            struct.pack('<f', w)
+        )
+   
+
+    def buffer_iter(self, block_size=1024):
+        """
+        Iterate through chunks of the vertices, and indices buffers seamlessly.
+
+        .. note::
+
+            To see a usage example, look at the :class:`ShapeBuffer` description.
+        """
+        streams = (
+            self.translation_data,
+        )
+        #print("UVData=",self.uv_data)
+        #print("UVDstreamsata=",streams)
+        # Chain streams seamlessly
+        for stream in streams:
+            stream.seek(0)
+            while True:
+                chunk = stream.read(block_size)
+                #print("chunk=",chunk)
+                if chunk:
+                    yield chunk
+                else:
+                    break
+
+        # When complete, each stream position should be reset;
+        #   back to the end of the stream.
+
+    def read(self):
+        """
+        Read buffer out as a single stream.
+
+        .. warning::
+
+            Avoid using this function!
+
+            **Why?** This is a *convenience* function; it doesn't encourage good
+            memory management.
+
+            All memory required for a mesh is duplicated, and returned as a
+            single :class:`str`. So at best, using this function will double
+            the memory required for a single model.
+
+            **Instead:** Wherever possible, please use :meth:`buffer_iter`.
+        """
+        buffer = BytesIO()
+        for chunk in self.buffer_iter():
+            log.debug('buffer.write(%r)', chunk)
+            buffer.write(chunk)
+        buffer.seek(0)
+        return buffer.read()
+
+class RotationBuffer(object):
+    
+    def __init__(self, max_index=0xff):
+        """
+        :param max_index: maximum index number, if > 65535, 4-byte integers are used
+        :type max_index: :class:`long`
+        """
+        self.rotation_data = BytesIO()  # uv positions
+        self.rotation_umin = 1e10
+        self.rotation_umax = -1e10
+        self.rotation_vmin = 1e10
+        self.rotation_vmax = -1e10
+        self.rotation_wmin = 1e10
+        self.rotation_wmax = -1e10
+        self.rotation_xmin = 1e10
+        self.rotation_xmax = -1e10
+        # indices number format
+        self.max_index = max_index
+        
+
+    @property
+    def rotation_len(self):
+        """
+        Number of bytes in ``rotation_data`` buffer.
+        """
+        return self.rotation_data.tell()
+
+    @property
+    def rotation_offset(self):
+        """
+        Offset (in bytes) of the ``rotation_data`` buffer.
+        """
+        return 0
+
+    @property
+    def rotation_size(self):
+        r"""
+        Size of ``rotation_data`` in groups of 4 floats
+        (ie: number of :math:`4 \times 4` byte groups)
+        
+        """
+        # size of position buffer, in groups of 3 floats
+        return self.rotation_len / (4 * 4)
+
+
+    def __len__(self):
+        return self.rotation_len 
+
+    def add_rotation(self, u, v, w, x):
+        """
+        Add a ``VEC4` of ``floats`` to the ``rotation_data`` buffer
+        """
+        if self.rotation_len==0:
+            self.rotation_umin = u
+            self.rotation_umax = u
+            self.rotation_vmin = v
+            self.rotation_vmax = v
+            self.rotation_wmin = w
+            self.rotation_wmax = w
+            self.rotation_wmin = w
+            self.rotation_wmax = w
+            self.rotation_xmin = x
+            self.rotation_xmax = x
+        else:
+            if self.rotation_umin > u:
+                self.rotation_umin = u
+            if self.rotation_umax < u:
+                self.rotation_umax = u
+            if self.rotation_vmin > v:
+                self.rotation_vmin = v
+            if self.rotation_vmax < v:
+                self.rotation_vmax = v
+            if self.rotation_wmin > w:
+                self.rotation_wmin = w
+            if self.rotation_wmax < w:
+                self.rotation_wmax = w
+            if self.rotation_xmin > x:
+                self.rotation_xmin = x
+            if self.rotation_xmax < x:
+                self.rotation_xmax = x
+        self.rotation_data.write(
+            struct.pack('<f', u) +
+            struct.pack('<f', v) +
+            struct.pack('<f', w) +
+            struct.pack('<f', x)
+        )
+  
+
+    def buffer_iter(self, block_size=1024):
+        """
+        Iterate through chunks of the vertices, and indices buffers seamlessly.
+
+        .. note::
+
+            To see a usage example, look at the :class:`ShapeBuffer` description.
+        """
+        streams = (
+            self.rotation_data,
         )
         #print("UVData=",self.uv_data)
         #print("UVDstreamsata=",streams)
@@ -477,7 +858,9 @@ class StepExportWithColor(object):
 class StepIgesAnalyser():
     """A class that analyzes the structure of an OCAF document."""
     scale = 0.001  # mm to meters
-    __version__ = "3.7.4"
+    __version__ = "3.7.4"   
+    
+
     TEMPLATE = {
         # Static values
         "asset": {
@@ -505,8 +888,7 @@ class StepIgesAnalyser():
         "accessors": [],
         "materials": [],
         "bufferViews": [],
-        "buffers": [],
-        "tree":[],
+        "buffers": []
     }
     
     # glTF matrix is column major; needs to be tranposed
@@ -529,7 +911,8 @@ class StepIgesAnalyser():
         }
     def __init__(
         self, document=None, filename=None, shapeslist=None, includeparts=False, distancegap=0.1, 
-        anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0):
+        anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, animations=[], 
+        delay=1.0, shapeorder=[], thumbheight=512, thumbwidth=512):
         """Supply one or the other: document or STEP filename or Shapes."""
 
         self.uid = 1
@@ -564,13 +947,18 @@ class StepIgesAnalyser():
         self.vertexsize = vertexsize
         self.direntry = ""
         self.mstep_dict = deepcopy(self.TEMPLATE)
+        self.tstep_dict = {'tree':[]}
         self.prevParent = None
         self.scene_min = None
         self.scene_max = None
         self.validFilenameChars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         self.shapeslist = None
         self.defaultColor = Quantity_Color(0.7529, 0.7529, 0.7529, Quantity_TOC_RGB)
-
+        self.animations = animations
+        self.delay = delay
+        self.shapeorder = shapeorder
+        self.thumbheight = thumbheight
+        self.thumbwidth = thumbwidth
         try:
             if shapeslist:
                 self.shapeslist = shapeslist
@@ -855,7 +1243,7 @@ class StepIgesAnalyser():
 
     def getFeaturesFromShape(self, aShape, subLabel, localTransform, parentColor, subShapes, parentShape=None, disectparts=True):
         if aShape.IsNull():
-            print("No shape was formed when"+str(self.uid)+"\n")
+            print("No shape was formed when"+str(self.uid)+"\n") 
             return [],None, None
         else:
             if self.checkOpenShell(aShape) :#
@@ -1080,7 +1468,7 @@ class StepIgesAnalyser():
                                         print("Serving TopAbs_COMPSOLID")                        
                                 print("I have written lowest node",basename,shape_disp.ShapeType() ) """
                                     
-                                (_,_,meshname)=self.add_part(
+                                (_,_,meshname,uvPlane)=self.add_part(
                                     shape_disp,
                                     part_color=faceColor,
                                     filenameuri=filefullname,
@@ -1088,7 +1476,7 @@ class StepIgesAnalyser():
                                     name=subName+parentName,
                                     parent_idx=parent_node_index,                        
                                 ) 
-                                self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname]
+                                self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
                                 #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
                             else:
@@ -1109,7 +1497,7 @@ class StepIgesAnalyser():
                             print("I am writing Edge",self.fileId, basename)                       
                             shape_disp = self.createPipesFromEdge(shape_transform)  
 
-                            (_,_,meshname)=self.add_part(
+                            (_,_,meshname,uvPlane)=self.add_part(
                                 shape_disp,
                                 part_color=edgeColor,
                                 filenameuri=filefullname,
@@ -1117,7 +1505,7 @@ class StepIgesAnalyser():
                                 name="EDGE"+subName+parentName,
                                 parent_idx=parent_node_index,                        
                             ) 
-                            self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, edgeColor, self.uid, self.indent, subName, subEntry, meshname]
+                            self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, edgeColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
                             #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
                     if self.vertexsize > 0:  
                         vertexColor = self.getDarken(faceColor,0.75)  
@@ -1128,7 +1516,7 @@ class StepIgesAnalyser():
                             (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,self.defaultColor)
                             print("I am writing Vertex",self.fileId, basename)                       
                             shape_disp = self.CreateSphereFromVertex(shape_transform)            
-                            (_,_,meshname)=self.add_part(
+                            (_,_,meshname,uvPlane)=self.add_part(
                                 shape_disp,
                                 part_color=vertexColor,
                                 filenameuri=filefullname,
@@ -1136,7 +1524,7 @@ class StepIgesAnalyser():
                                 name="VERTEX"+subName+parentName,
                                 parent_idx=parent_node_index,                        
                             ) 
-                            self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, vertexColor, self.uid, self.indent, subName, subEntry, meshname]
+                            self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, vertexColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
                             #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
                 #print(len(shape_faces),"Got above subshapers")
@@ -1210,7 +1598,7 @@ class StepIgesAnalyser():
                                     self.updateOutput(subName, subEntry, labelForSubShapesName, labelForSubShapesEntry,  False)
                                     #print("I have reached here 24")
                                     (filefullname, basename) = self.write_step_file(shape_to_disp,labelForSubShapesName+subName,faceColor)
-                                    (_,_,meshname)=self.add_part(
+                                    (_,_,meshname, uvPlane)=self.add_part(
                                         shape_to_disp,
                                         part_color=faceColor,
                                         filenameuri=filefullname,
@@ -1218,7 +1606,7 @@ class StepIgesAnalyser():
                                         name=labelForSubShapesName+subName,
                                         parent_idx=parent_node_index,
                                     )
-                                    self.outputShapes[shapeInFile] = [shape_to_disp,subName, subEntry, faceColor, self.uid, self.indent, labelForSubShapesName, labelForSubShapesEntry, meshname]
+                                    self.outputShapes[shapeInFile] = [shape_to_disp,subName, subEntry, faceColor, self.uid, self.indent, labelForSubShapesName, labelForSubShapesEntry, meshname, basename, uvPlane]
                                     #print(myshapecount,"I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
                                 else:
@@ -1351,7 +1739,7 @@ class StepIgesAnalyser():
 
         node_index = len(self.mstep_dict['nodes'])
         node = {}
-        node.update(self.transformed_matrix)
+        #node.update(self.transformed_matrix)
         if isAssembly:
             self.updateName(name,node,1)
         else:
@@ -1418,7 +1806,7 @@ class StepIgesAnalyser():
         
         node_index = len(self.mstep_dict['nodes'])
         node = {}
-        node.update(self.transformed_matrix)
+        #node.update(self.transformed_matrix)
         self.updateName(name,node)
         self.mstep_dict['nodes'].append(node)
         c = Quantity_Color(0.5, 0.5, 0.5, Quantity_TOC_RGB)
@@ -1427,30 +1815,306 @@ class StepIgesAnalyser():
         parent_node['children'] = parent_node.get('children', []) + [node_index]
         #print("I have reached here in getshapes 4",self.output)
         for shape_to_disp in self.shapeslist:
+            hash_shape = hash(shape_to_disp)
             try:
-               if not shape_to_disp in self.outputShapes:
+               if not hash_shape in self.outputShapes:
                     self.fileId += 1
                     subName = self.basefilename+str(self.fileId)
                     subEntry = subName
                     #print("I am writing gltf lowest node",basename,shape_to_disp.ShapeType() )
                     self.updateOutput(subName, subEntry, rootName, rootEntry,  False)
                     #print("I have reached here 24")
-                    (filefullname, _) = self.write_step_file(shape_to_disp,rootName+subName,c)
-                    (_,_,meshname)=self.add_part(
+                    (filefullname, basenamehere) = self.write_step_file(shape_to_disp,rootName+subName,c)
+                    (_,_,meshname, uvPlane)=self.add_part(
                         shape_to_disp,
                         part_color=c,
                         filenameuri=filefullname,
                         filename= filename,
                         name=rootName+subName,
                         parent_idx=parent_node_index,
-                    )
-                    self.outputShapes[shape_to_disp] = [subName, subEntry, c, self.uid, self.indent, rootName, rootEntry, meshname]
+                    )                    
+                    self.outputShapes[hash_shape] = [shape_to_disp, subName, subEntry, c, self.uid, self.indent, rootName, rootEntry, meshname, basenamehere, uvPlane]
  
             except Exception as e:
                 print("Error",e)
             #print("I have reached here in getshapes 10")
         print("Part is seperated")
             #self.tree+="</ul></li></ul>" 
+    def addAnimations(self):
+        lenAnimations = len(self.animations)
+        lenShapeOrder = len(self.shapeorder)
+        if( lenAnimations>0  ):
+            samplers = []
+            chanels = []
+            if lenShapeOrder>0:
+                rotationtimebuff = TimeBuffer(
+                    max_index=lenAnimations+2
+                )            
+                rotationbuff =RotationBuffer(
+                    max_index=lenAnimations+2
+                )
+                for steps in range(lenAnimations+3):
+                    rotationtimebuff.add_time(steps*self.delay)
+                    theta = 2*math.pi*steps/(lenAnimations+2)
+                    rotationbuff.add_rotation(0,0,math.sin(theta),math.cos(theta))
+                buffer_index = len(self.mstep_dict['buffers'])
+                rotationlen = len(rotationtimebuff)
+                buffer_dict = {
+                    "byteLength":  rotationlen                                 
+                }   
+                base64data = base64.b64encode(rotationtimebuff.read()).decode('ascii')
+                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                    mimetype="application/octet-stream",
+                    data=base64data,
+                )   
+                self.mstep_dict['buffers'].append(buffer_dict)          
+                bufferView_index = len(self.mstep_dict['bufferViews'])
+                bufferview = {
+                    "buffer" : buffer_index,
+                    "byteOffset" : 0,
+                    "byteLength" : rotationlen
+                }            
+                self.mstep_dict['bufferViews'].append(bufferview)
+                buffer_index = len(self.mstep_dict['buffers'])
+                rotationlen = len(rotationbuff)
+                buffer_dict = {
+                    "byteLength":  rotationlen                                 
+                }   
+                base64data = base64.b64encode(rotationbuff.read()).decode('ascii')
+                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                    mimetype="application/octet-stream",
+                    data=base64data,
+                )  
+                self.mstep_dict['buffers'].append(buffer_dict) 
+                bufferView_index = len(self.mstep_dict['bufferViews'])
+                bufferview = {
+                    "buffer" : buffer_index,
+                    "byteOffset" : 0,
+                    "byteLength" : rotationlen
+                }            
+                self.mstep_dict['bufferViews'].append(bufferview)
+                accessor_index = len(self.mstep_dict['accessors'])
+                accessorview = [ {
+                    "bufferView" : bufferView_index-1,
+                    "byteOffset" : 0,
+                    "componentType" : 5126,
+                    "count" : lenAnimations+3,
+                    "type" : "SCALAR",
+                    "max" : [ rotationtimebuff.time_max ],
+                    "min" : [ rotationtimebuff.time_min ]
+                    },
+                    {
+                    "bufferView" : bufferView_index,
+                    "byteOffset" : 0,
+                    "componentType" : 5126,
+                    "count" : lenAnimations+3,
+                    "type" : "VEC4",
+                    "max" : [ rotationbuff.rotation_umax, rotationbuff.rotation_vmax, rotationbuff.rotation_wmax, rotationbuff.rotation_xmax ],
+                    "min" : [ rotationbuff.rotation_umin, rotationbuff.rotation_vmin, rotationbuff.rotation_wmin, rotationbuff.rotation_xmin ]
+                    } ]
+                self.mstep_dict['accessors'].append(accessorview[0])
+                self.mstep_dict['accessors'].append(accessorview[1])
+                
+                self.mstep_dict['nodes'][2]['rotation']=[ 0.0, 0.0, 0.0, 1.0 ]
+               
+                sampler = { 
+                    "input" : accessor_index,
+                    "interpolation" : "LINEAR",
+                    "output" : accessor_index+1
+                }
+                samplers.append(sampler)            
+                chanel = {
+                        "sampler" : 0,
+                        "target" : {
+                        "node" : 2,
+                        "path" : "rotation"
+                        }
+                    }
+                chanels.append(chanel)
+                startRange = 0
+            else:
+               startRange = 1  
+                      
+            for steps in range(1,lenAnimations+1):
+                #print(steps,lenAnimations)
+                lenOfAnimationsTime = steps+1 #or lenAnimations ; it works for both...
+                timebuff = TimeBuffer(
+                    max_index=2
+                )  
+                translationbuff =TranslationBuffer(
+                    max_index=2
+                )
+                mystep = steps-1
+                if lenShapeOrder > 0:
+                    mystep = self.shapeorder[steps-1]  
+                u,v,w=self.animations[mystep]
+                #print("steps",steps, u,v,w)
+                if lenShapeOrder > 0:
+                    for istep in range(lenOfAnimationsTime):  
+                        timebuff.add_time(istep*self.delay)
+                        if istep < steps:                 
+                            translationbuff.add_translation(0,0,0)
+                        else:
+                            translationbuff.add_translation(-u,-v,-w)
+                    #timebuff.add_time(steps*self.delay)
+                    #print(steps-1)
+                    
+                    #print (steps-1,u,v,w)
+                    
+                else:
+                    timebuff.add_time(0)
+                    #translationbuff.add_translation(0,0,0)
+                    #print(steps-1)
+                    #timebuff.add_time(self.delay)
+                    #u,v,w=self.animations[steps-1]
+                    #print (steps-1,u,v,w)
+                    translationbuff.add_translation(-u,-v,-w)
+                    for istep in range(1,lenOfAnimationsTime):  
+                        timebuff.add_time(istep*self.delay)                 
+                        translationbuff.add_translation(0,0,0)                                       
+                buffer_index = len(self.mstep_dict['buffers'])
+                timelen = len(timebuff)
+                #print(timelen,self.rotateFirst)
+                buffer_dict = {
+                    "byteLength":  timelen                                 
+                }   
+                base64data = base64.b64encode(timebuff.read()).decode('ascii')
+                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                    mimetype="application/octet-stream",
+                    data=base64data,
+                )   
+                self.mstep_dict['buffers'].append(buffer_dict)          
+                bufferView_index = len(self.mstep_dict['bufferViews'])
+                bufferview = {
+                    "buffer" : buffer_index,
+                    "byteOffset" : 0,
+                    "byteLength" : timelen
+                }            
+                self.mstep_dict['bufferViews'].append(bufferview)
+                buffer_index = len(self.mstep_dict['buffers'])
+                translationlen = len(translationbuff)
+                buffer_dict = {
+                    "byteLength":  translationlen                                 
+                }   
+                base64data = base64.b64encode(translationbuff.read()).decode('ascii')
+                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                    mimetype="application/octet-stream",
+                    data=base64data,
+                )  
+                self.mstep_dict['buffers'].append(buffer_dict) 
+                bufferView_index = len(self.mstep_dict['bufferViews'])
+                bufferview = {
+                    "buffer" : buffer_index,
+                    "byteOffset" : 0,
+                    "byteLength" : translationlen
+                }            
+                self.mstep_dict['bufferViews'].append(bufferview)
+                accessor_index = len(self.mstep_dict['accessors'])
+                accessorview = [ {
+                    "bufferView" : bufferView_index-1,
+                    "byteOffset" : 0,
+                    "componentType" : 5126,
+                    "count" : lenOfAnimationsTime, #steps+1,
+                    "type" : "SCALAR",
+                    "max" : [ timebuff.time_max ],
+                    "min" : [ timebuff.time_min ]
+                    },
+                    {
+                    "bufferView" : bufferView_index,
+                    "byteOffset" : 0,
+                    "componentType" : 5126,
+                    "count" : lenOfAnimationsTime, #steps+1,
+                    "type" : "VEC3",
+                    "max" : [ translationbuff.translation_umax, translationbuff.translation_vmax,translationbuff.translation_wmax ],
+                    "min" : [ translationbuff.translation_umin,translationbuff.translation_vmin,translationbuff.translation_wmin ]
+                    } ]
+                self.mstep_dict['accessors'].append(accessorview[0])
+                self.mstep_dict['accessors'].append(accessorview[1])
+                node_id = mystep+3
+                if lenShapeOrder > 0:
+                    self.mstep_dict['nodes'][node_id]['translation']=[ 0.0, 0.0, 0.0 ]
+                else:
+                    self.mstep_dict['nodes'][node_id]['translation']=[ -u, -v, -w]
+                sampler = { 
+                    "input" : accessor_index,
+                    "interpolation" : "LINEAR",
+                    "output" : accessor_index+1
+                }
+                samplers.append(sampler)            
+                chanel = {
+                    "sampler" : steps-startRange,
+                    "target" : {
+                    "node" : node_id,
+                    "path" : "translation"
+                    }
+                }
+                chanels.append(chanel)
+
+            animationchannels = [{
+                "samplers" : samplers,
+                "channels" : chanels
+                }
+            ]
+            self.mstep_dict['animations']=animationchannels
+
+            """ animationbuffer =  {
+                "uri" : "data:application/octet-stream;base64,AAAAAAAAgD4AAAA/AABAPwAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAD0/TQ/9P00PwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAPT9ND/0/TS/AAAAAAAAAAAAAAAAAACAPw==",
+                "byteLength" : 100
+                }
+            animationbufferview = {
+                "buffer" : 1,
+                "byteOffset" : 0,
+                "byteLength" : rotationlen
+                }
+            animationaccessorview = [ {
+                "bufferView" : 2,
+                "byteOffset" : 0,
+                "componentType" : 5126,
+                "count" : 5,
+                "type" : "SCALAR",
+                "max" : [ 1.0 ],
+                "min" : [ 0.0 ]
+                },
+                {
+                "bufferView" : 2,
+                "byteOffset" : 20,
+                "componentType" : 5126,
+                "count" : 5,
+                "type" : "VEC4",
+                "max" : [ 0.0, 0.0, 1.0, 1.0 ],
+                "min" : [ 0.0, 0.0, 0.0, -0.707 ]
+                } ]
+            animationchannels = [{
+                "samplers" : [
+                    {
+                    "input" : 2,
+                    "interpolation" : "LINEAR",
+                    "output" : 3
+                    }
+                ],
+                "channels" : [ {
+                    "sampler" : 0,
+                    "target" : {
+                    "node" : 2,
+                    "path" : "rotation"
+                    }
+                } ]
+                }
+            ]
+            buffer_length_current = len(self.mstep_dict['buffers'])        
+            self.mstep_dict['buffers'].append(animationbuffer)
+            bufferView_index = len(self.mstep_dict['bufferViews'])
+            animationbufferview['buffer']=buffer_length_current
+            self.mstep_dict['bufferViews'].append(animationbufferview)
+            accessor_index = len(self.mstep_dict['accessors'])
+            animationaccessorview[0]['bufferView']=bufferView_index
+            animationaccessorview[1]['bufferView']=bufferView_index
+            self.mstep_dict['accessors'].append(animationaccessorview[0])
+            self.mstep_dict['accessors'].append(animationaccessorview[1])
+            animationchannels[0]['samplers'][0]['input']=accessor_index
+            animationchannels[0]['samplers'][0]['output']=accessor_index+1
+            self.mstep_dict['nodes'][2]['rotation']=[ 0.0, 0.0, 0.0, 1.0 ]
+            self.mstep_dict['animations']=animationchannels """
 
     def dump(self):
         """Return assembly structure in indented outline form.
@@ -1473,19 +2137,35 @@ class StepIgesAnalyser():
             self.addShapes()
         else:
             self.getShapes()
+        if self.delay != 0:
+            self.addAnimations()  
+        print("Shapes Len",len(self.animations),len(self.outputShapes))
         #self.mstep_dict['download']=self.tree
         # Write self.mstep_dict to file as JSON string       
 
         newfilename = "Display/"+self.basefilename+".gltf"
-       
+        imagefilename = "Display/"+self.basefilename+".png"
         try:
             print("Writing",newfilename)
             with open(newfilename, 'w') as fh:
                 fh.write(json.dumps(self.mstep_dict, sort_keys=True, indent=2 ))
         except Exception as e:
             print("While Writing",newfilename,e)
-
-        return self.output, self.outputShapes, self.mstep_dict
+        if (self.thumbheight!=0) and (self.thumbwidth!=0):
+            try:
+                print("Writing",imagefilename)
+                createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            
+            except Exception as e:
+                print("While Writing",imagefilename,e)
+        self.mstep_dict['tree']=self.tstep_dict['tree']
+        return (            
+            (self.basefilename+".png",newfilename,self.output), 
+            (
+                (self.scene_min[0],self.scene_min[1],self.scene_min[2],
+                self.scene_max[0],self.scene_max[1],self.scene_max[2]),
+                self.outputShapes
+                ), 
+                self.mstep_dict )
     
     def get_uid_from_entry(self, entry):
         """Generate uid from label entry
@@ -1503,7 +2183,7 @@ class StepIgesAnalyser():
         return entry + '.' + str(value)   
     
     def updateParentChild(self,name,aShape):
-        dictionaryLen = len(self.mstep_dict['tree'])
+        dictionaryLen = len(self.tstep_dict['tree'])
         self.uniqueid = dictionaryLen+1
         mesher_dict = {
             "id":self.uniqueid,
@@ -1529,11 +2209,11 @@ class StepIgesAnalyser():
             returnDict = []
             dumpTopologyStructures(aShape,level=0,parentId=[None],returnStructure=returnDict)
             mesher_dict["structures"] = returnDict        
-        self.mstep_dict['tree'].append(mesher_dict)
+        self.tstep_dict['tree'].append(mesher_dict)
         return mesher_dict
     
     def updateParentDimensions(self, currentdict):
-        for parentDict in self.mstep_dict['tree'] :
+        for parentDict in self.tstep_dict['tree'] :
             #print(parentDict,currentdict)
             if parentDict["id"] == currentdict["parentId"]:
                 if currentdict["bin"] is not None:
@@ -1556,14 +2236,14 @@ class StepIgesAnalyser():
                     self.updateParentDimensions(parentDict)
        
     def findDictionary(self, currentdict) :
-        dictionaryLen = len(self.mstep_dict['tree'])
+        dictionaryLen = len(self.tstep_dict['tree'])
         currentPos = currentdict["id"]
         #print(dictionaryLen,currentPos,currentdict)
         if dictionaryLen > (currentPos-1)  and currentPos >= 1:
-            lastOne = self.mstep_dict['tree'][currentPos-1]
+            lastOne = self.tstep_dict['tree'][currentPos-1]
             if lastOne["id"] == currentPos:
                 return lastOne        
-            for parentDict in self.mstep_dict['tree'] :
+            for parentDict in self.tstep_dict['tree'] :
                 #print(parentDict,currentdict)
                 if parentDict["id"] == currentPos:
                     return parentDict
@@ -1814,6 +2494,8 @@ class StepIgesAnalyser():
             
             for face in list_of_faces:  
                 facecount+=1
+                fill, dir, facetype = recognize_direction(face)  
+               
                 #print(facecount, face)     
                 
                 location = TopLoc_Location()
@@ -1822,9 +2504,10 @@ class StepIgesAnalyser():
                     Trsf = location.Transformation()
                     reverse = (
                         True
-                        if face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED
+                        if (face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) or (fill=="Hole")
                         else False
                     )
+                    #print(reverse,face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED,fill=="Hole",fill)
                     #print(reverse,face,location)
                     vert = facing.Nodes()
                     tri = facing.Triangles()
@@ -1876,13 +2559,13 @@ class StepIgesAnalyser():
 
                         if deviationx <= deviationy and deviationx <= deviationz :
                             #u_max, v_max = self.max2D(u_max,v_max,ymax-ymin,zmax-zmin)
-                            uvPlane +=[("YZ",length_vert)]                           
+                            uvPlane +=[("YZ",length_vert, faces_max, faces_min, hash(face), fill, dir, facetype)]                           
                         elif deviationy <= deviationx and deviationy <= deviationz :
                             #u_max, v_max = self.max2D(u_max,v_max,zmax-zmin,xmax-xmin)
-                            uvPlane +=[("ZX",length_vert)]   
+                            uvPlane +=[("ZX",length_vert, faces_max, faces_min, hash(face), fill, dir, facetype)]   
                         else:                            
                             #u_max, v_max = self.max2D(u_max,v_max,xmax-xmin,ymax-ymin)
-                            uvPlane +=[("XY",length_vert)]                    
+                            uvPlane +=[("XY",length_vert, faces_max, faces_min, hash(face), fill, dir, facetype)]                    
                     offset += facing.NbNodes()
                 else:
                     print("No facing info for", face)
@@ -1902,7 +2585,7 @@ class StepIgesAnalyser():
                 uvzmax = 1    
             #print("UVPlane:",uvPlane)
             offset = 0
-            for (planePos,vertLen) in uvPlane:  
+            for (planePos,vertLen,_,_,_,_,_,_,) in uvPlane:  
                 #print("Plane:",planePos,vertLen)               
                 if planePos=="YZ" :
                     for i in range(vertLen):
@@ -1963,7 +2646,7 @@ class StepIgesAnalyser():
             offset += facing.NbNodes()
             ex.Next() """
         #print(" I am about to hang after this")
-        return (vertices, triangles, uv)
+        return (vertices, triangles, uv, uvPlane)
 
     def part_mesh(self, part):
         """
@@ -1986,7 +2669,7 @@ class StepIgesAnalyser():
             )
         """
         with measure_time(log, 'buffers.part_mesh'):
-            tess = ([],[],[])
+            tess = ([],[],[],[])
             if part:
                 try:
                     """  tessellationObj = ShapeTesselator(part)
@@ -2016,7 +2699,7 @@ class StepIgesAnalyser():
                     #print(tess)
                 except Exception as e:
                     print("Error in tessllation:",e)
-                    tess = ([],[],[])
+                    tess = ([],[],[],[])
             return tess
 
    
@@ -2051,7 +2734,7 @@ class StepIgesAnalyser():
         """
         
         # Get shape's mesh
-        (vertices, indices, uv) = self.part_mesh(part)
+        (vertices, indices, uv, uvPlane) = self.part_mesh(part)
         #print(vertices,indices)
 
         if len(indices) != 0 :
@@ -2084,7 +2767,7 @@ class StepIgesAnalyser():
             #print("0",uv2d[0])
             #print("1",uv2d[1])
             uvbuff.add_uv(uv2d[0],uv2d[1])
-        return buff, len(indices), uvbuff   
+        return buff, len(indices), uvbuff, uvPlane   
     
 
     def add_part(self, part, part_color=None, filenameuri=None, filename=None, name=None,  parent_idx=0):
@@ -2117,7 +2800,7 @@ class StepIgesAnalyser():
         # ----- Adding to: buffers
         with measure_time(log, 'buffers'):
              
-            buff, solidfound, uvbuff = self.part_buffer(part)
+            buff, solidfound, uvbuff, uvPlane = self.part_buffer(part)
             
             mesherDict = self.updateParentChild(name,part)
             #print("add_part", mesherDict)
@@ -2253,9 +2936,9 @@ class StepIgesAnalyser():
                             "bufferView": bufferView_index_vertices,
                             "byteOffset": 0,
                             "componentType": StepGL.FLOAT,
-                            "count": buff.vert_size,
-                            "min": [v - 0.1 for v in buff.vert_min],
-                            "max": [v + 0.1 for v in buff.vert_max],
+                            "count": math.trunc(buff.vert_size),
+                            "min":  [v  for v in buff.vert_min],# [v - 0.1 for v in buff.vert_min], 
+                            "max":  [v  for v in buff.vert_max],# [v + 0.1 for v in buff.vert_max],
                             "type": "VEC3",
                         }
                         self.mstep_dict['accessors'].append(accessor)
@@ -2267,7 +2950,7 @@ class StepIgesAnalyser():
                             "bufferView": bufferView_index_indices,
                             "byteOffset": 0,
                             "componentType": buff.idx_type,
-                            "count": buff.idx_size,
+                            "count": math.trunc(buff.idx_size),
                             "type": "SCALAR",
                         }
                         self.mstep_dict['accessors'].append(accessor)
@@ -2279,8 +2962,8 @@ class StepIgesAnalyser():
                         material_index = len(self.mstep_dict['materials'])
                         try:
                             if part_color:
-                                material = {
-                                    'alphaCutoff': 1.0, 'alphaMode': 'BLEND', 'pbrMetallicRoughness': {
+                                material = { #'alphaCutoff': 1.0,
+                                        'alphaMode': 'BLEND', 'pbrMetallicRoughness': {
                                         'baseColorFactor': [
                                             part_color.Red(),part_color.Green(),part_color.Blue(),1.0
                                             ], 'metallicFactor': 0.1, 'roughnessFactor': 0.7}}
@@ -2322,7 +3005,7 @@ class StepIgesAnalyser():
                             "mesh": mesh_index,                        
                         }
                         self.updateName(name,node)                    
-                        node.update(self.transformed_matrix)
+                        #node.update(self.transformed_matrix)
                         self.mstep_dict['nodes'].append(node)
                         #info['nodes'].append((node_index, node))
 
@@ -2332,7 +3015,7 @@ class StepIgesAnalyser():
             #else:
                 #print(" I have reache here without adding")
         buffer_length_current = len(self.mstep_dict['buffers'])
-        return buffer_length_so_far, buffer_length_current, mesher_dict["name"]
+        return buffer_length_so_far, buffer_length_current, mesher_dict["name"], uvPlane
 
     
     

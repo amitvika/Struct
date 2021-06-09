@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['cadapi.struct.services','internal.struct.services','34.226.233.235','localhost', '127.0.0.1']
 
+
 # Application definition
 
 INSTALLED_APPS = [

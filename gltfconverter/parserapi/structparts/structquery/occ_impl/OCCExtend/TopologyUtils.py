@@ -488,7 +488,7 @@ def discretize_wire(a_topods_wire: TopoDS_Wire, deflection: Optional[int]=0.5) -
 def discretize_edge(a_topods_edge: TopoDS_Edge, deflection=0.2, algorithm="QuasiUniformDeflection"):
     """ Take a TopoDS_Edge and returns a list of points
     The more deflection is small, the more the discretization is precise,
-    i.e. the more points you get in the returned points
+    i.e. the more points you get in the returned points 
     algorithm: to choose in ["UniformAbscissa", "QuasiUniformDeflection"]
     """
     if not is_edge(a_topods_edge):

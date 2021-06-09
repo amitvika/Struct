@@ -462,7 +462,7 @@ def getXYZ(co_ord):
     #return (co_ord.X(), co_ord.Y(), co_ord.Z())
 
 ##################################
-# Recognize functions
+# Recognize functions 
 ##################################
 def recognize_face(topods_face):
     """ returns True if the TopoDS_Face is a planar surface

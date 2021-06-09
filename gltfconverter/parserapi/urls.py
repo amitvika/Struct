@@ -15,6 +15,7 @@ router.register(r'files', views.FileGetFiles, basename='files' )
 router.register(r'files', views.FileGetMinimumDistance, basename='mindistance' )
 router.register(r'files', views.FileGetShapeInfo, basename='shapeinfo' )
 router.register(r'files', views.FileGetStackablePositions, basename='stackable' )
+router.register(r'files', views.FileGetAssemblyOrder, basename='assemblyorder' )
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
@@ -29,6 +30,7 @@ urlpatterns = [
     re_path(r'^api/v0/mindistance$', views.FileGetMinimumDistance),
     re_path(r'^api/v0/shapeinfo$', views.FileGetShapeInfo),
     re_path(r'^api/v0/shapeinfo', views.FileGetShapeInfo),
-    re_path(r'^api/v0/stackable', views.FileGetStackablePositions)
+    re_path(r'^api/v0/stackable', views.FileGetStackablePositions),
+    re_path(r'^api/v0/assemblyorder', views.FileGetAssemblyOrder)
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.DISPLAY_URL, document_root=settings.DISPLAY_ROOT)
 

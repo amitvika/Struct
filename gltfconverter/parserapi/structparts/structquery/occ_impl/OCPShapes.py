@@ -79,7 +79,7 @@ from OCC.Core.BRepPrimAPI import (
     BRepPrimAPI_MakeWedge,
     BRepPrimAPI_MakePrism,
     BRepPrimAPI_MakeRevol,
-    BRepPrimAPI_MakeSphere,
+    BRepPrimAPI_MakeSphere, 
 )
 
 from OCC.Core.TopExp import TopExp_Explorer,topexp_MapShapesAndAncestors  # Toplogy explorer
@@ -99,7 +99,7 @@ from OCC.Core.TopoDS import (
     topods_Solid,
 )
 
-from OCC.Core.TopoDS import TopoDS_Compound, TopoDS_Builder, TopoDS_Iterator, TopoDS_Shape
+from OCC.Core.TopoDS import TopoDS_Compound, TopoDS_Builder, TopoDS_Iterator, TopoDS_Shape, TopoDS_Solid
 
 from OCC.Core.GC import GC_MakeArcOfCircle, GC_MakeArcOfEllipse  # geometry construction
 from OCC.Core.GCE2d import GCE2d_MakeSegment
@@ -132,7 +132,7 @@ from OCC.Core.BRepOffsetAPI import (
     BRepOffsetAPI_MakeOffset,
 )
 
-from OCC.Core.BRepFilletAPI import BRepFilletAPI_MakeChamfer, BRepFilletAPI_MakeFillet
+from OCC.Core.BRepFilletAPI import BRepFilletAPI_MakeChamfer, BRepFilletAPI_MakeFillet, BRepFilletAPI_MakeFillet2d
 
 from OCC.Core.TopTools import (
     TopTools_IndexedDataMapOfShapeListOfShape,
@@ -141,7 +141,7 @@ from OCC.Core.TopTools import (
 
 from OCC.Core.TopExp import topexp_MapShapesAndAncestors
 
-from OCC.Core.ShapeFix import ShapeFix_Shape
+from OCC.Core.ShapeFix import ShapeFix_Shape, ShapeFix_Solid
 
 from OCC.Core.STEPControl import STEPControl_Writer, STEPControl_AsIs
 
