@@ -1,7 +1,37 @@
 # Struct
 All the code, in one place
 
+### Directory structure
+```
+.
+└── monorepo/
+    ├── packages/
+    │   ├── backend-app/ (nodejs server)
+    │   │   ├── src/
+    │   │   └── package.json
+    │   |── common/ (shared component library)
+    │   |   └── components
+    │   |   └── package.json
+    │   |── design-app/ (create-react-app)
+    │   |   └── src
+    │   |   └── package.json
+    │   |── internal-app/ (create-react-app)
+    │   |   └── src
+    │   |   └── package.json
+    │   |── public-app/ (create-react-app)
+    │   |   └── src
+    │   |   └── package.json
+    ├── package.json
+    └── yarn.lock
+```
+
 ## Installation
+
+Use the package manager [yarn](https://yarnpkg.com/) to install packages.
+
+```bash
+yarn install
+```
 
 #### GLTFConverter (first time only)
 
@@ -15,22 +45,36 @@ All the code, in one place
 - run `conda deactivate`
 
 
-### React and Node (first time only)
+## Usage
 
-- First for setup, use `npm run setup` 
+### Internal App (Node)
+```bash 
+npm run server
+```
+### Internal App (React)
+```bash 
+npm start
+```
+### Design App (React)
+```bash 
+npm start-design
+```
+### Public App (React)
+```bash 
+npm start-public
+```
 
-## Run localy
-
-#### GLTFConverter
+### GLTFConverter
 - cd `gltfconverter` folder
-- run `conda activate structquery` for activating virtual environment
-- `python manage.py runserver localhost:8000`
+- Initialize environment in [Conda](https://docs.anaconda.com/anaconda/install/windows/) terminal
+``` bash
+conda activate structquery
+```
+- Run the following command
+```python
+python manage.py runserver localhost:8000
+```
 
-#### React and Node 
-
--  `npm run dev-all` to run the entire dev environment
-
--  `npm run dev` to run the backend and internal dev environment
 
 ## Tasks
 
