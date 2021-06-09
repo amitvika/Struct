@@ -8,10 +8,6 @@ const ProductDesign = () => {
   
     const handleItemClick = (id) => {};
 
-    useEffect(() =>{
-        console.log('--------->>>')
-    })
-
     return (
         <TableGridView
             title={'Product Design'}

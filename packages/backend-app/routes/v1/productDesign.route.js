@@ -5,8 +5,8 @@ const auth = require("../../middleware/auth");
 const checkAccess = require('../../middleware/checkAccess');
 const ProductDesignController = require('../../controller/productDesign.controller');
 
-router.use(auth);
-router.use(checkAccess);
+// router.use(auth);
+// router.use(checkAccess);
 
 router.get("/", ProductDesignController.get);
 

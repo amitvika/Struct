@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Spinner } from "reactstrap";
 
 import TableView from './TableView';
 import GridView from './GridView';
@@ -43,7 +42,7 @@ const TableGridView = ({
             try {
                 setIsLoading(true);
 
-                // const res = await fetchList()
+                const res = await fetchList()
 
                 const mappedList = get(res, 'data', []);
 
@@ -54,6 +53,7 @@ const TableGridView = ({
                 setIsLoading(false);
 
             } catch (error) {
+                setIsLoading(false);
                 showErrorAlert({ message: `Unable to fetch ${title}` });
             }
         })()
