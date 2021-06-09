@@ -4,7 +4,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { getThemeByName } from '@ravibasil/common/themes/base';
 
 const ThemeProvider = (props) => {
-    const themeName = 'light'
+    const themeName = 'lightTheme'
 
     // Retrieve the theme object by theme name
     const theme = getThemeByName(themeName);

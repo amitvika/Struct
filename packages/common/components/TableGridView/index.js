@@ -42,7 +42,7 @@ const TableGridView = ({
             try {
                 setIsLoading(true);
 
-                const res = await fetchList()
+                // const res = await fetchList()
 
                 const mappedList = get(res, 'data', []);
 
@@ -53,7 +53,6 @@ const TableGridView = ({
                 setIsLoading(false);
 
             } catch (error) {
-                setIsLoading(false);
                 showErrorAlert({ message: `Unable to fetch ${title}` });
             }
         })()
@@ -243,7 +242,8 @@ const TableGridView = ({
                     columnsFields={fields}
                     isCustomAddButtonVisible={isCustomAddButtonVisible}
                     isAddEditLinkVisible={isAddEditLinkVisible}
-                    handleAddButtonPress={handleToggleModal}
+                    // handleAddButtonPress={handleToggleModal}
+                    handleAddButtonPress={() => console.log("----handleAddButtonPress")}
                     isSearchBarVisible={true}
                 />
 
