@@ -126,7 +126,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
 
         </>
       }
-      <Paper style={{ padding: 20, margin: 10 }}>
+      <Paper style={{ padding: 20, margin: 10 }} square={true}>
         {
           Object.keys(gltfjson).length > 0 && !isFileLoadingLoading &&
           <GLTFRenderer  

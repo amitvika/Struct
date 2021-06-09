@@ -13,7 +13,8 @@ import {
     getTexture, SELECT2DTEXTURE, SELECT3DTEXTURE,
     SELECTMATERIRAL, SELECTDISTANCE, SELECTSHOWINFO,
     SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER, SELECTMEASURE,
-    SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE, prettyPrintArray
+    SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE,
+    SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray
 } from "../../../gltf/Tree/utils";
 
 const DEFAULTDISTANCEGAP = 0.1;
@@ -35,7 +36,7 @@ const stateprops = {
 export default function GeometricDimensioning({ fileId }) {
     const [state, _setState] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedOption, setSelectedOption] = useState(SELECTMEASURE);
+    const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
     const [splitfiles, setSplitfiles] = useState({});
     const [resetOption, setResetOption] = useState(true);
 
@@ -67,7 +68,8 @@ export default function GeometricDimensioning({ fileId }) {
                     showdisect: stateprops.showdisect,
                     showinfoonselect: stateprops.showinfoonselect,
                     splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
-                    selectedObjects: []
+                    selectedObjects: [],
+                    parentObjects: []
                 });
 
                 if (repos) {
@@ -111,27 +113,44 @@ export default function GeometricDimensioning({ fileId }) {
         setState({
             firstshell: null,
             secondshell: null,
-            selectedObjects: []
+            selectedObjects: [],
+            parentObjects: []
         });
     }
 
-    const selectAllSelectedSolids = () => {
+    const arrayRemove = (arr, value) => {
+
+        return arr.filter(function (ele) {
+            return ele.name != value;
+        });
+    }
+    const arrayCopy = (arr) => {
         var copy_selectobjects = [];
 
-        state.selectedObjects.forEach(element => {
+        arr.forEach(element => {
             copy_selectobjects.push(element);
         });
-
+        return copy_selectobjects;
+    }
+    const selectAllSelectedSolids = (whichoption) => {
+        var copy_selectobjects = arrayCopy(state.selectedObjects);
+        if (whichoption == 0) {
+            whichoption = state.selectedOption;
+        }
         setResetOption(false);
         let tempSelectedObjects = state.selectedObjects;
-
+        let tempParentObjects = [];
+        //console.log("Ha Ha Ha!",state.selectedObjects)
         copy_selectobjects.forEach(meshmaterial => {
-            const myAllChilds = findMyParentChilds(meshmaterial);
+            const myAllChildsAndParents = findMyParentChilds(meshmaterial, whichoption);
+            console.log(myAllChildsAndParents, whichoption);
+            const myAllChilds = myAllChildsAndParents[0];
+            const myParentNode = myAllChildsAndParents[1];
             //console.log(myAllChilds);
             myAllChilds.forEach(elementdata => {
                 var alreadyPresent = false;
-                for (var i = 0; i < state.selectedObjects.length; i++) {
-                    if (elementdata.name == state.selectedObjects[i].name) {
+                for (var i = 0; i < tempSelectedObjects.length; i++) {
+                    if (elementdata.name == tempSelectedObjects[i].name) {
                         alreadyPresent = true;
                         break;
                     }
@@ -141,21 +160,38 @@ export default function GeometricDimensioning({ fileId }) {
                     elementdata.selectedshell = true;
                 }
             });
+
+            var alreadyPresent = false;
+            for (var i = 0; i < tempParentObjects.length; i++) {
+                if (myParentNode.name == tempParentObjects[i].name) {
+                    alreadyPresent = true;
+                    break;
+                }
+            }
+            if (!alreadyPresent) {
+                tempParentObjects.push(myParentNode);
+            }
+
         });
 
-        setState({ selectedObjects: tempSelectedObjects });
+        setState({
+            selectedObjects: tempSelectedObjects,
+            parentObjects: tempParentObjects
+        });
+        //console.log("SelectedObjects",state.selectedObjects);
         setResetOption(true);
     }
 
-    const findMyParentChilds = (mynode) => {
-        if (((selectedOption != SELECTSOLID) ||
-            (state.splitMethod != SELECTDISECTPARTS)) && resetOption) {
-            return [mynode];
-        }
+    const findSingleNode = (mynode) => {
+        return [[mynode], mynode];
+    }
+    const findSiblingNodes = (mynode) => {
         var myParentID = -1;
+        var myParentNode = null;
         for (var i = 0; i < splitfiles.btree.length; i++) {
             if (splitfiles.btree[i].name == mynode.name) {
                 myParentID = splitfiles.btree[i].parentId;
+                myParentNode = splitfiles.btree[i];
                 break;
             }
         }
@@ -169,18 +205,98 @@ export default function GeometricDimensioning({ fileId }) {
                             myMaterials.push(myChild);
                         }
                     }
+                } else {
+                    if (splitfiles.btree[i].id == myParentID) {
+                        myParentNode = splitfiles.btree[i];
+                    }
                 }
             }
         }
         if (myMaterials.length != 0) {
-            return myMaterials;
+            return [myMaterials, myParentNode];
         }
-        return [mynode];
+        return [[mynode], mynode];
     }
+    const findFamilyNodes = (mynode) => {
+        var myParentID = -1;
+        var myID = -1;
+        var parentNode = null;
+        for (var i = 0; i < splitfiles.btree.length; i++) {
+            if (splitfiles.btree[i].name == mynode.name) {
+                myParentID = splitfiles.btree[i].parentId;
+                myID = splitfiles.btree[i].id;
+                parentNode = splitfiles.btree[i];
+                break;
+            }
+        }
+        console.log(myParentID, parentNode);
+        var myMaterials = [];
+        if (myParentID != -1) {
+            var myParentsParentID = -1;
+            for (var i = 0; i < splitfiles.btree.length; i++) {
+                if (splitfiles.btree[i].id == myParentID) {
+                    myParentsParentID = splitfiles.btree[i].parentId;
+                    parentNode = splitfiles.btree[i];
+                    break;
+                }
+            }
+            console.log(myParentID, myParentsParentID, parentNode);
+            var myParents = [];
+            if (myParentsParentID == -1) { //RootNode
+                myParents.push(myID);
+            } else {
+                for (var i = 0; i < splitfiles.btree.length; i++) {
+                    if (splitfiles.btree[i].parentId == myParentsParentID) {
+                        myParents.push(splitfiles.btree[i].id);
+                    } else {
+                        if (splitfiles.btree[i].id == myParentsParentID) {
+                            parentNode = splitfiles.btree[i];
+                        }
+                    }
+                }
+            }
+            for (var j = 0; j < myParents.length; j++) {
+                myParentID = myParents[j];
+                for (var i = 0; i < splitfiles.btree.length; i++) {
+                    if (splitfiles.btree[i].parentId == myParentID) {
+                        var myChild = findMyMaterial(splitfiles.btree[i]);
+                        if (myChild) {
+                            if (onlyfaces(myChild.name)) {
+                                myMaterials.push(myChild);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        if (myMaterials.length != 0) {
+            return [myMaterials, parentNode];
+        }
+        return [[mynode], mynode];
+    }
+
+    const findMyParentChilds = (mynode, whichOption) => {
+        //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
+        if ((((whichOption != SELECTSOLID) && (whichOption != SELECTASSEMBLY)) ||
+            (state.splitMethod != SELECTDISECTPARTS)) && resetOption) {
+            //console.log("I got over Singles",whichOption,resetOption,state.splitMethod);
+            return findSingleNode(mynode);
+        }
+        if (whichOption == SELECTASSEMBLY) {
+            console.log("I got over Family");
+            return findFamilyNodes(mynode);
+        } else {
+            //console.log("I got over Sibling");
+            return findSiblingNodes(mynode);
+        }
+
+    }
+
+
 
     const findMyMaterial = (data) => {
         if (splitfiles.btree) {
-
             for (var i = 0; i < splitfiles.btree.length; i++) {
                 if (splitfiles.btree[i].name == data.name) {
                     return splitfiles.btree[i];
@@ -242,6 +358,7 @@ export default function GeometricDimensioning({ fileId }) {
                 });
         })
     }
+
 
     const changeStateOfSelection = async (data, event) => {
 
@@ -306,7 +423,13 @@ export default function GeometricDimensioning({ fileId }) {
                     });
                 }
 
-                const myAllChilds = findMyParentChilds(data);
+                const myAllChildsAndParents = findMyParentChilds(data, selectedOption);
+                console.log(myAllChildsAndParents);
+                const myAllChilds = myAllChildsAndParents[0];
+                const myParentNode = myAllChildsAndParents[1];
+                var copy_selectobjects = arrayCopy(state.selectedObjects);
+                var copy_parentobjects = arrayCopy(state.parentObjects);
+
                 myAllChilds.forEach(elementdata => {
                     elementdata.selectedshell = data.selectedshell;
                     if (toAdd) {
@@ -324,16 +447,11 @@ export default function GeometricDimensioning({ fileId }) {
                                 });
 
                             }
-                        } else {
 
-                            var tempSelectedObjects = [];
-                            state.selectedObjects.forEach(element => {
-                                if (elementdata.name != element.name) {
-                                    tempSelectedObjects.push(element);
-                                }
-                            });
-                            console.log('1 : ', tempSelectedObjects);
-                            setState({ selectedObjects: tempSelectedObjects });
+                        } else {//error here...             
+                            copy_selectobjects = arrayRemove(copy_selectobjects, elementdata.name);
+                            console.log('1 : ', copy_selectobjects);
+                            setState({ selectedObjects: copy_selectobjects });
                         }
                     } else {
                         if (data.selectedshell) {
@@ -344,12 +462,42 @@ export default function GeometricDimensioning({ fileId }) {
 
                     }
                 });
+                if (toAdd) {
+                    if (data.selectedshell) {
+                        var alreadyPresent = false;
+                        for (var i = 0; i < state.parentObjects.length; i++) {
+                            if (myParentNode.name == state.parentObjects[i].name) {
+                                alreadyPresent = true;
+                                break;
+                            }
+                        }
+                        if (!alreadyPresent) {
+                            setState({
+                                parentObjects: [...state.parentObjects, myParentNode]
+                            });
+
+                        }
+
+                    } else {
+                        copy_parentobjects = arrayRemove(copy_parentobjects, myParentNode.name);
+                        console.log('2 : ', copy_parentobjects);
+                        setState({ parentObjects: copy_parentobjects });
+                    }
+                } else {
+                    console.log("setting", "OneNode", myParentNode);
+                    if (data.selectedshell) {
+                        setState({ parentObjects: [myParentNode] });
+                    } else {
+                        setState({ parentObjects: [] });
+                    }
+                }
 
             }
         }
     }
 
     const handleModelClick = (data, what, event) => {
+        console.log(data, what, event);
         if (what == SELECTDISTANCE) {
             const mymesh = findMyMaterial(data);
             mymesh.selectedshell = data.selectedshell;
@@ -368,11 +516,13 @@ export default function GeometricDimensioning({ fileId }) {
 
             <Grid container spacing={4}>
                 <Grid item xs={6}>
-                    <Viewer
-                        {...state}
-                        selectedOption={selectedOption}
-                        handleModelClick={handleModelClick}
-                    ></Viewer>
+                    <Paper square={true}>
+                        <Viewer
+                            {...state}
+                            selectedOption={selectedOption}
+                            handleModelClick={handleModelClick}
+                        ></Viewer>
+                    </Paper>
                 </Grid>
 
                 <Grid item xs={6}>
@@ -381,7 +531,8 @@ export default function GeometricDimensioning({ fileId }) {
                         selectedOption={selectedOption}
                         setSelectedOption={setSelectedOption}
                         resetSelections={resetSelections}
-                        selectAllSelectedSolids={selectAllSelectedSolids} />
+                        selectAllSelectedSolids={selectAllSelectedSolids}
+                    />
                 </Grid>
             </Grid>
         </Paper>

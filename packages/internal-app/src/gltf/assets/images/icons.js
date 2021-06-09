@@ -10,7 +10,8 @@ import continuous from './continuous.svg'
 import hierarchy from './hierarchy.svg'
 import disectparts from './disect-parts.svg'
 import stackable from './stackable.svg'
-//import chevronDown from './chevron-down.svg'
+import order from './assembly-order.svg'
+import assembly from './assembly-selection.svg'
 
 export default {
   file: paperclip,
@@ -24,5 +25,7 @@ export default {
   continuous:continuous,
   hierarchy:hierarchy,
   disectparts:disectparts,
-  stackable:stackable
+  stackable:stackable,
+  order:order,
+  assembly:assembly
 }

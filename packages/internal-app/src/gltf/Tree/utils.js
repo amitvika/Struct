@@ -23,6 +23,9 @@ export const SELECTCONTINOUS = 20;
 export const SELECTHIRERACHY = 21;
 export const SELECTDISECTPARTS = 22;
 export const SELECTSTACKABLE = 23;
+export const SELECTASSEMBLY = 24;
+export const SELECTORDER = 25;
+export const SELECTFEATURE=26;
 
 export const DEFAULTSELECTCOLOR = "#17FF17";
 export const DEFAULTTOUCHCOLOR = "#FF1717";

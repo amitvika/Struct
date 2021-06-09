@@ -45,10 +45,32 @@ import {
     DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, DEFAULTTEXTCOLOR,
     SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTDISTANCE,
     SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTMEASURE, SELECTDISECTPARTS,
+    SELECTORDER, SELECTASSEMBLY, SELECTFEATURE,
     hexToRGB
 } from "./Tree/utils";
 import './styles/style.css';
+import { motion } from 'framer-motion'
+import styled from 'styled-components'
 
+const SquareDiv = styled(motion.div)`
+    .square {
+        position: relative;
+        width: 50%;
+    }
+
+    .square:after {
+        content: "";
+        display: block;
+        padding-bottom: 100%;
+    }
+
+    .content {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+  
+`;
 const DEFAULT_CAMERA = '[default]';
 
 // glTF texture types by the loader .
@@ -951,12 +973,15 @@ class GLTFRenderer extends Component {
         var visible = false;
         //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
         if (first4chars == "EDGE") {
-            visible = (this.props.selectedoption == SELECTEDGE) || ((this.props.selectedoption == SELECTCORNER) && (display)) || (this.props.selectedoption == SELECTMEASURE);
+            visible = (this.props.selectedoption == SELECTEDGE) || ((this.props.selectedoption == SELECTCORNER) && (display))
+                || (this.props.selectedoption == SELECTMEASURE) || (this.props.selectedoption == SELECTFEATURE);
         } else {
             if (first6chars == "VERTEX") {
-                visible = (this.props.selectedoption == SELECTCORNER) || (this.props.selectedoption == SELECTMEASURE);
+                visible = (this.props.selectedoption == SELECTCORNER)
+                    || (this.props.selectedoption == SELECTMEASURE) || (this.props.selectedoption == SELECTFEATURE);
             } else {
-                visible = ((this.props.selectedoption != SELECTEDGE) && (this.props.selectedoption != SELECTCORNER)) || (this.props.selectedoption == SELECTMEASURE);
+                visible = ((this.props.selectedoption != SELECTEDGE) && (this.props.selectedoption != SELECTCORNER))
+                    || (this.props.selectedoption == SELECTMEASURE) || (this.props.selectedoption == SELECTFEATURE);
             }
         }
         return visible;
@@ -1205,12 +1230,13 @@ class GLTFRenderer extends Component {
         return true;
     }
 
-    findMyParentChilds = (mynode) => {
+    findSingleNode = (mynode) => {
+        return [mynode];
+
+    }
+
+    findSiblingNodes = (mynode) => {
         //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
-        if ((this.props.selectedoption != SELECTSOLID) ||
-            (this.props.splitmethod != SELECTDISECTPARTS)) {
-            return [mynode];
-        }
         var myParentID = -1;
         for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
             if (this.props.gltfobj.tree[i].name == mynode.name) {
@@ -1237,7 +1263,6 @@ class GLTFRenderer extends Component {
         return [mynode];
     }
 
-
     findMyMaterial = (data) => {
         if (this.partsMeshes) {
 
@@ -1249,6 +1274,76 @@ class GLTFRenderer extends Component {
             }
         };
         return null;
+    }
+
+
+    findFamilyNodes = (mynode) => {
+
+        var myParentID = -1;
+        var myID = -1;
+        for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
+            if (this.props.gltfobj.tree[i].name == mynode.name) {
+                myParentID = this.props.gltfobj.tree[i].parentId;
+                myID = this.props.gltfobj.tree[i].id;
+                break;
+            }
+        }
+        console.log("Parent", myParentID, myID);
+        var myMaterials = [];
+        if (myParentID != -1) {
+            var myParentsParentID = -1;
+            for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
+                if (this.props.gltfobj.tree[i].id == myParentID) {
+                    myParentsParentID = this.props.gltfobj.tree[i].parentId;
+                    break;
+                }
+            }
+            console.log("Parent", myParentsParentID, myParentID, myID);
+            var myParents = [];
+            if (myParentsParentID == -1) { //RootNode
+                console.log("Pushing", myParentsParentID, myParentID, myID);
+                myParents.push(myID);
+            } else {
+                for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
+                    if ((this.props.gltfobj.tree[i].parentId == myParentsParentID)) {
+                        myParents.push(this.props.gltfobj.tree[i].id);
+                    }
+                }
+            }
+            console.log(myParents);
+            for (var j = 0; j < myParents.length; j++) {
+                myParentID = myParents[j];
+                for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
+                    if (this.props.gltfobj.tree[i].parentId == myParentID) {
+                        var myChild = this.findMyMaterial(this.props.gltfobj.tree[i]);
+                        if (myChild) {
+                            if (this.onlyfaces(myChild.name)) {
+                                myMaterials.push(myChild);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        if (myMaterials.length != 0) {
+            return myMaterials;
+        }
+        return [mynode];
+    }
+
+    findMyParentChilds = (mynode) => {
+        //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
+        if (((this.props.selectedoption != SELECTSOLID) && ((this.props.selectedoption != SELECTASSEMBLY))) ||
+            (this.props.splitmethod != SELECTDISECTPARTS)) {
+            return this.findSingleNode(mynode);
+        }
+        if (this.props.selectedoption == SELECTASSEMBLY) {
+            return this.findFamilyNodes(mynode);
+        } else {
+            return this.findSiblingNodes(mynode);
+        }
+
     }
 
     changeBackground = () => {
@@ -1432,6 +1527,7 @@ class GLTFRenderer extends Component {
                     });
                 }
                 const myAllChilds = this.findMyParentChilds(meshmaterial);
+                var copy_selectobjects = this.arrayCopy(this.state_selectedObjects);
                 myAllChilds.forEach(element => {
                     element.selectedshell = meshmaterial.selectedshell;
                     if (meshmaterial.selectedshell) {
@@ -1457,16 +1553,8 @@ class GLTFRenderer extends Component {
                             }
 
                         } else {
-                            var selectedObjects = [];
-                            this.state_selectedObjects.forEach(elementobject => {
-                                //console.log(meshmaterial.name,element.name);
-                                if (element.name != elementobject.name) {
-                                    selectedObjects.push(elementobject);
-                                } else {
-                                    //meshmaterial.material.color.setHex( meshmaterial.currentHex );
-                                }
-                            });
-                            this.state_selectedObjects = selectedObjects;
+                            copy_selectobjects = this.arrayRemove(copy_selectobjects, element.name);
+                            this.state_selectedObjects = copy_selectobjects;
                             //this.setState({selectedObjects:selectedObjects});
 
                         }
@@ -1721,12 +1809,22 @@ class GLTFRenderer extends Component {
         }
         return name;
     }
+    arrayRemove = (arr, value) => {
 
-    selectAllSelectedSolids = () => {
+        return arr.filter(function (ele) {
+            return ele.name != value;
+        });
+    }
+    arrayCopy = (arr) => {
         var copy_selectobjects = [];
-        this.state_selectedObjects.forEach(element => {
+
+        arr.forEach(element => {
             copy_selectobjects.push(element);
         });
+        return copy_selectobjects;
+    }
+    selectAllSelectedSolids = () => {
+        var copy_selectobjects = this.arrayCopy(this.state_selectedObjects);
         copy_selectobjects.forEach(meshmaterial => {
             const myAllChilds = this.findMyParentChilds(meshmaterial);
             //console.log(myAllChilds);
@@ -1769,7 +1867,9 @@ class GLTFRenderer extends Component {
                 this.state_selectedObjects = [];
                 //this.setState({selectedObjects:[]});
             }
-            if (this.props.selectedoption == SELECTSOLID) {
+            if (((this.props.selectedoption == SELECTSOLID) && (this.selectedoption != SELECTASSEMBLY))
+                || (this.props.selectedoption == SELECTASSEMBLY)) {
+                console.log("Got Here", this.props.selectedoption);
                 this.selectAllSelectedSolids();
             }
             this.alter();
@@ -1789,7 +1889,6 @@ class GLTFRenderer extends Component {
             <div
                 style={{ width: "600px", height: "600px" }}
                 ref={el => (this.node = el)}>
-
                 <div
                     style={{
                         display: this.state.intersectedShell ? 'block' : 'block',
@@ -1803,8 +1902,8 @@ class GLTFRenderer extends Component {
                     {this.state.intersectedShell ? this.getNameID(this.state.intersectedShell.name) : ""}
                 </div>
 
-
             </div>
+
         );
     }
 }
