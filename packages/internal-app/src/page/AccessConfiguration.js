@@ -7,9 +7,9 @@ import {
     Breadcrumbs,
     Typography,
     Paper,
-    CardContent
+    CardContent,
 } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
+
 import UserAccessModal from "../containers/UserAccessModal";
 import ClientBasedAccess from "../containers/accessConfig/ClientBasedAccess";
 import ClientObjectAccess from "../containers/accessConfig/ClientObjectAccess";
@@ -23,6 +23,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
 import { NavLink } from 'react-router-dom'
 import AccessConfigurationAPI from '@ravibasil/common/api/accessConfig.api'
+import { showErrorAlert, showSuccessAlert } from '../actions/alert.action';
+
 
 const AccessConfiguration = (props) => {
     const dispatch = useDispatch();
@@ -95,7 +97,6 @@ const AccessConfiguration = (props) => {
     }, []);
 
     useEffect(() => {
-        console.log('-----', data)
         if (data && !isLoading) {
             if (data.access == null) {
                 setLocalState(state => {
@@ -133,32 +134,19 @@ const AccessConfiguration = (props) => {
             if (!saveAccessConfig) {
                 throw { message: 'Unable update info' }
             }
-            console.log('--->>', userAccessUsers)
             await AccessConfigurationAPI
                 .updateUserAccessConfigurationForUserAPI(localState.userAccessId, {
                     users: userAccessUsers,
                     user: user,
                     userAccessId: localState.userAccessId
                 })
+            dispatch(showSuccessAlert({ message: 'All data is saved' }));
 
-            // if (!updateAccesConfigForUser) {
-            //   throw { message: 'Unable update info' }
-            // }
-
-            setLocalState(state => {
-                return {
-                    ...state,
-                    msg: "Configurations Saved",
-                    snackBarAlertType: "success",
-                    snackBar: true
-                }
-            })
-
-
-        } catch (error) {
-            console.log('---', error)
-            alertForError(error)
         }
+        catch (error) {
+            dispatch(showErrorAlert({ message: 'Unable to save info' }));
+        }
+       
 
     }
 
@@ -189,17 +177,8 @@ const AccessConfiguration = (props) => {
                 [e.target.name]: !state[e.target.name]
             }
         });
-        console.log(localState);
     };
 
-    const handleClose = (event, reason) => {
-        setLocalState(state => {
-            return {
-                ...state,
-                snackBar: !state.snackBar
-            }
-        });
-    };
 
     if (isLoading) {
         return <div>Loading......</div>
@@ -208,18 +187,6 @@ const AccessConfiguration = (props) => {
     return (
         <>
             <div>
-                <Snackbar
-                    open={localState.snackBar}
-                    autoHideDuration={10000}
-                    onClose={handleClose}
-                >
-                    <MuiAlert
-                        severity={localState.snackBarAlertType}
-                        onClose={handleClose}
-                    >
-                        {localState.msg}
-                    </MuiAlert>
-                </Snackbar>
 
                 {localState.tableLoaded && localState.userAccessLoaded ? (
                     <div>
@@ -231,7 +198,7 @@ const AccessConfiguration = (props) => {
                                 }}
                             >
                                 <NavLink
-                                    to={`/access-setup`}
+                                    to={`/user-setup?tab=2`}
                                 >
                                     Access Setup
                 </NavLink>
@@ -243,6 +210,7 @@ const AccessConfiguration = (props) => {
                         </Paper>
 
                         <Card className="mb-2">
+                          
                             <CardContent>
                                 <div
                                     style={{

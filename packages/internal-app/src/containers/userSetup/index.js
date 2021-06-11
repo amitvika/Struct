@@ -21,9 +21,7 @@ const UserSetup = () => {
     const [tabIndex, setTabIndex] = useState(0);
 
     useEffect(() => {
-        if (query.get('tab')) {
-            setTabIndex(parseInt(query.get('tab')))
-        }
+       
 
         (async () => {
             setIsLoading(true);
@@ -31,6 +29,12 @@ const UserSetup = () => {
             setIsLoading(false);
         })()
     }, []);
+    
+    useEffect(() => {
+        if (query.get('tab')) {
+            setTabIndex(parseInt(query.get('tab')))
+        }
+    },[query.get('tab')])
 
     const renderPageSwitch = () => {
         switch (tabIndex) {

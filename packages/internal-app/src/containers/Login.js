@@ -22,7 +22,8 @@ const useStyles = makeStyles((theme) => ({
     },
     card_container: {
         maxWidth: '700px',
-        width: '70%'
+        width: '35%'
+        
     },
     logo_container: {
         display: "flex",

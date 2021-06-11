@@ -8,9 +8,11 @@ import {
     Box,
     Grid,
     Breadcrumbs,
-    Link
+    Link,
+    IconButton
 } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { NavLink, useParams } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { Spinner } from "reactstrap";
@@ -21,6 +23,7 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import BaseFactorySetup from './baseFactorySetup'
 import ItemsInProduction from './itemsInProduction'
 import Autoscaling from './autoscaling'
+import FloorplanSetup from './floorplanSetup'
 
 import get from 'lodash/get';
 
@@ -76,6 +79,8 @@ const FactoriesDetail = () => {
             case 2:
                 return <ItemsInProduction factoryId={id} setFactoryValue={setFactoryValue} factoryValue={factoryValue} />
             case 3:
+                return <FloorplanSetup />
+            case 4:
                 return <Autoscaling />
             default:
                 return "Undefined Tab Index";
@@ -97,19 +102,14 @@ const FactoriesDetail = () => {
         <>
             <Grid container>
                 <Grid item sm sm={12}>
-                    <Paper style={{ padding: 20, margin: 10 }}>
-                        <Breadcrumbs
-                            style={{
-                                display: "flex",
-                                justifyContent: "center"
-                            }}>
-                            <NavLink
-                                to='/factories'>
-                                Factories
-								</NavLink>
-
-                            <Typography color="textPrimary">Factories Details</Typography>
-                        </Breadcrumbs>
+                    <Paper style={{ padding: 20, margin: 10,display: 'flex' }}>
+                        <NavLink
+                            to='/factories'>
+                            <IconButton>
+                                <ArrowBackIcon />
+                            </IconButton>
+                        </NavLink>
+                        <Typography color="textPrimary" style={{display: 'flex',alignItems: 'center',fontWeight: 'bold', marginleft: 'inherit'}}>Factories Details</Typography>
                     </Paper>
                     <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -127,9 +127,9 @@ const FactoriesDetail = () => {
                             onChange={(event, newValue) => setValue(newValue)}>
                             <Tab label="Base Factory Setup" value={1} />
                             <Tab label="Items in Production" value={2} />
-                            <Tab label="Floorplan Setup"  />
+                            <Tab label="Floorplan Setup" value={3} />
                             <Tab label="Facility Capabilities" value={4} />
-                            <Tab label="Autoscaling" value={3} />
+                            <Tab label="Autoscaling" value={4} />
 
                         </Tabs>
                     </Paper>

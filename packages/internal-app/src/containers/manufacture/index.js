@@ -95,7 +95,7 @@ export default function Manufacturing() {
 					<Tab label="Powder Stamping and Sintering" {...a11yProps(12)} />
 					<Tab label="Coatings" {...a11yProps(13)} />
 					<Tab label="Temperature and Gas Treatments" {...a11yProps(14)} />
-<Tab label="Photochemical Machining" {...a11yProps(15)} />
+                    <Tab label="Photochemical Machining" {...a11yProps(15)} />
 				</Tabs>
 			</AppBar>
 

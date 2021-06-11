@@ -1,24 +1,25 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
 
-import ProductDesignAPI from '@ravibasil/common/api/productDesign.api';
-import TableGridView from '@ravibasil/common/components/TableGridView';
-import { fields } from '@ravibasil/common/constants/productDesign'
-
+import DesignAPage from '@ravibasil/common/containers/design'
+import ProductDesignHeader from "./ProductDesignHeader";
 const ProductDesign = () => {
-    let history = useHistory();
-    const handleItemClick = (id) => {};
+    // let history = useHistory();
+    const handleItemClick = (id) => { };
 
     return (
-        <TableGridView
-            title={'Product Design'}
-            fields={fields}
-            fetchList={ProductDesignAPI.fetchProductDesigns}
-            upsertListItem={ProductDesignAPI.upsertProductDesign}
-            isAddEditActionsEnabled={true}
-            handleItemClick={handleItemClick}
-            isAddEditLinkVisible ={ true}
-        />
+        <>
+            <ProductDesignHeader />
+            <DesignAPage />
+        </>
+        // <TableGridView
+        //     title={'Product Design'}
+        //     fields={fields}
+        //     fetchList={ProductDesignAPI.fetchProductDesigns}
+        //     upsertListItem={ProductDesignAPI.upsertProductDesign}
+        //     isAddEditActionsEnabled={true}
+        //     handleItemClick={handleItemClick}
+        //     isAddEditLinkVisible ={ true}
+        // />
     );
 }
 

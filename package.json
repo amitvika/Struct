@@ -11,6 +11,7 @@
     "build-design": "yarn workspace @ravibasil/design-app run build",
     "start-public": "yarn workspace @ravibasil/public-app run start",
     "build-public": "yarn workspace @ravibasil/public-app run build",
-    "server": "yarn workspace @ravibasil/backend-app start"
+    "server": "yarn workspace @ravibasil/backend-app start",
+    "dev": "yarn start & yarn server"
   }
 }

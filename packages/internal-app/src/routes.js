@@ -4,7 +4,6 @@ import {
     Switch,
     Route
 } from "react-router-dom";
-import './utils/axios';
 
 import { Spinner } from "reactstrap";
 import { useSelector } from 'react-redux';

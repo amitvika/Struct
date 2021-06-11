@@ -197,18 +197,18 @@ const Items = ({ handleSave }) => {
     //     </div>)
     // }
 
-    const toggleAddItemModal = (item) => {
+    const toggleAddItemModal = () => {
         if (isAddEditItemModalOpened) {
-            setSelectedListItem(null);
             setIsEditing(false);
+            setSelectedListItem(null);
         }
         setIsAddEditItemModalOpened(!isAddEditItemModalOpened)
     }
 
     const toggleEditItemModal = (item) => {
         if (isAddEditItemModalOpened) {
-            setSelectedListItem(null);
             setIsEditing(false);
+            setSelectedListItem(null);
         }
         else {
             setSelectedListItem(item);
@@ -230,7 +230,8 @@ const Items = ({ handleSave }) => {
             message={message}
             snackBarAlertType={snackBarAlertType}>
             <Backdrop isLoading={isLoading} />
-            <AddEditItemModal
+
+            {isAddEditItemModalOpened && <AddEditItemModal
                 // title={"Item"}
                 title={isEditing ? "" : "Item"}
                 isAddEditItemModalOpened={isAddEditItemModalOpened}
@@ -239,7 +240,7 @@ const Items = ({ handleSave }) => {
                 fields={columnsFields}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
-            />
+            />}
             <Toolbar
                 title={"Items"}
                 isGridViewSelected={isGridViewSelected}

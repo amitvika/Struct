@@ -6,9 +6,10 @@ import {
     Tab,
     Tabs,
     Grid,
-    Breadcrumbs,
-    Link
+    IconButton
 } from "@material-ui/core";
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+
 import Typography from "@material-ui/core/Typography";
 import { NavLink, useParams, useHistory } from "react-router-dom";
 import API from '@ravibasil/common/api/clients.api';
@@ -157,19 +158,14 @@ const ClientDetail = () => {
         <>
             <Grid container>
                 <Grid item sm sm={12}>
-                    <Paper style={{ padding: 20, margin: 10 }}>
-                        <Breadcrumbs
-                            style={{
-                                display: "flex",
-                                justifyContent: "center"
-                            }}>
-                            <NavLink
-                                to='/clients'>
-                                Clients
-								</NavLink>
-
-                            <Typography color="textPrimary">Client Details</Typography>
-                        </Breadcrumbs>
+                    <Paper style={{ padding: 20, margin: 10, display: 'flex' }}>
+                        <NavLink
+                            to='/clients'>
+                            <IconButton>
+                                <ArrowBackIcon />
+                            </IconButton>
+                        </NavLink>
+                        <Typography color="textPrimary" style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginleft: 'inherit' }}>Client Details</Typography>
                     </Paper>
                     <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
