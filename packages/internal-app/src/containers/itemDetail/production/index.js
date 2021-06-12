@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useDispatch,useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
 import get from 'lodash/get';
 
@@ -111,6 +111,7 @@ export default function Production(props) {
                     { field: 'id', title: 'ID' },
                     { field: 'name', title: 'Name' },
                     { field: 'quantity', title: 'Quantity' },
+                    // { field: 'factory',title: 'Factory'},
                     { field: 'start_date', title: 'Start date' },
                     { field: 'end_date', title: 'End date' },
                     { field: 'isApprovedforProduction', title: 'Production Approval' }

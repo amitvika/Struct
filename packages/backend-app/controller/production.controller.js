@@ -14,6 +14,7 @@ exports.get = async (req, res) => {
             productions = await ProductionModel
                 .find(query)
                 .populate('approval_list.author')
+                .populate('factory_id')
                 .sort({ updatedAt: -1 })
 
         }
@@ -21,6 +22,7 @@ exports.get = async (req, res) => {
             productions = await ProductionModel
                 .find()
                 .populate('approval_list.author')
+                .populate('factory_id')
                 .sort({ updatedAt: -1 })
 
         }
@@ -89,7 +91,9 @@ exports.upsert = async (req, res) => {
         });
         await changeTracking.save();
 
-        production = await ProductionModel.findById(production._id).populate('productionApprovedBy')
+        production = await ProductionModel.findById(production._id)
+            .populate('productionApprovedBy')
+            .populate('factory_id')
 
         res.json(mapProduction(production))
     }
@@ -130,7 +134,8 @@ exports.approveItemForProduction = async (req, res) => {
         await changeTracking.save();
 
         production = await ProductionModel.findById(production._id)
-            .populate('approval_list.author');
+            .populate('approval_list.author')
+            .populate('factory_id')
 
         res.json(mapProduction(production))
     }
@@ -151,6 +156,7 @@ exports.itemInProduction = async (req, res) => {
         productions = await ProductionModel
             .find(query)
             .populate('item_id')
+            .populate('factory_id')
             .sort({ updatedAt: -1 })
 
         console.log(productions.length)

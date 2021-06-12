@@ -232,7 +232,6 @@ const Items = ({ handleSave }) => {
             <Backdrop isLoading={isLoading} />
 
             {isAddEditItemModalOpened && <AddEditItemModal
-                // title={"Item"}
                 title={isEditing ? "" : "Item"}
                 isAddEditItemModalOpened={isAddEditItemModalOpened}
                 toggleAddEditItemModal={toggleAddItemModal}
