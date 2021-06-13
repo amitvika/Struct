@@ -21,23 +21,6 @@ export default function Production(props) {
 
     const [list, setList] = useState([]);
 
-    const [approvalList, setApprovalList] = useState([
-        {
-            id: 1,
-            isApproved: false,
-            approvedBy: ''
-        },
-        {
-            id: 2,
-            isApproved: false,
-            approvedBy: ''
-        },
-        {
-            id: 3,
-            isApproved: false,
-            approvedBy: ''
-        }])
-
     const toggleModal = () => {
         setIsModalOpened(false);
         setSelectedValue({})
@@ -72,9 +55,10 @@ export default function Production(props) {
 
     const handleApproveItemForProduction = (productionId, data) => {
         setIsLoading(true)
-        setIsModalOpened(false);
+        // setIsModalOpened(false);
         ProductionAPI.approveItemForProduction(productionId, data)
             .then(res => {
+                setSelectedValue(get(res, 'data'));
 
                 setList(list.map(production => {
                     if (production.id === get(res, 'data.id')) {
@@ -102,6 +86,7 @@ export default function Production(props) {
                     selectedValue={selectedValue}
                     setSelectedValue={setSelectedValue}
                     handleApproveItemForProduction={handleApproveItemForProduction}
+                    isLoading={isLoading}
                 />}
 
             <GridView
