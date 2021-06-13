@@ -85,10 +85,11 @@ const mapApprovalList = (approvalList) => {
         .filter(item => item.author)
         .map(item => {
             return {
+                approval_id: item._id,
                 author: item.author._id,
                 author_name: item.author.name,
                 approval_time: item.time,
-                is_checked: item.isApproved
+                is_approved: item.is_approved
             }
         })
 

@@ -77,7 +77,7 @@ export default function Production(props) {
 
     return (
         <>
-            <SimpleBackdrop open={isLoading} />
+            {isLoading && <SimpleBackdrop open={isLoading} />}
             <Heading>Production Approval</Heading>
             {isModalOpened &&
                 <ProductionApprovalModal

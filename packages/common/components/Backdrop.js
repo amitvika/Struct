@@ -11,12 +11,8 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function SimpleBackdrop({ isLoading }) {
+export default function SimpleBackdrop({ isLoading = false }) {
     const classes = useStyles();
-    const [open, setOpen] = React.useState(true);
-    const handleClose = () => {
-        setOpen(false);
-    };
 
     return (
         <Backdrop className={classes.backdrop} open={isLoading} >
