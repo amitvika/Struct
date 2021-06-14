@@ -16,6 +16,7 @@ import {
 
 import styled from 'styled-components'
 import SelectedFeatureMenu from './SelectedFeatureMenu';
+import SelectedMatesRelation from './SelectedMatesRelation';
 
 const myTheme = {
     'my-theme': {
@@ -181,6 +182,7 @@ export default function ViewerToolbar({
 
             <SelectedFeatureMenu
                 featureList={selectedObjects} />
+            <SelectedMatesRelation featureList={selectedObjects} />
         </>
     )
 }
