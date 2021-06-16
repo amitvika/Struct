@@ -167,7 +167,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 							// label="Item Type"
 							placeholder="Select"
 							options={[
-								{ label: 'Machine - Actuator', value: 'Submachine - Actuator' },
+								// { label: 'Machine - Actuator', value: 'Submachine - Actuator' },
 								{ label: 'Machine - Motion Control', value: 'Machine - Motion Control' },
 								{ label: 'Machine - Compound/Tool/Workholding', value: 'Machine - Compound/Tool/Workholding' },
 								// { label: "Machine - Workpiece Environment Modification", value: "Machine - Workpiece Environment Modification" },

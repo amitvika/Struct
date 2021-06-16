@@ -13,7 +13,8 @@ import Backdrop from '@ravibasil/common/components/Backdrop'
 
 const useStyles = makeStyles((theme) => ({
     container: {
-        background: 'linear-gradient(45deg, rgb(42, 42, 42) 30%, rgb(125, 125, 125) 90%)',
+        // background: 'linear-gradient(45deg, rgb(42, 42, 42) 30%, rgb(125, 125, 125) 90%)',
+        background: '#E8E9EA',
         width: '100%',
         height: '100%',
         display: 'flex',
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     },
     card_container: {
         maxWidth: '700px',
-        width: '35%'
+        width: '45%'
         
     },
     logo_container: {
@@ -79,7 +80,7 @@ const LoginModal = () => {
 
     return (
         <Box as="div" className={classes.container}>
-            <Card className={classes.card_container}>
+            <Card elevation={3} className={classes.card_container}>
                 <CardContent>
                     <Box as="div" className={classes.logo_container}>
                         <img
@@ -108,7 +109,6 @@ const LoginModal = () => {
                             type="password"
                             name="password" //has to match the name of the variable in the state
                             onChange={(event) => setPassword(event.target.value)}
-
                         />
 
                         <Box as="div" style={{ margin: '8px' }}>

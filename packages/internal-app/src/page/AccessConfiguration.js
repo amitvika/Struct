@@ -25,7 +25,6 @@ import { NavLink } from 'react-router-dom'
 import AccessConfigurationAPI from '@ravibasil/common/api/accessConfig.api'
 import { showErrorAlert, showSuccessAlert } from '../actions/alert.action';
 
-
 const AccessConfiguration = (props) => {
     const dispatch = useDispatch();
     const { id } = useParams();

@@ -9,7 +9,8 @@ import {
     Grid,
     Breadcrumbs,
     Typography,
-    CircularProgress
+    CircularProgress,
+    IconButton
 } from "@material-ui/core";
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import EditIcon from '@material-ui/icons/Edit';
@@ -184,11 +185,11 @@ const ItemDetail = () => {
                     <Paper style={{ padding: 20, margin: 10,display: 'flex' }}>
                         <NavLink
                             to='/items'>
-                            {/* <IconButton> */}
+                            <IconButton>
                                 <ArrowBackIcon />
-                            {/* </IconButton> */}
+                            </IconButton>
                         </NavLink>
-                        <Typography color="textPrimary" style={{display: 'flex',alignItems: 'center',fontWeight: 'bold', marginleft: 'inherit'}}>Item Details</Typography>
+                        <Typography color="textPrimary" style={{display: 'flex', alignItems: 'center', fontWeight: 'bold', marginleft: 'inherit' }}>Item Details</Typography>
                     </Paper>
                     <Paper style={{ padding: 10, margin: 10,display:"flex" }}>
                         <Grid>

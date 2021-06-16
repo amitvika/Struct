@@ -307,7 +307,6 @@ const Factories = () => {
                 updateFactory={isEditing ? updateFactory : addFactory}
                 isEditing={isEditing}
                 selectedValue={selectedListItem}
-
             />
 
             <Toolbar

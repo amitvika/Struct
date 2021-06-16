@@ -9,6 +9,7 @@ import MachineTool_Workholding from './MachineTool_Workholding';
 import UnassembledKit from './UnassembledKit';
 import Switch from '@material-ui/core/Switch';
 import { withStyles } from '@material-ui/core/styles';
+import Headding from '@ravibasil/common/components/atoms/Headding'
 
 
 export default function ItemTypeConfigurations({ itemProperties = {}, setItemProperties, gltfjson, setgltfjson }) {
@@ -39,14 +40,9 @@ export default function ItemTypeConfigurations({ itemProperties = {}, setItemPro
     const handleChange = (event) => {
         setState({ ...state, [event.target.name]: event.target.checked });
     };
-
-    // if (!itemProperties.itemGeometry) {
-    //   return <div>Please populate fields in Item Properties and Geometry</div>
-    // }
     return (
-        <Grid className="section-padding-left" container spacing={4}>
-            <Grid item xs={12} >
-            </Grid>
+
+        <>
             {
                 itemGeometry.itemType === 'Unassembled Kit' &&
                 <UnassembledKit />
@@ -68,32 +64,34 @@ export default function ItemTypeConfigurations({ itemProperties = {}, setItemPro
                 />
             }
 
+
             {
                 itemGeometry.itemType && itemGeometry.itemType.includes('Machine -') &&
-                <Grid item xs={12}>
-                    <MaterialTable
-                        title={itemGeometry.itemType}
-                        columns={columns}
-                    />
-                </Grid>
+                // <Grid item xs={12} style={{ marginTop: '25px' }}>
+                <MaterialTable
+                    title={itemGeometry.itemType}
+                    columns={columns}
+                />
+                // </Grid>
             }
-            {
-                itemGeometry.itemType === "Submachine - Actuator" &&
-                <Grid item xs={4} >
-                    <Grid component="label" container alignItems="center" spacing={1}>
-                        <Grid item>Rotational Actuator</Grid>
-                        <Switch color="primary" />
-                        <Grid item>Linear Actuator</Grid>
-                    </Grid>
-                    <Grid component="label" container alignItems="center" spacing={1}>
-                        <Grid item>Select Stator/Stationary Component(s)</Grid>
-                        <Switch color="primary" />
-                    </Grid>
-                    <Grid component="label" container alignItems="center" spacing={1}>
-                        <Grid item>Select Rotor/Mobile Component(s)</Grid>
-                        <Switch color="primary" />
-                    </Grid>
-                    {/* <Select
+            <Grid className="section-padding-left" container>
+                {
+                    itemGeometry.itemType === "Submachine - Actuator" &&
+                    <Grid item xs={4} >
+                        <Grid component="label" container alignItems="center" spacing={1}>
+                            <Grid item>Rotational Actuator</Grid>
+                            <Switch color="primary" />
+                            <Grid item>Linear Actuator</Grid>
+                        </Grid>
+                        <Grid component="label" container alignItems="center" spacing={1}>
+                            <Grid item>Select Stator/Stationary Component(s)</Grid>
+                            <Switch color="primary" />
+                        </Grid>
+                        <Grid component="label" container alignItems="center" spacing={1}>
+                            <Grid item>Select Rotor/Mobile Component(s)</Grid>
+                            <Switch color="primary" />
+                        </Grid>
+                        {/* <Select
             label="Machine Actuator Type"
             placeholder="Select"
             options={[
@@ -103,118 +101,120 @@ export default function ItemTypeConfigurations({ itemProperties = {}, setItemPro
             onChange={(data) => handleOnChange('machineActuatorType', data.value)}
             value={itemConfiguration.machineActuatorType && { label: itemConfiguration.machineActuatorType }}
           /> */}
-                </Grid>
-            }
-            {
-                itemConfiguration.machineActuatorType === 'Linear' &&
-                <>
-                    <Grid item xs={4} >
-                        <Input
-                            label="Travel Length (mm)"
-                            placeholder="Enter"
-                            type="number"
-                            onChange={(event) => handleOnChange('travelLength', event.target.value)}
-                            value={itemConfiguration.travelLength}
-                        />
                     </Grid>
-                    <Grid item xs={4} >
-                        <Input
-                            label="Resolution (um)"
-                            placeholder="Enter"
-                            type="number"
-                            onChange={(event) => handleOnChange('resolution', event.target.value)}
-                            value={itemConfiguration.resolution}
-                        />
-                    </Grid>
+                }
+                {
+                    itemConfiguration.machineActuatorType === 'Linear' &&
+                    <>
+                        <Grid item xs={4} >
+                            <Input
+                                label="Travel Length (mm)"
+                                placeholder="Enter"
+                                type="number"
+                                onChange={(event) => handleOnChange('travelLength', event.target.value)}
+                                value={itemConfiguration.travelLength}
+                            />
+                        </Grid>
+                        <Grid item xs={4} >
+                            <Input
+                                label="Resolution (um)"
+                                placeholder="Enter"
+                                type="number"
+                                onChange={(event) => handleOnChange('resolution', event.target.value)}
+                                value={itemConfiguration.resolution}
+                            />
+                        </Grid>
 
-                    <Grid item xs={4} ></Grid>
-                    <Grid item xs={4} >
-                        <Input
-                            label="Repeatability (um)"
-                            placeholder="Enter"
-                            type="number"
-                            onChange={(event) => handleOnChange('repeatability', event.target.value)}
-                            value={itemConfiguration.repeatability}
-                        />
-                    </Grid>
-                    <Grid item xs={4} >
-                        <Input
-                            label="Backlash (um)"
-                            placeholder="Enter"
-                            type="number"
-                            onChange={(event) => handleOnChange('backlash', event.target.value)}
-                            value={itemConfiguration.backlash}
-                        />
-                    </Grid>
+                        <Grid item xs={4} ></Grid>
+                        <Grid item xs={4} >
+                            <Input
+                                label="Repeatability (um)"
+                                placeholder="Enter"
+                                type="number"
+                                onChange={(event) => handleOnChange('repeatability', event.target.value)}
+                                value={itemConfiguration.repeatability}
+                            />
+                        </Grid>
+                        <Grid item xs={4} >
+                            <Input
+                                label="Backlash (um)"
+                                placeholder="Enter"
+                                type="number"
+                                onChange={(event) => handleOnChange('backlash', event.target.value)}
+                                value={itemConfiguration.backlash}
+                            />
+                        </Grid>
 
-                    <Grid item xs={4} ></Grid>
-                    <Grid item xs={4} >
-                        <Input
-                            label="Max Force (N)"
-                            placeholder="Enter"
-                            type="number"
-                            onChange={(event) => handleOnChange('maxForce', event.target.value)}
-                            value={itemConfiguration.maxForce}
-                        />
-                    </Grid>
-                </>
-            }
+                        <Grid item xs={4} ></Grid>
+                        <Grid item xs={4} >
+                            <Input
+                                label="Max Force (N)"
+                                placeholder="Enter"
+                                type="number"
+                                onChange={(event) => handleOnChange('maxForce', event.target.value)}
+                                value={itemConfiguration.maxForce}
+                            />
+                        </Grid>
+                    </>
+                }
 
-            {
-                itemConfiguration.machineActuatorType === 'Rotational' &&
-                <>
-                    <Grid item xs={4} >
-                        <Input
-                            label="Rotation Limit (radians)"
-                            placeholder="Enter"
-                            type="number"
-                            onChange={(event) => handleOnChange('rotationLimit', event.target.value)}
-                            value={itemConfiguration.rotationLimit}
-                        />
-                    </Grid>
-                    <Grid item xs={4} >
-                        <Input
-                            label="Resolution (arcseconds)"
-                            placeholder="Enter"
-                            type="number"
-                            onChange={(event) => handleOnChange('rotationResolution', event.target.value)}
-                            value={itemConfiguration.rotationResolution}
-                        />
-                    </Grid>
+                {
+                    itemConfiguration.machineActuatorType === 'Rotational' &&
+                    <>
+                        <Grid item xs={4} >
+                            <Input
+                                label="Rotation Limit (radians)"
+                                placeholder="Enter"
+                                type="number"
+                                onChange={(event) => handleOnChange('rotationLimit', event.target.value)}
+                                value={itemConfiguration.rotationLimit}
+                            />
+                        </Grid>
+                        <Grid item xs={4} >
+                            <Input
+                                label="Resolution (arcseconds)"
+                                placeholder="Enter"
+                                type="number"
+                                onChange={(event) => handleOnChange('rotationResolution', event.target.value)}
+                                value={itemConfiguration.rotationResolution}
+                            />
+                        </Grid>
 
-                    <Grid item xs={4} ></Grid>
-                    <Grid item xs={4} >
-                        <Input
-                            label="Repeatability (arcseconds)"
-                            placeholder="Enter"
-                            type="number"
-                            onChange={(event) => handleOnChange('rotationRepeatability', event.target.value)}
-                            value={itemConfiguration.rotationRepeatability}
-                        />
-                    </Grid>
-                    <Grid item xs={4} >
-                        <Input
-                            label="Backlash (arcseconds)"
-                            placeholder="Enter"
-                            type="number"
-                            onChange={(event) => handleOnChange('rotationBacklash', event.target.value)}
-                            value={itemConfiguration.rotationBacklash}
-                        />
-                    </Grid>
+                        <Grid item xs={4} ></Grid>
+                        <Grid item xs={4} >
+                            <Input
+                                label="Repeatability (arcseconds)"
+                                placeholder="Enter"
+                                type="number"
+                                onChange={(event) => handleOnChange('rotationRepeatability', event.target.value)}
+                                value={itemConfiguration.rotationRepeatability}
+                            />
+                        </Grid>
+                        <Grid item xs={4} >
+                            <Input
+                                label="Backlash (arcseconds)"
+                                placeholder="Enter"
+                                type="number"
+                                onChange={(event) => handleOnChange('rotationBacklash', event.target.value)}
+                                value={itemConfiguration.rotationBacklash}
+                            />
+                        </Grid>
 
-                    <Grid item xs={4} ></Grid>
-                    <Grid item xs={4} >
-                        <Input
-                            label="Max Force (Nm)"
-                            placeholder="Enter"
-                            type="number"
-                            onChange={(event) => handleOnChange('rotationMaxForce', event.target.value)}
-                            value={itemConfiguration.rotationMaxForce}
-                        />
-                    </Grid>
-                </>
-            }
+                        <Grid item xs={4} ></Grid>
+                        <Grid item xs={4} >
+                            <Input
+                                label="Max Force (Nm)"
+                                placeholder="Enter"
+                                type="number"
+                                onChange={(event) => handleOnChange('rotationMaxForce', event.target.value)}
+                                value={itemConfiguration.rotationMaxForce}
+                            />
+                        </Grid>
+                    </>
 
-        </Grid>
+                }
+            </Grid>
+
+        </>
     )
 }

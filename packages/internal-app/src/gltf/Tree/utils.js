@@ -29,7 +29,7 @@ export const SELECTFEATURE=26;
 
 export const DEFAULTSELECTCOLOR = "#17FF17";
 export const DEFAULTTOUCHCOLOR = "#FF1717";
-export const DEFAULTBACKCOLOR = "#E8FFE8";
+export const DEFAULTBACKCOLOR = "#C0C0C0";
 export const DEFAULTTEXTCOLOR = "#170017";
 
 export const hexToRGB = (hex) => {

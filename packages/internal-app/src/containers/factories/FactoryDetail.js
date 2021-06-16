@@ -102,14 +102,14 @@ const FactoriesDetail = () => {
         <>
             <Grid container>
                 <Grid item sm sm={12}>
-                    <Paper style={{ padding: 20, margin: 10,display: 'flex' }}>
+                    <Paper style={{ padding: 20, margin: 10, display: 'flex' }}>
                         <NavLink
                             to='/factories'>
                             <IconButton>
                                 <ArrowBackIcon />
                             </IconButton>
                         </NavLink>
-                        <Typography color="textPrimary" style={{display: 'flex',alignItems: 'center',fontWeight: 'bold', marginleft: 'inherit'}}>Factories Details</Typography>
+                        <Typography color="textPrimary" style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginleft: 'inherit' }}>Factories Details</Typography>
                     </Paper>
                     <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -152,7 +152,7 @@ const FactoriesDetail = () => {
                     color="primary"
                     onClick={handleSave}>
                     Save
-          </Button>
+                </Button>
             </Snackbar>
 
         </>

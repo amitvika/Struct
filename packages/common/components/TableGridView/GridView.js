@@ -128,22 +128,12 @@ export default function GridView({
                                 <Grid item sm sm={4} style={{ display: 'flex' }}>
                                     {renderIconBasedOnFileType(product.file_url)}
                                 </Grid>
-                                <Grid item sm sm={8}>
+                                <Grid elevation={3} item sm sm={8} style={{marginTop: '25px'}}>
 
                                     {renderItem(product)}
-
-                                    {
-                                        isHistoryLinkVisible &&
-                                        <Grid item sm sm={12} className={classes.historyLink}>
-                                            <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={(event) => {
-                                                event.stopPropagation();
-                                                handleHistoryToggle({ rowId: product.id })
-                                            }}>
-                                                View History
-                		</Typography>
-                                        </Grid>
-
-                                    }
+                                </Grid>
+                                <Grid style={{display: 'flex', margin: 'auto',width: '154px'}}>
+                                    
                                     {
                                         isAddEditLinkVisible &&
                                         <Grid item sm sm={12} >
@@ -159,6 +149,18 @@ export default function GridView({
 
                                         </Grid>
                                     }
+                                    {
+                                        isHistoryLinkVisible &&
+                                        <Grid item sm sm={12} className={classes.historyLink}>
+                                            <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={(event) => {
+                                                event.stopPropagation();
+                                                handleHistoryToggle({ rowId: product.id })
+                                            }}>
+                                                View History
+                                            </Typography>
+                                        </Grid>
+
+                                    }
                                 </Grid>
                             </Grid>
                         </Paper>
@@ -167,7 +169,7 @@ export default function GridView({
             })
             }
 
-        </Grid>
+        </Grid >
 
     )
 }
