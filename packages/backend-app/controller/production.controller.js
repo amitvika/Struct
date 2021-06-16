@@ -14,6 +14,7 @@ exports.get = async (req, res) => {
             productions = await ProductionModel
                 .find(query)
                 .populate('approval_list.author')
+                .populate('factory_id')
                 .sort({ updatedAt: -1 })
 
         }
@@ -21,6 +22,7 @@ exports.get = async (req, res) => {
             productions = await ProductionModel
                 .find()
                 .populate('approval_list.author')
+                .populate('factory_id')
                 .sort({ updatedAt: -1 })
 
         }
@@ -89,7 +91,9 @@ exports.upsert = async (req, res) => {
         });
         await changeTracking.save();
 
-        production = await ProductionModel.findById(production._id).populate('productionApprovedBy')
+        production = await ProductionModel.findById(production._id)
+            .populate('productionApprovedBy')
+            .populate('factory_id')
 
         res.json(mapProduction(production))
     }
@@ -111,13 +115,27 @@ exports.approveItemForProduction = async (req, res) => {
             isApprovedforProduction = production.approval_list.length == 2 ? true : false;
         }
 
-        production = await ProductionModel.findByIdAndUpdate(
-            req.params.id,
-            {
-                $push: { "approval_list": { author: req.user.id, is_approved: true } },
-                $set: { isApprovedforProduction: isApprovedforProduction }
-            },
-            { new: true })
+        if (req.body.is_approved) {
+
+            production = await ProductionModel.findByIdAndUpdate(
+                req.params.id,
+                {
+                    $push: { "approval_list": { author: req.user.id, is_approved: req.body.is_approved } },
+                    $set: { isApprovedforProduction: isApprovedforProduction }
+                },
+                { new: true })
+        }
+        else {
+            production = await ProductionModel.findByIdAndUpdate(req.params.id,
+                {
+                    "$pull": {
+                        "approval_list": {
+                            "_id": getObjectId(req.body.approval_id)
+                        }
+                    }
+                },
+                { safe: true, multi: true });
+        }
 
         const changeTracking = new ChangeTracking({
             client: req.body.id,
@@ -130,7 +148,8 @@ exports.approveItemForProduction = async (req, res) => {
         await changeTracking.save();
 
         production = await ProductionModel.findById(production._id)
-            .populate('approval_list.author');
+            .populate('approval_list.author')
+            .populate('factory_id')
 
         res.json(mapProduction(production))
     }
@@ -151,6 +170,7 @@ exports.itemInProduction = async (req, res) => {
         productions = await ProductionModel
             .find(query)
             .populate('item_id')
+            .populate('factory_id')
             .sort({ updatedAt: -1 })
 
         console.log(productions.length)

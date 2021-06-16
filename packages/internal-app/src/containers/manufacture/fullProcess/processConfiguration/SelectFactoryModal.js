@@ -25,7 +25,10 @@ export default function SelectFactoryModal({ isModalOpened,fields, toggleModal, 
     }, []);
 
     const handleChange = (data) => {
-        setSelectedValue(prev => ({ ...prev, factory_id: data.value }))
+        // console.log("-----",selectedValue.factory_id)
+        console.log('-----',data)
+        setSelectedValue(prev => ({ ...prev, factory_id: data.value}))
+   
     }
 
     const getOptions = (data) => {
@@ -57,7 +60,7 @@ export default function SelectFactoryModal({ isModalOpened,fields, toggleModal, 
                         value={`${selectedValue.factory_id}`} />
                 </Grid>
 
-                <SelectorView
+                {/* <SelectorView
 						title={'Factory'}
 						fetchList={fetchList}
 						fetchSelectedList={itemProperties}
@@ -65,7 +68,7 @@ export default function SelectFactoryModal({ isModalOpened,fields, toggleModal, 
 						// mapValues={mapItems}
 						handleUpdate={setItemProperties}
 						handleSelection={(data) => setSelectedValue(data)}
-					/>
+					/> */}
                 <Grid item xs={4} style={{ textAlign: 'center' }}>
                     <Button
                         style={{ marginTop: '20px' }}

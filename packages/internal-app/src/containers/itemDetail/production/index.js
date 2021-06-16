@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useDispatch,useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
 import get from 'lodash/get';
 
@@ -20,23 +20,6 @@ export default function Production(props) {
     let { id: item_id } = useParams();
 
     const [list, setList] = useState([]);
-
-    const [approvalList, setApprovalList] = useState([
-        {
-            id: 1,
-            isApproved: false,
-            approvedBy: ''
-        },
-        {
-            id: 2,
-            isApproved: false,
-            approvedBy: ''
-        },
-        {
-            id: 3,
-            isApproved: false,
-            approvedBy: ''
-        }])
 
     const toggleModal = () => {
         setIsModalOpened(false);
@@ -72,9 +55,10 @@ export default function Production(props) {
 
     const handleApproveItemForProduction = (productionId, data) => {
         setIsLoading(true)
-        setIsModalOpened(false);
+        // setIsModalOpened(false);
         ProductionAPI.approveItemForProduction(productionId, data)
             .then(res => {
+                setSelectedValue(get(res, 'data'));
 
                 setList(list.map(production => {
                     if (production.id === get(res, 'data.id')) {
@@ -93,7 +77,7 @@ export default function Production(props) {
 
     return (
         <>
-            <SimpleBackdrop open={isLoading} />
+            {isLoading && <SimpleBackdrop open={isLoading} />}
             <Heading>Production Approval</Heading>
             {isModalOpened &&
                 <ProductionApprovalModal
@@ -102,6 +86,7 @@ export default function Production(props) {
                     selectedValue={selectedValue}
                     setSelectedValue={setSelectedValue}
                     handleApproveItemForProduction={handleApproveItemForProduction}
+                    isLoading={isLoading}
                 />}
 
             <GridView
@@ -111,6 +96,7 @@ export default function Production(props) {
                     { field: 'id', title: 'ID' },
                     { field: 'name', title: 'Name' },
                     { field: 'quantity', title: 'Quantity' },
+                    // { field: 'factory',title: 'Factory'},
                     { field: 'start_date', title: 'Start date' },
                     { field: 'end_date', title: 'End date' },
                     { field: 'isApprovedforProduction', title: 'Production Approval' }

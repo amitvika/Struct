@@ -9,18 +9,16 @@ import ThemeProvider from './ThemeProvider';
 
 function App() {
     return (
-        <div>
-            <ThemeProvider>
-                <Router>
-                    <Layout>
-                        <Switch>
-                            {/* <Route exact path='/' component={Home}></Route> */}
-                            <Route exact path='/' component={Design}></Route>
-                        </Switch>
-                    </Layout>
-                </Router>
-            </ThemeProvider>
-        </div>
+        <ThemeProvider>
+            <Router>
+                <Layout>
+                    <Switch>
+                        {/* <Route exact path='/' component={Home}></Route> */}
+                        <Route exact path='/' component={Design}></Route>
+                    </Switch>
+                </Layout>
+            </Router>
+        </ThemeProvider>
     );
 }
 

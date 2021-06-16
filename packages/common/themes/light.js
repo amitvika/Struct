@@ -21,6 +21,14 @@ export const lightTheme = createMuiTheme({
         backgroundColor: '#252525',
         color: '#ffffff'
     },
+    menuButton:  {
+        fontWeight: 700,
+        size: "18px",
+        '&:hover, &:focus': {
+            background: "#5D6D7E ",
+            color: '#ffffff'
+         }
+    },
     overrides: {
         MuiOutlinedInput: {
             root: {

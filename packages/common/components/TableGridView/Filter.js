@@ -198,7 +198,7 @@ export default function Filter({
             <TableHead>
                 <TableRow>
                     <StyledTableCell width={`5%`}>
-                        <Icon style={{ marginTop: '10px' }}>search</Icon>
+                        <SearchIcon />
                     </StyledTableCell>
                     <StyledTableCell width={`5%`}>
                         <Button

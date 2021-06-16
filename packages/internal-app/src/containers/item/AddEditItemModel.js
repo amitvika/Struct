@@ -39,6 +39,7 @@ export default function AddEditVendorModal({ isAddEditItemModalOpened, toggleAdd
     }
 
     const handleOnChange = (name, value) => {
+        console.log("------",name)
         setValue(preValue => ({
             ...preValue,
             [name]: value

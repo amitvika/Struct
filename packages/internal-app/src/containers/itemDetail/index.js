@@ -11,6 +11,10 @@ import {
     Typography,
     CircularProgress
 } from "@material-ui/core";
+import AddBoxIcon from '@material-ui/icons/AddBox';
+import EditIcon from '@material-ui/icons/Edit';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+
 import { NavLink, useParams, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -106,9 +110,9 @@ const ItemDetail = () => {
             case 6:
                 return <Manufacturing
                     itemId={id}
-                    itemProperties={itemProperties} 
+                    itemProperties={itemProperties}
                     setItemProperties={setItemProperties}
-                    fetchList={ItemAPI.getItemsAPI}/>;
+                    fetchList={ItemAPI.getItemsAPI} />;
             case 7:
                 return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
             case 8:
@@ -177,23 +181,30 @@ const ItemDetail = () => {
         <>
             <Grid container>
                 <Grid item sm sm={12}>
-                    <Paper style={{ padding: 20, margin: 10 }}>
-                        <Breadcrumbs
-                            style={{
-                                display: "flex",
-                                justifyContent: "center"
-                            }}>
-                            <NavLink
-                                to='/items'>
-                                Items
-								</NavLink>
-
-                            <Typography color="textPrimary">Item Details</Typography>
-                        </Breadcrumbs>
+                    <Paper style={{ padding: 20, margin: 10,display: 'flex' }}>
+                        <NavLink
+                            to='/items'>
+                            {/* <IconButton> */}
+                                <ArrowBackIcon />
+                            {/* </IconButton> */}
+                        </NavLink>
+                        <Typography color="textPrimary" style={{display: 'flex',alignItems: 'center',fontWeight: 'bold', marginleft: 'inherit'}}>Item Details</Typography>
                     </Paper>
-                    <Paper style={{ padding: 10, margin: 10 }}>
-                        <h4>Item Name: {itemProperties.name}</h4>
-                        <p>Item ID:{id}</p>
+                    <Paper style={{ padding: 10, margin: 10,display:"flex" }}>
+                        <Grid>
+                            <h4>Item Name: {itemProperties.name}</h4>
+                            <p>Item ID:{id}</p>
+                        </Grid>
+
+                        <Grid style={{marginLeft: 'auto'}}>
+                            <Button>
+                                <AddBoxIcon />
+                            </Button>
+                            <Button>
+                                <EditIcon />
+                            </Button>
+
+                        </Grid>
                     </Paper>
                 </Grid>
                 <Grid item sm={2}>

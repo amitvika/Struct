@@ -6,9 +6,10 @@ import {
     Tab,
     Tabs,
     Grid,
-    Breadcrumbs,
+    IconButton,
     Typography
 } from "@material-ui/core";
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 import { NavLink, useParams, useHistory, useLocation } from "react-router-dom";
 import VendorAPI from '@ravibasil/common/api/vendor.api';
@@ -130,22 +131,15 @@ const VendorDetail = () => {
             <Grid container>
 
                 <Grid item sm sm={12}>
-                    <Paper style={{ padding: 20, margin: 10 }}>
-                        <Breadcrumbs
-                            style={{
-                                display: "flex",
-                                justifyContent: "center"
-                            }}
-                        >
-                            <NavLink
-                                to='/vendors'>
-                                Vendors
-              </NavLink>
-
-                            <Typography color="textPrimary">Vendor Details</Typography>
-                        </Breadcrumbs>
+                    <Paper style={{ padding: 20, margin: 10, display: 'flex' }}>
+                        <NavLink
+                            to='/vendors'>
+                            <IconButton>
+                                <ArrowBackIcon />
+                            </IconButton>
+                        </NavLink>
+                        <Typography color="textPrimary" style={{display: 'flex',alignItems: 'center',fontWeight: 'bold', marginleft: 'inherit'}}>Vendor Details</Typography>
                     </Paper>
-
                     <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                             <h4>Vendor Name: {vendorInfo.name}</h4>
@@ -156,7 +150,7 @@ const VendorDetail = () => {
                             logoUrl={vendorInfo.logoUrl}
                             handleLogoChange={handleLogoChange}
                             name={vendorInfo.name} />
-                        
+
 
                     </Paper>
                 </Grid>

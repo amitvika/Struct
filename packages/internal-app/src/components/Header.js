@@ -19,6 +19,7 @@ import Switch from '@material-ui/core/Switch';
 
 import { logout } from "../actions/authActions";
 import { setThemeAction } from '../actions/theme.action'
+import { Color } from "three";
 
 const useStyles = makeStyles((theme) => ({
     toolbar: {
@@ -34,19 +35,13 @@ const useStyles = makeStyles((theme) => ({
         textAlign: "left",
     },
     menuButton: {
-        // fontFamily: "Open Sans, sans-serif",
-        // fontWeight: 700,
-        size: "18px",
-        color: theme.header.color
+        ...theme.menuButton
     },
     menuContainer: {
         display: 'flex',
         justifyContent: 'space-between',
         width: '100%'
     },
-    textColor: {
-        color: theme.header.color
-    }
 }));
 
 export default function Header() {
@@ -82,7 +77,6 @@ export default function Header() {
             />
         </Typography>
     );
-
     const getMenuButtons = () => {
         let menuItems = headersData.map(({ label, href }) => {
             return (
@@ -159,9 +153,10 @@ export default function Header() {
                     aria-controls={open ? 'menu-list-grow' : undefined}
                     aria-haspopup="true"
                     onClick={handleToggle}
-
+                    style={{color: 'white'}}
                     className={classes.menuButton}
                 >
+                 
                     {isAuthenticated
                         ? `Welcome: ${user.name} ${user.email}`
                         : "Not logged in"}

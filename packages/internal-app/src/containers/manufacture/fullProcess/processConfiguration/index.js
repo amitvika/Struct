@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Paper from '@material-ui/core/Paper';
+import Link from '@material-ui/core/Link';
 import { Spinner } from "reactstrap";
 import get from 'lodash/get';
 import { useHistory, useParams } from "react-router-dom";
@@ -31,7 +32,7 @@ export default function ProductionTable() {
     const [columns, setColumns] = useState([
         { title: 'ID', field: 'id', editable: "never" },
         { title: 'Name', field: 'name' },
-        { title: 'Quantity', field: 'quantity', type: 'numeric', editable: "never" },
+        { title: 'Quantity', field: 'quantity', type: 'numeric' },
         {
             title: 'Production Start Date',
             field: 'start_date',
@@ -49,15 +50,25 @@ export default function ProductionTable() {
         },
         {
             title: 'Select Factory',
-            field: "id",
+            field: "factory",
             editable: "never",
             render: rowData => rowData && <span style={{ cursor: 'pointer' }}
-                onClick={(event) => {
-                    event.stopPropagation();
-                    toggleModal(rowData)
-                }}> Select</span>
+                onClick={(event) => handleFactoryClick(event, rowData)}
+            >{ <Link> {rowData.factory_name} </Link> || 'Select'}</span>
+
+
         },
     ])
+
+    const handleFactoryClick = (event, rowData) => {
+        if (rowData.factory_id) {
+            history.push(`/factories/${rowData.factory_id}`)
+            return;
+        }
+
+        event.stopPropagation();
+        toggleModal(rowData)
+    }
 
     const CustomDatePicker = (props) => (
         <MuiPickersUtilsProvider utils={DateFnsUtils}
@@ -202,7 +213,7 @@ export default function ProductionTable() {
                     toggleModal={toggleModal}
                     selectedValue={selectedValue}
                     setSelectedValue={setSelectedValue}
-                    assignFactory={assignFactory} 
+                    assignFactory={assignFactory}
                     quantity={true}
                     fields={columns} />
             }

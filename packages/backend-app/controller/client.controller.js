@@ -7,7 +7,6 @@ const { getObjectId } = require('../utils/helper')
 
 exports.get = async (req, res) => {
     try {
-
         const query = buildQuery(req)
 
         let clients = [];

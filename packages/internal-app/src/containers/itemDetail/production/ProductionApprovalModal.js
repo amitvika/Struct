@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -6,44 +6,47 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { Paper, Grid, Button } from '@material-ui/core';
 import MainModal from '@ravibasil/common/components/Modal'
 import Heading from '@ravibasil/common/components/atoms/Headding';
+import Link from '@material-ui/core/Link';
+import { useHistory, useParams } from "react-router-dom";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 export default function ProductionApprovalModal({
     isModalOpened,
     toggleModal,
     selectedValue,
-    setSelectedValue,
     handleApproveItemForProduction,
-    list
+    isLoading
 }) {
-
+    let history = useHistory();
     const { user } = useSelector(state => state.auth);
 
-    const [currentApproval, setCurrentApproval] = useState({ author_name: '', author: "", date: '1223', isChecked: false })
+    const [currentApproval, setCurrentApproval] = useState({ author_name: '', author: "", date: '1223', is_approved: false })
 
-    const onChange = (event) => {
-
+    const onChange = (event) => (approval) => {
         if (event.target.checked) {
-            setCurrentApproval({ author: user._id, author_name: user.name, date: '1223', isChecked: true })
+            setCurrentApproval(prev => ({ ...prev, is_approved: false }));
+
+            const cApproval = { author: user._id, author_name: user.name, date: '1223', is_approved: true }
+            handleApproveItemForProduction(selectedValue.id, cApproval)
         }
         else {
-            setCurrentApproval({ isChecked: false })
+            handleApproveItemForProduction(selectedValue.id, { ...approval, is_approved: false })
         }
     }
-
 
     const renderProductionApprovalActions = () => {
         let approvalList = selectedValue.approval_list || []
         let list = [];
 
         list.push(
-            approvalList.map(approvalItem => {
+            approvalList.map((approvalItem, index) => {
                 return (
-                    <Grid container xs={12} style={{ textAlign: 'center' }}>
+                    <Grid key={approvalItem.approval_id} item xs={12}>
                         <FormControlLabel
                             control={
                                 <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-                                    disabled
-                                    checked={true}
+                                    onChange={(event) => onChange(event)(approvalItem)}
+                                    checked={approvalItem.is_approved}
                                 />
                             }
                             label={`Approved By ${approvalItem.author_name} on ${moment(approvalItem.approval_time).format('DD/MM/YYYY HH:mm:ss')}`}
@@ -55,15 +58,15 @@ export default function ProductionApprovalModal({
 
         if (approvalList.length < 3) {
             list.push(
-                <Grid container xs={12} style={{ textAlign: 'center' }}>
+                <Grid key={'new_approval'} item xs={12}>
                     <FormControlLabel
                         control={
                             <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-                                onChange={onChange}
-                                checked={currentApproval.isChecked}
+                                onChange={(event) => onChange(event)({})}
+                                checked={currentApproval.is_approved}
                             />
                         }
-                        label={`${currentApproval.isChecked ? currentApproval.author_name : ''}`}
+                        label={`${currentApproval.is_approved ? currentApproval.author_name : approvalList.length == 2 ? 'CHECK TO START PRODUCTION' : ''}`}
                     />
                 </Grid>
             )
@@ -71,7 +74,10 @@ export default function ProductionApprovalModal({
 
         return list
     }
+    const handleFactoryClick = () => {
+        history.push(`/factories/${selectedValue.factory_id}`)
 
+    }
     return (
         <MainModal open={isModalOpened} toggleModal={toggleModal} >
             <Paper style={{ padding: 10 }}>
@@ -97,6 +103,12 @@ export default function ProductionApprovalModal({
                     <Grid item xs={8}>{selectedValue.quantity}</Grid>
 
                     <Grid item xs={4}>
+                        Factory
+                    </Grid>
+                    <Grid item xs={8} style={{ cursor: 'pointer' }}>
+                        <Link onClick={handleFactoryClick}>{selectedValue.factory_name} </Link></Grid>
+
+                    <Grid item xs={4}>
                         Start Date
                     </Grid>
                     <Grid item xs={8}>{moment(selectedValue.start_date).format('DD/MM/YYYY')}</Grid>
@@ -109,24 +121,13 @@ export default function ProductionApprovalModal({
                     <Grid item xs={4}>
                         Approved for Production
                     </Grid>
-                    <Grid container xs={8} style={{ display: "flex" }}>
+                    <Grid item xs={8}>
                         {
                             renderProductionApprovalActions()
                         }
-
-                    </Grid>
-
-
-                    <Grid item xs={12} style={{ textAlign: 'center' }}>
-                        <Button
-                            style={{ marginTop: '20px' }}
-                            variant="contained"
-                            color="primary"
-                            type="button"
-                            disabled={!currentApproval.isChecked}
-                            onClick={() => handleApproveItemForProduction(selectedValue.id, currentApproval)}>
-                            OK
-                    </Button>
+                        {
+                            isLoading && <CircularProgress />
+                        }
                     </Grid>
                 </Grid>
 

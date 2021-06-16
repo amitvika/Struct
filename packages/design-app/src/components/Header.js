@@ -17,26 +17,18 @@ const useStyles = makeStyles((theme) => ({
         paddingLeft: "118px",
     },
     logo: {
-        fontFamily: "Work Sans, sans-serif",
         fontWeight: 600,
         color: "#FFFEFE",
         textAlign: "left",
     },
-    menuButton: {
-        fontFamily: "Open Sans, sans-serif",
-        fontWeight: 700,
-        size: "18px",
-        // color: theme.header.color
+    menuButton:  {
+      ...theme.menuButton
     },
     menuContainer: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        width: '50%',
-    },
-    textColor: {
-        color: 'white'
-        // color: theme.header.color
-    }
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '50%',
+},
 }));
 
 export default function Header() {

@@ -42,7 +42,7 @@ const TableGridView = ({
             try {
                 setIsLoading(true);
 
-                // const res = await fetchList()
+                const res = await fetchList()
 
                 const mappedList = get(res, 'data', []);
 

@@ -24,7 +24,8 @@ exports.mapProduction = (item = {}) => {
         quantity: item.quantity,
         start_date: item.start_date,
         end_date: item.end_date,
-        factory_id: item.factory_id,
+        factory_name: get(item, 'factory_id.name', ''),
+        factory_id: get(item, 'factory_id._id', ''),
         created_by_name: get(item, 'created_by.name', ''),
         created_by: get(item, 'created_by._id', ''),
         is_archived: item.is_archived,
@@ -84,10 +85,11 @@ const mapApprovalList = (approvalList) => {
         .filter(item => item.author)
         .map(item => {
             return {
+                approval_id: item._id,
                 author: item.author._id,
                 author_name: item.author.name,
                 approval_time: item.time,
-                is_checked: item.isApproved
+                is_approved: item.is_approved
             }
         })
 
