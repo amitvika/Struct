@@ -13,9 +13,16 @@ import Icon from '../../../gltf/Tree/Icon'
 import {
     Grid
 } from "@material-ui/core"
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 
 import styled from 'styled-components'
 import SelectedFeatureMenu from './SelectedFeatureMenu';
+import SelectedMatesRelation from './SelectedMatesRelation';
 
 const myTheme = {
     'my-theme': {
@@ -178,9 +185,22 @@ export default function ViewerToolbar({
                     )}
                 </MotionButton>
             )}
-
-            <SelectedFeatureMenu
-                featureList={selectedObjects} />
+            <TableContainer>
+            <Table aria-label="simple table">                
+                <TableBody>
+                    <TableRow>
+                        <TableCell component="th" scope="row">
+                            <SelectedFeatureMenu 
+                                featureList={selectedObjects} />
+                        </TableCell>
+                        <TableCell align="right">
+                            <SelectedMatesRelation data={true} featureList={selectedObjects} />
+                        </TableCell>                                          
+                    </TableRow>
+                </TableBody>
+            </Table>
+            </TableContainer>            
+            
         </>
     )
 }

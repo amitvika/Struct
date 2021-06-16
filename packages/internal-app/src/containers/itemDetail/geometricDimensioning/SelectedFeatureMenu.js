@@ -10,9 +10,9 @@ import Paper from '@material-ui/core/Paper';
 export default function SelectedFeatureMenu({ featureList = [] }) {
 
     const renderTable = () => {
-
-        return featureList.map((row) => (
-            <TableRow key={row.name}>
+        console.log("FeaturList",featureList);
+        return featureList.map((row,index) => (
+            <TableRow key={row.name+index.toString()}>
                 <TableCell component="th" scope="row">
                     {row.name}
                 </TableCell>

@@ -791,32 +791,78 @@ def FileGetMinimumDistance(request):
             #print(data)        
     return JsonResponse(data, safe=False)
 
+def findMates(firstshell,secondshell):
+    
+    coplaner = "unknown"
+    parallel = "unknown"
+    normal = "unknown"
+    opposite = "unknown"
+    concentric = "unknown"
+    coradial = "unknwon"  
+    angle = "unknown"   
+    if firstshell and secondshell:
+        firstEntity = recognize_entity(firstshell)
+        secondEntity = recognize_entity(secondshell)
+        firstAxis =  firstEntity["position"]
+        secondAxis = secondEntity["position"]
+        if(firstAxis and secondAxis):            
+            coplaner = firstAxis.IsCoplanar (secondAxis, 0.1, 0.5)
+            firstDir = firstAxis.Direction()
+            secondDir = secondAxis.Direction()
+            parallel = firstDir.IsParallel(secondDir, 0.5)
+            normal = firstDir.IsNormal(secondDir, 0.5)
+            opposite = firstDir.IsOpposite(secondDir, 0.5)
+            concentric = (firstEntity["center"]==secondEntity["center"])
+            if ( ((firstEntity["kind"]=="Sphere" and secondEntity["kind"]=="Sphere")) or ((firstEntity["kind"]=="Cylinder" and secondEntity["kind"]=="Cylinder")) ): 
+                coradial = (firstEntity["radius"] == secondEntity["radius"]) and concentric
+            else:
+                coradial = False  
+            angle = firstDir.Angle(secondDir)          
+          
+        return firstEntity["kind"], secondEntity["kind"], coplaner, parallel, normal, opposite, concentric, coradial, angle
+
+
 @api_view(['GET', 'POST'])
 def FileGetShapeInfo(request):
     data = []
     if request.method == 'GET':       
-        fname = request.GET.get('fname',"")                    
-        print("Got request for",fname)
-        if fname:
-            try:
-                with open("Display/"+fname+".pickle", 'rb') as f:
-                    # The protocol version used is detected automatically, so we do not
-                    # have to specify it.
-                    thisshell = pickle.load(f)
-                    data = []
-                    dumpTopologyStructures(thisshell,level=0,parentId=[None],returnStructure=data)
-            except Exception as e:
-                print("Error while loading",fname,e)
+        sname = request.GET.get('fname',"")         
+        if sname=="":
+            steps = request.GET.get('steps',"")   
+            fnames=steps.split(",")
+            start = convertToInt(request.GET.get('steps',"0"),0)
+        else:
+            fnames=[sname]
+            start=0
+        structArray=[]
+        thisshell=[]
+        for index in range(len(fnames)):
+
+            fname = fnames[index]        
+            print("Got request for",fname)
+            if fname:
+                try:
+                    with open("Display/"+fname+".pickle", 'rb') as f:
+                        # The protocol version used is detected automatically, so we do not
+                        # have to specify it.
+                        thisshell[index] = pickle.load(f)
+                        data = []
+                        if index >=start :
+                            dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data)
+                            structArray.append(data)
+
+                except Exception as e:
+                    print("Error while loading",fname,e)
     elif request.method == 'POST':
         tree = request.data['tree']
         #print(tree)
-        data = json.loads(tree)
+        structArray = json.loads(tree)
         mycount = 0
-        for mydata in data:
+        for mydata in structArray:
             mycount = mycount + 1
             #print(mycount, mydata)              
                    
-    return JsonResponse(data, safe=False)
+    return JsonResponse(structArray, safe=False)
 
 def getFacesDimensions(aShape):
     faces_dict = {}

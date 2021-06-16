@@ -47,8 +47,8 @@ export const getMinimumDistance = (xmove, ymove, zmove, xrotate, yrotate, zrotat
     return axios.get(getURL);
 }
 
-export const getShapeInfo = (fname) => {
-    const getURL = `${host}/shapeinfo?fname=${fname?fname:""}`;
+export const getShapeInfo = (start,stepArray=[]) => {
+    const getURL = `${host}/shapeinfo?start=${start}&steps=${stepArray}`;
     console.log(getURL);
     return axios.get(getURL);
 }
