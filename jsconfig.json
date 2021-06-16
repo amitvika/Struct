@@ -1,9 +1,0 @@
-{
-	"compilerOptions": {
-	  "baseUrl": ".",
-	  "paths": {
-		"@ravibasil/common/*": ["packages/common/*"]
-	  }
-	},
-	"exclude": ["node_modules"]
-  }
