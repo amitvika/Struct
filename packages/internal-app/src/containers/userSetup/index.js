@@ -88,7 +88,7 @@ const UserSetup = () => {
                             onChange={handleTabChange}>
 
                             <Tab label="Team Setup" value={0} />
-                            <Tab label="Team Tasks Setup" value={1} />
+                            <Tab label="Task Assignment Rules" value={1} />
                             <Tab label="Access Setup" value={2} />
                         </Tabs>
                     </Paper>

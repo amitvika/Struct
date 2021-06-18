@@ -11,8 +11,6 @@ import {
     Link,
     IconButton
 } from "@material-ui/core";
-import Typography from "@material-ui/core/Typography";
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { NavLink, useParams } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { Spinner } from "reactstrap";
@@ -24,6 +22,7 @@ import BaseFactorySetup from './baseFactorySetup'
 import ItemsInProduction from './itemsInProduction'
 import Autoscaling from './autoscaling'
 import FloorplanSetup from './floorplanSetup'
+import SubHeaderWithArrow from '../../components/SubHeaderWithArrow'
 
 import get from 'lodash/get';
 
@@ -102,15 +101,11 @@ const FactoriesDetail = () => {
         <>
             <Grid container>
                 <Grid item sm sm={12}>
-                    <Paper style={{ padding: 20, margin: 10, display: 'flex' }}>
-                        <NavLink
-                            to='/factories'>
-                            <IconButton>
-                                <ArrowBackIcon />
-                            </IconButton>
-                        </NavLink>
-                        <Typography color="textPrimary" style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginleft: 'inherit' }}>Factories Details</Typography>
-                    </Paper>
+                    <SubHeaderWithArrow 
+                    action={'/factories'}
+                    title={'Factories Details'}
+                    />
+                   
                     <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                             <h4>Factory Name: {factoryValue.name}</h4>

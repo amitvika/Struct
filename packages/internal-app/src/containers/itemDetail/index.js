@@ -14,8 +14,7 @@ import {
 } from "@material-ui/core";
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import EditIcon from '@material-ui/icons/Edit';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-
+import SubHeaderWithArrow from '../../components/SubHeaderWithArrow'
 import { NavLink, useParams, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -182,22 +181,17 @@ const ItemDetail = () => {
         <>
             <Grid container>
                 <Grid item sm sm={12}>
-                    <Paper style={{ padding: 20, margin: 10,display: 'flex' }}>
-                        <NavLink
-                            to='/items'>
-                            <IconButton>
-                                <ArrowBackIcon />
-                            </IconButton>
-                        </NavLink>
-                        <Typography color="textPrimary" style={{display: 'flex', alignItems: 'center', fontWeight: 'bold', marginleft: 'inherit' }}>Item Details</Typography>
-                    </Paper>
-                    <Paper style={{ padding: 10, margin: 10,display:"flex" }}>
+                    <SubHeaderWithArrow
+                        action={'/items'}
+                        title={'Items Details'}
+                    />
+                    <Paper style={{ padding: 10, margin: 10, display: "flex" }}>
                         <Grid>
                             <h4>Item Name: {itemProperties.name}</h4>
                             <p>Item ID:{id}</p>
                         </Grid>
 
-                        <Grid style={{marginLeft: 'auto'}}>
+                        <Grid style={{ marginLeft: 'auto' }}>
                             <Button>
                                 <AddBoxIcon />
                             </Button>
@@ -259,7 +253,7 @@ const ItemDetail = () => {
                     color="primary"
                     onClick={handleSave}>
                     Save
-          </Button>
+                </Button>
             </Snackbar>
         </>
     );

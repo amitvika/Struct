@@ -20,7 +20,7 @@ const TeamTaskSetup = () => {
             fields={teamTaskSetupFields}
             fetchList={TeamSetupAPI.fetchTeamTask}
             upsertListItem={TeamSetupAPI.upsertTeamTask}
-            AddUpdateModal={AddUpdateModal}
+            // AddUpdateModal={AddUpdateModal}
         
         />
     );

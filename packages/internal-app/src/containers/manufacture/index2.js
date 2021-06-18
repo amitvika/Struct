@@ -57,10 +57,6 @@ export default function Index2(props) {
 
     const [value, setValue] = React.useState(0);
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
-
 
     const tabArray = ['Machining', 'Injection Casting', 'Assembly', 'Photolithography', 'Unpacking',
         'PCB Assembly', 'Extrusion', '3D Printing', 'Forming', ' Textile Assembly',
