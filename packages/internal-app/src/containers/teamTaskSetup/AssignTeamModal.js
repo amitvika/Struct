@@ -4,35 +4,36 @@ import SelectorView from '@ravibasil/common/components/SelectorView';
 import UserSetupAPI from '@ravibasil/common/api/teamSetup.api';
 import get from 'lodash/get';
 
-export default function ManageTeamModal({ team, toggleModal, open, handleUpdate }) {
+export default function AssignTeamModal({ selectedValue, toggleModal, open, handleUpdate }) {
 
 	const handleMemberSelectChange = (data) => {
 		handleUpdate({
-			...team,
-			members: data
+			...selectedValue,
+			assigned_teams: data
 		})
 	}
 
 	const fetchSelectedList = () => {
 		return new Promise((resolve, reject) => {
-			resolve(get(team, 'members', []))
+			resolve(get(selectedValue, 'assigned_teams', []).map(team => team.id))
 		})
 	}
 
 	return (
 		<Modal
-			title={'Manage Team'}
+			title={'Assign Team'}
 			open={open}
 			toggleModal={toggleModal}>
 
 			<SelectorView
 				title={'Team'}
-				fetchList={UserSetupAPI.fetchUsers}
+				fetchList={UserSetupAPI.fetchTeams}
 				fetchSelectedList={fetchSelectedList}
 				fields={[{ title: "ID", field: "id" }, { title: "Name", field: "name" }]}
-				mapValues={(data) => data.map(item => ({ ...item, id: item._id }))}
+				mapValues={(data) => data}
 				handleUpdate={handleMemberSelectChange}
 				handleSelection={(data) => { }}
+                // maxSelectedCount={1}
 			/>
 
 		</Modal>

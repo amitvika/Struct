@@ -19,7 +19,8 @@ export const lightTheme = createMuiTheme({
     },
     header: {
         backgroundColor: '#252525',
-        color: '#ffffff'
+        color: '#ffffff',
+        
     },
     menuButton:  {
         fontWeight: 700,

@@ -39,7 +39,7 @@ export default function TableView({
         data={list}
         title={title}
         options={{
-          actionsColumnIndex: 5,
+          actionsColumnIndex: 6,
           addRowPosition: "first",
           exportButton: false,
           exportFileName: "Client",

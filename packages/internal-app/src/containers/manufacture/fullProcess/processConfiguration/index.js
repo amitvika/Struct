@@ -54,10 +54,10 @@ export default function ProductionTable() {
             editable: "never",
             render: rowData => rowData && <span style={{ cursor: 'pointer' }}
                 onClick={(event) => handleFactoryClick(event, rowData)}
-            >{ <Link> {rowData.factory_name} </Link> || 'Select'}</span>
 
-
+            >{<Link> {rowData.factory_name} </Link> || 'Select'}</span>
         },
+
     ])
 
     const handleFactoryClick = (event, rowData) => {

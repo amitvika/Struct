@@ -140,9 +140,10 @@ const TableGridView = ({
             setIsManageTeamModalOpened(true);
             return
         }
+        // setIsManageTeamModalOpened(true);
 
-        setIsEditing(true);
-        setIsModalOpened(!isModalOpened)
+        // setIsEditing(true);
+        // setIsModalOpened(!isModalOpened)
     }
 
     const handleToggleModal = () => {
@@ -172,7 +173,7 @@ const TableGridView = ({
                     handleHistoryToggle={handleHistoryToggle}
                     columnsFields={fields}
                     handleTableRowClick={handleTableRowClick}
-                    toggleModal={handleEditModal}
+                    // toggleModal={handleEditModal}
                     handleEditButtonPress={handleEditModal} 
                     isAddEditLinkVisible={true}
                     />

@@ -10,21 +10,19 @@ import {
     Typography
 } from "@material-ui/core";
 import SubHeaderWithArrow from '../../components/SubHeaderWithArrow'
-import { NavLink, useParams, useHistory, useLocation } from "react-router-dom";
+import { useParams, useHistory, useLocation } from "react-router-dom";
 import VendorAPI from '@ravibasil/common/api/vendor.api';
 import LogoView from '@ravibasil/common/components/LogoView';
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-import IncomingVendorProducts from './IncomingVendorProducts'
+import SuppliedItems from './suppliedItems'
+import SuppliedItemOption from './suppliedItemOptions';
 import get from 'lodash/get';
-import SuppliedItems from './SuppliedItems'
-import ProductOptions from './SuppliedItems/productOptions'
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
 }
-
 
 const VendorDetail = () => {
     const dispatch = useDispatch()
@@ -33,7 +31,6 @@ const VendorDetail = () => {
     let query = useQuery();
 
     const [tabIndex, setTabIndex] = useState(1);
-
     const [vendorInfo, setVendorInfo] = useState({});
 
     useEffect(() => {
@@ -66,23 +63,23 @@ const VendorDetail = () => {
         }
 
         switch (tabIndex) {
-            // case 1:
-            //   return <ItemContainer vendorName={vendorInfo.name} vendorId={id} />;
             case 1:
-                return <IncomingVendorProducts
-                    setVendorValue={setVendorInfo} vendorValue={vendorInfo} />
+                if (query.get('product')) {
+                    return <SuppliedItemOption
+                        productId={query.get('product')}
+                        productName={query.get('p_name')} />
+                }
+                else {
+                    return <SuppliedItems
+                        vendorInfo={vendorInfo}
+                        setVendorInfo={setVendorInfo} />
+                }
             case 2:
-                return "pull reports base on items, and any details below";
-            case 3:
-                return <SuppliedItems />
-            case 4:
                 return "Shows all items to be billed for over here. configure the payments period over here. checks printing and mailing api will be linked to this ";
-            case 5:
+            case 3:
                 return "shows a log of all items that do not pass vailidation along with other client complaints";
-            case 6:
+            case 4:
                 return "if this vendor is a client, shows payments and billing, along with a unified net payments/billing description";
-            case 10:
-                return <ProductOptions />
             default:
                 return "Undefined Tab Index";
         }
@@ -116,12 +113,17 @@ const VendorDetail = () => {
         syncWithServer(updatedValues);
     }
 
-    const handleTabChange = (event, newTabIndex) => {
+    const handleTabChange = (newTabIndex, accessSetupId) => {
         setTabIndex(newTabIndex)
+
+        let search = `?tab=${newTabIndex}`
+        // if (query.get('product')) {
+        //     search += `&product=${query.get('product')}`
+        // }
 
         history.push({
             pathname: `/vendors/${id}`,
-            search: `?tab=${newTabIndex}`
+            search
         })
     }
 
@@ -134,7 +136,7 @@ const VendorDetail = () => {
                         action={'/vendors'}
                         title={'Vendors Details'}
                     />
-                   
+
                     <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                             <h4>Vendor Name: {vendorInfo.name}</h4>
@@ -155,17 +157,11 @@ const VendorDetail = () => {
                             orientation="vertical"
                             variant="scrollable"
                             value={tabIndex}
-                            onChange={handleTabChange}>
-                            {/* onChange={(event, newValue) => setValue(newValue)}> */}
-                            {/* <Tab label="Services" value={1} /> */}
-                            {/* <Tab label="Incoming Vendor Products" value={1} /> */}
+                            onChange={(event, newTabIndex) => handleTabChange(newTabIndex)}>
                             <Tab label="Supplied Items " value={1} />
-                            {/* <Tab label="Reports" value={2} /> */}
-                            {/* <Tab label="Service Agreement" value={3} /> */}
-                            {/* <Tab label="Supplied Items" value={3} /> */}
-                            <Tab label="Payments" value={4} />
-                            <Tab label="Validation Failures" value={5} />
-                            <Tab label="Vendor as Client" value={6} />
+                            <Tab label="Payments" value={2} />
+                            <Tab label="Validation Failures" value={3} />
+                            <Tab label="Vendor as Client" value={4} />
 
                         </Tabs>
                     </Paper>

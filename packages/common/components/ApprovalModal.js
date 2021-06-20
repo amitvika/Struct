@@ -22,18 +22,71 @@ export default function ProductionApprovalModal({
 }) {
 
     const { user } = useSelector(state => state.auth);
+    const [currentApproval, setCurrentApproval] = useState({ author_name: '', author: "", date: '1223', is_approved: false })
 
-    const [currentApproval, setCurrentApproval] = useState({ author_name: '', author: "", date: '1223', isChecked: false })
-
-    const onChange = (event) => {
-
+    const onChange = (event) => (approval) => {
         if (event.target.checked) {
-            setCurrentApproval({ author: user._id, author_name: user.name, date: '1223', isChecked: true })
+            setCurrentApproval(prev => ({ ...prev, is_approved: false }));
+
+            const cApproval = { author: user._id, author_name: user.name, date: '1223', is_approved: true }
+            handleApproval(selectedValue.id, cApproval)
         }
         else {
-            setCurrentApproval({ isChecked: false })
+            handleApproval(selectedValue.id, { ...approval, is_approved: false })
         }
     }
+
+    const renderProductionApprovalActions = () => {
+        let approvalList = selectedValue.approval_list || []
+        let list = [];
+
+        list.push(
+            approvalList.map((approvalItem, index) => {
+                return (
+                    <Grid key={approvalItem.approval_id} item xs={12}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
+                                    onChange={(event) => onChange(event)(approvalItem)}
+                                    checked={approvalItem.is_approved}
+                                />
+                            }
+                            label={`Approved By ${approvalItem.author_name} on ${moment(approvalItem.approval_time).format('DD/MM/YYYY HH:mm:ss')}`}
+                        />
+                    </Grid>
+                )
+            })
+        )
+
+        if (approvalList.length < 3) {
+            list.push(
+                <Grid key={'new_approval'} item xs={12}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
+                                onChange={(event) => onChange(event)({})}
+                                checked={currentApproval.is_approved}
+                            />
+                        }
+                        label={`${currentApproval.is_approved ? currentApproval.author_name : approvalList.length == 2 ? 'CHECK TO START PRODUCTION' : ''}`}
+                    />
+                </Grid>
+            )
+        }
+
+        return list
+    }
+    // const [currentApproval, setCurrentApproval] = useState({ author_name: '', author: "", date: '1223', isChecked: false })
+
+    // const onChange = (event) => {
+
+    //     if (event.target.checked) {
+    //         setCurrentApproval({ author: user._id, author_name: user.name, date: '1223', isChecked: true })
+    //     }
+    //     else {
+    //         setCurrentApproval({ isChecked: false })
+    //     }
+    // }
 
     const renderView = () => {
         return fields
@@ -53,46 +106,46 @@ export default function ProductionApprovalModal({
 
 
 
-    const renderProductionApprovalActions = () => {
-        let approvalList = selectedValue.approval_list || []
-        let list = [];
-        list = approvalList.map(approvalItem => {
-            return (
-                <>
-                    <Grid container xs={12} style={{ textAlign: 'center' }}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-                                    disabled
-                                    checked={true}
-                                />
-                            }
-                            label={`Approved By ${approvalItem.author_name} on ${moment(approvalItem.approval_time).format('DD/MM/YYYY HH:mm:ss')}`}
-                        />
-                    </Grid>
-                </>
-            )
-        })
+    // const renderProductionApprovalActions = () => {
+    //     let approvalList = selectedValue.approval_list || []
+    //     let list = [];
+    //     list = approvalList.map(approvalItem => {
+    //         return (
+    //             <>
+    //                 <Grid container xs={12} style={{ textAlign: 'center' }}>
+    //                     <FormControlLabel
+    //                         control={
+    //                             <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
+    //                                 disabled
+    //                                 checked={true}
+    //                             />
+    //                         }
+    //                         label={`Approved By ${approvalItem.author_name} on ${moment(approvalItem.approval_time).format('DD/MM/YYYY HH:mm:ss')}`}
+    //                     />
+    //                 </Grid>
+    //             </>
+    //         )
+    //     })
 
-        if (approvalList.length < 3) {
-            list.push(
-                <Grid container xs={12} style={{ textAlign: 'center' }}>
-                    <FormControlLabel
-                        control={
-                            <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-                                onChange={onChange}
-                                checked={currentApproval.isChecked}
-                            />
-                        }
-                        label={`${currentApproval.isChecked ? currentApproval.author_name : ''}`}
-                    >
-                    </FormControlLabel>
-                </Grid>
-            )
-        }
+    //     if (approvalList.length < 3) {
+    //         list.push(
+    //             <Grid container xs={12} style={{ textAlign: 'center' }}>
+    //                 <FormControlLabel
+    //                     control={
+    //                         <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
+    //                             onChange={onChange}
+    //                             checked={currentApproval.isChecked}
+    //                         />
+    //                     }
+    //                     label={`${currentApproval.isChecked ? currentApproval.author_name : ''}`}
+    //                 >
+    //                 </FormControlLabel>
+    //             </Grid>
+    //         )
+    //     }
 
-        return list
-    }
+    //     return list
+    // }
 
     return (
         <MainModal open={isModalOpened} toggleModal={toggleModal} >
@@ -112,7 +165,7 @@ export default function ProductionApprovalModal({
                     </Grid>
 
 
-                    <Grid item xs={12} style={{ textAlign: 'center' }}>
+                    {/* <Grid item xs={12} style={{ textAlign: 'center' }}>
                         <Button
                             style={{ marginTop: '20px' }}
                             variant="contained"
@@ -121,8 +174,8 @@ export default function ProductionApprovalModal({
                             disabled={!currentApproval.isChecked}
                             onClick={() => handleApproval(selectedValue.id, currentApproval)}>
                             OK
-                     </Button>
-                    </Grid>
+                        </Button>
+                    </Grid> */}
                 </Grid>
 
             </Paper>

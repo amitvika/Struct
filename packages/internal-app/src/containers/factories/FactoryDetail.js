@@ -23,6 +23,7 @@ import ItemsInProduction from './itemsInProduction'
 import Autoscaling from './autoscaling'
 import FloorplanSetup from './floorplanSetup'
 import SubHeaderWithArrow from '../../components/SubHeaderWithArrow'
+import FacilityCapabilities from './FacilityCapabilities'
 
 import get from 'lodash/get';
 
@@ -80,6 +81,8 @@ const FactoriesDetail = () => {
             case 3:
                 return <FloorplanSetup />
             case 4:
+                return <FacilityCapabilities />
+            case 5:
                 return <Autoscaling />
             default:
                 return "Undefined Tab Index";
@@ -101,11 +104,11 @@ const FactoriesDetail = () => {
         <>
             <Grid container>
                 <Grid item sm sm={12}>
-                    <SubHeaderWithArrow 
-                    action={'/factories'}
-                    title={'Factories Details'}
+                    <SubHeaderWithArrow
+                        action={'/factories'}
+                        title={'Factories Details'}
                     />
-                   
+
                     <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                             <h4>Factory Name: {factoryValue.name}</h4>
@@ -124,7 +127,7 @@ const FactoriesDetail = () => {
                             <Tab label="Items in Production" value={2} />
                             <Tab label="Floorplan Setup" value={3} />
                             <Tab label="Facility Capabilities" value={4} />
-                            <Tab label="Autoscaling" value={4} />
+                            <Tab label="Autoscaling" value={5} />
 
                         </Tabs>
                     </Paper>
