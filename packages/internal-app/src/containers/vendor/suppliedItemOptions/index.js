@@ -54,7 +54,7 @@ export default function ProductOption({
 
     const [selectedTab, setSelectedTab] = useState("Orders");
 
-    const tabArray = ['Orders', 'Injection Casting'];
+    const tabArray = ['Orders'];
 
 
     // useEffect(() => {

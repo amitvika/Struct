@@ -13,12 +13,8 @@ export default function ProductionApprovalModal({
     isModalOpened,
     toggleModal,
     selectedValue,
-    setSelectedValue,
     handleApproval,
-    list,
     fields,
-    title,
-    approvalList
 }) {
 
     const { user } = useSelector(state => state.auth);
@@ -76,17 +72,7 @@ export default function ProductionApprovalModal({
 
         return list
     }
-    // const [currentApproval, setCurrentApproval] = useState({ author_name: '', author: "", date: '1223', isChecked: false })
-
-    // const onChange = (event) => {
-
-    //     if (event.target.checked) {
-    //         setCurrentApproval({ author: user._id, author_name: user.name, date: '1223', isChecked: true })
-    //     }
-    //     else {
-    //         setCurrentApproval({ isChecked: false })
-    //     }
-    // }
+   
 
     const renderView = () => {
         return fields
@@ -103,49 +89,7 @@ export default function ProductionApprovalModal({
 
             })
     }
-
-
-
-    // const renderProductionApprovalActions = () => {
-    //     let approvalList = selectedValue.approval_list || []
-    //     let list = [];
-    //     list = approvalList.map(approvalItem => {
-    //         return (
-    //             <>
-    //                 <Grid container xs={12} style={{ textAlign: 'center' }}>
-    //                     <FormControlLabel
-    //                         control={
-    //                             <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-    //                                 disabled
-    //                                 checked={true}
-    //                             />
-    //                         }
-    //                         label={`Approved By ${approvalItem.author_name} on ${moment(approvalItem.approval_time).format('DD/MM/YYYY HH:mm:ss')}`}
-    //                     />
-    //                 </Grid>
-    //             </>
-    //         )
-    //     })
-
-    //     if (approvalList.length < 3) {
-    //         list.push(
-    //             <Grid container xs={12} style={{ textAlign: 'center' }}>
-    //                 <FormControlLabel
-    //                     control={
-    //                         <Checkbox inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}
-    //                             onChange={onChange}
-    //                             checked={currentApproval.isChecked}
-    //                         />
-    //                     }
-    //                     label={`${currentApproval.isChecked ? currentApproval.author_name : ''}`}
-    //                 >
-    //                 </FormControlLabel>
-    //             </Grid>
-    //         )
-    //     }
-
-    //     return list
-    // }
+  
 
     return (
         <MainModal open={isModalOpened} toggleModal={toggleModal} >

@@ -118,7 +118,7 @@ const Items = ({ handleSave }) => {
                         name: item.name,
                         source: item?.vendorId?.name || 'STRUCT',
                         assemblyType: item.assemblyType,
-                        thumbnail : thumbnail?thumbnail:""
+                        thumbnail: thumbnail ? thumbnail : ""
                     }
                 })
 

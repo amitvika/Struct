@@ -176,9 +176,9 @@ export default function Header() {
                                         <MenuItem
                                             key={`user_setup_link`}
                                             onClick={() => handleLink('/user-setup')}>Administrative</MenuItem>
-                                        <MenuItem
+                                        {/* <MenuItem
                                             key={`my_profile_link`}
-                                            onClick={() => handleLink('/viewMyProfile')}>My Profile</MenuItem>
+                                            onClick={() => handleLink('/viewMyProfile')}>My Profile</MenuItem> */}
                                         <MenuItem
                                             key={`theme_changer`}>
                                             <Switch checked={lightThemeSelected} onChange={handleThemeChange} name="currentTheme" />

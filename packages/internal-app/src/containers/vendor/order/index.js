@@ -4,6 +4,8 @@ import TableGridView from '@ravibasil/common/components/TableGridView';
 import ClientAPI from '@ravibasil/common/api/clients.api';
 // import { columnsFields } from '@ravibasil/common/constants/vendorProduct'
 import { useHistory } from "react-router-dom";
+import Link from '@material-ui/core/Link';
+
 import IdentificationModal from "../suppliedItems/identificationModal";
 
 
@@ -35,7 +37,7 @@ const Orders = () => {
                     handleIdentificationClick(event, rowData)
 
                     event.stopPropagation();
-                }}> Identification </span>
+                }}><Link> Identification </Link></span>
         },
     ]
 
