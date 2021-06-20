@@ -36,6 +36,8 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
+//import {resourcePathURL} from '@ravibasil/common/api/fileUpload.api';
+//import {uploadFileS3Bucket} from '@ravibasil/common/api/aws';
 
 const ItemDetail = () => {
     const dispatch = useDispatch();
@@ -154,6 +156,22 @@ const ItemDetail = () => {
         // setIsLoading(true);
         itemProperties.step = undefined;
         itemProperties.itemId = undefined;
+        //const myfile = gltfjson['thumbnail'];
+        //console.log(myfile);
+        //var file_url = resourcePathURL+myfile;
+       /*  if(myfile) {
+            const File={'name':file_url,
+                        'type':'image/png'};
+            uploadFileS3Bucket(File).then(res=>{
+                console.log(res);
+                file_url = res;
+            });
+            gltfjson['file_url'] = file_url;
+            console.log(file_url);
+        }  else {
+            //gltfjson['file_url'] = file_url;
+        }   */  
+       
         ItemAPI
             .updateItemAPI(id, { ...itemProperties })
             .then(res => {

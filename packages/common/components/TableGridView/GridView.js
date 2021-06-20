@@ -13,7 +13,8 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import './style.css'
 
 import StructLogo from '../../assets/images/struct_logo.png';
-
+import {resourcePathURL} from '@ravibasil/common/api/fileUpload.api';
+//import {isURLExisting} from  '@ravibasil/common/utils/usefulHelpers';
 
 const useStyles = makeStyles((theme) => ({
     tableCell: {
@@ -72,7 +73,7 @@ export default function GridView({
     isInsideDetailPanel = false
 }) {
     const classes = useStyles();
-
+    
     const renderItem = (data) => {
         let item = [];
 
@@ -96,7 +97,7 @@ export default function GridView({
         if (!file_url) {
             return (<img className={classes.img} alt="complex" src={StructLogo} />);
         }
-
+        //console.log(file_url);
         if (file_url.indexOf(".pdf") != -1 || file_url.indexOf(".PDF") != -1) {
             return (<PictureAsPdf className={classes.img} fontSize="large" />)
         }
@@ -115,6 +116,18 @@ export default function GridView({
     return (
         <Grid container spacing={2}>
             {list.map(product => {
+                //console.log(product);
+                if(product.thumbnail && !product.file_url){
+                    product.file_url = resourcePathURL+product.thumbnail;                    
+                   /*  isURLExisting(file_url).then(found=>{
+                        //console.log(found);
+                        if(found){
+                            product.file_url = file_url;
+                            //console.log(product.file_url);
+                        }
+                    }) */
+                    //console.log(product.file_url);
+                }
                 return (
                     <Grid item xs={6} sm={3} key={product.id}>
                         <Paper className={classes.paper} onClick={() => handleTableRowClick(product)}

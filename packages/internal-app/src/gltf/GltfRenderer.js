@@ -31,7 +31,7 @@ import {
     //ObjectSpaceNormalMap,
 } from "three";
 
-import * as THREE from 'three';
+//import * as THREE from 'three';
 import { Float32BufferAttribute } from 'three/src/core/BufferAttribute.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -196,7 +196,7 @@ class GLTFRenderer extends Component {
         this.controls = new OrbitControls(this.defaultCamera, this.renderer.domElement);
         this.controls.autoRotate = false;
         this.controls.autoRotateSpeed = -10;
-        this.controls.screenSpacePanning = true;
+        this.controls.screenSpacePanning = false;
 
 
         this.node.appendChild(this.renderer.domElement);
@@ -278,8 +278,10 @@ class GLTFRenderer extends Component {
         const size = size3D.length() || 1;
 
         const center = box.getCenter(new Vector3());
-
-        this.controls.reset();
+        if(this.controls?.reset) {
+            this.controls.reset();
+        }
+        
 
         object.position.x += (object.position.x - center.x);
         object.position.y += (object.position.y - center.y);
@@ -1071,21 +1073,22 @@ class GLTFRenderer extends Component {
     };
 
     alter = () => {
-        this.gltfJSON = this.props.gltfjson;
-        this.activeFile = this.props.activefile;
-        this.materialtype = this.props.materialtype;
-        this.selectedoption = this.props.selectedoption;
-        if (this.gltfJSON != "") {
-
-            this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');
-
-            this.gltfLoader.parse(this.gltfJSON, resourcePathURL, ({ scene, scenes, cameras, animations, asset }) => {
-                this.object = scene || scenes[0];
-                this.clips = animations || [];
-                this.setContent(this.object, this.clips);
-            });
+        if(this.controls) {
+            this.gltfJSON = this.props.gltfjson;
+            this.activeFile = this.props.activefile;
+            this.materialtype = this.props.materialtype;
+            this.selectedoption = this.props.selectedoption;
+            if (this.gltfJSON != "") {
+    
+                this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');
+    
+                this.gltfLoader.parse(this.gltfJSON, resourcePathURL, ({ scene, scenes, cameras, animations, asset }) => {
+                    this.object = scene || scenes[0];
+                    this.clips = animations || [];
+                    this.setContent(this.object, this.clips);
+                });
+            }
         }
-
     };
 
 
@@ -1210,7 +1213,7 @@ class GLTFRenderer extends Component {
 
                     var u = yaw,
                         v = pitch;
-                    uvs.push(new THREE.Vector2(u, v));
+                    uvs.push(new Vector2(u, v));
                 }
                 geometry.faceVertexUvs[0].push(uvs);
             });

@@ -68,6 +68,7 @@ from OCC.Core.TopAbs import (TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIR
                         TopAbs_COMPSOLID, TopAbs_Orientation)
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeSphere
 from OCC.Core.GeomAbs import GeomAbs_Line 
+from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 #from .OCCUtils.vertex import Vertex
 #from .OCCUtils import Topology
 from .OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices, Topo
@@ -78,7 +79,7 @@ from .OCPShapes import Shape
 from .OCPAssembly import Color
 
 #from ... import Assembly
-from .OCCExtend.ShapeFactory import recognize_direction
+from .OCCExtend.ShapeFactory import recognize_direction, recognize_curve
 from ....thumbnail.thumbnail import createThumbnail
 
 @contextmanager
@@ -912,7 +913,7 @@ class StepIgesAnalyser():
     def __init__(
         self, document=None, filename=None, shapeslist=None, includeparts=False, distancegap=0.1, 
         anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, animations=[], 
-        delay=1.0, shapeorder=[], thumbheight=512, thumbwidth=512):
+        delay=1.0, shapeorder=[], thumbheight=96, thumbwidth=96, traversesubshapes=False):
         """Supply one or the other: document or STEP filename or Shapes."""
 
         self.uid = 1
@@ -924,13 +925,14 @@ class StepIgesAnalyser():
         self._share_dict = {'0:1:1': 0} 
         self.fname = filename
         self.createFiles = (moverotate==0)
+        self.edgeGapStr = str(math.trunc(edgesize*10))
         if filename:
             _, tail = os.path.split(self.fname)
             pathfilename, file_extension = os.path.splitext(tail)
             file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
             file_extension = file_extension.lower()
             self.stepiges = (file_extension) == "stp" or (file_extension == "step")
-            self.basefilename = pathfilename
+            self.basefilename = pathfilename+self.edgeGapStr
         else:
             self.basefilename = "./"
             self.fname = "NoName"
@@ -959,6 +961,7 @@ class StepIgesAnalyser():
         self.shapeorder = shapeorder
         self.thumbheight = thumbheight
         self.thumbwidth = thumbwidth
+        self.traversesubshapes = traversesubshapes
         try:
             if shapeslist:
                 self.shapeslist = shapeslist
@@ -1033,21 +1036,24 @@ class StepIgesAnalyser():
         else:
             length = ranges+1
             try:
-                gProp = GProp_GProps()
+                """gProp = GProp_GProps()  
                 liner = brepgprop_LinearProperties(curve, gProp)
-                length = liner.Mass() 
-            except:
-                print("Unable to find length of the curve")
-            length = round(length*10)
+                length = liner.Mass()  """
+                length = GCPnts_AbscissaPoint().Length(curve, firstU, lastU, self.distancegap)
+            except Exception as e:
+                print("Unable to find length of the curve",e)
+            length = round(length/self.distancegap)
             if length<=0:
                 length = 1
         pipes=[]
-        for eachP in range(length+1):
-            currentP = curve.Value(firstU+(ranges*(eachP)/(length+1)))
-            nextP = curve.Value(firstU+(ranges*(eachP+1)/(length+1)))
-            aPipe = self.createPipeFromPoints(currentP, nextP)
-            if aPipe:
-                pipes.append(aPipe)
+        currentP = curve.Value(firstU)
+        for eachP in range(length):            
+            nextP = curve.Value(firstU+(ranges*(eachP+1)/(length)))
+            if (nextP.Distance(currentP) >= self.distancegap) or (length==1):
+                aPipe = self.createPipeFromPoints(currentP, nextP)
+                if aPipe:
+                    pipes.append(aPipe)
+                    currentP = nextP
         if(len(pipes)>0):
             compound, _ = list_of_shapes_to_compound(pipes)
             if (anEdge.Orientation() == TopAbs_Orientation.TopAbs_REVERSED):
@@ -1260,6 +1266,8 @@ class StepIgesAnalyser():
             #list_of_faces, edges_dict, vertices_dict = self.getFacesEdgesVertices(aShape,localTransform,transformationHash)            
             #print(len(list_of_faces),aShape)
             list_of_solids = []
+            only_soilds = []
+            only_Color=None
             for hash_solidface, solidface in faces_dict.items(): 
                 #hash_solidface = hash(solidface)
                 #print(hash_solidface,solidface)
@@ -1284,8 +1292,23 @@ class StepIgesAnalyser():
                 else:
                     hashcode = hash_solidface+transformationHash
                     list_of_solids.append((shape_disp,Quantity_Color(faceColor.Red(),faceColor.Green(),faceColor.Blue(), Quantity_TOC_RGB),hashcode) )  
-                    #print(hashcode,localTransform)          
-            return list_of_solids, edges_dict, vertices_dict
+                    if (self.edgesize==0) and (self.vertexsize==0):
+                        only_soilds.append(shape_disp)
+                        if (only_Color == None):
+                            if( (faceColor.Red()!=parentColor.Red()) and (faceColor.Green()!=parentColor.Green()) and (faceColor.Blue()!=parentColor.Blue()) ):
+                                only_Color=faceColor
+                     
+                        
+                    #print(hashcode,localTransform)
+            if (self.edgesize==0) and (self.vertexsize==0):
+                mycompound,_ = list_of_shapes_to_compound(only_soilds) 
+                if only_Color==None:
+                    only_Color=parentColor
+                list_of_solids=[]
+                list_of_solids.append((mycompound,Quantity_Color(only_Color.Red(),only_Color.Green(),only_Color.Blue(), Quantity_TOC_RGB),hash(mycompound)))
+                return list_of_solids, None, None
+            else:
+                return list_of_solids, edges_dict, vertices_dict
         else:
             list_of_solids = []
             shape_disp = BRepBuilderAPI_Transform(aShape, localTransform).Shape()
@@ -1434,6 +1457,8 @@ class StepIgesAnalyser():
                 localTransformation = subLocation.Transformation()                 
                 shape_faces, shape_edges, shape_vertices  =self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts)
                 atleastOneItemAdded = 0
+                myFaceType=[]
+                #print(shape_faces)
                 for shape_disp,faceColor,shapeInFile in shape_faces:
                     #print("I have reached here 16")
                     #shape_disp = BRepBuilderAPI_Transform(shape, subLocation.Transformation()).Shape()
@@ -1448,6 +1473,9 @@ class StepIgesAnalyser():
                                 self.fileId += 1
                                 atleastOneItemAdded += 1
                                 (filefullname, basename) = self.write_step_file(shape_disp,subName+parentName,faceColor)
+                                _, _, face_entity = recognize_direction(shape_disp)
+                                if(face_entity=="Cylinder"):                                 
+                                    myFaceType.append(face_entity)
                                 print("I am writing",self.fileId, basename)
                                 """ stype = shape_disp.ShapeType()
                                 if(stype==TopAbs_VERTEX):
@@ -1483,31 +1511,44 @@ class StepIgesAnalyser():
                                 diffColor = self.outputShapes[shapeInFile][3]
                                 #print(diffColor, faceColor)
                                 #print("I am not writing with shape color in simpleshape",faceColor.Red(),diffColor.Red(),faceColor.Green(),diffColor.Green(),faceColor.Blue(),diffColor.Blue(),subName, subEntry)
-                if self.includeparts and atleastOneItemAdded>0 :
+                if self.includeparts and (atleastOneItemAdded>0) :
                     #print(shape_edges)
                     #print(shape_vertices)           
-                   
+                    toAddCorners = True
                     if self.edgesize > 0:
-                        edgeColor = self.getDarken(faceColor,0.50)
-                        for key, shape_edge  in shape_edges.items():
-                            
-                            self.fileId += 1
-                            shape_transform = BRepBuilderAPI_Transform(shape_edge, localTransformation).Shape()
-                            (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,self.defaultColor)
-                            print("I am writing Edge",self.fileId, basename)                       
-                            shape_disp = self.createPipesFromEdge(shape_transform)  
+                        edgeColor = self.getDarken(faceColor,0.50)                        
+                        if  (len(myFaceType)>0)  :
+                            for key, shape_edge  in shape_edges.items():
+                                myCurveType, Distance = recognize_curve(shape_edge)
+                                print("MyCurve",myCurveType, Distance)
+                                if (myCurveType=="Circle") and (Distance<=0.0001):
+                                    toAddCorners=False
+                        for _, shape_edge  in shape_edges.items():
+                            toAddAsAnEdge=True
+                            if (toAddCorners==False):
+                                myCurveType, Distance = recognize_curve(shape_edge)
+                                #print("MyCurve",myCurveType)
+                                toAddAsAnEdge=(myCurveType=="Circle")
+                            #else :
+                            #    print("I have nothing todo with",len(myFaceType),myFaceType)
+                            if toAddAsAnEdge:
+                                self.fileId += 1
+                                shape_transform = BRepBuilderAPI_Transform(shape_edge, localTransformation).Shape()
+                                (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,self.defaultColor)
+                                print("I am writing Edge",self.fileId, basename)                       
+                                shape_disp = self.createPipesFromEdge(shape_transform)  
 
-                            (_,_,meshname,uvPlane)=self.add_part(
-                                shape_disp,
-                                part_color=edgeColor,
-                                filenameuri=filefullname,
-                                filename= filename,
-                                name="EDGE"+subName+parentName,
-                                parent_idx=parent_node_index,                        
-                            ) 
-                            self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, edgeColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
-                            #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
-                    if self.vertexsize > 0:  
+                                (_,_,meshname,uvPlane)=self.add_part(
+                                    shape_disp,
+                                    part_color=edgeColor,
+                                    filenameuri=filefullname,
+                                    filename= filename,
+                                    name="EDGE"+subName+parentName,
+                                    parent_idx=parent_node_index,                        
+                                ) 
+                                self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, edgeColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
+                                #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
+                    if (self.vertexsize > 0) and (toAddCorners==True):  
                         vertexColor = self.getDarken(faceColor,0.75)  
                         for key, shape_vertex  in shape_vertices.items():
                             
@@ -1535,7 +1576,7 @@ class StepIgesAnalyser():
             #if(len(self.outputShapes)<=1):       
             #print("I have reached here 18")
             
-            if self.includeparts:
+            if self.includeparts and (self.edgesize > 0) and self.traversesubshapes:
                 #print("I have toIncludeSubShapes gltf for lowest node",basename ) 
                 #print("Inside inculdeparts",subName)
                 mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
@@ -2144,14 +2185,15 @@ class StepIgesAnalyser():
         # Write self.mstep_dict to file as JSON string       
 
         newfilename = "Display/"+self.basefilename+".gltf"
-        imagefilename = "Display/"+self.basefilename+".png"
+        
         try:
             print("Writing",newfilename)
             with open(newfilename, 'w') as fh:
                 fh.write(json.dumps(self.mstep_dict, sort_keys=True, indent=2 ))
         except Exception as e:
             print("While Writing",newfilename,e)
-        if (self.thumbheight!=0) and (self.thumbwidth!=0):
+        if (self.thumbheight!=0) and (self.thumbwidth!=0) and (self.edgesize==0) and (self.vertexsize==0):
+            imagefilename = "Display/"+self.basefilename+".png"
             try:
                 print("Writing",imagefilename)
                 createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            

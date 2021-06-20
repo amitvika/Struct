@@ -477,7 +477,7 @@ def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[]):
             "leaf": False}
     if s == TopAbs_VERTEX:
         pnt = brt.Pnt(topods_Vertex(shape))        
-        dict["Info"] =  {"x":pnt.X(),"y": pnt.Y(), "z":pnt.Z()}
+        dict["Info"] =  {"x":pnt.X(),"y": pnt.Y(), "z":pnt.Z(), "kind":"Point"}
         dict["leaf"] = True
     elif s == TopAbs_FACE:
         dict["Info"] = recognize_face(shape)        
