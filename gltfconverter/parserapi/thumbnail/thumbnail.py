@@ -5335,6 +5335,7 @@ class OffscreenRenderer(object):
                                                                 width=1, height=1)
                             break
                         except pyglet.window.NoSuchConfigException as e:
+                            print("Error while creating pyglet window",e)
                             pass
 
                     if not self._window:
@@ -5659,7 +5660,10 @@ class OffscreenRenderer(object):
 def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path):
 
     # Create scene
-    scene = Scene(ambient_light=np.array([0.2, 0.2, 0.2, 1.0]))
+    try:
+        scene = Scene(ambient_light=np.array([0.2, 0.2, 0.2, 1.0]))
+    except Exception as e:
+        print("Error",e)
 
     # Load objects
     object_gltf = trimesh.load(model_path)
@@ -5683,7 +5687,7 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
         scene.add(mesh)
 
     # Create render camera using scene centroid information
-    cam = PerspectiveCamera(yfov=(np.pi / 3.0))
+    cam = PerspectiveCamera(yfov=(np.pi / 4.0)) #3.0
     centroid = scene.centroid
     scale = scene.scale
     if scale == 0.0:
@@ -5701,8 +5705,23 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
     
     # Add camera to scene
     scene.add(cam,  pose=cam_pose)
-
-    r = OffscreenRenderer(viewport_width=thumbnail_width, viewport_height=thumbnail_height)
-    color, depth = r.render(scene)
-    Image.Image.fromarray(color).save(thumbnail_save_path)
+    try:
+        r = OffscreenRenderer(viewport_width=thumbnail_width, viewport_height=thumbnail_height)
+    except Exception as e:
+        print("Error",e)
+    color, _ = r.render(scene)
+    myImage = Image.Image.fromarray(color)
+   
+    rgba = myImage.convert("RGBA")
+    datas = rgba.getdata()  
+    newData = []
+    for item in datas:
+        if item[0] == 255 and item[1] == 255 and item[2] == 255:  # finding white colour by its RGB value
+            # storing a transparent value when we find a white colour
+            newData.append((255, 255, 255, 0))
+        else:
+            newData.append(item)  # other colours remain unchanged
+    rgba.putdata(newData)
+    rgba.save(thumbnail_save_path, "PNG")
+    
     r.delete()

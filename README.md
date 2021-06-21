@@ -40,8 +40,31 @@ yarn install
 - run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy nptyping trimesh pyopengl pillow networkx pyglet`
 - run `conda activate structquery`
 - CD to `gltfconverter` directory
+
+### Following is needed for Headless AWS and For windows, it is not needed.
+# Install xvfb
+sudo apt-get install xvfb mesa-utils -y
+
+# Remove the nvidia display drivers (this doesn't remove the CUDA drivers)
+# This is necessary as nvidia display doesn't play well with xvfb
+sudo nvidia-uninstall -y
+
+# Sanity check to make sure you still have CUDA driver and its version
+nvcc --version
+
+# Start xvfb
+Xvfb :1 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &> xvfb.log &
+
+# Export your display id
+export DISPLAY=:1
+
+# Check if your display settings are valid
+glxinfo
+### Above is needed for Headless AWS and For windows, it is not needed.
+
 - run `python manage.py makemigrations`
 - run `python manage.py migrate`
+
 - run `conda deactivate`
 
 
@@ -70,11 +93,28 @@ npm start-public
 ``` bash
 conda activate structquery
 ```
+- For headless AWS to start opengl, following 2 commands needed and they are not needed for windows environment
+# Start xvfb
+Xvfb :1 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &> xvfb.log &
+
+# Export your display id
+export DISPLAY=:1
+- For headless AWS to start opengl, above 2 commands needed and they are not needed for windows environment
+
 - Run the following command
 ```python
 python manage.py runserver localhost:8000
 ```
 
+- cd `gltfconverter` folder
+- Initialize environment in [Conda](https://docs.anaconda.com/anaconda/install/windows/) terminal
+``` bash
+conda activate structquery
+```
+- Run the following command
+```python
+python manage.py runserver localhost:8000
+```
 
 ## Tasks
 
