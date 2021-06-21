@@ -140,9 +140,10 @@ const TableGridView = ({
             setIsManageTeamModalOpened(true);
             return
         }
+        // setIsManageTeamModalOpened(true);
 
-        setIsEditing(true);
-        setIsModalOpened(!isModalOpened)
+        // setIsEditing(true);
+        // setIsModalOpened(!isModalOpened)
     }
 
     const handleToggleModal = () => {
@@ -172,8 +173,10 @@ const TableGridView = ({
                     handleHistoryToggle={handleHistoryToggle}
                     columnsFields={fields}
                     handleTableRowClick={handleTableRowClick}
-                    toggleModal={handleEditModal}
-                    handleEditButtonPress={handleEditModal} />
+                    // toggleModal={handleEditModal}
+                    handleEditButtonPress={handleEditModal} 
+                    isAddEditLinkVisible={true}
+                    />
             )
         }
         else {
@@ -218,7 +221,6 @@ const TableGridView = ({
                     isEditing={isEditing}
                     selectedValue={selectedListItem}
                 />}
-
                 {
                     isManageTeamVisible &&
                     <ManageTeamModal
@@ -242,8 +244,8 @@ const TableGridView = ({
                     columnsFields={fields}
                     isCustomAddButtonVisible={isCustomAddButtonVisible}
                     isAddEditLinkVisible={isAddEditLinkVisible}
-                    // handleAddButtonPress={handleToggleModal}
-                    handleAddButtonPress={() => console.log("----handleAddButtonPress")}
+                    handleAddButtonPress={handleToggleModal}
+                    // handleAddButtonPress={() => console.log("----handleAddButtonPress")}
                     isSearchBarVisible={true}
                 />
 

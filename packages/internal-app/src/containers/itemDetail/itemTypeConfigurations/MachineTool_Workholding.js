@@ -45,6 +45,9 @@ export default function MachineTool_Workholding({ itemConfiguration, handleOnCha
                                         { label: 'Liquid Vat', value: 'Liquid Vat' },
                                         { label: 'Bulk Particulate Container', value: 'Bulk Particulate Container' },
                                     ]}
+                                    onChange={(data) => handleOnChange('machineToolWorkholdingType',data.value)}
+                                    value={itemConfiguration.machineToolWorkholdingType}
+
                                 />
                             </Grid>
                         </>

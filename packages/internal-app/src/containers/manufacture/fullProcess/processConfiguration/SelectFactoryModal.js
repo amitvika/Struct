@@ -59,6 +59,13 @@ export default function SelectFactoryModal({ isModalOpened,fields, toggleModal, 
                         placeholder={`Select Factory`}
                         value={`${selectedValue.factory_id}`} />
                 </Grid>
+                <Grid item xs={4} >
+                    <Headding bold title={'Quantity'} />
+                </Grid>
+                <Grid item xs={8} >
+                   {selectedValue.quantity}
+                </Grid>
+
 
                 {/* <SelectorView
 						title={'Factory'}

@@ -14,8 +14,7 @@ import {
 } from "@material-ui/core";
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import EditIcon from '@material-ui/icons/Edit';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-
+import SubHeaderWithArrow from '../../components/SubHeaderWithArrow'
 import { NavLink, useParams, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -36,6 +35,8 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
+//import {resourcePathURL} from '@ravibasil/common/api/fileUpload.api';
+//import {uploadFileS3Bucket} from '@ravibasil/common/api/aws';
 
 const ItemDetail = () => {
     const dispatch = useDispatch();
@@ -154,6 +155,22 @@ const ItemDetail = () => {
         // setIsLoading(true);
         itemProperties.step = undefined;
         itemProperties.itemId = undefined;
+        //const myfile = gltfjson['thumbnail'];
+        //console.log(myfile);
+        //var file_url = resourcePathURL+myfile;
+       /*  if(myfile) {
+            const File={'name':file_url,
+                        'type':'image/png'};
+            uploadFileS3Bucket(File).then(res=>{
+                console.log(res);
+                file_url = res;
+            });
+            gltfjson['file_url'] = file_url;
+            console.log(file_url);
+        }  else {
+            //gltfjson['file_url'] = file_url;
+        }   */  
+       
         ItemAPI
             .updateItemAPI(id, { ...itemProperties })
             .then(res => {
@@ -182,22 +199,17 @@ const ItemDetail = () => {
         <>
             <Grid container>
                 <Grid item sm sm={12}>
-                    <Paper style={{ padding: 20, margin: 10,display: 'flex' }}>
-                        <NavLink
-                            to='/items'>
-                            <IconButton>
-                                <ArrowBackIcon />
-                            </IconButton>
-                        </NavLink>
-                        <Typography color="textPrimary" style={{display: 'flex', alignItems: 'center', fontWeight: 'bold', marginleft: 'inherit' }}>Item Details</Typography>
-                    </Paper>
-                    <Paper style={{ padding: 10, margin: 10,display:"flex" }}>
+                    <SubHeaderWithArrow
+                        action={'/items'}
+                        title={'Items Details'}
+                    />
+                    <Paper style={{ padding: 10, margin: 10, display: "flex" }}>
                         <Grid>
                             <h4>Item Name: {itemProperties.name}</h4>
                             <p>Item ID:{id}</p>
                         </Grid>
 
-                        <Grid style={{marginLeft: 'auto'}}>
+                        <Grid style={{ marginLeft: 'auto' }}>
                             <Button>
                                 <AddBoxIcon />
                             </Button>
@@ -259,7 +271,7 @@ const ItemDetail = () => {
                     color="primary"
                     onClick={handleSave}>
                     Save
-          </Button>
+                </Button>
             </Snackbar>
         </>
     );

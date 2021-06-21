@@ -15,14 +15,14 @@ exports.get = async (req, res) => {
 
 		if (query.$and.length > 0) {
 			teams = await TeamTaskModel.find(query)
-				.populate('team')
+				.populate('assigned_teams')
 				.sort({ updatedAt: -1 })
 
 		}
 		else {
 			teams = await TeamTaskModel
 				.find()
-				.populate('team')
+				.populate('assigned_teams')
 				.sort({ updatedAt: -1 })
 
 		}
@@ -92,7 +92,7 @@ exports.upsert = async (req, res) => {
 		});
 		await changeTracking.save();
 
-		team = await TeamTaskModel.findById(req.body.id).populate('team');
+		team = await TeamTaskModel.findById(req.body.id).populate('assigned_teams');
 		res.json(mapTeamTask(team))
 	}
 	catch (error) {

@@ -5,8 +5,6 @@ import {
     Button,
     Snackbar,
     Breadcrumbs,
-    Typography,
-    Paper,
     CardContent,
 } from "@material-ui/core";
 
@@ -24,6 +22,7 @@ import { useParams } from "react-router-dom";
 import { NavLink } from 'react-router-dom'
 import AccessConfigurationAPI from '@ravibasil/common/api/accessConfig.api'
 import { showErrorAlert, showSuccessAlert } from '../actions/alert.action';
+import SubHeaderWithArrow from '../components/SubHeaderWithArrow'
 
 const AccessConfiguration = (props) => {
     const dispatch = useDispatch();
@@ -90,6 +89,7 @@ const AccessConfiguration = (props) => {
     const { isLoading, data } = useSelector(state => state.accessConfig);
     const user = useSelector(state => state.auth.user);
     const userAccessUsers = useSelector(state => state.userAccessUsers.userAccessUsers)
+    
 
     useEffect(() => {
         dispatch(getUserAccessConfigurationAction(id || props.accessSetupId));
@@ -145,7 +145,7 @@ const AccessConfiguration = (props) => {
         catch (error) {
             dispatch(showErrorAlert({ message: 'Unable to save info' }));
         }
-       
+
 
     }
 
@@ -182,34 +182,34 @@ const AccessConfiguration = (props) => {
     if (isLoading) {
         return <div>Loading......</div>
     }
-
+    const handleAccessConfig = () => {
+        <NavLink
+            to={`/user-setup?tab=2`}
+        >
+            Access Setup
+        </NavLink>
+        
+    }
     return (
         <>
             <div>
 
                 {localState.tableLoaded && localState.userAccessLoaded ? (
                     <div>
-                        <Paper style={{ padding: 20, marginBottom: 10 }}>
+                        {/* <Paper style={{ padding: 20, marginBottom: 10 }}>
                             <Breadcrumbs
                                 style={{
                                     display: "flex",
                                     justifyContent: "center"
                                 }}
-                            >
-                                <NavLink
-                                    to={`/user-setup?tab=2`}
-                                >
-                                    Access Setup
-                </NavLink>
-
-                                <Typography color="textPrimary">
-                                    User Access Configuration
-                </Typography>
-                            </Breadcrumbs>
-                        </Paper>
-
+                            > */}
+                        <SubHeaderWithArrow
+                            action={`/user-setup?tab=2`}
+                            title={`Access Setup/ User Access Configuration`}
+                        />
+                        
                         <Card className="mb-2">
-                          
+
                             <CardContent>
                                 <div
                                     style={{
@@ -296,7 +296,7 @@ const AccessConfiguration = (props) => {
                                 onClick={saveUserAccess}
                             >
                                 Save
-              </Button>
+                            </Button>
                         </Snackbar>
                     </div>
                 ) : (

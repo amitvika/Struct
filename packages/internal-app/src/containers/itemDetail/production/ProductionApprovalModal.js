@@ -76,8 +76,8 @@ export default function ProductionApprovalModal({
     }
     const handleFactoryClick = () => {
         history.push(`/factories/${selectedValue.factory_id}`)
-
     }
+    
     return (
         <MainModal open={isModalOpened} toggleModal={toggleModal} >
             <Paper style={{ padding: 10 }}>

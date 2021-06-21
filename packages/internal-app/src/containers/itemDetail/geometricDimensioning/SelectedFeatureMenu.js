@@ -10,16 +10,14 @@ import Paper from '@material-ui/core/Paper';
 export default function SelectedFeatureMenu({ featureList = [] }) {
 
     const renderTable = () => {
-        console.log("FeaturList",featureList);
+        //console.log("FeaturList",featureList);
         return featureList.map((row,index) => (
             <TableRow key={row.name+index.toString()}>
                 <TableCell component="th" scope="row">
                     {row.name}
                 </TableCell>
-                <TableCell align="right">{row.location}</TableCell>
-                <TableCell align="right">{row.cornerLocation}</TableCell>
-                <TableCell align="right">{row.edgeList}</TableCell>
-                <TableCell align="right">{row.surfaceArea}</TableCell>
+                <TableCell align="right">{row.type}</TableCell>
+                <TableCell align="right">{row.kind}</TableCell>               
             </TableRow>
         ))
     }
@@ -30,10 +28,8 @@ export default function SelectedFeatureMenu({ featureList = [] }) {
                 <TableHead>
                     <TableRow>
                         <TableCell>ID</TableCell>
-                        <TableCell align="right">Location&nbsp;(for a corner)</TableCell>
-                        <TableCell align="right">Corner locations&nbsp;(for an edges)</TableCell>
-                        <TableCell align="right">Edge list&nbsp;(for faces)</TableCell>
-                        <TableCell align="right">Surface Area&nbsp;(for faces)</TableCell>
+                        <TableCell align="right">Type</TableCell>
+                        <TableCell align="right">Kind</TableCell>                       
                     </TableRow>
                 </TableHead>
                 <TableBody>

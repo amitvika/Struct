@@ -9,12 +9,16 @@ const useStyles = makeStyles((theme) => ({
     toolbar: {
         display: "flex",
         justifyContent: "space-between",
+        
+       
     },
     header: {
         ...theme.header,
         backgroundColor: "#1e1d1e",
         paddingRight: "79px",
         paddingLeft: "118px",
+        // position: 'sticky'
+      
     },
     logo: {
         fontWeight: 600,
@@ -22,7 +26,8 @@ const useStyles = makeStyles((theme) => ({
         textAlign: "left",
     },
     menuButton:  {
-      ...theme.menuButton
+      ...theme.menuButton,
+      
     },
     menuContainer: {
     display: 'flex',

@@ -111,11 +111,14 @@ const Items = ({ handleSave }) => {
 
             if (itemRes && itemRes.data) {
                 const items = itemRes.data.map((item, index) => {
+                    //console.log(item.gltfjson.thumbnail);
+                    const thumbnail = item?.gltfjson?.thumbnail;
                     return {
                         id: item._id,
                         name: item.name,
                         source: item?.vendorId?.name || 'STRUCT',
-                        assemblyType: item.assemblyType
+                        assemblyType: item.assemblyType,
+                        thumbnail: thumbnail ? thumbnail : ""
                     }
                 })
 

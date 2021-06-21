@@ -15,6 +15,7 @@ import { columnsFields } from '@ravibasil/common/constants/item'
 import ProductOptions from './productOptions'
 import { mapItems } from '../../../utils/mapper'
 import get from 'lodash/get';
+import SubHeaderWithArrow from 'src/components/SubHeaderWithArrow';
 
 export default function Products({
 	clientId,
@@ -61,18 +62,10 @@ export default function Products({
 			{/* Breadcrum */}
 			{Object.keys(selectedProduct).length > 0 ?
 				<>
-					<Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px', display: 'flex' }} >
-						<IconButton color="primary" onClick={handleProductBreadcrumbSelect} component="span">
-							<ArrowBackIcon />
-						</IconButton>
-						<Typography
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								fontSize: '20px'
-							}}
-						>Configure Product: {selectedProduct.name}</Typography>
-					</Paper>
+                <SubHeaderWithArrow 
+                // action={'/client?tab=1'}
+                title={`Configure Product: ${selectedProduct.name}`}
+                />
 					<ProductOptions
 					/>
 				</> :

@@ -211,14 +211,17 @@ def get_bounding_details(shape, tol=1e-6, optimal_BB=True):
     """
     bbox = Bnd_Box()
     bbox.SetGap(tol)
-
+    try:
+        if optimal_BB:
+            use_triangulation = True
+            use_shapetolerance = True
+            brepbndlib_AddOptimal(shape, bbox, use_triangulation, use_shapetolerance)
+        else:
+            brepbndlib_Add(shape, bbox)
+    except Exception as e:
+        print("Unable to find bounding gox,",e)        
     # note: useTriangulation is True by default, we set it explicitely, but t's not necessary
-    if optimal_BB:
-        use_triangulation = True
-        use_shapetolerance = True
-        brepbndlib_AddOptimal(shape, bbox, use_triangulation, use_shapetolerance)
-    else:
-        brepbndlib_Add(shape, bbox)
+    
     xmin, ymin, zmin, xmax, ymax, zmax = bbox.Get()
     #round off to 3 digits..
     max_all = max(abs(xmin), abs(ymin), abs(zmin), abs(xmax), abs(ymax), abs(zmax))
@@ -2173,15 +2176,97 @@ def to_np_from_tcolstd_array2_real(tcol_array):
 ##################################
 # Recognize functions
 ##################################
+##################################
+# Recognize functions
+##################################
+def recognize_edge_entity(topods_edge):
+    """ returns True if the TopoDS_Face is a planar surface
+    """
+    entity = {}   
+    entity['location'] = None
+    entity['position'] = None  
+    entity['type'] ="Edge"
+    if not isinstance(topods_edge, TopoDS_Edge):
+        entity['kind'] = "Not an edge"
+        entity['type'] = "Point"
+        return entity
+
+    curve = BRepAdaptor_Curve(topods_edge)
+    curve_type = curve.GetType()
+     
+    entity['Fill'] = "Cut" if (topods_edge.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Joint"
+   #entity['dump'] = topods_face.DumpJsonToString()
+    xmin, ymin, zmin, xmax, ymax, zmax = get_bounding_details(topods_edge)
+    entity['bound']=xmin, ymin, zmin, xmax, ymax, zmax
+    entity['center']= (xmin+xmax)/2.0, (ymin+ymax)/2.0, (zmin+zmax)/2.0
+    # nothing found
+    #entity['firstU'] = curve.FirstParameter()
+    #entity['lastU'] = curve.LastParameter() 
+    if  curve_type == GeomAbs_Line:
+        entity['kind'] = "Line" 
+        gp_Line = curve.Line()
+        entity['location'] = gp_Line.Location() 
+        axis1=gp_Line.Position()
+        entity['position'] = gp_Ax2( axis1.Location(),axis1.Direction() )  # a point of the axis
+        
+    elif curve_type == GeomAbs_Circle:
+        entity['kind'] = "Circle"   
+        gp_circle = curve.Circle()
+        entity['location'] = gp_circle.Location() 
+        entity['position'] = gp_circle.Position() 
+        entity['radius'] = gp_circle.Radius()
+        entity['center'] = getXYZ(gp_circle.Location())
+    elif curve_type == GeomAbs_Ellipse:
+        entity['kind'] = "Ellipse"   
+        gp_ellipse = curve.Ellipse()
+        entity['location'] = gp_ellipse.Location() 
+        entity['position'] = gp_ellipse.Position() 
+        entity['majorradius'] = gp_ellipse.MajorRadius()
+        entity['minorradius'] = gp_ellipse.MinorRadius()
+        entity['center'] = getXYZ(gp_ellipse.Location())     
+    elif curve_type == GeomAbs_Hyperbola:
+        entity['kind'] = "Hyperbola" 
+        gp_hyperbola = curve.Hyperbola()
+        entity['location'] = gp_hyperbola.Location() 
+        entity['position'] = gp_hyperbola.Position() 
+        entity['major'] = gp_hyperbola.MajorRadius()
+        entity['minor'] = gp_hyperbola.MinorRadius()
+        entity['location'] = getXYZ(gp_hyperbola.Position().Location())  # a point of the axis
+        entity['direction'] = getXYZ(gp_hyperbola.Position().Direction())
+        entity['center'] = getXYZ(gp_hyperbola.Location())       
+    elif curve_type == GeomAbs_Parabola:
+        entity['kind'] = "Parabola"   
+        gp_parabola = curve.Parabola()
+        entity['location'] = gp_parabola.Location() 
+        entity['position'] = gp_parabola.Position() 
+        entity['focal'] = gp_parabola.Focal()        
+        entity['location'] = getXYZ(gp_parabola.Position().Location())  # a point of the axis
+        entity['direction'] = getXYZ(gp_parabola.Position().Direction())
+        entity['center'] = getXYZ(gp_parabola.Location())         
+    elif curve_type == GeomAbs_BezierCurve:
+        entity['kind'] = "Bezier"   
+                  
+    elif curve_type == GeomAbs_BSplineCurve:
+        entity['kind'] = "BSpline"   
+        
+    elif curve_type == GeomAbs_OtherCurve:
+        entity['kind'] = "Other Curves" 
+    else:
+        entity['kind'] = "Unknown"   
+    return entity
 
 def recognize_entity(topods_face):
     """ returns True if the TopoDS_Face is a planar surface
     """
     entity = {}
+    entity['kind'] = "Unknown"
+    entity['location'] = None
+    entity['position'] = None   
+    entity['type'] ="Face" 
     if not isinstance(topods_face, TopoDS_Face):
-        entity['kind'] = "Not a face"
-        return entity
-
+        return recognize_edge_entity(topods_face)
+        #entity['kind'] = "Not a face"       
+        #return entity
     entity['Fill'] = "Hole" if (topods_face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Solid"
     #entity['dump'] = topods_face.DumpJsonToString()
     xmin, ymin, zmin, xmax, ymax, zmax = get_bounding_details(topods_face)
@@ -2218,7 +2303,7 @@ def recognize_entity(topods_face):
         entity['kind'] = "Cone"
         entity['location'] =   gp_cone.Location()   # a point of the axis       
         entity['position'] =   gp_cone.Position()    # a local coordinate point of the axis
-        entity['refradius'] = gp_cone.RefRadius()
+        entity['radius'] = gp_cone.RefRadius()
         entity['semiangle'] = gp_cone.SemiAngle()
         # then export location and normal to the console output
         return entity
@@ -2248,16 +2333,12 @@ def recognize_entity(topods_face):
     elif surf_type == GeomAbs_BezierSurface:      
         
         entity['kind'] = "Bezier"
-        entity['location'] = "Bezier"
-        entity['position'] = "Bezier"
+       
         
         return entity
     elif surf_type == GeomAbs_BSplineSurface:
         #gp_bspline = surf.BSpline()  
         entity['kind'] = "BSpline"
-        entity['location'] = "BSpline"
-        entity['position'] = "BSpline"
-
         return entity
     elif surf_type == GeomAbs_SurfaceOfRevolution:
         entity['kind'] = "Revolution"
@@ -2272,7 +2353,7 @@ def recognize_entity(topods_face):
         entity['kind'] = "Others"
         return entity
     # nothing found
-    entity['kind'] = "Unknown"
+    
     return entity
 
 
@@ -2542,6 +2623,54 @@ def recognize_face(topods_face):
     # nothing found
     entity['kind'] = "Unknown"
     return entity
+
+##################################
+# Recognize functions
+##################################
+def recognize_curve(topods_edge):
+    """ returns True if the TopoDS_Face is a planar surface
+    """
+    #entity = "Not an edge" 
+    if not isinstance(topods_edge, TopoDS_Edge):
+        return "Not an edge" , 0
+
+    curve = BRepAdaptor_Curve(topods_edge)
+    curve_type = curve.GetType()
+    firstU = curve.FirstParameter()
+    lastU = curve.LastParameter()
+    firstP = curve.Value(firstU)
+    lastP = curve.Value(lastU)
+    closedDistance = firstP.Distance(lastP)
+    # nothing found
+    #entity['firstU'] = curve.FirstParameter()
+    #entity['lastU'] = curve.LastParameter() 
+    if  curve_type == GeomAbs_Line:
+        return "Line", closedDistance
+        
+    elif curve_type == GeomAbs_Circle:
+        
+        return "Circle" , closedDistance  
+       
+    elif curve_type == GeomAbs_Ellipse:
+        return "Ellipse" , closedDistance   
+      
+    elif curve_type == GeomAbs_Hyperbola:
+        return "Hyperbola" , closedDistance 
+              
+    elif curve_type == GeomAbs_Parabola:
+        return "Parabola" , closedDistance   
+       
+    elif curve_type == GeomAbs_BezierCurve:
+        return "Bezier" , closedDistance   
+                   
+    elif curve_type == GeomAbs_BSplineCurve:
+        return "BSpline" , closedDistance  
+        
+    elif curve_type == GeomAbs_OtherCurve:
+        return "Other Curves" , closedDistance 
+    else:
+        return "Unknown" , closedDistance   
+    #return "Not an edge" 
 
 ##################################
 # Recognize functions

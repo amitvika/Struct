@@ -28,7 +28,7 @@ from .structparts import conversion
 #from .structparts.structquery.occ_impl import OCPDataExchange
 from .structparts.structquery.occ_impl import OCPStepIGESAnalyser, OCPImporters
 from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
-    translate_shp, rotate_shp_3_axis, minimum_distance, getPartStackablePositions, get_bounding_details, 
+    recognize_edge, translate_shp, rotate_shp_3_axis, minimum_distance, getPartStackablePositions, get_bounding_details, 
     recognize_direction, recognize_entity)
 from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices
 from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
@@ -493,7 +493,7 @@ def findMinimumDistance(xmove,ymove,zmove,xrotate,yrotate,zrotate,moverotate,fna
         secondEntity = recognize_entity(secondshell)
         firstAxis =  firstEntity["position"]
         secondAxis = secondEntity["position"]
-        if(firstAxis and secondAxis):            
+        if(firstAxis and secondAxis and (firstEntity['type']==secondEntity['type'])):            
             coplaner = firstAxis.IsCoplanar (secondAxis, 0.1, 0.5)
             firstDir = firstAxis.Direction()
             secondDir = secondAxis.Direction()
@@ -501,7 +501,9 @@ def findMinimumDistance(xmove,ymove,zmove,xrotate,yrotate,zrotate,moverotate,fna
             normal = firstDir.IsNormal(secondDir, 0.5)
             opposite = firstDir.IsOpposite(secondDir, 0.5)
             concentric = (firstEntity["center"]==secondEntity["center"])
-            if ( ((firstEntity["kind"]=="Sphere" and secondEntity["kind"]=="Sphere")) or ((firstEntity["kind"]=="Cylinder" and secondEntity["kind"]=="Cylinder")) ): 
+            if ( ((firstEntity["kind"]=="Sphere") or (firstEntity["kind"]=="Cylinder") or\
+                (firstEntity["kind"]=="Circle") or (firstEntity["kind"]=="Cone") ) and \
+                (firstEntity["kind"]==secondEntity["kind"])): 
                 coradial = (firstEntity["radius"] == secondEntity["radius"]) and concentric
             else:
                 coradial = False  
@@ -519,8 +521,8 @@ def FileSplit(request):
         anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
         disectparts = convertToBool(request.GET.get('disectparts',"false"),False)
         moverotate = convertToInt(request.GET.get('moverotate',"0"),0)   
-        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"512"),512)
-        thumbheight = convertToFloat(request.GET.get('thumbheight',"512"),512)     
+        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
+        thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)   
         #print(includeparts)
         if includeparts:           
             print("I am including minorparts")
@@ -694,8 +696,8 @@ def FileHierarchySplit(request):
         moverotate = convertToInt(request.GET.get('moverotate',"0"),0)  
         edgesize = convertToFloat(request.GET.get('edgesize',"0.3"),0.3) 
         vertexsize = convertToFloat(request.GET.get('vertexsize',"0.3"),1.0)
-        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"512"),512)
-        thumbheight = convertToFloat(request.GET.get('thumbheight',"512"),512)     
+        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
+        thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
         #print(includeparts)
         if includeparts:           
             print("I am including minorparts")
@@ -801,11 +803,11 @@ def findMates(firstshell,secondshell):
     coradial = "unknwon"  
     angle = "unknown"   
     if firstshell and secondshell:
-        firstEntity = recognize_entity(firstshell)
+        firstEntity = recognize_entity(firstshell)       
         secondEntity = recognize_entity(secondshell)
         firstAxis =  firstEntity["position"]
         secondAxis = secondEntity["position"]
-        if(firstAxis and secondAxis):            
+        if(firstAxis and secondAxis and (firstEntity['type']==secondEntity['type'])):               
             coplaner = firstAxis.IsCoplanar (secondAxis, 0.1, 0.5)
             firstDir = firstAxis.Direction()
             secondDir = secondAxis.Direction()
@@ -813,12 +815,14 @@ def findMates(firstshell,secondshell):
             normal = firstDir.IsNormal(secondDir, 0.5)
             opposite = firstDir.IsOpposite(secondDir, 0.5)
             concentric = (firstEntity["center"]==secondEntity["center"])
-            if ( ((firstEntity["kind"]=="Sphere" and secondEntity["kind"]=="Sphere")) or ((firstEntity["kind"]=="Cylinder" and secondEntity["kind"]=="Cylinder")) ): 
+            if ( ((firstEntity["kind"]=="Sphere") or (firstEntity["kind"]=="Cylinder") or\
+                (firstEntity["kind"]=="Circle") or (firstEntity["kind"]=="Cone") ) and \
+                (firstEntity["kind"]==secondEntity["kind"])): 
                 coradial = (firstEntity["radius"] == secondEntity["radius"]) and concentric
             else:
                 coradial = False  
-            angle = firstDir.Angle(secondDir)          
-          
+            angle = firstDir.Angle(secondDir)         
+           
         return firstEntity["kind"], secondEntity["kind"], coplaner, parallel, normal, opposite, concentric, coradial, angle
 
 
@@ -830,27 +834,31 @@ def FileGetShapeInfo(request):
         if sname=="":
             steps = request.GET.get('steps',"")   
             fnames=steps.split(",")
-            start = convertToInt(request.GET.get('steps',"0"),0)
+            start = convertToInt(request.GET.get('start',"0"),0)
         else:
             fnames=[sname]
             start=0
         structArray=[]
         thisshell=[]
+        #mateCollection=[]
         for index in range(len(fnames)):
 
             fname = fnames[index]        
-            print("Got request for",fname)
+            #print("Got request for",fname,index,start)
             if fname:
                 try:
                     with open("Display/"+fname+".pickle", 'rb') as f:
-                        # The protocol version used is detected automatically, so we do not
-                        # have to specify it.
-                        thisshell[index] = pickle.load(f)
+                        #print("storing to",index)
+                        thisshell.append(pickle.load(f))
+                        #print("stored to",index)
                         data = []
                         if index >=start :
                             dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data)
-                            structArray.append(data)
-
+                            mateArray=[]
+                            for mateindex in range(index):
+                                mymates = findMates(thisshell[mateindex],thisshell[index])
+                                mateArray.append((mymates))
+                            structArray.append((data,(mateArray)))                            
                 except Exception as e:
                     print("Error while loading",fname,e)
     elif request.method == 'POST':
@@ -1202,8 +1210,8 @@ def FileGetStackablePositions(request):
         id = request.GET.get('id', None)
         distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
         anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"512"),512)
-        thumbheight = convertToFloat(request.GET.get('thumbheight',"512"),512)
+        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
+        thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
         if is_number(id) :            
             files = File.objects.filter(id__icontains=id)
             for eachfile in files:               
@@ -1409,8 +1417,8 @@ def FileGetAssemblyOrder(request):
         anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
         explodegap = convertToFloat(request.GET.get('explodegap',"0.3"),0.3)
         center=convertToBool(request.GET.get('center',"true"),True)
-        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"512"),512)
-        thumbheight = convertToFloat(request.GET.get('thumbheight',"512"),512)
+        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
+        thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
         print(id,distancegap,anglegap,explodegap,center)
         if is_number(id) :            
             files = File.objects.filter(id__icontains=id)

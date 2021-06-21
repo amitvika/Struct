@@ -17,7 +17,8 @@ const Client = () => {
             upsertListItem={ClientAPI.upsertClient}
             isAddEditActionsEnabled={true}
             handleItemClick={handleItemClick}
-            isAddEditLinkVisible ={ true}
+            isAddEditLinkVisible ={true}
+            
         />
     );
 }

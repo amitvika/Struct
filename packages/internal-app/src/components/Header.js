@@ -95,34 +95,34 @@ export default function Header() {
             );
         });
 
-        menuItems.push(<Button
-            key='back_button'
-            {...{
-                key: 'back_button',
-                color: "inherit",
-                to: '#',
-                component: RouterLink,
-                className: classes.menuButton
-            }}
+        // menuItems.push(<Button
+        //     key='back_button'
+        //     {...{
+        //         key: 'back_button',
+        //         color: "inherit",
+        //         to: '#',
+        //         component: RouterLink,
+        //         className: classes.menuButton
+        //     }}
 
-            onClick={() => history.goBack()}
-        >
-            <ArrowBackIcon />
-        </Button>)
+        //     onClick={() => history.goBack()}
+        // >
+        //     <ArrowBackIcon />
+        // </Button>)
 
-        menuItems.push(<Button
-            key='forward_button'
-            {...{
-                key: 'forward_button',
-                color: "inherit",
-                to: '#',
-                component: RouterLink,
-                className: classes.menuButton
-            }}
-            onClick={() => history.goForward()}
-        >
-            <ArrowForwardIcon />
-        </Button>)
+        // menuItems.push(<Button
+        //     key='forward_button'
+        //     {...{
+        //         key: 'forward_button',
+        //         color: "inherit",
+        //         to: '#',
+        //         component: RouterLink,
+        //         className: classes.menuButton
+        //     }}
+        //     onClick={() => history.goForward()}
+        // >
+        //     <ArrowForwardIcon />
+        // </Button>)
 
         return menuItems;
     };
@@ -141,7 +141,7 @@ export default function Header() {
                     className: classes.menuButton
                 }}
             >
-                My Tasks
+                My Tasks and Profile
             </Button>
         );
 
@@ -175,10 +175,10 @@ export default function Header() {
                                             onClick={() => handleLink('/configuration-history')}>Configuration History</MenuItem>
                                         <MenuItem
                                             key={`user_setup_link`}
-                                            onClick={() => handleLink('/user-setup')}>User Setup</MenuItem>
-                                        <MenuItem
+                                            onClick={() => handleLink('/user-setup')}>Administrative</MenuItem>
+                                        {/* <MenuItem
                                             key={`my_profile_link`}
-                                            onClick={() => handleLink('/viewMyProfile')}>My Profile</MenuItem>
+                                            onClick={() => handleLink('/viewMyProfile')}>My Profile</MenuItem> */}
                                         <MenuItem
                                             key={`theme_changer`}>
                                             <Switch checked={lightThemeSelected} onChange={handleThemeChange} name="currentTheme" />

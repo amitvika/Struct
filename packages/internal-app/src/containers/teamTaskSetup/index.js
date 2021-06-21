@@ -6,6 +6,7 @@ import { teamTaskSetupFields } from '@ravibasil/common/constants/team'
 import TableGridView from '@ravibasil/common/components/TableGridView';
 import AddUpdateModal from './AddUpdateModal';
 import { fetchMyTeamAction } from '../../actions/team.action'
+import AssignTeamModal from "./AssignTeamModal";
 
 const TeamTaskSetup = () => {
     const dispatch = useDispatch();
@@ -21,7 +22,9 @@ const TeamTaskSetup = () => {
             fetchList={TeamSetupAPI.fetchTeamTask}
             upsertListItem={TeamSetupAPI.upsertTeamTask}
             AddUpdateModal={AddUpdateModal}
-        
+            isAddEditLinkVisible ={true}
+            isManageTeamVisible={true}
+            ManageTeamModal={AssignTeamModal}
         />
     );
 }

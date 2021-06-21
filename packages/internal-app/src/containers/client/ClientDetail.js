@@ -8,9 +8,7 @@ import {
     Grid,
     IconButton
 } from "@material-ui/core";
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-
-import Typography from "@material-ui/core/Typography";
+import SubHeaderWithArrow from '../../components/SubHeaderWithArrow'
 import { NavLink, useParams, useHistory } from "react-router-dom";
 import API from '@ravibasil/common/api/clients.api';
 import Products from './products'
@@ -158,15 +156,10 @@ const ClientDetail = () => {
         <>
             <Grid container>
                 <Grid item sm sm={12}>
-                    <Paper style={{ padding: 20, margin: 10, display: 'flex' }}>
-                        <NavLink
-                            to='/clients'>
-                            <IconButton>
-                                <ArrowBackIcon />
-                            </IconButton>
-                        </NavLink>
-                        <Typography color="textPrimary" style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginleft: 'inherit' }}>Client Details</Typography>
-                    </Paper>
+                    <SubHeaderWithArrow
+                        action={'/clients'}
+                        title={'Client Details'}
+                    />
                     <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                             <h4>Client Name: {clientData.name}</h4>
@@ -219,7 +212,7 @@ const ClientDetail = () => {
                     color="primary"
                     onClick={handleSave}>
                     Save
-          </Button>
+                </Button>
             </Snackbar>
 
         </>

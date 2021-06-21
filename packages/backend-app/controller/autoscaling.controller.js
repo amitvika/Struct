@@ -111,33 +111,48 @@ exports.approveItemForAutoscaling = async (req, res) => {
             isApprovedforProduction = autoscaling.approval_list.length == 2 ? true : false;
         }
 
-        autoscaling = await AutoscalingModel.findByIdAndUpdate(
-            req.params.id,
-            {
-                $push: { "approval_list": { author: req.user.id, is_approved: true } },
-                $set: { isApprovedforProduction: isApprovedforProduction }
-            },
-            { new: true })
+        if (req.body.is_approved) {
+            autoscaling = await AutoscalingModel.findByIdAndUpdate(
+                req.params.id,
+                {
+                    $push: { "approval_list": { author: req.user.id, is_approved:  req.body.is_approved  } },
+                    $set: { isApprovedforProduction: isApprovedforProduction }
+                },
+                { new: true })
+        }
+        else {
+            autoscaling = await AutoscalingModel.findByIdAndUpdate(req.params.id,
+                {
+                    "$pull": {
+                        "approval_list": {
+                            "_id": getObjectId(req.body.approval_id)
+                        }
+                    }
+                },
+                { safe: true, multi: true });
+        }
+
+
 
         const changeTracking = new ChangeTracking({
-            client: req.body.id,
-            update: autoscaling,
-            model: "Autoscaling",
-            updateType: 'Approve Item for production',
-            updatedObject: req.body.id,
-            updatedBy: req.user.id
-        });
-        await changeTracking.save();
+        client: req.body.id,
+        update: autoscaling,
+        model: "Autoscaling",
+        updateType: 'Approve Item for production',
+        updatedObject: req.body.id,
+        updatedBy: req.user.id
+    });
+    await changeTracking.save();
 
-        autoscaling = await AutoscalingModel.findById(autoscaling._id)
-            .populate('approval_list.author');
+    autoscaling = await AutoscalingModel.findById(autoscaling._id)
+        .populate('approval_list.author');
 
-        res.json(mapAutoscaling(autoscaling))
-    }
+    res.json(mapAutoscaling(autoscaling))
+}
     catch (error) {
-        console.log('upsert', error)
-        res.status(500).send(error)
-    };
+    console.log('upsert', error)
+    res.status(500).send(error)
+};
 }
 
 exports.itemInProduction = async (req, res) => {

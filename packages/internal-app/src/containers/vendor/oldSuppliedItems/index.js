@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { Spinner } from "reactstrap";
 
@@ -10,11 +8,11 @@ import Toolbar from '@ravibasil/common/components/TableGridView/Toolbar';
 import TableView from '@ravibasil/common/components/TableGridView/TableView';
 import GridView from '@ravibasil/common/components/TableGridView/GridView';
 import DefaultContainer from '@ravibasil/common/components/DefaultContainer';
-import IdentificationModal from './identificationModal'
 
-export default function ProductOptions() {
+export default function SuppliedItems() {
 
     let history = useHistory();
+    let { id } = useParams();
 
     const dispatch = useDispatch();
 
@@ -25,23 +23,21 @@ export default function ProductOptions() {
     const [message, setMessage] = useState('');
     const [snackBar, setSnackBar] = useState(false);
     const [snackBarAlertType, setSnackBarAlertType] = useState('');
-    const [isIdentificationModalOpened, setIsIdentificationModalOpened] = useState(false);
     const [selectedVendorId, setSelectedVendorId] = useState('');
     const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
     const [isGridViewSelected, setIsGridViewSelected] = useState(true);
     const [isModalOpened, setIsModalOpened] = useState(false)
 
-    const [columnsFields, setColumns] = useState([
+    const [columns, setColumns] = useState([
         { title: "ID", field: "id", editable: "never", align: 'center' },
         { title: "Estimated Delivery Date", field: "estimatedDeliveryDate" },
         { title: "Item Quantity", field: "itemQuantity" },
         { title: "Unit Cost", field: "unitCost" },
-        // { title: "Source", field: "source" },
         {
             title: 'Identification',
             field: "identification",
-            editable: "never",
             isFilterColumn: false,
+            editable: "never",
             render: rowData => rowData && <span style={{ cursor: 'pointer' }}
                 onClick={(event) => {
                     toggleModal();
@@ -50,6 +46,7 @@ export default function ProductOptions() {
                 }}> Indentification Modal </span>
         },
     ])
+    const columnsFields = { 'id': 'ID', 'name': 'Name' };
 
     const alertForError = (err) => {
         setIsLoading(false);
@@ -201,7 +198,11 @@ export default function ProductOptions() {
     }
 
     const handleTableRowClick = (event) => {
-        history.push(`/vendors/${event.id}`);
+        // history.push(`/vendors/${event.id}`);
+        history.push({
+            pathname: `/vendors/${id}`,
+            search: `?tab=10`
+        })
     }
 
     if (isLoading) {
@@ -225,18 +226,19 @@ export default function ProductOptions() {
                 // isHistoryModalOpened={false}
                 title={'Vendors'}
                 selectedId={selectedVendorId}
-                handleIndentificationToggle={() => toggleModal()}
+                // handleIndentificationToggle={()=> toggleModal()}
                 snackBar={snackBar}
                 handleAlertClose={handleAlertClose}
                 message={message}
                 snackBarAlertType={snackBarAlertType}>
 
-                <IdentificationModal
+                {/* <IdentificationModal
                     isModalOpened={isModalOpened}
                     toggleModal={toggleModal}
-                />
+                /> */}
 
                 <Toolbar
+
                     title={'Vendors'}
                     isGridViewSelected={isGridViewSelected}
                     setIsGridViewSelected={setIsGridViewSelected}
@@ -244,7 +246,7 @@ export default function ProductOptions() {
                     isDeletedItemVisible={isDeletedItemVisible}
                     handleShowDelete={handleShowDelete}
                     // isHistoryModalOpened={false}
-                    handleIndentificationToggle={() => toggleModal()}
+                    // handleIndentificationToggle={()=>toggleModal()}
                     list={vendorList}
                     filteredList={filteredVendorList}
                     setFilteredList={setFilteredVendorList}
@@ -258,7 +260,7 @@ export default function ProductOptions() {
                     isGridViewSelected ?
                         <GridView
                             list={filteredVendorList}
-                            handleIndentificationToggle={() => toggleModal()}
+                            // handleIndentificationToggle={()=>toggleModal()}
                             columnsFields={columnsFields}
                             handleTableRowClick={handleTableRowClick} /> :
                         <TableView
@@ -267,7 +269,7 @@ export default function ProductOptions() {
                             handleUpdate={updateVendor}
                             handleDelete={deleteVendor}
                             handleTableRowClick={handleTableRowClick}
-                            columns={columnsFields}
+                            columns={columns}
                             setColumns={setColumns}
 
                         />
