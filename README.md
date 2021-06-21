@@ -42,6 +42,14 @@ yarn install
 - CD to `gltfconverter` directory
 
 ### Following is needed for Headless AWS and For windows, it is not needed.
+- Install Open GL as per https://en.wikibooks.org/wiki/OpenGL_Programming/Installation/Linux
+
+sudo apt-get install build-essential libgl1-mesa-dev  # Debian, Ubuntu
+sudo dnf install make gcc-c++  # Fedora
+sudo apt-get install libglew-dev libsdl2-dev libsdl2-image-dev libglm-dev libfreetype6-dev  # Debian, Ubuntu
+sudo dnf install glew-devel SDL2-devel SDL2_image-devel glm-devel freetype-devel   # Fedora
+sudo pacman -S glew sdl2 sdl2_image glm freetype2 # Arch
+
 # Install xvfb
 sudo apt-get install xvfb mesa-utils -y
 
