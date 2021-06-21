@@ -5705,15 +5705,10 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
     
     # Add camera to scene
     scene.add(cam,  pose=cam_pose)
-<<<<<<< HEAD
     try:
         r = OffscreenRenderer(viewport_width=thumbnail_width, viewport_height=thumbnail_height)
     except Exception as e:
         print("Error",e)
-=======
-
-    r = OffscreenRenderer(viewport_width=thumbnail_width, viewport_height=thumbnail_height)
->>>>>>> 1102c0e8c6acfda8d14dd1f2e964084a6f9ed1bf
     color, _ = r.render(scene)
     myImage = Image.Image.fromarray(color)
    
