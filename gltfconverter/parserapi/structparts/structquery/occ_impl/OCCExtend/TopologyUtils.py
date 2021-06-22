@@ -641,6 +641,7 @@ def list_of_shapes_to_compound(list_of_shapes: List[TopoDS_Shape]) -> Tuple[Topo
         # first ensure the shape is not Null
         if shp.IsNull():
             all_shapes_converted = False
+            print("A shape null")
             continue
         else:
             the_builder.Add(the_compound, shp)

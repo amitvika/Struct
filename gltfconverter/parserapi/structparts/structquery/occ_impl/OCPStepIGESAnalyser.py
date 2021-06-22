@@ -1,24 +1,24 @@
 import os
-import sys
-import unicodedata
-from pathlib import Path
+#import sys
+#import unicodedata
+#from pathlib import Path
 import os
 import re
 import struct
 import base64
 from io import BytesIO
-from itertools import chain
+#from itertools import chain
 from copy import copy, deepcopy
 import json
-from collections import defaultdict
+#from collections import defaultdict
 import numpy
 from time import time
 from contextlib import contextmanager
-import jinja2
+#import jinja2
 import html
 import math
 import pickle
-from glob import glob
+#from glob import glob
 
 import logging
 log = logging.getLogger(__name__)
@@ -588,7 +588,7 @@ class TranslationBuffer(object):
                 self.translation_wmin = w
             if self.translation_wmax < w:
                 self.translation_wmax = w
-        print("Translation",self.translation_len,self.translation_umin,self.translation_umax,self.translation_vmin,self.translation_vmax,self.translation_wmin,self.translation_wmax)
+        #print("Translation",self.translation_len,self.translation_umin,self.translation_umax,self.translation_vmin,self.translation_vmax,self.translation_wmin,self.translation_wmax)
         self.translation_data.write(
             struct.pack('<f', u) +
             struct.pack('<f', v) +
@@ -1049,7 +1049,7 @@ class StepIgesAnalyser():
         currentP = curve.Value(firstU)
         for eachP in range(length):            
             nextP = curve.Value(firstU+(ranges*(eachP+1)/(length)))
-            if (nextP.Distance(currentP) >= self.distancegap) or (length==1):
+            if (nextP.Distance(currentP) >= self.distancegap): # or (length==1):
                 aPipe = self.createPipeFromPoints(currentP, nextP)
                 if aPipe:
                     pipes.append(aPipe)
@@ -1145,9 +1145,9 @@ class StepIgesAnalyser():
             elif found==1:
                 #print("I got from findfaceLabel")
                 return faceLabels[0], True
-            else:
-                print("No shapes found from subshapes")
-                #return None
+            #else:
+            #    #print("No shapes found from subshapes")
+            #    #return None
         faceLabel = TDF_Label() 
         found = self.shape_tool.FindSubShape(subLabel, solidFace, faceLabel)                
         if found:
@@ -1246,6 +1246,19 @@ class StepIgesAnalyser():
                                 vertices_dict[hash_vertex]=shape_vertex  
 
         return list_of_faces, edges_dict, vertices_dict
+    
+    def NotFoundIn(self,arrItems,item):
+        #print(arrItems,item)
+        itemR = item.Red()
+        itemG = item.Green()
+        itemB = item.Blue()
+        for (R,G,B) in arrItems:
+            #print("Inside array Loop",items.Red(),item.Red(),items.Green(),item.Green(),items.Blue(),item.Blue())
+            #print(R,G,B,itemR,itemG,itemB)
+            if(R==itemR and G==itemG and B==itemB):
+                return False
+        return True
+
 
     def getFeaturesFromShape(self, aShape, subLabel, localTransform, parentColor, subShapes, parentShape=None, disectparts=True):
         if aShape.IsNull():
@@ -1267,7 +1280,7 @@ class StepIgesAnalyser():
             #print(len(list_of_faces),aShape)
             list_of_solids = []
             only_soilds = []
-            only_Color=None
+            only_Colors=[(parentColor.Red(),parentColor.Green(),parentColor.Blue())]
             for hash_solidface, solidface in faces_dict.items(): 
                 #hash_solidface = hash(solidface)
                 #print(hash_solidface,solidface)
@@ -1286,33 +1299,56 @@ class StepIgesAnalyser():
                 else: 
                     faceColor = parentColor
                     #print("I am unable to find shapecolor and hence setting the color",faceColor.Red(),faceColor.Green(),faceColor.Blue())
-                shape_disp = BRepBuilderAPI_Transform(solidface, localTransform).Shape()
-                if shape_disp.IsNull():
-                    print("No shape was formed when"+str(self.uid)+"\n")
-                else:
-                    hashcode = hash_solidface+transformationHash
-                    list_of_solids.append((shape_disp,Quantity_Color(faceColor.Red(),faceColor.Green(),faceColor.Blue(), Quantity_TOC_RGB),hashcode) )  
-                    if (self.edgesize==0) and (self.vertexsize==0):
-                        only_soilds.append(shape_disp)
-                        if (only_Color == None):
-                            if( (faceColor.Red()!=parentColor.Red()) and (faceColor.Green()!=parentColor.Green()) and (faceColor.Blue()!=parentColor.Blue()) ):
-                                only_Color=faceColor
-                     
-                        
+                hashcode = hash_solidface+transformationHash
+                if (not hashcode in self.outputFaces):                    
+                    shape_disp = BRepBuilderAPI_Transform(solidface, localTransform).Shape()
+                    if shape_disp.IsNull():
+                        print("No shape was formed when"+str(self.uid)+"\n")
+                    else:
+                        #hashcode = hash_solidface+transformationHash
+                        self.outputFaces[hashcode] = (shape_disp,Quantity_Color(faceColor.Red(),faceColor.Green(),faceColor.Blue(), Quantity_TOC_RGB))
+                        list_of_solids.append((shape_disp,Quantity_Color(faceColor.Red(),faceColor.Green(),faceColor.Blue(), Quantity_TOC_RGB),hashcode) )  
+                        #print(faceColor.Red(),faceColor.Green(),faceColor.Blue())
+                        if (self.edgesize==0) and (self.vertexsize==0):
+                            only_soilds.append(shape_disp)
+                            if self.NotFoundIn(only_Colors,faceColor ):
+                                only_Colors.append((faceColor.Red(),faceColor.Green(),faceColor.Blue())) 
+                        """    else:
+                                print("Found",faceColor.Red(),faceColor.Green(),faceColor.Blue())                     
+                         else:
+                            only_soilds.append(shape_disp)
+                            if self.NotFoundIn(only_Colors,faceColor ):
+                               only_Colors.append((faceColor.Red(),faceColor.Green(),faceColor.Blue())) 
+                            else:
+                                print("Found",faceColor.Red(),faceColor.Green(),faceColor.Blue())   """     
                     #print(hashcode,localTransform)
-            if (self.edgesize==0) and (self.vertexsize==0):
-                mycompound,_ = list_of_shapes_to_compound(only_soilds) 
-                if only_Color==None:
-                    only_Color=parentColor
-                list_of_solids=[]
-<<<<<<< HEAD
-                list_of_solids.append((mycompound,Quantity_Color(only_Color.Red()*0.98,only_Color.Green()*0.98,only_Color.Blue()*0.98, Quantity_TOC_RGB),hash(mycompound)))
-=======
-                list_of_solids.append((mycompound,Quantity_Color(only_Color.Red(),only_Color.Green(),only_Color.Blue(), Quantity_TOC_RGB),hash(mycompound)))
->>>>>>> 1102c0e8c6acfda8d14dd1f2e964084a6f9ed1bf
-                return list_of_solids, None, None
-            else:
-                return list_of_solids, edges_dict, vertices_dict
+            if (self.edgesize==0) and (self.vertexsize==0):                
+                len_color_arr = len(only_Colors)
+                if len_color_arr<=2:
+                    (R,G,B)=only_Colors[len_color_arr-1]
+                    #print("Colors",R,G,B,len_color_arr,len(only_soilds))
+                    mycompound,_ = list_of_shapes_to_compound(only_soilds) 
+                    list_of_solids=[]
+                    list_of_solids.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hash(mycompound)))
+                    return list_of_solids, None, None
+                #else:
+                    #return list_of_solids, edges_dict, vertices_dict 
+            #else:
+            #    #print("Colors",len(only_Colors),len(only_soilds))                    
+            #    #return list_of_solids, edges_dict, vertices_dict
+            reduced_edges_dict = {}
+            reduced_corners_dict = {}
+            for hash_edge, edge in edges_dict.items():
+                hashcode = hash_edge+transformationHash
+                if (not hashcode in self.outputEdges):
+                    self.outputEdges[hashcode] = (edge)
+                    reduced_edges_dict[hashcode]=edge 
+            for hash_corner, corner in vertices_dict.items():
+                hashcode = hash_corner+transformationHash
+                if (not hashcode in self.outputCorners):
+                    self.outputCorners[hashcode] = (corner)
+                    reduced_corners_dict[hashcode]=corner 
+            return list_of_solids, reduced_edges_dict, reduced_corners_dict
         else:
             list_of_solids = []
             shape_disp = BRepBuilderAPI_Transform(aShape, localTransform).Shape()
@@ -1524,7 +1560,7 @@ class StepIgesAnalyser():
                         if  (len(myFaceType)>0)  :
                             for key, shape_edge  in shape_edges.items():
                                 myCurveType, Distance = recognize_curve(shape_edge)
-                                print("MyCurve",myCurveType, Distance)
+                                #print("MyCurve",myCurveType, Distance)
                                 if (myCurveType=="Circle") and (Distance<=0.0001):
                                     toAddCorners=False
                         for _, shape_edge  in shape_edges.items():
@@ -1599,7 +1635,7 @@ class StepIgesAnalyser():
                     #print("\n########  simpleshape subshape label :", subLabel)
                     #print("I have reached here 19")
                     shapeForSubShapes = self.shape_tool.GetShape(labelForSubShapes)
-                    currentColor, color_set = self.setColor(shapeForSubShapes,labelForSubShapes,defaultSubcolor,shape)
+                    currentColor, _ = self.setColor(shapeForSubShapes,labelForSubShapes,defaultSubcolor,shape)
                     """ #print("I have reached here 20")
                     
                     colorSet = False
@@ -1654,9 +1690,9 @@ class StepIgesAnalyser():
                                     self.outputShapes[shapeInFile] = [shape_to_disp,subName, subEntry, faceColor, self.uid, self.indent, labelForSubShapesName, labelForSubShapesEntry, meshname, basename, uvPlane]
                                     #print(myshapecount,"I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
-                                else:
-                                    diffColor = self.outputShapes[shapeInFile][3]
-                                    #print(myshapecount,"I am not writing with shape color in simple parts",faceColor.Red(),diffColor.Red(),faceColor.Green(),diffColor.Green(),faceColor.Blue(),diffColor.Blue(),labelForSubShapesName, labelForSubShapesEntry)
+                                #else:
+                                #    diffColor = self.outputShapes[shapeInFile][3]
+                                #    #print(myshapecount,"I am not writing with shape color in simple parts",faceColor.Red(),diffColor.Red(),faceColor.Green(),diffColor.Green(),faceColor.Blue(),diffColor.Blue(),labelForSubShapesName, labelForSubShapesEntry)
 
                             #print("I have reached here 25")                    
                 self.indent -= 1
@@ -1761,6 +1797,10 @@ class StepIgesAnalyser():
         split = os.path.splitext(filename)
         name = self.basefilename #os.path.basename(filename)
         self.outputShapes = {} #dictionary
+        self.outputFaces = {}
+        self.outputEdges = {}
+        self.outputCorners = {}
+
         self.parentLocations = [] #list
         self.uid = 0
         self.fileId = 0 
@@ -2184,7 +2224,7 @@ class StepIgesAnalyser():
             self.getShapes()
         if self.delay != 0:
             self.addAnimations()  
-        print("Shapes Len",len(self.animations),len(self.outputShapes))
+        #print("Shapes Len",len(self.animations),len(self.outputShapes))
         #self.mstep_dict['download']=self.tree
         # Write self.mstep_dict to file as JSON string       
 
