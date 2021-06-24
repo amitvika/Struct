@@ -2,15 +2,13 @@ import React from "react";
 import { AppBar, Toolbar, makeStyles } from "@material-ui/core";
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
-import { Link as RouterLink } from "react-router-dom";
+import { useLocation, Link as RouterLink } from "react-router-dom";
 import Box from '@material-ui/core/Box';
 
 const useStyles = makeStyles((theme) => ({
     toolbar: {
         display: "flex",
-        justifyContent: "space-between",
-        
-       
+        justifyContent: "space-between"
     },
     header: {
         ...theme.header,
@@ -18,26 +16,31 @@ const useStyles = makeStyles((theme) => ({
         paddingRight: "79px",
         paddingLeft: "118px",
         // position: 'sticky'
-      
+
     },
     logo: {
         fontWeight: 600,
         color: "#FFFEFE",
         textAlign: "left",
     },
-    menuButton:  {
-      ...theme.menuButton,
-      
+    menuButton: {
+        ...theme.menuButton,
+
     },
     menuContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    width: '50%',
-},
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '50%',
+    },
+    linkSelected: {
+        background: "#5D6D7E",
+        color: '#ffffff'
+    }
 }));
 
 export default function Header() {
     const classes = useStyles();
+    const location = useLocation();
 
     const displayDesktop = () => {
         return (<Toolbar className={classes.toolbar}>
@@ -66,7 +69,7 @@ export default function Header() {
                         color: "inherit",
                         to: href,
                         component: RouterLink,
-                        className: classes.menuButton
+                        className: classes.menuButton + ` ${location.pathname.includes(href) && classes.linkSelected}`
                     }}
                 >
                     {label}
@@ -88,7 +91,7 @@ export default function Header() {
 const headersData = [
     {
         label: "Designs",
-        href: "/design",
+        href: "/",
     },
     {
         label: "Product",

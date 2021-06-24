@@ -11,7 +11,7 @@ import {
     Link,
     IconButton
 } from "@material-ui/core";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useHistory, useParams } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { Spinner } from "reactstrap";
 
@@ -26,14 +26,25 @@ import SubHeaderWithArrow from '../../components/SubHeaderWithArrow'
 import FacilityCapabilities from './FacilityCapabilities'
 
 import get from 'lodash/get';
+import { useQuery } from "src/utils/customHooks";
 
 const FactoriesDetail = () => {
     let { id } = useParams();
     const dispatch = useDispatch()
+    const history = useHistory()
+    let query = useQuery();
 
+    const [tabIndex, setTabIndex] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [value, setValue] = useState(1);
     const [factoryValue, setFactoryValue] = useState({});
+
+    useEffect(() => {
+       if(query.get('tab')) {
+           setTabIndex(parseInt(query.get('tab')))
+       }
+    }, [query.get('tab')]);
+
 
     useEffect(() => {
         setIsLoading(true)
@@ -58,7 +69,7 @@ const FactoriesDetail = () => {
 
         FactoriesAPI.upsertFactoryApi(data)
             .then(res => {
-                // setFactoryValue(res.data);
+                setFactoryValue(res.data);
                 dispatch(showSuccessAlert({ message: 'All data is saved' }));
 
             })
@@ -73,7 +84,7 @@ const FactoriesDetail = () => {
         if (!get(factoryValue, '_id')) {
             return null
         }
-        switch (index) {
+        switch (tabIndex) {
             case 1:
                 return <BaseFactorySetup factoryId={id} setFactoryValue={setFactoryValue} factoryValue={factoryValue} />
             case 2:
@@ -99,6 +110,20 @@ const FactoriesDetail = () => {
             <Spinner animation="border" />
         </div>)
     }
+    const handleTabChange = (newTabIndex, accessSetupId) => {
+        setTabIndex(newTabIndex)
+
+        let search = `?tab=${newTabIndex}`
+        // if (query.get('product')) {
+        //     search += `&product=${query.get('product')}`
+        // }
+
+        history.push({
+            pathname: `/factories/${id}`,
+            search
+        })
+    }
+
 
     return (
         <>
@@ -121,8 +146,8 @@ const FactoriesDetail = () => {
                         <Tabs
                             orientation="vertical"
                             variant="scrollable"
-                            value={value}
-                            onChange={(event, newValue) => setValue(newValue)}>
+                            value={tabIndex}
+                            onChange={(event, newTabIndex) => handleTabChange(newTabIndex)}>
                             <Tab label="Base Factory Setup" value={1} />
                             <Tab label="Items in Production" value={2} />
                             <Tab label="Floorplan Setup" value={3} />

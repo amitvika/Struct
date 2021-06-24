@@ -140,6 +140,7 @@ export default function GridView({
                             }}>
                                 <Grid item sm sm={4} style={{ display: 'flex' }}>
                                     {renderIconBasedOnFileType(product.file_url)}
+                                    {/* <img className={classes.img} alt="complex" src={StructLogo}></img> */}
                                 </Grid>
                                 <Grid elevation={3} item sm sm={8} style={{marginTop: '25px'}}>
 

@@ -8,13 +8,15 @@ import moment from 'moment';
 import { useSelector } from 'react-redux';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
+import CircularProgress from '@material-ui/core/CircularProgress';
 
-export default function ProductionApprovalModal({
+export default function ApprovalModal({
     isModalOpened,
     toggleModal,
     selectedValue,
     handleApproval,
     fields,
+    isLoading
 }) {
 
     const { user } = useSelector(state => state.auth);
@@ -72,24 +74,27 @@ export default function ProductionApprovalModal({
 
         return list
     }
-   
+
 
     const renderView = () => {
         return fields
             .filter(fieldItem => fieldItem.isGridViewVisible === false ? fieldItem.isGridViewVisible : true)
             .map(item => {
-                return (<>
-                    <Grid item xs={4}>
-                        {item.title}
+                return (
+                    <Grid item container key={item.title}>
+
+                        <Grid item xs={4}>
+                            {item.title}
+                        </Grid>
+                        <Grid item xs={8}>
+                            {selectedValue[item.field]}
+                        </Grid>
                     </Grid>
-                    <Grid item xs={8}>
-                        {selectedValue[item.field]}
-                    </Grid>
-                </>)
+                )
 
             })
     }
-  
+
 
     return (
         <MainModal open={isModalOpened} toggleModal={toggleModal} >
@@ -106,6 +111,9 @@ export default function ProductionApprovalModal({
                     </Grid>
                     <Grid container xs={8} style={{ display: "flex" }}>
                         {renderProductionApprovalActions()}
+                        {
+                            isLoading && <CircularProgress />
+                        }
                     </Grid>
 
 

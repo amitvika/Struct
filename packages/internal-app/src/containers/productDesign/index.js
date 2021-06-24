@@ -2,14 +2,20 @@ import React from "react";
 
 import DesignAPage from '@ravibasil/common/containers/design'
 import ProductDesignHeader from "./ProductDesignHeader";
-const ProductDesign = () => {
+const ProductDesign = ({gltfjson, setgltfjson}) => {
     // let history = useHistory();
     const handleItemClick = (id) => { };
 
     return (
         <>
-            <ProductDesignHeader />
-            <DesignAPage />
+            <ProductDesignHeader
+             gltfjson={gltfjson}
+             setgltfjson={setgltfjson}
+            />
+            <div>
+
+                <DesignAPage />
+            </div>
         </>
         // <TableGridView
         //     title={'Product Design'}

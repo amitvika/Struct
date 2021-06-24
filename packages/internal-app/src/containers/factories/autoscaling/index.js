@@ -83,6 +83,7 @@ export default function Autoscaling() {
         }
         else {
             setSelectedValue({});
+
         }
 
         setIsModalOpened(!isModalOpened);
@@ -113,6 +114,7 @@ export default function Autoscaling() {
         return new Promise((resolve, reject) => {
             AutoscalingAPI.upsertAutoscaling(newData)
                 .then(res => {
+                    
                     if (res.data) {
                         dispatch(showSuccessAlert({ message: `Autoscaling updated` }));
 
@@ -155,9 +157,10 @@ export default function Autoscaling() {
     }
     const handleApproval = (autoscalingId, data) => {
         setIsLoading(true)
-        setIsModalOpened(false);
+        // setIsModalOpened(false);
         AutoscalingAPI.approveItemForAutoscaling(autoscalingId, data)
             .then(res => {
+                setSelectedValue(get(res, 'data'));
                 const updatedList = list.map(production => {
                     if (production.id === get(res, 'data.id')) {
                         return res.data;
@@ -213,6 +216,7 @@ export default function Autoscaling() {
                         assignFactory={assignFactory}
                         handleApproval={handleApproval}
                         fields={columns}
+                        isLoading={isLoading}
                     />
                 }
 

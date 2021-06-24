@@ -1,20 +1,31 @@
 import React from "react";
-import { AppBar, Toolbar, makeStyles } from "@material-ui/core";
+import { AppBar, Toolbar, makeStyles, Paper, Grid } from "@material-ui/core";
 import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import { Link as RouterLink } from "react-router-dom";
+import { useLocation, Link as RouterLink } from "react-router-dom";
 import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
+import clsx from 'clsx';
+import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
+import MenuIcon from '@material-ui/icons/Menu';
+import Viewer from "src/components/Viewer";
+import { Headding } from "src/components";
+
 
 const useStyles = makeStyles((theme) => ({
     toolbar: {
         display: "flex",
         justifyContent: "space-between",
+        color: 'white'
     },
     header: {
         ...theme.header,
         backgroundColor: "#1e1d1e",
         paddingRight: "79px",
         paddingLeft: "118px",
+        // position: 'fixed',
+        top: '80px',
+        position: 'sticky',
+        zIndex: 5,
     },
     logo: {
         fontWeight: 600,
@@ -30,18 +41,91 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: 'space-between',
         width: '50%',
     },
+    linkSelected: {
+        background: "#5D6D7E ",
+        color: '#ffffff'
+    },
+    list: {
+        width: 800,
+        // top: 65,
+        // marginTop: '65px'
+    },
+    fullList: {
+        width: 'auto',
+        // top: 65,
+        // marginTop: '65px'
+    },
+    drawer: {
+        top: '65px',
+    }
+
 }));
 
-export default function ProductDesignHeader() {
+
+export default function ProductDesignHeader({ gltfjson, setgltfjson }) {
     const classes = useStyles();
+    const location = useLocation();
+
+
+    const [state, setState] = React.useState({
+       
+        left: false,
+        bottom: false,
+        right: false,
+    });
+
+    const toggleDrawer = (anchor, open) => (event) => {
+        if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+            return;
+        }
+
+        setState({ ...state, [anchor]: open });
+    };
+    let  anchor='right';
+    const list = (anchor) => (
+        <div
+            className={clsx(classes.list, {
+                [classes.fullList]: anchor === 'top' || anchor === 'bottom',
+            })}
+            role="presentation"
+            onClick={toggleDrawer(anchor, false)}
+            onKeyDown={toggleDrawer(anchor, false)}
+        >
+
+            <Paper style={{ padding: 20, margin: 10 }}>
+                <Headding>ThreeJS Screen</Headding>
+                <Viewer
+                    gltfjson={gltfjson}
+                    setgltfjson={setgltfjson}
+                />
+            </Paper>
+
+        </div>
+    )
 
     const displayDesktop = () => {
         return (<Toolbar className={classes.toolbar}>
             {structLogo}
             <Box component="div" className={classes.menuContainer}>
                 {getMenuButtons()}
+                
+                    {/* {['right'].map((anchor) => ( */}
+                        <React.Fragment key={anchor} >
+                            <MenuIcon onClick={toggleDrawer(anchor, true)} />
+                            <SwipeableDrawer
+                                className={classes.drawer}
+                                anchor={anchor}
+                                open={state[anchor]}
+                                onClose={toggleDrawer(anchor, false)}
+                                onOpen={toggleDrawer(anchor, true)}
+                            >
+                                {list(anchor)}
+                            </SwipeableDrawer>
+                        </React.Fragment>
+                    {/* ))} */}
+
             </Box>
-        </Toolbar>);
+        </Toolbar >);
     };
 
     const structLogo = (
@@ -62,11 +146,12 @@ export default function ProductDesignHeader() {
                         color: "inherit",
                         to: href,
                         component: RouterLink,
-                        className: classes.menuButton
+                        className: classes.menuButton + ` ${location.pathname.includes(label) && classes.linkSelected}`
                     }}
                 >
                     {label}
                 </Button>
+
             );
         });
         return menuItems;
@@ -82,7 +167,7 @@ export default function ProductDesignHeader() {
 
 const headersData = [
     {
-        label: "Designs",
+        label: "design",
         href: "/design",
     },
     {

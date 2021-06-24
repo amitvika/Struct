@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import ProcessConfiguration from './processConfiguration'
 import API from '@ravibasil/common/api/assemblyManufacture.api'
+import ManufacturabilityAnalysis from './manufacturabilityAnalysis'
 
 export default function Assembly({ selectedSubTab, itemId }) {
 
@@ -56,6 +57,11 @@ export default function Assembly({ selectedSubTab, itemId }) {
                     <ProcessConfiguration
                         assemblyManufactureValues={assemblyManufactureValues}
                         handleAssemblyManufactureChange={handleAssemblyManufactureChange} /> : null
+            }
+            {
+                selectedSubTab === 'Manufacturability Analysis' ?
+                    <ManufacturabilityAnalysis /> : null
+
             }
 
         </div>

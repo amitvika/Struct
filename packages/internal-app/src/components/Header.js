@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { AppBar, Toolbar, makeStyles } from "@material-ui/core";
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
-import { useHistory, Link as RouterLink } from "react-router-dom";
+import { useLocation, useHistory, Link as RouterLink } from "react-router-dom";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 
@@ -19,7 +19,6 @@ import Switch from '@material-ui/core/Switch';
 
 import { logout } from "../actions/authActions";
 import { setThemeAction } from '../actions/theme.action'
-import { Color } from "three";
 
 const useStyles = makeStyles((theme) => ({
     toolbar: {
@@ -37,6 +36,10 @@ const useStyles = makeStyles((theme) => ({
     menuButton: {
         ...theme.menuButton
     },
+    linkSelected: {
+        background: "#5D6D7E ",
+        color: '#ffffff'
+    },
     menuContainer: {
         display: 'flex',
         justifyContent: 'space-between',
@@ -48,6 +51,8 @@ export default function Header() {
     const classes = useStyles();
     const dispatch = useDispatch();
     const history = useHistory();
+    const location = useLocation();
+
     const { isAuthenticated, user } = useSelector(state => state.auth);
     const [open, setOpen] = useState(false);
     const [lightThemeSelected, setLightThemeSelected] = useState(false);
@@ -87,7 +92,7 @@ export default function Header() {
                         color: "inherit",
                         to: href,
                         component: RouterLink,
-                        className: classes.menuButton
+                        className: classes.menuButton + ` ${location.pathname.includes(href) && classes.linkSelected}`
                     }}
                 >
                     {label}
@@ -153,10 +158,10 @@ export default function Header() {
                     aria-controls={open ? 'menu-list-grow' : undefined}
                     aria-haspopup="true"
                     onClick={handleToggle}
-                    style={{color: 'white'}}
+                    style={{ color: 'white' }}
                     className={classes.menuButton}
                 >
-                 
+
                     {isAuthenticated
                         ? `Welcome: ${user.name} ${user.email}`
                         : "Not logged in"}

@@ -4,7 +4,8 @@ import Input from '@ravibasil/common/components/atoms/Input';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Headding from '@ravibasil/common/components/atoms/Headding'
-import Viewer from '../geometricDimensioning/Viewer'
+// import Viewer from '../geometricDimensioning/Viewer'
+import Viewer from 'src/components/Viewer';
 
 export default function MachineTool_Workholding({ itemConfiguration, handleOnChange, gltfjson, setgltfjson }) {
     return (
