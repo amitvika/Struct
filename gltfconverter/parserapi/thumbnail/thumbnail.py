@@ -5335,6 +5335,7 @@ class OffscreenRenderer(object):
                                                                 width=1, height=1)
                             break
                         except pyglet.window.NoSuchConfigException as e:
+                            print("Error while creating pyglet window",e)
                             pass
 
                     if not self._window:
@@ -5659,7 +5660,10 @@ class OffscreenRenderer(object):
 def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path):
 
     # Create scene
-    scene = Scene(ambient_light=np.array([0.2, 0.2, 0.2, 1.0]))
+    try:
+        scene = Scene(ambient_light=np.array([0.2, 0.2, 0.2, 1.0]))
+    except Exception as e:
+        print("Error",e)
 
     # Load objects
     object_gltf = trimesh.load(model_path)
@@ -5701,8 +5705,10 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
     
     # Add camera to scene
     scene.add(cam,  pose=cam_pose)
-
-    r = OffscreenRenderer(viewport_width=thumbnail_width, viewport_height=thumbnail_height)
+    try:
+        r = OffscreenRenderer(viewport_width=thumbnail_width, viewport_height=thumbnail_height)
+    except Exception as e:
+        print("Error",e)
     color, _ = r.render(scene)
     myImage = Image.Image.fromarray(color)
    

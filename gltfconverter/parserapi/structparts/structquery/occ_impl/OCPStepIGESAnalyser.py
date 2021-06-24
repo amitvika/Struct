@@ -1305,7 +1305,7 @@ class StepIgesAnalyser():
                 if only_Color==None:
                     only_Color=parentColor
                 list_of_solids=[]
-                list_of_solids.append((mycompound,Quantity_Color(only_Color.Red(),only_Color.Green(),only_Color.Blue(), Quantity_TOC_RGB),hash(mycompound)))
+                list_of_solids.append((mycompound,Quantity_Color(only_Color.Red()*0.98,only_Color.Green()*0.98,only_Color.Blue()*0.98, Quantity_TOC_RGB),hash(mycompound)))
                 return list_of_solids, None, None
             else:
                 return list_of_solids, edges_dict, vertices_dict
