@@ -12,7 +12,8 @@ import {
 	getTexture, SELECT2DTEXTURE, SELECT3DTEXTURE,
 	SELECTMATERIRAL, SELECTDISTANCE, SELECTSHOWINFO,
 	SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER, SELECTMEASURE,
-	SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE, prettyPrintArray
+	SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE, 
+	prettyPrintArray, gltf_Dict
 } from "./Tree/utils";
 import Icon from './Tree/Icon'
 
@@ -34,7 +35,7 @@ const DEFAULTSPLITS = {
 	"nodes": [],
 	"download": "",
 	"tree": [],
-	"btree": [],
+	//"tree": [],
 	"stackable": []
 };
 
@@ -139,19 +140,19 @@ class DropZone extends Component {
 			return [mynode];
 		}
 		var myParentID = -1;
-		for (var i = 0; i < this.state.splitfiles.btree.length; i++) {
-			if (this.state.splitfiles.btree[i].name == mynode.name) {
-				myParentID = this.state.splitfiles.btree[i].parentId;
+		for (var i = 0; i < this.state.splitfiles.tree.length; i++) {
+			if (this.state.splitfiles.tree[i][gltf_Dict["step"]] == mynode[gltf_Dict["step"]]) {
+				myParentID = this.state.splitfiles.tree[i][gltf_Dict["parentId"]];
 				break;
 			}
 		}
 		var myMaterials = [];
 		if (myParentID != -1) {
-			for (var i = 0; i < this.state.splitfiles.btree.length; i++) {
-				if (this.state.splitfiles.btree[i].parentId == myParentID) {
-					var myChild = this.findMyMaterial(this.state.splitfiles.btree[i]);
+			for (var i = 0; i < this.state.splitfiles.tree.length; i++) {
+				if (this.state.splitfiles.tree[i][gltf_Dict["parentId"]] == myParentID) {
+					var myChild = this.findMyMaterial(this.state.splitfiles.tree[i]);
 					if (myChild) {
-						if (this.onlyfaces(myChild.name)) {
+						if (this.onlyfaces(myChild[gltf_Dict["step"]])) {
 							myMaterials.push(myChild);
 						}
 					}
@@ -165,12 +166,12 @@ class DropZone extends Component {
 	}
 
 	findMyMaterial = (data) => {
-		if (this.state.splitfiles.btree) {
+		if (this.state.splitfiles.tree) {
 
-			for (var i = 0; i < this.state.splitfiles.btree.length; i++) {
-				//console.log(this.state.splitfiles.btree[i].name,data.name,(this.state.splitfiles.btree[i].name==data.name))
-				if (this.state.splitfiles.btree[i].name == data.name) {
-					return this.state.splitfiles.btree[i];
+			for (var i = 0; i < this.state.splitfiles.tree.length; i++) {
+				//console.log(this.state.splitfiles.tree[i][gltf_Dict["step"]],data[gltf_Dict["step"]],(this.state.splitfiles.tree[i][gltf_Dict["step"]]==data[gltf_Dict["step"]]))
+				if (this.state.splitfiles.tree[i][gltf_Dict["name"]] == data["name"]) {
+					return this.state.splitfiles.tree[i];
 				}
 			}
 		};
@@ -180,7 +181,7 @@ class DropZone extends Component {
 
 
 	fetchShapeInformation = () => {
-		fetchShapeInfo(this.state.splitfiles.btree)
+		fetchShapeInfo(this.state.splitfiles.tree)
 			.then(res => {
 				this.setState({
 					fetchinfo: res.data
@@ -230,7 +231,7 @@ class DropZone extends Component {
 
 				<div style={{ Width: "100%" }}>
 					<DisplayTree theme={'my-theme'} customTheme={this.myTheme} grow={true}
-						nodes={this.state.splitfiles.btree}
+						nodes={this.state.splitfiles.tree}
 						textures={this.state.textures.textures2D}
 						structure={true}
 						firstshell={this.state.firstshell}
@@ -275,15 +276,15 @@ class DropZone extends Component {
 			});
 		} else {
 			this.setStateLoadingContent(true);
-			getShapeInfo(data.step.slice(0, -5))
+			getShapeInfo(data[gltf_Dict["step"]].slice(0, -5))
 				.then(res => res.data)
 				.then((repos) => {
 					this.setStateLoadingContent(false);
+					let mydata = {};
+					mydata[gltf_Dict["name"]] = data[gltf_Dict["step"]];
+					mydata[gltf_Dict["structures"]] = repos;
 					this.setState({
-						currentdata: {
-							"name": data.name,
-							"structures": repos
-						},
+						currentdata: mydata,
 						showshapeinfo: true,
 					});
 				});
@@ -320,7 +321,7 @@ class DropZone extends Component {
 					this.getShapeInformation(data);
 				}
 			} else {
-				if (this.state.firstshell && (this.state.firstshell.name == data.name)) {
+				if (this.state.firstshell && (this.state.firstshell[gltf_Dict["step"]] == data[gltf_Dict["step"]])) {
 					this.state.firstshell.selectedshell = false;
 					const secondshell = this.state.secondshell;
 					this.setState({
@@ -329,7 +330,7 @@ class DropZone extends Component {
 					});
 
 				} else {
-					if (this.state.secondshell && (this.state.secondshell.name == data.name)) {
+					if (this.state.secondshell && (this.state.secondshell[gltf_Dict["step"]] == data[gltf_Dict["step"]])) {
 						this.state.secondshell.selectedshell = false;
 						this.setState({
 							secondshell: null
@@ -347,7 +348,7 @@ class DropZone extends Component {
 				}
 				if (!toAdd) {
 					this.state.selectedObjects.forEach(element => {
-						if (data.name != element.name) {
+						if (data[gltf_Dict["step"]] != element[gltf_Dict["step"]]) {
 							element.selectedshell = false;
 						}
 					});
@@ -360,7 +361,7 @@ class DropZone extends Component {
 						if (data.selectedshell) {
 							var alreadyPresent = false;
 							for (var i = 0; i < this.state.selectedObjects.length; i++) {
-								if (elementdata.name == this.state.selectedObjects[i].name) {
+								if (elementdata[gltf_Dict["step"]] == this.state.selectedObjects[i][gltf_Dict["step"]]) {
 									alreadyPresent = true;
 									break;
 								}
@@ -375,7 +376,7 @@ class DropZone extends Component {
 
 							var selectedObjects = [];
 							this.state.selectedObjects.forEach(element => {
-								if (elementdata.name != element.name) {
+								if (elementdata[gltf_Dict["step"]] != element[gltf_Dict["step"]]) {
 									selectedObjects.push(element);
 								}
 							});
@@ -440,7 +441,7 @@ class DropZone extends Component {
 			myAllChilds.forEach(elementdata => {
 				var alreadyPresent = false;
 				for (var i = 0; i < this.state.selectedObjects.length; i++) {
-					if (elementdata.name == this.state.selectedObjects[i].name) {
+					if (elementdata[gltf_Dict["step"]] == this.state.selectedObjects[i][gltf_Dict["step"]]) {
 						alreadyPresent = true;
 						break;
 					}
@@ -456,12 +457,12 @@ class DropZone extends Component {
 
 	TableSplitPaneRight = (props) => {
 		const selectedObjects = this.state.selectedObjects.map((data, index) => (
-			<tr key={data.id}>
+			<tr key={data[gltf_Dict["id"]]}>
 				<td>
 					{index + 1}
 				</td>
 				<td>
-					{data.name}
+					{data[gltf_Dict["step"]]}
 				</td>
 				<td>
 					{data.display}
@@ -591,10 +592,14 @@ class DropZone extends Component {
 							if (what == SELECTDISTANCE) {
 								//console.log(data);
 								const mymesh = this.findMyMaterial(data);
-								mymesh.selectedshell = data.selectedshell;
+								if(mymesh) {
+									mymesh.selectedshell = data.selectedshell;
+									this.changeStateOfSelection(mymesh, event);
+								}
+								
 								//console.log("Before",this.state.firstshell,this.state.secondshell,mymesh);
 								if (mymesh) {
-									this.changeStateOfSelection(mymesh, event);
+									
 								}
 								//console.log("After",this.state.firstshell,this.state.secondshell,mymesh);
 
@@ -744,11 +749,11 @@ class DropZone extends Component {
 
 				});
 				this.state.splitfiles["stackable"] = [];
-				this.state.splitfiles["btree"] = [];
+				this.state.splitfiles["tree"] = [];
 				this.state.splitfiles.tree.forEach(element => {
-					if (element.bin) {
-						element["selected"] = false;
-						this.state.splitfiles.btree.push(element);
+					if (element[gltf_Dict["bin"]]) {
+						element[gltf_Dict["selected"]] = false;
+						//this.state.splitfiles.tree.push(element);
 						//console.log("Adding", element);
 					}
 					//console.log("Not Adding", element);					
@@ -788,11 +793,11 @@ class DropZone extends Component {
 					selectedObjects: []
 				});
 				this.state.splitfiles["stackable"] = [];
-				this.state.splitfiles["btree"] = [];
+				this.state.splitfiles["tree"] = [];
 				this.state.splitfiles.tree.forEach(element => {
-					if (element.bin) {
-						element["selected"] = false;
-						this.state.splitfiles.btree.push(element);
+					if (element[gltf_Dict["bin"]]) {
+						element[gltf_Dict["selected"] ]= false;
+						//this.state.splitfiles.tree.push(element);
 					}
 				});
 				this.setStateLoadingContent(false);
@@ -829,11 +834,11 @@ class DropZone extends Component {
 
 				});
 				this.state.splitfiles["stackable"] = [];
-				this.state.splitfiles["btree"] = [];
+				this.state.splitfiles["tree"] = [];
 				this.state.splitfiles.tree.forEach(element => {
-					if (element.bin) {
-						element["selected"] = false;
-						this.state.splitfiles.btree.push(element);
+					if (element[gltf_Dict["bin"]]) {
+						element[gltf_Dict["selected"]] = false;
+						//this.state.splitfiles.tree.push(element);
 					}
 				});
 				this.setStateLoadingContent(false);
@@ -869,11 +874,11 @@ class DropZone extends Component {
 					splitMethod: SELECTSTACKABLE,
 					selectedObjects: []
 				});
-				this.state.splitfiles["btree"] = [];
+				this.state.splitfiles["tree"] = [];
 				this.state.splitfiles.tree.forEach(element => {
-					if (element.bin) {
-						element["selected"] = false;
-						this.state.splitfiles.btree.push(element);
+					if (element[gltf_Dict["bin"]]) {
+						element[gltf_Dict["selected"]] = false;
+						//this.state.splitfiles.tree.push(element);
 					}
 				});
 				this.setStateLoadingContent(false);
@@ -930,7 +935,7 @@ class DropZone extends Component {
 	}
 
 	/* toggleSubRow = (rows, id) => {
-		const rowIndex = rows.findIndex(r => r.id === id);
+		const rowIndex = rows.findIndex(r => r[gltf_Dict["id"]] === id);
 		const row = rows[rowIndex];
 		const { children } = row;
 		if (!children) return rows;

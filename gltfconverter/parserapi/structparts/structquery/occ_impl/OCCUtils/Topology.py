@@ -506,7 +506,7 @@ def dumpTopologyFacesEdgesVertices(shape, face_dict={}, edge_dict={}, vertex_dic
     """
      Print the details of an object from the top down
     """
-    brt = BRep_Tool()
+    #brt = BRep_Tool()
     s = shape.ShapeType()
     if s==TopAbs_EDGE:
         myhash = str(hash(shape))+str(shape.Orientation())+hashTransCode(shape.Location().Transformation())
@@ -527,7 +527,7 @@ def dumpTopologyFacesEdgesVertices(shape, face_dict={}, edge_dict={}, vertex_dic
         it.Next()
         dumpTopologyFacesEdgesVertices(shp, face_dict=face_dict, edge_dict=edge_dict, vertex_dict=vertex_dict)
     
-    return len(face_dict)+len(edge_dict)+len(vertex_dict)
+    return True
 
 def dumpTopology(shape, level=0):
     """

@@ -182,7 +182,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                 {
                     Object.keys(gltfjson).length > 0 && !isFileLoadingLoading &&
                     <GLTFRenderer
-                        gltfjson={JSON.stringify(gltfjson)}
+                        //gltfjson={JSON.stringify(gltfjson)}
                         gltfobj={gltfjson}
                         activefile={fileId}
                         backcolor={DEFAULTBACKCOLOR}

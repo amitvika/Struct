@@ -860,7 +860,26 @@ class StepIgesAnalyser():
     """A class that analyzes the structure of an OCAF document."""
     scale = 0.001  # mm to meters
     __version__ = "3.7.4"   
-    
+    gltf_Dict = {
+            "id":"i",
+            "parentId":"p",
+            "step":"s",
+            "name":"n", 
+            "topLeft" : "t",
+            "bottomRight" : "b",
+            "indent": "d", 
+            "leaf":"l",
+            "R":"R",
+            "G":"G",
+            "B":"B",
+            "A":"A",
+            "texture":"T",
+            "metallicFactor":"m",
+            "roughnessFactor":"r",
+            "structures" : "S",  
+            "bin":"I",  
+            "display":"D"    
+            }
 
     TEMPLATE = {
         # Static values
@@ -913,7 +932,8 @@ class StepIgesAnalyser():
     def __init__(
         self, document=None, filename=None, shapeslist=None, includeparts=False, distancegap=0.1, 
         anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, animations=[], 
-        delay=1.0, shapeorder=[], thumbheight=96, thumbwidth=96, traversesubshapes=False):
+        delay=1.0, shapeorder=[], thumbheight=96, thumbwidth=96, 
+        includeUV=False, traversesubshapes=False,writeStep=False,writeColorStep=False,writePickle=True):
         """Supply one or the other: document or STEP filename or Shapes."""
 
         self.uid = 1
@@ -960,8 +980,19 @@ class StepIgesAnalyser():
         self.delay = delay
         self.shapeorder = shapeorder
         self.thumbheight = thumbheight
-        self.thumbwidth = thumbwidth
-        self.traversesubshapes = traversesubshapes
+        self.thumbwidth = thumbwidth                
+        if (self.edgesize == 0) and (self.vertexsize==0):
+            self.writeStep = False
+            self.writeColorStep = False
+            self.writePickle = False
+            self.traversesubshapes = False
+            self.includeUV = False
+        else:
+            self.writeStep = writeStep
+            self.writeColorStep = writeColorStep
+            self.writePickle = writePickle
+            self.traversesubshapes = traversesubshapes
+            self.includeUV = includeUV
         try:
             if shapeslist:
                 self.shapeslist = shapeslist
@@ -1035,13 +1066,13 @@ class StepIgesAnalyser():
             length = 1
         else:
             length = ranges+1
-            try:
-                """gProp = GProp_GProps()  
-                liner = brepgprop_LinearProperties(curve, gProp)
-                length = liner.Mass()  """
+            """ try:
+                #gProp = GProp_GProps()  
+                #liner = brepgprop_LinearProperties(curve, gProp)
+                #length = liner.Mass()
                 length = GCPnts_AbscissaPoint().Length(curve, firstU, lastU, self.distancegap)
             except Exception as e:
-                print("Unable to find length of the curve",e)
+                print("Unable to find length of the curve",e) """
             length = round(length/self.distancegap)
             if length<=0:
                 length = 1
@@ -1049,7 +1080,7 @@ class StepIgesAnalyser():
         currentP = curve.Value(firstU)
         for eachP in range(length):            
             nextP = curve.Value(firstU+(ranges*(eachP+1)/(length)))
-            if (nextP.Distance(currentP) >= self.distancegap): # or (length==1):
+            if (currentP.Distance(nextP) >= self.distancegap): # or (length==1):
                 aPipe = self.createPipeFromPoints(currentP, nextP)
                 if aPipe:
                     pipes.append(aPipe)
@@ -1329,10 +1360,11 @@ class StepIgesAnalyser():
                     #print("Colors",R,G,B,len_color_arr,len(only_soilds))
                     mycompound,_ = list_of_shapes_to_compound(only_soilds) 
                     list_of_solids=[]
-                    list_of_solids.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hash(mycompound)))
+                    hashcode = str(hash(mycompound))
+                    list_of_solids.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hashcode))
                     return list_of_solids, None, None
-                #else:
-                    #return list_of_solids, edges_dict, vertices_dict 
+                else:
+                    return list_of_solids, None, None 
             #else:
             #    #print("Colors",len(only_Colors),len(only_soilds))                    
             #    #return list_of_solids, edges_dict, vertices_dict
@@ -1399,7 +1431,7 @@ class StepIgesAnalyser():
 
             mesherDict=self.updateParentChild(subName+" "+subEntry, shape)
             #print("In Assembly",subName)
-            self.parentIDs.append(mesherDict["id"])
+            self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
             self.indent += 1
             #self.parentIDs.append(len(self.mstep_dict['tree'])-1)            
             #self.tree+="<ul id=\"myUL\"><li><span class=\"caret\">"+html.escape(subName+" "+subEntry+" ")+str(self.uid)+"</span><ul class=\"nested\">"    
@@ -1489,7 +1521,7 @@ class StepIgesAnalyser():
                 if self.includeparts:
                     #print("sub include",subName)
                     mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
-                    self.parentIDs.append(mesherDict["id"])
+                    self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
                     self.indent += 1
                     mydirectory = self.validFileName(subName+subEntry)
                     mydirectorylen = len(self.direntry)
@@ -1547,11 +1579,11 @@ class StepIgesAnalyser():
                                 self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
                                 #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
-                            else:
-                                diffColor = self.outputShapes[shapeInFile][3]
-                                #print(diffColor, faceColor)
-                                #print("I am not writing with shape color in simpleshape",faceColor.Red(),diffColor.Red(),faceColor.Green(),diffColor.Green(),faceColor.Blue(),diffColor.Blue(),subName, subEntry)
-                if self.includeparts and (atleastOneItemAdded>0) :
+                            #else:
+                            #    diffColor = self.outputShapes[shapeInFile][3]
+                            #    #print(diffColor, faceColor)
+                            #    #print("I am not writing with shape color in simpleshape",faceColor.Red(),diffColor.Red(),faceColor.Green(),diffColor.Green(),faceColor.Blue(),diffColor.Blue(),subName, subEntry)
+                if self.includeparts and (atleastOneItemAdded>0):
                     #print(shape_edges)
                     #print(shape_vertices)           
                     toAddCorners = True
@@ -1620,7 +1652,7 @@ class StepIgesAnalyser():
                 #print("I have toIncludeSubShapes gltf for lowest node",basename ) 
                 #print("Inside inculdeparts",subName)
                 mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
-                self.parentIDs.append(mesherDict["id"])
+                self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
                 self.indent += 1
                 #self.parentIDs.append(len(self.mstep_dict['tree'])-1)
                 #self.tree+="<ul id=\"myUL\"><li><span class=\"caret\">"+html.escape(subName+" "+subEntry+" ")+str(self.uid)+"</span><ul class=\"nested\">"    
@@ -1709,7 +1741,7 @@ class StepIgesAnalyser():
             print("I got a compound ?")
             mesherDict=self.updateParentChild(subName+" "+subEntry, shape)
             #print(mesherDict)
-            self.parentIDs.append(mesherDict["id"])
+            self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
             self.indent += 1
             #self.parentIDs.append(len(self.mstep_dict['tree'])-1)            
             #self.tree+="<ul id=\"myUL\"><li><span class=\"caret\">"+html.escape(subName+" "+subEntry+" ")+str(self.uid)+"</span><ul class=\"nested\">"    
@@ -1763,16 +1795,20 @@ class StepIgesAnalyser():
 
 
     def updateName(self,name,forNodes,addOne=0,display=False):
-        suffix = self.fileprefix+str(self.distancegap)+str(self.anglegap)+" "+str(self.uniqueid+addOne)
+        suffix = self.fileprefix+str(self.distancegap)+str(self.anglegap)+" "+str(self.uniqueid+addOne)         
         if name:
-            forNodes['name'] = html.escape(self.validFileName(name+" "+suffix))
+            nameForNode = html.escape(self.validFileName(name+" "+suffix))            
         else:
-            forNodes['name'] = html.escape(self.validFileName("No Name"+" "+suffix))
+            nameForNode = html.escape(self.validFileName("No Name"+" "+suffix))             
+        
         if display:
+            forNodes[self.gltf_Dict["name"]] = nameForNode
             if name:
-                forNodes['display'] = html.escape(name+" "+suffix)
+                forNodes[self.gltf_Dict["display"]] = html.escape(name+" "+suffix)
             else:
-                forNodes['display'] = html.escape("No Name"+" "+suffix)
+                forNodes[self.gltf_Dict["display"]] = html.escape("No Name"+" "+suffix)
+        else:
+            forNodes['name'] = nameForNode
 
     def getShapes(self):
         #print("I have reached here in getshapes 1")
@@ -1819,7 +1855,7 @@ class StepIgesAnalyser():
         else: #manually create the assembly
             #print("Outside",rootName)
             mesherDict = self.updateParentChild(name+" "+rootName+" "+rootEntry,None)
-            self.parentIDs.append(mesherDict["id"])
+            self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
             #self.tree+="<ul id=\"myUL\"><li><span class=\"caret\">"+html.escape(name+" "+rootName+" "+rootEntry+" ")+str(self.uid)+"</span><ul class=\"nested\">"    
 
         node_index = len(self.mstep_dict['nodes'])
@@ -1887,7 +1923,7 @@ class StepIgesAnalyser():
         node_index = 0
         self.parentIDs.append(None)
         mesherDict = self.updateParentChild(name+" "+rootName+" "+rootEntry,None)
-        self.parentIDs.append(mesherDict["id"])
+        self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
         
         node_index = len(self.mstep_dict['nodes'])
         node = {}
@@ -2243,7 +2279,12 @@ class StepIgesAnalyser():
                 createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            
             except Exception as e:
                 print("While Writing",imagefilename,e)
-        self.mstep_dict['tree']=self.tstep_dict['tree']
+        dict_return = {
+            "gltf":self.mstep_dict,
+            "tree":self.tstep_dict['tree']
+        }
+        
+        #self.mstep_dict['tree']=self.tstep_dict['tree']
         return (            
             (self.basefilename+".png",newfilename,self.output), 
             (
@@ -2251,7 +2292,7 @@ class StepIgesAnalyser():
                 self.scene_max[0],self.scene_max[1],self.scene_max[2]),
                 self.outputShapes
                 ), 
-                self.mstep_dict )
+                dict_return )
     
     def get_uid_from_entry(self, entry):
         """Generate uid from label entry
@@ -2260,10 +2301,9 @@ class StepIgesAnalyser():
         a uid is comprised of 'entry.serial_number', starting with 0.
         """
         if entry in self._share_dict:
-            value = self._share_dict[entry]
+            value = self._share_dict[entry]+1
         else:
-            value = -1
-        value += 1
+            value = 0        
         # update serial number in self._share_dict
         self._share_dict[entry] = value
         return entry + '.' + str(value)   
@@ -2272,66 +2312,66 @@ class StepIgesAnalyser():
         dictionaryLen = len(self.tstep_dict['tree'])
         self.uniqueid = dictionaryLen+1
         mesher_dict = {
-            "id":self.uniqueid,
-            "parentId":self.parentIDs[-1],
-            "step":None,
-            "name":None, 
-            "topLeft" : [None,None,None],
-            "bottomRight" : [None,None,None],
-            'indent': self.indent, 
-            "leaf":False,
-            "R":None,
-            "G":None,
-            "B":None,
-            "A":None,
-            "texture":None,
-            "metallicFactor":None,
-            "roughnessFactor":None,
-            "structures" : [],  
-            "bin":None,      
+            self.gltf_Dict["id"]:self.uniqueid,
+            self.gltf_Dict["parentId"]:self.parentIDs[-1],
+            self.gltf_Dict["step"]:None,
+            self.gltf_Dict["name"]:None, 
+            self.gltf_Dict["topLeft"] : [None,None,None],
+            self.gltf_Dict["bottomRight"] : [None,None,None],
+            self.gltf_Dict["indent"]: self.indent, 
+            self.gltf_Dict["leaf"]:False,
+            self.gltf_Dict["R"]:None,
+            self.gltf_Dict["G"]:None,
+            self.gltf_Dict["B"]:None,
+            self.gltf_Dict["A"]:None,
+            self.gltf_Dict["texture"]:None,
+            self.gltf_Dict["metallicFactor"]:None,
+            self.gltf_Dict["roughnessFactor"]:None,
+            self.gltf_Dict["structures"] : [],  
+            self.gltf_Dict["bin"]:None,      
             }
         self.updateName(name,mesher_dict,0,True)
         if aShape and self.disectparts:
             returnDict = []
             dumpTopologyStructures(aShape,level=0,parentId=[None],returnStructure=returnDict)
-            mesher_dict["structures"] = returnDict        
+            mesher_dict[self.gltf_Dict["structures"]] = returnDict        
         self.tstep_dict['tree'].append(mesher_dict)
         return mesher_dict
     
     def updateParentDimensions(self, currentdict):
         for parentDict in self.tstep_dict['tree'] :
             #print(parentDict,currentdict)
-            if parentDict["id"] == currentdict["parentId"]:
-                if currentdict["bin"] is not None:
-                    parentDict["bin"] = currentdict["bin"]
-                if currentdict["topLeft"][0] is not None:
-                    if parentDict["topLeft"][0] is not None:
-                        parentDict["topLeft"] = _list3_min(
-                        parentDict["topLeft"], currentdict["topLeft"]
+            if parentDict[self.gltf_Dict["id"]] == currentdict[self.gltf_Dict["parentId"]]:
+                if currentdict[self.gltf_Dict["bin"]] is not None:
+                    parentDict[self.gltf_Dict["bin"]] = currentdict[self.gltf_Dict["bin"]]
+                if currentdict[self.gltf_Dict["topLeft"]][0] is not None:
+                    if parentDict[self.gltf_Dict["topLeft"]][0] is not None:
+                        parentDict[self.gltf_Dict["topLeft"]] = _list3_min(
+                        parentDict[self.gltf_Dict["topLeft"]], currentdict[self.gltf_Dict["topLeft"]]
                         )
                     else:
-                        parentDict["topLeft"] = currentdict["topLeft"]
-                if currentdict["bottomRight"][0] is not None:
-                    if parentDict["bottomRight"][0] is not None:
-                        parentDict["bottomRight"] = _list3_max(
-                        parentDict["bottomRight"], currentdict["bottomRight"]
+                        parentDict[self.gltf_Dict["topLeft"]] = currentdict[self.gltf_Dict["topLeft"]]
+                if currentdict[self.gltf_Dict["bottomRight"]][0] is not None:
+                    if parentDict[self.gltf_Dict["bottomRight"]][0] is not None:
+                        parentDict[self.gltf_Dict["bottomRight"]] = _list3_max(
+                        parentDict[self.gltf_Dict["bottomRight"]], currentdict[self.gltf_Dict["bottomRight"]]
                         )
                     else:               
-                        parentDict["bottomRight"] = currentdict["bottomRight"]
-                if(parentDict["parentId"]) :
+                        parentDict[self.gltf_Dict["bottomRight"]] = currentdict[self.gltf_Dict["bottomRight"]]
+                if(parentDict[self.gltf_Dict["parentId"]]) :
                     self.updateParentDimensions(parentDict)
        
     def findDictionary(self, currentdict) :
         dictionaryLen = len(self.tstep_dict['tree'])
-        currentPos = currentdict["id"]
+        currentPos = currentdict[self.gltf_Dict["id"]]
         #print(dictionaryLen,currentPos,currentdict)
         if dictionaryLen > (currentPos-1)  and currentPos >= 1:
             lastOne = self.tstep_dict['tree'][currentPos-1]
-            if lastOne["id"] == currentPos:
+            if lastOne[self.gltf_Dict["id"]] == currentPos:
                 return lastOne        
             for parentDict in self.tstep_dict['tree'] :
                 #print(parentDict,currentdict)
-                if parentDict["id"] == currentPos:
+                if parentDict[self.gltf_Dict["id"]] == currentPos:
                     return parentDict
         return {}
 
@@ -2413,31 +2453,34 @@ class StepIgesAnalyser():
         #newfilename = self.direntry+"/"+ basename
         if self.createFiles :
             os.makedirs(os.path.dirname(newfilename), exist_ok=True)
-            if os.path.isfile(newfilename):
-                print("Warning: %s file already exists and will be replaced" % newfilename)
-            # creates and initialise the step exporter
-            step_writer = STEPControl_Writer()
-            Interface_Static_SetCVal("write.step.schema", "AP242DIS")
-            # transfer shapes and write file
-            step_writer.Transfer(a_shape, STEPControl_AsIs)
-            status = step_writer.Write(newfilename)
-            if not status == IFSelect_RetDone:
-                print("Error while writing shape to STEP file.")
-            if not os.path.isfile(newfilename):
-                print("File %s was not saved to filesystem." % newfilename)
-            try:
-                picklefile = "Display/"+basename+".pickle"
-                with open(picklefile, 'wb') as f:
-                    # Pickle the 'data' dictionary using the highest protocol available.
-                    pickle.dump(a_shape, f, pickle.HIGHEST_PROTOCOL)
-            except Exception as e:
-                print(e,"File, %s has error" % picklefile)
+            if self.writeStep:
+                if os.path.isfile(newfilename):
+                    print("Warning: %s file already exists and will be replaced" % newfilename)
+                # creates and initialise the step exporter
+                step_writer = STEPControl_Writer()
+                Interface_Static_SetCVal("write.step.schema", "AP242DIS")
+                # transfer shapes and write file
+                step_writer.Transfer(a_shape, STEPControl_AsIs)
+                status = step_writer.Write(newfilename)
+                if not status == IFSelect_RetDone:
+                    print("Error while writing shape to STEP file.")
+                if not os.path.isfile(newfilename):
+                    print("File %s was not saved to filesystem." % newfilename)
+            if self.writePickle:
+                try:
+                    picklefile = "Display/"+basename+".pickle"
+                    with open(picklefile, 'wb') as f:
+                        # Pickle the 'data' dictionary using the highest protocol available.
+                        pickle.dump(a_shape, f, pickle.HIGHEST_PROTOCOL)
+                except Exception as e:
+                    print(e,"File, %s has error" % picklefile)
             #Direct setting from pythonocc is not working, but from CQ same calls are working. Don't know why//
-            try:
-                colorfile = "Display/"+basename+"_COLOR.step"               
-                StepExportWithColor(shape=a_shape,color=colorname,name=outname).write_file(filename=colorfile)
-            except Exception as e:
-                print(e,"File, %s has error" % colorfile)  
+            if self.writeColorStep:
+                try:
+                    colorfile = "Display/"+basename+"_COLOR.step"               
+                    StepExportWithColor(shape=a_shape,color=colorname,name=outname).write_file(filename=colorfile)
+                except Exception as e:
+                    print(e,"File, %s has error" % colorfile)  
             #Following is using cadquery code and hence removed..       
             """ try:
                  colorfile = "Display/"+"C"+basename+"C.step"
@@ -2605,14 +2648,16 @@ class StepIgesAnalyser():
                         for v in (v.Transformed(Trsf) for v in vert)
                     ]
                     #print(offset,len(vert))
-                    faces_min = (1e10, 1e10, 1e10)
-                    faces_max = (-1e10, -1e10, -1e10)
-                    faces_sum = (0,0,0)
                     length_vert = len(vert)
-                    for i in range(length_vert):
-                        #print(vertices[i+offset])
-                        faces_max, faces_min, faces_sum = self.minmaxsum3D( faces_max, faces_min, faces_sum, vertices[i+offset] )                        
-                        
+                    if self.includeUV :
+                        faces_min = (1e10, 1e10, 1e10)
+                        faces_max = (-1e10, -1e10, -1e10)
+                        faces_sum = (0,0,0)
+                       
+                        for i in range(length_vert):
+                            #print(vertices[i+offset])
+                            faces_max, faces_min, faces_sum = self.minmaxsum3D( faces_max, faces_min, faces_sum, vertices[i+offset] )                        
+                            
                     # add triangles
                     triangles += [
                         (
@@ -2629,7 +2674,7 @@ class StepIgesAnalyser():
                         for t in tri
                     ]                
                    
-                    if(length_vert>0):
+                    if(length_vert>0) and self.includeUV :
                         xmax,ymax,zmax = faces_max
                         xmin,ymin,zmin = faces_min 
                         sx, sy, sz = faces_sum
@@ -2660,32 +2705,33 @@ class StepIgesAnalyser():
                 u_max = 1
             if v_max <= 0:
                 v_max = 1 """
-            xmax,ymax,zmax = plane_max
-            xmin,ymin,zmin = plane_min
-            uvxmax, uvymax, uvzmax = xmax-xmin, ymax-ymin, zmax-zmin
-            if uvxmax <= 0:
-                uvxmax = 1
-            if uvymax <= 0:
-                uvymax = 1
-            if uvzmax <= 0:
-                uvzmax = 1    
-            #print("UVPlane:",uvPlane)
-            offset = 0
-            for (planePos,vertLen,_,_,_,_,_,_,) in uvPlane:  
-                #print("Plane:",planePos,vertLen)               
-                if planePos=="YZ" :
-                    for i in range(vertLen):
-                        x,y,z = vertices[i+offset]
-                        uv += [((y-ymin)/uvymax,(z-zmin)/uvzmax)]
-                if planePos=="ZX" :
-                    for i in range(vertLen):
-                        x,y,z = vertices[i+offset]
-                        uv += [((z-zmin)/uvzmax,(x-xmin)/uvxmax)]                
-                if planePos=="XY" :
-                    for i in range(vertLen):
-                        x,y,z = vertices[i+offset]
-                        uv += [((x-xmin)/uvxmax,(y-ymin)/uvymax)]
-                offset += vertLen
+            if self.includeUV :
+                xmax,ymax,zmax = plane_max
+                xmin,ymin,zmin = plane_min
+                uvxmax, uvymax, uvzmax = xmax-xmin, ymax-ymin, zmax-zmin
+                if uvxmax <= 0:
+                    uvxmax = 1
+                if uvymax <= 0:
+                    uvymax = 1
+                if uvzmax <= 0:
+                    uvzmax = 1    
+                #print("UVPlane:",uvPlane)
+                offset = 0
+                for (planePos,vertLen,_,_,_,_,_,_,) in uvPlane:  
+                    #print("Plane:",planePos,vertLen)               
+                    if planePos=="YZ" :
+                        for i in range(vertLen):
+                            x,y,z = vertices[i+offset]
+                            uv += [((y-ymin)/uvymax,(z-zmin)/uvzmax)]
+                    if planePos=="ZX" :
+                        for i in range(vertLen):
+                            x,y,z = vertices[i+offset]
+                            uv += [((z-zmin)/uvzmax,(x-xmin)/uvxmax)]                
+                    if planePos=="XY" :
+                        for i in range(vertLen):
+                            x,y,z = vertices[i+offset]
+                            uv += [((x-xmin)/uvxmax,(y-ymin)/uvymax)]
+                    offset += vertLen
 
         else:
             print("No faces for the shape",shape)
@@ -2892,9 +2938,9 @@ class StepIgesAnalyser():
             #print("add_part", mesherDict)
             mesher_dict = self.findDictionary(mesherDict)
             #print("mesh",mesher_dict)
-            mesher_dict["step"] = os.path.basename(filenameuri)
+            mesher_dict[self.gltf_Dict["step"]] = os.path.basename(filenameuri)
             #mesher_dict["fileId"] = self.fileId
-            mesher_dict["leaf"]=True
+            mesher_dict[self.gltf_Dict["leaf"]]=True
             if( solidfound > 0 ) :
                 #print("before compare")
                 self.scene_min = _list3_min(
@@ -2914,25 +2960,25 @@ class StepIgesAnalyser():
                 }
                 self.updateName(name, buffer_dict)
                 
-                mesher_dict["topLeft"] = buff.vert_min
-                mesher_dict["bottomRight"] = buff.vert_max
-                mesher_dict["bin"]=True
+                mesher_dict[self.gltf_Dict["topLeft"]] = buff.vert_min
+                mesher_dict[self.gltf_Dict["bottomRight"]] = buff.vert_max
+                mesher_dict[self.gltf_Dict["bin"]]=True
 
                 self.updateParentDimensions(mesher_dict)
                 #print("affter update")
                 if part_color:
-                    mesher_dict["R"] = part_color.Red()
-                    mesher_dict["G"] = part_color.Green()
-                    mesher_dict["B"] = part_color.Blue()
-                    mesher_dict["A"] = 1
+                    mesher_dict[self.gltf_Dict["R"]] = part_color.Red()
+                    mesher_dict[self.gltf_Dict["G"]] = part_color.Green()
+                    mesher_dict[self.gltf_Dict["B"]] = part_color.Blue()
+                    mesher_dict[self.gltf_Dict["A"]] = 1
                 else:
-                    mesher_dict["R"] = 0.7529
-                    mesher_dict["G"] = 0.7529
-                    mesher_dict["B"] = 0.7529
-                    mesher_dict["A"] = 1
-                mesher_dict["texture"] = ""
-                mesher_dict["metallicFactor"] = 0.1
-                mesher_dict["roughnessFactor"] = 0.7
+                    mesher_dict[self.gltf_Dict["R"]] = 0.7529
+                    mesher_dict[self.gltf_Dict["G"]] = 0.7529
+                    mesher_dict[self.gltf_Dict["B"]] = 0.7529
+                    mesher_dict[self.gltf_Dict["A"]] = 1
+                mesher_dict[self.gltf_Dict["texture"]] = ""
+                mesher_dict[self.gltf_Dict["metallicFactor"]] = 0.1
+                mesher_dict[self.gltf_Dict["roughnessFactor"]] = 0.7
                 # write uv file
                
                 base64data = base64.b64encode(uvbuff.read()).decode('ascii')
@@ -2976,11 +3022,11 @@ class StepIgesAnalyser():
                 if fileWritten:
                     self.binId += 1
                     buffer_dict['uri'] = os.path.basename(newfilename)
-                    #mesher_dict["bin"] = buffer_dict['uri']
-                    """ mesher_dict["bin"] = os.path.basename(newfilename)               
+                    #mesher_dict[self.gltf_Dict["bin"]] = buffer_dict['uri']
+                    """ mesher_dict[self.gltf_Dict["bin"]] = os.path.basename(newfilename)               
                      mesher_dict["binId"] = self.binId """             
                     #buffer_dict['step'] = os.path.basename(filenameuri)
-                    #buffer_dict['indent'] = self.indent
+                    #buffer_dict[self.gltf_Dict["indent"]] = self.indent
 
                     self.mstep_dict['buffers'].append(buffer_dict)
 
@@ -3101,7 +3147,7 @@ class StepIgesAnalyser():
             #else:
                 #print(" I have reache here without adding")
         buffer_length_current = len(self.mstep_dict['buffers'])
-        return buffer_length_so_far, buffer_length_current, mesher_dict["name"], uvPlane
+        return buffer_length_so_far, buffer_length_current, mesher_dict[self.gltf_Dict["name"]], uvPlane
 
     
     

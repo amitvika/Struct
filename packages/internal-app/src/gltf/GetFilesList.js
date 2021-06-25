@@ -26,7 +26,7 @@ const DEFAULTSPLITS = {
     "nodes": [],
     "download": "",
     "tree": [],
-    "btree": [],
+    //"btree": [],
 };
 
 const DEFAULTTEXTURE = getTexture(null);

@@ -7,14 +7,14 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-export default function SelectedFeatureMenu({ featureList = [] }) {
+export default function SelectedFeatureMenu({ featureList = [], features=true }) {
 
     const renderTable = () => {
-        //console.log("FeaturList",featureList);
+        //console.log("FeaturList",featureList,features);
         return featureList.map((row,index) => (
-            <TableRow key={row.name+index.toString()}>
+            <TableRow key={(features?row.n:row.parent.n)+index.toString()}>
                 <TableCell component="th" scope="row">
-                    {row.name}
+                    {(features?row.n:row.parent.n)}
                 </TableCell>
                 <TableCell align="right">{row.type}</TableCell>
                 <TableCell align="right">{row.kind}</TableCell>               
