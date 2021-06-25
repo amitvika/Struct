@@ -89,3 +89,25 @@ export const prettyPrintArray= (json,maxlength=30) => {
   }
   return "No Info"
 }
+
+export const gltf_Dict = {
+    "id":"i",
+    "parentId":"p",
+    "step":"s",
+    "name":"n", 
+    "topLeft" : "t",
+    "bottomRight" : "b",
+    "indent": "d", 
+    "leaf":"l",
+    "R":"R",
+    "G":"G",
+    "B":"B",
+    "A":"A",
+    "texture":"T",
+    "metallicFactor":"m",
+    "roughnessFactor":"r",
+    "structures" : "S",  
+    "bin":"I",  
+    "selected" : "C",
+    "display":"D"   
+  }
