@@ -16,7 +16,7 @@ import LogoView from '@ravibasil/common/components/LogoView';
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-import SuppliedItems from './suppliedItems'
+import SuppliedItems from './SuppliedItems'
 import SuppliedItemOption from './suppliedItemOptions';
 import get from 'lodash/get';
 

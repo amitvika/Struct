@@ -208,6 +208,7 @@ export default function ViewerToolbar({
                     <TableRow style={{ verticalAlign: 'top', margin:'0' }}>
                         <TableCell style={{ verticalAlign: 'top', margin:'0' }}>
                             <SelectedFeatureMenu 
+                                features = {(selectedOption == SELECTFEATURE)}
                                 featureList={(selectedOption == SELECTFEATURE)?selectedObjects:parentObjects} />
                         </TableCell>
                         {

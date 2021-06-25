@@ -28,13 +28,14 @@ import {
     MeshLambertMaterial,
     MeshPhongMaterial,
     MeshPhysicalMaterial,
+    DefaultLoadingManager,
     //ObjectSpaceNormalMap,
 } from "three";
 
 //import * as THREE from 'three';
 import { Float32BufferAttribute } from 'three/src/core/BufferAttribute.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFParser } from './gltfloader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
 
@@ -46,7 +47,7 @@ import {
     SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTDISTANCE,
     SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTMEASURE, SELECTDISECTPARTS,
     SELECTORDER, SELECTASSEMBLY, SELECTFEATURE,
-    hexToRGB
+    hexToRGB, gltf_Dict
 } from "./Tree/utils";
 import './styles/style.css';
 import { motion } from 'framer-motion'
@@ -122,7 +123,7 @@ class GLTFRenderer extends Component {
 
     };
     state_selectedObjects = [];
-    gltfJSON = "";
+    gltfJSON = null;
     activeFile = 0;
     activeId = 0;
     whatchanged = 0;
@@ -162,7 +163,7 @@ class GLTFRenderer extends Component {
     }
 
     init = () => {
-        this.gltfJSON = this.props.gltfjson;
+        this.gltfJSON = this.props.gltfobj.gltf;
         this.lights = [];
         this.content = null;
         this.mixer = null;
@@ -772,7 +773,7 @@ class GLTFRenderer extends Component {
             this.partsMeshes = this.partsMeshes[0].children;
         }
 
-        this.ListBoxes = ["All Parts"];
+        /* this.ListBoxes = ["All Parts"];
         this.ListValues = [this.partsMeshes.length];
 
 
@@ -789,7 +790,7 @@ class GLTFRenderer extends Component {
         this.partsCtrl.onChange((name) => {
             this.state.partsSelection = this.partsCtrl.object.partsSelection;
             this.hiLightMesh(name)
-        });
+        }); */
 
     };
 
@@ -1074,19 +1075,38 @@ class GLTFRenderer extends Component {
 
     alter = () => {
         if(this.controls) {
-            this.gltfJSON = this.props.gltfjson;
+            this.gltfJSON = this.props.gltfobj.gltf;
             this.activeFile = this.props.activefile;
             this.materialtype = this.props.materialtype;
             this.selectedoption = this.props.selectedoption;
-            if (this.gltfJSON != "") {
+            if (this.gltfJSON != null) {
     
-                this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');
+                //this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');
+
+                const parser = new GLTFParser( this.props.gltfobj.gltf, {
+
+                    path: resourcePathURL || '',
+                    crossOrigin: 'anonymous',
+                    requestHeader: null,
+                    manager: DefaultLoadingManager,
+                    ktx2Loader: null,
+                    meshoptDecoder: null
+        
+                } );
+        
+                const onload = ( gltf ) => {
+                    this.object = gltf.scene || gltf.scenes[0];
+                    this.clips = gltf.animations || [];
+                    this.setContent(this.object, this.clips); 
+                }
+                
+                const onError = (exception) => {
+                    console.log(exception);
+                }
     
-                this.gltfLoader.parse(this.gltfJSON, resourcePathURL, ({ scene, scenes, cameras, animations, asset }) => {
-                    this.object = scene || scenes[0];
-                    this.clips = animations || [];
-                    this.setContent(this.object, this.clips);
-                });
+                parser.parse( onload, onError );
+    
+               
             }
         }
     };
@@ -1094,9 +1114,9 @@ class GLTFRenderer extends Component {
 
     updateChildsOfMine = (myColor, myTexture, myMetal, myRough, myOpaque, myId, whatchanged) => {
         this.props.gltfobj.tree.forEach(element => {
-            if (element.parentId == myId) {
-                if (element.leaf) {
-                    if (element.name) {
+            if (element[gltf_Dict["parentId"]] == myId) {
+                if (element[gltf_Dict["leaf"]]) {
+                    if (element[gltf_Dict["name"]]) {
                         const mymesh = this.findMyMaterial(element);
                         if (mymesh) {
                             if (whatchanged == SELECTCOLOR) {
@@ -1131,7 +1151,7 @@ class GLTFRenderer extends Component {
                                 //const mymaterial = this.partsMeshes[element.binId-1].material;
                                 const mymaterial = mymesh.material;
                                 if (mymaterial) {
-                                    mymaterial.metallicFactor = myMetal;
+                                    mymaterial[gltf_Dict["metallicFactor"]] = myMetal;
                                     mymaterial.metalness = myMetal;
                                 }
 
@@ -1141,7 +1161,7 @@ class GLTFRenderer extends Component {
                                 //const mymaterial = this.partsMeshes[element.binId-1].material;
                                 const mymaterial = mymesh.material;
                                 if (mymaterial) {
-                                    mymaterial.roughnessFactor = myRough;
+                                    mymaterial[gltf_Dict["roughnessFactor"]] = myRough;
                                     mymaterial.roughness = myRough;
                                 }
                             }
@@ -1160,7 +1180,7 @@ class GLTFRenderer extends Component {
                     }
 
                 } else {
-                    this.updateChildsOfMine(myColor, myTexture, myMetal, myRough, myOpaque, element.id, whatchanged);
+                    this.updateChildsOfMine(myColor, myTexture, myMetal, myRough, myOpaque, element[gltf_Dict["id"]], whatchanged);
                 }
 
             }
@@ -1242,15 +1262,15 @@ class GLTFRenderer extends Component {
         //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
         var myParentID = -1;
         for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-            if (this.props.gltfobj.tree[i].name == mynode.name) {
-                myParentID = this.props.gltfobj.tree[i].parentId;
+            if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == mynode.name) {
+                myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
                 break;
             }
         }
         var myMaterials = [];
         if (myParentID != -1) {
             for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                if (this.props.gltfobj.tree[i].parentId == myParentID) {
+                if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
                     var myChild = this.findMyMaterial(this.props.gltfobj.tree[i]);
                     if (myChild) {
                         if (this.onlyfaces(myChild.name)) {
@@ -1271,7 +1291,7 @@ class GLTFRenderer extends Component {
 
             for (var i = 0; i < this.partsMeshes.length; i++) {
                 //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
-                if (this.partsMeshes[i].name == data.name) {
+                if (this.partsMeshes[i].name == data[gltf_Dict["name"]]) {
                     return this.partsMeshes[i];
                 }
             }
@@ -1285,39 +1305,39 @@ class GLTFRenderer extends Component {
         var myParentID = -1;
         var myID = -1;
         for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-            if (this.props.gltfobj.tree[i].name == mynode.name) {
-                myParentID = this.props.gltfobj.tree[i].parentId;
-                myID = this.props.gltfobj.tree[i].id;
+            if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == mynode.name) {
+                myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
+                myID = this.props.gltfobj.tree[i][gltf_Dict["id"]];
                 break;
             }
         }
-        console.log("Parent", myParentID, myID);
+        //console.log("Parent", myParentID, myID);
         var myMaterials = [];
         if (myParentID != -1) {
             var myParentsParentID = -1;
             for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                if (this.props.gltfobj.tree[i].id == myParentID) {
-                    myParentsParentID = this.props.gltfobj.tree[i].parentId;
+                if (this.props.gltfobj.tree[i][gltf_Dict["id"]] == myParentID) {
+                    myParentsParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
                     break;
                 }
             }
-            console.log("Parent", myParentsParentID, myParentID, myID);
+            //console.log("Parent", myParentsParentID, myParentID, myID);
             var myParents = [];
             if (myParentsParentID == -1) { //RootNode
-                console.log("Pushing", myParentsParentID, myParentID, myID);
+                //console.log("Pushing", myParentsParentID, myParentID, myID);
                 myParents.push(myID);
             } else {
                 for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                    if ((this.props.gltfobj.tree[i].parentId == myParentsParentID)) {
-                        myParents.push(this.props.gltfobj.tree[i].id);
+                    if ((this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentsParentID)) {
+                        myParents.push(this.props.gltfobj.tree[i][gltf_Dict["id"]]);
                     }
                 }
             }
-            console.log(myParents);
+            //console.log(myParents);
             for (var j = 0; j < myParents.length; j++) {
                 myParentID = myParents[j];
                 for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                    if (this.props.gltfobj.tree[i].parentId == myParentID) {
+                    if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
                         var myChild = this.findMyMaterial(this.props.gltfobj.tree[i]);
                         if (myChild) {
                             if (this.onlyfaces(myChild.name)) {
@@ -1585,30 +1605,32 @@ class GLTFRenderer extends Component {
         const changedata = this.props.changedata;
 
         if (this.props.whatchanged != this.whatchanged ||
-            changedata.name != this.activeId ||
+            changedata[gltf_Dict["name"]] != this.activeId ||
             ((this.props.whatchanged == SELECTCOLOR) &&
-                (this.R != changedata.R || this.G != changedata.G || this.B != changedata.B)) ||
-            ((this.props.whatchanged == SELECTTEXTURE) && (changedata.texture) &&
-                (this.texture != changedata.texture.name)) ||
+                (this[gltf_Dict["R"]] != changedata[gltf_Dict["R"]] || 
+                this[gltf_Dict["G"]] != changedata[gltf_Dict["G"]] || 
+                this[gltf_Dict["B"]] != changedata[gltf_Dict["B"]])) ||
+            ((this.props.whatchanged == SELECTTEXTURE) && (changedata[gltf_Dict["texture"]]) &&
+                (this[gltf_Dict["texture"]] != changedata[gltf_Dict["texture"]].name)) ||
             ((this.props.whatchanged == SELECTMETAL) &&
-                (this.datametal != changedata.metallicFactor)) ||
+                (this.datametal != changedata[gltf_Dict["metallicFactor"]])) ||
             ((this.props.whatchanged == SELECTROUGH) &&
-                (this.datarough != changedata.roughnessFactor)) ||
+                (this.datarough != changedata[gltf_Dict["roughnessFactor"]])) ||
             ((this.props.whatchanged == SELECTOPAQUE) &&
-                (this.dataopaque != changedata.A)) ||
+                (this.dataopaque != changedata[gltf_Dict["A"]])) ||
             ((this.props.whatchanged == SELECTDISTANCE) &&
                 (this.selectedshell != changedata.selectedshell))
         ) {
             this.whatchanged = this.props.whatchanged;
-            this.activeId = changedata.name;
+            this.activeId = changedata[gltf_Dict["name"]];
 
             if (this.props.whatchanged == SELECTCOLOR) {
-                this.R = changedata.R;
-                this.G = changedata.G;
-                this.B = changedata.B;
+                this[gltf_Dict["R"]] = changedata[gltf_Dict["R"]];
+                this[gltf_Dict["G"]] = changedata[gltf_Dict["G"]];
+                this[gltf_Dict["B"]] = changedata[gltf_Dict["B"]];
                 //console.log(changedata);
-                if (changedata.leaf) {
-                    if (changedata.name) {
+                if (changedata[gltf_Dict["leaf"]]) {
+                    if (changedata[gltf_Dict["name"]]) {
                         //console.log(this.partsMeshes[changedata.binId-1]);
                         //const mymaterial = this.partsMeshes[element.binId-1].material;
                         const mymesh = this.findMyMaterial(changedata);
@@ -1616,22 +1638,25 @@ class GLTFRenderer extends Component {
                             const mymaterial = mymesh.material;
                             //console.log("1",mymaterial);
                             if (mymaterial) {
-                                mymaterial.color = new Color(changedata.R, changedata.G, changedata.B);
+                                mymaterial.color = new Color(changedata[gltf_Dict["R"]], 
+                                    changedata[gltf_Dict["G"]], changedata[gltf_Dict["B"]]);
                             }
                         }
 
                     }
                 } else {
-                    this.updateChildsOfMine(new Color(changedata.R, changedata.G, changedata.B), null, null, null, null, changedata.id, this.props.whatchanged);
+                    this.updateChildsOfMine(new Color(changedata[gltf_Dict["R"]], 
+                        changedata[gltf_Dict["G"]], changedata[gltf_Dict["B"]]), 
+                        null, null, null, null, changedata[gltf_Dict["id"]], this.props.whatchanged);
                 }
 
             }
             var myTexture = null;
-            if ((this.props.whatchanged == SELECTTEXTURE) && (changedata.texture)) {
-                this.texture = changedata.texture.name;
+            if ((this.props.whatchanged == SELECTTEXTURE) && (changedata[gltf_Dict["texture"]])) {
+                this[gltf_Dict["texture"]] = changedata[gltf_Dict["texture"]].name;
                 //console.log(changedata);
-                if (changedata.leaf) {
-                    if (changedata.name) {
+                if (changedata[gltf_Dict["leaf"]]) {
+                    if (changedata[gltf_Dict["name"]]) {
                         //console.log(this.partsMeshes[changedata.binId-1]);
                         //const mymaterial = this.partsMeshes[element.binId-1].material;
                         const mymesh = this.findMyMaterial(changedata);
@@ -1640,11 +1665,11 @@ class GLTFRenderer extends Component {
                             //console.log("2",mymaterial);
                             if (mymaterial) {
 
-                                if (this.texture == "None") {
+                                if (this[gltf_Dict["texture"]] == "None") {
                                     myTexture = null;
                                 } else {
                                     const textureLoader = new TextureLoader();
-                                    myTexture = textureLoader.load(resourcePathBase + this.texture)
+                                    myTexture = textureLoader.load(resourcePathBase + this[gltf_Dict["texture"]])
                                     /* myTexture.wrapT = RepeatWrapping;
                                     myTexture.wrapS = RepeatWrapping;
                                     myTexture.repeat.set( 9, 1 ); */
@@ -1663,88 +1688,92 @@ class GLTFRenderer extends Component {
                     }
                 } else {
 
-                    if (this.texture == "None") {
+                    if (this[gltf_Dict["texture"]] == "None") {
                         myTexture = null;
                     } else {
                         const textureLoader = new TextureLoader();
-                        myTexture = textureLoader.load(resourcePathBase + this.texture)
+                        myTexture = textureLoader.load(resourcePathBase + this[gltf_Dict["texture"]])
                         /* myTexture.wrapT = RepeatWrapping;
                         myTexture.wrapS = RepeatWrapping;
                         myTexture.repeat.set( 9, 1 ); */
 
                     }
-                    this.updateChildsOfMine(null, myTexture, null, null, null, changedata.id, this.props.whatchanged);
+                    this.updateChildsOfMine(null, myTexture, null, null, null, 
+                        changedata[gltf_Dict["id"]], this.props.whatchanged);
                 }
 
             }
             if (this.props.whatchanged == SELECTMETAL) {
-                this.datametal = changedata.metallicFactor;
-                if (changedata.leaf) {
-                    if (changedata.name) {
+                this.datametal = changedata[gltf_Dict["metallicFactor"]];
+                if (changedata[gltf_Dict["leaf"]]) {
+                    if (changedata[gltf_Dict["name"]]) {
                         //console.log(this.partsMeshes[changedata.binId-1]);
                         //const mymaterial = this.partsMeshes[element.binId-1].material;
                         const mymesh = this.findMyMaterial(changedata);
                         if (mymesh) {
                             const mymaterial = mymesh.material;
                             if (mymaterial) {
-                                mymaterial.metallicFactor = changedata.metallicFactor;
-                                mymaterial.metalness = changedata.metallicFactor;
+                                mymaterial[gltf_Dict["metallicFactor"]] = changedata[gltf_Dict["metallicFactor"]];
+                                mymaterial.metalness = changedata[gltf_Dict["metallicFactor"]];
                             }
                             //console.log(mymaterial);
                         }
                     }
                 } else {
-                    this.updateChildsOfMine(null, null, changedata.metallicFactor, null, null, changedata.id, this.props.whatchanged);
+                    this.updateChildsOfMine(null, null, changedata[gltf_Dict["metallicFactor"]], 
+                        null, null, changedata[gltf_Dict["id"]], this.props.whatchanged);
                 }
 
             }
             if (this.props.whatchanged == SELECTROUGH) {
-                this.datarough = changedata.roughnessFactor;
-                if (changedata.leaf) {
-                    if (changedata.name) {
+                this.datarough = changedata[gltf_Dict["roughnessFactor"]];
+                if (changedata[gltf_Dict["leaf"]]) {
+                    if (changedata[gltf_Dict["name"]]) {
                         //console.log(this.partsMeshes[changedata.binId-1]);
                         //const mymaterial = this.partsMeshes[element.binId-1].material;
                         const mymesh = this.findMyMaterial(changedata);
                         if (mymesh) {
                             const mymaterial = mymesh.material;
                             if (mymaterial) {
-                                mymaterial.roughnessFactor = changedata.roughnessFactor;
-                                mymaterial.roughness = changedata.roughnessFactor;
+                                mymaterial[gltf_Dict["roughnessFactor"]] = changedata[gltf_Dict["roughnessFactor"]];
+                                mymaterial.roughness = changedata[gltf_Dict["roughnessFactor"]];
                             }
                             //console.log(mymaterial);
                         }
                     }
                 } else {
-                    this.updateChildsOfMine(null, null, null, changedata.roughnessFactor, null, changedata.id, this.props.whatchanged);
+                    this.updateChildsOfMine(null, null, null, changedata[gltf_Dict["roughnessFactor"]], 
+                        null, changedata[gltf_Dict["id"]], this.props.whatchanged);
                 }
 
             }
             if (this.props.whatchanged == SELECTOPAQUE) {
-                this.dataopaque = changedata.A;
-                if (changedata.leaf) {
-                    if (changedata.name) {
+                this.dataopaque = changedata[gltf_Dict["A"]];
+                if (changedata[gltf_Dict["leaf"]]) {
+                    if (changedata[gltf_Dict["name"]]) {
                         //console.log(this.partsMeshes[changedata.binId-1]);
                         //const mymaterial = this.partsMeshes[element.binId-1].material;
                         const mymesh = this.findMyMaterial(changedata);
                         if (mymesh) {
                             const mymaterial = mymesh.material;
                             if (mymaterial) {
-                                mymaterial.transparent = (changedata.A != 1);
-                                mymaterial.opaque = changedata.A;
-                                mymaterial.opacity = changedata.A;
+                                mymaterial.transparent = (changedata[gltf_Dict["A"]] != 1);
+                                mymaterial.opaque = changedata[gltf_Dict["A"]];
+                                mymaterial.opacity = changedata[gltf_Dict["A"]];
                             }
                         }
                     }
                 } else {
-                    this.updateChildsOfMine(null, null, null, null, changedata.A, changedata.id, this.props.whatchanged);
+                    this.updateChildsOfMine(null, null, null, null, 
+                        changedata[gltf_Dict["A"]], changedata[gltf_Dict["id"]], this.props.whatchanged);
                 }
 
             }
             if (this.props.whatchanged == SELECTDISTANCE) {
                 //console.log(changedata);
                 this.selectedshell = changedata.selectedshell;
-                if (changedata.leaf) {
-                    if (changedata.name) {
+                if (changedata[gltf_Dict["leaf"]]) {
+                    if (changedata[gltf_Dict["name"]]) {
                         //console.log(this.partsMeshes[changedata.binId-1]);
                         //const mymaterial = this.partsMeshes[element.binId-1].material;
                         const mymesh = this.findMyMaterial(changedata);
@@ -1793,16 +1822,16 @@ class GLTFRenderer extends Component {
         }
         var myParentID = -1;
         for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-            if (this.props.gltfobj.tree[i].name == name) {
-                myParentID = this.props.gltfobj.tree[i].parentId;
+            if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == name) {
+                myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
                 break;
             }
         }
         var myParentName = "";
         if (myParentID != -1) {
             for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                if (this.props.gltfobj.tree[i].id == myParentID) {
-                    myParentName = this.props.gltfobj.tree[i].name;
+                if (this.props.gltfobj.tree[i][gltf_Dict["id"]] == myParentID) {
+                    myParentName = this.props.gltfobj.tree[i][gltf_Dict["name"]];
                     break;
                 }
             }
@@ -1872,7 +1901,7 @@ class GLTFRenderer extends Component {
             }
             if (((this.props.selectedoption == SELECTSOLID) && (this.selectedoption != SELECTASSEMBLY))
                 || (this.props.selectedoption == SELECTASSEMBLY)) {
-                console.log("Got Here", this.props.selectedoption);
+                //console.log("Got Here", this.props.selectedoption);
                 this.selectAllSelectedSolids();
             }
             this.alter();
