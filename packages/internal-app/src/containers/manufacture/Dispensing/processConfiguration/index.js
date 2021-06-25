@@ -4,7 +4,6 @@ import CollapseTab from './CollapseTab';
 export default function ProcessConfiguration() {
     return (
         <CollapseTab />
-
     );
 }
 

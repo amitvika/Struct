@@ -6,7 +6,7 @@ import ClientAPI from '@ravibasil/common/api/clients.api';
 import { useHistory } from "react-router-dom";
 import Link from '@material-ui/core/Link';
 
-import IdentificationModal from "../SuppliedItems/identificationModal";
+import IdentificationModal from "../suppliedItems/identificationModal";
 
 
 const Orders = () => {

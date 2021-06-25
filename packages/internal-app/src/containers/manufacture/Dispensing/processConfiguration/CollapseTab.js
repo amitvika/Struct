@@ -4,9 +4,7 @@ import ListItem from '@material-ui/core/ListItem';
 import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-import ClearIcon from '@material-ui/icons/Clear';
 import { Button, Grid, Paper } from '@material-ui/core';
-import Checkbox from '@material-ui/core/Checkbox';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentItemAction } from '../../../../actions/itemActions';
 import { getPartsStackableInfo } from '@ravibasil/common/api/fileUpload.api'

@@ -138,7 +138,7 @@ export default function Index2(props) {
                             className={classes.tabPaper}>{'Full Process'}</Paper>
                     </Grid>
 
-                    <Divider orientation="vertical" flexItem className={classes.verticalDivider} style={{ borderStyle: 'inset' }} />
+                    <Divider orientation="vertical" flexItem className={classes.verticalDivider} style={{ borderStyle: 'inset', height: '30px' }} />
                     {
                         tabArray.map(tabName =>
                         (

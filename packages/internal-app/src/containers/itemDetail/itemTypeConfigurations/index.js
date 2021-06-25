@@ -1,15 +1,11 @@
 import React, { useState } from 'react'
 import Grid from '@material-ui/core/Grid';
 import MaterialTable from "material-table";
-
-import Select from '@ravibasil/common/components/atoms/Select';
 import Input from '@ravibasil/common/components/atoms/Input';
 import ToolTypeOptions from './ToolTypeOptions';
 import MachineTool_Workholding from './MachineTool_Workholding';
 import UnassembledKit from './UnassembledKit';
 import Switch from '@material-ui/core/Switch';
-import { withStyles } from '@material-ui/core/styles';
-import Headding from '@ravibasil/common/components/atoms/Headding'
 
 
 export default function ItemTypeConfigurations({ itemProperties = {}, setItemProperties, gltfjson, setgltfjson }) {

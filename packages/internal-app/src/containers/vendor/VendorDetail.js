@@ -6,8 +6,6 @@ import {
     Tab,
     Tabs,
     Grid,
-    IconButton,
-    Typography
 } from "@material-ui/core";
 import SubHeaderWithArrow from '../../components/SubHeaderWithArrow'
 import { useParams, useHistory, useLocation } from "react-router-dom";
@@ -16,7 +14,7 @@ import LogoView from '@ravibasil/common/components/LogoView';
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-import SuppliedItems from './SuppliedItems'
+import SuppliedItems from './suppliedItems'
 import SuppliedItemOption from './suppliedItemOptions';
 import get from 'lodash/get';
 
