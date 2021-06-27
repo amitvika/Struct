@@ -68,7 +68,8 @@ export default function NestedList({ setItemValue }) {
                         title={"Any Direction"}
                         handleListItem={handleListItem}
                         currentTab={currentTab}
-                        stackValue={splitfiles.stackable[0].direction}
+                        // stackValue={splitfiles.stackable[0].direction}
+                        stackValue={() => console.log("----",splitfiles.stackable[0].direction)}
                     />
                     <StackableChild
                         title={"Top"}
