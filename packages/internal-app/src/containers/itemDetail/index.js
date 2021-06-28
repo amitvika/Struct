@@ -35,8 +35,23 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
-//import {resourcePathURL} from '@ravibasil/common/api/fileUpload.api';
-//import {uploadFileS3Bucket} from '@ravibasil/common/api/aws';
+import { getHierarchySplitFiles } from '@ravibasil/common/api/fileUpload.api'
+
+const DEFAULTDISTANCEGAP = 0.1;
+const DEFAULTANGLEGAP = 0.5;
+const DEFAULTDISECT = false;
+const DEFAULTSHOWDISECT = false;
+const DEFAULTSHOWINFOONSELECT = false;
+const DEFAULTMATERIALTYPE = [{ "id": 1, "name": "Basic" }];
+
+const stateprops = {
+    distancegap: DEFAULTDISTANCEGAP,
+    anglegap: DEFAULTANGLEGAP,
+    disect: DEFAULTDISECT,
+    showdisect: DEFAULTSHOWDISECT,
+    showinfoonselect: DEFAULTSHOWINFOONSELECT,
+    materialtype: DEFAULTMATERIALTYPE
+}
 
 const ItemDetail = () => {
     const dispatch = useDispatch();
@@ -61,16 +76,18 @@ const ItemDetail = () => {
             const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
 
             const _currentItem = get(itemDetailResponse, 'data[0]', {});
-            // setItemProperties(_currentItem);
 
             dispatch(setCurrentItemAction(_currentItem));
 
-            const tempGLTFJSon = get(itemDetailResponse, 'data[0].gltfjson', {});
-
-            if (tempGLTFJSon !== null && tempGLTFJSon !== undefined) {
-                setgltfjson(tempGLTFJSon)
-
+            if (_currentItem.fileId) {
+                getHierarchySplit(_currentItem.fileId);
             }
+            // const tempGLTFJSon = get(itemDetailResponse, 'data[0].gltfjson', {});
+
+            // if (tempGLTFJSon !== null && tempGLTFJSon !== undefined) {
+            //     setgltfjson(tempGLTFJSon)
+
+            // }
 
             setIsLoading(false);
         })()
@@ -81,6 +98,19 @@ const ItemDetail = () => {
             setItemProperties(currentItem);
         }
     }, [currentItem])
+
+    const getHierarchySplit = (id) => {
+
+        getHierarchySplitFiles(id, true, stateprops.distancegap, stateprops.anglegap,
+            stateprops.disect, 0, 0.3, 1.0)
+            .then(res => res.data)
+            .then((repos) => {
+                setgltfjson(repos);
+
+            }).catch(err => {
+            });
+
+    };
 
     const renderPageSwitch = () => {
         if (!get(itemProperties, '_id')) {
@@ -97,7 +127,11 @@ const ItemDetail = () => {
                     setItemProperties={setItemProperties}
                     gltfjson={gltfjson} setgltfjson={setgltfjson} />;
             case 2:
-                return <GeometricDimensioning fileId={itemProperties.fileId} />
+                return <GeometricDimensioning
+                    fileId={itemProperties.fileId}
+                    gltfjson={gltfjson}
+                    isLoading={isLoading}
+                />
             case 3:
                 return <CurrentUsage itemId={id} />
             case 4:
@@ -154,23 +188,24 @@ const ItemDetail = () => {
     const handleSave = () => {
         // setIsLoading(true);
         itemProperties.step = undefined;
+        itemProperties.gltfjson = undefined;
         itemProperties.itemId = undefined;
         //const myfile = gltfjson['thumbnail'];
         //console.log(myfile);
         //var file_url = resourcePathURL+myfile;
-       /*  if(myfile) {
-            const File={'name':file_url,
-                        'type':'image/png'};
-            uploadFileS3Bucket(File).then(res=>{
-                console.log(res);
-                file_url = res;
-            });
-            gltfjson['file_url'] = file_url;
-            console.log(file_url);
-        }  else {
-            //gltfjson['file_url'] = file_url;
-        }   */  
-       
+        /*  if(myfile) {
+             const File={'name':file_url,
+                         'type':'image/png'};
+             uploadFileS3Bucket(File).then(res=>{
+                 console.log(res);
+                 file_url = res;
+             });
+             gltfjson['file_url'] = file_url;
+             console.log(file_url);
+         }  else {
+             //gltfjson['file_url'] = file_url;
+         }   */
+
         ItemAPI
             .updateItemAPI(id, { ...itemProperties })
             .then(res => {

@@ -66,9 +66,6 @@ const ItemSchema = new mongoose.Schema({
         liquidVat: { type: Boolean, default: false },
         pressure: { type: Boolean, default: false },
     },
-    gltfjson: {
-        type: Object
-    },
     stl: { type: String },
     fileId: { type: Number }
 }, {

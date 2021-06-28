@@ -76,7 +76,7 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
 
     return (
         <Paper style={{ padding: 20, margin: 10 }}>
-            <MaterialModal
+            {isMaterialModalOpen && <MaterialModal
                 toggleMaterial={toggleMaterial}
                 isMaterialModalOpen={isMaterialModalOpen}
                 materialProperties={materialProperties}
@@ -85,13 +85,13 @@ export default function GeometryInput({ itemProperties = {}, setItemProperties }
                 itemProperties={itemProperties}
                 setItemProperties={setItemProperties}
                 setSelectedMaterials={setSelectedMaterials}
-            />
-            <MaterialPropertiesModal
+            />}
+            {isMaterialPropertiesModalOpen && <MaterialPropertiesModal
                 toggleMaterialProperties={toggleMaterialProperties}
                 isMaterialPropertiesModalOpen={isMaterialPropertiesModalOpen}
                 materialProperties={materialProperties}
                 setMaterialProperties={setMaterialProperties}
-            />
+            />}
             <Headding fontSize={24} bold title={'Item Properties'} />
 
             <Paper style={{ padding: 20, margin: 10 }}>

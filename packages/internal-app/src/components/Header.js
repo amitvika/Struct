@@ -84,7 +84,6 @@ export default function Header() {
     );
     const getMenuButtons = () => {
         let menuItems = headersData.map(({ label, href }) => {
-            console.log(`"primary_button_1${label}"`);
             return (
                 <Button
                     key={`"primary_button_1${label}"`}
