@@ -18,6 +18,8 @@ from contextlib import contextmanager
 import html
 import math
 import pickle
+import threading
+
 #from glob import glob
 
 import logging
@@ -1080,7 +1082,7 @@ class StepIgesAnalyser():
         currentP = curve.Value(firstU)
         for eachP in range(length):            
             nextP = curve.Value(firstU+(ranges*(eachP+1)/(length)))
-            if (currentP.Distance(nextP) >= self.distancegap): # or (length==1):
+            if (currentP.SquareDistance(nextP) >= self.distancegap): # or (length==1):
                 aPipe = self.createPipeFromPoints(currentP, nextP)
                 if aPipe:
                     pipes.append(aPipe)
@@ -1607,7 +1609,7 @@ class StepIgesAnalyser():
                                 self.fileId += 1
                                 shape_transform = BRepBuilderAPI_Transform(shape_edge, localTransformation).Shape()
                                 (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,self.defaultColor)
-                                print("I am writing Edge",self.fileId, basename)                       
+                                #print("I am writing Edge",self.fileId, basename)                       
                                 shape_disp = self.createPipesFromEdge(shape_transform)  
 
                                 (_,_,meshname,uvPlane)=self.add_part(
@@ -1627,7 +1629,7 @@ class StepIgesAnalyser():
                             self.fileId += 1
                             shape_transform = BRepBuilderAPI_Transform(shape_vertex, localTransformation).Shape()        
                             (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,self.defaultColor)
-                            print("I am writing Vertex",self.fileId, basename)                       
+                            #print("I am writing Vertex",self.fileId, basename)                       
                             shape_disp = self.CreateSphereFromVertex(shape_transform)            
                             (_,_,meshname,uvPlane)=self.add_part(
                                 shape_disp,
@@ -2237,6 +2239,29 @@ class StepIgesAnalyser():
             self.mstep_dict['nodes'][2]['rotation']=[ 0.0, 0.0, 0.0, 1.0 ]
             self.mstep_dict['animations']=animationchannels """
 
+    def write_in_thread(self,dict,imagePNG):
+        try:
+            newfilename = "Display/"+dict["store"]+".gltf"
+            print("Writing",newfilename)
+            with open(newfilename, 'w') as fh:
+                fh.write(json.dumps(dict["gltf"], sort_keys=True, indent=2 ))
+        except Exception as e:
+            print("While Writing",newfilename,e)
+        try:
+            treefilename = "Display/"+dict["store"]+".tree"
+            print("Writing",treefilename)
+            with open(treefilename, 'w') as fh:
+                fh.write(json.dumps(dict["tree"], sort_keys=True, indent=2 ))
+        except Exception as e:
+            print("While Writing",treefilename,e)
+        if imagePNG:           
+            try:
+                imagefilename = "Display/"+dict["store"]+".png"
+                print("Writing",imagefilename)
+                createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            
+            except Exception as e:
+                print("While Writing",imagefilename,e)
+    
     def dump(self):
         """Return assembly structure in indented outline form.
         Format of lines:
@@ -2263,30 +2288,35 @@ class StepIgesAnalyser():
         #print("Shapes Len",len(self.animations),len(self.outputShapes))
         #self.mstep_dict['download']=self.tree
         # Write self.mstep_dict to file as JSON string       
-
-        newfilename = "Display/"+self.basefilename+".gltf"
+        getPNG = False
+        #newfilename = "Display/"+self.basefilename+".gltf"
+               
+        if (self.thumbheight!=0) and (self.thumbwidth!=0) and (self.edgesize==0) and (self.vertexsize==0):
+            getPNG = True
         
-        try:
+        """  try:
             print("Writing",newfilename)
             with open(newfilename, 'w') as fh:
                 fh.write(json.dumps(self.mstep_dict, sort_keys=True, indent=2 ))
         except Exception as e:
             print("While Writing",newfilename,e)
-        if (self.thumbheight!=0) and (self.thumbwidth!=0) and (self.edgesize==0) and (self.vertexsize==0):
-            imagefilename = "Display/"+self.basefilename+".png"
+        if imagefilename!="":           
             try:
                 print("Writing",imagefilename)
                 createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            
             except Exception as e:
-                print("While Writing",imagefilename,e)
+                print("While Writing",imagefilename,e) """
+        
         dict_return = {
             "gltf":self.mstep_dict,
-            "tree":self.tstep_dict['tree']
+            "tree":self.tstep_dict['tree'],
+            "store":self.basefilename
         }
-        
+        mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG))
+        mythread.start()
         #self.mstep_dict['tree']=self.tstep_dict['tree']
         return (            
-            (self.basefilename+".png",newfilename,self.output), 
+            (getPNG,self.output), 
             (
                 (self.scene_min[0],self.scene_min[1],self.scene_min[2],
                 self.scene_max[0],self.scene_max[1],self.scene_max[2]),
@@ -2440,8 +2470,68 @@ class StepIgesAnalyser():
                 child.local_obj.val(),name=self._unescape_XML(outname),
                 color=Color(colorname.Red(),colorname.Green(),colorname.Blue())).save(filename) 
         """         
-
+    def write_step_file_in_thread(self, a_shape, outname, colorname, basename, newfilename):
+        """ exports a shape to a STEP file
+        a_shape: the topods_shape to export (a compound, a solid etc.)
+        outname: FileName to store
+        """
+        
+        
+        #basename = self.validFileName(outname)+str(self.fileId)+".step"
+        #newfilename = self.direntry+"/"+ basename
+        if self.createFiles :
+            os.makedirs(os.path.dirname(newfilename), exist_ok=True)
+            if self.writeStep:
+                if os.path.isfile(newfilename):
+                    print("Warning: %s file already exists and will be replaced" % newfilename)
+                # creates and initialise the step exporter
+                step_writer = STEPControl_Writer()
+                Interface_Static_SetCVal("write.step.schema", "AP242DIS")
+                # transfer shapes and write file
+                step_writer.Transfer(a_shape, STEPControl_AsIs)
+                status = step_writer.Write(newfilename)
+                if not status == IFSelect_RetDone:
+                    print("Error while writing shape to STEP file.")
+                if not os.path.isfile(newfilename):
+                    print("File %s was not saved to filesystem." % newfilename)
+            if self.writePickle:
+                try:
+                    picklefile = "Display/"+basename+".pickle"
+                    with open(picklefile, 'wb') as f:
+                        # Pickle the 'data' dictionary using the highest protocol available.
+                        pickle.dump(a_shape, f, pickle.HIGHEST_PROTOCOL)
+                except Exception as e:
+                    print(e,"File, %s has error" % picklefile)
+            #Direct setting from pythonocc is not working, but from CQ same calls are working. Don't know why//
+            if self.writeColorStep:
+                try:
+                    colorfile = "Display/"+basename+"_COLOR.step"               
+                    StepExportWithColor(shape=a_shape,color=colorname,name=outname).write_file(filename=colorfile)
+                except Exception as e:
+                    print(e,"File, %s has error" % colorfile)  
+            #Following is using cadquery code and hence removed..       
+            """ try:
+                 colorfile = "Display/"+"C"+basename+"C.step"
+                self.write_step_color_file(a_shape, outname, colorname, colorfile)                
+            except Exception as e:
+                print(e,"File, %s has error" % colorfile) """
+        else:
+            print("File, %s is not saved since it is meant for analysis" % newfilename)
+       
     def write_step_file(self, a_shape, outname, colorname):
+        """ exports a shape to a STEP file
+        a_shape: the topods_shape to export (a compound, a solid etc.)
+        outname: FileName to store """
+        
+        basename = self.getBaseFileName()
+        newfilename = "Display/"+basename+".step"
+        mythread = threading.Thread(target=self.write_step_file_in_thread,args=(a_shape, outname, colorname, basename, newfilename))
+        mythread.start()
+        return (newfilename, basename) 
+
+
+
+    def write_step_file_with_out_thread(self, a_shape, outname, colorname):
         """ exports a shape to a STEP file
         a_shape: the topods_shape to export (a compound, a solid etc.)
         outname: FileName to store
@@ -2605,7 +2695,8 @@ class StepIgesAnalyser():
 
         faceiterator = topologyExplorer.faces() 
         list_of_faces = list(faceiterator)
-        uv=[]           
+        uv=[]         
+        uvPlane = []  
         if(len(list_of_faces) > 0):
             #print("I have reached here 0")
             BRepMesh_IncrementalMesh(shape, self.distancegap, True, self.anglegap)

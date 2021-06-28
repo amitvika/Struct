@@ -1965,7 +1965,7 @@ class GLTFParser {
 
 		// BufferGeometry caching
 		this.primitiveCache = {};
-
+//		this.bufferFetch = 0;
 		// Object3D instance caches
 		this.meshCache = { refs: {}, uses: {} };
 		this.cameraCache = { refs: {}, uses: {} };
@@ -2170,7 +2170,7 @@ class GLTFParser {
 		extensions.push( this );
 
 		for ( let i = 0; i < extensions.length; i ++ ) {
-
+//			console.log("One",extensions[i]);
 			const result = func( extensions[ i ] );
 
 			if ( result ) return result;
@@ -2189,13 +2189,13 @@ class GLTFParser {
 		const pending = [];
 
 		for ( let i = 0; i < extensions.length; i ++ ) {
-
+//			console.log("Multiple",extensions[i]);
 			const result = func( extensions[ i ] );
 
 			if ( result ) pending.push( result );
 
 		}
-
+//		console.log(pending);
 		return pending;
 
 	}
@@ -2241,10 +2241,12 @@ class GLTFParser {
 						return ext.loadBufferView && ext.loadBufferView( index );
 
 					} );
+					
 					break;
 
 				case 'buffer':
 					dependency = this.loadBuffer( index );
+					
 					break;
 
 				case 'material':
@@ -2303,7 +2305,7 @@ class GLTFParser {
 			const defs = this.json[ type + ( type === 'mesh' ? 'es' : 's' ) ] || [];
 
 			dependencies = Promise.all( defs.map( function ( def, index ) {
-
+//				console.log("Type",type,index);
 				return parser.getDependency( type, index );
 
 			} ) );
@@ -2315,7 +2317,18 @@ class GLTFParser {
 		return dependencies;
 
 	}
-
+	/*
+	sleep(milliseconds) {
+		const date = Date.now();
+		let currentDate = null;
+		do {
+		  currentDate = Date.now();
+		} while (currentDate - date < milliseconds);
+	}
+	
+	sleep(ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	}*/
 	/**
 	 * Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#buffers-and-buffer-views
 	 * @param {number} bufferIndex
@@ -2325,7 +2338,8 @@ class GLTFParser {
 
 		const bufferDef = this.json.buffers[ bufferIndex ];
 		const loader = this.fileLoader;
-
+//		this.bufferFetch+=1;
+		
 		if ( bufferDef.type && bufferDef.type !== 'arraybuffer' ) {
 
 			throw new Error( 'THREE.GLTFLoader: ' + bufferDef.type + ' buffer type is not supported.' );
@@ -2341,16 +2355,27 @@ class GLTFParser {
 
 		const options = this.options;
 
-		return new Promise( function ( resolve, reject ) {
+		
+/* 		if(this.bufferFetch>1000) {
+			this.bufferFetch=0;
+			return new Promise( function ( resolve, reject ) {
+				new Promise(resolver => setTimeout(resolver, 5000)).then(() =>{
+					console.log("delaying by a sec",new Date().toLocaleTimeString());
+					loader.load( resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
 
+				reject( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
+
+				} );} );
+			} );
+		}  else */ {
+			return new Promise( function ( resolve, reject ) {
 			loader.load( resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
 
 				reject( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
 
-			} );
-
-		} );
-
+				} );
+			});
+		}
 	}
 
 	/**
@@ -2411,11 +2436,11 @@ class GLTFParser {
 			pendingBufferViews.push( this.getDependency( 'bufferView', accessorDef.sparse.values.bufferView ) );
 
 		}
-
+//		console.log(pendingBufferViews.length,pendingBufferViews);
 		return Promise.all( pendingBufferViews ).then( function ( bufferViews ) {
 
 			const bufferView = bufferViews[ 0 ];
-
+//			console.log("Accesor",bufferView);
 			const itemSize = WEBGL_TYPE_SIZES[ accessorDef.type ];
 			const TypedArray = WEBGL_COMPONENT_TYPES[ accessorDef.componentType ];
 

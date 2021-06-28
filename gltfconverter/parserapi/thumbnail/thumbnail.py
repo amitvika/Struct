@@ -5657,7 +5657,7 @@ class OffscreenRenderer(object):
         except Exception:
             pass
 
-def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path):
+def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path, transparent=False):
 
     # Create scene
     try:
@@ -5666,7 +5666,7 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
         print("Error",e)
 
     # Load objects
-    object_gltf = trimesh.load(model_path)
+    object_gltf = trimesh.load(model_path,file_type="gltf")
     object_meshes = []
     for key in list(object_gltf.geometry.keys()):
         object_trimesh = object_gltf.geometry[key]
@@ -5711,17 +5711,18 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
         print("Error",e)
     color, _ = r.render(scene)
     myImage = Image.Image.fromarray(color)
-   
-    rgba = myImage.convert("RGBA")
-    datas = rgba.getdata()  
-    newData = []
-    for item in datas:
-        if item[0] == 255 and item[1] == 255 and item[2] == 255:  # finding white colour by its RGB value
-            # storing a transparent value when we find a white colour
-            newData.append((255, 255, 255, 0))
-        else:
-            newData.append(item)  # other colours remain unchanged
-    rgba.putdata(newData)
-    rgba.save(thumbnail_save_path, "PNG")
-    
+    if transparent:
+        rgba = myImage.convert("RGBA")  #routine to save transparent image which might be slower and hence commented.
+        datas = rgba.getdata()  
+        newData = []
+        for item in datas:
+            if item[0] == 255 and item[1] == 255 and item[2] == 255:  # finding white colour by its RGB value
+                # storing a transparent value when we find a white colour
+                newData.append((255, 255, 255, 0))
+            else:
+                newData.append(item)  # other colours remain unchanged
+        rgba.putdata(newData) 
+        rgba.save(thumbnail_save_path, "PNG")
+    else:
+        myImage.save(thumbnail_save_path, "PNG")
     r.delete()
