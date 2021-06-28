@@ -163,7 +163,7 @@ class GLTFRenderer extends Component {
     }
 
     init = () => {
-        this.gltfJSON = this.props.gltfobj.gltf;
+        this.gltfJSON = this.props.gltfobj.gltf||this.props.gltfobj;
         this.lights = [];
         this.content = null;
         this.mixer = null;

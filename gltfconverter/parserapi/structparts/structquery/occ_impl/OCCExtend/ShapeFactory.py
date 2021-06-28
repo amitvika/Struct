@@ -2640,7 +2640,7 @@ def recognize_curve(topods_edge):
     lastU = curve.LastParameter()
     firstP = curve.Value(firstU)
     lastP = curve.Value(lastU)
-    closedDistance = firstP.Distance(lastP)
+    closedDistance = firstP.SquareDistance(lastP)
     # nothing found
     #entity['firstU'] = curve.FirstParameter()
     #entity['lastU'] = curve.LastParameter() 

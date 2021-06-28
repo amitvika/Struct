@@ -112,7 +112,7 @@ const Items = ({ handleSave }) => {
             if (itemRes && itemRes.data) {
                 const items = itemRes.data.map((item, index) => {
                     //console.log(item.gltfjson.thumbnail);
-                    const thumbnail = item?.gltfjson?.thumbnail;
+                    const thumbnail = item?.gltfjson?.store+".png";
                     return {
                         id: item._id,
                         name: item.name,
