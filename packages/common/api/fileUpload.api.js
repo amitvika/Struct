@@ -64,17 +64,17 @@ export const getAllFiles = () => {
 }
 
 export const getGltfForStore = (store) => {
-    const fetchURL = `${resourcePathURL}/${store}.gltf`;
+    const fetchURL = `${resourcePathURL}${store}.gltf`;
     return axios.get(fetchURL);
 }
 
 export const getTreeForStore = (store) => {
-    const fetchURL = `${resourcePathURL}/${store}.tree`;
+    const fetchURL = `${resourcePathURL}${store}.tree`;
     return axios.get(fetchURL);
 }
 
 export const getThumbnailForStoreURL = (store) => {
-    const fetchURL = `${resourcePathURL}/${store}.png`;
+    const fetchURL = `${resourcePathURL}${store}.png`;
     return fetchURL;
 }
 
