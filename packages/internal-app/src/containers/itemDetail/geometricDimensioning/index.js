@@ -61,7 +61,7 @@ export default function GeometricDimensioning({ fileId, gltfjson, isLoading }) {
                 mates: []
             });
         }
-    }, []);
+    }, [gltfjson]);
 
     // const getHierarchySplit = (id) => {
     //     const includeParts = true;

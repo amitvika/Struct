@@ -116,18 +116,6 @@ export default function GridView({
     return (
         <Grid container spacing={2}>
             {list.map(product => {
-                //console.log(product);
-                if(product.thumbnail && !product.file_url){
-                    product.file_url = resourcePathURL+product.thumbnail;                    
-                   /*  isURLExisting(file_url).then(found=>{
-                        //console.log(found);
-                        if(found){
-                            product.file_url = file_url;
-                            //console.log(product.file_url);
-                        }
-                    }) */
-                    //console.log(product.file_url);
-                }
                 return (
                     <Grid item xs={6} sm={3} key={product.id}>
                         <Paper className={classes.paper} onClick={() => handleTableRowClick(product)}

@@ -10,6 +10,7 @@ import Backdrop from '@ravibasil/common/components/Backdrop';
 
 import { columnsFields } from '@ravibasil/common/constants/item'
 import AddEditItemModal from './AddEditItemModel';
+import { getThumbnailForStoreURL } from '@ravibasil/common/api/fileUpload.api';
 
 const Items = ({ handleSave }) => {
     let history = useHistory();
@@ -111,14 +112,12 @@ const Items = ({ handleSave }) => {
 
             if (itemRes && itemRes.data) {
                 const items = itemRes.data.map((item, index) => {
-                    //console.log(item.gltfjson.thumbnail);
-                    const thumbnail = item?.gltfjson?.store+".png";
                     return {
                         id: item._id,
                         name: item.name,
                         source: item?.vendorId?.name || 'STRUCT',
                         assemblyType: item.assemblyType,
-                        thumbnail: thumbnail ? thumbnail : ""
+                        file_url: item.fileStore ? getThumbnailForStoreURL(item.fileStore) : undefined
                     }
                 })
 

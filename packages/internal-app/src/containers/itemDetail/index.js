@@ -35,7 +35,7 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
-import { getHierarchySplitFiles } from '@ravibasil/common/api/fileUpload.api'
+import { getHierarchySplitFiles, getGltfForStore, getTreeForStore } from '@ravibasil/common/api/fileUpload.api'
 
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
@@ -79,9 +79,9 @@ const ItemDetail = () => {
 
             dispatch(setCurrentItemAction(_currentItem));
 
-            if (_currentItem.fileId) {
-                getHierarchySplit(_currentItem.fileId);
-            }
+            // if (_currentItem.fileId) {
+            setGLTFAndTree(_currentItem);
+            // }
             // const tempGLTFJSon = get(itemDetailResponse, 'data[0].gltfjson', {});
 
             // if (tempGLTFJSon !== null && tempGLTFJSon !== undefined) {
@@ -99,18 +99,37 @@ const ItemDetail = () => {
         }
     }, [currentItem])
 
-    const getHierarchySplit = (id) => {
+    const setGLTFAndTree = (item) => {
 
-        getHierarchySplitFiles(id, true, stateprops.distancegap, stateprops.anglegap,
-            stateprops.disect, 0, 0.3, 1.0)
-            .then(res => res.data)
-            .then((repos) => {
-                setgltfjson(repos);
-
-            }).catch(err => {
-            });
-
+        if (!item.fileStore || item.fileStore === null) {
+            getHierarchySplitFiles(item.fileId, true, stateprops.distancegap, stateprops.anglegap,
+                stateprops.disect, 0, 0.3, 1.0)
+                .then(res => res.data)
+                .then((repos) => {
+                    setgltfjson(repos);
+                }).catch(err => {
+                });
+        }
+        else {
+            fetchGLTFAndTree(item.fileStore);
+        }
     };
+
+    const fetchGLTFAndTree = async (fileStore) => {
+        try {
+            let obj = { gltf: {}, tree: {}, store: fileStore };
+
+            const gltfRes = await getGltfForStore(fileStore);
+            const treeRes = await getTreeForStore(fileStore);
+
+            setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data });
+
+        } catch (error) {
+            console.log('Error', error)
+        }
+
+
+    }
 
     const renderPageSwitch = () => {
         if (!get(itemProperties, '_id')) {
@@ -128,7 +147,7 @@ const ItemDetail = () => {
                     gltfjson={gltfjson} setgltfjson={setgltfjson} />;
             case 2:
                 return <GeometricDimensioning
-                    fileId={itemProperties.fileId}
+                    fileId={itemProperties.fileId || ''}
                     gltfjson={gltfjson}
                     isLoading={isLoading}
                 />

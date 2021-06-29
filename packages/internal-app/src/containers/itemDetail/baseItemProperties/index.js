@@ -76,10 +76,11 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                 setFileId(res.data.id);
                 getView(res.data.id);
 
-                setItemProperties(prevData => ({
-                    ...prevData,
-                    fileId: res.data.id
-                }));
+                // setItemProperties(prevData => ({
+                //     ...prevData,
+                //     fileId: res.data.id,
+                //     fileStore: res.data.store
+                // }));
 
                 dispatch(showSuccessAlert({ message: 'File uploaded successfully' }));
 
@@ -94,12 +95,13 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
     const getView = (fileId) => {
         setIsFileLoadingLoading(true)
 
-        getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0)        
+        getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0)
             .then(res => res.data)
             .then((data) => {
                 setItemProperties(prevData => ({
                     ...prevData,
-                    gltfjson: data
+                    fileId,
+                    fileStore: data.store
                 }));
 
                 setgltfjson(data)
@@ -140,23 +142,23 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
         <div>
             {
                 <>
-                    <Paper style={{ padding: 20, margin: 10 ,fontWeight: 'bold'}}>
-                            <Grid container  >
-                                {
-                                    tabArray.map(tabName => (
-                                        <Grid item xs={6}>
+                    <Paper style={{ padding: 20, margin: 10, fontWeight: 'bold' }}>
+                        <Grid container  >
+                            {
+                                tabArray.map(tabName => (
+                                    <Grid item xs={6}>
 
-                                            <Paper onClick={() => handleTabChange2(tabName)} style={{
-                                                backgroundColor: selectedTab === tabName ? "#777c80" : "",
-                                                color: selectedTab === tabName ? "white" : ""
-                                            }}
-                                                className={classes.tabPaper}>{tabName}</Paper>
+                                        <Paper onClick={() => handleTabChange2(tabName)} style={{
+                                            backgroundColor: selectedTab === tabName ? "#777c80" : "",
+                                            color: selectedTab === tabName ? "white" : ""
+                                        }}
+                                            className={classes.tabPaper}>{tabName}</Paper>
 
-                                        </Grid>
-                                    )
-                                    )
-                                }
-                            </Grid>
+                                    </Grid>
+                                )
+                                )
+                            }
+                        </Grid>
 
                         <Headding fontSize={24} bold title={'Upload Cad'} />
                         {isStepLoaded ?
@@ -166,7 +168,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                                 color="primary"
                                 onClick={removeFile}>
                                 Clear File
-                    </Button>
+                            </Button>
                             :
                             <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
                         }
