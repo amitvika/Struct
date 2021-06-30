@@ -42,12 +42,14 @@ export default function GeometricDimensioning({ fileId, gltfjson, isLoading }) {
 
     useEffect(() => {
         const includeParts = true;
-        if (Object.keys(gltfjson).length > 0) {
+        //console.log("Reaching",gltfjson,fileId);
+        const gltfjsonlen = Object.keys(gltfjson).length;
+        if (gltfjsonlen > 0) {
             setState({
                 selectedindex: 0,
                 gltfjson: gltfjson,
                 activefile: fileId.toString() + includeParts.toString() +
-                    stateprops.distancegap.toString() + stateprops.anglegap.toString(),
+                    stateprops.distancegap.toString() + stateprops.anglegap.toString()+gltfjsonlen.toString(),
                 dataselection: 0,
                 firstshell: null,
                 secondshell: null,

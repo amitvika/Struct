@@ -68,7 +68,8 @@ const ItemSchema = new mongoose.Schema({
     },
     stl: { type: String },
     fileId: { type: Number },
-    fileStore: { type: String }
+    fileStore: { type: String },
+    fileGDT: {type: String}
 }, {
     timestamps: true
 });

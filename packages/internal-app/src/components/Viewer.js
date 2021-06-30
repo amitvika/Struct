@@ -11,7 +11,7 @@ export default function Viewer({ gltfjson = {}, fileId = '', selectedOption = SE
             {
                 // Object.keys(gltfjson).length > 0 &&
                 <GLTFRenderer
-                    gltfjson={JSON.stringify(gltfjson)}
+                    //gltfjson={JSON.stringify(gltfjson)}
                     gltfobj={gltfjson}
                     activefile={fileId}
                     backcolor={DEFAULTBACKCOLOR}

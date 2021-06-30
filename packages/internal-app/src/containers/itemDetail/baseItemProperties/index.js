@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux';
 
 import GeometryInput from './GeometryInput';
 import { makeStyles } from '@material-ui/core/styles';
-
+import get from 'lodash/get';
 
 import {
     Headding,
@@ -100,11 +100,14 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
             .then((data) => {
                 setItemProperties(prevData => ({
                     ...prevData,
-                    fileId,
-                    fileStore: data.store
+                    fileId:fileId,
+                    fileStore: data.store,
+                    fileGDT: null
                 }));
-
-                setgltfjson(data)
+                //console.log(itemProperties);
+                const multiAssmebly = get(data, 'tree', []).length > 0;    
+                setgltfjson({...data,multiAssmebly:multiAssmebly});
+                //console.log({...data,multiAssmebly:multiAssmebly});
                 setIsFileLoadingLoading(false);
 
                 dispatch(showSuccessAlert({ message: 'File rendered successfully' }));
@@ -138,6 +141,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
 
         }
     }
+    //console.log("After upload at the render",itemProperties,fileId,gltfjson);
     return (
         <div>
             {
