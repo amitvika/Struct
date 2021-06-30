@@ -67,10 +67,12 @@ const ItemDetail = () => {
     const [gltfjson, setgltfjson] = useState({});
 
     useEffect(() => {
+        let myTabIndex = 1;
         if (query.get('tab')) {
-            setTabIndex(parseInt(query.get('tab')))
+            myTabIndex = parseInt(query.get('tab'));
+            setTabIndex(myTabIndex)
         }
-
+        //console.log("got",tabIndex, myTabIndex);
         (async () => {
             setIsLoading(true);
             const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
@@ -80,7 +82,7 @@ const ItemDetail = () => {
             dispatch(setCurrentItemAction(_currentItem));
 
             // if (_currentItem.fileId) {
-            setGLTFAndTree(_currentItem);
+            setGLTFAndTree(_currentItem,myTabIndex);
             // }
             // const tempGLTFJSon = get(itemDetailResponse, 'data[0].gltfjson', {});
 
@@ -91,7 +93,7 @@ const ItemDetail = () => {
 
             setIsLoading(false);
         })()
-    }, []);
+    }, [tabIndex]);
 
     useEffect(() => {
         if (currentItem) {
@@ -99,34 +101,75 @@ const ItemDetail = () => {
         }
     }, [currentItem])
 
-    const setGLTFAndTree = (item) => {
-
-        if (!item.fileStore || item.fileStore === null) {
-            getHierarchySplitFiles(item.fileId, true, stateprops.distancegap, stateprops.anglegap,
-                stateprops.disect, 0, 0.3, 1.0)
-                .then(res => res.data)
-                .then((repos) => {
-                    setgltfjson(repos);
-                }).catch(err => {
-                });
-        }
-        else {
-            fetchGLTFAndTree(item.fileStore);
-        }
+    const setGLTFAndTree = (item,myTabIndex) => {
+        if(myTabIndex==tabIndex) {
+            if (myTabIndex==1) {
+                if (!item.fileStore || item.fileStore === null) {
+                    //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT);
+                    getHierarchySplitFiles(item.fileId, true, stateprops.distancegap, stateprops.anglegap,
+                        stateprops.disect, 0, 0, 0)
+                        .then(res => res.data)
+                        .then((repos) => {  
+                            const multiAssmebly = get(repos, 'tree', []).length > 0;                    
+                            setgltfjson({...repos,gdt:item.fileGDT,multiAssmebly:multiAssmebly});
+                        }).catch(err => {
+                        });
+                }
+                else {
+                    fetchGLTFAndTree(myTabIndex,item.fileStore,item.fileGDT);
+                }
+            } else {
+                if (!item.fileGDT || item.fileGDT === null) {
+                    //console.log("Down0",myTabIndex,tabIndex,item.fileStore,item.fileGDT);
+                    getHierarchySplitFiles(item.fileId, true, stateprops.distancegap, stateprops.anglegap,
+                        stateprops.disect, 0, 0.3, 1.0)
+                        .then(res => res.data)
+                        .then((repos) => {
+                            const gdt = repos['store'];
+                            setgltfjson({...repos,gdt:gdt,store:item.fileStore});
+                            console.log("After getting repos",repos, {...repos,gdt:gdt,store:item.fileStore});
+                        }).catch(err => {
+                            console.log("Error",err);
+                        });
+                }
+                else {
+                    fetchGLTFAndTree(myTabIndex,item.fileStore,item.fileGDT);
+                }
+            }
+        }        
+        
     };
 
-    const fetchGLTFAndTree = async (fileStore) => {
-        try {
-            let obj = { gltf: {}, tree: {}, store: fileStore };
+    const fetchGLTFAndTree = async (myTabIndex,fileStore,fileGDT) => {
+        if(myTabIndex==1) {
+            //console.log("Up",myTabIndex,tabIndex,fileStore,fileGDT);
+            try {
+                let obj = { gltf: {}, tree: {}, store: fileStore, gdt:fileGDT };
+    
+                const gltfRes = await getGltfForStore(fileStore);
+                const treeRes = await getTreeForStore(fileStore);
+                const multiAssmebly = treeRes.length > 0;    
+                setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data, multiAssmebly:multiAssmebly });
+    
+            } catch (error) {
+                console.log('Error', error)
+            }
+        } else {
+            //console.log("Down",myTabIndex,tabIndex,fileStore,fileGDT);
+            try {
+                let obj = { gltf: {}, tree: {}, store: fileStore, gdt:fileGDT };
+    
+                const gltfRes = await getGltfForStore(fileGDT);
+                const treeRes = await getTreeForStore(fileGDT);
+    
+                setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data });
+    
+            } catch (error) {
+                console.log('Error', error)
+            }
 
-            const gltfRes = await getGltfForStore(fileStore);
-            const treeRes = await getTreeForStore(fileStore);
-
-            setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data });
-
-        } catch (error) {
-            console.log('Error', error)
         }
+        
 
 
     }
@@ -135,7 +178,7 @@ const ItemDetail = () => {
         if (!get(itemProperties, '_id')) {
             return null;
         }
-
+        //console.log(itemProperties,itemProperties.fileId);
         switch (tabIndex) {
             case 0:
                 return "Add vendor items here";
@@ -146,6 +189,7 @@ const ItemDetail = () => {
                     setItemProperties={setItemProperties}
                     gltfjson={gltfjson} setgltfjson={setgltfjson} />;
             case 2:
+                //console.log("What I got",gltfjson,itemProperties);
                 return <GeometricDimensioning
                     fileId={itemProperties.fileId || ''}
                     gltfjson={gltfjson}
@@ -238,7 +282,9 @@ const ItemDetail = () => {
 
     const handleTabChange = (event, newTabIndex) => {
         setTabIndex(newTabIndex)
-
+        setIsLoading(true);
+        setGLTFAndTree(currentItem,newTabIndex);
+        setIsLoading(false);
         history.push({
             pathname: `/items/${id}`,
             search: `?tab=${newTabIndex}`

@@ -176,60 +176,62 @@ class GLTFRenderer extends Component {
         this.stats = new Stats();
         this.stats.dom.height = '48px';
         [].forEach.call(this.stats.dom.children, (child) => (child.style.display = ''));
+        if(this.renderer==null) {
+            this.scene = new Scene();
 
-        this.scene = new Scene();
+            const fov = this.props.preset === Preset.ASSET_GENERATOR
+                ? 0.8 * 180 / Math.PI
+                : 60;
+            this.defaultCamera = new PerspectiveCamera(fov, this.node.clientWidth / this.node.clientHeight, 0.01, 1000);
+            this.activeCamera = this.defaultCamera;
+            this.scene.add(this.defaultCamera);
+//            console.log("Renderer",this.renderer, window.renderer);
+            this.renderer = window.renderer = new WebGLRenderer({ antialias: true, depthBuffer: true });
+                
+            this.renderer.physicallyCorrectLights = true;
+            this.renderer.outputEncoding = sRGBEncoding;
+            //console.log("back color",this.props.backcolor);
+            this.renderer.setClearColor(this.props.backcolor || DEFAULTBACKCOLOR);
+            this.renderer.setPixelRatio(window.devicePixelRatio);
+            this.renderer.setSize(this.node.clientWidth, this.node.clientHeight);
 
-        const fov = this.props.preset === Preset.ASSET_GENERATOR
-            ? 0.8 * 180 / Math.PI
-            : 60;
-        this.defaultCamera = new PerspectiveCamera(fov, this.node.clientWidth / this.node.clientHeight, 0.01, 1000);
-        this.activeCamera = this.defaultCamera;
-        this.scene.add(this.defaultCamera);
-
-        this.renderer = window.renderer = new WebGLRenderer({ antialias: true, depthBuffer: true });
-        this.renderer.physicallyCorrectLights = true;
-        this.renderer.outputEncoding = sRGBEncoding;
-        //console.log("back color",this.props.backcolor);
-        this.renderer.setClearColor(this.props.backcolor || DEFAULTBACKCOLOR);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(this.node.clientWidth, this.node.clientHeight);
-
-        this.controls = new OrbitControls(this.defaultCamera, this.renderer.domElement);
-        this.controls.autoRotate = false;
-        this.controls.autoRotateSpeed = -10;
-        this.controls.screenSpacePanning = false;
-
-
-        this.node.appendChild(this.renderer.domElement);
-
-        this.cameraCtrl = null;
-        this.cameraFolder = null;
-        this.animFolder = null;
-        this.animCtrls = [];
-        this.morphFolder = null;
-        this.morphCtrls = [];
-        this.skeletonHelpers = [];
-        this.gridHelper = null;
-        this.axesHelper = null;
-
-        this.addAxesHelper();
-        this.addGUI();
-        if (this.props.kiosk) this.gui.close();
+            this.controls = new OrbitControls(this.defaultCamera, this.renderer.domElement);
+            this.controls.autoRotate = false;
+            this.controls.autoRotateSpeed = -10;
+            this.controls.screenSpacePanning = false;
 
 
-        this.INTERSECTED = null;
-        this.SELECTED = null;
-        //this.mouse3D = new Vector3( Infinity, Infinity,  0.5 );
-        this.mouse = new Vector2(Infinity, Infinity);
-        this.clientX = 0;
-        this.clientY = 0;
-        this.raycaster = new Raycaster();
+            this.node.appendChild(this.renderer.domElement);
+        
+            this.cameraCtrl = null;
+            this.cameraFolder = null;
+            this.animFolder = null;
+            this.animCtrls = [];
+            this.morphFolder = null;
+            this.morphCtrls = [];
+            this.skeletonHelpers = [];
+            this.gridHelper = null;
+            this.axesHelper = null;
 
-        this.animate = this.animate.bind(this);
-        requestAnimationFrame(this.animate);
-        window.addEventListener('resize', this.onWindowResize.bind(this), false);
-        this.renderer.domElement.addEventListener('mousemove', this.onMouseMove.bind(this), false);
-        this.renderer.domElement.addEventListener('click', this.onMouseClick.bind(this), false);
+            this.addAxesHelper();
+            this.addGUI();
+            if (this.props.kiosk) this.gui.close();
+
+
+            this.INTERSECTED = null;
+            this.SELECTED = null;
+            //this.mouse3D = new Vector3( Infinity, Infinity,  0.5 );
+            this.mouse = new Vector2(Infinity, Infinity);
+            this.clientX = 0;
+            this.clientY = 0;
+            this.raycaster = new Raycaster();
+
+            this.animate = this.animate.bind(this);
+            requestAnimationFrame(this.animate);
+            window.addEventListener('resize', this.onWindowResize.bind(this), false);
+            this.renderer.domElement.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+            this.renderer.domElement.addEventListener('click', this.onMouseClick.bind(this), false);
+        }
         this.alter();
         this.changeparts();
         this.onWindowResize();
@@ -255,13 +257,23 @@ class GLTFRenderer extends Component {
     }
 
     cleanup = () => {
-
+        //console.log("I have reached here to clean webgl render");
         this.clear();
         window.removeEventListener("resize", this.onWindowResize);
-        this.renderer.setAnimationLoop(null);
-        this.renderer.domElement.removeEventListener('mousemove', this.onMouseMove);
-
-        this.renderer.domElement.removeEventListener('click', this.onMouseClick);
+        if(this.renderer) {
+            this.renderer.setAnimationLoop(null);
+            this.renderer.domElement.removeEventListener('mousemove', this.onMouseMove);
+    
+            this.renderer.domElement.removeEventListener('click', this.onMouseClick);
+             
+            this.renderer.dispose();
+        }
+        window.renderer= this.renderer = null;
+        if(this.axesRenderer) {
+            this.axesRenderer.dispose();
+        }
+        this.axesRenderer = null;
+       
     };
 
     /*
@@ -502,8 +514,10 @@ class GLTFRenderer extends Component {
         } else if (!state.addLights && lights.length) {
             this.removeLights();
         }
-
-        this.renderer.toneMappingExposure = state.exposure;
+        if(this.renderer) {
+            this.renderer.toneMappingExposure = state.exposure;
+        }
+        
 
         if (lights.length === 2) {
             lights[0].intensity = state.ambientIntensity;
@@ -557,25 +571,28 @@ class GLTFRenderer extends Component {
     * See: https://stackoverflow.com/q/16226693/1314762
     */
     addAxesHelper = () => {
-        this.axesDiv = document.createElement('div');
-        this.node.appendChild(this.axesDiv);
-        this.axesDiv.classList.add('axes');
-
-        const { clientWidth, clientHeight } = this.axesDiv;
-
-        this.axesScene = new Scene();
-        this.axesCamera = new PerspectiveCamera(50, clientWidth / clientHeight, 0.1, 10);
-        this.axesScene.add(this.axesCamera);
-
-        this.axesRenderer = new WebGLRenderer({ alpha: true });
-        this.axesRenderer.setPixelRatio(window.devicePixelRatio);
-        this.axesRenderer.setSize(this.axesDiv.clientWidth, this.axesDiv.clientHeight);
-
-        this.axesCamera.up = this.defaultCamera.up;
-
-        this.axesCorner = new AxesHelper(5);
-        this.axesScene.add(this.axesCorner);
-        this.axesDiv.appendChild(this.axesRenderer.domElement);
+        if(this.axesRenderer==null) {
+            this.axesDiv = document.createElement('div');
+            this.node.appendChild(this.axesDiv);
+            this.axesDiv.classList.add('axes');
+    
+            const { clientWidth, clientHeight } = this.axesDiv;
+    
+            this.axesScene = new Scene();
+            this.axesCamera = new PerspectiveCamera(50, clientWidth / clientHeight, 0.1, 10);
+            this.axesScene.add(this.axesCamera);
+    
+            this.axesRenderer = new WebGLRenderer({ alpha: true });
+            
+            this.axesRenderer.setPixelRatio(window.devicePixelRatio);
+            this.axesRenderer.setSize(this.axesDiv.clientWidth, this.axesDiv.clientHeight);
+    
+            this.axesCamera.up = this.defaultCamera.up;
+    
+            this.axesCorner = new AxesHelper(5);
+            this.axesScene.add(this.axesCorner);
+            this.axesDiv.appendChild(this.axesRenderer.domElement);
+        }       
     };
 
     addGUI = () => {
@@ -621,7 +638,9 @@ class GLTFRenderer extends Component {
         });
         lightFolder.add(this.renderer, 'outputEncoding', { sRGB: sRGBEncoding, Linear: LinearEncoding })
             .onChange(() => {
-                this.renderer.outputEncoding = Number(lightFolder.object.outputEncoding); // Number(this.renderer.outputEncoding);
+                if(this.renderer) {
+                    this.renderer.outputEncoding = Number(lightFolder.object.outputEncoding); // Number(this.renderer.outputEncoding);
+                }
                 traverseMaterials(this.content, (material) => {
                     material.needsUpdate = true;
                 });
@@ -867,12 +886,19 @@ class GLTFRenderer extends Component {
             }
             const innerWidth = this.node ? this.node.clientWidth : window.innerWidth;
             const innerHeight = this.node ? this.node.clientHeight : window.innerHeight;
+
             //console.log("Node",innerWidth, innerHeight);
-            this.renderer.setSize(innerWidth, innerHeight);
+            if(this.renderer) {
+                this.renderer.setSize(innerWidth, innerHeight);
+            }
+            
         }
-        this.axesCamera.aspect = this.axesDiv.clientWidth / this.axesDiv.clientHeight;
-        this.axesCamera.updateProjectionMatrix();
-        this.axesRenderer.setSize(this.axesDiv.clientWidth, this.axesDiv.clientHeight);
+        if(this.axesRenderer) {
+            this.axesCamera.aspect = this.axesDiv.clientWidth / this.axesDiv.clientHeight;
+            this.axesCamera.updateProjectionMatrix();
+            this.axesRenderer.setSize(this.axesDiv.clientWidth, this.axesDiv.clientHeight);
+        }
+        
 
     };
 
@@ -1074,15 +1100,17 @@ class GLTFRenderer extends Component {
     };
 
     alter = () => {
+        //console.log("Getting me!");
         if(this.controls) {
+            //console.log("Getting me2!");
             this.gltfJSON = this.props.gltfobj.gltf;
             this.activeFile = this.props.activefile;
             this.materialtype = this.props.materialtype;
             this.selectedoption = this.props.selectedoption;
             if (this.gltfJSON != null) {
-    
+                //console.log("Getting me3!");
                 //this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');
-
+                //console.log(this.props.gltfobj.gltf);
                 const parser = new GLTFParser( this.props.gltfobj.gltf, {
 
                     path: resourcePathURL || '',
@@ -1904,12 +1932,13 @@ class GLTFRenderer extends Component {
                 //console.log("Got Here", this.props.selectedoption);
                 this.selectAllSelectedSolids();
             }
+            //console.log("Ha Ha getting here!");
             this.alter();
         }
         if (this.renderer) {
             this.changeBackground();
             this.renderer.render(this.scene, this.activeCamera);
-            if (this.state.grid) {
+            if (this.state.grid && this.axesRenderer) {
                 this.axesCamera.position.copy(this.defaultCamera.position)
                 this.axesCamera.lookAt(this.axesScene.position)
                 this.axesRenderer.render(this.axesScene, this.axesCamera);
