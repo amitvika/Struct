@@ -209,9 +209,11 @@ exports.update = async (req, res) => {
             updateData.assemblyType = 'Multi-Item Assembly'
         }
 
-        updateData.fileId = body.fileId || null;
-        updateData.fileStore = body.fileStore;
-        updateData.fileGDT = body.fileGDT;
+        if (updateData.fileId) {
+            updateData.fileId = body.fileId || null;
+            updateData.fileStore = body.fileStore;
+            updateData.fileGDT = body.fileGDT;
+        }
 
         if ((body.itemGeometry && body.itemGeometry.isEndProductSelected === false) || body.selectedClientId === null) {
             updateData.selectedClientId = null;
