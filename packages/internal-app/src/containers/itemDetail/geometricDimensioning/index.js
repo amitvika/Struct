@@ -42,14 +42,14 @@ export default function GeometricDimensioning({ fileId, gltfjson, isLoading }) {
 
     useEffect(() => {
         const includeParts = true;
-        //console.log("Reaching",gltfjson,fileId);
+        //console.log("Reaching",gltfjson,fileId,isLoading);
         const gltfjsonlen = Object.keys(gltfjson).length;
         if (gltfjsonlen > 0) {
             setState({
                 selectedindex: 0,
-                gltfjson: gltfjson,
                 activefile: fileId.toString() + includeParts.toString() +
                     stateprops.distancegap.toString() + stateprops.anglegap.toString()+gltfjsonlen.toString(),
+                gltfjson: gltfjson,                
                 dataselection: 0,
                 firstshell: null,
                 secondshell: null,
@@ -691,7 +691,8 @@ export default function GeometricDimensioning({ fileId, gltfjson, isLoading }) {
                         <Viewer
                             {...state}
                             selectedOption={selectedOption}
-                            handleModelClick={handleModelClick}
+                            handleModelClick={handleModelClick}                           
+                            isLoading={isLoading}
                         ></Viewer>
                     </Paper>
                 </Grid>

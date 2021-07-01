@@ -55,7 +55,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
     const [files, setFiles] = useState([])
     const [isFileLoadingLoading, setIsFileLoadingLoading] = useState(false);
     const [selectedTab, setselectedTab] = useState("")
-    const [value, setValue] = React.useState(2);
+    const [value, setValue] = useState(2);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -81,15 +81,16 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                 //     fileId: res.data.id,
                 //     fileStore: res.data.store
                 // }));
-
+                setIsLoading(false);
                 dispatch(showSuccessAlert({ message: 'File uploaded successfully' }));
-
+                
             })
             .catch(err => {
-                dispatch(showErrorAlert({ message: 'Unable to upload file at the moment' }));
                 setIsLoading(false);
+                dispatch(showErrorAlert({ message: 'Unable to upload file at the moment' }));
+                
             });
-        setIsLoading(false);
+        
     }
 
     const getView = (fileId) => {
@@ -186,7 +187,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
             }
             <Paper style={{ padding: 20, margin: 10 }} square={true}>
                 {
-                    Object.keys(gltfjson).length > 0 && !isFileLoadingLoading &&
+                    !isLoading  && Object.keys(gltfjson).length > 0 && !isFileLoadingLoading &&
                     <GLTFRenderer
                         //gltfjson={JSON.stringify(gltfjson)}
                         gltfobj={gltfjson}
@@ -204,7 +205,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                     />
                 }
                 {
-                    isFileLoadingLoading && <CircularProgress />
+                   (isLoading || isFileLoadingLoading) && <CircularProgress />
                 }
 
             </Paper>
