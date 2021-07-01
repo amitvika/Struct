@@ -34,7 +34,7 @@ import {
 
 //import * as THREE from 'three';
 import { Float32BufferAttribute } from 'three/src/core/BufferAttribute.js';
-import Stats from 'three/examples/jsm/libs/stats.module.js';
+//import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { GLTFParser } from './gltfloader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
@@ -173,9 +173,9 @@ class GLTFRenderer extends Component {
 
         this.prevTime = 0;
 
-        this.stats = new Stats();
-        this.stats.dom.height = '48px';
-        [].forEach.call(this.stats.dom.children, (child) => (child.style.display = ''));
+        //this.stats = new Stats();
+        //this.stats.dom.height = '48px';
+        //[].forEach.call(this.stats.dom.children, (child) => (child.style.display = ''));
         if(this.renderer==null) {
             this.scene = new Scene();
 
@@ -248,7 +248,7 @@ class GLTFRenderer extends Component {
         const dt = (time - this.prevTime) / 1000;
         this.raycast();
         this.controls.update();
-        this.stats.update();
+        //this.stats.update();
         this.mixer && this.mixer.update(dt);
         this.render();
 

@@ -73,8 +73,10 @@ const ItemDetail = () => {
             myTabIndex = parseInt(query.get('tab'));
             setTabIndex(myTabIndex)
         }
-        //console.log("got",tabIndex, myTabIndex);
-        if(!currentItem && !itemProperties) {
+        
+        const toFetchItem = (!itemProperties || !itemProperties.fileId)
+        console.log("got",tabIndex, myTabIndex,toFetchItem,currentItem,itemProperties);
+        if(toFetchItem) {
             (async () => {
                 //setIsLoading(true);
                 const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
@@ -96,13 +98,13 @@ const ItemDetail = () => {
                 //setIsLoading(false);
             })()
         } else {
-            if(itemProperties) {
+            //if(itemProperties) {
                 //console.log("Reached hre1",currentItem,itemProperties,myTabIndex,tabIndex);
                 setGLTFAndTree(itemProperties,myTabIndex);
-            } else {
+            //} else {
                 //console.log("Reached hre2",currentItem,itemProperties,myTabIndex,tabIndex);
-                setGLTFAndTree(currentItem,myTabIndex);
-            }
+            //    setGLTFAndTree(currentItem,myTabIndex);
+            //}
             
         }
         
