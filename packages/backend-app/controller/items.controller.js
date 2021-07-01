@@ -209,7 +209,7 @@ exports.update = async (req, res) => {
             updateData.assemblyType = 'Multi-Item Assembly'
         }
 
-        if (updateData.fileId) {
+        if (body.fileId) {
             updateData.fileId = body.fileId || null;
             updateData.fileStore = body.fileStore;
             updateData.fileGDT = body.fileGDT;
