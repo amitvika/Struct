@@ -319,14 +319,16 @@ const ItemDetail = () => {
     }
 
     const handleTabChange = (event, newTabIndex) => {
-        setIsLoading(true);
-        setTabIndex(newTabIndex)       
-        //setGLTFAndTree(currentItem,newTabIndex);
-        //setIsLoading(false);
-        history.push({
-            pathname: `/items/${id}`,
-            search: `?tab=${newTabIndex}`
-        })
+        if(tabIndex!=newTabIndex) {
+            setIsLoading(true);
+            setTabIndex(newTabIndex);   
+            //setGLTFAndTree(currentItem,newTabIndex);
+            //setIsLoading(false);
+            history.push({
+                pathname: `/items/${id}`,
+                search: `?tab=${newTabIndex}`
+            })
+        }
         //console.log("IsLoading, inside",isLoading);
     }
 
