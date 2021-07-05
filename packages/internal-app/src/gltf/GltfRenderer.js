@@ -29,15 +29,22 @@ import {
     MeshPhongMaterial,
     MeshPhysicalMaterial,
     DefaultLoadingManager,
+   /* Group,
+    SphereBufferGeometry,
+    LineBasicMaterial,
+    LineSegments,
+    Mesh,
+    BoxBufferGeometry */
     //ObjectSpaceNormalMap,
 } from "three";
 
 //import * as THREE from 'three';
-import { Float32BufferAttribute } from 'three/src/core/BufferAttribute.js';
+import { Float32BufferAttribute } from './BufferAttribute.js';
 //import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { GLTFParser } from './gltfloader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
+import { OrbitControls } from './OrbitControl.js';//'three/examples/jsm/controls/OrbitControls.js';
+import { GUI } from './GUI.js';
+import CameraSpinControls from './CameraSpinControls.js';
 
 import { resourcePathURL, resourcePathBase } from '@ravibasil/common/api/fileUpload.api.js'
 import {
@@ -195,6 +202,7 @@ class GLTFRenderer extends Component {
             this.renderer.setPixelRatio(window.devicePixelRatio);
             this.renderer.setSize(this.node.clientWidth, this.node.clientHeight);
 
+            //this.controls = new CameraSpinControls(this.defaultCamera, this.renderer.domElement);
             this.controls = new OrbitControls(this.defaultCamera, this.renderer.domElement);
             this.controls.autoRotate = false;
             this.controls.autoRotateSpeed = -10;
@@ -203,8 +211,8 @@ class GLTFRenderer extends Component {
 
             this.node.appendChild(this.renderer.domElement);
         
-            this.cameraCtrl = null;
-            this.cameraFolder = null;
+            this.defaultCameraCtrl = null;
+            this.defaultCameraFolder = null;
             this.animFolder = null;
             this.animCtrls = [];
             this.morphFolder = null;
@@ -229,8 +237,19 @@ class GLTFRenderer extends Component {
             this.animate = this.animate.bind(this);
             requestAnimationFrame(this.animate);
             window.addEventListener('resize', this.onWindowResize.bind(this), false);
+            window.addEventListener('mousedown', this.onMouseDown.bind(this), true); // get event first to enable the correct control
+            window.addEventListener('mouseup', this.onMouseUp.bind(this), false); // get event last, so false on capture            
+            window.addEventListener('touchstart', this.onTouchStart.bind(this), false);
+            window.addEventListener('touchend', this.onTouchEnd.bind(this), false);
+           
             this.renderer.domElement.addEventListener('mousemove', this.onMouseMove.bind(this), false);
             this.renderer.domElement.addEventListener('click', this.onMouseClick.bind(this), false);
+            this.renderer.domElement.addEventListener('mousedown', this.raycast.bind(this), true);
+            this.renderer.domElement.addEventListener('touchstart', this.touchStart.bind(this), true);
+            this.controls.addEventListener('start', this.controlsStart.bind(this),false);
+            this.controls.addEventListener('change', this.updateCameraSpinUI.bind(this),false);
+            this.controls.addEventListener('end', this.controlsEnd.bind(this),false);
+
         }
         this.alter();
         this.changeparts();
@@ -247,7 +266,9 @@ class GLTFRenderer extends Component {
 
         const dt = (time - this.prevTime) / 1000;
         this.raycast();
-        this.controls.update();
+        if(this.controls) {
+            this.controls.update();
+        }        
         //this.stats.update();
         this.mixer && this.mixer.update(dt);
         this.render();
@@ -259,21 +280,31 @@ class GLTFRenderer extends Component {
     cleanup = () => {
         //console.log("I have reached here to clean webgl render");
         this.clear();
-        window.removeEventListener("resize", this.onWindowResize);
+        window.removeEventListener('resize', this.onWindowResize);
+        window.removeEventListener('mousedown', this.onMouseDown);  
+        window.removeEventListener('mouseup', this.onMouseUp);
+        window.removeEventListener('touchstart', this.onTouchStart);
+        window.removeEventListener('touchend', this.onTouchEnd);
+        if(this.controls) {
+            this.controls.removeEventListener('start', this.controlsStart);
+            this.controls.removeEventListener('change', this.updateCameraSpinUI);
+            this.controls.removeEventListener('end', this.controlsEnd);
+            this.controls.dispose();
+        }
         if(this.renderer) {
             this.renderer.setAnimationLoop(null);
-            this.renderer.domElement.removeEventListener('mousemove', this.onMouseMove);
-    
-            this.renderer.domElement.removeEventListener('click', this.onMouseClick);
-             
+            this.renderer.domElement.removeEventListener('mousemove', this.onMouseMove);    
+            this.renderer.domElement.removeEventListener('click', this.onMouseClick);       
+            this.renderer.domElement.removeEventListener('mousedown', this.raycast);
+            this.renderer.domElement.removeEventListener('touchstart', this.touchStart.bind);
             this.renderer.dispose();
         }
-        window.renderer= this.renderer = null;
         if(this.axesRenderer) {
             this.axesRenderer.dispose();
         }
+        window.renderer= this.renderer = null;        
         this.axesRenderer = null;
-       
+        this.controls=null;       
     };
 
     /*
@@ -402,6 +433,18 @@ class GLTFRenderer extends Component {
             }
         });
 
+       /*  this.trackballWidget = new Group();
+        this.trackballWidget.position.set(0, 0, 0);
+        var geometry = new BoxBufferGeometry(0.002,0.004,0.005,8,8); //SphereBufferGeometry( 0.01, 8, 8 );
+        const meshMaterial = new MeshBasicMaterial( { color: 0xaaaaff, flatShading: true, transparent: true, opacity: 0.2 } );
+        const lineMaterial = new LineBasicMaterial( { color: 0xffffff, transparent: true, opacity: 0.5 } );
+        this.trackballWidget.add( new LineSegments( geometry, lineMaterial ) );
+        this.trackballWidget.add( new Mesh( geometry, meshMaterial ) );
+        this.scene.add( this.trackballWidget );
+        this.trackballWidget.visible = false;
+        this.trackballWidget.renderOrder = 1; // Don't draw to early, thus obscuring other transparent objects        
+				
+ */
         this.setClips(clips);
         this.updateParts(object);
         this.updateLights();
@@ -451,10 +494,14 @@ class GLTFRenderer extends Component {
     */
     setCamera = (name) => {
         if (name === DEFAULT_CAMERA) {
-            this.controls.enabled = true;
+            if(this.controls) {
+                this.controls.enabled = true;
+            }
             this.activeCamera = this.defaultCamera;
         } else {
-            this.controls.enabled = false;
+            if(this.controls) {
+                this.controls.enabled = false;
+            }
             this.content.traverse((node) => {
                 if (node.isCamera && node.name === name) {
                     this.activeCamera = node;
@@ -678,10 +725,10 @@ class GLTFRenderer extends Component {
         this.morphFolder.domElement.style.display = 'none';
 
         // Camera controls.
-        this.cameraFolder = gui.addFolder('Cameras');
-        this.cameraFolder.domElement.style.display = 'none';
+        this.defaultCameraFolder = gui.addFolder('Cameras');
+        this.defaultCameraFolder.domElement.style.display = 'none';
         this.partsFolder = null;
-
+        this.isTouched = false;
         /*
         // Stats.
         const perfFolder = gui.addFolder('Performance');
@@ -701,7 +748,7 @@ class GLTFRenderer extends Component {
     };
 
     updateGUI = () => {
-        this.cameraFolder.domElement.style.display = 'none';
+        this.defaultCameraFolder.domElement.style.display = 'none';
 
         this.morphCtrls.forEach((ctrl) => ctrl.remove());
         this.morphCtrls.length = 0;
@@ -724,12 +771,12 @@ class GLTFRenderer extends Component {
         });
 
         if (cameraNames.length) {
-            this.cameraFolder.domElement.style.display = '';
-            if (this.cameraCtrl) this.cameraCtrl.remove();
+            this.defaultCameraFolder.domElement.style.display = '';
+            if (this.defaultCameraCtrl) this.defaultCameraCtrl.remove();
             const cameraOptions = [DEFAULT_CAMERA].concat(cameraNames);
-            this.cameraCtrl = this.cameraFolder.add(this.state, 'camera', cameraOptions);
-            this.cameraCtrl.onChange((name) => {
-                this.state.camera = this.cameraCtrl.object.camera;
+            this.defaultCameraCtrl = this.defaultCameraFolder.add(this.state, 'camera', cameraOptions);
+            this.defaultCameraCtrl.onChange((name) => {
+                this.state.camera = this.defaultCameraCtrl.object.camera;
                 this.setCamera(name)
             });
         }
@@ -905,7 +952,7 @@ class GLTFRenderer extends Component {
     onMouseMove = (event) => {
 
         event.preventDefault();
-
+        //console.log("On Movuse Move",event);
         /* this.mouse3D = new Vector3( ( event.clientX / window.innerWidth ) * 2 - 1,   
           -( event.clientY / window.innerHeight ) * 2 + 1,  
           0.5 );   */
@@ -959,10 +1006,190 @@ class GLTFRenderer extends Component {
             //console.log("After",this.INTERSECTED.material.color);
             //if(this.INTERSECTED.selectedshell) this.INTERSECTED = null;
         } else {
-            console.log(event.clientX, event.clientY);
+            //console.log(event.clientX, event.clientY);
         }
 
     };
+
+    touchStart = ( event ) =>{
+
+        
+        const myrect = this.node ? this.node.getBoundingClientRect() : { "left": 0, "top": 0 };
+        const leftShift = this.node ? myrect.left : 0;
+        const topShift = this.node ? myrect.top : 0;
+        const innerWidth = this.node ? this.node.clientWidth : window.innerWidth;
+        const innerHeight = this.node ? this.node.clientHeight : window.innerHeight;
+
+        this.mouse.x = ((event.touches[ 0 ].clientX - leftShift) / innerWidth) * 2 - 1;
+        this.mouse.y = - ((event.touches[ 0 ].clientY - topShift) / innerHeight) * 2 + 1;
+        this.clientX = event.touches[ 0 ].clientX;
+        this.clientY = event.touches[ 0 ].clientY;
+
+        this.raycast();
+
+    };
+
+    updateCameraSpinUI=()=> {
+        if(this.trackballWidget) {
+            this.trackballWidget.position.copy( this.controls.target );
+            //this.controls.target.copy(this.trackballWidget.position);
+            if(this.controls.spinControl) {
+                var r = this.controls.spinControl.trackballRadius;
+                //console.log(r);
+                r=1;
+                this.trackballWidget.scale.set( r, r, r );
+            }
+        }
+    };
+
+    controlsStart = ( event ) => {
+
+        if(this.controls.STATE) {
+            if (event.state === this.controls.STATE.DOLLY) {
+                if(this.controls.target && this.controls.target.setFromMatrixPosition && this.controls.trackballToObject) {
+ 
+                    this.controls.target.setFromMatrixPosition(this.controls.trackballToObject);
+                    var startDistance = this.controls.target.length();
+                    this.raycaster.setFromCamera( this.mouse, this.defaultCamera );
+                    this.controls.target.copy(this.raycaster.ray.direction);
+                    this.controls.target.setLength(startDistance);
+                    this.controls.target.add(this.raycaster.ray.origin);
+                    this.controls.setTargetPosition(this.controls.target);
+                }
+    
+            } else {
+    
+                // Turn on trackball graphics for input except dolly
+                if(this.trackballWidget) {
+                    this.trackballWidget.visible = true;
+                    this.updateCameraSpinUI();    
+                }           
+            }
+        }  else {
+            if(this.controls.target && this.controls.target.setFromMatrixPosition && this.controls.trackballToObject) {
+                this.controls.target.setFromMatrixPosition(this.controls.trackballToObject);
+                var startDistance = this.controls.target.length();
+                this.raycaster.setFromCamera( this.mouse, this.defaultCamera );
+                this.controls.target.copy(this.raycaster.ray.direction);
+                this.controls.target.setLength(startDistance);
+                this.controls.target.add(this.raycaster.ray.origin);
+                this.controls.setTargetPosition(this.controls.target);
+            }
+           
+            // Turn on trackball graphics for input except dolly
+            if(this.trackballWidget) {
+                this.trackballWidget.visible = true;
+                this.updateCameraSpinUI();    
+            }   
+        }    
+
+    };
+
+    controlsEnd = ( event ) => {
+        if(this.controls.STATE) {
+            if (event.state !== this.controls.STATE.DOLLY) {
+                
+                // Don't turn off if dolly as may still be clicking with pointer
+                this.trackballWidget.visible = false;
+                
+            };
+        } else {
+            this.trackballWidget.visible = false;
+        }
+    };
+    
+    pickControlToEnable = ( pointerNDC ) => {
+
+        // Hit static model we want to set pivot point on
+        if(this.controls) {
+            this.controls.enabled = true;
+        }
+
+    };
+
+    
+    onMouseDown = ( event ) =>{
+        //console.log("Down",event);
+        if ( event.button === 0 ) {
+
+            this.pickControlToEnable( this.getPointerInNdc( event.pageX, event.pageY ) );
+
+        }	else { //if not left click then move camera
+            if(this.controls) {
+                this.controls.enabled = true;
+            }
+
+        }
+        
+    };
+
+    onMouseUp = ( event ) => {
+        //console.log("Up",event);
+        if(this.controls) {
+            this.controls.enabled = false;
+        }
+
+    };
+
+    canvas = {};
+	updateCanvas = () => {
+
+        if ( this.renderer.domElement === document ) {
+
+            this.canvas.left = 0;
+            this.canvas.top = 0;
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+
+        } else {
+
+            var box = this.renderer.domElement.getBoundingClientRect();
+            var d = this.renderer.domElement.ownerDocument.documentElement;
+            this.canvas.left = box.left + window.pageXOffset - d.clientLeft;
+            this.canvas.top = box.top + window.pageYOffset - d.clientTop;
+            this.canvas.width = box.width;
+            this.canvas.height = box.height;
+
+        }
+
+    }
+
+    getPointerInNdc = ( pageX, pageY ) => {
+
+        var vector = new Vector2();
+        vector.set(
+            ( ( pageX - this.canvas.width * 0.5 - this.canvas.left ) / ( this.canvas.width * 0.5 ) ),
+            ( ( this.canvas.height + 2 * ( this.canvas.top - pageY ) ) / this.canvas.height )
+        );
+
+        return vector;
+
+    };
+
+
+    onTouchStart = ( event ) => {
+
+        if ( !this.isTouched ) {
+
+            this.isTouched = true;
+            this.pickControlToEnable( this.getPointerInNdc(
+                 event.changedTouches[ 0 ].pageX, event.changedTouches[ 0 ].pageY ) );
+
+        }
+
+    }
+
+    onTouchEnd = ( event ) => {
+
+        if( event.touches.length === 0 ) {
+            if(this.controls) {
+                this.controls.enabled = false;
+            }
+            this.isTouched = false;
+        }
+
+    }
+
 
     isObjectSame = (first, second) => {
         if (!first && !second) return true;
@@ -1070,6 +1297,14 @@ class GLTFRenderer extends Component {
                     this.INTERSECTED = intersects[myObject].object;
                     this.setTouchingColor(this.INTERSECTED);
                     this.setState({ intersectedShell: this.INTERSECTED });
+                    if(this.controls.setTargetPosition) {
+                        //console.log("Intersects", intersects[myObject],intersects[myObject].object,intersects[myObject].point );
+                        this.controls.setTargetPosition(intersects[myObject].point);
+                    }
+
+                  
+
+
                     /* //if(!(this.isObjectSame(this.INTERSECTED,this.firstshell) || this.isObjectSame(this.INTERSECTED,this.secondshell))) {
                     if( (this.INTERSECTED.currentHex===null) || (typeof this.INTERSECTED.currentHex === 'undefined')){
                         this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
@@ -1082,6 +1317,7 @@ class GLTFRenderer extends Component {
                 }
             } else {
                 this.resetSelection();
+
             }
             /*
                 An intersection has the following properties :
@@ -1839,7 +2075,15 @@ class GLTFRenderer extends Component {
             }
             this.INTERSECTED = null;
             this.setState({ intersectedShell: this.INTERSECTED });
-
+            if(this.controls.target && this.controls.target.setFromMatrixPosition && this.controls.trackballToObject) {
+                // Move trackball to center of screen if not clicking on anything.
+                this.controls.target.setFromMatrixPosition(this.controls.trackballToObject);
+                var startDistance = this.controls.target.length();
+                this.controls.target.set(0, 0, -startDistance);
+                this.controls.target.applyQuaternion(this.defaultCamera.quaternion);
+                this.controls.target.add(this.defaultCamera.position);
+                this.controls.setTargetPosition(this.controls.target);
+			}
         }
     }
 

@@ -35,7 +35,7 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
-import { getHierarchySplitFiles, getGltfForStore, getTreeForStore } from '@ravibasil/common/api/fileUpload.api'
+import { getHierarchySplitFiles, getGltfForStore, getTreeForStore, resourcePathURL } from '@ravibasil/common/api/fileUpload.api'
 
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
@@ -65,7 +65,7 @@ const ItemDetail = () => {
     const [itemProperties, setItemProperties] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [gltfjson, setgltfjson] = useState({});
-    
+    const parserNeeded = [1,2,4];
 
     useEffect(() => {
         let myTabIndex = 1;
@@ -116,8 +116,27 @@ const ItemDetail = () => {
         }
     }, [currentItem])
 
+    const doesFileExist=(urlAsFile) =>{
+        var xhr = new XMLHttpRequest();
+        try {
+            xhr.open('HEAD', urlAsFile, false);
+            xhr.send();
+             
+            return xhr.status !== 404;
+        }
+        catch(exception) {
+            console.log(exception);
+            return false;
+        }
+        return false;
+    }
     const setGLTFAndTree = (item,myTabIndex) => {
+        
         if(myTabIndex==tabIndex) {
+            if(!item.fileId || !parserNeeded.includes(myTabIndex)) {
+                setIsLoading(false);
+                return;
+            }
             if (myTabIndex==1) {
                 if (!item.fileStore || item.fileStore === null) {
                     //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
@@ -126,7 +145,9 @@ const ItemDetail = () => {
                         stateprops.disect, 0, 0, 0)
                         .then(res => res.data)
                         .then((repos) => {                              
-                            const multiAssmebly = get(repos, 'tree', []).length > 0;                    
+                            const multiAssmebly = get(repos, 'tree', []).length > 0; 
+                            const store = repos['store'];    
+                            item.fileStore = store;               
                             setgltfjson({...repos,gdt:item.fileGDT,multiAssmebly:multiAssmebly});
                             setItemProperties(prevData => ({
                                 ...prevData,                                
@@ -134,6 +155,8 @@ const ItemDetail = () => {
                             }));
                             setIsLoading(false);
                         }).catch(err => {
+                            setIsLoading(false);
+                            console.log("Error While Parsing",err);
                         });
                 }
                 else {
@@ -141,15 +164,27 @@ const ItemDetail = () => {
                     fetchGLTFAndTree(myTabIndex,item.fileStore,item.fileGDT);
                 }
             } else {
+                if (!item.fileGDT || item.fileGDT === null) {                    
+                    if(item.fileStore && item.fileStore.length>0) {
+                        const fileGDT = item.fileStore.slice(0,item.fileStore.length-1)+"3";
+                        console.log("Checking GDT",fileGDT);
+                        if(doesFileExist(resourcePathURL+fileGDT+".gltf")) {
+                            console.log("Found",fileGDT);
+                            item.fileGDT = fileGDT;
+                        }
+                    }
+                }
                 if (!item.fileGDT || item.fileGDT === null) {
                     //console.log("Down0f",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId,isLoading);
+                    
                     setIsLoading(true);
                     //console.log("Down0t",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId,isLoading);
                     getHierarchySplitFiles(item.fileId, true, stateprops.distancegap, stateprops.anglegap,
                         stateprops.disect, 0, 0.3, 1.0)
                         .then(res => res.data)
                         .then((repos) => {
-                            const gdt = repos['store'];                            
+                            const gdt = repos['store'];
+                            item.fileGDT = gdt;                            
                             setgltfjson({...repos,gdt:gdt,store:item.fileStore});
                             //console.log("After getting reposi",repos, {...repos,gdt:gdt,store:item.fileStore},isLoading);
                             setItemProperties(prevData => ({
@@ -161,7 +196,7 @@ const ItemDetail = () => {
                             //console.log("Setting False to show gltf");
                         }).catch(err => {
                             setIsLoading(false);
-                            console.log("Error",err);
+                            console.log("Error While Disecting",err);
                         });
                 }
                 else {
@@ -288,9 +323,11 @@ const ItemDetail = () => {
 
     const handleSave = () => {
         // setIsLoading(true);
+        console.log(itemProperties);
         itemProperties.step = undefined;
         itemProperties.gltfjson = undefined;
         itemProperties.itemId = undefined;
+        
         //const myfile = gltfjson['thumbnail'];
         //console.log(myfile);
         //var file_url = resourcePathURL+myfile;
