@@ -6,8 +6,7 @@ import ClientAPI from '@ravibasil/common/api/clients.api';
 import { useHistory } from "react-router-dom";
 import Link from '@material-ui/core/Link';
 
-import IdentificationModal from "../suppliedItems/identificationModal";
-
+import IdentificationModal from  "../suppliedItems/identificationModal"
 
 const Orders = () => {
     let history = useHistory();
@@ -37,7 +36,7 @@ const Orders = () => {
                     handleIdentificationClick(event, rowData)
 
                     event.stopPropagation();
-                }}><Link> Identification </Link></span>
+                }}><Link style={{fontWeight: 'bold'}}> Identification </Link></span>
         },
     ]
 

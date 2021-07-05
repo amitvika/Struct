@@ -66,7 +66,7 @@ export default function ApprovalModal({
                                 checked={currentApproval.is_approved}
                             />
                         }
-                        label={`${currentApproval.is_approved ? currentApproval.author_name : approvalList.length == 2 ? 'CHECK TO START PRODUCTION' : ''}`}
+                        label={`${currentApproval.is_approved ? currentApproval.author_name : approvalList.length == 2 ? 'CHECK TO START AUTOSCALING' : ''}`}
                     />
                 </Grid>
             )

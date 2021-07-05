@@ -29,7 +29,7 @@ export default function AssignTeamModal({ selectedValue, toggleModal, open, hand
 				title={'Team'}
 				fetchList={UserSetupAPI.fetchTeams}
 				fetchSelectedList={fetchSelectedList}
-				fields={[{ title: "ID", field: "id" }, { title: "Name", field: "name" }]}
+				fields={[{ title: "ID", field: "id" }, { title: "Name", field: "name" },{ title: "Assigned Team", field: "assigned_teams" }]}
 				mapValues={(data) => data}
 				handleUpdate={handleMemberSelectChange}
 				handleSelection={(data) => { }}

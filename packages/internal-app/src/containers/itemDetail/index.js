@@ -35,7 +35,7 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
-import { getHierarchySplitFiles, getGltfForStore, getTreeForStore } from '@ravibasil/common/api/fileUpload.api'
+import { getHierarchySplitFiles, getGltfForStore, getTreeForStore, resourcePathURL } from '@ravibasil/common/api/fileUpload.api'
 
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
@@ -63,35 +63,52 @@ const ItemDetail = () => {
     const [dispensing, setDispensing] = useState({});
     const [tabIndex, setTabIndex] = useState(1);
     const [itemProperties, setItemProperties] = useState({});
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [gltfjson, setgltfjson] = useState({});
+    const parserNeeded = [1, 2, 4];
 
     useEffect(() => {
+        let myTabIndex = 1;
         if (query.get('tab')) {
-            setTabIndex(parseInt(query.get('tab')))
+            myTabIndex = parseInt(query.get('tab'));
+            setTabIndex(myTabIndex)
         }
 
-        (async () => {
-            setIsLoading(true);
-            const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
+        const toFetchItem = (!itemProperties || !itemProperties.fileId)
+        console.log("got", tabIndex, myTabIndex, toFetchItem, currentItem, itemProperties);
+        if (toFetchItem) {
+            (async () => {
+                //setIsLoading(true);
+                const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
 
-            const _currentItem = get(itemDetailResponse, 'data[0]', {});
+                const _currentItem = get(itemDetailResponse, 'data[0]', {});
+                //console.log("Reached hre0",_currentItem,myTabIndex,tabIndex);
+                dispatch(setCurrentItemAction(_currentItem));
 
-            dispatch(setCurrentItemAction(_currentItem));
+                // if (_currentItem.fileId) {
+                setGLTFAndTree(_currentItem, myTabIndex);
+                // }
+                // const tempGLTFJSon = get(itemDetailResponse, 'data[0].gltfjson', {});
 
-            // if (_currentItem.fileId) {
-            setGLTFAndTree(_currentItem);
-            // }
-            // const tempGLTFJSon = get(itemDetailResponse, 'data[0].gltfjson', {});
+                // if (tempGLTFJSon !== null && tempGLTFJSon !== undefined) {
+                //     setgltfjson(tempGLTFJSon)
 
-            // if (tempGLTFJSon !== null && tempGLTFJSon !== undefined) {
-            //     setgltfjson(tempGLTFJSon)
+                // }
 
-            // }
+                setIsLoading(false);
+            })()
+        } else {
+            //if(itemProperties) {
+            //console.log("Reached hre1",currentItem,itemProperties,myTabIndex,tabIndex);
+            setGLTFAndTree(itemProperties, myTabIndex);
+            //} else {
+            //console.log("Reached hre2",currentItem,itemProperties,myTabIndex,tabIndex);
+            //    setGLTFAndTree(currentItem,myTabIndex);
+            //}
 
-            setIsLoading(false);
-        })()
-    }, []);
+        }
+
+    }, [tabIndex]);
 
     useEffect(() => {
         if (currentItem) {
@@ -99,34 +116,133 @@ const ItemDetail = () => {
         }
     }, [currentItem])
 
-    const setGLTFAndTree = (item) => {
+    const doesFileExist = (urlAsFile) => {
+        var xhr = new XMLHttpRequest();
+        try {
+            xhr.open('HEAD', urlAsFile, false);
+            xhr.send();
 
-        if (!item.fileStore || item.fileStore === null) {
-            getHierarchySplitFiles(item.fileId, true, stateprops.distancegap, stateprops.anglegap,
-                stateprops.disect, 0, 0.3, 1.0)
-                .then(res => res.data)
-                .then((repos) => {
-                    setgltfjson(repos);
-                }).catch(err => {
-                });
+            return xhr.status !== 404;
         }
-        else {
-            fetchGLTFAndTree(item.fileStore);
+        catch (exception) {
+            console.log(exception);
+            return false;
         }
+        return false;
+    }
+    const setGLTFAndTree = (item, myTabIndex) => {
+
+        if (myTabIndex == tabIndex) {
+            if (!item.fileId || !parserNeeded.includes(myTabIndex)) {
+                setIsLoading(false);
+                return;
+            }
+            if (myTabIndex == 1) {
+                if (!item.fileStore || item.fileStore === null) {
+                    //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+                    setIsLoading(true);
+                    getHierarchySplitFiles(item.fileId, true, stateprops.distancegap, stateprops.anglegap,
+                        stateprops.disect, 0, 0, 0)
+                        .then(res => res.data)
+                        .then((repos) => {
+                            const multiAssmebly = get(repos, 'tree', []).length > 0;
+                            const store = repos['store'];
+                            item.fileStore = store;
+                            setgltfjson({ ...repos, gdt: item.fileGDT, multiAssmebly: multiAssmebly });
+                            setItemProperties(prevData => ({
+                                ...prevData,
+                                fileStore: repos.store
+                            }));
+                            setIsLoading(false);
+                        }).catch(err => {
+                            setIsLoading(false);
+                            console.log("Error While Parsing", err);
+                        });
+                }
+                else {
+                    //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT);
+                }
+            } else {
+                if (!item.fileGDT || item.fileGDT === null) {
+                    if (item.fileStore && item.fileStore.length > 0) {
+                        const fileGDT = item.fileStore.slice(0, item.fileStore.length - 1) + "3";
+                        console.log("Checking GDT", fileGDT);
+                        if (doesFileExist(resourcePathURL + fileGDT + ".gltf")) {
+                            console.log("Found", fileGDT);
+                            item.fileGDT = fileGDT;
+                        }
+                    }
+                }
+                if (!item.fileGDT || item.fileGDT === null) {
+                    //console.log("Down0f",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId,isLoading);
+
+                    setIsLoading(true);
+                    //console.log("Down0t",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId,isLoading);
+                    getHierarchySplitFiles(item.fileId, true, stateprops.distancegap, stateprops.anglegap,
+                        stateprops.disect, 0, 0.3, 1.0)
+                        .then(res => res.data)
+                        .then((repos) => {
+                            const gdt = repos['store'];
+                            item.fileGDT = gdt;
+                            setgltfjson({ ...repos, gdt: gdt, store: item.fileStore });
+                            //console.log("After getting reposi",repos, {...repos,gdt:gdt,store:item.fileStore},isLoading);
+                            setItemProperties(prevData => ({
+                                ...prevData,
+                                fileGDT: gdt
+                            }));
+                            //console.log("After getting reposf",repos, {...repos,gdt:gdt,store:item.fileStore},isLoading);
+                            setIsLoading(false);
+                            //console.log("Setting False to show gltf");
+                        }).catch(err => {
+                            setIsLoading(false);
+                            console.log("Error While Disecting", err);
+                        });
+                }
+                else {
+                    //console.log("Down1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT);
+                }
+            }
+        } else {
+            //console.log("Else",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+        }
+
     };
 
-    const fetchGLTFAndTree = async (fileStore) => {
-        try {
-            let obj = { gltf: {}, tree: {}, store: fileStore };
+    const fetchGLTFAndTree = async (myTabIndex, fileStore, fileGDT) => {
+        if (myTabIndex == 1) {
+            //console.log("Up",myTabIndex,tabIndex,fileStore,fileGDT);
+            try {
+                let obj = { gltf: {}, tree: {}, store: fileStore, gdt: fileGDT };
+                setIsLoading(true);
+                const gltfRes = await getGltfForStore(fileStore);
+                const treeRes = await getTreeForStore(fileStore);
+                const multiAssmebly = treeRes.length > 0;
+                setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data, multiAssmebly: multiAssmebly });
+                setIsLoading(false);
 
-            const gltfRes = await getGltfForStore(fileStore);
-            const treeRes = await getTreeForStore(fileStore);
+            } catch (error) {
+                setIsLoading(false);
+                console.log('Error', error);
+            }
+        } else {
+            //console.log("Down",myTabIndex,tabIndex,fileStore,fileGDT);
+            try {
+                let obj = { gltf: {}, tree: {}, store: fileStore, gdt: fileGDT };
+                setIsLoading(true);
+                const gltfRes = await getGltfForStore(fileGDT);
+                const treeRes = await getTreeForStore(fileGDT);
+                setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data });
+                setIsLoading(false);
 
-            setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data });
+            } catch (error) {
+                setIsLoading(false);
+                console.log('Error', error);
+            }
 
-        } catch (error) {
-            console.log('Error', error)
         }
+
 
 
     }
@@ -135,7 +251,7 @@ const ItemDetail = () => {
         if (!get(itemProperties, '_id')) {
             return null;
         }
-
+        //console.log(itemProperties,itemProperties.fileId);
         switch (tabIndex) {
             case 0:
                 return "Add vendor items here";
@@ -144,15 +260,22 @@ const ItemDetail = () => {
                     itemId={id}
                     itemProperties={itemProperties}
                     setItemProperties={setItemProperties}
-                    gltfjson={gltfjson} setgltfjson={setgltfjson} />;
+                    gltfjson={gltfjson} setgltfjson={setgltfjson}
+                    tabIndex={tabIndex}
+                    setTabIndex={setTabIndex}
+                />;
             case 2:
+                //console.log("What I got",gltfjson,itemProperties,isLoading);
+                return <CurrentUsage itemId={id}
+                />
+            case 3:
                 return <GeometricDimensioning
                     fileId={itemProperties.fileId || ''}
                     gltfjson={gltfjson}
                     isLoading={isLoading}
+                    assemblyTree={get(gltfjson, 'tree', [])}
+                    tabIndex={tabIndex}
                 />
-            case 3:
-                return <CurrentUsage itemId={id} />
             case 4:
                 return <ItemTypeConfigurations
                     itemId={id}
@@ -206,9 +329,11 @@ const ItemDetail = () => {
 
     const handleSave = () => {
         // setIsLoading(true);
+        console.log(itemProperties);
         itemProperties.step = undefined;
         itemProperties.gltfjson = undefined;
         itemProperties.itemId = undefined;
+
         //const myfile = gltfjson['thumbnail'];
         //console.log(myfile);
         //var file_url = resourcePathURL+myfile;
@@ -237,12 +362,17 @@ const ItemDetail = () => {
     }
 
     const handleTabChange = (event, newTabIndex) => {
-        setTabIndex(newTabIndex)
-
-        history.push({
-            pathname: `/items/${id}`,
-            search: `?tab=${newTabIndex}`
-        })
+        if (tabIndex != newTabIndex) {
+            setIsLoading(true);
+            setTabIndex(newTabIndex);
+            //setGLTFAndTree(currentItem,newTabIndex);
+            //setIsLoading(false);
+            history.push({
+                pathname: `/items/${id}`,
+                search: `?tab=${newTabIndex}`
+            })
+        }
+        //console.log("IsLoading, inside",isLoading);
     }
 
     if (isLoading) {
@@ -261,6 +391,10 @@ const ItemDetail = () => {
                         <Grid>
                             <h4>Item Name: {itemProperties.name}</h4>
                             <p>Item ID:{id}</p>
+                        </Grid>
+                        <Grid style={{ marginLeft: '34rem', marginTop: '20px' }}>
+                            <h4>Tab Name: {tabIndex}</h4>
+
                         </Grid>
 
                         <Grid style={{ marginLeft: 'auto' }}>
@@ -285,14 +419,14 @@ const ItemDetail = () => {
                             <Tab label="1. Product Design or CAD Upload" value={1} />
                             <Tab label="2. Compliance and Certifications" value={11} />
 
-                            <Tab label="3. GD&T and Assembly Constraints" value={2} />
+                            <Tab label="3. GD&T and Assembly Constraints" value={3} />
                             <Tab label="4. Surface Finish and Treatment" value={10} />
                             <Tab label="5. Functional Load and Simulation" value={12} />
                             <Tab label="6. Design Modifications" value={13} />
                             <Tab label="7. Software Loading for PCBs, ICs" value={14} />
-                            <Tab label="8. Assembly" value={8} />
+                            {/* <Tab label="8. Assembly" value={8} /> */}
 
-                            <Tab label="9. Current Usage" value={3} />
+                            <Tab label="9. Current Usage" value={2} />
                             <Tab label="10. Manufacture, Processing, & Process Simulation" value={6} />
                             <Tab label="11. Production Validations" value={15} />
                             <Tab label="12. Process Sharing" value={16} />

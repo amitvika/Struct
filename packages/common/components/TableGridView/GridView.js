@@ -4,16 +4,19 @@ import {
     Typography,
     makeStyles,
     Paper,
+    Button,
     IconButton
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import Avatar from '@material-ui/core/Avatar';
 import PictureAsPdf from '@material-ui/icons/PictureAsPdf';
 import DescriptionIcon from '@material-ui/icons/Description';
+import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import './style.css'
 
+import {CopyLogo} from '../../assets/images/copy_icon.png'
 import StructLogo from '../../assets/images/struct_logo.png';
-import {resourcePathURL} from '@ravibasil/common/api/fileUpload.api';
+import { resourcePathURL } from '@ravibasil/common/api/fileUpload.api';
 //import {isURLExisting} from  '@ravibasil/common/utils/usefulHelpers';
 
 const useStyles = makeStyles((theme) => ({
@@ -73,7 +76,15 @@ export default function GridView({
     isInsideDetailPanel = false
 }) {
     const classes = useStyles();
-    
+
+    const handleCopyId = () => {
+        console.log("----")
+        // var copyText = document.getElementById("myInput");
+        // copyText.select();
+        // copyText.setSelectionRange(0, 99999)
+        // document.execCommand("copy");
+        // alert("Copied the text: " + copyText.value);
+    }
     const renderItem = (data) => {
         let item = [];
 
@@ -85,7 +96,12 @@ export default function GridView({
                         <Typography variant="subtitle2" gutterBottom noWrap={true}>
                             <span className={classes.boldtablecell}>{fieldItem.title}</span>
                             {`: `}
-                            <span className={classes.tableCell}>{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
+                            <span className={classes.tableCell}  >{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
+                            {
+                                (fieldItem.title === "ID") ?
+                                    <Button style={{padding:0}} >
+                                        <FileCopyOutlinedIcon onClick={handleCopyId} style={{ marginLeft: '20px'}} /> </Button> : null  
+                            }
                         </Typography>
                     </Grid>
                 )
@@ -130,12 +146,12 @@ export default function GridView({
                                     {renderIconBasedOnFileType(product.file_url)}
                                     {/* <img className={classes.img} alt="complex" src={StructLogo}></img> */}
                                 </Grid>
-                                <Grid elevation={3} item sm sm={8} style={{marginTop: '25px'}}>
+                                <Grid elevation={3} item sm sm={8} style={{ marginTop: '25px' }}>
 
                                     {renderItem(product)}
                                 </Grid>
-                                <Grid style={{display: 'flex', margin: 'auto',width: '154px'}}>
-                                    
+                                <Grid style={{ display: 'flex', margin: 'auto', width: '154px' }}>
+
                                     {
                                         isAddEditLinkVisible &&
                                         <Grid item sm sm={12} >

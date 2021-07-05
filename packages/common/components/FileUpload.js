@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from "react";
 import Button from "@material-ui/core/Button";
-// import Button from "@material-ui/core/Button";
+import Grid from "@material-ui/core/Grid";
 import Message from "./Message";
 import ProgressBar from "./ProgressBar";
 import STLConfirmationDialog from './STLConfirmationDialog';
@@ -66,6 +66,10 @@ export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DX
     const [uploadPercentage, setUploadPercentage] = useState();
     const [open, setOpen] = React.useState(false);
     const classes = useStyles();
+    const [isFileChanged, setIsFileChanged] = useState(false);
+    // const [logoURL, setLogoURL] = useState(logoUrl);
+
+
 
     //Methods
     const onChange = e => {
@@ -73,8 +77,10 @@ export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DX
             return;
         }
         //e.preventDefault();
+        // setLogoURL(URL.createObjectURL(event.target.files[0]));
         setFile(e.target.files[0]);
         setFileName(e.target.files[0].name);
+        setIsFileChanged(true);
     };
 
     const onSubmit = e => {
@@ -105,7 +111,11 @@ export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DX
                 <label
                     className={classes.custom_file_label}
                     htmlFor="file">
-                    {label}
+                        {
+                            isFileChanged? fileName : label 
+                        }
+                    {/* {label} */}
+                    {fileName}
                 </label>
 
             </Box>

@@ -17,6 +17,10 @@ import {
     SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray, gltf_Dict
 } from "../../../gltf/Tree/utils";
 
+import MaterialTable from 'material-table';
+import Radio from '@material-ui/core/Radio';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
 const DEFAULTDISECT = false;
@@ -33,21 +37,53 @@ const stateprops = {
     materialtype: DEFAULTMATERIALTYPE
 }
 
-export default function GeometricDimensioning({ fileId, gltfjson, isLoading }) {
+export default function GeometricDimensioning({tabIndex, fileId, gltfjson, isLoading, assemblyTree = [] }) {
     const [state, _setState] = useState({});
     // const [isLoading, setIsLoading] = useState(false);
     const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
     //const [splitFiles, setSplitfiles] = useState({});
     const [resetOption, setResetOption] = useState(true);
+    const [value, setValue] = React.useState('female');
+
+    const handleChange = (event) => {
+        setValue(event.target.value);
+    };
+    const renderLeafElements = () => {
+
+        console.log(assemblyTree)
+        return assemblyTree
+            // .filter(item => !item.leaf)
+            .map(item => {
+                const noOfChildren = renderChildElements({ parentId: item.i });
+                return (
+                    { ...item, name: item.n, item: '', assembly: noOfChildren.length > 0 ? 'Multi-Item Assembly' : 'Single-Item Assembly', children: noOfChildren }
+                )
+            })
+    }
+
+    const renderChildElements = ({ parentId }) => {
+        return assemblyTree
+            .filter(item => item.d === parentId)
+            .map(item => {
+                return (
+                    <div>
+                        {item.name}
+                    </div>
+                )
+            })
+    }
+
 
     useEffect(() => {
         const includeParts = true;
-        if (Object.keys(gltfjson).length > 0) {
+        //console.log("Reaching",gltfjson,fileId,isLoading);
+        const gltfjsonlen = Object.keys(gltfjson).length;
+        if (gltfjsonlen > 0) {
             setState({
                 selectedindex: 0,
-                gltfjson: gltfjson,
                 activefile: fileId.toString() + includeParts.toString() +
-                    stateprops.distancegap.toString() + stateprops.anglegap.toString(),
+                    stateprops.distancegap.toString() + stateprops.anglegap.toString() + gltfjsonlen.toString(),
+                gltfjson: gltfjson,
                 dataselection: 0,
                 firstshell: null,
                 secondshell: null,
@@ -681,29 +717,47 @@ export default function GeometricDimensioning({ fileId, gltfjson, isLoading }) {
     }
 
     return (
-        <Paper style={{ margin: 10, padding: 10 }}>
+        <>
+            <Paper style={{ margin: 10, padding: 10 }}>
 
-            <Grid container spacing={4}>
-                <Grid item xs={6}>
-                    <Paper square={true}>
-                        <Viewer
+                <Grid container spacing={4}>
+                    <Grid item xs={6}>
+                        <Paper square={true}>
+                            <Viewer
+                                {...state}
+                                selectedOption={selectedOption}
+                                handleModelClick={handleModelClick}
+                                isLoading={isLoading}
+                            ></Viewer>
+                        </Paper>
+                    </Grid>
+
+                    <Grid item xs={6}>
+                        <ViewerToolbar
                             {...state}
                             selectedOption={selectedOption}
-                            handleModelClick={handleModelClick}
-                        ></Viewer>
-                    </Paper>
+                            setSelectedOption={setSelectedOption}
+                            resetSelections={resetSelections}
+                            selectAllSelectedSolids={selectAllSelectedSolids}
+                        />
+                    </Grid>
                 </Grid>
-
-                <Grid item xs={6}>
-                    <ViewerToolbar
-                        {...state}
-                        selectedOption={selectedOption}
-                        setSelectedOption={setSelectedOption}
-                        resetSelections={resetSelections}
-                        selectAllSelectedSolids={selectAllSelectedSolids}
-                    />
-                </Grid>
-            </Grid>
-        </Paper>
+            </Paper>
+                <FormControlLabel value="female" control={<Radio />} label="Create Resultant Single Item Parts and Multi-Item Assemblies" onChange={handleChange} />
+                <MaterialTable
+                    title="Assembly Tree"
+                    columns={[
+                        { title: 'Name', field: 'name' },
+                        { title: 'Item', field: 'item' },
+                        { title: 'Assembly', field: 'assembly' },
+                        {
+                            title: 'Children',
+                            field: 'children'
+                        },
+                    ]}
+                    parentChildData={(row, rows) => rows.find(a => a.i === row.parentId)}
+                    data={renderLeafElements()}
+                />
+        </>
     )
 }

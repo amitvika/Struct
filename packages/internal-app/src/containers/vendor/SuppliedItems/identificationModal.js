@@ -7,7 +7,7 @@ import Input from '@ravibasil/common/components/atoms/Input';
 
 export default function IdentificationModal({ isModalOpened, toggleModal }) {
     const [identificationNumber, setIdentificationNumber] = useState([]);
-    
+
     return (
         <div>
             <MainModal open={isModalOpened} toggleModal={toggleModal}>
@@ -34,8 +34,24 @@ export default function IdentificationModal({ isModalOpened, toggleModal }) {
                             type="button"
                             onClick={() => setIdentificationNumber(prevNums => [...prevNums, {}])}>
                             Add Additional ID
-                    </Button>
+                        </Button>
                     </Grid>
+
+                    {
+                        identificationNumber.map((identityNumber, index) => {
+                            return (
+                                <>
+                                    <Grid item xs={4} >
+                                        <Input
+                                            label={`Identification Number ${index + 2}`}
+                                            placeholder="Enter"
+                                            type="text"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={8}></Grid>
+                                </>)
+                        })
+                    }
                 </Grid>
             </MainModal>
         </div>

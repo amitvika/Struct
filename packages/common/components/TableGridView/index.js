@@ -143,7 +143,7 @@ const TableGridView = ({
         // setIsManageTeamModalOpened(true);
 
         // setIsEditing(true);
-        // setIsModalOpened(!isModalOpened)
+        setIsModalOpened(!isModalOpened)
     }
 
     const handleToggleModal = () => {

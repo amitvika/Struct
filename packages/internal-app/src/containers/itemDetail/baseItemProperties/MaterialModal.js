@@ -28,12 +28,11 @@ export default function MaterialModal({ toggleMaterial,
     handleMaterialPropertieView,
     selectedMaterials, setSelectedMaterials }) {
 
-    const [currentCategory, setCurrentCategory] = useState()
-    const [currentSubCategoryOne, setCurrentSubCategoryOne] = useState()
-    const [currentSubCategoryTwo, setCurrentSubCategoryTwo] = useState()
-    const [currentSubCategoryThree, setCurrentSubCategoryThree] = useState()
-    const [currentSubCategoryFour, setCurrentSubCategoryFour] = useState()
-
+    const [currentCategory, setCurrentCategory] = useState('')
+    const [currentSubCategoryOne, setCurrentSubCategoryOne] = useState('')
+    const [currentSubCategoryTwo, setCurrentSubCategoryTwo] = useState('')
+    const [currentSubCategoryThree, setCurrentSubCategoryThree] = useState('')
+    const [currentSubCategoryFour, setCurrentSubCategoryFour] = useState('')
 
     const [materialList, setMaterialList] = useState([]);
     const [filter, setFilter] = useState({});
@@ -118,6 +117,11 @@ export default function MaterialModal({ toggleMaterial,
         })
     }
 
+    const handleClearButton = () => {
+        setMaterialList([])
+   
+    }
+
     const searchMaterial = () => {
         let query = []
         Object.keys(filter).forEach((key, index) => {
@@ -131,7 +135,9 @@ export default function MaterialModal({ toggleMaterial,
     }
 
     const handleCategoryChange = (data) => {
+        setSearchMaterialByName({ name: ''})
         setCurrentCategory(data)
+
         fetchCategories(data, (subCategories) => {
             if (subCategories.materials) {
                 setMaterialList(subCategories.materials)
@@ -192,7 +198,7 @@ export default function MaterialModal({ toggleMaterial,
     }
 
     const handleSubCategoryThreeChange = (data) => {
-        console.log("----",data)
+        console.log("----", data)
         setCurrentSubCategoryThree(data)
         fetchCategories(data, (subCategories) => {
             if (subCategories.materials) {
@@ -201,7 +207,7 @@ export default function MaterialModal({ toggleMaterial,
             }
 
             setSubcategoryOptionsFour(subCategories.categories.map(item => {
-                
+
                 return {
                     label: item.title,
                     value: item.id
@@ -229,7 +235,15 @@ export default function MaterialModal({ toggleMaterial,
         // });
     }
 
+
     const handleNameChange = (event) => {
+        setCurrentCategory('')
+        setCurrentSubCategoryOne('')
+        setCurrentSubCategoryTwo('')
+        setCurrentSubCategoryThree('')
+        setCurrentSubCategoryFour('')
+
+        // setSearchName(event.target.value)
         const inputValue = event.target.value;
         if (inputValue.length < 3) {
             return;
@@ -246,10 +260,11 @@ export default function MaterialModal({ toggleMaterial,
                 fetchData({ query: `search=${inputValue}` });
             }, 1000),
         });
+
     }
 
     return (
-        <Modal isOpen={isMaterialModalOpen} toggle={toggleMaterial} style={{ width: '70%' }}>
+        <Modal isOpen={isMaterialModalOpen} toggle={toggleMaterial} style={{ width: '50%', top: '37px' }}>
             <ModalHeader toggle={toggleMaterial}>Select Material</ModalHeader>
             <ModalBody>
                 <Grid className="section-padding-left" container spacing={4}>
@@ -259,10 +274,11 @@ export default function MaterialModal({ toggleMaterial,
                         <Input
                             placeholder="Enter"
                             type="text"
+                            // value={searchMaterialByName.name}
                             onChange={(event) => handleNameChange(event)}
                         />
                     </Grid>
-                    <Grid item xs={3} >
+                    <Grid item xs={3} style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <Button
                             variant="contained"
                             color="primary"
@@ -270,6 +286,14 @@ export default function MaterialModal({ toggleMaterial,
                             onClick={searchMaterial}>
                             Search
                         </Button>
+                        <Button
+                            style={{ marginLeft: '8px' }}
+                            variant="contained"
+                            color="primary"
+                            type="button"
+                            value="Clear"
+                            onClick={handleClearButton}
+                        >Clear</Button>
                     </Grid>
                     <Grid item xs={3} >
                         {isMaterialLoading &&
@@ -373,12 +397,17 @@ export default function MaterialModal({ toggleMaterial,
                         />
                     </Grid>
                 </Grid>
+
+
                 <Grid className="section-padding-left" container spacing={4}>
                     <>
                         <Grid item xs={3} >
                             <Headding title='Category'></Headding>
                         </Grid>
                         <Grid item xs={6} >
+                            {/* {
+                                !isSearchNameActive && */}
+
                             <Select
                                 // label="Category"
                                 placeholder="Select"
@@ -386,6 +415,7 @@ export default function MaterialModal({ toggleMaterial,
                                 onChange={(data) => handleCategoryChange(data.value)}
                                 value={`${currentCategory}`}
                             />
+                            {/* } */}
                         </Grid>
                         <Grid item xs={3} />
                     </>
@@ -438,7 +468,7 @@ export default function MaterialModal({ toggleMaterial,
                                     // label="Sub Category"
                                     placeholder="Select"
                                     options={subcategoryOptionsThree}
-                                    onChange={(data) =>handleSubCategoryThreeChange(data.value)}
+                                    onChange={(data) => handleSubCategoryThreeChange(data.value)}
                                     value={`${currentSubCategoryThree}`}
                                 />
                             </Grid>

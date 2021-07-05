@@ -28,7 +28,8 @@ export const lightTheme = createMuiTheme({
         '&:hover, &:focus': {
             background: "#5D6D7E ",
             color: '#ffffff'
-         }
+         },
+         marginRight: '15px'
     },
     overrides: {
         MuiOutlinedInput: {

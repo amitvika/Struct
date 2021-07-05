@@ -114,6 +114,7 @@ exports.getAll = async (req, res) => {
                 itemTypeConfiguration: itemDetail.itemTypeConfiguration,
                 name: itemDetail.name,
                 fileStore: itemDetail.fileStore,
+                fileGDT: itemDetail.fileGDT,
                 fileId: itemDetail.fileId
             }))
         res.json(itemDetails);
@@ -204,12 +205,15 @@ exports.update = async (req, res) => {
             updateData.selectedClientId = body.selectedClientId;
         }
 
-        if ((_.get(body, 'gltfjson.tree', []).length > 0)) {
+        if (body.multiAssmebly) {
             updateData.assemblyType = 'Multi-Item Assembly'
         }
 
-        updateData.fileId = body.fileId || null;
-        updateData.fileStore = body.fileStore;
+        if (body.fileId) {
+            updateData.fileId = body.fileId || null;
+            updateData.fileStore = body.fileStore;
+            updateData.fileGDT = body.fileGDT;
+        }
 
         if ((body.itemGeometry && body.itemGeometry.isEndProductSelected === false) || body.selectedClientId === null) {
             updateData.selectedClientId = null;
