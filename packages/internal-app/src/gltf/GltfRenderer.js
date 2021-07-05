@@ -241,7 +241,7 @@ class GLTFRenderer extends Component {
             window.addEventListener('mouseup', this.onMouseUp.bind(this), false); // get event last, so false on capture            
             window.addEventListener('touchstart', this.onTouchStart.bind(this), false);
             window.addEventListener('touchend', this.onTouchEnd.bind(this), false);
-           
+            window.addEventListener('wheel', this.onMouseWheel.bind(this), false);
             this.renderer.domElement.addEventListener('mousemove', this.onMouseMove.bind(this), false);
             this.renderer.domElement.addEventListener('click', this.onMouseClick.bind(this), false);
             this.renderer.domElement.addEventListener('mousedown', this.raycast.bind(this), true);
@@ -1129,6 +1129,15 @@ class GLTFRenderer extends Component {
         //console.log("Up",event);
         if(this.controls) {
             this.controls.enabled = false;
+        }
+
+    };
+
+    onMouseWheel = ( event ) => {
+        //console.log("Up",event);
+        if(this.controls) {
+            this.controls.enabled = true;
+            this.controls.handleMouseWheel(event);
         }
 
     };
