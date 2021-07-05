@@ -1,7 +1,0 @@
-{
-    "mongoURI": "mongodb+srv://amit_ika:dividivi@cluster0-ne7uw.mongodb.net/test?retryWrites=true&w=majority",
-    "JWTSecret": "jwtsecret",
-    "AWS_ACCESS_KEY_ID": "AKIAUGAS44POA3UBMUAI",
-    "AWS_SECRET_ACCESS_KEY": "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",
-    "mongoURI1": "mongodb://myUserAdmin:navin%23MongoDB%2366@localhost"
-}
