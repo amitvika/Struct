@@ -1,0 +1,82 @@
+const express = require("express");
+const router = express.Router();
+const ChangeTracking = require("../../models/ChangeTracking.model");
+const User = require("../../models/User");
+const auth = require("../../middleware/auth");
+const checkAccess = require('../../middleware/checkAccess');
+const { hasPermissionForAccessConfigUserEdit } = require('../../middleware/hasPermission');
+const get = require('lodash/get');
+
+router.use(auth);
+router.use(checkAccess);
+
+router.put("/:id",
+  hasPermissionForAccessConfigUserEdit, async (req, res) => {
+    const saveObject = {
+      userAccess: req.body.userAccessId
+      ///make sure the savObject in change tracking saves the userAccess ID for each member
+    };
+
+    const newUsers = get(req, 'body.users.newUsers', [])
+    const removedUsers = get(req, 'body.users.removedUsers', [])
+
+    if (newUsers.length === 0 && removedUsers.length === 0) {
+      return res.json({ success: true });
+    }
+
+    newUsers.map(x => {
+      User.findByIdAndUpdate(x.id, saveObject)
+        .then(() => {
+          const changeTracking = new ChangeTracking({
+            client: "5e9bf7816d706508dcdd4b53",
+            update: saveObject,
+            model: "User",
+            updateType: "Update",
+            updatedObject: x.id, ///change this to the specific user
+            updatedBy: req.user.id
+          });
+          changeTracking.save().catch(error => console.log(error));
+          res.json({ success: true });
+        })
+        .catch(err => console.log(err));
+    });
+
+    const saveObject2 = {
+      userAccess: null
+      ///make sure the savObject in change tracking saves the userAccess ID for each member
+    };
+
+    removedUsers.forEach(x => {
+      User.findByIdAndUpdate(x.id, saveObject2)
+        .then(() => {
+          const changeTracking = new ChangeTracking({
+            client: "5e9bf7816d706508dcdd4b53",
+            update: saveObject,
+            model: "User",
+            updateType: "Update",
+            updatedObject: x.id, ///change this to the specific user
+            updatedBy: req.user.id
+          });
+          changeTracking.save().catch(error => console.log(error));
+          res.json({ success: true });
+        })
+        .catch(err => console.log(err));
+    });
+
+    /* User.findByIdAndUpdate(req.params.id, saveObject)
+      .then(() => {
+        const changeTracking = new ChangeTracking({
+          client: "5e9bf7816d706508dcdd4b53",
+          update: saveObject,
+          model: "UserAccessType",
+          updateType: "Update",
+          updatedObject: req.params.id,///change this to the specific user
+          updatedBy: req.body.user
+        });
+        changeTracking.save().catch(error => console.log(error));
+        res.json({ success: true });
+      })
+      .catch(err => res.status(404).json({ success: false }));*/
+  });
+
+module.exports = router;
