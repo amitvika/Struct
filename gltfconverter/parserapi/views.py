@@ -543,10 +543,11 @@ def FileSplit(request):
                         data = splitFileCadQuery(eachfile.file.name,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
             else:
                 id = request.GET.get('file', None)
-                if includeparts:
-                    data = splitFile(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
-                else:
-                    data = splitFileCadQuery(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+                if id is not None:
+                    if includeparts:
+                        data = splitFile(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+                    else:
+                        data = splitFileCadQuery(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
     return JsonResponse(data, safe=False)
 
 
@@ -717,9 +718,10 @@ def FileHierarchySplit(request):
                         disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
             else:
                 id = request.GET.get('file', None)
-                data = splitHierarchyFile(
-                    id,"Media/",includeparts,distancegap,anglegap,
-                    disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
+                if id is not None:
+                    data = splitHierarchyFile(
+                        id,"Media/",includeparts,distancegap,anglegap,
+                        disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
     return JsonResponse(data, safe=False)
 
 def get2DTextures(where):
@@ -1218,7 +1220,8 @@ def FileGetStackablePositions(request):
                 data = exportToPartGLTF("Media/"+eachfile.file.name,distancegap,anglegap,thumbwidth,thumbheight)
         else:
             id = request.GET.get('file', None)
-            data = exportToPartGLTF("Media/"+id,distancegap,anglegap,thumbwidth,thumbheight)
+            if id is not None:
+                data = exportToPartGLTF("Media/"+id,distancegap,anglegap,thumbwidth,thumbheight)
     return JsonResponse(data, safe=False) 
 
 def swap(a, b):
@@ -1426,6 +1429,7 @@ def FileGetAssemblyOrder(request):
                 data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,thumbwidth,thumbheight)
         else:
             id = request.GET.get('file', None)
-            data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,thumbwidth,thumbheight)
+            if id is not None:
+                data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,thumbwidth,thumbheight)
     return JsonResponse(data, safe=False)      
     

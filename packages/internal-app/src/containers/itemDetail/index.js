@@ -65,7 +65,7 @@ const ItemDetail = () => {
     const [itemProperties, setItemProperties] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [gltfjson, setgltfjson] = useState({});
-    const parserNeeded = [1, 2, 4];
+    const parserNeeded = [1, 3, 4, 8];
 
     useEffect(() => {
         let myTabIndex = 1;
