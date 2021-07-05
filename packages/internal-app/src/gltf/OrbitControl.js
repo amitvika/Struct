@@ -185,7 +185,7 @@ class OrbitControls extends EventDispatcher {
 	
 	update = () => {
 		
-		this.object.position.add(panOffset);
+		//this.object.position.add(panOffset);
 
 		let offset = new Vector3();
 
@@ -244,7 +244,7 @@ class OrbitControls extends EventDispatcher {
 
 		this.target.add( panOffset );
 
-		this.object.position.sub(panOffset);
+		//this.object.position.sub(panOffset);
 
         this.object.lookAt( this.target );
 
@@ -545,7 +545,7 @@ class OrbitControls extends EventDispatcher {
 
 	handleMouseWheel = ( event ) => {
 
-		console.log( 'handleMouseWheel' );
+		//console.log( 'handleMouseWheel' );
 
 		if ( event.deltaY < 0 ) {
 
