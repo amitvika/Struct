@@ -83,14 +83,14 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                 // }));
                 setIsLoading(false);
                 dispatch(showSuccessAlert({ message: 'File uploaded successfully' }));
-                
+
             })
             .catch(err => {
                 setIsLoading(false);
                 dispatch(showErrorAlert({ message: 'Unable to upload file at the moment' }));
-                
+
             });
-        
+
     }
 
     const getView = (fileId) => {
@@ -101,13 +101,13 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
             .then((data) => {
                 setItemProperties(prevData => ({
                     ...prevData,
-                    fileId:fileId,
+                    fileId: fileId,
                     fileStore: data.store,
                     fileGDT: null
                 }));
                 //console.log(itemProperties);
-                const multiAssmebly = get(data, 'tree', []).length > 0;    
-                setgltfjson({...data,multiAssmebly:multiAssmebly});
+                const multiAssmebly = get(data, 'tree', []).length > 0;
+                setgltfjson({ ...data, multiAssmebly: multiAssmebly });
                 //console.log({...data,multiAssmebly:multiAssmebly});
                 setIsFileLoadingLoading(false);
 
@@ -147,68 +147,73 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
         <div>
             {
                 <>
-                    <Paper style={{ padding: 20, margin: 10, fontWeight: 'bold' }}>
-                        <Grid container  >
-                            {
-                                tabArray.map(tabName => (
-                                    <Grid item xs={6}>
+                    <Grid style={{display: 'flex'}}>
+                            <Paper style={{ padding: 20, margin: 10, width: '40rem'}} square={true}>
+                                {
+                                    !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoadingLoading &&
+                                    <GLTFRenderer
+                                        //gltfjson={JSON.stringify(gltfjson)}
+                                        gltfobj={gltfjson}
+                                        activefile={fileId}
+                                        backcolor={DEFAULTBACKCOLOR}
+                                        selectcolor={DEFAULTSELECTCOLOR}
+                                        touchcolor={DEFAULTTOUCHCOLOR}
+                                        selectedoption={SELECTSOLID}
+                                        splitmethod={SELECTHIRERACHY}
+                                        changedata={[]}
+                                        data2texture={null}
+                                        data3texture={null}
+                                        materialtype={DEFAULTMATERIALNAME}
+                                        whatchanged={0} dataselection={0}
+                                    />
+                                }
+                                {
+                                    (isLoading || isFileLoadingLoading) && <CircularProgress />
+                                }
 
-                                        <Paper onClick={() => handleTabChange2(tabName)} style={{
-                                            backgroundColor: selectedTab === tabName ? "#777c80" : "",
-                                            color: selectedTab === tabName ? "white" : ""
-                                        }}
-                                            className={classes.tabPaper}>{tabName}</Paper>
+                            </Paper>
+                        <Grid style={{ width: '60rem' }}>
+                            <Paper style={{ padding: 20, margin: 10, fontWeight: 'bold' }}>
+                                <Grid container  >
+                                    {
+                                        tabArray.map(tabName => (
+                                            <Grid item xs={6}>
 
-                                    </Grid>
-                                )
-                                )
-                            }
+                                                <Paper onClick={() => handleTabChange2(tabName)} style={{
+                                                    backgroundColor: selectedTab === tabName ? "#777c80" : "",
+                                                    color: selectedTab === tabName ? "white" : ""
+                                                }}
+                                                    className={classes.tabPaper}>{tabName}</Paper>
+
+                                            </Grid>
+                                        )
+                                        )
+                                    }
+                                </Grid>
+
+                                <Headding fontSize={24} bold title={'Upload Cad'} />
+                                {isStepLoaded ?
+                                    <Button
+                                        className="mt-2 mb-3"
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={removeFile}>
+                                        Clear File
+                                    </Button>
+                                    :
+                                    <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
+                                }
+                                {
+                                    isLoading && <CircularProgress />
+                                }
+                            </Paper>
+                            <GeometryInput setItemProperties={setItemProperties} itemProperties={itemProperties} />
                         </Grid>
-
-                        <Headding fontSize={24} bold title={'Upload Cad'} />
-                        {isStepLoaded ?
-                            <Button
-                                className="mt-2 mb-3"
-                                variant="contained"
-                                color="primary"
-                                onClick={removeFile}>
-                                Clear File
-                            </Button>
-                            :
-                            <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
-                        }
-                        {
-                            isLoading && <CircularProgress />
-                        }
-                    </Paper>
-                    <GeometryInput setItemProperties={setItemProperties} itemProperties={itemProperties} />
+                    </Grid>
 
                 </>
             }
-            <Paper style={{ padding: 20, margin: 10 }} square={true}>
-                {
-                    !isLoading  && Object.keys(gltfjson).length > 0 && !isFileLoadingLoading &&
-                    <GLTFRenderer
-                        //gltfjson={JSON.stringify(gltfjson)}
-                        gltfobj={gltfjson}
-                        activefile={fileId}
-                        backcolor={DEFAULTBACKCOLOR}
-                        selectcolor={DEFAULTSELECTCOLOR}
-                        touchcolor={DEFAULTTOUCHCOLOR}
-                        selectedoption={SELECTSOLID}
-                        splitmethod={SELECTHIRERACHY}
-                        changedata={[]}
-                        data2texture={null}
-                        data3texture={null}
-                        materialtype={DEFAULTMATERIALNAME}
-                        whatchanged={0} dataselection={0}
-                    />
-                }
-                {
-                   (isLoading || isFileLoadingLoading) && <CircularProgress />
-                }
 
-            </Paper>
         </div >
     )
 }

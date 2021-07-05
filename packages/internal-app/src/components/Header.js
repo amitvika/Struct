@@ -32,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 600,
         color: "#FFFEFE",
         textAlign: "left",
+        marginRight: '35px'
     },
     menuButton: {
         ...theme.menuButton

@@ -36,7 +36,7 @@ const Orders = () => {
                     handleIdentificationClick(event, rowData)
 
                     event.stopPropagation();
-                }}><Link> Identification </Link></span>
+                }}><Link style={{fontWeight: 'bold'}}> Identification </Link></span>
         },
     ]
 
