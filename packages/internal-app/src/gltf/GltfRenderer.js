@@ -1086,15 +1086,17 @@ class GLTFRenderer extends Component {
     };
 
     controlsEnd = ( event ) => {
-        if(this.controls.STATE) {
-            if (event.state !== this.controls.STATE.DOLLY) {
-                
-                // Don't turn off if dolly as may still be clicking with pointer
+        if(this.trackballWidget) {
+            if(this.controls.STATE) {
+                if (event.state !== this.controls.STATE.DOLLY) {
+                    
+                    // Don't turn off if dolly as may still be clicking with pointer
+                    this.trackballWidget.visible = false;
+                    
+                };
+            } else {
                 this.trackballWidget.visible = false;
-                
-            };
-        } else {
-            this.trackballWidget.visible = false;
+            }
         }
     };
     
