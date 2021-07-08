@@ -8178,7 +8178,7 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
 
-"lodash@>=3.5 <5", lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.5, lodash@^4.7.0:
+"lodash@>=3.5 <5", lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.5, lodash@^4.7.0:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -8736,7 +8736,7 @@ nan@^2.12.1:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
   integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
 
-nanoid@^3.1.23:
+nanoid@^3.0.0, nanoid@^3.1.23:
   version "3.1.23"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.23.tgz#f744086ce7c2bc47ee0a8472574d5c78e4183a81"
   integrity sha512-FiB0kzdP0FFVGDKlRLEQ1BgDzU87dy5NnzjeW9YZNt+/c3+q82EQDUwniSAUxp/F0gFNI1ZhKU1FqYsMuqZVnw==
@@ -10547,6 +10547,16 @@ react-beautiful-dnd@13.0.0:
     react-redux "^7.1.1"
     redux "^4.0.4"
     use-memo-one "^1.1.1"
+
+react-checkbox-tree@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/react-checkbox-tree/-/react-checkbox-tree-1.7.1.tgz#2fb8d5c70b4244e660cf5a1864003ea435f1316a"
+  integrity sha512-RkDEj9hqh2eORdvbIsHcAxjYsD6OCWqjejQzUTNUhQkh1rsjkEZDLNbsMN446voY99azP/ZyN0vLXWQKkn+OAw==
+  dependencies:
+    classnames "^2.2.5"
+    lodash "^4.17.10"
+    nanoid "^3.0.0"
+    prop-types "^15.5.8"
 
 react-dev-utils@^11.0.3:
   version "11.0.4"

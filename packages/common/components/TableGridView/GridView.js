@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import {
     Grid,
     Typography,
@@ -14,7 +14,7 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import './style.css'
 
-import {CopyLogo} from '../../assets/images/copy_icon.png'
+import { CopyLogo } from '../../assets/images/copy_icon.png'
 import StructLogo from '../../assets/images/struct_logo.png';
 import { resourcePathURL } from '@ravibasil/common/api/fileUpload.api';
 //import {isURLExisting} from  '@ravibasil/common/utils/usefulHelpers';
@@ -76,18 +76,16 @@ export default function GridView({
     isInsideDetailPanel = false
 }) {
     const classes = useStyles();
+    const [text, setText] = useState('')
+    const titleRef = useRef();
 
-    const handleCopyId = () => {
-        console.log("----")
-        // var copyText = document.getElementById("myInput");
-        // copyText.select();
-        // copyText.setSelectionRange(0, 99999)
-        // document.execCommand("copy");
-        // alert("Copied the text: " + copyText.value);
+    const handleCopyId = (event, id) => {
+        document.execCommand("copy");
+        alert("Copied the text: " +id);
+        event.stopPropagation();
     }
     const renderItem = (data) => {
         let item = [];
-
         columnsFields
             .filter(fieldItem => fieldItem.isGridViewVisible === false ? fieldItem.isGridViewVisible : true)
             .map(fieldItem => {
@@ -96,11 +94,14 @@ export default function GridView({
                         <Typography variant="subtitle2" gutterBottom noWrap={true}>
                             <span className={classes.boldtablecell}>{fieldItem.title}</span>
                             {`: `}
-                            <span className={classes.tableCell}  >{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
+                            <span ref={titleRef} className={classes.tableCell} value={`${data[fieldItem.field]}`}>{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
                             {
                                 (fieldItem.title === "ID") ?
-                                    <Button style={{padding:0}} >
-                                        <FileCopyOutlinedIcon onClick={handleCopyId} style={{ marginLeft: '20px'}} /> </Button> : null  
+                                    <IconButton style={{ padding: 0 }} >
+                                        <Typography variant="body2">
+                                            <FileCopyOutlinedIcon onClick={(event) => handleCopyId(event, data[fieldItem.field])} style={{ marginLeft: '20px' }} />
+                                        </Typography>
+                                    </IconButton> : null
                             }
                         </Typography>
                     </Grid>

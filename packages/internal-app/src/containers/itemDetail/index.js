@@ -70,7 +70,7 @@ const ItemDetail = () => {
     useEffect(() => {
         let myTabIndex = 1;
         if (query.get('tab')) {
-            myTabIndex = parseInt(query.get('tab'));
+            myTabIndex = query.get('tab');
             setTabIndex(myTabIndex)
         }
 
@@ -137,7 +137,7 @@ const ItemDetail = () => {
                 setIsLoading(false);
                 return;
             }
-            if (myTabIndex == 1) {
+            if (myTabIndex == "pdcu") {
                 if (!item.fileStore || item.fileStore === null) {
                     //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
                     setIsLoading(true);
@@ -211,7 +211,7 @@ const ItemDetail = () => {
     };
 
     const fetchGLTFAndTree = async (myTabIndex, fileStore, fileGDT) => {
-        if (myTabIndex == 1) {
+        if (myTabIndex == "pdcu") {
             //console.log("Up",myTabIndex,tabIndex,fileStore,fileGDT);
             try {
                 let obj = { gltf: {}, tree: {}, store: fileStore, gdt: fileGDT };
@@ -255,7 +255,7 @@ const ItemDetail = () => {
         switch (tabIndex) {
             case 0:
                 return "Add vendor items here";
-            case 1:
+            case "pdcu":
                 return <BaseItemProperties
                     itemId={id}
                     itemProperties={itemProperties}
@@ -264,11 +264,9 @@ const ItemDetail = () => {
                     tabIndex={tabIndex}
                     setTabIndex={setTabIndex}
                 />;
-            case 2:
-                //console.log("What I got",gltfjson,itemProperties,isLoading);
-                return <CurrentUsage itemId={id}
-                />
-            case 3:
+            case "cu":
+                return <CurrentUsage itemId={id} />
+            case "gdtac":
                 return <GeometricDimensioning
                     fileId={itemProperties.fileId || ''}
                     gltfjson={gltfjson}
@@ -276,7 +274,7 @@ const ItemDetail = () => {
                     assemblyTree={get(gltfjson, 'tree', [])}
                     tabIndex={tabIndex}
                 />
-            case 4:
+            case "iupc":
                 return <ItemTypeConfigurations
                     itemId={id}
                     itemProperties={itemProperties}
@@ -285,7 +283,7 @@ const ItemDetail = () => {
                     setgltfjson={setgltfjson} />
             case 5:
                 return <VendorDetails />
-            case 6:
+            case "mpps":
                 return <Manufacturing
                     itemId={id}
                     itemProperties={itemProperties}
@@ -293,34 +291,34 @@ const ItemDetail = () => {
                     fetchList={ItemAPI.getItemsAPI} />;
             case 7:
                 return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
-            case 8:
+            case "assembly":
                 return <Assembly
                     assemblyTree={get(gltfjson, 'tree', [])} />;
-            case 9:
+            case "production":
                 return <Production />;
-            case 10:
+            case "sft":
                 return <SurfaceFinishAndTreatment />
-            case 11:
+            case "cc":
                 return <ComplianceAndCertifications
                     itemValue={itemProperties}
                     setItemValue={setItemProperties} />
-            case 12:
+            case "fls":
                 return "Functional Load and Simulation"
-            case 13:
+            case "dm":
                 return "Design Modifications"
-            case 14:
+            case "slfpi":
                 return "Software Loading for PCBs, ICs"
-            case 15:
+            case "pv":
                 return "Production Validations"
-            case 16:
+            case "ps":
                 return "Process Sharing"
-            case 17:
+            case "wmm":
                 return "Warranty & Maintenance Management"
-            case 18:
+            case "pd":
                 return "Product Documentation"
-            case 19:
+            case "rs":
                 return "Recycling & Sustainability"
-            case 20:
+            case "pds":
                 return "Design Product Design"
             default:
                 return "Undefined Tab Index";
@@ -333,22 +331,6 @@ const ItemDetail = () => {
         itemProperties.step = undefined;
         itemProperties.gltfjson = undefined;
         itemProperties.itemId = undefined;
-
-        //const myfile = gltfjson['thumbnail'];
-        //console.log(myfile);
-        //var file_url = resourcePathURL+myfile;
-        /*  if(myfile) {
-             const File={'name':file_url,
-                         'type':'image/png'};
-             uploadFileS3Bucket(File).then(res=>{
-                 console.log(res);
-                 file_url = res;
-             });
-             gltfjson['file_url'] = file_url;
-             console.log(file_url);
-         }  else {
-             //gltfjson['file_url'] = file_url;
-         }   */
 
         ItemAPI
             .updateItemAPI(id, { ...itemProperties })
@@ -375,6 +357,22 @@ const ItemDetail = () => {
         //console.log("IsLoading, inside",isLoading);
     }
 
+
+    const tabList = {
+        pdcu: "Product Design or CAD Upload", cc: "Compliance and Certifications", gdtac: "GD&T and Assembly Constraints",
+        sft: "Surface Finish and Treatment", fls: "Functional Load and Simulation", dm: "Design Modifications", assembly: "Assembly",
+        slfpi: "Software Loading for PCBs, ICs", cu: "Current Usage", mpps: "Manufacture, Processing, & Process Simulation",
+        pv: "Production Validations", ps: "Process Sharing", wmm: "Warranty & Maintenance Management", pd: "Product Documentation",
+        rs: "Recycling & Sustainability", pds: "Product Design Setup", iupc: "Internal Use Product Configurations", production: "Production"
+    }
+
+    const renderTab = () => {
+        let tabP = []
+        Object.keys(tabList).forEach((key, index) => {
+            tabP.push(<Tab label={`${index + 1}. ${tabList[key]}`} value={key} />)
+        })
+        return tabP
+    }
     if (isLoading) {
         return <CircularProgress />;
     }
@@ -392,8 +390,8 @@ const ItemDetail = () => {
                             <h4>Item Name: {itemProperties.name}</h4>
                             <p>Item ID:{id}</p>
                         </Grid>
-                        <Grid style={{ marginLeft: '34rem', marginTop: '20px' }}>
-                            <h4>Tab Name: {tabIndex}</h4>
+                        <Grid style={{ margin: 'auto' }}>
+                            <h4>Tab Name: { tabList[tabIndex]}</h4>
 
                         </Grid>
 
@@ -416,7 +414,8 @@ const ItemDetail = () => {
                             variant="scrollable"
                             value={tabIndex}
                             onChange={handleTabChange}>
-                            <Tab label="1. Product Design or CAD Upload" value={1} />
+                            {renderTab()}
+                            {/* <Tab label="Product Design or CAD Upload" value={"Product Design or CAD Upload"} />
                             <Tab label="2. Compliance and Certifications" value={11} />
 
                             <Tab label="3. GD&T and Assembly Constraints" value={3} />
@@ -424,7 +423,7 @@ const ItemDetail = () => {
                             <Tab label="5. Functional Load and Simulation" value={12} />
                             <Tab label="6. Design Modifications" value={13} />
                             <Tab label="7. Software Loading for PCBs, ICs" value={14} />
-                            {/* <Tab label="8. Assembly" value={8} /> */}
+                            <Tab label="8. Assembly" value={8} />
 
                             <Tab label="9. Current Usage" value={2} />
                             <Tab label="10. Manufacture, Processing, & Process Simulation" value={6} />
@@ -435,7 +434,7 @@ const ItemDetail = () => {
                             <Tab label="15. Recycling & Sustainability" value={19} />
                             <Tab label="16. Product Design Setup" value={20} />
                             <Tab label="17.Internal Use Product Configurations" value={4} />
-                            <Tab label="18. Production" value={9} />
+                            <Tab label="18. Production" value={9} /> */}
 
 
                         </Tabs>
