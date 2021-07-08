@@ -65,7 +65,7 @@ const ItemDetail = () => {
     const [itemProperties, setItemProperties] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [gltfjson, setgltfjson] = useState({});
-    const parserNeeded = [1, 2, 4];
+    const parserNeeded = [1, 3, 4, 8];
 
     useEffect(() => {
         let myTabIndex = 1;
@@ -163,15 +163,20 @@ const ItemDetail = () => {
                     //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
                     fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT);
                 }
-            } else {
+            } else {                
                 if (!item.fileGDT || item.fileGDT === null) {
+                    console.log("Checking Store", item.fileStore);
                     if (item.fileStore && item.fileStore.length > 0) {
                         const fileGDT = item.fileStore.slice(0, item.fileStore.length - 1) + "3";
                         console.log("Checking GDT", fileGDT);
                         if (doesFileExist(resourcePathURL + fileGDT + ".gltf")) {
                             console.log("Found", fileGDT);
                             item.fileGDT = fileGDT;
+                        } else {
+                            console.log("GDT Not Found", fileGDT);
                         }
+                    } else {
+                        console.log("Store Not Found", item.fileStore);
                     }
                 }
                 if (!item.fileGDT || item.fileGDT === null) {

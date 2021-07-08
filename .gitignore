@@ -17,3 +17,8 @@ node_modules
 __pycache__
 *.sqlite3
 *.sqbpro
+!struct_logo.png
+!logo192.png
+!logo512.png
+!logo_white.png
+!new_logo.png
