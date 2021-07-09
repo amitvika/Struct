@@ -65,10 +65,10 @@ const ItemDetail = () => {
     const [itemProperties, setItemProperties] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [gltfjson, setgltfjson] = useState({});
-    const parserNeeded = [1, 3, 4, 8];
+    const parserNeeded = ["pdcu", "gdtac", "iupc", "assembly"];
 
     useEffect(() => {
-        let myTabIndex = 1;
+        let myTabIndex = "pdcu";
         if (query.get('tab')) {
             myTabIndex = query.get('tab');
             setTabIndex(myTabIndex)
