@@ -10,7 +10,7 @@ import Backdrop from '@ravibasil/common/components/Backdrop';
 
 import { columnsFields } from '@ravibasil/common/constants/item'
 import AddEditItemModal from './AddEditItemModel';
-import { getThumbnailForStoreURL } from '@ravibasil/common/api/fileUpload.api';
+import { resourcePathURL } from '@ravibasil/common/api/fileUpload.api';
 
 const Items = ({ handleSave }) => {
     let history = useHistory();
@@ -117,7 +117,7 @@ const Items = ({ handleSave }) => {
                         name: item.name,
                         source: item?.vendorId?.name || 'STRUCT',
                         assemblyType: item.assemblyType,
-                        file_url: item.fileStore ? getThumbnailForStoreURL(item.fileStore) : undefined
+                        file_url: item.fileStore ? resourcePathURL+item.fileStore+".png" : undefined
                     }
                 })
 
