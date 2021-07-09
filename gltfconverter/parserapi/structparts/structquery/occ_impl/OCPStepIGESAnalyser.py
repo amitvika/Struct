@@ -880,7 +880,8 @@ class StepIgesAnalyser():
             "roughnessFactor":"r",
             "structures" : "S",  
             "bin":"I",  
-            "display":"D"    
+            "display":"D",
+            "subfeatures":"f"    
             }
 
     TEMPLATE = {
@@ -934,7 +935,7 @@ class StepIgesAnalyser():
     def __init__(
         self, document=None, filename=None, shapeslist=None, includeparts=False, distancegap=0.1, 
         anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, animations=[], 
-        delay=1.0, shapeorder=[], thumbheight=96, thumbwidth=96, 
+        delay=1.0, shapeorder=[], thumbheight=96, thumbwidth=96, multipleGLTF=True, writethread=True,
         includeUV=False, traversesubshapes=False,writeStep=False,writeColorStep=False,writePickle=True):
         """Supply one or the other: document or STEP filename or Shapes."""
 
@@ -948,17 +949,22 @@ class StepIgesAnalyser():
         self.fname = filename
         self.createFiles = (moverotate==0)
         self.edgeGapStr = str(math.trunc(edgesize*10))
+        #print("I m initializing")
         if filename:
             _, tail = os.path.split(self.fname)
             pathfilename, file_extension = os.path.splitext(tail)
-            file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
-            file_extension = file_extension.lower()
+            if file_extension:
+                file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
+                file_extension = file_extension.lower()
+            else:
+                file_extension = "stp"
             self.stepiges = (file_extension) == "stp" or (file_extension == "step")
             self.basefilename = pathfilename+self.edgeGapStr
         else:
             self.basefilename = "./"
             self.fname = "NoName"
             self.stepiges=True
+        #print(self.fname,self.basefilename)
         self.includeparts = includeparts
         if self.includeparts:
             self.fileprefix = "I"
@@ -982,7 +988,9 @@ class StepIgesAnalyser():
         self.delay = delay
         self.shapeorder = shapeorder
         self.thumbheight = thumbheight
-        self.thumbwidth = thumbwidth                
+        self.thumbwidth = thumbwidth     
+        self.multiplegltf = multipleGLTF      
+        self.writethread =   writethread   
         if (self.edgesize == 0) and (self.vertexsize==0):
             self.writeStep = False
             self.writeColorStep = False
@@ -997,8 +1005,10 @@ class StepIgesAnalyser():
             self.includeUV = includeUV
         try:
             if shapeslist:
+                #print("shapes",shapeslist)
                 self.shapeslist = shapeslist
             elif filename:
+                #print("shapres",shapeslist)
                 self.doc = self.read_file(filename)
             elif document:
                 self.doc = document
@@ -1293,14 +1303,14 @@ class StepIgesAnalyser():
         return True
 
 
-    def getFeaturesFromShape(self, aShape, subLabel, localTransform, parentColor, subShapes, parentShape=None, disectparts=True):
+    def getFeaturesFromShape(self, aShape, subLabel, localTransform, parentColor, subShapes, parentShape=None, disectparts=True, doCompact=True):
         if aShape.IsNull():
             print("No shape was formed when"+str(self.uid)+"\n") 
-            return [],None, None
+            return [],None, None, None
         else:
             if self.checkOpenShell(aShape) :#
                 print("There is no need to add outer infinity shell to the shapes",aShape.Infinite(), aShape.ShapeType())
-                return [],None, None
+                return [],None, None, None
         #if self.includeparts:
         #    disectparts = True
         transformationHash = self.hashCode(localTransform)
@@ -1309,9 +1319,26 @@ class StepIgesAnalyser():
             edges_dict = {}
             vertices_dict = {}
             dumpTopologyFacesEdgesVertices(aShape,faces_dict,edges_dict,vertices_dict)
+            reduced_edges_dict = None
+            reduced_corners_dict = None
+            if self.edgesize > 0:
+                reduced_edges_dict = {}
+                for hash_edge, edge in edges_dict.items():
+                    hashcode = hash_edge+transformationHash
+                    if (not hashcode in self.outputEdges):
+                        self.outputEdges[hashcode] = (edge)
+                        reduced_edges_dict[hashcode]=edge
+            if self.vertexsize > 0: 
+                reduced_corners_dict = {}            
+                for hash_corner, corner in vertices_dict.items():
+                    hashcode = hash_corner+transformationHash
+                    if (not hashcode in self.outputCorners):
+                        self.outputCorners[hashcode] = (corner)
+                        reduced_corners_dict[hashcode]=corner 
             #list_of_faces, edges_dict, vertices_dict = self.getFacesEdgesVertices(aShape,localTransform,transformationHash)            
             #print(len(list_of_faces),aShape)
             list_of_solids = []
+            list_of_compounds=[]
             only_soilds = []
             only_Colors=[(parentColor.Red(),parentColor.Green(),parentColor.Blue())]
             for hash_solidface, solidface in faces_dict.items(): 
@@ -1342,7 +1369,7 @@ class StepIgesAnalyser():
                         self.outputFaces[hashcode] = (shape_disp,Quantity_Color(faceColor.Red(),faceColor.Green(),faceColor.Blue(), Quantity_TOC_RGB))
                         list_of_solids.append((shape_disp,Quantity_Color(faceColor.Red(),faceColor.Green(),faceColor.Blue(), Quantity_TOC_RGB),hashcode) )  
                         #print(faceColor.Red(),faceColor.Green(),faceColor.Blue())
-                        if (self.edgesize==0) and (self.vertexsize==0):
+                        if doCompact:
                             only_soilds.append(shape_disp)
                             if self.NotFoundIn(only_Colors,faceColor ):
                                 only_Colors.append((faceColor.Red(),faceColor.Green(),faceColor.Blue())) 
@@ -1355,34 +1382,22 @@ class StepIgesAnalyser():
                             else:
                                 print("Found",faceColor.Red(),faceColor.Green(),faceColor.Blue())   """     
                     #print(hashcode,localTransform)
-            if (self.edgesize==0) and (self.vertexsize==0):                
+            if doCompact:                
                 len_color_arr = len(only_Colors)
                 if len_color_arr<=2:
                     (R,G,B)=only_Colors[len_color_arr-1]
                     #print("Colors",R,G,B,len_color_arr,len(only_soilds))
-                    mycompound,_ = list_of_shapes_to_compound(only_soilds) 
-                    list_of_solids=[]
-                    hashcode = str(hash(mycompound))
-                    list_of_solids.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hashcode))
-                    return list_of_solids, None, None
+                    mycompound,_ = list_of_shapes_to_compound(only_soilds)                     
+                    hashcode = str(hash(mycompound))+transformationHash
+                    list_of_compounds.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hashcode))
+                    return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" 
                 else:
-                    return list_of_solids, None, None 
+                    return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE"
             #else:
             #    #print("Colors",len(only_Colors),len(only_soilds))                    
             #    #return list_of_solids, edges_dict, vertices_dict
-            reduced_edges_dict = {}
-            reduced_corners_dict = {}
-            for hash_edge, edge in edges_dict.items():
-                hashcode = hash_edge+transformationHash
-                if (not hashcode in self.outputEdges):
-                    self.outputEdges[hashcode] = (edge)
-                    reduced_edges_dict[hashcode]=edge 
-            for hash_corner, corner in vertices_dict.items():
-                hashcode = hash_corner+transformationHash
-                if (not hashcode in self.outputCorners):
-                    self.outputCorners[hashcode] = (corner)
-                    reduced_corners_dict[hashcode]=corner 
-            return list_of_solids, reduced_edges_dict, reduced_corners_dict
+            
+            return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE"
         else:
             list_of_solids = []
             shape_disp = BRepBuilderAPI_Transform(aShape, localTransform).Shape()
@@ -1392,7 +1407,7 @@ class StepIgesAnalyser():
                 hashcode = str(hash(aShape))+transformationHash
                 list_of_solids.append((shape_disp,Quantity_Color(parentColor.Red(),parentColor.Green(),parentColor.Blue(), Quantity_TOC_RGB),hashcode))
                 #print(hashcode,localTransform) 
-            return list_of_solids, None, None
+            return list_of_solids,list_of_solids, None, None, "PART"
                 
     def getDarken(self, faceColor, factor):
         faceR = (faceColor.Red())*factor
@@ -1520,74 +1535,144 @@ class StepIgesAnalyser():
                     subLocation = subLocation.Multiplied(currentLocation)
                 
                 currentColor, color_set = self.setColor(shape,subLabel)
+                my_parent_id = None
                 if self.includeparts:
                     #print("sub include",subName)
                     mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
-                    self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
+                    my_parent_id = mesherDict[self.gltf_Dict["id"]]
+                    self.parentIDs.append(my_parent_id)
                     self.indent += 1
                     mydirectory = self.validFileName(subName+subEntry)
                     mydirectorylen = len(self.direntry)
                     self.direntry += "/"+mydirectory   
-                localTransformation = subLocation.Transformation()                 
-                shape_faces, shape_edges, shape_vertices  =self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts)
-                atleastOneItemAdded = 0
-                myFaceType=[]
-                #print(shape_faces)
-                for shape_disp,faceColor,shapeInFile in shape_faces:
-                    #print("I have reached here 16")
-                    #shape_disp = BRepBuilderAPI_Transform(shape, subLocation.Transformation()).Shape()
-                    if shape_disp.IsNull():
-                        print("No shape was formed when"+str(self.uid)+"\n")
-                    else:
-                        if self.checkOpenShell(shape_disp) :#or shape_disp.ShapeType()==TopAbs_SHELL:
-                            print("There is no need to add outer infinity shell to the shapes",shape_disp.Infinite(), shape_disp.ShapeType())
+                localTransformation = subLocation.Transformation()   
+                atleastOneItemAdded = 0     
+                if self.multiplegltf or (self.edgesize==0 and self.vertexsize==0) :
+                    shape_compounds, shape_faces, shape_edges, shape_vertices, disect_type  =self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, True)
+                    #atleastOneItemAdded = 0
+                    #myFaceType=[]
+                    #print(shape_faces)
+                    for shape_disp,faceColor,shapeInFile in shape_compounds:
+                        #print("I have reached here 16")
+                        #shape_disp = BRepBuilderAPI_Transform(shape, subLocation.Transformation()).Shape()
+                        if shape_disp.IsNull():
+                            print("No shape was formed when"+str(self.uid)+"\n")
                         else:
-                        #print("I have reached here 17")
-                            if not shapeInFile in self.outputShapes:
-                                self.fileId += 1
-                                atleastOneItemAdded += 1
-                                (filefullname, basename) = self.write_step_file(shape_disp,subName+parentName,faceColor)
-                                _, _, face_entity = recognize_direction(shape_disp)
-                                if(face_entity=="Cylinder"):                                 
-                                    myFaceType.append(face_entity)
-                                print("I am writing",self.fileId, basename)
-                                """ stype = shape_disp.ShapeType()
-                                if(stype==TopAbs_VERTEX):
-                                    print("Serving TopAbs_VERTEX")                        
-                                if(stype==TopAbs_EDGE):
-                                        print("Serving TopAbs_EDGE")
-                                if(stype==TopAbs_FACE):
-                                        print("Serving TopAbs_FACE")
-                                if(stype==TopAbs_WIRE):
-                                        print("Serving TopAbs_WIRE")
-                                if(stype==TopAbs_SHELL):
-                                        print("Serving TopAbs_EDGE")
-                                if(stype==TopAbs_SOLID):
-                                        print("Serving TopAbs_SOLID")
-                                if(stype==TopAbs_COMPOUND):
-                                        print("Serving TopAbs_COMPOUND")
-                                if(stype==TopAbs_COMPSOLID):
-                                        print("Serving TopAbs_COMPSOLID")                        
-                                print("I have written lowest node",basename,shape_disp.ShapeType() ) """
-                                    
-                                (_,_,meshname,uvPlane)=self.add_part(
-                                    shape_disp,
-                                    part_color=faceColor,
-                                    filenameuri=filefullname,
-                                    filename= filename,
-                                    name=subName+parentName,
-                                    parent_idx=parent_node_index,                        
-                                ) 
-                                self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
-                                #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
+                            if self.checkOpenShell(shape_disp) :#or shape_disp.ShapeType()==TopAbs_SHELL:
+                                print("There is no need to add outer infinity shell to the shapes",shape_disp.Infinite(), shape_disp.ShapeType())
+                            else:
+                            #print("I have reached here 17")
+                                if not shapeInFile in self.outputShapes:
+                                    self.fileId += 1
+                                    atleastOneItemAdded += 1
+                                    (filefullname, basename) = self.write_step_file(shape_disp,subName+parentName,faceColor)
+                                    #_, _, face_entity = recognize_direction(shape_disp)
+                                    #if(face_entity=="Cylinder"):                                 
+                                    #    myFaceType.append(face_entity)
+                                    #print("I am writing Full Parts",disect_type,self.fileId, basename,shapeInFile)
+                                    """ stype = shape_disp.ShapeType()
+                                    if(stype==TopAbs_VERTEX):
+                                        print("Serving TopAbs_VERTEX")                        
+                                    if(stype==TopAbs_EDGE):
+                                            print("Serving TopAbs_EDGE")
+                                    if(stype==TopAbs_FACE):
+                                            print("Serving TopAbs_FACE")
+                                    if(stype==TopAbs_WIRE):
+                                            print("Serving TopAbs_WIRE")
+                                    if(stype==TopAbs_SHELL):
+                                            print("Serving TopAbs_EDGE")
+                                    if(stype==TopAbs_SOLID):
+                                            print("Serving TopAbs_SOLID")
+                                    if(stype==TopAbs_COMPOUND):
+                                            print("Serving TopAbs_COMPOUND")
+                                    if(stype==TopAbs_COMPSOLID):
+                                            print("Serving TopAbs_COMPSOLID")                        
+                                    print("I have written lowest node",basename,shape_disp.ShapeType() ) """
+                                        
+                                    (_,_,meshname,uvPlane)=self.add_part(
+                                        shape_disp,
+                                        part_color=faceColor,
+                                        filenameuri=filefullname,
+                                        filename= filename,
+                                        name=disect_type+subName+parentName,
+                                        parent_idx=parent_node_index,                        
+                                    ) 
+                                    self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
+                                    #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
-                            #else:
-                            #    diffColor = self.outputShapes[shapeInFile][3]
-                            #    #print(diffColor, faceColor)
-                            #    #print("I am not writing with shape color in simpleshape",faceColor.Red(),diffColor.Red(),faceColor.Green(),diffColor.Green(),faceColor.Blue(),diffColor.Blue(),subName, subEntry)
+                                #else:
+                                #    diffColor = self.outputShapes[shapeInFile][3]
+                                #    #print(diffColor, faceColor)
+                                #    #print("I am not writing with shape color in simpleshape",faceColor.Red(),diffColor.Red(),faceColor.Green(),diffColor.Green(),faceColor.Blue(),diffColor.Blue(),subName, subEntry)
+                else:
+                    _, shape_faces, shape_edges, shape_vertices, disect_type  =self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, True)
+                   
+                #atleastOneItemAdded = 0
+                myFaceType=[]
+                myFeatures=[]
+                if(self.edgesize!=0 or self.vertexsize!=0):
+                    #print("Doing1",self.multiplegltf,self.edgesize,self.vertexsize)
+                    for shape_disp,faceColor,shapeInFile in shape_faces:
+                        #print("I have reached here",shapeInFile,disect_type)
+                        #shape_disp = BRepBuilderAPI_Transform(shape, subLocation.Transformation()).Shape()
+                        if shape_disp.IsNull():
+                            print("No shape was formed when"+str(self.uid)+"\n")
+                        else:
+                            if self.checkOpenShell(shape_disp) :#or shape_disp.ShapeType()==TopAbs_SHELL:
+                                print("There is no need to add outer infinity shell to the shapes",shape_disp.Infinite(), shape_disp.ShapeType())
+                            else:
+                            #print("I have reached here 17")
+                                if not shapeInFile in self.outputShapes:
+                                    self.fileId += 1
+                                    atleastOneItemAdded += 1
+                                    (filefullname, basename) = self.write_step_file(shape_disp,subName+parentName,faceColor)
+                                    _, _, face_entity = recognize_direction(shape_disp)
+                                    if(face_entity=="Cylinder"):                                 
+                                        myFaceType.append(face_entity)
+                                    #print("I am writing",disect_type,self.fileId, basename)
+                                    """ stype = shape_disp.ShapeType()
+                                    if(stype==TopAbs_VERTEX):
+                                        print("Serving TopAbs_VERTEX")                        
+                                    if(stype==TopAbs_EDGE):
+                                            print("Serving TopAbs_EDGE")
+                                    if(stype==TopAbs_FACE):
+                                            print("Serving TopAbs_FACE")
+                                    if(stype==TopAbs_WIRE):
+                                            print("Serving TopAbs_WIRE")
+                                    if(stype==TopAbs_SHELL):
+                                            print("Serving TopAbs_EDGE")
+                                    if(stype==TopAbs_SOLID):
+                                            print("Serving TopAbs_SOLID")
+                                    if(stype==TopAbs_COMPOUND):
+                                            print("Serving TopAbs_COMPOUND")
+                                    if(stype==TopAbs_COMPSOLID):
+                                            print("Serving TopAbs_COMPSOLID")                        
+                                    print("I have written lowest node",basename,shape_disp.ShapeType() ) """
+                                    if self.multiplegltf:
+                                        meshname="FACE"
+                                        uvPlane=my_parent_id
+                                        myFeatures.append((shape_disp,faceColor,filefullname,"FACE"+subName+parentName))
+                                    else:   
+                                        (_,_,meshname,uvPlane)=self.add_part(
+                                            shape_disp,
+                                            part_color=faceColor,
+                                            filenameuri=filefullname,
+                                            filename= filename,
+                                            name=disect_type+subName+parentName,
+                                            parent_idx=parent_node_index,                        
+                                        ) 
+                                    self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
+                                    #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
+
+                                #else:
+                                #    diffColor = self.outputShapes[shapeInFile][3]
+                                #    #print(diffColor, faceColor)
+                                #    #print("I am not writing with shape color in simpleshape",faceColor.Red(),diffColor.Red(),faceColor.Green(),diffColor.Green(),faceColor.Blue(),diffColor.Blue(),subName, subEntry)
+                                         
                 if self.includeparts and (atleastOneItemAdded>0):
                     #print(shape_edges)
-                    #print(shape_vertices)           
+                    #print(shape_vertices)  
+                    #print("Doing2",self.multiplegltf,self.edgesize,self.vertexsize,self.includeparts,atleastOneItemAdded)         
                     toAddCorners = True
                     if self.edgesize > 0:
                         edgeColor = self.getDarken(faceColor,0.50)                        
@@ -1611,18 +1696,25 @@ class StepIgesAnalyser():
                                 (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,self.defaultColor)
                                 #print("I am writing Edge",self.fileId, basename)                       
                                 shape_disp = self.createPipesFromEdge(shape_transform)  
-
-                                (_,_,meshname,uvPlane)=self.add_part(
-                                    shape_disp,
-                                    part_color=edgeColor,
-                                    filenameuri=filefullname,
-                                    filename= filename,
-                                    name="EDGE"+subName+parentName,
-                                    parent_idx=parent_node_index,                        
-                                ) 
+                                if self.multiplegltf:
+                                    meshname="EDGE"
+                                    uvPlane=my_parent_id
+                                    myFeatures.append((shape_disp,edgeColor,filefullname,"EDGE"+subName+parentName))
+                                    
+                                else:  
+                                    (_,_,meshname,uvPlane)=self.add_part(
+                                        shape_disp,
+                                        part_color=edgeColor,
+                                        filenameuri=filefullname,
+                                        filename= filename,
+                                        name="EDGE"+subName+parentName,
+                                        parent_idx=parent_node_index,                        
+                                    ) 
                                 self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, edgeColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
                                 #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
                     if (self.vertexsize > 0) and (toAddCorners==True):  
+                        #print("Doing3",self.multiplegltf,self.edgesize,self.vertexsize,self.includeparts,atleastOneItemAdded)         
+                    
                         vertexColor = self.getDarken(faceColor,0.75)  
                         for key, shape_vertex  in shape_vertices.items():
                             
@@ -1630,19 +1722,28 @@ class StepIgesAnalyser():
                             shape_transform = BRepBuilderAPI_Transform(shape_vertex, localTransformation).Shape()        
                             (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,self.defaultColor)
                             #print("I am writing Vertex",self.fileId, basename)                       
-                            shape_disp = self.CreateSphereFromVertex(shape_transform)            
-                            (_,_,meshname,uvPlane)=self.add_part(
-                                shape_disp,
-                                part_color=vertexColor,
-                                filenameuri=filefullname,
-                                filename= filename,
-                                name="VERTEX"+subName+parentName,
-                                parent_idx=parent_node_index,                        
-                            ) 
+                            shape_disp = self.CreateSphereFromVertex(shape_transform) 
+                            if self.multiplegltf:
+                                meshname="VERTEX"
+                                uvPlane=my_parent_id
+                                myFeatures.append((shape_disp,edgeColor,filefullname,"VERTEX"+subName+parentName))
+                                
+                            else:            
+                                (_,_,meshname,uvPlane)=self.add_part(
+                                    shape_disp,
+                                    part_color=vertexColor,
+                                    filenameuri=filefullname,
+                                    filename= filename,
+                                    name="VERTEX"+subName+parentName,
+                                    parent_idx=parent_node_index,                        
+                                ) 
                             self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, vertexColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
                             #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
-
+                #print("Doing4",self.multiplegltf,self.edgesize,self.vertexsize,self.includeparts,atleastOneItemAdded, myFeatures)         
+                    
+                self.outputFeatures.append({"Id":my_parent_id,"shapes":myFeatures})
                 #print(len(shape_faces),"Got above subshapers")
+
                 if self.includeparts:
                     self.indent -= 1 
                     self.parentIDs.pop()          
@@ -1692,7 +1793,7 @@ class StepIgesAnalyser():
                     labelForSubShapesEntry = labelForSubShapes.EntryDumpToString()                    
                     #print("I have reached here 22")
                                        
-                    shape_faces, shape_edges, shape_vertices = self.getFeaturesFromShape(shapeForSubShapes,labelForSubShapes,subLocation.Transformation(),currentColor,None, shape,False)                    
+                    _, shape_faces, shape_edges, shape_vertices, disect_type = self.getFeaturesFromShape(shapeForSubShapes,labelForSubShapes,subLocation.Transformation(),currentColor,None, shape,False)                    
                     """  shape_disps = []
                     shape_to_disp = BRepBuilderAPI_Transform(shapeForSubShapes, subLocation.Transformation()).Shape()
                     shape_disps.append((shape_to_disp,currentColor)) """
@@ -1709,7 +1810,7 @@ class StepIgesAnalyser():
                                 # position the subshape to display
                                 if not shapeInFile in self.outputShapes:
                                     self.fileId += 1
-                                    #print("I am writing gltf lowest node",basename,shape_to_disp.ShapeType() )
+                                    #print("I am writing gltf lowest node",basename,disect_type,self.fileId, shape_to_disp.ShapeType() )
                                     self.updateOutput(subName, subEntry, labelForSubShapesName, labelForSubShapesEntry,  False)
                                     #print("I have reached here 24")
                                     (filefullname, basename) = self.write_step_file(shape_to_disp,labelForSubShapesName+subName,faceColor)
@@ -1718,7 +1819,7 @@ class StepIgesAnalyser():
                                         part_color=faceColor,
                                         filenameuri=filefullname,
                                         filename= filename,
-                                        name=labelForSubShapesName+subName,
+                                        name=disect_type+labelForSubShapesName+subName,
                                         parent_idx=parent_node_index,
                                     )
                                     self.outputShapes[shapeInFile] = [shape_to_disp,subName, subEntry, faceColor, self.uid, self.indent, labelForSubShapesName, labelForSubShapesEntry, meshname, basename, uvPlane]
@@ -1838,6 +1939,7 @@ class StepIgesAnalyser():
         self.outputFaces = {}
         self.outputEdges = {}
         self.outputCorners = {}
+        self.outputFeatures=[]
 
         self.parentLocations = [] #list
         self.uid = 0
@@ -1912,6 +2014,7 @@ class StepIgesAnalyser():
         
         self.outputShapes = {} #dictionary
         self.parentLocations = [] #list
+        self.outputFeatures = []
         self.uid = 0
         self.fileId = 0 
         self.binId = 0   
@@ -1963,6 +2066,118 @@ class StepIgesAnalyser():
             #print("I have reached here in getshapes 10")
         print("Part is seperated")
             #self.tree+="</ul></li></ul>" 
+    
+    def addFeature(self,outputFeature,parentID, treeLen):  
+        #print("I have reached here in getshapes 0",self.output)      
+        if self.fname:
+            self.output += f"Assembly structure of file: {self.fname}\n\n"
+        else:
+            self.output += "Assembly structure of doc:\n\n"
+        self.indent = 0
+        #print("I have reached here in getshapes 1",self.output)
+        filename = "Display/"+self.basefilename+".gltf"
+        #split = os.path.splitext(filename)
+        name = os.path.basename(filename)
+        rootEntry = filename
+        rootName = self.basefilename
+        
+        uid = self.get_uid_from_entry(rootEntry)
+        #print("I have reached here in getshapes 2",self.output)
+        self.outputShapes = {} #dictionary
+        self.parentLocations = [] #list
+        self.outputFeatures = []
+        self.uid = 0
+        self.fileId = 0 
+        self.binId = 0   
+        
+        self.output += f"{self.uid}--{uid}\t[{rootEntry}] {rootName}\t"        
+        self.uid += 1
+        self.indent += 1
+        self.output += f"Number of labels at root = {filename}\n"
+        self.direntry = "Display/"+self.validFileName(name+rootName+rootEntry)
+        parent_node_index = 0
+        node_index = 0
+        self.parentIDs.append(None)
+        mesherDict = self.updateParentChild(name+" "+rootName+" "+rootEntry,None)
+        self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
+        #print("I have reached here in getshapes 3",self.output)
+        node_index = len(self.mstep_dict['nodes'])
+        node = {}
+        #node.update(self.transformed_matrix)
+        self.updateName(name,node)
+        self.mstep_dict['nodes'].append(node)
+        c = Quantity_Color(0.5, 0.5, 0.5, Quantity_TOC_RGB)
+        # Add this node to its parent
+        parent_node = self.mstep_dict['nodes'][parent_node_index]
+        parent_node['children'] = parent_node.get('children', []) + [node_index]
+        #print("I have reached here in getshapes 4",self.output)
+        for (shape_to_disp,myColor,myfilename,myname) in outputFeature:
+            #print(shape_to_disp,myColor,myfilename,myname) 
+            hash_shape = hash(shape_to_disp)
+            try:
+               if not hash_shape in self.outputShapes:
+                    self.fileId += 1
+                    subName = self.basefilename+str(self.fileId)
+                    subEntry = subName
+                    #print("I am writing gltf lowest node",basename,shape_to_disp.ShapeType() )
+                    self.updateOutput(subName, subEntry, rootName, rootEntry,  False)
+                    #print("I have reached here 24")
+                    (filefullname, _) = myfilename,myname
+                    self.add_part(
+                        shape_to_disp,
+                        part_color=myColor,
+                        filenameuri=filefullname,
+                        filename= filename,
+                        name=myname,
+                        parent_idx=parent_node_index,
+                    )                    
+                    #self.outputShapes[hash_shape] = [shape_to_disp, subName, subEntry, c, self.uid, self.indent, rootName, rootEntry, meshname, basenamehere, uvPlane]
+ 
+            except Exception as e:
+                print("Error",e)
+            #print("I have reached here in getshapes 10")
+        for mesh_dict in self.tstep_dict['tree']:
+            mesh_dict[self.gltf_Dict["id"]]+=treeLen
+            if mesh_dict[self.gltf_Dict["parentId"]]:
+                mesh_dict[self.gltf_Dict["parentId"]]+=treeLen
+            else:
+                mesh_dict[self.gltf_Dict["parentId"]]=parentID
+            mesh_dict[self.gltf_Dict["subfeatures"]]=1
+        dict_return = {
+            "gltf":self.mstep_dict,
+            "tree":self.tstep_dict['tree'],
+            "store":self.basefilename
+        }
+
+        mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False))
+        mythread.start()
+        print(self.basefilename,"Features are seperated")
+        return len(self.tstep_dict['tree'])
+            #self.tree+="</ul></li></ul>" 
+    
+    def addFeatures(self):  
+        _, tail = os.path.split(self.fname)
+        pathfilename, _ = os.path.splitext(tail)
+        myTreeLen = len(self.tstep_dict["tree"])
+        lenFeatures = len(self.outputFeatures)
+        lenfeature = 0
+        newfilename = "Display/"+pathfilename+".progress"
+        with open(newfilename, 'w') as fh:
+            fh.write(json.dumps({"begin":lenfeature,"end":lenFeatures}, sort_keys=True, indent=2 ))
+        for outputFeature in self.outputFeatures:
+            #print(outputFeature)
+            myshapes = outputFeature["shapes"]
+            if(myshapes):    
+                myparentID =  outputFeature["Id"]          
+                fname = pathfilename+"-"+str(myparentID)+"."
+                lenfeature+=1
+                print("Disecting",fname,lenfeature,"/",lenFeatures)
+                addedTrees = StepIgesAnalyser(filename=fname,shapeslist=["Dummy"]).\
+                    addFeature(myshapes,myparentID,myTreeLen)
+                myTreeLen+=addedTrees
+        with open(newfilename, 'w') as fh:
+            fh.write(json.dumps({"begin":lenfeature,"end":lenFeatures}, sort_keys=True, indent=2 ))
+    
     def addAnimations(self):
         lenAnimations = len(self.animations)
         lenShapeOrder = len(self.shapeorder)
@@ -2284,7 +2499,8 @@ class StepIgesAnalyser():
         else:
             self.getShapes()
         if self.delay != 0:
-            self.addAnimations()  
+            self.addAnimations()
+          
         #print("Shapes Len",len(self.animations),len(self.outputShapes))
         #self.mstep_dict['download']=self.tree
         # Write self.mstep_dict to file as JSON string       
@@ -2315,6 +2531,16 @@ class StepIgesAnalyser():
         mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG))
         mythread.start()
         #self.mstep_dict['tree']=self.tstep_dict['tree']
+
+        try:
+            if(self.writethread):
+                myanotherthread = threading.Thread(target=self.addFeatures)
+                myanotherthread.start()
+            else:
+                self.addFeatures()
+        except Exception as e:
+            print("Error while disecting",e)
+
         return (            
             (getPNG,self.output), 
             (

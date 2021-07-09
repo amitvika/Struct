@@ -37,7 +37,7 @@ const stateprops = {
     materialtype: DEFAULTMATERIALTYPE
 }
 
-export default function GeometricDimensioning({tabIndex, fileId, gltfjson, isLoading, assemblyTree = [] }) {
+export default function GeometricDimensioning({tabIndex, fileId, fileGDT, gltfjson, isLoading, assemblyTree = [] }) {
     const [state, _setState] = useState({});
     // const [isLoading, setIsLoading] = useState(false);
     const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
@@ -725,6 +725,7 @@ export default function GeometricDimensioning({tabIndex, fileId, gltfjson, isLoa
                         <Paper square={true}>
                             <Viewer
                                 {...state}
+                                fileGDT={fileGDT}
                                 selectedOption={selectedOption}
                                 handleModelClick={handleModelClick}
                                 isLoading={isLoading}

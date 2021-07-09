@@ -107,7 +107,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                 }));
                 //console.log(itemProperties);
                 const multiAssmebly = get(data, 'tree', []).length > 0;
-                setgltfjson({ ...data, multiAssmebly: multiAssmebly });
+                setgltfjson({ ...data, multiAssmebly: multiAssmebly, gdt:null });
                 //console.log({...data,multiAssmebly:multiAssmebly});
                 setIsFileLoadingLoading(false);
 
@@ -154,6 +154,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                                     <GLTFRenderer
                                         //gltfjson={JSON.stringify(gltfjson)}
                                         gltfobj={gltfjson}
+                                        fileGDT={itemProperties.fileGDT}
                                         activefile={fileId}
                                         backcolor={DEFAULTBACKCOLOR}
                                         selectcolor={DEFAULTSELECTCOLOR}
