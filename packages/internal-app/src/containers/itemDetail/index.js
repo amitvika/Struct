@@ -61,7 +61,7 @@ const ItemDetail = () => {
 
     const currentItem = useSelector(state => state.item.currentItem);
     const [dispensing, setDispensing] = useState({});
-    const [tabIndex, setTabIndex] = useState(1);
+    const [tabIndex, setTabIndex] = useState("pdcu");
     const [itemProperties, setItemProperties] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [gltfjson, setgltfjson] = useState({});
