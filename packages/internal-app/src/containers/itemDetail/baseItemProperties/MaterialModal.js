@@ -43,6 +43,7 @@ export default function MaterialModal({ toggleMaterial,
     const [subcategoryOptionsThree, setSubcategoryOptionsThree] = useState([]);
     const [subcategoryOptionsFour, setSubcategoryOptionsFour] = useState([]);
     const [isMaterialLoading, setIsMaterialLoading] = useState(false);
+    const [searchText, setSearchText] = useState('');
     const [searchMaterialByName, setSearchMaterialByName] = useState({
         name: '',
         typing: false,
@@ -79,6 +80,7 @@ export default function MaterialModal({ toggleMaterial,
 
     const addMaterialToSelected = (data) => {
         setMaterialList(preMaterialList => {
+        
             return preMaterialList.filter(material => material._id !== data._id);
         });
 
@@ -118,8 +120,16 @@ export default function MaterialModal({ toggleMaterial,
     }
 
     const handleClearButton = () => {
-        setMaterialList([])
-   
+        setMaterialList([]);
+        setSearchText('')
+
+        setSearchMaterialByName({
+            name: '',
+            typing: false,
+            typingTimeout: 0,
+        });
+
+
     }
 
     const searchMaterial = () => {
@@ -135,7 +145,7 @@ export default function MaterialModal({ toggleMaterial,
     }
 
     const handleCategoryChange = (data) => {
-        setSearchMaterialByName({ name: ''})
+        setSearchText('')
         setCurrentCategory(data)
 
         fetchCategories(data, (subCategories) => {
@@ -243,7 +253,7 @@ export default function MaterialModal({ toggleMaterial,
         setCurrentSubCategoryThree('')
         setCurrentSubCategoryFour('')
 
-        // setSearchName(event.target.value)
+        setSearchText(event.target.value)
         const inputValue = event.target.value;
         if (inputValue.length < 3) {
             return;
@@ -274,7 +284,7 @@ export default function MaterialModal({ toggleMaterial,
                         <Input
                             placeholder="Enter"
                             type="text"
-                            // value={searchMaterialByName.name}
+                            value={searchText}
                             onChange={(event) => handleNameChange(event)}
                         />
                     </Grid>
