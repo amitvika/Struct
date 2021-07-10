@@ -15,7 +15,8 @@ import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import './style.css'
 
 //import {CopyLogo} from '../../assets/images/copy_icon.png'
-import StructLogo from '../../assets/images/struct_logo.png';
+// import StructLogo from '../../assets/images/struct_logo.png';
+import StructLogo from '../../assets/images/new_logo.png';
 import { resourcePathURL } from '@ravibasil/common/api/fileUpload.api';
 //import {isURLExisting} from  '@ravibasil/common/utils/usefulHelpers';
 
