@@ -9,7 +9,6 @@ import {
 	Color,
 	DirectionalLight,
 	DoubleSide,
-	FileLoader,
 	FrontSide,
 	Group,
 	ImageBitmapLoader,
@@ -62,7 +61,7 @@ import {
 	VectorKeyframeTrack,
 	sRGBEncoding
 } from 'three';
-
+import { FileLoader } from './FileLoader';
 class GLTFLoader extends Loader {
 
 	constructor( manager ) {
@@ -113,7 +112,7 @@ class GLTFLoader extends Loader {
 
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load( url, onLoad, onProgress, onError, renderOrder ) {
 
 		const scope = this;
 
@@ -172,7 +171,7 @@ class GLTFLoader extends Loader {
 
 					scope.manager.itemEnd( url );
 
-				}, _onError );
+				}, _onError, renderOrder, onProgress );
 
 			} catch ( e ) {
 
@@ -239,7 +238,7 @@ class GLTFLoader extends Loader {
 
 	}
 
-	parse( data, path, onLoad, onError ) {
+	parse( data, path, onLoad, onError, renderOrder, onProgress ) {
 
 		let content;
 		const extensions = {};
@@ -292,7 +291,8 @@ class GLTFLoader extends Loader {
 			requestHeader: this.requestHeader,
 			manager: this.manager,
 			ktx2Loader: this.ktx2Loader,
-			meshoptDecoder: this.meshoptDecoder
+			meshoptDecoder: this.meshoptDecoder,
+			renderOrder: renderOrder
 
 		} );
 
@@ -356,7 +356,7 @@ class GLTFLoader extends Loader {
 
 		parser.setExtensions( extensions );
 		parser.setPlugins( plugins );
-		parser.parse( onLoad, onError );
+		parser.parse( onLoad, onError, onProgress );
 
 	}
 
@@ -2014,12 +2014,12 @@ class GLTFParser {
 
 	}
 
-	parse( onLoad, onError ) {
-
+	parse( onLoad, onError, onProgress ) {
+		this.onProgress = onProgress;
 		const parser = this;
 		const json = this.json;
 		const extensions = this.extensions;
-
+		 
 		// Clear the loader cache
 		this.cache.removeAll();
 
@@ -2337,6 +2337,10 @@ class GLTFParser {
 	loadBuffer( bufferIndex ) {
 
 		const bufferDef = this.json.buffers[ bufferIndex ];
+		//console.log(bufferDef);
+		//if(bufferDef.name.startsWith("EDGE")) {
+			//return new Promise( function ( resolve, reject ) { resolve([]); } );
+		//}
 		const loader = this.fileLoader;
 //		this.bufferFetch+=1;
 		
@@ -2354,7 +2358,7 @@ class GLTFParser {
 		}
 
 		const options = this.options;
-
+		const onProgress = this.onProgress;
 		
 /* 		if(this.bufferFetch>1000) {
 			this.bufferFetch=0;
@@ -2369,7 +2373,7 @@ class GLTFParser {
 			} );
 		}  else */ {
 			return new Promise( function ( resolve, reject ) {
-			loader.load( resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
+			loader.load( resolveURL( bufferDef.uri, options.path ), resolve, onProgress, function () {
 
 				reject( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
 
@@ -3204,7 +3208,7 @@ class GLTFParser {
 				}
 
 				mesh.name = parser.createUniqueName( meshDef.name || ( 'mesh_' + meshIndex ) );
-				
+				mesh.renderOrder = parser.options.renderOrder?parser.options.renderOrder:0;
 				assignExtrasToUserData( mesh, meshDef );
 
 				if ( primitive.extensions ) addUnknownExtensionsToUserData( extensions, mesh, primitive );

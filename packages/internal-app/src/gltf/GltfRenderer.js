@@ -41,12 +41,13 @@ import {
 //import * as THREE from 'three';
 import { Float32BufferAttribute } from './BufferAttribute.js';
 //import Stats from 'three/examples/jsm/libs/stats.module.js';
-import { GLTFParser } from './gltfloader.js';
-import { OrbitControls } from './OrbitControl.js';//'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader, GLTFParser } from './gltfloader.js';
+//import { OrbitControls } from './OrbitControl.js';//'three/examples/jsm/controls/OrbitControls.js';
 import { GUI } from './GUI.js';
-import CameraSpinControls from './CameraSpinControls.js';
+//import CameraSpinControls from './CameraSpinControls.js';
+import { TrackballControls } from "./TrackballControls.js";
 
-import { resourcePathURL, resourcePathBase } from '@ravibasil/common/api/fileUpload.api.js'
+import { resourcePathURL, resourcePathBase, getAFileFromStore } from '@ravibasil/common/api/fileUpload.api.js'
 import {
     SELECTCOLOR, SELECTTEXTURE, SELECTMETAL, SELECTROUGH, SELECTOPAQUE,
     SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
@@ -203,11 +204,14 @@ class GLTFRenderer extends Component {
             this.renderer.setSize(this.node.clientWidth, this.node.clientHeight);
 
             //this.controls = new CameraSpinControls(this.defaultCamera, this.renderer.domElement);
-            this.controls = new OrbitControls(this.defaultCamera, this.renderer.domElement);
+            //this.controls = new OrbitControls(this.defaultCamera, this.renderer.domElement);
+            this.controls = new TrackballControls(this.defaultCamera, this.renderer.domElement);
             this.controls.autoRotate = false;
             this.controls.autoRotateSpeed = -10;
             this.controls.screenSpacePanning = false;
-
+            this.controls.rotateSpeed = 5.0;
+            this.controls.zoomSpeed = 0.1;
+            this.controls.panSpeed = 1.0;
 
             this.node.appendChild(this.renderer.domElement);
         
@@ -307,6 +311,72 @@ class GLTFRenderer extends Component {
         this.controls=null;       
     };
 
+    changeVisibility = () => {
+        if(this.content) {
+            this.content.forEach(element => {
+                element.traverse((node) => {
+                    if (node.isLight) {
+                        this.state.addLights = false;
+                    } else if (node.isMesh) {
+                        // TODO(https://github.com/mrdoob/three.js/pull/18235): Clean up.
+        
+                        for (var i = 0; i < this.state_selectedObjects.length; i++) {
+                            if (node.name == this.state_selectedObjects[i].name) {
+                                this.setSelectionColor(node);
+                                this.state_selectedObjects[i] = node;
+                                break;
+                            }
+                        }
+                        if (this.firstshell) {
+                            if (node.name == this.firstshell.name) {
+                                this.setSelectionColor(node);
+                                this.firstshell = node;
+                            }
+                        }
+                        if (this.secondshell) {
+                            if (node.name == this.secondshell.name) {
+                                this.setSelectionColor(node);
+                                this.secondshell = node;
+                            }
+                        }
+                        const visibility = this.visibllity(node.name, true);
+                        if (this.props.materialtype != "Basic") {
+                            const materials = Array.isArray(node.material) ? node.material : [node.material];
+                            materials.forEach((material) => {
+                                material.visible = visibility;
+                                var prevMaterial = material;
+                                if (this.props.materialtype == "Standard") {
+                                    material = new MeshStandardMaterial();
+                                } else {
+                                    if (this.props.materialtype == "Lambert") {
+                                        material = new MeshLambertMaterial();
+                                    } else {
+                                        if (this.props.materialtype == "Phong") {
+                                            material = new MeshPhongMaterial();
+                                        } else {
+                                            if (this.props.materialtype == "Physical") {
+                                                material = new MeshPhysicalMaterial();
+                                            }
+                                        }
+                                    }
+                                }
+        
+                                MeshBasicMaterial.prototype.copy.call(material, prevMaterial);
+                            });
+                        } else {
+                            const materials = Array.isArray(node.material) ? node.material : [node.material];
+                            materials.forEach((material) => {
+                                material.visible = visibility;
+                            });
+                        }    
+                        this.changeMaterialStats(node.material);
+                    }
+                });
+            });
+        }       
+        
+    }
+
     /*
     *
     * @param {THREE.Object3D} object
@@ -322,15 +392,22 @@ class GLTFRenderer extends Component {
         const size = size3D.length() || 1;
 
         const center = box.getCenter(new Vector3());
-        if(this.controls?.reset) {
-            this.controls.reset();
+        if(this.controls) {
+            if(this.controls.reset) {
+                this.controls.reset();
+            }
         }
-        
+       
+        this.shiftposition = {"x":object.position.x - center.x,
+                              "y":object.position.y - center.y,
+                              "z":object.position.z - center.z }
 
-        object.position.x += (object.position.x - center.x);
-        object.position.y += (object.position.y - center.y);
-        object.position.z += (object.position.z - center.z);
-        this.controls.maxDistance = size * 10;
+        object.position.x += (this.shiftposition.x);
+        object.position.y += (this.shiftposition.y);
+        object.position.z += (this.shiftposition.z);
+        if(this.controls) {
+            this.controls.maxDistance = size * 10;
+        }
         this.defaultCamera.near = size / 100;
         this.defaultCamera.far = size * 100;
         this.defaultCamera.updateProjectionMatrix();
@@ -358,8 +435,12 @@ class GLTFRenderer extends Component {
         this.axesCamera.far = size * 100;
         this.axesCamera.updateProjectionMatrix();
         this.axesCorner.scale.set(size, size, size);
-
-        this.controls.saveState();
+        if(this.controls) {
+            if(this.controls.saveState){
+                this.controls.saveState();
+            }
+        }
+       
         /*
             this.dotGeometry = new Geometry();
             this.dotGeometry.vertices.push(new Vector3(0, 0, 0));
@@ -369,69 +450,12 @@ class GLTFRenderer extends Component {
         */
 
         this.scene.add(object);
-        this.content = object;
+        
+        this.content = [object];
 
         this.state.addLights = true;
-
-        this.content.traverse((node) => {
-            if (node.isLight) {
-                this.state.addLights = false;
-            } else if (node.isMesh) {
-                // TODO(https://github.com/mrdoob/three.js/pull/18235): Clean up.
-
-                for (var i = 0; i < this.state_selectedObjects.length; i++) {
-                    if (node.name == this.state_selectedObjects[i].name) {
-                        this.setSelectionColor(node);
-                        this.state_selectedObjects[i] = node;
-                        break;
-                    }
-                }
-                if (this.firstshell) {
-                    if (node.name == this.firstshell.name) {
-                        this.setSelectionColor(node);
-                        this.firstshell = node;
-                    }
-                }
-                if (this.secondshell) {
-                    if (node.name == this.secondshell.name) {
-                        this.setSelectionColor(node);
-                        this.secondshell = node;
-                    }
-                }
-                const visibility = this.visibllity(node.name, true);
-                if (this.props.materialtype != "Basic") {
-                    const materials = Array.isArray(node.material) ? node.material : [node.material];
-                    materials.forEach((material) => {
-                        material.visible = visibility;
-                        var prevMaterial = material;
-                        if (this.props.materialtype == "Standard") {
-                            material = new MeshStandardMaterial();
-                        } else {
-                            if (this.props.materialtype == "Lambert") {
-                                material = new MeshLambertMaterial();
-                            } else {
-                                if (this.props.materialtype == "Phong") {
-                                    material = new MeshPhongMaterial();
-                                } else {
-                                    if (this.props.materialtype == "Physical") {
-                                        material = new MeshPhysicalMaterial();
-                                    }
-                                }
-                            }
-                        }
-
-                        MeshBasicMaterial.prototype.copy.call(material, prevMaterial);
-                    });
-                } else {
-                    const materials = Array.isArray(node.material) ? node.material : [node.material];
-                    materials.forEach((material) => {
-                        material.visible = visibility;
-                    });
-                }
-
-                this.changeMaterialStats(node.material);
-            }
-        });
+        this.changeVisibility();
+        
 
        /*  this.trackballWidget = new Group();
         this.trackballWidget.position.set(0, 0, 0);
@@ -452,9 +476,9 @@ class GLTFRenderer extends Component {
         this.updateTextureEncoding();
         this.updateDisplay();
 
-        window.content = this.content;
+        //window.content = this.content;
         //console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
-        this.printGraph(this.content);
+        this.printGraph(this.content[0]);
 
     };
 
@@ -479,7 +503,7 @@ class GLTFRenderer extends Component {
         this.clips = clips;
         if (!clips.length) return;
 
-        this.mixer = new AnimationMixer(this.content);
+        this.mixer = new AnimationMixer(this.content[0]);
     };
 
     playAllClips = () => {
@@ -502,7 +526,7 @@ class GLTFRenderer extends Component {
             if(this.controls) {
                 this.controls.enabled = false;
             }
-            this.content.traverse((node) => {
+            this.content[0].traverse((node) => {
                 if (node.isCamera && node.name === name) {
                     this.activeCamera = node;
                 }
@@ -514,11 +538,14 @@ class GLTFRenderer extends Component {
         const encoding = this.state.textureEncoding === 'sRGB'
             ? sRGBEncoding
             : LinearEncoding;
-        traverseMaterials(this.content, (material) => {
-            if (material.map) material.map.encoding = encoding;
-            if (material.emissiveMap) material.emissiveMap.encoding = encoding;
-            if (material.map || material.emissiveMap) material.needsUpdate = true;
+        this.content.forEach(element => {
+            traverseMaterials(element, (material) => {
+                if (material.map) material.map.encoding = encoding;
+                if (material.emissiveMap) material.emissiveMap.encoding = encoding;
+                if (material.map || material.emissiveMap) material.needsUpdate = true;
+            });
         });
+        
     };
 
 
@@ -578,19 +605,21 @@ class GLTFRenderer extends Component {
         if (this.skeletonHelpers.length) {
             this.skeletonHelpers.forEach((helper) => this.scene.remove(helper));
         }
-
-        traverseMaterials(this.content, (material) => {
-            this.changeMaterialStats(material);
+        this.content.forEach(element => {
+            traverseMaterials(element, (material) => {
+                this.changeMaterialStats(material);
+            });
         });
+        this.content.forEach(element => {
+            element.traverse((node) => {
 
-        this.content.traverse((node) => {
-
-            if (node.isMesh && node.skeleton && this.state.skeleton) {
-                const helper = new SkeletonHelper(node.skeleton.bones[0].parent);
-                helper.material.linewidth = 3;
-                this.scene.add(helper);
-                this.skeletonHelpers.push(helper);
-            }
+                if (node.isMesh && node.skeleton && this.state.skeleton) {
+                    const helper = new SkeletonHelper(node.skeleton.bones[0].parent);
+                    helper.material.linewidth = 3;
+                    this.scene.add(helper);
+                    this.skeletonHelpers.push(helper);
+                }
+            });
         });
 
         if (this.state.grid !== Boolean(this.gridHelper)) {
@@ -673,9 +702,11 @@ class GLTFRenderer extends Component {
             this.state.grid = gridCtrl.object.grid;
             this.updateDisplay()
         });
-        dispFolder.add(this.controls, 'autoRotate');
-        dispFolder.add(this.controls, 'screenSpacePanning');
-
+        if(this.controls) {
+            dispFolder.add(this.controls, 'autoRotate');
+            dispFolder.add(this.controls, 'screenSpacePanning');    
+        }
+       
         // Lighting controls.
         const lightFolder = gui.addFolder('Lighting');
         const encodingCtrl = lightFolder.add(this.state, 'textureEncoding', ['sRGB', 'Linear']);
@@ -688,8 +719,10 @@ class GLTFRenderer extends Component {
                 if(this.renderer) {
                     this.renderer.outputEncoding = Number(lightFolder.object.outputEncoding); // Number(this.renderer.outputEncoding);
                 }
-                traverseMaterials(this.content, (material) => {
-                    material.needsUpdate = true;
+                this.content.forEach(element => {
+                    traverseMaterials(element, (material) => {
+                        material.needsUpdate = true;
+                    });
                 });
             });
 
@@ -760,14 +793,16 @@ class GLTFRenderer extends Component {
 
         const cameraNames = [];
         const morphMeshes = [];
-        this.content.traverse((node) => {
-            if (node.isMesh && node.morphTargetInfluences) {
-                morphMeshes.push(node);
-            }
-            if (node.isCamera) {
-                node.name = node.name || `VIEWER__camera_${cameraNames.length + 1}`;
-                cameraNames.push(node.name);
-            }
+        this.content.forEach(element => {
+            element.traverse((node) => {
+                if (node.isMesh && node.morphTargetInfluences) {
+                    morphMeshes.push(node);
+                }
+                if (node.isCamera) {
+                    node.name = node.name || `VIEWER__camera_${cameraNames.length + 1}`;
+                    cameraNames.push(node.name);
+                }
+            });
         });
 
         if (cameraNames.length) {
@@ -890,27 +925,28 @@ class GLTFRenderer extends Component {
     clear = () => {
 
         if (!this.content) return;
+        this.content.forEach(element => {
+            this.scene.remove(element);
 
-        this.scene.remove(this.content);
+            // dispose geometry
+            element.traverse((node) => {
 
-        // dispose geometry
-        this.content.traverse((node) => {
+                if (!node.isMesh) return;
 
-            if (!node.isMesh) return;
-
-            node.geometry.dispose();
-
-        });
-
-        // dispose textures
-        traverseMaterials(this.content, (material) => {
-
-            MAP_NAMES.forEach((map) => {
-
-                if (material[map]) material[map].dispose();
+                node.geometry.dispose();
 
             });
 
+            // dispose textures
+            traverseMaterials(element, (material) => {
+
+                MAP_NAMES.forEach((map) => {
+
+                    if (material[map]) material[map].dispose();
+
+                });
+
+            });
         });
 
     };
@@ -945,6 +981,11 @@ class GLTFRenderer extends Component {
             this.axesCamera.updateProjectionMatrix();
             this.axesRenderer.setSize(this.axesDiv.clientWidth, this.axesDiv.clientHeight);
         }
+        if(this.controls) {
+            if(this.controls.handleResize) {
+                this.controls.handleResize();
+            }
+        }        
         
 
     };
@@ -985,6 +1026,13 @@ class GLTFRenderer extends Component {
 
         }
         */
+       if(this.controls){
+           
+            if(this.controls.onMouseMove) {
+                this.controls.onMouseMove(event);
+            }
+       }
+       
     };
 
     onMouseClick = (event) => {
@@ -1026,11 +1074,16 @@ class GLTFRenderer extends Component {
         this.clientY = event.touches[ 0 ].clientY;
 
         this.raycast();
-
+        if(this.controls) {
+            if(this.controls.touchstart) {
+                this.controls.touchstart(event);
+            }
+        }        
+       
     };
 
     updateCameraSpinUI=()=> {
-        if(this.trackballWidget) {
+        if(this.trackballWidget && this.controls) {
             this.trackballWidget.position.copy( this.controls.target );
             //this.controls.target.copy(this.trackballWidget.position);
             if(this.controls.spinControl) {
@@ -1043,11 +1096,30 @@ class GLTFRenderer extends Component {
     };
 
     controlsStart = ( event ) => {
-
-        if(this.controls.STATE) {
-            if (event.state === this.controls.STATE.DOLLY) {
+        if(this.controls) {
+            if(this.controls.STATE) {
+                if (event.state === this.controls.STATE.DOLLY) {
+                    if(this.controls.target && this.controls.target.setFromMatrixPosition && this.controls.trackballToObject) {
+     
+                        this.controls.target.setFromMatrixPosition(this.controls.trackballToObject);
+                        var startDistance = this.controls.target.length();
+                        this.raycaster.setFromCamera( this.mouse, this.defaultCamera );
+                        this.controls.target.copy(this.raycaster.ray.direction);
+                        this.controls.target.setLength(startDistance);
+                        this.controls.target.add(this.raycaster.ray.origin);
+                        this.controls.setTargetPosition(this.controls.target);
+                    }
+        
+                } else {
+        
+                    // Turn on trackball graphics for input except dolly
+                    if(this.trackballWidget) {
+                        this.trackballWidget.visible = true;
+                        this.updateCameraSpinUI();    
+                    }           
+                }
+            }  else {
                 if(this.controls.target && this.controls.target.setFromMatrixPosition && this.controls.trackballToObject) {
- 
                     this.controls.target.setFromMatrixPosition(this.controls.trackballToObject);
                     var startDistance = this.controls.target.length();
                     this.raycaster.setFromCamera( this.mouse, this.defaultCamera );
@@ -1056,37 +1128,19 @@ class GLTFRenderer extends Component {
                     this.controls.target.add(this.raycaster.ray.origin);
                     this.controls.setTargetPosition(this.controls.target);
                 }
-    
-            } else {
-    
+               
                 // Turn on trackball graphics for input except dolly
                 if(this.trackballWidget) {
                     this.trackballWidget.visible = true;
                     this.updateCameraSpinUI();    
-                }           
-            }
-        }  else {
-            if(this.controls.target && this.controls.target.setFromMatrixPosition && this.controls.trackballToObject) {
-                this.controls.target.setFromMatrixPosition(this.controls.trackballToObject);
-                var startDistance = this.controls.target.length();
-                this.raycaster.setFromCamera( this.mouse, this.defaultCamera );
-                this.controls.target.copy(this.raycaster.ray.direction);
-                this.controls.target.setLength(startDistance);
-                this.controls.target.add(this.raycaster.ray.origin);
-                this.controls.setTargetPosition(this.controls.target);
-            }
-           
-            // Turn on trackball graphics for input except dolly
-            if(this.trackballWidget) {
-                this.trackballWidget.visible = true;
-                this.updateCameraSpinUI();    
-            }   
-        }    
-
+                }   
+            }  
+        }
+          
     };
 
     controlsEnd = ( event ) => {
-        if(this.trackballWidget) {
+        if(this.trackballWidget && this.controls) {
             if(this.controls.STATE) {
                 if (event.state !== this.controls.STATE.DOLLY) {
                     
@@ -1122,13 +1176,21 @@ class GLTFRenderer extends Component {
             }
 
         }
-        
+        if(this.controls) {
+            //console.log(event);
+            if(this.controls.onMouseDown){
+                this.controls.onMouseDown(event);
+            }
+        }
     };
 
     onMouseUp = ( event ) => {
         //console.log("Up",event);
         if(this.controls) {
             this.controls.enabled = false;
+            if(this.controls.onMouseUp){
+                this.controls.onMouseUp(event);
+            }
         }
 
     };
@@ -1308,13 +1370,12 @@ class GLTFRenderer extends Component {
                     this.INTERSECTED = intersects[myObject].object;
                     this.setTouchingColor(this.INTERSECTED);
                     this.setState({ intersectedShell: this.INTERSECTED });
-                    if(this.controls.setTargetPosition) {
-                        //console.log("Intersects", intersects[myObject],intersects[myObject].object,intersects[myObject].point );
-                        this.controls.setTargetPosition(intersects[myObject].point);
+                    if(this.controls){
+                        if(this.controls.setTargetPosition) {
+                            //console.log("Intersects", intersects[myObject],intersects[myObject].object,intersects[myObject].point );
+                            this.controls.setTargetPosition(intersects[myObject].point);
+                        }
                     }
-
-                  
-
 
                     /* //if(!(this.isObjectSame(this.INTERSECTED,this.firstshell) || this.isObjectSame(this.INTERSECTED,this.secondshell))) {
                     if( (this.INTERSECTED.currentHex===null) || (typeof this.INTERSECTED.currentHex === 'undefined')){
@@ -1348,7 +1409,7 @@ class GLTFRenderer extends Component {
 
     alter = () => {
         //console.log("Getting me!");
-        if(this.controls) {
+        //if(this.controls) {
             //console.log("Getting me2!");
             this.gltfJSON = this.props.gltfobj.gltf;
             this.activeFile = this.props.activefile;
@@ -1365,25 +1426,29 @@ class GLTFRenderer extends Component {
                     requestHeader: null,
                     manager: DefaultLoadingManager,
                     ktx2Loader: null,
-                    meshoptDecoder: null
+                    meshoptDecoder: null,
+                    renderOrder:0
         
                 } );
         
                 const onload = ( gltf ) => {
                     this.object = gltf.scene || gltf.scenes[0];
                     this.clips = gltf.animations || [];
+                    //console.log("Objects",this.object);
                     this.setContent(this.object, this.clips); 
                 }
                 
                 const onError = (exception) => {
                     console.log(exception);
                 }
-    
-                parser.parse( onload, onError );
+                const onProgress = (progress) => {
+                    console.log(progress);
+                }
+                parser.parse( onload, onError, onProgress );
     
                
             }
-        }
+        //}
     };
 
 
@@ -1527,8 +1592,108 @@ class GLTFRenderer extends Component {
         }
         return true;
     }
+   
+    fetchTree = (fileStore,progressfile) => {        
+        getAFileFromStore(fileStore,"tree")
+        .then(res => res.data)
+        .then((data) => {
+                //console.log(data);
+                //console.log(this.props.gltfobj.tree);
+                this.props.gltfobj.tree = [...this.props.gltfobj.tree,...data];
+                //console.log(this.props.gltfobj.tree);
+        }).catch(err => {           
+            console.log("Error While Loading Tree", err);
+            getAFileFromStore(progressfile,"progress")
+            .then(res => res.data)
+            .then((data) => {
+                if(!data || data.begin!=data.end) {
+                    console.log(data);
+                    alert("Edges are still under construction. Please try after sometime");
+                } 
+             })
+            .catch(err => {           
+                console.log("Error While Loading Progress", err);
+            }); 
+        });           
+    }
 
     findSingleNode = (mynode) => {
+        if(this.props.fileGDT) {
+            
+            var myParentID = -1;
+            var findEdges = 0;
+            for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
+                if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == mynode.name) {
+                    myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
+                    findEdges = this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]];
+                    break;
+                }
+            }
+            if(myParentID==-1){
+                alert("Unable to find a parent for this!");
+                console.log(mynode);
+            }
+            if(!findEdges && myParentID != -1) {
+                for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
+                    if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
+                        if(this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]]){
+                            findEdges=1;
+                            //console.log("Finds already edges",i,this.props.gltfobj.tree[i],this.props.gltfobj.tree[i][gltf_Dict["parentId"]],myParentID,this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]]);
+                            break;
+                        }
+                    }
+                }
+                if(!findEdges ) {
+                    const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1); 
+                   
+                    const gltfFILE = progressFile + "-" +myParentID.toString()+"3";
+                    console.log(gltfFILE);
+                    const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
+                   
+            
+                    const onload = ( gltf ) => {
+                        const myobject = gltf.scene || gltf.scenes[0];
+                        myobject.position.x += (this.shiftposition.x);
+                        myobject.position.y += (this.shiftposition.y);
+                        myobject.position.z += (this.shiftposition.z);
+                        this.scene.add(myobject);
+                        this.content.push(myobject);
+                        //console.log("MyObject",myobject);
+                        let partsMeshes = myobject.children;
+
+                        if (partsMeshes[0].children.length > 0) {
+                            partsMeshes = partsMeshes[0].children;
+                        }
+
+                        if (partsMeshes[0].children.length > 0) {
+                            partsMeshes = partsMeshes[0].children;
+                        }
+                       /*  partsMeshes.forEach(element => {
+                            if(!element.renderOrder) {
+                                console.log("Chaning Renderingorder from",element.renderOrder,1,element.name);
+                                element.renderOrder=1;
+                            }                           
+                        }); */
+                        //console.log(this.partsMeshes);
+                        this.partsMeshes = [...this.partsMeshes,...partsMeshes];
+                        //console.log(this.partsMeshes);
+                    }
+                    
+                    const onError = (exception) => {
+                        console.log(exception);
+                    }
+                    const onProgress = (progress) => {
+                        console.log(progress);
+                    }
+                    this.fetchTree(gltfFILE,progressFile);
+                    loader.load(gltfFILE+".gltf", onload, onProgress, onError,1 );
+                    
+                }
+            }
+        } else {
+            alert("Unable to find a GDT for this!");
+            console.log("Unable to find a GDT for this!");
+        }
         return [mynode];
 
     }
@@ -1631,7 +1796,7 @@ class GLTFRenderer extends Component {
     }
 
     findMyParentChilds = (mynode) => {
-        //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
+        console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID,this.props.selectedoption,SELECTASSEMBLY);
         if (((this.props.selectedoption != SELECTSOLID) && ((this.props.selectedoption != SELECTASSEMBLY))) ||
             (this.props.splitmethod != SELECTDISECTPARTS)) {
             return this.findSingleNode(mynode);
@@ -2086,7 +2251,7 @@ class GLTFRenderer extends Component {
             }
             this.INTERSECTED = null;
             this.setState({ intersectedShell: this.INTERSECTED });
-            if(this.controls.target && this.controls.target.setFromMatrixPosition && this.controls.trackballToObject) {
+            if(this.controls && this.controls.target && this.controls.target.setFromMatrixPosition && this.controls.trackballToObject) {
                 // Move trackball to center of screen if not clicking on anything.
                 this.controls.target.setFromMatrixPosition(this.controls.trackballToObject);
                 var startDistance = this.controls.target.length();
@@ -2187,8 +2352,16 @@ class GLTFRenderer extends Component {
                 //console.log("Got Here", this.props.selectedoption);
                 this.selectAllSelectedSolids();
             }
-            //console.log("Ha Ha getting here!");
-            this.alter();
+            if(this.selectedoption !=this.props.selectedoption) {
+                this.changeVisibility();
+                this.selectedoption = this.props.selectedoption;
+            }
+           
+            if (this.activeFile != this.props.activefile || this.materialtype != this.props.materialtype ) {
+                console.log("Rerendering here!",this.activeFile,this.props.activefile,
+                this.materialtype,this.props.materialtype,this.selectedoption,this.props.selectedoption);
+                this.alter();
+            }            
         }
         if (this.renderer) {
             this.changeBackground();

@@ -8,6 +8,7 @@ node_modules
 *.step
 *.png
 *.pickle
+*.progress
 *.iges
 *.stp
 *.igs

@@ -6,12 +6,12 @@ import {
 import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY } from "../../../gltf/Tree/utils";
 const DEFAULTMATERIALNAME = "Basic";
 
-export default function Viewer({ gltfjson = {}, activefile = '', isLoading=false, selectedOption = SELECTSOLID, splitMethod = SELECTHIRERACHY,
+export default function Viewer({ gltfjson = {}, fileGDT='', activefile = '', isLoading=false, selectedOption = SELECTSOLID, splitMethod = SELECTHIRERACHY,
     handleModelClick = () => { } }) {
     //console.log(gltfjson);
     let gltfjsonlen =  Object.keys(gltfjson).length;
     if (gltfjsonlen > 0) {
-        gltfjsonlen += gltfjson?.tree?.length;
+        gltfjsonlen += gltfjson?.gltf?.accessors?.length;
     }
     //console.log("Active File",activefile, gltfjson, gltfjsonlen, isLoading);
     return (
@@ -21,6 +21,7 @@ export default function Viewer({ gltfjson = {}, activefile = '', isLoading=false
                 <GLTFRenderer
                     //gltfjson={JSON.stringify(gltfjson)}
                     gltfobj={gltfjson}
+                    fileGDT={fileGDT}
                     activefile={activefile+gltfjsonlen.toString()}
                     backcolor={DEFAULTBACKCOLOR}
                     selectcolor={DEFAULTSELECTCOLOR}

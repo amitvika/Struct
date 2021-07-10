@@ -61,14 +61,14 @@ const ItemDetail = () => {
 
     const currentItem = useSelector(state => state.item.currentItem);
     const [dispensing, setDispensing] = useState({});
-    const [tabIndex, setTabIndex] = useState(1);
+    const [tabIndex, setTabIndex] = useState("pdcu");
     const [itemProperties, setItemProperties] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [gltfjson, setgltfjson] = useState({});
-    const parserNeeded = [1, 3, 4, 8];
+    const parserNeeded = ["pdcu", "gdtac", "iupc", "assembly"];
 
     useEffect(() => {
-        let myTabIndex = 1;
+        let myTabIndex = "pdcu";
         if (query.get('tab')) {
             myTabIndex = query.get('tab');
             setTabIndex(myTabIndex)
@@ -185,7 +185,7 @@ const ItemDetail = () => {
                     setIsLoading(true);
                     //console.log("Down0t",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId,isLoading);
                     getHierarchySplitFiles(item.fileId, true, stateprops.distancegap, stateprops.anglegap,
-                        stateprops.disect, 0, 0.3, 1.0)
+                        stateprops.disect, 0, 0.3, 0)
                         .then(res => res.data)
                         .then((repos) => {
                             const gdt = repos['store'];
@@ -240,6 +240,7 @@ const ItemDetail = () => {
                 const treeRes = await getTreeForStore(fileGDT);
                 setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data });
                 setIsLoading(false);
+                //console.log(gltfRes,treeRes);
 
             } catch (error) {
                 setIsLoading(false);
@@ -274,6 +275,7 @@ const ItemDetail = () => {
             case "gdtac":
                 return <GeometricDimensioning
                     fileId={itemProperties.fileId || ''}
+                    fileGDT={itemProperties.fileGDT}
                     gltfjson={gltfjson}
                     isLoading={isLoading}
                     assemblyTree={get(gltfjson, 'tree', [])}

@@ -79,8 +79,8 @@ class OrbitControls extends EventDispatcher {
 
         // How far you can orbit vertically, upper and lower limits.
         // Range is 0 to Math.PI radians.
-        this.minPolarAngle = 0; // radians
-        this.maxPolarAngle = Math.PI; // radians
+        this.minPolarAngle = - Infinity; //0; // radians
+        this.maxPolarAngle = Infinity; //Math.PI; // radians
 
         // How far you can orbit horizontally, upper and lower limits.
         // If set, must be a sub-interval of the interval [ - Math.PI, Math.PI ].
@@ -185,8 +185,7 @@ class OrbitControls extends EventDispatcher {
 	
 	update = () => {
 		
-		//this.object.position.add(panOffset);
-
+		
 		let offset = new Vector3();
 
 		// so camera.up is the orbit axis
@@ -223,8 +222,19 @@ class OrbitControls extends EventDispatcher {
 
         // restrict phi to be between desired limits
         spherical.phi = Math.max( this.minPolarAngle, Math.min( this.maxPolarAngle, spherical.phi ) );
-
-        spherical.makeSafe();
+		if(spherical.phi > Math.PI) {
+			spherical.phi = 2*Math.PI-spherical.phi;
+			while(spherical.phi > Math.PI) {
+				spherical.phi -= Math.PI;
+			}
+		}
+		if(spherical.phi < 0) {
+			spherical.phi = 2*Math.PI+spherical.phi;
+			while(spherical.phi <0) {
+				spherical.phi += Math.PI;
+			}
+		}
+        //spherical.makeSafe();
 
 
         spherical.radius *= scale;
@@ -233,7 +243,7 @@ class OrbitControls extends EventDispatcher {
         spherical.radius = Math.max( this.minDistance, Math.min( this.maxDistance, spherical.radius ) );
 
         // move target to panned location
-        //this.target.add( panOffset );
+        this.target.add( panOffset );
 
         offset.setFromSpherical( spherical );
 
@@ -242,7 +252,7 @@ class OrbitControls extends EventDispatcher {
 
         position.copy( this.target ).add( offset );
 
-		this.target.add( panOffset );
+		//this.target.add( panOffset );
 
 		//this.object.position.sub(panOffset);
 

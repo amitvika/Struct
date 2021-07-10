@@ -63,19 +63,22 @@ export const getAllFiles = () => {
     return axios.get(fetchURL);
 }
 
-export const getGltfForStore = (store) => {
-    const fetchURL = `${resourcePathURL}${store}.gltf`;
+export const getAFileFromStore = (store,ext) => {
+    const fetchURL = `${resourcePathURL}${store}.${ext}`;
+    console.log(fetchURL);
     return axios.get(fetchURL);
+}
+
+export const getGltfForStore = (store) => {
+    return getAFileFromStore(store,'gltf');   
 }
 
 export const getTreeForStore = (store) => {
-    const fetchURL = `${resourcePathURL}${store}.tree`;
-    return axios.get(fetchURL);
+    return getAFileFromStore(store,'tree');
 }
 
 export const getThumbnailForStoreURL = (store) => {
-    const fetchURL = `${resourcePathURL}${store}.png`;
-    return fetchURL;
+    return getAFileFromStore(store,'png');
 }
 
 export const resourcePathBase = `${baseURL}/`; //"./gltfconverter/";//
