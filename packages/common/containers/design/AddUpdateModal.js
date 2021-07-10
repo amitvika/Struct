@@ -21,9 +21,7 @@ import {
 } from "@material-ui/core";
 import { uploadFileS3Bucket } from '@ravibasil/common/api/aws';
 import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
-import Modal from '../../components/Modal'
-import {typeOption,tableFields} from '@ravibasil/common/constants/productDesign'
-
+import Modal from '../../components/Modal';
 
 export default function AddUpdateModal({ title, fields, open, toggleModal, handleUpdate, isEditing, selectedValue }) {
     const [value, setValue] = useState({});
@@ -42,9 +40,8 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
     }, [selectedValue])
 
     const handleOnChange = (name, value) => {
-        setIsTypeSelected(true)
-        console.log('---',value)
-        setSelectedType(value)
+        setIsTypeSelected(true);
+        setSelectedType(value);
         setValue(preValue => ({
             ...preValue,
             [name]: value
@@ -58,7 +55,7 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
         toggleModal();
     }
 
-    const onChange = async event => {
+    const handleOnFileChange = async event => {
         if (!event.target.files[0]) {
             return;
         }
@@ -108,6 +105,10 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
         }
     }
 
+    const handleClearFile = () => {
+
+    }
+
     return (
         <Modal
             title={`${isEditing ? `Update ${selectedValue.name}` : 'Add'} ${title}`}
@@ -116,17 +117,23 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
 
             <Grid className="section-padding-left" container spacing={4}>
                 {renderView()}
-                <Grid item xs={4}>
-                   
-                </Grid>
-                <Grid item xs={8}>
-                    {
-                        isTypeSelected &&
-                        <Button variant="contained" color="secondary">
-                        {selectedType === 'criteria'? 'Download Criteria Upload Template' : 'Download Hirarchy Upload Template'}   
-                        </Button>
-                    }
-                </Grid>
+
+                {
+                    isTypeSelected &&
+                    <>
+                        <Grid item xs={4}>
+                        </Grid>
+                        <Grid item xs={8}>
+                            <a href={`${process.env.REACT_APP_API}/download/${selectedType}`}
+                                target="_blank"
+                                style={{ textDecoration: 'none' }}>
+                                <Button variant="contained" color="secondary" onClick={downloadFile}>
+                                    {selectedType === 'criteria' ? 'Download Criteria Upload Template' : 'Download Hirarchy Upload Template'}
+                                </Button>
+                            </a>
+                        </Grid>
+                    </>
+                }
                 <Grid item xs={4}>
                     <Headding bold title={'Note'} />
                 </Grid>
@@ -140,19 +147,23 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
                 <Grid item xs={4}>
                     <Headding bold title={'File Load'} />
                 </Grid>
-                <Grid item xs={8} style={{ display: 'flex' }}>
-                    <div>
-                        <Button
-                            variant="contained"
-                            component="label">
-                            Select File
-                            <input
-                                onChange={onChange}
-                                type="file"
-                                hidden
-                            />
-                        </Button>
-                    </div>
+                <Grid item xs={4} style={{ display: 'flex' }}>
+                    <Button
+                        variant="contained"
+                        component="label">
+                        Select File
+                        <input
+                            onChange={handleOnFileChange}
+                            type="file"
+                            hidden
+                        />
+                    </Button>
+                    <span>*Spreadsheets Only</span>
+                </Grid>
+                <Grid item xs={4}>
+                    <Button variant="contained" color="secondary" onClick={handleClearFile}>
+                        Clear
+                    </Button>
                 </Grid>
                 {
                     value.file_url &&
@@ -163,37 +174,40 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
                     </Grid>
                 }
 
-                <h5>File History</h5>
-                <TableContainer component={Paper}>
-                    Spreadsheets Only
-                    <Table aria-label="simple table">
+                <Grid item xs={12}>
 
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Loaded At</TableCell>
-                                <TableCell>Cleared At</TableCell>
-                                <TableCell>Loaded By</TableCell>
-                                <TableCell>Cleared By</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {/* {materialList.map(materialRow => ( */}
-                            <TableRow
-                            // key={materialRow._id}
-                            >
-                                <TableCell>
-                                    {/* {materialRow._id} */}
-                                </TableCell>
+                    <Headding bold title={'File History'} />
+                    <TableContainer component={Paper}>
 
-                            </TableRow>
-                            {/* ))} */}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                        <Table aria-label="simple table">
+
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Loaded At</TableCell>
+                                    <TableCell>Cleared At</TableCell>
+                                    <TableCell>Loaded By</TableCell>
+                                    <TableCell>Cleared By</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {/* {materialList.map(materialRow => ( */}
+                                <TableRow
+                                // key={materialRow._id}
+                                >
+                                    <TableCell>
+                                        {/* {materialRow._id} */}
+                                    </TableCell>
+
+                                </TableRow>
+                                {/* ))} */}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Grid>
 
                 {/* <Grid item xs={6}>
                     <Button variant="contained" color="secondary" onClick={toggleModal}>
-                        Cancel
+                    Cancel
                     </Button>
                 </Grid> */}
                 <Grid item xs={6}>
