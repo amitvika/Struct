@@ -3208,7 +3208,19 @@ class GLTFParser {
 				}
 
 				mesh.name = parser.createUniqueName( meshDef.name || ( 'mesh_' + meshIndex ) );
+				const first4chars = mesh.name.slice(0, 4);
+				const first6chars = mesh.name.slice(0, 6);
+				
 				mesh.renderOrder = parser.options.renderOrder?parser.options.renderOrder:0;
+				if(first4chars=="FACE") {
+					mesh.renderOrder +=1;
+				}
+				if(first4chars=="EDGE") {
+					mesh.renderOrder +=2;
+				}
+				if(first6chars=="VERTEX") {
+					mesh.renderOrder +=3;
+				}
 				assignExtrasToUserData( mesh, meshDef );
 
 				if ( primitive.extensions ) addUnknownExtensionsToUserData( extensions, mesh, primitive );

@@ -40,7 +40,7 @@ class TrackballControls extends EventDispatcher {
 		this.noPan = false;
 
 		this.staticMoving = false;
-		this.dynamicDampingFactor = 0.2;
+		this.dynamicDampingFactor = 1;
 
 		this.minDistance = 0;
 		this.maxDistance = Infinity;

@@ -1644,10 +1644,7 @@ class GLTFRenderer extends Component {
                     }
                 }
                 if(!findEdges ) {
-                    const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1); 
-                   
-                    const gltfFILE = progressFile + "-" +myParentID.toString()+"3";
-                    console.log(gltfFILE);
+                    
                     const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
                    
             
@@ -1668,6 +1665,7 @@ class GLTFRenderer extends Component {
                         if (partsMeshes[0].children.length > 0) {
                             partsMeshes = partsMeshes[0].children;
                         }
+                        //console.log(partsMeshes);
                        /*  partsMeshes.forEach(element => {
                             if(!element.renderOrder) {
                                 console.log("Chaning Renderingorder from",element.renderOrder,1,element.name);
@@ -1685,8 +1683,44 @@ class GLTFRenderer extends Component {
                     const onProgress = (progress) => {
                         console.log(progress);
                     }
-                    this.fetchTree(gltfFILE,progressFile);
-                    loader.load(gltfFILE+".gltf", onload, onProgress, onError,1 );
+                    //this.fetchTree(gltfFILE,progressFile,myParentID);
+                    const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);                   
+                    getAFileFromStore(progressFile,"progress")
+                    .then(res => res.data)
+                    .then((data) => {
+                        if(!data || data.begin!=data.end) {
+                            console.log(data);
+                            alert("Edges are still under construction. Please try after sometime");
+                        } else {
+                            let howManyFiles = data.files?data.files[myParentID]:1;
+                            if(howManyFiles==0) {
+                                howManyFiles=1;
+                            }
+                            let fileStore = progressFile + "-" +myParentID.toString()+"3";
+                            for (let index = 0; index < howManyFiles; index++) {
+                                if(index > 0) {
+                                    fileStore = progressFile + "-" +myParentID.toString()+"-"+index.toString()+"3";
+                                }
+                                getAFileFromStore(fileStore,"tree")
+                                .then(res => res.data)
+                                .then((data) => {
+                                        //console.log(data);
+                                        //console.log(this.props.gltfobj.tree);
+                                        this.props.gltfobj.tree = [...this.props.gltfobj.tree,...data];
+                                        //console.log(this.props.gltfobj.tree);
+                                }).catch(err => {           
+                                    console.log("Error While Loading Tree", err);
+                                
+                                })
+                                loader.load(fileStore+".gltf", onload, onProgress, onError,1 );
+                            }
+                            
+                        }
+                    })
+                    .catch(err => {           
+                        console.log("Error While Loading Progress", err);
+                    }); 
+                    
                     
                 }
             }
