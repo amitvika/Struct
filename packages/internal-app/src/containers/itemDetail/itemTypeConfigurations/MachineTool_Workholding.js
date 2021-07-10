@@ -31,6 +31,27 @@ export default function MachineTool_Workholding({ itemConfiguration, handleOnCha
                         />
                     </Grid>
                     {
+                        itemConfiguration.machineToolWorkholding === 'Actuator' &&
+                        <>
+                            <Grid item xs={4}>
+                                <Headding bold>Sub-Type</Headding>
+                            </Grid>
+                            <Grid item xs={8}>
+                                <Select
+                                    label="For Actuator"
+                                    placeholder="Select"
+                                    options={[
+                                        { label: 'Linear ', value: 'Linear' },
+                                        { label: 'Rotary ', value: 'Rotary ' },
+                                    ]}
+                                    onChange={(data) => handleOnChange('machineActuator', data.value)}
+                                    value={itemConfiguration.machineActuator && { label: itemConfiguration.machineActuator }}
+
+                                />
+                            </Grid>
+                        </>
+                    }
+                    {
                         itemConfiguration.machineToolWorkholding === 'Workholding' &&
                         <>
                             <Grid item xs={4}>
@@ -41,8 +62,6 @@ export default function MachineTool_Workholding({ itemConfiguration, handleOnCha
                                     label="For Workholding"
                                     placeholder="Select"
                                     options={[
-                                        { label: 'Linear ', value: 'Linear' },
-                                        { label: 'Rotary ', value: 'Rotary ' },
                                         { label: 'Linear Clamp', value: 'Linear Clamp' },
                                         { label: 'Rotary Clamp', value: 'Rotary Clamp' },
                                         { label: 'Pressure Vessel', value: 'Pressure Vessel' },
