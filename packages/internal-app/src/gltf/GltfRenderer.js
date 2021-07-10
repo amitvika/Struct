@@ -1630,7 +1630,7 @@ class GLTFRenderer extends Component {
                 }
             }
             if(myParentID==-1){
-                alert("Unable to find a parent for this!");
+                //alert("Unable to find a parent for this!");
                 console.log(mynode);
             }
             if(!findEdges && myParentID != -1) {
@@ -1725,7 +1725,7 @@ class GLTFRenderer extends Component {
                 }
             }
         } else {
-            alert("Unable to find a GDT for this!");
+            //alert("Unable to find a GDT for this!");
             console.log("Unable to find a GDT for this!");
         }
         return [mynode];
