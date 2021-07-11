@@ -376,7 +376,8 @@ const ItemDetail = () => {
     const renderTab = () => {
         let tabP = []
         Object.keys(tabList).forEach((key, index) => {
-            tabP.push(<Tab label={`${index + 1}. ${tabList[key]}`} value={key} />)
+            tabP.push(
+            <Tab label={`${index + 1}. ${tabList[key]}`} value={key} />)
         })
         return tabP
     }
@@ -398,7 +399,7 @@ const ItemDetail = () => {
                             <p>Item ID:{id}</p>
                         </Grid>
                         <Grid style={{ margin: 'auto' }}>
-                            <h4>Tab Name: { tabList[tabIndex]}</h4>
+                            <h4>{ tabList[tabIndex]}</h4>
 
                         </Grid>
 

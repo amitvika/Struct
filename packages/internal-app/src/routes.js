@@ -33,8 +33,10 @@ import ItemDetail from "./containers/itemDetail";
 import UserSetup from './containers/userSetup';
 import ViewMyProfile from './containers/viewMyProfile'
 
+
 // import Viewer from './page/3DViewer';
 import Viewer from './gltf/DropZone'
+import CriteriaUpload from "./containers/criteriaUpload";
 
 export default function AppRoutes() {
     const isUserLoading = useSelector(state => state.auth.isLoading);
@@ -83,6 +85,8 @@ export default function AppRoutes() {
                             <AppRoute authenticate path='/access-configuration/:id' component={AccessConfiguration} />
 
                             <AppRoute authenticate path="/user-setup" component={UserSetup} />
+                            <AppRoute authenticate path="/criteria-upload" component={CriteriaUpload} />
+
 
                             <AppRoute authenticate path='/viewMyProfile' component={ViewMyProfile} />
                         </Switch>

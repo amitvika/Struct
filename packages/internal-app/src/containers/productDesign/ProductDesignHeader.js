@@ -34,12 +34,13 @@ const useStyles = makeStyles((theme) => ({
     },
     menuButton: {
         ...theme.menuButton,
-        color: 'dodgerblue'
+        color: 'dodgerblue',
+        whiteSpace: ' nowrap'
     },
     menuContainer: {
         display: 'flex',
         justifyContent: 'space-between',
-        width: '50%',
+        width: '70%',
     },
     linkSelected: {
         background: "#5D6D7E ",
@@ -68,7 +69,7 @@ export default function ProductDesignHeader({ gltfjson, setgltfjson }) {
 
 
     const [state, setState] = React.useState({
-       
+
         left: false,
         bottom: false,
         right: false,
@@ -81,7 +82,7 @@ export default function ProductDesignHeader({ gltfjson, setgltfjson }) {
 
         setState({ ...state, [anchor]: open });
     };
-    let  anchor='right';
+    let anchor = 'right';
     const list = (anchor) => (
         <div
             className={clsx(classes.list, {
@@ -108,21 +109,21 @@ export default function ProductDesignHeader({ gltfjson, setgltfjson }) {
             {structLogo}
             <Box component="div" className={classes.menuContainer}>
                 {getMenuButtons()}
-                
-                    {/* {['right'].map((anchor) => ( */}
-                        <React.Fragment key={anchor} >
-                            <MenuIcon onClick={toggleDrawer(anchor, true)} />
-                            <SwipeableDrawer
-                                className={classes.drawer}
-                                anchor={anchor}
-                                open={state[anchor]}
-                                onClose={toggleDrawer(anchor, false)}
-                                onOpen={toggleDrawer(anchor, true)}
-                            >
-                                {list(anchor)}
-                            </SwipeableDrawer>
-                        </React.Fragment>
-                    {/* ))} */}
+
+                {/* {['right'].map((anchor) => ( */}
+                <React.Fragment key={anchor} >
+                    <MenuIcon onClick={toggleDrawer(anchor, true)} />
+                    <SwipeableDrawer
+                        className={classes.drawer}
+                        anchor={anchor}
+                        open={state[anchor]}
+                        onClose={toggleDrawer(anchor, false)}
+                        onOpen={toggleDrawer(anchor, true)}
+                    >
+                        {list(anchor)}
+                    </SwipeableDrawer>
+                </React.Fragment>
+                {/* ))} */}
 
             </Box>
         </Toolbar >);
@@ -167,12 +168,12 @@ export default function ProductDesignHeader({ gltfjson, setgltfjson }) {
 
 const headersData = [
     {
-        label: "design",
-        href: "/design",
+        label: "My Designs",
+        href: "/product-design?type=my-design"
     },
     {
         label: "Product",
-        href: "/clients",
+        href: "/product-design?type=product",
     },
     {
         label: "CAD",
@@ -194,4 +195,8 @@ const headersData = [
         label: "Architecture",
         href: "/items",
     },
+    {
+        label: 'Predesigned Components',
+        href: './predesigned',
+    }
 ];

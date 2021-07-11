@@ -58,7 +58,12 @@ export default function Header() {
     const [open, setOpen] = useState(false);
     const [lightThemeSelected, setLightThemeSelected] = useState(false);
     const anchorRef = useRef(null);
+    const [isAdministrativeOpened, setIsAdministrativeOpened] = useState(false)
 
+    const handleAdministrative = () => {
+
+        setIsAdministrativeOpened(!isAdministrativeOpened)
+    }
     const displayDesktop = () => {
         return (<Toolbar className={classes.toolbar}>
             {structLogo}
@@ -181,7 +186,8 @@ export default function Header() {
                                             onClick={() => handleLink('/configuration-history')}>Configuration History</MenuItem>
                                         <MenuItem
                                             key={`user_setup_link`}
-                                            onClick={() => handleLink('/user-setup')}>Administrative</MenuItem>
+                                            onClick={handleAdministrative}>Administrative</MenuItem>
+
                                         {/* <MenuItem
                                             key={`my_profile_link`}
                                             onClick={() => handleLink('/viewMyProfile')}>My Profile</MenuItem> */}
@@ -196,10 +202,38 @@ export default function Header() {
                                             onClick={handleLogout}>Logout</MenuItem>
                                     </MenuList>
                                 </ClickAwayListener>
+
                             </Paper>
                         </Grow>
                     )}
                 </Popper>
+                {
+                    isAdministrativeOpened &&
+
+                    <Popper open={setIsAdministrativeOpened} anchorEl={anchorRef.current} role={undefined} transition disablePortal >
+                        {({ TransitionProps, placement }) => (
+                            <Grow
+                                {...TransitionProps}
+                                style={{ transformOrigin: placement === 'bottom' ? 'center left' : 'center bottom', position: 'absolute', top: '30px', right: '76px' }}
+                            >
+                                <Paper>
+                                    <ClickAwayListener onClickAway={handleClose}>
+                                        <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
+                                            <MenuItem
+                                                key={`configuration-history_link`}
+                                                onClick={() => handleLink('/user-setup')}>User Setup</MenuItem>
+                                            <MenuItem
+                                                key={`user_setup_link`}
+                                                onClick={() => handleLink('criteria-upload')}>Criteria Setup</MenuItem>
+
+                                        </MenuList>
+                                    </ClickAwayListener>
+
+                                </Paper>
+                            </Grow>
+                        )}
+                    </Popper>
+                }
             </>
         );
 
@@ -240,6 +274,7 @@ export default function Header() {
         }
 
         setOpen(false);
+        setIsAdministrativeOpened(false);
     };
 
     const handleLogout = () => {
@@ -259,7 +294,7 @@ export default function Header() {
 const headersData = [
     {
         label: "Product Design",
-        href: "/product-design",
+        href: "/product-design?type=my-design",
     },
     {
         label: "Clients",
