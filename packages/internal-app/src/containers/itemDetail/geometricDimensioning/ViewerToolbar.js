@@ -3,7 +3,7 @@ import {
     SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
     DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,
     getTexture, SELECT2DTEXTURE, SELECT3DTEXTURE,
-    SELECTMATERIRAL, SELECTDISTANCE, SELECTSHOWINFO,
+    SELECTMATERIRAL, SELECTDISTANCE, SELECTSHOWINFO, SELECTLOADEDGES,
     SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER, SELECTMEASURE,
     SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE, 
     SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray
@@ -28,6 +28,7 @@ import DashboardOutlinedIcon from '@material-ui/icons/DashboardOutlined';
 import ExtensionOutlinedIcon from '@material-ui/icons/ExtensionOutlined';
 import FilterDramaOutlinedIcon from '@material-ui/icons/FilterDramaOutlined';
 //import SettingsSystemDaydreamOutlinedIcon from '@material-ui/icons/SettingsSystemDaydreamOutlined';
+import CloudDownloadOutlinedIcon from '@material-ui/icons/CloudDownloadOutlined';
 
 /* import { RadioGroup, Radio } from '@material-ui/core';
 import CircleUnchecked from '@material-ui/icons/RadioButtonUnchecked';
@@ -50,7 +51,8 @@ export default function ViewerToolbar({
     selectAllSelectedSolids,
     selectedObjects,
     parentObjects,
-    mates
+    mates,
+    setCtrlKey
 }) {
     //console.log("FromViewToolbar",selectedObjects,parentObjects,mates);
     return (
@@ -64,9 +66,12 @@ export default function ViewerToolbar({
                         variant="contained"
                         color={(selectedOption == SELECTASSEMBLY)?"primary":"default"}
                         type="button"
-                        onClick={() => {
+                        onClick={(event) => {
                             const previousSelectedOption = selectedOption;
                             setSelectedOption(SELECTASSEMBLY);
+                            if(event) {
+                                setCtrlKey(event.ctrlKey);
+                            }
                             if (previousSelectedOption == SELECTMEASURE) {
                                 resetSelections();
                             }
@@ -89,9 +94,12 @@ export default function ViewerToolbar({
                         variant="contained"
                         color={(selectedOption == SELECTSOLID)?"primary":"default"}
                         type="button"
-                        onClick={() => {
+                        onClick={(event) => {
                             const previousSelectedOption = selectedOption;
                             setSelectedOption(SELECTSOLID);
+                            if(event) {
+                                setCtrlKey(event.ctrlKey);
+                            }
                             if (previousSelectedOption == SELECTMEASURE) {
                                 resetSelections();
                             }
@@ -112,9 +120,12 @@ export default function ViewerToolbar({
                         <React.Fragment>
                             {/* <button value={"Face"}
                                 className={(selectedOption == SELECTFACE) ? "buttonTrue" : "buttonFalse"}
-                                onClick={() => {
+                                onClick={(event) => {
                                     const previousSelectedOption = selectedOption;
                                     setSelectedOption(SELECTFACE);
+                                    if(event) {
+                                        setCtrlKey(event.ctrlKey);
+                                    }
                                     if (previousSelectedOption == SELECTMEASURE) {
                                         resetSelections();
                                     }
@@ -135,9 +146,12 @@ export default function ViewerToolbar({
                                 variant="contained"
                                 color={(selectedOption == SELECTEDGE)?"primary":"default"}
                                 type="button"
-                                onClick={() => {
+                                onClick={(event) => {
                                     const previousSelectedOption = selectedOption;
                                     setSelectedOption(SELECTEDGE);
+                                    if(event) {
+                                        setCtrlKey(event.ctrlKey);
+                                    }
                                     if (previousSelectedOption == SELECTMEASURE) {
                                         resetSelections();
                                     }                                    
@@ -159,9 +173,12 @@ export default function ViewerToolbar({
                                 variant="contained"
                                 color={(selectedOption == SELECTFEATURE)?"primary":"default"}
                                 type="button"
-                                onClick={() => {
+                                onClick={(event) => {
                                     const previousSelectedOption = selectedOption;
                                     setSelectedOption(SELECTFEATURE);
+                                    if(event) {
+                                        setCtrlKey(event.ctrlKey);
+                                    }
                                     if (previousSelectedOption == SELECTMEASURE) {
                                         resetSelections();
                                     }                                    
@@ -175,7 +192,30 @@ export default function ViewerToolbar({
                                 ></Icon>}   */         
                             >
                                 Specify<br></br> Assembly Mates
-                            </Button>                        
+                            </Button> 
+                            {/* &nbsp;
+                            <Button
+                                value={"Load"}
+                                style={{ marginLeft: "1%"}}
+                                variant="contained"
+                                color={(selectedOption == SELECTLOADEDGES)?"primary":"default"}
+                                type="button"
+                                
+                                onClick={(event) => {
+                                    //const previousSelectedOption = selectedOption;
+                                    setSelectedOption(SELECTLOADEDGES);
+                                    if(event) {
+                                        setCtrlKey(event.ctrlKey);
+                                    }
+                                                                      
+                                    //console.log(this.state.selectedOption);					
+                                }} 
+                                startIcon={<CloudDownloadOutlinedIcon/>} 
+                                          
+                            >
+                                Load<br></br>Edges
+                            </Button>  */}
+                                                   
                                                       
                         </React.Fragment>
                     )}
@@ -183,9 +223,12 @@ export default function ViewerToolbar({
                         <span>
                             <button value={"measure"}
                                 className={(selectedOption == SELECTMEASURE) ? "buttonTrue" : "buttonFalse"}
-                                onClick={() => {
+                                onClick={(event) => {
                                     const previousSelectedOption = selectedOption;
                                     setSelectedOption(SELECTMEASURE);
+                                    if(event) {
+                                        setCtrlKey(event.ctrlKey);
+                                    }
                                     if (previousSelectedOption != SELECTMEASURE) {
                                         resetSelections();
                                     }

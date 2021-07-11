@@ -115,7 +115,7 @@ export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DX
                             isFileChanged? fileName : label 
                         }
                     {/* {label} */}
-                    {fileName}
+                    {/* fileName*/}
                 </label>
 
             </Box>

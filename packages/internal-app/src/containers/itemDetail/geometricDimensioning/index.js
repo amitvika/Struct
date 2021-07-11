@@ -44,6 +44,7 @@ export default function GeometricDimensioning({tabIndex, fileId, fileGDT, gltfjs
     //const [splitFiles, setSplitfiles] = useState({});
     const [resetOption, setResetOption] = useState(true);
     const [value, setValue] = React.useState('female');
+    const [ctrlKey, setCtrlKey]=useState(false);
 
     const handleChange = (event) => {
         setValue(event.target.value);
@@ -709,6 +710,10 @@ export default function GeometricDimensioning({tabIndex, fileId, fileGDT, gltfjs
             if (mymesh) {
                 changeStateOfSelection(mymesh, event);
             }
+            if (event) {
+                //console.log(event.ctrlKey);
+                setCtrlKey(ctrlKey,event.ctrlKey);
+            }
         }
     }
 
@@ -729,6 +734,7 @@ export default function GeometricDimensioning({tabIndex, fileId, fileGDT, gltfjs
                                 selectedOption={selectedOption}
                                 handleModelClick={handleModelClick}
                                 isLoading={isLoading}
+                                ctrlKey={ctrlKey}
                             ></Viewer>
                         </Paper>
                     </Grid>
@@ -740,6 +746,7 @@ export default function GeometricDimensioning({tabIndex, fileId, fileGDT, gltfjs
                             setSelectedOption={setSelectedOption}
                             resetSelections={resetSelections}
                             selectAllSelectedSolids={selectAllSelectedSolids}
+                            setCtrlKey={setCtrlKey}
                         />
                     </Grid>
                 </Grid>

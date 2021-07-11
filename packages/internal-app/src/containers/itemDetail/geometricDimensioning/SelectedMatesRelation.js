@@ -27,12 +27,17 @@ const SelectedMatesRelation = (props) => {
             var valuefound=true;
             for (let mateindex = 1; mateindex < props.mates.length; mateindex++) {
                 const element = props.mates[mateindex];
-                for (let relation = 0; relation < mateindex; relation++) {
-                    if(element[relation][index+2]!==true) {
-                        valuefound=false;
-                        break;
+                if(element) {
+                    for (let relation = 0; relation < mateindex; relation++) {
+                        if(element[relation]) {
+                            if(element[relation][index+2]!==true) {
+                                valuefound=false;
+                                break;
+                            }
+                        }                       
                     }
                 }
+                
             }
             isSelected.push(valuefound);            
         };
@@ -79,12 +84,17 @@ const SelectedMatesRelation = (props) => {
             for (let mateindex = 1; mateindex < mates.length; mateindex++) {
                 const element = mates[mateindex];           
                 if (anglefound) {
-                    for (let relation = 0; relation < mateindex; relation++) {
-                        if(element[relation][AngleIndex]!==angle) {
-                            anglefound=false;
-                            break;
+                    if(element) {
+                        for (let relation = 0; relation < mateindex; relation++) {
+                            if(element[relation]) {
+                                if(element[relation][AngleIndex]!==angle) {
+                                    anglefound=false;
+                                    break;
+                                }
+                            }                            
                         }
                     }
+                    
                 } else {
                     break;
                 }           

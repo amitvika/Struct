@@ -55,7 +55,7 @@ import {
     SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTDISTANCE,
     SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTMEASURE, SELECTDISECTPARTS,
     SELECTORDER, SELECTASSEMBLY, SELECTFEATURE,
-    hexToRGB, gltf_Dict
+    hexToRGB, gltf_Dict, SELECTLOADEDGES
 } from "./Tree/utils";
 import './styles/style.css';
 import { motion } from 'framer-motion'
@@ -478,7 +478,7 @@ class GLTFRenderer extends Component {
 
         //window.content = this.content;
         //console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
-        this.printGraph(this.content[0]);
+        //this.printGraph(this.content[0]);
 
     };
 
@@ -1303,7 +1303,8 @@ class GLTFRenderer extends Component {
         //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
         if (first4chars == "EDGE") {
             visible = (this.props.selectedoption == SELECTEDGE) || ((this.props.selectedoption == SELECTCORNER) && (display))
-                || (this.props.selectedoption == SELECTMEASURE) || (this.props.selectedoption == SELECTFEATURE);
+                || (this.props.selectedoption == SELECTMEASURE) || (this.props.selectedoption == SELECTFEATURE) 
+                || (this.props.selectedoption==SELECTLOADEDGES);
         } else {
             if (first6chars == "VERTEX") {
                 visible = (this.props.selectedoption == SELECTCORNER)
@@ -1442,7 +1443,7 @@ class GLTFRenderer extends Component {
                     console.log(exception);
                 }
                 const onProgress = (progress) => {
-                    console.log(progress);
+                    //console.log(progress);
                 }
                 parser.parse( onload, onError, onProgress );
     
@@ -1631,7 +1632,7 @@ class GLTFRenderer extends Component {
             }
             if(myParentID==-1){
                 //alert("Unable to find a parent for this!");
-                console.log(mynode);
+                console.log("Unable to find a parent for this!",mynode);
             }
             if(!findEdges && myParentID != -1) {
                 for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
@@ -1644,8 +1645,8 @@ class GLTFRenderer extends Component {
                     }
                 }
                 if(!findEdges ) {
-                    
-                    const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
+                    this.loadAllEdges(myParentID); //Reusable component..
+                    /* const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
                    
             
                     const onload = ( gltf ) => {
@@ -1666,12 +1667,12 @@ class GLTFRenderer extends Component {
                             partsMeshes = partsMeshes[0].children;
                         }
                         //console.log(partsMeshes);
-                       /*  partsMeshes.forEach(element => {
-                            if(!element.renderOrder) {
-                                console.log("Chaning Renderingorder from",element.renderOrder,1,element.name);
-                                element.renderOrder=1;
-                            }                           
-                        }); */
+                        //partsMeshes.forEach(element => {
+                        //    if(!element.renderOrder) {
+                        //        console.log("Chaning Renderingorder from",element.renderOrder,1,element.name);
+                        //        element.renderOrder=1;
+                        //    }                           
+                        //});
                         //console.log(this.partsMeshes);
                         this.partsMeshes = [...this.partsMeshes,...partsMeshes];
                         //console.log(this.partsMeshes);
@@ -1681,9 +1682,10 @@ class GLTFRenderer extends Component {
                         console.log(exception);
                     }
                     const onProgress = (progress) => {
-                        console.log(progress);
+                        //console.log(progress);
                     }
                     //this.fetchTree(gltfFILE,progressFile,myParentID);
+                    
                     const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);                   
                     getAFileFromStore(progressFile,"progress")
                     .then(res => res.data)
@@ -1719,7 +1721,7 @@ class GLTFRenderer extends Component {
                     })
                     .catch(err => {           
                         console.log("Error While Loading Progress", err);
-                    }); 
+                    });  */
                     
                     
                 }
@@ -1830,7 +1832,7 @@ class GLTFRenderer extends Component {
     }
 
     findMyParentChilds = (mynode) => {
-        console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID,this.props.selectedoption,SELECTASSEMBLY);
+        //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID,this.props.selectedoption,SELECTASSEMBLY);
         if (((this.props.selectedoption != SELECTSOLID) && ((this.props.selectedoption != SELECTASSEMBLY))) ||
             (this.props.splitmethod != SELECTDISECTPARTS)) {
             return this.findSingleNode(mynode);
@@ -2358,6 +2360,100 @@ class GLTFRenderer extends Component {
             });
         });
     }
+    loadAllEdges = (allEdges) => {
+        const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
+                   
+            
+        const onload = ( gltf ) => {
+            const myobject = gltf.scene || gltf.scenes[0];
+            myobject.position.x += (this.shiftposition.x);
+            myobject.position.y += (this.shiftposition.y);
+            myobject.position.z += (this.shiftposition.z);
+            this.scene.add(myobject);
+            this.content.push(myobject);
+            //console.log("MyObject",myobject);
+            let partsMeshes = myobject.children;
+
+            if (partsMeshes[0].children.length > 0) {
+                partsMeshes = partsMeshes[0].children;
+            }
+
+            if (partsMeshes[0].children.length > 0) {
+                partsMeshes = partsMeshes[0].children;
+            }
+            //console.log(partsMeshes);
+           /*  partsMeshes.forEach(element => {
+                if(!element.renderOrder) {
+                    console.log("Chaning Renderingorder from",element.renderOrder,1,element.name);
+                    element.renderOrder=1;
+                }                           
+            }); */
+            //console.log(this.partsMeshes);
+            this.partsMeshes = [...this.partsMeshes,...partsMeshes];
+            //console.log(this.partsMeshes);
+        }
+        
+        const onError = (exception) => {
+            console.log(exception);
+        }
+        const onProgress = (progress) => {
+            //console.log(progress);
+        }
+        //this.fetchTree(gltfFILE,progressFile,myParentID);
+        const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);                   
+        getAFileFromStore(progressFile,"progress")
+        .then(res => res.data)
+        .then((data) => {
+            if(!data || data.begin!=data.end) {
+                console.log(data);
+                alert("Edges are still under construction. Please try after sometime");
+            } else {
+                let myParentID=allEdges;
+                let myParentDic = {};
+                myParentDic[myParentID.toString()]=data.files?data.files[myParentID]:1;
+                if(allEdges==0 && data.files){
+                   myParentDic = data.files;
+                }
+                for (let [myParentID, howManyFiles] of Object.entries(myParentDic)) {                  
+                    //myParentID = allEdges;
+                    //let howManyFiles = data.files?data.files[myParentID]:1;
+                    console.log("Getting Files of", myParentID, "Items", howManyFiles);
+                    
+                    if(howManyFiles==0) {
+                        howManyFiles=1;
+                    }
+
+                    let fileStore = progressFile + "-" +myParentID.toString()+"3";
+                    
+                    for (let index = 0; index < howManyFiles; index++) {
+                        if(index > 0) {
+                            fileStore = progressFile + "-" +myParentID.toString()+"-"+index.toString()+"3";
+                        }
+                        console.log(fileStore);
+                        getAFileFromStore(fileStore,"tree")
+                        .then(res => res.data)
+                        .then((data) => {
+                                //console.log(data);
+                                //console.log(this.props.gltfobj.tree);
+                                this.props.gltfobj.tree = [...this.props.gltfobj.tree,...data];
+                                //console.log(this.props.gltfobj.tree);
+                        }).catch(err => {           
+                            console.log("Error While Loading Tree", err);
+                        
+                        })
+                        loader.load(fileStore+".gltf", onload, onProgress, onError,1 );
+                    }
+                    
+                }
+            }
+            //loader.dispose();
+        })
+        .catch(err => {           
+            console.log("Error While Loading Progress", err);
+        }); 
+        
+        
+    };
 
     render() {
         if (this.activeFile != this.props.activefile ||
@@ -2387,13 +2483,16 @@ class GLTFRenderer extends Component {
                 this.selectAllSelectedSolids();
             }
             if(this.selectedoption !=this.props.selectedoption) {
+                if(this.props.selectedoption==SELECTLOADEDGES || (this.props.selectedoption==SELECTEDGE && this.props.ctrlKey)) {
+                    this.loadAllEdges(0);                    
+                }
                 this.changeVisibility();
                 this.selectedoption = this.props.selectedoption;
             }
            
             if (this.activeFile != this.props.activefile || this.materialtype != this.props.materialtype ) {
-                console.log("Rerendering here!",this.activeFile,this.props.activefile,
-                this.materialtype,this.props.materialtype,this.selectedoption,this.props.selectedoption);
+                //console.log("Rerendering here!",this.activeFile,this.props.activefile,
+                //this.materialtype,this.props.materialtype,this.selectedoption,this.props.selectedoption);
                 this.alter();
             }            
         }
