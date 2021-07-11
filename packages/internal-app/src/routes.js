@@ -56,7 +56,7 @@ export default function AppRoutes() {
 
                     <div style={{ marginLeft: '7%', marginRight: '7%' }}>
                         <Switch>
-                            <AppRoute authenticate exact path='/product-design' component={ProductDesign} />
+                            <AppRoute authenticate exact path='/design' component={ProductDesign} />
                             <AppRoute authenticate path='/dashboard' component={Dashboard} />
                             <AppRoute authenticate exact path='/vendors' component={Vendors} />
                             <AppRoute authenticate exact path='/clients' component={Clients} />
@@ -70,7 +70,7 @@ export default function AppRoutes() {
                         </Switch>
                     </div>
                     <Switch>
-                        {/* <AppRoute authenticate path='/product-design/:id' component={ProductDesignDetail} /> */}
+                        {/* <AppRoute authenticate path='/design/:id' component={ProductDesignDetail} /> */}
 
                         <AppRoute authenticate path='/clients/:id' component={ClientDetail} />
 

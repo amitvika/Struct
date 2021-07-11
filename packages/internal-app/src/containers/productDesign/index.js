@@ -1,24 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useHistory } from 'react-router-dom';
 import { useQuery } from '../../utils/customHooks'
 
 import DesignAPage from '@ravibasil/common/containers/design/design'
 import ProductDesignHeader from "./ProductDesignHeader";
 import Product from '@ravibasil/common/containers/product'
 
+import ProductDesignAPI from '@ravibasil/common/api/productDesign.api';
+
 const ProductDesign = ({ gltfjson, setgltfjson }) => {
     let query = useQuery();
+    let history = useHistory();
 
-    const handleItemClick = (id) => { };
+    const handleAddDesign = (name) => {
+        ProductDesignAPI.upsertProductDesign({ name, type: query.get('type'), id: query.get('id') })
+            .then(res => {
+                history.push(`/design?type=my-design`);
+            })
+            .catch(error => {
 
+            })
+    }
 
     const renderView = () => {
         switch (query.get('type')) {
             case 'my-design':
                 return <DesignAPage />;
-            case 'product':
-                return <Product />
             default:
-                return <Product />;
+                return <Product handleSave={handleAddDesign} name={query.get('name')} />;
         }
     }
     return (

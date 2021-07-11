@@ -98,7 +98,7 @@ export default function Header() {
                         color: "inherit",
                         to: href,
                         component: RouterLink,
-                        className: classes.menuButton + ` ${location.pathname.includes(href) && classes.linkSelected}`
+                        className: classes.menuButton + ` ${location.pathname.includes(href)  && classes.linkSelected}`
                     }}
                 >
                     {label}
@@ -293,8 +293,8 @@ export default function Header() {
 
 const headersData = [
     {
-        label: "Product Design",
-        href: "/product-design?type=my-design",
+        label: "Product design",
+        href: "/design?type=my-design",
     },
     {
         label: "Clients",

@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const ProductDesignSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    design_type: { type: String },
+    type: { type: String },
     category: { type: String },
     notes: { type: String },
     file_history: [{
