@@ -4,13 +4,9 @@ const Schema = mongoose.Schema;
 const FactorySchema = new mongoose.Schema({
     name: { type: String, required: true },
     selectedItemId: { type: Schema.Types.ObjectId, ref: "Item" },
-    date: { type: Date, default: Date.now },
-    isDeleted: { type: Boolean, default: false },
-    author: {
-		type: Schema.Types.ObjectId,
-		ref: "User",
-		required: true
-	},
+    created_by: { type: Schema.Types.ObjectId, ref: "User" },
+    updated_by: { type: Schema.Types.ObjectId, ref: "User" },
+    is_archived: { type: Boolean, default: false }
 }, {
     timestamps: true
 });

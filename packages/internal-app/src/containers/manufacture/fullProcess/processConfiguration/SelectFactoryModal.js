@@ -7,86 +7,45 @@ import Headding from '@ravibasil/common/components/atoms/Headding'
 import { Paper, Grid, Button } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import SelectorView from '@ravibasil/common/components/SelectorView';
+import { columnsFields } from '@ravibasil/common/constants/factory';
 
-export default function SelectFactoryModal({ isModalOpened,fields, toggleModal, selectedValue = {},
-     setSelectedValue, assignFactory,itemId,itemProperties,setItemProperties,fetchList }) {
-    const [factoriesOptions, setfactoriesOptions] = useState([])
-    const dispatch = useDispatch();
 
-    useEffect(() => {
-        FactoriesAPI.fetchFactories()
-            .then(res => {
-                setfactoriesOptions(getOptions(get(res, 'data', [])));
-
-            })
-        return () => {
-
-        }
-    }, []);
+export default function SelectFactoryModal({ isModalOpened, fields, toggleModal, selectedValue = {},
+    setSelectedValue, assignFactory, itemId, itemProperties, setItemProperties, fetchList }) {
 
     const handleChange = (data) => {
-        // console.log("-----",selectedValue.factory_id)
-        console.log('-----',data)
-        setSelectedValue(prev => ({ ...prev, factory_id: data.value}))
-   
+        if (data[0]) {
+            let updatedValue = { ...selectedValue, factory_id: data[0] }
+            setSelectedValue(updatedValue);
+            assignFactory(updatedValue)
+        }
+
     }
 
-    const getOptions = (data) => {
-        return data.map(item => {
-            return ({
-                label: item.name,
-                value: item._id
-            })
+    const fetchSelectedList = () => {
+        return new Promise((resolve, reject) => {
+            if (selectedValue.factory_id) {
+                resolve([selectedValue.factory_id])
+            }
+            else {
+                resolve([]);
+            }
+            console.log(selectedValue.name)
         })
-    }
-
-    const getValue = () => {
-        return ({ value: `${selectedValue.factory_id}` })
     }
 
     return (
         <MainModal open={isModalOpened} toggleModal={toggleModal}>
-
-            <Grid className="section-padding-left" container spacing={4}>
-
-                <Grid item xs={4} >
-                    <Headding bold title={'Select Factory'} />
-                </Grid>
-                <Grid item xs={8} >
-                    <Select
-                        onChange={(data) => handleChange(data)}
-                        options={factoriesOptions}
-                        placeholder={`Select Factory`}
-                        value={`${selectedValue.factory_id}`} />
-                </Grid>
-                <Grid item xs={4} >
-                    <Headding bold title={'Quantity'} />
-                </Grid>
-                <Grid item xs={8} >
-                   {selectedValue.quantity}
-                </Grid>
-
-
-                {/* <SelectorView
-						title={'Factory'}
-						fetchList={fetchList}
-						fetchSelectedList={itemProperties}
-						fields={fields}
-						// mapValues={mapItems}
-						handleUpdate={setItemProperties}
-						handleSelection={(data) => setSelectedValue(data)}
-					/> */}
-                <Grid item xs={4} style={{ textAlign: 'center' }}>
-                    <Button
-                        style={{ marginTop: '20px' }}
-                        variant="contained"
-                        color="primary"
-                        type="button"
-                        onClick={() => assignFactory(selectedValue)}>
-                        OK
-                    </Button>
-                </Grid>
-            </Grid>
+            <SelectorView
+                title={'Factory'}
+                fetchList={FactoriesAPI.fetchFactories}
+                fetchSelectedList={fetchSelectedList}
+                fields={columnsFields}
+                mapValues={(data) => data}
+                handleUpdate={handleChange}
+                handleSelection={(data) => { }}
+                isMultiSelection={false}
+            />
         </MainModal>
     )
 }

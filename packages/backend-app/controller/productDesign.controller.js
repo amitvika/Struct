@@ -2,6 +2,7 @@ const ProductDesignModel = require("../models/productDesign.modal");
 const ChangeTracking = require("../models/ChangeTracking.model");
 const { getObjectId } = require('../utils/helper')
 const { mapProductDesign, mapProductDesigns, mapProductDesignsForItem } = require('../map/productDesign');
+const _ = require('lodash');
 
 exports.get = async (req, res) => {
     try {
@@ -68,15 +69,35 @@ exports.upsert = async (req, res) => {
 
             let data = req.body;
 
-            productDesign = await ProductDesignModel.findByIdAndUpdate(
-                req.body.id,
-                { $set: data },
-                { new: true });
+            if (_.get(req.body.new_file.file_url)) {
+
+                productDesign = await ProductDesignModel.findByIdAndUpdate(
+                    req.body.id,
+                    { $set: data },
+                    {
+                        $push: {
+                            file_history: {
+                                $each: fileHistoryPayload(req, productDesign),
+                                $position: 0
+                            }
+                        }
+                    },
+                    { new: true });
+            }
+            else {
+                productDesign = await ProductDesignModel.findByIdAndUpdate(
+                    req.body.id,
+                    { $set: data },
+                    { new: true });
+            }
         }
         else {
             actionType = "Add";
             req.body.created_by = req.user.id;
             req.body.updated_by = req.user.id;
+
+            //check file uploaded
+            req.body.file_history = fileHistoryPayload(req);
 
             productDesign = await ProductDesignModel.create(req.body);
         }
@@ -101,4 +122,25 @@ exports.upsert = async (req, res) => {
         console.log('upsert', error)
         res.status(500).send(error)
     };
+}
+
+
+const fileHistoryPayload = (req, productDesign) => {
+    if (Array.isArray(productDesign.file_history)) {
+        return [{
+            file_url: req.body.new_file.file_url,
+            file_name: req.body.new_file.file_name,
+            loaded_by: req.user.id,
+        }]
+    }
+    else if (req.body.new_file) {
+        return [{
+            file_url: req.body.new_file.file_url,
+            file_name: req.body.new_file.file_name,
+            loaded_by: req.user.id,
+        }];
+    }
+    else {
+        return []
+    }
 }

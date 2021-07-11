@@ -81,7 +81,7 @@ const FactoriesDetail = () => {
     }
 
     const renderPageSwitch = (index) => {
-        if (!get(factoryValue, '_id')) {
+        if (!get(factoryValue, 'id')) {
             return null
         }
         switch (tabIndex) {

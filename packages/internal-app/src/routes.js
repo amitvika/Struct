@@ -25,7 +25,7 @@ import ViewAccess from './page/ViewAccess';
 import Clients from './containers/client';
 import ClientDetail from "./containers/client/ClientDetail";
 
-import Factories from './containers/factories/Factories';
+import Factories from './containers/factories';
 import FactoryDetail from './containers/factories/FactoryDetail'
 
 import ProductDesign from './containers/productDesign';
@@ -48,50 +48,50 @@ export default function AppRoutes() {
     }
     return (
         <Router>
-                <Switch>
-                    <Route exact path="/" component={Login} />
-                    <Route path="/register" component={Register} />
-                    <Route path="/viewer" component={Viewer} />
-                    <Layout>
+            <Switch>
+                <Route exact path="/" component={Login} />
+                <Route path="/register" component={Register} />
+                <Route path="/viewer" component={Viewer} />
+                <Layout>
 
-                        <div style={{ marginLeft: '7%', marginRight: '7%' }}>
-                            <Switch>
-                                <AppRoute authenticate exact path='/product-design' component={ProductDesign} />
-                                <AppRoute authenticate path='/dashboard' component={Dashboard} />
-                                <AppRoute authenticate exact path='/vendors' component={Vendors} />
-                                <AppRoute authenticate exact path='/clients' component={Clients} />
-                                <AppRoute authenticate exact path='/process-groups' component={ProcessGroups} />
-                                <AppRoute authenticate exact path='/items' component={Items} />
-                                <AppRoute authenticate exact path='/factories' component={Factories} />
-                                <AppRoute authenticate path='/access-setup' component={AccessSetup} />
-                                <AppRoute authenticate path='/view-access' component={ViewAccess} />
-
-                                <AppRoute authenticate path='/configuration-history' component={ConfigurationHistory} />
-                            </Switch>
-                        </div>
+                    <div style={{ marginLeft: '7%', marginRight: '7%' }}>
                         <Switch>
-                            {/* <AppRoute authenticate path='/product-design/:id' component={ProductDesignDetail} /> */}
+                            <AppRoute authenticate exact path='/product-design' component={ProductDesign} />
+                            <AppRoute authenticate path='/dashboard' component={Dashboard} />
+                            <AppRoute authenticate exact path='/vendors' component={Vendors} />
+                            <AppRoute authenticate exact path='/clients' component={Clients} />
+                            <AppRoute authenticate exact path='/process-groups' component={ProcessGroups} />
+                            <AppRoute authenticate exact path='/items' component={Items} />
+                            <AppRoute authenticate exact path='/factories' component={Factories} />
+                            <AppRoute authenticate path='/access-setup' component={AccessSetup} />
+                            <AppRoute authenticate path='/view-access' component={ViewAccess} />
 
-                            <AppRoute authenticate path='/clients/:id' component={ClientDetail} />
-
-                            <AppRoute authenticate path='/vendors/:id' component={VendorDetail} />
-
-                            {/* <AppRoute authenticate path='/process-groups/:id' component={ProcessGroupDetail} /> */}
-
-                            <AppRoute authenticate path='/items/:id' component={ItemDetail} />
-
-                            <AppRoute authenticate path='/factories/:id' component={FactoryDetail} />
-
-                            <AppRoute authenticate path='/access-configuration/:id' component={AccessConfiguration} />
-
-                            <AppRoute authenticate path="/user-setup" component={UserSetup} />
-                            <AppRoute authenticate path="/criteria-upload" component={CriteriaUpload} />
-
-
-                            <AppRoute authenticate path='/viewMyProfile' component={ViewMyProfile} />
+                            <AppRoute authenticate path='/configuration-history' component={ConfigurationHistory} />
                         </Switch>
-                    </Layout>
-                </Switch>
+                    </div>
+                    <Switch>
+                        {/* <AppRoute authenticate path='/product-design/:id' component={ProductDesignDetail} /> */}
+
+                        <AppRoute authenticate path='/clients/:id' component={ClientDetail} />
+
+                        <AppRoute authenticate path='/vendors/:id' component={VendorDetail} />
+
+                        {/* <AppRoute authenticate path='/process-groups/:id' component={ProcessGroupDetail} /> */}
+
+                        <AppRoute authenticate path='/items/:id' component={ItemDetail} />
+
+                        <AppRoute authenticate path='/factories/:id' component={FactoryDetail} />
+
+                        <AppRoute authenticate path='/access-configuration/:id' component={AccessConfiguration} />
+
+                        <AppRoute authenticate path="/user-setup" component={UserSetup} />
+                        <AppRoute authenticate path="/criteria-upload" component={CriteriaUpload} />
+
+
+                        <AppRoute authenticate path='/viewMyProfile' component={ViewMyProfile} />
+                    </Switch>
+                </Layout>
+            </Switch>
         </Router>
     );
 }
