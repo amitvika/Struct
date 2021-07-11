@@ -135,7 +135,7 @@ exports.upsert = async (req, res) => {
 
 
 const fileHistoryPayload = (req, productDesign) => {
-    if (productDesign && Array.isArray(productDesign.file_history)) {
+    if (productDesign && Array.isArray(productDesign.file_history) && req.body.new_file) {
         return [{
             file_url: req.body.new_file.file_url,
             file_name: req.body.new_file.file_name,
