@@ -13,7 +13,7 @@ import {
     Headding
 } from '../../components';
 
-export default function FileHistory({ file_history_list = [] }) {
+export default function FileHistory({ file_history = [] }) {
     return (
         <Grid item xs={12}>
             <Headding bold title={'File History'} />
@@ -24,25 +24,25 @@ export default function FileHistory({ file_history_list = [] }) {
                     <TableHead>
                         <TableRow>
                             <TableCell>Name</TableCell>
-                            <TableCell>Loaded At</TableCell>
-                            <TableCell>Cleared At</TableCell>
                             <TableCell>Loaded By</TableCell>
+                            <TableCell>Loaded At</TableCell>
                             <TableCell>Cleared By</TableCell>
+                            <TableCell>Cleared At</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {
-                            file_history_list.map((item, index) => {
+                            file_history.map((item, index) => {
                                 return (<TableRow key={index}>
                                     <TableCell>
                                         <a href={item.file_url}
                                             target="_blank">
-                                            {item.name}
+                                            {item.file_name}
                                         </a></TableCell>
+                                    <TableCell>{item.loaded_by_name}</TableCell>
                                     <TableCell>{item.loaded_at}</TableCell>
-                                    <TableCell>{item.cleared_at}</TableCell>
-                                    <TableCell>{item.loaded_by}</TableCell>
                                     <TableCell>{item.cleared_by}</TableCell>
+                                    <TableCell>{item.cleared_at}</TableCell>
                                 </TableRow>)
                             })
                         }

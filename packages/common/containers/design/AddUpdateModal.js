@@ -29,10 +29,15 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
 
     const handleOnChange = (name, data) => {
 
+        let file_history = value.file_history || [];
+        if (name === "new_file") {
+            file_history = [data, ...file_history]
+        }
+
         setValue(preValue => ({
             ...preValue,
             [name]: data,
-            file_history_list: name === "file_load" ? [data, ...preValue.file_history_list] : preValue.file_history_list
+            file_history
         }));
     }
 
@@ -40,52 +45,13 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
         if (value) {
             handleUpdate(value)
         }
-        toggleModal();
+        // toggleModal();
     }
 
     const handleTypeChange = (data) => {
         setIsTypeSelected(true);
         setSelectedType(data);
         handleOnChange('category', data)
-    }
-
-    const renderField = (item) => {
-        if (item.type === 'text') {
-            return (
-                <Input
-                    placeholder="Enter"
-                    type="text"
-                    onChange={(event) => handleOnChange(item.field, event.target.value)}
-                    value={value[item.field]}
-                />)
-        }
-        else if (item.type === 'select') {
-            return (
-                <Select
-                    options={[
-                        { label: "Criteria", value: "criteria" },
-                        { label: 'Hierarchy', value: 'hierarchy' },]}
-                    onChange={(data) => handleTypeChange(data.value)}
-                    value={value.category && { label: value.category }}
-                />
-            )
-        }
-    }
-
-    const renderView = () => {
-        return fields
-            .filter(item => item.type)
-            .map(item => {
-                return (<>
-                    <Grid item xs={4}>
-                        <Headding bold title={item.title} />
-                    </Grid>
-                    <Grid item xs={8}>
-                        {renderField(item)}
-                    </Grid>
-                </>)
-
-            })
     }
 
     return (
@@ -95,7 +61,31 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
             toggleModal={toggleModal}>
 
             <Grid className="section-padding-left" container spacing={4}>
-                {renderView()}
+                <Grid item xs={4}>
+                    <Headding bold title={'Name'} />
+                </Grid>
+                <Grid item xs={8}>
+                    <Input
+                        placeholder="Enter"
+                        type="text"
+                        onChange={(event) => handleOnChange('name', event.target.value)}
+                        value={value.name}
+                    />
+                </Grid>
+
+                <Grid item xs={4}>
+                    <Headding bold title={'Category'} />
+                </Grid>
+                <Grid item xs={8}>
+                    <Select
+                        options={[
+                            { label: "Criteria", value: "criteria" },
+                            { label: 'Hierarchy', value: 'hierarchy' },]}
+                        onChange={(data) => handleTypeChange(data.value)}
+                        value={value.category && { label: value.category }}
+                    />
+                </Grid>
+
                 {
                     isTypeSelected &&
                     <>
@@ -118,13 +108,13 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
                 <Grid item xs={8}>
                     <Textarea
                         placeholder="Enter"
-                        onChange={(event) => handleOnChange('note', event.target.value)}
-                        value={value.note}
+                        onChange={(event) => handleOnChange('notes', event.target.value)}
+                        value={value.notes}
                     />
                 </Grid>
 
                 <FileUpload value={value} handleOnChange={handleOnChange} />
-                <FileHistory file_history_list={value.file_history_list} />
+                <FileHistory file_history={value.file_history} />
 
                 <Grid item xs={6}>
                     <Button variant="contained" color="primary" onClick={handleSaveButton}>

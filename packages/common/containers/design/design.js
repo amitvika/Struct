@@ -3,8 +3,7 @@ import React, { useEffect } from "react";
 import ProductDesignAPI from '@ravibasil/common/api/productDesign.api';
 import TableGridView from '@ravibasil/common/components/TableGridView';
 import { fields } from '@ravibasil/common/constants/productDesign'
-import { typeOption } from "@ravibasil/common/constants/productDesign";
-import { tableFields } from "@ravibasil/common/constants/productDesign";
+// import { typeOption } from "@ravibasil/common/constants/productDesign";
 import AddUpdateModal from "./AddUpdateModal";
 const ProductDesign = () => {
 
@@ -14,8 +13,6 @@ const ProductDesign = () => {
         <TableGridView
             title={'Product Design'}
             fields={fields}
-            typeOption={typeOption}
-            tableFields={tableFields}
             fetchList={ProductDesignAPI.fetchProductDesigns}
             upsertListItem={ProductDesignAPI.upsertProductDesign}
             isAddEditActionsEnabled={true}
