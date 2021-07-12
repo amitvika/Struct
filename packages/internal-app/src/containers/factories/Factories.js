@@ -81,13 +81,7 @@ const Factories = () => {
             const factoriesRes = await FactoriesAPI.fetchFactories()
 
             if (factoriesRes && factoriesRes.data) {
-                const clients = factoriesRes.data.map((x, index) => {
-                    return {
-                        id: x._id,
-                        name: x.name,
-                        created_by: x.author?.name,
-                    }
-                })
+                const clients = factoriesRes.data
                 setFactoryList(clients)
                 setFilteredFactoryList(clients)
             }

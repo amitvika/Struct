@@ -24,7 +24,8 @@ export default function SelectorView({
     mapValues,
     handleUpdate,
     handleSelection,
-    fetchSelectedList
+    fetchSelectedList,
+    isMultiSelection = true
 }) {
     const [isLoading, setIsLoading] = useState(false);
     const [itemList, setItemList] = useState([]);
@@ -93,12 +94,22 @@ export default function SelectorView({
     const handleItemClick = (data) => {
 
         if (isItemSelectionVisible) {
-            setFilteredItemList(prevState => {
-                let updatedState = prevState.filter(item => item.id != data.id);
-                return updatedState;
-            });
+            
+            if (isMultiSelection) {
+                setFilteredItemList(prevState => {
+                    let updatedState = prevState.filter(item => item.id != data.id);
+                    return updatedState;
+                });
+            }
+            else{
+                setFilteredItemList(itemList.filter(item => item.id != data.id));
+            }
 
-            const updatdSelected = [...selectedItemList, data]
+            let updatdSelected = [...selectedItemList, data];
+            if (!isMultiSelection) {
+                updatdSelected = [data];
+            }
+
             setSelectedItemList(updatdSelected);
             setSelectedFilteredItemList(updatdSelected)
 
@@ -206,7 +217,7 @@ export default function SelectorView({
 
 
 
-            { isItemSelectionVisible &&
+            {isItemSelectionVisible &&
                 <>
                     {/* Filter section */}
                     <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >

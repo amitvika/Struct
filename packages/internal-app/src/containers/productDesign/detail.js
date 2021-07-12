@@ -58,7 +58,7 @@ const ProductDesignDetail = () => {
               }}
             >
               <NavLink
-                to='/product-design'>
+                to='/design'>
                 Product Design List
               </NavLink>
 

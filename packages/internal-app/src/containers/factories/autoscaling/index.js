@@ -16,6 +16,7 @@ import DateFnsUtils from "@date-io/date-fns";
 import moment from 'moment';
 import ApprovalModal from '@ravibasil/common/components/ApprovalModal';
 import SimpleBackdrop from '@ravibasil/common/components/Backdrop';
+import { Link } from '@material-ui/core';
 
 export default function Autoscaling() {
 
@@ -55,7 +56,7 @@ export default function Autoscaling() {
                 onClick={(event) => {
                     event.stopPropagation();
                     toggleModal(rowData)
-                }}>{rowData.approval_list.length === 3 ? "Approved" : "Not Approved"}</span>
+                }}><Link>{rowData.approval_list.length === 3 ? "Approved" : "Not Approved"}</Link></span>
         },
     ])
 

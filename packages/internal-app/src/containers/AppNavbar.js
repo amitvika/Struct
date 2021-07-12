@@ -177,7 +177,7 @@ const AppNavbar = () => {
         <Nav className="mr-auto" navbar>
           <NavLink
             className="navbar-text"
-            to='/product-design'
+            to='/design'
             tag={RRNavLink}>
             Product Design
             </NavLink>

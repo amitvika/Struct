@@ -1,27 +1,31 @@
 const FactoryModel = require("../models/factory.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
-var mongoose = require('mongoose');
 const { getObjectId } = require('../utils/helper')
+const { mapFactories, mapFactory } = require('../map/factories')
 
 exports.get = async (req, res) => {
 
     try {
-        let query = { $and: [] };
-        query.$and.push({
-            "deletedAt": { "$exists": false }
-        })
+        const query = buildQuery(req);
 
-        if (req.query.factory_id) {
-            query.$and.push({
-                "_id": getObjectId(req.query.factory_id)
-            })
+        let factories = [];
+
+        if (query.$and.length > 0) {
+            factories = await FactoryModel
+                .find(query)
+                .populate('created_by')
+                .sort({ updatedAt: -1 })
+
+        }
+        else {
+            factories = await FactoryModel
+                .find()
+                .populate('created_by')
+                .sort({ updatedAt: -1 })
+
         }
 
-        const factories = await FactoryModel.find(query)
-            .populate("author", "name")
-            .sort({ date: -1 }) //sorts descending
-
-        res.json(factories)
+        res.json(mapFactories(factories))
 
     } catch (error) {
         return res
@@ -30,50 +34,62 @@ exports.get = async (req, res) => {
     }
 }
 
+const buildQuery = (req) => {
+    let query = { $and: [] };
+
+    if (req.query.factory_id) {
+        query.$and.push({ _id: getObjectId(req.query.factory_id) });
+    }
+
+    if (req.query.name) {
+        query.$and.push({ name: { '$regex': new RegExp(`${req.query.name}`, "i") } })
+    }
+
+    query.$and.push({ is_archived: false });
+
+    return query
+}
+
 exports.upsert = async (req, res) => {
     try {
+        let actionType;
+        let factory = await FactoryModel.findById(req.body.id);
 
-        let factory;
-        let id = req.body.id || req.body._id
-        if (id) {
-            factory = await FactoryModel.findByIdAndUpdate(id,
-                { $set: req.body },
+        if (factory) {
+            actionType = "Update";
+            req.body.created_by = factory.created_by;
+            req.body.updated_by = req.user.id;
+
+            let data = req.body;
+
+            factory = await FactoryModel.findByIdAndUpdate(
+                req.body.id,
+                { $set: data },
                 { new: true });
         }
         else {
-            const factoryModel = new FactoryModel({
-                name: req.body.name,
-                author: req.user.id
-            })
-            factory = await factoryModel.save();
+            actionType = "Add";
+            req.body.created_by = req.user.id;
 
+            factory = await FactoryModel.create(req.body);
         }
-
-        if (!factory) {
-            throw { message: 'Unable to save Factory' }
-        }
-
-        factory = await FactoryModel
-            .findById(factory._id)
-            .populate("author", "name")
 
         const changeTracking = new ChangeTracking({
-            client: factory._id,
+            client: req.body.id,
             update: factory,
             model: "Factory",
-            updateType: "Upsert",
-            updatedObject: factory._id,
+            updateType: actionType,
+            updatedObject: req.body.id,
             updatedBy: req.user.id
         });
-
         await changeTracking.save();
 
-        res.json(factory);
-    } catch (error) {
-        console.log(error)
+        factory = await FactoryModel.findById(factory._id).populate('created_by')
 
-        return res
-            .status(500)
-            .send({ message: error.message })
+        res.json(mapFactory(factory))
     }
+    catch (error) {
+        console.log('upsert', error)
+        res.status(500).send(error)
+    };
 }

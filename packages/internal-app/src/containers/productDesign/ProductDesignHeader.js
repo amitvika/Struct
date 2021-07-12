@@ -9,7 +9,7 @@ import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import MenuIcon from '@material-ui/icons/Menu';
 import Viewer from "src/components/Viewer";
 import { Headding } from "src/components";
-
+import { useQuery } from '../../utils/customHooks'
 
 const useStyles = makeStyles((theme) => ({
     toolbar: {
@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ProductDesignHeader({ gltfjson, setgltfjson }) {
     const classes = useStyles();
     const location = useLocation();
-
+    let query = useQuery();
 
     const [state, setState] = React.useState({
 
@@ -147,7 +147,7 @@ export default function ProductDesignHeader({ gltfjson, setgltfjson }) {
                         color: "inherit",
                         to: href,
                         component: RouterLink,
-                        className: classes.menuButton + ` ${location.pathname.includes(label) && classes.linkSelected}`
+                        className: classes.menuButton + ` ${href.includes(query.get('type')) && classes.linkSelected}`
                     }}
                 >
                     {label}
@@ -169,34 +169,34 @@ export default function ProductDesignHeader({ gltfjson, setgltfjson }) {
 const headersData = [
     {
         label: "My Designs",
-        href: "/product-design?type=my-design"
+        href: "/design?type=my-design"
     },
     {
         label: "Product",
-        href: "/product-design?type=product",
+        href: "/design?type=product",
     },
     {
         label: "CAD",
-        href: "/vendors",
+        href: "/design?type=cad",
     },
     {
         label: "PCB",
-        href: "/items",
+        href: "/design?type=pcb",
     },
     {
         label: "Silicon",
-        href: "/items",
+        href: "/design?type=silicon",
     },
     {
         label: "Clothes",
-        href: "/items",
+        href: "/design?type=clothes",
     },
     {
         label: "Architecture",
-        href: "/items",
+        href: "/design?type=architecture",
     },
     {
         label: 'Predesigned Components',
-        href: './predesigned',
+        href: '/design?type=predesigned',
     }
 ];

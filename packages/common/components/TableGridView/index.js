@@ -130,7 +130,7 @@ const TableGridView = ({
 
     const handleTableRowClick = (data) => {
         if (handleItemClick) {
-            handleItemClick(data.id);
+            handleItemClick(data.id, data);
             return;
         }
 
