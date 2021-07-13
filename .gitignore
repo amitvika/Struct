@@ -6,7 +6,6 @@ node_modules
 *.STEP1
 *.pyc
 *.step
-*.png
 *.pickle
 *.progress
 *.iges
