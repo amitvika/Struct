@@ -209,7 +209,9 @@ class GLTFRenderer extends Component {
             this.controls.autoRotate = false;
             this.controls.autoRotateSpeed = -10;
             this.controls.screenSpacePanning = false;
+            this.controls.staticMoving = true;
             this.controls.rotateSpeed = 5.0;
+            this.controls.noZoom = true;
             this.controls.zoomSpeed = 0.1;
             this.controls.panSpeed = 1.0;
 
@@ -241,15 +243,18 @@ class GLTFRenderer extends Component {
             this.animate = this.animate.bind(this);
             requestAnimationFrame(this.animate);
             window.addEventListener('resize', this.onWindowResize.bind(this), false);
-            window.addEventListener('mousedown', this.onMouseDown.bind(this), true); // get event first to enable the correct control
-            window.addEventListener('mouseup', this.onMouseUp.bind(this), false); // get event last, so false on capture            
-            window.addEventListener('touchstart', this.onTouchStart.bind(this), false);
-            window.addEventListener('touchend', this.onTouchEnd.bind(this), false);
-            window.addEventListener('wheel', this.onMouseWheel.bind(this), false);
+            //window.addEventListener('mousedown', this.onMouseDown.bind(this), true); // get event first to enable the correct control
+            //window.addEventListener('mouseup', this.onMouseUp.bind(this), false); // get event last, so false on capture            
+            //window.addEventListener('touchstart', this.onTouchStart.bind(this), false);
+            //window.addEventListener('touchend', this.onTouchEnd.bind(this), false);
+            //window.addEventListener('wheel', this.onMouseWheel.bind(this), false);
             this.renderer.domElement.addEventListener('mousemove', this.onMouseMove.bind(this), false);
             this.renderer.domElement.addEventListener('click', this.onMouseClick.bind(this), false);
-            this.renderer.domElement.addEventListener('mousedown', this.raycast.bind(this), true);
-            this.renderer.domElement.addEventListener('touchstart', this.touchStart.bind(this), true);
+            this.renderer.domElement.addEventListener('mousedown', this.onMouseDown.bind(this), true);
+            this.renderer.domElement.addEventListener('mouseup', this.onMouseUp.bind(this), false);
+            this.renderer.domElement.addEventListener('touchstart', this.onTouchStart.bind(this), true);
+            this.renderer.domElement.addEventListener('touchend', this.onTouchEnd.bind(this), false);
+            this.renderer.domElement.addEventListener('wheel', this.onMouseWheel.bind(this), false);
             this.controls.addEventListener('start', this.controlsStart.bind(this),false);
             this.controls.addEventListener('change', this.updateCameraSpinUI.bind(this),false);
             this.controls.addEventListener('end', this.controlsEnd.bind(this),false);
@@ -285,10 +290,11 @@ class GLTFRenderer extends Component {
         //console.log("I have reached here to clean webgl render");
         this.clear();
         window.removeEventListener('resize', this.onWindowResize);
-        window.removeEventListener('mousedown', this.onMouseDown);  
-        window.removeEventListener('mouseup', this.onMouseUp);
-        window.removeEventListener('touchstart', this.onTouchStart);
-        window.removeEventListener('touchend', this.onTouchEnd);
+        //window.removeEventListener('mousedown', this.onMouseDown);  
+        //window.removeEventListener('mouseup', this.onMouseUp);
+        //window.removeEventListener('touchstart', this.onTouchStart);
+        //window.removeEventListener('touchend', this.onTouchEnd);
+        //window.removeEventListener('wheel', this.onMouseWheel);
         if(this.controls) {
             this.controls.removeEventListener('start', this.controlsStart);
             this.controls.removeEventListener('change', this.updateCameraSpinUI);
@@ -299,8 +305,11 @@ class GLTFRenderer extends Component {
             this.renderer.setAnimationLoop(null);
             this.renderer.domElement.removeEventListener('mousemove', this.onMouseMove);    
             this.renderer.domElement.removeEventListener('click', this.onMouseClick);       
-            this.renderer.domElement.removeEventListener('mousedown', this.raycast);
-            this.renderer.domElement.removeEventListener('touchstart', this.touchStart.bind);
+            this.renderer.domElement.removeEventListener('mousedown', this.onMouseDown);  
+            this.renderer.domElement.removeEventListener('mouseup', this.onMouseUp);  
+            this.renderer.domElement.removeEventListener('touchstart', this.onTouchStart);
+            this.renderer.domElement.removeEventListener('touchend', this.onTouchEnd);
+            this.renderer.domElement.removeEventListener('wheel', this.onMouseWheel);
             this.renderer.dispose();
         }
         if(this.axesRenderer) {
@@ -415,7 +424,9 @@ class GLTFRenderer extends Component {
         if (this.props.cameraPosition) {
 
             this.defaultCamera.position.fromArray(this.props.cameraPosition);
-            this.defaultCamera.lookAt(new Vector3());
+            this.defaultCamera.cameraposition=new Vector3();
+            this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
+            
 
         } else {
 
@@ -423,7 +434,9 @@ class GLTFRenderer extends Component {
             this.defaultCamera.position.x += size / 2.0;
             this.defaultCamera.position.y += size / 2.0;
             this.defaultCamera.position.z += size / 2.0;
-            this.defaultCamera.lookAt(center);
+            this.defaultCamera.cameraposition=center;
+            this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
+           
 
         }
 
@@ -990,6 +1003,19 @@ class GLTFRenderer extends Component {
 
     };
 
+    setMouseCoOrdinates=(event)=>{
+        const myrect = this.node ? this.node.getBoundingClientRect() : { "left": 0, "top": 0 };
+        const leftShift = this.node ? myrect.left : 0;
+        const topShift = this.node ? myrect.top : 0;
+        const innerWidth = this.node ? this.node.clientWidth : window.innerWidth;
+        const innerHeight = this.node ? this.node.clientHeight : window.innerHeight;
+
+        this.mouse.x = ((event.clientX - leftShift) / innerWidth) * 2 - 1;
+        this.mouse.y = - ((event.clientY - topShift) / innerHeight) * 2 + 1;
+        this.clientX = event.clientX;
+        this.clientY = event.clientY;
+    };
+
     onMouseMove = (event) => {
 
         event.preventDefault();
@@ -997,7 +1023,8 @@ class GLTFRenderer extends Component {
         /* this.mouse3D = new Vector3( ( event.clientX / window.innerWidth ) * 2 - 1,   
           -( event.clientY / window.innerHeight ) * 2 + 1,  
           0.5 );   */
-        const myrect = this.node ? this.node.getBoundingClientRect() : { "left": 0, "top": 0 };
+        this.setMouseCoOrdinates(event);
+        /* const myrect = this.node ? this.node.getBoundingClientRect() : { "left": 0, "top": 0 };
         const leftShift = this.node ? myrect.left : 0;
         const topShift = this.node ? myrect.top : 0;
         const innerWidth = this.node ? this.node.clientWidth : window.innerWidth;
@@ -1013,7 +1040,7 @@ class GLTFRenderer extends Component {
         this.mouse.x = ((event.clientX - leftShift) / innerWidth) * 2 - 1;
         this.mouse.y = - ((event.clientY - topShift) / innerHeight) * 2 + 1;
         this.clientX = event.clientX;
-        this.clientY = event.clientY;
+        this.clientY = event.clientY; */
         //this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1 ;
         //this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
         /*	if (this.dotGeometry)
@@ -1061,8 +1088,8 @@ class GLTFRenderer extends Component {
 
     touchStart = ( event ) =>{
 
-        
-        const myrect = this.node ? this.node.getBoundingClientRect() : { "left": 0, "top": 0 };
+        this.setMouseCoOrdinates(event);
+        /* const myrect = this.node ? this.node.getBoundingClientRect() : { "left": 0, "top": 0 };
         const leftShift = this.node ? myrect.left : 0;
         const topShift = this.node ? myrect.top : 0;
         const innerWidth = this.node ? this.node.clientWidth : window.innerWidth;
@@ -1071,9 +1098,9 @@ class GLTFRenderer extends Component {
         this.mouse.x = ((event.touches[ 0 ].clientX - leftShift) / innerWidth) * 2 - 1;
         this.mouse.y = - ((event.touches[ 0 ].clientY - topShift) / innerHeight) * 2 + 1;
         this.clientX = event.touches[ 0 ].clientX;
-        this.clientY = event.touches[ 0 ].clientY;
+        this.clientY = event.touches[ 0 ].clientY; */
 
-        this.raycast();
+        
         if(this.controls) {
             if(this.controls.touchstart) {
                 this.controls.touchstart(event);
@@ -1166,6 +1193,7 @@ class GLTFRenderer extends Component {
     
     onMouseDown = ( event ) =>{
         //console.log("Down",event);
+        event.preventDefault();
         if ( event.button === 0 ) {
 
             this.pickControlToEnable( this.getPointerInNdc( event.pageX, event.pageY ) );
@@ -1176,7 +1204,14 @@ class GLTFRenderer extends Component {
             }
 
         }
+        this.setMouseCoOrdinates(event);       
+       
         if(this.controls) {
+            var vector = new Vector3(this.mouse.x, this.mouse.y, 0.5);
+            //console.log(vector);
+            vector.unproject(this.activeCamera);
+            vector.sub(this.activeCamera.position);
+            this.activeCamera.updateProjectionMatrix();
             //console.log(event);
             if(this.controls.onMouseDown){
                 this.controls.onMouseDown(event);
@@ -1192,14 +1227,38 @@ class GLTFRenderer extends Component {
                 this.controls.onMouseUp(event);
             }
         }
-
+        this.raycast();
     };
 
     onMouseWheel = ( event ) => {
-        //console.log("Up",event);
+        /* console.log("onMouseWheel",event);
         if(this.controls) {
             this.controls.enabled = true;
             this.controls.handleMouseWheel(event);
+        }  */   
+        event.preventDefault();    
+        this.setMouseCoOrdinates(event);
+       
+       
+        if(this.controls) {
+            
+           
+            var factor = this.controls.zoomSpeed;
+           
+            var vector = new Vector3(this.mouse.x, this.mouse.y, 0.5);
+            //console.log(vector);
+            vector.unproject(this.activeCamera);
+            vector.sub(this.activeCamera.position);
+            if (event.deltaY < 0) {
+                this.activeCamera.position.addVectors(this.activeCamera.position, vector.setLength(factor));
+                this.controls.target.addVectors(this.controls.target,vector.setLength(factor));
+                this.activeCamera.updateProjectionMatrix();
+            } else {
+                this.activeCamera.position.subVectors(this.activeCamera.position,vector.setLength(factor));
+                this.controls.target.subVectors(this.controls.target,vector.setLength(factor));
+                this.activeCamera.updateProjectionMatrix();
+            }
+
         }
 
     };
@@ -1249,7 +1308,7 @@ class GLTFRenderer extends Component {
                  event.changedTouches[ 0 ].pageX, event.changedTouches[ 0 ].pageY ) );
 
         }
-
+        this.touchStart(event);
     }
 
     onTouchEnd = ( event ) => {
@@ -1260,7 +1319,7 @@ class GLTFRenderer extends Component {
             }
             this.isTouched = false;
         }
-
+        this.raycast();
     }
 
 

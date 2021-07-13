@@ -149,7 +149,12 @@ class TrackballControls extends EventDispatcher {
 				let angle = moveDirection.length();
 				//console.log(moveDirection,angle);
 				if ( angle ) {
-
+					/* let _centerEye = scope.target;
+					if(scope.object.cameraposition) {
+						scope.target = scope.object.cameraposition;	
+						scope.object.position.add(scope.object.cameraposition).sub(_centerEye);
+						_eye.subVectors( scope.object.position, scope.target );
+					} */
 					_eye.copy( scope.object.position ).sub( scope.target );
 
 					eyeDirection.copy( _eye ).normalize();
@@ -171,6 +176,10 @@ class TrackballControls extends EventDispatcher {
 
 					_lastAxis.copy( axis );
 					_lastAngle = angle;
+					//if(scope.object.cameraposition) {
+						//scope.target.sub(scope.object.cameraposition).add(_centerEye);
+						//scope.object.position.sub(scope.object.cameraposition).add(_centerEye);
+					//}
 
 				} else if ( ! scope.staticMoving && _lastAngle ) {
 
@@ -326,12 +335,19 @@ class TrackballControls extends EventDispatcher {
 
 		this.update = function () {
 			//console.log(scope);
+			
+			
 			_eye.subVectors( scope.object.position, scope.target );
 
 			if ( ! scope.noRotate ) {
-
+				/* if(scope.object.cameraposition) {
+					scope.target = scope.object.cameraposition;	
+					_eye.subVectors( scope.object.position, scope.target );
+				}	 */
 				scope.rotateCamera();
-
+				/* if(scope.object.cameraposition) {
+					scope.target.subVectors(_centerEye,scope.object.cameraposition);
+				} */
 			}
 
 			if ( ! scope.noZoom ) {
@@ -345,7 +361,7 @@ class TrackballControls extends EventDispatcher {
 				scope.panCamera();
 
 			}
-
+			
 			scope.object.position.addVectors( scope.target, _eye );
 
 			if ( scope.object.isPerspectiveCamera ) {
