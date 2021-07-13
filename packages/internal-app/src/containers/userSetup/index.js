@@ -12,8 +12,11 @@ import TeamSetup from '../teamSetup';
 import TeamTaskSetup from '../teamTaskSetup'
 import AccessSetup from '../accessSetup'
 import AccessConfiguration from "../../page/AccessConfiguration";
+import CriteriaUpload from '../criteriaUpload'
+import Users from '../users'
+import ConfigurationHistory from "src/page/ConfigurationHistory";
 
-const UserSetup = () => {
+const Administrative = () => {
     const history = useHistory();
     let query = useQuery();
 
@@ -21,7 +24,7 @@ const UserSetup = () => {
     const [tabIndex, setTabIndex] = useState(0);
 
     useEffect(() => {
-       
+
 
         (async () => {
             setIsLoading(true);
@@ -29,24 +32,28 @@ const UserSetup = () => {
             setIsLoading(false);
         })()
     }, []);
-    
+
     useEffect(() => {
         if (query.get('tab')) {
             setTabIndex(parseInt(query.get('tab')))
         }
-    },[query.get('tab')])
+    }, [query.get('tab')])
 
     const renderPageSwitch = () => {
         switch (tabIndex) {
             case 0:
-                return <TeamSetup />;
+                return <Users />
             case 1:
-                return <TeamTaskSetup />;
+                return <TeamSetup />;
             case 2:
-                return <AccessSetup handleTabChange={handleTabChange} />
+                return <TeamTaskSetup />;
             case 3:
-                return <AccessConfiguration accessSetupId={query.get('accessSetupId')} />
-
+                return <AccessSetup handleTabChange={handleTabChange} accessSetupId={query.get('accessSetupId')} />
+            case 4:
+                return <CriteriaUpload />
+            case 5:
+                return <ConfigurationHistory /> 
+           
             default:
                 return "Undefined Tab Index";
         }
@@ -61,7 +68,7 @@ const UserSetup = () => {
         }
 
         history.push({
-            pathname: `/user-setup`,
+            pathname: `/administrative`,
             search
         })
     }
@@ -75,7 +82,7 @@ const UserSetup = () => {
             <Grid container>
                 <Grid item sm sm={12}>
                     <Paper style={{ display: 'flex', justifyContent: 'center', padding: 10, margin: 10 }}>
-                        <h4>User Setup</h4>
+                        <h4>Administrative</h4>
                     </Paper>
                 </Grid>
 
@@ -86,10 +93,12 @@ const UserSetup = () => {
                             variant="scrollable"
                             value={tabIndex}
                             onChange={handleTabChange}>
-
-                            <Tab label="Team Setup" value={0} />
-                            <Tab label="Task Assignment Rules" value={1} />
-                            <Tab label="Access Setup" value={2} />
+                            <Tab label="Users" value={0} />
+                            <Tab label="Team Setup" value={1} />
+                            <Tab label="Task Assignment Rules" value={2} />
+                            <Tab label="Access Setup" value={3} />
+                            <Tab label='Criteria Upload' value={4} />
+                            <Tab label="Configuration History" value={5} />
                         </Tabs>
                     </Paper>
                 </Grid>
@@ -104,4 +113,4 @@ const UserSetup = () => {
     );
 }
 
-export default UserSetup;
+export default Administrative;

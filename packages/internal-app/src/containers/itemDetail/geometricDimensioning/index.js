@@ -20,6 +20,7 @@ import {
 import MaterialTable from 'material-table';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Assembly from '../assembly';
 
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
@@ -37,14 +38,14 @@ const stateprops = {
     materialtype: DEFAULTMATERIALTYPE
 }
 
-export default function GeometricDimensioning({tabIndex, fileId, fileGDT, gltfjson, isLoading, assemblyTree = [] }) {
+export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfjson, isLoading, assemblyTree = [] }) {
     const [state, _setState] = useState({});
     // const [isLoading, setIsLoading] = useState(false);
     const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
     //const [splitFiles, setSplitfiles] = useState({});
     const [resetOption, setResetOption] = useState(true);
     const [value, setValue] = React.useState('female');
-    const [ctrlKey, setCtrlKey]=useState(false);
+    const [ctrlKey, setCtrlKey] = useState(false);
 
     const handleChange = (event) => {
         setValue(event.target.value);
@@ -712,7 +713,7 @@ export default function GeometricDimensioning({tabIndex, fileId, fileGDT, gltfjs
             }
             if (event) {
                 //console.log(event.ctrlKey);
-                setCtrlKey(ctrlKey,event.ctrlKey);
+                setCtrlKey(ctrlKey, event.ctrlKey);
             }
         }
     }
@@ -751,21 +752,9 @@ export default function GeometricDimensioning({tabIndex, fileId, fileGDT, gltfjs
                     </Grid>
                 </Grid>
             </Paper>
-                <FormControlLabel value="female" control={<Radio />} label="Create Resultant Single Item Parts and Multi-Item Assemblies" onChange={handleChange} />
-                <MaterialTable
-                    title="Assembly Tree"
-                    columns={[
-                        { title: 'Name', field: 'name' },
-                        { title: 'Item', field: 'item' },
-                        { title: 'Assembly', field: 'assembly' },
-                        {
-                            title: 'Children',
-                            field: 'children'
-                        },
-                    ]}
-                    parentChildData={(row, rows) => rows.find(a => a.i === row.parentId)}
-                    data={renderLeafElements()}
-                />
+            <Grid >
+                <Assembly />
+            </Grid>
         </>
     )
 }

@@ -181,12 +181,12 @@ export default function Header() {
                             <Paper>
                                 <ClickAwayListener onClickAway={handleClose}>
                                     <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                                        <MenuItem
+                                        {/* <MenuItem
                                             key={`configuration-history_link`}
-                                            onClick={() => handleLink('/configuration-history')}>Configuration History</MenuItem>
+                                            onClick={() => handleLink('/configuration-history')}>Configuration History</MenuItem> */}
                                         <MenuItem
                                             key={`user_setup_link`}
-                                            onClick={handleAdministrative}>Administrative</MenuItem>
+                                            onClick={() => handleLink('/administrative')}>Administrative</MenuItem>
 
                                         {/* <MenuItem
                                             key={`my_profile_link`}
@@ -207,33 +207,6 @@ export default function Header() {
                         </Grow>
                     )}
                 </Popper>
-                {
-                    isAdministrativeOpened &&
-
-                    <Popper open={setIsAdministrativeOpened} anchorEl={anchorRef.current} role={undefined} transition disablePortal >
-                        {({ TransitionProps, placement }) => (
-                            <Grow
-                                {...TransitionProps}
-                                style={{ transformOrigin: placement === 'bottom' ? 'center left' : 'center bottom', position: 'absolute', top: '30px', right: '76px' }}
-                            >
-                                <Paper>
-                                    <ClickAwayListener onClickAway={handleClose}>
-                                        <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                                            <MenuItem
-                                                key={`configuration-history_link`}
-                                                onClick={() => handleLink('/user-setup')}>User Setup</MenuItem>
-                                            <MenuItem
-                                                key={`user_setup_link`}
-                                                onClick={() => handleLink('criteria-upload')}>Criteria Setup</MenuItem>
-
-                                        </MenuList>
-                                    </ClickAwayListener>
-
-                                </Paper>
-                            </Grow>
-                        )}
-                    </Popper>
-                }
             </>
         );
 

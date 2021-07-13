@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     },
     list: {
         width: 800,
-        // top: 65,
+        top: '145px',
         // marginTop: '65px'
     },
     fullList: {
@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
         // marginTop: '65px'
     },
     drawer: {
-        top: '65px',
+        top: '145px',
     }
 
 }));
@@ -88,6 +88,7 @@ export default function ProductDesignHeader({ gltfjson, setgltfjson }) {
             className={clsx(classes.list, {
                 [classes.fullList]: anchor === 'top' || anchor === 'bottom',
             })}
+  
             role="presentation"
             onClick={toggleDrawer(anchor, false)}
             onKeyDown={toggleDrawer(anchor, false)}
@@ -110,8 +111,7 @@ export default function ProductDesignHeader({ gltfjson, setgltfjson }) {
             <Box component="div" className={classes.menuContainer}>
                 {getMenuButtons()}
 
-                {/* {['right'].map((anchor) => ( */}
-                <React.Fragment key={anchor} >
+                <Grid key={anchor}  >
                     <MenuIcon onClick={toggleDrawer(anchor, true)} />
                     <SwipeableDrawer
                         className={classes.drawer}
@@ -122,9 +122,7 @@ export default function ProductDesignHeader({ gltfjson, setgltfjson }) {
                     >
                         {list(anchor)}
                     </SwipeableDrawer>
-                </React.Fragment>
-                {/* ))} */}
-
+                </Grid>
             </Box>
         </Toolbar >);
     };

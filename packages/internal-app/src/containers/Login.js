@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center'
     },
     card_container: {
-        maxWidth: '700px',
+        maxWidth: '800px',
         width: '45%'
         
     },
@@ -31,8 +31,8 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: "center"
     },
     logo: {
-        width: 200,
-        height: 50
+        width: 150,
+        height: 40
     },
     form_root: {
         display: 'flex',

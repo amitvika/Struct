@@ -30,7 +30,7 @@ import FactoryDetail from './containers/factories/FactoryDetail'
 
 import ProductDesign from './containers/productDesign';
 import ItemDetail from "./containers/itemDetail";
-import UserSetup from './containers/userSetup';
+import Administrative from './containers/userSetup';
 import ViewMyProfile from './containers/viewMyProfile'
 
 
@@ -84,7 +84,7 @@ export default function AppRoutes() {
 
                         <AppRoute authenticate path='/access-configuration/:id' component={AccessConfiguration} />
 
-                        <AppRoute authenticate path="/user-setup" component={UserSetup} />
+                        <AppRoute authenticate path="/administrative" component={Administrative} />
                         <AppRoute authenticate path="/criteria-upload" component={CriteriaUpload} />
 
 

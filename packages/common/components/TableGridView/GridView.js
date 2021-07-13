@@ -81,8 +81,8 @@ export default function GridView({
     const titleRef = useRef();
 
     const handleCopyId = (event, id) => {
-        document.execCommand("copy");
-        alert("Copied the text: " +id);
+        navigator.clipboard.writeText(id)    
+        console.log(id)
         event.stopPropagation();
     }
     const renderItem = (data) => {

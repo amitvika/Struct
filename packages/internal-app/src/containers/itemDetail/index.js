@@ -367,7 +367,7 @@ const ItemDetail = () => {
 
     const tabList = {
         pdcu: "Product Design or CAD Upload", cc: "Compliance and Certifications", gdtac: "GD&T and Assembly Constraints",
-        sft: "Surface Finish and Treatment", fls: "Functional Load and Simulation", dm: "Design Modifications", assembly: "Assembly",
+        sft: "Surface Finish and Treatment", fls: "Functional Load and Simulation", dm: "Design Modifications", 
         slfpi: "Software Loading for PCBs, ICs", cu: "Current Usage", mpps: "Manufacture, Processing, & Process Simulation",
         pv: "Production Validations", ps: "Process Sharing", wmm: "Warranty & Maintenance Management", pd: "Product Documentation",
         rs: "Recycling & Sustainability", pds: "Product Design Setup", iupc: "Internal Use Product Configurations", production: "Production"
