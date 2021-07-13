@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import SharedHeader from 'shared-lib/src/components/Header';
+// import SharedHeader from 'shared-lib/src/components/Header';
 import {Link} from"react-router-dom"
+import { Grid } from '@material-ui/core';
 
 
 
@@ -48,7 +49,7 @@ export default function Header(props) {
 
   return (
 
-    <SharedHeader nav={nav} menuButton={props.children}>
+    <Grid nav={nav} >
       <ul id="nav" className="nav navbar-nav menu">
         <li className="menu-item">
           <a href="#">Design Quote</a>
@@ -106,7 +107,7 @@ export default function Header(props) {
         </li>
       </ul>
 
-    </SharedHeader>
+    </Grid>
 
   )
 }

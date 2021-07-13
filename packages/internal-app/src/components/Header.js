@@ -65,7 +65,8 @@ export default function Header() {
         setIsAdministrativeOpened(!isAdministrativeOpened)
     }
     const displayDesktop = () => {
-        return (<Toolbar className={classes.toolbar}>
+        return (
+        <Toolbar className={classes.toolbar}>
             {structLogo}
             <Box component="div" className={classes.menuContainer}>
                 <Box component="div" key={`primary_list1`} style={{ display: 'flex' }}>
