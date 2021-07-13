@@ -2,59 +2,73 @@ import React from 'react';
 import MaterialTable from 'material-table';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import CheckboxTree from 'react-checkbox-tree';
+import FolderOpenIcon from '@material-ui/icons/FolderOpen';
+import FolderLogo from '../../../assets/images/folder_logo.png'
+import FolderOpenLogo from '../../../assets/images/folderOpen.png'
+import ArrowRight from '../../../assets/images/right-chevron.png'
+import ArrowDown from '../../../assets/images/down-chevron.png'
+import PaperLogo from '../../../assets/images/paper.png'
+import PlusIcon from '../../../assets/images/add.png'
+import MinusIcon from '../../../assets/images/minus.png'
 
 
-export default function MultipleDetailPanels({ assemblyTree = [] }) {
-    const [value, setValue] = React.useState('female');
 
-    const handleChange = (event) => {
-        setValue(event.target.value);
+
+const nodes = [{
+    value: 'mars',
+    label: 'Mars',
+    showCheckbox: false,
+
+    children: [
+        {
+            value: 'phobos', label: 'Phobos',showCheckbox: false, children: [
+                { value: 'hello', label: 'hello',showCheckbox: false,  },
+                { value: 'hello2', label: 'hello2',showCheckbox: false,  },]
+        },
+        {
+            value: 'deimos', label: 'Deimos',showCheckbox: false, children: [
+                { value: 'hello3', label: 'hell3',showCheckbox: false, },
+                { value: 'hello4', label: 'hello4' ,showCheckbox: false,},
+            ]
+        },
+    ],
+}];
+
+
+class MultipleDetailPanels extends React.Component {
+    state = {
+        checked: [],
+        expanded: [],
     };
-    const renderLeafElements = () => {
 
-        console.log(assemblyTree)
-        return assemblyTree
-            // .filter(item => !item.leaf)
-            .map(item => {
-                const noOfChildren = renderChildElements({ parentId: item.i });
-                return (
-                    { ...item, name: item.n, item: '', assembly: noOfChildren.length > 0 ? 'Multi-Item Assembly' : 'Single-Item Assembly', children: noOfChildren }
-                )
-            })
+    render() {
+        return (
+            <>
+                <FormControlLabel value="female" control={<Radio />} label="Create Resultant Single Item Parts and Multi-Item Assemblies"  />
+
+                <CheckboxTree
+                    nodes={nodes}
+                    // checked={this.state.checked}
+                    expanded={this.state.expanded}
+                    onCheck={checked => this.setState({ checked })}
+                    onExpand={expanded => this.setState({ expanded })}
+                    icons={{
+                        check: false,
+                        uncheck: false,
+                        halfCheck: false,
+                        expandClose: <img style={{width: '10px'}} src={ArrowRight} />,
+                        expandOpen: <img style={{width: '10px'}} src={ArrowDown} />,
+                        expandAll: <img style={{width: '30px'}} src={PlusIcon} />,
+                        collapseAll: <img style={{width: '30px'}} src={MinusIcon} />,
+                        parentClose:<img style={{width: '30px'}} src={FolderLogo} />,
+                        parentOpen: <img style={{width: '30px'}} src={FolderOpenLogo} />,
+                        leaf: <img style={{width: '30px'}} src={PaperLogo} />,
+                    }}
+                />
+            </>
+        );
     }
-
-    const renderChildElements = ({ parentId }) => {
-        return assemblyTree
-            .filter(item => item.d === parentId)
-            .map(item => {
-                return (
-                    <div
-                        style={{
-
-                        }}
-                    >
-                        {item.name}
-                    </div>
-                )
-            })
-    }
-    return (
-        <div>
-            <FormControlLabel value="female" control={<Radio />} label="Create Resultant Single Item Parts and Multi-Item Assemblies" onChange={handleChange} />
-            <MaterialTable
-                title="Assembly Tree"
-                columns={[
-                    { title: 'Name', field: 'name' },
-                    { title: 'Item', field: 'item' },
-                    { title: 'Assembly', field: 'assembly' },
-                    {
-                        title: 'Children',
-                        field: 'children'
-                    },
-                ]}
-                parentChildData={(row, rows) => rows.find(a => a.i === row.parentId)}
-                data={renderLeafElements()}
-            />
-        </div>
-    )
 }
+export default MultipleDetailPanels
+

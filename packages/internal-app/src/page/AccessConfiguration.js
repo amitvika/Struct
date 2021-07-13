@@ -184,7 +184,7 @@ const AccessConfiguration = (props) => {
     }
     const handleAccessConfig = () => {
         <NavLink
-            to={`/user-setup?tab=2`}
+            to={`/administrative?tab=2`}
         >
             Access Setup
         </NavLink>
@@ -204,7 +204,7 @@ const AccessConfiguration = (props) => {
                                 }}
                             > */}
                         <SubHeaderWithArrow
-                            action={`/user-setup?tab=2`}
+                            action={`/administrative?tab=3`}
                             title={`Access Setup/ User Access Configuration`}
                         />
                         
