@@ -159,3 +159,6 @@ __pycache__
 *.sqbpro
 *.jpg
 **/Media/
+*.png
+*.progress
+
