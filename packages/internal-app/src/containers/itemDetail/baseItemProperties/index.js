@@ -154,7 +154,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                                     <GLTFRenderer
                                         //gltfjson={JSON.stringify(gltfjson)}
                                         gltfobj={gltfjson}
-                                        fileGDT={itemProperties.fileGDT}
+                                        fileGDT={null}
                                         activefile={fileId}
                                         backcolor={DEFAULTBACKCOLOR}
                                         selectcolor={DEFAULTSELECTCOLOR}

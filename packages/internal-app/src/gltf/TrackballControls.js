@@ -149,12 +149,23 @@ class TrackballControls extends EventDispatcher {
 				let angle = moveDirection.length();
 				//console.log(moveDirection,angle);
 				if ( angle ) {
-					/* let _centerEye = scope.target;
+					let _targetCopy=new Vector3();
+					_targetCopy.copy(scope.target);
+					let _centerEye=scope.target;
+
 					if(scope.object.cameraposition) {
-						scope.target = scope.object.cameraposition;	
-						scope.object.position.add(scope.object.cameraposition).sub(_centerEye);
-						_eye.subVectors( scope.object.position, scope.target );
-					} */
+						//console.log("-1",scope.target,scope.object.position,scope.object.cameraposition);
+						_centerEye.subVectors(scope.target,scope.object.cameraposition);
+						//console.log("-1.1",scope.target,scope.object.position,scope.object.cameraposition,_centerEye);
+						
+						scope.target.sub(_centerEye);	
+						//console.log("-1.2",scope.target,scope.object.position,scope.object.cameraposition,_centerEye);
+						
+						scope.object.position.sub(_centerEye);
+						//console.log("-1.3",scope.target,scope.object.position,scope.object.cameraposition,_centerEye);
+							
+						//console.log("-2",scope.target,scope.object.position,scope.object.cameraposition);					
+					} 
 					_eye.copy( scope.object.position ).sub( scope.target );
 
 					eyeDirection.copy( _eye ).normalize();
@@ -172,14 +183,33 @@ class TrackballControls extends EventDispatcher {
 					quaternion.setFromAxisAngle( axis, angle );
 
 					_eye.applyQuaternion( quaternion );
+					//console.log("-3",scope.target,scope.object.position,scope.object.cameraposition);
 					scope.object.up.applyQuaternion( quaternion );
-
+					//console.log("-4",scope.target,scope.object.position,scope.object.cameraposition);
+					//_centerEye.applyQuaternion(quaternion);
 					_lastAxis.copy( axis );
 					_lastAngle = angle;
-					//if(scope.object.cameraposition) {
-						//scope.target.sub(scope.object.cameraposition).add(_centerEye);
-						//scope.object.position.sub(scope.object.cameraposition).add(_centerEye);
-					//}
+					
+					if(scope.object.cameraposition) {
+						const objectUp = new Vector3(),
+						pan = new Vector3();
+						//console.log("1",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
+						scope.object.position.addVectors( scope.target, _eye );
+						//scope.target.copy(scope.object.cameraposition); 
+						/* pan.cross( scope.object.up ).setLength( 1 );
+						pan.add( objectUp.copy( scope.object.up ).setLength( 1 ) );
+
+						scope.object.position.add( pan );
+						scope.target.add( pan ); */
+						//console.log("2",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
+						//scope.target.addVectors(scope.target,_targetCopy);
+						//console.log("3",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
+						//scope.object.position.addVectors(scope.object.position,_targetCopy);				
+						//console.log("4",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
+						
+					} else {
+						scope.object.position.addVectors( scope.target, _eye );
+					}	
 
 				} else if ( ! scope.staticMoving && _lastAngle ) {
 
@@ -286,7 +316,7 @@ class TrackballControls extends EventDispatcher {
 						mouseChange.y *= scale_y;
 
 					}
-
+					_eye.subVectors( scope.object.position, scope.target );
 					mouseChange.multiplyScalar( _eye.length() * scope.panSpeed );
 
 					pan.copy( _eye ).cross( scope.object.up ).setLength( mouseChange.x );
@@ -304,7 +334,8 @@ class TrackballControls extends EventDispatcher {
 						_panStart.add( mouseChange.subVectors( _panEnd, _panStart ).multiplyScalar( scope.dynamicDampingFactor ) );
 
 					}
-
+					scope.object.position.addVectors( scope.target, _eye );
+					//console.log("Pos",scope.object.position,"Target",scope.target,"Pan",pan);
 				}
 
 			};
@@ -337,7 +368,7 @@ class TrackballControls extends EventDispatcher {
 			//console.log(scope);
 			
 			
-			_eye.subVectors( scope.object.position, scope.target );
+			
 
 			if ( ! scope.noRotate ) {
 				/* if(scope.object.cameraposition) {
@@ -362,14 +393,15 @@ class TrackballControls extends EventDispatcher {
 
 			}
 			
-			scope.object.position.addVectors( scope.target, _eye );
+			
 
 			if ( scope.object.isPerspectiveCamera ) {
 
 				scope.checkDistances();
 
 				scope.object.lookAt( scope.target );
-
+				//console.log("Pos",scope.object.position,"Target",scope.target);
+			
 				if ( lastPosition.distanceToSquared( scope.object.position ) > EPS ) {
 
 					scope.dispatchEvent( _changeEvent );

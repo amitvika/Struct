@@ -210,7 +210,7 @@ class GLTFRenderer extends Component {
             this.controls.autoRotateSpeed = -10;
             this.controls.screenSpacePanning = false;
             this.controls.staticMoving = true;
-            this.controls.rotateSpeed = 5.0;
+            this.controls.rotateSpeed = 2.0;
             this.controls.noZoom = true;
             this.controls.zoomSpeed = 0.1;
             this.controls.panSpeed = 1.0;
@@ -1135,6 +1135,7 @@ class GLTFRenderer extends Component {
                         this.controls.target.setLength(startDistance);
                         this.controls.target.add(this.raycaster.ray.origin);
                         this.controls.setTargetPosition(this.controls.target);
+                        //console.log("Reset1",this.controls.target);
                     }
         
                 } else {
@@ -1154,6 +1155,7 @@ class GLTFRenderer extends Component {
                     this.controls.target.setLength(startDistance);
                     this.controls.target.add(this.raycaster.ray.origin);
                     this.controls.setTargetPosition(this.controls.target);
+                    //console.log("Reset2",this.controls.target);
                 }
                
                 // Turn on trackball graphics for input except dolly
@@ -1207,11 +1209,15 @@ class GLTFRenderer extends Component {
         this.setMouseCoOrdinates(event);       
        
         if(this.controls) {
-            var vector = new Vector3(this.mouse.x, this.mouse.y, 0.5);
+           /*  var vector = new Vector3(this.mouse.x, this.mouse.y, 0.5);
             //console.log(vector);
             vector.unproject(this.activeCamera);
             vector.sub(this.activeCamera.position);
-            this.activeCamera.updateProjectionMatrix();
+            const factor=0.001;
+            this.activeCamera.position.addVectors(this.activeCamera.position, vector.setLength(factor));
+            this.controls.target.addVectors(this.controls.target,vector.setLength(factor));
+            this.activeCamera.updateProjectionMatrix(); */
+          
             //console.log(event);
             if(this.controls.onMouseDown){
                 this.controls.onMouseDown(event);
@@ -1253,10 +1259,12 @@ class GLTFRenderer extends Component {
                 this.activeCamera.position.addVectors(this.activeCamera.position, vector.setLength(factor));
                 this.controls.target.addVectors(this.controls.target,vector.setLength(factor));
                 this.activeCamera.updateProjectionMatrix();
+                //console.log("Reset3",this.controls.target);
             } else {
                 this.activeCamera.position.subVectors(this.activeCamera.position,vector.setLength(factor));
                 this.controls.target.subVectors(this.controls.target,vector.setLength(factor));
                 this.activeCamera.updateProjectionMatrix();
+                //console.log("Reset4",this.controls.target);
             }
 
         }
@@ -1787,7 +1795,7 @@ class GLTFRenderer extends Component {
             }
         } else {
             //alert("Unable to find a GDT for this!");
-            console.log("Unable to find a GDT for this!");
+            //console.log("Unable to find a GDT for this!");
         }
         return [mynode];
 
@@ -2354,6 +2362,7 @@ class GLTFRenderer extends Component {
                 this.controls.target.applyQuaternion(this.defaultCamera.quaternion);
                 this.controls.target.add(this.defaultCamera.position);
                 this.controls.setTargetPosition(this.controls.target);
+                //console.log("Reset5",this.controls.target);
 			}
         }
     }
