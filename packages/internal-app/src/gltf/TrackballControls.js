@@ -186,7 +186,7 @@ class TrackballControls extends EventDispatcher {
 					//console.log("-3",scope.target,scope.object.position,scope.object.cameraposition);
 					scope.object.up.applyQuaternion( quaternion );
 					//console.log("-4",scope.target,scope.object.position,scope.object.cameraposition);
-					//_centerEye.applyQuaternion(quaternion);
+					_targetCopy.applyQuaternion(quaternion);
 					_lastAxis.copy( axis );
 					_lastAngle = angle;
 					
@@ -195,7 +195,7 @@ class TrackballControls extends EventDispatcher {
 						pan = new Vector3();
 						//console.log("1",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
 						scope.object.position.addVectors( scope.target, _eye );
-						//scope.target.copy(scope.object.cameraposition); 
+						scope.target.copy(_targetCopy); 
 						/* pan.cross( scope.object.up ).setLength( 1 );
 						pan.add( objectUp.copy( scope.object.up ).setLength( 1 ) );
 
