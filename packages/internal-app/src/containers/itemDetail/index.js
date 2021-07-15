@@ -75,7 +75,7 @@ const ItemDetail = () => {
         }
 
         const toFetchItem = (!itemProperties || !itemProperties.fileId)
-        console.log("got", tabIndex, myTabIndex, toFetchItem, currentItem, itemProperties);
+        //console.log("got", tabIndex, myTabIndex, toFetchItem, currentItem, itemProperties);
         if (toFetchItem) {
             (async () => {
                 //setIsLoading(true);

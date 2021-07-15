@@ -29,6 +29,7 @@ import {
     MeshPhongMaterial,
     MeshPhysicalMaterial,
     DefaultLoadingManager,
+    OrthographicCamera,
    /* Group,
     SphereBufferGeometry,
     LineBasicMaterial,
@@ -160,6 +161,8 @@ class GLTFRenderer extends Component {
     constructor(props) {
         super(props);
         this.node = React.createRef();
+        this.nodeguiparent = React.createRef;
+        this.nodegui = React.createRef();
     }
 
     componentDidMount() {
@@ -186,11 +189,13 @@ class GLTFRenderer extends Component {
         //[].forEach.call(this.stats.dom.children, (child) => (child.style.display = ''));
         if(this.renderer==null) {
             this.scene = new Scene();
-
+            let viewport = this.setSameSize();
             const fov = this.props.preset === Preset.ASSET_GENERATOR
                 ? 0.8 * 180 / Math.PI
                 : 60;
-            this.defaultCamera = new PerspectiveCamera(fov, this.node.clientWidth / this.node.clientHeight, 0.01, 1000);
+            //this.defaultCamera = new OrthographicCamera(viewport.left,viewport.right,viewport.top,viewport.bottom,0.01);
+            //this.defaultCamera = new OrthographicCamera(-1, 1, 1, -1);
+            this.defaultCamera = new PerspectiveCamera(fov, this.node.clientWidth / this.node.clientHeight, 0.01);
             this.activeCamera = this.defaultCamera;
             this.scene.add(this.defaultCamera);
 //            console.log("Renderer",this.renderer, window.renderer);
@@ -263,6 +268,40 @@ class GLTFRenderer extends Component {
         this.alter();
         this.changeparts();
         this.onWindowResize();
+    }
+
+    setSameSize = () => {
+        if(this.node) {
+            if(this.node.clientHeight!=this.node.clientWidth) {
+                let minsize = Math.min(this.node.clientWidth,this.node.clientHeight);
+                if(minsize <=0) {
+                    minsize=1;
+                }
+                let minsizePX = minsize.toString()+"px";
+                //console.log(minsizePX,this.node.clientWidth,this.node.clientHeight,this.node.style.width,this.node.style.height);
+                if(this.node.style.width != minsizePX) {
+                    this.node.style.width=minsizePX ;
+                    //console.log(this.node.style.width,this.node.style.height);
+                }
+                if(this.node.style.height != minsizePX) {
+                    this.node.style.height=minsizePX ;
+                    //console.log(this.node.style.width,this.node.style.height);
+                }
+            }  
+            let w = this.node.clientHeight;
+            let h = this.node.clientHeight;
+            let viewSize = h;
+            let aspectRatio = w / h;            
+            let viewport = {                
+                    left: (-aspectRatio * viewSize) / 2,
+                    right: (aspectRatio * viewSize) / 2,
+                    top: viewSize / 2,
+                    bottom: -viewSize / 2,
+    
+            }  
+            return viewport;       
+        }    
+        return (-1,1,1,-1);   
     }
 
     convertColor = (color) => {
@@ -419,14 +458,15 @@ class GLTFRenderer extends Component {
         }
         this.defaultCamera.near = size / 100;
         this.defaultCamera.far = size * 100;
+        //console.log("setting1",size,this.defaultCamera);
         this.defaultCamera.updateProjectionMatrix();
-
+        //console.log("setting2",size,this.defaultCamera);
         if (this.props.cameraPosition) {
 
             this.defaultCamera.position.fromArray(this.props.cameraPosition);
             this.defaultCamera.cameraposition=new Vector3();
             this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
-            
+           //console.log("setting3",size,this.defaultCamera);
 
         } else {
 
@@ -436,8 +476,8 @@ class GLTFRenderer extends Component {
             this.defaultCamera.position.z += size / 2.0;
             this.defaultCamera.cameraposition=center;
             this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
+            //console.log("setting4",size,this.defaultCamera);
            
-
         }
 
         this.setCamera(DEFAULT_CAMERA);
@@ -668,6 +708,10 @@ class GLTFRenderer extends Component {
             const { clientWidth, clientHeight } = this.axesDiv;
     
             this.axesScene = new Scene();
+            
+            //this.axesCamera = new OrthographicCamera(-clientWidth/2, clientWidth/2, clientHeight/2, -clientHeight/2,0.1,10);
+            //this.axesCamera = new OrthographicCamera(-1, 1, 1, -1);
+            
             this.axesCamera = new PerspectiveCamera(50, clientWidth / clientHeight, 0.1, 10);
             this.axesScene.add(this.axesCamera);
     
@@ -686,7 +730,7 @@ class GLTFRenderer extends Component {
 
     addGUI = () => {
 
-        const gui = this.gui = new GUI({ autoPlace: false, width: 260, hideable: true });
+        const gui = this.gui = new GUI({ autoPlace: false, hideable: false, resizable:false });
 
         // Display controls.
         const dispFolder = gui.addFolder('Display');
@@ -786,7 +830,7 @@ class GLTFRenderer extends Component {
         */
 
         const guiWrap = document.createElement('div');
-        this.node.appendChild(guiWrap);
+        this.nodegui.appendChild(guiWrap);
         // guiWrap.classList.add('gui-wrap');
         guiWrap.appendChild(gui.domElement);
         gui.open();
@@ -966,14 +1010,15 @@ class GLTFRenderer extends Component {
 
     onWindowResize = () => {
         if (this.node) {
-            if (this.node.parentElement) {
+            this.setSameSize();
+            if (this.node.parentElement) {               
                 const { clientHeight, clientWidth } = this.node.parentElement;
                 this.defaultCamera.aspect = clientWidth / clientHeight;
                 this.defaultCamera.updateProjectionMatrix();
                 //console.log("Parent",clientWidth, clientHeight);
                 //this.vignette.style({aspect: this.defaultCamera.aspect});
                 //this.renderer.setSize(clientWidth, clientHeight);
-            } else {
+            } else {               
                 this.defaultCamera.aspect = this.node.clientWidth / this.node.clientHeight;
                 this.defaultCamera.updateProjectionMatrix();
                 //console.log("Node",clientWidth, clientHeight);
@@ -998,9 +1043,7 @@ class GLTFRenderer extends Component {
             if(this.controls.handleResize) {
                 this.controls.handleResize();
             }
-        }        
-        
-
+        }  
     };
 
     setMouseCoOrdinates=(event)=>{
@@ -2576,22 +2619,31 @@ class GLTFRenderer extends Component {
         }
 
         return (
-            <div
-                style={{ width: "100%", height: "600px" }}
-                ref={el => (this.node = el)}>
-                <div
-                    style={{
-                        display: this.state.intersectedShell ? 'block' : 'block',
-                        position: 'fixed',
-                        top: this.clientY + 10,
-                        left: this.clientX + 10,
-                        color: DEFAULTTEXTCOLOR,
-                        ...this.props.style,
-                    }}
-                >
-                    {this.state.intersectedShell ? this.getNameID(this.state.intersectedShell.name) : ""}
+            <div> 
+                 <div
+                    style={{ width: "100%", height: "600px" }}
+                    ref={el => (this.node = el)}>
+                    <div
+                        style={{
+                            display: this.state.intersectedShell ? 'block' : 'block',
+                            position: 'fixed',
+                            top: this.clientY + 10,
+                            left: this.clientX + 10,
+                            color: DEFAULTTEXTCOLOR,
+                            ...this.props.style,
+                        }}
+                    >
+                        {this.state.intersectedShell ? this.getNameID(this.state.intersectedShell.name) : ""}
+                    </div>                              
                 </div>
-
+                <div style={{position:"relative", top:0, left:0}}
+                    ref={guip=>(this.nodeguiparent=guip)}>
+                    <div 
+                        style={{ width: "100%", height: "150px" }}
+                        ref={guik=>(this.nodegui=guik)}>
+                    </div>  
+                </div>
+                
             </div>
 
         );
