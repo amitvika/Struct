@@ -446,6 +446,7 @@ class GLTFRenderer extends Component {
         this.changeparts();
         this.onWindowResize();
         this.initDone=true;
+        this.render();
     };
 
     setSameSize = () => {
