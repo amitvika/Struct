@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
+import { Grid, Paper } from "@material-ui/core";
 import {
     SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
     DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,
@@ -57,9 +58,11 @@ export default function ViewerToolbar({
     //console.log("FromViewToolbar",selectedObjects,parentObjects,mates);
     return (
         <>
-            {splitMethod != 0 && (
-                
-                <span>
+        
+        <Grid item xs={6} style={{ width: '40rem' }}>
+            <Paper style={{ padding: 10, margin: 10, width: '40rem', alignContent:'center', align:'center'}} square={true}>
+            {splitMethod != 0 && (               
+                <span>                    
                     <Button
                         value={"Assembly"}
                         //style={{ marginLeft: "1%"}}
@@ -243,8 +246,12 @@ export default function ViewerToolbar({
 							</button>
                         </span>
                     )} */}
-                    </span>                    
+                </span>                    
             )}
+             </Paper>
+        </Grid>
+        <Grid item xs={6} style={{ width: '40rem' }}>
+            <Paper style={{ padding: 10, margin: 10, width: '40rem'}} square={true}>
             <TableContainer>
             <Table aria-label="simple table" style={{ verticalAlign: 'top', margin:'0' }}>                
                 <TableBody style={{ verticalAlign: 'top', margin:'0' }}>
@@ -264,8 +271,9 @@ export default function ViewerToolbar({
                     </TableRow>
                 </TableBody>
             </Table>
-            </TableContainer>            
-            
+            </TableContainer> 
+            </Paper>
+        </Grid>        
         </>
     )
 }

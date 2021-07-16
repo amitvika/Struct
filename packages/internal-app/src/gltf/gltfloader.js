@@ -2371,7 +2371,7 @@ class GLTFParser {
 
 				} );} );
 			} );
-		}  else */ {
+		}  else  {*/
 			return new Promise( function ( resolve, reject ) {
 			loader.load( resolveURL( bufferDef.uri, options.path ), resolve, onProgress, function () {
 
@@ -2379,7 +2379,7 @@ class GLTFParser {
 
 				} );
 			});
-		}
+		/*}*/
 	}
 
 	/**

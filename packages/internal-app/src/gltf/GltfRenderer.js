@@ -59,10 +59,10 @@ import {
     hexToRGB, gltf_Dict, SELECTLOADEDGES
 } from "./Tree/utils";
 import './styles/style.css';
-import { motion } from 'framer-motion'
-import styled from 'styled-components'
+//import { motion } from 'framer-motion'
+//import styled from 'styled-components'
 
-const SquareDiv = styled(motion.div)`
+/* const SquareDiv = styled(motion.div)`
     .square {
         position: relative;
         width: 50%;
@@ -80,7 +80,7 @@ const SquareDiv = styled(motion.div)`
         height: 100%;
     }
   
-`;
+`; */
 const DEFAULT_CAMERA = '[default]';
 
 // glTF texture types by the loader .
@@ -119,6 +119,10 @@ class GLTFRenderer extends Component {
         skeleton: false,
         grid: false,
         side: "Front",
+        view: "Perspective",
+        zoomSpeed: 0.1,
+        rotateSpeed: 2.0,
+        panSpeed: 1.0,
         // Lights
         addLights: true,
         exposure: 1.0,
@@ -163,15 +167,178 @@ class GLTFRenderer extends Component {
         this.node = React.createRef();
         this.nodeguiparent = React.createRef;
         this.nodegui = React.createRef();
-    }
+    };
 
     componentDidMount() {
         this.init();
-    }
+    };
 
     componentWillUnmount() {
         this.cleanup();
-    }
+    };
+
+    disposeCameraAndControls = () => {
+        if(this.defaultCamera) {
+            if(this.scene) {
+                this.scene.remove(this.defaultCamera);
+            }  
+            this.defaultCamera = null;          
+            //this.defaultCamera.dispose();
+        }
+        if(this.controls) {
+           
+            this.controls.removeEventListener('start', this.controlsStart);
+            this.controls.removeEventListener('change', this.updateCameraSpinUI);
+            this.controls.removeEventListener('end', this.controlsEnd);
+            this.controls.dispose();
+            this.controls=null;
+           
+        }
+    };
+
+    addCameraAndControls = (myView) => {
+        
+        this.disposeCameraAndControls();
+        //console.log(myView);
+        if(myView=="Orthographic") {
+            this.defaultCamera = new OrthographicCamera(-1, 1, 1, -1);
+        } else {
+            const viewport = this.setSameSize();
+            const fov = this.props.preset === Preset.ASSET_GENERATOR
+                ? 0.8 * 180 / Math.PI
+                : 60;
+            this.defaultCamera = new PerspectiveCamera(fov, viewport.right / viewport.top, 0.01);            
+        }
+        if(this.scene) {
+            this.scene.add(this.defaultCamera);
+        }
+        if(this.light1) {
+            this.defaultCamera.add(this.light1);
+        }
+        if(this.light2) {
+            this.defaultCamera.add(this.light2);
+        }
+        //console.log(this.defaultCamera);
+       
+        this.activeCamera = this.defaultCamera;
+        
+        this.controls = new TrackballControls(this.defaultCamera, this.renderer.domElement);
+        this.controls.autoRotate = false;
+        this.controls.autoRotateSpeed = -10;
+        this.controls.screenSpacePanning = false;
+        this.controls.staticMoving = true;
+        this.controls.rotateSpeed = this.state.rotateSpeed;
+        this.controls.noZoom = this.defaultCamera.isPerspectiveCamera;
+        this.controls.zoomSpeed = this.state.zoomSpeed;
+        this.controls.panSpeed = this.state.panSpeed;
+        this.controls.addEventListener('start', this.controlsStart.bind(this),false);
+        this.controls.addEventListener('change', this.updateCameraSpinUI.bind(this),false);
+        this.controls.addEventListener('end', this.controlsEnd.bind(this),false);
+        this.addAxesHelper(myView);
+        if( this.content) {           
+            const object = this.content[0];
+            //console.log(object);
+            this.updateCameraControls(object,false);
+            //this.updateLights();
+        } else {
+            console.log("No Content");
+        }
+    };
+    
+    updateCameraControls = (object,reset) => {       
+        if(object) {
+            if(reset) {
+                this.originalposition = new Vector3();
+                this.originalposition.x=object.position.x;
+                this.originalposition.y=object.position.y;
+                this.originalposition.z=object.position.z;   
+            } else {
+                if(this.originalposition) {
+                    object.position.x =this.originalposition.x;
+                    object.position.y =this.originalposition.y;
+                    object.position.z =this.originalposition.z;                    
+                }              
+            }
+            
+
+            const box = new Box3().setFromObject(object);
+            const size3D = box.getSize(new Vector3());
+
+            let size = Math.max(size3D.x,size3D.y,size3D.z);
+            if(size <=0) {
+                size=1;
+            }
+           
+            if(this.defaultCamera.isPerspectiveCamera) {
+                size = size3D.length() || 1;
+            }
+            //console.log(size,size3D.length());
+            const center = box.getCenter(new Vector3());
+            if(this.controls) {
+                if(this.controls.reset) {
+                    this.controls.reset();
+                }
+            }
+            //console.log(this.originalposition,object.position,size,size3D,center);
+            if(this.defaultCamera.isOrthographicCamera) {
+                //console.log(size, this.defaultCamera.zoom);           
+                this.defaultCamera.zoom = 1.0 / size;
+                //console.log( this.defaultCamera.zoom);
+                this.defaultCamera.updateProjectionMatrix(); 
+            }
+            
+            this.shiftposition = {  "x":object.position.x - center.x,
+                                    "y":object.position.y - center.y,
+                                    "z":object.position.z - center.z    }
+            object.position.x += (this.shiftposition.x);
+            object.position.y += (this.shiftposition.y);
+            object.position.z += (this.shiftposition.z);
+        
+            
+            if(this.controls) {
+                this.controls.maxDistance = size * 10;
+            }
+    
+            this.defaultCamera.near = size / 100;
+            this.defaultCamera.far = size * 100;
+            //console.log("setting1",size,this.defaultCamera);
+            this.defaultCamera.updateProjectionMatrix();
+            //console.log("setting2",size,this.defaultCamera);
+            if (this.props.cameraPosition) {
+    
+                this.defaultCamera.position.fromArray(this.props.cameraPosition);
+                this.defaultCamera.cameraposition=new Vector3();
+                this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
+                //console.log("setting3",size,this.defaultCamera);
+    
+            } else {
+    
+                this.defaultCamera.position.copy(center);
+                this.defaultCamera.position.x += size / 2.0;
+                this.defaultCamera.position.y += size / 2.0;
+                this.defaultCamera.position.z += size / 2.0;
+                this.defaultCamera.cameraposition=center;
+                this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
+                //console.log("setting4",size,this.defaultCamera);
+                
+            }
+    
+            this.setCamera(DEFAULT_CAMERA);
+            //console.log(box,object,this.defaultCamera,object.position,this.defaultCamera.cameraposition,center,this.props.cameraPosition);
+    
+            this.axesCamera.position.copy(this.defaultCamera.position)
+            this.axesCamera.lookAt(this.axesScene.position)
+            this.axesCamera.near = size / 100;
+            this.axesCamera.far = size * 100;
+            this.axesCamera.updateProjectionMatrix();
+            this.axesCorner.scale.set(size, size, size);
+            if(this.controls) {
+                if(this.controls.saveState){
+                    this.controls.saveState();
+                }
+            }
+        }      
+    };
 
     init = () => {
         this.gltfJSON = this.props.gltfobj.gltf||this.props.gltfobj;
@@ -181,7 +348,7 @@ class GLTFRenderer extends Component {
         this.clips = [];
         this.gui = null;
 
-
+        this.setState({view:this.props.view||"Orthographic"});
         this.prevTime = 0;
 
         //this.stats = new Stats();
@@ -189,16 +356,21 @@ class GLTFRenderer extends Component {
         //[].forEach.call(this.stats.dom.children, (child) => (child.style.display = ''));
         if(this.renderer==null) {
             this.scene = new Scene();
-            let viewport = this.setSameSize();
-            const fov = this.props.preset === Preset.ASSET_GENERATOR
-                ? 0.8 * 180 / Math.PI
-                : 60;
+            const viewport = this.setSameSize();
+            //const fov = this.props.preset === Preset.ASSET_GENERATOR
+            //    ? 0.8 * 180 / Math.PI
+            //    : 60;
             //this.defaultCamera = new OrthographicCamera(viewport.left,viewport.right,viewport.top,viewport.bottom,0.01);
+            
             //this.defaultCamera = new OrthographicCamera(-1, 1, 1, -1);
-            this.defaultCamera = new PerspectiveCamera(fov, this.node.clientWidth / this.node.clientHeight, 0.01);
-            this.activeCamera = this.defaultCamera;
-            this.scene.add(this.defaultCamera);
-//            console.log("Renderer",this.renderer, window.renderer);
+            
+            //this.defaultCamera = new PerspectiveCamera(fov, this.node.clientWidth / this.node.clientHeight, 0.01);
+            
+            //this.activeCamera = this.defaultCamera;
+            //this.scene.add(this.defaultCamera);
+
+            
+            //console.log("Renderer",this.renderer, window.renderer);
             this.renderer = window.renderer = new WebGLRenderer({ antialias: true, depthBuffer: true });
                 
             this.renderer.physicallyCorrectLights = true;
@@ -206,22 +378,22 @@ class GLTFRenderer extends Component {
             //console.log("back color",this.props.backcolor);
             this.renderer.setClearColor(this.props.backcolor || DEFAULTBACKCOLOR);
             this.renderer.setPixelRatio(window.devicePixelRatio);
-            this.renderer.setSize(this.node.clientWidth, this.node.clientHeight);
+            this.renderer.setSize(viewport.right*2, viewport.top*2);
 
             //this.controls = new CameraSpinControls(this.defaultCamera, this.renderer.domElement);
             //this.controls = new OrbitControls(this.defaultCamera, this.renderer.domElement);
-            this.controls = new TrackballControls(this.defaultCamera, this.renderer.domElement);
-            this.controls.autoRotate = false;
-            this.controls.autoRotateSpeed = -10;
-            this.controls.screenSpacePanning = false;
-            this.controls.staticMoving = true;
-            this.controls.rotateSpeed = 2.0;
-            this.controls.noZoom = true;
-            this.controls.zoomSpeed = 0.1;
-            this.controls.panSpeed = 1.0;
+            //this.controls = new TrackballControls(this.defaultCamera, this.renderer.domElement);
+            //this.controls.autoRotate = false;
+            //this.controls.autoRotateSpeed = -10;
+            //this.controls.screenSpacePanning = false;
+            //this.controls.staticMoving = true;
+            //this.controls.rotateSpeed = 2.0;
+            //this.controls.noZoom = this.defaultCamera.isPerspectiveCamera;
+            //this.controls.zoomSpeed = 0.1;
+            //this.controls.panSpeed = 1.0;
 
             this.node.appendChild(this.renderer.domElement);
-        
+           
             this.defaultCameraCtrl = null;
             this.defaultCameraFolder = null;
             this.animFolder = null;
@@ -231,10 +403,11 @@ class GLTFRenderer extends Component {
             this.skeletonHelpers = [];
             this.gridHelper = null;
             this.axesHelper = null;
-
-            this.addAxesHelper();
+            
+            this.addCameraAndControls(this.state.view);
+           
             this.addGUI();
-            if (this.props.kiosk) this.gui.close();
+            //if (this.props.kiosk) this.gui.close();
 
 
             this.INTERSECTED = null;
@@ -260,17 +433,24 @@ class GLTFRenderer extends Component {
             this.renderer.domElement.addEventListener('touchstart', this.onTouchStart.bind(this), true);
             this.renderer.domElement.addEventListener('touchend', this.onTouchEnd.bind(this), false);
             this.renderer.domElement.addEventListener('wheel', this.onMouseWheel.bind(this), false);
-            this.controls.addEventListener('start', this.controlsStart.bind(this),false);
-            this.controls.addEventListener('change', this.updateCameraSpinUI.bind(this),false);
-            this.controls.addEventListener('end', this.controlsEnd.bind(this),false);
+            //this.controls.addEventListener('start', this.controlsStart.bind(this),false);
+            //this.controls.addEventListener('change', this.updateCameraSpinUI.bind(this),false);
+            //this.controls.addEventListener('end', this.controlsEnd.bind(this),false);
 
-        }
+        };
+        //this.activeFile = this.props.activefile;
+        //this.materialtype = this.props.materialtype;
+        //console.log("Rendering here!",this.activeFile,this.props.activefile,
+        //        this.materialtype,this.props.materialtype,this.selectedoption,this.props.selectedoption);
         this.alter();
         this.changeparts();
         this.onWindowResize();
-    }
+        this.initDone=true;
+    };
 
     setSameSize = () => {
+        let innerWidth=1;
+        let innerHeight=1;
         if(this.node) {
             if(this.node.clientHeight!=this.node.clientWidth) {
                 let minsize = Math.min(this.node.clientWidth,this.node.clientHeight);
@@ -288,26 +468,40 @@ class GLTFRenderer extends Component {
                     //console.log(this.node.style.width,this.node.style.height);
                 }
             }  
-            let w = this.node.clientHeight;
-            let h = this.node.clientHeight;
-            let viewSize = h;
-            let aspectRatio = w / h;            
-            let viewport = {                
-                    left: (-aspectRatio * viewSize) / 2,
-                    right: (aspectRatio * viewSize) / 2,
-                    top: viewSize / 2,
-                    bottom: -viewSize / 2,
-    
-            }  
-            return viewport;       
-        }    
-        return (-1,1,1,-1);   
-    }
+            innerWidth = this.node.clientWidth;
+            innerHeight = this.node.clientHeight;
+                  
+        } else {
+            innerWidth = window.innerWidth;
+            innerHeight = window.innerHeight;
+        }  
+        if(innerHeight==0) {
+            innerWidth=innerHeight;            
+        } 
+        if(innerWidth==0) {
+            innerHeight=innerWidth;
+            if(innerHeight==0) {
+                innerWidth=1;
+                innerHeight=1;
+            }
+        }
+        let viewSize = innerHeight;
+        let aspectRatio = innerWidth / innerHeight;            
+        let viewport = {                
+            left: (-aspectRatio * viewSize) / 2,
+            right: (aspectRatio * viewSize) / 2,
+            top: viewSize / 2,
+            bottom: -viewSize / 2
+        }  
+        return viewport; 
+        //return (-1,1,1,-1);   
+    };
 
     convertColor = (color) => {
         const colorRGB = hexToRGB(color);
         return new Color(colorRGB[0], colorRGB[1], colorRGB[2]);
-    }
+    };
+
     animate = (time) => {
 
         requestAnimationFrame(this.animate);
@@ -323,10 +517,11 @@ class GLTFRenderer extends Component {
 
         this.prevTime = time;
 
-    }
+    };
 
     cleanup = () => {
         //console.log("I have reached here to clean webgl render");
+        this.initDone=false;
         this.clear();
         window.removeEventListener('resize', this.onWindowResize);
         //window.removeEventListener('mousedown', this.onMouseDown);  
@@ -334,12 +529,15 @@ class GLTFRenderer extends Component {
         //window.removeEventListener('touchstart', this.onTouchStart);
         //window.removeEventListener('touchend', this.onTouchEnd);
         //window.removeEventListener('wheel', this.onMouseWheel);
-        if(this.controls) {
+        this.disposeAxesHelper();
+        this.disposeCameraAndControls();
+        /* if(this.controls) {
             this.controls.removeEventListener('start', this.controlsStart);
             this.controls.removeEventListener('change', this.updateCameraSpinUI);
             this.controls.removeEventListener('end', this.controlsEnd);
             this.controls.dispose();
-        }
+            this.controls=null;
+        } */
         if(this.renderer) {
             this.renderer.setAnimationLoop(null);
             this.renderer.domElement.removeEventListener('mousemove', this.onMouseMove);    
@@ -350,13 +548,15 @@ class GLTFRenderer extends Component {
             this.renderer.domElement.removeEventListener('touchend', this.onTouchEnd);
             this.renderer.domElement.removeEventListener('wheel', this.onMouseWheel);
             this.renderer.dispose();
+            this.renderer = null;
         }
-        if(this.axesRenderer) {
+        /* if(this.axesRenderer) {
             this.axesRenderer.dispose();
-        }
-        window.renderer= this.renderer = null;        
-        this.axesRenderer = null;
-        this.controls=null;       
+            this.axesRenderer=null;
+        } */
+        window.renderer =  null;        
+        //this.axesRenderer = null;
+        //this.controls=null;       
     };
 
     changeVisibility = () => {
@@ -364,7 +564,8 @@ class GLTFRenderer extends Component {
             this.content.forEach(element => {
                 element.traverse((node) => {
                     if (node.isLight) {
-                        this.state.addLights = false;
+                        this.setState({addLights:false});
+                        //this.state.addLights = false;
                     } else if (node.isMesh) {
                         // TODO(https://github.com/mrdoob/three.js/pull/18235): Clean up.
         
@@ -417,13 +618,13 @@ class GLTFRenderer extends Component {
                                 material.visible = visibility;
                             });
                         }    
-                        this.changeMaterialStats(node.material);
+                        this.changeMaterialStats(node.material,this.state.side,this.state.opaque,this.state.wiremesh);
                     }
                 });
             });
         }       
         
-    }
+    };
 
     /*
     *
@@ -435,17 +636,24 @@ class GLTFRenderer extends Component {
 
         this.clear();
 
-        const box = new Box3().setFromObject(object);
+        /* const box = new Box3().setFromObject(object);
         const size3D = box.getSize(new Vector3());
-        const size = size3D.length() || 1;
-
+        let size = size3D.length() || 1;
+        if(size <=0) {
+            size=1;
+        } 
         const center = box.getCenter(new Vector3());
         if(this.controls) {
             if(this.controls.reset) {
                 this.controls.reset();
             }
         }
-       
+        if(this.defaultCamera.isOrthographicCamera) {
+            //console.log(size, this.defaultCamera.zoom);           
+            this.defaultCamera.zoom=2/size;
+            //console.log( this.defaultCamera.zoom);
+            this.defaultCamera.updateProjectionMatrix(); 
+        }
         this.shiftposition = {"x":object.position.x - center.x,
                               "y":object.position.y - center.y,
                               "z":object.position.z - center.z }
@@ -456,6 +664,7 @@ class GLTFRenderer extends Component {
         if(this.controls) {
             this.controls.maxDistance = size * 10;
         }
+
         this.defaultCamera.near = size / 100;
         this.defaultCamera.far = size * 100;
         //console.log("setting1",size,this.defaultCamera);
@@ -492,8 +701,8 @@ class GLTFRenderer extends Component {
             if(this.controls.saveState){
                 this.controls.saveState();
             }
-        }
-       
+        } */
+        this.updateCameraControls(object,true);
         /*
             this.dotGeometry = new Geometry();
             this.dotGeometry.vertices.push(new Vector3(0, 0, 0));
@@ -501,12 +710,13 @@ class GLTFRenderer extends Component {
             var dot = new Points( this.dotGeometry, dotMaterial );
             this.scene.add( dot );
         */
-
+        //console.log(object);
         this.scene.add(object);
         
         this.content = [object];
 
-        this.state.addLights = true;
+        //this.state.addLights = true;
+        this.setState({addLights:true});
         this.changeVisibility();
         
 
@@ -524,10 +734,12 @@ class GLTFRenderer extends Component {
  */
         this.setClips(clips);
         this.updateParts(object);
-        this.updateLights();
+        this.updateLights(this.state.Exposure,this.state.addLights,this.state.ambientIntensity,
+            this.state.ambientColor,this.state.directIntensity,this.state.directColor);
         this.updateGUI();
-        this.updateTextureEncoding();
-        this.updateDisplay();
+        this.updateTextureEncoding(this.state.textureEncoding);
+        this.updateDisplay(this.state.side,this.state.opaque,
+            this.state.wiremesh,this.state.skeleton,this.state.grid);
 
         //window.content = this.content;
         //console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
@@ -587,8 +799,8 @@ class GLTFRenderer extends Component {
         }
     };
 
-    updateTextureEncoding = () => {
-        const encoding = this.state.textureEncoding === 'sRGB'
+    updateTextureEncoding = (myTextureEncoding) => {
+        const encoding = myTextureEncoding === 'sRGB'
             ? sRGBEncoding
             : LinearEncoding;
         this.content.forEach(element => {
@@ -602,8 +814,8 @@ class GLTFRenderer extends Component {
     };
 
 
-    addLights = () => {
-        const state = this.state;
+    addLights = (myAmbientIntensity,myAmbientColor,myDirectIntensity,myDirectColor) => {
+        //const state = this.state;
 
         if (this.props.preset === Preset.ASSET_GENERATOR) {
             const hemiLight = new HemisphereLight();
@@ -613,16 +825,16 @@ class GLTFRenderer extends Component {
             return;
         }
 
-        const light1 = new AmbientLight(state.ambientColor, state.ambientIntensity);
-        light1.name = 'ambient_light';
-        this.defaultCamera.add(light1);
+        this.light1 = new AmbientLight(myAmbientColor, myAmbientIntensity);
+        this.light1.name = 'ambient_light';
+        this.defaultCamera.add(this.light1);
 
-        const light2 = new DirectionalLight(state.directColor, state.directIntensity);
-        light2.position.set(0.5, 0, 0.866); // ~60ยบ
-        light2.name = 'main_light';
-        this.defaultCamera.add(light2);
+        this.light2 = new DirectionalLight(myDirectColor, myDirectIntensity);
+        this.light2.position.set(0.5, 0, 0.866); // ~60ยบ
+        this.light2.name = 'main_light';
+        this.defaultCamera.add(this.light2);
 
-        this.lights.push(light1, light2);
+        this.lights.push(this.light1, this.light2);
     };
 
     removeLights = () => {
@@ -632,41 +844,43 @@ class GLTFRenderer extends Component {
 
     };
 
-    updateLights = () => {
-        const state = this.state;
+    updateLights = (myExposure,myAddLights,myAmbientIntensity,
+        myAmbientColor,myDirectIntensity,myDirectColor) => {
+        //const state = this.state;
         const lights = this.lights;
 
-        if (state.addLights && !lights.length) {
-            this.addLights();
-        } else if (!state.addLights && lights.length) {
+        if (myAddLights && !lights.length) {
+            this.addLights(myAmbientIntensity,
+                myAmbientColor,myDirectIntensity,myDirectColor);
+        } else if (!myAddLights && lights.length) {
             this.removeLights();
         }
         if(this.renderer) {
-            this.renderer.toneMappingExposure = state.exposure;
+            this.renderer.toneMappingExposure = myExposure;
         }
         
 
         if (lights.length === 2) {
-            lights[0].intensity = state.ambientIntensity;
-            lights[0].color.setHex(state.ambientColor);
-            lights[1].intensity = state.directIntensity;
-            lights[1].color.setHex(state.directColor);
+            lights[0].intensity = myAmbientIntensity;
+            lights[0].color.setHex(myAmbientColor);
+            lights[1].intensity = myDirectIntensity;
+            lights[1].color.setHex(myDirectColor);
         }
     };
 
-    updateDisplay = () => {
+    updateDisplay = (mySide,myOpaque,myWiremesh,mySkeleton,myGrid) => {
         if (this.skeletonHelpers.length) {
             this.skeletonHelpers.forEach((helper) => this.scene.remove(helper));
         }
         this.content.forEach(element => {
             traverseMaterials(element, (material) => {
-                this.changeMaterialStats(material);
+                this.changeMaterialStats(material,mySide,myOpaque,myWiremesh);
             });
         });
         this.content.forEach(element => {
             element.traverse((node) => {
 
-                if (node.isMesh && node.skeleton && this.state.skeleton) {
+                if (node.isMesh && node.skeleton && mySkeleton) {
                     const helper = new SkeletonHelper(node.skeleton.bones[0].parent);
                     helper.material.linewidth = 3;
                     this.scene.add(helper);
@@ -675,8 +889,8 @@ class GLTFRenderer extends Component {
             });
         });
 
-        if (this.state.grid !== Boolean(this.gridHelper)) {
-            if (this.state.grid) {
+        if (myGrid !== Boolean(this.gridHelper)) {
+            if (myGrid) {
                 this.gridHelper = new GridHelper();
                 this.axesHelper = new AxesHelper();
                 this.axesHelper.renderOrder = 999;
@@ -693,39 +907,74 @@ class GLTFRenderer extends Component {
         }
     };
 
-
+    disposeAxesHelper = () => {
+        if(this.axesDiv && this.axesRenderer && this.axesRenderer.domElement) {
+            this.axesDiv.removeChild(this.axesRenderer.domElement);
+        }
+        if(this.axesCorner && this.axesScene) {
+            this.axesScene.remove(this.axesCorner);                
+        }
+        if(this.axesCorner) {
+            this.axesCorner.dispose();
+            this.axesCorner=null;
+        }
+       
+        if(this.axesCamera && this.axesScene) {
+            this.axesScene.remove(this.axesCamera);
+        }
+        if(this.axesCamera) {
+            //this.axesCamera.dispose();
+            this.axesCamera=null;
+        }
+        if(this.axesScene) {
+            //this.axesScene.dispose();
+            this.axesScene=null;
+        }
+        if(this.node && this.axesDiv) {
+            this.node.removeChild(this.axesDiv);
+        }
+        
+        if(this.axesRenderer) {
+            this.axesRenderer.dispose();
+            this.axesRenderer=null;
+        }
+    };
     /**
     * Adds AxesHelper.
     *
     * See: https://stackoverflow.com/q/16226693/1314762
     */
-    addAxesHelper = () => {
-        if(this.axesRenderer==null) {
-            this.axesDiv = document.createElement('div');
-            this.node.appendChild(this.axesDiv);
-            this.axesDiv.classList.add('axes');
-    
-            const { clientWidth, clientHeight } = this.axesDiv;
-    
-            this.axesScene = new Scene();
-            
-            //this.axesCamera = new OrthographicCamera(-clientWidth/2, clientWidth/2, clientHeight/2, -clientHeight/2,0.1,10);
-            //this.axesCamera = new OrthographicCamera(-1, 1, 1, -1);
-            
+    addAxesHelper = (myView) => {
+        
+        this.disposeAxesHelper();   
+        
+        this.axesDiv = document.createElement('div');
+        this.node.appendChild(this.axesDiv);
+        this.axesDiv.classList.add('axes');
+
+        const { clientWidth, clientHeight } = this.axesDiv;
+
+        this.axesScene = new Scene();
+        
+        //this.axesCamera = new OrthographicCamera(-clientWidth/2, clientWidth/2, clientHeight/2, -clientHeight/2,0.1,10);
+        if(myView=="Orthographic") {
+            this.axesCamera = new OrthographicCamera(-1, 1, 1, -1);
+        } else {
             this.axesCamera = new PerspectiveCamera(50, clientWidth / clientHeight, 0.1, 10);
-            this.axesScene.add(this.axesCamera);
-    
-            this.axesRenderer = new WebGLRenderer({ alpha: true });
-            
-            this.axesRenderer.setPixelRatio(window.devicePixelRatio);
-            this.axesRenderer.setSize(this.axesDiv.clientWidth, this.axesDiv.clientHeight);
-    
-            this.axesCamera.up = this.defaultCamera.up;
-    
-            this.axesCorner = new AxesHelper(5);
-            this.axesScene.add(this.axesCorner);
-            this.axesDiv.appendChild(this.axesRenderer.domElement);
-        }       
+        }
+        this.axesScene.add(this.axesCamera);
+
+        this.axesRenderer = new WebGLRenderer({ alpha: true });
+        
+        this.axesRenderer.setPixelRatio(window.devicePixelRatio);
+        this.axesRenderer.setSize(this.axesDiv.clientWidth, this.axesDiv.clientHeight);
+
+        this.axesCamera.up = this.defaultCamera.up;
+
+        this.axesCorner = new AxesHelper(5);
+        this.axesScene.add(this.axesCorner);
+        this.axesDiv.appendChild(this.axesRenderer.domElement);
+              
     };
 
     addGUI = () => {
@@ -734,42 +983,87 @@ class GLTFRenderer extends Component {
 
         // Display controls.
         const dispFolder = gui.addFolder('Display');
+       
+        const viewingCtrl = dispFolder.add(this.state, 'view', ['Perspective', 'Orthographic']);
+        //viewingCtrl.object.view = this.state.view;
+        viewingCtrl.onChange(() => {            
+           //console.log("before",this.state.view,this.content);
+           this.setState({view:viewingCtrl.object.view})
+           //console.log("after",this.state.view,this.content);
+           this.addCameraAndControls(viewingCtrl.object.view);
+           //console.log("afterControls",this.state.view,this.content);
+        });
         const sideCtrl = dispFolder.add(this.state, 'side', ['Front', 'Back', 'Both']);
         sideCtrl.onChange(() => {
-            this.state.side = sideCtrl.object.side;
-            this.updateDisplay()
+            //this.state.side = sideCtrl.object.side;
+            this.setState({side:sideCtrl.object.side});
+            this.updateDisplay(sideCtrl.object.side,this.state.opaque,
+                this.state.wiremesh,this.state.skeleton,this.state.grid);
         });
         const depthCtrl = dispFolder.add(this.state, 'opaque', ['True', 'False', 'Self']);
         depthCtrl.onChange(() => {
-            this.state.opaque = depthCtrl.object.opaque;
-            this.updateDisplay()
+            //this.state.opaque = depthCtrl.object.opaque;
+            this.setState({opaque:depthCtrl.object.opaque});
+            this.updateDisplay(this.state.side,depthCtrl.object.opaque,
+                this.state.wiremesh,this.state.skeleton,this.state.grid);
         });
         const wiremeshCtrl = dispFolder.add(this.state, 'wiremesh');
         wiremeshCtrl.onChange(() => {
-            this.state.wiremesh = wiremeshCtrl.object.wiremesh;
-            this.updateDisplay()
+            //this.state.wiremesh = wiremeshCtrl.object.wiremesh;
+            this.setState({wiremesh:wiremeshCtrl.object.wiremesh});
+            this.updateDisplay(this.state.side,this.state.opaque,
+                wiremeshCtrl.object.wiremesh,this.state.skeleton,this.state.grid);
         });
         const skeletonCtrl = dispFolder.add(this.state, 'skeleton');
         skeletonCtrl.onChange(() => {
-            this.state.skeleton = skeletonCtrl.object.skeleton;
-            this.updateDisplay()
+            //this.state.skeleton = skeletonCtrl.object.skeleton;
+            this.setState({skeleton:skeletonCtrl.object.skeleton});
+            this.updateDisplay(this.state.side,this.state.opaque,
+                this.state.wiremesh,skeletonCtrl.object.skeleton,this.state.grid);
         });
         const gridCtrl = dispFolder.add(this.state, 'grid');
         gridCtrl.onChange(() => {
-            this.state.grid = gridCtrl.object.grid;
-            this.updateDisplay()
+            //this.state.grid = gridCtrl.object.grid;
+            this.setState({grid:gridCtrl.object.grid});
+            this.updateDisplay(this.state.side,this.state.opaque,
+                this.state.wiremesh,this.state.skeleton,gridCtrl.object.grid);
         });
         if(this.controls) {
             dispFolder.add(this.controls, 'autoRotate');
             dispFolder.add(this.controls, 'screenSpacePanning');    
         }
-       
+        const speedFolder = gui.addFolder('Speeds');       
+        const SpeedZoomCtrl = speedFolder.add(this.state, 'zoomSpeed', 0, 3);
+        SpeedZoomCtrl.onChange((speed) => {
+            //this.state.zoomSpeed = speed;
+            this.setState({zoomSpeed:speed});
+            if(this.controls) {
+                this.controls.zoomSpeed = speed;
+            }           
+        });
+        const SpeedPanCtrl = speedFolder.add(this.state, 'panSpeed', 0, 3);
+        SpeedPanCtrl.onChange((speed) => {
+            //this.state.panSpeed = speed;
+            this.setState({panSpeed:speed});
+            if(this.controls) {
+                this.controls.panSpeed = speed;
+            }           
+        });
+        const SpeedRotateCtrl = speedFolder.add(this.state, 'rotateSpeed', 0, 3);
+        SpeedRotateCtrl.onChange((speed) => {
+            //this.state.rotateSpeed = speed;
+            this.setState({rotateSpeed:speed});
+            if(this.controls) {
+                this.controls.rotateSpeed = speed;
+            }           
+        });
         // Lighting controls.
         const lightFolder = gui.addFolder('Lighting');
         const encodingCtrl = lightFolder.add(this.state, 'textureEncoding', ['sRGB', 'Linear']);
         encodingCtrl.onChange(() => {
-            this.state.textureEncoding = encodingCtrl.object.textureEncoding;
-            this.updateTextureEncoding()
+            //this.state.textureEncoding = encodingCtrl.object.textureEncoding;
+            this.setState({textureEncoding:encodingCtrl.object.textureEncoding});
+            this.updateTextureEncoding(encodingCtrl.object.textureEncoding);
         });
         lightFolder.add(this.renderer, 'outputEncoding', { sRGB: sRGBEncoding, Linear: LinearEncoding })
             .onChange(() => {
@@ -791,13 +1085,21 @@ class GLTFRenderer extends Component {
             lightFolder.add(this.state, 'directIntensity', 0, 4), // TODO(#116)
             lightFolder.addColor(this.state, 'directColor')
         ].forEach((ctrl) => ctrl.onChange(() => {
-            this.state.exposure = ctrl.object.exposure;
-            this.state.addLights = ctrl.object.addLights;
-            this.state.ambientIntensity = ctrl.object.ambientIntensity;
-            this.state.ambientColor = ctrl.object.ambientColor;
-            this.state.directIntensity = ctrl.object.directIntensity;
-            this.state.directColor = ctrl.object.directColor;
-            this.updateLights()
+            //this.state.exposure = ctrl.object.exposure;
+            //this.state.addLights = ctrl.object.addLights;
+            //this.state.ambientIntensity = ctrl.object.ambientIntensity;
+            //this.state.ambientColor = ctrl.object.ambientColor;
+            //this.state.directIntensity = ctrl.object.directIntensity;
+            //this.state.directColor = ctrl.object.directColor;
+            this.setState({
+                exposure:ctrl.object.exposure,
+                ambientIntensity:ctrl.object.ambientIntensity,
+                ambientColor:ctrl.object.ambientColor,
+                directIntensity:ctrl.object.directIntensity,
+                directColor:ctrl.object.directColor
+            });
+            this.updateLights(ctrl.object.exposure,ctrl.object.addLights,ctrl.object.ambientIntensity,
+                ctrl.object.ambientColor,ctrl.object.directIntensity,ctrl.object.directColor);
         }));
 
         // Animation controls.
@@ -805,7 +1107,8 @@ class GLTFRenderer extends Component {
         this.animFolder.domElement.style.display = 'none';
         const playbackSpeedCtrl = this.animFolder.add(this.state, 'playbackSpeed', 0, 1);
         playbackSpeedCtrl.onChange((speed) => {
-            this.state.playbackSpeed = playbackSpeedCtrl.object.playbackSpeed;
+            //this.state.playbackSpeed = playbackSpeedCtrl.object.playbackSpeed;
+            this.setState({playbackSpeed:playbackSpeedCtrl.object.playbackSpeed});
             if (this.mixer) this.mixer.timeScale = speed;
         });
         this.animFolder.add({ playAll: () => this.playAllClips() }, 'playAll');
@@ -814,6 +1117,9 @@ class GLTFRenderer extends Component {
         this.morphFolder = gui.addFolder('Morph Targets');
         this.morphFolder.domElement.style.display = 'none';
 
+        
+
+        
         // Camera controls.
         this.defaultCameraFolder = gui.addFolder('Cameras');
         this.defaultCameraFolder.domElement.style.display = 'none';
@@ -868,8 +1174,9 @@ class GLTFRenderer extends Component {
             const cameraOptions = [DEFAULT_CAMERA].concat(cameraNames);
             this.defaultCameraCtrl = this.defaultCameraFolder.add(this.state, 'camera', cameraOptions);
             this.defaultCameraCtrl.onChange((name) => {
-                this.state.camera = this.defaultCameraCtrl.object.camera;
-                this.setCamera(name)
+                //this.state.camera = this.defaultCameraCtrl.object.camera;
+                this.setState({camera:this.defaultCameraCtrl.object.camera});
+                this.setCamera(name);
             });
         }
 
@@ -892,7 +1199,8 @@ class GLTFRenderer extends Component {
 
         if (this.clips.length) {
             this.animFolder.domElement.style.display = '';
-            const actionStates = this.state.actionStates = {};
+            this.setState({actionStates:{}});
+            const actionStates = this.state.actionStates;
             this.clips.forEach((clip, clipIndex) => {
                 // Autoplay the first clip.
                 let action;
@@ -917,10 +1225,10 @@ class GLTFRenderer extends Component {
     };
 
     updateParts = (meshes) => {
-        if (this.partsFolder) {
+       /*  if (this.partsFolder) {
             this.gui.removeFolder(this.partsFolder);
         }
-        this.partsFolder = this.gui.addFolder("Parts");
+        this.partsFolder = this.gui.addFolder("Parts"); */
         this.partsMeshes = meshes.children;
 
         if (this.partsMeshes[0].children.length > 0) {
@@ -989,8 +1297,11 @@ class GLTFRenderer extends Component {
             element.traverse((node) => {
 
                 if (!node.isMesh) return;
-
-                node.geometry.dispose();
+                if(node.geometry) {
+                    node.geometry.dispose();
+                    //node.geometry=null;
+                }
+               
 
             });
 
@@ -999,7 +1310,10 @@ class GLTFRenderer extends Component {
 
                 MAP_NAMES.forEach((map) => {
 
-                    if (material[map]) material[map].dispose();
+                    if (material[map]){
+                        material[map].dispose();
+                        material[map]=null;
+                    } 
 
                 });
 
@@ -1009,31 +1323,46 @@ class GLTFRenderer extends Component {
     };
 
     onWindowResize = () => {
-        if (this.node) {
-            this.setSameSize();
-            if (this.node.parentElement) {               
+        const viewport = this.setSameSize();
+        const innerWidth = viewport.right*2;
+        const innerHeight = viewport.top*2;
+        //if (this.node) {
+            
+            /* if (this.node.parentElement) {               
                 const { clientHeight, clientWidth } = this.node.parentElement;
                 this.defaultCamera.aspect = clientWidth / clientHeight;
                 this.defaultCamera.updateProjectionMatrix();
+                console.log("I am doing it from there",this.defaultCamera.aspect);
                 //console.log("Parent",clientWidth, clientHeight);
                 //this.vignette.style({aspect: this.defaultCamera.aspect});
                 //this.renderer.setSize(clientWidth, clientHeight);
             } else {               
                 this.defaultCamera.aspect = this.node.clientWidth / this.node.clientHeight;
                 this.defaultCamera.updateProjectionMatrix();
+                //console.log("I am doing it from here",this.defaultCamera.aspect);
                 //console.log("Node",clientWidth, clientHeight);
                 //this.vignette.style({aspect: this.defaultCamera.aspect});
                 //this.renderer.setSize(this.node.clientWidth, this.node.clientHeight);
-            }
-            const innerWidth = this.node ? this.node.clientWidth : window.innerWidth;
-            const innerHeight = this.node ? this.node.clientHeight : window.innerHeight;
+             } */
+            //const innerWidth = this.node ? this.node.clientWidth : window.innerWidth;
+            //const innerHeight = this.node ? this.node.clientHeight : window.innerHeight;
 
             //console.log("Node",innerWidth, innerHeight);
+            if(this.activeCamera) {
+                this.activeCamera.aspect = innerWidth / innerHeight;
+                this.activeCamera.updateProjectionMatrix();
+            } else {
+                if(this.defaultCamera) {
+                    this.defaultCamera.aspect = innerWidth / innerHeight;
+                    this.defaultCamera.updateProjectionMatrix();
+                }
+            }
+            
             if(this.renderer) {
                 this.renderer.setSize(innerWidth, innerHeight);
             }
             
-        }
+        //}
         if(this.axesRenderer) {
             this.axesCamera.aspect = this.axesDiv.clientWidth / this.axesDiv.clientHeight;
             this.axesCamera.updateProjectionMatrix();
@@ -1287,28 +1616,40 @@ class GLTFRenderer extends Component {
         }  */   
         event.preventDefault();    
         this.setMouseCoOrdinates(event);
-       
-       
-        if(this.controls) {
-            
+        
+        if(this.controls && this.activeCamera) {
+
+            var factor = this.controls.zoomSpeed/(1+this.controls.zoomSpeed);
            
-            var factor = this.controls.zoomSpeed;
-           
-            var vector = new Vector3(this.mouse.x, this.mouse.y, 0.5);
-            //console.log(vector);
-            vector.unproject(this.activeCamera);
-            vector.sub(this.activeCamera.position);
-            if (event.deltaY < 0) {
-                this.activeCamera.position.addVectors(this.activeCamera.position, vector.setLength(factor));
-                this.controls.target.addVectors(this.controls.target,vector.setLength(factor));
-                this.activeCamera.updateProjectionMatrix();
-                //console.log("Reset3",this.controls.target);
+            if ( this.activeCamera.isPerspectiveCamera ) {
+                var vector = new Vector3(this.mouse.x, this.mouse.y, 0.5);
+                //console.log(vector);
+                vector.unproject(this.activeCamera);
+                vector.sub(this.activeCamera.position);
+                if (event.deltaY < 0) {
+                    this.activeCamera.position.addVectors(this.activeCamera.position, vector.setLength(factor));
+                    this.controls.target.addVectors(this.controls.target,vector.setLength(factor));
+                    this.activeCamera.updateProjectionMatrix();
+                    //console.log("Reset3",this.controls.target);
+                } else {
+                    this.activeCamera.position.subVectors(this.activeCamera.position,vector.setLength(factor));
+                    this.controls.target.subVectors(this.controls.target,vector.setLength(factor));
+                    this.activeCamera.updateProjectionMatrix();
+                    //console.log("Reset4",this.controls.target);
+                }
             } else {
-                this.activeCamera.position.subVectors(this.activeCamera.position,vector.setLength(factor));
-                this.controls.target.subVectors(this.controls.target,vector.setLength(factor));
-                this.activeCamera.updateProjectionMatrix();
-                //console.log("Reset4",this.controls.target);
+                //console.log("IS Perspective?",this.activeCamera.isPerspectiveCamera);
             }
+           /* if ( this.controls.isOrthographicCamera ) {
+                if (event.deltaY < 0) {
+                    this.controls.zoom /= (1+factor);
+                    this.controls.updateProjectionMatrix();
+                } else {
+                    this.controls.zoom /= (1-factor);
+                    this.controls.updateProjectionMatrix();
+                }
+               
+            } */
 
         }
 
@@ -1335,7 +1676,7 @@ class GLTFRenderer extends Component {
 
         }
 
-    }
+    };
 
     getPointerInNdc = ( pageX, pageY ) => {
 
@@ -1360,7 +1701,7 @@ class GLTFRenderer extends Component {
 
         }
         this.touchStart(event);
-    }
+    };
 
     onTouchEnd = ( event ) => {
 
@@ -1371,7 +1712,7 @@ class GLTFRenderer extends Component {
             this.isTouched = false;
         }
         this.raycast();
-    }
+    };
 
 
     isObjectSame = (first, second) => {
@@ -1380,7 +1721,7 @@ class GLTFRenderer extends Component {
         if (!first && second) return false;
         if (first.name == second.name) return true;
         return false;
-    }
+    };
 
     isObjectsSame = (first, secondArray) => {
         if (!first && !secondArray.length) {
@@ -1404,7 +1745,7 @@ class GLTFRenderer extends Component {
         }
         return valToRet;
 
-    }
+    };
 
     visibllity = (name, display) => {
         const first4chars = name.slice(0, 4);
@@ -1425,7 +1766,7 @@ class GLTFRenderer extends Component {
             }
         }
         return visible;
-    }
+    };
 
     objectFilters = () => {
         if (this.partsMeshes) {
@@ -1439,7 +1780,7 @@ class GLTFRenderer extends Component {
         } else {
             return this.scene.children;
         }
-    }
+    };
 
     raycast = () => {
 
@@ -1638,7 +1979,7 @@ class GLTFRenderer extends Component {
 
         });
 
-    }
+    };
 
     readUV = (data64) => {
 
@@ -1658,7 +1999,7 @@ class GLTFRenderer extends Component {
             fAry[j] = dView.getFloat32(0, true);
         }
         return fAry;
-    }
+    };
 
     assignUVs = (geometry) => {
 
@@ -1692,7 +2033,7 @@ class GLTFRenderer extends Component {
             geometry.uvsNeedUpdate = true;
         }
 
-    }
+    };
 
     onlyfaces = (name) => {
 
@@ -1702,7 +2043,7 @@ class GLTFRenderer extends Component {
             return false;
         }
         return true;
-    }
+    };
    
     fetchTree = (fileStore,progressfile) => {        
         getAFileFromStore(fileStore,"tree")
@@ -1726,7 +2067,7 @@ class GLTFRenderer extends Component {
                 console.log("Error While Loading Progress", err);
             }); 
         });           
-    }
+    };
 
     findSingleNode = (mynode) => {
         if(this.props.fileGDT) {
@@ -1842,7 +2183,7 @@ class GLTFRenderer extends Component {
         }
         return [mynode];
 
-    }
+    };
 
     findSiblingNodes = (mynode) => {
         //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
@@ -1870,7 +2211,7 @@ class GLTFRenderer extends Component {
             return myMaterials;
         }
         return [mynode];
-    }
+    };
 
     findMyMaterial = (data) => {
         if (this.partsMeshes) {
@@ -1883,7 +2224,7 @@ class GLTFRenderer extends Component {
             }
         };
         return null;
-    }
+    };
 
 
     findFamilyNodes = (mynode) => {
@@ -1939,7 +2280,7 @@ class GLTFRenderer extends Component {
             return myMaterials;
         }
         return [mynode];
-    }
+    };
 
     findMyParentChilds = (mynode) => {
         //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID,this.props.selectedoption,SELECTASSEMBLY);
@@ -1953,7 +2294,7 @@ class GLTFRenderer extends Component {
             return this.findSiblingNodes(mynode);
         }
 
-    }
+    };
 
     changeBackground = () => {
         if (this.databackcolor != this.props.backcolor && (this.props.dataselection == SELECTBACKCOLOR)) {
@@ -2034,7 +2375,7 @@ class GLTFRenderer extends Component {
                 }
             }
         }
-    }
+    };
 
     setTouchingColor = (meshmaterial) => {
         /* if(!(this.isObjectSame(meshmaterial,this.firstshell)||this.isObjectSame(meshmaterial,this.firstshell ))) {
@@ -2053,7 +2394,7 @@ class GLTFRenderer extends Component {
         //console.log("before",meshmaterial.material.color);
         meshmaterial.material.color = this.convertColor(this.props.touchcolor || DEFAULTTOUCHCOLOR); // this.props.distanceColor || distanceColor);						
         //console.log("after",meshmaterial.material.color);
-    }
+    };
 
     setSelectionColor = (meshmaterial) => {
         /* if(!(this.isObjectSame(meshmaterial,this.firstshell)||this.isObjectSame(meshmaterial,this.firstshell ))) {
@@ -2072,7 +2413,7 @@ class GLTFRenderer extends Component {
         //console.log("before",meshmaterial.material.color);
         meshmaterial.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR); // this.props.distanceColor || distanceColor);						
         //console.log("after",meshmaterial.material.color);
-    }
+    };
 
 
     changeStateOfSelection = (meshmaterial, event) => {
@@ -2184,7 +2525,7 @@ class GLTFRenderer extends Component {
 
             }
         }
-    }
+    };
 
     changeparts = () => {
 
@@ -2374,16 +2715,16 @@ class GLTFRenderer extends Component {
                 }
             }
         }
-    }
+    };
 
-    changeMaterialStats(material) {
-        material.wireframe = this.state.wiremesh;
+    changeMaterialStats(material,mySide,myOpaque,myWiremesh) {
+        material.wireframe = myWiremesh;
         material.depthTest = true;
-        material.depthWrite = this.state.opaque == "True" ? true : this.state.opaque == "False" ? false : !material.transparent;
-        material.side = this.state.side == "Front" ? FrontSide : this.state.side == "Back" ? BackSide : DoubleSide;
+        material.depthWrite = myOpaque == "True" ? true : myOpaque == "False" ? false : !material.transparent;
+        material.side = mySide == "Front" ? FrontSide : mySide == "Back" ? BackSide : DoubleSide;
         //console.log(material);
 
-    }
+    };
 
     resetSelection() {
         if (this.INTERSECTED) {
@@ -2408,7 +2749,7 @@ class GLTFRenderer extends Component {
                 //console.log("Reset5",this.controls.target);
 			}
         }
-    }
+    };
 
     getNameID = (name) => {
         if ((this.props.selectedoption != SELECTSOLID) ||
@@ -2435,13 +2776,15 @@ class GLTFRenderer extends Component {
             return myParentName;
         }
         return name;
-    }
+    };
+
     arrayRemove = (arr, value) => {
 
         return arr.filter(function (ele) {
             return ele.name != value;
         });
-    }
+    };
+
     arrayCopy = (arr) => {
         var copy_selectobjects = [];
 
@@ -2449,7 +2792,8 @@ class GLTFRenderer extends Component {
             copy_selectobjects.push(element);
         });
         return copy_selectobjects;
-    }
+    };
+
     selectAllSelectedSolids = () => {
         var copy_selectobjects = this.arrayCopy(this.state_selectedObjects);
         copy_selectobjects.forEach(meshmaterial => {
@@ -2470,7 +2814,8 @@ class GLTFRenderer extends Component {
                 }
             });
         });
-    }
+    };
+
     loadAllEdges = (allEdges) => {
         const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
                    
@@ -2602,9 +2947,11 @@ class GLTFRenderer extends Component {
             }
            
             if (this.activeFile != this.props.activefile || this.materialtype != this.props.materialtype ) {
-                //console.log("Rerendering here!",this.activeFile,this.props.activefile,
-                //this.materialtype,this.props.materialtype,this.selectedoption,this.props.selectedoption);
-                this.alter();
+                //console.log("Rerendering here!",this.activeFile,this.props.activefile,this.materialtype,
+                //    this.props.materialtype,this.selectedoption,this.props.selectedoption);
+                if(this.initDone) {
+                    this.alter();
+                }                
             }            
         }
         if (this.renderer) {
@@ -2620,22 +2967,22 @@ class GLTFRenderer extends Component {
 
         return (
             <div> 
-                 <div
+                <div
                     style={{ width: "100%", height: "600px" }}
-                    ref={el => (this.node = el)}>
-                    <div
-                        style={{
-                            display: this.state.intersectedShell ? 'block' : 'block',
-                            position: 'fixed',
-                            top: this.clientY + 10,
-                            left: this.clientX + 10,
-                            color: DEFAULTTEXTCOLOR,
-                            ...this.props.style,
-                        }}
-                    >
-                        {this.state.intersectedShell ? this.getNameID(this.state.intersectedShell.name) : ""}
-                    </div>                              
+                    ref={el => (this.node = el)}>                                               
                 </div>
+                <div
+                    style={{
+                        display: this.state.intersectedShell ? 'block' : 'block',
+                        position: 'fixed',
+                        top: this.clientY + 10,
+                        left: this.clientX + 10,
+                        color: DEFAULTTEXTCOLOR,
+                        ...this.props.style,
+                    }}
+                >
+                    {this.state.intersectedShell ? this.getNameID(this.state.intersectedShell.name) : ""}
+                </div>   
                 <div style={{position:"relative", top:0, left:0}}
                     ref={guip=>(this.nodeguiparent=guip)}>
                     <div 
