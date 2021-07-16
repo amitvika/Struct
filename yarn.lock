@@ -10918,6 +10918,15 @@ read-excel-file@^5.0.0:
     xmldom "^0.5.0"
     xpath "0.0.32"
 
+read-excel-file@^5.2.8:
+  version "5.2.8"
+  resolved "https://registry.yarnpkg.com/read-excel-file/-/read-excel-file-5.2.8.tgz#111dad426b00b7899c4918d6394bf9a254670a0a"
+  integrity sha512-daZASsD4MkaW37zDJ0Q4vMxIWjuMQ6y6Q/simiUw24hhNVsV4cQQu4HS4p+ArY4gDBwLNeolzEygFkzxM3azNg==
+  dependencies:
+    jszip "^3.6.0"
+    unzipper "^0.10.11"
+    xmldom "^0.6.0"
+
 read-pkg-up@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/read-pkg-up/-/read-pkg-up-3.0.0.tgz#3ed496685dba0f8fe118d0691dc51f4a1ff96f07"
@@ -13504,6 +13513,11 @@ xmldom@^0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.5.0.tgz#193cb96b84aa3486127ea6272c4596354cb4962e"
   integrity sha512-Foaj5FXVzgn7xFzsKeNIde9g6aFBxTPi37iwsno8QvApmtg7KYrr+OPyRHcJF7dud2a5nGRBXK3n0dL62Gf7PA==
+
+xmldom@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.6.0.tgz#43a96ecb8beece991cef382c08397d82d4d0c46f"
+  integrity sha512-iAcin401y58LckRZ0TkI4k0VSM1Qg0KGSc3i8rU+xrxe19A/BN1zHyVSJY7uoutVlaTSzYyk/v5AmkewAP7jtg==
 
 xpath@0.0.32:
   version "0.0.32"
