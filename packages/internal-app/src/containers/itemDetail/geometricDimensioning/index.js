@@ -725,10 +725,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     return (
         <>
             <Paper style={{ margin: 10, padding: 10 }}>
-
-                <Grid container spacing={4}>
-                    <Grid item xs={6}>
-                        <Paper square={true}>
+                <Grid container spacing={4} >
+                    <Grid item xs={6} style={{display: 'flex'}}>
+                        <Paper style={{ padding: 20, margin: 10, width: '40rem'}} square={true}>
                             <Viewer
                                 {...state}
                                 fileGDT={fileGDT}
@@ -739,8 +738,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                             ></Viewer>
                         </Paper>
                     </Grid>
-
-                    <Grid item xs={6}>
+                    <Grid item xs={6} style={{ width: '60rem' }}>
                         <ViewerToolbar
                             {...state}
                             selectedOption={selectedOption}

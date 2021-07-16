@@ -191,8 +191,8 @@ class TrackballControls extends EventDispatcher {
 					_lastAngle = angle;
 					
 					if(scope.object.cameraposition) {
-						const objectUp = new Vector3(),
-						pan = new Vector3();
+						//const objectUp = new Vector3(),
+						//pan = new Vector3();
 						//console.log("1",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
 						scope.object.position.addVectors( scope.target, _eye );
 						scope.target.copy(_targetCopy); 
@@ -242,7 +242,9 @@ class TrackballControls extends EventDispatcher {
 
 				factor = _touchZoomDistanceStart / _touchZoomDistanceEnd;
 				_touchZoomDistanceStart = _touchZoomDistanceEnd;
-
+				if(factor <0) {
+					factor=1;
+				}
 				if ( scope.object.isPerspectiveCamera ) {
 
 					_eye.multiplyScalar( factor );
@@ -261,7 +263,9 @@ class TrackballControls extends EventDispatcher {
 			} else {
 
 				factor = 1.0 + ( _zoomEnd.y - _zoomStart.y ) * scope.zoomSpeed;
-
+				if(factor <0) {
+					factor=1;
+				}
 				if ( factor !== 1.0 && factor > 0.0 ) {
 
 					if ( scope.object.isPerspectiveCamera ) {
@@ -279,7 +283,8 @@ class TrackballControls extends EventDispatcher {
 
 					}
 
-				}
+				} 
+
 
 				if ( scope.staticMoving ) {
 
@@ -307,15 +312,17 @@ class TrackballControls extends EventDispatcher {
 
 				if ( mouseChange.lengthSq() ) {
 
-					if ( scope.object.isOrthographicCamera ) {
+					/* if ( scope.object.isOrthographicCamera ) {
 
-						const scale_x = ( scope.object.right - scope.object.left ) / scope.object.zoom / scope.domElement.clientWidth;
-						const scale_y = ( scope.object.top - scope.object.bottom ) / scope.object.zoom / scope.domElement.clientWidth;
-
+						let scale_x = ( scope.object.right - scope.object.left ) / scope.object.zoom / scope.domElement.clientWidth;
+						let scale_y = ( scope.object.top - scope.object.bottom ) / scope.object.zoom / scope.domElement.clientWidth;
+						console.log(scale_x,scale_y);
+						if(scale_x <1) scale_x = 1;
+						if(scale_y <1) scale_y = 1;
 						mouseChange.x *= scale_x;
 						mouseChange.y *= scale_y;
 
-					}
+					} */
 					_eye.subVectors( scope.object.position, scope.target );
 					mouseChange.multiplyScalar( _eye.length() * scope.panSpeed );
 

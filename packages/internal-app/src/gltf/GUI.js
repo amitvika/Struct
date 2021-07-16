@@ -3216,7 +3216,7 @@ function augmentController( gui, li, controller ) {
 function recallSavedValue( gui, controller ) {
 
 	var root = gui.getRoot();
-	var matchedIndex = root.__rememberedObjects.indexOf( controller.object );
+	var matchedIndex = root.__rememberedObjects ? root.__rememberedObjects.indexOf( controller.object ):-1;
 	if ( matchedIndex !== - 1 ) {
 
 		var controllerMap = root.__rememberedObjectIndecesToControllers[ matchedIndex ];

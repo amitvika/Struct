@@ -80,25 +80,28 @@ const SelectedMatesRelation = (props) => {
             
         }
         if(mates.length>1) {
-            angle =  mates[1][0][AngleIndex];        
-            for (let mateindex = 1; mateindex < mates.length; mateindex++) {
-                const element = mates[mateindex];           
-                if (anglefound) {
-                    if(element) {
-                        for (let relation = 0; relation < mateindex; relation++) {
-                            if(element[relation]) {
-                                if(element[relation][AngleIndex]!==angle) {
-                                    anglefound=false;
-                                    break;
+            if(mates[1].length>=1) {
+                if(mates[1][0].length>8) {
+                    angle =  mates[1][0][AngleIndex];        
+                    for (let mateindex = 1; mateindex < mates.length; mateindex++) {
+                        const element = mates[mateindex];           
+                        if (anglefound) {
+                            if(element) {
+                                for (let relation = 0; relation < mateindex; relation++) {
+                                    if(element[relation]) {
+                                        if(element[relation][AngleIndex]!==angle) {
+                                            anglefound=false;
+                                            break;
+                                        }
+                                    }                            
                                 }
                             }                            
-                        }
+                        } else {
+                            break;
+                        }           
                     }
-                    
-                } else {
-                    break;
-                }           
-            }
+                }                
+            }            
         } else {
             anglefound = false;
         }
