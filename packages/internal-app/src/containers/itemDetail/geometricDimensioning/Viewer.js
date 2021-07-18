@@ -6,8 +6,10 @@ import {
 import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY } from "../../../gltf/Tree/utils";
 const DEFAULTMATERIALNAME = "Basic";
 
-export default function Viewer({ gltfjson = {}, ctrlKey=false, fileGDT='', activefile = '', isLoading=false, selectedOption = SELECTSOLID, splitMethod = SELECTHIRERACHY,
-    handleModelClick = () => { } }) {
+export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', activefile = '', 
+    isLoading=false, selectedOption = SELECTSOLID, splitMethod = SELECTHIRERACHY,
+    handleModelClick = () => { },  setSelectedOption= () => { }, setCtrlKey= () => { }, 
+    resetSelections= () => { },  selectAllSelectedSolids = () => { }     }) {
     //console.log(gltfjson);
     let gltfjsonlen =  Object.keys(gltfjson).length;
     if (gltfjsonlen > 0) {
@@ -32,9 +34,14 @@ export default function Viewer({ gltfjson = {}, ctrlKey=false, fileGDT='', activ
                     data2texture={null}
                     data3texture={null}
                     materialtype={DEFAULTMATERIALNAME}
-                    whatchanged={0} dataselection={0}
+                    whatchanged={0} 
+                    dataselection={0}
                     onClick={handleModelClick}
                     ctrlKey={ctrlKey}
+                    setSelectedOption={setSelectedOption}
+                    setCtrlKey={setCtrlKey}                              
+                    resetSelections={resetSelections}
+                    selectAllSelectedSolids={selectAllSelectedSolids}    
                 />
                
             }

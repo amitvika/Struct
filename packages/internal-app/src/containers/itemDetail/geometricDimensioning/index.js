@@ -17,9 +17,9 @@ import {
     SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray, gltf_Dict
 } from "../../../gltf/Tree/utils";
 
-import MaterialTable from 'material-table';
-import Radio from '@material-ui/core/Radio';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+//import MaterialTable from 'material-table';
+//import Radio from '@material-ui/core/Radio';
+//import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Assembly from '../assembly';
 
 const DEFAULTDISTANCEGAP = 0.1;
@@ -731,10 +731,14 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                             <Viewer
                                 {...state}
                                 fileGDT={fileGDT}
-                                selectedOption={selectedOption}
+                                selectedOption={selectedOption}                                
                                 handleModelClick={handleModelClick}
                                 isLoading={isLoading}
                                 ctrlKey={ctrlKey}
+                                setSelectedOption={setSelectedOption}
+                                setCtrlKey={setCtrlKey}                              
+                                resetSelections={resetSelections}
+                                selectAllSelectedSolids={selectAllSelectedSolids}                                
                             ></Viewer>
                         </Paper>
                     </Grid>
@@ -746,6 +750,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                             resetSelections={resetSelections}
                             selectAllSelectedSolids={selectAllSelectedSolids}
                             setCtrlKey={setCtrlKey}
+                            toolbar={false}
                         />
                     </Grid>
                 </Grid>

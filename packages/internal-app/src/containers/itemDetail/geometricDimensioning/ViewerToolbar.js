@@ -53,12 +53,13 @@ export default function ViewerToolbar({
     selectedObjects,
     parentObjects,
     mates,
-    setCtrlKey
+    setCtrlKey,
+    toolbar
 }) {
     //console.log("FromViewToolbar",selectedObjects,parentObjects,mates);
     return (
         <>
-        
+        { toolbar && (
         <Grid item xs={6} style={{ width: '40rem' }}>
             <Paper style={{ padding: 10, margin: 10, width: '40rem', alignContent:'center', align:'center'}} square={true}>
             {splitMethod != 0 && (               
@@ -250,6 +251,7 @@ export default function ViewerToolbar({
             )}
              </Paper>
         </Grid>
+        )}
         <Grid item xs={6} style={{ width: '40rem' }}>
             <Paper style={{ padding: 10, margin: 10, width: '40rem'}} square={true}>
             <TableContainer>
