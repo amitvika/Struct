@@ -355,10 +355,17 @@ class TrackballControls extends EventDispatcher {
 
 			} else {
 
-				factor = 1.0 + ( _zoomEnd.y - _zoomStart.y ) * scope.zoomSpeed;
+				factor = 1.0 + ( _zoomEnd.y - _zoomStart.y ) * Math.pow(scope.zoomSpeed*scope.object.zoom,1/scope.object.zoom);
 				if(factor <0) {
 					factor=1;
 				}
+				if(factor < 1) {
+					factor = Math.pow(factor,factor/5);
+				}
+				//if(factor !=1) {
+					//console.log(scope.object.zoom,factor);
+				//}
+				
 				if ( factor !== 1.0 && factor > 0.0 ) {
 
 					if ( scope.object.isPerspectiveCamera ) {
