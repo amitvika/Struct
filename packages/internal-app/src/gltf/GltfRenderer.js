@@ -44,7 +44,7 @@ import { Float32BufferAttribute } from './BufferAttribute.js';
 //import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { GLTFLoader, GLTFParser } from './gltfloader.js';
 //import { OrbitControls } from './OrbitControl.js';//'three/examples/jsm/controls/OrbitControls.js';
-import { GUI } from './GUI.js';
+import index, { GUI } from './GUI.js';
 //import CameraSpinControls from './CameraSpinControls.js';
 import { TrackballControls } from "./TrackballControls.js";
 
@@ -59,6 +59,19 @@ import {
     hexToRGB, gltf_Dict, SELECTLOADEDGES
 } from "./Tree/utils";
 import './styles/style.css';
+
+import Grid from '@material-ui/core/Grid';
+
+import Popper from '@material-ui/core/Popper';
+
+import Paper from '@material-ui/core/Paper';
+//import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import SimpleFormBuilder from './SimpleFormBuilder';
+import {myMenus} from './gltfMenus';
+
+
+  
 //import { motion } from 'framer-motion'
 //import styled from 'styled-components'
 
@@ -110,6 +123,20 @@ const traverseMaterials = (object, callback) => {
 };
 
 class GLTFRenderer extends Component {
+
+    
+     /* theme = createMuiTheme({
+        palette: {
+          primary: { main: '#8BC3D1' },
+        },
+      }); */
+      
+    
+      
+    openEl = new Array(myMenus.length);
+    idEl = new Array(myMenus.length);
+
+    
     state = {
         playbackSpeed: 1.0,
         actionStates: {},
@@ -119,7 +146,7 @@ class GLTFRenderer extends Component {
         skeleton: false,
         grid: false,
         side: "Front",
-        view: "Perspective",
+        view: "Orthographic",
         zoomSpeed: 0.1,
         rotateSpeed: 2.0,
         panSpeed: 1.0,
@@ -132,10 +159,13 @@ class GLTFRenderer extends Component {
         directIntensity: 0.8 * Math.PI, // TODO(#116)
         directColor: 0xFFFFFF,
         partsSelection: [],
-        intersectedShell: null
+        intersectedShell: null,
+        anchorEls:new Array(myMenus.length),
+        selectedmenu:0,
 
     };
     state_selectedObjects = [];
+    
     gltfJSON = null;
     activeFile = 0;
     activeId = 0;
@@ -165,8 +195,8 @@ class GLTFRenderer extends Component {
     constructor(props) {
         super(props);
         this.node = React.createRef();
-        this.nodeguiparent = React.createRef;
-        this.nodegui = React.createRef();
+        //this.nodeguiparent = React.createRef;
+        //this.nodegui = React.createRef();       
     };
 
     componentDidMount() {
@@ -176,7 +206,29 @@ class GLTFRenderer extends Component {
     componentWillUnmount() {
         this.cleanup();
     };
-
+  
+    handlePopperClick = (event,param) => {   
+        let anchorEls = [...this.state.anchorEls]; 
+        if(this.state.selectedmenu != param) {
+            if(anchorEls[this.state.selectedmenu]) {
+                anchorEls[this.state.selectedmenu] = null;
+                this.openEl[this.state.selectedmenu] = false;
+                this.idEl[this.state.selectedmenu] =  undefined;
+            }
+        }        
+        if(anchorEls[param]) {
+            anchorEls[param] = null;
+            this.openEl[param] = false;
+            this.idEl[param] =  undefined;
+        } else {
+            anchorEls[param]=event.currentTarget;
+            this.openEl[param] = true;
+            this.idEl[param] =  "popper"+event.target.id.toString();
+        }        
+        this.setState( { anchorEls: anchorEls, selectedmenu: param } );
+        
+    };
+    
     disposeCameraAndControls = () => {
         if(this.defaultCamera) {
             if(this.scene) {
@@ -406,7 +458,7 @@ class GLTFRenderer extends Component {
             
             this.addCameraAndControls(this.state.view);
            
-            this.addGUI();
+            //this.addGUI();
             //if (this.props.kiosk) this.gui.close();
 
 
@@ -737,7 +789,7 @@ class GLTFRenderer extends Component {
         this.updateParts(object);
         this.updateLights(this.state.Exposure,this.state.addLights,this.state.ambientIntensity,
             this.state.ambientColor,this.state.directIntensity,this.state.directColor);
-        this.updateGUI();
+        //this.updateGUI();
         this.updateTextureEncoding(this.state.textureEncoding);
         this.updateDisplay(this.state.side,this.state.opaque,
             this.state.wiremesh,this.state.skeleton,this.state.grid);
@@ -1125,7 +1177,7 @@ class GLTFRenderer extends Component {
         this.defaultCameraFolder = gui.addFolder('Cameras');
         this.defaultCameraFolder.domElement.style.display = 'none';
         this.partsFolder = null;
-        this.isTouched = false;
+        this.isTouched = false; 
         /*
         // Stats.
         const perfFolder = gui.addFolder('Performance');
@@ -1141,7 +1193,7 @@ class GLTFRenderer extends Component {
         // guiWrap.classList.add('gui-wrap');
         guiWrap.appendChild(gui.domElement);
         gui.open();
-        gui.closed = true;
+        gui.closed = true; 
     };
 
     updateGUI = () => {
@@ -2909,14 +2961,225 @@ class GLTFRenderer extends Component {
             console.log("Error While Loading Progress", err);
         }); 
         
-        
     };
 
+    getOptionValueFromString=(value)=>{
+        if(value=="Assemblies") return SELECTASSEMBLY;
+        if(value=="Parts") return SELECTSOLID;
+        if(value=="Edges") return SELECTEDGE;
+        if(value=="Specify Assembly Mates and GD&T") return SELECTFEATURE;
+        return SELECTFEATURE;       
+    };
+
+    changeValues=(values,param)=>{
+        let toSet=false;
+        switch (param) {
+            case 0:
+                if(values.view != this.state.view) {
+                    this.setState({view:values.view});
+                    this.addCameraAndControls(values.view);
+                }
+                toSet = false;
+                if(values.side != this.state.side) {
+                    this.setState({side:values.side});  
+                    toSet = true; 
+                }                
+                if(values.opaque != this.state.opaque) {
+                    this.setState({opaque:values.opaque});  
+                    toSet = true;  
+                }
+                if(values.wiremesh != this.state.wiremesh) {
+                    this.setState({wiremesh:values.wiremesh});  
+                    toSet = true;
+                }
+                if(values.skeleton != this.state.skeleton) {
+                    this.setState({skeleton:values.skeleton});  
+                    toSet = true;
+                }
+                if(values.grid != this.state.grid) {
+                    this.setState({grid:values.grid}); 
+                    toSet = true;  
+                }
+                if(toSet) {
+                    this.updateDisplay(values.side,values.opaque,
+                        values.wiremesh,values.skeleton,values.grid);
+                }                
+                if(values.autoRotate != this.controls.autoRotate) {
+                    console.log(values.autoRotate);
+                    this.controls.autoRotate = values.autoRotate;                   
+                }
+                if(values.screenSpacePanning != this.controls.screenSpacePanning) {
+                    this.controls.screenSpacePanning = values.screenSpacePanning;                   
+                }
+                
+                break;
+            case 1:
+                if(values.zoomSpeed != this.state.zoomSpeed) {
+                    this.setState({zoomSpeed:values.zoomSpeed});
+                    if(this.controls) {
+                        this.controls.zoomSpeed = values.zoomSpeed;
+                    }   
+                }
+                if(values.panSpeed != this.state.panSpeed) {
+                    this.setState({panSpeed:values.panSpeed});
+                    if(this.controls) {
+                        this.controls.panSpeed = values.panSpeed;
+                    }   
+                }
+                if(values.rotateSpeed != this.state.rotateSpeed) {
+                    this.setState({rotateSpeed:values.rotateSpeed});
+                    if(this.controls) {
+                        this.controls.rotateSpeed = values.rotateSpeed;
+                    }   
+                }                
+                break;
+            case 2:
+                if(values.textureEncoding != this.state.textureEncoding) {
+                    this.setState({textureEncoding:values.textureEncoding});
+                    this.updateTextureEncoding(values.textureEncoding);   
+                }  
+                if(values.outputEncoding != this.state.outputEncoding) {
+                    this.setState({outputEncoding:values.outputEncoding});
+                    if(this.renderer) {
+                        this.renderer.outputEncoding = values.outputEncoding=="sRGB" ? sRGBEncoding : LinearEncoding;
+                    }
+                    this.updateTextureEncoding(values.outputEncoding);   
+                }  
+                toSet=false;
+                if(values.exposure != this.state.exposure) {
+                    this.setState({exposure:values.exposure});
+                    toSet = true;
+                }  
+                if(values.addLights != this.state.addLights) {
+                    this.setState({addLights:values.addLights});
+                    toSet = true;
+                }  
+                if(values.ambientIntensity != this.state.ambientIntensity) {
+                    this.setState({ambientIntensity:values.ambientIntensity});
+                    toSet = true;
+                }  
+                if(values.ambientColor != this.state.ambientColor) {
+                    this.setState({ambientColor:values.ambientColor});
+                    toSet = true;
+                }  
+                if(values.directIntensity != this.state.directIntensity) {
+                    this.setState({directIntensity:values.directIntensity});
+                    toSet = true;
+                }  
+                if(values.directColor != this.state.directColor) {
+                    this.setState({directColor:values.directColor});
+                    toSet = true;
+                }  
+                if(toSet) {
+                    this.updateLights(values.exposure,values.addLights,values.ambientIntensity,
+                        values.ambientColor,values.directIntensity,values.directColor);  
+                }
+
+                break;
+            case 3:
+                const mySelectedoption = this.getOptionValueFromString(values.selectedOption);
+                if(mySelectedoption!=this.props.selectedoption) {
+                    if(this.props.setSelectedOption) {
+                        this.props.setSelectedOption(mySelectedoption);
+                    }
+                    if(values.ctrlKey!=this.props.ctrlKey) {
+                        if(this.props.setCtrlKey){
+                            this.props.setCtrlKey(values.ctrlKey);
+                        }
+                    }
+                    if (this.props.selectedoption == SELECTMEASURE) {
+                        if(this.props.resetSelections){
+                            this.props.resetSelections();
+                        }
+                    }
+                    if(mySelectedoption==SELECTASSEMBLY || mySelectedoption==SELECTSOLID) {
+                        if(this.props.selectAllSelectedSolids) {
+                            this.props.selectAllSelectedSolids(mySelectedoption);
+                        }                        
+                    }
+                   
+                }                
+                break;
+            default:
+                break;
+        }
+    };
+
+    popMenus=(param)=>{
+        //console.log("popmenus",myMenus[param],param);
+        return <div>
+                    {/* <MuiThemeProvider theme={this.theme}> */}
+                        <Paper style={{ width: '100%', margin: '5px auto', paddingBottom: '1px' }}>
+                            <SimpleFormBuilder
+                            fieldContainerStyle={{ backgroundColor: '#fefefe', padding: 1 }}
+                            inputContainerStyle={{ margin: '5px 0' }}
+                            onChange={(values) => {
+                                console.log(values);
+                                this.changeValues(values,param);
+                            }}                    
+                            fields={myMenus[param].fields}
+                            values={myMenus[param].values}                            
+                            errors={{ simpleTextFieldWithError: 'This is an error message.' }}
+                            labelwidth={20}
+                            closeForm={()=>{this.handlePopperClick(null,this.state.selectedmenu);}}
+                            />
+                        </Paper>
+                    {/* </MuiThemeProvider> */}
+                </div>
+    };
+    
+    buildMenus = (myindex) => { return myMenus.map( (data, index) => (
+        (this.props.fileGDT || (index < 3)) && (
+        <Button aria-describedby={this.idEl[index]} id={'pop'+index.toString()} type="button" 
+        variant="contained" 
+        onClick={
+            (event)=>{this.handlePopperClick(event,index);} }
+            color={(index == this.state.selectedmenu && this.openEl[index])?"primary":"default"}
+            startIcon={data.icon}    
+        >
+            {data.folder}
+        
+        </Button>
+        )
+    )) };
+    
+    changeSelectedOption = () => {
+        if (this.selectedoption == SELECTMEASURE || this.props.selectedoption == SELECTMEASURE) {
+            if (this.secondshell) {
+                this.secondshell.material.color.setHex(this.secondshell.currentHex);
+                this.secondshell.selectedshell = false;
+            }
+            if (this.firstshell) {
+                this.firstshell.material.color.setHex(this.firstshell.currentHex);
+                this.firstshell.selectedshell = false;
+            }
+            this.state_selectedObjects.forEach(element => {
+                element.material.color.setHex(element.currentHex);
+                element.selectedshell = false;
+            });
+            this.secondshell = null;
+            this.firstshell = null;
+            this.state_selectedObjects = [];
+            //this.setState({selectedObjects:[]});
+        }
+        if (((this.props.selectedoption == SELECTSOLID) && (this.selectedoption != SELECTASSEMBLY))
+            || (this.props.selectedoption == SELECTASSEMBLY)) {
+            //console.log("Got Here", this.props.selectedoption);
+            this.selectAllSelectedSolids();
+        }
+        if(this.selectedoption !=this.props.selectedoption) {
+            if(this.props.selectedoption==SELECTLOADEDGES || (this.props.selectedoption==SELECTEDGE && this.props.ctrlKey)) {
+                this.loadAllEdges(0);                    
+            }
+            this.changeVisibility();
+            this.selectedoption = this.props.selectedoption;
+        }
+    }
     render() {
         if (this.activeFile != this.props.activefile ||
             this.materialtype != this.props.materialtype ||
             this.selectedoption != this.props.selectedoption) {
-            if (this.selectedoption == SELECTMEASURE || this.props.selectedoption == SELECTMEASURE) {
+            /* if (this.selectedoption == SELECTMEASURE || this.props.selectedoption == SELECTMEASURE) {
                 if (this.secondshell) {
                     this.secondshell.material.color.setHex(this.secondshell.currentHex);
                     this.secondshell.selectedshell = false;
@@ -2945,8 +3208,8 @@ class GLTFRenderer extends Component {
                 }
                 this.changeVisibility();
                 this.selectedoption = this.props.selectedoption;
-            }
-           
+            } */
+            this.changeSelectedOption();
             if (this.activeFile != this.props.activefile || this.materialtype != this.props.materialtype ) {
                 //console.log("Rerendering here!",this.activeFile,this.props.activefile,this.materialtype,
                 //    this.props.materialtype,this.selectedoption,this.props.selectedoption);
@@ -2965,9 +3228,24 @@ class GLTFRenderer extends Component {
             }
             this.changeparts();
         }
-
+        const myID = (id) =>{
+            if( (id===undefined) || !id ) {
+                return "";
+            }
+            return id.toString();
+        }
+        //console.log("BuildMenus",this.buildMenus);
         return (
             <div> 
+                <Grid container spacing={0} direction="column" justifyContent="center" alignItems="center">
+                    <Grid p={1} style={{display:"flex"}} > 
+                        {this.buildMenus(this.state.selectedmenu)} 
+                    </Grid>
+                    <Popper style={{zIndex: 10000}} id={this.idEl[this.state.selectedmenu]} open={this.openEl[this.state.selectedmenu]} anchorEl={this.state.anchorEls[this.state.selectedmenu]} placement='bottom'>
+                        <div>{this.popMenus(this.state.selectedmenu)}</div>
+                    </Popper>
+                </Grid>
+
                 <div
                     style={{ width: "100%", height: "600px" }}
                     ref={el => (this.node = el)}>                                               
@@ -2984,14 +3262,15 @@ class GLTFRenderer extends Component {
                 >
                     {this.state.intersectedShell ? this.getNameID(this.state.intersectedShell.name) : ""}
                 </div>   
-                <div style={{position:"relative", top:0, left:0}}
+                {/* <div style={{position:"relative", top:0, left:0}}
                     ref={guip=>(this.nodeguiparent=guip)}>
                     <div 
                         style={{ width: "100%", height: "150px" }}
                         ref={guik=>(this.nodegui=guik)}>
                     </div>  
-                </div>
-                
+                </div>  */}        
+  
+
             </div>
 
         );

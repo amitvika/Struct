@@ -134,7 +134,7 @@ class TrackballControls extends EventDispatcher {
 
 		}() );
 
-		this.rotateCamera = ( function () {
+		this.rotateCameraAngle = ( angle ) =>  {
 
 			const axis = new Vector3(),
 				quaternion = new Quaternion(),
@@ -142,13 +142,106 @@ class TrackballControls extends EventDispatcher {
 				objectUpDirection = new Vector3(),
 				objectSidewaysDirection = new Vector3(),
 				moveDirection = new Vector3();
+			if ( angle ) {
+				let _targetCopy=new Vector3();
+				_targetCopy.copy(scope.target);
+				let _centerEye=scope.target;
+
+				if(scope.object.cameraposition) {
+					//console.log("-1",scope.target,scope.object.position,scope.object.cameraposition);
+					_centerEye.subVectors(scope.target,scope.object.cameraposition);
+					//console.log("-1.1",scope.target,scope.object.position,scope.object.cameraposition,_centerEye);
+					
+					scope.target.sub(_centerEye);	
+					//console.log("-1.2",scope.target,scope.object.position,scope.object.cameraposition,_centerEye);
+					
+					scope.object.position.sub(_centerEye);
+					//console.log("-1.3",scope.target,scope.object.position,scope.object.cameraposition,_centerEye);
+						
+					//console.log("-2",scope.target,scope.object.position,scope.object.cameraposition);					
+				} 
+				_eye.copy( scope.object.position ).sub( scope.target );
+
+				eyeDirection.copy( _eye ).normalize();
+				objectUpDirection.copy( scope.object.up ).normalize();
+				objectSidewaysDirection.crossVectors( objectUpDirection, eyeDirection ).normalize();
+
+				objectUpDirection.setLength( _moveCurr.y - _movePrev.y );
+				objectSidewaysDirection.setLength( _moveCurr.x - _movePrev.x );
+
+				moveDirection.copy( objectUpDirection.add( objectSidewaysDirection ) );
+
+				axis.crossVectors( moveDirection, _eye ).normalize();
+
+				angle *= scope.rotateSpeed;
+				quaternion.setFromAxisAngle( axis, angle );
+
+				_eye.applyQuaternion( quaternion );
+				//console.log("-3",scope.target,scope.object.position,scope.object.cameraposition);
+				scope.object.up.applyQuaternion( quaternion );
+				//console.log("-4",scope.target,scope.object.position,scope.object.cameraposition);
+				_targetCopy.applyQuaternion(quaternion);
+				_lastAxis.copy( axis );
+				_lastAngle = angle;
+				
+				if(scope.object.cameraposition) {
+					//const objectUp = new Vector3(),
+					//pan = new Vector3();
+					//console.log("1",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
+					scope.object.position.addVectors( scope.target, _eye );
+					scope.target.copy(_targetCopy); 
+					/* pan.cross( scope.object.up ).setLength( 1 );
+					pan.add( objectUp.copy( scope.object.up ).setLength( 1 ) );
+
+					scope.object.position.add( pan );
+					scope.target.add( pan ); */
+					//console.log("2",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
+					//scope.target.addVectors(scope.target,_targetCopy);
+					//console.log("3",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
+					//scope.object.position.addVectors(scope.object.position,_targetCopy);				
+					//console.log("4",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
+					
+				} else {
+					scope.object.position.addVectors( scope.target, _eye );
+				}
+			} else {
+				if ( ! scope.staticMoving && _lastAngle ) {
+
+					_lastAngle *= Math.sqrt( 1.0 - scope.dynamicDampingFactor );
+					_eye.copy( scope.object.position ).sub( scope.target );
+					quaternion.setFromAxisAngle( _lastAxis, _lastAngle );
+					_eye.applyQuaternion( quaternion );
+					scope.object.up.applyQuaternion( quaternion );
+	
+				}
+			}
+			_movePrev.copy( _moveCurr );
+
+		};
+
+		this.rotateCamera = ( function () {
+
+			const moveDirection = new Vector3();
 
 			return function rotateCamera() {
-
-				moveDirection.set( _moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0 );
-				let angle = moveDirection.length();
+				let angle =0;
+				if(this.autoRotate) {
+					//console.log(this.autoRotate,_state,_state === STATE.NONE, this.autoRotateSpeed);
+				}
+				
+				if ( this.autoRotate && _state === STATE.NONE ) {
+					angle = 2 * Math.PI / 60 / 60 * this.autoRotateSpeed;
+					_moveCurr.x +=1;
+					_moveCurr.y +=1;
+					//console.log(angle);
+				} else {
+					moveDirection.set( _moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0 );
+					angle = moveDirection.length();	
+					//console.log(angle);				
+				}
+				this.rotateCameraAngle(angle);
 				//console.log(moveDirection,angle);
-				if ( angle ) {
+				/* if ( angle ) {
 					let _targetCopy=new Vector3();
 					_targetCopy.copy(scope.target);
 					let _centerEye=scope.target;
@@ -196,11 +289,11 @@ class TrackballControls extends EventDispatcher {
 						//console.log("1",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
 						scope.object.position.addVectors( scope.target, _eye );
 						scope.target.copy(_targetCopy); 
-						/* pan.cross( scope.object.up ).setLength( 1 );
-						pan.add( objectUp.copy( scope.object.up ).setLength( 1 ) );
+							// pan.cross( scope.object.up ).setLength( 1 );
+							//pan.add( objectUp.copy( scope.object.up ).setLength( 1 ) );
 
-						scope.object.position.add( pan );
-						scope.target.add( pan ); */
+							//scope.object.position.add( pan );
+							//scope.target.add( pan ); 
 						//console.log("2",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
 						//scope.target.addVectors(scope.target,_targetCopy);
 						//console.log("3",scope.target,scope.object.position,scope.object.cameraposition,_eye,_centerEye);
@@ -221,7 +314,7 @@ class TrackballControls extends EventDispatcher {
 
 				}
 
-				_movePrev.copy( _moveCurr );
+				_movePrev.copy( _moveCurr ); */
 
 			};
 
@@ -262,10 +355,17 @@ class TrackballControls extends EventDispatcher {
 
 			} else {
 
-				factor = 1.0 + ( _zoomEnd.y - _zoomStart.y ) * scope.zoomSpeed;
+				factor = 1.0 + ( _zoomEnd.y - _zoomStart.y ) * Math.pow(scope.zoomSpeed*scope.object.zoom,1/scope.object.zoom);
 				if(factor <0) {
 					factor=1;
 				}
+				if(factor < 1) {
+					factor = Math.pow(factor,factor/5);
+				}
+				//if(factor !=1) {
+					//console.log(scope.object.zoom,factor);
+				//}
+				
 				if ( factor !== 1.0 && factor > 0.0 ) {
 
 					if ( scope.object.isPerspectiveCamera ) {
