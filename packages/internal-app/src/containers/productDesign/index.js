@@ -5,8 +5,10 @@ import { useQuery } from '../../utils/customHooks'
 import DesignAPage from '@ravibasil/common/containers/design/design'
 import ProductDesignHeader from "./ProductDesignHeader";
 import Product from '@ravibasil/common/containers/product'
+import ProductTab from '@ravibasil/common/containers/productTab'
 
 import ProductDesignAPI from '@ravibasil/common/api/productDesign.api';
+import ProductionTable from "../manufacture/fullProcess/processConfiguration";
 
 const ProductDesign = ({ gltfjson, setgltfjson }) => {
     let query = useQuery();
@@ -26,6 +28,10 @@ const ProductDesign = ({ gltfjson, setgltfjson }) => {
         switch (query.get('type')) {
             case 'my-design':
                 return <DesignAPage />;
+            case 'product':
+                return <ProductTab
+                    gltfjson={gltfjson}
+                    setgltfjson={setgltfjson} />
             default:
                 return <Product handleSave={handleAddDesign} name={query.get('name')} />;
         }
