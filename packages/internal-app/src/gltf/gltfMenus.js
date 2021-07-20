@@ -54,12 +54,13 @@ export const myMenus =  [ {
           }
           ]
         }, { 
-          folder:'Speed',
+          folder:'Controls',
           icon:<SpeedOutlinedIcon/>,
           values: {
             zoomSpeed: 0.1,
             panSpeed: 1.0,
-            rotateSpeed: 2.0
+            rotateSpeed: 2.0,
+            zoomToCursor: true
           },
           fields: [{
             name: 'Zoom',
@@ -85,7 +86,11 @@ export const myMenus =  [ {
             min:  0.0, 
             max:  3.0, 
             key: 'rotateSpeed'   
-          } 
+          } , {
+            name: 'Zoom to Cursor',
+            type: 'checkbox',
+            key: 'zoomToCursor'   
+          }
           ]
         }, { 
           folder:'Lighiting',

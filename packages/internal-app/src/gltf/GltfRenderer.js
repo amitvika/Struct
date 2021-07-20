@@ -8,6 +8,8 @@ import {
     AnimationMixer,
     AxesHelper,
     Box3,
+    //Box2,
+    Matrix4,
     Cache,
     CubeTextureLoader,
     DirectionalLight,
@@ -69,6 +71,7 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import SimpleFormBuilder from './SimpleFormBuilder';
 import {myMenus} from './gltfMenus';
+//import { Box } from "@material-ui/core";
 
 
   
@@ -150,6 +153,7 @@ class GLTFRenderer extends Component {
         zoomSpeed: 0.1,
         rotateSpeed: 2.0,
         panSpeed: 1.0,
+        zoomToCursor:true,
         // Lights
         addLights: true,
         exposure: 1.0,
@@ -162,6 +166,7 @@ class GLTFRenderer extends Component {
         intersectedShell: null,
         anchorEls:new Array(myMenus.length),
         selectedmenu:0,
+        displaytext:null,
 
     };
     state_selectedObjects = [];
@@ -282,7 +287,7 @@ class GLTFRenderer extends Component {
         this.controls.screenSpacePanning = false;
         this.controls.staticMoving = true;
         this.controls.rotateSpeed = this.state.rotateSpeed;
-        this.controls.noZoom = true; //this.defaultCamera.isPerspectiveCamera;
+        this.controls.noZoom = this.state.zoomToCursor; //this.defaultCamera.isPerspectiveCamera;
         this.controls.zoomSpeed = this.state.zoomSpeed;
         this.controls.panSpeed = this.state.panSpeed;
         this.controls.addEventListener('start', this.controlsStart.bind(this),false);
@@ -318,8 +323,10 @@ class GLTFRenderer extends Component {
             
 
             const box = new Box3().setFromObject(object);
+            
+            //console.log('old values');
             const size3D = box.getSize(new Vector3());
-
+            //console.log(size3D);
             let size = Math.max(size3D.x,size3D.y,size3D.z);
             if(size <=0) {
                 size=1;
@@ -335,6 +342,8 @@ class GLTFRenderer extends Component {
                     this.controls.reset();
                 }
             }
+            //console.log('AABB centre', center);
+            //console.log('obj pos', object.position);
             //console.log(this.originalposition,object.position,size,size3D,center);
             if(this.defaultCamera.isOrthographicCamera) {
               
@@ -358,8 +367,13 @@ class GLTFRenderer extends Component {
             object.position.x += (this.shiftposition.x);
             object.position.y += (this.shiftposition.y);
             object.position.z += (this.shiftposition.z);
-        
             
+            //console.log('new values');
+            this.orthogonalImageBox = new Box3().setFromObject(object);
+            //console.log(this.orthogonalImageBox.getSize(new Vector3()));
+            //console.log('AABB centre', this.orthogonalImageBox.getCenter(new Vector3()));
+            //console.log('obj pos', object.position);
+
             if(this.controls) {
                 this.controls.maxDistance = size * 10;
             }
@@ -551,6 +565,7 @@ class GLTFRenderer extends Component {
         } else {
             innerWidth = window.innerWidth;
             innerHeight = window.innerHeight;
+            //console.log("Window",innerWidth,innerHeight)
         }  
         if(innerHeight==0) {
             innerWidth=innerHeight;            
@@ -573,6 +588,7 @@ class GLTFRenderer extends Component {
         viewport.left = -viewport.right;
         viewport.top = viewport.right;
         viewport.bottom = -viewport.right; 
+        //console.log(viewport);
         return viewport; 
         //return (-1,1,1,-1);   
     };
@@ -1477,14 +1493,27 @@ class GLTFRenderer extends Component {
     };
 
     getMouseCoOrdinates=(vector)=>{
+
+
         const myrect = this.node ? this.node.getBoundingClientRect() : { "left": 0, "top": 0 };
         const leftShift = this.node ? myrect.left : 0;
         const topShift = this.node ? myrect.top : 0;
         const innerWidth = this.node ? this.node.clientWidth : window.innerWidth;
         const innerHeight = this.node ? this.node.clientHeight : window.innerHeight;
+        //console.log("MYRECT",myrect,innerWidth,innerHeight);
+        var pos = new Vector3().copy(vector);
+        
+        let projScreenMat = new Matrix4();
+        projScreenMat.multiplyMatrices(this.activeCamera.projectionMatrix,  this.activeCamera.matrixWorldInverse);
+        pos.applyMatrix4(projScreenMat);
+       
+        //pos.project(this.activeCamera);
+        console.log("Projected",pos,vector);
+
         let thismouse = new Vector2();
-        thismouse.x = Math.round((0.5 + vector.x / 2) * (innerWidth / window.devicePixelRatio))+leftShift;
-        thismouse.y = Math.round((0.5 - vector.y / 2) * (innerHeight / window.devicePixelRatio))+topShift;
+        //console.log(leftShift,topShift,pos.x,pos.y);
+        thismouse.x = Math.round((1 + pos.x ) * (innerWidth) / 2)+leftShift;
+        thismouse.y = Math.round((1 - pos.y ) * (innerHeight) / 2)+topShift;
         return thismouse;
     };
     
@@ -1717,13 +1746,13 @@ class GLTFRenderer extends Component {
         event.preventDefault();    
         this.setMouseCoOrdinates(event);
         
-        if(this.controls && this.activeCamera) {
+        if(this.controls && this.controls.noZoom && this.activeCamera ) {
 
             
             if ( this.activeCamera.isPerspectiveCamera ) {
                 let facpowfac = Math.pow(this.controls.zoomSpeed,this.controls.zoomSpeed);
                 let factor = (facpowfac)/(1+facpowfac);
-                 factor *= this.controls.zoomSpeed ;
+                factor *= this.controls.zoomSpeed ;
                 var vector = new Vector3(this.mouse.x, this.mouse.y, 0.5 );
                 vector.unproject(this.activeCamera);
                 vector.subVectors(this.activeCamera.position,vector); 
@@ -1740,17 +1769,20 @@ class GLTFRenderer extends Component {
                     myTarget.addVectors(this.controls.target,vector.setLength(factor));                   
                     //console.log("Reset4",this.controls.target);
                 }
-                if ( (myPosition.x <0 || myPosition.y <0) ||
+                /* if ( (myPosition.x <0 || myPosition.y <0) ||
                      (myPosition.x > 1000 || myPosition.y > 1000 || myTarget.x > 1000 || myTarget.y > 1000 ) ) {
                     //myPosition = new Vector3().copy(this.activeCamera.position);  
-                    //myTarget = new Vector3().copy(this.controls.target);    
-                    toTransform = false;             
-                }   
+                    //myTarget = new Vector3().copy(this.controls.target); 
+                    console.log("Perspective",myPosition,myTarget);     
+                    toTransform = true;             
+                }  */  
                 if(toTransform) {
                     this.activeCamera.position.copy(myPosition);
                     this.controls.target.copy(myTarget);                   
                     this.activeCamera.updateProjectionMatrix();
-                } 
+                } else {
+                    console.log("PerspectiveZoom ",myPosition,myTarget);  
+                }
             } else  if ( this.activeCamera.isOrthographicCamera ) {
                  
                 const prevzoom = this.activeCamera.zoom;
@@ -1770,7 +1802,7 @@ class GLTFRenderer extends Component {
                 }  
                 let toTransform = true;
                 if(currentzoom <= (this.OrthographicInitialzoom/2)) {                    
-                    factor = prevzoom-1;
+                    //factor = prevzoom-this.OrthographicInitialzoom;
                     if(factor >0) {
                         factor = -factor;
                         lessthan = false;
@@ -1779,7 +1811,7 @@ class GLTFRenderer extends Component {
                     }
                     toTransform = false;
                     //console.log("I can do",this.OrthographicInitialzoom,currentzoom,"Hence not doing");
-                    currentzoom =1;
+                    currentzoom =prevzoom -factor;
                 }
                 
                 let zoomDirection = new Vector3(this.mouse.x, this.mouse.y, (this.activeCamera.near + this.activeCamera.far)/(this.activeCamera.near - this.activeCamera.far));
@@ -1793,21 +1825,65 @@ class GLTFRenderer extends Component {
                     .sub(this.activeCamera.position)
                     .multiplyScalar(factor / currentzoom);
                 //console.log((currentzoom-prevzoom) / currentzoom,event.deltaY,zoomDirection);
-                let myPosition = new Vector3().copy( this.activeCamera.position );
-                let myTarget = new Vector3().copy(this.controls.target);
+                //const myClonePosition = new Vector3().copy( this.activeCamera.position );
+                //const myCloneTarget = new Vector3().copy(this.controls.target);
+                //const myCloneZoom = this.activeCamera.zoom;
+
+                /* let myPosition = new Vector3().copy( this.activeCamera.position );
+                let myTarget = new Vector3().copy(this.controls.target); */
                 if(lessthan) {
-                    myPosition.subVectors(this.activeCamera.position, zoomDirection);
-                    myTarget.subVectors(this.controls.target, zoomDirection);
+                    this.activeCamera.position.subVectors(this.activeCamera.position, zoomDirection);
+                    this.controls.target.subVectors(this.controls.target, zoomDirection);
                 } else {
-                    myPosition.addVectors(this.activeCamera.position, zoomDirection);
-                    myTarget.addVectors(this.controls.target, zoomDirection);
+                    this.activeCamera.position.addVectors(this.activeCamera.position, zoomDirection);
+                    this.controls.target.addVectors(this.controls.target, zoomDirection);
                 }    
-              
-                if ( (myPosition.x <0 || myPosition.y <0) ||
+                this.activeCamera.zoom =  currentzoom;
+                let k = 0;
+                let dir = this.activeCamera.getWorldDirection(new Vector3());
+                console.log('camera dir',  dir, this.activeCamera.zoom,this.OrthographicInitialzoom/2 );
+                //this.activeCamera.position.add(  this.activeCamera.getWorldDirection(new Vector3()) * k );
+
+                this.activeCamera.updateProjectionMatrix();
+                if(this.orthogonalImageBox && this.state.displaytext) {
+                    const startx = this.orthogonalImageBox.min.x //+this.shiftposition.x;
+                    const starty = this.orthogonalImageBox.min.y //+this.shiftposition.y;
+                    const startz = this.orthogonalImageBox.min.z //+this.shiftposition.z;
+                    const lowerBox=new Vector3(startx, starty, startz);
+                    
+                    const upperBox=new Vector3(startx+this.orthogonalImageBox.max.x-this.orthogonalImageBox.min.x,
+                        starty+this.orthogonalImageBox.max.y-this.orthogonalImageBox.min.y,
+                        startz+this.orthogonalImageBox.max.z-this.orthogonalImageBox.min.z+this.shiftposition.z);
+                   /*  const u1=new Vector3(this.orthogonalImageBox.max.x,this.orthogonalImageBox.min.y,this.orthogonalImageBox.min.z);
+                    const u2=new Vector3(this.orthogonalImageBox.min.x,this.orthogonalImageBox.max.y,this.orthogonalImageBox.min.z);
+                    const u3=new Vector3(this.orthogonalImageBox.min.x,this.orthogonalImageBox.min.y,this.orthogonalImageBox.max.z);
+                    const u4=new Vector3(this.orthogonalImageBox.max.x,this.orthogonalImageBox.max.y,this.orthogonalImageBox.min.z);
+                    const u5=new Vector3(this.orthogonalImageBox.min.x,this.orthogonalImageBox.max.y,this.orthogonalImageBox.max.z);
+                    const u6=new Vector3(this.orthogonalImageBox.max.x,this.orthogonalImageBox.min.y,this.orthogonalImageBox.max.z);
+                    */
+                    //console.log(lowerBox,upperBox);
+                    //lowerBox.project(this.activeCamera);
+                    //upperBox.project(this.activeCamera);
+                    const lowerBoxScreen = this.getMouseCoOrdinates(lowerBox);
+                    const upperBoxScreen = this.getMouseCoOrdinates(upperBox);
+                    const myrect =  this.node.getBoundingClientRect();
+                    const lowXOutside = (lowerBoxScreen.x < myrect.x || lowerBoxScreen.x > myrect.x+myrect.width);
+                    const upperXOutside = (upperBoxScreen.x < myrect.x || upperBoxScreen.x > myrect.x+myrect.width);
+                    const lowYOutside = (lowerBoxScreen.y < myrect.y || lowerBoxScreen.x > myrect.y+myrect.height);
+                    const upperYOutside = (upperBoxScreen.y < myrect.y || upperBoxScreen.x > myrect.y+myrect.height);
+
+                    //let mytext = "Lower 2D"+(lowerBoxScreen.x + "," + lowerBoxScreen.y)+"Upper 2D"+upperBoxScreen.toString()+"Event"+event.clientX.toString()+","+event.clientY.toString(); 
+
+                    //this.state.displaytext = mytext; //myrect,lowXOutside,lowYOutside,upperXOutside,upperYOutside).toString();
+                    console.log("Lower 3D",lowerBox,"Upper 3D",upperBox,"Lower 2D",lowerBoxScreen,"Upper 2D",upperBoxScreen,myrect,lowXOutside,lowYOutside,upperXOutside,upperYOutside);
+                    
+                }
+                /* if ( (myPosition.x <0 || myPosition.y <0) ||
                      (myPosition.x > 1000 || myPosition.y > 1000 || myTarget.x > 1000 || myTarget.y > 1000 ) ) {
                     //myPosition = new Vector3().copy(this.activeCamera.position);  
-                    //myTarget = new Vector3().copy(this.controls.target);    
-                    toTransform = false;             
+                    //myTarget = new Vector3().copy(this.controls.target); 
+                    console.log("Orthographic",myPosition,myTarget);   
+                    toTransform = true;             
                 }     
                    
                 if(toTransform) {
@@ -1815,10 +1891,14 @@ class GLTFRenderer extends Component {
                     this.controls.target.copy(myTarget);
                     this.activeCamera.zoom =  currentzoom;
                     this.activeCamera.updateProjectionMatrix();
+                    console.log("OrthographicZoomApplied",myPosition,myTarget,currentzoom,this.OrthographicInitialzoom); 
+ 
                 } else {
+                    console.log("OrthographicZoom",myPosition,myTarget,currentzoom,this.OrthographicInitialzoom); 
                     //console.log("I am not transforming",myPosition,myTarget);
                 }
-                
+                */
+
                 //console.log("After Wheel",currentzoom,prevzoom,this.activeCamera.position, this.controls.target);
                 /* var zoom = 0;
                 if (event.deltaY < 0) {
@@ -3192,7 +3272,13 @@ class GLTFRenderer extends Component {
                     if(this.controls) {
                         this.controls.rotateSpeed = values.rotateSpeed;
                     }   
-                }                
+                } 
+                if(values.zoomToCursor != this.state.zoomToCursor) {
+                    this.setState({zoomToCursor:values.zoomToCursor});
+                    if(this.controls) {
+                        this.controls.noZoom = values.zoomToCursor;
+                    }   
+                }               
                 break;
             case 2:
                 if(values.textureEncoding != this.state.textureEncoding) {
@@ -3415,7 +3501,7 @@ class GLTFRenderer extends Component {
                 </div>
                 <div
                     style={{
-                        display: this.state.intersectedShell ? 'block' : 'block',
+                        display: this.state.intersectedShell||this.state.displaytext ? 'block' : 'block',
                         position: 'fixed',
                         top: this.clientY + 10,
                         left: this.clientX + 10,
@@ -3424,6 +3510,7 @@ class GLTFRenderer extends Component {
                     }}
                 >
                     {this.state.intersectedShell ? this.getNameID(this.state.intersectedShell.name) : ""}
+                    {/*this.state.displaytext*/}
                 </div>   
                 {/* <div style={{position:"relative", top:0, left:0}}
                     ref={guip=>(this.nodeguiparent=guip)}>
