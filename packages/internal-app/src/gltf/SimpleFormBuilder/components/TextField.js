@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { number, func, shape, string, array, bool, oneOfType, oneOf } from 'prop-types';
 import TextField from '@material-ui/core/TextField';
 import InputLabel from '@material-ui/core/InputLabel';
-import Grid from '@material-ui/core/Grid';
+//import Grid from '@material-ui/core/Grid';
 
 const getName = (name) => _.replace(name, /\./g, ' ');
 

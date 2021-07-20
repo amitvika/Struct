@@ -4,7 +4,7 @@ import _ from 'lodash';
 //import Box, { VBox } from 'react-layout-components';
 import Box from '@material-ui/core/Box';
 
-import Button from '@material-ui/core/Button';
+//import Button from '@material-ui/core/Button';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControl from '@material-ui/core/FormControl';
@@ -63,7 +63,7 @@ export default class SimpleFormBuilder extends React.Component {
         transformedValue = this.handleEmojiText(value);
       }
     } */
-
+   
     if (this.state.timeout) {
       clearTimeout(this.state.timeout);
       this.setState({ timeout: null }, () => this.setChanges(field, value, ctrlKey));
@@ -234,13 +234,13 @@ export default class SimpleFormBuilder extends React.Component {
           {currentlabelwidth!=0 && (
             <InputLabel style={{width:currentlabelwidth.toString()+'%'}}>{this.getName(name)}</InputLabel>
           )}  
-            <ColorPicker zindex="tooltip"
+            <ColorPicker zindex="tooltip" style={{zIndex: 1000}}
               field={field}
               name={this.getName(name)}
               errors={this.props.errors}
               value={this.getProperty(key, defaultValue, '')}
               defaultValue={this.getProperty(key, defaultValue, '')}
-              onChange={(color) => this.handleChange(key, color, false)}
+              onChange={(color) => this.handleChange(key, color.value, false)}
               //style={{width:textwidth.toString()+"%",height:"600"}}
             />
             </span>
