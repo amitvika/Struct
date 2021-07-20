@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
             backgroundColor: '#babbbc',
         },
         '&:active': {
-            width: '30px',
+            width: '25px',
     }
     },
     historyLink: {

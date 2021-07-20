@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from 'react-router-dom';
 
 import ProductDesignAPI from '@ravibasil/common/api/productDesign.api';
@@ -8,7 +8,6 @@ import AddUpdateModal from "./AddUpdateModal";
 
 const ProductDesign = () => {
     let history = useHistory();
-
     const handleItemClick = (id, { type, name }) => history.push(`/design?type=${type}&id=${id}&name=${name}`);
 
     return (
@@ -21,6 +20,7 @@ const ProductDesign = () => {
             handleItemClick={handleItemClick}
             isAddEditLinkVisible={true}
             AddUpdateModal={AddUpdateModal}
+            isDesignModalOpened={true}
         />
     );
 }
