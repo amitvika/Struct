@@ -252,10 +252,12 @@ class GLTFRenderer extends Component {
         
         this.disposeCameraAndControls();
         //console.log(myView);
+        const viewport = this.setSameSize();
         if(myView=="Orthographic") {
-            this.defaultCamera = new OrthographicCamera(-1, 1, 1, -1);
+            this.defaultCamera = new OrthographicCamera(viewport.left, viewport.right, viewport.top, viewport.bottom);
+            //console.log(viewport);
         } else {
-            const viewport = this.setSameSize();
+           
             const fov = this.props.preset === Preset.ASSET_GENERATOR
                 ? 0.8 * 180 / Math.PI
                 : 60;
@@ -280,7 +282,7 @@ class GLTFRenderer extends Component {
         this.controls.screenSpacePanning = false;
         this.controls.staticMoving = true;
         this.controls.rotateSpeed = this.state.rotateSpeed;
-        this.controls.noZoom = this.defaultCamera.isPerspectiveCamera;
+        this.controls.noZoom = true; //this.defaultCamera.isPerspectiveCamera;
         this.controls.zoomSpeed = this.state.zoomSpeed;
         this.controls.panSpeed = this.state.panSpeed;
         this.controls.addEventListener('start', this.controlsStart.bind(this),false);
@@ -293,7 +295,9 @@ class GLTFRenderer extends Component {
             this.updateCameraControls(object,false);
             //this.updateLights();
         } else {
-            console.log("No Content");
+            if(this.initDone) {
+                console.log("No Content");
+            }          
         }
     };
     
@@ -333,12 +337,21 @@ class GLTFRenderer extends Component {
             }
             //console.log(this.originalposition,object.position,size,size3D,center);
             if(this.defaultCamera.isOrthographicCamera) {
-                //console.log(size, this.defaultCamera.zoom);           
-                this.defaultCamera.zoom = 1.0 / size;
+              
+                //console.log(size, this.defaultCamera.zoom);
+                if((size/2) < this.defaultCamera.right) {
+                    this.defaultCamera.right = size/2;
+                    this.defaultCamera.left = -this.defaultCamera.right;
+                    this.defaultCamera.top = this.defaultCamera.right; 
+                    this.defaultCamera.bottom = -this.defaultCamera.right;
+                }
+                this.defaultCamera.zoom = this.defaultCamera.right / size;
+                this.OrthographicInitialzoom = this.defaultCamera.zoom;
                 //console.log( this.defaultCamera.zoom);
+                //console.log("Initial",this.defaultCamera.zoom, this.defaultCamera.top, this.defaultCamera.left, this.defaultCamera.bottom, this.defaultCamera.right);
                 this.defaultCamera.updateProjectionMatrix(); 
             }
-            
+             
             this.shiftposition = {  "x":object.position.x - center.x,
                                     "y":object.position.y - center.y,
                                     "z":object.position.z - center.z    }
@@ -399,8 +412,12 @@ class GLTFRenderer extends Component {
         this.mixer = null;
         this.clips = [];
         this.gui = null;
-
-        this.setState({view:this.props.view||"Orthographic"});
+        let myView = this.props.view;
+        if(myMenus && myMenus.length>0) {
+            myView = myView || myMenus[0].values.view;
+        }
+        //console.log("myview",myView);
+        this.setState({view:myView||"Orthographic"});
         this.prevTime = 0;
 
         //this.stats = new Stats();
@@ -488,7 +505,14 @@ class GLTFRenderer extends Component {
             //this.controls.addEventListener('start', this.controlsStart.bind(this),false);
             //this.controls.addEventListener('change', this.updateCameraSpinUI.bind(this),false);
             //this.controls.addEventListener('end', this.controlsEnd.bind(this),false);
-
+            if(myMenus && myMenus.length>0) {
+                myMenus[0].values.view=myView;
+                for (let index = 0; index < myMenus.length; index++) {
+                    if(this.props.fileGDT || (index < 3)) {
+                        this.changeValues(myMenus[index].values,index);  
+                    }                              
+                }            
+            }
         };
         //this.activeFile = this.props.activefile;
         //this.materialtype = this.props.materialtype;
@@ -546,6 +570,9 @@ class GLTFRenderer extends Component {
             top: viewSize / 2,
             bottom: -viewSize / 2
         }  
+        viewport.left = -viewport.right;
+        viewport.top = viewport.right;
+        viewport.bottom = -viewport.right; 
         return viewport; 
         //return (-1,1,1,-1);   
     };
@@ -844,25 +871,29 @@ class GLTFRenderer extends Component {
             if(this.controls) {
                 this.controls.enabled = false;
             }
-            this.content[0].traverse((node) => {
-                if (node.isCamera && node.name === name) {
-                    this.activeCamera = node;
-                }
-            });
+            if(this.content){
+                this.content[0].traverse((node) => {
+                    if (node.isCamera && node.name === name) {
+                        this.activeCamera = node;
+                    }
+                });
+            }
         }
     };
 
     updateTextureEncoding = (myTextureEncoding) => {
-        const encoding = myTextureEncoding === 'sRGB'
+        if(this.content) {
+            const encoding = myTextureEncoding === 'sRGB'
             ? sRGBEncoding
             : LinearEncoding;
-        this.content.forEach(element => {
-            traverseMaterials(element, (material) => {
-                if (material.map) material.map.encoding = encoding;
-                if (material.emissiveMap) material.emissiveMap.encoding = encoding;
-                if (material.map || material.emissiveMap) material.needsUpdate = true;
+            this.content.forEach(element => {
+                traverseMaterials(element, (material) => {
+                    if (material.map) material.map.encoding = encoding;
+                    if (material.emissiveMap) material.emissiveMap.encoding = encoding;
+                    if (material.map || material.emissiveMap) material.needsUpdate = true;
+                });
             });
-        });
+        }      
         
     };
 
@@ -919,28 +950,32 @@ class GLTFRenderer extends Component {
             lights[1].intensity = myDirectIntensity;
             lights[1].color.setHex(myDirectColor);
         }
+        //console.log(lights);
     };
 
     updateDisplay = (mySide,myOpaque,myWiremesh,mySkeleton,myGrid) => {
         if (this.skeletonHelpers.length) {
             this.skeletonHelpers.forEach((helper) => this.scene.remove(helper));
         }
-        this.content.forEach(element => {
-            traverseMaterials(element, (material) => {
-                this.changeMaterialStats(material,mySide,myOpaque,myWiremesh);
+        if(this.content) {
+            this.content.forEach(element => {
+                traverseMaterials(element, (material) => {
+                    this.changeMaterialStats(material,mySide,myOpaque,myWiremesh);
+                });
             });
-        });
-        this.content.forEach(element => {
-            element.traverse((node) => {
-
-                if (node.isMesh && node.skeleton && mySkeleton) {
-                    const helper = new SkeletonHelper(node.skeleton.bones[0].parent);
-                    helper.material.linewidth = 3;
-                    this.scene.add(helper);
-                    this.skeletonHelpers.push(helper);
-                }
+            this.content.forEach(element => {
+                element.traverse((node) => {
+    
+                    if (node.isMesh && node.skeleton && mySkeleton) {
+                        const helper = new SkeletonHelper(node.skeleton.bones[0].parent);
+                        helper.material.linewidth = 3;
+                        this.scene.add(helper);
+                        this.skeletonHelpers.push(helper);
+                    }
+                });
             });
-        });
+        }
+        
 
         if (myGrid !== Boolean(this.gridHelper)) {
             if (myGrid) {
@@ -1441,6 +1476,18 @@ class GLTFRenderer extends Component {
         this.clientY = event.clientY;
     };
 
+    getMouseCoOrdinates=(vector)=>{
+        const myrect = this.node ? this.node.getBoundingClientRect() : { "left": 0, "top": 0 };
+        const leftShift = this.node ? myrect.left : 0;
+        const topShift = this.node ? myrect.top : 0;
+        const innerWidth = this.node ? this.node.clientWidth : window.innerWidth;
+        const innerHeight = this.node ? this.node.clientHeight : window.innerHeight;
+        let thismouse = new Vector2();
+        thismouse.x = Math.round((0.5 + vector.x / 2) * (innerWidth / window.devicePixelRatio))+leftShift;
+        thismouse.y = Math.round((0.5 - vector.y / 2) * (innerHeight / window.devicePixelRatio))+topShift;
+        return thismouse;
+    };
+    
     onMouseMove = (event) => {
 
         event.preventDefault();
@@ -1672,37 +1719,149 @@ class GLTFRenderer extends Component {
         
         if(this.controls && this.activeCamera) {
 
-            var factor = this.controls.zoomSpeed/(1+this.controls.zoomSpeed);
-           
+            
             if ( this.activeCamera.isPerspectiveCamera ) {
-                var vector = new Vector3(this.mouse.x, this.mouse.y, 0.5);
-                //console.log(vector);
+                let facpowfac = Math.pow(this.controls.zoomSpeed,this.controls.zoomSpeed);
+                let factor = (facpowfac)/(1+facpowfac);
+                 factor *= this.controls.zoomSpeed ;
+                var vector = new Vector3(this.mouse.x, this.mouse.y, 0.5 );
                 vector.unproject(this.activeCamera);
-                vector.sub(this.activeCamera.position);
+                vector.subVectors(this.activeCamera.position,vector); 
+                let myPosition = new Vector3().copy( this.activeCamera.position );
+                let myTarget = new Vector3().copy(this.controls.target);
+                let toTransform = true;
+                //console.log(vector);               
                 if (event.deltaY < 0) {
-                    this.activeCamera.position.addVectors(this.activeCamera.position, vector.setLength(factor));
-                    this.controls.target.addVectors(this.controls.target,vector.setLength(factor));
-                    this.activeCamera.updateProjectionMatrix();
+                    myPosition.subVectors(this.activeCamera.position, vector.setLength(factor));
+                    myTarget.subVectors(this.controls.target,vector.setLength(factor));                   
                     //console.log("Reset3",this.controls.target);
                 } else {
-                    this.activeCamera.position.subVectors(this.activeCamera.position,vector.setLength(factor));
-                    this.controls.target.subVectors(this.controls.target,vector.setLength(factor));
-                    this.activeCamera.updateProjectionMatrix();
+                    myPosition.addVectors(this.activeCamera.position,vector.setLength(factor));
+                    myTarget.addVectors(this.controls.target,vector.setLength(factor));                   
                     //console.log("Reset4",this.controls.target);
                 }
-            } else {
-                //console.log("IS Perspective?",this.activeCamera.isPerspectiveCamera);
-            }
-           /* if ( this.controls.isOrthographicCamera ) {
+                if ( (myPosition.x <0 || myPosition.y <0) ||
+                     (myPosition.x > 1000 || myPosition.y > 1000 || myTarget.x > 1000 || myTarget.y > 1000 ) ) {
+                    //myPosition = new Vector3().copy(this.activeCamera.position);  
+                    //myTarget = new Vector3().copy(this.controls.target);    
+                    toTransform = false;             
+                }   
+                if(toTransform) {
+                    this.activeCamera.position.copy(myPosition);
+                    this.controls.target.copy(myTarget);                   
+                    this.activeCamera.updateProjectionMatrix();
+                } 
+            } else  if ( this.activeCamera.isOrthographicCamera ) {
+                 
+                const prevzoom = this.activeCamera.zoom;
+                let currentzoom = this.activeCamera.zoom;
+                let lessthan = true;
+                let facpowfac = Math.pow(this.controls.zoomSpeed,currentzoom);
+                let factor = - (facpowfac);
+                //console.log(facpowfac,factor,this.controls.zoomSpeed,this.controls.zoomSpeed^this.controls.zoomSpeed);
+                factor *= this.controls.zoomSpeed ;
+                //console.log(factor);
                 if (event.deltaY < 0) {
-                    this.controls.zoom /= (1+factor);
-                    this.controls.updateProjectionMatrix();
+                    currentzoom = prevzoom -factor;
+                    lessthan = true;
                 } else {
-                    this.controls.zoom /= (1-factor);
-                    this.controls.updateProjectionMatrix();
+                    currentzoom = prevzoom +factor;
+                    lessthan=false;
+                }  
+                let toTransform = true;
+                if(currentzoom <= (this.OrthographicInitialzoom/2)) {                    
+                    factor = prevzoom-1;
+                    if(factor >0) {
+                        factor = -factor;
+                        lessthan = false;
+                    } else {
+                        lessthan = true;
+                    }
+                    toTransform = false;
+                    //console.log("I can do",this.OrthographicInitialzoom,currentzoom,"Hence not doing");
+                    currentzoom =1;
                 }
+                
+                let zoomDirection = new Vector3(this.mouse.x, this.mouse.y, (this.activeCamera.near + this.activeCamera.far)/(this.activeCamera.near - this.activeCamera.far));
+               /*  zoomDirection.unproject(this.activeCamera);  
+                let revVector = new Vector3().copy(zoomDirection).project(this.activeCamera);
+                let mymouse = this.getMouseCoOrdinates(revVector);
+                console.log(mymouse,this.mouse,revVector);
+                zoomDirection = new Vector3(this.mouse.x, this.mouse.y, (this.activeCamera.near + this.activeCamera.far)/(this.activeCamera.far - this.activeCamera.near));
+          */       
+                zoomDirection.unproject(this.activeCamera)
+                    .sub(this.activeCamera.position)
+                    .multiplyScalar(factor / currentzoom);
+                //console.log((currentzoom-prevzoom) / currentzoom,event.deltaY,zoomDirection);
+                let myPosition = new Vector3().copy( this.activeCamera.position );
+                let myTarget = new Vector3().copy(this.controls.target);
+                if(lessthan) {
+                    myPosition.subVectors(this.activeCamera.position, zoomDirection);
+                    myTarget.subVectors(this.controls.target, zoomDirection);
+                } else {
+                    myPosition.addVectors(this.activeCamera.position, zoomDirection);
+                    myTarget.addVectors(this.controls.target, zoomDirection);
+                }    
+              
+                if ( (myPosition.x <0 || myPosition.y <0) ||
+                     (myPosition.x > 1000 || myPosition.y > 1000 || myTarget.x > 1000 || myTarget.y > 1000 ) ) {
+                    //myPosition = new Vector3().copy(this.activeCamera.position);  
+                    //myTarget = new Vector3().copy(this.controls.target);    
+                    toTransform = false;             
+                }     
+                   
+                if(toTransform) {
+                    this.activeCamera.position.copy(myPosition);
+                    this.controls.target.copy(myTarget);
+                    this.activeCamera.zoom =  currentzoom;
+                    this.activeCamera.updateProjectionMatrix();
+                } else {
+                    //console.log("I am not transforming",myPosition,myTarget);
+                }
+                
+                //console.log("After Wheel",currentzoom,prevzoom,this.activeCamera.position, this.controls.target);
+                /* var zoom = 0;
+                if (event.deltaY < 0) {
+                    zoom = this.activeCamera.zoom + factor;
+                } else {
+                    zoom = this.activeCamera.zoom - factor;
+                }
+                if(zoom <=0) {
+                    zoom=1;
+                }
+                console.log(zoom);
+                vector.multiplyScalar(1 / zoom);
+                this.activeCamera.position.subVectors(this.activeCamera.position,vector);
+                this.controls.target.subVectors(this.controls.target,vector);
+                this.activeCamera.zoom = zoom;
+                this.activeCamera.updateProjectionMatrix(); */
+                
+               /*
+                let myZoom = 1;
+                if (event.deltaY < 0) {
+                    myZoom = 1/(1+factor);                    
+                } else {
+                    myZoom = 1/(1-factor); 
+                }
+                
+                //vector.multiplyScalar(1 / myZoom);
+                //this.activeCamera.position.subVectors(this.activeCamera.position,vector);
+                this.activeCamera.zoom *= myZoom;
+                this.activeCamera.updateProjectionMatrix();
+                let vector2 = new Vector3(this.mouse.x, this.mouse.y, 0.5);
+                vector2.unproject(this.activeCamera);
+                console.log("2",vector2, this.activeCamera.position);
+                (vector.sub(vector2)).multiplyScalar(myZoom);
+                this.activeCamera.position.add(vector);
+                this.activeCamera.updateProjectionMatrix();
+                let vector3 = new Vector3(this.mouse.x, this.mouse.y, 0.5);
+                vector3.unproject(this.activeCamera);
+                console.log("3",vector3, this.activeCamera.position);
                
-            } */
+                */
+                
+               
+            } 
 
         }
 
@@ -1840,6 +1999,7 @@ class GLTFRenderer extends Component {
 
         //1. set the picking ray from the camera position and mouse coordinates
         this.activeCamera.updateMatrixWorld();
+
         this.raycaster.setFromCamera(this.mouse, this.activeCamera);
 
         //2. compute intersections (note the 2nd parameter)
@@ -1848,7 +2008,7 @@ class GLTFRenderer extends Component {
         if (intersects.length == 0) {
             this.resetSelection();
         } else {
-
+            //console.log(intersects);
             var myObject = intersects.length;
             for (var i = intersects.length - 1; i >= 0; i--) {
                 //console.log(intersects[ i ].object);
@@ -2973,6 +3133,7 @@ class GLTFRenderer extends Component {
 
     changeValues=(values,param)=>{
         let toSet=false;
+        //console.log(values);
         switch (param) {
             case 0:
                 if(values.view != this.state.view) {
@@ -3005,7 +3166,7 @@ class GLTFRenderer extends Component {
                         values.wiremesh,values.skeleton,values.grid);
                 }                
                 if(values.autoRotate != this.controls.autoRotate) {
-                    console.log(values.autoRotate);
+                    //console.log(values.autoRotate);
                     this.controls.autoRotate = values.autoRotate;                   
                 }
                 if(values.screenSpacePanning != this.controls.screenSpacePanning) {
@@ -3105,6 +3266,7 @@ class GLTFRenderer extends Component {
         }
     };
 
+    
     popMenus=(param)=>{
         //console.log("popmenus",myMenus[param],param);
         return <div>
@@ -3114,8 +3276,9 @@ class GLTFRenderer extends Component {
                             fieldContainerStyle={{ backgroundColor: '#fefefe', padding: 1 }}
                             inputContainerStyle={{ margin: '5px 0' }}
                             onChange={(values) => {
-                                console.log(values);
+                                //console.log(values);
                                 this.changeValues(values,param);
+                                myMenus[param].values=values;
                             }}                    
                             fields={myMenus[param].fields}
                             values={myMenus[param].values}                            
@@ -3128,13 +3291,13 @@ class GLTFRenderer extends Component {
                 </div>
     };
     
-    buildMenus = (myindex) => { return myMenus.map( (data, index) => (
+    buildMenus = (myIndex) => { return myMenus.map( (data, index) => (
         (this.props.fileGDT || (index < 3)) && (
         <Button aria-describedby={this.idEl[index]} id={'pop'+index.toString()} type="button" 
         variant="contained" 
         onClick={
             (event)=>{this.handlePopperClick(event,index);} }
-            color={(index == this.state.selectedmenu && this.openEl[index])?"primary":"default"}
+            color={(index == myIndex && this.openEl[index])?"primary":"default"}
             startIcon={data.icon}    
         >
             {data.folder}
@@ -3241,7 +3404,7 @@ class GLTFRenderer extends Component {
                     <Grid p={1} style={{display:"flex"}} > 
                         {this.buildMenus(this.state.selectedmenu)} 
                     </Grid>
-                    <Popper style={{zIndex: 10000}} id={this.idEl[this.state.selectedmenu]} open={this.openEl[this.state.selectedmenu]} anchorEl={this.state.anchorEls[this.state.selectedmenu]} placement='bottom'>
+                    <Popper style={{zIndex: 100}} id={this.idEl[this.state.selectedmenu]} open={this.openEl[this.state.selectedmenu]} anchorEl={this.state.anchorEls[this.state.selectedmenu]} placement='bottom'>
                         <div>{this.popMenus(this.state.selectedmenu)}</div>
                     </Popper>
                 </Grid>

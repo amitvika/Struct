@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { number, func, shape, string, array, bool, oneOfType, oneOf } from 'prop-types';
 import Slider from '@material-ui/core/Slider';
 import InputLabel from '@material-ui/core/InputLabel';
-import Grid from '@material-ui/core/Grid';
+//import Grid from '@material-ui/core/Grid';
 const getName = (name) => _.replace(name, /\./g, ' ');
 
 const CustomSliderField = ({ field, value, errors, onChange, labelwidth, ...others }) => {
@@ -32,9 +32,9 @@ const CustomSliderField = ({ field, value, errors, onChange, labelwidth, ...othe
       key={inputKey}    
       valueLabelDisplay={type}
       placeholder={getName(name)}
-      helperText={errorText ? errorText : helpertext}
+    
       label={getName(name)}
-      error={!!errorText}
+     
       name={name}
       value={value}
       onChange={onChange}
@@ -42,9 +42,9 @@ const CustomSliderField = ({ field, value, errors, onChange, labelwidth, ...othe
       step={step}     
       min={min}
       max={max}
-      fullWidth
+      
       {...others}
-      InputProps={{ style:  { height: '36px' } }}
+      
     />
   </span>
   );

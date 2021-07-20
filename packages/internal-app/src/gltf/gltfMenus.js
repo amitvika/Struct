@@ -94,11 +94,11 @@ export const myMenus =  [ {
             textureEncoding:"sRGB",
             outputEncoding:"sRGB",
             exposure: 1.0,
-            addLights: false,
+            addLights: true,
             ambientIntensity: 1.0,
-            ambientColor: "#FFFFFF",
+            ambientColor: 0xFFFFFF,
             directIntensity: 0.8 * Math.PI,  
-            directColor: "#FFFFFF",
+            directColor: 0xFFFFFF,
             ctrlKey:false
           },
           fields: [{
@@ -134,7 +134,7 @@ export const myMenus =  [ {
           }, {
             name: 'Ambient Color',
             type: 'color',
-            default: '#FFFFFF', 
+            default: 0xFFFFFF, 
             key: 'ambientColor'               
           }, {
             name: 'Direct Intensity',
@@ -147,7 +147,7 @@ export const myMenus =  [ {
           }, {
             name: 'Direct Color',
             type: 'color',
-            default: '#FFFFFF', 
+            default: 0xFFFFFF, 
             key: 'directColor'               
           } 
           ]
