@@ -63,12 +63,9 @@ const useStyles = makeStyles((theme) => ({
         padding: '4px',
         borderStyle: 'solid',
         borderRadius: '14px',
-        color: '#625f5f',
-        "&:hover, &:focus": {
-            backgroundColor: '#babbbc',
-        },
+        color: '#371919',
         '&:active': {
-            width: '25px',
+            backgroundColor: '#c9c5c5'
     }
     },
     historyLink: {
