@@ -17,6 +17,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import SubHeaderWithArrow from '../../components/SubHeaderWithArrow'
 import { NavLink, useParams, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
 
 import BaseItemProperties from './baseItemProperties';
 import GeometricDimensioning from './geometricDimensioning';
@@ -35,6 +36,7 @@ import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
+import './style.css'
 import { getHierarchySplitFiles, getGltfForStore, getTreeForStore, resourcePathURL } from '@ravibasil/common/api/fileUpload.api'
 
 const DEFAULTDISTANCEGAP = 0.1;
@@ -53,7 +55,13 @@ const stateprops = {
     materialtype: DEFAULTMATERIALTYPE
 }
 
+const useStyles = makeStyles((theme) => ({
+    tabP: {
+        alignItems: 'flex-start'
+    },
+}));
 const ItemDetail = () => {
+    const classes = useStyles();
     const dispatch = useDispatch();
     const history = useHistory();
     let { id } = useParams();
@@ -163,7 +171,7 @@ const ItemDetail = () => {
                     //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
                     fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT);
                 }
-            } else {                
+            } else {
                 if (!item.fileGDT || item.fileGDT === null) {
                     console.log("Checking Store", item.fileStore);
                     if (item.fileStore && item.fileStore.length > 0) {
@@ -367,7 +375,7 @@ const ItemDetail = () => {
 
     const tabList = {
         pdcu: "Product Design or CAD Upload", cc: "Compliance and Certifications", gdtac: "GD&T and Assembly Constraints",
-        sft: "Surface Finish and Treatment", fls: "Functional Load and Simulation", dm: "Design Modifications", 
+        sft: "Surface Finish and Treatment", fls: "Functional Load and Simulation", dm: "Design Modifications",
         slfpi: "Software Loading for PCBs, ICs", cu: "Current Usage", mpps: "Manufacture, Processing, & Process Simulation",
         pv: "Production Validations", ps: "Process Sharing", wmm: "Warranty & Maintenance Management", pd: "Product Documentation",
         rs: "Recycling & Sustainability", pds: "Product Design Setup", iupc: "Internal Use Product Configurations", production: "Production"
@@ -377,7 +385,7 @@ const ItemDetail = () => {
         let tabP = []
         Object.keys(tabList).forEach((key, index) => {
             tabP.push(
-            <Tab label={`${index + 1}. ${tabList[key]}`} value={key} />)
+                <Tab label={`${index + 1}. ${tabList[key]}`} value={key} style={{ textAlign: 'left' }} />)
         })
         return tabP
     }
@@ -399,7 +407,7 @@ const ItemDetail = () => {
                             <p>Item ID:{id}</p>
                         </Grid>
                         <Grid style={{ margin: 'auto' }}>
-                            <h4>{ tabList[tabIndex]}</h4>
+                            <h4>{tabList[tabIndex]}</h4>
 
                         </Grid>
 
@@ -418,6 +426,7 @@ const ItemDetail = () => {
                     <Paper style={{ margin: 10, marginBottom: "70px" }}>
 
                         <Tabs
+                            className='MuiTab-wrapper'
                             orientation="vertical"
                             variant="scrollable"
                             value={tabIndex}

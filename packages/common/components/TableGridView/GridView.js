@@ -16,8 +16,10 @@ import './style.css'
 
 //import {CopyLogo} from '../../assets/images/copy_icon.png'
 // import StructLogo from '../../assets/images/struct_logo.png';
+import CopyLogo from '../../assets/images/copy.png';
 import StructLogo from '../../assets/images/new_logo.png';
 import { resourcePathURL } from '@ravibasil/common/api/fileUpload.api';
+import { color } from 'src/gltf/GUI';
 //import {isURLExisting} from  '@ravibasil/common/utils/usefulHelpers';
 
 const useStyles = makeStyles((theme) => ({
@@ -53,6 +55,21 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         height: '100%',
         objectFit: 'contain'
+    },
+    copy_img: {
+        cursor: 'pointer',
+        width: '12%',
+        marginLeft: '15px',
+        padding: '4px',
+        borderStyle: 'solid',
+        borderRadius: '14px',
+        color: '#625f5f',
+        "&:hover, &:focus": {
+            backgroundColor: '#babbbc',
+        },
+        '&:active': {
+            width: '30px',
+    }
     },
     historyLink: {
         margin: '10px',
@@ -97,12 +114,8 @@ export default function GridView({
                             {`: `}
                             <span ref={titleRef} className={classes.tableCell} value={`${data[fieldItem.field]}`}>{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
                             {
-                                (fieldItem.title === "ID") ?
-                                    <IconButton style={{ padding: 0 }} >
-                                        <Typography variant="body2">
-                                            <FileCopyOutlinedIcon onClick={(event) => handleCopyId(event, data[fieldItem.field])} style={{ marginLeft: '20px' }} />
-                                        </Typography>
-                                    </IconButton> : null
+                                (fieldItem.title === "ID") ?  <img src={CopyLogo} className={classes.copy_img}  onClick={(event) => handleCopyId(event, data[fieldItem.field])}></img>
+                                     : null
                             }
                         </Typography>
                     </Grid>

@@ -6,7 +6,7 @@ import Headding from '@ravibasil/common/components/atoms/Headding';
 import Select from '@ravibasil/common/components/atoms/Select';
 import Input from '@ravibasil/common/components/atoms/Input';
 
-import readXlsxFile from 'read-excel-file'
+import readXlsxFile from 'read-excel-file';
 
 export default function DynamicHierarchy() {
 
@@ -14,33 +14,108 @@ export default function DynamicHierarchy() {
     const [currentHierarchyValue, setCurrentHierarchyValue] = useState('Actuator');
 
     const handleHierarchyFileUpload = (file) => {
-        const map = {
-            1: 'level1',
-            2: 'level2',
-            3: 'level3',
-            4: 'level4',
-            5: 'level5',
-            6: 'level6',
-            7: 'level7',
-            8: 'level8',
-            9: 'level9'
-        }
-
         let obj = {};
         let currentHierarachy = ""
 
-        readXlsxFile(file, { map }).then((data) => {
+        readXlsxFile(file).then((rows) => {
+            var resultObject = {}
+            mapExcelRows(1, rows, 'Item Type', resultObject);
 
-            // rows.map(rowItem => {
+            console.log('-------resultObject', resultObject)
+            // let currentRow;
+            // let nextRow;
+            // let currentValue;
+            // let parentValue;
+
+            // for (let i = 1; i < rows.length; i++) {
+            //     currentRow = rows[i];
+            //     nextRow = rows[i + 1];
+            //     prevRow = rows[i - 1]
+
+            //     if (i < rows.length) {
+
+            //     }
+
+            //     if (i + 1 === rows.length) {
+
+            //     }
+            //     else {
+            //         let dataIndex = currentRow.findIndex(dataColumn => dataColumn.trim().length > 0);
+            //         currentValue = currentRow[dataIndex];
+
+            // if (dataIndex > 0) {
+            //     if (!currentRow[dataIndex + 1] &&
+            //         !nextRow[dataIndex] &&
+            //         nextRow[dataIndex + 1]
+            //     ) {
+            //         //obj
+            //         obj[currentValue] = {
+            //             label: currentValue,
+            //             criteriaValue: "",
+            //             options: []
+            //         }
+            //     }
+            // }
+            // else if () {
+            //     obj[currentValue] = {
+            //         label: currentValue,
+            //         criteriaValue: "",
+            //         options: []
+            //     }
+            // }
+
+            //     }
 
 
-            // })
+            // }
 
-            // setHierarchyFields(obj)
-            console.log("==rows====>>>", data)
         })
-
     }
+
+
+    const mapExcelRows = (startIndex, rows, currentKey, resultObject) => {
+
+        let currentRow;
+        let nextRow;
+        let currentValue;
+        // let parentValue;
+        let currentOptionsArray = []
+
+        // for (let i = startIndex; i < rows.length; i++) {
+
+
+        currentRow = rows[startIndex];
+        nextRow = rows[startIndex + 1];
+
+        let currentDataIndex = currentRow.findIndex(dataColumn => dataColumn !== null && dataColumn.trim().length > 0);
+        currentValue = currentRow[currentDataIndex];
+
+        console.log('------currentKey--->>>>>', startIndex, '---', currentValue, '---', currentKey)
+        if (
+            (currentDataIndex + 1) < rows.length
+            && currentRow[currentDataIndex + 1] === null
+            && nextRow !== undefined
+            && nextRow[currentDataIndex] === null
+            // && nextRow[currentDataIndex + 1]
+            // && nextRow[currentDataIndex + 1] !== null
+        ) {
+
+            const data = mapExcelRows(startIndex + 1, rows, currentValue, resultObject);
+            // resultObject[currentKey] = options;
+            console.log('data--->>>>', data)
+        }
+        else {
+            console.log('push--->>>>', currentValue)
+            return { option: currentValue }
+            // currentOptionsArray.push(currentValue);
+        }
+        // else {
+        //     return { options: currentOptionsArray, resultObject };
+        // }
+
+        // }
+    }
+
 
     const renderFields = (fields) => {
         return fields.map(fieldItem => {
@@ -96,3 +171,17 @@ export default function DynamicHierarchy() {
         </Paper>
     )
 }
+
+
+// {
+//     "Item Type" : {
+//         label: "Item Type",
+//         criteriaValue: "",
+//         options: ["Actuator", "Tools", "Motion Control", "Workholding/ToolHolding"]
+//     },
+//     "Actuator" : {
+//         label: "Actuator",
+//         criteriaValue: "Actuator",
+//         options: ["Linear" "Rotational"]
+//     }   
+// }
