@@ -68,7 +68,7 @@ export const myMenus =  [ {
             auto: 'auto',
             step: 0.1,
             min:  0.0, 
-            max:  3.0, 
+            max:  1.0, 
             key: 'zoomSpeed'   
           }, {
             name: 'Pan',

@@ -1812,8 +1812,21 @@ class GLTFRenderer extends Component {
                     toTransform = false;
                     //console.log("I can do",this.OrthographicInitialzoom,currentzoom,"Hence not doing");
                     currentzoom =prevzoom -factor;
+                } else {
+                    if(currentzoom >= (this.OrthographicInitialzoom*5)) {                    
+                        //factor = prevzoom-this.OrthographicInitialzoom;
+                        if(factor >0) {
+                            factor = -factor;
+                            lessthan = true;
+                        } else {
+                            lessthan = false;
+                        }
+                        toTransform = false;
+                        //console.log("I can do",this.OrthographicInitialzoom,currentzoom,"Hence not doing");
+                        currentzoom =prevzoom +factor;
+                    }
                 }
-                
+                //console.log(currentzoom,this.OrthographicInitialzoom*5,this.OrthographicInitialzoom/2);
                 let zoomDirection = new Vector3(this.mouse.x, this.mouse.y, (this.activeCamera.near + this.activeCamera.far)/(this.activeCamera.near - this.activeCamera.far));
                /*  zoomDirection.unproject(this.activeCamera);  
                 let revVector = new Vector3().copy(zoomDirection).project(this.activeCamera);
@@ -1839,9 +1852,9 @@ class GLTFRenderer extends Component {
                     this.controls.target.addVectors(this.controls.target, zoomDirection);
                 }    
                 this.activeCamera.zoom =  currentzoom;
-                let k = 0;
-                let dir = this.activeCamera.getWorldDirection(new Vector3());
-                console.log('camera dir',  dir, this.activeCamera.zoom,this.OrthographicInitialzoom/2 );
+                //let k = 0;
+                //let dir = this.activeCamera.getWorldDirection(new Vector3());
+                //console.log('camera dir',  dir, this.activeCamera.zoom,this.OrthographicInitialzoom/2 );
                 //this.activeCamera.position.add(  this.activeCamera.getWorldDirection(new Vector3()) * k );
 
                 this.activeCamera.updateProjectionMatrix();
