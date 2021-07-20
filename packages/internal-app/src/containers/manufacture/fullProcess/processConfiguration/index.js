@@ -54,7 +54,8 @@ export default function ProductionTable() {
             editable: "never",
             render: (rowData) => {
                 return (
-                    <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={(event) => handleFactoryClick(event, rowData)}>{rowData.factory_id ? rowData.factory_name : 'Select'}</span>
+                    <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={(event) => handleFactoryClick(event, rowData)}>
+                      <Link>  {rowData.factory_id ? rowData.factory_name : 'Select'} </Link></span>
                 )
             }
         },

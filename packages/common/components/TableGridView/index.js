@@ -15,6 +15,7 @@ const TableGridView = ({
     fetchList,
     upsertListItem = () => { },
     ManageTeamModal,
+    isDesignModalOpened=true,
     AddUpdateModal = CommonAddUpdateModal,
     isManageTeamVisible = false,
     isCustomAddButtonVisible = true,
@@ -24,7 +25,7 @@ const TableGridView = ({
     showSuccessAlert = () => { },
     showErrorAlert = () => { }
 }) => {
-
+    
     const [isLoading, setIsLoading] = useState(false);
     const [list, setList] = useState([]);
     const [filteredList, setFilteredList] = useState([]);
@@ -220,6 +221,7 @@ const TableGridView = ({
                     handleUpdate={handleUpdate}
                     isEditing={isEditing}
                     selectedValue={selectedListItem}
+                    isDesignModalOpened={isDesignModalOpened}
                 />}
                 {
                     isManageTeamVisible &&

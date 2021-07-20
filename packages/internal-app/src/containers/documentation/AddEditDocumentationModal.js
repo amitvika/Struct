@@ -13,6 +13,8 @@ import { uploadFileS3Bucket } from '@ravibasil/common/api/aws';
 import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 import Popover from '@material-ui/core/Popover';
 import Typography from '@material-ui/core/Typography';
+import FileHistory from '@ravibasil/common/containers/design/FileHistory'
+import FileUpload from '@ravibasil/common/containers/design/FileUpload'
 
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -34,6 +36,7 @@ const useStyles = makeStyles((theme) => ({
 export default function AddDocumentationModal({ open, toggleModal, handleUpdate, isEditing, selectedValue }) {
     const classes = useStyles();
     // const [docs, setdocs] = useState([]);
+    const [isDesignModalOpened, setIsDesignModalOpened] = useState(false);
     const [selectedFileName, setSelectedFileName] = useState('');
     const [documentValue, setdocumentValue] = useState({});
 
@@ -59,13 +62,19 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
         console.log(selectedValue)
     }, [selectedValue])
 
-    const handleOnChange = (name, value) => {
+    const handleOnChange = (name, data) => {
+
+        let file_history = documentValue.file_history || [];
+        if (name === "new_file") {
+            file_history = [data, ...file_history]
+        }
+
         setdocumentValue(preValue => ({
             ...preValue,
-            [name]: value
-        }))
+            [name]: data,
+            file_history
+        }));
     }
-
     const onChange = async event => {
         if (!event.target.files[0]) {
             return;
@@ -171,31 +180,10 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
                     />
                 </Grid>
 
-                <Grid item xs={4}>
-                    <Headding bold title={'Upload File'} />
-                </Grid>
-                <Grid item xs={8} style={{ display: 'flex' }}>
-                    <div>
-                        <Button
-                            variant="contained"
-                            component="label">
-                            Select File
-                            <input
-                                onChange={onChange}
-                                type="file"
-                                hidden
-                            />
-                        </Button>
-                    </div>
-                </Grid>
-                {
-                    documentValue.file_url &&
-                    <Grid item xs={12}>
-                        <DocViewer
-                            pluginRenderers={DocViewerRenderers}
-                            documents={[{ uri: documentValue.file_url }]} />
-                    </Grid>
-                }
+                <FileUpload value={documentValue} handleOnChange={handleOnChange} isDesignModalOpened={isDesignModalOpened} />
+                <FileHistory file_history={documentValue.file_history} />
+
+
 
 
                 <Grid item xs={12} className={classes.action_button}>

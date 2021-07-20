@@ -14,7 +14,6 @@ import FileHistory from './FileHistory';
 
 export default function AddUpdateModal({ title, fields, open, toggleModal, handleUpdate, isEditing, selectedValue }) {
     const [value, setValue] = useState({});
-
     const [isTypeSelected, setIsTypeSelected] = useState(false)
     const [selectedType, setSelectedType] = useState('')
 
