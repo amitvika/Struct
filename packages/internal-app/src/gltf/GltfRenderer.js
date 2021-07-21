@@ -335,7 +335,7 @@ class GLTFRenderer extends Component {
                 size=1;
             }
            
-            if(this.defaultCamera.isPerspectiveCamera) {
+            if(this.defaultCamera && this.defaultCamera.isPerspectiveCamera) {
                 size = size3D.length() || 1;
             }
             //console.log(size,size3D.length());
@@ -348,7 +348,7 @@ class GLTFRenderer extends Component {
             //console.log('AABB centre', center);
             //console.log('obj pos', object.position);
             //console.log(this.originalposition,object.position,size,size3D,center);
-            if(this.defaultCamera.isOrthographicCamera) {
+            if(this.defaultCamera && this.defaultCamera.isOrthographicCamera) {
               
                 //console.log(size, this.defaultCamera.zoom);
                 if((size/2) < this.defaultCamera.right) {
