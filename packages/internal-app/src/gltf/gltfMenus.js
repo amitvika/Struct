@@ -5,165 +5,257 @@ import PhotoSizeSelectActualOutlinedIcon from '@material-ui/icons/PhotoSizeSelec
 export const myMenus =  [ { 
           folder:'Display',
           icon:<AddToQueueOutlinedIcon/>,
-          values: {
-            view: "Orthographic",
-            side: "Front",
-            opaque: "True",
-            wiremesh: false,
-            skeleton: false,
-            grid: false,
-            autoRotate: false,
-            screenSpacePanning: false,
-            ctrlKey:false
-          },
-          fields: [{
-            name: 'View',
-            type: 'radio',
-            items: ["Orthographic","Perspective"],
-            key: 'view'   
-          }, {
-            name: 'Side',
-            type: 'radio',
-            items: ["Front","Back","Both"],
-            key: 'side'   
-          }, {
-            name: 'Opaque',
-            type: 'radio',
-            items: ["True","False","Self"],
-            key: 'opaque'   
-          }, {
-            name: 'Wire Mesh',
-            type: 'checkbox',
-            key: 'wiremesh'   
-          }, {
-            name: 'Skeleton',
-            type: 'checkbox',
-            key: 'skeleton'   
-          }, {
-            name: 'Grid',
-            type: 'checkbox',
-            key: 'grid'   
-          }, {
-            name: 'Auto Rotate',
-            type: 'checkbox',
-            key: 'autoRotate'   
-          }, {
-            name: 'Screen Space Panning',
-            type: 'checkbox',
-            key: 'screenSpacePanning'   
-          }
-          ]
+          groups:[ {
+              name: 'view',
+              values: {
+                view: "Orthographic",
+                ctrlKey:false
+              },
+              fields: [{
+                name: 'View',
+                type: 'radio',
+                items: ["Orthographic","Perspective"],
+                key: 'view'   
+              }] 
+            }, {
+              name:'side',
+              values: {                
+                side: "Front",
+                ctrlKey:false
+              },
+              fields: [{
+                name: 'Side',
+                type: 'radio',
+                items: ["Front","Back","Both"],
+                key: 'side'   
+              }] 
+            }, {
+                name: 'opaque',
+                values: {
+                  opaque: "True",
+                  wiremesh: false,                  
+                  ctrlKey:false
+                },
+                fields: [{
+                  name: 'Opaque',
+                  type: 'radio',
+                  items: ["True","False","Self"],
+                  key: 'opaque'   
+                }] 
+            }, {
+                name:'mesh',
+                values: {
+                  wiremesh: false,
+                  skeleton: false,
+                  grid: false,                  
+                  ctrlKey:false
+                },
+                fields: [ {
+                  name: 'Wire Mesh',
+                  type: 'checkbox',
+                  key: 'wiremesh'   
+                }, {
+                  name: 'Skeleton',
+                  type: 'checkbox',
+                  key: 'skeleton'   
+                }, {
+                  name: 'Grid',
+                  type: 'checkbox',
+                  key: 'grid'   
+                }] 
+              }, {
+                name:'space',
+                values: {
+                  autoRotate: false,
+                  screenSpacePanning: false,
+                  ctrlKey:false
+                },
+                fields: [{
+                  name: 'Auto Rotate',
+                  type: 'checkbox',
+                  key: 'autoRotate'   
+                }, {
+                  name: 'Screen Space Panning',
+                  type: 'checkbox',
+                  key: 'screenSpacePanning'   
+                }] 
+              } 
+            ]         
         }, { 
-          folder:'Speed',
+          folder:'Controls',
           icon:<SpeedOutlinedIcon/>,
-          values: {
-            zoomSpeed: 0.1,
-            panSpeed: 1.0,
-            rotateSpeed: 2.0
-          },
-          fields: [{
-            name: 'Zoom',
-            type: 'slider',
-            auto: 'auto',
-            step: 0.1,
-            min:  0.0, 
-            max:  3.0, 
-            key: 'zoomSpeed'   
-          }, {
-            name: 'Pan',
-            type: 'slider',
-            auto: 'auto',
-            step: 0.1,
-            min:  0.0, 
-            max:  3.0, 
-            key: 'panSpeed'   
-          }, {
-            name: 'Rotation',
-            type: 'slider',
-            auto: 'auto',
-            step: 0.1,
-            min:  0.0, 
-            max:  3.0, 
-            key: 'rotateSpeed'   
-          } 
-          ]
+          groups:[ {
+            name:'speed',
+            values: {
+              zoomSpeed: 0.3,
+              panSpeed: 1.0,
+              rotateSpeed: 2.0,
+              ctrlKey:false
+            },
+            fields: [{
+              name: 'Zoom Speed',
+              type: 'slider',
+              auto: 'auto',
+              step: 0.1,
+              min:  0.0, 
+              max:  1.0, 
+              key: 'zoomSpeed'   
+            }, {
+              name: 'Pan Speed',
+              type: 'slider',
+              auto: 'auto',
+              step: 0.1,
+              min:  0.0, 
+              max:  3.0, 
+              key: 'panSpeed'   
+            }, {
+              name: 'Rotation Speed',
+              type: 'slider',
+              auto: 'auto',
+              step: 0.1,
+              min:  0.0, 
+              max:  3.0, 
+              key: 'rotateSpeed'   
+            } ] 
+         }, {
+            name:'zoom',
+            values: {
+              zoomToCursor: true,
+              maxZoomIn: 50.0,
+              maxZoomOut: 50.0,
+              ctrlKey:false
+            },
+            fields: [{
+              name: 'Zoom to Cursor',
+              type: 'checkbox',
+              key: 'zoomToCursor'   
+            }, {
+              name: 'Maximum Zoom In',
+              type: 'slider',
+              auto: 'auto',
+              step: 0.1,
+              min:  1.0, 
+              max:  100.0, 
+              key: 'maxZoomIn'   
+            }, {
+              name: 'Maximum Zoom Out',
+              type: 'slider',
+              auto: 'auto',
+              step: 0.1,
+              min:  1.0, 
+              max:  100.0, 
+              key: 'maxZoomOut'   
+            }] 
+          }
+        ]
         }, { 
           folder:'Lighiting',
           icon:<SettingsBrightnessOutlinedIcon/>,
-          values: {
-            textureEncoding:"sRGB",
-            outputEncoding:"sRGB",
-            exposure: 1.0,
-            addLights: true,
-            ambientIntensity: 1.0,
-            ambientColor: 0xFFFFFF,
-            directIntensity: 0.8 * Math.PI,  
-            directColor: 0xFFFFFF,
-            ctrlKey:false
-          },
-          fields: [{
-            name: 'Texture Encoding',
-            type: 'radio',
-            items: ["sRGB","Linear"],
-            key: 'textureEncoding'   
+          groups:[ {
+            name:'textureEncoding',
+            values: {
+              textureEncoding:"sRGB",            
+              ctrlKey:false
+            },
+            fields: [{
+              name: 'Texture Encoding',
+              type: 'radio',
+              items: ["sRGB","Linear"],
+              key: 'textureEncoding'   
+            }]
           }, {
-            name: 'Output Encoding',
-            type: 'radio',
-            items: ["sRGB","Linear"],
-            key: 'outputEncoding'   
+            name:'outputEncoding',
+            values: {           
+              outputEncoding:"sRGB",
+              ctrlKey:false
+            },
+            fields: [{
+              name: 'Output Encoding',
+              type: 'radio',
+              items: ["sRGB","Linear"],
+              key: 'outputEncoding'   
+            } ]
           }, {
-            name: 'Exposure',
-            type: 'slider',
-            auto: 'auto',
-            step: 0.1,
-            min:  0.0, 
-            max:  2.0, 
-            key: 'exposure'   
-          },  {
-            name: 'Add Lights',
-            type: 'checkbox',
-            key: 'addLights'   
+            name:'lights',
+            values: {
+              exposure: 1.0,
+              addLights: true,            
+              ctrlKey:false
+            },
+            fields: [{
+              name: 'Exposure',
+              type: 'slider',
+              auto: 'auto',
+              step: 0.1,
+              min:  0.0, 
+              max:  2.0, 
+              key: 'exposure'   
+            },  {
+              name: 'Add Lights',
+              type: 'checkbox',
+              key: 'addLights'   
+            }]
           }, {
-            name: 'Ambient Intensity',
-            type: 'slider',
-            auto: 'auto',
-            step: 0.1,
-            min:  0.0, 
-            max:  2.0, 
-            key: 'ambientIntensity'   
+            name:'ambient',
+            values: {
+              ambientIntensity: 1.0,
+              ambientColor: 0xFFFFFF,
+              ctrlKey:false
+            },
+            fields: [{
+              name: 'Ambient Intensity',
+              type: 'slider',
+              auto: 'auto',
+              step: 0.1,
+              min:  0.0, 
+              max:  2.0, 
+              key: 'ambientIntensity'   
+            }, {
+              name: 'Ambient Color',
+              type: 'color',
+              default: 0xFFFFFF, 
+              key: 'ambientColor'               
+            } ]
           }, {
-            name: 'Ambient Color',
-            type: 'color',
-            default: 0xFFFFFF, 
-            key: 'ambientColor'               
-          }, {
-            name: 'Direct Intensity',
-            type: 'slider',
-            auto: 'auto',
-            step: 0.1,
-            min:  0.0, 
-            max:  2.0, 
-            key: 'directIntensity'   
-          }, {
-            name: 'Direct Color',
-            type: 'color',
-            default: 0xFFFFFF, 
-            key: 'directColor'               
-          } 
-          ]
+            name:'direct',
+            values: {
+              directIntensity: 0.8 * Math.PI,  
+              directColor: 0xFFFFFF,
+              ctrlKey:false
+            },
+            fields: [{
+              name: 'Direct Intensity',
+              type: 'slider',
+              auto: 'auto',
+              step: 0.1,
+              min:  0.0, 
+              max:  2.0, 
+              key: 'directIntensity'   
+            }, {
+              name: 'Direct Color',
+              type: 'color',
+              default: 0xFFFFFF, 
+              key: 'directColor'               
+            } ]
+          }
+        ]
         } ,{ 
           folder:'Selection',
           icon:<PhotoSizeSelectActualOutlinedIcon/>,
-          values: {
-            selectedOption:"Specify Assembly Mates and GD&T",
-            ctrlKey:false            
-          },
-          fields: [{
-            name: 'Select Features',
-            type: 'radio',
-            items: ["Assemblies","Parts","Edges","Specify Assembly Mates and GD&T"],
-            key: 'selectedOption'   
-          }]
+          groups:[ {
+            name:'selection',
+            values: {
+              selectedOption:"Specify Assembly Mates and GD&T",
+              ctrlKey:false            
+            },
+            fields: [{
+              name: 'Select Features',
+              type: 'radio',
+              items: ["Assemblies","Parts","Edges","Specify Assembly Mates and GD&T"],
+              key: 'selectedOption'   
+            }]
+          }
+        ]
         }
       ];
 

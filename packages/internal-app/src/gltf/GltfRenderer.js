@@ -8,6 +8,8 @@ import {
     AnimationMixer,
     AxesHelper,
     Box3,
+    //Box2,
+    Matrix4,
     Cache,
     CubeTextureLoader,
     DirectionalLight,
@@ -44,7 +46,7 @@ import { Float32BufferAttribute } from './BufferAttribute.js';
 //import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { GLTFLoader, GLTFParser } from './gltfloader.js';
 //import { OrbitControls } from './OrbitControl.js';//'three/examples/jsm/controls/OrbitControls.js';
-import index, { GUI } from './GUI.js';
+import { GUI } from './GUI.js';
 //import CameraSpinControls from './CameraSpinControls.js';
 import { TrackballControls } from "./TrackballControls.js";
 
@@ -67,8 +69,9 @@ import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
 //import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import SimpleFormBuilder from './SimpleFormBuilder';
+import GroupFormBuilder from './GroupFormBuilder';
 import {myMenus} from './gltfMenus';
+//import { Box } from "@material-ui/core";
 
 
   
@@ -147,9 +150,12 @@ class GLTFRenderer extends Component {
         grid: false,
         side: "Front",
         view: "Orthographic",
-        zoomSpeed: 0.1,
+        zoomSpeed: 0.3,
         rotateSpeed: 2.0,
         panSpeed: 1.0,
+        zoomToCursor:true,
+        maxZoomIn: 50.0,
+        maxZoomOut: 50.0,
         // Lights
         addLights: true,
         exposure: 1.0,
@@ -162,6 +168,7 @@ class GLTFRenderer extends Component {
         intersectedShell: null,
         anchorEls:new Array(myMenus.length),
         selectedmenu:0,
+        displaytext:null,
 
     };
     state_selectedObjects = [];
@@ -282,8 +289,9 @@ class GLTFRenderer extends Component {
         this.controls.screenSpacePanning = false;
         this.controls.staticMoving = true;
         this.controls.rotateSpeed = this.state.rotateSpeed;
-        this.controls.noZoom = true; //this.defaultCamera.isPerspectiveCamera;
+        this.controls.noZoom = this.state.zoomToCursor; //this.defaultCamera.isPerspectiveCamera;
         this.controls.zoomSpeed = this.state.zoomSpeed;
+        this.controls.emSpeed = Math.pow(this.controls.zoomSpeed,1.0/this.OrthographicInitialzoom);
         this.controls.panSpeed = this.state.panSpeed;
         this.controls.addEventListener('start', this.controlsStart.bind(this),false);
         this.controls.addEventListener('change', this.updateCameraSpinUI.bind(this),false);
@@ -318,14 +326,16 @@ class GLTFRenderer extends Component {
             
 
             const box = new Box3().setFromObject(object);
+            
+            //console.log('old values');
             const size3D = box.getSize(new Vector3());
-
+            //console.log(size3D);
             let size = Math.max(size3D.x,size3D.y,size3D.z);
             if(size <=0) {
                 size=1;
             }
            
-            if(this.defaultCamera.isPerspectiveCamera) {
+            if(this.defaultCamera && this.defaultCamera.isPerspectiveCamera) {
                 size = size3D.length() || 1;
             }
             //console.log(size,size3D.length());
@@ -335,8 +345,10 @@ class GLTFRenderer extends Component {
                     this.controls.reset();
                 }
             }
+            //console.log('AABB centre', center);
+            //console.log('obj pos', object.position);
             //console.log(this.originalposition,object.position,size,size3D,center);
-            if(this.defaultCamera.isOrthographicCamera) {
+            if(this.defaultCamera && this.defaultCamera.isOrthographicCamera) {
               
                 //console.log(size, this.defaultCamera.zoom);
                 if((size/2) < this.defaultCamera.right) {
@@ -347,6 +359,7 @@ class GLTFRenderer extends Component {
                 }
                 this.defaultCamera.zoom = this.defaultCamera.right / size;
                 this.OrthographicInitialzoom = this.defaultCamera.zoom;
+                this.controls.emSpeed = Math.pow(this.controls.zoomSpeed,1.0/this.OrthographicInitialzoom);
                 //console.log( this.defaultCamera.zoom);
                 //console.log("Initial",this.defaultCamera.zoom, this.defaultCamera.top, this.defaultCamera.left, this.defaultCamera.bottom, this.defaultCamera.right);
                 this.defaultCamera.updateProjectionMatrix(); 
@@ -358,45 +371,52 @@ class GLTFRenderer extends Component {
             object.position.x += (this.shiftposition.x);
             object.position.y += (this.shiftposition.y);
             object.position.z += (this.shiftposition.z);
-        
             
+            //console.log('new values');
+            this.orthogonalImageBox = new Box3().setFromObject(object);
+            //console.log(this.orthogonalImageBox.getSize(new Vector3()));
+            //console.log('AABB centre', this.orthogonalImageBox.getCenter(new Vector3()));
+            //console.log('obj pos', object.position);
+
             if(this.controls) {
                 this.controls.maxDistance = size * 10;
             }
-    
-            this.defaultCamera.near = size / 100;
-            this.defaultCamera.far = size * 100;
-            //console.log("setting1",size,this.defaultCamera);
-            this.defaultCamera.updateProjectionMatrix();
-            //console.log("setting2",size,this.defaultCamera);
-            if (this.props.cameraPosition) {
-    
-                this.defaultCamera.position.fromArray(this.props.cameraPosition);
-                this.defaultCamera.cameraposition=new Vector3();
-                this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
-                //console.log("setting3",size,this.defaultCamera);
-    
-            } else {
-    
-                this.defaultCamera.position.copy(center);
-                this.defaultCamera.position.x += size / 2.0;
-                this.defaultCamera.position.y += size / 2.0;
-                this.defaultCamera.position.z += size / 2.0;
-                this.defaultCamera.cameraposition=center;
-                this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
-                //console.log("setting4",size,this.defaultCamera);
-                
+            if(this.defaultCamera) {
+                this.defaultCamera.near = size / 100;
+                this.defaultCamera.far = size * 100;
+                //console.log("setting1",size,this.defaultCamera);
+                this.defaultCamera.updateProjectionMatrix();
+                //console.log("setting2",size,this.defaultCamera);
+                if (this.props.cameraPosition) {
+        
+                    this.defaultCamera.position.fromArray(this.props.cameraPosition);
+                    this.defaultCamera.cameraposition=new Vector3();
+                    this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
+                    //console.log("setting3",size,this.defaultCamera);
+        
+                } else {
+        
+                    this.defaultCamera.position.copy(center);
+                    this.defaultCamera.position.x += size / 2.0;
+                    this.defaultCamera.position.y += size / 2.0;
+                    this.defaultCamera.position.z += size / 2.0;
+                    this.defaultCamera.cameraposition=center;
+                    this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
+                    //console.log("setting4",size,this.defaultCamera);
+                    
+                }
+        
+                this.setCamera(DEFAULT_CAMERA);
+                //console.log(box,object,this.defaultCamera,object.position,this.defaultCamera.cameraposition,center,this.props.cameraPosition);
+        
+                this.axesCamera.position.copy(this.defaultCamera.position)
+                this.axesCamera.lookAt(this.axesScene.position)
+                this.axesCamera.near = size / 100;
+                this.axesCamera.far = size * 100;
+                this.axesCamera.updateProjectionMatrix();
+                this.axesCorner.scale.set(size, size, size);
             }
-    
-            this.setCamera(DEFAULT_CAMERA);
-            //console.log(box,object,this.defaultCamera,object.position,this.defaultCamera.cameraposition,center,this.props.cameraPosition);
-    
-            this.axesCamera.position.copy(this.defaultCamera.position)
-            this.axesCamera.lookAt(this.axesScene.position)
-            this.axesCamera.near = size / 100;
-            this.axesCamera.far = size * 100;
-            this.axesCamera.updateProjectionMatrix();
-            this.axesCorner.scale.set(size, size, size);
+            
             if(this.controls) {
                 if(this.controls.saveState){
                     this.controls.saveState();
@@ -413,8 +433,9 @@ class GLTFRenderer extends Component {
         this.clips = [];
         this.gui = null;
         let myView = this.props.view;
+        this.OrthographicInitialzoom=1;
         if(myMenus && myMenus.length>0) {
-            myView = myView || myMenus[0].values.view;
+            myView = myView || myMenus[0].groups[0].values.view;
         }
         //console.log("myview",myView);
         this.setState({view:myView||"Orthographic"});
@@ -506,10 +527,16 @@ class GLTFRenderer extends Component {
             //this.controls.addEventListener('change', this.updateCameraSpinUI.bind(this),false);
             //this.controls.addEventListener('end', this.controlsEnd.bind(this),false);
             if(myMenus && myMenus.length>0) {
-                myMenus[0].values.view=myView;
+                myMenus[0].groups[0].values.view=myView;
+                //console.log("My Menus", myMenus);
                 for (let index = 0; index < myMenus.length; index++) {
-                    if(this.props.fileGDT || (index < 3)) {
-                        this.changeValues(myMenus[index].values,index);  
+                    //console.log("My Groups", myMenus[index].groups);
+                    if(this.props.fileGDT || (index < 3)) {                        
+                        for (let group = 0; group < myMenus[index].groups.length; group++) {
+                            //console.log("My Fields and Values",myMenus[index].groups[group]);
+                            this.changeValues(myMenus[index].groups[group].values,index,group,myMenus[index].folder,myMenus[index].groups[group].name);  
+                        }
+                       
                     }                              
                 }            
             }
@@ -551,6 +578,7 @@ class GLTFRenderer extends Component {
         } else {
             innerWidth = window.innerWidth;
             innerHeight = window.innerHeight;
+            //console.log("Window",innerWidth,innerHeight)
         }  
         if(innerHeight==0) {
             innerWidth=innerHeight;            
@@ -573,6 +601,7 @@ class GLTFRenderer extends Component {
         viewport.left = -viewport.right;
         viewport.top = viewport.right;
         viewport.bottom = -viewport.right; 
+        //console.log(viewport);
         return viewport; 
         //return (-1,1,1,-1);   
     };
@@ -900,25 +929,27 @@ class GLTFRenderer extends Component {
 
     addLights = (myAmbientIntensity,myAmbientColor,myDirectIntensity,myDirectColor) => {
         //const state = this.state;
-
-        if (this.props.preset === Preset.ASSET_GENERATOR) {
-            const hemiLight = new HemisphereLight();
-            hemiLight.name = 'hemi_light';
-            this.scene.add(hemiLight);
-            this.lights.push(hemiLight);
-            return;
+        if(this.defaultCamera) {
+            if (this.props.preset === Preset.ASSET_GENERATOR) {
+                const hemiLight = new HemisphereLight();
+                hemiLight.name = 'hemi_light';
+                this.scene.add(hemiLight);
+                this.lights.push(hemiLight);
+                return;
+            }
+    
+            this.light1 = new AmbientLight(myAmbientColor, myAmbientIntensity);
+            this.light1.name = 'ambient_light';
+            this.defaultCamera.add(this.light1);
+    
+            this.light2 = new DirectionalLight(myDirectColor, myDirectIntensity);
+            this.light2.position.set(0.5, 0, 0.866); // ~60ยบ
+            this.light2.name = 'main_light';
+            this.defaultCamera.add(this.light2);
+    
+            this.lights.push(this.light1, this.light2);
         }
-
-        this.light1 = new AmbientLight(myAmbientColor, myAmbientIntensity);
-        this.light1.name = 'ambient_light';
-        this.defaultCamera.add(this.light1);
-
-        this.light2 = new DirectionalLight(myDirectColor, myDirectIntensity);
-        this.light2.position.set(0.5, 0, 0.866); // ~60ยบ
-        this.light2.name = 'main_light';
-        this.defaultCamera.add(this.light2);
-
-        this.lights.push(this.light1, this.light2);
+        
     };
 
     removeLights = () => {
@@ -930,6 +961,7 @@ class GLTFRenderer extends Component {
 
     updateLights = (myExposure,myAddLights,myAmbientIntensity,
         myAmbientColor,myDirectIntensity,myDirectColor) => {
+        
         //const state = this.state;
         const lights = this.lights;
 
@@ -1477,14 +1509,27 @@ class GLTFRenderer extends Component {
     };
 
     getMouseCoOrdinates=(vector)=>{
+
+
         const myrect = this.node ? this.node.getBoundingClientRect() : { "left": 0, "top": 0 };
         const leftShift = this.node ? myrect.left : 0;
         const topShift = this.node ? myrect.top : 0;
         const innerWidth = this.node ? this.node.clientWidth : window.innerWidth;
         const innerHeight = this.node ? this.node.clientHeight : window.innerHeight;
+        //console.log("MYRECT",myrect,innerWidth,innerHeight);
+        var pos = new Vector3().copy(vector);
+        
+        let projScreenMat = new Matrix4();
+        projScreenMat.multiplyMatrices(this.activeCamera.projectionMatrix,  this.activeCamera.matrixWorldInverse);
+        pos.applyMatrix4(projScreenMat);
+       
+        //pos.project(this.activeCamera);
+        console.log("Projected",pos,vector);
+
         let thismouse = new Vector2();
-        thismouse.x = Math.round((0.5 + vector.x / 2) * (innerWidth / window.devicePixelRatio))+leftShift;
-        thismouse.y = Math.round((0.5 - vector.y / 2) * (innerHeight / window.devicePixelRatio))+topShift;
+        //console.log(leftShift,topShift,pos.x,pos.y);
+        thismouse.x = Math.round((1 + pos.x ) * (innerWidth) / 2)+leftShift;
+        thismouse.y = Math.round((1 - pos.y ) * (innerHeight) / 2)+topShift;
         return thismouse;
     };
     
@@ -1717,13 +1762,13 @@ class GLTFRenderer extends Component {
         event.preventDefault();    
         this.setMouseCoOrdinates(event);
         
-        if(this.controls && this.activeCamera) {
+        if(this.controls && this.controls.noZoom && this.activeCamera ) {
 
             
             if ( this.activeCamera.isPerspectiveCamera ) {
                 let facpowfac = Math.pow(this.controls.zoomSpeed,this.controls.zoomSpeed);
                 let factor = (facpowfac)/(1+facpowfac);
-                 factor *= this.controls.zoomSpeed ;
+                factor *= this.controls.zoomSpeed ;
                 var vector = new Vector3(this.mouse.x, this.mouse.y, 0.5 );
                 vector.unproject(this.activeCamera);
                 vector.subVectors(this.activeCamera.position,vector); 
@@ -1740,26 +1785,29 @@ class GLTFRenderer extends Component {
                     myTarget.addVectors(this.controls.target,vector.setLength(factor));                   
                     //console.log("Reset4",this.controls.target);
                 }
-                if ( (myPosition.x <0 || myPosition.y <0) ||
+                /* if ( (myPosition.x <0 || myPosition.y <0) ||
                      (myPosition.x > 1000 || myPosition.y > 1000 || myTarget.x > 1000 || myTarget.y > 1000 ) ) {
                     //myPosition = new Vector3().copy(this.activeCamera.position);  
-                    //myTarget = new Vector3().copy(this.controls.target);    
-                    toTransform = false;             
-                }   
+                    //myTarget = new Vector3().copy(this.controls.target); 
+                    console.log("Perspective",myPosition,myTarget);     
+                    toTransform = true;             
+                }  */  
                 if(toTransform) {
                     this.activeCamera.position.copy(myPosition);
                     this.controls.target.copy(myTarget);                   
                     this.activeCamera.updateProjectionMatrix();
-                } 
+                } else {
+                    console.log("PerspectiveZoom ",myPosition,myTarget);  
+                }
             } else  if ( this.activeCamera.isOrthographicCamera ) {
                  
                 const prevzoom = this.activeCamera.zoom;
                 let currentzoom = this.activeCamera.zoom;
                 let lessthan = true;
-                let facpowfac = Math.pow(this.controls.zoomSpeed,currentzoom);
+                let facpowfac = Math.pow(this.controls.emSpeed,currentzoom);
                 let factor = - (facpowfac);
-                //console.log(facpowfac,factor,this.controls.zoomSpeed,this.controls.zoomSpeed^this.controls.zoomSpeed);
-                factor *= this.controls.zoomSpeed ;
+                //console.log(facpowfac,factor,this.controls.zoomSpeed,this.controls.emSpeed);
+                factor *= this.controls.emSpeed ;
                 //console.log(factor);
                 if (event.deltaY < 0) {
                     currentzoom = prevzoom -factor;
@@ -1769,8 +1817,8 @@ class GLTFRenderer extends Component {
                     lessthan=false;
                 }  
                 let toTransform = true;
-                if(currentzoom <= (this.OrthographicInitialzoom/2)) {                    
-                    factor = prevzoom-1;
+                if(currentzoom <=  (this.OrthographicInitialzoom/this.state.maxZoomOut)) {                    
+                    //factor = prevzoom-this.OrthographicInitialzoom;
                     if(factor >0) {
                         factor = -factor;
                         lessthan = false;
@@ -1779,9 +1827,24 @@ class GLTFRenderer extends Component {
                     }
                     toTransform = false;
                     //console.log("I can do",this.OrthographicInitialzoom,currentzoom,"Hence not doing");
-                    currentzoom =1;
+                    currentzoom =prevzoom -factor;
+                } else {
+                    if(currentzoom >= (this.OrthographicInitialzoom*this.state.maxZoomIn)) {                    
+                        //factor = prevzoom-this.OrthographicInitialzoom;
+                        if(factor >0) {
+                            factor = -factor;
+                            lessthan = true;
+                        } else {
+                            lessthan = false;
+                        }
+                        toTransform = false;
+                        //console.log("I can do",this.OrthographicInitialzoom,currentzoom,"Hence not doing");
+                        currentzoom =prevzoom +factor;
+                    }
                 }
-                
+                //console.log("What a beauty", currentzoom,toTransform,this.OrthographicInitialzoom/this.state.maxZoomIn,this.OrthographicInitialzoom*this.state.maxZoomOut);
+                if(!toTransform) return;
+                //console.log(currentzoom,this.OrthographicInitialzoom*5,this.OrthographicInitialzoom/2);
                 let zoomDirection = new Vector3(this.mouse.x, this.mouse.y, (this.activeCamera.near + this.activeCamera.far)/(this.activeCamera.near - this.activeCamera.far));
                /*  zoomDirection.unproject(this.activeCamera);  
                 let revVector = new Vector3().copy(zoomDirection).project(this.activeCamera);
@@ -1793,21 +1856,65 @@ class GLTFRenderer extends Component {
                     .sub(this.activeCamera.position)
                     .multiplyScalar(factor / currentzoom);
                 //console.log((currentzoom-prevzoom) / currentzoom,event.deltaY,zoomDirection);
-                let myPosition = new Vector3().copy( this.activeCamera.position );
-                let myTarget = new Vector3().copy(this.controls.target);
+                //const myClonePosition = new Vector3().copy( this.activeCamera.position );
+                //const myCloneTarget = new Vector3().copy(this.controls.target);
+                //const myCloneZoom = this.activeCamera.zoom;
+
+                /* let myPosition = new Vector3().copy( this.activeCamera.position );
+                let myTarget = new Vector3().copy(this.controls.target); */
                 if(lessthan) {
-                    myPosition.subVectors(this.activeCamera.position, zoomDirection);
-                    myTarget.subVectors(this.controls.target, zoomDirection);
+                    this.activeCamera.position.subVectors(this.activeCamera.position, zoomDirection);
+                    this.controls.target.subVectors(this.controls.target, zoomDirection);
                 } else {
-                    myPosition.addVectors(this.activeCamera.position, zoomDirection);
-                    myTarget.addVectors(this.controls.target, zoomDirection);
+                    this.activeCamera.position.addVectors(this.activeCamera.position, zoomDirection);
+                    this.controls.target.addVectors(this.controls.target, zoomDirection);
                 }    
-              
-                if ( (myPosition.x <0 || myPosition.y <0) ||
+                this.activeCamera.zoom =  currentzoom;
+                //let k = 0;
+                //let dir = this.activeCamera.getWorldDirection(new Vector3());
+                //console.log('camera dir',  dir, this.activeCamera.zoom,this.OrthographicInitialzoom/2 );
+                //this.activeCamera.position.add(  this.activeCamera.getWorldDirection(new Vector3()) * k );
+
+                this.activeCamera.updateProjectionMatrix();
+                if(this.orthogonalImageBox && this.state.displaytext) {
+                    const startx = this.orthogonalImageBox.min.x //+this.shiftposition.x;
+                    const starty = this.orthogonalImageBox.min.y //+this.shiftposition.y;
+                    const startz = this.orthogonalImageBox.min.z //+this.shiftposition.z;
+                    const lowerBox=new Vector3(startx, starty, startz);
+                    
+                    const upperBox=new Vector3(startx+this.orthogonalImageBox.max.x-this.orthogonalImageBox.min.x,
+                        starty+this.orthogonalImageBox.max.y-this.orthogonalImageBox.min.y,
+                        startz+this.orthogonalImageBox.max.z-this.orthogonalImageBox.min.z+this.shiftposition.z);
+                   /*  const u1=new Vector3(this.orthogonalImageBox.max.x,this.orthogonalImageBox.min.y,this.orthogonalImageBox.min.z);
+                    const u2=new Vector3(this.orthogonalImageBox.min.x,this.orthogonalImageBox.max.y,this.orthogonalImageBox.min.z);
+                    const u3=new Vector3(this.orthogonalImageBox.min.x,this.orthogonalImageBox.min.y,this.orthogonalImageBox.max.z);
+                    const u4=new Vector3(this.orthogonalImageBox.max.x,this.orthogonalImageBox.max.y,this.orthogonalImageBox.min.z);
+                    const u5=new Vector3(this.orthogonalImageBox.min.x,this.orthogonalImageBox.max.y,this.orthogonalImageBox.max.z);
+                    const u6=new Vector3(this.orthogonalImageBox.max.x,this.orthogonalImageBox.min.y,this.orthogonalImageBox.max.z);
+                    */
+                    //console.log(lowerBox,upperBox);
+                    //lowerBox.project(this.activeCamera);
+                    //upperBox.project(this.activeCamera);
+                    const lowerBoxScreen = this.getMouseCoOrdinates(lowerBox);
+                    const upperBoxScreen = this.getMouseCoOrdinates(upperBox);
+                    const myrect =  this.node.getBoundingClientRect();
+                    const lowXOutside = (lowerBoxScreen.x < myrect.x || lowerBoxScreen.x > myrect.x+myrect.width);
+                    const upperXOutside = (upperBoxScreen.x < myrect.x || upperBoxScreen.x > myrect.x+myrect.width);
+                    const lowYOutside = (lowerBoxScreen.y < myrect.y || lowerBoxScreen.x > myrect.y+myrect.height);
+                    const upperYOutside = (upperBoxScreen.y < myrect.y || upperBoxScreen.x > myrect.y+myrect.height);
+
+                    //let mytext = "Lower 2D"+(lowerBoxScreen.x + "," + lowerBoxScreen.y)+"Upper 2D"+upperBoxScreen.toString()+"Event"+event.clientX.toString()+","+event.clientY.toString(); 
+
+                    //this.state.displaytext = mytext; //myrect,lowXOutside,lowYOutside,upperXOutside,upperYOutside).toString();
+                    console.log("Lower 3D",lowerBox,"Upper 3D",upperBox,"Lower 2D",lowerBoxScreen,"Upper 2D",upperBoxScreen,myrect,lowXOutside,lowYOutside,upperXOutside,upperYOutside);
+                    
+                }
+                /* if ( (myPosition.x <0 || myPosition.y <0) ||
                      (myPosition.x > 1000 || myPosition.y > 1000 || myTarget.x > 1000 || myTarget.y > 1000 ) ) {
                     //myPosition = new Vector3().copy(this.activeCamera.position);  
-                    //myTarget = new Vector3().copy(this.controls.target);    
-                    toTransform = false;             
+                    //myTarget = new Vector3().copy(this.controls.target); 
+                    console.log("Orthographic",myPosition,myTarget);   
+                    toTransform = true;             
                 }     
                    
                 if(toTransform) {
@@ -1815,10 +1922,14 @@ class GLTFRenderer extends Component {
                     this.controls.target.copy(myTarget);
                     this.activeCamera.zoom =  currentzoom;
                     this.activeCamera.updateProjectionMatrix();
+                    console.log("OrthographicZoomApplied",myPosition,myTarget,currentzoom,this.OrthographicInitialzoom); 
+ 
                 } else {
+                    console.log("OrthographicZoom",myPosition,myTarget,currentzoom,this.OrthographicInitialzoom); 
                     //console.log("I am not transforming",myPosition,myTarget);
                 }
-                
+                */
+
                 //console.log("After Wheel",currentzoom,prevzoom,this.activeCamera.position, this.controls.target);
                 /* var zoom = 0;
                 if (event.deltaY < 0) {
@@ -3131,111 +3242,181 @@ class GLTFRenderer extends Component {
         return SELECTFEATURE;       
     };
 
-    changeValues=(values,param)=>{
+    changeValues=(values,param,group,keyfolder,keyname)=>{
         let toSet=false;
-        //console.log(values);
+        //console.log(values,param,group);
         switch (param) {
             case 0:
-                if(values.view != this.state.view) {
-                    this.setState({view:values.view});
-                    this.addCameraAndControls(values.view);
-                }
                 toSet = false;
-                if(values.side != this.state.side) {
-                    this.setState({side:values.side});  
-                    toSet = true; 
-                }                
-                if(values.opaque != this.state.opaque) {
-                    this.setState({opaque:values.opaque});  
-                    toSet = true;  
+                switch (group) {
+                    case 0:
+                        if(values.view != this.state.view) {
+                            this.setState({view:values.view});
+                            this.addCameraAndControls(values.view);
+                        }
+                        break;
+                    case 1:
+                        if(values.side != this.state.side) {
+                            this.setState({side:values.side});  
+                            toSet = true; 
+                        } 
+                        if(toSet) {
+                            this.updateDisplay(values.side,this.state.opaque,
+                                this.state.wiremesh,this.state.skeleton,this.state.grid);
+                        } 
+                        break;
+                    case 2:
+                        if(values.opaque != this.state.opaque) {
+                            this.setState({opaque:values.opaque});  
+                            toSet = true;  
+                        }
+                        if(toSet) {
+                            this.updateDisplay(this.state.side,values.opaque,
+                                this.state.wiremesh,this.state.skeleton,this.state.grid);
+                        } 
+                        break;
+                    case 3:
+                        if(values.wiremesh != this.state.wiremesh) {
+                            this.setState({wiremesh:values.wiremesh});  
+                            toSet = true;
+                        }
+                        if(values.skeleton != this.state.skeleton) {
+                            this.setState({skeleton:values.skeleton});  
+                            toSet = true;
+                        }
+                        if(values.grid != this.state.grid) {
+                            this.setState({grid:values.grid}); 
+                            toSet = true;  
+                        }
+                        if(toSet) {
+                            this.updateDisplay(this.state.side,this.state.opaque,
+                                values.wiremesh,values.skeleton,values.grid);
+                        } 
+                        break;
+                    case 4:
+                        if(values.autoRotate != this.controls.autoRotate) {
+                            //console.log(values.autoRotate);
+                            this.controls.autoRotate = values.autoRotate;                   
+                        }
+                        if(values.screenSpacePanning != this.controls.screenSpacePanning) {
+                            this.controls.screenSpacePanning = values.screenSpacePanning;                   
+                        }
+                        break;
+                    default:
+                        break;
                 }
-                if(values.wiremesh != this.state.wiremesh) {
-                    this.setState({wiremesh:values.wiremesh});  
-                    toSet = true;
-                }
-                if(values.skeleton != this.state.skeleton) {
-                    this.setState({skeleton:values.skeleton});  
-                    toSet = true;
-                }
-                if(values.grid != this.state.grid) {
-                    this.setState({grid:values.grid}); 
-                    toSet = true;  
-                }
-                if(toSet) {
-                    this.updateDisplay(values.side,values.opaque,
-                        values.wiremesh,values.skeleton,values.grid);
-                }                
-                if(values.autoRotate != this.controls.autoRotate) {
-                    //console.log(values.autoRotate);
-                    this.controls.autoRotate = values.autoRotate;                   
-                }
-                if(values.screenSpacePanning != this.controls.screenSpacePanning) {
-                    this.controls.screenSpacePanning = values.screenSpacePanning;                   
-                }
-                
                 break;
             case 1:
-                if(values.zoomSpeed != this.state.zoomSpeed) {
-                    this.setState({zoomSpeed:values.zoomSpeed});
-                    if(this.controls) {
-                        this.controls.zoomSpeed = values.zoomSpeed;
-                    }   
-                }
-                if(values.panSpeed != this.state.panSpeed) {
-                    this.setState({panSpeed:values.panSpeed});
-                    if(this.controls) {
-                        this.controls.panSpeed = values.panSpeed;
-                    }   
-                }
-                if(values.rotateSpeed != this.state.rotateSpeed) {
-                    this.setState({rotateSpeed:values.rotateSpeed});
-                    if(this.controls) {
-                        this.controls.rotateSpeed = values.rotateSpeed;
-                    }   
-                }                
+                switch (group) {
+                    case 0:
+                        if(values.zoomSpeed != this.state.zoomSpeed) {
+                            this.setState({zoomSpeed:values.zoomSpeed});
+                            if(this.controls) {
+                                this.controls.zoomSpeed = values.zoomSpeed;
+                                this.controls.emSpeed = Math.pow(this.controls.zoomSpeed,1.0/this.OrthographicInitialzoom);
+                            }   
+                        }
+                        if(values.panSpeed != this.state.panSpeed) {
+                            this.setState({panSpeed:values.panSpeed});
+                            if(this.controls) {
+                                this.controls.panSpeed = values.panSpeed;
+                            }   
+                        }
+                        if(values.rotateSpeed != this.state.rotateSpeed) {
+                            this.setState({rotateSpeed:values.rotateSpeed});
+                            if(this.controls) {
+                                this.controls.rotateSpeed = values.rotateSpeed;
+                            }   
+                        } 
+                        break;
+                    case 1:
+                        if(values.zoomToCursor != this.state.zoomToCursor) {
+                            this.setState({zoomToCursor:values.zoomToCursor});
+                            if(this.controls) {
+                                this.controls.noZoom = values.zoomToCursor;
+                            }   
+                        }  
+                        if(values.maxZoomIn != this.state.maxZoomIn) {
+                            this.setState({maxZoomIn:values.maxZoomIn});                     
+                        }
+                        if(values.maxZoomOut != this.state.maxZoomOut) {
+                            this.setState({maxZoomOut:values.maxZoomOut});                  
+                        }  
+                        break;
+                    default:
+                        break;
+                }          
                 break;
             case 2:
-                if(values.textureEncoding != this.state.textureEncoding) {
-                    this.setState({textureEncoding:values.textureEncoding});
-                    this.updateTextureEncoding(values.textureEncoding);   
-                }  
-                if(values.outputEncoding != this.state.outputEncoding) {
-                    this.setState({outputEncoding:values.outputEncoding});
-                    if(this.renderer) {
-                        this.renderer.outputEncoding = values.outputEncoding=="sRGB" ? sRGBEncoding : LinearEncoding;
-                    }
-                    this.updateTextureEncoding(values.outputEncoding);   
-                }  
                 toSet=false;
-                if(values.exposure != this.state.exposure) {
-                    this.setState({exposure:values.exposure});
-                    toSet = true;
-                }  
-                if(values.addLights != this.state.addLights) {
-                    this.setState({addLights:values.addLights});
-                    toSet = true;
-                }  
-                if(values.ambientIntensity != this.state.ambientIntensity) {
-                    this.setState({ambientIntensity:values.ambientIntensity});
-                    toSet = true;
-                }  
-                if(values.ambientColor != this.state.ambientColor) {
-                    this.setState({ambientColor:values.ambientColor});
-                    toSet = true;
-                }  
-                if(values.directIntensity != this.state.directIntensity) {
-                    this.setState({directIntensity:values.directIntensity});
-                    toSet = true;
-                }  
-                if(values.directColor != this.state.directColor) {
-                    this.setState({directColor:values.directColor});
-                    toSet = true;
-                }  
-                if(toSet) {
-                    this.updateLights(values.exposure,values.addLights,values.ambientIntensity,
-                        values.ambientColor,values.directIntensity,values.directColor);  
+                switch (group) {
+                    case 0:
+                        if(values.textureEncoding != this.state.textureEncoding) {
+                            this.setState({textureEncoding:values.textureEncoding});
+                            this.updateTextureEncoding(values.textureEncoding);   
+                        }  
+                        break;
+                    case 1:
+                        if(values.outputEncoding != this.state.outputEncoding) {
+                            this.setState({outputEncoding:values.outputEncoding});
+                            if(this.renderer) {
+                                this.renderer.outputEncoding = values.outputEncoding=="sRGB" ? sRGBEncoding : LinearEncoding;
+                            }
+                            this.updateTextureEncoding(values.outputEncoding);   
+                        } 
+                        break;
+                    case 2:
+                        if(values.exposure != this.state.exposure) {
+                            this.setState({exposure:values.exposure});
+                            toSet = true;
+                        }  
+                        if(values.addLights != this.state.addLights) {
+                            this.setState({addLights:values.addLights});
+                            toSet = true;
+                        } 
+                        if(toSet) {
+                            //console.log(values);
+                            //console.log(values.exposure,values.addLights,this.state.ambientIntensity,
+                            //    this.state.ambientColor,this.state.directIntensity,this.state.directColor);
+                            this.updateLights(values.exposure,values.addLights,this.state.ambientIntensity,
+                                this.state.ambientColor,this.state.directIntensity,this.state.directColor);  
+                        }
+                        break;
+                    case 3:
+                        if(values.ambientIntensity != this.state.ambientIntensity) {
+                            this.setState({ambientIntensity:values.ambientIntensity});
+                            toSet = true;
+                        }  
+                        if(values.ambientColor != this.state.ambientColor) {
+                            this.setState({ambientColor:values.ambientColor});
+                            toSet = true;
+                        } 
+                        if(toSet) {
+                            //console.log(this.state.exposure,this.state.addLights,values.ambientIntensity,
+                            //    values.ambientColor,this.state.directIntensity,this.state.directColor);
+                            this.updateLights(this.state.exposure,this.state.addLights,values.ambientIntensity,
+                                values.ambientColor,this.state.directIntensity,this.state.directColor);  
+                        } 
+                        break;
+                    case 4:
+                        if(values.directIntensity != this.state.directIntensity) {
+                            this.setState({directIntensity:values.directIntensity});
+                            toSet = true;
+                        }  
+                        if(values.directColor != this.state.directColor) {
+                            this.setState({directColor:values.directColor});
+                            toSet = true;
+                        }  
+                        if(toSet) {
+                            //console.log(this.state.exposure,this.state.addLights,this.state.ambientIntensity,
+                            //    this.state.ambientColor,values.directIntensity,values.directColor);
+                            this.updateLights(this.state.exposure,this.state.addLights,this.state.ambientIntensity,
+                                this.state.ambientColor,values.directIntensity,values.directColor);  
+                        }
+                        break;
+                    default:
+                        break;
                 }
-
                 break;
             case 3:
                 const mySelectedoption = this.getOptionValueFromString(values.selectedOption);
@@ -3272,18 +3453,14 @@ class GLTFRenderer extends Component {
         return <div>
                     {/* <MuiThemeProvider theme={this.theme}> */}
                         <Paper style={{ width: '100%', margin: '5px auto', paddingBottom: '1px' }}>
-                            <SimpleFormBuilder
-                            fieldContainerStyle={{ backgroundColor: '#fefefe', padding: 1 }}
-                            inputContainerStyle={{ margin: '5px 0' }}
-                            onChange={(values) => {
+                            <GroupFormBuilder
+                            
+                            onChange={(values,keyindex) => {
                                 //console.log(values);
-                                this.changeValues(values,param);
-                                myMenus[param].values=values;
+                                this.changeValues(values,param,keyindex,myMenus[param].folder,myMenus[param].groups[keyindex].name);
+                                myMenus[param].groups[keyindex].values=values;
                             }}                    
-                            fields={myMenus[param].fields}
-                            values={myMenus[param].values}                            
-                            errors={{ simpleTextFieldWithError: 'This is an error message.' }}
-                            labelwidth={20}
+                            groups={myMenus[param].groups}
                             closeForm={()=>{this.handlePopperClick(null,this.state.selectedmenu);}}
                             />
                         </Paper>
@@ -3404,7 +3581,11 @@ class GLTFRenderer extends Component {
                     <Grid p={1} style={{display:"flex"}} > 
                         {this.buildMenus(this.state.selectedmenu)} 
                     </Grid>
-                    <Popper style={{zIndex: 100}} id={this.idEl[this.state.selectedmenu]} open={this.openEl[this.state.selectedmenu]} anchorEl={this.state.anchorEls[this.state.selectedmenu]} placement='bottom'>
+                    <Popper style={{zIndex: 100}}
+                        id={this.idEl[this.state.selectedmenu]} 
+                        open={this.openEl[this.state.selectedmenu]} 
+                        anchorEl={this.state.anchorEls[this.state.selectedmenu]} 
+                        placement={"bottom"}>
                         <div>{this.popMenus(this.state.selectedmenu)}</div>
                     </Popper>
                 </Grid>
@@ -3413,9 +3594,10 @@ class GLTFRenderer extends Component {
                     style={{ width: "100%", height: "600px" }}
                     ref={el => (this.node = el)}>                                               
                 </div>
+
                 <div
                     style={{
-                        display: this.state.intersectedShell ? 'block' : 'block',
+                        display: this.state.intersectedShell||this.state.displaytext ? 'block' : 'block',
                         position: 'fixed',
                         top: this.clientY + 10,
                         left: this.clientX + 10,
@@ -3424,6 +3606,7 @@ class GLTFRenderer extends Component {
                     }}
                 >
                     {this.state.intersectedShell ? this.getNameID(this.state.intersectedShell.name) : ""}
+                    {/*this.state.displaytext*/}
                 </div>   
                 {/* <div style={{position:"relative", top:0, left:0}}
                     ref={guip=>(this.nodeguiparent=guip)}>
@@ -3431,8 +3614,7 @@ class GLTFRenderer extends Component {
                         style={{ width: "100%", height: "150px" }}
                         ref={guik=>(this.nodegui=guik)}>
                     </div>  
-                </div>  */}        
-  
+                </div>  */}    
 
             </div>
 
