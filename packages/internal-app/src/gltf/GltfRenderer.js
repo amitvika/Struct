@@ -154,8 +154,8 @@ class GLTFRenderer extends Component {
         rotateSpeed: 2.0,
         panSpeed: 1.0,
         zoomToCursor:true,
-        maxZoomIn: 2.0,
-        maxZoomOut: 5.0,
+        maxZoomIn: 50.0,
+        maxZoomOut: 50.0,
         // Lights
         addLights: true,
         exposure: 1.0,
@@ -1803,7 +1803,7 @@ class GLTFRenderer extends Component {
                     lessthan=false;
                 }  
                 let toTransform = true;
-                if(currentzoom <=  (this.OrthographicInitialzoom/this.state.maxZoomIn)) {                    
+                if(currentzoom <=  (this.OrthographicInitialzoom/this.state.maxZoomOut)) {                    
                     //factor = prevzoom-this.OrthographicInitialzoom;
                     if(factor >0) {
                         factor = -factor;
@@ -1815,7 +1815,7 @@ class GLTFRenderer extends Component {
                     //console.log("I can do",this.OrthographicInitialzoom,currentzoom,"Hence not doing");
                     currentzoom =prevzoom -factor;
                 } else {
-                    if(currentzoom >= (this.OrthographicInitialzoom*this.state.maxZoomOut)) {                    
+                    if(currentzoom >= (this.OrthographicInitialzoom*this.state.maxZoomIn)) {                    
                         //factor = prevzoom-this.OrthographicInitialzoom;
                         if(factor >0) {
                             factor = -factor;
@@ -1828,7 +1828,7 @@ class GLTFRenderer extends Component {
                         currentzoom =prevzoom +factor;
                     }
                 }
-                console.log("What a beauty", currentzoom,toTransform,this.OrthographicInitialzoom/this.state.maxZoomIn,this.OrthographicInitialzoom*this.state.maxZoomOut);
+                //console.log("What a beauty", currentzoom,toTransform,this.OrthographicInitialzoom/this.state.maxZoomIn,this.OrthographicInitialzoom*this.state.maxZoomOut);
                 if(!toTransform) return;
                 //console.log(currentzoom,this.OrthographicInitialzoom*5,this.OrthographicInitialzoom/2);
                 let zoomDirection = new Vector3(this.mouse.x, this.mouse.y, (this.activeCamera.near + this.activeCamera.far)/(this.activeCamera.near - this.activeCamera.far));
