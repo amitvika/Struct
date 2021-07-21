@@ -12,8 +12,23 @@ import {
 import {
     Headding
 } from '../../components';
+import { fetchFileHistoryApi } from '../../api/fileHistory.api';
 
-export default function FileHistory({ file_history = [] }) {
+export default function FileHistory({ link_id, selectedFileName }) {
+
+    const [fileHistory, setFileHistory] = React.useState([]);
+
+    React.useEffect(() => {
+        fetchFileHistoryApi(link_id)
+            .then(res => {
+                setFileHistory(res.data)
+            })
+            .catch(error => {
+
+            })
+    }, [selectedFileName]);
+
+
     return (
         <Grid item xs={12}>
             <Headding bold title={'File History'} />
@@ -32,7 +47,7 @@ export default function FileHistory({ file_history = [] }) {
                     </TableHead>
                     <TableBody>
                         {
-                            file_history.map((item, index) => {
+                            fileHistory.map((item, index) => {
                                 return (<TableRow key={index}>
                                     <TableCell>
                                         <a href={item.file_url}

@@ -1,5 +1,6 @@
 const DocumentationModel = require("../models/documentation.model");
 const ChangeTracking = require("../models/ChangeTracking.model");
+const FileHistoryModel = require("../models/fileHistory.modal");
 const { getObjectId } = require('../utils/helper')
 const { mapDocumentations, mapDocumentation } = require('../map/documentations')
 
@@ -72,6 +73,17 @@ exports.upsert = async (req, res) => {
         else {
             req.body.created_by = req.user.id;
             documentation = await DocumentationModel.create(req.body);
+        }
+
+
+        if (req.body.new_file) {
+            const fileHistory = await FileHistoryModel.create({
+                file_url: req.body.new_file.file_url,
+                file_name: req.body.new_file.file_name,
+                loaded_by: req.user.id,
+                link_id: documentation._id
+            });
+            console.log('FileHistory', fileHistory)
         }
 
         const changeTracking = new ChangeTracking({

@@ -22,7 +22,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function FileUpload({ value, handleOnChange,isDesignModalOpened= true}) {
+export default function FileUpload({ value, handleOnChange, isDesignModalOpened = true,
+    fileType = ".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" }) {
     const classes = useStyles();
 
     const [selectedFile, setSelectedFile] = useState(null);
@@ -62,10 +63,10 @@ export default function FileUpload({ value, handleOnChange,isDesignModalOpened= 
                         onChange={handleOnFileChange}
                         type="file"
                         hidden
-                        accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                        accept={fileType}
                     />
                 </Button>
-                { (isDesignModalOpened === true) &&
+                {(isDesignModalOpened === true) &&
                     <span>*Spreadsheets Only</span>
                 }
 

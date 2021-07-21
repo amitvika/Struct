@@ -411,7 +411,7 @@ const ItemDetail = () => {
                             <h4>Item Name: {itemProperties.name}</h4>
                             <Grid style={{display: 'flex'}}>
                                 <p>Item ID:{id} </p>
-                                        <ClipboardText handleCopyId={handleCopyId} />
+                                        {/* <ClipboardText handleCopyId={handleCopyId} /> */}
                             </Grid>
                         </Grid>
                         <Grid style={{ margin: 'auto' }}>

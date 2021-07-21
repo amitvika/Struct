@@ -25,7 +25,7 @@ exports.mapProductDesign = (item = {}) => {
         category: item.category,
         notes: item.notes,
         created_at: item.createdAt,
-        file_history: fileHistory(item.file_history),
+        // file_history: fileHistory(item.file_history),
         // created_by_name: get(item, 'created_by.name', ''),
         // created_by: get(item, 'created_by._id', ''),
         // updated_by_name: get(item, 'updated_by.name', ''),
