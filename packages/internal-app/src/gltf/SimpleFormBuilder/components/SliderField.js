@@ -18,7 +18,7 @@ const CustomSliderField = ({ field, value, errors, onChange, labelwidth, ...othe
   const max = field.max || 100;
   let errorText = _.get(errors, key, false);
   let currentlabelwidth = labelwidth || 0;
-  currentlabelwidth = 0;
+  currentlabelwidth = 5;
   const textwidth = 100-currentlabelwidth;
   currentlabelwidth = textwidth;
   return (
@@ -27,7 +27,7 @@ const CustomSliderField = ({ field, value, errors, onChange, labelwidth, ...othe
     {currentlabelwidth!=0 && (
       <InputLabel style={{width:currentlabelwidth.toString()+'%'}}>{getName(name)}</InputLabel>
     )}  
-    <Slider zindex="tooltip"
+    <Slider zindex="tooltip" style={{width:textwidth.toString()+'%'}}
       {...field}
       key={inputKey}    
       valueLabelDisplay={type}

@@ -60,10 +60,12 @@ export const myMenus =  [ {
             zoomSpeed: 0.1,
             panSpeed: 1.0,
             rotateSpeed: 2.0,
-            zoomToCursor: true
+            zoomToCursor: true,
+            maxZoomIn: 50.0,
+            maxZoomOut:50.0
           },
           fields: [{
-            name: 'Zoom',
+            name: 'Zoom Speed',
             type: 'slider',
             auto: 'auto',
             step: 0.1,
@@ -71,7 +73,7 @@ export const myMenus =  [ {
             max:  1.0, 
             key: 'zoomSpeed'   
           }, {
-            name: 'Pan',
+            name: 'Pan Speed',
             type: 'slider',
             auto: 'auto',
             step: 0.1,
@@ -79,7 +81,7 @@ export const myMenus =  [ {
             max:  3.0, 
             key: 'panSpeed'   
           }, {
-            name: 'Rotation',
+            name: 'Rotation Speed',
             type: 'slider',
             auto: 'auto',
             step: 0.1,
@@ -90,7 +92,23 @@ export const myMenus =  [ {
             name: 'Zoom to Cursor',
             type: 'checkbox',
             key: 'zoomToCursor'   
-          }
+          }, {
+            name: 'Maximum Zoom In',
+            type: 'slider',
+            auto: 'auto',
+            step: 0.1,
+            min:  1.0, 
+            max:  100.0, 
+            key: 'maxZoomIn'   
+          }, {
+            name: 'Maximum Zoom Out',
+            type: 'slider',
+            auto: 'auto',
+            step: 0.1,
+            min:  1.0, 
+            max:  100.0, 
+            key: 'maxZoomOut'   
+          } ,
           ]
         }, { 
           folder:'Lighiting',

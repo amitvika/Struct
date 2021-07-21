@@ -46,7 +46,7 @@ import { Float32BufferAttribute } from './BufferAttribute.js';
 //import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { GLTFLoader, GLTFParser } from './gltfloader.js';
 //import { OrbitControls } from './OrbitControl.js';//'three/examples/jsm/controls/OrbitControls.js';
-import index, { GUI } from './GUI.js';
+import { GUI } from './GUI.js';
 //import CameraSpinControls from './CameraSpinControls.js';
 import { TrackballControls } from "./TrackballControls.js";
 
@@ -154,6 +154,8 @@ class GLTFRenderer extends Component {
         rotateSpeed: 2.0,
         panSpeed: 1.0,
         zoomToCursor:true,
+        maxZoomIn: 2.0,
+        maxZoomOut: 5.0,
         // Lights
         addLights: true,
         exposure: 1.0,
@@ -1801,7 +1803,7 @@ class GLTFRenderer extends Component {
                     lessthan=false;
                 }  
                 let toTransform = true;
-                if(currentzoom <= (this.OrthographicInitialzoom/2)) {                    
+                if(currentzoom <=  (this.OrthographicInitialzoom/this.state.maxZoomIn)) {                    
                     //factor = prevzoom-this.OrthographicInitialzoom;
                     if(factor >0) {
                         factor = -factor;
@@ -1813,7 +1815,7 @@ class GLTFRenderer extends Component {
                     //console.log("I can do",this.OrthographicInitialzoom,currentzoom,"Hence not doing");
                     currentzoom =prevzoom -factor;
                 } else {
-                    if(currentzoom >= (this.OrthographicInitialzoom*5)) {                    
+                    if(currentzoom >= (this.OrthographicInitialzoom*this.state.maxZoomOut)) {                    
                         //factor = prevzoom-this.OrthographicInitialzoom;
                         if(factor >0) {
                             factor = -factor;
@@ -1826,6 +1828,8 @@ class GLTFRenderer extends Component {
                         currentzoom =prevzoom +factor;
                     }
                 }
+                console.log("What a beauty", currentzoom,toTransform,this.OrthographicInitialzoom/this.state.maxZoomIn,this.OrthographicInitialzoom*this.state.maxZoomOut);
+                if(!toTransform) return;
                 //console.log(currentzoom,this.OrthographicInitialzoom*5,this.OrthographicInitialzoom/2);
                 let zoomDirection = new Vector3(this.mouse.x, this.mouse.y, (this.activeCamera.near + this.activeCamera.far)/(this.activeCamera.near - this.activeCamera.far));
                /*  zoomDirection.unproject(this.activeCamera);  
@@ -3291,7 +3295,13 @@ class GLTFRenderer extends Component {
                     if(this.controls) {
                         this.controls.noZoom = values.zoomToCursor;
                     }   
-                }               
+                }  
+                if(values.maxZoomIn != this.state.maxZoomIn) {
+                    this.setState({maxZoomIn:values.maxZoomIn});                     
+                }
+                if(values.maxZoomOut != this.state.maxZoomOut) {
+                    this.setState({maxZoomOut:values.maxZoomOut});                  
+                }             
                 break;
             case 2:
                 if(values.textureEncoding != this.state.textureEncoding) {
@@ -3512,6 +3522,7 @@ class GLTFRenderer extends Component {
                     style={{ width: "100%", height: "600px" }}
                     ref={el => (this.node = el)}>                                               
                 </div>
+
                 <div
                     style={{
                         display: this.state.intersectedShell||this.state.displaytext ? 'block' : 'block',
@@ -3531,8 +3542,7 @@ class GLTFRenderer extends Component {
                         style={{ width: "100%", height: "150px" }}
                         ref={guik=>(this.nodegui=guik)}>
                     </div>  
-                </div>  */}        
-  
+                </div>  */}    
 
             </div>
 

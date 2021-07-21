@@ -43,9 +43,9 @@ export default class SimpleFormBuilder extends React.Component {
     };
   }
 
-  DEFAULT_IMG = this.props.defaultImage || 'http://via.placeholder.com/50x50';
+  /* DEFAULT_IMG = this.props.defaultImage || 'http://via.placeholder.com/50x50';
 
-  /* handleEmojiText = (input) => {
+  handleEmojiText = (input) => {
     if (_.isString(input)) {
       const emoji = new EmojiConvertor();
       return emoji.replace_colons(input);
@@ -362,9 +362,9 @@ export default class SimpleFormBuilder extends React.Component {
     this.props.fields.map((field, index) => (
       <div p={1}
         key={`form-field-container-${index}`}
-        style={{ margin: '5px 0', ...this.props.inputContainerStyle, width:'100px' }}
+        style={{ margin: '1px 0', ...this.props.inputContainerStyle, width:'100px' }}
       >
-      {this.getField(field)} 
+      {this.getField(field)}          
       </div>
     ));
   
@@ -389,8 +389,9 @@ export default class SimpleFormBuilder extends React.Component {
           flex={1}
           wrap={this.props.wrap}
         >
-          <Grid p={1} style={{display:"flex"}}>
+          <Grid p={1} container spacing={10} direction="row" style={{display:"flex", margin: '1px 0'}}>
           {this.getFields()}
+         
           </Grid>
         </FieldContainer>  
         {/* <Box p={1} style={{ justifyContent: 'center', ...this.props.actionContainerStyle }}>
