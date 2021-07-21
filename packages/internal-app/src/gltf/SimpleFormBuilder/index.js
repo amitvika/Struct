@@ -106,7 +106,7 @@ export default class SimpleFormBuilder extends React.Component {
       }, time);
       this.setState({ timeout }); */
       if (this.props.onChange) {
-        this.props.onChange(values);
+        this.props.onChange(values, this.props.keyindex);
       }
     });
    /*  if (this.props.onChange) {
@@ -358,29 +358,31 @@ export default class SimpleFormBuilder extends React.Component {
     }
   };
 
-  getFields = () =>
-    this.props.fields.map((field, index) => (
+  getFields = () => {
+    const key= this.props.key || 'form-field-container';
+    return this.props.fields.map((field, index) => (
       <div p={1}
-        key={`form-field-container-${index}`}
+        key={`${key}-${index}`}
         style={{ margin: '1px 0', ...this.props.inputContainerStyle, width:'100px' }}
       >
       {this.getField(field)}          
       </div>
     ));
-  
+  };
+
   closeForm = () =>{
     this.setState({opened:false});
   }
   
   render() {
-    let FieldContainer = Box;
+    /* let FieldContainer = Box;
     if (this.props.orientation === 'horizontal') {
       FieldContainer = Box;
-    }
+    } */
     return (
       this.state.opened &&
       (<Box p={1} zindex="tooltip" style={this.style}>
-        <FieldContainer
+        <Box
           style={{
             backgroundColor: '#fefefe',
             padding: 1,            
@@ -389,11 +391,11 @@ export default class SimpleFormBuilder extends React.Component {
           flex={1}
           wrap={this.props.wrap}
         >
-          <Grid p={1} container spacing={10} direction="row" style={{display:"flex", margin: '1px 0'}}>
+          <Grid p={1} container spacing={10} direction="column" style={{display:"flex", margin: '1px 0'}}>
           {this.getFields()}
          
           </Grid>
-        </FieldContainer>  
+        </Box>  
         {/* <Box p={1} style={{ justifyContent: 'center', ...this.props.actionContainerStyle }}>
          
             <Button

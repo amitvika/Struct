@@ -69,7 +69,7 @@ import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
 //import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import SimpleFormBuilder from './SimpleFormBuilder';
+import GroupFormBuilder from './GroupFormBuilder';
 import {myMenus} from './gltfMenus';
 //import { Box } from "@material-ui/core";
 
@@ -150,7 +150,7 @@ class GLTFRenderer extends Component {
         grid: false,
         side: "Front",
         view: "Orthographic",
-        zoomSpeed: 0.1,
+        zoomSpeed: 0.3,
         rotateSpeed: 2.0,
         panSpeed: 1.0,
         zoomToCursor:true,
@@ -291,6 +291,7 @@ class GLTFRenderer extends Component {
         this.controls.rotateSpeed = this.state.rotateSpeed;
         this.controls.noZoom = this.state.zoomToCursor; //this.defaultCamera.isPerspectiveCamera;
         this.controls.zoomSpeed = this.state.zoomSpeed;
+        this.controls.emSpeed = Math.pow(this.controls.zoomSpeed,1.0/this.OrthographicInitialzoom);
         this.controls.panSpeed = this.state.panSpeed;
         this.controls.addEventListener('start', this.controlsStart.bind(this),false);
         this.controls.addEventListener('change', this.updateCameraSpinUI.bind(this),false);
@@ -358,6 +359,7 @@ class GLTFRenderer extends Component {
                 }
                 this.defaultCamera.zoom = this.defaultCamera.right / size;
                 this.OrthographicInitialzoom = this.defaultCamera.zoom;
+                this.controls.emSpeed = Math.pow(this.controls.zoomSpeed,1.0/this.OrthographicInitialzoom);
                 //console.log( this.defaultCamera.zoom);
                 //console.log("Initial",this.defaultCamera.zoom, this.defaultCamera.top, this.defaultCamera.left, this.defaultCamera.bottom, this.defaultCamera.right);
                 this.defaultCamera.updateProjectionMatrix(); 
@@ -429,8 +431,9 @@ class GLTFRenderer extends Component {
         this.clips = [];
         this.gui = null;
         let myView = this.props.view;
+        this.OrthographicInitialzoom=1;
         if(myMenus && myMenus.length>0) {
-            myView = myView || myMenus[0].values.view;
+            myView = myView || myMenus[0].groups[0].values.view;
         }
         //console.log("myview",myView);
         this.setState({view:myView||"Orthographic"});
@@ -522,10 +525,16 @@ class GLTFRenderer extends Component {
             //this.controls.addEventListener('change', this.updateCameraSpinUI.bind(this),false);
             //this.controls.addEventListener('end', this.controlsEnd.bind(this),false);
             if(myMenus && myMenus.length>0) {
-                myMenus[0].values.view=myView;
+                myMenus[0].groups[0].values.view=myView;
+                //console.log("My Menus", myMenus);
                 for (let index = 0; index < myMenus.length; index++) {
-                    if(this.props.fileGDT || (index < 3)) {
-                        this.changeValues(myMenus[index].values,index);  
+                    //console.log("My Groups", myMenus[index].groups);
+                    if(this.props.fileGDT || (index < 3)) {                        
+                        for (let group = 0; group < myMenus[index].groups.length; group++) {
+                            //console.log("My Fields and Values",myMenus[index].groups[group]);
+                            this.changeValues(myMenus[index].groups[group].values,index,group,myMenus[index].folder,myMenus[index].groups[group].name);  
+                        }
+                       
                     }                              
                 }            
             }
@@ -948,6 +957,7 @@ class GLTFRenderer extends Component {
 
     updateLights = (myExposure,myAddLights,myAmbientIntensity,
         myAmbientColor,myDirectIntensity,myDirectColor) => {
+        
         //const state = this.state;
         const lights = this.lights;
 
@@ -1790,10 +1800,10 @@ class GLTFRenderer extends Component {
                 const prevzoom = this.activeCamera.zoom;
                 let currentzoom = this.activeCamera.zoom;
                 let lessthan = true;
-                let facpowfac = Math.pow(this.controls.zoomSpeed,currentzoom);
+                let facpowfac = Math.pow(this.controls.emSpeed,currentzoom);
                 let factor = - (facpowfac);
-                //console.log(facpowfac,factor,this.controls.zoomSpeed,this.controls.zoomSpeed^this.controls.zoomSpeed);
-                factor *= this.controls.zoomSpeed ;
+                //console.log(facpowfac,factor,this.controls.zoomSpeed,this.controls.emSpeed);
+                factor *= this.controls.emSpeed ;
                 //console.log(factor);
                 if (event.deltaY < 0) {
                     currentzoom = prevzoom -factor;
@@ -3228,123 +3238,181 @@ class GLTFRenderer extends Component {
         return SELECTFEATURE;       
     };
 
-    changeValues=(values,param)=>{
+    changeValues=(values,param,group,keyfolder,keyname)=>{
         let toSet=false;
-        //console.log(values);
+        //console.log(values,param,group);
         switch (param) {
             case 0:
-                if(values.view != this.state.view) {
-                    this.setState({view:values.view});
-                    this.addCameraAndControls(values.view);
-                }
                 toSet = false;
-                if(values.side != this.state.side) {
-                    this.setState({side:values.side});  
-                    toSet = true; 
-                }                
-                if(values.opaque != this.state.opaque) {
-                    this.setState({opaque:values.opaque});  
-                    toSet = true;  
+                switch (group) {
+                    case 0:
+                        if(values.view != this.state.view) {
+                            this.setState({view:values.view});
+                            this.addCameraAndControls(values.view);
+                        }
+                        break;
+                    case 1:
+                        if(values.side != this.state.side) {
+                            this.setState({side:values.side});  
+                            toSet = true; 
+                        } 
+                        if(toSet) {
+                            this.updateDisplay(values.side,this.state.opaque,
+                                this.state.wiremesh,this.state.skeleton,this.state.grid);
+                        } 
+                        break;
+                    case 2:
+                        if(values.opaque != this.state.opaque) {
+                            this.setState({opaque:values.opaque});  
+                            toSet = true;  
+                        }
+                        if(toSet) {
+                            this.updateDisplay(this.state.side,values.opaque,
+                                this.state.wiremesh,this.state.skeleton,this.state.grid);
+                        } 
+                        break;
+                    case 3:
+                        if(values.wiremesh != this.state.wiremesh) {
+                            this.setState({wiremesh:values.wiremesh});  
+                            toSet = true;
+                        }
+                        if(values.skeleton != this.state.skeleton) {
+                            this.setState({skeleton:values.skeleton});  
+                            toSet = true;
+                        }
+                        if(values.grid != this.state.grid) {
+                            this.setState({grid:values.grid}); 
+                            toSet = true;  
+                        }
+                        if(toSet) {
+                            this.updateDisplay(this.state.side,this.state.opaque,
+                                values.wiremesh,values.skeleton,values.grid);
+                        } 
+                        break;
+                    case 4:
+                        if(values.autoRotate != this.controls.autoRotate) {
+                            //console.log(values.autoRotate);
+                            this.controls.autoRotate = values.autoRotate;                   
+                        }
+                        if(values.screenSpacePanning != this.controls.screenSpacePanning) {
+                            this.controls.screenSpacePanning = values.screenSpacePanning;                   
+                        }
+                        break;
+                    default:
+                        break;
                 }
-                if(values.wiremesh != this.state.wiremesh) {
-                    this.setState({wiremesh:values.wiremesh});  
-                    toSet = true;
-                }
-                if(values.skeleton != this.state.skeleton) {
-                    this.setState({skeleton:values.skeleton});  
-                    toSet = true;
-                }
-                if(values.grid != this.state.grid) {
-                    this.setState({grid:values.grid}); 
-                    toSet = true;  
-                }
-                if(toSet) {
-                    this.updateDisplay(values.side,values.opaque,
-                        values.wiremesh,values.skeleton,values.grid);
-                }                
-                if(values.autoRotate != this.controls.autoRotate) {
-                    //console.log(values.autoRotate);
-                    this.controls.autoRotate = values.autoRotate;                   
-                }
-                if(values.screenSpacePanning != this.controls.screenSpacePanning) {
-                    this.controls.screenSpacePanning = values.screenSpacePanning;                   
-                }
-                
                 break;
             case 1:
-                if(values.zoomSpeed != this.state.zoomSpeed) {
-                    this.setState({zoomSpeed:values.zoomSpeed});
-                    if(this.controls) {
-                        this.controls.zoomSpeed = values.zoomSpeed;
-                    }   
-                }
-                if(values.panSpeed != this.state.panSpeed) {
-                    this.setState({panSpeed:values.panSpeed});
-                    if(this.controls) {
-                        this.controls.panSpeed = values.panSpeed;
-                    }   
-                }
-                if(values.rotateSpeed != this.state.rotateSpeed) {
-                    this.setState({rotateSpeed:values.rotateSpeed});
-                    if(this.controls) {
-                        this.controls.rotateSpeed = values.rotateSpeed;
-                    }   
-                } 
-                if(values.zoomToCursor != this.state.zoomToCursor) {
-                    this.setState({zoomToCursor:values.zoomToCursor});
-                    if(this.controls) {
-                        this.controls.noZoom = values.zoomToCursor;
-                    }   
-                }  
-                if(values.maxZoomIn != this.state.maxZoomIn) {
-                    this.setState({maxZoomIn:values.maxZoomIn});                     
-                }
-                if(values.maxZoomOut != this.state.maxZoomOut) {
-                    this.setState({maxZoomOut:values.maxZoomOut});                  
-                }             
+                switch (group) {
+                    case 0:
+                        if(values.zoomSpeed != this.state.zoomSpeed) {
+                            this.setState({zoomSpeed:values.zoomSpeed});
+                            if(this.controls) {
+                                this.controls.zoomSpeed = values.zoomSpeed;
+                                this.controls.emSpeed = Math.pow(this.controls.zoomSpeed,1.0/this.OrthographicInitialzoom);
+                            }   
+                        }
+                        if(values.panSpeed != this.state.panSpeed) {
+                            this.setState({panSpeed:values.panSpeed});
+                            if(this.controls) {
+                                this.controls.panSpeed = values.panSpeed;
+                            }   
+                        }
+                        if(values.rotateSpeed != this.state.rotateSpeed) {
+                            this.setState({rotateSpeed:values.rotateSpeed});
+                            if(this.controls) {
+                                this.controls.rotateSpeed = values.rotateSpeed;
+                            }   
+                        } 
+                        break;
+                    case 1:
+                        if(values.zoomToCursor != this.state.zoomToCursor) {
+                            this.setState({zoomToCursor:values.zoomToCursor});
+                            if(this.controls) {
+                                this.controls.noZoom = values.zoomToCursor;
+                            }   
+                        }  
+                        if(values.maxZoomIn != this.state.maxZoomIn) {
+                            this.setState({maxZoomIn:values.maxZoomIn});                     
+                        }
+                        if(values.maxZoomOut != this.state.maxZoomOut) {
+                            this.setState({maxZoomOut:values.maxZoomOut});                  
+                        }  
+                        break;
+                    default:
+                        break;
+                }          
                 break;
             case 2:
-                if(values.textureEncoding != this.state.textureEncoding) {
-                    this.setState({textureEncoding:values.textureEncoding});
-                    this.updateTextureEncoding(values.textureEncoding);   
-                }  
-                if(values.outputEncoding != this.state.outputEncoding) {
-                    this.setState({outputEncoding:values.outputEncoding});
-                    if(this.renderer) {
-                        this.renderer.outputEncoding = values.outputEncoding=="sRGB" ? sRGBEncoding : LinearEncoding;
-                    }
-                    this.updateTextureEncoding(values.outputEncoding);   
-                }  
                 toSet=false;
-                if(values.exposure != this.state.exposure) {
-                    this.setState({exposure:values.exposure});
-                    toSet = true;
-                }  
-                if(values.addLights != this.state.addLights) {
-                    this.setState({addLights:values.addLights});
-                    toSet = true;
-                }  
-                if(values.ambientIntensity != this.state.ambientIntensity) {
-                    this.setState({ambientIntensity:values.ambientIntensity});
-                    toSet = true;
-                }  
-                if(values.ambientColor != this.state.ambientColor) {
-                    this.setState({ambientColor:values.ambientColor});
-                    toSet = true;
-                }  
-                if(values.directIntensity != this.state.directIntensity) {
-                    this.setState({directIntensity:values.directIntensity});
-                    toSet = true;
-                }  
-                if(values.directColor != this.state.directColor) {
-                    this.setState({directColor:values.directColor});
-                    toSet = true;
-                }  
-                if(toSet) {
-                    this.updateLights(values.exposure,values.addLights,values.ambientIntensity,
-                        values.ambientColor,values.directIntensity,values.directColor);  
+                switch (group) {
+                    case 0:
+                        if(values.textureEncoding != this.state.textureEncoding) {
+                            this.setState({textureEncoding:values.textureEncoding});
+                            this.updateTextureEncoding(values.textureEncoding);   
+                        }  
+                        break;
+                    case 1:
+                        if(values.outputEncoding != this.state.outputEncoding) {
+                            this.setState({outputEncoding:values.outputEncoding});
+                            if(this.renderer) {
+                                this.renderer.outputEncoding = values.outputEncoding=="sRGB" ? sRGBEncoding : LinearEncoding;
+                            }
+                            this.updateTextureEncoding(values.outputEncoding);   
+                        } 
+                        break;
+                    case 2:
+                        if(values.exposure != this.state.exposure) {
+                            this.setState({exposure:values.exposure});
+                            toSet = true;
+                        }  
+                        if(values.addLights != this.state.addLights) {
+                            this.setState({addLights:values.addLights});
+                            toSet = true;
+                        } 
+                        if(toSet) {
+                            //console.log(values);
+                            //console.log(values.exposure,values.addLights,this.state.ambientIntensity,
+                            //    this.state.ambientColor,this.state.directIntensity,this.state.directColor);
+                            this.updateLights(values.exposure,values.addLights,this.state.ambientIntensity,
+                                this.state.ambientColor,this.state.directIntensity,this.state.directColor);  
+                        }
+                        break;
+                    case 3:
+                        if(values.ambientIntensity != this.state.ambientIntensity) {
+                            this.setState({ambientIntensity:values.ambientIntensity});
+                            toSet = true;
+                        }  
+                        if(values.ambientColor != this.state.ambientColor) {
+                            this.setState({ambientColor:values.ambientColor});
+                            toSet = true;
+                        } 
+                        if(toSet) {
+                            //console.log(this.state.exposure,this.state.addLights,values.ambientIntensity,
+                            //    values.ambientColor,this.state.directIntensity,this.state.directColor);
+                            this.updateLights(this.state.exposure,this.state.addLights,values.ambientIntensity,
+                                values.ambientColor,this.state.directIntensity,this.state.directColor);  
+                        } 
+                        break;
+                    case 4:
+                        if(values.directIntensity != this.state.directIntensity) {
+                            this.setState({directIntensity:values.directIntensity});
+                            toSet = true;
+                        }  
+                        if(values.directColor != this.state.directColor) {
+                            this.setState({directColor:values.directColor});
+                            toSet = true;
+                        }  
+                        if(toSet) {
+                            //console.log(this.state.exposure,this.state.addLights,this.state.ambientIntensity,
+                            //    this.state.ambientColor,values.directIntensity,values.directColor);
+                            this.updateLights(this.state.exposure,this.state.addLights,this.state.ambientIntensity,
+                                this.state.ambientColor,values.directIntensity,values.directColor);  
+                        }
+                        break;
+                    default:
+                        break;
                 }
-
                 break;
             case 3:
                 const mySelectedoption = this.getOptionValueFromString(values.selectedOption);
@@ -3381,18 +3449,14 @@ class GLTFRenderer extends Component {
         return <div>
                     {/* <MuiThemeProvider theme={this.theme}> */}
                         <Paper style={{ width: '100%', margin: '5px auto', paddingBottom: '1px' }}>
-                            <SimpleFormBuilder
-                            fieldContainerStyle={{ backgroundColor: '#fefefe', padding: 1 }}
-                            inputContainerStyle={{ margin: '5px 0' }}
-                            onChange={(values) => {
+                            <GroupFormBuilder
+                            
+                            onChange={(values,keyindex) => {
                                 //console.log(values);
-                                this.changeValues(values,param);
-                                myMenus[param].values=values;
+                                this.changeValues(values,param,keyindex,myMenus[param].folder,myMenus[param].groups[keyindex].name);
+                                myMenus[param].groups[keyindex].values=values;
                             }}                    
-                            fields={myMenus[param].fields}
-                            values={myMenus[param].values}                            
-                            errors={{ simpleTextFieldWithError: 'This is an error message.' }}
-                            labelwidth={20}
+                            groups={myMenus[param].groups}
                             closeForm={()=>{this.handlePopperClick(null,this.state.selectedmenu);}}
                             />
                         </Paper>
@@ -3513,7 +3577,11 @@ class GLTFRenderer extends Component {
                     <Grid p={1} style={{display:"flex"}} > 
                         {this.buildMenus(this.state.selectedmenu)} 
                     </Grid>
-                    <Popper style={{zIndex: 100}} id={this.idEl[this.state.selectedmenu]} open={this.openEl[this.state.selectedmenu]} anchorEl={this.state.anchorEls[this.state.selectedmenu]} placement='bottom'>
+                    <Popper style={{zIndex: 100}}
+                        id={this.idEl[this.state.selectedmenu]} 
+                        open={this.openEl[this.state.selectedmenu]} 
+                        anchorEl={this.state.anchorEls[this.state.selectedmenu]} 
+                        placement={"bottom"}>
                         <div>{this.popMenus(this.state.selectedmenu)}</div>
                     </Popper>
                 </Grid>
