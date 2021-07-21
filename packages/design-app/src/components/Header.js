@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 
     },
     logo: {
-        fontWeight: 600,
+        // fontWeight: 600,
         color: "#FFFEFE",
         textAlign: "left",
     },
@@ -53,9 +53,9 @@ export default function Header() {
 
     const structLogo = (
         <Typography component="div" className={classes.logo}>
-            <div className="d-inline-block align-top" style={{ width: "150", height: "30", fontSize: "x-large" }}>
+            <p>
                 OMNIDESIGN
-            </div>
+            </p>
         </Typography>
     );
 

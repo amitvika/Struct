@@ -18,6 +18,7 @@ import SubHeaderWithArrow from '../../components/SubHeaderWithArrow'
 import { NavLink, useParams, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
+import ClipboardText from '@ravibasil/common/components/ClipboardText'
 
 import BaseItemProperties from './baseItemProperties';
 import GeometricDimensioning from './geometricDimensioning';
@@ -222,7 +223,11 @@ const ItemDetail = () => {
         }
 
     };
-
+    const handleCopyId = (event) => {
+        navigator.clipboard.writeText(id)
+        console.log("---", id)
+        event.stopPropagation();
+    }
     const fetchGLTFAndTree = async (myTabIndex, fileStore, fileGDT) => {
         if (myTabIndex == "pdcu") {
             //console.log("Up",myTabIndex,tabIndex,fileStore,fileGDT);
@@ -404,11 +409,13 @@ const ItemDetail = () => {
                     <Paper style={{ padding: 10, margin: 10, display: "flex" }}>
                         <Grid>
                             <h4>Item Name: {itemProperties.name}</h4>
-                            <p>Item ID:{id}</p>
+                            <Grid style={{display: 'flex'}}>
+                                <p>Item ID:{id} </p>
+                                        <ClipboardText handleCopyId={handleCopyId} />
+                            </Grid>
                         </Grid>
                         <Grid style={{ margin: 'auto' }}>
                             <h4>{tabList[tabIndex]}</h4>
-
                         </Grid>
 
                         <Grid style={{ marginLeft: 'auto' }}>

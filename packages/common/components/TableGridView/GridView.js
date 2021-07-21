@@ -11,12 +11,11 @@ import EditIcon from '@material-ui/icons/Edit';
 import Avatar from '@material-ui/core/Avatar';
 import PictureAsPdf from '@material-ui/icons/PictureAsPdf';
 import DescriptionIcon from '@material-ui/icons/Description';
-import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
+import ClipboardText from '../ClipboardText'
 import './style.css'
 
 //import {CopyLogo} from '../../assets/images/copy_icon.png'
 // import StructLogo from '../../assets/images/struct_logo.png';
-import CopyLogo from '../../assets/images/copy.png';
 import StructLogo from '../../assets/images/new_logo.png';
 import { resourcePathURL } from '@ravibasil/common/api/fileUpload.api';
 import { color } from 'src/gltf/GUI';
@@ -111,7 +110,8 @@ export default function GridView({
                             {`: `}
                             <span ref={titleRef} className={classes.tableCell} value={`${data[fieldItem.field]}`}>{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
                             {
-                                (fieldItem.title === "ID") ?  <img src={CopyLogo} className={classes.copy_img}  onClick={(event) => handleCopyId(event, data[fieldItem.field])}></img>
+                                (fieldItem.title === "ID") ? 
+                                <ClipboardText handleCopyId={(event) => handleCopyId(event, data[fieldItem.field])}/>
                                      : null
                             }
                         </Typography>

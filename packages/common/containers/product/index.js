@@ -21,9 +21,9 @@ export default function Product({ handleSave, name }) {
     return (
         <Paper>
             <Grid container >
-                <Grid item xs={6} >
-                </Grid>
-                <Grid item xs={6} style={{ display: 'flex', justifyContent: 'space-evenly', padding: '10px', alignItems: 'center', }}>
+                <Grid item xs={6} style={{ display: 'flex', justifyContent: 'space-evenly', padding: '10px', alignItems: 'center', }} >
+                {/* </Grid>
+                <Grid item xs={6} style={{ display: 'flex', justifyContent: 'space-evenly', padding: '10px', alignItems: 'center', }}> */}
                     <Headding fontSize={30} title="Design Name" />
                     <Input
                         placeholder="Enter"
