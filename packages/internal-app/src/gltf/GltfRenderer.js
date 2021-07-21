@@ -381,40 +381,42 @@ class GLTFRenderer extends Component {
             if(this.controls) {
                 this.controls.maxDistance = size * 10;
             }
-    
-            this.defaultCamera.near = size / 100;
-            this.defaultCamera.far = size * 100;
-            //console.log("setting1",size,this.defaultCamera);
-            this.defaultCamera.updateProjectionMatrix();
-            //console.log("setting2",size,this.defaultCamera);
-            if (this.props.cameraPosition) {
-    
-                this.defaultCamera.position.fromArray(this.props.cameraPosition);
-                this.defaultCamera.cameraposition=new Vector3();
-                this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
-                //console.log("setting3",size,this.defaultCamera);
-    
-            } else {
-    
-                this.defaultCamera.position.copy(center);
-                this.defaultCamera.position.x += size / 2.0;
-                this.defaultCamera.position.y += size / 2.0;
-                this.defaultCamera.position.z += size / 2.0;
-                this.defaultCamera.cameraposition=center;
-                this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
-                //console.log("setting4",size,this.defaultCamera);
-                
+            if(this.defaultCamera) {
+                this.defaultCamera.near = size / 100;
+                this.defaultCamera.far = size * 100;
+                //console.log("setting1",size,this.defaultCamera);
+                this.defaultCamera.updateProjectionMatrix();
+                //console.log("setting2",size,this.defaultCamera);
+                if (this.props.cameraPosition) {
+        
+                    this.defaultCamera.position.fromArray(this.props.cameraPosition);
+                    this.defaultCamera.cameraposition=new Vector3();
+                    this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
+                    //console.log("setting3",size,this.defaultCamera);
+        
+                } else {
+        
+                    this.defaultCamera.position.copy(center);
+                    this.defaultCamera.position.x += size / 2.0;
+                    this.defaultCamera.position.y += size / 2.0;
+                    this.defaultCamera.position.z += size / 2.0;
+                    this.defaultCamera.cameraposition=center;
+                    this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
+                    //console.log("setting4",size,this.defaultCamera);
+                    
+                }
+        
+                this.setCamera(DEFAULT_CAMERA);
+                //console.log(box,object,this.defaultCamera,object.position,this.defaultCamera.cameraposition,center,this.props.cameraPosition);
+        
+                this.axesCamera.position.copy(this.defaultCamera.position)
+                this.axesCamera.lookAt(this.axesScene.position)
+                this.axesCamera.near = size / 100;
+                this.axesCamera.far = size * 100;
+                this.axesCamera.updateProjectionMatrix();
+                this.axesCorner.scale.set(size, size, size);
             }
-    
-            this.setCamera(DEFAULT_CAMERA);
-            //console.log(box,object,this.defaultCamera,object.position,this.defaultCamera.cameraposition,center,this.props.cameraPosition);
-    
-            this.axesCamera.position.copy(this.defaultCamera.position)
-            this.axesCamera.lookAt(this.axesScene.position)
-            this.axesCamera.near = size / 100;
-            this.axesCamera.far = size * 100;
-            this.axesCamera.updateProjectionMatrix();
-            this.axesCorner.scale.set(size, size, size);
+            
             if(this.controls) {
                 if(this.controls.saveState){
                     this.controls.saveState();
@@ -927,25 +929,27 @@ class GLTFRenderer extends Component {
 
     addLights = (myAmbientIntensity,myAmbientColor,myDirectIntensity,myDirectColor) => {
         //const state = this.state;
-
-        if (this.props.preset === Preset.ASSET_GENERATOR) {
-            const hemiLight = new HemisphereLight();
-            hemiLight.name = 'hemi_light';
-            this.scene.add(hemiLight);
-            this.lights.push(hemiLight);
-            return;
+        if(this.defaultCamera) {
+            if (this.props.preset === Preset.ASSET_GENERATOR) {
+                const hemiLight = new HemisphereLight();
+                hemiLight.name = 'hemi_light';
+                this.scene.add(hemiLight);
+                this.lights.push(hemiLight);
+                return;
+            }
+    
+            this.light1 = new AmbientLight(myAmbientColor, myAmbientIntensity);
+            this.light1.name = 'ambient_light';
+            this.defaultCamera.add(this.light1);
+    
+            this.light2 = new DirectionalLight(myDirectColor, myDirectIntensity);
+            this.light2.position.set(0.5, 0, 0.866); // ~60ยบ
+            this.light2.name = 'main_light';
+            this.defaultCamera.add(this.light2);
+    
+            this.lights.push(this.light1, this.light2);
         }
-
-        this.light1 = new AmbientLight(myAmbientColor, myAmbientIntensity);
-        this.light1.name = 'ambient_light';
-        this.defaultCamera.add(this.light1);
-
-        this.light2 = new DirectionalLight(myDirectColor, myDirectIntensity);
-        this.light2.position.set(0.5, 0, 0.866); // ~60ยบ
-        this.light2.name = 'main_light';
-        this.defaultCamera.add(this.light2);
-
-        this.lights.push(this.light1, this.light2);
+        
     };
 
     removeLights = () => {
