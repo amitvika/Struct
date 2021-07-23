@@ -679,9 +679,9 @@ export default function Assembly(props) {
       //console.log("Assembly Tree",assemblyTree);
       //console.log("Data va",data);
   return (
-    <Grid container>
-    <Grid item xs={2} style={{display: 'flex'}}>
-          <MaterialTable style={{width:'300px', maxWidth:'300px'}}
+    // <Grid container>
+    // <Grid item xs={2} style={{display: 'flex'}}>
+          <MaterialTable
             title=""
             data={data}
             columns={columns}
@@ -728,7 +728,7 @@ export default function Assembly(props) {
               }                
             }}
         />     
-      </Grid>
-      </Grid>
+    //   </Grid>
+    //   </Grid>
   )
 }

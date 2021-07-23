@@ -721,55 +721,64 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     if (isLoading) {
         return <CircularProgress />;
     }
-    if(state.gltfjson?.tree) {
-        console.log("My State",state.gltfjson.tree);
+    if (state.gltfjson?.tree) {
+        console.log("My State", state.gltfjson.tree);
     }
     return (
         <>
-            <Paper style={{ margin: 10, padding: 10 }}>
-                <Grid container spacing={0} >
-                    <Grid item xs={6} style={{display: 'flex'}}>
-                        <Paper style={{ padding: 20, margin: 10, width: '60rem'}} square={true}>
-                            <Viewer
-                                {...state}
-                                fileGDT={fileGDT}
-                                selectedOption={selectedOption}                                
-                                handleModelClick={handleModelClick}
-                                isLoading={isLoading}
-                                ctrlKey={ctrlKey}
-                                setSelectedOption={setSelectedOption}
-                                setCtrlKey={setCtrlKey}                              
-                                resetSelections={resetSelections}
-                                selectAllSelectedSolids={selectAllSelectedSolids}                                
-                            ></Viewer>
-                        </Paper>
-                    </Grid>
-                    <Grid item xs={6} container spacing={0} >
-                        {(state.gltfjson?.tree) && (
-                        <Grid item xs={2} style={{ width: '20rem' }} >
-                            <Assembly 
-                                assemblyTree={state.gltfjson.tree} 
-                                changeStateOfSelection={changeStateOfSelection}
-                                resetSelections={resetSelections}
-                            />                        
-                        </Grid>                   
-                        )}
-                        <Grid item xs={4} style={{ width: '40rem' }}>
-                            <ViewerToolbar
-                                {...state}
-                                selectedOption={selectedOption}
-                                setSelectedOption={setSelectedOption}
-                                resetSelections={resetSelections}
-                                selectAllSelectedSolids={selectAllSelectedSolids}
-                                setCtrlKey={setCtrlKey}
-                                toolbar={false}
-                            />
-                        </Grid>
-                    </Grid>
-                </Grid>                   
-               
+            <Paper style={{ margin: 10, padding: 10, display: 'inline-flex' }}>
+                {/* <Grid container spacing={0} > */}
+                {/* <Grid item xs={6} style={{display: 'flex'}}> */}
+                {/* <div> */}
+
+                <Paper style={{ padding: 20, margin: 10, display: 'inline-block' }} square={true}>
+                    <Viewer
+                        {...state}
+                        fileGDT={fileGDT}
+                        selectedOption={selectedOption}
+                        handleModelClick={handleModelClick}
+                        isLoading={isLoading}
+                        ctrlKey={ctrlKey}
+                        setSelectedOption={setSelectedOption}
+                        setCtrlKey={setCtrlKey}
+                        resetSelections={resetSelections}
+                        selectAllSelectedSolids={selectAllSelectedSolids}
+                    ></Viewer>
+                </Paper>
+                {/* </div> */}
+                {/* </Grid>
+                    <Grid item xs={6} container spacing={0} > */}
+                <div style={{ width: 600 }}>
+
+                    {(state.gltfjson?.tree) && (
+                        // <Grid item xs={2} style={{ width: '20rem' }} >
+                        <Assembly
+                            assemblyTree={state.gltfjson.tree}
+                            changeStateOfSelection={changeStateOfSelection}
+                            resetSelections={resetSelections}
+                        />
+                        // </Grid>                   
+                    )}
+                    {/* <Grid item xs={4} style={{ width: '40rem' }}> */}
+                </div>
+                <div style={{ display: 'inline-block' }}>
+
+                    <ViewerToolbar
+                        {...state}
+                        selectedOption={selectedOption}
+                        setSelectedOption={setSelectedOption}
+                        resetSelections={resetSelections}
+                        selectAllSelectedSolids={selectAllSelectedSolids}
+                        setCtrlKey={setCtrlKey}
+                        toolbar={false}
+                    />
+                </div>
+                {/* </Grid> */}
+                {/* </Grid> */}
+                {/* </Grid>                    */}
+
             </Paper>
-           
+
         </>
     )
 }

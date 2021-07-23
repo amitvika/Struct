@@ -17,7 +17,7 @@ export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', act
     }
     //console.log("Active File",activefile, gltfjson, gltfjsonlen, isLoading);
     return (
-        <div>
+        <>
             {
                 !isLoading && (gltfjsonlen > 0) &&
                 <GLTFRenderer
@@ -48,6 +48,6 @@ export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', act
             {
                 isLoading  && <CircularProgress />
             }
-        </div>
+        </>
     )
 }

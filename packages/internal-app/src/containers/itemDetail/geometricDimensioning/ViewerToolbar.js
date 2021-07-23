@@ -60,7 +60,6 @@ export default function ViewerToolbar({
     return (
         <>
         { toolbar && (
-        <Grid item xs={2} style={{ width: '20rem' }}>
             <Paper style={{ padding: 10, margin: 10, width: '20rem', alignContent:'center', align:'center'}} square={true}>
             {splitMethod != 0 && (               
                 <span>                    
@@ -250,7 +249,6 @@ export default function ViewerToolbar({
                 </span>                    
             )}
              </Paper>
-        </Grid>
         )}
         <Grid container direction={"column"} spacing={0} >
         

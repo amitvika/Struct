@@ -3576,9 +3576,9 @@ class GLTFRenderer extends Component {
         }
         //console.log("BuildMenus",this.buildMenus);
         return (
-            <div> 
+            <> 
                 <Grid container spacing={0} direction="column" justifyContent="center" alignItems="center">
-                    <Grid p={1} style={{display:"flex"}} > 
+                    <Grid p={1}> 
                         {this.buildMenus(this.state.selectedmenu)} 
                     </Grid>
                     <Popper style={{zIndex: 100}}
@@ -3616,7 +3616,7 @@ class GLTFRenderer extends Component {
                     </div>  
                 </div>  */}    
 
-            </div>
+            </>
 
         );
     }
