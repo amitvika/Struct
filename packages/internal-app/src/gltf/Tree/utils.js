@@ -43,6 +43,14 @@ export const hexToRGB = (hex) => {
         }
         c= '0x'+c.join('');
         return [((c>>16)&255)/255.0, ((c>>8)&255)/255.0, (c&255)/255.0];
+      } else {
+        c=hex;
+        try {
+          return [((c>>16)&255)/255.0, ((c>>8)&255)/255.0, (c&255)/255.0];
+        } 
+        finally {
+          
+        }        
       }
     }
     return [0,0,0];   
