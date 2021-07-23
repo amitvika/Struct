@@ -34,6 +34,7 @@ router.use("/production", require("./production.route"));
 router.use("/autoscaling", require("./autoscaling.route"));
 router.use("/productDesign", require("./productDesign.route"));
 router.use("/fileHistory", require("./fileHistory.route"));
+router.use("/criteriaUpload", require("./criteriaUpload.route"));
 
 router.post('/upload-logo', Upload.uploadLogo(), (req, res) => {
   res.send({ logoName: req.file.filename, logoUrl: `http://${req.headers.host}/logo/${req.file.filename}` })
