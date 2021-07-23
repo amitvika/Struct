@@ -66,24 +66,17 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
 
         let file_history = documentValue.file_history || [];
         if (name === "new_file") {
-            file_history = [data, ...file_history]
+            file_history = [data, ...file_history];
+            setSelectedFileName(data.file_url)
         }
 
         setdocumentValue(preValue => ({
             ...preValue,
             [name]: data,
+            file_url: data.file_url ? data.file_url : preValue.file_url,
             file_history
         }));
     }
-    const onChange = async event => {
-        if (!event.target.files[0]) {
-            return;
-        }
-        setSelectedFileName(event.target.files[0].name)
-        const file_url = await uploadFileS3Bucket(event.target.files[0])
-        // setdocs([{ uri: fileUrl }]);
-        handleOnChange('file_url', file_url)
-    };
 
     const handleSaveButton = () => {
         if (documentValue) {
@@ -180,10 +173,13 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
                     />
                 </Grid>
 
-                <FileUpload value={documentValue} handleOnChange={handleOnChange} isDesignModalOpened={isDesignModalOpened} />
-                <FileHistory file_history={documentValue.file_history} />
-
-
+                <FileUpload
+                    value={documentValue}
+                    handleOnChange={handleOnChange} isDesignModalOpened={isDesignModalOpened}
+                    fileType={"/"} />
+                <FileHistory
+                    selectedFileName={selectedFileName}
+                    link_id={documentValue.id} />
 
 
                 <Grid item xs={12} className={classes.action_button}>
