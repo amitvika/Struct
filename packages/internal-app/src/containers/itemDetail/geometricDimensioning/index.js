@@ -727,9 +727,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     return (
         <>
             <Paper style={{ margin: 10, padding: 10 }}>
-                <Grid container spacing={4} >
+                <Grid container spacing={0} >
                     <Grid item xs={6} style={{display: 'flex'}}>
-                        <Paper style={{ padding: 20, margin: 10, width: '40rem'}} square={true}>
+                        <Paper style={{ padding: 20, margin: 10, width: '60rem'}} square={true}>
                             <Viewer
                                 {...state}
                                 fileGDT={fileGDT}
@@ -744,24 +744,32 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                             ></Viewer>
                         </Paper>
                     </Grid>
-                    <Grid item xs={6} style={{ width: '60rem' }}>
-                        <ViewerToolbar
-                            {...state}
-                            selectedOption={selectedOption}
-                            setSelectedOption={setSelectedOption}
-                            resetSelections={resetSelections}
-                            selectAllSelectedSolids={selectAllSelectedSolids}
-                            setCtrlKey={setCtrlKey}
-                            toolbar={false}
-                        />
+                    <Grid item xs={6} container spacing={0} >
+                        {(state.gltfjson?.tree) && (
+                        <Grid item xs={2} style={{ width: '20rem' }} >
+                            <Assembly 
+                                assemblyTree={state.gltfjson.tree} 
+                                changeStateOfSelection={changeStateOfSelection}
+                                resetSelections={resetSelections}
+                            />                        
+                        </Grid>                   
+                        )}
+                        <Grid item xs={4} style={{ width: '40rem' }}>
+                            <ViewerToolbar
+                                {...state}
+                                selectedOption={selectedOption}
+                                setSelectedOption={setSelectedOption}
+                                resetSelections={resetSelections}
+                                selectAllSelectedSolids={selectAllSelectedSolids}
+                                setCtrlKey={setCtrlKey}
+                                toolbar={false}
+                            />
+                        </Grid>
                     </Grid>
-                </Grid>
+                </Grid>                   
+               
             </Paper>
-            {(state.gltfjson?.tree) && (
-            <Grid >
-                <Assembly assemblyTree={state.gltfjson.tree}/>
-            </Grid>
-            )}
+           
         </>
     )
 }

@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MaterialTable from '@material-table/core';
 import Radio from '@material-ui/core/Radio';
+import Grid from '@material-ui/core/Grid';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { gltf_Dict,hexToRGB,rgbToHex } from 'src/gltf/Tree/utils';
 import ColorPickerState from './ColorPickerState';
 import SliderState from './SliderState';
-
+import ToysOutlinedIcon from '@material-ui/icons/ToysOutlined';
+import FilterDramaSharpIcon from '@material-ui/icons/FilterDramaSharp';
+import AllInboxOutlinedIcon from '@material-ui/icons/AllInboxOutlined';
+import FiberManualRecordOutlinedIcon from '@material-ui/icons/FiberManualRecordOutlined';
+import DeveloperBoardOutlinedIcon from '@material-ui/icons/DeveloperBoardOutlined';
 /*import CheckboxTree from 'react-checkbox-tree';
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import FolderLogo from '../../../assets/images/folder_logo.png'
@@ -392,7 +397,7 @@ const nodes = [{
 } 
 export default MultipleDetailPanels
 
-*/
+
 export default function MultipleDetailPanels({ assemblyTree = [] }) {
   const [value, setValue] = React.useState('DoNotCreate');
 
@@ -570,7 +575,7 @@ export default function MultipleDetailPanels({ assemblyTree = [] }) {
                   });
                 }
               }} 
-              /*
+              
                editable={ {
                 onRowAdd: newData =>
                   new Promise((resolve, reject) => {
@@ -604,9 +609,126 @@ export default function MultipleDetailPanels({ assemblyTree = [] }) {
                   })
                 
               }
-              } */
+              }  
            
           />     
       </div>
+  )
+}
+
+*/
+export default function Assembly(props) {
+  const {assemblyTree,changeStateOfSelection,resetSelections} = props;
+  const [data, setData] = useState(assemblyTree);
+  
+  const [columns, setColumns] = useState([ {
+    title: 'I', field: 'type', sorting:false, defaultSort: "desc",editable: 'never',
+        render: rowData => {
+          const aShape = rowData[gltf_Dict['name']];
+          const first4chars = aShape.slice(0, 4);
+				  const first6chars = aShape.slice(0, 6);
+          if(first4chars=="FACE") {
+            return <ToysOutlinedIcon/>
+          } else if (first4chars=="EDGE") {
+            return <FilterDramaSharpIcon/>
+          } else if (first4chars=="PART") {
+            return <AllInboxOutlinedIcon/>
+          } else if (first6chars=="VERTEX") {
+            return <FiberManualRecordOutlinedIcon/>
+          } else {
+            return <DeveloperBoardOutlinedIcon/>
+          }
+        },
+        cellStyle: {
+          width: 1,
+          maxWidth: 1
+        },         
+        headerStyle: {
+          width:1,
+          maxWidth: 1
+        },
+        width:'10%'      
+      }, {
+        title: 'Name', field: gltf_Dict['name'],defaultSort: "desc",editable: 'never',
+        cellStyle: {
+          width: 2,
+          maxWidth: 2
+        },         
+        headerStyle: {
+          width:2,
+          maxWidth: 2
+        },
+        width:'90%'    
+      }
+    ]);
+    
+  useEffect(() => {
+    setMyChecked(props.assemblyTree);
+  }, [props.assemblyTree]);
+    
+  const setMyChecked = (myTree) => {
+    myTree.forEach(element => {
+      console.log(element);
+      if(!element["tableData"]) {
+        element["tableData"]={};
+      }
+      element["tableData"]["checked"] = element.selectedshell;
+    });
+    setData(myTree);
+  };
+      //console.log("Assembly Tree",assemblyTree);
+      //console.log("Data va",data);
+  return (
+    <Grid container>
+    <Grid item xs={2} style={{display: 'flex'}}>
+          <MaterialTable style={{width:'300px', maxWidth:'300px'}}
+            title=""
+            data={data}
+            columns={columns}
+            parentChildData={(row, rows) => {
+                console.log("ParentID",row);
+                return rows.find(a => a[gltf_Dict['id']] === row[gltf_Dict['parentId']]);
+              }
+            }
+            options={{
+              selection: true,
+              paging: false,
+              defaultExpanded: true,
+              root: {
+                maxWidth: '100%',
+                maxHeight: '600px',
+                  },
+              tableLayout: "auto"
+            }}
+            onSelectionChange={(rows) => {
+              if(rows.length==0) {
+                if (props.resetSelections){
+                  props.resetSelections();
+                }
+              } else {
+
+                let event={};
+                event['ctrlKey']=false;
+                rows.forEach(element => {
+                  const aShape = element[gltf_Dict['name']];
+                  const first4chars = aShape.slice(0, 4);
+                  const first6chars = aShape.slice(0, 6);
+                  if( (first4chars=="FACE") || (first4chars=="EDGE") || 
+                    (first4chars=="PART") || (first6chars=="VERTEX") ) {               
+                    element.selectedshell=true;
+                    if (props.changeStateOfSelection) {
+                      props.changeStateOfSelection(element,event);
+                      event['ctrlKey']=true;
+                      console.log(element);
+                    } else {
+                      console.log(props.changeStateOfSelection,changeStateOfSelection);
+                    }
+                  }                
+                });
+              }                
+            }}
+        />     
+      </Grid>
+      </Grid>
   )
 }

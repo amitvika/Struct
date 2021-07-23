@@ -60,8 +60,8 @@ export default function ViewerToolbar({
     return (
         <>
         { toolbar && (
-        <Grid item xs={6} style={{ width: '40rem' }}>
-            <Paper style={{ padding: 10, margin: 10, width: '40rem', alignContent:'center', align:'center'}} square={true}>
+        <Grid item xs={2} style={{ width: '20rem' }}>
+            <Paper style={{ padding: 10, margin: 10, width: '20rem', alignContent:'center', align:'center'}} square={true}>
             {splitMethod != 0 && (               
                 <span>                    
                     <Button
@@ -252,29 +252,24 @@ export default function ViewerToolbar({
              </Paper>
         </Grid>
         )}
-        <Grid item xs={6} style={{ width: '40rem' }}>
-            <Paper style={{ padding: 10, margin: 10, width: '40rem'}} square={true}>
-            <TableContainer>
-            <Table aria-label="simple table" style={{ verticalAlign: 'top', margin:'0' }}>                
-                <TableBody style={{ verticalAlign: 'top', margin:'0' }}>
-                    <TableRow style={{ verticalAlign: 'top', margin:'0' }}>
-                        <TableCell style={{ verticalAlign: 'top', margin:'0' }}>
-                            <SelectedFeatureMenu 
-                                features = {(selectedOption == SELECTFEATURE)}
-                                featureList={(selectedOption == SELECTFEATURE)?selectedObjects:parentObjects} />
-                        </TableCell>
-                        {
-                            (selectedObjects?.length >=2) && (selectedOption == SELECTFEATURE) && (
-                                <TableCell align="right" style={{ verticalAlign: 'top', margin:'0' }}>
-                                    <SelectedMatesRelation mates={mates} featureList={selectedObjects} />
-                                </TableCell>
-                            )
-                        }                                                                 
-                    </TableRow>
-                </TableBody>
-            </Table>
-            </TableContainer> 
-            </Paper>
+        <Grid container direction={"column"} spacing={0} >
+        
+            <Grid aria-label="simple table"  style={{ verticalAlign: 'top', margin:'0', display: 'flex' }}>                
+                <Grid style={{ verticalAlign: 'top', margin:'0' }}>
+                    <SelectedFeatureMenu 
+                        features = {(selectedOption == SELECTFEATURE)}
+                        featureList={(selectedOption == SELECTFEATURE)?selectedObjects:parentObjects} />
+                </Grid>
+                {
+                    (selectedObjects?.length >=2) && (selectedOption == SELECTFEATURE) && (
+                        <Grid align="right" style={{ verticalAlign: 'top', margin:'0' }}>
+                            <SelectedMatesRelation mates={mates} featureList={selectedObjects} />
+                        </Grid>
+                    )
+                }                                                                 
+                  
+            </Grid>
+           
         </Grid>        
         </>
     )

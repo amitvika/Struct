@@ -6,7 +6,7 @@ const SliderState = (props) => {
   let prevslider = value;
  
   console.log("First slider",sliderState);
-  return <div style={{width:'80%', height:'120%', top:'-20%', zIndex: 1000}}>
+  return <div style={{width:'80%', height:'120%', top:'-20%'}}>
     <Slider zindex="tooltip" style={{width:'80%'}}
       {...props}
       valueLabelDisplay={'auto'}
