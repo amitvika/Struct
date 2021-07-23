@@ -726,7 +726,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     }
     return (
         <>
-            <Paper style={{ margin: 10, padding: 10, display: 'inline-flex' }}>
+            <Paper style={{ margin: 10, padding: 10, display: 'inline-flex', minWidth: '100%' }}>
                 {/* <Grid container spacing={0} > */}
                 {/* <Grid item xs={6} style={{display: 'flex'}}> */}
                 {/* <div> */}
