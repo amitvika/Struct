@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import MaterialTable from '@material-table/core';
-import Radio from '@material-ui/core/Radio';
-import Grid from '@material-ui/core/Grid';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { gltf_Dict,hexToRGB,rgbToHex } from 'src/gltf/Tree/utils';
-import ColorPickerState from './ColorPickerState';
-import SliderState from './SliderState';
+import React, { useState, useEffect, Component } from 'react';
+//import MaterialTable from '@material-table/core';
+//import Radio from '@material-ui/core/Radio';
+//import Grid from '@material-ui/core/Grid';
+//import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { gltf_Dict } from 'src/gltf/Tree/utils';
+//import ColorPickerState from './ColorPickerState';
+//import SliderState from './SliderState';
 import ToysOutlinedIcon from '@material-ui/icons/ToysOutlined';
 import FilterDramaSharpIcon from '@material-ui/icons/FilterDramaSharp';
 import AllInboxOutlinedIcon from '@material-ui/icons/AllInboxOutlined';
@@ -232,8 +232,8 @@ class MultipleDetailPanels extends React.Component {
   }
 }
 export default MultipleDetailPanels;
+*/
 
-/*
 import 'react-virtualized/styles.css';
 import 'react-virtualized-tree/lib/main.css'
 import 'material-icons/css/material-icons.css';
@@ -241,7 +241,7 @@ import classNames from 'classnames';
 import Tree from 'react-virtualized-tree';
 import { renderers } from 'react-virtualized-tree';
 
-import { Nodes } from './sample';
+//import { Nodes } from './sampleTree';
 
 const {Expandable} = renderers;
 
@@ -250,27 +250,42 @@ const SELECT = 3;
 
 
 const Selection = ({node, children, onChange}) => {
-  const {state: {selected} = {}} = node;
+
+  
+  const {state: {selected} = {selected:node.selectedshell}} = node;
+ /*  node = {
+    ...node,
+    state: {
+      ...(node.state || {}),
+      selected:node.selectedshell,
+    }
+  }; */
+   
   const className = classNames({
     'mi mi-check-box': selected,
     'mi mi-check-box-outline-blank': !selected,
   });
-
+  console.log("Initial:",node);
   return (
     <span>
       <i
-        className={className}
-        onClick={() =>
-          onChange({
-            node: {
-              ...node,
-              state: {
-                ...(node.state || {}),
-                selected: !selected,
+        className={className}       
+        onClick={
+          () => {
+            //node.selectedshell = !node.selectedshell;
+            //console.log("Click",node);
+            console.log("I clicked here",onChange);
+            onChange({
+              node: {
+                ...node,
+                state: {
+                  ...(node.state || {}),
+                  selected: !selected,
+                },
               },
-            },
-            type: SELECT,
-          })
+              type: SELECT,
+            })
+          }
         }
       />
       {children}
@@ -280,66 +295,213 @@ const Selection = ({node, children, onChange}) => {
 
 class Extensions extends Component {
   state = {
-    nodes: Nodes,
+    nodes: this.props.nodes,
+  };
+  constructor(props) {
+    super(props);
+    this.setState(this.props.nodes);
+    console.log("While constructing",this.state.nodes,this.props.nodes);
+  }
+  componentDidMount() {   
+    this.setState(this.props.nodes);
+    console.log("While mounting",this.state.nodes,this.props.nodes);
+  }
+  static getDerivedStateFromProps(nextProps, prevState) {
+			if ( (nextProps.nodes !== prevState.nodes)  ) {
+			return {
+				nodes:nextProps.nodes
+			};
+		} else {
+			return null;
+		} 
+	}
+  handleExpandChange = (nodes) => {
+    this.setState({nodes:nodes});   
+    console.log("On Expand",nodes);
+  };
+  
+  handleSelectChange = (nodes) => {
+    this.setState({nodes:nodes});
+    const mySelectedNodes = this.nodeFindHandler(nodes);
+    if(this.props.onSelectionChange) {
+      console.log("On Select",mySelectedNodes,nodes);
+      this.props.onSelectionChange(mySelectedNodes);
+    } else {
+      console.log("On Select",nodes,mySelectedNodes);
+    }
+    
   };
 
-  handleChange = nodes => {
-    this.setState({nodes});
+  findSelectedNodes = (nodes) => { 
+    console.log("finding",nodes);   
+    if(nodes.selectedshell) {
+      return [nodes];
+    } else {
+      return [];
+    }
   };
 
-  selectNodes = (nodes, selected) =>
-    nodes.map(n => ({
+  nodeFindHandler = (nodes) => {
+   let output=[];
+   nodes.map(node => {     
+      if ((node.children) && (node.children.length>0)) {
+        output=[...output,...this.findSelectedNodes(node),...this.nodeFindHandler(node.children)];
+      
+      } else {
+        output=[...output,...this.findSelectedNodes(node)];
+      }
+
+    });
+    return output;
+  }
+
+
+  selectNodes = (nodes, selected) => {    
+    const myNodes= nodes.map(n => ({
       ...n,
-      children: n.children ? this.selectNodes(n.children, selected) : [],
+      children: (n.children && (n.children.length>0)) ? this.selectNodes(n.children, selected) : [],
       state: {
         ...n.state,
         selected,
       },
+      selectedshell: selected
     }));
+    console.log("SelectNodes",myNodes);
+    return myNodes;
+  };
 
-  nodeSelectionHandler = (nodes, updatedNode) =>
-    nodes.map(node => {
-      if (node.id === updatedNode.id) {
-        return {
-          ...updatedNode,
-          children: node.children ? this.selectNodes(node.children, updatedNode.state.selected) : [],
-        };
-      }
+  nodeInnerSelectionHandler = (nodes, updatedNode) => {
+    return nodes.map(node => {
+       if (node.id === updatedNode.id) {         
+          const myNode= {
+            ...updatedNode,           
+            children: ((node.children) && (node.children.length>0)) ? 
+              this.selectNodes(node.children, updatedNode.state.selected) : [],
+            selectedshell: updatedNode.state.selected
+          };
+          console.log("Top selection recursion",myNode);
+          return myNode;
+       }
+ 
+       if ((node.children) && (node.children.length>0)) {  
+          const myNode = {...node, children: this.nodeInnerSelectionHandler(node.children, updatedNode)}
+          console.log("Inner selection recursion",myNode);        
+          return myNode;
+       }  
+       console.log("Bottom selection recursion",node);    
+       return node;
+     });
+    
+  }
 
-      if (node.children) {
-        return {...node, children: this.nodeSelectionHandler(node.children, updatedNode)};
-      }
-
-      return node;
-    });
+  nodeSelectionHandler = (nodes, updatedNode) => {
+    const myNodes= this.nodeInnerSelectionHandler(nodes, updatedNode);  
+    console.log("SelectChangeHandler",myNodes); 
+    this.handleSelectChange(myNodes);
+    return myNodes;
+  }
 
   render() {
-      console.log("Nodes",this.state.nodes);
+      console.log("While rendering",this.state.nodes,this.props.nodes);
+      
     return (
       <Tree
-        nodes={this.state.nodes}
-        onChange={this.handleChange}
+        nodes={this.state.nodes}  
+        onChange={this.handleExpandChange}    
         extensions={{
           updateTypeHandlers: {
             [SELECT]: this.nodeSelectionHandler,
           },
         }}
       >
-        {({style, node, ...rest}) => (
+        {({style, node, ...rest}) =>{ 
+          const myName = node[gltf_Dict['name']];
+          const first4chars = myName.slice(0, 4);
+				  const first6chars = myName.slice(0, 6);
+          let myIcon = null;
+          if(first4chars=="FACE") {
+           myIcon= <ToysOutlinedIcon/> 
+          } else if (first4chars=="EDGE") {
+            myIcon= <FilterDramaSharpIcon/>
+          } else if (first4chars=="PART") {
+            myIcon= <AllInboxOutlinedIcon/>
+          } else if (first6chars=="VERTEX") {
+            myIcon= <FiberManualRecordOutlinedIcon/>
+          } else {
+           myIcon= <DeveloperBoardOutlinedIcon/>
+          }
+          return (
           <div style={style}>
-            <Expandable node={node} {...rest}>
-              <Selection node={node} {...rest}>
-                {node.name}
+            <Expandable node={node}  {...rest}>
+              <Selection node={node}  {...rest}>
+                {myIcon}{myName}
               </Selection>
             </Expandable>
           </div>
         )}
+      }
       </Tree>
     );
   }
 }
-export default Extensions
 
+export default function Assembly(props) {
+  const {assemblyTree,changeStateOfSelection,resetSelections} = props;
+  const [nodes,setNodes]=useState(assemblyTree);  
+  let toBuildTree = true;
+  useEffect(() => {
+    console.log("I am building next time");
+    setMyChecked(props.assemblyTree);    
+  }, [props.assemblyTree]);
+  
+  useEffect(() => {
+    if(toBuildTree) {
+      console.log("I am building first time");
+      setMyChecked(props.assemblyTree);   
+    }
+     
+  }, []);
+  
+  const setMyChecked = (tree) => {	
+		setNodes(tree);
+    toBuildTree=false;
+	};
+ 
+  const onSelectionChange= (rows) => {
+    if(rows.length==0) {
+      if (props.resetSelections){
+        props.resetSelections();
+      }
+    } else {
+
+      let event={};
+      event['ctrlKey']=false;
+      rows.forEach(element => {
+        const aShape = element[gltf_Dict['name']];
+        const first4chars = aShape.slice(0, 4);
+        const first6chars = aShape.slice(0, 6);
+        if( (first4chars=="FACE") || (first4chars=="EDGE") || 
+          (first4chars=="PART") || (first6chars=="VERTEX") ) {               
+          element.selectedshell=true;
+          if (props.changeStateOfSelection) {
+            props.changeStateOfSelection(element,event);
+            event['ctrlKey']=true;
+            console.log(element);
+          } else {
+            console.log(props.changeStateOfSelection,changeStateOfSelection);
+          }
+        }                
+      });
+    }                
+  };
+  console.log("before",nodes);
+  /* if(!setTreeNode) {
+    setMyChecked(props.assemblyTree);
+  } */
+  //console.log("after",nodes);
+  return <Extensions onSelectionChange={onSelectionChange} nodes={nodes}/>;
+}
+/*
 const nodes = [{
     value: 'mars',
     label: 'Mars',
@@ -616,7 +778,7 @@ export default function MultipleDetailPanels({ assemblyTree = [] }) {
   )
 }
 
-*/
+
 export default function Assembly(props) {
   const {assemblyTree,changeStateOfSelection,resetSelections} = props;
   const [data, setData] = useState(assemblyTree);
@@ -732,3 +894,4 @@ export default function Assembly(props) {
     //   </Grid>
   )
 }
+*/
