@@ -28,6 +28,7 @@ export default function ProductionTable() {
     const [filteredList, setFilteredList] = useState([]);
     const [isModalOpened, setIsModalOpened] = React.useState(false);
     const [selectedValue, setSelectedValue] = useState({});
+    const [isFactoryEdit, setIsFactoryEdit] = useState(false)
 
     const [columns, setColumns] = useState([
         { title: 'ID', field: 'id', editable: "never" },
@@ -51,24 +52,26 @@ export default function ProductionTable() {
         {
             title: 'Select Factory',
             field: "factory",
-            editable: "never",
+            editable: 'never',
             render: (rowData) => {
                 return (
                     <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={(event) => handleFactoryClick(event, rowData)}>
-                      <Link>  {rowData.factory_id ? rowData.factory_name : 'Select'} </Link></span>
+                        <Link>  {rowData.factory_id ? rowData.factory_name : 'Select'} </Link></span>
                 )
             }
         },
-
     ])
 
     const handleFactoryClick = (event, rowData) => {
+        event.stopPropagation();
         if (rowData.factory_id) {
             history.push(`/factories/${rowData.factory_id}`)
             return;
         }
+        if (isFactoryEdit) {
+            console.log("Factory edit ")
+        }
 
-        event.stopPropagation();
         toggleModal(rowData)
     }
 
