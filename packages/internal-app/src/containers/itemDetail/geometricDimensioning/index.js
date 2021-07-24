@@ -526,7 +526,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                 });
         })
     }
-    const mapdata = {}
+    let mapdata = {}
     const setSelectedShell = (data,setoption) => {
         data.selectedshell = setoption;
         const myID = data[gltf_Dict['id']];
