@@ -271,7 +271,7 @@ const Selection = (props) => {
     'mi mi-check-box flex-wrap': selected,
     'mi mi-check-box-outline-blank flex-wrap': !selected,
   });
-  console.log("Initial:",node);
+  //console.log("Initial:",node);
   
   return (
     <span>
@@ -307,11 +307,11 @@ class Extensions extends Component {
   constructor(props) {
     super(props);
     this.setState(this.props.nodes);
-    console.log("While constructing",this.state.nodes,this.props.nodes);
+    //console.log("While constructing",this.state.nodes,this.props.nodes);
   }
   componentDidMount() {   
     this.setState(this.props.nodes);
-    console.log("While mounting",this.state.nodes,this.props.nodes);
+    //console.log("While mounting",this.state.nodes,this.props.nodes);
   }
   static getDerivedStateFromProps(nextProps, prevState) {
 			if ( (nextProps.nodes !== prevState.nodes)  ) {
@@ -340,7 +340,7 @@ class Extensions extends Component {
   };
 
   findSelectedNodes = (nodes) => { 
-    console.log("finding",nodes);   
+    //console.log("finding",nodes);   
     if(nodes.selectedshell) {
       return [nodes];
     } else {
@@ -373,7 +373,7 @@ class Extensions extends Component {
       },
       selectedshell: selected
     }));
-    console.log("SelectNodes",myNodes);
+    //console.log("SelectNodes",myNodes);
     return myNodes;
   };
 
@@ -386,16 +386,16 @@ class Extensions extends Component {
               this.selectNodes(node.children, updatedNode.state.selected) : [],
             selectedshell: updatedNode.state.selected
           };
-          console.log("Top selection recursion",myNode);
+          //console.log("Top selection recursion",myNode);
           return myNode;
        }
  
        if ((node.children) && (node.children.length>0)) {  
           const myNode = {...node, children: this.nodeInnerSelectionHandler(node.children, updatedNode)}
-          console.log("Inner selection recursion",myNode);        
+          //console.log("Inner selection recursion",myNode);        
           return myNode;
        }  
-       console.log("Bottom selection recursion",node);    
+       //console.log("Bottom selection recursion",node);    
        return node;
      });
     
@@ -409,7 +409,7 @@ class Extensions extends Component {
   }
 
   render() {
-      console.log("While rendering",this.state.nodes,this.props.nodes);
+      //console.log("While rendering",this.state.nodes,this.props.nodes);
       
     return (
       <FilteringContainer nodes={this.state.nodes} >
@@ -424,7 +424,7 @@ class Extensions extends Component {
             },
           }}
         >
-          {({style, node, ...rest}) =>{ 
+          {({style, node, ...rest}) => { 
             let myName = node[gltf_Dict['name']];
             const first4chars = myName.slice(0, 4);
             const first6chars = myName.slice(0, 6);
@@ -445,7 +445,7 @@ class Extensions extends Component {
             myIcon= <DeveloperBoardOutlinedIcon/>
             }
             return (
-              <>
+/*               <>
             {(myName.length>500)&&(
               <div style={style}>
               <div style={{flexWrap:"wrap"}}>
@@ -457,7 +457,7 @@ class Extensions extends Component {
               </div>
             </div>         
             )}
-            {(myName.length<=500)&&(
+            {(myName.length<=500)&&( */
               <div style={style}>
               <Expandable node={node}  {...rest}>
                 <Selection node={node}  {...rest}>
@@ -465,8 +465,8 @@ class Extensions extends Component {
                 </Selection>
               </Expandable>
             </div>
-            )}
-          </>
+         /*    )}
+          </> */
           )}
         }
         </Tree>
@@ -478,17 +478,17 @@ class Extensions extends Component {
 }
 
 export default function Assembly(props) {
-  const {assemblyTree,changeStateOfSelection,resetSelections} = props;
+  const {assemblyTree,OnAddition} = props;
   const [nodes,setNodes]=useState(assemblyTree);  
   let toBuildTree = true;
   useEffect(() => {
-    console.log("I am building next time");
+    //console.log("I am building next time");
     setMyChecked(props.assemblyTree);    
   }, [props.assemblyTree]);
   
   useEffect(() => {
     if(toBuildTree) {
-      console.log("I am building first time");
+      //console.log("I am building first time");
       setMyChecked(props.assemblyTree);   
     }
      
@@ -500,7 +500,12 @@ export default function Assembly(props) {
 	};
  
   const onSelectionChange= (rows) => {
-    if(rows.length==0) {
+    if (props.OnAddition){
+      props.OnAddition(rows);
+    } else {
+      console.log("No additions",props.OnAddition,rows);
+    }
+    /* if(rows.length==0) {
       if (props.resetSelections){
         props.resetSelections();
       }
@@ -524,14 +529,14 @@ export default function Assembly(props) {
           }
         }                
       });
-    }                
+    }   */              
   };
-  console.log("before",nodes);
+  //console.log("before",nodes);
   /* if(!setTreeNode) {
     setMyChecked(props.assemblyTree);
   } */
   //console.log("after",nodes);
-  return <Extensions onSelectionChange={onSelectionChange} nodes={nodes}/>;
+  return <Extensions onSelectionChange={OnAddition} nodes={nodes}/>;
 }
 /*
 const nodes = [{

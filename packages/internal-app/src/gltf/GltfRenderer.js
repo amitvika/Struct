@@ -2804,6 +2804,7 @@ class GLTFRenderer extends Component {
                 }
                 const myAllChilds = this.findMyParentChilds(meshmaterial);
                 var copy_selectobjects = this.arrayCopy(this.state_selectedObjects);
+                console.log(myAllChilds);
                 myAllChilds.forEach(element => {
                     element.selectedshell = meshmaterial.selectedshell;
                     if (meshmaterial.selectedshell) {
@@ -2848,10 +2849,35 @@ class GLTFRenderer extends Component {
 
                     }
                 });
+                console.log(this.state_selectedObjects,meshmaterial);
 
             }
         }
     };
+
+    doOneSelection = (element,event) => {
+        const aShape = element[gltf_Dict['name']];
+        const first4chars = aShape.slice(0, 4);
+        const first6chars = aShape.slice(0, 6);
+        if( (first4chars=="FACE") || (first4chars=="EDGE") || 
+        (first4chars=="PART") || (first6chars=="VERTEX") ) {               
+        element.selectedshell=true;
+        const mymesh = this.findMyMaterial(element);                       
+        console.log("Before",mymesh);
+        if (mymesh) {
+            mymesh.selectedshell=true;
+            this.changeStateOfSelection(mymesh, event);
+            if (this.props.onClick) {
+                const mytask =  this.props.onClick(mymesh, SELECTDISTANCE, event);                                                                      
+                console.log(element,mymesh);
+            } else {
+                console.log("No Click functions found",this.props.onClick,element);
+            }
+            event['ctrlKey']=true;
+        }
+        console.log("aftet",mymesh);
+        }  
+    }
 
     changeparts = () => {
 
@@ -2873,7 +2899,7 @@ class GLTFRenderer extends Component {
             ((this.props.whatchanged == SELECTOPAQUE) &&
                 (this.dataopaque != changedata[gltf_Dict["A"]])) ||
             ((this.props.whatchanged == SELECTDISTANCE) &&
-                (this.selectedshell != changedata.selectedshell))
+                (this.selectedshell != changedata))
         ) ) {
             this.whatchanged = this.props.whatchanged;
             this.changeddataarray = changedata;
@@ -3028,7 +3054,51 @@ class GLTFRenderer extends Component {
             }
             if (this.props.whatchanged == SELECTDISTANCE) {
                 console.log("Ok Here?",changedata);
-                this.selectedshell = changedata.selectedshell;
+                if(changedata.length==0) {
+                    if(this.props.resetSelections){
+                        this.props.resetSelection();
+                    }
+                } else {
+   
+                    let event={};
+                    event['ctrlKey']=false;
+
+                    changedata.reduce(
+                        (p, x) =>
+                          p.then(_ => this.doOneSelection(x,event)),
+                        Promise.resolve()
+                    );
+
+                    /*
+                    changedata.forEach(element => {
+                        const aShape = element[gltf_Dict['name']];
+                        const first4chars = aShape.slice(0, 4);
+                        const first6chars = aShape.slice(0, 6);
+                        if( (first4chars=="FACE") || (first4chars=="EDGE") || 
+                        (first4chars=="PART") || (first6chars=="VERTEX") ) {               
+                        element.selectedshell=true;
+                        const mymesh = this.findMyMaterial(element);                       
+                        console.log("Before",mymesh);
+                        if (mymesh) {
+                            mymesh.selectedshell=true;
+                            this.changeStateOfSelection(mymesh, event);
+                            if (this.props.onClick) {
+                                this.props.onClick(mymesh, SELECTDISTANCE, event);                                                                                         
+                                console.log(element,mymesh);
+                            } else {
+                                console.log("No Click functions found",this.props.onClick,element);
+                            }
+                            event['ctrlKey']=true;
+                        }
+                        
+                        }                
+                    });*/
+                        
+                }
+                if(this.props.resetSelectionFromTree) {
+                    this.props.resetSelectionFromTree();
+                }
+                /* this.selectedshell = changedata.selectedshell;
                 if (changedata[gltf_Dict["leaf"]]) {
                     if (changedata[gltf_Dict["name"]]) {
                         //console.log(this.partsMeshes[changedata.binId-1]);
@@ -3036,12 +3106,12 @@ class GLTFRenderer extends Component {
                         const mymesh = this.findMyMaterial(changedata);                       
                         console.log("Before",mymesh);
                         if (mymesh) {
-                           /*  mymesh.selectedshell = changedata.selectedshell;
+                            mymesh.selectedshell = changedata.selectedshell;
                             if (changedata.selectedshell) {
                                 this.setSelectionColor(mymesh);
                             } else {
                                 mymesh.material.color.setHex(mymesh.currentHex);
-                            } */
+                            }
                             const event = {ctrlKey:this.props.ctrlKey}
                             this.changeStateOfSelection(mymesh, event);
                         }
@@ -3052,7 +3122,7 @@ class GLTFRenderer extends Component {
 
                 } else {
                     console.log("could not get leaf",changedata,gltf_Dict["leaf"],changedata[gltf_Dict["leaf"]]);
-                }
+                } */
             }
         }
     };
