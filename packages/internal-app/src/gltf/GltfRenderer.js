@@ -2802,6 +2802,7 @@ class GLTFRenderer extends Component {
                         }
                     });
                 }
+                console.log(meshmaterial.name);
                 const myAllChilds = this.findMyParentChilds(meshmaterial);
                 var copy_selectobjects = this.arrayCopy(this.state_selectedObjects);
                 console.log(myAllChilds);
@@ -3056,7 +3057,7 @@ class GLTFRenderer extends Component {
                 console.log("Ok Here?",changedata);
                 if(changedata.length==0) {
                     if(this.props.resetSelections){
-                        this.props.resetSelection();
+                        this.props.resetSelections();
                     }
                 } else {
    

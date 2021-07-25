@@ -327,9 +327,13 @@ class Extensions extends Component {
     console.log("On Expand",nodes);
   };
   
-  handleSelectChange = (nodes) => {
+  handleSelectChange = (nodes,updatedNode) => {
     this.setState({nodes:nodes});
-    const mySelectedNodes = this.nodeFindHandler(nodes);
+    const mySelectedNodes = this.nodeFindHandler(nodes,updatedNode);
+    console.log(updatedNode);
+    if(updatedNode.selectedshell) {
+      mySelectedNodes.push(updatedNode); // If this is not in the last promise overacts to select nothing..
+    }
     if(this.props.onSelectionChange) {
       console.log("On Select",mySelectedNodes,nodes);
       this.props.onSelectionChange(mySelectedNodes);
@@ -339,23 +343,23 @@ class Extensions extends Component {
     
   };
 
-  findSelectedNodes = (nodes) => { 
+  findSelectedNodes = (nodes,updatedNode) => { 
     //console.log("finding",nodes);   
-    if(nodes.selectedshell) {
+    if(nodes.selectedshell && (updatedNode.id !=nodes.id) ) {
       return [nodes];
     } else {
       return [];
     }
   };
 
-  nodeFindHandler = (nodes) => {
+  nodeFindHandler = (nodes,updatedNode) => {
    let output=[];
    nodes.map(node => {     
       if ((node.children) && (node.children.length>0)) {
-        output=[...output,...this.findSelectedNodes(node),...this.nodeFindHandler(node.children)];
+        output=[...output,...this.findSelectedNodes(node,updatedNode),...this.nodeFindHandler(node.children,updatedNode)];
       
       } else {
-        output=[...output,...this.findSelectedNodes(node)];
+        output=[...output,...this.findSelectedNodes(node,updatedNode)];
       }
 
     });
@@ -402,9 +406,10 @@ class Extensions extends Component {
   }
 
   nodeSelectionHandler = (nodes, updatedNode) => {
+    updatedNode.selectedshell = updatedNode.state.selected;
     const myNodes= this.nodeInnerSelectionHandler(nodes, updatedNode);  
     console.log("SelectChangeHandler",myNodes); 
-    this.handleSelectChange(myNodes);
+    this.handleSelectChange(myNodes,updatedNode);
     return myNodes;
   }
 
