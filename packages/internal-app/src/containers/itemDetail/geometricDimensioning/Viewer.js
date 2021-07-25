@@ -3,11 +3,11 @@ import GLTFRenderer from '../../../gltf/GltfRenderer';
 import {    
     CircularProgress
 } from "@material-ui/core";
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY } from "../../../gltf/Tree/utils";
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, SELECTDISTANCE } from "../../../gltf/Tree/utils";
 const DEFAULTMATERIALNAME = "Basic";
 
 export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', activefile = '', 
-    isLoading=false, selectedOption = SELECTSOLID, splitMethod = SELECTHIRERACHY,
+    isLoading=false, renderdata={}, selectedOption = SELECTSOLID, splitMethod = SELECTHIRERACHY,
     handleModelClick = () => { },  setSelectedOption= () => { }, setCtrlKey= () => { }, 
     resetSelections= () => { },  selectAllSelectedSolids = () => { }     }) {
     //console.log(gltfjson);
@@ -15,7 +15,12 @@ export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', act
     if (gltfjsonlen > 0) {
         gltfjsonlen += gltfjson?.gltf?.accessors?.length;
     }
-    //console.log("Active File",activefile, gltfjson, gltfjsonlen, isLoading);
+    let changedata = {};
+    if(renderdata) {
+        console.log(renderdata);
+        changedata=renderdata;
+    }
+    console.log("Active File",activefile,"RenderB", renderdata, "RenderA", gltfjson, gltfjsonlen, isLoading);
     return (
         <>
             {
@@ -30,11 +35,11 @@ export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', act
                     touchcolor={DEFAULTTOUCHCOLOR}
                     selectedoption={selectedOption}
                     splitmethod={splitMethod}
-                    changedata={[]}
+                    changedata={changedata}
                     data2texture={null}
                     data3texture={null}
                     materialtype={DEFAULTMATERIALNAME}
-                    whatchanged={0} 
+                    whatchanged={SELECTDISTANCE} 
                     dataselection={0}
                     onClick={handleModelClick}
                     ctrlKey={ctrlKey}

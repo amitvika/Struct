@@ -239,19 +239,21 @@ import 'react-virtualized-tree/lib/main.css'
 import 'material-icons/css/material-icons.css';
 import classNames from 'classnames';
 import Tree from 'react-virtualized-tree';
-import { renderers } from 'react-virtualized-tree';
+import { renderers, FilteringContainer } from 'react-virtualized-tree';
 
 //import { Nodes } from './sampleTree';
 
 const {Expandable} = renderers;
+//const {getNodeRenderOptions} = selectors
 
 const SELECT = 3;
 
 
 
-const Selection = ({node, children, onChange}) => {
+const Selection = (props) => {
 
-  
+  const {node, children, onChange, measure} = props;
+ 
   const {state: {selected} = {selected:node.selectedshell}} = node;
  /*  node = {
     ...node,
@@ -260,12 +262,17 @@ const Selection = ({node, children, onChange}) => {
       selected:node.selectedshell,
     }
   }; */
-   
+  useEffect(() => {
+    measure();    
+  }, []);
+  
+  
   const className = classNames({
-    'mi mi-check-box': selected,
-    'mi mi-check-box-outline-blank': !selected,
+    'mi mi-check-box flex-wrap': selected,
+    'mi mi-check-box-outline-blank flex-wrap': !selected,
   });
   console.log("Initial:",node);
+  
   return (
     <span>
       <i
@@ -274,7 +281,7 @@ const Selection = ({node, children, onChange}) => {
           () => {
             //node.selectedshell = !node.selectedshell;
             //console.log("Click",node);
-            console.log("I clicked here",onChange);
+            //console.log("I clicked here",onChange);
             onChange({
               node: {
                 ...node,
@@ -405,42 +412,67 @@ class Extensions extends Component {
       console.log("While rendering",this.state.nodes,this.props.nodes);
       
     return (
-      <Tree
-        nodes={this.state.nodes}  
-        onChange={this.handleExpandChange}    
-        extensions={{
-          updateTypeHandlers: {
-            [SELECT]: this.nodeSelectionHandler,
-          },
-        }}
-      >
-        {({style, node, ...rest}) =>{ 
-          const myName = node[gltf_Dict['name']];
-          const first4chars = myName.slice(0, 4);
-				  const first6chars = myName.slice(0, 6);
-          let myIcon = null;
-          if(first4chars=="FACE") {
-           myIcon= <ToysOutlinedIcon/> 
-          } else if (first4chars=="EDGE") {
-            myIcon= <FilterDramaSharpIcon/>
-          } else if (first4chars=="PART") {
-            myIcon= <AllInboxOutlinedIcon/>
-          } else if (first6chars=="VERTEX") {
-            myIcon= <FiberManualRecordOutlinedIcon/>
-          } else {
-           myIcon= <DeveloperBoardOutlinedIcon/>
-          }
-          return (
-          <div style={style}>
-            <Expandable node={node}  {...rest}>
-              <Selection node={node}  {...rest}>
-                {myIcon}{myName}
-              </Selection>
-            </Expandable>
-          </div>
-        )}
-      }
-      </Tree>
+      <FilteringContainer nodes={this.state.nodes} >
+      {({nodes}) => (
+        <div style={{height: 500}}>
+        <Tree
+          nodes={nodes}  
+          onChange={this.handleExpandChange}    
+          extensions={{
+            updateTypeHandlers: {
+              [SELECT]: this.nodeSelectionHandler,
+            },
+          }}
+        >
+          {({style, node, ...rest}) =>{ 
+            let myName = node[gltf_Dict['name']];
+            const first4chars = myName.slice(0, 4);
+            const first6chars = myName.slice(0, 6);
+            let myIcon = null;
+            if(first4chars=="FACE") {
+            myIcon= <ToysOutlinedIcon/> 
+            myName=myName.slice(4);
+            } else if (first4chars=="EDGE") {
+              myIcon= <FilterDramaSharpIcon/>
+              myName=myName.slice(4);
+            } else if (first4chars=="PART") {
+              myIcon= <AllInboxOutlinedIcon/>
+              myName=myName.slice(4);
+            } else if (first6chars=="VERTEX") {
+              myIcon= <FiberManualRecordOutlinedIcon/>
+              myName=myName.slice(6);
+            } else {
+            myIcon= <DeveloperBoardOutlinedIcon/>
+            }
+            return (
+              <>
+            {(myName.length>500)&&(
+              <div style={style}>
+              <div style={{flexWrap:"wrap"}}>
+              <Expandable node={node}  {...rest}>
+                <Selection node={node}  {...rest}>
+                  {myIcon}{myName}
+                </Selection>
+              </Expandable>
+              </div>
+            </div>         
+            )}
+            {(myName.length<=500)&&(
+              <div style={style}>
+              <Expandable node={node}  {...rest}>
+                <Selection node={node}  {...rest}>
+                  {myIcon}{myName}
+                </Selection>
+              </Expandable>
+            </div>
+            )}
+          </>
+          )}
+        }
+        </Tree>
+        </div>
+      )}
+      </FilteringContainer>
     );
   }
 }

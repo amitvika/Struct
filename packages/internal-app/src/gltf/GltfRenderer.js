@@ -198,6 +198,8 @@ class GLTFRenderer extends Component {
     SELECTED = null;
     mouse = new Vector2(Infinity, Infinity);
     selectedoption = SELECTMEASURE;
+    changeddataarray = [];
+    changedctrlkey = false;
 
     constructor(props) {
         super(props);
@@ -2854,8 +2856,9 @@ class GLTFRenderer extends Component {
     changeparts = () => {
 
         const changedata = this.props.changedata;
-
-        if (this.props.whatchanged != this.whatchanged ||
+        
+        if ( (changedata !=this.changeddataarray) || (this.props.ctrlKey != this.changedctrlkey) ||
+            (this.props.whatchanged != this.whatchanged ||
             changedata[gltf_Dict["name"]] != this.activeId ||
             ((this.props.whatchanged == SELECTCOLOR) &&
                 (this[gltf_Dict["R"]] != changedata[gltf_Dict["R"]] || 
@@ -2871,10 +2874,13 @@ class GLTFRenderer extends Component {
                 (this.dataopaque != changedata[gltf_Dict["A"]])) ||
             ((this.props.whatchanged == SELECTDISTANCE) &&
                 (this.selectedshell != changedata.selectedshell))
-        ) {
+        ) ) {
             this.whatchanged = this.props.whatchanged;
+            this.changeddataarray = changedata;
+            this.changedctrlkey = this.props.ctrlKey;
             this.activeId = changedata[gltf_Dict["name"]];
-
+            console.log(changedata,this.whatchanged);
+           
             if (this.props.whatchanged == SELECTCOLOR) {
                 this[gltf_Dict["R"]] = changedata[gltf_Dict["R"]];
                 this[gltf_Dict["G"]] = changedata[gltf_Dict["G"]];
@@ -3021,21 +3027,31 @@ class GLTFRenderer extends Component {
 
             }
             if (this.props.whatchanged == SELECTDISTANCE) {
-                //console.log(changedata);
+                console.log("Ok Here?",changedata);
                 this.selectedshell = changedata.selectedshell;
                 if (changedata[gltf_Dict["leaf"]]) {
                     if (changedata[gltf_Dict["name"]]) {
                         //console.log(this.partsMeshes[changedata.binId-1]);
                         //const mymaterial = this.partsMeshes[element.binId-1].material;
-                        const mymesh = this.findMyMaterial(changedata);
-                        mymesh.selectedshell = changedata.selectedshell;
-                        //console.log("Before",mymesh);
+                        const mymesh = this.findMyMaterial(changedata);                       
+                        console.log("Before",mymesh);
                         if (mymesh) {
-                            this.changeStateOfSelection(mymesh, null);
+                           /*  mymesh.selectedshell = changedata.selectedshell;
+                            if (changedata.selectedshell) {
+                                this.setSelectionColor(mymesh);
+                            } else {
+                                mymesh.material.color.setHex(mymesh.currentHex);
+                            } */
+                            const event = {ctrlKey:this.props.ctrlKey}
+                            this.changeStateOfSelection(mymesh, event);
                         }
                         //console.log("After",mymesh);
+                    } else {
+                        console.log("Could not get name",changedata,gltf_Dict["name"],changedata[gltf_Dict["name"]])
                     }
 
+                } else {
+                    console.log("could not get leaf",changedata,gltf_Dict["leaf"],changedata[gltf_Dict["leaf"]]);
                 }
             }
         }

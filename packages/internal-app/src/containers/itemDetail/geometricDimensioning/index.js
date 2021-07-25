@@ -96,7 +96,8 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                 splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
                 selectedObjects: [],
                 parentObjects: [],
-                mates: []
+                mates: [],
+                renderdata:{}
             });
         }
     }, [gltfjson]);
@@ -286,6 +287,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         data.forEach((item) => {
             if(!item['id'] ) {
                 item['id']= item[gltf_Dict['id']];
+            }
+            if(!item['name'] ) {
+                item['name']= item[gltf_Dict['name']];
             }
             if(!item['state']) {
                 item['state']={'expanded': true,
@@ -526,12 +530,11 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                 });
         })
     }
-    const mapdata = {}
+    let mapdata = {}
     const setSelectedShell = (data,setoption) => {
         data.selectedshell = setoption;
         const myID = data[gltf_Dict['id']];
-        let curData = mapdata[myID];
-        
+        let curData = mapdata[myID];        
         if(typeof(curData) === "undefined") {
             for (let index = 0; index < state.gltfjson.tree.length; index++) {
                
@@ -548,8 +551,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         if(typeof(curData) !== "undefined") {
             let myTree = state.gltfjson;
             myTree.tree[curData]=data;
-            setState({gltfjson:myTree});
-            //console.log("Setting",myTree,data,curData);
+            setState({gltfjson:myTree,
+                      renderdata:data});
+            console.log("Setting",myTree,data,curData);
         } else {
             console.log("unable to find info",data,myID,curData,state.gltfjson.tree.length)
         }
@@ -638,6 +642,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                 if (event) {
                     toAdd = event.ctrlKey;
                 }
+                setCtrlKey(event.ctrlKey);
                 var copy_selectobjects = [];
                 var copy_parentobjects = [];
                 var copy_mateobjects = [];
@@ -646,7 +651,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                     state.selectedObjects.forEach(element => {
                         if (data[gltf_Dict["name"]] != element[gltf_Dict["name"]]) {
                             element.selectedshell = false;
-                            setSelectedShell(element.setSelectedShell,false);
+                            setSelectedShell(element,false);
                         }
                     });
                     stateLength = 0;
@@ -832,13 +837,13 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                         setSelectedOption={setSelectedOption}
                         setCtrlKey={setCtrlKey}
                         resetSelections={resetSelections}
-                        selectAllSelectedSolids={selectAllSelectedSolids}
+                        selectAllSelectedSolids={selectAllSelectedSolids}                        
                     ></Viewer>
                 </Paper>
                 {/* </div> */}
                 {/* </Grid>
                     <Grid item xs={6} container spacing={0} > */}
-                <div style={{ width: 600 }}>
+                <div style={{ width: 300 }}>
 
                     {(state.gltfjson?.tree) && (
                         // <Grid item xs={2} style={{ width: '20rem' }} >
