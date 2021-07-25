@@ -3,15 +3,15 @@ import CopyLogo from '../assets/images/copy.png';
 import {
     makeStyles
 } from '@material-ui/core';
+import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 
 const useStyles = makeStyles((theme) => ({
     copy_img: {
         cursor: 'pointer',
-        width: '12%',
+        width: '18%',
         marginLeft: '15px',
-        padding: '4px',
-        borderStyle: 'solid',
-        borderRadius: '14px',
+        padding: '2px',
+        opacity: '0.6',
         color: '#371919',
         '&:active': {
             backgroundColor: '#c9c5c5'
@@ -23,11 +23,7 @@ const useStyles = makeStyles((theme) => ({
 function ClipboardText({handleCopyId}) {
     const classes = useStyles();
     return (
-        <img
-            src={CopyLogo}
-            className={classes.copy_img}
-            onClick={handleCopyId}>
-        </img>
+        <FileCopyOutlinedIcon  onClick={handleCopyId} className={classes.copy_img}></FileCopyOutlinedIcon>
     )
 }
 

@@ -8378,6 +8378,11 @@ material-icons@^0.1.0:
   resolved "https://registry.yarnpkg.com/material-icons/-/material-icons-0.1.0.tgz#af3d9117767bd7cefd1f29493fdd7ab4a931cbc8"
   integrity sha1-rz2RF3Z71879HylJP916tKkxy8g=
 
+material-icons@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/material-icons/-/material-icons-1.0.0.tgz#04b96e092ba038a868e8cc801ca340f3f4dc72b4"
+  integrity sha512-3qDwc6MvO8pzTALPBD3vD+GidzvwiFuDc2Z7PiraEFciblWw7Dd+BybTe+7TOK5MJJ6nkf+8BBBTuaKa/5ddLg==
+
 material-table@^1.69.3:
   version "1.69.3"
   resolved "https://registry.yarnpkg.com/material-table/-/material-table-1.69.3.tgz#3f282cffecf5461985965cd4a516bebb8069bf2d"

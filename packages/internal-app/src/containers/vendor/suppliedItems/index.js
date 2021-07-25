@@ -4,19 +4,46 @@ import { Spinner } from "reactstrap";
 import SelectorView from '@ravibasil/common/components/SelectorView';
 import ItemAPI from '@ravibasil/common/api/items.api';
 
-import { columnsFields } from '@ravibasil/common/constants/item'
+// import { columnsFields } from '@ravibasil/common/constants/item'
 import { mapItems } from '../../../utils/mapper'
 import get from 'lodash/get';
 import { useParams, useHistory } from "react-router-dom";
+import { Link } from '@material-ui/core';
+
+
 
 export default function IncomingVendorProducts({
     setVendorInfo,
-    vendorInfo
+    vendorInfo 
 }) {
+
+
+
     const { id } = useParams();
     const history = useHistory();
     const [isLoading, setIsLoading] = useState(false);
 
+
+    
+    const columnsFields = [
+    { title: "ID", field: "id", editable: "never", align: 'center' },
+    { title: "Name", field: "name", type: 'text' },
+    { title: "Source", field: "source" },
+    { title: "Assembly type", field: "assemblyType" },
+    {
+        title: 'Identification',
+        editable: "never",
+        type: 'href',
+        // isFilterColumn: false,
+        // isGridViewVisible: false,
+        render: rowData => rowData && <span style={{ cursor: 'pointer' }}
+            onClick={(event) => {
+                // handleIdentificationClick(event, rowData)
+            console.log("--identifaction coloum")
+                event.stopPropagation();
+            }}><Link > Identification </Link></span>
+    },
+]
     const [state, setState] = useState({
         checkedA: true,
     });
