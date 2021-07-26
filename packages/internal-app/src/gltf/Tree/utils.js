@@ -119,5 +119,6 @@ export const gltf_Dict = {
     "bin":"I",  
     "selected" : "C",
     "display":"D",
-    "subfeatures":"f"
+    "subfeatures":"f",
+    "element":"e"
   }

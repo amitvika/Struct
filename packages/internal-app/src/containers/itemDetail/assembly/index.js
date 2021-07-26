@@ -430,9 +430,15 @@ class Extensions extends Component {
           }}
         >
           {({style, node, ...rest}) => { 
+            let myelement = node[gltf_Dict['element']];           
+            
             let myName = node[gltf_Dict['name']];
-            const first4chars = myName.slice(0, 4);
-            const first6chars = myName.slice(0, 6);
+            let first4chars = myName.slice(0, 4);
+            let first6chars = myName.slice(0, 6);
+            if(myelement) {
+              first4chars = myelement;
+              first6chars = myelement;
+            }
             let myIcon = null;
             if(first4chars=="FACE") {
             myIcon= <ToysOutlinedIcon/> 

@@ -289,6 +289,20 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
             let aNode = false;
             if(item[gltf_Dict['topLeft']]) {
                 aNode = item[gltf_Dict['topLeft']][0] !==null;
+                if(aNode) {
+                    let myelement = item[gltf_Dict['element']];  
+                    let myName = item[gltf_Dict['name']];
+                    let first4chars = myName.slice(0, 4);
+                    let first6chars = myName.slice(0, 6);
+                    if(myelement) {
+                        first4chars = myelement;
+                        first6chars = myelement;
+                    }
+                    if ( (first4chars=="FACE") || (first4chars=="EDGE") 
+                        || (first6chars=="VERTEX") || (first6chars=="SLICER") ) {
+                        aNode = false;
+                    }
+                }
             }
             if(aNode) {
                 if(!item['id'] ) {
