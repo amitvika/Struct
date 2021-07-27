@@ -1333,11 +1333,11 @@ class StepIgesAnalyser():
     def getFeaturesFromShape(self, aShape, subLabel, localTransform, parentColor, subShapes, parentShape=None, disectparts=True, doCompact=True, doParts=False):
         if aShape.IsNull():
             print("No shape was formed when"+str(self.uid)+"\n") 
-            return [],None, None, None
+            return [],[],None, None, None, False
         else:
             if self.checkOpenShell(aShape) :#
                 print("There is no need to add outer infinity shell to the shapes",aShape.Infinite(), aShape.ShapeType())
-                return [],None, None, None
+                return [],[],None, None, None, False
         #if self.includeparts:
         #    disectparts = True
         transformationHash = self.hashCode(localTransform)
@@ -1417,14 +1417,14 @@ class StepIgesAnalyser():
                     mycompound,_ = list_of_shapes_to_compound(only_soilds)                     
                     hashcode = str(hash(mycompound))+transformationHash
                     list_of_compounds.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hashcode))
-                    return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" 
+                    return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" , (len_color_arr>2)
                 else:
-                    return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE"
+                    return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE", False
             #else:
             #    #print("Colors",len(only_Colors),len(only_soilds))                    
             #    #return list_of_solids, edges_dict, vertices_dict
             
-            return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE"
+            return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE", False
         else:
             list_of_solids = []
             shape_disp = BRepBuilderAPI_Transform(aShape, localTransform).Shape()
@@ -1434,7 +1434,7 @@ class StepIgesAnalyser():
                 hashcode = str(hash(aShape))+transformationHash
                 list_of_solids.append((shape_disp,Quantity_Color(parentColor.Red(),parentColor.Green(),parentColor.Blue(), Quantity_TOC_RGB),hashcode))
                 #print(hashcode,localTransform) 
-            return list_of_solids,list_of_solids, None, None, "PART"
+            return list_of_solids,list_of_solids, None, None, "PART", False
                 
     def getDarken(self, faceColor, factor):
         faceR = (faceColor.Red())*factor
@@ -1574,9 +1574,10 @@ class StepIgesAnalyser():
                     self.direntry += "/"+mydirectory   
                 localTransformation = subLocation.Transformation()   
                 atleastOneItemAdded = 0  
-                toAddFaces = True   
+                toAddFaces = True 
+                keep_faces = False  
                 if self.multiplegltf!=0 or (self.edgesize==0 and self.vertexsize==0) :
-                    shape_compounds, shape_faces, shape_edges, shape_vertices, disect_type = \
+                    shape_compounds, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces = \
                         self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, True, (self.edgesize!=0 or self.vertexsize!=0))
                     #atleastOneItemAdded = 0
                     #myFaceType=[]
@@ -1635,15 +1636,17 @@ class StepIgesAnalyser():
                                 #    #print(diffColor, faceColor)
                                 #    #print("I am not writing with shape color in simpleshape",faceColor.Red(),diffColor.Red(),faceColor.Green(),diffColor.Green(),faceColor.Blue(),diffColor.Blue(),subName, subEntry)
                 else:
-                    _, shape_faces, shape_edges, shape_vertices, disect_type  = \
+                    _, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces  = \
                         self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, False, False)
                    
                 #atleastOneItemAdded = 0
                 myFaceType=[]
                 myFeatures=[]
                 if(self.edgesize!=0 or self.vertexsize!=0):
-                    #print("Doing1",self.multiplegltf,self.edgesize,self.vertexsize)
+                    #print("Doing1",self.multiplegltf,self.edgesize,self.vertexsize)                                      
                     if(toAddFaces):
+                        if keep_faces:
+                            atleastOneItemAdded=0  
                         for shape_disp,faceColor,shapeInFile in shape_faces:
                             #print("I have reached here",shapeInFile,disect_type)
                             #shape_disp = BRepBuilderAPI_Transform(shape, subLocation.Transformation()).Shape()
@@ -1680,7 +1683,7 @@ class StepIgesAnalyser():
                                         if(stype==TopAbs_COMPSOLID):
                                                 print("Serving TopAbs_COMPSOLID")                        
                                         print("I have written lowest node",basename,shape_disp.ShapeType() ) """
-                                        if self.multiplegltf!=0:
+                                        if (self.multiplegltf!=0) and (keep_faces==False):
                                             meshname="FACE"
                                             uvPlane=my_parent_id
                                             myFeatures.append((shape_disp,faceColor,filefullname,"FACE"+subName+parentName,"FACE"))
@@ -1690,7 +1693,7 @@ class StepIgesAnalyser():
                                                 part_color=faceColor,
                                                 filenameuri=filefullname,
                                                 filetype="FACE",
-                                                name=disect_type+subName+parentName,
+                                                name="FACE"+subName+parentName,
                                                 parent_idx=parent_node_index,                        
                                             ) 
                                         self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
@@ -1825,7 +1828,7 @@ class StepIgesAnalyser():
                     labelForSubShapesEntry = labelForSubShapes.EntryDumpToString()                    
                     #print("I have reached here 22")
                                        
-                    _, shape_faces, shape_edges, shape_vertices, disect_type = \
+                    _, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces = \
                         self.getFeaturesFromShape(shapeForSubShapes,labelForSubShapes,subLocation.Transformation(),currentColor,None, shape, False, False)                    
                     """  shape_disps = []
                     shape_to_disp = BRepBuilderAPI_Transform(shapeForSubShapes, subLocation.Transformation()).Shape()
