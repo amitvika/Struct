@@ -7,8 +7,8 @@ export default function Index() {
 
     return (
         <div>
-            {/* <DynamicHierarchy /> */}
-            <DynamicCriteria />
+            <DynamicHierarchy />
+            {/* <DynamicCriteria /> */}
 
         </div>
     )

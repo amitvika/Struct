@@ -26,6 +26,7 @@ export default function FileHistory({ link_id, selectedFileName }) {
             .catch(error => {
 
             })
+            console.log("File Nmae", fileHistory)
     }, [selectedFileName]);
 
 
