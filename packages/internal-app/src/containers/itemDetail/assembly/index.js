@@ -271,7 +271,7 @@ const Selection = (props) => {
     'mi mi-check-box flex-wrap': selected,
     'mi mi-check-box-outline-blank flex-wrap': !selected,
   });
-  console.log("Initial:",node);
+  //console.log("Initial:",node);
   
   return (
     <span>
@@ -307,11 +307,11 @@ class Extensions extends Component {
   constructor(props) {
     super(props);
     this.setState(this.props.nodes);
-    console.log("While constructing",this.state.nodes,this.props.nodes);
+    //console.log("While constructing",this.state.nodes,this.props.nodes);
   }
   componentDidMount() {   
     this.setState(this.props.nodes);
-    console.log("While mounting",this.state.nodes,this.props.nodes);
+    //console.log("While mounting",this.state.nodes,this.props.nodes);
   }
   static getDerivedStateFromProps(nextProps, prevState) {
 			if ( (nextProps.nodes !== prevState.nodes)  ) {
@@ -327,9 +327,13 @@ class Extensions extends Component {
     console.log("On Expand",nodes);
   };
   
-  handleSelectChange = (nodes) => {
+  handleSelectChange = (nodes,updatedNode) => {
     this.setState({nodes:nodes});
-    const mySelectedNodes = this.nodeFindHandler(nodes);
+    const mySelectedNodes = this.nodeFindHandler(nodes,updatedNode);
+    console.log(updatedNode);
+    if(updatedNode.selectedshell) {
+      mySelectedNodes.push(updatedNode); // If this is not in the last promise overacts to select nothing..
+    }
     if(this.props.onSelectionChange) {
       console.log("On Select",mySelectedNodes,nodes);
       this.props.onSelectionChange(mySelectedNodes);
@@ -339,23 +343,23 @@ class Extensions extends Component {
     
   };
 
-  findSelectedNodes = (nodes) => { 
-    console.log("finding",nodes);   
-    if(nodes.selectedshell) {
+  findSelectedNodes = (nodes,updatedNode) => { 
+    //console.log("finding",nodes);   
+    if(nodes.selectedshell && (updatedNode.id !=nodes.id) ) {
       return [nodes];
     } else {
       return [];
     }
   };
 
-  nodeFindHandler = (nodes) => {
+  nodeFindHandler = (nodes,updatedNode) => {
    let output=[];
    nodes.map(node => {     
       if ((node.children) && (node.children.length>0)) {
-        output=[...output,...this.findSelectedNodes(node),...this.nodeFindHandler(node.children)];
+        output=[...output,...this.findSelectedNodes(node,updatedNode),...this.nodeFindHandler(node.children,updatedNode)];
       
       } else {
-        output=[...output,...this.findSelectedNodes(node)];
+        output=[...output,...this.findSelectedNodes(node,updatedNode)];
       }
 
     });
@@ -373,7 +377,7 @@ class Extensions extends Component {
       },
       selectedshell: selected
     }));
-    console.log("SelectNodes",myNodes);
+    //console.log("SelectNodes",myNodes);
     return myNodes;
   };
 
@@ -386,30 +390,31 @@ class Extensions extends Component {
               this.selectNodes(node.children, updatedNode.state.selected) : [],
             selectedshell: updatedNode.state.selected
           };
-          console.log("Top selection recursion",myNode);
+          //console.log("Top selection recursion",myNode);
           return myNode;
        }
  
        if ((node.children) && (node.children.length>0)) {  
           const myNode = {...node, children: this.nodeInnerSelectionHandler(node.children, updatedNode)}
-          console.log("Inner selection recursion",myNode);        
+          //console.log("Inner selection recursion",myNode);        
           return myNode;
        }  
-       console.log("Bottom selection recursion",node);    
+       //console.log("Bottom selection recursion",node);    
        return node;
      });
     
   }
 
   nodeSelectionHandler = (nodes, updatedNode) => {
+    updatedNode.selectedshell = updatedNode.state.selected;
     const myNodes= this.nodeInnerSelectionHandler(nodes, updatedNode);  
     console.log("SelectChangeHandler",myNodes); 
-    this.handleSelectChange(myNodes);
+    this.handleSelectChange(myNodes,updatedNode);
     return myNodes;
   }
 
   render() {
-      console.log("While rendering",this.state.nodes,this.props.nodes);
+      //console.log("While rendering",this.state.nodes,this.props.nodes);
       
     return (
       <FilteringContainer nodes={this.state.nodes} >
@@ -424,10 +429,16 @@ class Extensions extends Component {
             },
           }}
         >
-          {({style, node, ...rest}) =>{ 
+          {({style, node, ...rest}) => { 
+            let myelement = node[gltf_Dict['element']];           
+            
             let myName = node[gltf_Dict['name']];
-            const first4chars = myName.slice(0, 4);
-            const first6chars = myName.slice(0, 6);
+            let first4chars = myName.slice(0, 4);
+            let first6chars = myName.slice(0, 6);
+            if(myelement) {
+              first4chars = myelement;
+              first6chars = myelement;
+            }
             let myIcon = null;
             if(first4chars=="FACE") {
             myIcon= <ToysOutlinedIcon/> 
@@ -445,7 +456,7 @@ class Extensions extends Component {
             myIcon= <DeveloperBoardOutlinedIcon/>
             }
             return (
-              <>
+/*               <>
             {(myName.length>500)&&(
               <div style={style}>
               <div style={{flexWrap:"wrap"}}>
@@ -457,7 +468,7 @@ class Extensions extends Component {
               </div>
             </div>         
             )}
-            {(myName.length<=500)&&(
+            {(myName.length<=500)&&( */
               <div style={style}>
               <Expandable node={node}  {...rest}>
                 <Selection node={node}  {...rest}>
@@ -465,8 +476,8 @@ class Extensions extends Component {
                 </Selection>
               </Expandable>
             </div>
-            )}
-          </>
+         /*    )}
+          </> */
           )}
         }
         </Tree>
@@ -478,17 +489,17 @@ class Extensions extends Component {
 }
 
 export default function Assembly(props) {
-  const {assemblyTree,changeStateOfSelection,resetSelections} = props;
+  const {assemblyTree,OnAddition} = props;
   const [nodes,setNodes]=useState(assemblyTree);  
   let toBuildTree = true;
   useEffect(() => {
-    console.log("I am building next time");
+    //console.log("I am building next time");
     setMyChecked(props.assemblyTree);    
   }, [props.assemblyTree]);
   
   useEffect(() => {
     if(toBuildTree) {
-      console.log("I am building first time");
+      //console.log("I am building first time");
       setMyChecked(props.assemblyTree);   
     }
      
@@ -500,7 +511,12 @@ export default function Assembly(props) {
 	};
  
   const onSelectionChange= (rows) => {
-    if(rows.length==0) {
+    if (props.OnAddition){
+      props.OnAddition(rows);
+    } else {
+      console.log("No additions",props.OnAddition,rows);
+    }
+    /* if(rows.length==0) {
       if (props.resetSelections){
         props.resetSelections();
       }
@@ -524,14 +540,14 @@ export default function Assembly(props) {
           }
         }                
       });
-    }                
+    }   */              
   };
-  console.log("before",nodes);
+  //console.log("before",nodes);
   /* if(!setTreeNode) {
     setMyChecked(props.assemblyTree);
   } */
   //console.log("after",nodes);
-  return <Extensions onSelectionChange={onSelectionChange} nodes={nodes}/>;
+  return <Extensions onSelectionChange={OnAddition} nodes={nodes}/>;
 }
 /*
 const nodes = [{
