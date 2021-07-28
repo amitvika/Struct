@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function SimpleBackdrop({ isLoading = false }) {
+export default function LoadingModal({ isLoading = false }) {
     const classes = useStyles();
 
     return (

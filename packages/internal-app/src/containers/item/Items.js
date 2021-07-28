@@ -6,7 +6,7 @@ import Toolbar from '@ravibasil/common/components/TableGridView/Toolbar';
 import GridView from '@ravibasil/common/components/TableGridView/GridView';
 import TableView from '@ravibasil/common/components/TableGridView/TableView';
 import DefaultContainer from '@ravibasil/common/components/DefaultContainer';
-import Backdrop from '@ravibasil/common/components/Backdrop';
+import LoadingModal from '@ravibasil/common/components/LoadingModal';
 
 import { columnsFields } from '@ravibasil/common/constants/item'
 import AddEditItemModal from './AddEditItemModel';
@@ -231,7 +231,7 @@ const Items = ({ handleSave }) => {
             handleAlertClose={handleAlertClose}
             message={message}
             snackBarAlertType={snackBarAlertType}>
-            <Backdrop isLoading={isLoading} />
+            <LoadingModal isLoading={isLoading} />
 
             {isAddEditItemModalOpened && <AddEditItemModal
                 title={isEditing ? "" : "Item"}

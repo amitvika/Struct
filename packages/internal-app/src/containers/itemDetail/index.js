@@ -39,6 +39,7 @@ import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
 import './style.css'
 import { getHierarchySplitFiles, getGltfForStore, getTreeForStore, resourcePathURL } from '@ravibasil/common/api/fileUpload.api'
+import LoadingModal from "@ravibasil/common/components/LoadingModal";
 
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
@@ -56,13 +57,8 @@ const stateprops = {
     materialtype: DEFAULTMATERIALTYPE
 }
 
-const useStyles = makeStyles((theme) => ({
-    tabP: {
-        alignItems: 'flex-start'
-    },
-}));
 const ItemDetail = () => {
-    const classes = useStyles();
+    
     const dispatch = useDispatch();
     const history = useHistory();
     let { id } = useParams();
@@ -91,30 +87,15 @@ const ItemDetail = () => {
                 const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`)
 
                 const _currentItem = get(itemDetailResponse, 'data[0]', {});
-                //console.log("Reached hre0",_currentItem,myTabIndex,tabIndex);
+            
                 dispatch(setCurrentItemAction(_currentItem));
 
-                // if (_currentItem.fileId) {
                 setGLTFAndTree(_currentItem, myTabIndex);
-                // }
-                // const tempGLTFJSon = get(itemDetailResponse, 'data[0].gltfjson', {});
-
-                // if (tempGLTFJSon !== null && tempGLTFJSon !== undefined) {
-                //     setgltfjson(tempGLTFJSon)
-
-                // }
-
+            
                 setIsLoading(false);
             })()
         } else {
-            //if(itemProperties) {
-            //console.log("Reached hre1",currentItem,itemProperties,myTabIndex,tabIndex);
             setGLTFAndTree(itemProperties, myTabIndex);
-            //} else {
-            //console.log("Reached hre2",currentItem,itemProperties,myTabIndex,tabIndex);
-            //    setGLTFAndTree(currentItem,myTabIndex);
-            //}
-
         }
 
     }, [tabIndex]);
@@ -394,12 +375,10 @@ const ItemDetail = () => {
         })
         return tabP
     }
-    if (isLoading) {
-        return <CircularProgress />;
-    }
 
     return (
         <>
+            <LoadingModal isLoading={isLoading} />
             <Grid container>
                 <Grid item sm sm={12}>
                     <SubHeaderWithArrow
@@ -409,9 +388,9 @@ const ItemDetail = () => {
                     <Paper style={{ padding: 10, margin: 10, display: "flex" }}>
                         <Grid>
                             <h4>Item Name: {itemProperties.name}</h4>
-                            <Grid style={{display: 'flex'}}>
+                            <Grid style={{ display: 'flex' }}>
                                 <p>Item ID:{id} </p>
-                                        {/* <ClipboardText handleCopyId={handleCopyId} /> */}
+                                {/* <ClipboardText handleCopyId={handleCopyId} /> */}
                             </Grid>
                         </Grid>
                         <Grid style={{ margin: 'auto' }}>

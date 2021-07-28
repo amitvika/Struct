@@ -8,7 +8,7 @@ import GridView from '@ravibasil/common/components/TableGridView/GridView';
 import ProductionAPI from '@ravibasil/common/api/production.api';
 import ProductionApprovalModal from './ProductionApprovalModal'
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
-import SimpleBackdrop from '@ravibasil/common/components/Backdrop';
+import SimpleLoadingModal from '@ravibasil/common/components/LoadingModal';
 
 export default function Production(props) {
     const dispatch = useDispatch();
@@ -77,7 +77,7 @@ export default function Production(props) {
 
     return (
         <>
-            {isLoading && <SimpleBackdrop open={isLoading} />}
+            {isLoading && <SimpleLoadingModal open={isLoading} />}
             <Heading>Production Approval</Heading>
             {isModalOpened &&
                 <ProductionApprovalModal
