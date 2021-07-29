@@ -6,7 +6,7 @@ import Toolbar from './Toolbar';
 
 import DefaultContainer from '../../components/DefaultContainer';
 import CommonAddUpdateModal from './AddUpdateModal';
-import Backdrop from '../Backdrop';
+import LoadingModal from '../LoadingModal';
 import get from 'lodash/get';
 
 const TableGridView = ({
@@ -206,7 +206,7 @@ const TableGridView = ({
 
     return (
         <>
-            <Backdrop isLoading={isLoading} />
+            <LoadingModal isLoading={isLoading} />
             <DefaultContainer
                 title={title}
                 isHistoryModalOpened={isHistoryModalOpened}

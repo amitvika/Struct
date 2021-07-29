@@ -9,7 +9,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import Backdrop from '@ravibasil/common/components/Backdrop'
+import LoadingModal from '@ravibasil/common/components/LoadingModal'
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -122,7 +122,7 @@ const LoginModal = () => {
                                 }} color="primary">Login</Button>
                         </Box>
                     </form>
-                    <Backdrop isLoading={isLoginStarted} />
+                    <LoadingModal isLoading={isLoginStarted} />
                     <NavLink to='/register'> Go to Registration Page </NavLink>
                 </CardContent>
             </Card>

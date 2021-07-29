@@ -27,6 +27,7 @@ import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action'
 import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY } from "../../../gltf/Tree/utils";
 
 import '../style.css';
+import FileHistory from '@ravibasil/common/containers/design/FileHistory';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -50,10 +51,11 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
     const [isLoading, setIsLoading] = useState(false);
     const [isStepLoaded, setIsStepLoaded] = useState(false);
     const [threejsObject, setThreejsObject] = useState({});
+    const [fileName, setFileName] = useState("");
 
     const [fileId, setFileId] = useState(0);
     const [files, setFiles] = useState([])
-    const [isFileLoadingLoading, setIsFileLoadingLoading] = useState(false);
+    const [isFileLoading, setIsFileLoading] = useState(false);
     const [selectedTab, setselectedTab] = useState("")
     const [value, setValue] = useState(2);
 
@@ -69,12 +71,14 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
     // }, [])
 
     const handleFileUpload = (data) => {
+
         setIsLoading(true);
         upload3DFile(data)
             .then(res => {
                 setFiles([res.data])
                 setFileId(res.data.id);
                 getView(res.data.id);
+                console.log("File Id:", fileId, fileName)
 
                 // setItemProperties(prevData => ({
                 //     ...prevData,
@@ -94,7 +98,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
     }
 
     const getView = (fileId) => {
-        setIsFileLoadingLoading(true)
+        setIsFileLoading(true)
 
         getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0)
             .then(res => res.data)
@@ -107,14 +111,14 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                 }));
                 //console.log(itemProperties);
                 const multiAssmebly = get(data, 'tree', []).length > 0;
-                setgltfjson({ ...data, multiAssmebly: multiAssmebly, gdt:null });
+                setgltfjson({ ...data, multiAssmebly: multiAssmebly, gdt: null });
                 //console.log({...data,multiAssmebly:multiAssmebly});
-                setIsFileLoadingLoading(false);
+                setIsFileLoading(false);
 
                 dispatch(showSuccessAlert({ message: 'File rendered successfully' }));
             })
             .catch(error => {
-                setIsFileLoadingLoading(false);
+                setIsFileLoading(false);
                 dispatch(showErrorAlert({ message: 'Unable to render file' }));
             })
     };
@@ -147,32 +151,32 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
         <div>
             {
                 <>
-                    <Grid style={{display: 'flex'}}>
-                            <Paper style={{ padding: 20, margin: 10, width: '40rem'}} square={true}>
-                                {
-                                    !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoadingLoading &&
-                                    <GLTFRenderer
-                                        //gltfjson={JSON.stringify(gltfjson)}
-                                        gltfobj={gltfjson}
-                                        fileGDT={null}
-                                        activefile={fileId}
-                                        backcolor={DEFAULTBACKCOLOR}
-                                        selectcolor={DEFAULTSELECTCOLOR}
-                                        touchcolor={DEFAULTTOUCHCOLOR}
-                                        selectedoption={SELECTSOLID}
-                                        splitmethod={SELECTHIRERACHY}
-                                        changedata={[]}
-                                        data2texture={null}
-                                        data3texture={null}
-                                        materialtype={DEFAULTMATERIALNAME}
-                                        whatchanged={0} dataselection={0}
-                                    />
-                                }
-                                {
-                                    (isLoading || isFileLoadingLoading) && <CircularProgress />
-                                }
+                    <Grid style={{ display: 'flex' }}>
+                        <Paper style={{ padding: 20, margin: 10, width: '40rem' }} square={true}>
+                            {
+                                !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
+                                <GLTFRenderer
+                                    //gltfjson={JSON.stringify(gltfjson)}
+                                    gltfobj={gltfjson}
+                                    fileGDT={null}
+                                    activefile={fileId}
+                                    backcolor={DEFAULTBACKCOLOR}
+                                    selectcolor={DEFAULTSELECTCOLOR}
+                                    touchcolor={DEFAULTTOUCHCOLOR}
+                                    selectedoption={SELECTSOLID}
+                                    splitmethod={SELECTHIRERACHY}
+                                    changedata={[]}
+                                    data2texture={null}
+                                    data3texture={null}
+                                    materialtype={DEFAULTMATERIALNAME}
+                                    whatchanged={0} dataselection={0}
+                                />
+                            }
+                            {
+                                (isLoading || isFileLoading) && <CircularProgress />
+                            }
 
-                            </Paper>
+                        </Paper>
                         <Grid style={{ width: '60rem' }}>
                             <Paper style={{ padding: 20, margin: 10, fontWeight: 'bold' }}>
                                 <Grid container  >
@@ -202,7 +206,11 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                                         Clear File
                                     </Button>
                                     :
-                                    <FileUpload handleFileUpload={handleFileUpload} itemId={itemId} />
+                                    <>
+                                        <FileUpload  fileName={fileName} setFileName = {setFileName} handleFileUpload={handleFileUpload} itemId={itemId} />
+                                        <FileHistory selectedFileName={fileName}
+                                            link_id={fileId.id} />
+                                    </>
                                 }
                                 {
                                     isLoading && <CircularProgress />

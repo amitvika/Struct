@@ -6,6 +6,7 @@ import ProgressBar from "./ProgressBar";
 import STLConfirmationDialog from './STLConfirmationDialog';
 import Box from '@material-ui/core/Box';
 import { makeStyles } from '@material-ui/core/styles';
+import FileHistory from "../containers/design/FileHistory";
 
 const useStyles = makeStyles((theme) => ({
     custom_file: {
@@ -56,10 +57,10 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DXF, GERBER" }) {
+export default function FileUpload({fileName, setFileName, handleFileUpload, itemId, label = "STEP, DXF, GERBER" }) {
     //State
     const [file, setFile] = useState("");
-    const [fileName, setFileName] = useState("");
+    // const [fileName, setFileName] = useState("");
     const [uploadedFile, setUploadedFile] = useState({});
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState();
@@ -99,35 +100,39 @@ export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DX
     };
 
     return (
-        <div style={{ display: 'flex' }}>
-            <Box component="div" className={classes.custom_file}>
-                <input
-                    id="btn-upload"
-                    name="btn-upload"
-                    className={classes.custom_file_input}
-                    type="file"
-                    onChange={onChange} />
+        <>
+            <div style={{ display: 'flex' }}>
+                <Box component="div" className={classes.custom_file}>
+                    <input
+                        id="btn-upload"
+                        name="btn-upload"
+                        className={classes.custom_file_input}
+                        type="file"
+                        onChange={onChange} />
 
-                <label
-                    className={classes.custom_file_label}
-                    htmlFor="file">
+                    <label
+                        className={classes.custom_file_label}
+                        htmlFor="file">
                         {
-                            isFileChanged? fileName : label 
+                            isFileChanged ? fileName : label
                         }
-                    {/* {label} */}
-                    {/* fileName*/}
-                </label>
+                        {/* {label} */}
+                        {/* fileName*/}
+                    </label>
 
-            </Box>
+                </Box>
 
-            <Button
-                style={{ marginLeft: "1%", width: '25%' }}
-                variant="contained"
-                color="primary"
-                type="button"
-                onClick={onSubmit}            >
-                Load File
-          </Button>
-        </div>
+                <Button
+                    style={{ marginLeft: "1%", width: '25%' }}
+                    variant="contained"
+                    color="primary"
+                    type="button"
+                    onClick={onSubmit}            >
+                    Load File
+                </Button>
+            </div>
+            {/* <FileHistory selectedFileName={fileName}
+                link_id={file.id} /> */}
+        </>
     );
 }

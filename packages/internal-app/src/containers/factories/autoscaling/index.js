@@ -15,7 +15,7 @@ import {
 import DateFnsUtils from "@date-io/date-fns";
 import moment from 'moment';
 import ApprovalModal from '@ravibasil/common/components/ApprovalModal';
-import SimpleBackdrop from '@ravibasil/common/components/Backdrop';
+import SimpleLoadingModal from '@ravibasil/common/components/LoadingModal';
 import { Link } from '@material-ui/core';
 
 export default function Autoscaling() {
@@ -205,7 +205,7 @@ export default function Autoscaling() {
     
     return (
         <>
-            <SimpleBackdrop isLoading={isLoading}/>
+            <SimpleLoadingModal isLoading={isLoading}/>
             <Paper>
                 {
                     isModalOpened &&
