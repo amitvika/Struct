@@ -1,0 +1,167 @@
+.bdb-input label {
+  color: var(--BrewLogixBlue);
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.29;
+  margin-bottom: 5px;
+}
+
+.bdb-input {
+  position: relative;
+}
+
+.bdb-input input::placeholder {
+  color: rgba(0, 59, 113, 0.5);
+}
+
+.bdb-input input {
+  background-color: #e9f1f8;
+  border: 0;
+  border-radius: 3px;
+  color: var(--BrewLogixBlue);
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  outline: none;
+  padding: 0 11px;
+  width: -webkit-fill-available;
+}
+
+/* rounded */
+.bdb-input--rounded input {
+  border: solid 1px var(--BrewLogixBlue);
+  border-radius: 6px;
+}
+
+/* size */
+.bdb-input--small input {
+  font-weight: 500;
+  height: 26px;
+  padding: 0 8px;
+}
+input:disabled{
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.inp-field-cont {
+  position: relative;
+  display: flex;
+}
+
+.input-right-label {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border-left: 1px solid #79add5;
+  color: #003b71;
+  font-size: 14px;
+}
+
+.padding-right-input {
+  padding-right: 115px !important;
+}
+
+label.input-field-label.disabled {
+  color: gray;
+}
+
+input[disabled] {
+  color: gray;
+}
+.location-img-card img{
+  max-height: 200px;
+}
+.grid-img img{
+  height: 150px;
+  width: 150px;
+}
+.no-image-place{
+  height: 150px;
+  border:1px solid #e5e5e5;
+  width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 12px;
+}
+.product-search{
+  width: 100%;
+  background: #e9f1f8;
+}
+body .product-search-bar.ant-select-dropdown{
+  background-color: #e9f1f8;
+}
+.product-search-bar img{
+  height: 50px;
+  float: left;
+}
+.product-search-bar .product-img{
+  display: inline-block;
+}
+.product-search-bar .product-img img{
+  height: 40px;
+}
+.product-search-bar .ant-select-item-option-content{
+  display: flex;
+  align-items: center;
+}
+.product-search-bar .product-txt{
+  padding: 5px;
+}
+.product-search-bar .product-txt h5{
+  font-size: 13px;
+  margin: 0 0 3px 0;
+}
+.product-search-bar .product-txt p{
+  font-size: 11px;
+}
+body .ant-select-multiple .ant-select-selector{
+  background-color: #e9f1f8;
+  border-radius: 3px;
+  min-height: 40px;
+  min-width: 200px;
+  border: none;
+  color: var(--BrewLogixBlue);
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  padding: 11px;
+}
+body .ant-input-number,body .ant-picker{
+    border: solid 1px var(--BrewLogixBlue);
+    background-color: #e9f1f8;
+    border-radius: 3px;
+    color: var(--BrewLogixBlue);
+    font-weight: 500;
+    height: 26px;
+    padding: 0 8px;
+}
+body .ant-input-number-disabled {
+    color: rgba(0, 0, 0, 0.25);
+    cursor: not-allowed;
+    opacity: 0.3;
+}
+body .ant-switch-handle::before{
+    background-color: var(--seafoam-blue);
+    box-shadow: none;
+    height: 15px;
+    width: 15px;
+}
+body .ant-switch{
+  width: 50px;
+  margin-right: 11px;
+  background-color: #ffffff;
+    border: solid 1px var(--seafoam-blue);
+    border-radius: 50px !important;
+}
+body .ant-picker.ant-picker-disabled{
+  opacity: 0.4;
+   background-color: #e9f1f8;
+}

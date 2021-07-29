@@ -1,6 +1,6 @@
 export  const columnsFields = [
     { title: "ID", field: "id", editable: "never", align: 'center' },
-    { title: "Estimated Delivery Date", field: "estimatedDeliveryDate", type: 'numeric' },
+    { title: "Estimated Delivery Date", field: "estimated_delivery_date", type: 'numeric' },
     {
         title: "Item Quantity",
         field: "itemQuantity",
