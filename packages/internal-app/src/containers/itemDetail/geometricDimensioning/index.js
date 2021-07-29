@@ -237,7 +237,6 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         setResetOption(true);
     }
 
-<<<<<<< HEAD
     const buildParentChildTree=(
 		data = [],
         mySelectedOption=0,
@@ -245,31 +244,15 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
 	) => {
 		const tree = [];
 		const childrenOf = {};
-=======
-    const buildParentChildTree = (
-        data = [],
-        { idKey = gltf_Dict['id'], parentKey = gltf_Dict['parentId'], childrenKey = 'children' } = {}
-    ) => {
-        const tree = [];
-        const childrenOf = {};
->>>>>>> e4b008d6ea80cd9a691d74e5cbb7dc3c2f9c4c9d
         data.forEach((item) => {
             item[childrenKey] = [];
         });
         data.forEach((item) => {
-<<<<<<< HEAD
             let visible = false;
             if(item[gltf_Dict['topLeft']]) {
                 visible = item[gltf_Dict['topLeft']][0] !==null;
                 if(visible) {
                     let myelement = item[gltf_Dict['element']];  
-=======
-            let aNode = false;
-            if (item[gltf_Dict['topLeft']]) {
-                aNode = item[gltf_Dict['topLeft']][0] !== null;
-                if (aNode) {
-                    let myelement = item[gltf_Dict['element']];
->>>>>>> e4b008d6ea80cd9a691d74e5cbb7dc3c2f9c4c9d
                     let myName = item[gltf_Dict['name']];
                     let first4chars = myName.slice(0, 4);
                     let first6chars = myName.slice(0, 6);
@@ -288,7 +271,6 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                             first6chars="SLICER";                            
                         }                       
                     }
-<<<<<<< HEAD
                     //console.log("1",myName,first4chars,selectedOption,visible);
                     if (first4chars != "PART") {
                         visible = (mySelectedOption == SELECTMEASURE) || 
@@ -308,11 +290,6 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                             console.log("0",myName,first4chars,mySelectedOption,visible);
                             visible= true;
                         }
-=======
-                    if ((first4chars == "FACE") || (first4chars == "EDGE")
-                        || (first6chars == "VERTEX") || (first6chars == "SLICER")) {
-                        aNode = false;
->>>>>>> e4b008d6ea80cd9a691d74e5cbb7dc3c2f9c4c9d
                     }
                     //console.log("2",myName,first4chars,selectedOption,visible);                    
                     /*  if ( (first4chars=="FACE") || (first4chars=="EDGE") 
@@ -897,13 +874,8 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
 
                     {(state.gltfjson?.tree) && (
                         <Assembly
-<<<<<<< HEAD
                             assemblyTree={buildParentChildTree(state.gltfjson.tree,selectedOption)}
                             OnAddition={addSelectionFromTree}                            
-=======
-                            assemblyTree={buildParentChildTree(state.gltfjson.tree)}
-                            OnAddition={addSelectionFromTree}
->>>>>>> e4b008d6ea80cd9a691d74e5cbb7dc3c2f9c4c9d
                         />
                     )}
                 </div>
