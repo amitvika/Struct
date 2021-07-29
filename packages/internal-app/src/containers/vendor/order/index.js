@@ -6,7 +6,7 @@ import { useHistory } from "react-router-dom";
 import Link from '@material-ui/core/Link';
 import DatePickerForMT from '@ravibasil/common/components/DatePickerForMT';
 import moment from 'moment';
-import IdentificationModal from "../suppliedItems/identificationModal"
+import IdentificationModal from "./identificationModal"
 import { useQuery } from '../../../utils/customHooks';
 
 const Orders = () => {
@@ -41,25 +41,23 @@ const Orders = () => {
     },
     {
       title: 'Identification',
-      field: "id",
+      field: "id_",
       editable: "never",
+      isLink: true,
       isFilterColumn: false,
-      isGridViewVisible: false,
+      onClick: (event, rowData) => {
+        event.stopPropagation();
+        toggleModal(rowData)
+      },
+      // isGridViewVisible: false,
       render: rowData => rowData && <span style={{ cursor: 'pointer' }}
         onClick={(event) => {
-          handleIdentificationClick(event, rowData)
-
-          event.stopPropagation();
+          handleIdentificationClick(event, rowData);
         }}><Link style={{ fontWeight: 'bold' }}> Identification </Link></span>
     },
   ]
 
   const handleIdentificationClick = (event, rowData) => {
-    if (rowData.factory_id) {
-      history.push(`/clients/${rowData.factory_id}`)
-      return;
-    }
-
     event.stopPropagation();
     toggleModal(rowData)
   }
