@@ -5,16 +5,42 @@ import Headding from '@ravibasil/common/components/atoms/Headding'
 import FileUpload from '@ravibasil/common/components/FileUpload'
 import Input from '@ravibasil/common/components/atoms/Input';
 
-export default function IdentificationModal({ isModalOpened, toggleModal }) {
+export default function IdentificationModal({ isModalOpened, toggleModal, saveIdentification }) {
   const [identificationNumber, setIdentificationNumber] = useState([{
     index: 1,
     identityNumber: ''
   }]);
 
   const handleOnChange = (event, identity) => {
+    setIdentificationNumber(preValue => {
+      return preValue.map(item => {
+        if (item.index === identity.index) {
+          return {
+            ...item,
+            identityNumber: event.target.value
+          }
+        }
+        return item;
+      })
+    });
+  }
+
+  const handleRemove = (identity) => {
+    setIdentificationNumber(preValue => {
+      return preValue.filter(item => {
+        if (item.index === identity.index) {
+          return false;
+        }
+        return true;
+      })
+    });
+  }
+
+  const handleSave = () => {
 
   }
 
+  
   return (
     <div>
       <MainModal open={isModalOpened} toggleModal={toggleModal}>
@@ -32,7 +58,7 @@ export default function IdentificationModal({ isModalOpened, toggleModal }) {
               identificationNumber.map((identity, index) => {
                 return (
                   <>
-                    <Grid item xs={12} >
+                    <Grid item xs={8} >
                       <Input
                         label={`Identification Number ${index + 1}`}
                         placeholder="Enter"
@@ -41,7 +67,11 @@ export default function IdentificationModal({ isModalOpened, toggleModal }) {
                         onChange={(event) => handleOnChange(event, identity)}
                       />
                     </Grid>
-                    <Grid item xs={8}></Grid>
+                    <Grid item xs={8}>
+                      <Button variant="contained" color="secondary" onClick={() => handleRemove(identity)}>
+                        Remove
+                      </Button>
+                    </Grid>
                   </>)
               })
             }
@@ -58,7 +88,16 @@ export default function IdentificationModal({ isModalOpened, toggleModal }) {
             </Button>
           </Grid>
 
-
+          <Grid item xs={12} style={{ textAlign: 'center' }}>
+            <Button
+              style={{ marginTop: '20px' }}
+              variant="contained"
+              color="primary"
+              type="button"
+              onClick={handleSave}>
+              Save
+            </Button>
+          </Grid>
         </Grid>
       </MainModal>
     </div>
