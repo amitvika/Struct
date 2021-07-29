@@ -9,11 +9,7 @@ import TableView from '@ravibasil/common/components/TableGridView/TableView';
 import ProductionAPI from '@ravibasil/common/api/production.api';
 import { useDispatch, useSelector } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../../../actions/alert.action';
-import {
-    MuiPickersUtilsProvider,
-    DatePicker
-} from "@material-ui/pickers";
-import DateFnsUtils from "@date-io/date-fns";
+import DatePickerForMT from '@ravibasil/common/components/DatePickerForMT';
 import moment from 'moment';
 import SelectFactoryModal from './SelectFactoryModal'
 
@@ -40,14 +36,14 @@ export default function ProductionTable() {
             type: 'date',
             // value="2013-01-08",
             render: rowData => moment(rowData.start_date).format('DD/MM/YYYY'),
-            editComponent: (props) => <CustomDatePicker {...props} />
+            editComponent: (props) => <DatePickerForMT {...props} />
         },
         {
             title: 'Production End Date',
             field: 'end_date',
             type: 'date',
             render: rowData => moment(rowData.end_date).format('DD/MM/YYYY'),
-            editComponent: (props) => <CustomDatePicker {...props} value={props.value ? props.value : new Date('12/31/2099')} />
+            editComponent: (props) => <DatePickerForMT {...props} value={props.value ? props.value : new Date('12/31/2099')} />
         },
         {
             title: 'Select Factory',
@@ -74,23 +70,6 @@ export default function ProductionTable() {
 
         toggleModal(rowData)
     }
-
-    const CustomDatePicker = (props) => (
-        <MuiPickersUtilsProvider utils={DateFnsUtils}
-            locale={props.dateTimePickerLocalization}>
-            <DatePicker
-                format="dd/MM/yyyy"
-                value={props.value || new Date()}
-                onChange={props.onChange}
-                clearable
-                InputProps={{
-                    style: {
-                        fontSize: 13,
-                    }
-                }}
-            />
-        </MuiPickersUtilsProvider>
-    )
 
     const toggleModal = (data) => {
         if (!isModalOpened) {

@@ -1,23 +1,30 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 
 import TableGridView from '@ravibasil/common/components/TableGridView';
 import ClientAPI from '@ravibasil/common/api/clients.api';
-// import { columnsFields } from '@ravibasil/common/constants/vendorProduct'
 import { useHistory } from "react-router-dom";
 import Link from '@material-ui/core/Link';
+import DatePickerForMT from '@ravibasil/common/components/DatePickerForMT';
+import moment from 'moment';
 
-import IdentificationModal from  "../suppliedItems/identificationModal"
+import IdentificationModal from "../suppliedItems/identificationModal"
 
 const Orders = () => {
     let history = useHistory();
     const handleItemClick = (id) => history.push(`/clients/${id}`);
     const [isModalOpened, setIsModalOpened] = React.useState(false);
     const [selectedValue, setSelectedValue] = useState({});
-
-
+    
     const columnsFields = [
         { title: "ID", field: "id", editable: "never", align: 'center' },
-        { title: "Estimated Delivery Date", field: "estimatedDeliveryDate", type: 'numeric' },
+
+        {
+            title: "Estimated Delivery Date", field: "estimatedDeliveryDate",
+            type: 'date',
+            // value="2013-01-08",
+            render: rowData => moment(rowData.start_date).format('DD/MM/YYYY'),
+            editComponent: (props) => <DatePickerForMT {...props} />
+        },
         {
             title: "Item Quantity",
             field: "itemQuantity",
@@ -36,7 +43,7 @@ const Orders = () => {
                     handleIdentificationClick(event, rowData)
 
                     event.stopPropagation();
-                }}><Link style={{fontWeight: 'bold'}}> Identification </Link></span>
+                }}><Link style={{ fontWeight: 'bold' }}> Identification </Link></span>
         },
     ]
 
@@ -71,8 +78,8 @@ const Orders = () => {
                     setSelectedValue={setSelectedValue}
                     // assignFactory={assignFactory}
                     quantity={true}
-                    // fields={columns} 
-                    />
+                // fields={columns} 
+                />
             }
             <TableGridView
                 title={'Orders'}
