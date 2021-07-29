@@ -20,7 +20,7 @@ export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', act
         console.log(renderdata);
         changedata=renderdata;
     }
-    console.log("Active File",activefile,"RenderB", renderdata, "RenderA", gltfjson, gltfjsonlen, isLoading);
+    console.log("Active File",activefile,"RenderB", renderdata, "RenderA", whatchange, gltfjson, gltfjsonlen, isLoading);
     return (
         <>
             {

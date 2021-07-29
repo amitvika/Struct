@@ -338,7 +338,7 @@ class Extensions extends Component {
       console.log("On Select",mySelectedNodes,nodes);
       this.props.onSelectionChange(mySelectedNodes);
     } else {
-      console.log("On Select",nodes,mySelectedNodes);
+      console.log("No On Select",nodes,mySelectedNodes);
     }
     
   };
@@ -438,6 +438,17 @@ class Extensions extends Component {
             if(myelement) {
               first4chars = myelement;
               first6chars = myelement;
+              if(myelement=="F") {
+                  first4chars="FACE";                            
+              } else if(myelement=="E") {
+                  first4chars="EDGE";                            
+              } else if(myelement=="V") {
+                  first6chars="VERTEX";                            
+              } else if(myelement=="P") {
+                  first4chars="PART";                            
+              } else if(myelement=="S") {
+                  first6chars="SLICER";                            
+              }                       
             }
             let myIcon = null;
             if(first4chars=="FACE") {

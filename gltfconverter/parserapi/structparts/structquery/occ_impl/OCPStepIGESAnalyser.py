@@ -1333,11 +1333,11 @@ class StepIgesAnalyser():
     def getFeaturesFromShape(self, aShape, subLabel, localTransform, parentColor, subShapes, parentShape=None, disectparts=True, doCompact=True, doParts=False):
         if aShape.IsNull():
             print("No shape was formed when"+str(self.uid)+"\n") 
-            return [],[],None, None, None, False
+            return [],[],None, None, " ", False
         else:
             if self.checkOpenShell(aShape) :#
                 print("There is no need to add outer infinity shell to the shapes",aShape.Infinite(), aShape.ShapeType())
-                return [],[],None, None, None, False
+                return [],[],None, None, " ", False
         #if self.includeparts:
         #    disectparts = True
         transformationHash = self.hashCode(localTransform)
@@ -1641,7 +1641,9 @@ class StepIgesAnalyser():
                    
                 #atleastOneItemAdded = 0
                 myFaceType=[]
-                myFeatures=[]
+                myFeaturesFaces=[]
+                myFeaturesEdges=[]
+                myFeaturesVertices=[]
                 if(self.edgesize!=0 or self.vertexsize!=0):
                     #print("Doing1",self.multiplegltf,self.edgesize,self.vertexsize)                                      
                     if(toAddFaces):
@@ -1686,7 +1688,7 @@ class StepIgesAnalyser():
                                         if (self.multiplegltf!=0) and (keep_faces==False):
                                             meshname="FACE"
                                             uvPlane=my_parent_id
-                                            myFeatures.append((shape_disp,faceColor,filefullname,"FACE"+subName+parentName,"FACE"))
+                                            myFeaturesFaces.append((shape_disp,faceColor,filefullname,"FACE"+subName+parentName,"FACE"))
                                         else:   
                                             (_,meshname,uvPlane)=self.add_part(
                                                 shape_disp,
@@ -1734,7 +1736,7 @@ class StepIgesAnalyser():
                                 if self.multiplegltf!=0:
                                     meshname="EDGE"
                                     uvPlane=my_parent_id
-                                    myFeatures.append((shape_disp,edgeColor,filefullname,"EDGE"+subName+parentName,"EDGE"))
+                                    myFeaturesEdges.append((shape_disp,edgeColor,filefullname,"EDGE"+subName+parentName,"EDGE"))
                                     
                                 else:  
                                     (_,meshname,uvPlane)=self.add_part(
@@ -1761,7 +1763,7 @@ class StepIgesAnalyser():
                             if self.multiplegltf!=0:
                                 meshname="VERTEX"
                                 uvPlane=my_parent_id
-                                myFeatures.append((shape_disp,edgeColor,filefullname,"VERTEX"+subName+parentName,"VERTEX"))
+                                myFeaturesVertices.append((shape_disp,edgeColor,filefullname,"VERTEX"+subName+parentName,"VERTEX"))
                                 
                             else:            
                                 (_,meshname,uvPlane)=self.add_part(
@@ -1776,7 +1778,11 @@ class StepIgesAnalyser():
                             #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
                 #print("Doing4",self.multiplegltf,self.edgesize,self.vertexsize,self.includeparts,atleastOneItemAdded, myFeatures)         
                     
-                self.outputFeatures.append({"Id":my_parent_id,"shapes":myFeatures})
+                self.outputFeatures.append(
+                    {"Id":my_parent_id,
+                    "f":myFeaturesFaces,
+                    "e":myFeaturesEdges,
+                    "v":myFeaturesVertices})
                 #print(len(shape_faces),"Got above subshapers")
 
                 if self.includeparts:
@@ -2063,7 +2069,7 @@ class StepIgesAnalyser():
         parent_node_index = 0
         node_index = 0
         self.parentIDs.append(None)
-        mesherDict = self.updateParentChild(name+" "+rootName+" "+rootEntry,None)
+        mesherDict = self.updateParentChild(name+" "+rootName,None)
         self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
         
         node_index = len(self.mstep_dict['nodes'])
@@ -2103,7 +2109,7 @@ class StepIgesAnalyser():
         print("Part is seperated")
             #self.tree+="</ul></li></ul>" 
     
-    def addFeature(self,outputFeature,parentID, treeLen):  
+    def addFeature(self,outputFeature,parentID, treeLen, myFeatureName):  
         #print("I have reached here in getshapes 0",self.output)      
         if self.fname:
             self.output += f"Assembly structure of file: {self.fname}\n\n"
@@ -2134,7 +2140,15 @@ class StepIgesAnalyser():
         parent_node_index = 0
         node_index = 0
         self.parentIDs.append(None)
-        mesherDict = self.updateParentChild(name+" "+rootName+" "+rootEntry,None)
+        myFeatureDisplay = ""
+        if myFeatureName=="f":
+            myFeatureDisplay = "FACE"
+        elif myFeatureName=="e":
+            myFeatureDisplay="EDGE"
+        elif myFeatureName=="v":
+            myFeatureDisplay="VERTEX"
+
+        mesherDict = self.updateParentChild(name+" "+myFeatureDisplay,None)
         mesherDict[self.gltf_Dict["element"]]="SLICER"
         self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
         #print("I have reached here in getshapes 3",self.output)
@@ -2179,7 +2193,7 @@ class StepIgesAnalyser():
                 mesh_dict[self.gltf_Dict["parentId"]]+=treeLen
             else:
                 mesh_dict[self.gltf_Dict["parentId"]]=parentID
-            mesh_dict[self.gltf_Dict["subfeatures"]]=1
+            mesh_dict[self.gltf_Dict["subfeatures"]]=myFeatureName
         dict_return = {
             "gltf":self.mstep_dict,
             "tree":self.tstep_dict['tree'],
@@ -2204,35 +2218,38 @@ class StepIgesAnalyser():
             fh.write(json.dumps({"begin":lenfeature,"end":lenFeatures}, sort_keys=True, indent=2 ))
         for outputFeature in self.outputFeatures:
             #print(outputFeature)
-            myTotalshapes = outputFeature["shapes"] 
-            if(myTotalshapes):
-                myTotalLenShapes = len(myTotalshapes)
-                if self.multiplegltf > 0:
-                    mySplitFiles =  math.ceil(myTotalLenShapes / self.multiplegltf)
-                else:
-                    mySplitFiles = 1
-                start=0
-                myparentID =  outputFeature["Id"] 
-                myParentId_Dict[myparentID]=mySplitFiles
-                lenfeature+=1
-                for iFiles in range(mySplitFiles):
-                    if(mySplitFiles==1):
-                        myshapes = myTotalshapes
+            lenfeature+=1
+            myparentID =  outputFeature["Id"]             
+            myParentId_Dict[myparentID]={}
+            for myFeatureName in ["f","e","v"]:
+                myTotalshapes = outputFeature[myFeatureName]                 
+                myParentId_Dict[myparentID][myFeatureName]=0
+                if(myTotalshapes):
+                    myTotalLenShapes = len(myTotalshapes)
+                    if self.multiplegltf > 0:
+                        mySplitFiles =  math.ceil(myTotalLenShapes / self.multiplegltf)
                     else:
-                        end = start + self.multiplegltf
-                        if end > myTotalLenShapes:
-                            end = myTotalLenShapes
-                        #print("MyStart",start,end)
-                        myshapes= myTotalshapes[start:end]
-                        start = end
-                    if iFiles > 0:       
-                        fname = pathfilename+"-"+str(myparentID)+"-"+str(iFiles)+"."
-                    else:
-                         fname = pathfilename+"-"+str(myparentID)+"."                    
-                    print("Disecting", fname, iFiles+1,"/", mySplitFiles, ",", lenfeature,"/",lenFeatures)
-                    addedTrees = StepIgesAnalyser(filename=fname,shapeslist=["Dummy"]).\
-                        addFeature(myshapes,myparentID,myTreeLen)
-                    myTreeLen+=addedTrees
+                        mySplitFiles = 1
+                    start=0            
+                    myParentId_Dict[myparentID][myFeatureName]=mySplitFiles                    
+                    for iFiles in range(mySplitFiles):
+                        if(mySplitFiles==1):
+                            myshapes = myTotalshapes
+                        else:
+                            end = start + self.multiplegltf
+                            if end > myTotalLenShapes:
+                                end = myTotalLenShapes
+                            #print("MyStart",start,end)
+                            myshapes= myTotalshapes[start:end]
+                            start = end
+                        if iFiles > 0:       
+                            fname = pathfilename+"-"+str(myparentID)+"-"+myFeatureName+str(iFiles)+"."
+                        else:
+                            fname = pathfilename+"-"+str(myparentID)+"-"+myFeatureName+"."                    
+                        print("Disecting", fname, iFiles+1,"/", mySplitFiles, ",", lenfeature,"/",lenFeatures)
+                        addedTrees = StepIgesAnalyser(filename=fname,shapeslist=["Dummy"]).\
+                            addFeature(myshapes,myparentID,myTreeLen,myFeatureName)
+                        myTreeLen+=addedTrees
         with open(newfilename, 'w') as fh:
             fh.write(json.dumps({"begin":lenfeature,"end":lenFeatures,"files":myParentId_Dict}, sort_keys=True, indent=2 ))
     
@@ -2643,7 +2660,7 @@ class StepIgesAnalyser():
             self.gltf_Dict["roughnessFactor"]:None,
             self.gltf_Dict["structures"] : [],  
             self.gltf_Dict["bin"]:None,   
-            self.gltf_Dict["element"]:"",   
+            self.gltf_Dict["element"]:" ",   
             }
         self.updateName(name,mesher_dict,0,True)
         if aShape and self.disectparts:
@@ -3315,7 +3332,7 @@ class StepIgesAnalyser():
             mesher_dict = self.findDictionary(mesherDict)
             #print("mesh",mesher_dict)
             mesher_dict[self.gltf_Dict["step"]] = os.path.basename(filenameuri)
-            mesher_dict[self.gltf_Dict["element"]] = filetype
+            mesher_dict[self.gltf_Dict["element"]] = filetype[0:1]
             #mesher_dict["fileId"] = self.fileId
             mesher_dict[self.gltf_Dict["leaf"]]=True
             if( solidfound > 0 ) :

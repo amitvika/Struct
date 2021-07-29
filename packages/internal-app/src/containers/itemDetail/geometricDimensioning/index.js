@@ -159,15 +159,17 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     // };
 
     const resetSelections = () => {
-        // if (state.secondshell) {
-        //     secondshell.selectedshell = false;
-        // }
-        // if (firstshell) {
-        //     firstshell.selectedshell = false;
-        // }
-        // selectedObjects.forEach(element => {
-        //     element.selectedshell = false;
-        // });
+        if (state.secondshell) {           
+            setSelectedShell(state.secondshell,false);
+        }
+        if (state.firstshell) {            
+            setSelectedShell(state.firstshell,false);
+        }
+        state.selectedObjects.forEach(element => {
+            element.selectedshell = false;
+            setSelectedShell(element,false);
+        });
+        
         setState({
             firstshell: null,
             secondshell: null,
@@ -278,6 +280,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
 
     const buildParentChildTree=(
 		data = [],
+        mySelectedOption=0,
 		{ idKey = gltf_Dict['id'], parentKey = gltf_Dict['parentId'], childrenKey = 'children' } = {}
 	) => {
 		const tree = [];
@@ -286,10 +289,10 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
             item[childrenKey]=[];
         });
         data.forEach((item) => {
-            let aNode = false;
+            let visible = false;
             if(item[gltf_Dict['topLeft']]) {
-                aNode = item[gltf_Dict['topLeft']][0] !==null;
-                if(aNode) {
+                visible = item[gltf_Dict['topLeft']][0] !==null;
+                if(visible) {
                     let myelement = item[gltf_Dict['element']];  
                     let myName = item[gltf_Dict['name']];
                     let first4chars = myName.slice(0, 4);
@@ -297,14 +300,46 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                     if(myelement) {
                         first4chars = myelement;
                         first6chars = myelement;
+                        if(myelement=="F") {
+                            first4chars="FACE";                            
+                        } else if(myelement=="E") {
+                            first4chars="EDGE";                            
+                        } else if(myelement=="V") {
+                            first6chars="VERTEX";                            
+                        } else if(myelement=="P") {
+                            first4chars="PART";                            
+                        } else if(myelement=="S") {
+                            first6chars="SLICER";                            
+                        }                       
                     }
-                    if ( (first4chars=="FACE") || (first4chars=="EDGE") 
+                    //console.log("1",myName,first4chars,selectedOption,visible);
+                    if (first4chars != "PART") {
+                        visible = (mySelectedOption == SELECTMEASURE) || 
+                                (mySelectedOption == SELECTFEATURE);
+                        if (first4chars == "FACE") {                              
+                            visible = visible || (mySelectedOption==SELECTFACE) || 
+                                (mySelectedOption==SELECTEDGE) ||
+                                (mySelectedOption==SELECTCORNER);                              
+                        } else if (first4chars == "EDGE") {                             
+                            visible = visible || 
+                                (mySelectedOption==SELECTEDGE) ||
+                                (mySelectedOption==SELECTCORNER);
+                        } else if (first6chars == "VERTEX") {                             
+                            visible = visible || 
+                                (mySelectedOption==SELECTCORNER);                             
+                        } else {
+                            console.log("0",myName,first4chars,mySelectedOption,visible);
+                            visible= true;
+                        }
+                    }
+                    //console.log("2",myName,first4chars,selectedOption,visible);                    
+                    /*  if ( (first4chars=="FACE") || (first4chars=="EDGE") 
                         || (first6chars=="VERTEX") || (first6chars=="SLICER") ) {
-                        aNode = false;
-                    }
+                        visible = false;
+                     } */
                 }
             }
-            if(aNode) {
+            if(visible) {
                 if(!item['id'] ) {
                     item['id']= item[gltf_Dict['id']];
                 }
@@ -502,9 +537,12 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
 
         structure.objects.forEach(element => {
             //console.log(element);
-            const stepFile = element[gltf_Dict["step"]].slice(0, -5);
-            //if(!firstOne) firstOne=stepFile;
-            stepArray.push(stepFile);
+            if(element[gltf_Dict["step"]]) {
+                const stepFile = element[gltf_Dict["step"]].slice(0, -5);
+                //if(!firstOne) firstOne=stepFile;
+                stepArray.push(stepFile);
+            }
+            
         });
 
         //console.log("getShapeInfo",structure);
@@ -883,7 +921,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                     {(state.gltfjson?.tree) && (
                         // <Grid item xs={2} style={{ width: '20rem' }} >
                         <Assembly
-                            assemblyTree={buildParentChildTree(state.gltfjson.tree)}
+                            assemblyTree={buildParentChildTree(state.gltfjson.tree,selectedOption)}
                             OnAddition={addSelectionFromTree}                            
                         />
                         // </Grid>                   

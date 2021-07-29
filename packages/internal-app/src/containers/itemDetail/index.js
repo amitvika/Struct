@@ -194,7 +194,7 @@ const ItemDetail = () => {
                     setIsLoading(true);
                     //console.log("Down0t",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId,isLoading);
                     getHierarchySplitFiles(item.fileId, true, stateprops.distancegap, stateprops.anglegap,
-                        stateprops.disect, 0, 0.3, 0)
+                        stateprops.disect, 0, 0.3, 0.5)
                         .then(res => res.data)
                         .then((repos) => {
                             const gdt = repos['store'];
