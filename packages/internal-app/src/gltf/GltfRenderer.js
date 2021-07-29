@@ -699,7 +699,7 @@ class GLTFRenderer extends Component {
                                 this.secondshell = node;
                             }
                         }
-                        const visibility = this.visibllity(node.name, true);
+                        const visibility = this.visibllity(node, true);
                         if (this.props.materialtype != "Basic") {
                             const materials = Array.isArray(node.material) ? node.material : [node.material];
                             materials.forEach((material) => {
@@ -2072,11 +2072,10 @@ class GLTFRenderer extends Component {
 
     };
 
-    visibllity = (name, display) => {
-        const first4chars = name.slice(0, 4);
-        const first6chars = name.slice(0, 6);
-        var visible = (first4chars == "PART") ||
-            (this.props.selectedoption == SELECTMEASURE) || 
+    visibllity = (mynode, display) => {
+        const first4chars = mynode?.name.slice(0, 4);
+        const first6chars = mynode?.name.slice(0, 6);
+        var visible = (this.props.selectedoption == SELECTMEASURE) || 
             (this.props.selectedoption == SELECTFEATURE) ;
         //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
         if (first4chars != "PART") {
@@ -2105,6 +2104,20 @@ class GLTFRenderer extends Component {
                     visible = visible || (this.props.selectedoption==SELECTCORNER);
                 }
             }
+        } else {
+            if(display) {
+                visible= true;
+            } else {
+                if(this.props.selectedoption==SELECTFACE){
+                    visible = !mynode.facesLoaded;
+                } else if(this.props.selectedoption==SELECTEDGE){
+                    visible = !mynode.edgesLoaded;
+                } else if(this.props.selectedoption==SELECTCORNER){
+                    visible = !mynode.verticesLoaded;
+                } else {
+                    visible=true;
+                }
+            }
         }
         //console.log(visible,name,this.props.selectedoption);
         /*
@@ -2129,7 +2142,7 @@ class GLTFRenderer extends Component {
         if (this.partsMeshes) {
             var objects = [];
             this.partsMeshes.forEach(element => {
-                if (this.visibllity(element.name, false)) {
+                if (this.visibllity(element, false)) {
                     objects.push(element);
                 }
             });
@@ -2428,6 +2441,7 @@ class GLTFRenderer extends Component {
     };
 
     findSingleNode = (mynode) => {
+        let selectHere = true;
         if(this.props.fileGDT) {
             
             var myParentID = -1;
@@ -2443,7 +2457,7 @@ class GLTFRenderer extends Component {
                 //alert("Unable to find a parent for this!");
                 console.log("Unable to find a parent for this!",mynode);
             }
-            if(myParentID != -1) {
+            if(myParentID != -1 && !findEdges) {
                 let featureSetStart=0;
                 if(!findEdges) {
                     for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
@@ -2455,6 +2469,9 @@ class GLTFRenderer extends Component {
                             } 
                         }
                     }
+                }
+                if(findEdges=="e") {
+                    featureSetStart=2;
                 }
                 if(findEdges!="e" && findEdges!="v") {
                     for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
@@ -2468,6 +2485,9 @@ class GLTFRenderer extends Component {
                         }
                     }
                 }
+                if(findEdges=="f") {
+                    featureSetStart=1;
+                }
                 if(findEdges!="f"  && findEdges!="e" && findEdges!="v") {
                     for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
                         if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
@@ -2480,7 +2500,7 @@ class GLTFRenderer extends Component {
                         }
                     }
                 }
-               
+                console.log("Load Features bef",findEdges,!findEdges,featureSetStart);
                 if(!findEdges || (findEdges!="f"  && findEdges!="e" && findEdges!="v") ) {
                     featureSetStart = 0;
                 }
@@ -2495,7 +2515,8 @@ class GLTFRenderer extends Component {
                 }
                 console.log("Load Features",findEdges,featureSetStart,featureSetFinish);
                 if(featureSetStart < featureSetFinish ) {
-                    this.loadAllEdges(myParentID,featureSetStart, featureSetFinish); //Reusable component..
+                    this.loadAllEdges(myParentID,featureSetStart, featureSetFinish, mynode); //Reusable component..
+                    selectHere=false;
                     /* const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
                    
             
@@ -2580,7 +2601,8 @@ class GLTFRenderer extends Component {
             //alert("Unable to find a GDT for this!");
             //console.log("Unable to find a GDT for this!");
         }
-        return [mynode];
+        return {'node':[mynode],
+                'select':selectHere};
 
     };
 
@@ -2689,9 +2711,11 @@ class GLTFRenderer extends Component {
             return this.findSingleNode(mynode);
         }
         if (this.props.selectedoption == SELECTASSEMBLY) {
-            return this.findFamilyNodes(mynode);
+            return {'node':this.findFamilyNodes(mynode),
+                    'select':true};
         } else {
-            return this.findSiblingNodes(mynode);
+            return {'node':this.findSiblingNodes(mynode),
+                    'select':true};
         }
 
     };
@@ -2878,14 +2902,19 @@ class GLTFRenderer extends Component {
                 }
                 console.log(meshmaterial.name);
                 const myAllChilds = this.findMyParentChilds(meshmaterial);
+                if(myAllChilds.select==false && (this.props.selectedoption!=SELECTASSEMBLY) && (this.props.selectedoption!=SELECTSOLID) ) {
+                    meshmaterial.selectedshell=myAllChilds.select;
+                }
                 var copy_selectobjects = this.arrayCopy(this.state_selectedObjects);
                 console.log(myAllChilds);
-                myAllChilds.forEach(element => {
+                myAllChilds.node.forEach(element => {
                     element.selectedshell = meshmaterial.selectedshell;
                     if (meshmaterial.selectedshell) {
                         this.setSelectionColor(element);
                     } else {
-                        element.material.color.setHex(element.currentHex);
+                        if(element.currentHex){
+                            element.material.color.setHex(element.currentHex);
+                        }                        
                     }
                     if (toAdd) {
                         if (meshmaterial.selectedshell) {
@@ -2913,7 +2942,7 @@ class GLTFRenderer extends Component {
                     } else {
 
                         if (meshmaterial.selectedshell) {
-                            this.state_selectedObjects = myAllChilds;
+                            this.state_selectedObjects = myAllChilds.node;
                             //this.setState({selectedObjects:[meshmaterial]});
                             //this.setSelectionColor(meshmaterial);
                         } else {
@@ -3287,7 +3316,7 @@ class GLTFRenderer extends Component {
         copy_selectobjects.forEach(meshmaterial => {
             const myAllChilds = this.findMyParentChilds(meshmaterial);
             //console.log(myAllChilds);
-            myAllChilds.forEach(elementdata => {
+            myAllChilds.node.forEach(elementdata => {
                 var alreadyPresent = false;
                 for (var i = 0; i < this.state_selectedObjects.length; i++) {
                     if (elementdata.name == this.state_selectedObjects[i].name) {
@@ -3304,7 +3333,7 @@ class GLTFRenderer extends Component {
         });
     };
 
-    loadAllEdges = (allEdges,featureSetStart=0, featureSetFinish=3) => {
+    loadAllEdges = (allEdges,featureSetStart=0, featureSetFinish=3, mynode=null) => {
         const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
                    
         console.log("befor load,",allEdges,featureSetStart, featureSetFinish);
@@ -3367,16 +3396,33 @@ class GLTFRenderer extends Component {
                     console.log("Getting Files of", myParentID, "Items", howManyFilesJson);
                     const featureSet = ["f","e","v"];                    
                     for (let indexFiles = featureSetStart; indexFiles < featureSetFinish; indexFiles++) {
-                        const element = featureSet[indexFiles];
-                        let howManyFiles = howManyFilesJson[element];                        
-                        if(howManyFiles==0) {
-                            howManyFiles=1;
+                        let element = featureSet[indexFiles];
+                        let howManyFiles = 0;
+                        const myType = typeof howManyFilesJson;
+                        if ( ( myType === "number") || (myType === "string") ){
+                            howManyFiles = howManyFilesJson;
+                            element="";
+                            featureSetFinish = featureSetStart+1;
+                        } else {
+                            howManyFiles = howManyFilesJson[element];
+                            if(element=="f") {
+                                mynode.facesLoaded = true;
+                            } else if(element=="e") {
+                                mynode.edgesLoaded = true;                                
+                            } else if(element=="v") {
+                                mynode.verticesLoaded = true;                                
+                            } 
+                            element = "-"+element;
                         }
-                        let fileStore = progressFile + "-" +myParentID.toString()+"-"+element+"3";
+                                               
+                        /* if(howManyFiles==0) {
+                            howManyFiles=1;
+                        } */
+                        let fileStore = progressFile + "-" +myParentID.toString()+element+"3";
                         
                         for (let index = 0; index < howManyFiles; index++) {
                             if(index > 0) {
-                                fileStore = progressFile + "-" +myParentID.toString()+"-"+element+index.toString()+"3";
+                                fileStore = progressFile + "-" +myParentID.toString()+element+index.toString()+"3";
                             }
                             console.log(fileStore);
                             getAFileFromStore(fileStore,"tree")
