@@ -26,7 +26,7 @@ exports.get = async (req, res) => {
 
     }
     catch (error) {
-        console.log('====', error)
+        console.log('Error in item get', error)
         res.status(500).send(error)
     };
 }
@@ -138,7 +138,6 @@ exports.getOne = async (req, res) => {
         res.json(item);
     }
     catch (error) {
-        console.log('====', error)
         res.status(500).send(error)
     };
 }

@@ -5,7 +5,6 @@ const { mapItemOrder, mapItemOrders } = require('../map/itemOrder.map');
 
 exports.get = async (req, res) => {
   try {
-
     const query = buildQuery(req)
 
     let orders = [];
@@ -27,7 +26,6 @@ exports.get = async (req, res) => {
 
   }
   catch (error) {
-    console.log('get', error)
     res.status(500).send(error)
   };
 }

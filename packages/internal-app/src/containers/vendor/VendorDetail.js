@@ -59,9 +59,9 @@ const VendorDetail = () => {
 
     switch (tabIndex) {
       case 1:
-        if (query.get('product')) {
+        if (query.get('item_id')) {
           return <SuppliedItemOption
-            productId={query.get('product')}
+            productId={query.get('item_id')}
             productName={query.get('p_name')} />
         }
         else {
@@ -112,9 +112,6 @@ const VendorDetail = () => {
     setTabIndex(newTabIndex)
 
     let search = `?tab=${newTabIndex}`
-    // if (query.get('product')) {
-    //     search += `&product=${query.get('product')}`
-    // }
 
     history.push({
       pathname: `/vendors/${id}`,

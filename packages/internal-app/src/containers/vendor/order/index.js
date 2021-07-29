@@ -29,10 +29,16 @@ const Orders = () => {
     },
     {
       title: "Item Quantity",
-      field: "itemQuantity",
-      type: 'numeric'
+      field: "item_quantity",
+      type: 'numeric',
+      isFilterColumn: false
     },
-    { title: "Unit Cost", field: "unitCost", type: 'numeric' },
+    {
+      title: "Unit Cost",
+      field: "unit_cost",
+      type: 'numeric',
+      isFilterColumn: false
+    },
     {
       title: 'Identification',
       field: "id",
@@ -85,7 +91,7 @@ const Orders = () => {
         title={'Orders'}
         fields={columnsFields}
         fetchList={() => ItemsAPI.getItemOrders(`item_id=${query.get('item_id')}`)}
-        upsertListItem={ItemsAPI.upsertItemOrder}
+        upsertListItem={(data) => ItemsAPI.upsertItemOrder({ ...data, item_id: query.get('item_id') })}
         isAddEditActionsEnabled={true}
         handleItemClick={handleItemClick}
         isAddEditLinkVisible={true}

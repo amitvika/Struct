@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const ItemOrderSchema = new mongoose.Schema({
-  name: { type: String, required: true },
   item_id: { type: Schema.Types.ObjectId, ref: "Item" },
   vendor_id: { type: Schema.Types.ObjectId, ref: "Vendor" },
   estimated_delivery_date: { type: Date },

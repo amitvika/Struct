@@ -16,9 +16,9 @@ const deleteItemGeomtery = (id) => deleteRequest(`/api/items/${id}/three-model`)
 
 const getItemThreejsData = (id) => getRequest(`/api/items/${id}/three-model`);
 
-const getItemOrders = (query) => getRequest(`/api/items/order?${query}`);
+const getItemOrders = (query) => getRequest(`/api/itemOrder?${query}`);
 
-const upsertItemOrder = (data) => postRequest(`/api/items/order`, data);
+const upsertItemOrder = (data) => postRequest(`/api/itemOrder`, data);
 
 export default {
   getItemsAPI,
