@@ -5,21 +5,25 @@ import ManufacturabilityAnalysis from './manufacturabilityAnalysis'
 
 export default function Assembly({ selectedSubTab, itemId }) {
 
+   
     const [assemblyManufactureValues, setassemblyManufactureValues] = useState({ itemId: itemId });
-
+   
     useEffect(() => {
 
         API.getAssemblyManufactureByItem(itemId)
             .then(res => {
                 if (res.data) {
                     setassemblyManufactureValues(res.data)
+                    console.log(res.data);
                 }
             })
             .catch(error => {
-
+                console.log(error);
             })
 
     }, []);
+
+    
 
     const handleAssemblyManufactureChange = (updatedValues) => {
         updatedValues = {
@@ -49,7 +53,7 @@ export default function Assembly({ selectedSubTab, itemId }) {
                 console.log('error', error)
             })
     }
-
+    console.log(assemblyManufactureValues);
     return (
         <div>
             {
@@ -60,7 +64,7 @@ export default function Assembly({ selectedSubTab, itemId }) {
             }
             {
                 selectedSubTab === 'Manufacturability Analysis' ?
-                    <ManufacturabilityAnalysis /> : null
+                    <ManufacturabilityAnalysis assemblyManufactureValues={assemblyManufactureValues}/> : null
 
             }
 

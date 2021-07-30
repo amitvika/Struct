@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfjson, isLoading, assemblyTree = [] }) {
+export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfjson, isLoading }) {
     const classes = useStyles();
 
     const [state, _setState] = useState({});
@@ -63,6 +63,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     const handleChange = (event) => {
         setValue(event.target.value);
     };
+    /*
     const renderLeafElements = () => {
 
         //console.log(assemblyTree)
@@ -87,7 +88,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                 )
             })
     }
-
+    */
 
     useEffect(() => {
         const includeParts = true;
