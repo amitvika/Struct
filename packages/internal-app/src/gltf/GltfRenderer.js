@@ -2168,7 +2168,7 @@ class GLTFRenderer extends Component {
         } else {
             //console.log(intersects);
             var myObject = intersects.length;
-            for (var i = intersects.length - 1; i >= 0; i--) {
+            for (var i = 0; i < intersects.length; i++) {
                 //console.log(intersects[ i ].object);
                 if (intersects[i].object.type == "Mesh") {
                     //console.log(intersects[ i ].object);

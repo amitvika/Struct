@@ -115,6 +115,8 @@ exports.getAll = async (req, res) => {
                 name: itemDetail.name,
                 fileStore: itemDetail.fileStore,
                 fileGDT: itemDetail.fileGDT,
+                fileMPPS: itemDetail.fileMPPS,
+                fileStack: itemDetail.fileStack,
                 fileId: itemDetail.fileId
             }))
         res.json(itemDetails);
@@ -212,6 +214,8 @@ exports.update = async (req, res) => {
             updateData.fileId = body.fileId || null;
             updateData.fileStore = body.fileStore;
             updateData.fileGDT = body.fileGDT;
+            updateData.fileMPPS = body.fileMPPS;
+            updateData.fileStack = body.fileStack;
         }
 
         if ((body.itemGeometry && body.itemGeometry.isEndProductSelected === false) || body.selectedClientId === null) {

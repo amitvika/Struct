@@ -41,6 +41,12 @@ export const getPartsStackableInfo = (id, distancegap, anglegap) => {
     return axios.get(stackURL);
 }
 
+export const getPartsAssemblyOrder = (id, distancegap, anglegap, explodegap, center,thumbwidth,thumbheight) => {
+    const orderURL = `${host}/assemblyorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&explodegap=${explodegap}&center=${center}&thumbwidth=${thumbwidth}&thumbheight=${thumbheight}`;
+	console.log(orderURL);
+    return axios.get(orderURL);
+}
+
 export const getMinimumDistance = (xmove, ymove, zmove, xrotate, yrotate, zrotate, moverotate, fname, sname) => {
     const getURL = `${host}/mindistance?moverotate=${moverotate}&xmove=${xmove}&ymove=${ymove}&zmove=${zmove}&xrotate=${xrotate}&yrotate=${yrotate}&zrotate=${zrotate}&fname=${fname ? fname : ""}&sname=${sname ? sname : ""}`;
     console.log(getURL);

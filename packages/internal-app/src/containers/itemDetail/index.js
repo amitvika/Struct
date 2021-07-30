@@ -38,11 +38,13 @@ import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
 import './style.css'
-import { getHierarchySplitFiles, getGltfForStore, getTreeForStore, resourcePathURL } from '@ravibasil/common/api/fileUpload.api'
+import { getPartsAssemblyOrder, getHierarchySplitFiles, getGltfForStore, getTreeForStore, resourcePathURL } from '@ravibasil/common/api/fileUpload.api'
 import LoadingModal from "@ravibasil/common/components/LoadingModal";
 
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
+const DEFAULTEXPLODEGAP = 10;
+const DEFAULTFROMCENTER = true;
 const DEFAULTDISECT = false;
 const DEFAULTSHOWDISECT = false;
 const DEFAULTSHOWINFOONSELECT = false;
@@ -51,10 +53,12 @@ const DEFAULTMATERIALTYPE = [{ "id": 1, "name": "Basic" }];
 const stateprops = {
     distancegap: DEFAULTDISTANCEGAP,
     anglegap: DEFAULTANGLEGAP,
+    explodegap: DEFAULTEXPLODEGAP,
     disect: DEFAULTDISECT,
     showdisect: DEFAULTSHOWDISECT,
     showinfoonselect: DEFAULTSHOWINFOONSELECT,
-    materialtype: DEFAULTMATERIALTYPE
+    materialtype: DEFAULTMATERIALTYPE,
+    fromcenter:DEFAULTFROMCENTER
 }
 
 const ItemDetail = () => {
@@ -127,7 +131,49 @@ const ItemDetail = () => {
                 setIsLoading(false);
                 return;
             }
-            if (myTabIndex == "pdcu") {
+            if (myTabIndex == "mpps") {
+                if (!item.fileMPPS || item.fileMPPS === null) {
+                    console.log("Checking Store", item.fileStore);
+                    if (item.fileStore && item.fileStore.length > 0) {
+                        const fileMPPS = item.fileStore.slice(0, item.fileStore.length - 1) + "M";
+                        console.log("Checking MPPS", fileMPPS);
+                        if (doesFileExist(resourcePathURL + fileMPPS + ".gltf")) {
+                            console.log("Found", fileMPPS);
+                            item.fileMPPS = fileMPPS;
+                        } else {
+                            console.log("GDT Not Found", fileMPPS);
+                        }
+                    } else {
+                        console.log("Store Not Found", item.fileStore);
+                    }
+                }
+                if (!item.fileMPPS || item.fileMPPS === null) {
+                    //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+                    setIsLoading(true);
+                    getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap, 
+                        stateprops.explodegap, stateprops.fromcenter,  0, 0)
+                        .then(res => res.data)
+                        .then((repos) => {
+                            const multiAssmebly = get(repos, 'tree', []).length > 0;
+                            const store = repos['store'];
+                            item.fileMPPS= store;
+                            setgltfjson({ ...repos, mpps:store, store:item.fileStore, stack:item.fileStack,
+                                 gdt: item.fileGDT, multiAssmebly: multiAssmebly });
+                            setItemProperties(prevData => ({
+                                ...prevData,
+                                fileMPPS: repos.store
+                            }));
+                            setIsLoading(false);
+                        }).catch(err => {
+                            setIsLoading(false);
+                            console.log("Error While Parsing", err);
+                        });
+                }
+                else {
+                    //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack);
+                }
+            } else if (myTabIndex == "pdcu") {
                 if (!item.fileStore || item.fileStore === null) {
                     //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
                     setIsLoading(true);
@@ -138,7 +184,7 @@ const ItemDetail = () => {
                             const multiAssmebly = get(repos, 'tree', []).length > 0;
                             const store = repos['store'];
                             item.fileStore = store;
-                            setgltfjson({ ...repos, gdt: item.fileGDT, multiAssmebly: multiAssmebly });
+                            setgltfjson({ ...repos, mpps:item.fileMPPS, stack:item.fileStack, gdt: item.fileGDT, multiAssmebly: multiAssmebly });
                             setItemProperties(prevData => ({
                                 ...prevData,
                                 fileStore: repos.store
@@ -151,7 +197,7 @@ const ItemDetail = () => {
                 }
                 else {
                     //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
-                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT);
+                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack);
                 }
             } else {
                 if (!item.fileGDT || item.fileGDT === null) {
@@ -180,7 +226,7 @@ const ItemDetail = () => {
                         .then((repos) => {
                             const gdt = repos['store'];
                             item.fileGDT = gdt;
-                            setgltfjson({ ...repos, gdt: gdt, store: item.fileStore });
+                            setgltfjson({ ...repos, mpps:item.fileMPPS, stack:item.fileStack, gdt: gdt, store: item.fileStore });
                             //console.log("After getting reposi",repos, {...repos,gdt:gdt,store:item.fileStore},isLoading);
                             setItemProperties(prevData => ({
                                 ...prevData,
@@ -196,7 +242,7 @@ const ItemDetail = () => {
                 }
                 else {
                     //console.log("Down1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
-                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT);
+                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack);
                 }
             }
         } else {
@@ -209,8 +255,31 @@ const ItemDetail = () => {
         console.log("---", id)
         event.stopPropagation();
     }
-    const fetchGLTFAndTree = async (myTabIndex, fileStore, fileGDT) => {
-        if (myTabIndex == "pdcu") {
+    const fetchGLTFAndTree = async (myTabIndex, fileStore, fileGDT, fileMPPS, fileStack) => {
+        try {
+            let obj = { gltf: {}, tree: {}, store: fileStore, gdt: fileGDT, mpps: fileMPPS, stack:fileStack };
+            setIsLoading(true);
+            let whichOneToLoad=null;
+            if (myTabIndex == "pdcu") {
+                whichOneToLoad = fileStore;
+            } else if(myTabIndex=="mpps") {
+                whichOneToLoad = fileMPPS;
+            } else if(myTabIndex=="stack") {
+                whichOneToLoad = fileStack;
+            } else {
+                whichOneToLoad = fileGDT;
+            }  
+            const gltfRes = await getGltfForStore(whichOneToLoad);
+            const treeRes = await getTreeForStore(whichOneToLoad);
+            const multiAssmebly = treeRes.length > 0;
+            setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data, multiAssmebly: multiAssmebly });
+            setIsLoading(false);
+
+        } catch (error) {
+            setIsLoading(false);
+            console.log('Error', error);
+        }
+        /* if (myTabIndex == "pdcu") {
             //console.log("Up",myTabIndex,tabIndex,fileStore,fileGDT);
             try {
                 let obj = { gltf: {}, tree: {}, store: fileStore, gdt: fileGDT };
@@ -241,7 +310,7 @@ const ItemDetail = () => {
                 console.log('Error', error);
             }
 
-        }
+        } */
 
 
 
@@ -272,7 +341,7 @@ const ItemDetail = () => {
                     fileGDT={itemProperties.fileGDT}
                     gltfjson={gltfjson}
                     isLoading={isLoading}
-                    assemblyTree={get(gltfjson, 'tree', [])}
+                    //assemblyTree={get(gltfjson, 'tree', [])}
                     tabIndex={tabIndex}
                 />
             case "iupc":
