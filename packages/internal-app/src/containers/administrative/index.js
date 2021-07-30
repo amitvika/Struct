@@ -11,106 +11,105 @@ import { useQuery } from '../../utils/customHooks'
 import TeamSetup from '../teamSetup';
 import TeamTaskSetup from '../teamTaskSetup'
 import AccessSetup from '../accessSetup'
-import AccessConfiguration from "../../page/AccessConfiguration";
 import CriteriaUpload from '../criteriaUpload'
 import Users from '../users'
 import ConfigurationHistory from "src/page/ConfigurationHistory";
 
 const Administrative = () => {
-    const history = useHistory();
-    let query = useQuery();
+  const history = useHistory();
+  let query = useQuery();
 
-    const [isLoading, setIsLoading] = useState(true);
-    const [tabIndex, setTabIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [tabIndex, setTabIndex] = useState(0);
 
-    useEffect(() => {
+  useEffect(() => {
 
 
-        (async () => {
-            setIsLoading(true);
+    (async () => {
+      setIsLoading(true);
 
-            setIsLoading(false);
-        })()
-    }, []);
+      setIsLoading(false);
+    })()
+  }, []);
 
-    useEffect(() => {
-        if (query.get('tab')) {
-            setTabIndex(parseInt(query.get('tab')))
-        }
-    }, [query.get('tab')])
+  useEffect(() => {
+    if (query.get('tab')) {
+      setTabIndex(parseInt(query.get('tab')))
+    }
+  }, [query.get('tab')])
 
-    const renderPageSwitch = () => {
-        switch (tabIndex) {
-            case 0:
-                return <Users />
-            case 1:
-                return <TeamSetup />;
-            case 2:
-                return <TeamTaskSetup />;
-            case 3:
-                return <AccessSetup handleTabChange={handleTabChange} accessSetupId={query.get('accessSetupId')} />
-            case 4:
-                return <CriteriaUpload />
-            case 5:
-                return <ConfigurationHistory /> 
-           
-            default:
-                return "Undefined Tab Index";
-        }
+  const renderPageSwitch = () => {
+    switch (tabIndex) {
+      case 0:
+        return <Users />
+      case 1:
+        return <TeamSetup />;
+      case 2:
+        return <TeamTaskSetup />;
+      case 3:
+        return <AccessSetup handleTabChange={handleTabChange} accessSetupId={query.get('accessSetupId')} />
+      case 4:
+        return <CriteriaUpload />
+      case 5:
+        return <ConfigurationHistory />
+
+      default:
+        return "Undefined Tab Index";
+    }
+  }
+
+  const handleTabChange = (event, newTabIndex, accessSetupId) => {
+    setTabIndex(newTabIndex)
+
+    let search = `?tab=${newTabIndex}`
+    if (accessSetupId) {
+      search += `&accessSetupId=${accessSetupId}`
     }
 
-    const handleTabChange = (event, newTabIndex, accessSetupId) => {
-        setTabIndex(newTabIndex)
+    history.push({
+      pathname: `/administrative`,
+      search
+    })
+  }
 
-        let search = `?tab=${newTabIndex}`
-        if (accessSetupId) {
-            search += `&accessSetupId=${accessSetupId}`
-        }
+  if (isLoading) {
+    return <CircularProgress />;
+  }
 
-        history.push({
-            pathname: `/administrative`,
-            search
-        })
-    }
+  return (
+    <>
+      <Grid container>
+        <Grid item sm sm={12}>
+          <Paper style={{ display: 'flex', justifyContent: 'center', padding: 10, margin: 10 }}>
+            <h4>Administrative</h4>
+          </Paper>
+        </Grid>
 
-    if (isLoading) {
-        return <CircularProgress />;
-    }
+        <Grid item sm={2}>
+          <Paper style={{ padding: 20, margin: 10 }}>
+            <Tabs
+              orientation="vertical"
+              variant="scrollable"
+              value={tabIndex}
+              onChange={handleTabChange}>
+              <Tab label="Users" value={0} />
+              <Tab label="Team Setup" value={1} />
+              <Tab label="Task Assignment Rules" value={2} />
+              <Tab label="Access Setup" value={3} />
+              <Tab label='Criteria Upload' value={4} />
+              <Tab label="Configuration History" value={5} />
+            </Tabs>
+          </Paper>
+        </Grid>
+        <Grid item sm sm={10} >
+          <Paper style={{ padding: 25, margin: 10 }}>
+            {renderPageSwitch()}
+          </Paper>
+        </Grid>
+      </Grid>
 
-    return (
-        <>
-            <Grid container>
-                <Grid item sm sm={12}>
-                    <Paper style={{ display: 'flex', justifyContent: 'center', padding: 10, margin: 10 }}>
-                        <h4>Administrative</h4>
-                    </Paper>
-                </Grid>
-
-                <Grid item sm={2}>
-                    <Paper style={{ padding: 20, margin: 10 }}>
-                        <Tabs
-                            orientation="vertical"
-                            variant="scrollable"
-                            value={tabIndex}
-                            onChange={handleTabChange}>
-                            <Tab label="Users" value={0} />
-                            <Tab label="Team Setup" value={1} />
-                            <Tab label="Task Assignment Rules" value={2} />
-                            <Tab label="Access Setup" value={3} />
-                            <Tab label='Criteria Upload' value={4} />
-                            <Tab label="Configuration History" value={5} />
-                        </Tabs>
-                    </Paper>
-                </Grid>
-                <Grid item sm sm={10} >
-                    <Paper style={{ padding: 25, margin: 10 }}>
-                        {renderPageSwitch()}
-                    </Paper>
-                </Grid>
-            </Grid>
-
-        </>
-    );
+    </>
+  );
 }
 
 export default Administrative;
