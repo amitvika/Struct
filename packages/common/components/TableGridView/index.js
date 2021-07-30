@@ -10,251 +10,250 @@ import LoadingModal from '../LoadingModal';
 import get from 'lodash/get';
 
 const TableGridView = ({
-    title,
-    fields = [],
-    fetchList,
-    upsertListItem = () => { },
-    ManageTeamModal,
-    isDesignModalOpened=true,
-    AddUpdateModal = CommonAddUpdateModal,
-    isManageTeamVisible = false,
-    isCustomAddButtonVisible = true,
-    isAddEditLinkVisible = true,
-    isAddEditActionsEnabled = false,
-    handleItemClick,
-    showSuccessAlert = () => { },
-    showErrorAlert = () => { }
+  title,
+  fields = [],
+  fetchList,
+  upsertListItem = () => { },
+  ManageTeamModal,
+  isDesignModalOpened = true,
+  AddUpdateModal = CommonAddUpdateModal,
+  isManageTeamVisible = false,
+  isCustomAddButtonVisible = true,
+  isAddEditLinkVisible = true,
+  isAddEditActionsEnabled = false,
+  handleItemClick,
+  showSuccessAlert = () => { },
+  showErrorAlert = () => { }
 }) => {
-    
-    const [isLoading, setIsLoading] = useState(false);
-    const [list, setList] = useState([]);
-    const [filteredList, setFilteredList] = useState([]);
 
-    const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
-    const [isViewArchivedChecked, setIsViewArchivedChecked] = useState(false);
-    const [isGridViewSelected, setIsGridViewSelected] = useState(true);
-    const [isModalOpened, setIsModalOpened] = useState(false);
-    const [selectedListItem, setSelectedListItem] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [list, setList] = useState([]);
+  const [filteredList, setFilteredList] = useState([]);
 
-    useEffect(() => {
-        (async () => {
-            try {
-                setIsLoading(true);
+  const [isHistoryModalOpened, setIsHistoryModalOpened] = useState(false);
+  const [isViewArchivedChecked, setIsViewArchivedChecked] = useState(false);
+  const [isGridViewSelected, setIsGridViewSelected] = useState(true);
+  const [isModalOpened, setIsModalOpened] = useState(false);
+  const [selectedListItem, setSelectedListItem] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
 
-                const res = await fetchList()
+  useEffect(() => {
+    (async () => {
+      try {
+        setIsLoading(true);
 
-                const mappedList = get(res, 'data', []);
+        const res = await fetchList()
 
-
-                setList(mappedList)
-                setFilteredList(mappedList.filter(item => !item.is_archived))
-
-                setIsLoading(false);
-
-            } catch (error) {
-                showErrorAlert({ message: `Unable to fetch ${title}` });
-            }
-        })()
-    }, []);
+        const mappedList = get(res, 'data', []);
 
 
-    const handleViewArchived = () => {
-        if (isViewArchivedChecked) {
-            setFilteredList(list.filter(item => !item.is_archived));
-        }
-        else {
-            setFilteredList(list.filter(item => item.is_archived));
-        }
+        setList(mappedList)
+        setFilteredList(mappedList.filter(item => !item.is_archived))
 
-        setIsViewArchivedChecked(!isViewArchivedChecked);
-    };
+        setIsLoading(false);
 
-    const handleHistoryToggle = ({ rowId }) => {
-        setIsHistoryModalOpened(!isHistoryModalOpened);
-        // setselectedListItem(rowId)
+      } catch (error) {
+        showErrorAlert({ message: `Unable to fetch ${title}` });
+      }
+    })()
+  }, []);
+
+
+  const handleViewArchived = () => {
+    if (isViewArchivedChecked) {
+      setFilteredList(list.filter(item => !item.is_archived));
+    }
+    else {
+      setFilteredList(list.filter(item => item.is_archived));
     }
 
-    const upsertItem = (value) => {
+    setIsViewArchivedChecked(!isViewArchivedChecked);
+  };
 
-        return upsertListItem(value)
-            .then(res => {
-                if (res.data) {
-                    showSuccessAlert({ message: `${title} updated` });
+  const handleHistoryToggle = ({ rowId }) => {
+    setIsHistoryModalOpened(!isHistoryModalOpened);
+    // setselectedListItem(rowId)
+  }
 
-                    const availableDoc = list.find(document => document.id == res.data.id);
+  const upsertItem = (value) => {
+    setIsLoading(true);
+    return upsertListItem(value)
+      .then(res => {
+        if (res.data) {
+          showSuccessAlert({ message: `${title} updated` });
 
-                    if (availableDoc) {
-                        const updatedList = list.map(document => {
-                            if (document.id === res.data.id) {
-                                return { ...res.data, id: res.data.id }
-                            }
-                            return document
-                        })
+          const availableDoc = list.find(document => document.id == res.data.id);
 
-                        setList(updatedList);
-
-                        setFilteredList(updatedList)
-                    }
-                    else {
-                        const updatedList = [
-                            { ...res.data, id: res.data.id },
-                            ...list
-                        ];
-                        setList(updatedList);
-
-                        setFilteredList(updatedList)
-                    }
-
-                }
-
-                setIsEditing(false)
+          if (availableDoc) {
+            const updatedList = list.map(document => {
+              if (document.id === res.data.id) {
+                return { ...res.data, id: res.data.id }
+              }
+              return document
             })
-            .catch(err => {
-                showErrorAlert({ message: `Unable to update ${title}` });
-            });
-    }
 
-    const handleAdd = (newData) => {
-        return upsertItem(newData)
-    }
+            setList(updatedList);
 
-    const handleUpdate = (newData, oldData) => {
-        return upsertItem(newData)
-    }
+            setFilteredList(updatedList)
+          }
+          else {
+            const updatedList = [
+              { ...res.data, id: res.data.id },
+              ...list
+            ];
+            setList(updatedList);
 
-    const handleDelete = (oldData) => {
-        let updateValue = { ...oldData, is_archived: true }
-        return upsertItem(updateValue)
-    }
+            setFilteredList(updatedList)
+          }
 
-    const handleTableRowClick = (data) => {
-        if (handleItemClick) {
-            handleItemClick(data.id, data);
-            return;
         }
 
-        setSelectedListItem(data);
+        setIsEditing(false);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        showErrorAlert({ message: `Unable to update ${title}` });
+        setIsLoading(false);
+      });
+  }
 
-        if (isManageTeamVisible) {
-            setIsManageTeamModalOpened(true);
-            return
-        }
-        // setIsManageTeamModalOpened(true);
+  const handleAdd = (newData) => {
+    return upsertItem(newData)
+  }
 
-        // setIsEditing(true);
-        setIsModalOpened(!isModalOpened)
+  const handleUpdate = (newData, oldData) => {
+    return upsertItem(newData)
+  }
+
+  const handleDelete = (oldData) => {
+    let updateValue = { ...oldData, is_archived: true }
+    return upsertItem(updateValue)
+  }
+
+  const handleTableRowClick = (data) => {
+    if (handleItemClick) {
+      handleItemClick(data.id, data);
+      return;
     }
 
-    const handleToggleModal = () => {
-        if (isModalOpened) {
-            setSelectedListItem(null);
-            setIsEditing(false);
-        }
-        setIsModalOpened(!isModalOpened)
+    setSelectedListItem(data);
+
+    if (isManageTeamVisible) {
+      setIsManageTeamModalOpened(true);
+      return
     }
-    const handleEditModal = (item) => {
-        if (isModalOpened) {
-            setSelectedListItem(null);
-            setIsEditing(false)
-        }
-        else {
-            setSelectedListItem(item)
-            setIsEditing(true)
-        }
-        setIsModalOpened(!isModalOpened);
+    setIsModalOpened(!isModalOpened)
+  }
+
+  const handleToggleModal = () => {
+    if (isModalOpened) {
+      setSelectedListItem(null);
+      setIsEditing(false);
     }
-
-    const renderView = () => {
-        if (isGridViewSelected) {
-            return (
-                <GridView
-                    list={filteredList}
-                    handleHistoryToggle={handleHistoryToggle}
-                    columnsFields={fields}
-                    handleTableRowClick={handleTableRowClick}
-                    // toggleModal={handleEditModal}
-                    handleEditButtonPress={handleEditModal} 
-                    isAddEditLinkVisible={true}
-                    />
-            )
-        }
-        else {
-            return (
-                <TableView
-                    list={filteredList}
-                    columns={fields}
-                    handleTableRowClick={handleTableRowClick}
-                    isAddEditActionsEnabled={isAddEditActionsEnabled}
-                    handleAdd={handleAdd}
-                    handleDelete={handleDelete}
-                    handleUpdate={handleUpdate}
-                />
-            )
-        }
+    setIsModalOpened(!isModalOpened)
+  }
+  const handleEditModal = (item) => {
+    if (isModalOpened) {
+      setSelectedListItem(null);
+      setIsEditing(false)
     }
-
-
-    const handleTeamModalToggle = () => {
-        if (isManageTeamModalOpened) {
-            setSelectedListItem(null);
-            setIsEditing(false);
-        }
-        setIsManageTeamModalOpened(!isManageTeamModalOpened);
+    else {
+      setSelectedListItem(item)
+      setIsEditing(true)
     }
+    setIsModalOpened(!isModalOpened);
+  }
 
-    return (
-        <>
-            <LoadingModal isLoading={isLoading} />
-            <DefaultContainer
-                title={title}
-                isHistoryModalOpened={isHistoryModalOpened}
-                selectedId={selectedListItem}
-                handleHistoryToggle={handleHistoryToggle}
-            >
-                {isModalOpened && <AddUpdateModal
-                    title={isEditing ? "" : title}
-                    fields={fields}
-                    open={isModalOpened}
-                    toggleModal={handleToggleModal}
-                    handleUpdate={handleUpdate}
-                    isEditing={isEditing}
-                    selectedValue={selectedListItem}
-                    isDesignModalOpened={isDesignModalOpened}
-                />}
-                {
-                    isManageTeamVisible &&
-                    <ManageTeamModal
-                        open={isManageTeamModalOpened}
-                        toggleModal={handleTeamModalToggle}
-                        selectedValue={selectedListItem}
-                        handleUpdate={handleUpdate}
-                    />
-                }
-                <Toolbar
-                    title={title}
-                    isGridViewSelected={isGridViewSelected}
-                    setIsGridViewSelected={setIsGridViewSelected}
-                    isViewArchivedChecked={isViewArchivedChecked}
-                    handleViewArchived={handleViewArchived}
-                    isHistoryModalOpened={isHistoryModalOpened}
-                    handleHistoryToggle={handleHistoryToggle}
-                    list={list}
-                    filteredList={filteredList}
-                    setFilteredList={setFilteredList}
-                    columnsFields={fields}
-                    isCustomAddButtonVisible={isCustomAddButtonVisible}
-                    isAddEditLinkVisible={isAddEditLinkVisible}
-                    handleAddButtonPress={handleToggleModal}
-                    // handleAddButtonPress={() => console.log("----handleAddButtonPress")}
-                    isSearchBarVisible={true}
-                />
+  const renderView = () => {
+    if (isGridViewSelected) {
+      return (
+        <GridView
+          list={filteredList}
+          handleHistoryToggle={handleHistoryToggle}
+          columnsFields={fields}
+          handleTableRowClick={handleTableRowClick}
+          // toggleModal={handleEditModal}
+          handleEditButtonPress={handleEditModal}
+          isAddEditLinkVisible={true}
+        />
+      )
+    }
+    else {
+      return (
+        <TableView
+          list={filteredList}
+          columns={fields}
+          handleTableRowClick={handleTableRowClick}
+          isAddEditActionsEnabled={isAddEditActionsEnabled}
+          handleAdd={handleAdd}
+          handleDelete={handleDelete}
+          handleUpdate={handleUpdate}
+        />
+      )
+    }
+  }
 
-                {renderView()}
-            </DefaultContainer >
-        </>
-    );
+
+  const handleTeamModalToggle = () => {
+    if (isManageTeamModalOpened) {
+      setSelectedListItem(null);
+      setIsEditing(false);
+    }
+    setIsManageTeamModalOpened(!isManageTeamModalOpened);
+  }
+
+  return (
+    <>
+      <LoadingModal isLoading={isLoading} />
+      <DefaultContainer
+        title={title}
+        isHistoryModalOpened={isHistoryModalOpened}
+        selectedId={selectedListItem}
+        handleHistoryToggle={handleHistoryToggle}
+      >
+        {isModalOpened && <AddUpdateModal
+          title={isEditing ? "" : title}
+          fields={fields}
+          open={isModalOpened}
+          toggleModal={handleToggleModal}
+          handleUpdate={handleUpdate}
+          isEditing={isEditing}
+          selectedValue={selectedListItem}
+          isDesignModalOpened={isDesignModalOpened}
+        />}
+        {
+          isManageTeamVisible &&
+          <ManageTeamModal
+            open={isManageTeamModalOpened}
+            toggleModal={handleTeamModalToggle}
+            selectedValue={selectedListItem}
+            handleUpdate={handleUpdate}
+          />
+        }
+        <Toolbar
+          title={title}
+          isGridViewSelected={isGridViewSelected}
+          setIsGridViewSelected={setIsGridViewSelected}
+          isViewArchivedChecked={isViewArchivedChecked}
+          handleViewArchived={handleViewArchived}
+          isHistoryModalOpened={isHistoryModalOpened}
+          handleHistoryToggle={handleHistoryToggle}
+          list={list}
+          filteredList={filteredList}
+          setFilteredList={setFilteredList}
+          columnsFields={fields}
+          isCustomAddButtonVisible={isCustomAddButtonVisible}
+          isAddEditLinkVisible={isAddEditLinkVisible}
+          handleAddButtonPress={handleToggleModal}
+          // handleAddButtonPress={() => console.log("----handleAddButtonPress")}
+          isSearchBarVisible={true}
+        />
+
+        {renderView()}
+      </DefaultContainer >
+    </>
+  );
 }
 
 export default TableGridView;

@@ -100,16 +100,24 @@ export default function GridView({
       .map(fieldItem => {
         item.push(
           <Grid item sm sm={12} key={`${fieldItem.title}_${data[fieldItem.field]}`}>
-            <Typography variant="subtitle2" gutterBottom noWrap={true}>
-              <span className={classes.boldtablecell}>{fieldItem.title}</span>
-              {`: `}
-              <span ref={titleRef} className={classes.tableCell} value={`${data[fieldItem.field]}`}>{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
-              {
-                (fieldItem.title === "ID") ?
-                  <ClipboardText item_id={data[fieldItem.field]} />
-                  : null
-              }
-            </Typography>
+            {
+              fieldItem.isLink ?
+                <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }}
+                  onClick={fieldItem.onClick}
+                  className={classes.historyLink}>
+                  {fieldItem.title}
+                </Typography> :
+                <Typography variant="subtitle2" gutterBottom noWrap={true} >
+                  <span className={classes.boldtablecell}>{fieldItem.title}</span>
+                  {`: `}
+                  <span ref={titleRef} className={classes.tableCell} value={`${data[fieldItem.field]}`}>{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
+                  {
+                    (fieldItem.title === "ID") ?
+                      <ClipboardText item_id={data[fieldItem.field]} />
+                      : null
+                  }
+                </Typography>
+            }
           </Grid>
         )
       })
@@ -178,10 +186,11 @@ export default function GridView({
                   {
                     isHistoryLinkVisible &&
                     <Grid item sm sm={12} className={classes.historyLink}>
-                      <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }} onClick={(event) => {
-                        event.stopPropagation();
-                        handleHistoryToggle({ rowId: product.id })
-                      }}>
+                      <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleHistoryToggle({ rowId: product.id })
+                        }}>
                         View History
                       </Typography>
                     </Grid>
