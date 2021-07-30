@@ -61,15 +61,24 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
                     value={value[item.field]}
                 />)
         }
-        // else if (item.type === 'select') {
-        //     return (
-        //         <Select
-        //             onChange={(data) => handleOnChange(data, item.field)}
-        //             options={[]}
-        //             placeholder={`Select ${item.title}`}
-        //             value={value[item.field]} />
-        //     )
-        // }
+        else if (item.type === 'numeric') {
+            return (
+                <Input
+                    placeholder="Enter"
+                    type="number"
+                    onChange={(event) => handleOnChange(item.field, event.target.value)}
+                    value={value[item.field]}
+                />)
+        }
+        else if (item.type === 'select') {
+            return (
+                <Select
+                    onChange={(data) => handleOnChange(data, item.field)}
+                    options={[]}
+                    placeholder={`Select ${item.title}`}
+                    value={value[item.field]} />
+            )
+        }
     }
 
     return (

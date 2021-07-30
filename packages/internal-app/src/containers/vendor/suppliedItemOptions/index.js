@@ -56,21 +56,6 @@ export default function ProductOption({
 
     const tabArray = ['Orders'];
 
-
-    // useEffect(() => {
-
-    //     ItemAPI.getItemsAPI(`id=${productId}`)
-    //         .then(res => {
-    //             setProduct(get(res, 'data[0]', {}))
-    //         })
-    //         .catch(data => {
-
-    //         })
-
-    //     return () => {
-    //     }
-    // }, [])
-
     const handleTabChange = (tabName) => {
         setSelectedTab(tabName);
     }
