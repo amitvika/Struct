@@ -1017,23 +1017,23 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
                 shape = conversion.read_step_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump()
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump()
                 dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump() 
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump() 
                 else:
                      if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                         shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                         (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                         filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                        anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                        edgesize=0, vertexsize=0).dump()  
+                        anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                        thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()  
                 #print(outputShapes)
                 dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
                 shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
@@ -1056,30 +1056,30 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
             except Exception as e:
                 print("error",e)
                 
-            return dictionary           
+            #return dictionary           
             
         if file_extension=="stl" :            
             try:
                 shape = conversion.read_stl_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump()
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump() 
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump() 
                 else:
                      if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                         shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                         (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                         filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                        anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                        edgesize=0, vertexsize=0).dump() 
+                        anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                        thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump() 
                 #print(outputShapes)
                 dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
                 shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
@@ -1093,29 +1093,29 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
             except Exception as e:
                 print("error",e)
                 
-            return (dictionary,outputShapes) 
+            #return (dictionary,outputShapes) 
         if file_extension=="igs" or file_extension=="iges" :
             try:               
                 shape = conversion.read_iges_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump()
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump() 
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump() 
                 else:
                      if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                         shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                         (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                         filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                        anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                        edgesize=0, vertexsize=0).dump()  
+                        anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                        thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()  
                 #print(outputShapes)
                 dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
                 shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
@@ -1129,29 +1129,29 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
             except Exception as e:
                 print("error",e)
                 
-            return dictionary
+            #return dictionary
         if file_extension=="brep" :            
             try:
                 shape = conversion.read_brep_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump()
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump()
                 dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump() 
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump() 
                 else:
                      if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                         shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                         (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                         filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                        anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                        edgesize=0, vertexsize=0).dump() 
+                        anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                        thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump() 
                 #print(outputShapes)
                 dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
                 shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
@@ -1165,12 +1165,13 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
             except Exception as e:
                 print("error",e)
                 
-            return dictionary 
+            #return dictionary 
         if file_extension=="dxf" :            
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,distancegap=distancegap,anglegap=anglegap).dump() 
+                    filename=sourceFileName,shapeslist=shape,ascompound=True,
+                    distancegap=distancegap,anglegap=anglegap).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
                 dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
@@ -1178,15 +1179,15 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump() 
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump() 
                 else:
                      if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                         shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                         (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                         filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                        anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                        edgesize=0, vertexsize=0).dump() 
+                        anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                        thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump() 
                 dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
                 shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
@@ -1199,7 +1200,14 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
             except Exception as e:
                 print("error",e)
                 
-            return dictionary 
+            #return dictionary 
+        try:
+            stackfile = "Display/"+dictionary["store"]+".stack"
+            print("Writing,",stackfile)
+            with open(stackfile, 'w') as fh:
+                fh.write(json.dumps(dictionary["stackable"], sort_keys=True, indent=2 ))
+        except Exception as e:
+            print("Error while writing stackfile",e)      
         return dictionary
        
     except:
@@ -1291,6 +1299,14 @@ def ExplodeParts(shape,dimension,explodegap,center):
         print("after",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
     return newShapes, moveArrays, shapeorder
 
+def getShapesFromOutPutShapes(shapes):
+    retshapes=[]
+    for hash_shape, item in shapes.items():
+        #print("item found",item)
+        [shape_to_disp, subName, subEntry, c, uid, indent, rootName, rootEntry, meshname, basenamehere, uvPlane] = item
+        #print("shape found",shape_to_disp)
+        retshapes.append(shape_to_disp)
+    return retshapes
 
 def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,thumbwidth,thumbheight):
     """
@@ -1314,9 +1330,14 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,t
                 shape = conversion.read_step_file(sourceFileName, as_compound=False)                
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
+                """ (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,ascompound=True,includeparts=False,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,
+                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump() """
                 dimension, _ = outputShapes
+                #shape = getShapesFromOutPutShapes(myShapes)
                 nshape, moveArrays, shapeorder = ExplodeParts(shape,dimension,explodegap,center)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
@@ -1337,8 +1358,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,t
                 shape = conversion.read_stl_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump()
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 dimension, _ = outputShapes
                 shape, moveArrays = ExplodeParts(shape,dimension,explodegap,center)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
@@ -1355,8 +1376,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,t
                 shape = conversion.read_iges_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump()
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 dimension, _ = outputShapes
                 shape, moveArrays = ExplodeParts(shape,dimension,explodegap,center)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
@@ -1373,8 +1394,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,t
                 shape = conversion.read_brep_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                    edgesize=0, vertexsize=0).dump()
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 dimension, _ = outputShapes
                 shape, moveArrays = ExplodeParts(shape,dimension,explodegap,center)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
@@ -1390,7 +1411,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,t
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,distancegap=distancegap,anglegap=anglegap,
+                    filename=sourceFileName,shapeslist=shape,distancegap=distancegap,anglegap=anglegap,ascompound=True,
                     thumbwidth=0,thumbheight=0).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
                 dimension, _ = outputShapes

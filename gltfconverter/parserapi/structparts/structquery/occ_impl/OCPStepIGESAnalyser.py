@@ -935,10 +935,12 @@ class StepIgesAnalyser():
             }
         }
     def __init__(
-        self, document=None, filename=None, shapeslist=None, includeparts=False, distancegap=0.1, 
-        anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, animations=[], 
-        delay=1.0, shapeorder=[], thumbheight=96, thumbwidth=96, multipleGLTF=1200, writethread=True,
-        includeUV=False, traversesubshapes=False,writeStep=False,writeColorStep=False,writePickle=True):
+        self, document=None, filename=None, shapeslist=None, includeparts=False, ascompound=False, 
+        distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
+        animations=[], delay=1.0, shapeorder=[], 
+        thumbheight=96, thumbwidth=96, multipleGLTF=1200, 
+        writethread=True, writePickle=True, 
+        includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False):
         """Supply one or the other: document or STEP filename or Shapes."""
 
         self.uid = 1
@@ -961,13 +963,22 @@ class StepIgesAnalyser():
             else:
                 file_extension = "stp"
             self.stepiges = (file_extension) == "stp" or (file_extension == "step")
-            self.basefilename = pathfilename+self.edgeGapStr
+            if len(animations) > 0:
+                if len(shapeorder) > 0:
+                    self.basefilename = pathfilename+"M"+self.edgeGapStr
+                else:
+                    self.basefilename = pathfilename+"S"+self.edgeGapStr
+            else:
+                self.basefilename = pathfilename+self.edgeGapStr
+            if ascompound:
+                self.basefilename = self.basefilename + "A"            
         else:
             self.basefilename = "./"
             self.fname = "NoName"
             self.stepiges=True
         #print(self.fname,self.basefilename)
         self.includeparts = includeparts
+        self.ascompound = ascompound
         if self.includeparts:
             self.fileprefix = "I"
         else:
@@ -1578,7 +1589,7 @@ class StepIgesAnalyser():
                 keep_faces = False  
                 if self.multiplegltf!=0 or (self.edgesize==0 and self.vertexsize==0) :
                     shape_compounds, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces = \
-                        self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, True, (self.edgesize!=0 or self.vertexsize!=0))
+                        self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, True, (self.edgesize!=0 or self.vertexsize!=0 or self.ascompound))
                     #atleastOneItemAdded = 0
                     #myFaceType=[]
                     #print(shape_faces)
@@ -1620,7 +1631,7 @@ class StepIgesAnalyser():
                                             print("Serving TopAbs_COMPSOLID")                        
                                     print("I have written lowest node",basename,shape_disp.ShapeType() ) """
                                         
-                                    (_,meshname,uvPlane)=self.add_part(
+                                    (_,meshname,uvPlane,solidFoundHere)=self.add_part(
                                         shape_disp,
                                         part_color=faceColor,
                                         filenameuri=filefullname,
@@ -1628,7 +1639,8 @@ class StepIgesAnalyser():
                                         name=disect_type+subName+parentName,
                                         parent_idx=parent_node_index,                        
                                     ) 
-                                    self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
+                                    if solidFoundHere > 0 :
+                                        self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
                                     #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
                                 #else:
@@ -1690,7 +1702,7 @@ class StepIgesAnalyser():
                                             uvPlane=my_parent_id
                                             myFeaturesFaces.append((shape_disp,faceColor,filefullname,"FACE"+subName+parentName,"FACE"))
                                         else:   
-                                            (_,meshname,uvPlane)=self.add_part(
+                                            (_,meshname,uvPlane,solidFoundHere)=self.add_part(
                                                 shape_disp,
                                                 part_color=faceColor,
                                                 filenameuri=filefullname,
@@ -1698,7 +1710,8 @@ class StepIgesAnalyser():
                                                 name="FACE"+subName+parentName,
                                                 parent_idx=parent_node_index,                        
                                             ) 
-                                        self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
+                                        if (solidFoundHere > 0) or ((self.multiplegltf!=0) and (keep_faces==False)) :
+                                            self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
                                         #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
                                     #else:
@@ -1739,7 +1752,7 @@ class StepIgesAnalyser():
                                     myFeaturesEdges.append((shape_disp,edgeColor,filefullname,"EDGE"+subName+parentName,"EDGE"))
                                     
                                 else:  
-                                    (_,meshname,uvPlane)=self.add_part(
+                                    (_,meshname,uvPlane,solidFoundHere)=self.add_part(
                                         shape_disp,
                                         part_color=edgeColor,
                                         filenameuri=filefullname,
@@ -1747,7 +1760,8 @@ class StepIgesAnalyser():
                                         name="EDGE"+subName+parentName,
                                         parent_idx=parent_node_index,                        
                                     ) 
-                                self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, edgeColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
+                                if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
+                                    self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, edgeColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
                                 #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
                     if (self.vertexsize > 0) and (toAddCorners==True):  
                         #print("Doing3",self.multiplegltf,self.edgesize,self.vertexsize,self.includeparts,atleastOneItemAdded)         
@@ -1766,7 +1780,7 @@ class StepIgesAnalyser():
                                 myFeaturesVertices.append((shape_disp,edgeColor,filefullname,"VERTEX"+subName+parentName,"VERTEX"))
                                 
                             else:            
-                                (_,meshname,uvPlane)=self.add_part(
+                                (_,meshname,uvPlane,solidFoundHere)=self.add_part(
                                     shape_disp,
                                     part_color=vertexColor,
                                     filenameuri=filefullname,
@@ -1774,7 +1788,8 @@ class StepIgesAnalyser():
                                     name="VERTEX"+subName+parentName,
                                     parent_idx=parent_node_index,                        
                                 ) 
-                            self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, vertexColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
+                            if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
+                                self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, vertexColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
                             #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
                 #print("Doing4",self.multiplegltf,self.edgesize,self.vertexsize,self.includeparts,atleastOneItemAdded, myFeatures)         
                     
@@ -1856,7 +1871,7 @@ class StepIgesAnalyser():
                                     self.updateOutput(subName, subEntry, labelForSubShapesName, labelForSubShapesEntry,  False)
                                     #print("I have reached here 24")
                                     (filefullname, basename) = self.write_step_file(shape_to_disp,labelForSubShapesName+subName,faceColor)
-                                    (_,meshname, uvPlane)=self.add_part(
+                                    (_,meshname, uvPlane, solidFoundHere)=self.add_part(
                                         shape_to_disp,
                                         part_color=faceColor,
                                         filenameuri=filefullname,
@@ -1864,7 +1879,8 @@ class StepIgesAnalyser():
                                         name=disect_type+labelForSubShapesName+subName,
                                         parent_idx=parent_node_index,
                                     )
-                                    self.outputShapes[shapeInFile] = [shape_to_disp,subName, subEntry, faceColor, self.uid, self.indent, labelForSubShapesName, labelForSubShapesEntry, meshname, basename, uvPlane]
+                                    if (solidFoundHere > 0) :                                        
+                                        self.outputShapes[shapeInFile] = [shape_to_disp,subName, subEntry, faceColor, self.uid, self.indent, labelForSubShapesName, labelForSubShapesEntry, meshname, basename, uvPlane]
                                     #print(myshapecount,"I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
                                 #else:
@@ -2093,15 +2109,16 @@ class StepIgesAnalyser():
                     self.updateOutput(subName, subEntry, rootName, rootEntry,  False)
                     #print("I have reached here 24")
                     (filefullname, basenamehere) = self.write_step_file(shape_to_disp,rootName+subName,c)
-                    (_,meshname, uvPlane)=self.add_part(
+                    (_,meshname, uvPlane, solidFoundHere)=self.add_part(
                         shape_to_disp,
                         part_color=c,
                         filenameuri=filefullname,
                         filetype= "",
                         name=rootName+subName,
                         parent_idx=parent_node_index,
-                    )                    
-                    self.outputShapes[hash_shape] = [shape_to_disp, subName, subEntry, c, self.uid, self.indent, rootName, rootEntry, meshname, basenamehere, uvPlane]
+                    )  
+                    if(solidFoundHere>0):                  
+                        self.outputShapes[hash_shape] = [shape_to_disp, subName, subEntry, c, self.uid, self.indent, rootName, rootEntry, meshname, basenamehere, uvPlane]
  
             except Exception as e:
                 print("Error",e)
@@ -3322,6 +3339,7 @@ class StepIgesAnalyser():
 
         log.debug("mstep export: %r", part)
         buffer_length_so_far = len(self.mstep_dict['buffers'])
+        solidfound = 0
         # ----- Adding to: buffers
         with measure_time(log, 'buffers'):
              
@@ -3541,7 +3559,7 @@ class StepIgesAnalyser():
             #else:
                 #print(" I have reache here without adding")
         #buffer_length_current = len(self.mstep_dict['buffers'])
-        return mesher_dict[self.gltf_Dict["id"]], mesher_dict[self.gltf_Dict["name"]], uvPlane
+        return mesher_dict[self.gltf_Dict["id"]], mesher_dict[self.gltf_Dict["name"]], uvPlane, solidfound
 
     
     

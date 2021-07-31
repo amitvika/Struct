@@ -50,9 +50,9 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-export default function ManufacturabilityAnalysis({ id, distancegap, anglegap }) {
+export default function ManufacturabilityAnalysis(props) {
     const classes = useStyles();
-
+    const {itemProperties, setStack}=props;
     const [isModalOpened, setIsModalOpened] = React.useState(false);
     const [selectedTab, setSelectedTab] = useState("");
 
@@ -65,6 +65,11 @@ export default function ManufacturabilityAnalysis({ id, distancegap, anglegap })
     const handleTabChange = (tabName) => {
         toggleModal();
         setSelectedTab(tabName);
+        console.log(tabName);
+        
+        if(tabName=="Stackability"){
+            setStack(itemProperties);
+        }
     }
 
     const tabArray = ["Stackability", "Fragility", "Size Constraints", "Quantity/Time", "Physical State"]
@@ -74,7 +79,7 @@ export default function ManufacturabilityAnalysis({ id, distancegap, anglegap })
             <MainModal open={isModalOpened} toggleModal={toggleModal} >
 
                 {
-                    selectedTab === 'Stackability' ? <Stackability /> : null
+                    selectedTab === 'Stackability' ? <Stackability {...props}/> : null
 
                 }
             </MainModal>

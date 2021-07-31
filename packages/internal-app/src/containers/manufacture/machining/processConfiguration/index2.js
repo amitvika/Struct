@@ -9,7 +9,7 @@ import {
 import FileUpload from "./FileUpload";
 import GLTFRenderer from '../../../../gltf/GltfRenderer';
 import { upload3DFile, getGLTFJson } from '@ravibasil/common/api/fileUpload.api'
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY} from "../../../../gltf/Tree/utils";
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, SELECTFEATURE} from "../../../../gltf/Tree/utils";
 const DEFAULTMATERIALNAME = "Basic";
 
 const useStyles = makeStyles((theme) => ({
@@ -67,7 +67,7 @@ export default function Index() {
                             backcolor={DEFAULTBACKCOLOR}
                             selectcolor={DEFAULTSELECTCOLOR}
                             touchcolor={DEFAULTTOUCHCOLOR}
-                            selectedoption={SELECTSOLID}
+                            selectedoption={SELECTFEATURE}
                             splitmethod={SELECTHIRERACHY}
                             changedata={[]} 
                             data2texture={null} 

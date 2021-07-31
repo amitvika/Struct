@@ -1,29 +1,131 @@
 import React, { useState, useEffect } from 'react';
-import { getPartsStackableInfo } from '@ravibasil/common/api/fileUpload.api';
+//import { getPartsStackableInfo } from '@ravibasil/common/api/fileUpload.api';
 import { useSelector } from 'react-redux'
-import { Paper, Grid } from '@material-ui/core';
+import { Paper, Grid, CircularProgress, makeStyles } from '@material-ui/core';
 // import { Headding } from '../../../components';
 import Heading from '@ravibasil/common/components/atoms/Headding';
 
+import GLTFRenderer from '../../../gltf/GltfRenderer.js';
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTFEATURE, SELECTHIRERACHY } from "../../../gltf/Tree/utils";
 
+import '../style.css';
 
-export default function Stackability() {
+const DEFAULTDISTANCEGAP = 0.1;
+const DEFAULTANGLEGAP = 0.5;
+const DEFAULTEXPLODEGAP = 10;
+const DEFAULTFROMCENTER = true;
+const DEFAULTDISECT = false;
+const DEFAULTSHOWDISECT = false;
+const DEFAULTSHOWINFOONSELECT = false;
+const DEFAULTMATERIALNAME = "Basic";
+const DEFAULTMATERIALTYPE = [{ "id": 1, "name": DEFAULTMATERIALNAME }];
+
+const stateprops = {
+    distancegap: DEFAULTDISTANCEGAP,
+    anglegap: DEFAULTANGLEGAP,
+    explodegap: DEFAULTEXPLODEGAP,
+    disect: DEFAULTDISECT,
+    showdisect: DEFAULTSHOWDISECT,
+    showinfoonselect: DEFAULTSHOWINFOONSELECT,
+    materialtype: DEFAULTMATERIALTYPE,
+    fromcenter:DEFAULTFROMCENTER
+}
+const useStyles = makeStyles((theme) => ({
+    mainContainer: { margin: 10, padding: 10, display: 'inline-flex', minWidth: '100%' },
+    viewerContainer: {
+        padding: '20px',
+        margin: '0px 15px',
+        display: 'inline-block',
+        border: '1px solid rgba(0, 0, 0, 0.3)',
+        boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
+    }
+}));
+
+export default function Stackability(props) {
+    const {fileId, gltfjson, isLoading}=props;   
+    const [isFileLoading, setIsLoading] = useState(isLoading);
+   
+    const classes = useStyles();
+   
     const currentItem = useSelector(state => state.item.currentItem);
-    const [splitfiles, setsplitfiles] = useState({});
+    const [splitfiles, setsplitfiles] = useState({gltfjson});
 
     useEffect(() => {
+        setsplitfiles(props.gltfjson);
+    }, [props]);
+    const [state, _setState] = useState({});
+   
+    const setState = (data) => {
+        _setState(prevState => {
+            return {
+                ...prevState,
+                ...data
+            }
 
-        getPartsStackableInfo(currentItem.fileId)
-            .then(res => {
-                setsplitfiles(res.data);
-            })
-            .catch(err => {
+        })
+    }    
+    useEffect(() => {
+        setIsLoading(isLoading);
+    }, [isLoading]);
+    useEffect(() => {
+        const includeParts = true;
+        console.log("Reaching",gltfjson,fileId,isLoading);
+        let gltfjsonlen =  Object.keys(gltfjson).length;
+        if (gltfjsonlen > 0) {
+            gltfjsonlen += gltfjson?.gltf?.accessors?.length;
+        }
+        if (gltfjsonlen > 0) {
+            setState({
+                selectedindex: 0,
+                activefile: fileId.toString() + includeParts.toString() +
+                    stateprops.distancegap.toString() + stateprops.anglegap.toString() + gltfjsonlen.toString(),
+                gltfjson: gltfjson,
+                dataselection: 0,
+                firstshell: null,
+                secondshell: null,
+                materialname: stateprops.materialtype[0].name,
+                disectstruct: stateprops.disect,
+                showdisect: stateprops.showdisect,
+                showinfoonselect: stateprops.showinfoonselect,
+                //splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
+                selectedObjects: [],
+                parentObjects: [],
+                mates: [],
+                renderdata: {},
+                whatchange: 0,
+            });
+        }
+    }, [gltfjson]);
+    let gltfjsonlen =  Object.keys(gltfjson).length;
+    if (gltfjsonlen > 0) {
+        gltfjsonlen += gltfjson?.gltf?.accessors?.length;
+    }
+    return (<Paper className={classes.mainContainer}>
+            <Paper className={classes.viewerContainer} square={true}>
+                {
+                    !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
+                    <GLTFRenderer
+                        //gltfjson={JSON.stringify(gltfjson)}
+                        gltfobj={gltfjson}
+                        fileGDT={null}
+                        activefile={fileId+gltfjsonlen.toString()}
+                        backcolor={DEFAULTBACKCOLOR}
+                        selectcolor={DEFAULTSELECTCOLOR}
+                        touchcolor={DEFAULTTOUCHCOLOR}
+                        selectedoption={SELECTFEATURE}
+                        splitmethod={SELECTHIRERACHY}
+                        changedata={[]}
+                        data2texture={null}
+                        data3texture={null}
+                        materialtype={DEFAULTMATERIALNAME}
+                        whatchanged={0} dataselection={0}
+                    />
+                }
+                {
+                    (isLoading || isFileLoading) && <CircularProgress />
+                }
 
-            })
-    }, []);
-
-    return (
-        <>
+            </Paper>
             {splitfiles.stackable && splitfiles.stackable.length > 0 && (
                 <Paper style={{ padding: 10 }}>
 
@@ -31,45 +133,46 @@ export default function Stackability() {
                         <Grid item xs={12}>
                             <Heading bold>Parts Stackable Info</Heading>
                         </Grid>
-
+                        <Grid item xs={4}> Stackable:</Grid>
+                        <Grid item xs={8}>{splitfiles.stackable[0].count} unit(s)</Grid>
                         <Grid item xs={4}> Any Direction:</Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].direction)}</Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.direction)}</Grid>
 
                         <Grid item xs={4}>
                             Top:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].top)}</Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.top)}</Grid>
 
                         <Grid item xs={4}>
                             Bottom:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].bottom)}</Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.bottom)}</Grid>
 
                         <Grid item xs={4}>
                             Right:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].right)}</Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.right)}</Grid>
 
 
                         <Grid item xs={4}>
                             Left:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].left)}</Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.left)}</Grid>
 
                         <Grid item xs={4}>
                             Front:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].front)}</Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.front)}</Grid>
                         <Grid item xs={4}>
                             Back:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].back)}</Grid>
+                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.back)}</Grid>
 
 
                     </Grid>
                 </Paper>
             )}
-        </>
+        </Paper>
     )
 }
 

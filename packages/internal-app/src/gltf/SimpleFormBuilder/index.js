@@ -30,6 +30,10 @@ import ChipInput from './components/ChipInput';
 export default class SimpleFormBuilder extends React.Component {
   style = {
     width: '100%',
+    padding: '20px',
+    margin: '0px 15px',
+    display: 'inline-block',
+    'border-width':0    
   };
 
   constructor(props) {
@@ -381,9 +385,10 @@ export default class SimpleFormBuilder extends React.Component {
     } */
     return (
       this.state.opened &&
-      (<Box p={1} zindex="tooltip" style={this.style}>
-        <Box
+      (<Box
+          p={1} zindex="tooltip" 
           style={{
+            ...this.style,
             backgroundColor: '#fefefe',
             padding: 1,            
             ...this.props.fieldContainerStyle,
@@ -395,25 +400,7 @@ export default class SimpleFormBuilder extends React.Component {
           {this.getFields()}
          
           </Grid>
-        </Box>  
-        {/* <Box p={1} style={{ justifyContent: 'center', ...this.props.actionContainerStyle }}>
-         
-            <Button
-              variant="contained"
-              onClick={() => {
-                  if(this.props.closeForm){
-                    this.props.closeForm();
-                  }
-                  this.setState({opened:false});
-                }
-              }
-              style={{ display: 'block', margin: '0 auto', width: '30%' }}
-            >
-              {'Close'}
-            </Button>
-         
-        </Box>     */}  
-      </Box>
+        </Box>          
       )
     )
     
