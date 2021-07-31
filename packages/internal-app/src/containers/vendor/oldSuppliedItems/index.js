@@ -30,7 +30,7 @@ export default function SuppliedItems() {
 
     const [columns, setColumns] = useState([
         { title: "ID", field: "id", editable: "never", align: 'center' },
-        { title: "Estimated Delivery Date", field: "estimatedDeliveryDate" },
+        { title: "Estimated Delivery Date", field: "estimated_delivery_date" },
         { title: "Item Quantity", field: "itemQuantity" },
         { title: "Unit Cost", field: "unitCost" },
         {

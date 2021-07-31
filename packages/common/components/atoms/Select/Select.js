@@ -154,26 +154,11 @@ const SelectExample = ({
 
     return (
         <>
-            {/* <FormControl className={classes.formControl}>
-        <InputLabel id="demo-mutiple-name-label">{placeholder}</InputLabel> */}
             {render()}
-            {/* </FormControl> */}
-
         </>
     );
 };
 
-// SelectExample.propTypes = {
-//     options: PropTypes.arrayOf(PropTypes.shape()),
-//     htmlFor: PropTypes.string,
-//     label: PropTypes.string,
-//     placeholder: PropTypes.string,
-//     width: PropTypes.number,
-//     field: PropTypes.shape(),
-//     form: PropTypes.shape(),
-//     onChange: PropTypes.func,
-//     onInputChange: PropTypes.func
-// };
 
 SelectExample.defaultProps = {
     htmlFor: 'unnamed',

@@ -29,13 +29,6 @@ const InputComponent = ({
         </label>
       )}
       <span className="inp-field-cont">
-        {/* <input
-          className={rightLabel && 'padding-right-input'}
-          {...field}
-          {...props}
-          type={type === 'password' ? (isPasswordVisible ? 'text' : 'password') : type}
-          disabled={disabled}
-        /> */}
         <TextField
           variant="outlined"
           {...field}

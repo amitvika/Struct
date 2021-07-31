@@ -6,8 +6,6 @@ import Grid from '@material-ui/core/Grid';
 import Orders from '../order/index'
 import SubHeaderWithArrow from '../../../components/SubHeaderWithArrow'
 import { useParams } from "react-router-dom";
-import ItemAPI from '@ravibasil/common/api/items.api';
-import get from 'lodash/get';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -50,7 +48,6 @@ export default function ProductOption({
 }) {
     let { id: vendorId } = useParams();
     const classes = useStyles();
-    const [product, setProduct] = useState({});
 
     const [selectedTab, setSelectedTab] = useState("Orders");
 
@@ -68,9 +65,7 @@ export default function ProductOption({
         else {
             return 'not Found Page'
         }
-
     }
-
 
     return (
         <>

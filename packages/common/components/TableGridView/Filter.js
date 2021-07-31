@@ -108,7 +108,7 @@ export default function Filter({
             }
 
             let tempValue = array[i][field];
-            if (tempValue && tempValue.trim().length > 0) {
+            if (tempValue && tempValue.length > 0) {
                 flags[array[i][field]] = true;
                 output.push(array[i][field]);
             }

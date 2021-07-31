@@ -1,99 +1,103 @@
 import React, { useState } from "react";
 
 import TableGridView from '@ravibasil/common/components/TableGridView';
-import ClientAPI from '@ravibasil/common/api/clients.api';
+import ItemsAPI from '@ravibasil/common/api/items.api';
 import { useHistory } from "react-router-dom";
 import Link from '@material-ui/core/Link';
 import DatePickerForMT from '@ravibasil/common/components/DatePickerForMT';
 import moment from 'moment';
-
-import IdentificationModal from "../suppliedItems/identificationModal"
+import IdentificationModal from "./identificationModal"
+import { useQuery } from '../../../utils/customHooks';
 
 const Orders = () => {
-    let history = useHistory();
-    const handleItemClick = (id) => history.push(`/clients/${id}`);
-    const [isModalOpened, setIsModalOpened] = React.useState(false);
-    const [selectedValue, setSelectedValue] = useState({});
-    
-    const columnsFields = [
-        { title: "ID", field: "id", editable: "never", align: 'center' },
+  let history = useHistory();
+  let query = useQuery();
 
-        {
-            title: "Estimated Delivery Date", field: "estimatedDeliveryDate",
-            type: 'date',
-            // value="2013-01-08",
-            render: rowData => moment(rowData.start_date).format('DD/MM/YYYY'),
-            editComponent: (props) => <DatePickerForMT {...props} />
-        },
-        {
-            title: "Item Quantity",
-            field: "itemQuantity",
-            // editable: "never"
-            type: 'numeric'
-        },
-        { title: "Unit Cost", field: "unitCost", type: 'numeric' },
-        {
-            title: 'Identification',
-            field: "id",
-            editable: "never",
-            isFilterColumn: false,
-            isGridViewVisible: false,
-            render: rowData => rowData && <span style={{ cursor: 'pointer' }}
-                onClick={(event) => {
-                    handleIdentificationClick(event, rowData)
+  const [isModalOpened, setIsModalOpened] = useState(false);
+  const [selectedValue, setSelectedValue] = useState({});
 
-                    event.stopPropagation();
-                }}><Link style={{ fontWeight: 'bold' }}> Identification </Link></span>
-        },
-    ]
+  const handleItemClick = (id) => history.push(`/clients/${id}`);
 
-    const handleIdentificationClick = (event, rowData) => {
-        if (rowData.factory_id) {
-            history.push(`/clients/${rowData.factory_id}`)
-            return;
-        }
+  const columnsFields = [
+    { title: "ID", field: "id", editable: "never", align: 'center' },
 
+    {
+      title: "Estimated Delivery Date", field: "estimated_delivery_date",
+      type: 'date',
+      render: rowData => moment(rowData.start_date).format('DD/MM/YYYY'),
+      editComponent: (props) => <DatePickerForMT {...props} />
+    },
+    {
+      title: "Item Quantity",
+      field: "item_quantity",
+      type: 'numeric',
+      isFilterColumn: false
+    },
+    {
+      title: "Unit Cost",
+      field: "unit_cost",
+      type: 'numeric',
+      isFilterColumn: false
+    },
+    {
+      title: 'Identification',
+      field: "id_",
+      editable: "never",
+      isLink: true,
+      isFilterColumn: false,
+      onClick: (event, rowData) => {
         event.stopPropagation();
         toggleModal(rowData)
+      },
+      // isGridViewVisible: false,
+      render: rowData => rowData && <span style={{ cursor: 'pointer' }}
+        onClick={(event) => {
+          handleIdentificationClick(event, rowData);
+        }}><Link style={{ fontWeight: 'bold' }}> Identification </Link></span>
+    },
+  ]
+
+  const handleIdentificationClick = (event, rowData) => {
+    event.stopPropagation();
+    toggleModal(rowData)
+  }
+
+  const toggleModal = (data) => {
+    if (!isModalOpened) {
+      setSelectedValue(data);
+    }
+    else {
+      setSelectedValue({});
     }
 
-    const toggleModal = (data) => {
-        if (!isModalOpened) {
-            setSelectedValue(data);
-        }
-        else {
-            setSelectedValue({});
-        }
+    setIsModalOpened(!isModalOpened);
+  }
 
-        setIsModalOpened(!isModalOpened);
-    }
-    return (
-        <>
-            {
-                isModalOpened &&
-                <IdentificationModal
-                    isModalOpened={isModalOpened}
-                    toggleModal={toggleModal}
-                    selectedValue={selectedValue}
-                    setSelectedValue={setSelectedValue}
-                    // assignFactory={assignFactory}
-                    quantity={true}
-                // fields={columns} 
-                />
-            }
-            <TableGridView
-                title={'Orders'}
-                fields={columnsFields}
-                fetchList={ClientAPI.fetchClientsApi}
-                upsertListItem={ClientAPI.upsertClient}
-                isAddEditActionsEnabled={true}
-                handleItemClick={handleItemClick}
-                isAddEditLinkVisible={true}
-                toggleModal={handleIdentificationClick}
+  return (
+    <>
+      {
+        isModalOpened &&
+        <IdentificationModal
+          isModalOpened={isModalOpened}
+          toggleModal={toggleModal}
+          selectedValue={selectedValue}
+          setSelectedValue={setSelectedValue}
+          quantity={true}
+        />
+      }
+      <TableGridView
+        title={'Orders'}
+        fields={columnsFields}
+        fetchList={() => ItemsAPI.getItemOrders(`item_id=${query.get('item_id')}`)}
+        upsertListItem={(data) => ItemsAPI.upsertItemOrder({ ...data, item_id: query.get('item_id') })}
+        isAddEditActionsEnabled={true}
+        handleItemClick={handleItemClick}
+        isAddEditLinkVisible={true}
+        toggleModal={handleIdentificationClick}
 
-            />
-        </>
-    );
+      />
+    </>
+  );
 }
 
 export default Orders;
