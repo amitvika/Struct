@@ -480,7 +480,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
 
         const first4chars = name.slice(0, 4);
         const first6chars = name.slice(0, 6);
-        if ((first4chars == "EDGE") || (first6chars == "VERTEX")) {
+        if ( (first4chars == "PART") || (first4chars == "EDGE") || (first6chars == "VERTEX") ) {
             return false;
         }
         return true;

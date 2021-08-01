@@ -2175,11 +2175,28 @@ class GLTFRenderer extends Component {
             //console.log(intersects);
             var myObject = intersects.length;
             for (var i = 0; i < intersects.length; i++) {
-                //console.log(intersects[ i ].object);
+                //console.log("First",intersects[ i ].object);
                 if (intersects[i].object.type == "Mesh") {
-                    //console.log(intersects[ i ].object);
-                    myObject = i;
-                    break;
+                    //console.log("name found",intersects[ i ].object.name);
+                    if(this.onlyfaces(intersects[i].object.name)){
+                        myObject = i;
+                        //console.log("I found a face",intersects[i].object.name);
+                        break;
+                    }
+                   
+                }
+            }
+            //console.log("Got",myObject);
+            if (myObject == intersects.length) {
+                //console.log("Entered here");
+                for (var i = 0; i < intersects.length; i++) {
+                    //console.log("Second",intersects[ i ].object);
+                    if (intersects[i].object.type == "Mesh") {
+                        //console.log(intersects[ i ].object);                        
+                        myObject = i;
+                        break;                      
+                    
+                    }
                 }
             }
             if (myObject != intersects.length) {
@@ -2416,7 +2433,7 @@ class GLTFRenderer extends Component {
 
         const first4chars = name.slice(0, 4);
         const first6chars = name.slice(0, 6);
-        if ((first4chars == "EDGE") || (first6chars == "VERTEX")) {
+        if ( (first4chars == "PART") || (first4chars == "EDGE") || (first6chars == "VERTEX") ) {
             return false;
         }
         return true;
