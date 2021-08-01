@@ -52,10 +52,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function FileUpload({ fileName, setFileName, handleFileUpload, itemId, label = "STEP, DXF, GERBER" }) {
+export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DXF, GERBER" }) {
   //State
   const [file, setFile] = useState("");
-  // const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState("");
   const [uploadedFile, setUploadedFile] = useState({});
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState();
