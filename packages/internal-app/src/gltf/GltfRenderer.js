@@ -2178,7 +2178,7 @@ class GLTFRenderer extends Component {
                 //console.log("First",intersects[ i ].object);
                 if (intersects[i].object.type == "Mesh") {
                     //console.log("name found",intersects[ i ].object.name);
-                    if(this.onlyfaces(intersects[i].object.name)){
+                    if(!this.onlyparts(intersects[i].object.name)){
                         myObject = i;
                         //console.log("I found a face",intersects[i].object.name);
                         break;
