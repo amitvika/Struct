@@ -3,8 +3,9 @@ import ProcessConfiguration from './processConfiguration'
 import API from '@ravibasil/common/api/assemblyManufacture.api'
 import ManufacturabilityAnalysis from './manufacturabilityAnalysis'
 
-export default function Assembly({ selectedSubTab, itemId }) {
+export default function Assembly(props) {
 
+    const { selectedSubTab, itemId } = props;
    
     const [assemblyManufactureValues, setassemblyManufactureValues] = useState({ itemId: itemId });
    
@@ -64,8 +65,7 @@ export default function Assembly({ selectedSubTab, itemId }) {
             }
             {
                 selectedSubTab === 'Manufacturability Analysis' ?
-                    <ManufacturabilityAnalysis assemblyManufactureValues={assemblyManufactureValues}/> : null
-
+                    <ManufacturabilityAnalysis {...props}/> : null
             }
 
         </div>

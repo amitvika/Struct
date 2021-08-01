@@ -2,13 +2,23 @@ import React from 'react';
 
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
+
+
 import SimpleFormBuilder from '../SimpleFormBuilder';
 
-export default class GroupFormBuilder extends React.Component {
-  style = {
-    width: '100%',
-  };
 
+export default class GroupFormBuilder extends React.Component {
+  
+  
+  style = {
+      width: '100%',
+      padding: '20px',
+      margin: '0px 15px',
+      display: 'inline-block',
+      border: '1px solid rgba(0, 0, 0, 0.3)',
+      boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
+  };
+  
   constructor(props) {
     super(props);
     this.state = {     
@@ -52,9 +62,10 @@ export default class GroupFormBuilder extends React.Component {
     //console.log("MyGroups",this.getGroups());
     return (
       this.state.opened &&
-      (<Box p={1} zindex="tooltip" style={this.style}>
-        <Box
+      ( <Box
+          p={1} zindex="tooltip" square={true}
           style={{
+            ...this.style,
             backgroundColor: '#fefefe',
             padding: 1,            
             ...this.props.fieldContainerStyle,
@@ -65,25 +76,8 @@ export default class GroupFormBuilder extends React.Component {
           <Grid p={1} container spacing={10} direction="row" style={{display:"flex", margin: '1px 0'}}>
           {this.getGroups()}         
           </Grid>
-        </Box>  
-        {/* <Box p={1} style={{ justifyContent: 'center', ...this.props.actionContainerStyle }}>
-         
-            <Button
-              variant="contained"
-              onClick={() => {
-                  if(this.props.closeForm){
-                    this.props.closeForm();
-                  }
-                  this.setState({opened:false});
-                }
-              }
-              style={{ display: 'block', margin: '0 auto', width: '30%' }}
-            >
-              {'Close'}
-            </Button>
-         
-        </Box>     */}  
-      </Box>
+        </Box>          
+          
       )
     )
     

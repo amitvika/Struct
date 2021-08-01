@@ -48,6 +48,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Index2(props) {
+
+    const {itemProperties, setOrder}=props;
     const classes = useStyles();
 
     const [selectedTab, setSelectedTab] = useState("");
@@ -78,9 +80,14 @@ export default function Index2(props) {
         }
         else {
             setselectedSubTab(tabName2);
-
         }
-
+        if(tabName2=='Manufacturability Analysis') {
+            if(selectedTab=="Assembly") {
+                setOrder(itemProperties); 
+            } /* else if(selectedTab=="Storage") {
+                setStack(itemProperties);
+            } */
+        }
     }
 
     const renderDetailPanel = () => {

@@ -24,7 +24,7 @@ import ItemAPI from '@ravibasil/common/api/items.api';
 
 import GLTFRenderer from '../../../gltf/GltfRenderer';
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY } from "../../../gltf/Tree/utils";
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, SELECTFEATURE } from "../../../gltf/Tree/utils";
 
 import '../style.css';
 import FileHistory from '@ravibasil/common/containers/design/FileHistory';
@@ -52,7 +52,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
     const [isStepLoaded, setIsStepLoaded] = useState(false);
     const [threejsObject, setThreejsObject] = useState({});
     const [fileName, setFileName] = useState("");
-
+    const [gltfobj, setGltfObj] = useState(gltfjson);
     const [fileId, setFileId] = useState(0);
     const [files, setFiles] = useState([])
     const [isFileLoading, setIsFileLoading] = useState(false);
@@ -69,6 +69,10 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
     //     getView(itemProperties.fileId)
     //   }
     // }, [])
+    useEffect(() => {
+        console.log("Setting gltf",gltfjson);
+        setGltfObj(gltfjson);
+    }, [gltfjson])
 
     const handleFileUpload = (data) => {
 
@@ -107,7 +111,9 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                     ...prevData,
                     fileId: fileId,
                     fileStore: data.store,
-                    fileGDT: null
+                    fileGDT: null,
+                    fileMPPS: null,
+                    fileStack: null
                 }));
                 //console.log(itemProperties);
                 const multiAssmebly = get(data, 'tree', []).length > 0;
@@ -146,6 +152,10 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
 
         }
     }
+    let gltfjsonlen =  Object.keys(gltfobj).length;
+    if (gltfjsonlen > 0) {
+        gltfjsonlen += gltfobj?.gltf?.accessors?.length;
+    }
     //console.log("After upload at the render",itemProperties,fileId,gltfjson);
     return (
         <div>
@@ -157,13 +167,13 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                                 !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
                                 <GLTFRenderer
                                     //gltfjson={JSON.stringify(gltfjson)}
-                                    gltfobj={gltfjson}
+                                    gltfobj={gltfobj}
                                     fileGDT={null}
-                                    activefile={fileId}
+                                    activefile={fileId+gltfjsonlen.toString()}
                                     backcolor={DEFAULTBACKCOLOR}
                                     selectcolor={DEFAULTSELECTCOLOR}
                                     touchcolor={DEFAULTTOUCHCOLOR}
-                                    selectedoption={SELECTSOLID}
+                                    selectedoption={SELECTFEATURE}
                                     splitmethod={SELECTHIRERACHY}
                                     changedata={[]}
                                     data2texture={null}

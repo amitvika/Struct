@@ -2,7 +2,8 @@ import React from 'react'
 import ProcessConfiguration from './processConfiguration'
 import ManufacturabilityAnalysis from './ManufacturabilityAnalysis'
 
-export default function Storage({ selectedSubTab }) {
+export default function Storage(props) {
+    const { selectedSubTab } = props;
     return (
         <div>
             {
@@ -12,7 +13,7 @@ export default function Storage({ selectedSubTab }) {
             }
             {
                  selectedSubTab === 'Manufacturability Analysis' ?
-                        <ManufacturabilityAnalysis /> : null
+                        <ManufacturabilityAnalysis {...props}/> : null
             }
         </div>
     )

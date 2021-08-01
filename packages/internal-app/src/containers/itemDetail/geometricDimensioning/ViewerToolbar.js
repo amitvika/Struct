@@ -259,7 +259,7 @@ export default function ViewerToolbar({
                         featureList={(selectedOption == SELECTFEATURE)?selectedObjects:parentObjects} />
                 </Grid>
                 {
-                    (selectedObjects?.length >=2) && (selectedOption == SELECTFEATURE) && (
+                    (selectedObjects?.length >=2) && (selectedOption != SELECTSOLID) && (selectedOption != SELECTASSEMBLY) && (
                         <Grid align="right" style={{ verticalAlign: 'top', margin:'0' }}>
                             <SelectedMatesRelation mates={mates} featureList={selectedObjects} />
                         </Grid>

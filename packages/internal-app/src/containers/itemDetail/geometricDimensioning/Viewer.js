@@ -3,11 +3,11 @@ import GLTFRenderer from '../../../gltf/GltfRenderer';
 import {    
     CircularProgress
 } from "@material-ui/core";
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, SELECTDISTANCE } from "../../../gltf/Tree/utils";
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, SELECTDISTANCE, SELECTFEATURE } from "../../../gltf/Tree/utils";
 const DEFAULTMATERIALNAME = "Basic";
 
 export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', activefile = '', 
-    isLoading=false, renderdata={}, whatchange=0, selectedOption = SELECTSOLID, splitMethod = SELECTHIRERACHY,
+    isLoading=false, renderdata={}, whatchange=0, selectedOption = SELECTFEATURE, splitMethod = SELECTHIRERACHY,
     handleModelClick = () => { },  setSelectedOption= () => { }, setCtrlKey= () => { }, 
     resetSelections= () => { },  selectAllSelectedSolids = () => { } , resetSelectionFromTree = () => {}   }) {
     //console.log(gltfjson);

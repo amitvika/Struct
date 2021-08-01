@@ -38,7 +38,8 @@ import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
 import './style.css'
-import { getPartsAssemblyOrder, getHierarchySplitFiles, getGltfForStore, getTreeForStore, resourcePathURL } from '@ravibasil/common/api/fileUpload.api'
+import {getPartsStackableInfo, getPartsAssemblyOrder, getHierarchySplitFiles, getAFileFromStore, 
+    getGltfForStore, getTreeForStore, resourcePathURL } from '@ravibasil/common/api/fileUpload.api'
 import LoadingModal from "@ravibasil/common/components/LoadingModal";
 
 const DEFAULTDISTANCEGAP = 0.1;
@@ -124,6 +125,102 @@ const ItemDetail = () => {
         }
         return false;
     }
+    const setStack = (item) => {
+        if (!item.fileId) {               
+            return;
+        }
+        if (!item.fileStack || item.fileStack === null) {
+            console.log("Checking Store", item.fileStore);
+            if (item.fileStore && item.fileStore.length > 0) {
+                const fileStack = item.fileStore.slice(0, item.fileStore.length - 1) + "S0";
+                console.log("Checking Stack", fileStack);
+                if (doesFileExist(resourcePathURL + fileStack + ".gltf")) {
+                    console.log("Found", fileStack);
+                    item.fileStack = fileStack;
+                } else {
+                    console.log("Stack Not Found", fileStack);
+                }
+            } else {
+                console.log("Store Not Found", item.fileStore);
+            }
+        }
+        if (!item.fileStack || item.fileStack === null) {
+            //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+            setIsLoading(true);
+            getPartsStackableInfo(item.fileId, stateprops.distancegap, stateprops.anglegap)                
+                .then(res => res.data)
+                .then((repos) => {
+                    console.log(repos);
+                    const multiAssmebly = get(repos, 'tree', []).length > 0;
+                    const stack = repos['store'];
+                    item.fileStack= stack;
+                    setgltfjson({ ...repos, mpps:item.fileMPPS, store:item.fileStore, stack:stack,
+                            gdt: item.fileGDT, multiAssmebly: multiAssmebly });
+                    setItemProperties(prevData => ({
+                        ...prevData,
+                        fileStack: stack
+                    }));
+                    setIsLoading(false);
+                }).catch(err => {
+                    setIsLoading(false);
+                    console.log("Error While Parsing", err);
+                });
+        }
+        else {
+            //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+            fetchGLTFAndTree("stack", item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack);
+        }
+           
+    };
+    const setOrder = (item) => {
+        if (!item.fileId) {               
+            return;
+        }
+        if (!item.fileMPPS || item.fileMPPS === null) {
+            console.log("Checking Store", item.fileStore);
+            if (item.fileStore && item.fileStore.length > 0) {
+                const fileMPPS = item.fileStore.slice(0, item.fileStore.length - 1) + "M0";
+                console.log("Checking Order", fileMPPS);
+                if (doesFileExist(resourcePathURL + fileMPPS + ".gltf")) {
+                    console.log("Found", fileMPPS);
+                    item.fileMPPS = fileMPPS;
+                } else {
+                    console.log("Order Not Found", fileMPPS);
+                }
+            } else {
+                console.log("Store Not Found", item.fileStore);
+            }
+        }
+        if (!item.fileMPPS || item.fileMPPS === null) {
+            //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+            setIsLoading(true);
+            console.log("Setting here");
+            getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap, 
+                stateprops.explodegap, stateprops.fromcenter,  0, 0)
+                .then(res => res.data)
+                .then((repos) => {
+                    console.log("Coming Here");
+                    const multiAssmebly = get(repos, 'tree', []).length > 0;
+                    const mpps = repos['store'];
+                    item.fileMPPS= mpps;
+                    setgltfjson({ ...repos, mpps:mpps, store:item.fileStore, stack:item.fileStack,
+                            gdt: item.fileGDT, multiAssmebly: multiAssmebly });
+                    setItemProperties(prevData => ({
+                        ...prevData,
+                        fileMPPS: mpps
+                    }));
+                    setIsLoading(false);
+                    console.log("Done");
+                }).catch(err => {
+                    setIsLoading(false);
+                    console.log("Error While Parsing", err);
+                });
+        }
+        else {
+            //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+            fetchGLTFAndTree("mpps", item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack);
+        }
+    };
     const setGLTFAndTree = (item, myTabIndex) => {
 
         if (myTabIndex == tabIndex) {
@@ -135,7 +232,7 @@ const ItemDetail = () => {
                 if (!item.fileMPPS || item.fileMPPS === null) {
                     console.log("Checking Store", item.fileStore);
                     if (item.fileStore && item.fileStore.length > 0) {
-                        const fileMPPS = item.fileStore.slice(0, item.fileStore.length - 1) + "M";
+                        const fileMPPS = item.fileStore.slice(0, item.fileStore.length - 1) + "M0";
                         console.log("Checking MPPS", fileMPPS);
                         if (doesFileExist(resourcePathURL + fileMPPS + ".gltf")) {
                             console.log("Found", fileMPPS);
@@ -148,20 +245,20 @@ const ItemDetail = () => {
                     }
                 }
                 if (!item.fileMPPS || item.fileMPPS === null) {
-                    //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+                    console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
                     setIsLoading(true);
                     getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap, 
                         stateprops.explodegap, stateprops.fromcenter,  0, 0)
                         .then(res => res.data)
                         .then((repos) => {
                             const multiAssmebly = get(repos, 'tree', []).length > 0;
-                            const store = repos['store'];
-                            item.fileMPPS= store;
-                            setgltfjson({ ...repos, mpps:store, store:item.fileStore, stack:item.fileStack,
+                            const mpps = repos['store'];
+                            item.fileMPPS= mpps;
+                            setgltfjson({ ...repos, mpps:mpps, store:item.fileStore, stack:item.fileStack,
                                  gdt: item.fileGDT, multiAssmebly: multiAssmebly });
                             setItemProperties(prevData => ({
                                 ...prevData,
-                                fileMPPS: repos.store
+                                fileMPPS: mpps
                             }));
                             setIsLoading(false);
                         }).catch(err => {
@@ -184,10 +281,13 @@ const ItemDetail = () => {
                             const multiAssmebly = get(repos, 'tree', []).length > 0;
                             const store = repos['store'];
                             item.fileStore = store;
+                            console.log("Fetching Data",{ ...repos, mpps:item.fileMPPS, stack:item.fileStack, gdt: item.fileGDT, multiAssmebly: multiAssmebly });
+                            
+ 
                             setgltfjson({ ...repos, mpps:item.fileMPPS, stack:item.fileStack, gdt: item.fileGDT, multiAssmebly: multiAssmebly });
                             setItemProperties(prevData => ({
                                 ...prevData,
-                                fileStore: repos.store
+                                fileStore: store
                             }));
                             setIsLoading(false);
                         }).catch(err => {
@@ -226,6 +326,8 @@ const ItemDetail = () => {
                         .then((repos) => {
                             const gdt = repos['store'];
                             item.fileGDT = gdt;
+                            console.log("Fetching Data",{ ...repos, mpps:item.fileMPPS, stack:item.fileStack, gdt: gdt, store: item.fileStore });
+                            
                             setgltfjson({ ...repos, mpps:item.fileMPPS, stack:item.fileStack, gdt: gdt, store: item.fileStore });
                             //console.log("After getting reposi",repos, {...repos,gdt:gdt,store:item.fileStore},isLoading);
                             setItemProperties(prevData => ({
@@ -271,8 +373,14 @@ const ItemDetail = () => {
             }  
             const gltfRes = await getGltfForStore(whichOneToLoad);
             const treeRes = await getTreeForStore(whichOneToLoad);
+            let stackRes = {data:null};
+            if(myTabIndex=="stack") {
+                stackRes = await getAFileFromStore(whichOneToLoad,"stack");
+            }
             const multiAssmebly = treeRes.length > 0;
-            setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data, multiAssmebly: multiAssmebly });
+            console.log("Fetched Data",{ ...obj, gltf: gltfRes.data, tree: treeRes.data, stackable:stackRes.data, multiAssmebly: multiAssmebly });
+           
+            setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data, stackable:stackRes.data, multiAssmebly: multiAssmebly });
             setIsLoading(false);
 
         } catch (error) {
@@ -355,10 +463,16 @@ const ItemDetail = () => {
                 return <VendorDetails />
             case "mpps":
                 return <Manufacturing
-                    itemId={id}
-                    itemProperties={itemProperties}
-                    setItemProperties={setItemProperties}
-                    fetchList={ItemAPI.getItemsAPI} />;
+                        itemId={id}
+                        fileId={itemProperties.fileId}
+                        itemProperties={itemProperties}
+                        setItemProperties={setItemProperties}
+                        fetchList={ItemAPI.getItemsAPI} 
+                        setStack={setStack}
+                        setOrder={setOrder}                     
+                        gltfjson={gltfjson}  
+                        isLoading={isLoading}                     
+                    />;
             case 7:
                 return <ClientSetup itemProperties={itemProperties} setItemProperties={setItemProperties} />;
             case "assembly":

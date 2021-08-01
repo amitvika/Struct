@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import Paper from '@material-ui/core/Paper';
+import {   
+    Paper,
+    CircularProgress,
+    makeStyles
+} from "@material-ui/core";
 import Link from '@material-ui/core/Link';
 import { Spinner } from "reactstrap";
 import TableView from '@ravibasil/common/components/TableGridView/TableView';
-import { getPartsAssemblyOrder } from '@ravibasil/common/api/fileUpload.api'
+import GLTFRenderer from '../../../../gltf/GltfRenderer.js';
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTFEATURE, SELECTHIRERACHY } from "../../../../gltf/Tree/utils";
+
+import '../../style.css';
+
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
 const DEFAULTEXPLODEGAP = 10;
@@ -11,7 +19,8 @@ const DEFAULTFROMCENTER = true;
 const DEFAULTDISECT = false;
 const DEFAULTSHOWDISECT = false;
 const DEFAULTSHOWINFOONSELECT = false;
-const DEFAULTMATERIALTYPE = [{ "id": 1, "name": "Basic" }];
+const DEFAULTMATERIALNAME = "Basic";
+const DEFAULTMATERIALTYPE = [{ "id": 1, "name": DEFAULTMATERIALNAME }];
 
 const stateprops = {
     distancegap: DEFAULTDISTANCEGAP,
@@ -23,12 +32,22 @@ const stateprops = {
     materialtype: DEFAULTMATERIALTYPE,
     fromcenter:DEFAULTFROMCENTER
 }
-export default function ManufacturabilityAnalysis(assemblyValues) {
-
+const useStyles = makeStyles((theme) => ({
+    mainContainer: { margin: 10, padding: 10, display: 'inline-flex', minWidth: '100%' },
+    viewerContainer: {
+        padding: '20px',
+        margin: '0px 15px',
+        display: 'inline-block',
+        border: '1px solid rgba(0, 0, 0, 0.3)',
+        boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
+    }
+}));
+export default function ManufacturabilityAnalysis(props) {
+    const {fileId, gltfjson, isLoading}=props;
     const [list, setList] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isFileLoading, setIsLoading] = useState(isLoading);
     const [filteredList, setFilteredList] = useState([]);
-    const [assemblyManufactureValues, setassemblyManufactureValues] = useState(assemblyValues);
+    const classes = useStyles();
     const [columns, setColumns] = useState([
         { title: 'Mates', field: 'id', editable: "never" },
         { title: 'Insertion Type', field: 'name' },
@@ -46,13 +65,17 @@ export default function ManufacturabilityAnalysis(assemblyValues) {
             }
 
         })
-    }
-    const gltfjson = {};
-    const fileId = 0;
+    }    
+    useEffect(() => {
+        setIsLoading(isLoading);
+    }, [isLoading]);
     useEffect(() => {
         const includeParts = true;
-        //console.log("Reaching",gltfjson,fileId,isLoading);
-        const gltfjsonlen = Object.keys(gltfjson).length;
+        console.log("Reaching",gltfjson,fileId,isLoading);
+        let gltfjsonlen =  Object.keys(gltfjson).length;
+        if (gltfjsonlen > 0) {
+            gltfjsonlen += gltfjson?.gltf?.accessors?.length;
+        }
         if (gltfjsonlen > 0) {
             setState({
                 selectedindex: 0,
@@ -74,7 +97,7 @@ export default function ManufacturabilityAnalysis(assemblyValues) {
                 whatchange: 0,
             });
         }
-    }, [assemblyManufactureValues]);
+    }, [gltfjson]);
 
     if (isLoading) {
         return (<div
@@ -86,10 +109,38 @@ export default function ManufacturabilityAnalysis(assemblyValues) {
             <Spinner animation="border" />
         </div>)
     }
-
+    let gltfjsonlen =  Object.keys(gltfjson).length;
+    if (gltfjsonlen > 0) {
+        gltfjsonlen += gltfjson?.gltf?.accessors?.length;
+    }
     return (
-        <Paper>
+        <Paper className={classes.mainContainer}>
+            <Paper className={classes.viewerContainer} square={true}>
+                {
+                    !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
+                    <GLTFRenderer
+                        //gltfjson={JSON.stringify(gltfjson)}
+                        gltfobj={gltfjson}
+                        fileGDT={null}
+                        view="Perspective"
+                        activefile={fileId+gltfjsonlen.toString()}
+                        backcolor={DEFAULTBACKCOLOR}
+                        selectcolor={DEFAULTSELECTCOLOR}
+                        touchcolor={DEFAULTTOUCHCOLOR}
+                        selectedoption={SELECTFEATURE}
+                        splitmethod={SELECTHIRERACHY}
+                        changedata={[]}
+                        data2texture={null}
+                        data3texture={null}
+                        materialtype={DEFAULTMATERIALNAME}
+                        whatchanged={0} dataselection={0}
+                    />
+                }
+                {
+                    (isLoading || isFileLoading) && <CircularProgress />
+                }
 
+            </Paper>
             <TableView
                 title={'Order of Assembly'}
                 list={filteredList}

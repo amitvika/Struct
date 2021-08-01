@@ -161,4 +161,5 @@ __pycache__
 **/Media/
 *.png
 *.progress
+*.stack
 

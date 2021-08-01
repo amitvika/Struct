@@ -726,7 +726,9 @@ class GLTFRenderer extends Component {
                         } else {
                             const materials = Array.isArray(node.material) ? node.material : [node.material];
                             materials.forEach((material) => {
+                                console.log("before",material);
                                 material.visible = visibility;
+                                console.log("after",material);
                             });
                         }    
                         this.changeMaterialStats(node.material,this.state.side,this.state.opaque,this.state.wiremesh);
@@ -851,7 +853,7 @@ class GLTFRenderer extends Component {
         this.updateTextureEncoding(this.state.textureEncoding);
         this.updateDisplay(this.state.side,this.state.opaque,
             this.state.wiremesh,this.state.skeleton,this.state.grid);
-
+        
         //window.content = this.content;
         //console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
         //this.printGraph(this.content[0]);
@@ -877,13 +879,16 @@ class GLTFRenderer extends Component {
         }
 
         this.clips = clips;
+        console.log(this.clips);
         if (!clips.length) return;
-
+        console.log(this.content[0]);
         this.mixer = new AnimationMixer(this.content[0]);
+        this.playAllClips();
     };
 
     playAllClips = () => {
         this.clips.forEach((clip) => {
+            console.log(clip);
             this.mixer.clipAction(clip).reset().play();
             this.state.actionStates[clip.name] = true;
         });
@@ -2077,6 +2082,7 @@ class GLTFRenderer extends Component {
         const first6chars = mynode?.name.slice(0, 6);
         var visible = (this.props.selectedoption == SELECTMEASURE) || 
             (this.props.selectedoption == SELECTFEATURE) ;
+        //console.log(this.props.selectedoption);
         //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
         if (first4chars != "PART") {
            if (first4chars == "FACE") {
@@ -2169,11 +2175,28 @@ class GLTFRenderer extends Component {
             //console.log(intersects);
             var myObject = intersects.length;
             for (var i = 0; i < intersects.length; i++) {
-                //console.log(intersects[ i ].object);
+                //console.log("First",intersects[ i ].object);
                 if (intersects[i].object.type == "Mesh") {
-                    //console.log(intersects[ i ].object);
-                    myObject = i;
-                    break;
+                    //console.log("name found",intersects[ i ].object.name);
+                    if(!this.onlyparts(intersects[i].object.name)){
+                        myObject = i;
+                        //console.log("I found a face",intersects[i].object.name);
+                        break;
+                    }
+                   
+                }
+            }
+            //console.log("Got",myObject);
+            if (myObject == intersects.length) {
+                //console.log("Entered here");
+                for (var i = 0; i < intersects.length; i++) {
+                    //console.log("Second",intersects[ i ].object);
+                    if (intersects[i].object.type == "Mesh") {
+                        //console.log(intersects[ i ].object);                        
+                        myObject = i;
+                        break;                      
+                    
+                    }
                 }
             }
             if (myObject != intersects.length) {
@@ -2239,9 +2262,9 @@ class GLTFRenderer extends Component {
             this.materialtype = this.props.materialtype;
             this.selectedoption = this.props.selectedoption;
             if (this.gltfJSON != null) {
-                //console.log("Getting me3!");
+                console.log("Getting me3!");
                 //this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');
-                //console.log(this.props.gltfobj.gltf);
+                console.log(this.props.gltfobj.gltf);
                 const parser = new GLTFParser( this.props.gltfobj.gltf, {
 
                     path: resourcePathURL || '',
@@ -2257,7 +2280,7 @@ class GLTFRenderer extends Component {
                 const onload = ( gltf ) => {
                     this.object = gltf.scene || gltf.scenes[0];
                     this.clips = gltf.animations || [];
-                    //console.log("Objects",this.object);
+                    console.log("gltf", gltf, "Objects",this.object);
                     this.setContent(this.object, this.clips); 
                 }
                 
@@ -2265,7 +2288,7 @@ class GLTFRenderer extends Component {
                     console.log(exception);
                 }
                 const onProgress = (progress) => {
-                    //console.log(progress);
+                    console.log(progress);
                 }
                 parser.parse( onload, onError, onProgress );
     
@@ -2410,12 +2433,19 @@ class GLTFRenderer extends Component {
 
         const first4chars = name.slice(0, 4);
         const first6chars = name.slice(0, 6);
-        if ((first4chars == "EDGE") || (first6chars == "VERTEX")) {
+        if ( (first4chars == "PART") || (first4chars == "EDGE") || (first6chars == "VERTEX") ) {
             return false;
         }
         return true;
     };
    
+    onlyparts = (name) => {
+
+        const first4chars = name.slice(0, 4);
+        return first4chars=="PART";
+       
+    }
+
     fetchTree = (fileStore,progressfile) => {        
         getAFileFromStore(fileStore,"tree")
         .then(res => res.data)
@@ -2621,7 +2651,8 @@ class GLTFRenderer extends Component {
                 if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
                     var myChild = this.findMyMaterial(this.props.gltfobj.tree[i]);
                     if (myChild) {
-                        if (this.onlyfaces(myChild.name)) {
+                        if ((this.props.gltfobj.tree[i][gltf_Dict["element"]]=="F") ||
+                             (this.onlyfaces(myChild.name)) ) {
                             myMaterials.push(myChild);
                         }
                     }
@@ -2688,7 +2719,8 @@ class GLTFRenderer extends Component {
                     if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
                         var myChild = this.findMyMaterial(this.props.gltfobj.tree[i]);
                         if (myChild) {
-                            if (this.onlyfaces(myChild.name)) {
+                            if ((this.props.gltfobj.tree[i][gltf_Dict["element"]]=="P") ||
+                                (this.onlyparts(myChild.name)) ) {
                                 myMaterials.push(myChild);
                             }
                         }
@@ -2902,7 +2934,8 @@ class GLTFRenderer extends Component {
                 }
                 console.log(meshmaterial.name);
                 const myAllChilds = this.findMyParentChilds(meshmaterial);
-                if(myAllChilds.select==false && (this.props.selectedoption!=SELECTASSEMBLY) && (this.props.selectedoption!=SELECTSOLID) ) {
+                if(myAllChilds.select==false && (this.props.selectedoption!=SELECTFEATURE) &&
+                    (this.props.selectedoption!=SELECTASSEMBLY) && (this.props.selectedoption!=SELECTSOLID) ) {
                     meshmaterial.selectedshell=myAllChilds.select;
                 }
                 var copy_selectobjects = this.arrayCopy(this.state_selectedObjects);
@@ -3670,7 +3703,7 @@ class GLTFRenderer extends Component {
         //console.log("popmenus",myMenus[param],param);
         return <div>
                     {/* <MuiThemeProvider theme={this.theme}> */}
-                        <Paper style={{ width: '100%', margin: '5px auto', paddingBottom: '1px' }}>
+                        
                             <GroupFormBuilder
                             
                             onChange={(values,keyindex) => {
@@ -3681,7 +3714,7 @@ class GLTFRenderer extends Component {
                             groups={myMenus[param].groups}
                             closeForm={()=>{this.handlePopperClick(null,this.state.selectedmenu);}}
                             />
-                        </Paper>
+                        
                     {/* </MuiThemeProvider> */}
                 </div>
     };
