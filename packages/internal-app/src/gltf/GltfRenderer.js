@@ -2422,6 +2422,13 @@ class GLTFRenderer extends Component {
         return true;
     };
    
+    onlyparts = (name) => {
+
+        const first4chars = name.slice(0, 4);
+        return first4chars=="PART";
+       
+    }
+
     fetchTree = (fileStore,progressfile) => {        
         getAFileFromStore(fileStore,"tree")
         .then(res => res.data)
@@ -2627,7 +2634,7 @@ class GLTFRenderer extends Component {
                 if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
                     var myChild = this.findMyMaterial(this.props.gltfobj.tree[i]);
                     if (myChild) {
-                        if ((this.props.gltfobj.tree[i][gltf_Dict["element"]]=="f") ||
+                        if ((this.props.gltfobj.tree[i][gltf_Dict["element"]]=="F") ||
                              (this.onlyfaces(myChild.name)) ) {
                             myMaterials.push(myChild);
                         }
@@ -2695,8 +2702,8 @@ class GLTFRenderer extends Component {
                     if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
                         var myChild = this.findMyMaterial(this.props.gltfobj.tree[i]);
                         if (myChild) {
-                            if ((this.props.gltfobj.tree[i][gltf_Dict["element"]]=="f") ||
-                                (this.onlyfaces(myChild.name)) ) {
+                            if ((this.props.gltfobj.tree[i][gltf_Dict["element"]]=="P") ||
+                                (this.onlyparts(myChild.name)) ) {
                                 myMaterials.push(myChild);
                             }
                         }
@@ -2910,7 +2917,8 @@ class GLTFRenderer extends Component {
                 }
                 console.log(meshmaterial.name);
                 const myAllChilds = this.findMyParentChilds(meshmaterial);
-                if(myAllChilds.select==false && (this.props.selectedoption!=SELECTASSEMBLY) && (this.props.selectedoption!=SELECTSOLID) ) {
+                if(myAllChilds.select==false && (this.props.selectedoption!=SELECTFEATURE) &&
+                    (this.props.selectedoption!=SELECTASSEMBLY) && (this.props.selectedoption!=SELECTSOLID) ) {
                     meshmaterial.selectedshell=myAllChilds.select;
                 }
                 var copy_selectobjects = this.arrayCopy(this.state_selectedObjects);

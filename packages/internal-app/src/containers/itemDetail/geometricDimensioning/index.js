@@ -353,7 +353,8 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                 if (state.gltfjson.tree[i][gltf_Dict["parentId"]] == myParentID) {
                     var myChild = state.gltfjson.tree[i];
                     if (myChild) {
-                        if (onlyfaces(myChild[gltf_Dict["name"]])) {
+                        if ((state.gltfjson.tree[i][gltf_Dict["element"]]=="F") ||
+                            onlyfaces(myChild[gltf_Dict["name"]])) {
                             myMaterials.push(myChild);
                         }
                     }
@@ -413,7 +414,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                     if (state.gltfjson.tree[i][gltf_Dict["parentId"]] == myParentID) {
                         var myChild = state.gltfjson.tree[i];
                         if (myChild) {
-                            if (onlyfaces(myChild[gltf_Dict["name"]])) {
+                            
+                            if ((state.gltfjson.tree[i][gltf_Dict["element"]]=="P")||
+                                onlyparts(myChild[gltf_Dict["name"]])) {
                                 myMaterials.push(myChild);
                             }
                         }
@@ -442,7 +445,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
 
     const findMyParentChilds = (mynode, whichOption) => {
         //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
-        if ((((whichOption != SELECTSOLID) && (whichOption != SELECTASSEMBLY)) ||
+        if (( (whichOption != SELECTASSEMBLY) ||
             (state.splitMethod != SELECTDISECTPARTS)) && resetOption) {
             //console.log("I got over Singles",whichOption,resetOption,state.splitMethod);
             return findSingleNode(mynode);
@@ -481,6 +484,13 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
             return false;
         }
         return true;
+    }
+
+    const onlyparts = (name) => {
+
+        const first4chars = name.slice(0, 4);
+        return first4chars=="PART";
+       
     }
 
     const setState = (data) => {
