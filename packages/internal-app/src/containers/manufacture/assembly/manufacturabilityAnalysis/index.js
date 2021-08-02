@@ -122,7 +122,7 @@ export default function ManufacturabilityAnalysis(props) {
                         //gltfjson={JSON.stringify(gltfjson)}
                         gltfobj={gltfjson}
                         fileGDT={null}
-                        view="Perspective"
+                        //view="Perspective"
                         activefile={fileId+gltfjsonlen.toString()}
                         backcolor={DEFAULTBACKCOLOR}
                         selectcolor={DEFAULTSELECTCOLOR}
