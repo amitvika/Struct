@@ -161,7 +161,7 @@ function Menu(props) {
         square
         className={props.selectProps.classes.paper}
         {...props.innerProps}
-        style={{ width: '400px', zIndex: 1400 }}
+        style={{ width: '400px', zIndex: 1800 }}
       >
         {props.children}
       </Paper>

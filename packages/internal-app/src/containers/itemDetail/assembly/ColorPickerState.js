@@ -6,7 +6,7 @@ const ColorPickerState = (props) => {
   let prevcolor = value;
  
   console.log("First",colorState);
-  return <div style={{width:'80%', zIndex: 1000}}>
+  return <div style={{width:'80%', zIndex: 2000}}>
     <ColorPicker zindex="tooltip"  
       {...props}        
       value={colorState}

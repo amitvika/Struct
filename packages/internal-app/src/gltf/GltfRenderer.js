@@ -71,6 +71,8 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import GroupFormBuilder from './GroupFormBuilder';
 import {myMenus} from './gltfMenus';
+import { ClickAwayListener } from "@material-ui/core";
+import RotateLeftSharpIcon from '@material-ui/icons/RotateLeftSharp';
 //import { Box } from "@material-ui/core";
 
 
@@ -359,7 +361,7 @@ class GLTFRenderer extends Component {
                     this.defaultCamera.top = this.defaultCamera.right; 
                     this.defaultCamera.bottom = -this.defaultCamera.right;
                 }
-                this.defaultCamera.zoom = this.defaultCamera.right / size;
+                this.defaultCamera.zoom = 1.4*this.defaultCamera.right / size; //approx Sqrt(2)
                 this.OrthographicInitialzoom = this.defaultCamera.zoom;
                 this.controls.emSpeed = Math.pow(this.controls.zoomSpeed,1.0/this.OrthographicInitialzoom);
                 //console.log( this.defaultCamera.zoom);
@@ -2478,7 +2480,8 @@ class GLTFRenderer extends Component {
             var findEdges = 0;
             for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
                 if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == mynode.name) {
-                    myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
+                    myParentID =  this.props.gltfobj.tree[i][gltf_Dict["id"]];
+                    //myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
                     findEdges = this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]];
                     break;
                 }
@@ -2487,6 +2490,7 @@ class GLTFRenderer extends Component {
                 //alert("Unable to find a parent for this!");
                 console.log("Unable to find a parent for this!",mynode);
             }
+            console.log("My ID",myParentID)
             if(myParentID != -1 && !findEdges) {
                 let featureSetStart=0;
                 if(!findEdges) {
@@ -3417,11 +3421,18 @@ class GLTFRenderer extends Component {
             } else {
                 let myParentID=allEdges;
                 let myParentDic = {};
-                //console.log(data);
-                myParentDic[myParentID.toString()]=data.files?data.files[myParentID]:1;
-                if(allEdges==0 && data.files){
-                   myParentDic = data.files;
+                console.log(myParentID,data);
+                if(data.files) {
+                    alert("Please reload and regenerate because structure is changed to minimize parent nodes of parts");
+                    return;
                 }
+                myParentDic[myParentID.toString()]=data.children?data.children[myParentID]:data.files?data.files[myParentID]:1;
+                if(allEdges==0 && data.children){
+                   myParentDic = data.children;
+                }
+                if(allEdges==0 && data.files){
+                    myParentDic = data.files;
+                 }
                 console.log("ParentDict",myParentDic);
                 for (let [myParentID, howManyFilesJson] of Object.entries(myParentDic)) {                  
                     //myParentID = allEdges;
@@ -3733,7 +3744,17 @@ class GLTFRenderer extends Component {
         </Button>
         )
     )) };
-    
+
+    resetMyControls = () => {
+        if(this.controls && this.controls.reset) {
+            this.controls.reset();
+            if(this.defaultCamera && this.defaultCamera.isOrthographicCamera) {
+                this.controls.zoom = this.OrthographicInitialzoom;
+                this.defaultCamera.updateProjectionMatrix(); 
+            }
+        }
+    }
+
     changeSelectedOption = () => {
         if (this.selectedoption == SELECTMEASURE || this.props.selectedoption == SELECTMEASURE) {
             if (this.secondshell) {
@@ -3829,16 +3850,30 @@ class GLTFRenderer extends Component {
         return (
             <> 
                 <Grid container spacing={0} direction="column" justifyContent="center" alignItems="center">
+                   
                     <Grid p={1}> 
                         {this.buildMenus(this.state.selectedmenu)} 
+                        <Button aria-describedby={"Reset Controls"} 
+                            id={'popreset'} type="button" 
+                            variant="contained" 
+                            onClick={(event)=>{this.resetMyControls();}}                        
+                            startIcon={<RotateLeftSharpIcon/>} 
+                        >
+                        </Button>
                     </Grid>
-                    <Popper style={{zIndex: 100}}
+                   
+                    <Popper style={{zIndex: 1600}}
                         id={this.idEl[this.state.selectedmenu]} 
                         open={this.openEl[this.state.selectedmenu]} 
                         anchorEl={this.state.anchorEls[this.state.selectedmenu]} 
                         placement={"bottom"}>
+                        <ClickAwayListener onClickAway={(event)=>{
+                            {this.handlePopperClick(event,this.state.selectedmenu );}
+                        }}> 
                         <div>{this.popMenus(this.state.selectedmenu)}</div>
+                        </ClickAwayListener> 
                     </Popper>
+                   
                 </Grid>
 
                 <div
