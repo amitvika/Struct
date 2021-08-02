@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {
   Headding
-} from '../../components';
+} from '@ravibasil/common/components';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
 import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
-import { uploadFileS3Bucket } from '../../api/aws';
+import { uploadFileS3Bucket } from '@ravibasil/common/api/aws';
 
 const useStyles = makeStyles((theme) => ({
   button: {

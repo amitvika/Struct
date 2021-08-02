@@ -1,7 +1,7 @@
 import React from 'react'
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Input from '../../components/atoms/Input';
+import Input from '@ravibasil/common/components/atoms/Input';
 
 export default function AppDesigner() {
   return (

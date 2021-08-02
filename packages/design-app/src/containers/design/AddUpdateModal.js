@@ -6,9 +6,9 @@ import {
     Input,
     Textarea,
     Headding
-} from '../../components';
+} from '@ravibasil/common/components';
 
-import Modal from '../../components/Modal';
+import Modal from '@ravibasil/common/components/Modal';
 import FileUpload from './FileUpload';
 import FileHistory from './FileHistory';
 
