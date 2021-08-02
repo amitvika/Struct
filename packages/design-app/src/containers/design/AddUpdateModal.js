@@ -9,8 +9,8 @@ import {
 } from '@ravibasil/common/components';
 
 import Modal from '@ravibasil/common/components/Modal';
-import FileUpload from './FileUpload';
-import FileHistory from './FileHistory';
+import FileUpload from '@ravibasil/common/containers/FileUploadOnAWS';
+import FileHistory from '@ravibasil/common/containers/FileHistory';
 
 export default function AddUpdateModal({ title, fields, open, toggleModal, handleUpdate, isEditing, selectedValue }) {
     const [value, setValue] = useState({});

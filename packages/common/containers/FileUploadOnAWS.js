@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function FileUpload({ value, handleOnChange, isDesignModalOpened = true,
+export default function FileUploadOnAWS({ value, handleOnChange, isDesignModalOpened = true,
   fileType = ".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" }) {
   const classes = useStyles();
 
