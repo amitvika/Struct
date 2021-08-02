@@ -44,7 +44,6 @@ const useStyles = makeStyles((theme) => ({
         padding: '20px',
         margin: '0px 15px',
         display: 'inline-block',
-        border: '1px solid rgba(0, 0, 0, 0.3)',
         boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
     }
 }));

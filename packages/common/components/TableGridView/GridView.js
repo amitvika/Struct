@@ -12,14 +12,11 @@ import Avatar from '@material-ui/core/Avatar';
 import PictureAsPdf from '@material-ui/icons/PictureAsPdf';
 import DescriptionIcon from '@material-ui/icons/Description';
 import ClipboardText from '../ClipboardText'
-import './style.css'
+import HistoryIcon from '@material-ui/icons/History';
+import Tooltip from '@material-ui/core/Tooltip';
 
-//import {CopyLogo} from '../../assets/images/copy_icon.png'
-// import StructLogo from '../../assets/images/struct_logo.png';
 import StructLogo from '../../assets/images/new_logo.png';
-import { resourcePathURL } from '@ravibasil/common/api/fileUpload.api';
-import { color } from 'src/gltf/GUI';
-//import {isURLExisting} from  '@ravibasil/common/utils/usefulHelpers';
+import './style.css'
 
 const useStyles = makeStyles((theme) => ({
   tableCell: {
@@ -111,11 +108,7 @@ export default function GridView({
                   <span className={classes.boldtablecell}>{fieldItem.title}</span>
                   {`: `}
                   <span ref={titleRef} className={classes.tableCell} value={`${data[fieldItem.field]}`}>{` ${data[fieldItem.field] != undefined || data[fieldItem.field] != null ? data[fieldItem.field] : ''}`}</span>
-                  {
-                    (fieldItem.title === "ID") ?
-                      <ClipboardText item_id={data[fieldItem.field]} />
-                      : null
-                  }
+
                 </Typography>
             }
           </Grid>
@@ -145,14 +138,26 @@ export default function GridView({
     }
   }
 
+
+  const CustomIconButton = ({ title, onClick, children }) => {
+    return (
+      <Tooltip title={title} aria-label={title} placement="left">
+        <IconButton onClick={(event) => {
+          event.stopPropagation();
+          onClick()
+        }}>
+          {children}
+        </IconButton>
+      </Tooltip>
+    )
+  }
+
   return (
     <Grid container spacing={2}>
       {list.map(product => {
         return (
           <Grid item xs={6} sm={3} key={product.id}>
-            <Paper className={classes.paper} onClick={() => handleTableRowClick(product)}
-            // style={{ backgroundColor: `${product.is_archived ? '#d0cece' : '#ffffff'}` }}
-            >
+            <Paper className={classes.paper} onClick={() => handleTableRowClick(product)}>
               <Grid container style={{
                 height: '100%',
                 paddingBottom: '10px'
@@ -160,41 +165,36 @@ export default function GridView({
               }}>
                 <Grid item sm sm={4} style={{ display: 'flex' }}>
                   {renderIconBasedOnFileType(product.file_url)}
-                  {/* <img className={classes.img} alt="complex" src={StructLogo}></img> */}
                 </Grid>
-                <Grid elevation={3} item sm sm={8} style={{ marginTop: '25px' }}>
-
+                <Grid elevation={3} item sm sm={6} style={{ marginTop: '25px' }}>
                   {renderItem(product)}
                 </Grid>
-                <Grid style={{ display: 'flex', margin: 'auto', width: '154px' }}>
+                <Grid item sm sm={2} style={{
+                  display: 'flex',
+                  margin: 'auto',
+                  flexDirection: 'column'
+                }}>
 
+                  <ClipboardText item_id={product.id} />
                   {
                     isAddEditLinkVisible &&
-                    <Grid item sm sm={12} >
-                      <IconButton onClick={(event) => {
-                        event.stopPropagation();
+                    <CustomIconButton
+                      title={'Edit'}
+                      onClick={(event) => {
                         handleEditButtonPress(product)
                       }}>
-
-                        <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'right' }}>
-                          <EditIcon />
-                        </Typography>
-                      </IconButton>
-
-                    </Grid>
+                      <EditIcon />
+                    </CustomIconButton>
                   }
                   {
                     isHistoryLinkVisible &&
-                    <Grid item sm sm={12} className={classes.historyLink}>
-                      <Typography variant="body2" style={{ cursor: 'pointer', textAlign: 'center' }}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          handleHistoryToggle({ rowId: product.id })
-                        }}>
-                        View History
-                      </Typography>
-                    </Grid>
-
+                    <CustomIconButton
+                      title={'View History'}
+                      onClick={(event) => {
+                        handleHistoryToggle({ rowId: product.id })
+                      }}>
+                      <HistoryIcon />
+                    </CustomIconButton>
                   }
                 </Grid>
               </Grid>

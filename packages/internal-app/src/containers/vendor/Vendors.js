@@ -9,7 +9,6 @@ import GridView from '@ravibasil/common/components/TableGridView/GridView';
 import DefaultContainer from '@ravibasil/common/components/DefaultContainer';
 import AddEditVendorModal from './AddEditVendorModal'
 
-import { useDispatch } from 'react-redux';
 
 const Vendors = () => {
     let history = useHistory();
@@ -56,17 +55,17 @@ const Vendors = () => {
         { title: "ID", field: "id", editable: "never", align: 'center' },
         { title: "Name", field: "name", type: 'text' },
         // { title: "Source", field: "source" },
-        {
-            title: 'History',
-            field: "id",
-            editable: "never",
-            isFilterColumn: false,
-            render: rowData => rowData && <span style={{ cursor: 'pointer' }}
-                onClick={(event) => {
-                    event.stopPropagation();
-                    handleHistoryToggle({ rowId: rowData.id })
-                }}> Show History </span>
-        },
+        // {
+        //     title: 'History',
+        //     field: "id",
+        //     editable: "never",
+        //     isFilterColumn: false,
+        //     render: rowData => rowData && <span style={{ cursor: 'pointer' }}
+        //         onClick={(event) => {
+        //             event.stopPropagation();
+        //             handleHistoryToggle({ rowId: rowData.id })
+        //         }}> Show History </span>
+        // },
     ])
 
     const alertForError = (err) => {

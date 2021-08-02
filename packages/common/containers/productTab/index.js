@@ -6,7 +6,7 @@ import Viewer from '@ravibasil/internal-app/src/components/Viewer'
 
 export default function ProductTab({ gltfjson, setgltfjson }) {
     return (
-        <div>
+        <>
             <Product />
             <Paper style={{ padding: 20, margin: 10,  }}>
                 <Headding>ThreeJS Screen</Headding>
@@ -15,6 +15,6 @@ export default function ProductTab({ gltfjson, setgltfjson }) {
                         setgltfjson={setgltfjson}
                     />
             </Paper>
-        </div>
+        </>
     )
 }
