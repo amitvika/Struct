@@ -36,7 +36,6 @@ import ViewMyProfile from './containers/viewMyProfile'
 
 // import Viewer from './page/3DViewer';
 import Viewer from './gltf/DropZone'
-import CriteriaUpload from "./containers/criteriaUpload";
 
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);
