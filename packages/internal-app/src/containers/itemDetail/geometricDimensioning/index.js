@@ -889,7 +889,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                         />
                     )}
                 </div>
-                <div style={{ display: 'inline-block' }}>
+                <div style={{ display: 'inline-block',width: 400 }}>
 
                     <ViewerToolbar
                         {...state}

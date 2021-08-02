@@ -313,15 +313,16 @@ class Extensions extends Component {
     this.setState(this.props.nodes);
     //console.log("While mounting",this.state.nodes,this.props.nodes);
   }
-  static getDerivedStateFromProps(nextProps, prevState) {
+  /* static getDerivedStateFromProps(nextProps, prevState) {
 			if ( (nextProps.nodes !== prevState.nodes)  ) {
+      console.log("i am coming here",nextProps.nodes, prevState.nodes);
 			return {
 				nodes:nextProps.nodes
 			};
 		} else {
 			return null;
 		} 
-	}
+	} */
   handleExpandChange = (nodes) => {
     this.setState({nodes:nodes});   
     console.log("On Expand",nodes);
@@ -416,8 +417,8 @@ class Extensions extends Component {
   render() {
       //console.log("While rendering",this.state.nodes,this.props.nodes);
       
-    return (
-      <FilteringContainer nodes={this.state.nodes} >
+      return (
+        <FilteringContainer nodes={this.state.nodes} >
       {({nodes}) => (
         <div style={{height: 500}}>
         <Tree

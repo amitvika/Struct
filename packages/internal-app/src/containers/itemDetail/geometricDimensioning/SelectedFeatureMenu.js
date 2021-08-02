@@ -28,8 +28,8 @@ export default function SelectedFeatureMenu({ featureList = [], features=true })
                 <TableHead>
                     <TableRow>
                         <TableCell>ID</TableCell>
-                        <TableCell align="right">Type</TableCell>
-                        <TableCell align="right">Kind</TableCell>                       
+                        <TableCell align="right" size="small" style={{whiteSpace: "normal",wordWrap: "break-word", wordBreak:"break-all", width:"100px" }} >Type</TableCell>
+                        <TableCell align="right" size="small">Kind</TableCell>                       
                     </TableRow>
                 </TableHead>
                 <TableBody>

@@ -1573,8 +1573,8 @@ class StepIgesAnalyser():
                     subLocation = subLocation.Multiplied(currentLocation)
                 
                 currentColor, color_set = self.setColor(shape,subLabel)
-                my_parent_id = None
-                if self.includeparts:
+                my_parent_id = self.parentIDs[-1]
+                """ if self.includeparts:
                     #print("sub include",subName)
                     mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
                     my_parent_id = mesherDict[self.gltf_Dict["id"]]
@@ -1582,7 +1582,8 @@ class StepIgesAnalyser():
                     self.indent += 1
                     mydirectory = self.validFileName(subName+subEntry)
                     mydirectorylen = len(self.direntry)
-                    self.direntry += "/"+mydirectory   
+                    self.direntry += "/"+mydirectory  """  
+                myPartMeshID = None                   
                 localTransformation = subLocation.Transformation()   
                 atleastOneItemAdded = 0  
                 toAddFaces = True 
@@ -1631,7 +1632,7 @@ class StepIgesAnalyser():
                                             print("Serving TopAbs_COMPSOLID")                        
                                     print("I have written lowest node",basename,shape_disp.ShapeType() ) """
                                         
-                                    (_,meshname,uvPlane,solidFoundHere)=self.add_part(
+                                    (myPartMeshID,meshname,uvPlane,solidFoundHere)=self.add_part(
                                         shape_disp,
                                         part_color=faceColor,
                                         filenameuri=filefullname,
@@ -1641,6 +1642,18 @@ class StepIgesAnalyser():
                                     ) 
                                     if solidFoundHere > 0 :
                                         self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, self.uid, self.indent, subName, subEntry, meshname, basename, uvPlane]
+                                    if self.includeparts:
+                                        if myPartMeshID:
+                                            my_parent_id = myPartMeshID 
+                                        else:
+                                            mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
+                                            my_parent_id = mesherDict[self.gltf_Dict["id"]]
+                                        
+                                        self.parentIDs.append(my_parent_id)
+                                        self.indent += 1
+                                        mydirectory = self.validFileName(subName+subEntry)
+                                        mydirectorylen = len(self.direntry)
+                                        self.direntry += "/"+mydirectory   
                                     #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
                                 #else:
@@ -1650,7 +1663,15 @@ class StepIgesAnalyser():
                 else:
                     _, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces  = \
                         self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, False, False)
-                   
+                    if self.includeparts:
+                        #print("sub include",subName)
+                        mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
+                        my_parent_id = mesherDict[self.gltf_Dict["id"]]
+                        self.parentIDs.append(my_parent_id)
+                        self.indent += 1
+                        mydirectory = self.validFileName(subName+subEntry)
+                        mydirectorylen = len(self.direntry)
+                        self.direntry += "/"+mydirectory
                 #atleastOneItemAdded = 0
                 myFaceType=[]
                 myFeaturesFaces=[]
@@ -2268,7 +2289,7 @@ class StepIgesAnalyser():
                             addFeature(myshapes,myparentID,myTreeLen,myFeatureName)
                         myTreeLen+=addedTrees
         with open(newfilename, 'w') as fh:
-            fh.write(json.dumps({"begin":lenfeature,"end":lenFeatures,"files":myParentId_Dict}, sort_keys=True, indent=2 ))
+            fh.write(json.dumps({"begin":lenfeature,"end":lenFeatures,"children":myParentId_Dict}, sort_keys=True, indent=2 ))
     
     def addAnimations(self):
         lenAnimations = len(self.animations)

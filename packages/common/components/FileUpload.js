@@ -95,6 +95,7 @@ export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DX
             name="btn-upload"
             className={classes.custom_file_input}
             type="file"
+            accept=".step,.stp,.igs,.iges,.stl,.brep"
             onChange={onChange} />
 
           <label

@@ -146,7 +146,7 @@ const SelectedMatesRelation = (props) => {
             </TableRow>
             {(index>=mateAngle) && (
                 <TableRow key={3*index+9}>                    
-                    <TableCell key={3*index+10} align="right">
+                    <TableCell key={3*index+10} align="right" size="small">
                         <input type="number" aria-invalid="false" id={"Numb"+3*index+10} value={(anglefound&&index==mateAngle)?angle:""} onChange={(e)=>{console.log(e);}} />                            
                      </TableCell>  
                     {/*  <TableCell key={3*index+11} align="right">

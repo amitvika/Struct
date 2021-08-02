@@ -1792,7 +1792,7 @@ def getPartStackablePositions(face_dict, tol=0.1, anggap=0.5):
     #print("Getting for positions",tol,anggap)
     ret_dict = {}      
     try:
-        #print("Checking Top")
+        print("Checking Top")
         ret_dict["top"]=getPartStackableTop(face_dict, tol, anggap)
     except Exception as e:
         try:
@@ -1800,7 +1800,7 @@ def getPartStackablePositions(face_dict, tol=0.1, anggap=0.5):
         except:
             ret_dict["top"]="Error"
     try:
-        #print("Checking Bottom")
+        print("Checking Bottom")
         ret_dict["bottom"]=getPartStackableBottom(face_dict, tol, anggap)
     except Exception as e:
         try:
@@ -1808,7 +1808,7 @@ def getPartStackablePositions(face_dict, tol=0.1, anggap=0.5):
         except:
             ret_dict["bottom"]="Error"
     try:
-        #print("Checking Right")
+        print("Checking Right")
         ret_dict["right"]=getPartStackableRight(face_dict, tol, anggap)
     except Exception as e:
         try:
@@ -1816,7 +1816,7 @@ def getPartStackablePositions(face_dict, tol=0.1, anggap=0.5):
         except:
             ret_dict["right"]="Error"
     try:
-        #print("Checking Left")
+        print("Checking Left")
         ret_dict["left"]=getPartStackableLeft(face_dict, tol, anggap)
     except Exception as e:
         try:
@@ -1824,7 +1824,7 @@ def getPartStackablePositions(face_dict, tol=0.1, anggap=0.5):
         except:
             ret_dict["left"]="Error"
     try:
-        #print("Checking Front")
+        print("Checking Front")
         ret_dict["front"]=getPartStackableFront(face_dict, tol, anggap)
     except Exception as e:
         try:
@@ -1833,7 +1833,7 @@ def getPartStackablePositions(face_dict, tol=0.1, anggap=0.5):
             ret_dict["front"]="Error"   
     
     try:
-        #print("Checking Back")
+        print("Checking Back")
         ret_dict["back"]=getPartStackableBack(face_dict, tol, anggap)
     except Exception as e:
         try:
@@ -1842,7 +1842,7 @@ def getPartStackablePositions(face_dict, tol=0.1, anggap=0.5):
             ret_dict["back"]="Error" 
     
     try:
-        #print("Checking Back")
+        print("Checking Directions")
         ret_dict["direction"]=getPartStackableDirections(face_dict, tol, anggap)
     except Exception as e:
         try:

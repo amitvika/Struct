@@ -253,14 +253,14 @@ export default function ViewerToolbar({
         <Grid container direction={"column"} spacing={0} >
         
             <Grid aria-label="simple table"  style={{ verticalAlign: 'top', margin:'0', display: 'flex' }}>                
-                <Grid style={{ verticalAlign: 'top', margin:'0' }}>
+                <Grid style={{ verticalAlign: 'top', margin:'0', width:'300px' }}>
                     <SelectedFeatureMenu 
-                        features = {(selectedOption == SELECTFEATURE)}
-                        featureList={(selectedOption == SELECTFEATURE)?selectedObjects:parentObjects} />
+                        features = {(selectedOption != SELECTASSEMBLY)}
+                        featureList={(selectedOption != SELECTASSEMBLY)?selectedObjects:parentObjects} />
                 </Grid>
                 {
                     (selectedObjects?.length >=2) && (selectedOption != SELECTSOLID) && (selectedOption != SELECTASSEMBLY) && (
-                        <Grid align="right" style={{ verticalAlign: 'top', margin:'0' }}>
+                        <Grid align="right" style={{ verticalAlign: 'top', margin:'0', width:'280px' }}>
                             <SelectedMatesRelation mates={mates} featureList={selectedObjects} />
                         </Grid>
                     )

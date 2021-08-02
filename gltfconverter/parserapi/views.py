@@ -972,7 +972,7 @@ def duplicateShapes(shape,dimension,depthable,stackable):
     xmove,ymove,zmove=0,0,zmax-zmin
     if depthable != None:
         xmove, ymove, zmove = movingParameters(dimension, depthable, 0.1) 
-        #print ("Dimension", dimension, xmove, ymove, zmove)
+        print ("Dimension", dimension, xmove, ymove, zmove)
         depth = 0
         for oneFace in stackable['top']:
             if( oneFace["depth"] != 0 ):
@@ -984,12 +984,12 @@ def duplicateShapes(shape,dimension,depthable,stackable):
         (distance, points1, points2) = minimum_distance(shape[0],AnotherShape)
         #print("Zmove", zmove, distance, points1, points2)
         zmove -= distance/1.4
-        #print("Dmove", zmove, distance, points1, points2)
+        print("Dmove", zmove, distance, points1, points2)
     moveArrays=[]
     shapeList =[]
     shapeList.append(shape[0])
     for i in range(1,noOfDuplicates):
-        #print(i,noOfDuplicates, xmove*i, ymove*i, zmove*i )
+        print(i,noOfDuplicates, xmove*i, ymove*i, zmove*i )
         AnotherShape=translate_shp(shape[0],xmove*i, ymove*i, zmove*i, True)
         shapeList.append(AnotherShape)
         moveArrays.append((xmove*i, ymove*i, zmove*i))

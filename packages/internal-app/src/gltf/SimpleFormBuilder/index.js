@@ -238,7 +238,7 @@ export default class SimpleFormBuilder extends React.Component {
           {currentlabelwidth!=0 && (
             <InputLabel style={{width:currentlabelwidth.toString()+'%'}}>{this.getName(name)}</InputLabel>
           )}  
-            <ColorPicker zindex="tooltip" style={{zIndex: 1000}}
+            <ColorPicker zindex="tooltip" style={{zIndex: 2000}}
               field={field}
               name={this.getName(name)}
               errors={this.props.errors}
