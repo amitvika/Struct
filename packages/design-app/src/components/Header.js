@@ -51,7 +51,7 @@ export default function Header() {
   };
 
   const structLogo = (
-    <Typography component="div" className={classes.logo}>
+    <Typography to={"/design"} component={RouterLink} className={classes.logo}>
       <div className="d-inline-block align-top" style={{ width: "150", height: "30", fontSize: "x-large" }}>
         OMNIDESIGN
       </div>

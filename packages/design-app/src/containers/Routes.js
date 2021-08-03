@@ -15,9 +15,9 @@ export default function Routes() {
     <Router>
       <Layout>
         <Switch>
-          <Route exact path='/design' component={ProductDesign}></Route>
-          <Route exact path='/product' component={Product}></Route>
-          <Route exact path='/appdesigner' component={AppDesigner}></Route>
+          <Route path='/design' component={ProductDesign}></Route>
+          <Route path='/product' component={Product}></Route>
+          <Route path='/appdesigner' component={AppDesigner}></Route>
         </Switch>
       </Layout>
     </Router>
