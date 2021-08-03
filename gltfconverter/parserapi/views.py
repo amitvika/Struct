@@ -985,6 +985,15 @@ def duplicateShapes(shape,dimension,depthable,stackable):
         #print("Zmove", zmove, distance, points1, points2)
         zmove -= distance/1.4
         print("Dmove", zmove, distance, points1, points2)
+    print("Without reduction", noOfDuplicates)
+    if(zmove==0):
+        noOfDuplicates = 2
+    else:
+        noOfDuplicates = 1+round(min(xmax-xmin,ymax-ymin) / (zmove))
+    print("With reduction", noOfDuplicates)
+    if noOfDuplicates < 2 :
+        noOfDuplicates = 2    
+    print("After Resetting", noOfDuplicates)
     moveArrays=[]
     shapeList =[]
     shapeList.append(shape[0])

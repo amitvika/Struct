@@ -36,6 +36,7 @@ const useStyles = makeStyles((theme) => ({
     mainContainer: { margin: 10, padding: 10, display: 'inline-flex', minWidth: '100%' },
     viewerContainer: {
         width: '600px',
+        height: '600px',
         padding: '20px',
         margin: '0px 15px',
         display: 'inline-block',
