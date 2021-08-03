@@ -342,6 +342,8 @@ class GLTFRenderer extends Component {
             if(this.defaultCamera && this.defaultCamera.isPerspectiveCamera) {
                 size = size3D.length() || 1;
             }
+            size=size3D.length() || 1;
+            const multipler = 1.4;
             //console.log(size,size3D.length());
             const center = box.getCenter(new Vector3());
             if(this.controls) {
@@ -349,6 +351,7 @@ class GLTFRenderer extends Component {
                     this.controls.reset();
                 }
             }
+            
             //console.log('AABB centre', center);
             //console.log('obj pos', object.position);
             //console.log(this.originalposition,object.position,size,size3D,center);
@@ -360,8 +363,9 @@ class GLTFRenderer extends Component {
                     this.defaultCamera.left = -this.defaultCamera.right;
                     this.defaultCamera.top = this.defaultCamera.right; 
                     this.defaultCamera.bottom = -this.defaultCamera.right;
-                }
-                this.defaultCamera.zoom = 1.4*this.defaultCamera.right / size; //approx Sqrt(2)
+                    console.log("Resetting camera sizes");
+                } 
+                this.defaultCamera.zoom = multipler*this.defaultCamera.right / size; //approx Sqrt(2)
                 this.OrthographicInitialzoom = this.defaultCamera.zoom;
                 this.controls.emSpeed = Math.pow(this.controls.zoomSpeed,1.0/this.OrthographicInitialzoom);
                 //console.log( this.defaultCamera.zoom);
