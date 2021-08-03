@@ -337,7 +337,64 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         return myarray; //To return Same memory! */
         return [[mynode], mynode];
     }
+
+    const findMyParentPart = (mynode) => {
+        var myParentID = -1;
+        
+        for (var i = 0; i < state.gltfjson.tree.length; i++) {
+            if (state.gltfjson.tree[i][gltf_Dict["name"]] == mynode[gltf_Dict["name"]]) {
+                myParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];              
+                if(state.gltfjson.tree[i][gltf_Dict["element"]]=="P") {
+                    return state.gltfjson.tree[i];
+                } else {
+                    break;
+                }               
+            }
+        }
+       
+        if (myParentID == -1) {
+            return null;
+        } else {
+            var myParentsParentID = -1;
+            for (var i = 0; i < state.gltfjson.tree.length; i++) {
+                if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
+                    myParentsParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
+                    if(state.gltfjson.tree[i][gltf_Dict["element"]]=="P") {
+                        return state.gltfjson.tree[i];
+                    } else {
+                        break;
+                    }   
+                }
+            }
+            //console.log("Parent", myParentsParentID, myParentID, myID);          
+            if (myParentsParentID == -1) { //RootNode
+                //console.log("Pushing", myParentsParentID, myParentID, myID);
+                return null;
+            } else {
+                for (var i = 0; i < state.gltfjson.tree.length; i++) {
+                    if ((state.gltfjson.tree[i][gltf_Dict["id"]] == myParentsParentID)) {
+                        if(state.gltfjson.tree[i][gltf_Dict["element"]]=="P") {
+                            return state.gltfjson.tree[i];
+                        } 
+                    }
+                }
+            }
+            return null;
+        } 
+    };
+
     const findSiblingNodes = (mynode) => {
+        const myParentPart = findMyParentPart(mynode);
+        var myParentNode = null;
+        var myMaterials = [];
+        if(myParentPart) {
+            myParentNode = myParentPart;
+            const myChild = findMyMaterial(myParentPart);
+            if (myChild) {
+                myMaterials.push(myChild);               
+            }
+        }
+        /*
         var myParentID = -1;
         var myParentNode = null;
         for (var i = 0; i < state.gltfjson.tree.length; i++) {
@@ -365,15 +422,20 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                 }
             }
         }
+        */
         if (myMaterials.length != 0) {
             return [myMaterials, myParentNode];
         }
         return [[mynode], mynode];
     }
+
+    
     const findFamilyNodes = (mynode) => {
         var myParentID = -1;
         var myID = -1;
         var parentNode = null;
+
+        
         for (var i = 0; i < state.gltfjson.tree.length; i++) {
             if (state.gltfjson.tree[i][gltf_Dict["name"]] == mynode[gltf_Dict["name"]]) {
                 myParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
@@ -381,6 +443,11 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                 parentNode = state.gltfjson.tree[i];
                 break;
             }
+        }
+        const myParentPart = findMyParentPart(mynode);        
+        if(myParentPart) {
+            parentNode = myParentPart;
+            myParentID = parentNode[gltf_Dict["id"]];   
         }
         //console.log(myParentID, parentNode);
         var myMaterials = [];
@@ -411,10 +478,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
             for (var j = 0; j < myParents.length; j++) {
                 myParentID = myParents[j];
                 for (var i = 0; i < state.gltfjson.tree.length; i++) {
-                    if (state.gltfjson.tree[i][gltf_Dict["parentId"]] == myParentID) {
+                    if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
                         var myChild = state.gltfjson.tree[i];
-                        if (myChild) {
-                            
+                        if (myChild) {                            
                             if ((state.gltfjson.tree[i][gltf_Dict["element"]]=="P")||
                                 onlyparts(myChild[gltf_Dict["name"]])) {
                                 myMaterials.push(myChild);
@@ -445,7 +511,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
 
     const findMyParentChilds = (mynode, whichOption) => {
         //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
-        if (( (whichOption != SELECTASSEMBLY) ||
+        if (( ((whichOption != SELECTSOLID) && (whichOption != SELECTASSEMBLY)) ||
             (state.splitMethod != SELECTDISECTPARTS)) && resetOption) {
             //console.log("I got over Singles",whichOption,resetOption,state.splitMethod);
             return findSingleNode(mynode);
