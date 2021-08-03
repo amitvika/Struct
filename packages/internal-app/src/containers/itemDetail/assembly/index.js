@@ -11,6 +11,7 @@ import FilterDramaSharpIcon from '@material-ui/icons/FilterDramaSharp';
 import AllInboxOutlinedIcon from '@material-ui/icons/AllInboxOutlined';
 import FiberManualRecordOutlinedIcon from '@material-ui/icons/FiberManualRecordOutlined';
 import DeveloperBoardOutlinedIcon from '@material-ui/icons/DeveloperBoardOutlined';
+import TuneOutlinedIcon from '@material-ui/icons/TuneOutlined';
 /*import CheckboxTree from 'react-checkbox-tree';
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import FolderLogo from '../../../assets/images/folder_logo.png'
@@ -447,14 +448,14 @@ class Extensions extends Component {
                   first6chars="VERTEX";                            
               } else if(myelement=="P") {
                   first4chars="PART";                            
-              } else if(myelement=="S") {
+              } else if( (myelement=="f") || (myelement=="e") || (myelement=="v") ) {
                   first6chars="SLICER";                            
               }                       
             }
             let myIcon = null;
             if(first4chars=="FACE") {
-            myIcon= <ToysOutlinedIcon/> 
-            myName=myName.slice(4);
+              myIcon= <ToysOutlinedIcon/> 
+              myName=myName.slice(4);
             } else if (first4chars=="EDGE") {
               myIcon= <FilterDramaSharpIcon/>
               myName=myName.slice(4);
@@ -464,8 +465,10 @@ class Extensions extends Component {
             } else if (first6chars=="VERTEX") {
               myIcon= <FiberManualRecordOutlinedIcon/>
               myName=myName.slice(6);
+            } else if (first6chars=="SLICER") {
+              myIcon= <TuneOutlinedIcon/>
             } else {
-            myIcon= <DeveloperBoardOutlinedIcon/>
+              myIcon= <DeveloperBoardOutlinedIcon/>
             }
             return (
 /*               <>

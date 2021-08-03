@@ -2187,7 +2187,7 @@ class StepIgesAnalyser():
             myFeatureDisplay="VERTEX"
 
         mesherDict = self.updateParentChild(name+" "+myFeatureDisplay,None)
-        mesherDict[self.gltf_Dict["element"]]="SLICER"
+        mesherDict[self.gltf_Dict["element"]]=myFeatureName
         self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
         #print("I have reached here in getshapes 3",self.output)
         node_index = len(self.mstep_dict['nodes'])

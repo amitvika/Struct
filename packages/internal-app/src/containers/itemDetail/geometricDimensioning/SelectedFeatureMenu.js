@@ -8,16 +8,19 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
 export default function SelectedFeatureMenu({ featureList = [], features=true }) {
-
+    const myStyle = {whiteSpace: "normal",
+                     wordWrap: "break-word", 
+                     wordBreak:"break-all", 
+                     width:"100px" }
     const renderTable = () => {
         //console.log("FeaturList",featureList,features);
         return featureList.map((row,index) => (
             <TableRow key={(features?row.n:row.parent.n)+index.toString()}>
-                <TableCell component="th" scope="row">
+                <TableCell component="th" scope="row" style={myStyle} >
                     {(features?row.n:row.parent.n)}
                 </TableCell>
-                <TableCell align="right">{row.type}</TableCell>
-                <TableCell align="right">{row.kind}</TableCell>               
+                <TableCell align="right" style={myStyle} >{row.type}</TableCell>
+                <TableCell align="right" style={myStyle} >{row.kind}</TableCell>               
             </TableRow>
         ))
     }
@@ -27,9 +30,9 @@ export default function SelectedFeatureMenu({ featureList = [], features=true })
             <Table aria-label="simple table">
                 <TableHead>
                     <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell align="right" size="small" style={{whiteSpace: "normal",wordWrap: "break-word", wordBreak:"break-all", width:"100px" }} >Type</TableCell>
-                        <TableCell align="right" size="small">Kind</TableCell>                       
+                        <TableCell style={myStyle} >ID</TableCell>
+                        <TableCell align="right" size="small" style={myStyle} >Type</TableCell>
+                        <TableCell align="right" size="small" style={myStyle} >Kind</TableCell>                       
                     </TableRow>
                 </TableHead>
                 <TableBody>

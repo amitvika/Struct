@@ -250,6 +250,21 @@ def get_bounding_details(shape, tol=1e-6, optimal_BB=True):
         zmin, zmax = swap(zmin,zmax) 
     return  xmin, ymin, zmin, xmax, ymax, zmax
 
+def roundOffMe(dimension):
+    x1, x2, x3, x4, x5, x6 = dimension
+    y1, y2, y3, y4, y5, y6 = round(roundoff(x1),2), round(roundoff(x2),2), round(roundoff(x3),2), round(roundoff(x4),2), round(roundoff(x5),2), round(roundoff(x6),2)
+    #print(y1,y2,y3,y4,y5,y6)
+    return  y1, y2, y3, y4, y5, y6
+
+def roundOffMaxMin(Max,Min):
+    x1, x2, x3 = Max
+    x4, x5, x6 = Min
+    y1, y2, y3, y4, y5, y6 = round(roundoff(x1),2), round(roundoff(x2),2), round(roundoff(x3),2), round(roundoff(x4),2), round(roundoff(x5),2), round(roundoff(x6),2)
+    #print(y1,y2,y3," Split ",y4,y5,y6)
+    return (y1, y2, y3), (y4, y5, y6)
+   
+  
+
 def returnStackableFaces(part,corner1, corner2, dimension):
     box_shp = BRepPrimAPI_MakeBox(corner1, corner2).Shape()
     xmin, ymin, zmin, xmax, ymax, zmax = dimension
@@ -271,7 +286,7 @@ def returnStackableFaces(part,corner1, corner2, dimension):
             print(faceiiterror,len(soliditerror),"Solids",(edgeiiterror),"Edges", len(vertiiterror), "Vertices")
             return [{
                 "face":"Open",
-                "dimension":get_bounding_details(myShape)
+                "dimension":roundOffMe(get_bounding_details(myShape))
             }]
 
         else:
@@ -280,13 +295,13 @@ def returnStackableFaces(part,corner1, corner2, dimension):
                 print("I Could get faces",aface)
                 entityarray.append({
                     "face": "Hole" if (aface.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Solid",
-                    "dimension":get_bounding_details(aface)
+                    "dimension":roundOffMe(get_bounding_details(aface))
                 })
             return entityarray
     else:
         return [{
                 "face":"Unknown",
-                "dimension":dimension
+                "dimension":roundOffMe(dimension)
             }]
 
 def get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs):
@@ -318,7 +333,7 @@ def get_part_stackable_right(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -330,7 +345,7 @@ def get_part_stackable_right(part, dimension, face_dict, tol=0.1):
                 "face":facetype,
                 "surface":face, 
                 "id":hash_solidface, 
-                "dimension":boundingitems,
+                "dimension":roundOffMe(boundingitems),
                 "direction": direction,
                 "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
                 })    
@@ -339,7 +354,7 @@ def get_part_stackable_right(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0            
         }] 
@@ -391,7 +406,7 @@ def get_part_stackable_left(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -403,7 +418,7 @@ def get_part_stackable_left(part, dimension, face_dict, tol=0.1):
                 "face":facetype,
                 "surface":face, 
                 "id":hash_solidface, 
-                "dimension":boundingitems,
+                "dimension":roundOffMe(boundingitems),
                 "direction": direction,
                 "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
                 })    
@@ -412,7 +427,7 @@ def get_part_stackable_left(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -465,7 +480,7 @@ def get_part_stackable_front(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -477,7 +492,7 @@ def get_part_stackable_front(part, dimension, face_dict, tol=0.1):
                 "face":facetype,
                 "surface":face, 
                 "id":hash_solidface, 
-                "dimension":boundingitems,
+                "dimension":roundOffMe(boundingitems),
                 "direction": direction,
                 "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
                 })    
@@ -486,7 +501,7 @@ def get_part_stackable_front(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -537,7 +552,7 @@ def get_part_stackable_back(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -549,7 +564,7 @@ def get_part_stackable_back(part, dimension, face_dict, tol=0.1):
                 "face":facetype,
                 "surface":face, 
                 "id":hash_solidface, 
-                "dimension":boundingitems,
+                "dimension":roundOffMe(boundingitems),
                 "direction": direction,
                 "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
                 })    
@@ -558,7 +573,7 @@ def get_part_stackable_back(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -609,7 +624,7 @@ def get_part_stackable_top(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -621,7 +636,7 @@ def get_part_stackable_top(part, dimension, face_dict, tol=0.1):
                 "face":facetype,
                 "surface":face, 
                 "id":hash_solidface, 
-                "dimension":boundingitems,
+                "dimension":roundOffMe(boundingitems),
                 "direction": direction,
                 "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
                 })    
@@ -630,7 +645,7 @@ def get_part_stackable_top(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -682,7 +697,7 @@ def get_part_stackable_bottom(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -694,7 +709,7 @@ def get_part_stackable_bottom(part, dimension, face_dict, tol=0.1):
                 "face":facetype,
                 "surface":face, 
                 "id":hash_solidface, 
-                "dimension":boundingitems,
+                "dimension":roundOffMe(boundingitems),
                 "direction": direction,
                 "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
                 })    
@@ -703,7 +718,7 @@ def get_part_stackable_bottom(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -754,7 +769,7 @@ def get_part_stackable_directions(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -766,7 +781,7 @@ def get_part_stackable_directions(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -778,7 +793,7 @@ def get_part_stackable_directions(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -790,7 +805,7 @@ def get_part_stackable_directions(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -802,7 +817,7 @@ def get_part_stackable_directions(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -814,7 +829,7 @@ def get_part_stackable_directions(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -833,7 +848,7 @@ def get_part_stackable_directions(part, dimension, face_dict, tol=0.1):
                 "face":facetype,
                 "surface":face, 
                 "id":hash_solidface, 
-                "dimension":boundingitems,
+                "dimension":roundOffMe(boundingitems),
                 "direction": direction,
                 "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
                 })
@@ -844,7 +859,7 @@ def get_part_stackable_directions(part, dimension, face_dict, tol=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1408,7 +1423,7 @@ def minimumDepth(faces, dimension):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0            
         }
@@ -1436,7 +1451,7 @@ def getPartStackableRight(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1451,7 +1466,7 @@ def getPartStackableRight(face_dict, tol=0.1, anggap=0.1):
                     "face":facetype,
                     "surface":face, 
                     "id":hash_solidface, 
-                    "dimension":(faces_min,faces_max),
+                    "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
                     "depth":depth 
                     }) 
@@ -1469,7 +1484,7 @@ def getPartStackableLeft(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1484,7 +1499,7 @@ def getPartStackableLeft(face_dict, tol=0.1, anggap=0.1):
                     "face":facetype,
                     "surface":face, 
                     "id":hash_solidface, 
-                    "dimension":(faces_min,faces_max),
+                    "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
                     "depth":depth 
                     })     
@@ -1502,7 +1517,7 @@ def getPartStackableBack(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1517,7 +1532,7 @@ def getPartStackableBack(face_dict, tol=0.1, anggap=0.1):
                     "face":facetype,
                     "surface":face, 
                     "id":hash_solidface, 
-                    "dimension":(faces_min,faces_max),
+                    "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
                     "depth":depth 
                     })      
@@ -1536,7 +1551,7 @@ def getPartStackableFront(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1551,7 +1566,7 @@ def getPartStackableFront(face_dict, tol=0.1, anggap=0.1):
                     "face":facetype,
                     "surface":face, 
                     "id":hash_solidface, 
-                    "dimension":(faces_min,faces_max),
+                    "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
                     "depth":depth 
                     })      
@@ -1569,7 +1584,7 @@ def getPartStackableBottom(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1584,7 +1599,7 @@ def getPartStackableBottom(face_dict, tol=0.1, anggap=0.1):
                     "face":facetype,
                     "surface":face, 
                     "id":hash_solidface, 
-                    "dimension":(faces_min,faces_max),
+                    "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
                     "depth":depth 
                     })       
@@ -1610,7 +1625,7 @@ def getPartStackableTop(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1642,7 +1657,7 @@ def getPartStackableTop(face_dict, tol=0.1, anggap=0.1):
                     "face":facetype,
                     "surface":face, 
                     "id":hash_solidface, 
-                    "dimension":(faces_min,faces_max),
+                    "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
                     "depth":depth 
                     })
@@ -1661,7 +1676,7 @@ def getPartStackableDirections(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1673,7 +1688,7 @@ def getPartStackableDirections(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1685,7 +1700,7 @@ def getPartStackableDirections(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1697,7 +1712,7 @@ def getPartStackableDirections(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1709,7 +1724,7 @@ def getPartStackableDirections(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1721,7 +1736,7 @@ def getPartStackableDirections(face_dict, tol=0.1, anggap=0.1):
             "face":"No Face",
             "surface":"Unknown",
             "id":"No Id",
-            "dimension":dimension,
+            "dimension":roundOffMe(dimension),
             "direction":"No Direction",
             "depth":0
         }] 
@@ -1780,7 +1795,7 @@ def getPartStackableDirections(face_dict, tol=0.1, anggap=0.1):
                             "face":facetype,
                             "surface":face, 
                             "id":hash_solidface, 
-                            "dimension":(faces_min,faces_max),
+                            "dimension":roundOffMaxMin(faces_min,faces_max),
                             "direction": direction,
                             "depth":depth 
                             })               
