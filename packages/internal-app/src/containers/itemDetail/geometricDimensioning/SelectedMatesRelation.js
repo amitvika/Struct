@@ -53,6 +53,7 @@ const SelectedMatesRelation = (props) => {
           }, [props.mates]);
 
     const renderTable = () => {
+        const myStyle = { width:"10px" }
         var coplaner = true;
         var concentric = true;
         var coradial = true;
@@ -108,7 +109,7 @@ const SelectedMatesRelation = (props) => {
         return myCheckBoxes.map((row,index) => (
             <React.Fragment>
             <TableRow key={index*3}>                               
-                <TableCell key={3*index+1} align="right"><LabelledCheckBox         
+                <TableCell key={3*index+1} align="right" style={myStyle} ><LabelledCheckBox         
                     checked = {_isSelected[2*index]} 
                     disabled= {myCheckBoxes[index]=="coplaner"?!coplaner:
                                myCheckBoxes[index]=="concentric"?!concentric:
@@ -126,7 +127,7 @@ const SelectedMatesRelation = (props) => {
                         onSelect(label,e);
                 
                 } }/> </TableCell>  
-                <TableCell key={3*index+2} align="left"><Checkbox         
+                <TableCell key={3*index+2} align="left" ><Checkbox         
                     checked =  {_isSelected[2*index+1]}  
                     checkedIcon = {<CircleChecked/>}
                     icon = {<CancelOutlinedIcon/>}
@@ -145,8 +146,8 @@ const SelectedMatesRelation = (props) => {
                 } }/> </TableCell>                
             </TableRow>
             {(index>=mateAngle) && (
-                <TableRow key={3*index+9}>                    
-                    <TableCell key={3*index+10} align="right" size="small">
+                <TableRow key={3*index+9} style={myStyle}>                    
+                    <TableCell key={3*index+10} align="right" size="small" style={myStyle}>
                         <input type="number" aria-invalid="false" id={"Numb"+3*index+10} value={(anglefound&&index==mateAngle)?angle:""} onChange={(e)=>{console.log(e);}} />                            
                      </TableCell>  
                     {/*  <TableCell key={3*index+11} align="right">

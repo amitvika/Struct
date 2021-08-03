@@ -268,7 +268,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                             first6chars="VERTEX";                            
                         } else if(myelement=="P") {
                             first4chars="PART";                            
-                        } else if(myelement=="S") {
+                        } else if( (myelement=="f") || (myelement=="e") || (myelement=="v") )  {
                             first6chars="SLICER";                            
                         }                       
                     }
@@ -287,8 +287,11 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                         } else if (first6chars == "VERTEX") {                             
                             visible = visible || 
                                 (mySelectedOption==SELECTCORNER);                             
-                        } else {
-                            console.log("0",myName,first4chars,mySelectedOption,visible);
+                        } else if (first6chars == "SLICER") {
+                            console.log(myelement,mySelectedOption,SELECTSOLID,SELECTASSEMBLY);
+                            visible = (mySelectedOption!=SELECTSOLID) && (mySelectedOption!=SELECTASSEMBLY);
+                        } else  {
+                            console.log("0",myName,first4chars,mySelectedOption,visible,myelement);
                             visible= true;
                         }
                     }

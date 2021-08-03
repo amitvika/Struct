@@ -33,6 +33,7 @@ const stateprops = {
 const useStyles = makeStyles((theme) => ({
     mainContainer: { margin: 10, padding: 10, display: 'inline-flex', minWidth: '100%' },
     viewerContainer: {
+        width: '600px',
         padding: '20px',
         margin: '0px 15px',
         display: 'inline-block',
@@ -128,46 +129,46 @@ export default function Stackability(props) {
 
             </Paper>
             {splitfiles.stackable && splitfiles.stackable.length > 0 && (
-                <Paper style={{ padding: 10 }}>
+                <Paper style={{ padding: 10, width: '200px', flexWrap:'wrap' }}>
 
-                    <Grid container spacing={4}>
+                    <Grid container spacing={1} >
                         <Grid item xs={12}>
                             <Heading bold>Parts Stackable Info</Heading>
                         </Grid>
-                        <Grid item xs={4}> Stackable:</Grid>
-                        <Grid item xs={8}>{splitfiles.stackable[0].count} unit(s)</Grid>
-                        <Grid item xs={4}> Any Direction:</Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.direction)}</Grid>
+                        <Grid item xs={3}> Count: </Grid>
+                        <Grid item xs={9}>{splitfiles.stackable[0].count} unit(s)</Grid>
+                        <Grid item xs={3}> Any Dir:</Grid>
+                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.direction)}</Grid>
 
-                        <Grid item xs={4}>
+                        <Grid item xs={3}>
                             Top:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.top)}</Grid>
+                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.top)}</Grid>
 
-                        <Grid item xs={4}>
+                        <Grid item xs={3}>
                             Bottom:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.bottom)}</Grid>
+                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.bottom)}</Grid>
 
-                        <Grid item xs={4}>
+                        <Grid item xs={3}>
                             Right:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.right)}</Grid>
+                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.right)}</Grid>
 
 
-                        <Grid item xs={4}>
+                        <Grid item xs={3}>
                             Left:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.left)}</Grid>
+                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.left)}</Grid>
 
-                        <Grid item xs={4}>
+                        <Grid item xs={3}>
                             Front:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.front)}</Grid>
-                        <Grid item xs={4}>
+                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.front)}</Grid>
+                        <Grid item xs={3}>
                             Back:
                      </Grid>
-                        <Grid item xs={8}>{prettyPrintArray(splitfiles.stackable[0].stack.back)}</Grid>
+                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.back)}</Grid>
 
 
                     </Grid>
@@ -180,7 +181,7 @@ export default function Stackability(props) {
 
 export const prettyPrintArray = (json, maxlength = 30) => {
     if (json) {
-        return JSON.stringify(json)
+        return JSON.stringify(json).split(',').join(', ');
     }
     return "No Info"
 }
