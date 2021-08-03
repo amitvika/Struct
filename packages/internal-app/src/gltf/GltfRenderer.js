@@ -728,9 +728,9 @@ class GLTFRenderer extends Component {
                         } else {
                             const materials = Array.isArray(node.material) ? node.material : [node.material];
                             materials.forEach((material) => {
-                                console.log("before",material);
+                                //console.log("before",material);
                                 material.visible = visibility;
-                                console.log("after",material);
+                                //console.log("after",material);
                             });
                         }    
                         this.changeMaterialStats(node.material,this.state.side,this.state.opaque,this.state.wiremesh);
@@ -2483,6 +2483,11 @@ class GLTFRenderer extends Component {
                     myParentID =  this.props.gltfobj.tree[i][gltf_Dict["id"]];
                     //myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
                     findEdges = this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]];
+                    if(!findEdges) {
+                        if(this.props.gltfobj.tree[i][gltf_Dict["element"]]=="F"){
+                            myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
+                        }
+                    }
                     break;
                 }
             }
@@ -2639,16 +2644,71 @@ class GLTFRenderer extends Component {
                 'select':selectHere};
 
     };
+    
+    findMyParentPart = (mynode) => {
+        var myParentID = -1;
+        
+        for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
+            if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == mynode.name) {
+                myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];              
+                if(this.props.gltfobj.tree[i][gltf_Dict["element"]]=="P") {
+                    return this.props.gltfobj.tree[i];
+                } else {
+                    break;
+                }               
+            }
+        }
+       
+        if (myParentID == -1) {
+            return null;
+        } else {
+            var myParentsParentID = -1;
+            for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
+                if (this.props.gltfobj.tree[i][gltf_Dict["id"]] == myParentID) {
+                    myParentsParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
+                    if(this.props.gltfobj.tree[i][gltf_Dict["element"]]=="P") {
+                        return this.props.gltfobj.tree[i];
+                    } else {
+                        break;
+                    }   
+                }
+            }
+            console.log("Parent", myParentsParentID, myParentID, mynode);           
+            if (myParentsParentID == -1) { //RootNode
+                //console.log("Pushing", myParentsParentID, myParentID, myID);
+                return null;
+            } else {
+                for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
+                    if ((this.props.gltfobj.tree[i][gltf_Dict["id"]] == myParentsParentID)) {
+                        if(this.props.gltfobj.tree[i][gltf_Dict["element"]]=="P") {
+                            return this.props.gltfobj.tree[i];
+                        } 
+                    }
+                }
+            }
+            return null;
+        } 
+    };
 
     findSiblingNodes = (mynode) => {
         //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
-        var myParentID = -1;
+        const myParentPart = this.findMyParentPart(mynode);
+        var myMaterials = [];
+        if(myParentPart) {           
+            const myChild = this.findMyMaterial(myParentPart);
+            if (myChild) {
+                myMaterials.push(myChild);               
+            }
+        }
+        //console.log("MySiblings",myParentPart,myMaterials);
+        /* var myParentID = -1;
+        
         for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
             if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == mynode.name) {
                 myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
                 break;
             }
-        }
+        } 
         var myMaterials = [];
         if (myParentID != -1) {
             for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
@@ -2663,6 +2723,7 @@ class GLTFRenderer extends Component {
                 }
             }
         }
+        */
         if (myMaterials.length != 0) {
             return myMaterials;
         }
@@ -2691,8 +2752,14 @@ class GLTFRenderer extends Component {
             if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == mynode.name) {
                 myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
                 myID = this.props.gltfobj.tree[i][gltf_Dict["id"]];
+                //console.log("Getting Here1",this.props.gltfobj.tree[i]);
                 break;
             }
+        }
+        const myParentPart = this.findMyParentPart(mynode);        
+        if(myParentPart) {         
+            myParentID = myParentPart[gltf_Dict["id"]];   
+            //console.log("Getting Here2",myParentPart);
         }
         //console.log("Parent", myParentID, myID);
         var myMaterials = [];
@@ -2716,11 +2783,11 @@ class GLTFRenderer extends Component {
                     }
                 }
             }
-            //console.log(myParents);
+            //console.log("MyParents",myParents);
             for (var j = 0; j < myParents.length; j++) {
                 myParentID = myParents[j];
                 for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                    if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
+                    if (this.props.gltfobj.tree[i][gltf_Dict["id"]] == myParentID) {
                         var myChild = this.findMyMaterial(this.props.gltfobj.tree[i]);
                         if (myChild) {
                             if ((this.props.gltfobj.tree[i][gltf_Dict["element"]]=="P") ||
@@ -2728,6 +2795,7 @@ class GLTFRenderer extends Component {
                                 myMaterials.push(myChild);
                             }
                         }
+                        //console.log(myChild,myMaterials,this.props.gltfobj.tree[i]);
                     }
                 }
             }
@@ -2743,13 +2811,15 @@ class GLTFRenderer extends Component {
         //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID,this.props.selectedoption,SELECTASSEMBLY);
         if (((this.props.selectedoption != SELECTSOLID) && ((this.props.selectedoption != SELECTASSEMBLY))) ||
             (this.props.splitmethod != SELECTDISECTPARTS)) {
-            console.log("I am finding single node");
+            //console.log("I am finding single node");
             return this.findSingleNode(mynode);
         }
         if (this.props.selectedoption == SELECTASSEMBLY) {
+            //console.log("I am finding family node");
             return {'node':this.findFamilyNodes(mynode),
                     'select':true};
         } else {
+            //console.log("I am finding sibling node");
             return {'node':this.findSiblingNodes(mynode),
                     'select':true};
         }
@@ -3448,7 +3518,11 @@ class GLTFRenderer extends Component {
                             element="";
                             featureSetFinish = featureSetStart+1;
                         } else {
-                            howManyFiles = howManyFilesJson[element];
+                            if(howManyFilesJson) {
+                                howManyFiles = howManyFilesJson[element];
+                            } else {
+                                howManyFiles = 0;
+                            }                            
                             if(element=="f") {
                                 mynode.facesLoaded = true;
                             } else if(element=="e") {

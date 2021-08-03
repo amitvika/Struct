@@ -1,7 +1,9 @@
 import AddToQueueOutlinedIcon from '@material-ui/icons/AddToQueueOutlined';
 import SpeedOutlinedIcon from '@material-ui/icons/SpeedOutlined';
-import SettingsBrightnessOutlinedIcon from '@material-ui/icons/SettingsBrightnessOutlined';
-import PhotoSizeSelectActualOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActualOutlined';
+//import SettingsBrightnessOutlinedIcon from '@material-ui/icons/SettingsBrightnessOutlined';
+import BrightnessMediumOutlinedIcon from '@material-ui/icons/BrightnessMediumOutlined';
+//import PhotoSizeSelectActualOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActualOutlined';
+import WeekendOutlinedIcon from '@material-ui/icons/WeekendOutlined';
 export const myMenus =  [ { 
           folder:'Display',
           icon:<AddToQueueOutlinedIcon/>,
@@ -150,7 +152,7 @@ export const myMenus =  [ {
         ]
         }, { 
           folder:'Lighiting',
-          icon:<SettingsBrightnessOutlinedIcon/>,
+          icon:<BrightnessMediumOutlinedIcon/>,
           groups:[ {
             name:'textureEncoding',
             values: {
@@ -241,7 +243,7 @@ export const myMenus =  [ {
         ]
         } ,{ 
           folder:'Selection',
-          icon:<PhotoSizeSelectActualOutlinedIcon/>,
+          icon:<WeekendOutlinedIcon/>,
           groups:[ {
             name:'selection',
             values: {
