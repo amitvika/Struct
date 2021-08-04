@@ -8,7 +8,7 @@ import {
     SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER, SELECTMEASURE,
     SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE, 
     SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray
-} from "../../../gltf/Tree/utils";
+} from "@ravibasil/common/gltf/Tree/utils";
 //import { motion } from 'framer-motion'
 //import Icon from '../../../gltf/Tree/Icon'
 //import { Grid } from "@material-ui/core"

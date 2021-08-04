@@ -15,7 +15,7 @@ import {
     SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER, SELECTMEASURE,
     SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE,
     SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray, gltf_Dict
-} from "../../../gltf/Tree/utils";
+} from "@ravibasil/common/gltf/Tree/utils";
 
 import { makeStyles } from '@material-ui/core/styles';
 import Assembly from '../assembly';

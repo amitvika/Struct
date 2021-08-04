@@ -22,9 +22,9 @@ import { upload3DFile, getHierarchySplitFiles } from '@ravibasil/common/api/file
 
 import ItemAPI from '@ravibasil/common/api/items.api';
 
-import GLTFRenderer from '../../../gltf/GltfRenderer';
+import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer';
 import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action';
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, SELECTFEATURE } from "../../../gltf/Tree/utils";
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, SELECTFEATURE } from "@ravibasil/common/gltf/Tree/utils";
 
 import '../style.css';
 import FileHistory from '@ravibasil/common/containers/FileHistory';

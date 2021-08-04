@@ -1,9 +1,10 @@
 import React from 'react'
-import GLTFRenderer from '../../../gltf/GltfRenderer';
+import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer';
 import {    
     CircularProgress
 } from "@material-ui/core";
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, SELECTDISTANCE, SELECTFEATURE } from "../../../gltf/Tree/utils";
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, 
+    SELECTSOLID, SELECTHIRERACHY, SELECTDISTANCE, SELECTFEATURE } from "@ravibasil/common/gltf/Tree/utils";
 const DEFAULTMATERIALNAME = "Basic";
 
 export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', activefile = '', 

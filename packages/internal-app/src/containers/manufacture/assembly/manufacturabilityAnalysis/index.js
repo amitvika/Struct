@@ -7,8 +7,9 @@ import {
 import Link from '@material-ui/core/Link';
 import { Spinner } from "reactstrap";
 import TableView from '@ravibasil/common/components/TableGridView/TableView';
-import GLTFRenderer from '../../../../gltf/GltfRenderer.js';
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTFEATURE, SELECTHIRERACHY } from "../../../../gltf/Tree/utils";
+import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer.js';
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, 
+    SELECTFEATURE, SELECTHIRERACHY } from "@ravibasil/common/gltf/Tree/utils";
 
 import '../../style.css';
 

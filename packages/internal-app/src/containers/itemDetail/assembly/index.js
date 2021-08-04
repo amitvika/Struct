@@ -3,7 +3,7 @@ import React, { useState, useEffect, Component } from 'react';
 //import Radio from '@material-ui/core/Radio';
 //import Grid from '@material-ui/core/Grid';
 //import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { gltf_Dict } from 'src/gltf/Tree/utils';
+import { gltf_Dict } from '@ravibasil/common/gltf/Tree/utils';
 //import ColorPickerState from './ColorPickerState';
 //import SliderState from './SliderState';
 import ToysOutlinedIcon from '@material-ui/icons/ToysOutlined';

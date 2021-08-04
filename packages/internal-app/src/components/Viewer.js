@@ -1,7 +1,7 @@
 import React from 'react'
 // import GLTFRenderer from '../../../gltf/GltfRenderer';
-import GLTFRenderer from '../gltf/GltfRenderer'
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY } from "../gltf/Tree/utils";
+import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer'
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY } from "@ravibasil/common/gltf/Tree/utils";
 const DEFAULTMATERIALNAME = "Basic";
 
 export default function Viewer({ gltfjson = {}, fileId = '', fileGDT = '', selectedOption = SELECTSOLID, splitMethod = SELECTHIRERACHY,
