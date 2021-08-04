@@ -977,7 +977,16 @@ def duplicateShapes(shape,dimension,depthable,stackable):
         for oneFace in stackable['top']:
             if( oneFace["depth"] != 0 ):
                 depth = oneFace["depth"]
-        zmove -= depth
+        if depth < zmove:
+            zmove -= depth        
+        depth = 0
+        for oneFace in stackable['bottom']:
+            if( oneFace["depth"] != 0 ):
+                depth = oneFace["depth"]
+        if depth < zmove:
+            zmove -= depth
+        
+          
     distance = 1e10
     while distance > 1e-2:
         AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)
@@ -1251,7 +1260,7 @@ def ExplodeParts(shape,dimension,explodegap,center):
     xd, yd, zd = xmax-xmin, ymax-ymin, zmax-zmin
     lenShape = len(shape)
    
-    maxGap = ( 1 if (lenShape==0) else (lenShape-1) ) * explodegap
+    maxGap = ( 1 if (lenShape<=1) else (lenShape-1) ) * explodegap
     #print(maxGap,lenShape)
     if( xd < yd ) and ( xd < zd ):
         if(xd==0):

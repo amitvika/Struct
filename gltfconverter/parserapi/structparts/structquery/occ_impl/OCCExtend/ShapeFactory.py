@@ -347,7 +347,7 @@ def get_part_stackable_right(part, dimension, face_dict, tol=0.1):
                 "id":hash_solidface, 
                 "dimension":roundOffMe(boundingitems),
                 "direction": direction,
-                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                "depth":roundoff(get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))
                 })    
     if(len(faces)==0):
         return [{
@@ -420,7 +420,7 @@ def get_part_stackable_left(part, dimension, face_dict, tol=0.1):
                 "id":hash_solidface, 
                 "dimension":roundOffMe(boundingitems),
                 "direction": direction,
-                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                "depth":roundoff(get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))
                 })    
     if(len(faces)==0):
         return [{
@@ -494,7 +494,7 @@ def get_part_stackable_front(part, dimension, face_dict, tol=0.1):
                 "id":hash_solidface, 
                 "dimension":roundOffMe(boundingitems),
                 "direction": direction,
-                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                "depth":roundoff(get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))
                 })    
     if(len(faces)==0):
         return [{
@@ -566,7 +566,7 @@ def get_part_stackable_back(part, dimension, face_dict, tol=0.1):
                 "id":hash_solidface, 
                 "dimension":roundOffMe(boundingitems),
                 "direction": direction,
-                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                "depth":roundoff(get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))
                 })    
     if(len(faces)==0):
         return [{
@@ -638,7 +638,7 @@ def get_part_stackable_top(part, dimension, face_dict, tol=0.1):
                 "id":hash_solidface, 
                 "dimension":roundOffMe(boundingitems),
                 "direction": direction,
-                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                "depth":roundoff(get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))
                 })    
     if(len(faces)==0):
         return [{
@@ -711,7 +711,7 @@ def get_part_stackable_bottom(part, dimension, face_dict, tol=0.1):
                 "id":hash_solidface, 
                 "dimension":roundOffMe(boundingitems),
                 "direction": direction,
-                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                "depth":roundoff(get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))
                 })    
     if(len(faces)==0):
         return [{
@@ -850,7 +850,7 @@ def get_part_stackable_directions(part, dimension, face_dict, tol=0.1):
                 "id":hash_solidface, 
                 "dimension":roundOffMe(boundingitems),
                 "direction": direction,
-                "depth":get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)
+                "depth":roundoff(get_depth(face, xmin, ymin, zmin, xmax, ymax, zmax, xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))
                 })
         
 
@@ -1468,7 +1468,7 @@ def getPartStackableRight(face_dict, tol=0.1, anggap=0.1):
                     "id":hash_solidface, 
                     "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
-                    "depth":depth 
+                    "depth":roundoff(depth) 
                     }) 
     return minimumDepth(faces,dimension)
 
@@ -1501,7 +1501,7 @@ def getPartStackableLeft(face_dict, tol=0.1, anggap=0.1):
                     "id":hash_solidface, 
                     "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
-                    "depth":depth 
+                    "depth":roundoff(depth) 
                     })     
     return minimumDepth(faces,dimension)        
 
@@ -1534,7 +1534,7 @@ def getPartStackableBack(face_dict, tol=0.1, anggap=0.1):
                     "id":hash_solidface, 
                     "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
-                    "depth":depth 
+                    "depth":roundoff(depth) 
                     })      
     return minimumDepth(faces,dimension)  
     
@@ -1568,7 +1568,7 @@ def getPartStackableFront(face_dict, tol=0.1, anggap=0.1):
                     "id":hash_solidface, 
                     "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
-                    "depth":depth 
+                    "depth":roundoff(depth) 
                     })      
     return minimumDepth(faces,dimension)      
 
@@ -1601,7 +1601,7 @@ def getPartStackableBottom(face_dict, tol=0.1, anggap=0.1):
                     "id":hash_solidface, 
                     "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
-                    "depth":depth 
+                    "depth":roundoff(depth) 
                     })       
     return minimumDepth(faces,dimension)      
 
@@ -1659,7 +1659,7 @@ def getPartStackableTop(face_dict, tol=0.1, anggap=0.1):
                     "id":hash_solidface, 
                     "dimension":roundOffMaxMin(faces_min,faces_max),
                     "direction": direction,
-                    "depth":depth 
+                    "depth":roundoff(depth) 
                     })
             #print("Faces Dimension", faces_max, faces_min)      
     #print("Done my duty")
@@ -1797,7 +1797,7 @@ def getPartStackableDirections(face_dict, tol=0.1, anggap=0.1):
                             "id":hash_solidface, 
                             "dimension":roundOffMaxMin(faces_min,faces_max),
                             "direction": direction,
-                            "depth":depth 
+                            "depth":roundoff(depth) 
                             })               
     return minimumDepth(faces,dimension)   
 
