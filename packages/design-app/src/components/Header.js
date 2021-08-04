@@ -6,116 +6,122 @@ import { useLocation, Link as RouterLink } from "react-router-dom";
 import Box from '@material-ui/core/Box';
 
 const useStyles = makeStyles((theme) => ({
-    toolbar: {
-        display: "flex",
-        justifyContent: "space-between"
-    },
-    header: {
-        ...theme.header,
-        backgroundColor: "#1e1d1e",
-        paddingRight: "79px",
-        paddingLeft: "118px",
-        // position: 'sticky'
+  toolbar: {
+    display: "flex",
+    justifyContent: "space-between"
+  },
+  header: {
+    ...theme.header,
+    backgroundColor: "#1e1d1e",
+    paddingRight: "50px",
+    paddingLeft: "50px",
+    // position: 'sticky'
 
-    },
-    logo: {
-        // fontWeight: 600,
-        color: "#FFFEFE",
-        textAlign: "left",
-    },
-    menuButton: {
-        ...theme.menuButton,
+  },
+  logo: {
+    fontWeight: 600,
+    color: "#FFFEFE",
+    textAlign: "left",
+  },
+  menuButton: {
+    ...theme.menuButton,
 
-    },
-    menuContainer: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        width: '50%',
-    },
-    linkSelected: {
-        background: "#5D6D7E",
-        color: '#ffffff'
-    }
+  },
+  menuContainer: {
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
+  linkSelected: {
+    background: "#5D6D7E",
+    color: '#ffffff'
+  }
 }));
 
 export default function Header() {
-    const classes = useStyles();
-    const location = useLocation();
+  const classes = useStyles();
+  const location = useLocation();
 
-    const displayDesktop = () => {
-        return (<Toolbar className={classes.toolbar}>
-            {structLogo}
-            <Box component="div" className={classes.menuContainer}>
-                {getMenuButtons()}
-            </Box>
-        </Toolbar>);
-    };
+  const displayDesktop = () => {
+    return (<Toolbar className={classes.toolbar}>
+      {structLogo}
+      <Box component="div" className={classes.menuContainer}>
+        {getMenuButtons()}
+      </Box>
+    </Toolbar>);
+  };
 
-    const structLogo = (
-        <Typography component="div" className={classes.logo}>
-            <p>
-                OMNIDESIGN
-            </p>
-        </Typography>
-    );
+  const structLogo = (
+    <Typography to={"/design"} component={RouterLink} className={classes.logo}>
+      <div className="d-inline-block align-top" style={{ width: "150", height: "30", fontSize: "x-large" }}>
+        OMNIDESIGN
+      </div>
+    </Typography>
+  );
 
-    const getMenuButtons = () => {
-        let menuItems = headersData.map(({ label, href }) => {
-            console.log(`primary_button_${label}`);
-            return (
-                <Button
-                    key={`primary_button_${label}`}
-                    {...{
-                        key: label,
-                        color: "inherit",
-                        to: href,
-                        component: RouterLink,
-                        className: classes.menuButton + ` ${location.pathname.includes(href) && classes.linkSelected}`
-                    }}
-                >
-                    {label}
-                </Button>
-            );
-        });
-        return menuItems;
-    };
+  const getMenuButtons = () => {
+    let menuItems = headersData.map(({ label, href }) => {
+      return (
+        <Button
+          key={`primary_button_${label}`}
+          {...{
+            key: label,
+            color: "inherit",
+            to: href,
+            component: RouterLink,
+            className: classes.menuButton + ` ${location.pathname.includes(href) && classes.linkSelected}`
+          }}
+        >
+          {label}
+        </Button>
+      );
+    });
+    return menuItems;
+  };
 
 
-    return (
-        <header>
-            <AppBar className={classes.header}>{displayDesktop()}</AppBar>
-        </header>
-    );
+  return (
+    <header>
+      <AppBar className={classes.header}>{displayDesktop()}</AppBar>
+    </header>
+  );
 }
 
 
 const headersData = [
-    {
-        label: "Designs",
-        href: "/",
-    },
-    {
-        label: "Product",
-        href: "/clients",
-    },
-    {
-        label: "CAD",
-        href: "/vendors",
-    },
-    {
-        label: "PCB",
-        href: "/items",
-    },
-    {
-        label: "Silicon",
-        href: "/items",
-    },
-    {
-        label: "Clothes",
-        href: "/items",
-    },
-    {
-        label: "Architecture",
-        href: "/items",
-    },
+  {
+    label: "Designs",
+    href: "/design",
+  },
+  {
+    label: "Product",
+    href: "/product",
+  },
+  {
+    label: "CAD",
+    href: "/cad",
+  },
+  {
+    label: "PCB",
+    href: "/pcb",
+  },
+  {
+    label: "Silicon",
+    href: "/silicon",
+  },
+  {
+    label: "Clothes",
+    href: "/clothes",
+  },
+  {
+    label: "Architecture",
+    href: "/architecture",
+  },
+  {
+    label: "Predesigned Components",
+    href: "/predesigned",
+  },
+  {
+    label: "App Designer",
+    href: "/appdesigner"
+  }
 ];

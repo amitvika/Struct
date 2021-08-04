@@ -28,7 +28,7 @@ import ClientDetail from "./containers/client/ClientDetail";
 import Factories from './containers/factories';
 import FactoryDetail from './containers/factories/FactoryDetail'
 
-import ProductDesign from './containers/productDesign';
+// import ProductDesign from './containers/productDesign';
 import ItemDetail from "./containers/itemDetail";
 import Administrative from './containers/administrative';
 import ViewMyProfile from './containers/viewMyProfile'
@@ -36,7 +36,6 @@ import ViewMyProfile from './containers/viewMyProfile'
 
 // import Viewer from './page/3DViewer';
 import Viewer from './gltf/DropZone'
-import CriteriaUpload from "./containers/criteriaUpload";
 
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);
@@ -56,7 +55,7 @@ export default function AppRoutes() {
 
           <div style={{ marginLeft: '7%', marginRight: '7%' }}>
             <Switch>
-              <AppRoute authenticate exact path='/design' component={ProductDesign} />
+              {/* <AppRoute authenticate exact path='/design' component={ProductDesign} /> */}
               <AppRoute authenticate path='/dashboard' component={Dashboard} />
               <AppRoute authenticate exact path='/vendors' component={Vendors} />
               <AppRoute authenticate exact path='/clients' component={Clients} />

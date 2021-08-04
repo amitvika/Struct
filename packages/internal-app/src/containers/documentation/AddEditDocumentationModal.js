@@ -13,8 +13,8 @@ import { uploadFileS3Bucket } from '@ravibasil/common/api/aws';
 import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 import Popover from '@material-ui/core/Popover';
 import Typography from '@material-ui/core/Typography';
-import FileHistory from '@ravibasil/common/containers/design/FileHistory'
-import FileUpload from '@ravibasil/common/containers/design/FileUpload'
+import FileHistory from '@ravibasil/common/containers/FileHistory'
+import FileUpload from '@ravibasil/common/containers/FileUploadOnAWS'
 
 const useStyles = makeStyles((theme) => ({
     modal: {

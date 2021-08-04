@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
 export default function LoadingModal({ isLoading = false }) {
   const classes = useStyles();
   
-  const message = useSelector(state => state.alert.message);
+  // const message = useSelector(state => state.alert.message);
 
   return (
     <Backdrop className={classes.backdrop} open={isLoading} >

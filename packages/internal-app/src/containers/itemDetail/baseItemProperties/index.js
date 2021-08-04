@@ -27,7 +27,7 @@ import { showErrorAlert, showSuccessAlert } from '../../../actions/alert.action'
 import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, SELECTFEATURE } from "../../../gltf/Tree/utils";
 
 import '../style.css';
-import FileHistory from '@ravibasil/common/containers/design/FileHistory';
+import FileHistory from '@ravibasil/common/containers/FileHistory';
 
 const useStyles = makeStyles((theme) => ({
     root: {
