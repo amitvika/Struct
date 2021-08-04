@@ -27,6 +27,8 @@ from .structparts.codec.mstep import Exporter
 from .structparts import conversion
 #from .structparts.structquery.occ_impl import OCPDataExchange
 from .structparts.structquery.occ_impl import OCPStepIGESAnalyser, OCPImporters
+from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
+
 from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
     recognize_edge, translate_shp, rotate_shp_3_axis, minimum_distance, getPartStackablePositions, get_bounding_details, 
     recognize_direction, recognize_entity)
@@ -35,6 +37,8 @@ from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
 from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound
 
 from decimal import Decimal
+
+gltf_dict = gltfdict()
 
 @api_view(['GET', 'POST', 'DELETE'])
 def FileUploadView(request):
@@ -550,7 +554,13 @@ def FileSplit(request):
                         data = splitFileCadQuery(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
     return JsonResponse(data, safe=False)
 
-
+def createShapeArray(shapes):
+    shapeArray=[]
+    myID=0
+    for aShape in shapes:
+        myID += 1
+        shapeArray.append((aShape,"ID"+str(myID),None))
+    return shapeArray
 
 def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight):
     """
@@ -608,7 +618,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
             try:
                 shape = conversion.read_stl_file(sourceFileName)
                 (_,_, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape, includeparts=includeparts,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
                     thumbwidth=thumbwidth,thumbheight=thumbheight,
                     moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize).dump() 
@@ -627,7 +637,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                 shape = conversion.read_brep_file(sourceFileName, as_compound=False)
                 #print(shape)
                 (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape, includeparts=includeparts,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
                     thumbwidth=thumbwidth,thumbheight=thumbheight,
                     moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize).dump()  
@@ -645,7 +655,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape, includeparts=includeparts,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
                     thumbwidth=thumbwidth,thumbheight=thumbheight,
                     moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize).dump() 
@@ -979,12 +989,13 @@ def duplicateShapes(shape,dimension,depthable,stackable):
                 depth = oneFace["depth"]
         if depth < zmove:
             zmove -= depth        
-        depth = 0
+        bottomdepth = 0
         for oneFace in stackable['bottom']:
             if( oneFace["depth"] != 0 ):
-                depth = oneFace["depth"]
-        if depth < zmove:
-            zmove -= depth
+                bottomdepth = oneFace["depth"]
+        if bottomdepth > depth:
+            if (bottomdepth < (zmove+depth)):
+                zmove += (depth-bottomdepth)
         
           
     distance = 1e10
@@ -1034,7 +1045,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
             try:
                 shape = conversion.read_step_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump()
                 dimension, _ = outputShapes
@@ -1042,22 +1053,22 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump() 
                 else:
                      if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                         shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                         (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                        filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                        filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                         anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                         thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()  
                 #print(outputShapes)
                 dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
                 shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shapeList,includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=thumbwidth,thumbheight=thumbheight,
+                    filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()
                 dictionary["stackable"] = [{"count":replications,"stack":stackable}]
                 #dictionary['thumbnail']=thumbnail
@@ -1080,7 +1091,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
             try:
                 shape = conversion.read_stl_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 dimension, _ = outputShapes
@@ -1088,22 +1099,22 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump() 
                 else:
                      if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                         shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                         (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                        filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                        filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                         anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                         thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump() 
                 #print(outputShapes)
                 dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
                 shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shapeList,includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=thumbwidth,thumbheight=thumbheight,
+                    filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()
                 dictionary["stackable"] = [{"count":replications,"stack":stackable}]  
                 #dictionary['thumbnail']=thumbnail             
@@ -1116,7 +1127,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
             try:               
                 shape = conversion.read_iges_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 dimension, _ = outputShapes
@@ -1124,22 +1135,22 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump() 
                 else:
                      if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                         shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                         (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                        filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                        filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                         anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                         thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()  
                 #print(outputShapes)
                 dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
                 shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shapeList,includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=thumbwidth,thumbheight=thumbheight,
+                    filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()
                 dictionary["stackable"] = [{"count":replications,"stack":stackable}] 
                 #dictionary['thumbnail']=thumbnail          
@@ -1152,7 +1163,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
             try:
                 shape = conversion.read_brep_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump()
                 dimension, _ = outputShapes
@@ -1160,22 +1171,22 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump() 
                 else:
                      if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                         shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                         (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                        filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                        filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                         anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                         thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump() 
                 #print(outputShapes)
                 dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
                 shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shapeList,includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=thumbwidth,thumbheight=thumbheight,
+                    filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()
                 dictionary["stackable"] = [{"count":replications,"stack":stackable}]  
                 #dictionary['thumbnail']=thumbnail         
@@ -1188,7 +1199,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,ascompound=True,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),ascompound=True,
                     distancegap=distancegap,anglegap=anglegap).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
                 dimension, _ = outputShapes
@@ -1196,21 +1207,21 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight)
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump() 
                 else:
                      if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                         shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                         (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                        filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                        filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                         anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                         thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump() 
                 dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
                 shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shapeList,includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=thumbwidth,thumbheight=thumbheight,
+                    filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()
                 dictionary["stackable"] = [{"count":replications,"stack":stackable}]    
                 #dictionary['thumbnail']=thumbnail       
@@ -1253,7 +1264,7 @@ def FileGetStackablePositions(request):
 def swap(a, b):
     return b, a
 
-def ExplodeParts(shape,dimension,explodegap,center):
+def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center):
 
     xmin, ymin, zmin, xmax, ymax, zmax = dimension 
     xc, yc, zc = (xmin+xmax)/2, (ymin+ymax)/2 , (zmin+zmax)/2
@@ -1285,46 +1296,97 @@ def ExplodeParts(shape,dimension,explodegap,center):
     shapeorder=[]
     fullShape,converted = list_of_shapes_to_compound(shape)
     if(converted):
-        newShapes.append(fullShape)
+        newShapes.append((fullShape,name,None))
     else:
         firstTime = True
-        for aShape in shape:
-            newShapes.append(aShape)
+        for (aShape,aName,aColor) in shapeArray:
+            newShapes.append((aShape,aName,aColor))
             if firstTime:
                 firstTime = False
             else:
                 moveArrays.append((0, 0, 0))
     for i  in range(lenShape):
-        xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(shape[i]) 
+        (aShape,aName,aColor) = shapeArray[i]
+        xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
         xmove, ymove, zmove = (((xmins+xmaxs)/2)-xc)*xs, (((ymins+ymaxs)/2)-yc)*ys, (((zmins+zmaxs)/2)-zc)*zs
-        newShape=translate_shp(shape[i],xmove+xt, ymove+yt, zmove+zt, True)
-        newShapes.append(newShape)
+        newShape=translate_shp(aShape,xmove+xt, ymove+yt, zmove+zt, True)
+        newShapes.append((newShape,aName,aColor))
         moveArrays.append((xmove, ymove, zmove))
         #shapesdim.append(xmins+xmove+xt, ymins+ymove+xt, zmins+zmove+xt, xmaxs+xmove+xt, ymaxs+ymove+xt, zmaxs+zmove+xt)
         shapesdis.append( ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 )
-        shapesvol.append((xmaxs-xmins)*(ymaxs-ymins)*(zmaxs-zmins))
+        shapesvol.append(abs((xmaxs-xmins)*(ymaxs-ymins)*(zmaxs-zmins)))
         shapeorder.append(i)    
     """  for i in range(lenShape):
         print("before",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
+    #print(shapeorder,shapesdis,shapesvol)
     if(center):
-        for i in range(1,lenShape-1):
-            for j in range(1,lenShape-1-i):
+        for i in range(0,lenShape-1):
+            for j in range(0,lenShape-1-i):
                 if (shapesdis[j+1] < shapesdis[j]) or ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] < shapesvol[j])):
                     shapeorder[j+1], shapeorder[j] = swap(shapeorder[j+1], shapeorder[j])                
                     shapesdis[j+1], shapesdis[j] = swap(shapesdis[j+1], shapesdis[j])
                     shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
     """ for i in range(lenShape):
         print("after",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
+    #print(shapeorder,shapesdis,shapesvol)
     return newShapes, moveArrays, shapeorder
 
-def getShapesFromOutPutShapes(shapes):
+def findSubShapeName(myParent,myTree):
+    for aTree in myTree:
+        if aTree[gltf_dict['id']]==myParent :
+            thisParent  = aTree[gltf_dict['parentId']]
+            if thisParent == 1:
+                return aTree[gltf_dict['name']]
+            if thisParent:
+                return findSubShapeName(thisParent,myTree)
+            else:
+                return "NoParent"
+    return "NoParent"
+
+def findAssemblyShapeName(myParent,myTree):
+    for aTree in myTree:
+        if aTree[gltf_dict['id']]==myParent :             
+            return aTree[gltf_dict['name']]      
+    return "NoParent"
+
+def getShapesFromOutPutShapes(shapes,mytree):
     retshapes=[]
+    subshapes=[]
+    onlyshapes=[]
+    subshapesStarted = False
+    subShapeName = ''
+    subShapeColor=None
     for hash_shape, item in shapes.items():
         #print("item found",item)
-        [shape_to_disp, subName, subEntry, c, uid, indent, rootName, rootEntry, meshname, basenamehere, uvPlane] = item
-        #print("shape found",shape_to_disp)
-        retshapes.append(shape_to_disp)
-    return retshapes
+        [shape_to_disp, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, uvPlane] = item
+        #print( shape_to_disp, subName, subEntry, c, myId, myParent, myParent=="1", myParent, myParent==1 )
+        if(myParent==1):
+            if(len(subshapes)>0):
+                mergedshape,_ =  list_of_shapes_to_compound(subshapes)
+                retshapes.append((mergedshape,subShapeName,subShapeColor))
+                onlyshapes.append(mergedshape)
+                subshapes=[]
+                subshapesStarted=False
+                subShapeName=''
+                subShapeColor=None
+            retshapes.append((shape_to_disp,subName,c))  
+            onlyshapes.append(shape_to_disp)          
+        else:
+            if subshapesStarted == False:
+                subshapes=[]
+                subshapesStarted=True
+                subShapeName=''
+                subShapeColor=None
+            if subShapeName=='':
+                subShapeName = findSubShapeName(myParent,mytree)
+            subshapes.append(shape_to_disp)
+            subShapeColor = c
+    if(len(subshapes)>0):
+        mergedshape,_ =  list_of_shapes_to_compound(subshapes)
+        retshapes.append((mergedshape,subShapeName,subShapeColor))   
+        onlyshapes.append(mergedshape) 
+    #print(retshapes,onlyshapes)
+    return (retshapes,onlyshapes,findAssemblyShapeName(1,mytree))
 
 def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,thumbwidth,thumbheight):
     """
@@ -1342,26 +1404,26 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,t
         newfilenamewithoutext = "Display/"+Path(sourceFileName).resolve().stem
         newfilename = newfilenamewithoutext + ".step"
         outputShapes={}
-        if file_extension=="stp" or file_extension=="step" :          
+        if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :          
             
             try:
-                shape = conversion.read_step_file(sourceFileName, as_compound=False)                
+                """ shape = conversion.read_step_file(sourceFileName, as_compound=False)                
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
-                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
-                """ (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump() """
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,ascompound=True,includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,
-                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump() """
-                dimension, _ = outputShapes
-                #shape = getShapesFromOutPutShapes(myShapes)
-                nshape, moveArrays, shapeorder = ExplodeParts(shape,dimension,explodegap,center)
+                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
+                dimension, myShapes = outputShapes
+                shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=thumbwidth,thumbheight=thumbheight,
+                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays,shapeorder=shapeorder).dump()
-                #dictionary['thumbnail']=thumbnail
+                dictionary['assemblyorder']=shapeorder
                 """  print(len(nshape))
                 for i in range(1, len(nshape)):
                     print('theshape', hash(nshape[i]), moveArrays[i-1]) """
@@ -1369,27 +1431,28 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,t
             except Exception as e:
                 print("error",e)
                 
-            return dictionary           
+            #return dictionary           
             
         if file_extension=="stl" :            
             try:
                 shape = conversion.read_stl_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
-                dimension, _ = outputShapes
-                shape, moveArrays = ExplodeParts(shape,dimension,explodegap,center)
+                dimension, myShapes = outputShapes
+                shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=thumbwidth,thumbheight=thumbheight,
+                    filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()           
-                #dictionary['thumbnail']=thumbnail
+                dictionary['assemblyorder']=shapeorder
             except Exception as e:
                 print("error",e)
                 
-            return (dictionary,outputShapes) 
-        if file_extension=="igs" or file_extension=="iges" :
+            #return (dictionary,outputShapes) 
+        """ if file_extension=="igs" or file_extension=="iges" :
             try:               
                 shape = conversion.read_iges_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
@@ -1406,44 +1469,54 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,t
             except Exception as e:
                 print("error",e)
                 
-            return dictionary
+            return dictionary """
         if file_extension=="brep" :            
             try:
                 shape = conversion.read_brep_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
-                dimension, _ = outputShapes
-                shape, moveArrays = ExplodeParts(shape,dimension,explodegap,center)
+                dimension, myShapes = outputShapes
+                shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbheight=thumbheight,thumbwidth=thumbwidth,
+                    filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,thumbheight=0,thumbwidth=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()           
-                #dictionary['thumbnail']=thumbnail
+                dictionary['assemblyorder']=shapeorder
             except Exception as e:
                 print("error",e)
                 
-            return dictionary 
+            #return dictionary 
         if file_extension=="dxf" :            
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,distancegap=distancegap,anglegap=anglegap,ascompound=True,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,anglegap=anglegap,ascompound=True,
                     thumbwidth=0,thumbheight=0).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
-                dimension, _ = outputShapes
-                shape, moveArrays = ExplodeParts(shape,dimension,explodegap,center)
+                dimension, myShapes = outputShapes
+                shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=shape,includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbheight=thumbheight, thumbwidth=thumbwidth,
+                    filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,thumbheight=0, thumbwidth=0,
                     edgesize=0, vertexsize=0, animations=moveArrays,delay=1).dump()          
-                #dictionary['thumbnail']=thumbnail
+                dictionary['assemblyorder']=shapeorder
             except Exception as e:
                 print("error",e)
                 
-            return dictionary 
+            #return dictionary 
+        try:
+            orderfile = "Display/"+dictionary["store"]+".order"
+            print("Writing,",orderfile)
+            with open(orderfile, 'w') as fh:
+                fh.write(json.dumps(dictionary["assemblyorder"], sort_keys=True, indent=2 ))
+        except Exception as e:
+            print("Error while writing orderfile",e)      
         return dictionary
+       
        
     except:
         raise ValueError("File Could not be loaded") 

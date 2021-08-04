@@ -374,13 +374,17 @@ const ItemDetail = () => {
             const gltfRes = await getGltfForStore(whichOneToLoad);
             const treeRes = await getTreeForStore(whichOneToLoad);
             let stackRes = {data:null};
+            let orderRes = {data:null};
             if(myTabIndex=="stack") {
                 stackRes = await getAFileFromStore(whichOneToLoad,"stack");
             }
+            if(myTabIndex=="mpps") {
+                orderRes = await getAFileFromStore(whichOneToLoad,"order");
+            }
             const multiAssmebly = treeRes.length > 0;
-            console.log("Fetched Data",{ ...obj, gltf: gltfRes.data, tree: treeRes.data, stackable:stackRes.data, multiAssmebly: multiAssmebly });
-           
-            setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data, stackable:stackRes.data, multiAssmebly: multiAssmebly });
+            console.log("Fetched Data",{ ...obj, gltf: gltfRes.data, tree: treeRes.data, stackable:stackRes.data, assemblyorder:orderRes.data, multiAssmebly: multiAssmebly });
+            
+            setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data, stackable:stackRes.data, assemblyorder:orderRes.data, multiAssmebly: multiAssmebly });
             setIsLoading(false);
 
         } catch (error) {

@@ -9,7 +9,7 @@ import { Spinner } from "reactstrap";
 import TableView from '@ravibasil/common/components/TableGridView/TableView';
 import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer.js';
 import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, 
-    SELECTFEATURE, SELECTHIRERACHY } from "@ravibasil/common/gltf/Tree/utils";
+         gltf_Dict, SELECTFEATURE, SELECTHIRERACHY } from "@ravibasil/common/gltf/Tree/utils";
 
 import '../../style.css';
 
@@ -53,8 +53,10 @@ export default function ManufacturabilityAnalysis(props) {
     const classes = useStyles();
     const [columns, setColumns] = useState([
         { title: 'Mates', field: 'id', editable: "never" },
-        { title: 'Insertion Type', field: 'name' },
-        { title: 'Dispensing', field: 'quantity', type: 'numeric' },
+        { title: 'Mate Name', field:'name',editable:"never", width:'100px', 'word-break': 'break-all'},
+        { title: 'Insertion Order', field:'order',editable:"never"},
+        { title: 'Insertion Type', field: 'insert', editable: "never" },
+        { title: 'Dispensing', field: 'dispense', type: 'numeric' },
         { title: 'Transfer Holding', field: 'quantity', type: 'numeric' },
     ])
     
@@ -69,6 +71,29 @@ export default function ManufacturabilityAnalysis(props) {
 
         })
     }    
+
+    const getTable = (gltfjson) => {
+        let currentData = [];
+        if(gltfjson && gltfjson.tree && gltfjson.assemblyorder) {
+            for (let index = 2; index < gltfjson.tree.length; index++) {
+                const element = gltfjson.tree[index];
+                currentData.push({'id':index-1,
+                                  'name':element[gltf_Dict['name']],
+                                  'order':null,
+                                  'insert':"Sliding", 
+                                  'dispense':null,
+                                  'quantity':null });              
+            }
+            for (let index = 0; index < gltfjson.assemblyorder.length; index++) {
+                const element = gltfjson.assemblyorder[index];
+                currentData[element].order=index+1;                           
+            }
+            setFilteredList(currentData);           
+
+        } else {
+            setFilteredList(currentData);           
+        }
+    }
     useEffect(() => {
         setIsLoading(isLoading);
     }, [isLoading]);
@@ -99,6 +124,7 @@ export default function ManufacturabilityAnalysis(props) {
                 renderdata: {},
                 whatchange: 0,
             });
+            getTable(gltfjson);
         }
     }, [gltfjson]);
 
@@ -150,6 +176,7 @@ export default function ManufacturabilityAnalysis(props) {
                 columns={columns}
                 setColumns={setColumns}
                 isAddEditActionsEnabled={true}
+                style={{width:'300px'}}
             >
             </TableView>
 

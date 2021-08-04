@@ -311,7 +311,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                 }
                 if (!item['state']) {
                     item['state'] = {
-                        'expanded': true,
+                        'expanded': item[gltf_Dict['id']]=="1",
                         'selected': item.selectedshell
                     }
                 } else {

@@ -84,6 +84,7 @@ from .OCPAssembly import Color
 #from ... import Assembly
 from .OCCExtend.ShapeFactory import recognize_direction, recognize_curve
 from ....thumbnail.thumbnail import createThumbnail
+from .gltfDictionary import gltfdict
 
 @contextmanager
 def measure_time(log, name):
@@ -863,7 +864,9 @@ class StepIgesAnalyser():
     """A class that analyzes the structure of an OCAF document."""
     scale = 0.001  # mm to meters
     __version__ = "3.7.4"   
-    gltf_Dict = {
+    gltf_Dict = gltfdict()
+
+    """ gltf_Dict = {
             "id":"i",
             "parentId":"p",
             "step":"s",
@@ -884,7 +887,7 @@ class StepIgesAnalyser():
             "display":"D",
             "subfeatures":"f",
             "element":"e"    
-            }
+            } """
 
     TEMPLATE = {
         # Static values
@@ -2122,7 +2125,10 @@ class StepIgesAnalyser():
         parent_node = self.mstep_dict['nodes'][parent_node_index]
         parent_node['children'] = parent_node.get('children', []) + [node_index]
         #print("I have reached here in getshapes 4",self.output)
-        for shape_to_disp in self.shapeslist:
+        for a_shape_to_disp in self.shapeslist:
+            shape_to_disp, shape_name, shape_color = a_shape_to_disp
+            if shape_color==None:
+                shape_color = c
             hash_shape = hash(shape_to_disp)
             try:
                if not hash_shape in self.outputShapes:
@@ -2132,13 +2138,13 @@ class StepIgesAnalyser():
                     #print("I am writing gltf lowest node",basename,shape_to_disp.ShapeType() )
                     self.updateOutput(subName, subEntry, rootName, rootEntry,  False)
                     #print("I have reached here 24")
-                    (filefullname, basenamehere) = self.write_step_file(shape_to_disp,rootName+subName,c)
+                    (filefullname, basenamehere) = self.write_step_file(shape_to_disp,shape_name,shape_color)
                     (myMeshID,meshname, uvPlane, solidFoundHere)=self.add_part(
                         shape_to_disp,
-                        part_color=c,
+                        part_color=shape_color,
                         filenameuri=filefullname,
-                        filetype= "",
-                        name=rootName+subName,
+                        filetype= "PART",
+                        name=shape_name,
                         parent_idx=parent_node_index,
                     )  
                     if(solidFoundHere>0):                  
@@ -2623,7 +2629,7 @@ class StepIgesAnalyser():
         getPNG = False
         #newfilename = "Display/"+self.basefilename+".gltf"
                
-        if (self.thumbheight!=0) and (self.thumbwidth!=0) and (self.edgesize==0) and (self.vertexsize==0):
+        if (self.thumbheight!=0) and (self.thumbwidth!=0) and (self.edgesize==0) and (self.vertexsize==0) and (self.ascompound==False):
             getPNG = True
         
         """  try:
