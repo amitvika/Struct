@@ -1,3 +1,4 @@
+from math import ceil 
 from django.http.response import JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -30,7 +31,8 @@ from .structparts.structquery.occ_impl import OCPStepIGESAnalyser, OCPImporters
 from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
 
 from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
-    recognize_edge, translate_shp, rotate_shp_3_axis, minimum_distance, getPartStackablePositions, get_bounding_details, 
+    translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance, 
+    getPartStackablePositions, get_bounding_details, 
     recognize_direction, recognize_entity)
 from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices
 from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
@@ -999,17 +1001,25 @@ def duplicateShapes(shape,dimension,depthable,stackable):
         
           
     distance = 1e10
+    prevdistance = 0
     while distance > 1e-2:
         AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)
-        (distance, points1, points2) = minimum_distance(shape[0],AnotherShape)
-        #print("Zmove", zmove, distance, points1, points2)
-        zmove -= distance/1.4
-        print("Dmove", zmove, distance, points1, points2)
+        (wdistance, distance, points1, points2) = minimum_z_distance(shape[0],AnotherShape)
+        
+        if ( (prevdistance-distance) >= (0.4*distance/1.4)):
+            zmove -= distance
+            prevdistance = distance * 1.4
+            print("Dmove1", zmove, distance, wdistance, points1, points2, prevdistance)
+        else:
+            #print("Zmove", zmove, distance, points1, points2)
+            zmove -= distance/1.4        
+            prevdistance = distance
+            print("Dmove2", zmove, distance, points1, points2, prevdistance)
     print("Without reduction", noOfDuplicates)
-    if(zmove==0):
+    if(zmove<=0):
         noOfDuplicates = 2
     else:
-        noOfDuplicates = 1+round(min(xmax-xmin,ymax-ymin) / (zmove))
+        noOfDuplicates = 1+ceil(min(xmax-xmin,ymax-ymin) / (zmove))
     print("With reduction", noOfDuplicates)
     if noOfDuplicates < 2 :
         noOfDuplicates = 2    
@@ -1024,7 +1034,7 @@ def duplicateShapes(shape,dimension,depthable,stackable):
         moveArrays.append((xmove*i, ymove*i, zmove*i))
     return shapeList, noOfDuplicates, moveArrays
 
-def exportToPartGLTF(sourceFileName,distancegap,anglegap,thumbwidth,thumbheight):
+def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -1249,16 +1259,16 @@ def FileGetStackablePositions(request):
         id = request.GET.get('id', None)
         distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
         anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
-        thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
+        #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
+        #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
         if is_number(id) :            
             files = File.objects.filter(id__icontains=id)
             for eachfile in files:               
-                data = exportToPartGLTF("Media/"+eachfile.file.name,distancegap,anglegap,thumbwidth,thumbheight)
+                data = exportToPartGLTF("Media/"+eachfile.file.name,distancegap,anglegap)#,thumbwidth,thumbheight)
         else:
             id = request.GET.get('file', None)
             if id is not None:
-                data = exportToPartGLTF("Media/"+id,distancegap,anglegap,thumbwidth,thumbheight)
+                data = exportToPartGLTF("Media/"+id,distancegap,anglegap)#,thumbwidth,thumbheight)
     return JsonResponse(data, safe=False) 
 
 def swap(a, b):
@@ -1388,7 +1398,7 @@ def getShapesFromOutPutShapes(shapes,mytree):
     #print(retshapes,onlyshapes)
     return (retshapes,onlyshapes,findAssemblyShapeName(1,mytree))
 
-def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,thumbwidth,thumbheight):
+def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -1532,16 +1542,16 @@ def FileGetAssemblyOrder(request):
         anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
         explodegap = convertToFloat(request.GET.get('explodegap',"0.3"),0.3)
         center=convertToBool(request.GET.get('center',"true"),True)
-        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
-        thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
+        #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
+        #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
         print(id,distancegap,anglegap,explodegap,center)
         if is_number(id) :            
             files = File.objects.filter(id__icontains=id)
             for eachfile in files:               
-                data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,thumbwidth,thumbheight)
+                data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center)#,thumbwidth,thumbheight)
         else:
             id = request.GET.get('file', None)
             if id is not None:
-                data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,thumbwidth,thumbheight)
+                data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center)#,thumbwidth,thumbheight)
     return JsonResponse(data, safe=False)      
     
