@@ -565,15 +565,17 @@ class GLTFRenderer extends Component {
         let innerHeight=1;
         if(this.node) {
             if(this.node.clientHeight!=this.node.clientWidth) {
-                let minsize = Math.min(this.node.clientWidth,this.node.clientHeight);
+                let minsize = Math.max(this.node.clientWidth,this.node.clientHeight);
+                console.log('minsize',this.node.clientWidth,this.node.clientHeight);
                 if(minsize <=0) {
                     minsize=1;
                 }
+
                 let minsizePX = minsize.toString()+"px";
                 //console.log(minsizePX,this.node.clientWidth,this.node.clientHeight,this.node.style.width,this.node.style.height);
                 if(this.node.style.width != minsizePX) {
+                  console.log('minsizePX',minsizePX);
                     this.node.style.width=minsizePX ;
-                    //console.log(this.node.style.width,this.node.style.height);
                 }
                 if(this.node.style.height != minsizePX) {
                     this.node.style.height=minsizePX ;
@@ -3955,7 +3957,7 @@ class GLTFRenderer extends Component {
                 </Grid>
 
                 <div
-                    style={{ width: "100%", height: "600px" }}
+                    style={{ width: "100%" }}
                     ref={el => (this.node = el)}>                                               
                 </div>
 

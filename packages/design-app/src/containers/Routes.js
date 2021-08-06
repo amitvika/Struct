@@ -14,11 +14,14 @@ export default function Routes() {
   return (
     <Router>
       <Layout>
-        <Switch>
-          <Route path='/design' component={ProductDesign}></Route>
-          <Route path='/product' component={Product}></Route>
-          <Route path='/appdesigner' component={AppDesigner}></Route>
-        </Switch>
+        <div style={{ marginLeft: '7%', marginRight: '7%' }}>
+          <Switch>
+            <Route path='/design' component={ProductDesign}></Route>
+            <Route path='/product' component={Product}></Route>
+            <Route path='/appdesigner' component={AppDesigner}></Route>
+          </Switch>
+        
+        </div>
       </Layout>
     </Router>
   )
