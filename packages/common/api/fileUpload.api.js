@@ -41,8 +41,8 @@ export const getPartsStackableInfo = (id, distancegap, anglegap) => {
     return axios.get(stackURL);
 }
 
-export const getPartsAssemblyOrder = (id, distancegap, anglegap, explodegap, center,thumbwidth,thumbheight) => {
-    const orderURL = `${host}/assemblyorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&explodegap=${explodegap}&center=${center}&thumbwidth=${thumbwidth}&thumbheight=${thumbheight}`;
+export const getPartsAssemblyOrder = (id, distancegap, anglegap, explodegap, center) => {
+    const orderURL = `${host}/assemblyorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&explodegap=${explodegap}&center=${center}`;
 	console.log(orderURL);
     return axios.get(orderURL);
 }

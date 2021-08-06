@@ -196,7 +196,7 @@ const ItemDetail = () => {
             setIsLoading(true);
             console.log("Setting here");
             getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap, 
-                stateprops.explodegap, stateprops.fromcenter,  0, 0)
+                stateprops.explodegap, stateprops.fromcenter)
                 .then(res => res.data)
                 .then((repos) => {
                     console.log("Coming Here");
@@ -248,7 +248,7 @@ const ItemDetail = () => {
                     console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
                     setIsLoading(true);
                     getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap, 
-                        stateprops.explodegap, stateprops.fromcenter,  0, 0)
+                        stateprops.explodegap, stateprops.fromcenter)
                         .then(res => res.data)
                         .then((repos) => {
                             const multiAssmebly = get(repos, 'tree', []).length > 0;
