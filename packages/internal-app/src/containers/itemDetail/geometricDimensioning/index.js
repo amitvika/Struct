@@ -650,7 +650,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
             }
         }
         if (typeof (curData) !== "undefined") {
-            let myTree = state.gltfjson;
+            let myTree = {...state.gltfjson};
             myTree.tree[curData] = data;
             setState({ gltfjson: myTree });
             console.log("Setting", myTree, data, curData);
@@ -692,7 +692,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                     Promise.resolve()
                 
             ); 
-            resetSelectionFromTree();
+            //resetSelectionFromTree();
         } else {
             resetSelections();
         }
