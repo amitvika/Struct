@@ -7,38 +7,40 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-export default function SelectedFeatureMenu({ featureList = [], features=true }) {
-    const myStyle = {whiteSpace: "normal",
-                     wordWrap: "break-word", 
-                     wordBreak:"break-all", 
-                     width:"100px" }
-    const renderTable = () => {
-        //console.log("FeaturList",featureList,features);
-        return featureList.map((row,index) => (
-            <TableRow key={(features?row.n:row.parent.n)+index.toString()}>
-                <TableCell component="th" scope="row" style={myStyle} >
-                    {(features?row.n:row.parent.n)}
-                </TableCell>
-                <TableCell align="right" style={myStyle} >{row.type}</TableCell>
-                <TableCell align="right" style={myStyle} >{row.kind}</TableCell>               
-            </TableRow>
-        ))
-    }
+export default function SelectedFeatureMenu({ featureList = [], features = true }) {
+  const myStyle = {
+    whiteSpace: "normal",
+    wordWrap: "break-word",
+    wordBreak: "break-all",
+    width: "100px"
+  }
+  const renderTable = () => {
+    //console.log("FeaturList",featureList,features);
+    return featureList.map((row, index) => (
+      <TableRow key={(features ? row.n : row.parent.n) + index.toString()}>
+        <TableCell component="th" scope="row" style={myStyle} >
+          {(features ? row.n : row.parent.n)}
+        </TableCell>
+        <TableCell align="right" style={myStyle} >{row.type}</TableCell>
+        <TableCell align="right" style={myStyle} >{row.kind}</TableCell>
+      </TableRow>
+    ))
+  }
 
-    return (
-        <TableContainer component={Paper}>
-            <Table aria-label="simple table">
-                <TableHead>
-                    <TableRow>
-                        <TableCell style={myStyle} >ID</TableCell>
-                        <TableCell align="right" size="small" style={myStyle} >Type</TableCell>
-                        <TableCell align="right" size="small" style={myStyle} >Kind</TableCell>                       
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {renderTable()}
-                </TableBody>
-            </Table>
-        </TableContainer>
-    );
+  return (
+    <TableContainer component={Paper} style={{ minWidth: 400 }}>
+      <Table aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell style={myStyle} >ID</TableCell>
+            <TableCell align="right" size="small" style={myStyle} >Type</TableCell>
+            <TableCell align="right" size="small" style={myStyle} >Kind</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {renderTable()}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 }
