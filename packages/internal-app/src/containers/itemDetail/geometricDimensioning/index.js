@@ -398,7 +398,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     var myMaterials = [];
     if (myParentPart) {
       myParentNode = myParentPart;
-      const myChild = findMyMaterial(myParentPart);
+      const myChild = myParentPart; //findMyMaterial(myParentPart);
       if (myChild) {
         myMaterials.push(myChild);
       }
@@ -675,7 +675,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
       console.log("Setting..", element);
       element.selectedshell = true;
       console.log("Setting..Done", element);
-      const mymesh = findMyMaterial(element);
+      const mymesh = element;//findMyMaterial(element);
       console.log("Before", mymesh);
       if (mymesh) {
         mymesh.selectedshell = true;
