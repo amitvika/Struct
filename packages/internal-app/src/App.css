@@ -9,7 +9,7 @@
 .fade-enter-active {
   opacity: 1;
   transition: opacity 500ms ease-in;
-} 
+}
 
 .fade-exit {
   opacity: 1;
@@ -20,44 +20,44 @@
   transition: opacity 500ms ease-in;
 }
 
-.UserLoading__Progress{
+.UserLoading__Progress {
   position: fixed;
-    left: 50%;
-    top: 40%;
+  left: 50%;
+  top: 40%;
 }
 
 @media (min-width: 576px) {
   .modal-dialog {
     max-width: unset;
     margin: 1.75rem auto;
-}
+  }
 }
 
-.Viewer_Graphical{
+.Viewer_Graphical {
   height: 100%;
-  top:0;
-  left:0;
-  width:100%;
-  background-color:#8cabc2;  
-  background-color: #8cabc2; 
-  margin: 0px; 
-  overflow: hidden; 
-  background-image:   -webkit-linear-gradient(#8cabc2, #becfdc, #c5d5e0); 
-  background-image: -moz-linear-gradient(#8cabc2, #becfdc, #c5d5e0); 
-  background-image: -o-linear-gradient(#8cabc2, #becfdc, #c5d5e0); 
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #8cabc2;
+  background-color: #8cabc2;
+  margin: 0px;
+  overflow: hidden;
+  background-image: -webkit-linear-gradient(#8cabc2, #becfdc, #c5d5e0);
+  background-image: -moz-linear-gradient(#8cabc2, #becfdc, #c5d5e0);
+  background-image: -o-linear-gradient(#8cabc2, #becfdc, #c5d5e0);
   background-image: linear-gradient(#8cabc2, #becfdc, #c5d5e0);
 }
 
-.Add_Component{
+.Add_Component {
   width: 30%;
 }
 
-.AssemblyComponent__Header{
+.AssemblyComponent__Header {
   display: flex;
   margin: 10px 50px;
 }
 
-.AssemblyComponent__Body{
+.AssemblyComponent__Body {
   justify-content: center;
   padding: 50px;
 }
@@ -72,18 +72,18 @@
   margin: 30px;
 }
 
-.AsseblyComponent_Workholding{
+.AsseblyComponent_Workholding {
   justify-content: space-around;
   display: flex;
 }
 
-.AssemblyComponent__Content--Workholding{
+.AssemblyComponent__Content--Workholding {
   display: flex;
   margin: 30px;
   flex-direction: column;
 }
 
-.ItemGeometry--Choose{
+.ItemGeometry--Choose {
   margin: 25px;
   display: flex;
 }
@@ -93,23 +93,28 @@
   align-items: center;
 }
 
-.MuiPaper-root{
+.MuiPaper-root {
   /* width: 70%; */
   /* z-index: 1 !important; */
 }
 
-.MuiToolbar-root> div{
+.MuiToolbar-root>div {
   z-index: 1 !important;
 }
 
-.MuiDataGrid-root .MuiDataGrid-cell {border-bottom: none !important;}
+.MuiDataGrid-root .MuiDataGrid-cell {
+  border-bottom: none !important;
+}
 
-html,
-	body,
-	#root {
-		height: 100%;
-		width: 100%;
-		margin: 0;
-		padding: 0;
-        overflow: auto;
-	}
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+.tree-filter-container {
+  border: unset !important;
+  height: 100%;
+}
