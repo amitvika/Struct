@@ -1,5 +1,4 @@
-eval "$(conda shell.bash hook)"
-conda activate structquery
-Xvfb :1 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &> xvfb.log
-export DISPLAY=:1
+#!/bin/bash
+source ~/anaconda3/etc/profile.d/conda.sh
+conda activate structquery 
 python gltfconverter/manage.py runserver localhost:8000

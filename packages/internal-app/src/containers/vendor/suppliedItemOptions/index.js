@@ -79,7 +79,7 @@ export default function ProductOption({
                     {
                         tabArray.map(tabName =>
                         (
-                            <Grid item xs={2.5}>
+                            <Grid item xs={2}>
                                 <Paper onClick={() => handleTabChange(tabName)}
                                     style={{
                                         backgroundColor: selectedTab === tabName ? "#343a40" : "",

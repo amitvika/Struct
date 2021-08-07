@@ -6,11 +6,15 @@ import {
 } from "@material-ui/core"
 import Viewer from './Viewer';
 import ViewerToolbar from './ViewerToolbar';
-import { getShapeInfo } from '@ravibasil/common/api/fileUpload.api'
+import { getHierarchySplitFiles, getShapeInfo } from '@ravibasil/common/api/fileUpload.api'
 import {
-  SELECTDISTANCE, SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER,
-  SELECTMEASURE, SELECTHIRERACHY, SELECTDISECTPARTS,
-  SELECTASSEMBLY, SELECTFEATURE, gltf_Dict
+  SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
+  DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,
+  getTexture, SELECT2DTEXTURE, SELECT3DTEXTURE,
+  SELECTMATERIRAL, SELECTDISTANCE, SELECTSHOWINFO,
+  SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER, SELECTMEASURE,
+  SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE,
+  SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray, gltf_Dict
 } from "@ravibasil/common/gltf/Tree/utils";
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -31,6 +35,8 @@ const stateprops = {
   showinfoonselect: DEFAULTSHOWINFOONSELECT,
   materialtype: DEFAULTMATERIALTYPE
 }
+
+
 
 const useStyles = makeStyles((theme) => ({
   mainContainer: { margin: 10, padding: 10, display: 'inline-flex', minWidth: '100%' },
@@ -63,7 +69,32 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   const handleChange = (event) => {
     setValue(event.target.value);
   };
+  /*
+  const renderLeafElements = () => {
 
+      //console.log(assemblyTree)
+      return assemblyTree
+          // .filter(item => !item.leaf)
+          .map(item => {
+              const noOfChildren = renderChildElements({ parentId: item.i });
+              return (
+                  { ...item, name: item.n, item: '', assembly: noOfChildren.length > 0 ? 'Multi-Item Assembly' : 'Single-Item Assembly', children: noOfChildren }
+              )
+          })
+  }
+
+  const renderChildElements = ({ parentId }) => {
+      return assemblyTree
+          .filter(item => item.d === parentId)
+          .map(item => {
+              return (
+                  <div>
+                      {item.name}
+                  </div>
+              )
+          })
+  }
+  */
 
   useEffect(() => {
     const includeParts = true;
@@ -197,7 +228,13 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     //console.log("before",structure);   
     structure = await getShapeInformation(structure);
     tempSelectedObjects = structure.objects;
- 
+    //console.log("after",structure);
+    /*  for (let index = state.selectedObjects.length; index < tempSelectedObjects.length; index++) {
+          
+         tempSelectedObjects[index] = await getShapeInformation(tempSelectedObjects[index])
+         console.log('Awaiting',tempSelectedObjects[index]);          
+     } */
+
     setState({
       selectedObjects: tempSelectedObjects,
       parentObjects: tempParentObjects,
@@ -572,6 +609,25 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
             const element = repos[index][0];
             structure.objects[structure.start + index]['type'] = element[0].type;
             structure.objects[structure.start + index]['kind'] = element[0].Info['kind'];
+            //console.log(structure.objects[structure.start+index]);
+            /*console.log(element);
+             if (element[0].type === 'Edge') {
+                structure.objects[structure.start+index].cornerLocation = `${JSON.stringify(element[1].Info)}  ${JSON.stringify(element[2].Info)}`;
+            }
+            else if (element[0].type === 'Vertex') {
+                structure.objects[structure.start+index].location = `${JSON.stringify(element[0].Info)}`;
+            }
+            else if (element[0].type === 'Face') {
+                // data.location = `${repos[0].Info}`;
+                let edgeList = [];
+                element.map(item => {
+                    edgeList.push(item.id);
+                });
+                //console.log("Index ok?",structure.objects,structure.start+index,repos.length);
+                
+                structure.objects[structure.start+index]['edgeList'] = edgeList;
+            } */
+
           }
           resolve(structure);
         })
@@ -600,7 +656,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
       }
     }
     if (typeof (curData) !== "undefined") {
-      let myTree = state.gltfjson;
+      let myTree = { ...state.gltfjson };
       myTree.tree[curData] = data;
       setState({ gltfjson: myTree });
       console.log("Setting", myTree, data, curData);
@@ -608,11 +664,49 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
       console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
     }
   }
-  const addSelectionFromTree = (selectedNodes) => {
+
+  const doOneSelection = (element, event) => {
+    console.log("Starting", element);
+    const aShape = element[gltf_Dict['name']];
+    const first4chars = aShape.slice(0, 4);
+    const first6chars = aShape.slice(0, 6);
+    if ((first4chars == "FACE") || (first4chars == "EDGE") ||
+      (first4chars == "PART") || (first6chars == "VERTEX")) {
+      console.log("Setting..", element);
+      element.selectedshell = true;
+      console.log("Setting..Done", element);
+      const mymesh = findMyMaterial(element);
+      console.log("Before", mymesh);
+      if (mymesh) {
+        mymesh.selectedshell = true;
+        changeStateOfSelection(mymesh, event);
+        event['ctrlKey'] = true;
+      }
+      console.log("aftet", mymesh);
+    }
+  }
+
+  const addSelectionFromTree = async (selectedNodes) => {
     setState({ renderdata: selectedNodes, whatchange: SELECTDISTANCE });
+    if (selectedNodes && selectedNodes.length != 0) {
+      let event = {};
+      event['ctrlKey'] = false;
+      console.log("Reducing", event, selectedNodes);
+      selectedNodes.reduce(
+        (p, x) =>
+          p.then(_ => doOneSelection(x, event)),
+        Promise.resolve()
+
+      );
+      //resetSelectionFromTree();
+    } else {
+      resetSelections();
+    }
   };
-  const resetSelectionFromTree = () => {
-    setState({ whatchange: 0, renderdata: {} });
+  const resetSelectionFromTree = async () => {
+    if ((state.whatchange != 0) || state.renderdata != []) {
+      setState({ whatchange: 0, renderdata: [] });
+    }
   };
   const changeStateOfSelection = async (data, event) => {
     mapdata = {}
@@ -697,7 +791,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         if (event) {
           toAdd = event.ctrlKey;
         }
-        setCtrlKey(event.ctrlKey);
+        if (event && (event.ctrlKey != ctrlKey)) {
+          setCtrlKey(event.ctrlKey);
+        }
         var copy_selectobjects = [];
         var copy_parentobjects = [];
         var copy_mateobjects = [];
@@ -799,6 +895,12 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
           console.log("I could not get any togetinfo");
         }
 
+
+        /* for (let index = stateLength; index < copy_selectobjects.length; index++) {
+            console.log("Before Awaiting",copy_selectobjects[index],stateLength,copy_selectobjects.length);
+            copy_selectobjects[index] = await getShapeInformation(copy_selectobjects[index])
+            console.log('Awaiting',copy_selectobjects[index]);          
+        } */
         setState({
           selectedObjects: copy_selectobjects,
           mates: copy_mateobjects
@@ -862,7 +964,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         console.log("No Mesh", mymesh, data);
       }
 
-      if (event) {
+      if (event && (event.ctrlKey != ctrlKey)) {
         //console.log(event.ctrlKey);
         setCtrlKey(ctrlKey, event.ctrlKey);
       }
@@ -875,46 +977,45 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   }
 
   return (
-    <>
-      <Paper className={classes.mainContainer}>
 
-        <Paper className={`${classes.paper} ${classes.viewerContainer}`} square={true}>
-          <Viewer
-            {...state}
-            fileGDT={fileGDT}
-            selectedOption={selectedOption}
-            handleModelClick={handleModelClick}
-            isLoading={isLoading}
-            ctrlKey={ctrlKey}
-            setSelectedOption={setSelectedOption}
-            setCtrlKey={setCtrlKey}
-            resetSelections={resetSelections}
-            selectAllSelectedSolids={selectAllSelectedSolids}
-            resetSelectionFromTree={resetSelectionFromTree}
-          ></Viewer>
-        </Paper>
+    <Paper className={classes.mainContainer}>
 
-
-        {(state.gltfjson?.tree) && (
-          <div className={` ${classes.assemblyTreeContainer}`}>
-            <Assembly
-              assemblyTree={buildParentChildTree(state.gltfjson.tree, selectedOption)}
-              OnAddition={addSelectionFromTree}
-            />
-          </div>
-        )}
-        <ViewerToolbar
+      <Paper className={`${classes.paper} ${classes.viewerContainer}`} square={true}>
+        <Viewer
           {...state}
+          fileGDT={fileGDT}
           selectedOption={selectedOption}
+          handleModelClick={handleModelClick}
+          isLoading={isLoading}
+          ctrlKey={ctrlKey}
           setSelectedOption={setSelectedOption}
+          setCtrlKey={setCtrlKey}
           resetSelections={resetSelections}
           selectAllSelectedSolids={selectAllSelectedSolids}
-          setCtrlKey={setCtrlKey}
-          toolbar={true}
-        />
-
+          resetSelectionFromTree={resetSelectionFromTree}
+        ></Viewer>
       </Paper>
 
-    </>
+
+      {(state.gltfjson?.tree) && (
+        <div className={` ${classes.assemblyTreeContainer}`}>
+          <Assembly
+            assemblyTree={buildParentChildTree(state.gltfjson.tree, selectedOption)}
+            OnAddition={addSelectionFromTree}
+          />
+        </div>
+      )}
+      <ViewerToolbar
+        {...state}
+        selectedOption={selectedOption}
+        setSelectedOption={setSelectedOption}
+        resetSelections={resetSelections}
+        selectAllSelectedSolids={selectAllSelectedSolids}
+        setCtrlKey={setCtrlKey}
+        toolbar={true}
+      />
+
+    </Paper>
+
   )
 }

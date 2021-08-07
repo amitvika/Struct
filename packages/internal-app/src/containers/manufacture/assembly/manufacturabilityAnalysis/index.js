@@ -8,8 +8,15 @@ import Link from '@material-ui/core/Link';
 import { Spinner } from "reactstrap";
 import TableView from '@ravibasil/common/components/TableGridView/TableView';
 import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer.js';
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, 
-         gltf_Dict, SELECTFEATURE, SELECTHIRERACHY } from "@ravibasil/common/gltf/Tree/utils";
+import {
+    SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
+    DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,
+    getTexture, SELECT2DTEXTURE, SELECT3DTEXTURE,
+    SELECTMATERIRAL, SELECTDISTANCE, SELECTSHOWINFO,
+    SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER, SELECTMEASURE,
+    SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE,
+    SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray, gltf_Dict
+} from "@ravibasil/common/gltf/Tree/utils";
 
 import '../../style.css';
 
@@ -45,11 +52,16 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
     }
 }));
+let state_selectedObjects= [];
+//let reSetMe = true;
+//let filteredList = [];
 export default function ManufacturabilityAnalysis(props) {
     const {fileId, gltfjson, isLoading}=props;
     const [list, setList] = useState([]);
     const [isFileLoading, setIsLoading] = useState(isLoading);
-    const [filteredList, setFilteredList] = useState([]);
+    //const [filteredList, setFilteredList] = useState([]);
+    const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);   
+    const [resetOption, setResetOption] = useState(true);
     const classes = useStyles();
     const [columns, setColumns] = useState([
         { title: 'Mates', field: 'id', editable: "never" },
@@ -59,9 +71,12 @@ export default function ManufacturabilityAnalysis(props) {
         { title: 'Dispensing', field: 'dispense', type: 'numeric' },
         { title: 'Transfer Holding', field: 'quantity', type: 'numeric' },
     ])
-    
-    const [state, _setState] = useState({});
    
+    const [state, _setState] = useState({});
+    const [ctrlKey, setCtrlKey] = useState(false);
+    const [filteredList, setFilteredList] = useState(gltfjson);
+
+    
     const setState = (data) => {
         _setState(prevState => {
             return {
@@ -70,19 +85,494 @@ export default function ManufacturabilityAnalysis(props) {
             }
 
         })
-    }    
+    }  
+    
+    const arrayFindIndex = (arr, value, parent = false) => {
+
+        return arr.findIndex(function (ele) {
+            if (parent) return ele.parent[gltf_Dict["name"]] == value;
+            return ele[gltf_Dict["name"]] == value;
+        });
+    }
+
+    const arrayRemove = (arr, value, parent = false) => {
+
+        return arr.filter(function (ele) {
+            if (parent) return ele.parent[gltf_Dict["name"]] != value;
+            return ele[gltf_Dict["name"]] != value;
+        });
+    }
+    const arrayCopy = (arr) => {
+        var copy_selectobjects = [];
+
+        arr.forEach(element => {
+            copy_selectobjects.push(element);
+        });
+        return copy_selectobjects;
+    }
+    const findSingleNode = (mynode) => {      
+        return [[mynode], mynode];
+    }
+
+    const findMyParentPart = (mynode) => {
+        var myParentID = -1;
+        
+        for (var i = 0; i < state.gltfjson.tree.length; i++) {
+            if (state.gltfjson.tree[i][gltf_Dict["name"]] == mynode[gltf_Dict["name"]]) {
+                myParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];              
+                if(state.gltfjson.tree[i][gltf_Dict["element"]]=="P") {
+                    return state.gltfjson.tree[i];
+                } else {
+                    break;
+                }               
+            }
+        }
+       
+        if (myParentID == -1) {
+            return null;
+        } else {
+            var myParentsParentID = -1;
+            for (var i = 0; i < state.gltfjson.tree.length; i++) {
+                if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
+                    myParentsParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
+                    if(state.gltfjson.tree[i][gltf_Dict["element"]]=="P") {
+                        return state.gltfjson.tree[i];
+                    } else {
+                        break;
+                    }   
+                }
+            }
+            //console.log("Parent", myParentsParentID, myParentID, myID);          
+            if (myParentsParentID == -1) { //RootNode
+                //console.log("Pushing", myParentsParentID, myParentID, myID);
+                return null;
+            } else {
+                for (var i = 0; i < state.gltfjson.tree.length; i++) {
+                    if ((state.gltfjson.tree[i][gltf_Dict["id"]] == myParentsParentID)) {
+                        if(state.gltfjson.tree[i][gltf_Dict["element"]]=="P") {
+                            return state.gltfjson.tree[i];
+                        } 
+                    }
+                }
+            }
+            return null;
+        } 
+    };
+
+    const findSiblingNodes = (mynode) => {
+        const myParentPart = findMyParentPart(mynode);
+        var myParentNode = null;
+        var myMaterials = [];
+        if(myParentPart) {
+            myParentNode = myParentPart;
+            const myChild = myParentPart;
+            if (myChild) {
+                myMaterials.push(myChild);               
+            }
+        }
+      
+        if (myMaterials.length != 0) {
+            return [myMaterials, myParentNode];
+        }
+        return [[mynode], mynode];
+    }
+
+    
+    const findFamilyNodes = (mynode) => {
+        var myParentID = -1;
+        var myID = -1;
+        var parentNode = null;
+
+        
+        for (var i = 0; i < state.gltfjson.tree.length; i++) {
+            if (state.gltfjson.tree[i][gltf_Dict["name"]] == mynode[gltf_Dict["name"]]) {
+                myParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
+                myID = state.gltfjson.tree[i][gltf_Dict["id"]];
+                parentNode = state.gltfjson.tree[i];
+                break;
+            }
+        }
+        const myParentPart = findMyParentPart(mynode);        
+        if(myParentPart) {
+            parentNode = myParentPart;
+            myParentID = parentNode[gltf_Dict["id"]];   
+        }
+        //console.log(myParentID, parentNode);
+        var myMaterials = [];
+        if (myParentID != -1) {
+            var myParentsParentID = -1;
+            for (var i = 0; i < state.gltfjson.tree.length; i++) {
+                if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
+                    myParentsParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
+                    parentNode = state.gltfjson.tree[i];
+                    break;
+                }
+            }
+            //console.log(myParentID, myParentsParentID, parentNode);
+            var myParents = [];
+            if (myParentsParentID == -1) { //RootNode
+                myParents.push(myID);
+            } else {
+                for (var i = 0; i < state.gltfjson.tree.length; i++) {
+                    if (state.gltfjson.tree[i][gltf_Dict["parentId"]] == myParentsParentID) {
+                        myParents.push(state.gltfjson.tree[i][gltf_Dict["id"]]);
+                    } else {
+                        if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentsParentID) {
+                            parentNode = state.gltfjson.tree[i];
+                        }
+                    }
+                }
+            }
+            for (var j = 0; j < myParents.length; j++) {
+                myParentID = myParents[j];
+                for (var i = 0; i < state.gltfjson.tree.length; i++) {
+                    if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
+                        var myChild = state.gltfjson.tree[i];
+                        if (myChild) {                            
+                            if ((state.gltfjson.tree[i][gltf_Dict["element"]]=="P")||
+                                onlyparts(myChild[gltf_Dict["name"]])) {
+                                myMaterials.push(myChild);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        if (myMaterials.length != 0) {
+            
+            return [myMaterials, parentNode];
+        }
+       
+        return [[mynode], mynode]
+
+    }
+
+    const findMyParentChilds = (mynode, whichOption) => {
+        //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
+        if (( ((whichOption != SELECTSOLID) && (whichOption != SELECTASSEMBLY)) ||
+            (state.splitMethod != SELECTDISECTPARTS)) && resetOption) {
+            //console.log("I got over Singles",whichOption,resetOption,state.splitMethod);
+            return findSingleNode(mynode);
+        }
+        if (whichOption == SELECTASSEMBLY) {
+            //console.log("I got over Family");
+            return findFamilyNodes(mynode);
+        } else {
+            //console.log("I got over Sibling");
+            return findSiblingNodes(mynode);
+        }
+
+    }
+
+    const findMyMaterial = (data) => {
+        //console.log(data);
+        //console.log(state.gltfjson.tree);
+        if (state.gltfjson.tree) {
+            for (var i = 0; i < state.gltfjson.tree.length; i++) {
+                //console.log(state.gltfjson.tree[i]);
+                if (state.gltfjson.tree[i][gltf_Dict["name"]] == data["name"]) {
+                    return state.gltfjson.tree[i];
+                }
+            }
+        };
+        return null;
+    }
+
+    const onlyfaces = (name) => {
+
+        const first4chars = name.slice(0, 4);
+        const first6chars = name.slice(0, 6);
+        if ( (first4chars == "PART") || (first4chars == "EDGE") || (first6chars == "VERTEX") ) {
+            return false;
+        }
+        return true;
+    }
+
+    const onlyparts = (name) => {
+
+        const first4chars = name.slice(0, 4);
+        return first4chars=="PART";
+       
+    }
+    let mapdata = {}
+    const setSelectedShell = (data, setoption) => {
+        if(data.selectedshell!=setoption) {
+            data.selectedshell = setoption;
+            const myID = data[gltf_Dict['id']];
+            let curData = mapdata[myID];
+            if (typeof (curData) === "undefined") {
+                for (let index = 0; index < state.gltfjson.tree.length; index++) {
+    
+                    const element = state.gltfjson.tree[index];
+                    //console.log("compare",element,data);
+                    if (element[[gltf_Dict['id']]] == myID) {
+                        curData = index;
+                        mapdata[myID] = index;
+                        break;
+                    }
+    
+                }
+            }
+            if (typeof (curData) !== "undefined") {
+                let myTree = {...state.gltfjson};
+                myTree.tree[curData] = data;
+                setState({ gltfjson: myTree });
+                console.log("Setting", myTree, data, curData);
+                //getTable(myTree);
+            } else {
+                console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
+            }
+        }
+        
+    };
+    const setSelectedShellForce = (data, setoption) => {
+        
+            data.selectedshell = setoption;
+            const myID = data[gltf_Dict['id']];
+            let curData = mapdata[myID];
+            if (typeof (curData) === "undefined") {
+                for (let index = 0; index < state.gltfjson.tree.length; index++) {
+    
+                    const element = state.gltfjson.tree[index];
+                    //console.log("compare",element,data);
+                    if (element[[gltf_Dict['id']]] == myID) {
+                        curData = index;
+                        mapdata[myID] = index;
+                        break;
+                    }
+    
+                }
+            }
+            if (typeof (curData) !== "undefined") {
+                let myTree = {...state.gltfjson};
+                for (let index = 0; index < myTree.tree.length; index++) {
+                    const element = myTree.tree[index];
+                    element.selectedshell = (index==curData);                
+                }               
+                setState({ gltfjson: myTree });
+                console.log("Setting", myTree, data, curData);
+                getTable(myTree);
+            } else {
+                console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
+            }
+       
+        
+    };
+    const doOneSelection = (element,event) => {
+        console.log("Starting",element);
+        const aShape = element[gltf_Dict['name']];
+        const first4chars = aShape.slice(0, 4);
+        const first6chars = aShape.slice(0, 6);
+        if( (first4chars=="FACE") || (first4chars=="EDGE") || 
+        (first4chars=="PART") || (first6chars=="VERTEX") ) {  
+            console.log("Setting..",element);            
+            element.selectedshell=true;
+            setSelectedShell(element,true);
+           
+            console.log("Setting..Done",element);
+            const mymesh = element; //findMyMaterial(element);                       
+            console.log("Before",mymesh);
+            if (mymesh) {     
+                mymesh.selectedshell=true;          
+                //setSelectedShellForce(mymesh,true);                
+                changeStateOfSelection(mymesh, event);                             
+                event['ctrlKey']=true;
+            }
+            console.log("aftet",mymesh);
+            
+            
+        }  
+    }
+
+    const addSelectionFromTree = async (selectedNodes,event) => {
+
+        console.log(selectedNodes);
+        if(selectedNodes.id) {
+            const myTree = {...state.gltfjson.tree[selectedNodes.id+1]};
+            console.log(myTree);
+            if(myTree) {
+                //myTree.selectedshell = true;
+                if (event && (event.ctrlKey != ctrlKey)) {
+                    setCtrlKey(event.ctrlKey);
+                } 
+                setState({ renderdata: [myTree], whatchange: SELECTDISTANCE }); 
+                doOneSelection(myTree,event);
+                //resetSelectionFromTree();
+               /*  selectedNodes=[myTree];
+                selectedNodes.reduce(
+                    (p, x) =>
+                        p.then(_ => doOneSelection(x,event)),
+                        Promise.resolve()
+                    
+                );  */
+                
+            }               
+        }
+       
+    };
+    const resetSelectionFromTree = async () => {
+        if( (state.whatchange!=0) || state.renderdata!=[]) {
+            setState({ whatchange: 0, renderdata: [] });
+        }  
+    };
+    
+    const changeStateOfSelection = async (data, event) => {
+        mapdata = {}
+        //console.log("Data for shapeinfo",data,selectedOption,event);
+
+    
+        //console.log("outside SELECTMEASURE",data);
+        if (data) {
+            console.log(data);
+            var toAdd = true;
+            var toGetInfo = false;
+            if (event) {
+                toAdd = event.ctrlKey;
+            }
+            if (event && (event.ctrlKey != ctrlKey)) {
+                console.log("my Control key",event.ctrlKey,ctrlKey);
+                setCtrlKey(event.ctrlKey);
+                console.log("Set Ctrk Key");
+            }
+            
+            var copy_selectobjects = [];
+            
+            var stateLength = 0;
+            if (!toAdd) {
+                console.log("Not to add",data, state_selectedObjects);
+                state_selectedObjects.forEach(element => {
+                    if (data[gltf_Dict["name"]] != element[gltf_Dict["name"]]) {                        
+                        console.log("before set sel",element);
+                        element.selectedshell = false;
+                        setSelectedShell(element, false);                       
+                        console.log("after set sel",element);
+                    }
+                });
+                stateLength = 0;
+                copy_selectobjects = [];                
+            } else {
+                console.log("Add me here",state_selectedObjects);
+                copy_selectobjects = arrayCopy(state_selectedObjects);               
+                stateLength = state_selectedObjects.length;              
+            }
+            //console.log(data);
+            const myAllChildsAndParents = findMyParentChilds(data, selectedOption);
+            //console.log(myAllChildsAndParents);
+            const myAllChilds = myAllChildsAndParents[0];
+            const myParentNode = myAllChildsAndParents[1];
+
+            //console.log("Splitted",myAllChilds,myParentNode)
+            for (let elementdata of myAllChilds) {
+                console.log("Before",elementdata);   
+                elementdata.selectedshell = data.selectedshell;            
+                setSelectedShell(elementdata, data.selectedshell);                
+                console.log("After",elementdata,state.gltfjson.tree);
+                if (toAdd) {
+                    if (data.selectedshell) {
+                        var alreadyPresent = false;
+                        for (var i = 0; i < copy_selectobjects.length; i++) {
+                            if (elementdata[gltf_Dict["name"]] == copy_selectobjects[i][gltf_Dict["name"]]) {
+                                alreadyPresent = true;
+                                break;
+                            }
+                        }
+                        if (!alreadyPresent) {
+                            // const copydata = await getShapeInformation(elementdata);
+                            // console.log('awaiting',copydata);
+                            copy_selectobjects.push(elementdata);
+                            //copy_mateobjects.push([]);
+                            //console.log("MyMate2",copy_mateobjects);
+                            toGetInfo = true;
+                            /* setState({
+                                selectedObjects: [...state.selectedObjects, copydata]
+                            }); */
+                        }
+
+                    } else {//error here... 
+                        const currentIndex = arrayFindIndex(copy_selectobjects, elementdata[gltf_Dict["name"]]);
+                        if (currentIndex != -1) {
+                            //console.log(currentIndex,elementdata[gltf_Dict["name"]]);        
+                            copy_selectobjects = arrayRemove(copy_selectobjects, elementdata[gltf_Dict["name"]]);
+                            //console.log("Before Splicing",copy_mateobjects,currentIndex, copy_mateobjects.length);
+                            //copy_mateobjects.splice(currentIndex, 1);
+                            //console.log("After Splicing",copy_mateobjects,currentIndex, copy_mateobjects.length);
+                            /* for (let mateindex = currentIndex; mateindex < copy_mateobjects.length; mateindex++) {
+                                copy_mateobjects[mateindex].splice(currentIndex, 1);
+                            } */
+                            //console.log('1 : ', copy_selectobjects, copy_mateobjects);
+                        }
+
+                        //setState({ selectedObjects: copy_selectobjects });
+                    }
+                } else {
+                    if (data.selectedshell) {
+                        //const copydata = await getShapeInformation(elementdata);
+                        console.log('awaiting',elementdata);
+                        copy_selectobjects.push(elementdata);
+                        setSelectedShellForce(elementdata,data.selectedshell);
+                        //copy_mateobjects.push([]);
+                        toGetInfo = true;
+                        //setState({ selectedObjects: myAllChilds });
+                    } else {
+                        copy_selectobjects = [];
+                        //setState({ selectedObjects: [] });
+                    }
+
+                }
+            };           
+            console.log("Here setting",copy_selectobjects);
+            state_selectedObjects = arrayCopy(copy_selectobjects);            
+            //reSetMe = true;
+            //resetSelectionFromTree();
+           /*  setState({
+                selectedObjects: copy_selectobjects,
+                //mates: copy_mateobjects
+            });  */          
+
+        }
+        //setResetMe(true);
+        //getTable(state.gltfjson);
+        console.log("Finally my state tree",state.gltfjson.tree,state_selectedObjects);
+    }
+
+    const handleModelClick = (data, what, event) => {
+        console.log(data, what, event);
+        if (what == SELECTDISTANCE) {
+            console.log(data);
+            const mymesh = findMyMaterial(data);
+            if (mymesh) {              
+                mymesh.selectedshell = data.selectedshell;  
+                setSelectedShell(mymesh, data.selectedshell);                
+                console.log("Doing mymesh",mymesh,state_selectedObjects);
+                return changeStateOfSelection(mymesh, event);
+            } else {
+                console.log("No Mesh", mymesh, data);
+            }
+
+            if (event && (event.ctrlKey != ctrlKey)) {
+                //console.log(event.ctrlKey);
+                setCtrlKey(ctrlKey, event.ctrlKey);
+            }
+        }
+        return null;
+    }
 
     const getTable = (gltfjson) => {
         let currentData = [];
         if(gltfjson && gltfjson.tree && gltfjson.assemblyorder) {
             for (let index = 2; index < gltfjson.tree.length; index++) {
                 const element = gltfjson.tree[index];
+                console.log(element);
                 currentData.push({'id':index-1,
                                   'name':element[gltf_Dict['name']],
                                   'order':null,
                                   'insert':"Sliding", 
                                   'dispense':null,
-                                  'quantity':null });              
+                                  'quantity':null,
+                                  'selectedshell':element.selectedshell,                                                             
+                                }); 
+                             
             }
             for (let index = 0; index < gltfjson.assemblyorder.length; index++) {
                 const element = gltfjson.assemblyorder[index];
@@ -93,6 +583,7 @@ export default function ManufacturabilityAnalysis(props) {
         } else {
             setFilteredList(currentData);           
         }
+        return currentData;
     }
     useEffect(() => {
         setIsLoading(isLoading);
@@ -118,16 +609,22 @@ export default function ManufacturabilityAnalysis(props) {
                 showdisect: stateprops.showdisect,
                 showinfoonselect: stateprops.showinfoonselect,
                 //splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
-                selectedObjects: [],
-                parentObjects: [],
-                mates: [],
-                renderdata: {},
+               
+               
+                renderdata: [],
                 whatchange: 0,
             });
-            getTable(gltfjson);
+            console.log("Reaching useEffect1");
+            //getTable(gltfjson);
+            //setResetMe(true);
         }
     }, [gltfjson]);
-
+    
+    useEffect(() => {
+        console.log("Reaching useEffect2");
+        getTable(state.gltfjson);
+    }, [state.gltfjson?.tree]);
+    
     if (isLoading) {
         return (<div
             style={{
@@ -142,6 +639,7 @@ export default function ManufacturabilityAnalysis(props) {
     if (gltfjsonlen > 0) {
         gltfjsonlen += gltfjson?.gltf?.accessors?.length;
     }
+    
     return (
         <Paper className={classes.mainContainer}>
             <Paper className={classes.viewerContainer} square={true}>
@@ -157,12 +655,14 @@ export default function ManufacturabilityAnalysis(props) {
                         selectcolor={DEFAULTSELECTCOLOR}
                         touchcolor={DEFAULTTOUCHCOLOR}
                         selectedoption={SELECTFEATURE}
-                        splitmethod={SELECTHIRERACHY}
-                        changedata={[]}
+                        splitmethod={SELECTHIRERACHY}                       
+                        changedata={state.renderdata}
                         data2texture={null}
                         data3texture={null}
                         materialtype={DEFAULTMATERIALNAME}
-                        whatchanged={0} dataselection={0}
+                        whatchanged={state.whatchange} dataselection={0}
+                        onClick={handleModelClick}
+                        //resetSelectionFromTree={resetSelectionFromTree}
                     />
                 }
                 {
@@ -174,8 +674,9 @@ export default function ManufacturabilityAnalysis(props) {
                 title={'Order of Assembly'}
                 list={filteredList}
                 columns={columns}
-                setColumns={setColumns}
-                isAddEditActionsEnabled={true}
+                setColumns={setColumns}               
+                isAddEditActionsEnabled={false}
+                handleDataRowClick={addSelectionFromTree}
                 style={{width:'300px'}}
             >
             </TableView>
