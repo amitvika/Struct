@@ -2144,7 +2144,7 @@ class StepIgesAnalyser():
                         part_color=shape_color,
                         filenameuri=filefullname,
                         filetype= "PART",
-                        name=shape_name,
+                        name="PART"+shape_name,
                         parent_idx=parent_node_index,
                     )  
                     if(solidFoundHere>0):                  

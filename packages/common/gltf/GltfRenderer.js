@@ -554,6 +554,7 @@ class GLTFRenderer extends Component {
         //console.log("Rendering here!",this.activeFile,this.props.activefile,
         //        this.materialtype,this.props.materialtype,this.selectedoption,this.props.selectedoption);
         this.alter();
+        console.log("Coming from here to changeparts");
         this.changeparts();
         this.onWindowResize();
         this.initDone=true;
@@ -2296,7 +2297,7 @@ class GLTFRenderer extends Component {
                     console.log(exception);
                 }
                 const onProgress = (progress) => {
-                    console.log(progress);
+                    //console.log(progress);
                 }
                 parser.parse( onload, onError, onProgress );
     
@@ -3073,23 +3074,26 @@ class GLTFRenderer extends Component {
     };
 
     doOneSelection = (element,event) => {
+        console.log("Starting",element);
         const aShape = element[gltf_Dict['name']];
         const first4chars = aShape.slice(0, 4);
         const first6chars = aShape.slice(0, 6);
         if( (first4chars=="FACE") || (first4chars=="EDGE") || 
-        (first4chars=="PART") || (first6chars=="VERTEX") ) {               
+        (first4chars=="PART") || (first6chars=="VERTEX") ) {  
+            console.log("Setting..",element);            
             element.selectedshell=true;
+            console.log("Setting..Done",element);
             const mymesh = this.findMyMaterial(element);                       
             console.log("Before",mymesh);
             if (mymesh) {
                 mymesh.selectedshell=true;
                 this.changeStateOfSelection(mymesh, event);
-                if (this.props.onClick) {
+               /*  if (this.props.onClick) {
                     const mytask =  this.props.onClick(mymesh, SELECTDISTANCE, event);                                                                      
                     console.log(element,mymesh);
                 } else {
                     console.log("No Click functions found",this.props.onClick,element);
-                }
+                } */
                 event['ctrlKey']=true;
             }
             console.log("aftet",mymesh);
@@ -3114,14 +3118,16 @@ class GLTFRenderer extends Component {
             ((this.props.whatchanged == SELECTROUGH) &&
                 (this.datarough != changedata[gltf_Dict["roughnessFactor"]])) ||
             ((this.props.whatchanged == SELECTOPAQUE) &&
-                (this.dataopaque != changedata[gltf_Dict["A"]])) ||
+                (this.dataopaque != changedata[gltf_Dict["A"]])) 
+                /* ||
             ((this.props.whatchanged == SELECTDISTANCE) &&
-                (this.selectedshell != changedata))
+                (this.selectedshell != changedata)) */
         ) ) {
+            console.log(changedata,this.whatchanged,this.props.whatchanged,this.changeddataarray);
             this.whatchanged = this.props.whatchanged;
             this.changeddataarray = changedata;
             this.changedctrlkey = this.props.ctrlKey;
-            this.activeId = changedata[gltf_Dict["name"]];
+            this.activeId = changedata ? changedata[gltf_Dict["name"]]: "";
             console.log(changedata,this.whatchanged);
            
             if (this.props.whatchanged == SELECTCOLOR) {
@@ -3272,23 +3278,26 @@ class GLTFRenderer extends Component {
             if (this.props.whatchanged == SELECTDISTANCE) {
                 console.log("Ok Here?",changedata);
                 if(changedata.length==0) {
-                    console.log("I am resetting!");
+                   /*  console.log("I am resetting!");
 
                     if(this.props.resetSelections){
                         console.log("I have resetted");
                         this.props.resetSelections();
-                    }
+                    } */
                 } else {
    
                     let event={};
                     event['ctrlKey']=false;
-
+                    console.log("Reducing",event,changedata);
                     changedata.reduce(
                         (p, x) =>
-                          p.then(_ => this.doOneSelection(x,event)),
-                        Promise.resolve()
-                    );
-
+                            p.then(_ => this.doOneSelection(x,event)),
+                            Promise.resolve()
+                       
+                    ); 
+                    /* changedata.forEach(x => {
+                        this.doOneSelection(x,event);
+                    }); */
                     /*
                     changedata.forEach(element => {
                         const aShape = element[gltf_Dict['name']];
@@ -3315,9 +3324,9 @@ class GLTFRenderer extends Component {
                     });*/
                         
                 }
-                if(this.props.resetSelectionFromTree) {
-                    this.props.resetSelectionFromTree();
-                }
+                /* if(this.props.resetSelectionFromTree) {
+                    this.props.resetSelectionFromTree(); // This is causing delay!!!
+                }  */
                 /* this.selectedshell = changedata.selectedshell;
                 if (changedata[gltf_Dict["leaf"]]) {
                     if (changedata[gltf_Dict["name"]]) {
@@ -3344,7 +3353,9 @@ class GLTFRenderer extends Component {
                     console.log("could not get leaf",changedata,gltf_Dict["leaf"],changedata[gltf_Dict["leaf"]]);
                 } */
             }
+            console.log("Performed all operations to rerender");
         }
+        
     };
 
     changeMaterialStats(material,mySide,myOpaque,myWiremesh) {
@@ -3918,6 +3929,7 @@ class GLTFRenderer extends Component {
                 this.axesCamera.lookAt(this.axesScene.position)
                 this.axesRenderer.render(this.axesScene, this.axesCamera);
             }
+            //console.log("Coming from here to changeparts");
             this.changeparts();
         }
         const myID = (id) =>{

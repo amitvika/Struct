@@ -658,11 +658,49 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
             console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
         }
     }
-    const addSelectionFromTree = (selectedNodes) => {
+    
+    const doOneSelection = (element,event) => {
+        console.log("Starting",element);
+        const aShape = element[gltf_Dict['name']];
+        const first4chars = aShape.slice(0, 4);
+        const first6chars = aShape.slice(0, 6);
+        if( (first4chars=="FACE") || (first4chars=="EDGE") || 
+        (first4chars=="PART") || (first6chars=="VERTEX") ) {  
+            console.log("Setting..",element);            
+            element.selectedshell=true;
+            console.log("Setting..Done",element);
+            const mymesh = findMyMaterial(element);                       
+            console.log("Before",mymesh);
+            if (mymesh) {
+                mymesh.selectedshell=true;
+                changeStateOfSelection(mymesh, event);             
+                event['ctrlKey']=true;
+            }
+            console.log("aftet",mymesh);
+        }  
+    }
+
+    const addSelectionFromTree = async (selectedNodes) => {
         setState({ renderdata: selectedNodes, whatchange: SELECTDISTANCE });
+        if(selectedNodes && selectedNodes.length!=0) {
+            let event={};
+            event['ctrlKey']=false;
+            console.log("Reducing",event,selectedNodes);
+            selectedNodes.reduce(
+                (p, x) =>
+                    p.then(_ => doOneSelection(x,event)),
+                    Promise.resolve()
+                
+            ); 
+            resetSelectionFromTree();
+        } else {
+            resetSelections();
+        }
     };
-    const resetSelectionFromTree = () => {
-        setState({ whatchange: 0, renderdata: {} });
+    const resetSelectionFromTree = async () => {
+        if( (state.whatchange!=0) || state.renderdata!=[]) {
+            setState({ whatchange: 0, renderdata: [] });
+        }  
     };
     const changeStateOfSelection = async (data, event) => {
         mapdata = {}
@@ -747,7 +785,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                 if (event) {
                     toAdd = event.ctrlKey;
                 }
-                setCtrlKey(event.ctrlKey);
+                if (event && (event.ctrlKey != ctrlKey)) {
+                    setCtrlKey(event.ctrlKey);
+                }
                 var copy_selectobjects = [];
                 var copy_parentobjects = [];
                 var copy_mateobjects = [];
@@ -918,7 +958,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
                 console.log("No Mesh", mymesh, data);
             }
 
-            if (event) {
+            if (event && (event.ctrlKey != ctrlKey)) {
                 //console.log(event.ctrlKey);
                 setCtrlKey(ctrlKey, event.ctrlKey);
             }

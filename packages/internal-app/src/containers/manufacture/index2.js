@@ -135,7 +135,7 @@ export default function Index2(props) {
         <>
             <Paper elevation={3} className={classes.paper}>
                 <Grid container spacing={1}>
-                    <Grid item xs={2.5}>
+                    <Grid item xs={2}>
                         <Paper onClick={() => handleTabChange('Full Process')}
                             style={{
                                 backgroundColor: selectedTab === 'Full Process' ? "#343a40" : "",
@@ -149,7 +149,7 @@ export default function Index2(props) {
                     {
                         tabArray.map(tabName =>
                         (
-                            <Grid item xs={2.5}>
+                            <Grid item xs={2}>
                                 <Paper onClick={() => handleTabChange(tabName)}
                                     style={{
                                         backgroundColor: selectedTab === tabName ? "#343a40" : "",

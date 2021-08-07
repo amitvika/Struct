@@ -87,7 +87,7 @@ export default function ManufacturabilityAnalysis(props) {
                 {
                     tabArray.map(tabName =>
                     (
-                        <Grid item xs={2.5}>
+                        <Grid item xs={2}>
                             <Paper onClick={() => handleTabChange(tabName)}
 
                                 style={{

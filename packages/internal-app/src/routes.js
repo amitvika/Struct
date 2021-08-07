@@ -36,7 +36,7 @@ import ViewMyProfile from './containers/viewMyProfile'
 
 // import Viewer from './page/3DViewer';
 import Viewer from './gltf/DropZone'
-import Sample from "./page/sample";
+//import Sample from "./page/sample";
 
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);
@@ -52,7 +52,7 @@ export default function AppRoutes() {
         <Route exact path="/" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/viewer" component={Viewer} />
-        <Route path="/sample" component={Sample} />
+        {/* <Route path="/sample" component={Sample} /> */}
         <Layout>
 
           <div style={{ marginLeft: '7%', marginRight: '7%' }}>
