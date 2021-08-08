@@ -570,6 +570,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
 
   const setState = (data) => {
     _setState(prevState => {
+      //console.log(prevState,data);
       return {
         ...prevState,
         ...data

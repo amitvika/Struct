@@ -71,7 +71,7 @@ export default function TableView({
           /* let rslts = [...data];
           const rIndex = rslts.indexOf(rowdata);
           for (let index = 0; index < rowdata.length; index++) {
-            rslts[index].selectedshell=rIndex==rIndex;            
+            rslts[index].selectedshell=rIndex==index;            
           }        
           console.log(rslts);
           setData(rslts); */

@@ -1605,8 +1605,9 @@ class GLTFRenderer extends Component {
             } else {
                 this.INTERSECTED.selectedshell = true;
             }
-            //console.log("After", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );	
-            this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
+            //console.log("After", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
+            this.setOriginalColor(this.INTERSECTED);
+            //this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
             this.changeStateOfSelection(this.INTERSECTED, event);
             if (this.props.onClick) {
                 this.props.onClick(this.INTERSECTED, SELECTDISTANCE, event);
@@ -2219,7 +2220,8 @@ class GLTFRenderer extends Component {
                             this.setSelectionColor(this.INTERSECTED);
                             //this.INTERSECTED.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR) ;
                         } else {
-                            this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
+                            this.setOriginalColor(this.INTERSECTED);
+                            //this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
                         }
                     }
                     this.INTERSECTED = intersects[myObject].object;
@@ -2952,6 +2954,12 @@ class GLTFRenderer extends Component {
         //console.log("after",meshmaterial.material.color);
     };
 
+    setOriginalColor = (meshmaterial) => {
+        if( (meshmaterial.currentHex === null) || (typeof meshmaterial.currentHex === 'undefined') ) {
+            return;
+        }
+        meshmaterial.material.color.setHex(meshmaterial.currentHex);        
+    }
 
     changeStateOfSelection = (meshmaterial, event) => {
         if (meshmaterial && this.props.selectedoption == SELECTMEASURE) {
@@ -2972,8 +2980,8 @@ class GLTFRenderer extends Component {
                     } else {
                         this.setSelectionColor(meshmaterial);
                         //console.log(meshmaterial.material.color.getHex(),0xffffff-meshmaterial.material.color.getHex());
-
-                        this.firstshell.material.color.setHex(this.firstshell.currentHex);
+                        this.setOriginalColor(this.firstshell);
+                        //this.firstshell.material.color.setHex(this.firstshell.currentHex);
                         this.firstshell.selectedshell = false;
                         this.firstshell = this.secondshell;
                         this.secondshell = meshmaterial;
@@ -2983,14 +2991,16 @@ class GLTFRenderer extends Component {
 
             } else {
                 if (this.firstshell && (this.firstshell.name == meshmaterial.name)) {
-                    this.firstshell.material.color.setHex(this.firstshell.currentHex);
+                    this.setOriginalColor(this.firstshell);
+                    //this.firstshell.material.color.setHex(this.firstshell.currentHex);
                     this.firstshell.selectedshell = false;
                     this.firstshell = this.secondshell;
                     this.secondshell = null;
                     //console.log("First and second making null",this.firstshell,this.secondshell)
                 } else {
                     if (this.secondshell && (this.secondshell.name == meshmaterial.name)) {
-                        this.secondshell.material.color.setHex(this.secondshell.currentHex);
+                        this.setOriginalColor(this.secondshell);
+                        //this.secondshell.material.color.setHex(this.secondshell.currentHex);
                         this.secondshell.selectedshell = false;
                         this.secondshell = null;
                         //console.log("First and second only null",this.firstshell,this.secondshell)										
@@ -3009,7 +3019,8 @@ class GLTFRenderer extends Component {
                     this.state_selectedObjects.forEach(elementobject => {
                         if (meshmaterial.name != elementobject.name) {
                             elementobject.selectedshell = false;
-                            elementobject.material.color.setHex(elementobject.currentHex);
+                            this.setOriginalColor(elementobject);
+                            //elementobject.material.color.setHex(elementobject.currentHex);
                         }
                     });
                 }
@@ -3018,6 +3029,15 @@ class GLTFRenderer extends Component {
                 if(myAllChilds.select==false && (this.props.selectedoption!=SELECTFEATURE) &&
                     (this.props.selectedoption!=SELECTASSEMBLY) && (this.props.selectedoption!=SELECTSOLID) ) {
                     meshmaterial.selectedshell=myAllChilds.select;
+                    this.setOriginalColor(meshmaterial);
+                    //meshmaterial.material.color.setHex(meshmaterial.currentHex);
+                    this.state_selectedObjects.forEach(elementobject => {
+                        if (meshmaterial.name == elementobject.name) {
+                            elementobject.selectedshell = false;
+                            this.setOriginalColor(elementobject);
+                            //elementobject.material.color.setHex(elementobject.currentHex);
+                        }
+                    });
                 }
                 var copy_selectobjects = this.arrayCopy(this.state_selectedObjects);
                 console.log(myAllChilds);
@@ -3026,9 +3046,10 @@ class GLTFRenderer extends Component {
                     if (meshmaterial.selectedshell) {
                         this.setSelectionColor(element);
                     } else {
-                        if(element.currentHex){
+                        this.setOriginalColor(element);
+                       /*  if(element.currentHex){
                             element.material.color.setHex(element.currentHex);
-                        }                        
+                        }   */                      
                     }
                     if (toAdd) {
                         if (meshmaterial.selectedshell) {
@@ -3375,7 +3396,8 @@ class GLTFRenderer extends Component {
                 this.setSelectionColor(this.INTERSECTED);
                 //this.INTERSECTED.material.color=this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR);
             } else {
-                this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
+                this.setOriginalColor(this.INTERSECTED);
+                //this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
             }
             this.INTERSECTED = null;
             this.setState({ intersectedShell: this.INTERSECTED });
@@ -3849,15 +3871,18 @@ class GLTFRenderer extends Component {
     changeSelectedOption = () => {
         if (this.selectedoption == SELECTMEASURE || this.props.selectedoption == SELECTMEASURE) {
             if (this.secondshell) {
-                this.secondshell.material.color.setHex(this.secondshell.currentHex);
+                this.setOriginalColor(this.secondshell);
+                //this.secondshell.material.color.setHex(this.secondshell.currentHex);
                 this.secondshell.selectedshell = false;
             }
             if (this.firstshell) {
-                this.firstshell.material.color.setHex(this.firstshell.currentHex);
+                this.setOriginalColor(this.firstshell);
+                //this.firstshell.material.color.setHex(this.firstshell.currentHex);
                 this.firstshell.selectedshell = false;
             }
             this.state_selectedObjects.forEach(element => {
-                element.material.color.setHex(element.currentHex);
+                this.setOriginalColor(element);
+                //element.material.color.setHex(element.currentHex);
                 element.selectedshell = false;
             });
             this.secondshell = null;

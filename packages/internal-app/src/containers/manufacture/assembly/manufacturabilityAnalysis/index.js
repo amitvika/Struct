@@ -4,9 +4,9 @@ import {
     CircularProgress,
     makeStyles
 } from "@material-ui/core";
-import Link from '@material-ui/core/Link';
+//import Link from '@material-ui/core/Link';
 import { Spinner } from "reactstrap";
-import TableView from '@ravibasil/common/components/TableGridView/TableView';
+import TableOrderView from './TableOrderView';
 import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer.js';
 import {
     SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
@@ -64,7 +64,7 @@ export default function ManufacturabilityAnalysis(props) {
     const [resetOption, setResetOption] = useState(true);
     const classes = useStyles();
     const [columns, setColumns] = useState([
-        { title: 'Mates', field: 'id', editable: "never" },
+        { title: 'Mates', field: 'index', editable: "never" },
         { title: 'Mate Name', field:'name',editable:"never", width:'100px', 'word-break': 'break-all'},
         { title: 'Insertion Order', field:'order',editable:"never"},
         { title: 'Insertion Type', field: 'insert', editable: "never" },
@@ -74,7 +74,7 @@ export default function ManufacturabilityAnalysis(props) {
    
     const [state, _setState] = useState({});
     const [ctrlKey, setCtrlKey] = useState(false);
-    const [filteredList, setFilteredList] = useState(gltfjson);
+    const [filteredList, setFilteredList] = useState([]);
 
     
     const setState = (data) => {
@@ -317,9 +317,10 @@ export default function ManufacturabilityAnalysis(props) {
             if (typeof (curData) !== "undefined") {
                 let myTree = {...state.gltfjson};
                 myTree.tree[curData] = data;
+                console.log("Going to Set", myTree, data, curData);
                 setState({ gltfjson: myTree });
-                console.log("Setting", myTree, data, curData);
-                //getTable(myTree);
+                console.log("Finally Setting", myTree, data, curData, state.gltfjson);
+                getTable(myTree);
             } else {
                 console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
             }
@@ -349,9 +350,10 @@ export default function ManufacturabilityAnalysis(props) {
                 for (let index = 0; index < myTree.tree.length; index++) {
                     const element = myTree.tree[index];
                     element.selectedshell = (index==curData);                
-                }               
+                }     
+                console.log("About to set",myTree);          
                 setState({ gltfjson: myTree });
-                console.log("Setting", myTree, data, curData);
+                console.log("Setting", myTree, data, curData,state.gltfjson);
                 getTable(myTree);
             } else {
                 console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
@@ -388,8 +390,8 @@ export default function ManufacturabilityAnalysis(props) {
     const addSelectionFromTree = async (selectedNodes,event) => {
 
         console.log(selectedNodes);
-        if(selectedNodes.id) {
-            const myTree = {...state.gltfjson.tree[selectedNodes.id+1]};
+        if(selectedNodes.index) {
+            const myTree = {...state.gltfjson.tree[selectedNodes.index+1]};
             console.log(myTree);
             if(myTree) {
                 //myTree.selectedshell = true;
@@ -521,7 +523,7 @@ export default function ManufacturabilityAnalysis(props) {
 
                 }
             };           
-            console.log("Here setting",copy_selectobjects);
+            console.log("Here setting table completed",copy_selectobjects);
             state_selectedObjects = arrayCopy(copy_selectobjects);            
             //reSetMe = true;
             //resetSelectionFromTree();
@@ -561,16 +563,17 @@ export default function ManufacturabilityAnalysis(props) {
     const getTable = (gltfjson) => {
         let currentData = [];
         if(gltfjson && gltfjson.tree && gltfjson.assemblyorder) {
+            console.log("Setting table",gltfjson.tree,gltfjson.assemblyorder);
             for (let index = 2; index < gltfjson.tree.length; index++) {
                 const element = gltfjson.tree[index];
-                console.log(element);
-                currentData.push({'id':index-1,
+                //console.log(element);
+                currentData.push({ ...element,
+                                  'index':index-1,
                                   'name':element[gltf_Dict['name']],
                                   'order':null,
                                   'insert':"Sliding", 
                                   'dispense':null,
-                                  'quantity':null,
-                                  'selectedshell':element.selectedshell,                                                             
+                                  'quantity':null                                                             
                                 }); 
                              
             }
@@ -578,12 +581,16 @@ export default function ManufacturabilityAnalysis(props) {
                 const element = gltfjson.assemblyorder[index];
                 currentData[element].order=index+1;                           
             }
-            setFilteredList(currentData);           
+            console.log("About to set Featured List",currentData);
+            setFilteredList(currentData);        
+            console.log("Setting Featured List",currentData,filteredList);   
 
         } else {
-            setFilteredList(currentData);           
+            console.log("Going to set Featured List",currentData);
+            setFilteredList(currentData);  
+            console.log("Final Setting Featured List",currentData,filteredList);          
         }
-        return currentData;
+        //return currentData;
     }
     useEffect(() => {
         setIsLoading(isLoading);
@@ -615,15 +622,15 @@ export default function ManufacturabilityAnalysis(props) {
                 whatchange: 0,
             });
             console.log("Reaching useEffect1");
-            //getTable(gltfjson);
+            getTable(gltfjson);
             //setResetMe(true);
         }
     }, [gltfjson]);
     
-    useEffect(() => {
-        console.log("Reaching useEffect2");
+    /* useEffect(() => {
+        console.log("Reaching useEffect2"); // Not at all coming, here hence commented
         getTable(state.gltfjson);
-    }, [state.gltfjson?.tree]);
+    }, [state.gltfjson?.tree]); */
     
     if (isLoading) {
         return (<div
@@ -670,16 +677,15 @@ export default function ManufacturabilityAnalysis(props) {
                 }
 
             </Paper>
-            <TableView
+            <TableOrderView
                 title={'Order of Assembly'}
                 list={filteredList}
                 columns={columns}
-                setColumns={setColumns}               
-                isAddEditActionsEnabled={false}
+                setColumns={setColumns}
                 handleDataRowClick={addSelectionFromTree}
                 style={{width:'300px'}}
             >
-            </TableView>
+            </TableOrderView>
 
         </Paper>
 
