@@ -3127,7 +3127,7 @@ class GLTFRenderer extends Component {
         
         if ( (changedata !=this.changeddataarray) || (this.props.ctrlKey != this.changedctrlkey) ||
             (this.props.whatchanged != this.whatchanged ||
-            changedata[gltf_Dict["name"]] != this.activeId ||
+            (changedata?changedata[gltf_Dict["name"]]:"") != this.activeId ||
             ((this.props.whatchanged == SELECTCOLOR) &&
                 (this[gltf_Dict["R"]] != changedata[gltf_Dict["R"]] || 
                 this[gltf_Dict["G"]] != changedata[gltf_Dict["G"]] || 

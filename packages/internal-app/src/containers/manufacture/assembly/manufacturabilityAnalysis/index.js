@@ -63,14 +63,22 @@ export default function ManufacturabilityAnalysis(props) {
     const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);   
     const [resetOption, setResetOption] = useState(true);
     const classes = useStyles();
-    const [columns, setColumns] = useState([
+    /* const [columns, setColumns] = useState([
         { title: 'Mates', field: 'index', editable: "never" },
         { title: 'Mate Name', field:'name',editable:"never", width:'100px', 'word-break': 'break-all'},
         { title: 'Insertion Order', field:'order',editable:"never"},
         { title: 'Insertion Type', field: 'insert', editable: "never" },
         { title: 'Dispensing', field: 'dispense', type: 'numeric' },
         { title: 'Transfer Holding', field: 'quantity', type: 'numeric' },
-    ])
+    ]) */
+     const [columns, setColumns] = useState([
+        { label: 'Mates', dataKey: 'index', editable: "never", numeric:true, width:50 },
+        { label: 'Mate Name', dataKey:'name',editable:"never", numeric:false, width:200, 'word-break': 'break-all'},
+        { label: 'Insertion Order', dataKey:'order', numeric:true,editable:"never", width:90},
+        { label: 'Insertion Type', dataKey: 'insert', numeric:false, editable: "never", width:90 },
+        { label: 'Dispensing', dataKey: 'dispense', numeric:true, type: 'numeric', width:90 },
+        { label: 'Transfer Holding', dataKey: 'quantity', numeric:true, type: 'numeric', width:90 },
+    ]) 
    
     const [state, _setState] = useState({});
     const [ctrlKey, setCtrlKey] = useState(false);
@@ -378,8 +386,10 @@ export default function ManufacturabilityAnalysis(props) {
             if (mymesh) {     
                 mymesh.selectedshell=true;          
                 //setSelectedShellForce(mymesh,true);                
-                changeStateOfSelection(mymesh, event);                             
-                event['ctrlKey']=true;
+                changeStateOfSelection(mymesh, event);  
+                if(event) {
+                    event['ctrlKey']=true;
+                }  
             }
             console.log("aftet",mymesh);
             
@@ -389,8 +399,8 @@ export default function ManufacturabilityAnalysis(props) {
 
     const addSelectionFromTree = async (selectedNodes,event) => {
 
-        console.log(selectedNodes);
-        if(selectedNodes.index) {
+        console.log("Selected Node",selectedNodes,"Event", event);
+        if(selectedNodes?.index) {
             const myTree = {...state.gltfjson.tree[selectedNodes.index+1]};
             console.log(myTree);
             if(myTree) {
@@ -682,8 +692,8 @@ export default function ManufacturabilityAnalysis(props) {
                 list={filteredList}
                 columns={columns}
                 setColumns={setColumns}
-                handleDataRowClick={addSelectionFromTree}
-                style={{width:'300px'}}
+                handleDataRowClick={addSelectionFromTree} 
+                style={{width:400}}              
             >
             </TableOrderView>
 

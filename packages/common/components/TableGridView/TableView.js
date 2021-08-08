@@ -6,7 +6,6 @@ export default function TableView({
   handleUpdate = () => Promise.resolve(),
   handleDelete = () => Promise.resolve(),
   handleTableRowClick = () => { },
-  handleDataRowClick = () => {},
   list,
   clientList = [],
   columns,
@@ -51,10 +50,7 @@ export default function TableView({
         headerStyle: {
           textAlign: 'center',
           fontWeight: 'bold'
-        },
-        rowStyle:  rowData => ({
-          backgroundColor: rowData.selectedshell ?   "#0f0" : "#fff" 
-        }),
+        },        
         selection: isSelectionEnabled,
         search: isSearchEnabled,
         
@@ -66,17 +62,7 @@ export default function TableView({
         const selection = window.getSelection();
         if (selection.type != "Range") {
           handleTableRowClick(rowdata)
-        }
-        if(handleDataRowClick) {          
-          /* let rslts = [...data];
-          const rIndex = rslts.indexOf(rowdata);
-          for (let index = 0; index < rowdata.length; index++) {
-            rslts[index].selectedshell=rIndex==index;            
-          }        
-          console.log(rslts);
-          setData(rslts); */
-          handleDataRowClick(rowdata,event);
-        }
+        }        
       }}
       editable={isAddEditActionsEnabled ? {
         onRowAdd: (newData, oldData) => handleAdd(newData, oldData),
