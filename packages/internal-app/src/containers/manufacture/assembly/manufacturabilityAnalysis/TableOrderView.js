@@ -4,18 +4,19 @@
 import React , { useState, useEffect  } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
 import Paper from '@material-ui/core/Paper';
-import { AutoSizer, Column, Table } from 'react-virtualized';
-import { useStyles } from '@material-ui/pickers/views/Calendar/SlideTransition';
-import TableHead from '@material-ui/core/TableHead';
+import { AutoSizer, Column, CellMeasurer, CellMeasurerCache, Table } from 'react-virtualized';
 
+//import TableHead from '@material-ui/core/TableHead';
+//let rowParent = null;
 const styles = (theme) => ({
   flexContainer: {
     display: 'flex',
     alignItems: 'center',
     boxSizing: 'border-box',
+    borderSpacing: 0
   },
   table: {
     // temporary right-to-left patch, waiting for
@@ -24,9 +25,11 @@ const styles = (theme) => ({
       flip: false,
       paddingRight: theme.direction === 'rtl' ? '0 !important' : undefined,
     },
+    borderSpacing: 0
   },
   tableRow: {
     cursor: 'pointer',
+    borderSpacing: 0
   },
   tableRowHover: {
     '&:hover': {
@@ -35,6 +38,7 @@ const styles = (theme) => ({
   },
   tableCell: {
     flex: 1,
+    borderSpacing:0
   },
   noClick: {
     cursor: 'initial',
@@ -46,15 +50,21 @@ const styles = (theme) => ({
       margin: '0px 15px',
       display: 'inline-block',
       border: '1px solid rgba(0, 0, 0, 0.3)',
-      boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
+      boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
+      borderSpacing: 0
   }
 });
+const useStyles = makeStyles(styles);
 
 class MuiVirtualizedTable extends React.PureComponent {
   static defaultProps = {
     headerHeight: 24,
-    rowHeight: 24,
+    rowHeight: 12,
   };
+  cache = new CellMeasurerCache({
+    fixedWidth: true,
+    height:this.props.rowHeight
+  });
 
   getRowClassName = ({ index }) => {
     const { classes, onRowClick } = this.props;     
@@ -63,21 +73,53 @@ class MuiVirtualizedTable extends React.PureComponent {
     });
      
   };
-
-  cellRenderer = ({ cellData, columnIndex }) => {
-    const { columns, classes, rowHeight, onRowClick } = this.props;
+ /*  rowRenderer=(params)=> {
     return (
-      <TableCell
-        component="div"
-        className={clsx(classes.tableCell, classes.flexContainer, {
-          [classes.noClick]: onRowClick == null,
-        })}
-        variant="body"
-        style={{ height: rowHeight }}
-        align={(columnIndex != null && columns[columnIndex].numeric) || false ? 'right' : 'left'}
+      <CellMeasurer
+        cache={this.props.cache}
+        columnIndex={0}
+        key={params.key}
+        parent={rowParent}
+        rowIndex={params.rowIndex}
       >
-        {cellData}
-      </TableCell>
+       {Table.defaultProps.rowRenderer(params)}
+      </CellMeasurer>
+    );
+  } */
+  cellRenderer = ({ cellData, columnIndex, dataKey, parent, rowIndex, style }) => {
+    //rowParent = parent;
+    const { columns, classes, rowHeight, onRowClick, cache } = this.props;
+    return (
+      <CellMeasurer
+        cache={this.cache}
+        columnIndex={columnIndex}
+        key={dataKey}
+        parent={parent}
+        rowIndex={rowIndex}>
+        
+          <TableCell
+                component="div"
+                className={clsx(classes.tableCell, classes.flexContainer, {
+                  [classes.noClick]: onRowClick == null,
+                })}
+                variant="body"                
+                style={{                                 
+                  borderSpacing:0,
+                  height:0, 
+                  rowGap:0,
+                 /*  paddingTop:0,
+                  paddingBottom:0, */
+                  whiteSpace: "normal", 
+                  wordWrap:'break-word',
+                  wordBreak:'break-all' }}
+                align={(columnIndex != null && columns[columnIndex].numeric) || false ? 'right' : 'left'}
+              >
+            {cellData}
+          </TableCell>
+  
+    </CellMeasurer> 
+
+      
     );
   };
 
@@ -108,15 +150,18 @@ class MuiVirtualizedTable extends React.PureComponent {
       backgroundColor: '#fff'
     };
   }
+  
   render() {
-    const { classes, columns, rowHeight, headerHeight, ...tableProps } = this.props;
+    const { classes, columns, rowHeight, rowWidth, headerHeight, ...tableProps } = this.props;
+    
     return (
       <AutoSizer>
         {({ height, width }) => (
           <Table
             height={height}
             width={width}
-            rowHeight={rowHeight}
+            rowWidth={rowWidth}
+            rowHeight={this.cache.rowHeight}
             gridStyle={{
               direction: 'inherit',
             }}
@@ -125,6 +170,9 @@ class MuiVirtualizedTable extends React.PureComponent {
             {...tableProps}
             rowClassName={this.getRowClassName}
             rowStyle={this.getRowStyle}
+            deferredMeasurementCache={this.cache}
+            /*cache={cache}
+            rowRenderer={this.rowRenderer} */
           >
             {columns.map(({ dataKey, ...other }, index) => {
               return (
@@ -191,13 +239,13 @@ export default function TableOrderView({
   const [data, setData] = useState(list);
 
   return (
-    <Paper className={classes.viewerContainer} style={{ height: 600, width: 650 }}>
-      <TableHead style={{'font-size':20,
-         'font-weight':'bold', 
-         'text-align':'center', 
+    <Paper className={classes.viewerContainer} style={{ height: 600, width: 700 }}>
+
+      <div style={{        
+         'fontWeight':'bold' ,        
          'textAlign':'center',
          'fontSize':20,
-         'width':650}}>{title}</TableHead>
+         'width':700}} align='center'>{title}</div>
       <VirtualizedTable
         rowCount={data?data.length:0}
         rowGetter={({ index }) => data[index]}
@@ -208,7 +256,7 @@ export default function TableOrderView({
           handleDataRowClick(data.rowData,data.event);
         }}
         headerHeight={50}
-        rowHeight={25}
+        rowHeight={12}
         list={data}
       />
     </Paper>
