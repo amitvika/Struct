@@ -9,7 +9,7 @@ import { Spinner } from "reactstrap";
 import { useSelector } from 'react-redux';
 import AppRoute from './AppRoute';
 import Layout from './components/Layout';
-import Login from './containers/Login';
+import Login from './page/LoginPage';
 import Register from './page/RegisterPage';
 
 import Vendors from "./containers/vendor/Vendors";
