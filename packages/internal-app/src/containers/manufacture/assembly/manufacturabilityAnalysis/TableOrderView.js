@@ -95,8 +95,7 @@ class MuiVirtualizedTable extends React.PureComponent {
         columnIndex={columnIndex}
         key={dataKey}
         parent={parent}
-        rowIndex={rowIndex}>
-        
+        rowIndex={rowIndex}>        
           <TableCell
                 component="div"
                 className={clsx(classes.tableCell, classes.flexContainer, {
@@ -105,7 +104,7 @@ class MuiVirtualizedTable extends React.PureComponent {
                 variant="body"                
                 style={{                                 
                   borderSpacing:0,
-                  height:0, 
+                  height:this.cache.rowHeight, 
                   rowGap:0,
                  /*  paddingTop:0,
                   paddingBottom:0, */
@@ -115,11 +114,8 @@ class MuiVirtualizedTable extends React.PureComponent {
                 align={(columnIndex != null && columns[columnIndex].numeric) || false ? 'right' : 'left'}
               >
             {cellData}
-          </TableCell>
-  
-    </CellMeasurer> 
-
-      
+          </TableCell>  
+    </CellMeasurer>       
     );
   };
 
@@ -143,11 +139,13 @@ class MuiVirtualizedTable extends React.PureComponent {
     if (row.index < 0) return;
     if (list[row.index].selectedshell) {
       return {
-        backgroundColor: '#0f0'
+        backgroundColor: '#0f0',
+        borderSpacing: 0
       };
     }
     return {
-      backgroundColor: '#fff'
+      backgroundColor: '#fff',
+      borderSpacing: 0
     };
   }
   
@@ -161,7 +159,7 @@ class MuiVirtualizedTable extends React.PureComponent {
             height={height}
             width={width}
             rowWidth={rowWidth}
-            rowHeight={this.cache.rowHeight}
+            rowHeight={rowHeight} //this.cache.rowheight will do efffective height
             gridStyle={{
               direction: 'inherit',
             }}
@@ -256,7 +254,7 @@ export default function TableOrderView({
           handleDataRowClick(data.rowData,data.event);
         }}
         headerHeight={50}
-        rowHeight={12}
+        rowHeight={50}
         list={data}
       />
     </Paper>
