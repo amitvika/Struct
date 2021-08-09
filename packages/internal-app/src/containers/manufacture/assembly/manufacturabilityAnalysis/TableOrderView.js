@@ -1,7 +1,7 @@
 //import React, { useState, useEffect } from 'react'
 //import MaterialTable from "material-table";
 
-import React , { useState, useEffect  } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
@@ -38,20 +38,20 @@ const styles = (theme) => ({
   },
   tableCell: {
     flex: 1,
-    borderSpacing:0
+    borderSpacing: 0
   },
   noClick: {
     cursor: 'initial',
   },
   mainContainer: { margin: 10, padding: 10, display: 'inline-flex', minWidth: '100%' },
-  viewerContainer: {         
-      height: '600px',
-      padding: '20px',
-      margin: '0px 15px',
-      display: 'inline-block',
-      border: '1px solid rgba(0, 0, 0, 0.3)',
-      boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
-      borderSpacing: 0
+  viewerContainer: {
+    flex: 1,
+    padding: '20px',
+    margin: '0px 15px',
+    display: 'inline-block',
+    boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
+    borderSpacing: 0,
+    minWidth: 700
   }
 });
 const useStyles = makeStyles(styles);
@@ -63,29 +63,29 @@ class MuiVirtualizedTable extends React.PureComponent {
   };
   cache = new CellMeasurerCache({
     fixedWidth: true,
-    height:this.props.rowHeight
+    height: this.props.rowHeight
   });
 
   getRowClassName = ({ index }) => {
-    const { classes, onRowClick } = this.props;     
+    const { classes, onRowClick } = this.props;
     return clsx(classes.tableRow, classes.flexContainer, {
       [classes.tableRowHover]: index !== -1 && onRowClick != null,
     });
-     
+
   };
- /*  rowRenderer=(params)=> {
-    return (
-      <CellMeasurer
-        cache={this.props.cache}
-        columnIndex={0}
-        key={params.key}
-        parent={rowParent}
-        rowIndex={params.rowIndex}
-      >
-       {Table.defaultProps.rowRenderer(params)}
-      </CellMeasurer>
-    );
-  } */
+  /*  rowRenderer=(params)=> {
+     return (
+       <CellMeasurer
+         cache={this.props.cache}
+         columnIndex={0}
+         key={params.key}
+         parent={rowParent}
+         rowIndex={params.rowIndex}
+       >
+        {Table.defaultProps.rowRenderer(params)}
+       </CellMeasurer>
+     );
+   } */
   cellRenderer = ({ cellData, columnIndex, dataKey, parent, rowIndex, style }) => {
     //rowParent = parent;
     const { columns, classes, rowHeight, onRowClick, cache } = this.props;
@@ -95,27 +95,28 @@ class MuiVirtualizedTable extends React.PureComponent {
         columnIndex={columnIndex}
         key={dataKey}
         parent={parent}
-        rowIndex={rowIndex}>        
-          <TableCell
-                component="div"
-                className={clsx(classes.tableCell, classes.flexContainer, {
-                  [classes.noClick]: onRowClick == null,
-                })}
-                variant="body"                
-                style={{                                 
-                  borderSpacing:0,
-                  height:this.cache.rowHeight, 
-                  rowGap:0,
-                 /*  paddingTop:0,
-                  paddingBottom:0, */
-                  whiteSpace: "normal", 
-                  wordWrap:'break-word',
-                  wordBreak:'break-all' }}
-                align={(columnIndex != null && columns[columnIndex].numeric) || false ? 'right' : 'left'}
-              >
-            {cellData}
-          </TableCell>  
-    </CellMeasurer>       
+        rowIndex={rowIndex}>
+        <TableCell
+          component="div"
+          className={clsx(classes.tableCell, classes.flexContainer, {
+            [classes.noClick]: onRowClick == null,
+          })}
+          variant="body"
+          style={{
+            borderSpacing: 0,
+            height: this.cache.rowHeight,
+            rowGap: 0,
+            /*  paddingTop:0,
+             paddingBottom:0, */
+            whiteSpace: "normal",
+            wordWrap: 'break-word',
+            wordBreak: 'break-all'
+          }}
+          align={(columnIndex != null && columns[columnIndex].numeric) || false ? 'right' : 'left'}
+        >
+          {cellData}
+        </TableCell>
+      </CellMeasurer>
     );
   };
 
@@ -134,8 +135,8 @@ class MuiVirtualizedTable extends React.PureComponent {
       </TableCell>
     );
   };
-  getRowStyle= (row) => {
-    const {list} = this.props;
+  getRowStyle = (row) => {
+    const { list } = this.props;
     if (row.index < 0) return;
     if (list[row.index].selectedshell) {
       return {
@@ -148,10 +149,10 @@ class MuiVirtualizedTable extends React.PureComponent {
       borderSpacing: 0
     };
   }
-  
+
   render() {
     const { classes, columns, rowHeight, rowWidth, headerHeight, ...tableProps } = this.props;
-    
+
     return (
       <AutoSizer>
         {({ height, width }) => (
@@ -169,8 +170,8 @@ class MuiVirtualizedTable extends React.PureComponent {
             rowClassName={this.getRowClassName}
             rowStyle={this.getRowStyle}
             deferredMeasurementCache={this.cache}
-            /*cache={cache}
-            rowRenderer={this.rowRenderer} */
+          /*cache={cache}
+          rowRenderer={this.rowRenderer} */
           >
             {columns.map(({ dataKey, ...other }, index) => {
               return (
@@ -214,44 +215,44 @@ MuiVirtualizedTable.propTypes = {
 const VirtualizedTable = withStyles(styles)(MuiVirtualizedTable);
 
 export default function TableOrderView({
-  handleDataRowClick = () => {},
+  handleDataRowClick = () => { },
   list,
   columns,
   setColumns,
   title
 }) {
-  
+
   const classes = useStyles();
-  const resetMySelection=(data)=>{
+  const resetMySelection = (data) => {
     let mydata = [...list];
     for (let index = 0; index < mydata.length; index++) {
-      mydata[index].selectedshell = index == data.index;    
+      mydata[index].selectedshell = index == data.index;
     }
     setData(mydata);
   }
 
-  useEffect(() => {   
-    setData(list);   
+  useEffect(() => {
+    setData(list);
   }, [list]);
 
   const [data, setData] = useState(list);
 
   return (
-    <Paper className={classes.viewerContainer} style={{ height: 600, width: 700 }}>
+    <Paper className={classes.viewerContainer}>
 
-      <div style={{        
-         'fontWeight':'bold' ,        
-         'textAlign':'center',
-         'fontSize':20,
-         'width':700}} align='center'>{title}</div>
+      <div style={{
+        'fontWeight': 'bold',
+        'textAlign': 'center',
+        'fontSize': 20
+      }} align='center'>{title}</div>
       <VirtualizedTable
-        rowCount={data?data.length:0}
+        rowCount={data ? data.length : 0}
         rowGetter={({ index }) => data[index]}
         columns={columns}
-        onRowClick={(data)=>{
+        onRowClick={(data) => {
           console.log(data);
           resetMySelection(data);
-          handleDataRowClick(data.rowData,data.event);
+          handleDataRowClick(data.rowData, data.event);
         }}
         headerHeight={50}
         rowHeight={50}
@@ -259,40 +260,40 @@ export default function TableOrderView({
       />
     </Paper>
   );
- /*  return (
-    <MaterialTable
-      columns={columns}
-      data={list}
-      title={title}
-      options={{
-        actionsColumnIndex: 6,
-        addRowPosition: "first",
-        exportButton: false,
-        exportFileName: "Client",
-        cellStyle: {
-          textAlign: 'center'
-        },
-        headerStyle: {
-          textAlign: 'center',
-          fontWeight: 'bold'
-        },
-        rowStyle:  rowData => ({
-          backgroundColor: rowData.selectedshell ?   "#0f0" : "#fff" 
-        }),
-        selection: false,
-        search: true,
-        
-      }}
-
-
-      onRowClick={(event, rowdata) => {
-        
-        if(handleDataRowClick) {          
+  /*  return (
+     <MaterialTable
+       columns={columns}
+       data={list}
+       title={title}
+       options={{
+         actionsColumnIndex: 6,
+         addRowPosition: "first",
+         exportButton: false,
+         exportFileName: "Client",
+         cellStyle: {
+           textAlign: 'center'
+         },
+         headerStyle: {
+           textAlign: 'center',
+           fontWeight: 'bold'
+         },
+         rowStyle:  rowData => ({
+           backgroundColor: rowData.selectedshell ?   "#0f0" : "#fff" 
+         }),
+         selection: false,
+         search: true,
          
-          handleDataRowClick(rowdata,event);
-        }
-      }} 
-      
-    />
-  )*/
+       }}
+ 
+ 
+       onRowClick={(event, rowdata) => {
+         
+         if(handleDataRowClick) {          
+          
+           handleDataRowClick(rowdata,event);
+         }
+       }} 
+       
+     />
+   )*/
 }
