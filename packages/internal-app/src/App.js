@@ -5,7 +5,7 @@ import "./App.css";
 import { Provider } from "react-redux";
 import store from "./store";
 import { setUser } from "./actions/authActions";
-import AppRoutes from './routes';
+import AppRoutes from './AppRoutes';
 import Alert from './components/Alert';
 import ThemeProvider from './ThemeProvider';
 import LoadingModal from "@ravibasil/common/components/LoadingModal";

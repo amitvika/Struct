@@ -3,8 +3,6 @@ import { AppBar, Toolbar, makeStyles } from "@material-ui/core";
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import { useLocation, useHistory, Link as RouterLink } from "react-router-dom";
-import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
-import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 
 import StructLogo from '../assets/images/logo_white.png';
 import Box from '@material-ui/core/Box';
@@ -58,12 +56,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [lightThemeSelected, setLightThemeSelected] = useState(false);
   const anchorRef = useRef(null);
-  const [isAdministrativeOpened, setIsAdministrativeOpened] = useState(false)
 
-  const handleAdministrative = () => {
-
-    setIsAdministrativeOpened(!isAdministrativeOpened)
-  }
   const displayDesktop = () => {
     return (
       <Toolbar className={classes.toolbar}>
@@ -86,6 +79,7 @@ export default function Header() {
         width="150"
         height="30"
         className="d-inline-block align-top"
+        alt={"Struct Logo"}
       />
     </Typography>
   );
@@ -93,7 +87,7 @@ export default function Header() {
     let menuItems = headersData.map(({ label, href, target }) => {
       return (
         <Button
-          key={`"primary_button_1${label}"`}
+          key={label}
           {...{
             key: label,
             color: "inherit",
@@ -116,9 +110,8 @@ export default function Header() {
 
     menuItems.push(
       <Button
-        key='viewMyProfile'
+        key='view_my_profile'
         {...{
-          key: 'viewMyProfile',
           color: "inherit",
           to: '/viewMyProfile?tab=3',
           component: RouterLink,
@@ -130,103 +123,106 @@ export default function Header() {
     );
 
     menuItems.push(
-      <>
-        <Button
-          key='user_profile'
-          ref={anchorRef}
-          aria-controls={open ? 'menu-list-grow' : undefined}
-          aria-haspopup="true"
-          onClick={handleToggle}
-          style={{ color: 'white' }}
-          className={classes.menuButton}
-        >
+      <Button
+        key='user_profile'
+        ref={anchorRef}
+        aria-controls={open ? 'menu-list-grow' : undefined}
+        aria-haspopup="true"
+        onClick={handleToggle}
+        style={{ color: 'white' }}
+        className={classes.menuButton}
+      >
 
-          {isAuthenticated
-            ? `Welcome: ${user.name} ${user.email}`
-            : "Not logged in"}
-        </Button>
-        <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
-          {({ TransitionProps, placement }) => (
-            <Grow
-              {...TransitionProps}
-              style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
-            >
-              <Paper>
-                <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                    <MenuItem
-                      key={`user_setup_link`}
-                      onClick={() => handleLink('/administrative')}>Administrative</MenuItem>
-                    <MenuItem
-                      key={`theme_changer`}>
-                      <Switch checked={lightThemeSelected} onChange={handleThemeChange} name="currentTheme" />
-                      {lightThemeSelected ? 'Dark' : 'Light'}
-                    </MenuItem>
+        {isAuthenticated
+          ? `Welcome: ${user.name} ${user.email}`
+          : "Not logged in"}
+      </Button>
+    )
 
-                    <MenuItem
-                      key={`logout_link`}
-                      onClick={handleLogout}>Logout</MenuItem>
-                  </MenuList>
-                </ClickAwayListener>
+    menuItems.push(
+      <Popper
+        key={`popper_admin_options`}
+        open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+        {({ TransitionProps, placement }) => (
+          <Grow
+            {...TransitionProps}
+            style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+          >
+            <Paper >
+              <ClickAwayListener onClickAway={handleClose}>
+                <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
+                  <MenuItem
+                    key={`user_setup_link`}
+                    onClick={() => handleLink('/administrative')}>Administrative</MenuItem>
+                  <MenuItem
+                    key={`theme_changer`}>
+                    <Switch checked={lightThemeSelected} onChange={handleThemeChange} name="currentTheme" />
+                    {lightThemeSelected ? 'Dark' : 'Light'}
+                  </MenuItem>
 
-              </Paper>
-            </Grow>
-          )}
-        </Popper>
-      </>
+                  <MenuItem
+                    key={`logout_link`}
+                    onClick={handleLogout}>Logout</MenuItem>
+                </MenuList>
+              </ClickAwayListener>
+
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
+      
     );
 
-    return menuItems;
+  return menuItems;
 
-  }
+}
 
-  const handleLink = (path) => {
+const handleLink = (path) => {
+  setOpen(false);
+  history.push(path);
+}
+
+const handleToggle = () => {
+  setOpen((prevOpen) => !prevOpen);
+};
+
+
+const handleListKeyDown = (event) => {
+  if (event.key === 'Tab') {
+    event.preventDefault();
     setOpen(false);
-    history.push(path);
+  }
+}
+
+const handleThemeChange = (event) => {
+  setLightThemeSelected(event.target.checked)
+  if (event.target.checked) {
+    dispatch(setThemeAction({ themeName: 'darkTheme' }))
+  }
+  else {
+    dispatch(setThemeAction({ themeName: 'lightTheme' }))
+  }
+};
+
+const handleClose = (event) => {
+  if (anchorRef.current && anchorRef.current.contains(event.target)) {
+    return;
   }
 
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
-  };
+  setOpen(false);
+};
 
+const handleLogout = () => {
 
-  const handleListKeyDown = (event) => {
-    if (event.key === 'Tab') {
-      event.preventDefault();
-      setOpen(false);
-    }
-  }
+  dispatch(logout());
+  history.replace('/')
+}
 
-  const handleThemeChange = (event) => {
-    setLightThemeSelected(event.target.checked)
-    if (event.target.checked) {
-      dispatch(setThemeAction({ themeName: 'darkTheme' }))
-    }
-    else {
-      dispatch(setThemeAction({ themeName: 'lightTheme' }))
-    }
-  };
-
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
-    setOpen(false);
-    setIsAdministrativeOpened(false);
-  };
-
-  const handleLogout = () => {
-
-    dispatch(logout());
-    history.replace('/')
-  }
-
-  return (
-    <header>
-      <AppBar className={classes.header}>{displayDesktop()}</AppBar>
-    </header>
-  );
+return (
+  <header>
+    <AppBar className={classes.header}>{displayDesktop()}</AppBar>
+  </header>
+);
 }
 
 

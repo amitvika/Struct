@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from "../actions/authActions";
+import { login } from "../../actions/authActions";
 import { useHistory } from "react-router-dom";
-import LoginComponent from '@ravibasil/common/components/LoginComponent';
+import SignInForm from '@ravibasil/common/components/SignInForm';
 
-const LoginPage = () => {
+const SignInPage = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { isAuthenticated, isLoginStarted } = useSelector(state => state.auth);
@@ -32,9 +32,9 @@ const LoginPage = () => {
   const handleLoginSubmit = (data) => dispatch(login(data))
 
   return (
-    <LoginComponent handleLoginSubmit={handleLoginSubmit} msg={msg} isLoginStarted={isLoginStarted} />
+    <SignInForm handleLoginSubmit={handleLoginSubmit} msg={msg} isLoginStarted={isLoginStarted} />
   );
 }
 
 
-export default LoginPage;
+export default SignInPage;

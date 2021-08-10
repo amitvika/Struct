@@ -9,8 +9,6 @@ import {
     Headding
 } from '@ravibasil/common/components';
 import Modal from '@ravibasil/common/components/Modal'
-import { uploadFileS3Bucket } from '@ravibasil/common/api/aws';
-import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 import Popover from '@material-ui/core/Popover';
 import Typography from '@material-ui/core/Typography';
 import FileHistory from '@ravibasil/common/containers/FileHistory'
@@ -35,7 +33,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function AddDocumentationModal({ open, toggleModal, handleUpdate, isEditing, selectedValue }) {
     const classes = useStyles();
-    // const [docs, setdocs] = useState([]);
     const [isDesignModalOpened, setIsDesignModalOpened] = useState(false);
     const [selectedFileName, setSelectedFileName] = useState('');
     const [documentValue, setdocumentValue] = useState({});

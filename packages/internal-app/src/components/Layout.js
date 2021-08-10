@@ -1,5 +1,4 @@
 import React from 'react'
-import AppNavbar from '../containers/AppNavbar';
 import Header from './Header';
 
 export default function Layout(props) {

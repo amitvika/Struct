@@ -1,9 +1,8 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect } from "react";
 import Paper from "@material-ui/core/Paper"
 import Tab from "@material-ui/core/Tab"
 import Tabs from "@material-ui/core/Tabs"
 import Grid from "@material-ui/core/Grid"
-import CircularProgress from "@material-ui/core/CircularProgress"
 
 import { useHistory } from "react-router-dom";
 import { useQuery } from '../../utils/customHooks'
@@ -19,24 +18,13 @@ const Administrative = () => {
   const history = useHistory();
   let query = useQuery();
 
-  const [isLoading, setIsLoading] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
-
-  useEffect(() => {
-
-
-    (async () => {
-      setIsLoading(true);
-
-      setIsLoading(false);
-    })()
-  }, []);
 
   useEffect(() => {
     if (query.get('tab')) {
       setTabIndex(parseInt(query.get('tab')))
     }
-  }, [query.get('tab')])
+  }, [query, query.get('tab')])
 
   const renderPageSwitch = () => {
     switch (tabIndex) {
@@ -72,14 +60,10 @@ const Administrative = () => {
     })
   }
 
-  if (isLoading) {
-    return <CircularProgress />;
-  }
-
   return (
     <>
       <Grid container>
-        <Grid item sm sm={12}>
+        <Grid item sm={12}>
           <Paper style={{ display: 'flex', justifyContent: 'center', padding: 10, margin: 10 }}>
             <h4>Administrative</h4>
           </Paper>
@@ -101,7 +85,7 @@ const Administrative = () => {
             </Tabs>
           </Paper>
         </Grid>
-        <Grid item sm sm={10} >
+        <Grid item sm={10} >
           <Paper style={{ padding: 25, margin: 10 }}>
             {renderPageSwitch()}
           </Paper>
