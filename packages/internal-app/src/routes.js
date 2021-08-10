@@ -25,8 +25,8 @@ import ViewAccess from './pages/ViewAccess';
 import ClientListPage from './pages/ClientListPage';
 import ClientDetailPage from "./pages/ClientDetailPage";
 
-import Factories from './containers/factories';
-import FactoryDetail from './containers/factories/FactoryDetail'
+import FactoryListPage from './pages/FactoryListPage';
+import FactoryDetail from './pages/FactoryDetailPage'
 
 // import ProductDesign from './containers/productDesign';
 import ItemDetail from "./containers/itemDetail";
@@ -63,7 +63,7 @@ export default function AppRoutes() {
               <AppRoute authenticate exact path='/clients' component={ClientListPage} />
               <AppRoute authenticate exact path='/process-groups' component={ProcessGroups} />
               <AppRoute authenticate exact path='/items' component={Items} />
-              <AppRoute authenticate exact path='/factories' component={Factories} />
+              <AppRoute authenticate exact path='/factories' component={FactoryListPage} />
               <AppRoute authenticate path='/access-setup' component={AccessSetup} />
               <AppRoute authenticate path='/view-access' component={ViewAccess} />
 
