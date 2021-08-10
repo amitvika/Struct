@@ -13,7 +13,7 @@ import TeamTaskSetup from '../teamTaskSetup'
 import AccessSetup from '../accessSetup'
 import CriteriaUpload from '../criteriaUpload'
 import Users from '../users'
-import ConfigurationHistory from "src/page/ConfigurationHistory";
+import ConfigurationHistory from "src/pages/ConfigurationHistory";
 
 const Administrative = () => {
   const history = useHistory();

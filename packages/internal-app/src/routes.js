@@ -9,19 +9,19 @@ import { Spinner } from "reactstrap";
 import { useSelector } from 'react-redux';
 import AppRoute from './AppRoute';
 import Layout from './components/Layout';
-import Login from './page/LoginPage';
-import Register from './page/RegisterPage';
+import Login from './pages/LoginPage';
+import Register from './pages/RegisterPage';
 
 import Vendors from "./containers/vendor/Vendors";
 import VendorDetail from "./containers/vendor/VendorDetail";
 
-import Dashboard from './page/Dashboard';
+import Dashboard from './pages/Dashboard';
 import ProcessGroups from './containers/processGroups/ProcessGroups';
 import Items from './containers/item/Items';
-import AccessSetup from './page/AccessSetup';
-import ConfigurationHistory from './page/ConfigurationHistory';
-import AccessConfiguration from './page/AccessConfiguration';
-import ViewAccess from './page/ViewAccess';
+import AccessSetup from './pages/AccessSetup';
+import ConfigurationHistory from './pages/ConfigurationHistory';
+import AccessConfiguration from './pages/AccessConfiguration';
+import ViewAccess from './pages/ViewAccess';
 import Clients from './containers/client';
 import ClientDetail from "./containers/client/ClientDetail";
 
