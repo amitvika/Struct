@@ -16,7 +16,7 @@ import ViewAccess from "./opsNav/ViewAccess";
 import AccessSetup from "./opsNav/AccessSetup";
 import LoginPage from "./auth/LoginPage";
 //Sub Nav
-import ClientDetail from "../page/ClientDetail";
+import ClientDetail from "../pages/ClientDetail";
 import ProcessGroupDetail from "./subNav/ProcessGroupDetail";
 import VendorDetail from "./subNav/VendorDetail";
 import ItemDetail from "./subNav/ItemDetail";

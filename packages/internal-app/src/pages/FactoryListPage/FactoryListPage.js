@@ -6,7 +6,7 @@ import FactoriesAPI from '@ravibasil/common/api/factories.api';
 import { columnsFields } from '@ravibasil/common/constants/factory';
 import TableGridView from '@ravibasil/common/components/TableGridView';
 
-const Documentation = () => {
+const FactoryListPage = () => {
     let { id: factory_id } = useParams();
     let history = useHistory();
 
@@ -23,4 +23,4 @@ const Documentation = () => {
     );
 }
 
-export default Documentation;
+export default FactoryListPage;

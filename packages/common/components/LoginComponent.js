@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { login } from "../actions/authActions";
-import { useHistory } from "react-router-dom";
 import { Card, CardContent } from "@material-ui/core";
 import { NavLink } from 'react-router-dom';
 import StructLogo from '../assets/images/new_logo.png';
@@ -46,35 +43,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const LoginModal = () => {
-  const dispatch = useDispatch();
-  const history = useHistory();
+const LoginComponent = ({ handleLoginSubmit, msg, isLoginStarted }) => {
   const classes = useStyles()
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [msg, setMsg] = useState(null);
-  const { isAuthenticated, isLoginStarted } = useSelector(state => state.auth);
-  const error = useSelector(state => state.error);
 
-  useEffect(() => {
-    if (error && error.id === "LOGIN_FAIL") {
-      setMsg(error.msg.msg);
-    }
-    else {
-      setMsg(null);
-    }
-  }, [error]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      history.push('/items');
-    }
-  }, [isAuthenticated]);
-
-  const handleLoginSubmit = (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    dispatch(login({ email, password }))
+    handleLoginSubmit({ email, password });
   }
 
   return (
@@ -87,10 +64,7 @@ const LoginModal = () => {
               className={classes.logo}
             />
           </Box>
-          {/* {msg ? (
-                        <Alert color="danger">{msg}</Alert>
-                    ) : null} */}
-          <form className={classes.form_root} noValidate autoComplete="off" onSubmit={handleLoginSubmit}>
+          <form className={classes.form_root} noValidate autoComplete="off" onSubmit={handleSubmit}>
 
             <TextField
               id="outlined-basic"
@@ -130,7 +104,4 @@ const LoginModal = () => {
 }
 
 
-export default LoginModal;
-//mapStateToProps gets state variables from elsewhere in the app.
-//the stuff in the curly braces are methods brought in to modify state in other parts of the app
-//all these things will be declared in the component props
+export default LoginComponent;

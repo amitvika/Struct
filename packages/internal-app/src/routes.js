@@ -9,24 +9,24 @@ import { Spinner } from "reactstrap";
 import { useSelector } from 'react-redux';
 import AppRoute from './AppRoute';
 import Layout from './components/Layout';
-import Login from './containers/Login';
-import Register from './page/RegisterPage';
+import Login from './pages/LoginPage';
+import Register from './pages/RegisterPage';
 
-import Vendors from "./containers/vendor/Vendors";
-import VendorDetail from "./containers/vendor/VendorDetail";
+import VendorListPage from "./pages/VendorListPage";
+import VendorDetailPage from "./pages/VendorDetailPage";
 
-import Dashboard from './page/Dashboard';
+import Dashboard from './pages/Dashboard';
 import ProcessGroups from './containers/processGroups/ProcessGroups';
 import Items from './containers/item/Items';
-import AccessSetup from './page/AccessSetup';
-import ConfigurationHistory from './page/ConfigurationHistory';
-import AccessConfiguration from './page/AccessConfiguration';
-import ViewAccess from './page/ViewAccess';
-import Clients from './containers/client';
-import ClientDetail from "./containers/client/ClientDetail";
+import AccessSetup from './pages/AccessSetup';
+import ConfigurationHistory from './pages/ConfigurationHistory';
+import AccessConfiguration from './pages/AccessConfiguration';
+import ViewAccess from './pages/ViewAccess';
+import ClientListPage from './pages/ClientListPage';
+import ClientDetailPage from "./pages/ClientDetailPage";
 
-import Factories from './containers/factories';
-import FactoryDetail from './containers/factories/FactoryDetail'
+import FactoryListPage from './pages/FactoryListPage';
+import FactoryDetail from './pages/FactoryDetailPage'
 
 // import ProductDesign from './containers/productDesign';
 import ItemDetail from "./containers/itemDetail";
@@ -59,11 +59,11 @@ export default function AppRoutes() {
             <Switch>
               {/* <AppRoute authenticate exact path='/design' component={ProductDesign} /> */}
               <AppRoute authenticate path='/dashboard' component={Dashboard} />
-              <AppRoute authenticate exact path='/vendors' component={Vendors} />
-              <AppRoute authenticate exact path='/clients' component={Clients} />
+              <AppRoute authenticate exact path='/vendors' component={VendorListPage} />
+              <AppRoute authenticate exact path='/clients' component={ClientListPage} />
               <AppRoute authenticate exact path='/process-groups' component={ProcessGroups} />
               <AppRoute authenticate exact path='/items' component={Items} />
-              <AppRoute authenticate exact path='/factories' component={Factories} />
+              <AppRoute authenticate exact path='/factories' component={FactoryListPage} />
               <AppRoute authenticate path='/access-setup' component={AccessSetup} />
               <AppRoute authenticate path='/view-access' component={ViewAccess} />
 
@@ -71,13 +71,10 @@ export default function AppRoutes() {
             </Switch>
           </div>
           <Switch>
-            {/* <AppRoute authenticate path='/design/:id' component={ProductDesignDetail} /> */}
 
-            <AppRoute authenticate path='/clients/:id' component={ClientDetail} />
+            <AppRoute authenticate path='/clients/:id' component={ClientDetailPage} />
 
-            <AppRoute authenticate path='/vendors/:id' component={VendorDetail} />
-
-            {/* <AppRoute authenticate path='/process-groups/:id' component={ProcessGroupDetail} /> */}
+            <AppRoute authenticate path='/vendors/:id' component={VendorDetailPage} />
 
             <AppRoute authenticate path='/items/:id' component={ItemDetail} />
 
@@ -86,7 +83,6 @@ export default function AppRoutes() {
             <AppRoute authenticate path='/access-configuration/:id' component={AccessConfiguration} />
 
             <AppRoute authenticate path="/administrative" component={Administrative} />
-            {/* <AppRoute authenticate path="/criteria-upload" component={CriteriaUpload} /> */}
 
 
             <AppRoute authenticate path='/viewMyProfile' component={ViewMyProfile} />

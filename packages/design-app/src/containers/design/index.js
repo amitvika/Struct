@@ -7,22 +7,22 @@ import { fields } from '@ravibasil/common/constants/productDesign'
 import AddUpdateModal from "./AddUpdateModal";
 
 const ProductDesign = () => {
-    let history = useHistory();
-    const handleItemClick = (id, { type, name }) => history.push(`/design?type=${type}&id=${id}&name=${name}`);
+  let history = useHistory();
+  const handleItemClick = (id, { type, name }) => history.push(`/design?type=${type}&id=${id}&name=${name}`);
 
-    return (
-        <TableGridView
-            title={'Product Design'}
-            fields={fields}
-            fetchList={ProductDesignAPI.fetchProductDesigns}
-            upsertListItem={ProductDesignAPI.upsertProductDesign}
-            isAddEditActionsEnabled={true}
-            handleItemClick={handleItemClick}
-            isAddEditLinkVisible={true}
-            AddUpdateModal={AddUpdateModal}
-            isDesignModalOpened={true}
-        />
-    );
+  return (
+    <TableGridView
+      title={'Product Design'}
+      fields={fields}
+      fetchList={ProductDesignAPI.fetchProductDesigns}
+      upsertListItem={ProductDesignAPI.upsertProductDesign}
+      isAddEditActionsEnabled={true}
+      handleItemClick={handleItemClick}
+      isAddEditLinkVisible={true}
+      AddUpdateModal={AddUpdateModal}
+      isDesignModalOpened={true}
+    />
+  );
 }
 
 export default ProductDesign;
