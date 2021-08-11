@@ -5,7 +5,6 @@ import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import { connect } from "react-redux";
 import { updateUsers } from "../actions/userAccessUserActions";
 import {
-  Button,
   Table,
   TableBody,
   TableCell,
@@ -71,11 +70,11 @@ class UserAccessModal extends Component {
         });
 
         var chooseUserRowData = userRowData.filter(x => {
-          return x.currentAccessId != this.props.userAccessState.userAccessId;
+          return x.currentAccessId !== this.props.userAccessState.userAccessId;
         });
 
         var selectedUserRowData = userRowData.filter(x => {
-          return x.currentAccessId == this.props.userAccessState.userAccessId;
+          return x.currentAccessId === this.props.userAccessState.userAccessId;
         });
 
         this.setState(state => ({
@@ -92,10 +91,10 @@ class UserAccessModal extends Component {
     var chooseUserRowData = this.state.chooseUserRowData;
     var selectedUserRowData = this.state.selectedUserRowData;
     chooseUserRowData = chooseUserRowData.filter((x, index) => {
-      if (event.id == x.id) {
+      if (event.id === x.id) {
         selectedUserRowData.push(x);
       }
-      return x.id != event.id;
+      return x.id !== event.id;
     });
 
     var removedUserRowData = this.state.originalSelectedUserRowData.filter(
@@ -119,10 +118,10 @@ class UserAccessModal extends Component {
     var chooseUserRowData = this.state.chooseUserRowData;
     var selectedUserRowData = this.state.selectedUserRowData;
     selectedUserRowData = selectedUserRowData.filter((x, index) => {
-      if (event.id == x.id) {
+      if (event.id === x.id) {
         chooseUserRowData.push(x);
       }
-      return x.id != event.id;
+      return x.id !== event.id;
     });
 
     //if in orignal list but notselected rowdata, add to delete list

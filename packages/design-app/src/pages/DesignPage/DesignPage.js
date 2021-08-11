@@ -6,7 +6,7 @@ import TableGridView from '@ravibasil/common/components/TableGridView';
 import { fields } from '@ravibasil/common/constants/productDesign'
 import AddUpdateModal from "./AddUpdateModal";
 
-const ProductDesign = () => {
+const DesignPage = () => {
   let history = useHistory();
   const handleItemClick = (id, { type, name }) => history.push(`/design?type=${type}&id=${id}&name=${name}`);
 
@@ -25,4 +25,4 @@ const ProductDesign = () => {
   );
 }
 
-export default ProductDesign;
+export default DesignPage;

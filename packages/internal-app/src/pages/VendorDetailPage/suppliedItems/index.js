@@ -38,18 +38,11 @@ export default function IncomingVendorProducts({
   const [state, setState] = useState({
     checkedA: true,
   });
-  const handleChange = (event) => {
-    setState({ ...state, [event.target.name]: event.target.checked });
-  };
 
   const fetchSelectedList = () => {
     return new Promise((resolve, reject) => {
       resolve(get(vendorInfo, 'suppliedItems', []))
     })
-  }
-
-  const handleItemSelect = (suppliedItems) => {
-    setVendorInfo({ ...vendorInfo, suppliedItems })
   }
 
   if (isLoading) {

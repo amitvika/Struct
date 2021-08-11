@@ -4,17 +4,15 @@ import InfoIcon from "@material-ui/icons/Info";
 import { Spinner } from "reactstrap";
 import { Checkbox } from "@material-ui/core";
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useParams } from "react-router-dom";
 import { fetchClientAction } from '../../actions/client.action'
 
 export default function ClientBasedAccess({ access, updateAccessState, userAccessLoaded }) {
   const dispatch = useDispatch();
-  const history = useHistory();
   const { isLoading, data } = useSelector(state => state.clients);
 
   useEffect(() => {
     dispatch(fetchClientAction());
-  }, []);
+  }, [dispatch]);
 
   const renderData = () => {
     return data.map((x, index) => {
