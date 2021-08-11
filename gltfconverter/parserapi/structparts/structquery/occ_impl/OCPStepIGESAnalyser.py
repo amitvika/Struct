@@ -1382,6 +1382,9 @@ class StepIgesAnalyser():
             list_of_compounds=[]
             only_soilds = []
             only_Colors=[(parentColor.Red(),parentColor.Green(),parentColor.Blue())]
+            print("No of Faces",len(faces_dict))
+            if len(faces_dict) > self.multiplegltf/3:
+                doCompact = True            
             for hash_solidface, solidface in faces_dict.items(): 
                 #hash_solidface = hash(solidface)
                 #print(hash_solidface,solidface)
@@ -1425,13 +1428,14 @@ class StepIgesAnalyser():
                     #print(hashcode,localTransform)
             if doCompact:                
                 len_color_arr = len(only_Colors)
-                if (len_color_arr<=2) or doParts:
+                print("No of colors found",len_color_arr,"Faces",len(faces_dict))
+                if (len_color_arr<=2) or doParts or (len(faces_dict) > self.multiplegltf):
                     (R,G,B)=only_Colors[len_color_arr-1]
                     #print("Colors",R,G,B,len_color_arr,len(only_soilds))
                     mycompound,_ = list_of_shapes_to_compound(only_soilds)                     
                     hashcode = str(hash(mycompound))+transformationHash
                     list_of_compounds.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hashcode))
-                    return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" , (len_color_arr>2)
+                    return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" , (len_color_arr>2) and (len(faces_dict) < self.multiplegltf)
                 else:
                     return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE", False
             #else:
@@ -1513,6 +1517,8 @@ class StepIgesAnalyser():
             parent_node = self.mstep_dict['nodes'][parent_node_index]
             parent_node['children'] = parent_node.get('children', []) + [node_index] """
             #SubLengthHere = subComponentsFromParent.Length()
+            if(SubLengthHere==0):
+                print("Skipping",SubLengthHere,self.indent)
             for i in range(SubLengthHere):
                 print("Processing",i,SubLengthHere,self.indent)
                 #print("I have reached here 3")
@@ -1591,6 +1597,7 @@ class StepIgesAnalyser():
                 atleastOneItemAdded = 0  
                 toAddFaces = True 
                 keep_faces = False  
+                parentIDNotAdded = True
                 if self.multiplegltf!=0 or (self.edgesize==0 and self.vertexsize==0) :
                     shape_compounds, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces = \
                         self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, True, (self.edgesize!=0 or self.vertexsize!=0 or self.ascompound))
@@ -1598,9 +1605,20 @@ class StepIgesAnalyser():
                     #myFaceType=[]
                     #print(shape_faces)
                     toAddFaces = (disect_type=="PART")
+                    print("No of subparts",len(shape_compounds))
+                    parentIDNotAdded = True
                     for shape_disp,faceColor,shapeInFile in shape_compounds:
                         #print("I have reached here 16")
                         #shape_disp = BRepBuilderAPI_Transform(shape, subLocation.Transformation()).Shape()
+                        if self.includeparts and parentIDNotAdded and (disect_type=="FACE"):                            
+                            mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
+                            my_parent_id = mesherDict[self.gltf_Dict["id"]]                            
+                            self.parentIDs.append(my_parent_id)
+                            self.indent += 1
+                            mydirectory = self.validFileName(subName+subEntry)
+                            mydirectorylen = len(self.direntry)
+                            self.direntry += "/"+mydirectory  
+                            parentIDNotAdded = False 
                         if shape_disp.IsNull():
                             print("No shape was formed when"+str(self.uid)+"\n")
                         else:
@@ -1645,7 +1663,7 @@ class StepIgesAnalyser():
                                     ) 
                                     if solidFoundHere > 0 :
                                         self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, myPartMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
-                                    if self.includeparts:
+                                    if self.includeparts and parentIDNotAdded:
                                         if myPartMeshID:
                                             my_parent_id = myPartMeshID 
                                         else:
@@ -1656,7 +1674,8 @@ class StepIgesAnalyser():
                                         self.indent += 1
                                         mydirectory = self.validFileName(subName+subEntry)
                                         mydirectorylen = len(self.direntry)
-                                        self.direntry += "/"+mydirectory   
+                                        self.direntry += "/"+mydirectory  
+                                        parentIDNotAdded = False 
                                     #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
                                 #else:
@@ -1675,6 +1694,7 @@ class StepIgesAnalyser():
                         mydirectory = self.validFileName(subName+subEntry)
                         mydirectorylen = len(self.direntry)
                         self.direntry += "/"+mydirectory
+                        parentIDNotAdded = False
                 #atleastOneItemAdded = 0
                 myFaceType=[]
                 myFeaturesFaces=[]
@@ -1827,7 +1847,7 @@ class StepIgesAnalyser():
                     "v":myFeaturesVertices})
                 #print(len(shape_faces),"Got above subshapers")
 
-                if self.includeparts:
+                if self.includeparts and parentIDNotAdded==False:
                     self.indent -= 1 
                     self.parentIDs.pop()          
                     self.direntry = self.direntry[:mydirectorylen]

@@ -8,8 +8,7 @@ export default function Storage(props) {
         <div>
             {
                 selectedSubTab === 'Process Configuration' ?
-                    <ProcessConfiguration
-                    /> : null
+                    <ProcessConfiguration {...props}/> : null
             }
             {
                  selectedSubTab === 'Manufacturability Analysis' ?

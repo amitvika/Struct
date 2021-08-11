@@ -10,10 +10,21 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentItemAction } from '../../../../actions/itemActions'
 
-export default function NestedList({ setItemValue }) {
+export default function NestedList(props) {
+    const {setItemValue, itemProperties, setStack, gltfjson}=props;
+       
+    const currentItem = useSelector(state => state.item.currentItem);
+    const [splitfiles, setsplitfiles] = useState({gltfjson});
+
+    useEffect(() => {
+        setsplitfiles(props.gltfjson);
+        let storage = {...currentItem.storage};
+        storage['stacked']=props.gltfjson?.stackable?props.gltfjson?.stackable[0].count>=2:false;
+    }, [props]);
+
     const dispatch = useDispatch();
     const [currentTab, setCurrentTab] = useState(true);
-    const currentItem = useSelector(state => state.item.currentItem);
+   
     const [storage, setStorage] = useState({});
 
     useEffect(() => {
@@ -42,7 +53,9 @@ export default function NestedList({ setItemValue }) {
         }
         else {
             setCurrentTab(value)
-
+            if(value=='Stacked'){
+                setStack(itemProperties);
+            }
         }
     }
 
@@ -86,7 +99,7 @@ export default function NestedList({ setItemValue }) {
                     />
                 </div>
                 <Collapse in={currentTab === 'Stacked'} timeout="auto" unmountOnExit>
-                    this is second tab
+                    {splitfiles.stackable?props.gltfjson?.stackable[0].count:0}
             </Collapse>
             </Paper>
 

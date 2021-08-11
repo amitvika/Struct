@@ -980,50 +980,95 @@ def duplicateShapes(shape,dimension,depthable,stackable):
     else:
         noOfDuplicates = round(min(xmax-xmin,ymax-ymin) / HalfDepth)
     if noOfDuplicates < 1:
-        noOfDuplicates = 1                
-    xmove,ymove,zmove=0,0,zmax-zmin
-    if depthable != None:
-        xmove, ymove, zmove = movingParameters(dimension, depthable, 0.1) 
-        print ("Dimension", dimension, xmove, ymove, zmove)
-        depth = 0
-        for oneFace in stackable['top']:
-            if( oneFace["depth"] != 0 ):
-                depth = oneFace["depth"]
-        if depth < zmove:
-            zmove -= depth        
-        bottomdepth = 0
-        for oneFace in stackable['bottom']:
-            if( oneFace["depth"] != 0 ):
-                bottomdepth = oneFace["depth"]
-        if bottomdepth > depth:
-            if (bottomdepth < (zmove+depth)):
-                zmove += (depth-bottomdepth)
+        noOfDuplicates = 1 
+    if noOfDuplicates > 1:               
+        xmove,ymove,zmove=0,0,zmax-zmin
+        if depthable != None:
+            xmove, ymove, zmove = movingParameters(dimension, depthable, 0.1) 
+            print ("Dimension", dimension, xmove, ymove, zmove)
+            depth = 0
+            for oneFace in stackable['top']:
+                if( oneFace["depth"] != 0 ):
+                    depth = oneFace["depth"]
+            if depth < zmove:
+                zmove -= depth        
+            bottomdepth = 0
+            for oneFace in stackable['bottom']:
+                if( oneFace["depth"] != 0 ):
+                    bottomdepth = oneFace["depth"]
+            if bottomdepth > depth:
+                if (bottomdepth < (zmove+depth)):
+                    zmove += (depth-bottomdepth)
+            
+            
+        distance = 1e10
+        prevdistance = 0
+        while distance > 1e-2:
+            AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)
+            (wdistance, distance, points1, points2) = minimum_z_distance(shape[0],AnotherShape)
+            
+            if ( (prevdistance-distance) >= (0.4*distance/1.4)):
+                zmove -= distance
+                prevdistance = distance * 1.4
+                print("Dmove1", zmove, distance, wdistance, points1, points2, prevdistance)
+            else:
+                #print("Zmove", zmove, distance, points1, points2)
+                zmove -= distance/1.4        
+                prevdistance = distance
+                print("Dmove2", zmove, distance, points1, points2, prevdistance)
         
-          
-    distance = 1e10
-    prevdistance = 0
-    while distance > 1e-2:
-        AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)
-        (wdistance, distance, points1, points2) = minimum_z_distance(shape[0],AnotherShape)
+        stackability = (len(points1) >2) and (len(points2) >2)       
+        print("Stackability",len(points1),len(points2),(len(points1) >2) and (len(points2) >2),stackability)
+        stackabilityP2 = True
+        if stackability:
+            maxX = xmin
+            minX = xmax
+            maxY = ymin
+            minY = ymax
+            for aPoint in points2:
+                if(aPoint[0] > maxX):
+                    maxX = aPoint[0]
+                if(aPoint[0] < minX):
+                    minX = aPoint[0]
+                if(aPoint[1] > maxY):
+                    maxY = aPoint[1]
+                if(aPoint[1] < minY):
+                    minY = aPoint[1]
+            if( (maxX-minX)*3 < (xmax-xmin) ) or ((maxY-minY)*3 < (ymax-ymin)) :
+                print("P2",maxX,minX,xmax,xmin,maxY,minY,ymax,ymin,(maxX-minX)*2,(xmax-xmin),(maxY-minY)*2,(ymax-ymin))
+                stackabilityP2 = False
+        stackabilityP1 = True
+        if stackability:
+            maxX = xmin
+            minX = xmax
+            maxY = ymin
+            minY = ymax
+            for aPoint in points1:
+                if(aPoint[0] > maxX):
+                    maxX = aPoint[0]
+                if(aPoint[0] < minX):
+                    minX = aPoint[0]
+                if(aPoint[1] > maxY):
+                    maxY = aPoint[1]
+                if(aPoint[1] < minY):
+                    minY = aPoint[1]
+            if( (maxX-minX)*3 < (xmax-xmin) ) and ((maxY-minY)*3 < (ymax-ymin)) :
+                print("P1",maxX,minX,xmax,xmin,maxY,minY,ymax,ymin,(maxX-minX)*2,(xmax-xmin),(maxY-minY)*2,(ymax-ymin))
+                stackabilityP1 = False
         
-        if ( (prevdistance-distance) >= (0.4*distance/1.4)):
-            zmove -= distance
-            prevdistance = distance * 1.4
-            print("Dmove1", zmove, distance, wdistance, points1, points2, prevdistance)
+
+        print("Without reduction", noOfDuplicates,stackability,stackabilityP1,stackabilityP2)
+        if ( stackability==False or (stackabilityP2==False and stackabilityP1==False) ) :
+            noOfDuplicates = 1
+        elif(zmove<=0):
+            noOfDuplicates = 2
         else:
-            #print("Zmove", zmove, distance, points1, points2)
-            zmove -= distance/1.4        
-            prevdistance = distance
-            print("Dmove2", zmove, distance, points1, points2, prevdistance)
-    print("Without reduction", noOfDuplicates)
-    if(zmove<=0):
-        noOfDuplicates = 2
-    else:
-        noOfDuplicates = 1+ceil(min(xmax-xmin,ymax-ymin) / (zmove))
-    print("With reduction", noOfDuplicates)
-    if noOfDuplicates < 2 :
-        noOfDuplicates = 2    
-    print("After Resetting", noOfDuplicates)
+            noOfDuplicates = 1+ceil(min(xmax-xmin,ymax-ymin) / (zmove))
+        print("With reduction", noOfDuplicates)
+        if noOfDuplicates < 1 :
+            noOfDuplicates = 1    
+        print("After Resetting", noOfDuplicates)
+       
     moveArrays=[]
     shapeList =[]
     shapeList.append(shape[0])
@@ -1304,6 +1349,8 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center):
     shapesdis=[]
     shapesvol=[]
     shapeorder=[]
+    shapesdim=[]
+    shapesmov=[]
     fullShape,converted = list_of_shapes_to_compound(shape)
     if(converted):
         newShapes.append((fullShape,name,None))
@@ -1323,19 +1370,55 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center):
         newShapes.append((newShape,aName,aColor))
         moveArrays.append((xmove, ymove, zmove))
         #shapesdim.append(xmins+xmove+xt, ymins+ymove+xt, zmins+zmove+xt, xmaxs+xmove+xt, ymaxs+ymove+xt, zmaxs+zmove+xt)
+        shapeorder.append(i)
+        shapesmov.append((xmove, ymove, zmove))
         shapesdis.append( ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 )
-        shapesvol.append(abs((xmaxs-xmins)*(ymaxs-ymins)*(zmaxs-zmins)))
-        shapeorder.append(i)    
+        shapesvol.append(abs((xmaxs-xmins)*(ymaxs-ymins)*(zmaxs-zmins)))         
+        shapesdim.append((xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))  
+        
+         
     """  for i in range(lenShape):
         print("before",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
     #print(shapeorder,shapesdis,shapesvol)
     if(center):
-        for i in range(0,lenShape-1):
-            for j in range(0,lenShape-1-i):
-                if (shapesdis[j+1] < shapesdis[j]) or ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] < shapesvol[j])):
-                    shapeorder[j+1], shapeorder[j] = swap(shapeorder[j+1], shapeorder[j])                
-                    shapesdis[j+1], shapesdis[j] = swap(shapesdis[j+1], shapesdis[j])
-                    shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
+        k = 1        
+        while k < lenShape: #Remove constraints one by one
+            for i in range(0,lenShape-k):
+                for j in range(0,lenShape-k-i):
+                    _,_,zminj,_,_,zmaxj = shapesdim[j]
+                    _,_,zminj1,_,_,zmaxj1 = shapesdim[j+1]
+                    if (shapesdis[j+1] < shapesdis[j]) or \
+                        ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] < shapesvol[j])) or\
+                        ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] == shapesvol[j]) and ((zmaxj1+zminj1) > (zmaxj+zminj)) ) :
+                        shapeorder[j+1], shapeorder[j] = swap(shapeorder[j+1], shapeorder[j])                
+                        shapesmov[j+1], shapesmov[j] = swap(shapesmov[j+1], shapesmov[j])
+                        shapesdis[j+1], shapesdis[j] = swap(shapesdis[j+1], shapesdis[j])
+                        shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
+                        shapesdim[j+1], shapesdim[j] = swap(shapesdim[j+1], shapesdim[j])
+            Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = shapesdim[0] 
+            for i in range(1,lenShape-k):
+                xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[i]
+                if(xmins < Xxmin):
+                    Xxmin = xmins
+                if(ymins < Yymin):
+                    Yymin = ymins
+                if(zmins < Zzmin):
+                    Zzmin = zmins
+                if(xmaxs > Xxmax):
+                    Xxmax = xmaxs
+                if(ymaxs > Yymax):
+                    Yymax = ymaxs
+                if(zmaxs > Zzmax):
+                    Zzmax = zmaxs
+            xc, yc, zc = (Xxmin+Xxmax)/2, (Yymin+Yymax)/2 , (Zzmin+Zzmax)/2
+            print("before",xc,yc,zc,k, shapesdis)
+            for i in range(0,lenShape-k):
+                xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[i]
+                xmove, ymove, zmove = shapesmov[i]
+                shapesdis[i]= ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 
+            print("after",shapesdis,shapesdim,shapesvol)
+            k += 1    
+                    
     """ for i in range(lenShape):
         print("after",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
     #print(shapeorder,shapesdis,shapesvol)

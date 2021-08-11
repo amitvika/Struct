@@ -28,9 +28,9 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function ProcessConfiguration() {
+export default function ProcessConfiguration(props) {
     const classes = useStyles();
-
+    //const {itemProperties, setStack}=props;
     const [selectedTab, setSelectedTab] = useState("");
     const tabArray = ['Spool Based', 'Stacked', 'Grid', 'Grid-Stacked', 'Bulk Container', 'Liquid Vat',
         'Pressure Vessel']
@@ -40,7 +40,7 @@ export default function ProcessConfiguration() {
     }
     return (
         <div>
-        <CollapseTab />
+        <CollapseTab {...props}/>
     </div>
     )
 }
