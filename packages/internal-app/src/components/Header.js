@@ -229,7 +229,7 @@ return (
 const headersData = [
   {
     label: "Product design",
-    href: `//${process.env.REACT_APP_DESIGN_URL}/design?token=${localStorage.getItem("token")}`,
+    href: `//${process.env.REACT_APP_DESIGN_URL}?token=${localStorage.getItem("token")}`,
     target: "_blank"
   },
   {

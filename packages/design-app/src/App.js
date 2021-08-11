@@ -1,15 +1,15 @@
 import ThemeProvider from './ThemeProvider';
-import { Provider } from "react-redux";
-import store from "./redux/store";
+
 import AppRoutes from './AppRoutes';
+import { AuthContextProvider } from './context/AuthContext'
 
 function App() {
   return (
-    <Provider store={store}>
-      <ThemeProvider>
+    <ThemeProvider>
+      <AuthContextProvider>
         <AppRoutes />
-      </ThemeProvider>
-    </Provider>
+      </AuthContextProvider>
+    </ThemeProvider>
   );
 }
 

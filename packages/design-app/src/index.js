@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import axios from 'axios';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import axios from 'axios';
 import LoadingModal from '@ravibasil/common/components/LoadingModal';
+import './index.css'
 
 // For POST requests
 axios.interceptors.response.use(

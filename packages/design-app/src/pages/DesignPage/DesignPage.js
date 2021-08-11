@@ -1,26 +1,28 @@
-import React, { useEffect, useState } from 'react'
-import { useQuery } from '@ravibasil/common/utils/customHooks'
-import { loginApi, registrationApi, loadUserApi } from '@ravibasil/common/api/auth';
-import LoadingModal from '@ravibasil/common/components/LoadingModal';
+import React, { useEffect, useState } from "react";
+import { useHistory } from 'react-router-dom';
 
-export default function ProductDesign() {
-  const query = useQuery();
-  const [isLoading, setIsLoading] = useState(false);
+import ProductDesignAPI from '@ravibasil/common/api/productDesign.api';
+import TableGridView from '@ravibasil/common/components/TableGridView';
+import { fields } from '@ravibasil/common/constants/productDesign'
+import AddUpdateModal from "./AddUpdateModal";
 
-  useEffect(() => {
-    localStorage.setItem()
-    // loadUserApi()
-    //   .then(res => {
-    //     console.log('------->> Res ', res)
-    //   })
-    //   .catch(error => {
-    //     console.log('Error')
-    //   })
-  }, [query.get('token')])
+const DesignPage = () => {
+  let history = useHistory();
+  const handleItemClick = (id, { type, name }) => history.push(`/design?type=${type}&id=${id}&name=${name}`);
 
   return (
-    <div>
-      <LoadingModal isLoading={false} />
-    </div>
-  )
+    <TableGridView
+      title={'Product Design'}
+      fields={fields}
+      fetchList={ProductDesignAPI.fetchProductDesigns}
+      upsertListItem={ProductDesignAPI.upsertProductDesign}
+      isAddEditActionsEnabled={true}
+      handleItemClick={handleItemClick}
+      isAddEditLinkVisible={true}
+      AddUpdateModal={AddUpdateModal}
+      isDesignModalOpened={true}
+    />
+  );
 }
+
+export default DesignPage;
