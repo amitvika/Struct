@@ -5,7 +5,6 @@ import {
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { useSelector } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
 import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
@@ -22,14 +21,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function FileUploadOnAWS({ value, handleOnChange, isDesignModalOpened = true,
+export default function FileUploadOnAWS({ value, handleOnChange,
+  isDesignModalOpened = true,
+  user,
   fileType = ".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" }) {
   const classes = useStyles();
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setLoading] = useState(false);
-  const { user } = useSelector(state => state.auth);
-
+  
   const handleOnFileChange = async (event) => {
     if (!event.target.files[0]) {
       return;
