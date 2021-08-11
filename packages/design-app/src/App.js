@@ -1,13 +1,13 @@
 import ThemeProvider from './ThemeProvider';
 import { Provider } from "react-redux";
 import store from "./redux/store";
-import Routes from './containers/Routes';
+import AppRoutes from './AppRoutes';
 
 function App() {
   return (
     <Provider store={store}>
       <ThemeProvider>
-        <Routes />
+        <AppRoutes />
       </ThemeProvider>
     </Provider>
   );
