@@ -1,0 +1,40 @@
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from "../actions/authActions";
+import { useHistory } from "react-router-dom";
+import LoginComponent from '@ravibasil/common/components/LoginComponent';
+
+const LoginPage = () => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const { isAuthenticated, isLoginStarted } = useSelector(state => state.auth);
+  const error = useSelector(state => state.error);
+  const [msg, setMsg] = useState(null);
+
+
+  useEffect(() => {
+    if (error && error.id === "LOGIN_FAIL") {
+      setMsg(error.msg.msg);
+    }
+    else {
+      setMsg(null);
+    }
+  }, [error]);
+
+
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      history.push('/items');
+    }
+  }, [isAuthenticated]);
+
+  const handleLoginSubmit = (data) => dispatch(login(data))
+
+  return (
+    <LoginComponent handleLoginSubmit={handleLoginSubmit} msg={msg} isLoginStarted={isLoginStarted} />
+  );
+}
+
+
+export default LoginPage;
