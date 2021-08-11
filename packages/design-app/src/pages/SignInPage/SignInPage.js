@@ -6,6 +6,7 @@ import SignInForm from '@ravibasil/common/components/SignInForm';
 import LoadingModal from '@ravibasil/common/components/LoadingModal';
 
 import { AuthContext } from "../../context/AuthContext";
+import AuthService from '../../services/AuthServices';
 
 const SignInPage = () => {
   const { authUser, setAuthUser } = React.useContext(AuthContext);
@@ -15,6 +16,7 @@ const SignInPage = () => {
 
   useEffect(() => {
     if (authUser.user) {
+      history.push('/design');
     }
   }, [authUser.user]);
 
@@ -33,8 +35,14 @@ const SignInPage = () => {
   }, [query.get('token')])
 
 
-  const handleLoginSubmit = (data) => {
-    // dispatch(login(data))
+  const handleLoginSubmit = async (data) => {
+    try {
+      const user = await AuthService.signIn(data);
+      setAuthUser({ user });
+    }
+    catch (error) {
+
+    }
   }
 
   return (
