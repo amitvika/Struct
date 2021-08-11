@@ -85,6 +85,9 @@ export default function Header() {
   );
   const getMenuButtons = () => {
     let menuItems = headersData.map(({ label, href, target }) => {
+      if(label === 'Product design'){
+        href += `?token=${localStorage.getItem("token")}`; 
+      }
       return (
         <Button
           key={label}
@@ -229,7 +232,7 @@ return (
 const headersData = [
   {
     label: "Product design",
-    href: `//${process.env.REACT_APP_DESIGN_URL}?token=${localStorage.getItem("token")}`,
+    href: `//${process.env.REACT_APP_DESIGN_URL}`,
     target: "_blank"
   },
   {
