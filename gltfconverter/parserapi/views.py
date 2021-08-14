@@ -1,4 +1,5 @@
-from math import ceil 
+from math import ceil
+from OCC.Core.gp import gp_Pnt 
 from django.http.response import JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -36,9 +37,12 @@ from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
     recognize_direction, recognize_entity)
 from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices
 from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
+
 from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound
 
-from decimal import Decimal
+from decimal import Decimal 
 
 gltf_dict = gltfdict()
 
@@ -1035,7 +1039,7 @@ def duplicateShapes(shape,dimension,depthable,stackable):
                 if(aPoint[1] < minY):
                     minY = aPoint[1]
             if( (maxX-minX)*3 < (xmax-xmin) ) or ((maxY-minY)*3 < (ymax-ymin)) :
-                print("P2",maxX,minX,xmax,xmin,maxY,minY,ymax,ymin,(maxX-minX)*2,(xmax-xmin),(maxY-minY)*2,(ymax-ymin))
+                print("P2",maxX,minX,xmax,xmin,maxY,minY,ymax,ymin)
                 stackabilityP2 = False
         stackabilityP1 = True
         if stackability:
@@ -1052,8 +1056,8 @@ def duplicateShapes(shape,dimension,depthable,stackable):
                     maxY = aPoint[1]
                 if(aPoint[1] < minY):
                     minY = aPoint[1]
-            if( (maxX-minX)*3 < (xmax-xmin) ) and ((maxY-minY)*3 < (ymax-ymin)) :
-                print("P1",maxX,minX,xmax,xmin,maxY,minY,ymax,ymin,(maxX-minX)*2,(xmax-xmin),(maxY-minY)*2,(ymax-ymin))
+            if( (maxX-minX)*5 < (xmax-xmin) ) and ((maxY-minY)*5 < (ymax-ymin)) :
+                print("P1",maxX,minX,xmax,xmin,maxY,minY,ymax,ymin)
                 stackabilityP1 = False
         
 
@@ -1319,6 +1323,89 @@ def FileGetStackablePositions(request):
 def swap(a, b):
     return b, a
 
+def isOuterToPart(aDimension1,aPart1,aDimension2,aPart2,tolerance=0.2):
+   
+    xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2
+    xl2, yl2, zl2 = tolerance, tolerance, tolerance
+    corner2 = gp_Pnt(xmin2-xl2, ymin2-yl2, zmin2-zl2)
+    #print(((xmin2-xl2, ymin2-yl2, zmin2-zl2),(xmax2-xmin2)+xl2*2,(ymax2-ymin2)+yl2*2,(zmax2-zmin2)+zl2*2),aDimension2,aDimension1)
+    mybox2 = BRepPrimAPI_MakeBox(corner2,(xmax2-xmin2)+xl2*2,(ymax2-ymin2)+yl2*2,(zmax2-zmin2)+zl2*2).Shape()
+    myshape2 = BRepAlgoAPI_Common(mybox2,aPart1).Shape()
+    myshapeDimension2 = get_bounding_details(myshape2)
+    if myshapeDimension2 == (0, 0, 0, 0, 0, 0) :
+        return (False, (0, 0, 0, 0, 0, 0))
+    else:
+        #print("From Part",myshapeDimension2,aDimension1,aDimension2)
+        corner3 = gp_Pnt(xmin2-(xl2*2), ymin2-(yl2*2), zmin2-(zl2*2))
+        mybox3 = BRepPrimAPI_MakeBox(corner3,(xmax2-xmin2)+xl2*4,(ymax2-ymin2)+yl2*4,(zmax2-zmin2)+zl2*4).Shape()
+        myshape3 = BRepAlgoAPI_Common(mybox3,aPart1).Shape()
+        myshapeDimension3 = get_bounding_details(myshape3)
+        xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension3        
+        xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = myshapeDimension2
+        """ print("Before cheking",\
+            (xmin2-xl2, ymin2-yl2, zmin2-zl2),(xmin2-(xl2*2), ymin2-(yl2*2), zmin2-(zl2*2)),\
+                aDimension1,aDimension2,myshapeDimension2,myshapeDimension3,\
+                    get_bounding_details(aPart1),get_bounding_details(aPart2)) """
+        if ( ((xmin1==xmin3) and (xmax1==xmax3) and (ymin1==ymin3) and (ymax1==ymax3)) or
+            ((ymin1==ymin3) and (ymax1==ymax3) and (zmin1==zmin3) and (zmax1==zmax3)) or
+            ((zmin1==zmin3) and (zmax1==zmax3)and (xmin1==xmin3) and (xmax1==xmax3)) ):
+            corner1 = gp_Pnt(xmin1, ymin1, zmin1)
+            mybox1 = BRepPrimAPI_MakeBox(corner1,xmax1-xmin1,ymax1-ymin1,zmax1-zmin1).Shape()
+            myshape1 = BRepAlgoAPI_Common(mybox1,aPart2).Shape()
+            myshapeDimension1 = get_bounding_details(myshape1)
+            #print("after cheking",aDimension1,aDimension2,myshapeDimension1,myshapeDimension2,myshapeDimension3)
+            if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                return (False, (0, 0, 0, 0, 0, 0))
+            else:
+                return (isOuter(myshapeDimension2,myshapeDimension1), myshapeDimension1)
+        else:
+            return (False, (0, 0, 0, 0, 0, 0))
+
+def isOuter(aDimension1, aDimension2):
+    xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = aDimension1
+    xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2
+    #print(aDimension1,aDimension2)
+    if  ( ( (xmin1<xmin2) and (xmax1>xmax2) and  
+        (ymin1<ymin2) and (ymax1>ymax2) and
+        (zmin1>=zmin2) and (zmax1<=zmax2) ) or
+        ( (ymin1<ymin2) and (ymax1>ymax2) and 
+        (zmin1<zmin2) and (zmax1>zmax2) and 
+        (xmin1>=xmin2) and (xmax1<=xmax2) ) or
+        ( (zmin1<zmin2) and (zmax1>zmax2) and
+        (xmin1<xmin2) and (xmax1>xmax2) and
+        (ymin1>=ymin2) and (ymax1<=ymax2) ) ):
+        return True
+    return False
+
+def isInner(aDimension1, aDimension2):
+    xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = aDimension1
+    xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2
+    if  ( (xmin1>xmin2) and (xmax1<xmax2) and  
+        (ymin1>ymin2) and (ymax1<ymax2) and
+        (zmin1>zmin2) and (zmax1<zmax2) ):
+        return True
+    return False
+
+def isTopFronter(aDimension1, aDimension2):    
+    xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = aDimension1
+    xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2
+    if ( (zmax1 > zmax2) or
+        ((zmax1==zmax2) and (ymin1 < ymin2)) or
+        ((zmax1==zmax2) and (ymin1 == ymin2) and (xmin1 < xmin2)) ):
+        return True
+    return False
+
+def isTopCenter(aDimension1, aDimension2):    
+    xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = aDimension1
+    xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2
+    xc1, yc1, zc1 = (xmin1+xmax1)/2, (ymin1+ymax1)/2, (zmin1+zmax1)/2
+    xc2, yc2, zc2 = (xmin2+xmax2)/2, (ymin2+ymax2)/2, (zmin2+zmax2)/2
+    if ( (zc1 > zc2) or
+        ((zc1==zc2) and (yc1 < yc2)) or
+        ((zc1==zc2) and (yc1 == yc2) and (xc1 < xc2)) ):
+        return True
+    return False        
+
 def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center):
 
     xmin, ymin, zmin, xmax, ymax, zmax = dimension 
@@ -1380,21 +1467,93 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center):
     """  for i in range(lenShape):
         print("before",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
     #print(shapeorder,shapesdis,shapesvol)
+    
     if(center):
-        k = 1        
-        while k < lenShape: #Remove constraints one by one
+        tolerance = 0.2
+        k = 1
+        while k < lenShape:
+            #for i in range(0,lenShape):
+                #print("topping before",i, shapeorder[i], shapesdim[i] )
             for i in range(0,lenShape-k):
+                swapper = False
                 for j in range(0,lenShape-k-i):
-                    _,_,zminj,_,_,zmaxj = shapesdim[j]
-                    _,_,zminj1,_,_,zmaxj1 = shapesdim[j+1]
-                    if (shapesdis[j+1] < shapesdis[j]) or \
-                        ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] < shapesvol[j])) or\
-                        ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] == shapesvol[j]) and ((zmaxj1+zminj1) > (zmaxj+zminj)) ) :
+                    #print(i,j, (shapesdim[i],shapesdim[j]), isInner(shapesdim[i],shapesdim[j]), isOuter(shapesdim[i],shapesdim[j]), isTopFronter(shapesdim[i],shapesdim[j]) )
+                    swapper = (isTopFronter(shapesdim[j+1],shapesdim[j]) ) 
+                    
+                    if(swapper):
+                        #if(swapper):
                         shapeorder[j+1], shapeorder[j] = swap(shapeorder[j+1], shapeorder[j])                
                         shapesmov[j+1], shapesmov[j] = swap(shapesmov[j+1], shapesmov[j])
                         shapesdis[j+1], shapesdis[j] = swap(shapesdis[j+1], shapesdis[j])
                         shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
                         shapesdim[j+1], shapesdim[j] = swap(shapesdim[j+1], shapesdim[j])
+            outerObjectsDict = {}
+            #for i in range(0,lenShape):
+                #print("before",i, shapeorder[i], shapesdim[i] )
+            for i in range(0,lenShape-k):                
+                for j in range(0,lenShape-k):                   
+                    if (i!=j) and (not j in outerObjectsDict):
+                        outer, dimensionObject = isOuterToPart(shapesdim[j],shape[shapeorder[j]],shapesdim[i],shape[shapeorder[i]],tolerance)
+                        if(outer):
+                            outerObjectsDict[j]=(j,dimensionObject)
+                            #print("outerObjects",j,shapeorder[j],outerObjectsDict[j],shapesdim[j],shapesdim[i],dimensionObject)
+            outerObjects=[]
+            for key, value in outerObjectsDict.items():
+                #print(key, value)
+                outerObjects.append(value)
+            
+            innerObject = 0
+            #print("Len outerobjets",outerObjects)
+            lenOuterObject = len(outerObjects)
+            #print("Len outerobjets",outerObjects,lenOuterObject)
+            if(lenOuterObject>0):                            
+                for i in range(0,lenOuterObject-1):
+                    swapper = False
+                    for j in range(0,lenOuterObject-1-i):
+                        innerObject, dimensionObject = outerObjects[j]  
+                        innerObject1, dimensionObject1 = outerObjects[j+1]  
+                        #print(i,j, (shapesdim[i],shapesdim[j]), isInner(shapesdim[i],shapesdim[j]), isOuter(shapesdim[i],shapesdim[j]), isTopFronter(shapesdim[i],shapesdim[j]) )
+                        swapper = (isTopCenter(dimensionObject1,dimensionObject) ) 
+                        
+                        if(swapper):
+                            #if(swapper):
+                            outerObjects[j+1], outerObjects[j] = swap(outerObjects[j+1], outerObjects[j])                
+                #print("BEF ordering",outerObjects) 
+                innerObject, dimensionObject = outerObjects[0] 
+                #print("after ordering",outerObjects)       
+            if(innerObject!=(lenShape-k)):
+                i=innerObject
+                j=lenShape-k
+                shapeorder[i], shapeorder[j] = swap(shapeorder[i], shapeorder[j])                
+                shapesmov[i], shapesmov[j] = swap(shapesmov[i], shapesmov[j])
+                shapesdis[i], shapesdis[j] = swap(shapesdis[i], shapesdis[j])
+                shapesvol[i], shapesvol[j] = swap(shapesvol[i], shapesvol[j])
+                shapesdim[i], shapesdim[j] = swap(shapesdim[i], shapesdim[j])
+            #for i in range(0,lenShape):
+                #print("after", i, shapeorder[i], shapesdim[i] )
+
+            k += 1
+        """ k = 1        
+        while k < lenShape: #Remove constraints one by one
+            for i in range(0,lenShape-k):
+                swapper = False
+                for j in range(0,lenShape-k-i):
+                    #print(i,j, (shapesdim[j+1],shapesdim[j]), isInner(shapesdim[j+1],shapesdim[j]), isOuter(shapesdim[j+1],shapesdim[j]), isTopFronter(shapesdim[j+1],shapesdim[j]) )
+
+                    swapper = isInner(shapesdim[j+1],shapesdim[j]) or \
+                        isOuter(shapesdim[j+1],shapesdim[j]) 
+                    
+                    if(swapper or ((shapesdis[j+1] < shapesdis[j]) or 
+                        ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] < shapesvol[j])) or
+                        ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] == shapesvol[j]) and 
+                        (isTopFronter(shapesdim[j+1],shapesdim[j]) ) ) ) ):
+                        #if(swapper):
+                        shapeorder[j+1], shapeorder[j] = swap(shapeorder[j+1], shapeorder[j])                
+                        shapesmov[j+1], shapesmov[j] = swap(shapesmov[j+1], shapesmov[j])
+                        shapesdis[j+1], shapesdis[j] = swap(shapesdis[j+1], shapesdis[j])
+                        shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
+                        shapesdim[j+1], shapesdim[j] = swap(shapesdim[j+1], shapesdim[j])
+                    
             Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = shapesdim[0] 
             for i in range(1,lenShape-k):
                 xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[i]
@@ -1411,19 +1570,28 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center):
                 if(zmaxs > Zzmax):
                     Zzmax = zmaxs
             xc, yc, zc = (Xxmin+Xxmax)/2, (Yymin+Yymax)/2 , (Zzmin+Zzmax)/2
-            print("before",xc,yc,zc,k, shapesdis)
+            #print("before",xc,yc,zc,k, shapesdis)
             for i in range(0,lenShape-k):
                 xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[i]
                 xmove, ymove, zmove = shapesmov[i]
                 shapesdis[i]= ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 
-            print("after",shapesdis,shapesdim,shapesvol)
-            k += 1    
+            #print("after",shapesdis,shapesdim,shapesvol)
+            k += 1  """   
                     
     """ for i in range(lenShape):
         print("after",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
     #print(shapeorder,shapesdis,shapesvol)
     return newShapes, moveArrays, shapeorder
-
+    """  _,_,zminj,_,_,zmaxj = shapesdim[j]
+                    _,_,zminj1,_,_,zmaxj1 = shapesdim[j+1]
+                    if (shapesdis[j+1] < shapesdis[j]) or \
+                        ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] < shapesvol[j])) or\
+                        ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] == shapesvol[j]) and ((zmaxj1+zminj1) > (zmaxj+zminj)) ) :
+                        shapeorder[j+1], shapeorder[j] = swap(shapeorder[j+1], shapeorder[j])                
+                        shapesmov[j+1], shapesmov[j] = swap(shapesmov[j+1], shapesmov[j])
+                        shapesdis[j+1], shapesdis[j] = swap(shapesdis[j+1], shapesdis[j])
+                        shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
+                        shapesdim[j+1], shapesdim[j] = swap(shapesdim[j+1], shapesdim[j]) """
 def findSubShapeName(myParent,myTree):
     for aTree in myTree:
         if aTree[gltf_dict['id']]==myParent :
@@ -1500,8 +1668,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center):
         if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :          
             
             try:
-                """ shape = conversion.read_step_file(sourceFileName, as_compound=False)                
-                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                #Wholeshape = conversion.read_step_file(sourceFileName, as_compound=False)                
+                """ (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shape,includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump() """
@@ -1511,6 +1679,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center):
                     edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
                 dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+                #shape = Wholeshape
+                #shapeArray = createShapeArray(shape)
                 nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,

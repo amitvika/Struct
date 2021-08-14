@@ -215,14 +215,20 @@ def get_bounding_details(shape, tol=1e-6, optimal_BB=True):
         if optimal_BB:
             use_triangulation = True
             use_shapetolerance = True
+            
             brepbndlib_AddOptimal(shape, bbox, use_triangulation, use_shapetolerance)
         else:
             brepbndlib_Add(shape, bbox)
     except Exception as e:
-        print("Unable to find bounding gox,",e)        
+        print("Unable to find bounding box,",e)        
     # note: useTriangulation is True by default, we set it explicitely, but t's not necessary
     
-    xmin, ymin, zmin, xmax, ymax, zmax = bbox.Get()
+    xmin, ymin, zmin, xmax, ymax, zmax = 0, 0, 0, 0, 0, 0
+    try:
+        xmin, ymin, zmin, xmax, ymax, zmax = bbox.Get()
+    except Exception as e:
+        pass
+        #print("Empty box,",e)  
     #round off to 3 digits..
     max_all = max(abs(xmin), abs(ymin), abs(zmin), abs(xmax), abs(ymax), abs(zmax))
     multiplier = 1
@@ -248,7 +254,7 @@ def get_bounding_details(shape, tol=1e-6, optimal_BB=True):
         ymin, ymax = swap(ymin,ymax)
     if zmin > zmax:
         zmin, zmax = swap(zmin,zmax) 
-    return  xmin, ymin, zmin, xmax, ymax, zmax
+    return  (xmin, ymin, zmin, xmax, ymax, zmax)
 
 def roundOffMe(dimension):
     x1, x2, x3, x4, x5, x6 = dimension
