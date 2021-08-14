@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Paper, Grid, Button } from '@material-ui/core';
+import { Grid, Button } from '@material-ui/core';
 import MainModal from '@ravibasil/common/components/Modal'
 import Headding from '@ravibasil/common/components/atoms/Headding'
 import FileUpload from '@ravibasil/common/components/FileUpload'

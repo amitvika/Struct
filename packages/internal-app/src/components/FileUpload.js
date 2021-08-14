@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { useState } from "react";
 import Button from "@material-ui/core/Button";
 import Box from '@material-ui/core/Box';
 import { makeStyles } from '@material-ui/core/styles';
@@ -56,11 +56,6 @@ export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DX
   //State
   const [file, setFile] = useState("");
   const [fileName, setFileName] = useState("");
-  const [uploadedFile, setUploadedFile] = useState({});
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState();
-  const [uploadPercentage, setUploadPercentage] = useState();
-  const [open, setOpen] = React.useState(false);
   const classes = useStyles();
 
   //Methods
@@ -77,7 +72,7 @@ export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DX
     const fileSize = file.size / 1024 / 1024;
 
     if (fileName.split('.').pop() === 'STL' && fileSize > 20) {
-      setOpen(true)
+      // setOpen(true)
       return;
     }
 

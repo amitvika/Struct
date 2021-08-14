@@ -10,7 +10,6 @@ import LoadingModal from '@ravibasil/common/components/LoadingModal'
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    // background: 'linear-gradient(45deg, rgb(42, 42, 42) 30%, rgb(125, 125, 125) 90%)',
     background: '#E8E9EA',
     width: '100%',
     height: '100%',
@@ -43,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const LoginComponent = ({ handleLoginSubmit, msg, isLoginStarted }) => {
+const SignInForm = ({ handleLoginSubmit, msg, isLoginStarted }) => {
   const classes = useStyles()
 
   const [email, setEmail] = useState('');
@@ -104,4 +103,4 @@ const LoginComponent = ({ handleLoginSubmit, msg, isLoginStarted }) => {
 }
 
 
-export default LoginComponent;
+export default SignInForm;

@@ -2,14 +2,14 @@ import React from "react";
 import {
   BrowserRouter as Router,
   Switch,
-  Route
+  Route,
+  Redirect
 } from "react-router-dom";
 
 import { Spinner } from "reactstrap";
 import { useSelector } from 'react-redux';
-import AppRoute from './AppRoute';
 import Layout from './components/Layout';
-import Login from './pages/LoginPage';
+import Login from './pages/SignInPage/SignInPage';
 import Register from './pages/RegisterPage';
 
 import VendorListPage from "./pages/VendorListPage";
@@ -28,15 +28,12 @@ import ClientDetailPage from "./pages/ClientDetailPage";
 import FactoryListPage from './pages/FactoryListPage';
 import FactoryDetail from './pages/FactoryDetailPage'
 
-// import ProductDesign from './containers/productDesign';
 import ItemDetail from "./containers/itemDetail";
 import Administrative from './containers/administrative';
 import ViewMyProfile from './containers/viewMyProfile'
 
 
-// import Viewer from './page/3DViewer';
 import Viewer from './gltf/DropZone'
-//import Sample from "./page/sample";
 
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);
@@ -52,12 +49,10 @@ export default function AppRoutes() {
         <Route exact path="/" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/viewer" component={Viewer} />
-        {/* <Route path="/sample" component={Sample} /> */}
         <Layout>
 
           <div style={{ marginLeft: '7%', marginRight: '7%' }}>
             <Switch>
-              {/* <AppRoute authenticate exact path='/design' component={ProductDesign} /> */}
               <AppRoute authenticate path='/dashboard' component={Dashboard} />
               <AppRoute authenticate exact path='/vendors' component={VendorListPage} />
               <AppRoute authenticate exact path='/clients' component={ClientListPage} />
@@ -92,3 +87,27 @@ export default function AppRoutes() {
     </Router>
   );
 }
+
+
+const AppRoute = ({ component: Component, authenticate, ...rest }) => {
+
+  const isLoggedIn = () => localStorage.getItem('token') !== 'null';
+
+  return (
+    <Route
+      {...rest}
+      render={({ location, ...other }) => {
+        if (authenticate && isLoggedIn) {
+          return <Component location={location} {...other} />
+        }
+        return (
+          <Redirect
+            to={{
+              pathname: '/'
+            }}
+          />
+        );
+      }}
+    />
+  );
+};
