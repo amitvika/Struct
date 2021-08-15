@@ -1107,7 +1107,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheig
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump()
-                dimension, _ = outputShapes
+                """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
@@ -1129,7 +1129,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheig
                     filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()
-                dictionary["stackable"] = [{"count":replications,"stack":stackable}]
+                dictionary["stackable"] = [{"count":replications,"stack":stackable}] """
                 #dictionary['thumbnail']=thumbnail
 
                 #shape = conversion.read_step_file(sourceFileName, as_compound=False)  
@@ -1153,7 +1153,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheig
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
-                dimension, _ = outputShapes
+                """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
@@ -1175,7 +1175,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheig
                     filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()
-                dictionary["stackable"] = [{"count":replications,"stack":stackable}]  
+                dictionary["stackable"] = [{"count":replications,"stack":stackable}]  """ 
                 #dictionary['thumbnail']=thumbnail             
                 
             except Exception as e:
@@ -1189,7 +1189,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheig
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
-                dimension, _ = outputShapes
+                """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
@@ -1211,7 +1211,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheig
                     filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()
-                dictionary["stackable"] = [{"count":replications,"stack":stackable}] 
+                dictionary["stackable"] = [{"count":replications,"stack":stackable}] """ 
                 #dictionary['thumbnail']=thumbnail          
                 
             except Exception as e:
@@ -1225,7 +1225,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheig
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump()
-                dimension, _ = outputShapes
+                """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
@@ -1247,7 +1247,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheig
                     filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()
-                dictionary["stackable"] = [{"count":replications,"stack":stackable}]  
+                dictionary["stackable"] = [{"count":replications,"stack":stackable}]  """ 
                 #dictionary['thumbnail']=thumbnail         
                 
             except Exception as e:
@@ -1261,7 +1261,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheig
                     filename=sourceFileName,shapeslist=createShapeArray(shape),ascompound=True,
                     distancegap=distancegap,anglegap=anglegap).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
-                dimension, _ = outputShapes
+                """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
@@ -1282,13 +1282,40 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheig
                     filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()
-                dictionary["stackable"] = [{"count":replications,"stack":stackable}]    
+                dictionary["stackable"] = [{"count":replications,"stack":stackable}]  """   
                 #dictionary['thumbnail']=thumbnail       
                 
             except Exception as e:
                 print("error",e)
                 
             #return dictionary 
+        try:
+            dimension, _ = outputShapes
+            xmin, ymin, zmin, xmax, ymax, zmax = dimension 
+            if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
+                shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump() 
+            else:
+                if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
+                    shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
+                    (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()  
+            #print(outputShapes)
+            dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
+            shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
+            (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
+                anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
+                edgesize=0, vertexsize=0, animations=moveArrays).dump()
+            dictionary["stackable"] = [{"count":replications,"stack":stackable}]
+        except Exception as e:
+            print("error",e)      
+       
         try:
             stackfile = "Display/"+dictionary["store"]+".stack"
             print("Writing,",stackfile)
@@ -1323,37 +1350,44 @@ def FileGetStackablePositions(request):
 def swap(a, b):
     return b, a
 
-def isOuterToPart(aDimension1,aPart1,aDimension2,aPart2,tolerance=0.2):
+def isOuterToPart(aDimension1,aPart1,aDimension2,aPart2,tolerance=0.2,debugMe=False):
    
     xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2
     xl2, yl2, zl2 = tolerance, tolerance, tolerance
     corner2 = gp_Pnt(xmin2-xl2, ymin2-yl2, zmin2-zl2)
-    #print(((xmin2-xl2, ymin2-yl2, zmin2-zl2),(xmax2-xmin2)+xl2*2,(ymax2-ymin2)+yl2*2,(zmax2-zmin2)+zl2*2),aDimension2,aDimension1)
+    if debugMe:
+        print(((xmin2-xl2, ymin2-yl2, zmin2-zl2),(xmax2-xmin2)+xl2*2,(ymax2-ymin2)+yl2*2,(zmax2-zmin2)+zl2*2),aDimension2,aDimension1)
     mybox2 = BRepPrimAPI_MakeBox(corner2,(xmax2-xmin2)+xl2*2,(ymax2-ymin2)+yl2*2,(zmax2-zmin2)+zl2*2).Shape()
     myshape2 = BRepAlgoAPI_Common(mybox2,aPart1).Shape()
     myshapeDimension2 = get_bounding_details(myshape2)
     if myshapeDimension2 == (0, 0, 0, 0, 0, 0) :
         return (False, (0, 0, 0, 0, 0, 0))
     else:
-        #print("From Part",myshapeDimension2,aDimension1,aDimension2)
+        if debugMe:
+            print("From Part",myshapeDimension2,aDimension1,aDimension2)
         corner3 = gp_Pnt(xmin2-(xl2*2), ymin2-(yl2*2), zmin2-(zl2*2))
         mybox3 = BRepPrimAPI_MakeBox(corner3,(xmax2-xmin2)+xl2*4,(ymax2-ymin2)+yl2*4,(zmax2-zmin2)+zl2*4).Shape()
         myshape3 = BRepAlgoAPI_Common(mybox3,aPart1).Shape()
         myshapeDimension3 = get_bounding_details(myshape3)
         xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension3        
         xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = myshapeDimension2
-        """ print("Before cheking",\
+        if debugMe:
+            print("Before cheking",\
             (xmin2-xl2, ymin2-yl2, zmin2-zl2),(xmin2-(xl2*2), ymin2-(yl2*2), zmin2-(zl2*2)),\
                 aDimension1,aDimension2,myshapeDimension2,myshapeDimension3,\
-                    get_bounding_details(aPart1),get_bounding_details(aPart2)) """
-        if ( ((xmin1==xmin3) and (xmax1==xmax3) and (ymin1==ymin3) and (ymax1==ymax3)) or
+                    get_bounding_details(aPart1),get_bounding_details(aPart2))
+        """  if ( ((xmin1==xmin3) and (xmax1==xmax3) and (ymin1==ymin3) and (ymax1==ymax3)) or
             ((ymin1==ymin3) and (ymax1==ymax3) and (zmin1==zmin3) and (zmax1==zmax3)) or
-            ((zmin1==zmin3) and (zmax1==zmax3)and (xmin1==xmin3) and (xmax1==xmax3)) ):
+            ((zmin1==zmin3) and (zmax1==zmax3) and (xmin1==xmin3) and (xmax1==xmax3)) ): """
+        if ( ((xmin1==xmin3) and (xmax1==xmax3) ) or
+            ((ymin1==ymin3) and (ymax1==ymax3)  ) or
+            ((zmin1==zmin3) and (zmax1==zmax3)  ) ):
             corner1 = gp_Pnt(xmin1, ymin1, zmin1)
             mybox1 = BRepPrimAPI_MakeBox(corner1,xmax1-xmin1,ymax1-ymin1,zmax1-zmin1).Shape()
             myshape1 = BRepAlgoAPI_Common(mybox1,aPart2).Shape()
             myshapeDimension1 = get_bounding_details(myshape1)
-            #print("after cheking",aDimension1,aDimension2,myshapeDimension1,myshapeDimension2,myshapeDimension3)
+            if debugMe:
+                print("after cheking",aDimension1,aDimension2,myshapeDimension1,myshapeDimension2,myshapeDimension3)
             if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
                 return (False, (0, 0, 0, 0, 0, 0))
             else:
@@ -1404,9 +1438,74 @@ def isTopCenter(aDimension1, aDimension2):
         ((zc1==zc2) and (yc1 < yc2)) or
         ((zc1==zc2) and (yc1 == yc2) and (xc1 < xc2)) ):
         return True
-    return False        
+    return False    
 
-def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center):
+def GetTopPart(outerPos, outerDimension, outerObjectsDict):  
+    innerObject, dimensionObject = outerPos, outerDimension     
+    if innerObject in outerObjectsDict:
+        _, outerObjects = outerObjectsDict[outerPos]        
+        lenOuterObject = len(outerObjects)
+        if(lenOuterObject>0):                            
+            for i in range(0,lenOuterObject-1):
+                swapper = False
+                for j in range(0,lenOuterObject-1-i):
+                    innerObject, dimensionObject = outerObjects[j]  
+                    _, dimensionObject1 = outerObjects[j+1]  
+                    #print(i,j, (shapesdim[i],shapesdim[j]), isInner(shapesdim[i],shapesdim[j]), isOuter(shapesdim[i],shapesdim[j]), isTopFronter(shapesdim[i],shapesdim[j]) )
+                    swapper = (isTopCenter(dimensionObject1,dimensionObject) )                     
+                    if(swapper):
+                        #if(swapper):
+                        outerObjects[j+1], outerObjects[j] = swap(outerObjects[j+1], outerObjects[j])
+            innerObject, dimensionObject = outerObjects[0] 
+    return (innerObject, dimensionObject)
+       
+def GetToppestPart(outerPos, outerDimension, outerObjectsDict, innerObjectsDict):
+    #print("Got 0",outerPos, outerDimension)
+    myTopPos, myTopDimension = GetTopPart(outerPos, outerDimension, outerObjectsDict)
+    #print("Got 1",myTopPos, myTopDimension)
+    if myTopPos==outerPos:
+        return (myTopPos, myTopDimension)
+    else:
+        innerObject, dimensionObject = myTopPos, myTopDimension
+        if myTopPos in innerObjectsDict:
+            #print("Inner object",innerObjectsDict[myTopPos])
+            myInnerArray=innerObjectsDict[myTopPos]
+            #print("Unpacked Inner object",innerObjectsDict[myTopPos])
+            lenOuterObject = len(myInnerArray)
+            if(lenOuterObject>0): 
+                innerObjects = [(myTopPos, myTopDimension)]                        
+                for i in range(0,lenOuterObject):
+                    innerPos, innerDimension = myInnerArray[i] 
+                    if (innerPos > outerPos):
+                        #print("Got 2",innerPos, innerDimension)
+                        innerObj, innerObjDimension = GetToppestPart(innerPos, innerDimension, outerObjectsDict, innerObjectsDict)
+                        #print("Got 3",innerObj, innerObjDimension)
+                        innerObjects.append((innerObj, innerObjDimension))
+                lenOuterObject = len(innerObjects)
+                innerObject, dimensionObject = myTopPos, myTopDimension
+                if(lenOuterObject>0):                            
+                    for i in range(0,lenOuterObject-1):
+                        swapper = False
+                        for j in range(0,lenOuterObject-1-i):
+                            innerObject, dimensionObject = innerObjects[j]  
+                            _, dimensionObject1 = innerObjects[j+1]  
+                            #print(i,j, (shapesdim[i],shapesdim[j]), isInner(shapesdim[i],shapesdim[j]), isOuter(shapesdim[i],shapesdim[j]), isTopFronter(shapesdim[i],shapesdim[j]) )
+                            swapper = (isTopCenter(dimensionObject1,dimensionObject) )                     
+                            if(swapper):
+                                #if(swapper):
+                                innerObjects[j+1], innerObjects[j] = swap(innerObjects[j+1], innerObjects[j])
+                    innerObject, dimensionObject = innerObjects[0] 
+            return (innerObject,dimensionObject)
+        #print("Got 4",myTopPos, myTopDimension)
+        innerObject, dimensionObject = GetToppestPart(myTopPos, myTopDimension, outerObjectsDict, innerObjectsDict)
+        #print("Got 5",innerObject, dimensionObject)
+        return (innerObject, dimensionObject)
+
+
+        
+        
+                      
+def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0.2,debugMe=False):
 
     xmin, ymin, zmin, xmax, ymax, zmax = dimension 
     xc, yc, zc = (xmin+xmax)/2, (ymin+ymax)/2 , (zmin+zmax)/2
@@ -1469,7 +1568,7 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center):
     #print(shapeorder,shapesdis,shapesvol)
     
     if(center):
-        tolerance = 0.2
+        
         k = 1
         while k < lenShape:
             #for i in range(0,lenShape):
@@ -1487,48 +1586,82 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center):
                         shapesdis[j+1], shapesdis[j] = swap(shapesdis[j+1], shapesdis[j])
                         shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
                         shapesdim[j+1], shapesdim[j] = swap(shapesdim[j+1], shapesdim[j])
-            outerObjectsDict = {}
+            
             #for i in range(0,lenShape):
                 #print("before",i, shapeorder[i], shapesdim[i] )
-            for i in range(0,lenShape-k):                
-                for j in range(0,lenShape-k):                   
-                    if (i!=j) and (not j in outerObjectsDict):
-                        outer, dimensionObject = isOuterToPart(shapesdim[j],shape[shapeorder[j]],shapesdim[i],shape[shapeorder[i]],tolerance)
+            outerObjectsDict = {}
+            innerObjectsDict = {}
+            FurtherEnclosures = False
+            for i in range(0,lenShape-k+1):   
+                outerObjectsArray = []             
+                for j in range(0,lenShape-k+1):                   
+                    if (i != j) :                        
+                        #debugMe = (shapeorder[i]==1) and (shapeorder[j]==0)
+                        outer, dimensionObject = isOuterToPart(shapesdim[j],shape[shapeorder[j]],shapesdim[i],shape[shapeorder[i]],tolerance,debugMe)
                         if(outer):
-                            outerObjectsDict[j]=(j,dimensionObject)
-                            #print("outerObjects",j,shapeorder[j],outerObjectsDict[j],shapesdim[j],shapesdim[i],dimensionObject)
-            outerObjects=[]
-            for key, value in outerObjectsDict.items():
-                #print(key, value)
-                outerObjects.append(value)
-            
-            innerObject = 0
-            #print("Len outerobjets",outerObjects)
-            lenOuterObject = len(outerObjects)
-            #print("Len outerobjets",outerObjects,lenOuterObject)
-            if(lenOuterObject>0):                            
-                for i in range(0,lenOuterObject-1):
+                            outerObjectsArray.append((j,dimensionObject))
+                            if not j in innerObjectsDict:
+                                innerObjectsDict[j]=[]
+                            innerObjectsDict[j].append((i,shapesdim[i]))
+                if(len(outerObjectsArray)>0):
+                    outerObjectsDict[i]=(i,outerObjectsArray)
+                    if i==0 :
+                        FurtherEnclosures = True
+                else:
+                    outerObjectsDict[i]=(i,[(i,shapesdim[i])])
+            if FurtherEnclosures==True:
+                print(k,"Doing Enclosure",outerObjectsDict)
+                innerObject = 0
+                if 0 in outerObjectsDict:
+                    #print(k, shapeorder[0], shapesdim[0], outerObjectsDict, innerObjectsDict)
+                    innerObject, dimensionObject = GetToppestPart(0, shapesdim[0], outerObjectsDict, innerObjectsDict) 
+                    #print("after ordering",innerObject, dimensionObject)       
+                if (innerObject != (lenShape-k)):
+                    i=innerObject
+                    j=lenShape-k
+                    shapeorder[i], shapeorder[j] = swap(shapeorder[i], shapeorder[j])                
+                    shapesmov[i], shapesmov[j] = swap(shapesmov[i], shapesmov[j])
+                    shapesdis[i], shapesdis[j] = swap(shapesdis[i], shapesdis[j])
+                    shapesvol[i], shapesvol[j] = swap(shapesvol[i], shapesvol[j])
+                    shapesdim[i], shapesdim[j] = swap(shapesdim[i], shapesdim[j])
+            else:
+                print(k,"Doing Distancer",outerObjectsDict)
+                for i in range(0,lenShape-k):
                     swapper = False
-                    for j in range(0,lenOuterObject-1-i):
-                        innerObject, dimensionObject = outerObjects[j]  
-                        innerObject1, dimensionObject1 = outerObjects[j+1]  
-                        #print(i,j, (shapesdim[i],shapesdim[j]), isInner(shapesdim[i],shapesdim[j]), isOuter(shapesdim[i],shapesdim[j]), isTopFronter(shapesdim[i],shapesdim[j]) )
-                        swapper = (isTopCenter(dimensionObject1,dimensionObject) ) 
-                        
-                        if(swapper):
+                    for j in range(0,lenShape-k-i):
+                        if(((shapesdis[j+1] < shapesdis[j]) or 
+                            ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] < shapesvol[j])) or
+                            ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] == shapesvol[j]) and 
+                            (isTopCenter(shapesdim[j+1],shapesdim[j]) ) ) ) ):
                             #if(swapper):
-                            outerObjects[j+1], outerObjects[j] = swap(outerObjects[j+1], outerObjects[j])                
-                #print("BEF ordering",outerObjects) 
-                innerObject, dimensionObject = outerObjects[0] 
-                #print("after ordering",outerObjects)       
-            if(innerObject!=(lenShape-k)):
-                i=innerObject
-                j=lenShape-k
-                shapeorder[i], shapeorder[j] = swap(shapeorder[i], shapeorder[j])                
-                shapesmov[i], shapesmov[j] = swap(shapesmov[i], shapesmov[j])
-                shapesdis[i], shapesdis[j] = swap(shapesdis[i], shapesdis[j])
-                shapesvol[i], shapesvol[j] = swap(shapesvol[i], shapesvol[j])
-                shapesdim[i], shapesdim[j] = swap(shapesdim[i], shapesdim[j])
+                            shapeorder[j+1], shapeorder[j] = swap(shapeorder[j+1], shapeorder[j])                
+                            shapesmov[j+1], shapesmov[j] = swap(shapesmov[j+1], shapesmov[j])
+                            shapesdis[j+1], shapesdis[j] = swap(shapesdis[j+1], shapesdis[j])
+                            shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
+                            shapesdim[j+1], shapesdim[j] = swap(shapesdim[j+1], shapesdim[j])
+                    
+                Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = shapesdim[0] 
+                for i in range(1,lenShape-k):
+                    xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[i]
+                    if(xmins < Xxmin):
+                        Xxmin = xmins
+                    if(ymins < Yymin):
+                        Yymin = ymins
+                    if(zmins < Zzmin):
+                        Zzmin = zmins
+                    if(xmaxs > Xxmax):
+                        Xxmax = xmaxs
+                    if(ymaxs > Yymax):
+                        Yymax = ymaxs
+                    if(zmaxs > Zzmax):
+                        Zzmax = zmaxs
+                xc, yc, zc = (Xxmin+Xxmax)/2, (Yymin+Yymax)/2 , (Zzmin+Zzmax)/2
+                #print("before",xc,yc,zc,k, shapesdis)
+                for i in range(0,lenShape-k):
+                    xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[i]
+                    xmove, ymove, zmove = shapesmov[i]
+                    shapesdis[i]= ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 
+                
             #for i in range(0,lenShape):
                 #print("after", i, shapeorder[i], shapesdim[i] )
 
@@ -1649,7 +1782,7 @@ def getShapesFromOutPutShapes(shapes,mytree):
     #print(retshapes,onlyshapes)
     return (retshapes,onlyshapes,findAssemblyShapeName(1,mytree))
 
-def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center):#,thumbwidth,thumbheight):
+def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,tolerance = 0.2):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -1677,16 +1810,17 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center):
                     filename=sourceFileName,ascompound=True,includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,
                     edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
-                dimension, myShapes = outputShapes
+                """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
                 #shape = Wholeshape
                 #shapeArray = createShapeArray(shape)
-                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center)
+                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,tolerance)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays,shapeorder=shapeorder).dump()
-                dictionary['assemblyorder']=shapeorder
+                dictionary['assemblyorder']=shapeorder """
+                
                 """  print(len(nshape))
                 for i in range(1, len(nshape)):
                     print('theshape', hash(nshape[i]), moveArrays[i-1]) """
@@ -1703,14 +1837,14 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center):
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
-                dimension, myShapes = outputShapes
+                """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
-                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center)
+                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,tolerance)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()           
-                dictionary['assemblyorder']=shapeorder
+                dictionary['assemblyorder']=shapeorder """
             except Exception as e:
                 print("error",e)
                 
@@ -1740,14 +1874,14 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center):
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
-                dimension, myShapes = outputShapes
+                """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
-                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center)
+                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,tolerance)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbheight=0,thumbwidth=0,
                     edgesize=0, vertexsize=0, animations=moveArrays).dump()           
-                dictionary['assemblyorder']=shapeorder
+                dictionary['assemblyorder']=shapeorder """
             except Exception as e:
                 print("error",e)
                 
@@ -1759,18 +1893,31 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center):
                     filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,anglegap=anglegap,ascompound=True,
                     thumbwidth=0,thumbheight=0).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
-                dimension, myShapes = outputShapes
+                """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
-                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center)
+                nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,tolerance)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbheight=0, thumbwidth=0,
                     edgesize=0, vertexsize=0, animations=moveArrays,delay=1).dump()          
-                dictionary['assemblyorder']=shapeorder
+                dictionary['assemblyorder']=shapeorder """
             except Exception as e:
                 print("error",e)
                 
             #return dictionary 
+        try:
+            dimension, myShapes = outputShapes
+            shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            #shape = Wholeshape
+            #shapeArray = createShapeArray(shape)
+            nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,tolerance)
+            (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
+                anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
+                edgesize=0, vertexsize=0, animations=moveArrays,shapeorder=shapeorder).dump()
+            dictionary['assemblyorder']=shapeorder
+        except Exception as e:
+            print("error",e)
         try:
             orderfile = "Display/"+dictionary["store"]+".order"
             print("Writing,",orderfile)
