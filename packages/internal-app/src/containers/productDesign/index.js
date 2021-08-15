@@ -7,6 +7,8 @@ import ProductDesignHeader from "./ProductDesignHeader";
 import Product from '@ravibasil/common/containers/product';
 import ProductTab from '@ravibasil/common/containers/productTab';
 import AppDesigner from '@ravibasil/common/containers/appDesigner';
+import CAD from '@ravibasil/common/containers/cad';
+
 
 import ProductDesignAPI from '@ravibasil/common/api/productDesign.api';
 
@@ -32,6 +34,8 @@ const ProductDesign = ({ gltfjson, setgltfjson }) => {
         return <ProductTab
           gltfjson={gltfjson}
           setgltfjson={setgltfjson} />;
+          case 'cad' :
+            return <CAD />;
       case 'app-designer':
         return <AppDesigner />;
       default:
