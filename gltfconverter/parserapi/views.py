@@ -18,7 +18,7 @@ import json
 import pprint
 from glob import glob
 import os
-import sys
+#import sys
 import pickle
 
 from pathlib import Path
@@ -1391,11 +1391,11 @@ def isOuterToPart(aDimension1,aPart1,aDimension2,aPart2,tolerance=0.2,debugMe=Fa
             if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
                 return (False, (0, 0, 0, 0, 0, 0))
             else:
-                return (isOuter(myshapeDimension2,myshapeDimension1), myshapeDimension1)
+                return (isOuter(myshapeDimension2,myshapeDimension1,debugMe), myshapeDimension1)
         else:
             return (False, (0, 0, 0, 0, 0, 0))
 
-def isOuter(aDimension1, aDimension2):
+def isOuter(aDimension1, aDimension2, debugMe=False):
     xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = aDimension1
     xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2
     #print(aDimension1,aDimension2)
@@ -1408,7 +1408,11 @@ def isOuter(aDimension1, aDimension2):
         ( (zmin1<zmin2) and (zmax1>zmax2) and
         (xmin1<xmin2) and (xmax1>xmax2) and
         (ymin1>=ymin2) and (ymax1<=ymax2) ) ):
+        if debugMe:
+            print("I am outer",(aDimension1,aDimension2))
         return True
+    if debugMe:
+        print("I am Not outer",(aDimension1,aDimension2))
     return False
 
 def isInner(aDimension1, aDimension2):
@@ -1438,7 +1442,65 @@ def isTopCenter(aDimension1, aDimension2):
         ((zc1==zc2) and (yc1 < yc2)) or
         ((zc1==zc2) and (yc1 == yc2) and (xc1 < xc2)) ):
         return True
-    return False    
+    return False 
+
+def isEnclosed(aDimension1,aDimension2,debugMe=False):
+    xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = aDimension1
+    xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2
+    
+    if ( ( (xmin1 >= xmin2) and (xmax2 <= xmax1) ) or
+        ( (xmin1 <= xmin2) and (xmax2 >= xmax1) ) or
+        ( (ymin1 >= ymin2) and (ymax2 <= ymax1) ) or
+        ( (ymin1 <= ymin2) and (ymax2 >= ymax1) ) or
+        ( (zmin1 >= zmin2) and (zmax2 <= zmax1) ) or
+        ( (zmin1 <= zmin2) and (zmax2 >= zmax1) ) ):
+        if debugMe:
+            print("I here not satisfied",aDimension1,aDimension2)
+            print("( (xmin1 >= xmin2) and (xmax2 <= xmax1) )",( (xmin1 >= xmin2) and (xmax2 <= xmax1) ))
+            print("( (xmin1 <= xmin2) and (xmax2 >= xmax1) )",( (xmin1 <= xmin2) and (xmax2 >= xmax1) ))
+            print("( (ymin1 >= ymin2) and (ymax2 <= ymax1) )",( (ymin1 >= ymin2) and (ymax2 <= ymax1) ))
+            print("( (ymin1 <= ymin2) and (ymax2 >= ymax1) )",( (ymin1 <= ymin2) and (ymax2 >= ymax1) ))
+            print("( (zmin1 >= zmin2) and (zmax2 <= zmax1) )",( (zmin1 >= zmin2) and (zmax2 <= zmax1) ))
+            print("( (zmin1 <= zmin2) and (zmax2 >= zmax1) )",( (zmin1 <= zmin2) and (zmax2 >= zmax1) ))
+        return (False, (0, 0, 0, 0, 0, 0))     
+    corner2 = gp_Pnt(xmin2, ymin2, zmin2)
+    if debugMe:
+        print("getting box2",((xmin2, ymin2, zmin2),(xmax2-xmin2),(ymax2-ymin2),(zmax2-zmin2)),aDimension2,aDimension1)
+    if((xmax2==xmin2) or (ymax2==ymin2) or (zmax2==zmin2) ):
+        return (False, (0, 0, 0, 0, 0, 0)) 
+    mybox2 = BRepPrimAPI_MakeBox(corner2,(xmax2-xmin2),(ymax2-ymin2),(zmax2-zmin2)).Shape()
+       
+    corner1 = gp_Pnt(xmin1, ymin1, zmin1)
+    if debugMe:
+        print("getting box1",((xmin1, ymin1, zmin1),(xmax1-xmin1),(ymax1-ymin1),(zmax1-zmin1)),aDimension2,aDimension1)
+    if((xmax1==xmin1) or (ymax1==ymin1) or (zmax1==zmin1) ):
+        return (False, (0, 0, 0, 0, 0, 0)) 
+    mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax1-ymin1),(zmax1-zmin1)).Shape()
+    myshapeCommon = BRepAlgoAPI_Common(mybox2,mybox1).Shape()
+    myshapeDimension = get_bounding_details(myshapeCommon)
+    if myshapeDimension == (0, 0, 0, 0, 0, 0) :
+        if debugMe:
+            print("Nothing common")
+        return (False, (0, 0, 0, 0, 0, 0))
+    else:
+        if debugMe:
+            print("From Cube",myshapeDimension,aDimension1,aDimension2)
+        xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension
+        if ( ((xmin2==xmin3) and (xmax2==xmax3) and
+            (ymin2==ymin3) and (ymax2==ymax3) and 
+            (zmin2<zmin3) and (zmax2>zmax3)) or
+            ((ymin2==ymin3) and (ymax2==ymax3) and 
+            (zmin2==zmin3) and (zmax2==zmax3) and
+            (xmin2<xmin3) and (xmax2>xmax3)) or
+            ((zmin2==zmin3) and (zmax2==zmax3) and 
+            (xmin2==xmin3) and (xmax2==xmax3) and
+            (ymin2<ymin3) and (ymax2>ymax3)) ):
+            if debugMe:
+                print("I am enclosed",myshapeDimension)
+            return (True, myshapeDimension)
+        if debugMe:
+            print("I am partially enclosed and hence allowed to check", myshapeDimension)
+        return (True, myshapeDimension)
 
 def GetTopPart(outerPos, outerDimension, outerObjectsDict):  
     innerObject, dimensionObject = outerPos, outerDimension     
@@ -1565,10 +1627,74 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
          
     """  for i in range(lenShape):
         print("before",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
-    #print(shapeorder,shapesdis,shapesvol)
+    print(lenShape,shapeorder,shapesdis,shapesvol)
     
     if(center):
         
+        k = 1
+        enclosed = False
+        outer = False
+        dimensionObject = (0, 0, 0, 0, 0, 0)   
+        outerDimensionalArray = [[(enclosed,outer,dimensionObject) \
+            for i in range(lenShape)] for j in range(lenShape)]
+        for i in range(0,lenShape-k):
+            swapper = False
+            for j in range(0,lenShape-k-i):
+                #print(i,j, (shapesdim[i],shapesdim[j]), isInner(shapesdim[i],shapesdim[j]), isOuter(shapesdim[i],shapesdim[j]), isTopFronter(shapesdim[i],shapesdim[j]) )
+                swapper = (isTopFronter(shapesdim[j+1],shapesdim[j]) ) 
+                
+                if(swapper):
+                    #if(swapper):
+                    shapeorder[j+1], shapeorder[j] = swap(shapeorder[j+1], shapeorder[j])                
+                    shapesmov[j+1], shapesmov[j] = swap(shapesmov[j+1], shapesmov[j])
+                    shapesdis[j+1], shapesdis[j] = swap(shapesdis[j+1], shapesdis[j])
+                    shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
+                    shapesdim[j+1], shapesdim[j] = swap(shapesdim[j+1], shapesdim[j])
+            
+        #for i in range(0,lenShape):
+            #print("before",i, shapeorder[i], shapesdim[i] )
+        outerObjectsDict = {}
+        innerObjectsDict = {}
+        FurtherEnclosures = False
+        k = 1
+        print("Started Finding",k,lenShape)
+        for i in range(0,lenShape-k+1):   
+            outerObjectsArray = []             
+            for j in range(0,lenShape-k+1): 
+                enclosed = False
+                outer = False
+                dimensionObject = (0, 0, 0, 0, 0, 0)                  
+                if (i != j) :                        
+                    #debugMe = ( (shapeorder[i]==1) and (shapeorder[j]==0) ) or ((shapeorder[i]==0) and (shapeorder[j]==3))
+                    #debugMe = (i==0)
+                    enclosed,_ = isEnclosed(shapesdim[j],shapesdim[i],debugMe)
+                    if enclosed:
+                        if debugMe:
+                            print("I am checking to enclosed to append",i,j,shapeorder[i],shapeorder[j])
+                        outer, dimensionObject = isOuterToPart(shapesdim[j],shape[shapeorder[j]],shapesdim[i],shape[shapeorder[i]],tolerance,debugMe)
+                        if(outer):
+                            if debugMe:
+                                print("I have checked to enclosed to append",i,j,shapeorder[i],shapeorder[j])
+                            outerObjectsArray.append((j,dimensionObject))
+                            if not j in innerObjectsDict:
+                                innerObjectsDict[j]=[]
+                            innerObjectsDict[j].append((i,shapesdim[i]))
+                        else:
+                            if debugMe:
+                                print("I have checked not to enclosed to append",i,j,shapeorder[i],shapeorder[j])
+                    else:
+                        if debugMe:
+                            print("I am not enclosed to append",i,j,shapeorder[i],shapeorder[j])
+                outerDimensionalArray[shapeorder[i]][shapeorder[j]]= (enclosed,outer,dimensionObject)
+                print(i,j,shapeorder[i],shapeorder[j],(enclosed,outer,dimensionObject))
+            if(len(outerObjectsArray)>0):
+                outerObjectsDict[i]=(i,outerObjectsArray)
+                if i==0 :
+                    FurtherEnclosures = True
+                else:
+                    FurtherEnclosures = True
+            else:
+                outerObjectsDict[i]=(i,[(i,shapesdim[i])])
         k = 1
         while k < lenShape:
             #for i in range(0,lenShape):
@@ -1592,20 +1718,54 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
             outerObjectsDict = {}
             innerObjectsDict = {}
             FurtherEnclosures = False
+            print("Started Arranging",k,lenShape)
             for i in range(0,lenShape-k+1):   
                 outerObjectsArray = []             
                 for j in range(0,lenShape-k+1):                   
                     if (i != j) :                        
-                        #debugMe = (shapeorder[i]==1) and (shapeorder[j]==0)
-                        outer, dimensionObject = isOuterToPart(shapesdim[j],shape[shapeorder[j]],shapesdim[i],shape[shapeorder[i]],tolerance,debugMe)
-                        if(outer):
-                            outerObjectsArray.append((j,dimensionObject))
-                            if not j in innerObjectsDict:
-                                innerObjectsDict[j]=[]
-                            innerObjectsDict[j].append((i,shapesdim[i]))
+                        #debugMe = ( (shapeorder[i]==1) and (shapeorder[j]==0) ) or ((shapeorder[i]==0) and (shapeorder[j]==3))
+                        #debugMe = (i==0)
+                        (enclosed,outer,dimensionObject) = outerDimensionalArray[shapeorder[i]][shapeorder[j]]
+                        if enclosed:
+                            if debugMe:
+                                print("I am checking to enclosed to append",i,j,shapeorder[i],shapeorder[j])
+                            #outer, dimensionObject = isOuterToPart(shapesdim[j],shape[shapeorder[j]],shapesdim[i],shape[shapeorder[i]],tolerance,debugMe)
+                            if(outer):
+                                if debugMe:
+                                    print("I have checked to enclosed to append",i,j,shapeorder[i],shapeorder[j])
+                                outerObjectsArray.append((j,dimensionObject))
+                                if not j in innerObjectsDict:
+                                    innerObjectsDict[j]=[]
+                                innerObjectsDict[j].append((i,shapesdim[i]))
+                            else:
+                                if debugMe:
+                                    print("I have checked not to enclosed to append",i,j,shapeorder[i],shapeorder[j])
+                        else:
+                            if debugMe:
+                                print("I am not enclosed to append",i,j,shapeorder[i],shapeorder[j])
+                        """ enclosed,_ = isEnclosed(shapesdim[j],shapesdim[i],debugMe)
+                        if enclosed:
+                            if debugMe:
+                                print("I am checking to enclosed to append",i,j,shapeorder[i],shapeorder[j])
+                            outer, dimensionObject = isOuterToPart(shapesdim[j],shape[shapeorder[j]],shapesdim[i],shape[shapeorder[i]],tolerance,debugMe)
+                            if(outer):
+                                if debugMe:
+                                    print("I have checked to enclosed to append",i,j,shapeorder[i],shapeorder[j])
+                                outerObjectsArray.append((j,dimensionObject))
+                                if not j in innerObjectsDict:
+                                    innerObjectsDict[j]=[]
+                                innerObjectsDict[j].append((i,shapesdim[i]))
+                            else:
+                                if debugMe:
+                                    print("I have checked not to enclosed to append",i,j,shapeorder[i],shapeorder[j])
+                        else:
+                            if debugMe:
+                                print("I am not enclosed to append",i,j,shapeorder[i],shapeorder[j]) """
                 if(len(outerObjectsArray)>0):
                     outerObjectsDict[i]=(i,outerObjectsArray)
                     if i==0 :
+                        FurtherEnclosures = True
+                    else:
                         FurtherEnclosures = True
                 else:
                     outerObjectsDict[i]=(i,[(i,shapesdim[i])])
