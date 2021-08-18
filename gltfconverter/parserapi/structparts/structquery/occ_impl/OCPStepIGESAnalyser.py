@@ -1663,6 +1663,7 @@ class StepIgesAnalyser():
                                     ) 
                                     if solidFoundHere > 0 :
                                         self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, myPartMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
+                                        #print("ShapeInFile",self.outputShapes[shapeInFile])
                                     if self.includeparts and parentIDNotAdded:
                                         if myPartMeshID:
                                             my_parent_id = myPartMeshID 
@@ -1677,7 +1678,7 @@ class StepIgesAnalyser():
                                         self.direntry += "/"+mydirectory  
                                         parentIDNotAdded = False 
                                     #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
-
+                                    #print("ShapeInFile",self.outputShapes[shapeInFile])
                                 #else:
                                 #    diffColor = self.outputShapes[shapeInFile][3]
                                 #    #print(diffColor, faceColor)
