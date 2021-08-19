@@ -260,13 +260,13 @@ export default function Assembly(props) {
     toBuildTree = false;
   };
 
-  const onSelectionChange = (rows) => {
+  /* const onSelectionChange = (rows) => {
     if (props.OnAddition) {
       props.OnAddition(rows);
     } else {
       console.log("No additions", props.OnAddition, rows);
     }
-  };
+  }; */
 
   return <Extensions onSelectionChange={OnAddition} nodes={nodes} />;
 }

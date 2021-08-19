@@ -1912,6 +1912,7 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
         xmin, ymin, zmin, xmax, ymax, zmax = dimension 
         xc, yc, zc = (xmin+xmax)/2, (ymin+ymax)/2 , (zmin+zmax)/2
         xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = 0, 0, 0, 0, 0, 0
+        xmovep, ymovep, zmovep = 0,0,0
         for i  in range(lenShape):
             #(aShape,aName,aColor) = shapeArray[i]
             #xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
@@ -1925,19 +1926,37 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
             xmove = (((xmins+xmaxs)/2)-xc)*xs#*directionX
             ymove = (((ymins+ymaxs)/2)-yc)*ys#*directionY
             zmove = (((zmins+zmaxs)/2)-zc)*zs#*directionZ
-            
+            if xmove < 0:
+                dirX = -1
+            else:
+                dirX = 1
+            if ymove < 0:
+                dirY = -1
+            else:
+                dirY = 1
+            if zmove < 0:
+                dirZ = -1
+            else:
+                dirZ = 1    
             if i==0:
                 shiftX,shiftY,shiftZ = 0,0,0
             else:           
-                xmove, ymove, zmove = 0,0,0    
-                shiftX += ((xmaxp-xminp)) * directionX + explodegap
-                shiftY += ((ymaxp-yminp)) * directionY + explodegap
-                shiftZ += ((zmaxp-zminp)) * directionZ + explodegap 
-                xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = xmins, ymins, zmins, xmaxs, ymaxs, zmaxs
+                #xmove, ymove, zmove = 0,0,0    
+                shiftX += ( ((xmaxp-xminp)) * directionX + explodegap ) * dirX
+                shiftY += ( ((ymaxp-yminp)) * directionY + explodegap ) * dirY
+                shiftZ += ( ((zmaxp-zminp)) * directionZ + explodegap ) * dirZ
             
+            xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = xmins, ymins, zmins, xmaxs, ymaxs, zmaxs
+            xmovep,ymovep,zmovep = xmove, ymove, zmove
+
             xmoveX = (xmove+shiftX) * directionX  
             ymoveY = (ymove+shiftY) * directionY  
             zmoveZ = (zmove+shiftZ) * directionZ 
+            
+            """  xmoveX = xmove
+            ymoveY = ymove
+            zmoveZ = zmove """
+
             print(direction,i,shapeassembleorder[i],shapereverseorder[shapeassembleorder[i]],\
                 shiftX,shiftY,shiftZ,(xmove, ymove, zmove),(xmoveX, ymoveY, zmoveZ),aName,bName,\
                     (xmins, ymins, zmins, xmaxs, ymaxs, zmaxs),get_bounding_details(bShape))            
