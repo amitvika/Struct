@@ -1,9 +1,10 @@
+
 from math import ceil
 from OCC.Core.gp import gp_Pnt 
 from django.http.response import JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework.parsers import FileUploadParser
+#from rest_framework.parsers import FileUploadParser
 from rest_framework.parsers import JSONParser
 
 from .models import File
@@ -1564,7 +1565,12 @@ def GetToppestPart(outerPos, outerDimension, outerObjectsDict, innerObjectsDict)
         return (innerObject, dimensionObject)
 
 
-        
+def getDirection(mypos,innerdict):   
+    enclose, _, direction = innerdict[mypos]
+    if (mypos == enclose):
+        return direction
+    else:
+        return getDirection(enclose,innerdict)      
         
                       
 def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0.2,debugMe=False):
@@ -1588,15 +1594,17 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
         if(zd==0):
             zd=1
         xt, yt, zt =  maxGap, maxGap, 2*zd+explodegap+maxGap
-    xs  = 1+ ( maxGap / xd )
-    ys  = 1+ ( maxGap / yd )
-    zs  = 1+ ( maxGap / zd )
+    xs  = 1+ ( maxGap / xd ) / 2
+    ys  = 1+ ( maxGap / yd ) / 2
+    zs  = 1+ ( maxGap / zd ) / 2
     newShapes=[]
     moveArrays=[]
     #shapesdim=[]
     shapesdis=[]
     shapesvol=[]
     shapeorder=[]
+    shapereverseorder=[]
+    shapeassembleorder=[]
     shapesdim=[]
     shapesmov=[]
     fullShape,converted = list_of_shapes_to_compound(shape)
@@ -1614,11 +1622,16 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
         (aShape,aName,aColor) = shapeArray[i]
         xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
         xmove, ymove, zmove = (((xmins+xmaxs)/2)-xc)*xs, (((ymins+ymaxs)/2)-yc)*ys, (((zmins+zmaxs)/2)-zc)*zs
-        newShape=translate_shp(aShape,xmove+xt, ymove+yt, zmove+zt, True)
+        if not center:
+            newShape=translate_shp(aShape,xmove+xt, ymove+yt, zmove+zt, True)
+        else:
+            newShape=translate_shp(aShape,xt, yt, zt, True)
         newShapes.append((newShape,aName,aColor))
         moveArrays.append((xmove, ymove, zmove))
         #shapesdim.append(xmins+xmove+xt, ymins+ymove+xt, zmins+zmove+xt, xmaxs+xmove+xt, ymaxs+ymove+xt, zmaxs+zmove+xt)
         shapeorder.append(i)
+        shapereverseorder.append(i)
+        shapeassembleorder.append(i)
         shapesmov.append((xmove, ymove, zmove))
         shapesdis.append( ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 )
         shapesvol.append(abs((xmaxs-xmins)*(ymaxs-ymins)*(zmaxs-zmins)))         
@@ -1637,6 +1650,7 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
         dimensionObject = (0, 0, 0, 0, 0, 0)   
         outerDimensionalArray = [[(enclosed,outer,dimensionObject) \
             for i in range(lenShape)] for j in range(lenShape)]
+        innerDimensionalDict = {}
         for i in range(0,lenShape-k):
             swapper = False
             for j in range(0,lenShape-k-i):
@@ -1695,6 +1709,25 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                     FurtherEnclosures = True
             else:
                 outerObjectsDict[i]=(i,[(i,shapesdim[i])])
+        maxDirectionX, maxDirectionY,maxDirectionZ = (0,0,0)
+        print("Starting direction findings",innerObjectsDict)
+        for i in range(0,lenShape-k+1):            
+            (mypos,mydim) = i, shapesdim[i]
+            if i in innerObjectsDict:
+                (mypos,mydim) = innerObjectsDict[i][0]
+                #print("innerObjectshere",i,shapeorder[i],innerObjectsDict[i])
+            xmin, ymin, zmin, xmax, ymax, zmax = mydim                       
+            if( ( (xmax-xmin) >= (ymax-ymin) ) and ( (xmax-xmin) >= (zmax-zmin) )):
+                direction = (1,0,0)
+                maxDirectionX += 1
+            elif ( ( (ymax-ymin) >= (xmax-xmin) ) and ( (ymax-ymin) >= (zmax-zmin) )):
+                direction = (0,1,0)
+                maxDirectionY += 1
+            else:
+                direction = (0, 0, 1)
+                maxDirectionZ += 1                
+            innerDimensionalDict[shapeorder[i]]= (shapeorder[mypos],mydim,direction)  
+        print("MyObjectDict",innerDimensionalDict,maxDirectionX, maxDirectionY,maxDirectionZ)          
         k = 1
         while k < lenShape:
             #for i in range(0,lenShape):
@@ -1870,10 +1903,80 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                 shapesdis[i]= ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 
             #print("after",shapesdis,shapesdim,shapesvol)
             k += 1  """   
-                    
+        for i  in range(lenShape):
+            shapereverseorder[shapeorder[i]] = i
+        for i  in range(lenShape):
+            shapeassembleorder[shapereverseorder[i]] = i
+        #for i  in range(lenShape):
+        #    print(i,shapereverseorder[i],shapeorder[i],moveArrays[i],shapesmov[i],shapesdim[i])
+        xmin, ymin, zmin, xmax, ymax, zmax = dimension 
+        xc, yc, zc = (xmin+xmax)/2, (ymin+ymax)/2 , (zmin+zmax)/2
+        xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = 0, 0, 0, 0, 0, 0
+        xmovep, ymovep, zmovep = 0,0,0
+        for i  in range(lenShape):
+            #(aShape,aName,aColor) = shapeArray[i]
+            #xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
+            (bShape,bName,bColor) = shapeArray[shapeassembleorder[i]]
+            (newShape,aName,aColor) = newShapes[shapeassembleorder[i]+1]
+            _,_,direction = innerDimensionalDict[shapeassembleorder[i]]
+            xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[shapereverseorder[shapeassembleorder[i]]]
+            
+            directionX,directionY,directionZ = direction
+            
+            xmove = (((xmins+xmaxs)/2)-xc)*xs#*directionX
+            ymove = (((ymins+ymaxs)/2)-yc)*ys#*directionY
+            zmove = (((zmins+zmaxs)/2)-zc)*zs#*directionZ
+            if xmove < 0:
+                dirX = -1
+            else:
+                dirX = 1
+            if ymove < 0:
+                dirY = -1
+            else:
+                dirY = 1
+            if zmove < 0:
+                dirZ = -1
+            else:
+                dirZ = 1    
+            if i==0:
+                shiftX,shiftY,shiftZ = 0,0,0
+            else:           
+                #xmove, ymove, zmove = 0,0,0    
+                shiftX += ( ((xmaxp-xminp)) * directionX + explodegap ) * dirX
+                shiftY += ( ((ymaxp-yminp)) * directionY + explodegap ) * dirY
+                shiftZ += ( ((zmaxp-zminp)) * directionZ + explodegap ) * dirZ
+            
+            xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = xmins, ymins, zmins, xmaxs, ymaxs, zmaxs
+            xmovep,ymovep,zmovep = xmove, ymove, zmove
+
+            xmoveX = (xmove+shiftX) * directionX  
+            ymoveY = (ymove+shiftY) * directionY  
+            zmoveZ = (zmove+shiftZ) * directionZ 
+            
+            """  xmoveX = xmove
+            ymoveY = ymove
+            zmoveZ = zmove """
+
+            print(direction,i,shapeassembleorder[i],shapereverseorder[shapeassembleorder[i]],\
+                shiftX,shiftY,shiftZ,(xmove, ymove, zmove),(xmoveX, ymoveY, zmoveZ),aName,bName,\
+                    (xmins, ymins, zmins, xmaxs, ymaxs, zmaxs),get_bounding_details(bShape))            
+            
+            #print(i,shapeorder[i],direction,xmove,ymove,zmove)
+            if(xmoveX==0 and ymoveY==0 and zmoveZ==0):
+                moveArrays[shapeassembleorder[i]]=(xmove, ymove, zmove)
+                finalShape=translate_shp(newShape,xmove, ymove, zmove, True)
+            else:
+                moveArrays[shapeassembleorder[i]]=(xmoveX, ymoveY, zmoveZ)
+                finalShape=translate_shp(newShape,xmoveX, ymoveY, zmoveZ, True)
+         
+            newShapes[shapeassembleorder[i]+1] = (finalShape,aName,aColor)
+           
+            #shapesdim.append(xmins+xmove+xt, ymins+ymove+xt, zmins+zmove+xt, xmaxs+xmove+xt, ymaxs+ymove+xt, zmaxs+zmove+xt)
+             
     """ for i in range(lenShape):
         print("after",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
     #print(shapeorder,shapesdis,shapesvol)
+    
     return newShapes, moveArrays, shapeorder
     """  _,_,zminj,_,_,zmaxj = shapesdim[j]
                     _,_,zminj1,_,_,zmaxj1 = shapesdim[j+1]
@@ -1903,6 +2006,13 @@ def findAssemblyShapeName(myParent,myTree):
             return aTree[gltf_dict['name']]      
     return "NoParent"
 
+def findMyShapeByTreeID(shapes,treeID):
+    for hash_shape, item in shapes.items():
+        [shape_to_disp, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, uvPlane] = item
+        if myId == treeID:
+            return item
+    return None
+
 def getShapesFromOutPutShapes(shapes,mytree):
     retshapes=[]
     subshapes=[]
@@ -1910,11 +2020,11 @@ def getShapesFromOutPutShapes(shapes,mytree):
     subshapesStarted = False
     subShapeName = ''
     subShapeColor=None
-    for hash_shape, item in shapes.items():
-        #print("item found",item)
-        [shape_to_disp, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, uvPlane] = item
-        #print( shape_to_disp, subName, subEntry, c, myId, myParent, myParent=="1", myParent, myParent==1 )
-        if(myParent==1):
+    for aTree in mytree:
+        myTreeID = aTree[gltf_dict['id']]
+        item = findMyShapeByTreeID(shapes,myTreeID) 
+        myTreeParent = aTree[gltf_dict['parentId']]
+        if(myTreeParent==1):
             if(len(subshapes)>0):
                 mergedshape,_ =  list_of_shapes_to_compound(subshapes)
                 retshapes.append((mergedshape,subShapeName,subShapeColor))
@@ -1922,19 +2032,20 @@ def getShapesFromOutPutShapes(shapes,mytree):
                 subshapes=[]
                 subshapesStarted=False
                 subShapeName=''
-                subShapeColor=None
-            retshapes.append((shape_to_disp,subName,c))  
-            onlyshapes.append(shape_to_disp)          
-        else:
-            if subshapesStarted == False:
-                subshapes=[]
-                subshapesStarted=True
-                subShapeName=''
-                subShapeColor=None
-            if subShapeName=='':
-                subShapeName = findSubShapeName(myParent,mytree)
+                subShapeColor=None 
+        if item != None:
+            [shape_to_disp, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, uvPlane] = item
+            #print(shape_to_disp, subName, subEntry, c, myId, myParent )
+            if (subshapesStarted == False) :
+                if myTreeParent == 1:
+                    myParentName = subName
+                else:
+                    myParentName = findSubShapeName(myParent,mytree)
+                if ((subShapeName == '') and (myParentName != '')) :
+                    subShapeName=myParentName 
+                    subshapesStarted=True
+            subShapeColor=c
             subshapes.append(shape_to_disp)
-            subShapeColor = c
     if(len(subshapes)>0):
         mergedshape,_ =  list_of_shapes_to_compound(subshapes)
         retshapes.append((mergedshape,subShapeName,subShapeColor))   

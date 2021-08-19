@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
 import Paper from '@material-ui/core/Paper';
-import { AutoSizer, Column, CellMeasurer, CellMeasurerCache, Table } from 'react-virtualized';
+import { AutoSizer, Column, CellMeasurer, CellMeasurerCache, Table, SortIndicator, SortDirection } from 'react-virtualized';
 
 //import TableHead from '@material-ui/core/TableHead';
 //let rowParent = null;
@@ -51,11 +51,20 @@ const styles = (theme) => ({
     display: 'inline-block',
     boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
     borderSpacing: 0,
-    minWidth: 700
+    minWidth: 720
   }
 });
 const useStyles = makeStyles(styles);
-
+const GetSortOrder=(sortBy, sortDirection)=> {    
+  return function(a, b) {    
+      if (a[sortBy] > b[sortBy]) {    
+          return (sortDirection==SortDirection.ASC?1:-1);    
+      } else if (a[sortBy] < b[sortBy]) {    
+          return (sortDirection==SortDirection.DESC?1:-1);    
+      }    
+      return 0;    
+  }    
+}    
 class MuiVirtualizedTable extends React.PureComponent {
   static defaultProps = {
     headerHeight: 24,
@@ -65,6 +74,12 @@ class MuiVirtualizedTable extends React.PureComponent {
     fixedWidth: true,
     height: this.props.rowHeight
   });
+  
+  state = {    
+    sortBy: "index",
+    sortDirection: SortDirection.ASC,
+    sortedlist:this.props.list
+  };
 
   getRowClassName = ({ index }) => {
     const { classes, onRowClick } = this.props;
@@ -112,14 +127,32 @@ class MuiVirtualizedTable extends React.PureComponent {
             wordWrap: 'break-word',
             wordBreak: 'break-all'
           }}
-          align={(columnIndex != null && columns[columnIndex].numeric) || false ? 'right' : 'left'}
+          align={(columnIndex == null ? "left": columns[columnIndex].align ||  'right' )}
         >
           {cellData}
         </TableCell>
       </CellMeasurer>
     );
   };
-
+ 
+  
+  sort=({ sortBy, sortDirection }) =>{
+    const {list,setData,setSortBy,setSortDirection} = this.props;
+    console.log(list);
+    let sortedList  = list;
+    sortedList.sort(GetSortOrder(sortBy,sortDirection));  
+    
+    this.setState({ sortBy, sortDirection, sortedList });
+    if(setData) {
+      setData(sortedList);
+    }
+    if(setSortBy) {
+      setSortBy(sortBy);      
+    }
+    if(setSortDirection) {
+      setSortDirection(sortDirection)
+    }
+  }
   headerRenderer = ({ label, columnIndex }) => {
     const { headerHeight, columns, classes } = this.props;
 
@@ -129,9 +162,9 @@ class MuiVirtualizedTable extends React.PureComponent {
         className={clsx(classes.tableCell, classes.flexContainer, classes.noClick)}
         variant="head"
         style={{ height: headerHeight, 'font-weight': 'bold' }}
-        align={columns[columnIndex].numeric || false ? 'right' : 'left'}
+        align={columns[columnIndex].align || 'right' }
       >
-        <span>{label}</span>
+        <span>{label}<SortIndicator SortDirection={this.state.sortDirection}/></span>
       </TableCell>
     );
   };
@@ -170,6 +203,9 @@ class MuiVirtualizedTable extends React.PureComponent {
             rowClassName={this.getRowClassName}
             rowStyle={this.getRowStyle}
             deferredMeasurementCache={this.cache}
+            sort={this.sort}
+            sortBy={this.state.sortBy}
+            sortDirection={this.state.sortDirection}           
           /*cache={cache}
           rowRenderer={this.rowRenderer} */
           >
@@ -204,6 +240,7 @@ MuiVirtualizedTable.propTypes = {
       dataKey: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
       numeric: PropTypes.bool,
+      align:PropTypes.string.isRequired,
       width: PropTypes.number.isRequired,
     }),
   ).isRequired,
@@ -223,20 +260,24 @@ export default function TableOrderView({
 }) {
 
   const classes = useStyles();
-  const resetMySelection = (data) => {
-    let mydata = [...list];
+  const resetMySelection = (thisdata) => {
+    let mydata = [...data];
     for (let index = 0; index < mydata.length; index++) {
-      mydata[index].selectedshell = index == data.index;
+      mydata[index].selectedshell = index == thisdata.index;
     }
     setData(mydata);
   }
 
   useEffect(() => {
-    setData(list);
+    console.log("UseEffect",list,sortBy,sortDirection);
+    let sortedList  = list;
+    sortedList.sort(GetSortOrder(sortBy,sortDirection));  
+    setData(sortedList);
   }, [list]);
 
   const [data, setData] = useState(list);
-
+  const [sortBy,setSortBy] = useState("index");
+  const [sortDirection,setSortDirection] = useState(SortDirection.ASC);
   return (
     <Paper className={classes.viewerContainer}>
 
@@ -249,14 +290,19 @@ export default function TableOrderView({
         rowCount={data ? data.length : 0}
         rowGetter={({ index }) => data[index]}
         columns={columns}
-        onRowClick={(data) => {
-          console.log(data);
-          resetMySelection(data);
-          handleDataRowClick(data.rowData, data.event);
+        onRowClick={(thisdata) => {
+          console.log(thisdata);
+          resetMySelection(thisdata);
+          console.log("BeforeDataRowClock",data,sortBy,sortDirection);
+          handleDataRowClick(thisdata.rowData, thisdata.event);
+          console.log("AfterDataRowClock",data,sortBy,sortDirection);
         }}
         headerHeight={50}
         rowHeight={50}
         list={data}
+        setData={setData}
+        setSortBy={setSortBy}
+        setSortDirection={setSortDirection}
       />
     </Paper>
   );

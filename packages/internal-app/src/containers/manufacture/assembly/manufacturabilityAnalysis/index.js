@@ -70,12 +70,12 @@ export default function ManufacturabilityAnalysis(props) {
       { title: 'Transfer Holding', field: 'quantity', type: 'numeric' },
   ]) */
   const [columns, setColumns] = useState([
-    { label: 'Mates', dataKey: 'index', editable: "never", numeric: true, width: 50 },
-    { label: 'Mate Name', dataKey: 'name', editable: "never", numeric: false, width: 200, 'word-break': 'break-all' },
-    { label: 'Insertion Order', dataKey: 'order', numeric: true, editable: "never", width: 90 },
-    { label: 'Insertion Type', dataKey: 'insert', numeric: false, editable: "never", width: 90 },
-    { label: 'Dispensing', dataKey: 'dispense', numeric: true, type: 'numeric', width: 90 },
-    { label: 'Transfer Holding', dataKey: 'quantity', numeric: true, type: 'numeric', width: 90 },
+    { label: 'Mates', dataKey: 'index', editable: "never", numeric: true, align:"right", width: 90 },
+    { label: 'Mate Name', dataKey: 'name', editable: "never", numeric: false, align:"left", width: 200, 'word-break': 'break-all' },
+    { label: 'Insertion Order', dataKey: 'order', numeric: true, align:"right",editable: "never", width: 90 },
+    { label: 'Insertion Type', dataKey: 'insert', numeric: false, align:"left",  editable: "never", width: 90 },
+    { label: 'Dispensing', dataKey: 'dispense', numeric: true,  align:"right", type: 'numeric', width: 90 },
+    { label: 'Transfer Holding', dataKey: 'quantity', numeric: true, align:"right", type: 'numeric', width: 90 },
   ])
 
   const [state, _setState] = useState({});
@@ -692,7 +692,7 @@ export default function ManufacturabilityAnalysis(props) {
         columns={columns}
         setColumns={setColumns}
         handleDataRowClick={addSelectionFromTree}
-        style={{ width: 400 }}
+        style={{ width: 720 }}
       >
       </TableOrderView>
 
