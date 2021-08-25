@@ -34,14 +34,14 @@ from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
 
 from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
     translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance, 
-    getPartStackablePositions, get_bounding_details, 
+    getPartStackablePositions, get_bounding_details, get_bounding_details_common,
     recognize_direction, recognize_entity)
 from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices
 from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
-
-from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound
+from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
+from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound, excluded_list_of_shapes_to_compound
 
 from decimal import Decimal 
 
@@ -1425,7 +1425,7 @@ def isInner(aDimension1, aDimension2):
         return True
     return False
 
-def isTopFronter(aDimension1, aDimension2):    
+def isTopFrontLefter(aDimension1, aDimension2):    
     xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = aDimension1
     xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2
     if ( (zmax1 > zmax2) or
@@ -1434,21 +1434,64 @@ def isTopFronter(aDimension1, aDimension2):
         return True
     return False
 
-def isTopCenter(aDimension1, aDimension2):    
+def isTopCenter(aDimension1, aDimension2,approxDirection):    
     xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = aDimension1
     xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2
     xc1, yc1, zc1 = (xmin1+xmax1)/2, (ymin1+ymax1)/2, (zmin1+zmax1)/2
     xc2, yc2, zc2 = (xmin2+xmax2)/2, (ymin2+ymax2)/2, (zmin2+zmax2)/2
-    if ( (zc1 > zc2) or
-        ((zc1==zc2) and (yc1 < yc2)) or
-        ((zc1==zc2) and (yc1 == yc2) and (xc1 < xc2)) ):
+    ax,ay,az=approxDirection
+    if ( (az==1) or (ax==0 and ay==0 and az==0) ) :
+        if ( (zc1 > zc2) or
+            ((zc1==zc2) and (yc1 > yc2)) or
+            ((zc1==zc2) and (yc1 == yc2) and (xc1 > xc2)) ):
+            return True
+        else:
+            return False
+    if ( (az==-1) or (ax==0 and ay==0 and az==0) ) :
+        if ( (zc1 < zc2) or
+            ((zc1==zc2) and (yc1 > yc2)) or
+            ((zc1==zc2) and (yc1 == yc2) and (xc1 > xc2)) ):
+            return True
+        else:
+            return False
+    if ( ax==1 ) :
+        if ( (xc1 > xc2) or
+            ((xc1==xc2) and (zc1 > zc2)) or
+            ((xc1==xc2) and (zc1 == zc2) and (yc1 > yc2)) ):
+            return True
+        else:
+            return False
+    if ( ax==-1 ) :
+        if ( (xc1 < xc2) or
+            ((xc1==xc2) and (zc1 > zc2)) or
+            ((xc1==xc2) and (zc1 == zc2) and (yc1 > yc2)) ):
+            return True
+        else:
+            return False
+    if ( ay==1 ) :
+        if ( (yc1 > yc2) or
+            ((yc1==yc2) and (xc1 > xc2)) or
+            ((yc1==yc2) and (xc1 == xc2) and (zc1 > zc2)) ):
+            return True
+        else:
+            return False   
+    if ( ay==-1 ) :
+        if ( (yc1 < yc2) or
+            ((yc1==yc2) and (xc1 > xc2)) or
+            ((yc1==yc2) and (xc1 == xc2) and (zc1 > zc2)) ):
+            return True
+        else:
+            return False
+    if ( (xc1 > xc2) or
+        ((xc1==xc2) and (zc1 < zc2)) or
+        ((xc1==xc2) and (zc1 == zc2) and (yc1 < yc2)) ):
         return True
     return False 
 
-def isEnclosed(aDimension1,aDimension2,debugMe=False):
+def isEnclosed(aShape1,aDimension1,aShape2,aDimension2,debugMe=False):
     xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = aDimension1
     xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2
-    
+    DefaultReturn = (False, (0, 0, 0, 0, 0, 0), (0,0,0))
     if ( ( (xmin1 >= xmin2) and (xmax2 <= xmax1) ) or
         ( (xmin1 <= xmin2) and (xmax2 >= xmax1) ) or
         ( (ymin1 >= ymin2) and (ymax2 <= ymax1) ) or
@@ -1463,106 +1506,387 @@ def isEnclosed(aDimension1,aDimension2,debugMe=False):
             print("( (ymin1 <= ymin2) and (ymax2 >= ymax1) )",( (ymin1 <= ymin2) and (ymax2 >= ymax1) ))
             print("( (zmin1 >= zmin2) and (zmax2 <= zmax1) )",( (zmin1 >= zmin2) and (zmax2 <= zmax1) ))
             print("( (zmin1 <= zmin2) and (zmax2 >= zmax1) )",( (zmin1 <= zmin2) and (zmax2 >= zmax1) ))
-        return (False, (0, 0, 0, 0, 0, 0))     
+        return DefaultReturn     
     corner2 = gp_Pnt(xmin2, ymin2, zmin2)
     if debugMe:
         print("getting box2",((xmin2, ymin2, zmin2),(xmax2-xmin2),(ymax2-ymin2),(zmax2-zmin2)),aDimension2,aDimension1)
     if((xmax2==xmin2) or (ymax2==ymin2) or (zmax2==zmin2) ):
-        return (False, (0, 0, 0, 0, 0, 0)) 
+        return DefaultReturn 
     mybox2 = BRepPrimAPI_MakeBox(corner2,(xmax2-xmin2),(ymax2-ymin2),(zmax2-zmin2)).Shape()
        
     corner1 = gp_Pnt(xmin1, ymin1, zmin1)
     if debugMe:
         print("getting box1",((xmin1, ymin1, zmin1),(xmax1-xmin1),(ymax1-ymin1),(zmax1-zmin1)),aDimension2,aDimension1)
     if((xmax1==xmin1) or (ymax1==ymin1) or (zmax1==zmin1) ):
-        return (False, (0, 0, 0, 0, 0, 0)) 
+        return DefaultReturn
     mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax1-ymin1),(zmax1-zmin1)).Shape()
     myshapeCommon = BRepAlgoAPI_Common(mybox2,mybox1).Shape()
     myshapeDimension = get_bounding_details(myshapeCommon)
     if myshapeDimension == (0, 0, 0, 0, 0, 0) :
         if debugMe:
             print("Nothing common")
-        return (False, (0, 0, 0, 0, 0, 0))
+        return DefaultReturn
     else:
         if debugMe:
             print("From Cube",myshapeDimension,aDimension1,aDimension2)
-        xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension
-        if ( ((xmin2==xmin3) and (xmax2==xmax3) and
-            (ymin2==ymin3) and (ymax2==ymax3) and 
-            (zmin2<zmin3) and (zmax2>zmax3)) or
-            ((ymin2==ymin3) and (ymax2==ymax3) and 
-            (zmin2==zmin3) and (zmax2==zmax3) and
-            (xmin2<xmin3) and (xmax2>xmax3)) or
-            ((zmin2==zmin3) and (zmax2==zmax3) and 
-            (xmin2==xmin3) and (xmax2==xmax3) and
-            (ymin2<ymin3) and (ymax2>ymax3)) ):
+        myshapeCommon1 = BRepAlgoAPI_Common(aShape1,myshapeCommon).Shape()
+        myshapeDimension1 = get_bounding_details(myshapeCommon1)
+        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
             if debugMe:
-                print("I am enclosed",myshapeDimension)
-            return (True, myshapeDimension)
+                print("Nothing common with Enclosed Part")
+            return (True, myshapeDimension,(0,0,0))
+        xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+        myshapeCommon2 = BRepAlgoAPI_Common(aShape2,myshapeCommon).Shape()
+        myshapeDimension2 = get_bounding_details(myshapeCommon2)
+        xmin4, ymin4, zmin4, xmax4, ymax4, zmax4 = myshapeDimension2
+       
+        if myshapeDimension2 == (0, 0, 0, 0, 0, 0) :
+            if debugMe:
+                print("Nothing common with Inner Part")
+            return (True, myshapeDimension,(0,0,0))  
+        xminC, yminC, zminC, xmaxC, ymaxC, zmaxC = myshapeDimension      
+        if ( ((xmin4>xmin3) and (xmax4<xmax3) and
+            (ymin4>ymin3) and (ymax4<ymax3) and 
+            (zmin4==zmin3) and (zmax4==zmax3)) ):
+            if debugMe:
+                print("I am enclosed in Z direction",myshapeDimension)            
+            corner3 = gp_Pnt(xmin2, ymin2, zmaxC)
+            if debugMe:
+                print("getting box5",((xmin2, ymin2, zmaxC),(xmax2-xmin2),(ymax2-ymin2),(zmax2-zmaxC)),aDimension2,aDimension1)
+            if((xmax2==xmin2) or (ymax2==ymin2) or (zmax2==zmaxC) ):
+                return (True, myshapeDimension,(0,0,1)) 
+            mybox5 = BRepPrimAPI_MakeBox(corner3,(xmax2-xmin2),(ymax2-ymin2),(zmax2-zmaxC)).Shape()
+            myshapeCommon5 = BRepAlgoAPI_Common(aShape2,mybox5).Shape()            
+            myshapeDimension5 = get_bounding_details(myshapeCommon5)
+            if myshapeDimension5 == (0, 0, 0, 0, 0, 0) :
+                if debugMe:
+                    print("Nothing common From Top to Enclosure Part")
+                return (True, myshapeDimension,(0,0,1)) 
+            else:
+                xmin5, ymin5, zmin5, xmax5, ymax5, zmax5 = myshapeDimension5
+                if ( ((xmin5>xmin3) and (xmax5<xmax3) and (ymin5>ymin3) and (ymax5<ymax3) ) ) : 
+                    return (True, myshapeDimension,(0,0,1)) 
+            corner4 = gp_Pnt(xmin2, ymin2, zmin2)
+            if debugMe:
+                print("getting box6",((xmin2, ymin2, zmin2),(xmax2-xmin2),(ymax2-ymin2),(zminC-zmin2)),aDimension2,aDimension1)
+            if((xmax2==xmin2) or (ymax2==ymin2) or (zminC==zmin2) ):
+                return (True, myshapeDimension,(0,0,-1)) 
+            mybox6 = BRepPrimAPI_MakeBox(corner4,(xmax2-xmin2),(ymax2-ymin2),(zminC-zmin2)).Shape()
+            myshapeCommon6 = BRepAlgoAPI_Common(aShape2,mybox6).Shape()
+            myshapeDimension6 = get_bounding_details(myshapeCommon6)
+            if myshapeDimension6 == (0, 0, 0, 0, 0, 0) :
+                if debugMe:
+                    print("Nothing common From Bottom to Enclosure Part")
+                return (True, myshapeDimension,(0,0,-1)) 
+            else:
+                xmin6, ymin6, zmin6, xmax6, ymax6, zmax6 = myshapeDimension6
+                if ( ((xmin6>xmin3) and (xmax6<xmax3) and (ymin6>ymin3) and (ymax6<ymax3) ) ) : 
+                    return (True, myshapeDimension,(0,0,-1)) 
+            return (False, myshapeDimension,(0,0,1))
+        if ( ((ymin4>ymin3) and (ymax4<ymax3) and
+            (zmin4>zmin3) and (zmax4<zmax3) and 
+            (xmin4==xmin3) and (xmax4==xmax3)) ):
+            if debugMe:
+                print("I am enclosed in X direction",myshapeDimension)            
+            corner3 = gp_Pnt(xmaxC, ymin2, zmin2)
+            if debugMe:
+                print("getting box5",((xmaxC, ymin2, zmin2),(xmax2-xmaxC),(ymax2-ymin2),(zmax2-zmin2)),aDimension2,aDimension1)
+            if((xmax2==xmaxC) or (ymax2==ymin2) or (zmax2==zmin2) ):
+                return (True, myshapeDimension,(1,0,0)) 
+            mybox5 = BRepPrimAPI_MakeBox(corner3,(xmax2-xmaxC),(ymax2-ymin2),(zmax2-zmin2)).Shape()
+            myshapeCommon5 = BRepAlgoAPI_Common(aShape2,mybox5).Shape()            
+            myshapeDimension5 = get_bounding_details(myshapeCommon5)
+            if myshapeDimension5 == (0, 0, 0, 0, 0, 0) :
+                if debugMe:
+                    print("Nothing common From Left to Enclosure Part")
+                return (True, myshapeDimension,(1,0,0)) 
+            else:
+                xmin5, ymin5, zmin5, xmax5, ymax5, zmax5 = myshapeDimension5
+                if ( ((ymin5>ymin3) and (ymax5<ymax3) and (zmin5>zmin3) and (zmax5<zmax3) ) ) : 
+                    return (True, myshapeDimension,(1,0,0)) 
+            corner4 = gp_Pnt(xmin2, ymin2, zmin2)
+            if debugMe:
+                print("getting box6",((xmin2, ymin2, zmin2),(xminC-xmin2),(ymax2-ymin2),(zmax2-zmin2)),aDimension2,aDimension1)
+            if((xminC==xmin2) or (ymax2==ymin2) or (zmax2==zmin2) ):
+                return (True, myshapeDimension,(-1,0,0)) 
+            mybox6 = BRepPrimAPI_MakeBox(corner4,(xminC-xmin2),(ymax2-ymin2),(zmax2-zmin2)).Shape()
+            myshapeCommon6 = BRepAlgoAPI_Common(aShape2,mybox6).Shape()
+            myshapeDimension6 = get_bounding_details(myshapeCommon6)
+            if myshapeDimension6 == (0, 0, 0, 0, 0, 0) :
+                if debugMe:
+                    print("Nothing common From Right to Enclosure Part")
+                return (True, myshapeDimension,(-1,0,0)) 
+            else:
+                xmin6, ymin6, zmin6, xmax6, ymax6, zmax6 = myshapeDimension6
+                if ( ((ymin6>ymin3) and (ymax6<ymax3) and (zmin6>zmin3) and (zmax6<zmax3) ) ) : 
+                    return (True, myshapeDimension,(-1,0,0)) 
+            return (False, myshapeDimension,(1,0,0))
+        if ( ((zmin4>zmin3) and (zmax4<zmax3) and
+            (xmin4>xmin3) and (xmax4<xmax3) and 
+            (ymin4==ymin3) and (ymax4==ymax3)) ):
+            if debugMe:
+                print("I am enclosed in Y direction",myshapeDimension)            
+            corner3 = gp_Pnt(xmin2, ymaxC, zmin2)
+            if debugMe:
+                print("getting box5",((xmin2, ymaxC, zmin2),(xmax2-xmin2),(ymax2-ymaxC),(zmax2-zmin2)),aDimension2,aDimension1)
+            if((xmax2==xmin2) or (ymax2==ymaxC) or (zmax2==zmin2) ):
+                return (True, myshapeDimension,(0,1,0)) 
+            mybox5 = BRepPrimAPI_MakeBox(corner3,(xmax2-xmin2),(ymax2-ymaxC),(zmax2-zmin2)).Shape()
+            myshapeCommon5 = BRepAlgoAPI_Common(aShape2,mybox5).Shape()            
+            myshapeDimension5 = get_bounding_details(myshapeCommon5)
+            if myshapeDimension5 == (0, 0, 0, 0, 0, 0) :
+                if debugMe:
+                    print("Nothing common From Back to Enclosure Part")
+                return (True, myshapeDimension,(0,1,0)) 
+            else:
+                xmin5, ymin5, zmin5, xmax5, ymax5, zmax5 = myshapeDimension5
+                if ( ((zmin5>zmin3) and (zmax5<zmax3) and (xmin5>xmin3) and (xmax5<xmax3) ) ) : 
+                    return (True, myshapeDimension,(0,1,0)) 
+            corner4 = gp_Pnt(xmin2, ymin2, zmin2)
+            if debugMe:
+                print("getting box6",((xmin2, ymin2, zmin2),(xmax2-xmin2),(yminC-ymin2),(zmax2-zmin2)),aDimension2,aDimension1)
+            if((xmax2==xmin2) or (yminC==ymin2) or (zmax2==zmin2) ):
+                return (True, myshapeDimension,(0,-1,0)) 
+            mybox6 = BRepPrimAPI_MakeBox(corner4,(xmax2-xmin2),(yminC-ymin2),(zmax2-zmin2)).Shape()
+            myshapeCommon6 = BRepAlgoAPI_Common(aShape2,mybox6).Shape()
+            myshapeDimension6 = get_bounding_details(myshapeCommon6)
+            if myshapeDimension6 == (0, 0, 0, 0, 0, 0) :
+                if debugMe:
+                    print("Nothing common From Front to Enclosure Part")
+                return (True, myshapeDimension,(0,-1,0)) 
+            else:
+                xmin6, ymin6, zmin6, xmax6, ymax6, zmax6 = myshapeDimension6
+                if ( ((zmin6>zmin3) and (zmax6<zmax3) and (xmin6>xmin3) and (xmax6<xmax3) ) ) : 
+                    return (True, myshapeDimension,(0,-1,0)) 
+            return (False, myshapeDimension,(0,1,0))
+        
         if debugMe:
             print("I am partially enclosed and hence allowed to check", myshapeDimension)
-        return (True, myshapeDimension)
+        return (True, myshapeDimension,(0,0,0))
 
-def GetTopPart(outerPos, outerDimension, outerObjectsDict):  
-    innerObject, dimensionObject = outerPos, outerDimension     
+def isRemovable(aShape1,aDimension1,aShape2,aDimension2,debugMe=False,tol=2.5):
+    xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = aDimension1
+    xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2    
+    if debugMe:
+        print("Checking 1")
+        myshapeCommonReturn = None
+    else: 
+        myshapeCommonReturn = None
+    if (zmax2<=(zmax1+tol) and zmax2>=zmax1): #0.2 for tollerance
+        if debugMe:
+            print("Part is on Top")
+        return (True, (0, 0, 0, 0, 0, 0),(0,0,1),myshapeCommonReturn)
+    if (zmax2 > (zmax1+tol)):        
+        corner1 = gp_Pnt(xmin1, ymin1, zmax1+tol)
+        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1-tol)).Shape()
+        myshapeCommonReturn = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+        myshapeDimension1 = get_bounding_details_common(myshapeCommon1) 
+        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+            if debugMe:
+                print("Nothing common with Enclosed Part From Top")
+            return (True, myshapeDimension1,(0,0,1),myshapeCommonReturn)
+        else:
+            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+            if ( ((xmin1<xmin3) and (xmax1>xmax3) and (ymin1<ymin3) and (ymax1>ymax3) ) ) : 
+                if debugMe:
+                    print("common with Enclosed Part From Top",get_bounding_details(mybox1),\
+                        myshapeDimension1,aDimension1,aDimension2,(xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
+                return (True, myshapeDimension1,(0,0,1),myshapeCommonReturn)
+            else:
+                if debugMe:
+                    print("Nothing common with Enclosed Part From Top",get_bounding_details(mybox1),\
+                        myshapeDimension1,aDimension1,aDimension2,(xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
+    else:
+        if debugMe:
+            print("Nothing From Top",zmax1,zmax2,aDimension1,aDimension2) 
+    if debugMe:
+        print("Checking 2")
+    if zmin2==zmin1:
+        if debugMe:
+            print("Part is on Bottom")
+        return (True, (0, 0, 0, 0, 0, 0),(0,0,-1),myshapeCommonReturn)
+    if zmin2 < zmin1:        
+        corner1 = gp_Pnt(xmin1, ymin1, zmin2)
+        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax1-ymin1),(zmin1-zmin2)).Shape()
+        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+        myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+            if debugMe:
+                print("Nothing common with Enclosed Part From Bottom")
+            return (True, myshapeDimension1,(0,0,-1),myshapeCommonReturn)
+        else:
+            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+            if ( ((xmin1<xmin3) and (xmax1>xmax3) and (ymin1<ymin3) and (ymax1>ymax3) ) ) : 
+                return (True, myshapeDimension1,(0,0,-1),myshapeCommonReturn)
+            else:
+                if debugMe:
+                    print("Nothing common with Enclosed Part From Bottom",myshapeDimension1,aDimension1,aDimension2) 
+    else:
+        if debugMe:
+            print("Nothing From Bottom",zmin2,zmin1,aDimension1,aDimension2) 
+    if debugMe:
+        print("Checking 3")
+    if xmax2==xmax1:
+        if debugMe:
+            print("Part is on Left")
+        return (True, (0, 0, 0, 0, 0, 0),(1,0,0),myshapeCommonReturn)
+    if xmax2 > xmax1:
+        corner1 = gp_Pnt(xmax1, ymin1, zmin1)
+        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax2-xmax1),(ymax1-ymin1),(zmax1-zmin1)).Shape()
+        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+        myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+            if debugMe:
+                print("Nothing common with Enclosed Part From Left")
+            return (True, myshapeDimension1,(1,0,0),myshapeCommonReturn)
+        else:
+            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+            if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) : 
+                return (True, myshapeDimension1,(1,0,0),myshapeCommonReturn)
+            else:
+                if debugMe:
+                    print("Nothing common with Enclosed Part From Left",myshapeDimension1,aDimension1,aDimension2) 
+    else:
+        if debugMe:
+            print("Nothing From Left",xmax1,xmax2,aDimension1,aDimension2) 
+    if debugMe:
+        print("Checking 4")
+    if xmin2==xmin1:
+        if debugMe:
+            print("Part is on Right")
+        return (True, (0, 0, 0, 0, 0, 0),(-1,0,0),myshapeCommonReturn)
+    if xmin2 < xmin1:        
+        corner1 = gp_Pnt(xmin2, ymin1, zmin1)
+        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmin1-xmin2),(ymax1-ymin1),(zmax1-zmin1)).Shape()
+        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+        myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+            if debugMe:
+                print("Nothing common with Enclosed Part From Right")
+            return (True, myshapeDimension1,(-1,0,0),myshapeCommonReturn)
+        else:
+            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+            if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) :
+                return (True, myshapeDimension1,(-1,0,0),myshapeCommonReturn)
+            else:
+                if debugMe:
+                    print("Nothing common with Enclosed Part From Right",myshapeDimension1,aDimension1,aDimension2) 
+    else:
+        if debugMe:
+            print("Nothing From Right",xmin1,xmin2,aDimension1,aDimension2) 
+    if debugMe:
+        print("Checking 5")
+    if ymax2==ymax1:
+        if debugMe:
+            print("Part is on Back")
+        return (True, (0, 0, 0, 0, 0, 0),(0,1,0),myshapeCommonReturn)
+    if ymax2 > ymax1:
+        corner1 = gp_Pnt(xmin1, ymax1, zmin1)
+        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax2-ymax1),(zmax1-zmin1)).Shape()
+        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+        myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+            if debugMe:
+                print("Nothing common with Enclosed Part From Back")
+            return (True, myshapeDimension1,(0,1,0),myshapeCommonReturn)
+        else:
+            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+            if ( ((zmin1<zmin3) and (zmax1>zmax3) and (xmin1<xmin3) and (xmax1>xmax3) ) ) : 
+                return (True, myshapeDimension1,(0,1,0),myshapeCommonReturn)
+            else:
+                if debugMe:
+                    print("Nothing common with Enclosed Part From Back",myshapeDimension1,aDimension1,aDimension2) 
+    else:
+        if debugMe:
+            print("Nothing From Back",ymax1,ymax2,aDimension1,aDimension2) 
+    if debugMe:
+        print("Checking 6")
+    if ymin2 < ymin1:        
+        corner1 = gp_Pnt(xmin1, ymin2, zmin1)
+        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymin1-ymin2),(zmax1-zmin1)).Shape()
+        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+        myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+            if debugMe:
+                print("Nothing common with Enclosed Part From Front")
+            return (True, myshapeDimension1,(0,-1,0),myshapeCommonReturn)
+        else:
+            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+            if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) :
+                return (True, myshapeDimension1,(0,-1,0),myshapeCommonReturn)
+            else:
+                if debugMe:
+                    print("Nothing common with Enclosed Part From Front",myshapeDimension1,aDimension1,aDimension2) 
+    else:
+        if debugMe:
+            print("Nothing From Front",ymin1,ymin2,aDimension1,aDimension2) 
+    if debugMe:
+        print("Checking 7")
+    return (False, (0, 0, 0, 0, 0, 0),(0,0,0),myshapeCommonReturn)
+
+    
+
+def GetTopPart(outerPos, outerDimension, outerDirection, outerObjectsDict):  
+    innerObject, dimensionObject, innerDirection = outerPos, outerDimension, outerDirection    
     if innerObject in outerObjectsDict:
-        _, outerObjects = outerObjectsDict[outerPos]        
+        _, outerObjects,approxDirection = outerObjectsDict[outerPos]        
         lenOuterObject = len(outerObjects)
         if(lenOuterObject>0):                            
             for i in range(0,lenOuterObject-1):
                 swapper = False
                 for j in range(0,lenOuterObject-1-i):
-                    innerObject, dimensionObject = outerObjects[j]  
-                    _, dimensionObject1 = outerObjects[j+1]  
+                    innerObject, dimensionObject, innerDirection = outerObjects[j]  
+                    _, dimensionObject1, _ = outerObjects[j+1]  
                     #print(i,j, (shapesdim[i],shapesdim[j]), isInner(shapesdim[i],shapesdim[j]), isOuter(shapesdim[i],shapesdim[j]), isTopFronter(shapesdim[i],shapesdim[j]) )
-                    swapper = (isTopCenter(dimensionObject1,dimensionObject) )                     
+                    swapper = (isTopCenter(dimensionObject1,dimensionObject,innerDirection) )                     
                     if(swapper):
                         #if(swapper):
                         outerObjects[j+1], outerObjects[j] = swap(outerObjects[j+1], outerObjects[j])
-            innerObject, dimensionObject = outerObjects[0] 
-    return (innerObject, dimensionObject)
+            innerObject, dimensionObject, innerDirection = outerObjects[0] 
+    return (innerObject, dimensionObject, innerDirection)
        
-def GetToppestPart(outerPos, outerDimension, outerObjectsDict, innerObjectsDict):
+def GetToppestPart(outerPos, outerDimension, outerDirection, outerObjectsDict, innerObjectsDict):
     #print("Got 0",outerPos, outerDimension)
-    myTopPos, myTopDimension = GetTopPart(outerPos, outerDimension, outerObjectsDict)
+    myTopPos, myTopDimension, myDirection = GetTopPart(outerPos, outerDimension,  outerDirection, outerObjectsDict)
     #print("Got 1",myTopPos, myTopDimension)
     if myTopPos==outerPos:
-        return (myTopPos, myTopDimension)
+        return (myTopPos, myTopDimension,myDirection)
     else:
-        innerObject, dimensionObject = myTopPos, myTopDimension
+        innerObject, dimensionObject, innerDirection = myTopPos, myTopDimension, myDirection
         if myTopPos in innerObjectsDict:
             #print("Inner object",innerObjectsDict[myTopPos])
             myInnerArray=innerObjectsDict[myTopPos]
             #print("Unpacked Inner object",innerObjectsDict[myTopPos])
             lenOuterObject = len(myInnerArray)
             if(lenOuterObject>0): 
-                innerObjects = [(myTopPos, myTopDimension)]                        
+                innerObjects = [(myTopPos, myTopDimension,innerDirection)]                        
                 for i in range(0,lenOuterObject):
                     innerPos, innerDimension = myInnerArray[i] 
                     if (innerPos > outerPos):
                         #print("Got 2",innerPos, innerDimension)
-                        innerObj, innerObjDimension = GetToppestPart(innerPos, innerDimension, outerObjectsDict, innerObjectsDict)
+                        innerObj, innerObjDimension, innerObjDirection = GetToppestPart(innerPos, innerDimension, innerDirection, outerObjectsDict, innerObjectsDict)
                         #print("Got 3",innerObj, innerObjDimension)
-                        innerObjects.append((innerObj, innerObjDimension))
+                        innerObjects.append((innerObj, innerObjDimension, innerObjDirection))
                 lenOuterObject = len(innerObjects)
-                innerObject, dimensionObject = myTopPos, myTopDimension
+                innerObject, dimensionObject,innerDirection = myTopPos, myTopDimension, myDirection
                 if(lenOuterObject>0):                            
                     for i in range(0,lenOuterObject-1):
                         swapper = False
                         for j in range(0,lenOuterObject-1-i):
-                            innerObject, dimensionObject = innerObjects[j]  
-                            _, dimensionObject1 = innerObjects[j+1]  
+                            innerObject, dimensionObject, innerDirection = innerObjects[j]  
+                            _, dimensionObject1, innerDirection1 = innerObjects[j+1]  
                             #print(i,j, (shapesdim[i],shapesdim[j]), isInner(shapesdim[i],shapesdim[j]), isOuter(shapesdim[i],shapesdim[j]), isTopFronter(shapesdim[i],shapesdim[j]) )
-                            swapper = (isTopCenter(dimensionObject1,dimensionObject) )                     
+                            swapper = (isTopCenter(dimensionObject1,dimensionObject,innerDirection) )                     
                             if(swapper):
                                 #if(swapper):
                                 innerObjects[j+1], innerObjects[j] = swap(innerObjects[j+1], innerObjects[j])
-                    innerObject, dimensionObject = innerObjects[0] 
-            return (innerObject,dimensionObject)
+                    innerObject, dimensionObject, innerDirection = innerObjects[0] 
+            return (innerObject,dimensionObject, innerDirection)
         #print("Got 4",myTopPos, myTopDimension)
-        innerObject, dimensionObject = GetToppestPart(myTopPos, myTopDimension, outerObjectsDict, innerObjectsDict)
+        innerObject, dimensionObject, innerDirection = GetToppestPart(myTopPos, myTopDimension, myDirection, outerObjectsDict, innerObjectsDict)
         #print("Got 5",innerObject, dimensionObject)
-        return (innerObject, dimensionObject)
+        return (innerObject, dimensionObject, innerDirection)
 
 
 def getDirection(mypos,innerdict):   
@@ -1607,6 +1931,7 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
     shapeassembleorder=[]
     shapesdim=[]
     shapesmov=[]
+    shapesdirection=[]
     fullShape,converted = list_of_shapes_to_compound(shape)
     if(converted):
         newShapes.append((fullShape,name,None))
@@ -1632,6 +1957,7 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
         shapeorder.append(i)
         shapereverseorder.append(i)
         shapeassembleorder.append(i)
+        shapesdirection.append((0,0,0))
         shapesmov.append((xmove, ymove, zmove))
         shapesdis.append( ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 )
         shapesvol.append(abs((xmaxs-xmins)*(ymaxs-ymins)*(zmaxs-zmins)))         
@@ -1640,22 +1966,24 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
          
     """  for i in range(lenShape):
         print("before",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
-    print(lenShape,shapeorder,shapesdis,shapesvol)
+    print(lenShape,shapeorder,shapesdis,shapesvol,shapesdim)
     
     if(center):
         
-        k = 1
+        """ k = 1
+        
         enclosed = False
         outer = False
-        dimensionObject = (0, 0, 0, 0, 0, 0)   
-        outerDimensionalArray = [[(enclosed,outer,dimensionObject) \
+        dimensionObject = (0, 0, 0, 0, 0, 0)  
+        approxDirection = (0, 0, 0) 
+        outerDimensionalArray = [[(enclosed,outer,dimensionObject,approxDirection) \
             for i in range(lenShape)] for j in range(lenShape)]
         innerDimensionalDict = {}
         for i in range(0,lenShape-k):
             swapper = False
             for j in range(0,lenShape-k-i):
                 #print(i,j, (shapesdim[i],shapesdim[j]), isInner(shapesdim[i],shapesdim[j]), isOuter(shapesdim[i],shapesdim[j]), isTopFronter(shapesdim[i],shapesdim[j]) )
-                swapper = (isTopFronter(shapesdim[j+1],shapesdim[j]) ) 
+                swapper = (isTopFrontLefter(shapesdim[j+1],shapesdim[j]) ) 
                 
                 if(swapper):
                     #if(swapper):
@@ -1669,11 +1997,16 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
             #print("before",i, shapeorder[i], shapesdim[i] )
         outerObjectsDict = {}
         innerObjectsDict = {}
+        directionComputed= {}
+        directionPos = {}
         FurtherEnclosures = False
         k = 1
         print("Started Finding",k,lenShape)
         for i in range(0,lenShape-k+1):   
-            outerObjectsArray = []             
+            outerObjectsArray = []   
+            directionComputed[i]=False 
+            directionPos[i] = (0,0,0) 
+            approxDirection = (0,0,0)        
             for j in range(0,lenShape-k+1): 
                 enclosed = False
                 outer = False
@@ -1681,7 +2014,7 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                 if (i != j) :                        
                     #debugMe = ( (shapeorder[i]==1) and (shapeorder[j]==0) ) or ((shapeorder[i]==0) and (shapeorder[j]==3))
                     #debugMe = (i==0)
-                    enclosed,_ = isEnclosed(shapesdim[j],shapesdim[i],debugMe)
+                    enclosed,_,approxDirection = isEnclosed(shape[shapeorder[j]],shapesdim[j],shape[shapeorder[i]],shapesdim[i],debugMe)
                     if enclosed:
                         if debugMe:
                             print("I am checking to enclosed to append",i,j,shapeorder[i],shapeorder[j])
@@ -1689,18 +2022,18 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                         if(outer):
                             if debugMe:
                                 print("I have checked to enclosed to append",i,j,shapeorder[i],shapeorder[j])
-                            outerObjectsArray.append((j,dimensionObject))
+                            outerObjectsArray.append((j,dimensionObject,approxDirection))
                             if not j in innerObjectsDict:
                                 innerObjectsDict[j]=[]
-                            innerObjectsDict[j].append((i,shapesdim[i]))
+                            innerObjectsDict[j].append((i,shapesdim[i],approxDirection))
                         else:
                             if debugMe:
                                 print("I have checked not to enclosed to append",i,j,shapeorder[i],shapeorder[j])
                     else:
                         if debugMe:
                             print("I am not enclosed to append",i,j,shapeorder[i],shapeorder[j])
-                outerDimensionalArray[shapeorder[i]][shapeorder[j]]= (enclosed,outer,dimensionObject)
-                print(i,j,shapeorder[i],shapeorder[j],(enclosed,outer,dimensionObject))
+                outerDimensionalArray[shapeorder[i]][shapeorder[j]]= (enclosed,outer,dimensionObject,approxDirection)
+                print(i,j,shapeorder[i],shapeorder[j],(enclosed,outer,dimensionObject,approxDirection))
             if(len(outerObjectsArray)>0):
                 outerObjectsDict[i]=(i,outerObjectsArray)
                 if i==0 :
@@ -1708,35 +2041,70 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                 else:
                     FurtherEnclosures = True
             else:
-                outerObjectsDict[i]=(i,[(i,shapesdim[i])])
+                outerObjectsDict[i]=(i,[(i,shapesdim[i])],approxDirection)
         maxDirectionX, maxDirectionY,maxDirectionZ = (0,0,0)
+        
         print("Starting direction findings",innerObjectsDict)
         for i in range(0,lenShape-k+1):            
-            (mypos,mydim) = i, shapesdim[i]
+            (mypos,mydim,myDirection) = i, shapesdim[i], (0,0,0)
             if i in innerObjectsDict:
-                (mypos,mydim) = innerObjectsDict[i][0]
+                (mypos,mydim,myDirection) = innerObjectsDict[i][0]
                 #print("innerObjectshere",i,shapeorder[i],innerObjectsDict[i])
+            directionAngle = (0,0,0)
+            if directionComputed[mypos] :
+                directionAngle = directionPos[shapeorder[mypos]]
+            else:
+                for angx in range(0,45,9):
+                    for angy in range(0,45,9):
+                        for angz in range(0,45,9):
+                            if (angx==0 and angy==0 and angz==0):
+                                minAngx = angx
+                                minAngY = angy
+                                minAngz = angz
+                                xmin, ymin, zmin, xmax, ymax, zmax = mydim 
+                                thisVolume = abs( (xmax-xmin) * (ymax-ymin) * (zmax-zmin) )   
+                                minVolume = thisVolume
+                                minDim = mydim
+                            else:
+                                thisShape = rotate_shp_3_axis(shape[shapeorder[mypos]],angx, angy, angz, "deg", True)
+                                thisDim = get_bounding_details(thisShape) 
+                                xmin, ymin, zmin, xmax, ymax, zmax = thisDim
+                                thisVolume = abs( (xmax-xmin) * (ymax-ymin) * (zmax-zmin) )
+                                if thisVolume < minVolume:
+                                    minAngx = angx
+                                    minAngY = angy
+                                    minAngz = angz
+                                    minVolume = thisVolume
+                                    minDim = thisDim
+                directionPos[shapeorder[mypos]] = (minAngx,minAngY,minAngz,minDim)
+                directionAngle = directionPos[shapeorder[mypos]] 
+             
+            direction = myDirection
             xmin, ymin, zmin, xmax, ymax, zmax = mydim                       
             if( ( (xmax-xmin) >= (ymax-ymin) ) and ( (xmax-xmin) >= (zmax-zmin) )):
-                direction = (1,0,0)
+                if(direction==(0,0,0)):
+                    direction = (1,0,0)
                 maxDirectionX += 1
             elif ( ( (ymax-ymin) >= (xmax-xmin) ) and ( (ymax-ymin) >= (zmax-zmin) )):
-                direction = (0,1,0)
+                if(direction==(0,0,0)):
+                    direction = (0,1,0)
                 maxDirectionY += 1
             else:
-                direction = (0, 0, 1)
-                maxDirectionZ += 1                
-            innerDimensionalDict[shapeorder[i]]= (shapeorder[mypos],mydim,direction)  
-        print("MyObjectDict",innerDimensionalDict,maxDirectionX, maxDirectionY,maxDirectionZ)          
+                if(direction==(0,0,0)):
+                    direction = (0, 0, 1)
+                maxDirectionZ += 1                           
+            innerDimensionalDict[shapeorder[i]]= (shapeorder[mypos],mydim,direction,directionAngle)  
+        print("MyObjectDict",innerDimensionalDict,maxDirectionX, maxDirectionY,maxDirectionZ)   """        
         k = 1
+        commonObjects=[]
         while k < lenShape:
             #for i in range(0,lenShape):
                 #print("topping before",i, shapeorder[i], shapesdim[i] )
-            for i in range(0,lenShape-k):
+            """ for i in range(0,lenShape-k):
                 swapper = False
                 for j in range(0,lenShape-k-i):
                     #print(i,j, (shapesdim[i],shapesdim[j]), isInner(shapesdim[i],shapesdim[j]), isOuter(shapesdim[i],shapesdim[j]), isTopFronter(shapesdim[i],shapesdim[j]) )
-                    swapper = (isTopFronter(shapesdim[j+1],shapesdim[j]) ) 
+                    swapper = (isTopFrontLefter(shapesdim[j+1],shapesdim[j]) ) 
                     
                     if(swapper):
                         #if(swapper):
@@ -1751,14 +2119,20 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
             outerObjectsDict = {}
             innerObjectsDict = {}
             FurtherEnclosures = False
+            approxDirection = (0, 0, 0)
+            outerApproxDirection = (0,0,0)
+            EntireWholeDirection = (0,0,0)
             print("Started Arranging",k,lenShape)
             for i in range(0,lenShape-k+1):   
-                outerObjectsArray = []             
+                outerObjectsArray = []   
+                outerApproxDirection = (0,0,0)          
                 for j in range(0,lenShape-k+1):                   
                     if (i != j) :                        
                         #debugMe = ( (shapeorder[i]==1) and (shapeorder[j]==0) ) or ((shapeorder[i]==0) and (shapeorder[j]==3))
                         #debugMe = (i==0)
-                        (enclosed,outer,dimensionObject) = outerDimensionalArray[shapeorder[i]][shapeorder[j]]
+                        (enclosed,outer,dimensionObject,approxDirection) = outerDimensionalArray[shapeorder[i]][shapeorder[j]]
+                        if approxDirection!=(0,0,0):
+                            outerApproxDirection = approxDirection
                         if enclosed:
                             if debugMe:
                                 print("I am checking to enclosed to append",i,j,shapeorder[i],shapeorder[j])
@@ -1766,17 +2140,17 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                             if(outer):
                                 if debugMe:
                                     print("I have checked to enclosed to append",i,j,shapeorder[i],shapeorder[j])
-                                outerObjectsArray.append((j,dimensionObject))
+                                outerObjectsArray.append((j,dimensionObject,approxDirection))
                                 if not j in innerObjectsDict:
                                     innerObjectsDict[j]=[]
-                                innerObjectsDict[j].append((i,shapesdim[i]))
+                                innerObjectsDict[j].append((i,shapesdim[i],approxDirection))
                             else:
                                 if debugMe:
                                     print("I have checked not to enclosed to append",i,j,shapeorder[i],shapeorder[j])
                         else:
                             if debugMe:
                                 print("I am not enclosed to append",i,j,shapeorder[i],shapeorder[j])
-                        """ enclosed,_ = isEnclosed(shapesdim[j],shapesdim[i],debugMe)
+                        enclosed,_ = isEnclosed(shapesdim[j],shapesdim[i],debugMe)
                         if enclosed:
                             if debugMe:
                                 print("I am checking to enclosed to append",i,j,shapeorder[i],shapeorder[j])
@@ -1793,7 +2167,7 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                                     print("I have checked not to enclosed to append",i,j,shapeorder[i],shapeorder[j])
                         else:
                             if debugMe:
-                                print("I am not enclosed to append",i,j,shapeorder[i],shapeorder[j]) """
+                                print("I am not enclosed to append",i,j,shapeorder[i],shapeorder[j])
                 if(len(outerObjectsArray)>0):
                     outerObjectsDict[i]=(i,outerObjectsArray)
                     if i==0 :
@@ -1801,13 +2175,16 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                     else:
                         FurtherEnclosures = True
                 else:
-                    outerObjectsDict[i]=(i,[(i,shapesdim[i])])
+                    outerObjectsDict[i]=(i,[(i,shapesdim[i])],outerApproxDirection)
+                if outerApproxDirection!= (0,0,0):
+                    EntireWholeDirection = outerApproxDirection                    
+                
             if FurtherEnclosures==True:
                 print(k,"Doing Enclosure",outerObjectsDict)
                 innerObject = 0
                 if 0 in outerObjectsDict:
                     #print(k, shapeorder[0], shapesdim[0], outerObjectsDict, innerObjectsDict)
-                    innerObject, dimensionObject = GetToppestPart(0, shapesdim[0], outerObjectsDict, innerObjectsDict) 
+                    innerObject, dimensionObject, thisDirection = GetToppestPart(0, shapesdim[0], EntireWholeDirection, outerObjectsDict, innerObjectsDict) 
                     #print("after ordering",innerObject, dimensionObject)       
                 if (innerObject != (lenShape-k)):
                     i=innerObject
@@ -1817,48 +2194,73 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                     shapesdis[i], shapesdis[j] = swap(shapesdis[i], shapesdis[j])
                     shapesvol[i], shapesvol[j] = swap(shapesvol[i], shapesvol[j])
                     shapesdim[i], shapesdim[j] = swap(shapesdim[i], shapesdim[j])
-            else:
-                print(k,"Doing Distancer",outerObjectsDict)
-                for i in range(0,lenShape-k):
-                    swapper = False
-                    for j in range(0,lenShape-k-i):
-                        if(((shapesdis[j+1] < shapesdis[j]) or 
-                            ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] < shapesvol[j])) or
-                            ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] == shapesvol[j]) and 
-                            (isTopCenter(shapesdim[j+1],shapesdim[j]) ) ) ) ):
-                            #if(swapper):
-                            shapeorder[j+1], shapeorder[j] = swap(shapeorder[j+1], shapeorder[j])                
-                            shapesmov[j+1], shapesmov[j] = swap(shapesmov[j+1], shapesmov[j])
-                            shapesdis[j+1], shapesdis[j] = swap(shapesdis[j+1], shapesdis[j])
-                            shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
-                            shapesdim[j+1], shapesdim[j] = swap(shapesdim[j+1], shapesdim[j])
-                    
-                Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = shapesdim[0] 
-                for i in range(1,lenShape-k):
-                    xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[i]
-                    if(xmins < Xxmin):
-                        Xxmin = xmins
-                    if(ymins < Yymin):
-                        Yymin = ymins
-                    if(zmins < Zzmin):
-                        Zzmin = zmins
-                    if(xmaxs > Xxmax):
-                        Xxmax = xmaxs
-                    if(ymaxs > Yymax):
-                        Yymax = ymaxs
-                    if(zmaxs > Zzmax):
-                        Zzmax = zmaxs
-                xc, yc, zc = (Xxmin+Xxmax)/2, (Yymin+Yymax)/2 , (Zzmin+Zzmax)/2
-                #print("before",xc,yc,zc,k, shapesdis)
-                for i in range(0,lenShape-k):
-                    xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[i]
-                    xmove, ymove, zmove = shapesmov[i]
-                    shapesdis[i]= ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 
+            else: 
+            print(k,"Doing Distancer",outerObjectsDict) """
+            for i in range(0,lenShape-k):
+                #swapper = False
+                for j in range(0,lenShape-k-i):
+                    if(( (shapesdis[j+1] < shapesdis[j]) or 
+                        ((shapesdis[j+1] == shapesdis[j]) and (shapesvol[j+1] < shapesvol[j]))  ) ):
+                        #if(swapper):
+                        shapeorder[j+1], shapeorder[j] = swap(shapeorder[j+1], shapeorder[j])                
+                        shapesmov[j+1], shapesmov[j] = swap(shapesmov[j+1], shapesmov[j])
+                        shapesdis[j+1], shapesdis[j] = swap(shapesdis[j+1], shapesdis[j])
+                        shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
+                        shapesdim[j+1], shapesdim[j] = swap(shapesdim[j+1], shapesdim[j])
+            enclosed = False
+            print(shapeorder,shapesdirection)
+            for i in range(0,lenShape-k+1):                
+                j=lenShape-k-i
+                debugMe = False
+                myExcludeCompound = excluded_list_of_shapes_to_compound(shape,shapeorder,j,k,debugMe)
+                myExcludeDimension = get_bounding_details(myExcludeCompound)
                 
-            #for i in range(0,lenShape):
-                #print("after", i, shapeorder[i], shapesdim[i] )
+                enclosed,_,myDirection, myCommonCompound = isRemovable(shape[shapeorder[j]],shapesdim[j],myExcludeCompound,myExcludeDimension,debugMe)
+                #print(k,i,j,shapeorder[j],enclosed,myExcludeDimension,lenShape-k)
+                if (enclosed):
+                    shapesdirection[shapeorder[j]]=myDirection
+                    if (j!=(lenShape-k)):
+                        j1=lenShape-k
+                        shapeorder[j1], shapeorder[j] = swap(shapeorder[j1], shapeorder[j])                
+                        shapesmov[j1], shapesmov[j] = swap(shapesmov[j1], shapesmov[j])
+                        shapesdis[j1], shapesdis[j] = swap(shapesdis[j1], shapesdis[j])
+                        shapesvol[j1], shapesvol[j] = swap(shapesvol[j1], shapesvol[j])
+                        shapesdim[j1], shapesdim[j] = swap(shapesdim[j1], shapesdim[j])                    
+                    print(k,i,j,shapeorder[lenShape-k],enclosed,myDirection,lenShape-k)
+                    break
+                else:
+                    if(myCommonCompound!=None and debugMe):
+                        commonObjects.append(myCommonCompound)
+                    
+            if enclosed==False:
+                print("No objects can be left",k)
 
+            Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = shapesdim[0] 
+            for i in range(1,lenShape-k):
+                xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[i]
+                if(xmins < Xxmin):
+                    Xxmin = xmins
+                if(ymins < Yymin):
+                    Yymin = ymins
+                if(zmins < Zzmin):
+                    Zzmin = zmins
+                if(xmaxs > Xxmax):
+                    Xxmax = xmaxs
+                if(ymaxs > Yymax):
+                    Yymax = ymaxs
+                if(zmaxs > Zzmax):
+                    Zzmax = zmaxs
+            xc, yc, zc = (Xxmin+Xxmax)/2, (Yymin+Yymax)/2 , (Zzmin+Zzmax)/2
+            #print("before",xc,yc,zc,k, shapesdis)
+            for i in range(0,lenShape-k):
+                xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[i]
+                xmove, ymove, zmove = shapesmov[i]
+                shapesdis[i]= ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 
             k += 1
+        #for i in range(0,lenShape):
+            #print("after", i, shapeorder[i], shapesdim[i] )
+
+        #k += 1
         """ k = 1        
         while k < lenShape: #Remove constraints one by one
             for i in range(0,lenShape-k):
@@ -1918,7 +2320,7 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
             #xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
             (bShape,bName,bColor) = shapeArray[shapeassembleorder[i]]
             (newShape,aName,aColor) = newShapes[shapeassembleorder[i]+1]
-            _,_,direction = innerDimensionalDict[shapeassembleorder[i]]
+            direction = shapesdirection[shapeassembleorder[i]]
             xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[shapereverseorder[shapeassembleorder[i]]]
             
             directionX,directionY,directionZ = direction
@@ -1927,17 +2329,17 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
             ymove = (((ymins+ymaxs)/2)-yc)*ys#*directionY
             zmove = (((zmins+zmaxs)/2)-zc)*zs#*directionZ
             if xmove < 0:
-                dirX = -1
+                dirX = -directionX
             else:
-                dirX = 1
+                dirX = directionX
             if ymove < 0:
-                dirY = -1
+                dirY = -directionY
             else:
-                dirY = 1
+                dirY = directionY
             if zmove < 0:
-                dirZ = -1
+                dirZ = -directionZ
             else:
-                dirZ = 1    
+                dirZ = directionZ    
             if i==0:
                 shiftX,shiftY,shiftZ = 0,0,0
             else:           
@@ -1977,6 +2379,13 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
         print("after",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
     #print(shapeorder,shapesdis,shapesvol)
     
+    aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
+    for i in range(len(commonObjects)):
+        newShapes.append((commonObjects[i],"Common"+str(i),aColor))
+        moveArrays.append((0, 0, 0))
+        #shapesdim.append(xmins+xmove+xt, ymins+ymove+xt, zmins+zmove+xt, xmaxs+xmove+xt, ymaxs+ymove+xt, zmaxs+zmove+xt)
+        shapeorder.append(i+lenShape)
+
     return newShapes, moveArrays, shapeorder
     """  _,_,zminj,_,_,zmaxj = shapesdim[j]
                     _,_,zminj1,_,_,zmaxj1 = shapesdim[j+1]
