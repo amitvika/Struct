@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import FileUpload from '@ravibasil/common/components/FileUpload';
@@ -8,10 +8,9 @@ import Input from '@ravibasil/common/components/atoms/Input';
 
 import readXlsxFile from 'read-excel-file'
 
-export default function DynamicCriteria() {
+export default function DynamicCriteria({ currentCrieteriaValue }) {
 
   const [criteriaFields, setCriteriaFields] = useState({});
-  const [currentCrieteriaValue, setCurrentCrieteriaValue] = useState('Actuator|Rotational');
 
   const handleCriteriaFileUpload = (file) => {
     const map = {

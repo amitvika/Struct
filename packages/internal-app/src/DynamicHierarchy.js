@@ -4,8 +4,8 @@ import Grid from '@material-ui/core/Grid';
 import FileUpload from '@ravibasil/common/components/FileUpload';
 import Headding from '@ravibasil/common/components/atoms/Headding';
 import Select from '@ravibasil/common/components/atoms/Select';
-
 import readXlsxFile from 'read-excel-file';
+import DynamicCriteria from './containers/itemDetail/itemTypeConfigurations/DynamicCriteria';
 
 export default function DynamicHierarchy() {
 
@@ -103,7 +103,7 @@ export default function DynamicHierarchy() {
             options={fieldItem.options.map(option => ({ label: option, value: option }))}
             onChange={(data) => handleOnChange(`${fieldItem.label}`, data.value)}
             value={setValue(fieldItem.label)}
-            // value={dataValue[fieldItem.label] && { label: `${dataValue[fieldItem.label]}` }}
+          // value={dataValue[fieldItem.label] && { label: `${dataValue[fieldItem.label]}` }}
           />
         </Grid>
       </Grid>
@@ -121,13 +121,16 @@ export default function DynamicHierarchy() {
   }
 
   return (
-    <Paper style={{ padding: 20, margin: 10 }}>
-      <FileUpload handleFileUpload={handleHierarchyFileUpload} label="Select Hierarchy File" />
+    <>
       <Paper style={{ padding: 20, margin: 10 }}>
-        <Headding>{'criteriaTitle'}</Headding>
-        {renderDropdowns()}
-        {/* {renderFields()} */}
+        <FileUpload handleFileUpload={handleHierarchyFileUpload} label="Select Hierarchy File" />
+        <Paper style={{ padding: 20, margin: 10 }}>
+          <Headding>{'criteriaTitle'}</Headding>
+          {renderDropdowns()}
+        </Paper>
       </Paper>
-    </Paper>
+
+      <DynamicCriteria currentCrieteriaValue={initialValue.slice(1).join('|')}/>
+    </>
   )
 }
