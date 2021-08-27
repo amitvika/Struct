@@ -1,5 +1,6 @@
 
 from math import ceil
+
 from OCC.Core.gp import gp_Pnt 
 from django.http.response import JsonResponse
 from rest_framework import status
@@ -34,7 +35,7 @@ from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
 
 from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
     translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance, 
-    getPartStackablePositions, get_bounding_details, get_bounding_details_common,
+    getPartStackablePositions, get_bounding_details, scale_shape,
     recognize_direction, recognize_entity)
 from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices
 from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
@@ -1649,6 +1650,7 @@ def isEnclosed(aShape1,aDimension1,aShape2,aDimension2,debugMe=False):
                 return (True, myshapeDimension,(0,-1,0)) 
             mybox6 = BRepPrimAPI_MakeBox(corner4,(xmax2-xmin2),(yminC-ymin2),(zmax2-zmin2)).Shape()
             myshapeCommon6 = BRepAlgoAPI_Common(aShape2,mybox6).Shape()
+            
             myshapeDimension6 = get_bounding_details(myshapeCommon6)
             if myshapeDimension6 == (0, 0, 0, 0, 0, 0) :
                 if debugMe:
@@ -1664,166 +1666,790 @@ def isEnclosed(aShape1,aDimension1,aShape2,aDimension2,debugMe=False):
             print("I am partially enclosed and hence allowed to check", myshapeDimension)
         return (True, myshapeDimension,(0,0,0))
 
-def isRemovable(aShape1,aDimension1,aShape2,aDimension2,debugMe=False,tol=2.5):
+def getStackedShape(aShape,zmin,zmax,zhigh,direction,boxshape,shapeTol,gapTol,debugMe) :
+    dirX, dirY, dirZ = direction
+    shapeList =[]
+    shapeList.append(aShape)
+    denominator = zmax-zmin
+    if denominator==0:
+        denominator=1
+    numerator = abs(zhigh-zmin)
+    if numerator==0:
+        numerator=1
+    """ if(denominator>10): #Tolerance
+        AnotherShape=translate_shp(aShape,10*dirX, 10*dirY, 10*dirZ, True)
+        shapeList.append(AnotherShape) """
+    xmove = denominator * dirX
+    ymove = denominator * dirY 
+    zmove = denominator * dirZ 
+    AnotherShape=translate_shp(aShape,xmove, ymove, zmove, True)
+    shapeList.append(AnotherShape)   
+     
+    #Duplicating is not working and hence gone with a tolerance and box
+    noOfDuplicates = ceil(shapeTol/gapTol)   
+    """ for i in range(1,3):
+        #print(i,noOfDuplicates, xmove*i, ymove*i, zmove*i )
+        AnotherShape=translate_shp(aShape,xmove*i, ymove*i, zmove*i, True)
+        shapeList.append(AnotherShape)
+        AnotherShape=translate_shp(aShape,xmove*(noOfDuplicates-i), ymove*(noOfDuplicates-i), zmove*(noOfDuplicates-i), True)
+        shapeList.append(AnotherShape) """
+    if (boxshape != None):
+        shapeList.append(boxshape)
+    fullShape,_ = list_of_shapes_to_compound(shapeList)
+    if debugMe:
+        print(denominator,numerator,xmove, ymove, zmove, noOfDuplicates,shapeTol,gapTol,shapeTol/gapTol)
+    return fullShape
+
+def checkHole(myshapeCommon,myshape,myDimension,direction,debugMe=False):
+    #return True, None
+    dirX,dirY,dirZ=direction
+    xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = myDimension
+    scaleshape = scale_shape(myshapeCommon, 0.7, 0.7, 0.7)
+    xmind, ymind, zmind, xmaxd, ymaxd, zmaxd = get_bounding_details(scaleshape)
+    transhape = translate_shp(scaleshape,(xmins-xmind)*dirX,(ymins-ymind)*dirY,(zmins-zmind)*dirZ)
+    myshapehole = BRepAlgoAPI_Common(transhape,myshape).Shape()
+    if myshapehole == None:
+        if debugMe:
+                print("fully holes Lower",\
+                    get_bounding_details(myshape),get_bounding_details(myshapeCommon),\
+                        get_bounding_details(transhape),get_bounding_details(scaleshape),\
+                            xmins,ymins,zmins)
+        
+    else:
+        myshapeDimension = get_bounding_details(myshapehole) 
+        if myshapeDimension == (0, 0, 0, 0, 0, 0) :
+            if debugMe:
+                print("only holes Lower",myshapeDimension,\
+                    get_bounding_details(myshape),get_bounding_details(myshapeCommon),\
+                        get_bounding_details(transhape),get_bounding_details(scaleshape),\
+                            xmins,ymins,zmins) 
+            
+        else:
+            if debugMe:
+                print("No holes Lower",myshapeDimension,\
+                    get_bounding_details(myshape),get_bounding_details(myshapeCommon),\
+                        get_bounding_details(transhape),get_bounding_details(scaleshape),\
+                            xmins,ymins,zmins) 
+            return False,myshapehole
+    transhape = translate_shp(scaleshape,(xmaxs-xmaxd)*dirX,(ymaxs-ymaxd)*dirY,(zmaxs-zmaxd)*dirZ)
+    myshapehole = BRepAlgoAPI_Common(transhape,myshape).Shape()
+    if myshapehole == None:
+        if debugMe:
+                print("fully holes Upper",\
+                    get_bounding_details(myshape),get_bounding_details(myshapeCommon),\
+                        get_bounding_details(transhape),get_bounding_details(scaleshape),\
+                            xmins,ymins,zmins)
+        
+    else:
+        myshapeDimension = get_bounding_details(myshapehole) 
+        if myshapeDimension == (0, 0, 0, 0, 0, 0) :
+            if debugMe:
+                print("only holes Upper",myshapeDimension,\
+                    get_bounding_details(myshape),get_bounding_details(myshapeCommon),\
+                        get_bounding_details(transhape),get_bounding_details(scaleshape),\
+                            xmins,ymins,zmins) 
+            
+        else:
+            if debugMe:
+                print("No holes Upper",myshapeDimension,\
+                    get_bounding_details(myshape),get_bounding_details(myshapeCommon),\
+                        get_bounding_details(transhape),get_bounding_details(scaleshape),\
+                            xmins,ymins,zmins) 
+            return False,myshapehole 
+    transhape = translate_shp(scaleshape,(xmaxs+xmins-xmaxd-xmind)*dirX/2,(ymaxs+ymins-ymaxd-ymind)*dirY/2,(zmaxs+zmins-zmaxd-zmind)*dirZ/2)
+    myshapehole = BRepAlgoAPI_Common(transhape,myshape).Shape()
+    if myshapehole == None:
+        if debugMe:
+                print("fully holes Center",\
+                    get_bounding_details(myshape),get_bounding_details(myshapeCommon),\
+                        get_bounding_details(transhape),get_bounding_details(scaleshape),\
+                            xmins,ymins,zmins)
+        
+    else:
+        myshapeDimension = get_bounding_details(myshapehole) 
+        if myshapeDimension == (0, 0, 0, 0, 0, 0) :
+            if debugMe:
+                print("only holes Center",myshapeDimension,\
+                    get_bounding_details(myshape),get_bounding_details(myshapeCommon),\
+                        get_bounding_details(transhape),get_bounding_details(scaleshape),\
+                            xmins,ymins,zmins) 
+            
+        else:
+            if debugMe:
+                print("No holes Center",myshapeDimension,\
+                    get_bounding_details(myshape),get_bounding_details(myshapeCommon),\
+                        get_bounding_details(transhape),get_bounding_details(scaleshape),\
+                            xmins,ymins,zmins) 
+            return False,myshapehole 
+    return True, None
+
+def isRemovable(aShape1,aDimension1,aShape2,aDimension2,shapeTol=10,gapTol=0.2,debugMe=False):
     xmin1, ymin1, zmin1, xmax1, ymax1, zmax1 = aDimension1
-    xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2    
+    xmin2, ymin2, zmin2, xmax2, ymax2, zmax2 = aDimension2 
+    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = min(xmin1,xmin2), min(ymin1,ymin2),min(zmin1,zmin2),\
+         max(xmax1,xmax2),max(ymax1,ymax2),max(zmax1,zmax2)
+    xc,yc,zc = (xmax3+xmin3)/2, (ymax3+ymin3)/2, (zmax3+zmin3)/2
+
     if debugMe:
         print("Checking 1")
         myshapeCommonReturn = None
     else: 
         myshapeCommonReturn = None
-    if (zmax2<=(zmax1+tol) and zmax2>=zmax1): #0.2 for tollerance
-        if debugMe:
-            print("Part is on Top")
-        return (True, (0, 0, 0, 0, 0, 0),(0,0,1),myshapeCommonReturn)
-    if (zmax2 > (zmax1+tol)):        
-        corner1 = gp_Pnt(xmin1, ymin1, zmax1+tol)
-        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1-tol)).Shape()
-        myshapeCommonReturn = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
-        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
-        myshapeDimension1 = get_bounding_details_common(myshapeCommon1) 
-        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
-            if debugMe:
-                print("Nothing common with Enclosed Part From Top")
-            return (True, myshapeDimension1,(0,0,1),myshapeCommonReturn)
-        else:
-            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
-            if ( ((xmin1<xmin3) and (xmax1>xmax3) and (ymin1<ymin3) and (ymax1>ymax3) ) ) : 
-                if debugMe:
-                    print("common with Enclosed Part From Top",get_bounding_details(mybox1),\
-                        myshapeDimension1,aDimension1,aDimension2,(xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
-                return (True, myshapeDimension1,(0,0,1),myshapeCommonReturn)
-            else:
-                if debugMe:
-                    print("Nothing common with Enclosed Part From Top",get_bounding_details(mybox1),\
-                        myshapeDimension1,aDimension1,aDimension2,(xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
-    else:
-        if debugMe:
-            print("Nothing From Top",zmax1,zmax2,aDimension1,aDimension2) 
+    
+    LeftFirst, FrontFirst, BottomFirst = (xmax1 <=xc), (ymax1 <=yc), (zmax1 <=zc)
     if debugMe:
-        print("Checking 2")
-    if zmin2==zmin1:
+        print("What First",LeftFirst, FrontFirst, BottomFirst)
+    myHoleArray = []
+    if ( (zmax2==zmax1) and (zmin2==zmin1) ): #0.2 for tollerance
         if debugMe:
-            print("Part is on Bottom")
-        return (True, (0, 0, 0, 0, 0, 0),(0,0,-1),myshapeCommonReturn)
-    if zmin2 < zmin1:        
-        corner1 = gp_Pnt(xmin1, ymin1, zmin2)
-        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax1-ymin1),(zmin1-zmin2)).Shape()
-        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
-        myshapeDimension1 = get_bounding_details(myshapeCommon1) 
-        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
-            if debugMe:
-                print("Nothing common with Enclosed Part From Bottom")
-            return (True, myshapeDimension1,(0,0,-1),myshapeCommonReturn)
-        else:
-            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
-            if ( ((xmin1<xmin3) and (xmax1>xmax3) and (ymin1<ymin3) and (ymax1>ymax3) ) ) : 
-                return (True, myshapeDimension1,(0,0,-1),myshapeCommonReturn)
+            print("Part is on Top",aDimension1,aDimension2)
+        return (True, (0, 0, 0, 0, 0, 0),(0,0,1),myshapeCommonReturn, myHoleArray)
+   
+    if BottomFirst:        
+        if zmin2 < zmin1: 
+            shapeTol1 = zmax1-zmin1
+            corner1 = gp_Pnt(xmin1, ymin1, zmin2)            
+            if ((zmin1-zmin2-shapeTol1)>0):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax1-ymin1),(zmin1-zmin2-shapeTol1)).Shape()
             else:
                 if debugMe:
-                    print("Nothing common with Enclosed Part From Bottom",myshapeDimension1,aDimension1,aDimension2) 
-    else:
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,zmin1,zmax1,zmin2,(0,0,-1),mybox2,shapeTol1,gapTol,debugMe)
+            myshapeCommonReturn = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            if myshapeCommon1!=None:
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing common with Enclosed Part From Bottom")
+                    return (True, myshapeDimension1,(0,0,-1),myshapeCommonReturn,myHoleArray)
+                else:                
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((xmin1<xmin3) and (xmax1>xmax3) and (ymin1<ymin3) and (ymax1>ymax3) ) ) : 
+                        if debugMe:
+                            print("common with Enclosed Part From Bottom",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
+                        isHole, myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(0,0,1),debugMe)
+                        if isHole:
+                                return (True, myshapeDimension1,(0,0,-1),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Bottom",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
+                    else:
+                        if debugMe:                   
+                            print("Nocommon with Enclosed Part From Bottom",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
+            else:
+                if debugMe:                   
+                    print("None with Enclosed Part From Bottom",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,\
+                            (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+        else:
+            if debugMe:
+                print("Nothing From Bottom",zmin2,zmin1,aDimension1,aDimension2) 
         if debugMe:
-            print("Nothing From Bottom",zmin2,zmin1,aDimension1,aDimension2) 
+            print("Checking 2",BottomFirst)
+        if (zmax2 > zmax1):  
+            shapeTol1 = zmax1-zmin1
+            corner1 = gp_Pnt(xmin1, ymin1, zmax1+shapeTol1)            
+            if((zmax2-zmax1-shapeTol1) >0 ):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1-shapeTol1)).Shape()
+            else:
+                if debugMe:
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,zmin1,zmax1,zmax2,(0,0,1),mybox2,shapeTol1,gapTol,debugMe)
+            myshapeCommonReturn = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape() 
+            if myshapeCommon1!=None:
+                #print("I got",myshapeCommon1,"Shape")       
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing common with Enclosed Part From Top")
+                    return (True, myshapeDimension1,(0,0,1),myshapeCommonReturn, myHoleArray)
+                else:
+                    if (zmin2 >= zmin1):
+                        if debugMe:
+                            print("Reverse Nothing common with Enclosed Part From Top")
+                        return (True, myshapeDimension1,(0,0,-1),myshapeCommonReturn, myHoleArray)
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((xmin1<xmin3) and (xmax1>xmax3) and (ymin1<ymin3) and (ymax1>ymax3) ) ) : 
+                        if debugMe:
+                            print("common with Enclosed Part From Top",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
+                        isHole, myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(0,0,1),debugMe)
+                        if isHole:
+                            return (True, myshapeDimension1,(0,0,1),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Top",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        
+                    else:
+                        if debugMe:
+                            print("Nothing common with Enclosed Part From Top",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+            else:
+                if debugMe:                   
+                    print("None with Enclosed Part From Top",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,\
+                            (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))  
+        else:
+            if debugMe:
+                print("Nothing From Top",zmax1,zmax2,aDimension1,aDimension2) 
+        
+        """ if zmin2==zmin1:
+            if debugMe:
+                print("Part is on Bottom",aDimension1,aDimension2)
+            return (True, (0, 0, 0, 0, 0, 0),(0,0,-1),myshapeCommonReturn, myHoleArray) """
+    else:
+        if (zmax2 > zmax1):  
+            shapeTol1 = zmax1-zmin1
+            corner1 = gp_Pnt(xmin1, ymin1, zmax1+shapeTol1)
+            if((zmax2-zmax1-shapeTol1) >0 ):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1-shapeTol1)).Shape()
+            else:
+                if debugMe:
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,zmin1,zmax1,zmax2,(0,0,1),mybox2,shapeTol1,gapTol,debugMe)
+            myshapeCommonReturn = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            if myshapeCommon1!=None:        
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                #print("I got",myshapeCommon1,"Shape") 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing common with Enclosed Part From Top")
+                    return (True, myshapeDimension1,(0,0,1),myshapeCommonReturn, myHoleArray)
+                else:
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((xmin1<xmin3) and (xmax1>xmax3) and (ymin1<ymin3) and (ymax1>ymax3) ) ) : 
+                        if debugMe:
+                            print("common with Enclosed Part From Top",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
+                        isHole,myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(0,0,1),debugMe)
+                        if isHole:
+                            return (True, myshapeDimension1,(0,0,1),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Top",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        
+                    else:
+                        if debugMe:
+                            print("Nothing common with Enclosed Part From Top",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+            else:
+                if debugMe:                   
+                    print("None with Enclosed Part From Top",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,\
+                            (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))  
+        else:
+            if debugMe:
+                print("Nothing From Top",zmax1,zmax2,aDimension1,aDimension2) 
+        if debugMe:
+            print("Checking 2")
+        """ if zmin2==zmin1:
+            if debugMe:
+                print("Part is on Bottom",aDimension1,aDimension2)
+            return (True, (0, 0, 0, 0, 0, 0),(0,0,-1),myshapeCommonReturn, myHoleArray) """
+        if zmin2 < zmin1: 
+            shapeTol1 = zmax1-zmin1
+            corner1 = gp_Pnt(xmin1, ymin1, zmin2)
+            if ((zmin1-zmin2-shapeTol1)>0):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax1-ymin1),(zmin1-zmin2-shapeTol1)).Shape()
+            else:
+                if debugMe:
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,zmin1,zmax1,zmin2,(0,0,-1),mybox2,shapeTol1,gapTol,debugMe)
+            myshapeCommonReturn = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            if myshapeCommon1!=None:
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing So common with Enclosed Part From Bottom",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,(xmin1, ymin1, zmin2),(xmax1-xmin1),(ymax1-ymin1),(zmin1-zmin2-shapeTol1))
+                    return (True, myshapeDimension1,(0,0,-1),myshapeCommonReturn, myHoleArray)
+                else:
+                    if (zmax2 <= zmax1):
+                        if debugMe:
+                            print("Reverse Nothing common with Enclosed Part From Bottom")
+                        return (True, myshapeDimension1,(0,0,1),myshapeCommonReturn, myHoleArray)
+                    print("In Bottom",zmax2,zmax1,(zmax2 <= zmax1))
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((xmin1<xmin3) and (xmax1>xmax3) and (ymin1<ymin3) and (ymax1>ymax3) ) ) : 
+                        if debugMe:
+                            print("common with Enclosed Part From Bottom",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
+                        isHole,myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(0,0,1),debugMe)
+                        if isHole:
+                            return (True, myshapeDimension1,(0,0,-1),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Bottom",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        
+                    else:
+                        if debugMe:                   
+                            print("Nocommon with Enclosed Part From Bottom",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
+            else:
+                if debugMe:                   
+                        print("None with Enclosed Part From Bottom",get_bounding_details(mybox1),\
+                            aDimension1,aDimension2,\
+                                (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+        else:
+            if debugMe:
+                print("Nothing From Bottom",zmin2,zmin1,aDimension1,aDimension2) 
     if debugMe:
         print("Checking 3")
-    if xmax2==xmax1:
+    if ((xmax2==xmax1) and (xmin2==xmin1)):
         if debugMe:
-            print("Part is on Left")
-        return (True, (0, 0, 0, 0, 0, 0),(1,0,0),myshapeCommonReturn)
-    if xmax2 > xmax1:
-        corner1 = gp_Pnt(xmax1, ymin1, zmin1)
-        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax2-xmax1),(ymax1-ymin1),(zmax1-zmin1)).Shape()
-        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
-        myshapeDimension1 = get_bounding_details(myshapeCommon1) 
-        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
-            if debugMe:
-                print("Nothing common with Enclosed Part From Left")
-            return (True, myshapeDimension1,(1,0,0),myshapeCommonReturn)
-        else:
-            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
-            if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) : 
-                return (True, myshapeDimension1,(1,0,0),myshapeCommonReturn)
+            print("Part is on Left",aDimension1,aDimension2)
+        return (True, (0, 0, 0, 0, 0, 0),(1,0,0),myshapeCommonReturn, myHoleArray)
+    if LeftFirst:         
+        if xmin2 < xmin1: 
+            shapeTol1 = xmax1-xmin1
+            corner1 = gp_Pnt(xmin2, ymin1, zmin1)
+            if ((xmin1-xmin2-shapeTol1>0)):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmin1-xmin2-shapeTol1),(ymax1-ymin1),(zmax1-zmin1)).Shape()
             else:
                 if debugMe:
-                    print("Nothing common with Enclosed Part From Left",myshapeDimension1,aDimension1,aDimension2) 
-    else:
-        if debugMe:
-            print("Nothing From Left",xmax1,xmax2,aDimension1,aDimension2) 
-    if debugMe:
-        print("Checking 4")
-    if xmin2==xmin1:
-        if debugMe:
-            print("Part is on Right")
-        return (True, (0, 0, 0, 0, 0, 0),(-1,0,0),myshapeCommonReturn)
-    if xmin2 < xmin1:        
-        corner1 = gp_Pnt(xmin2, ymin1, zmin1)
-        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmin1-xmin2),(ymax1-ymin1),(zmax1-zmin1)).Shape()
-        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
-        myshapeDimension1 = get_bounding_details(myshapeCommon1) 
-        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
-            if debugMe:
-                print("Nothing common with Enclosed Part From Right")
-            return (True, myshapeDimension1,(-1,0,0),myshapeCommonReturn)
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,xmin1,xmax1,xmin2,(-1,0,0),mybox2,shapeTol1,gapTol,debugMe)
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            if myshapeCommon1!=None:
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing common with Enclosed Part From Right")
+                    return (True, myshapeDimension1,(-1,0,0),myshapeCommonReturn, myHoleArray)
+                else:
+                    
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) :
+                        if debugMe:
+                            print("common with Enclosed Part From Right",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        isHole,myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(1,0,0),debugMe)
+                        if isHole:
+                            return (True, myshapeDimension1,(-1,0,0),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Right",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        
+                    else:
+                        if debugMe:
+                            print("Nothing common with Enclosed Part From Right",myshapeDimension1,aDimension1,aDimension2) 
+            else:
+                if debugMe:                   
+                    print("None with Enclosed Part From Right",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,\
+                            (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
         else:
-            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
-            if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) :
-                return (True, myshapeDimension1,(-1,0,0),myshapeCommonReturn)
+            if debugMe:
+                print("Nothing From Right",xmin1,xmin2,aDimension1,aDimension2)  
+        if debugMe:
+            print("Checking 4",LeftFirst)     
+        if xmax2 > xmax1:
+            shapeTol1 = xmax1-xmin1
+            corner1 = gp_Pnt(xmax1+shapeTol1, ymin1, zmin1)
+            if ((xmax2-xmax1-shapeTol1)>0):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmax2-xmax1-shapeTol1),(ymax1-ymin1),(zmax1-zmin1)).Shape()
             else:
                 if debugMe:
-                    print("Nothing common with Enclosed Part From Right",myshapeDimension1,aDimension1,aDimension2) 
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,xmin1,xmax1,xmax2,(1,0,0),mybox2,shapeTol1,gapTol,debugMe)        
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            if myshapeCommon1!=None:
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing common with Enclosed Part From Left")
+                    return (True, myshapeDimension1,(1,0,0),myshapeCommonReturn, myHoleArray)
+                else:
+                    if (xmin2 >= xmin1):
+                        if debugMe:
+                            print("Reverse Nothing common with Enclosed Part From Left")
+                        return (True, myshapeDimension1,(-1,0,0),myshapeCommonReturn, myHoleArray)
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) : 
+                        if debugMe:
+                            print("common with Enclosed Part From Left",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        isHole,myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(1,0,0),debugMe)
+                        if isHole:
+                            return (True, myshapeDimension1,(1,0,0),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Left",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        
+                    else:
+                        if debugMe:
+                            print("Nothing common with Enclosed Part From Left",myshapeDimension1,aDimension1,aDimension2)
+            else:
+                if debugMe:                   
+                    print("None with Enclosed Part From Left",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,\
+                            (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1)) 
+        else:
+            if debugMe:
+                print("Nothing From Left",xmax1,xmax2,aDimension1,aDimension2) 
+        
+        """ if xmin2==xmin1:
+            if debugMe:
+                print("Part is on Right",aDimension1,aDimension2)
+            return (True, (0, 0, 0, 0, 0, 0),(-1,0,0),myshapeCommonReturn, myHoleArray) """
+        
     else:
+        if xmax2 > xmax1:
+            shapeTol1 = xmax1-xmin1
+            corner1 = gp_Pnt(xmax1+shapeTol1, ymin1, zmin1)
+            if ((xmax2-xmax1-shapeTol1)>0):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmax2-xmax1-shapeTol1),(ymax1-ymin1),(zmax1-zmin1)).Shape()
+            else:
+                if debugMe:
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,xmin1,xmax1,xmax2,(1,0,0),mybox2,shapeTol1,gapTol,debugMe)        
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            if myshapeCommon1!=None:
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing common with Enclosed Part From Left")
+                    return (True, myshapeDimension1,(1,0,0),myshapeCommonReturn, myHoleArray)
+                else:
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) : 
+                        if debugMe:
+                            print("common with Enclosed Part From Left",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        isHole,myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(1,0,0),debugMe)
+                        if isHole:
+                            return (True, myshapeDimension1,(1,0,0),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Left",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        
+                    else:
+                        if debugMe:
+                            print("Nothing common with Enclosed Part From Left",myshapeDimension1,aDimension1,aDimension2) 
+            else:
+                if debugMe:                   
+                    print("None with Enclosed Part From Left",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,\
+                            (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+        else:
+            if debugMe:
+                print("Nothing From Left",xmax1,xmax2,aDimension1,aDimension2) 
         if debugMe:
-            print("Nothing From Right",xmin1,xmin2,aDimension1,aDimension2) 
+            print("Checking 4")
+        """ if xmin2==xmin1:
+            if debugMe:
+                print("Part is on Right",aDimension1,aDimension2)
+            return (True, (0, 0, 0, 0, 0, 0),(-1,0,0),myshapeCommonReturn) """
+        if xmin2 < xmin1: 
+            shapeTol1 = xmax1-xmin1
+            corner1 = gp_Pnt(xmin2, ymin1, zmin1)
+            if ((xmin1-xmin2-shapeTol1>0)):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmin1-xmin2-shapeTol1),(ymax1-ymin1),(zmax1-zmin1)).Shape()
+            else:
+                if debugMe:
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,xmin1,xmax1,xmin2,(-1,0,0),mybox2,shapeTol1,gapTol,debugMe)
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            if myshapeCommon1!=None:
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing common with Enclosed Part From Right")
+                    return (True, myshapeDimension1,(-1,0,0),myshapeCommonReturn, myHoleArray)
+                else:
+                    if (xmax2 <= xmax1):
+                        if debugMe:
+                            print("Reverse Nothing common with Enclosed Part From Right")
+                        return (True, myshapeDimension1,(1,0,0),myshapeCommonReturn, myHoleArray)
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) :
+                        if debugMe:
+                            print("common with Enclosed Part From Right",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        isHole, myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(1,0,0),debugMe)
+                        if isHole:
+                            return (True, myshapeDimension1,(-1,0,0),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Right",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        
+                    else:
+                        if debugMe:
+                            print("Nothing common with Enclosed Part From Right",myshapeDimension1,aDimension1,aDimension2) 
+            else:
+                if debugMe:                   
+                    print("None with Enclosed Part From Right",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,\
+                            (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+        else:
+            if debugMe:
+                print("Nothing From Right",xmin1,xmin2,aDimension1,aDimension2) 
     if debugMe:
         print("Checking 5")
-    if ymax2==ymax1:
+    if ( (ymax2==ymax1) and (ymin2==ymin1) ):
         if debugMe:
-            print("Part is on Back")
-        return (True, (0, 0, 0, 0, 0, 0),(0,1,0),myshapeCommonReturn)
-    if ymax2 > ymax1:
-        corner1 = gp_Pnt(xmin1, ymax1, zmin1)
-        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax2-ymax1),(zmax1-zmin1)).Shape()
-        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
-        myshapeDimension1 = get_bounding_details(myshapeCommon1) 
-        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
-            if debugMe:
-                print("Nothing common with Enclosed Part From Back")
-            return (True, myshapeDimension1,(0,1,0),myshapeCommonReturn)
-        else:
-            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
-            if ( ((zmin1<zmin3) and (zmax1>zmax3) and (xmin1<xmin3) and (xmax1>xmax3) ) ) : 
-                return (True, myshapeDimension1,(0,1,0),myshapeCommonReturn)
+            print("Part is on Back",aDimension1,aDimension2)
+        return (True, (0, 0, 0, 0, 0, 0),(0,1,0),myshapeCommonReturn, myHoleArray)
+    if FrontFirst:
+        if ymin2 < ymin1:   
+            shapeTol1 = ymax1-ymin1
+            corner1 = gp_Pnt(xmin1, ymin2, zmin1)
+            if((ymin1-ymin2-shapeTol1)>0):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymin1-ymin2-shapeTol1),(zmax1-zmin1)).Shape()
             else:
                 if debugMe:
-                    print("Nothing common with Enclosed Part From Back",myshapeDimension1,aDimension1,aDimension2) 
-    else:
-        if debugMe:
-            print("Nothing From Back",ymax1,ymax2,aDimension1,aDimension2) 
-    if debugMe:
-        print("Checking 6")
-    if ymin2 < ymin1:        
-        corner1 = gp_Pnt(xmin1, ymin2, zmin1)
-        mybox1 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymin1-ymin2),(zmax1-zmin1)).Shape()
-        myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
-        myshapeDimension1 = get_bounding_details(myshapeCommon1) 
-        if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
-            if debugMe:
-                print("Nothing common with Enclosed Part From Front")
-            return (True, myshapeDimension1,(0,-1,0),myshapeCommonReturn)
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,ymin1,ymax1,ymin2,(0,-1,0),mybox2,shapeTol1,gapTol,debugMe)
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            if myshapeCommon1!=None:
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing common with Enclosed Part From Front")
+                    return (True, myshapeDimension1,(0,-1,0),myshapeCommonReturn, myHoleArray)
+                else:
+                    
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) :
+                        if debugMe:
+                            print("common with Enclosed Part From Front",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        isHole, myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(0,1,0),debugMe)
+                        if isHole:
+                            return (True, myshapeDimension1,(0,-1,0),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Front",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        
+                    else:
+                        if debugMe:
+                            print("Nothing common with Enclosed Part From Front",myshapeDimension1,aDimension1,aDimension2) 
+            else:
+                if debugMe:                   
+                    print("None with Enclosed Part From Front",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,\
+                            (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
         else:
-            xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
-            if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) :
-                return (True, myshapeDimension1,(0,-1,0),myshapeCommonReturn)
+            if debugMe:
+                print("Nothing From Front",ymin1,ymin2,aDimension1,aDimension2)
+        if debugMe:
+            print("Checking 6",FrontFirst)
+        if ymax2 > ymax1:
+            shapeTol1 = ymax1-ymin1
+            corner1 = gp_Pnt(xmin1, ymax1+shapeTol1, zmin1)
+            if ((ymax2-ymax1-shapeTol1)>0):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax2-ymax1-shapeTol1),(zmax1-zmin1)).Shape()
             else:
                 if debugMe:
-                    print("Nothing common with Enclosed Part From Front",myshapeDimension1,aDimension1,aDimension2) 
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,ymin1,ymax1,ymax2,(0,1,0),mybox2,shapeTol1,gapTol,debugMe)
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            if myshapeCommon1!=None:
+
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing common with Enclosed Part From Back")
+                    return (True, myshapeDimension1,(0,1,0),myshapeCommonReturn, myHoleArray)
+                else:
+                    if (ymin2 >= ymin1):
+                        if debugMe:
+                            print("Reverse Nothing common with Enclosed Part From Front")
+                        return (True, myshapeDimension1,(0,-1,0),myshapeCommonReturn, myHoleArray)
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((zmin1<zmin3) and (zmax1>zmax3) and (xmin1<xmin3) and (xmax1>xmax3) ) ) : 
+                        if debugMe:
+                            print("common with Enclosed Part From Front",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        isHole, myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(0,1,0),debugMe)
+                        if isHole:
+                            return (True, myshapeDimension1,(0,1,0),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Front",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        
+                    else:
+                        if debugMe:
+                            print("Nothing common with Enclosed Part From Back",myshapeDimension1,aDimension1,aDimension2) 
+            else:
+                if debugMe:                   
+                    print("None with Enclosed Part From Back",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,\
+                            (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+        else:
+            if debugMe:
+                print("Nothing From Back",ymax1,ymax2,aDimension1,aDimension2) 
+        
+        """ if ymin2==ymin1:
+            if debugMe:
+                print("Part is on Front",aDimension1,aDimension2)
+            return (True, (0, 0, 0, 0, 0, 0),(0,-1,0),myshapeCommonReturn) """
+        
     else:
+        if ymax2 > ymax1:
+            shapeTol1 = ymax1-ymin1
+            corner1 = gp_Pnt(xmin1, ymax1+shapeTol1, zmin1)
+            if ((ymax2-ymax1-shapeTol1)>0):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymax2-ymax1-shapeTol1),(zmax1-zmin1)).Shape()
+            else:
+                if debugMe:
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,ymin1,ymax1,ymax2,(0,1,0),mybox2,shapeTol1,gapTol,debugMe)
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            if myshapeCommon1!=None:
+
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing common with Enclosed Part From Back")
+                    return (True, myshapeDimension1,(0,1,0),myshapeCommonReturn, myHoleArray)
+                else:
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((zmin1<zmin3) and (zmax1>zmax3) and (xmin1<xmin3) and (xmax1>xmax3) ) ) : 
+                        if debugMe:
+                            print("common with Enclosed Part From Back",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        isHole, myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(0,1,0),debugMe)
+                        if isHole:
+                            return (True, myshapeDimension1,(0,1,0),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Back",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        
+                    else:
+                        if debugMe:
+                            print("Nothing common with Enclosed Part From Back",myshapeDimension1,aDimension1,aDimension2) 
+            else:
+                if debugMe:                   
+                    print("None with Enclosed Part From Back",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,\
+                            (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+        else:
+            if debugMe:
+                print("Nothing From Back",ymax1,ymax2,aDimension1,aDimension2) 
         if debugMe:
-            print("Nothing From Front",ymin1,ymin2,aDimension1,aDimension2) 
+            print("Checking 6")
+        """ if ymin2==ymin1:
+            if debugMe:
+                print("Part is on Front",aDimension1,aDimension2)
+            return (True, (0, 0, 0, 0, 0, 0),(0,-1,0),myshapeCommonReturn) """
+        if ymin2 < ymin1:   
+            shapeTol1 = ymax1-ymin1
+            corner1 = gp_Pnt(xmin1, ymin2, zmin1)
+            if((ymin1-ymin2-shapeTol1)>0):
+                mybox2 = BRepPrimAPI_MakeBox(corner1,(xmax1-xmin1),(ymin1-ymin2-shapeTol1),(zmax1-zmin1)).Shape()
+            else:
+                if debugMe:
+                    print("2 Parts are exceeding")
+                mybox2 = None
+            mybox1 = getStackedShape(aShape1,ymin1,ymax1,ymin2,(0,-1,0),mybox2,shapeTol1,gapTol,debugMe)
+            myshapeCommon1 = BRepAlgoAPI_Common(aShape2,mybox1).Shape()
+            if myshapeCommon1!=None:
+                myshapeDimension1 = get_bounding_details(myshapeCommon1) 
+                if myshapeDimension1 == (0, 0, 0, 0, 0, 0) :
+                    if debugMe:
+                        print("Nothing common with Enclosed Part From Front")
+                    return (True, myshapeDimension1,(0,-1,0),myshapeCommonReturn, myHoleArray)
+                else:
+                    if (ymax2 <= ymax1):
+                        if debugMe:
+                            print("Reverse Nothing common with Enclosed Part From Front")
+                        return (True, myshapeDimension1,(0,1,0),myshapeCommonReturn, myHoleArray)
+                    xmin3, ymin3, zmin3, xmax3, ymax3, zmax3 = myshapeDimension1
+                    if ( ((ymin1<ymin3) and (ymax1>ymax3) and (zmin1<zmin3) and (zmax1>zmax3) ) ) :
+                        if debugMe:
+                            print("common with Enclosed Part From Front",get_bounding_details(mybox1),\
+                                myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                    (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        isHole, myHole = checkHole(myshapeCommon1,aShape1,aDimension1,(0,1,0),debugMe)
+                        if isHole:
+                            return (True, myshapeDimension1,(0,-1,0),myshapeCommonReturn, myHoleArray)
+                        else:
+                            if debugMe:
+                                myHoleArray.append(myHole)
+                                print("No hole with Enclosed Part From Front",get_bounding_details(mybox1),\
+                                    myshapeDimension1,aDimension1,aDimension2,get_bounding_details(myshapeCommonReturn),\
+                                        (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+                        
+                    else:
+                        if debugMe:
+                            print("Nothing common with Enclosed Part From Front",myshapeDimension1,aDimension1,aDimension2) 
+            else:
+                if debugMe:                   
+                    print("None with Enclosed Part From Front",get_bounding_details(mybox1),\
+                        aDimension1,aDimension2,\
+                            (xmin1, ymin1, zmax1),(xmax1-xmin1),(ymax1-ymin1),(zmax2-zmax1))
+        else:
+            if debugMe:
+                print("Nothing From Front",ymin1,ymin2,aDimension1,aDimension2) 
     if debugMe:
         print("Checking 7")
-    return (False, (0, 0, 0, 0, 0, 0),(0,0,0),myshapeCommonReturn)
+    return (False, (0, 0, 0, 0, 0, 0),(0,0,0),myshapeCommonReturn, myHoleArray)
 
     
 
@@ -1897,8 +2523,8 @@ def getDirection(mypos,innerdict):
         return getDirection(enclose,innerdict)      
         
                       
-def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0.2,debugMe=False):
-
+def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,shapeTol=10, gapTol=0.2,debugMe=False):
+    #print("ExploreParts",shapeTol,gapTol)
     xmin, ymin, zmin, xmax, ymax, zmax = dimension 
     xc, yc, zc = (xmin+xmax)/2, (ymin+ymax)/2 , (zmin+zmax)/2
     xd, yd, zd = xmax-xmin, ymax-ymin, zmax-zmin
@@ -2208,17 +2834,21 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                         shapesvol[j+1], shapesvol[j] = swap(shapesvol[j+1], shapesvol[j])
                         shapesdim[j+1], shapesdim[j] = swap(shapesdim[j+1], shapesdim[j])
             enclosed = False
-            print(shapeorder,shapesdirection)
+            
             for i in range(0,lenShape-k+1):                
                 j=lenShape-k-i
                 debugMe = False
-                myExcludeCompound = excluded_list_of_shapes_to_compound(shape,shapeorder,j,k,debugMe)
+                if debugMe:
+                    print(k,j,shapeorder[j],shapeorder)
+                myExcludeCompound = excluded_list_of_shapes_to_compound(shape,shapeorder,j,k,False)
                 myExcludeDimension = get_bounding_details(myExcludeCompound)
-                
-                enclosed,_,myDirection, myCommonCompound = isRemovable(shape[shapeorder[j]],shapesdim[j],myExcludeCompound,myExcludeDimension,debugMe)
+                #print("My Shape TOl, Gap Tol",shapeTol,gapTol)
+                enclosed,_,myDirection, myCommonCompound,myHoles = isRemovable(shape[shapeorder[j]],shapesdim[j],myExcludeCompound,myExcludeDimension,shapeTol,gapTol,debugMe)
                 #print(k,i,j,shapeorder[j],enclosed,myExcludeDimension,lenShape-k)
                 if (enclosed):
                     shapesdirection[shapeorder[j]]=myDirection
+                    if(myCommonCompound!=None and debugMe ):
+                        commonObjects.append((myCommonCompound,shapeorder[j], myHoles))
                     if (j!=(lenShape-k)):
                         j1=lenShape-k
                         shapeorder[j1], shapeorder[j] = swap(shapeorder[j1], shapeorder[j])                
@@ -2229,11 +2859,17 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                     print(k,i,j,shapeorder[lenShape-k],enclosed,myDirection,lenShape-k)
                     break
                 else:
+                    if debugMe:
+                        print(k,i,j,shapeorder[j],enclosed,myExcludeDimension,lenShape-k)
                     if(myCommonCompound!=None and debugMe):
-                        commonObjects.append(myCommonCompound)
+                        commonObjects.append((myCommonCompound,shapeorder[j],myHoles))
                     
             if enclosed==False:
                 print("No objects can be left",k)
+                if (k!=1) :
+                    shapesdirection[shapeorder[lenShape-k]]=shapesdirection[shapeorder[lenShape-k+1]]
+
+            print(k, shapeorder,shapesdirection, lenShape-k)
 
             Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = shapesdim[0] 
             for i in range(1,lenShape-k):
@@ -2257,6 +2893,8 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
                 xmove, ymove, zmove = shapesmov[i]
                 shapesdis[i]= ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 
             k += 1
+        if(lenShape>1):
+            shapesdirection[shapeorder[0]]=shapesdirection[shapeorder[1]]
         #for i in range(0,lenShape):
             #print("after", i, shapeorder[i], shapesdim[i] )
 
@@ -2309,67 +2947,93 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
             shapereverseorder[shapeorder[i]] = i
         for i  in range(lenShape):
             shapeassembleorder[shapereverseorder[i]] = i
-        #for i  in range(lenShape):
-        #    print(i,shapereverseorder[i],shapeorder[i],moveArrays[i],shapesmov[i],shapesdim[i])
+        for i  in range(lenShape):
+            print(i,shapeassembleorder[i],shapesdirection[shapeassembleorder[i]])
         xmin, ymin, zmin, xmax, ymax, zmax = dimension 
         xc, yc, zc = (xmin+xmax)/2, (ymin+ymax)/2 , (zmin+zmax)/2
-        xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = 0, 0, 0, 0, 0, 0
-        xmovep, ymovep, zmovep = 0,0,0
+        xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = dimension
+        #shiftX,shiftY,shiftZ = 0,0,0   
+        prevX, prevY, prevZ = 0,0,0   
         for i  in range(lenShape):
             #(aShape,aName,aColor) = shapeArray[i]
             #xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
+           
             (bShape,bName,bColor) = shapeArray[shapeassembleorder[i]]
             (newShape,aName,aColor) = newShapes[shapeassembleorder[i]+1]
             direction = shapesdirection[shapeassembleorder[i]]
             xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = shapesdim[shapereverseorder[shapeassembleorder[i]]]
             
-            directionX,directionY,directionZ = direction
+            if (direction==(0,0,0)) :
+                if (prevX==0) and (prevY==0) and (prevZ==0):
+                    directionX,directionY,directionZ = 0, 0, 1
+                else:
+                    directionX,directionY,directionZ = prevX, prevY, prevZ 
+            else:
+                directionX,directionY,directionZ = direction
+                prevX, prevY, prevZ = directionX,directionY,directionZ
             
-            xmove = (((xmins+xmaxs)/2)-xc)*xs#*directionX
+            if directionZ==1: 
+                xmove = 0
+                ymove = 0
+                zmove = zmaxp + explodegap
+                zmaxp = zmove + (zmaxs-zmins)
+            if directionZ==-1:
+                xmove = 0
+                ymove = 0
+                zmove = zminp - (zmaxs-zmins+explodegap)
+                zminp = zmove
+            if directionX==1: 
+                xmove = xmaxp + explodegap
+                ymove = 0
+                zmove = 0
+                xmaxp = xmove + (xmaxs-xmins)
+            if directionX==-1:
+                xmove = xminp - (xmaxs-xmins+explodegap)
+                ymove = 0
+                zmove = 0
+                xminp = xmove
+            if directionY==1: 
+                xmove = 0
+                ymove = ymaxp + explodegap
+                zmove = 0
+                ymaxp = ymove + (ymaxs-ymins)
+            if directionY==-1:
+                xmove = 0
+                ymove = yminp - (ymaxs-ymins+explodegap)
+                zmove = 0
+                yminp = ymove
+            """ xmove = (((xmins+xmaxs)/2)-xc)*xs#*directionX
             ymove = (((ymins+ymaxs)/2)-yc)*ys#*directionY
-            zmove = (((zmins+zmaxs)/2)-zc)*zs#*directionZ
-            if xmove < 0:
-                dirX = -directionX
-            else:
-                dirX = directionX
-            if ymove < 0:
-                dirY = -directionY
-            else:
-                dirY = directionY
-            if zmove < 0:
-                dirZ = -directionZ
-            else:
-                dirZ = directionZ    
-            if i==0:
-                shiftX,shiftY,shiftZ = 0,0,0
-            else:           
-                #xmove, ymove, zmove = 0,0,0    
-                shiftX += ( ((xmaxp-xminp)) * directionX + explodegap ) * dirX
-                shiftY += ( ((ymaxp-yminp)) * directionY + explodegap ) * dirY
-                shiftZ += ( ((zmaxp-zminp)) * directionZ + explodegap ) * dirZ
+            zmove = (((zmins+zmaxs)/2)-zc)*zs#*directionZ """
+            moveArrays[shapeassembleorder[i]]=(xmove, ymove, zmove)
+            finalShape=translate_shp(newShape,xmove, ymove, zmove, True) 
+                
+            """ shiftX += ( ((xmaxp-xminp)) + explodegap ) * directionX
+            shiftY += ( ((ymaxp-yminp)) + explodegap ) * directionY
+            shiftZ += ( ((zmaxp-zminp)) + explodegap ) * directionZ
             
             xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = xmins, ymins, zmins, xmaxs, ymaxs, zmaxs
-            xmovep,ymovep,zmovep = xmove, ymove, zmove
+           
 
-            xmoveX = (xmove+shiftX) * directionX  
-            ymoveY = (ymove+shiftY) * directionY  
-            zmoveZ = (zmove+shiftZ) * directionZ 
+            xmoveX = shiftX 
+            ymoveY = shiftY 
+            zmoveZ = shiftZ  """
             
             """  xmoveX = xmove
             ymoveY = ymove
             zmoveZ = zmove """
 
             print(direction,i,shapeassembleorder[i],shapereverseorder[shapeassembleorder[i]],\
-                shiftX,shiftY,shiftZ,(xmove, ymove, zmove),(xmoveX, ymoveY, zmoveZ),aName,bName,\
+                 (xmove, ymove, zmove),  aName,bName,\
                     (xmins, ymins, zmins, xmaxs, ymaxs, zmaxs),get_bounding_details(bShape))            
             
             #print(i,shapeorder[i],direction,xmove,ymove,zmove)
-            if(xmoveX==0 and ymoveY==0 and zmoveZ==0):
+            """ if(xmoveX==0 and ymoveY==0 and zmoveZ==0):
                 moveArrays[shapeassembleorder[i]]=(xmove, ymove, zmove)
                 finalShape=translate_shp(newShape,xmove, ymove, zmove, True)
             else:
                 moveArrays[shapeassembleorder[i]]=(xmoveX, ymoveY, zmoveZ)
-                finalShape=translate_shp(newShape,xmoveX, ymoveY, zmoveZ, True)
+                finalShape=translate_shp(newShape,xmoveX, ymoveY, zmoveZ, True) """
          
             newShapes[shapeassembleorder[i]+1] = (finalShape,aName,aColor)
            
@@ -2379,12 +3043,23 @@ def ExplodeParts(shapeArray,shape,name,dimension,explodegap,center,tolerance = 0
         print("after",hash(newShapes[i+1]),moveArrays[i],shapeorder[i]) """
     #print(shapeorder,shapesdis,shapesvol)
     
-    aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
-    for i in range(len(commonObjects)):
-        newShapes.append((commonObjects[i],"Common"+str(i),aColor))
-        moveArrays.append((0, 0, 0))
-        #shapesdim.append(xmins+xmove+xt, ymins+ymove+xt, zmins+zmove+xt, xmaxs+xmove+xt, ymaxs+ymove+xt, zmaxs+zmove+xt)
-        shapeorder.append(i+lenShape)
+   
+    debugMe = False
+    if debugMe==True:
+        aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
+        #bColor = Quantity_Color(1, 1, 0, Quantity_TOC_RGB)
+        currentIndex = lenShape
+        for j in range(len(commonObjects)):            
+            _, _, myHoles = commonObjects[j]           
+            for i in range(len(myHoles)):                
+                AnotherShape=translate_shp(myHoles[i],100, 100, 100, True)
+                newShapes.append((AnotherShape,"Common"+str(currentIndex),aColor))
+                moveArrays.append((0, 0, 0))
+                print ("Common"+str(currentIndex))
+                #shapesdim.append(xmins+xmove+xt, ymins+ymove+xt, zmins+zmove+xt, xmaxs+xmove+xt, ymaxs+ymove+xt, zmaxs+zmove+xt)
+                shapeorder.append(currentIndex)
+                currentIndex +=1
+
 
     return newShapes, moveArrays, shapeorder
     """  _,_,zminj,_,_,zmaxj = shapesdim[j]
@@ -2590,7 +3265,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,t
             shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             #shape = Wholeshape
             #shapeArray = createShapeArray(shape)
-            nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,tolerance)
+            nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,shapeTol=explodegap,gapTol=tolerance)
+            print(nshape,moveArrays,shapeorder)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
