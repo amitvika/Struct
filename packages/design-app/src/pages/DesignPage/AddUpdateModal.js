@@ -11,7 +11,6 @@ import {
 import Modal from '@ravibasil/common/components/Modal';
 import FileUploadOnAWS from '@ravibasil/common/containers/FileUploadOnAWS';
 import FileHistory from '@ravibasil/common/containers/FileHistory';
-import { useSelector } from 'react-redux';
 
 export default function AddUpdateModal({ title, fields, open, toggleModal, handleUpdate, isEditing, selectedValue }) {
   const [value, setValue] = useState({});

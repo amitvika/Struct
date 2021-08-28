@@ -2,126 +2,162 @@ import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import {
-    Select,
-    Input,
-    Textarea,
-    Headding
+  Select,
+  Input,
+  Textarea,
+  Headding
 } from '@ravibasil/common/components';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import Modal from '@ravibasil/common/components/Modal';
 import FileUpload from './FileUpload';
 import FileHistory from './FileHistory';
+import { useSelector } from 'react-redux';
+import { uploadFileS3Bucket } from '@ravibasil/common/api/aws';
+import { hierarchyFileParser, criteriaFileParser } from './parser';
 
 export default function AddUpdateModal({ title, fields, open, toggleModal, handleUpdate, isEditing, selectedValue }) {
-    const [value, setValue] = useState({});
-    const [isTypeSelected, setIsTypeSelected] = useState(false)
-    const [selectedType, setSelectedType] = useState('')
+  const [value, setValue] = useState({});
+  const [isTypeSelected, setIsTypeSelected] = useState(false)
+  const [selectedType, setSelectedType] = useState('')
+  const { user } = useSelector(state => state.auth);
+  const [isLoading, setLoading] = useState(false);
 
-    useEffect(() => {
-        if (selectedValue) {
-            setValue(selectedValue)
-        }
-        else {
-            setValue({});
-        }
-    }, [selectedValue]);
+  useEffect(() => {
+    if (selectedValue) {
+      setValue(selectedValue)
+    }
+    else {
+      setValue({});
+    }
+  }, [selectedValue]);
 
-    const handleOnChange = (name, data) => {
+  const handleOnChange = (name, data) => {
 
-        let file_history = value.file_history || [];
-        if (name === "new_file") {
-            file_history = [data, ...file_history]
-        }
-
-        setValue(preValue => ({
-            ...preValue,
-            [name]: data,
-            file_history
-        }));
+    let file_history = value.file_history || [];
+    if (name === "new_file") {
+      file_history = [data, ...file_history]
     }
 
-    const handleSaveButton = () => {
-        if (value) {
-            handleUpdate(value)
-        }
-        // toggleModal();
+    setValue(preValue => ({
+      ...preValue,
+      [name]: data,
+      file_history
+    }));
+  }
+
+  const handleSaveButton = () => {
+    if (value) {
+      handleUpdate(value)
+    }
+    // toggleModal();
+  }
+
+  const handleTypeChange = (data) => {
+    setIsTypeSelected(true);
+    setSelectedType(data);
+    handleOnChange('category', data)
+  }
+
+  const handleFileChange = async (selectedFile) => {
+
+    setLoading(true);
+
+    let updateObj = {};
+
+    if (value.category === 'criteria') {
+      let criteriaSchema = await criteriaFileParser(selectedFile);
+      updateObj = { criteriaSchema };
+    }
+    else if (value.category === 'hierarchy') {
+      let hierarchySchema = await hierarchyFileParser(selectedFile);
+      updateObj = { hierarchySchema };
+    }
+    else {
+      return;
     }
 
-    const handleTypeChange = (data) => {
-        setIsTypeSelected(true);
-        setSelectedType(data);
-        handleOnChange('category', data)
-    }
+    const file_url = await uploadFileS3Bucket(selectedFile);
+    updateObj = {
+      ...updateObj,
+      'new_file': { file_name: selectedFile.name, file_url, loaded_by_name: user.name, loaded_by: user.id }
+    };
 
-    return (
-        <Modal
-            title={`${isEditing ? `Update ${selectedValue.name}` : 'Add'} ${title}`}
-            open={open}
-            toggleModal={toggleModal}>
+    setValue(updateObj);
 
-            <Grid className="section-padding-left" container spacing={4}>
-                <Grid item xs={4}>
-                    <Headding bold title={'Name'} />
-                </Grid>
-                <Grid item xs={8}>
-                    <Input
-                        placeholder="Enter"
-                        type="text"
-                        onChange={(event) => handleOnChange('name', event.target.value)}
-                        value={value.name}
-                    />
-                </Grid>
+    setLoading(false);
+  }
 
-                <Grid item xs={4}>
-                    <Headding bold title={'Category'} />
-                </Grid>
-                <Grid item xs={8}>
-                    <Select
-                        options={[
-                            { label: "Criteria", value: "criteria" },
-                            { label: 'Hierarchy', value: 'hierarchy' },]}
-                        onChange={(data) => handleTypeChange(data.value)}
-                        value={value.category && { label: value.category }}
-                    />
-                </Grid>
+  return (
+    <Modal
+      title={`${isEditing ? `Update ${selectedValue.name}` : 'Add'} ${title}`}
+      open={open}
+      toggleModal={toggleModal}>
 
-                {
-                    isTypeSelected &&
-                    <>
-                        <Grid item xs={4}>
-                        </Grid>
-                        <Grid item xs={8}>
-                            <a href={`${process.env.REACT_APP_API}/download/${selectedType}`}
-                                target="_blank"
-                                style={{ textDecoration: 'none' }}>
-                                <Button variant="contained" color="secondary">
-                                    {selectedType === 'criteria' ? 'Download Criteria Upload Template' : 'Download Hirarchy Upload Template'}
-                                </Button>
-                            </a>
-                        </Grid>
-                    </>
-                }
-                <Grid item xs={4}>
-                    <Headding bold title={'Note'} />
-                </Grid>
-                <Grid item xs={8}>
-                    <Textarea
-                        placeholder="Enter"
-                        onChange={(event) => handleOnChange('notes', event.target.value)}
-                        value={value.notes}
-                    />
-                </Grid>
+      {isLoading && <CircularProgress />}
+      <Grid className="section-padding-left" container spacing={4}>
+        <Grid item xs={4}>
+          <Headding bold title={'Name'} />
+        </Grid>
+        <Grid item xs={8}>
+          <Input
+            placeholder="Enter"
+            type="text"
+            onChange={(event) => handleOnChange('name', event.target.value)}
+            value={value.name}
+          />
+        </Grid>
 
-                <FileUpload value={value} handleOnChange={handleOnChange} />
-                <FileHistory link_id={value.id} />
+        <Grid item xs={4}>
+          <Headding bold title={'Category'} />
+        </Grid>
+        <Grid item xs={8}>
+          <Select
+            options={[
+              { label: "Criteria", value: "criteria" },
+              { label: 'Hierarchy', value: 'hierarchy' },]}
+            onChange={(data) => handleTypeChange(data.value)}
+            value={value.category && { label: value.category }}
+          />
+        </Grid>
 
-                <Grid item xs={6}>
-                    <Button variant="contained" color="primary" onClick={handleSaveButton}>
-                        {isEditing ? 'Update' : 'Save'}
-                    </Button>
-                </Grid>
+        {
+          isTypeSelected &&
+          <>
+            <Grid item xs={4}>
             </Grid>
+            <Grid item xs={8}>
+              <a href={`${process.env.REACT_APP_API}/download/${selectedType}`}
+                target="_blank"
+                style={{ textDecoration: 'none' }}>
+                <Button variant="contained" color="secondary">
+                  {selectedType === 'criteria' ? 'Download Criteria Upload Template' : 'Download Hirarchy Upload Template'}
+                </Button>
+              </a>
+            </Grid>
+          </>
+        }
+        <Grid item xs={4}>
+          <Headding bold title={'Note'} />
+        </Grid>
+        <Grid item xs={8}>
+          <Textarea
+            placeholder="Enter"
+            onChange={(event) => handleOnChange('notes', event.target.value)}
+            value={value.notes}
+          />
+        </Grid>
 
-        </Modal>
-    );
+        <FileUpload value={value} handleOnChange={handleFileChange} />
+        <FileHistory link_id={value.id} />
+
+        <Grid item xs={6}>
+          <Button variant="contained" color="primary" onClick={handleSaveButton}>
+            {isEditing ? 'Update' : 'Save'}
+          </Button>
+        </Grid>
+      </Grid>
+
+    </Modal>
+  );
 }
