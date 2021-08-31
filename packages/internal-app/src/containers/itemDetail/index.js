@@ -46,10 +46,13 @@ const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
 const DEFAULTEXPLODEGAP = 10;
 const DEFAULTFROMCENTER = true;
+const DEFAULTHOLESCALE = 0.8;
+const DEFAULTREMOVEGAP = 1.3;
 const DEFAULTDISECT = false;
 const DEFAULTSHOWDISECT = false;
 const DEFAULTSHOWINFOONSELECT = false;
 const DEFAULTMATERIALTYPE = [{ "id": 1, "name": "Basic" }];
+
 
 const stateprops = {
     distancegap: DEFAULTDISTANCEGAP,
@@ -59,7 +62,9 @@ const stateprops = {
     showdisect: DEFAULTSHOWDISECT,
     showinfoonselect: DEFAULTSHOWINFOONSELECT,
     materialtype: DEFAULTMATERIALTYPE,
-    fromcenter:DEFAULTFROMCENTER
+    fromcenter:DEFAULTFROMCENTER,
+    holescale:DEFAULTHOLESCALE,
+    removegap:DEFAULTREMOVEGAP
 }
 
 const ItemDetail = () => {
@@ -196,7 +201,7 @@ const ItemDetail = () => {
             setIsLoading(true);
             console.log("Setting here");
             getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap, 
-                stateprops.explodegap, stateprops.fromcenter)
+                stateprops.explodegap, stateprops.fromcenter,stateprops.holescale,stateprops.removegap)
                 .then(res => res.data)
                 .then((repos) => {
                     console.log("Coming Here");
@@ -248,7 +253,7 @@ const ItemDetail = () => {
                     console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
                     setIsLoading(true);
                     getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap, 
-                        stateprops.explodegap, stateprops.fromcenter)
+                        stateprops.explodegap, stateprops.fromcenter,stateprops.holescale,stateprops.removegap)
                         .then(res => res.data)
                         .then((repos) => {
                             const multiAssmebly = get(repos, 'tree', []).length > 0;

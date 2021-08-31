@@ -76,7 +76,7 @@ class MuiVirtualizedTable extends React.PureComponent {
   });
   
   state = {    
-    sortBy: "index",
+    sortBy: "order",
     sortDirection: SortDirection.ASC,
     sortedlist:this.props.list
   };
@@ -276,7 +276,7 @@ export default function TableOrderView({
   }, [list]);
 
   const [data, setData] = useState(list);
-  const [sortBy,setSortBy] = useState("index");
+  const [sortBy,setSortBy] = useState("order");
   const [sortDirection,setSortDirection] = useState(SortDirection.ASC);
   return (
     <Paper className={classes.viewerContainer}>

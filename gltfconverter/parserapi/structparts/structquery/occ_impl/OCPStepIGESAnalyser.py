@@ -790,6 +790,51 @@ class RotationBuffer(object):
         buffer.seek(0)
         return buffer.read()
 
+def isTessellatable(shape) :        
+   
+    try:
+        topologyExplorer = Topo(shape,ignore_orientation=False)
+        faceiterator = topologyExplorer.faces()
+    except Exception as e:
+        print("Tessllation Error:", e) 
+        return False 
+
+     
+    list_of_faces = list(faceiterator)
+        
+    if(len(list_of_faces) > 0):
+        #print("I have reached here 0")
+        BRepMesh_IncrementalMesh(shape, 0.2, True, 1)
+        #print("I have ok reached here 1")
+        offset = 0
+        bt = BRep_Tool()
+        
+        facecount = 0
+        
+        for face in list_of_faces:  
+            facecount+=1
+            location = TopLoc_Location()
+            facing = (bt.Triangulation(face, location))
+            if facing:
+                
+                #print(reverse,face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED,fill=="Hole",fill)
+                #print(reverse,face,location)
+                vert = facing.Nodes()
+                tri = facing.Triangles()
+                if( (len(tri)>0) and (len(vert)>0) ):
+                    return True
+                             
+                                    
+                offset += facing.NbNodes()
+            else:
+                print("No facing info for", face)
+        
+    else:
+        print("No faces for the shape",shape)
+    
+    
+    return False  
+
 class StepExportWithColor(object):
     '''
     STEP export that support layers & colors
@@ -856,7 +901,83 @@ class StepExportWithColor(object):
         self.doc.SetRequestedName(TCollection_ExtendedString(name))
         status = self.app.SaveAs(self.doc, TCollection_ExtendedString(filename))
         self.app.Close(self.doc)
-        return status == PCDM_StoreStatus.PCDM_SS_OK  """     
+        return status == PCDM_StoreStatus.PCDM_SS_OK  """ 
+    def tessellate(self, shape) :
+        
+        vertices = []
+        triangles = []
+        try:
+            topologyExplorer = Topo(shape,ignore_orientation=False)
+        except Exception as e:
+            print("Tessllation Error:", e) 
+            return False 
+       
+        faceiterator = topologyExplorer.faces() 
+        list_of_faces = list(faceiterator)
+          
+        if(len(list_of_faces) > 0):
+            #print("I have reached here 0")
+            BRepMesh_IncrementalMesh(shape, self.distancegap, True, self.anglegap)
+            #print("I have ok reached here 1")
+            offset = 0
+            bt = BRep_Tool()
+            
+            facecount = 0
+            
+            for face in list_of_faces:  
+                facecount+=1
+                fill, _, _ = recognize_direction(face)  
+               
+                #print(facecount, face)     
+                
+                location = TopLoc_Location()
+                facing = (bt.Triangulation(face, location))
+                if facing:
+                    Trsf = location.Transformation()
+                    reverse = (
+                        True
+                        if (face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) or (fill=="Hole")
+                        else False
+                    )
+                    #print(reverse,face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED,fill=="Hole",fill)
+                    #print(reverse,face,location)
+                    vert = facing.Nodes()
+                    tri = facing.Triangles()
+                    
+                    
+                    # add vertices
+                    vertices += [
+                        (v.X(),v.Y(),v.Z()) 
+                        for v in (v.Transformed(Trsf) for v in vert)
+                    ]
+                    #print(offset,len(vert))
+                    #length_vert = len(vert)
+                            
+                    # add triangles
+                    triangles += [
+                        (
+                            t.Value(1) + offset - 1,
+                            t.Value(3) + offset - 1,
+                            t.Value(2) + offset - 1,
+                        )
+                        if reverse
+                        else (
+                            t.Value(1) + offset - 1,
+                            t.Value(2) + offset - 1,
+                            t.Value(3) + offset - 1,
+                        )
+                        for t in tri
+                    ]                
+                                       
+                    offset += facing.NbNodes()
+                else:
+                    print("No facing info for", face)
+            
+        else:
+            print("No faces for the shape",shape)
+        
+        
+        return (vertices, triangles)    
        
 
 
