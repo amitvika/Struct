@@ -852,7 +852,7 @@ class DropZone extends Component {
 	getPartsStackable = (id, index, stateprops) => {
 		this.setStateLoadingContent(true);
 		//console.log("id",id);
-		getPartsStackableInfo(id, stateprops.distancegap[index], stateprops.anglegap[index])
+		getPartsStackableInfo(id, stateprops.distancegap[index], stateprops.anglegap[index], 1.0)
 			.then(res => res.data)
 			.then((repos) => {
 				//console.log(repos);

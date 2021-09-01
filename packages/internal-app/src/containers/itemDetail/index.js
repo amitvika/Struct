@@ -48,6 +48,7 @@ const DEFAULTEXPLODEGAP = 10;
 const DEFAULTFROMCENTER = true;
 const DEFAULTHOLESCALE = 0.8;
 const DEFAULTREMOVEGAP = 1.3;
+const DEFAULTANIMATIONTIME=1.0;
 const DEFAULTDISECT = false;
 const DEFAULTSHOWDISECT = false;
 const DEFAULTSHOWINFOONSELECT = false;
@@ -64,7 +65,8 @@ const stateprops = {
     materialtype: DEFAULTMATERIALTYPE,
     fromcenter:DEFAULTFROMCENTER,
     holescale:DEFAULTHOLESCALE,
-    removegap:DEFAULTREMOVEGAP
+    removegap:DEFAULTREMOVEGAP,
+    animationtime:DEFAULTANIMATIONTIME
 }
 
 const ItemDetail = () => {
@@ -152,7 +154,7 @@ const ItemDetail = () => {
         if (!item.fileStack || item.fileStack === null) {
             //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
             setIsLoading(true);
-            getPartsStackableInfo(item.fileId, stateprops.distancegap, stateprops.anglegap)                
+            getPartsStackableInfo(item.fileId, stateprops.distancegap, stateprops.anglegap, stateprops.animationtime)                
                 .then(res => res.data)
                 .then((repos) => {
                     console.log(repos);
@@ -200,8 +202,8 @@ const ItemDetail = () => {
             //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
             setIsLoading(true);
             console.log("Setting here");
-            getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap, 
-                stateprops.explodegap, stateprops.fromcenter,stateprops.holescale,stateprops.removegap)
+            getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap, stateprops.explodegap, 
+                stateprops.fromcenter,stateprops.holescale,stateprops.removegap,stateprops.animationtime)
                 .then(res => res.data)
                 .then((repos) => {
                     console.log("Coming Here");
@@ -252,8 +254,8 @@ const ItemDetail = () => {
                 if (!item.fileMPPS || item.fileMPPS === null) {
                     console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
                     setIsLoading(true);
-                    getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap, 
-                        stateprops.explodegap, stateprops.fromcenter,stateprops.holescale,stateprops.removegap)
+                    getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap,stateprops.explodegap, 
+                        stateprops.fromcenter,stateprops.holescale,stateprops.removegap,stateprops.animationtime)
                         .then(res => res.data)
                         .then((repos) => {
                             const multiAssmebly = get(repos, 'tree', []).length > 0;

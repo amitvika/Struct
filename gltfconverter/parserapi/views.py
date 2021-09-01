@@ -1085,7 +1085,7 @@ def duplicateShapes(shape,dimension,depthable,stackable):
         moveArrays.append((xmove*i, ymove*i, zmove*i))
     return shapeList, noOfDuplicates, moveArrays
 
-def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheight):
+def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -1313,7 +1313,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap):#,thumbwidth,thumbheig
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                edgesize=0, vertexsize=0, animations=moveArrays).dump()
+                edgesize=0, vertexsize=0, animations=moveArrays, delay=animationtime).dump()
             dictionary["stackable"] = [{"count":replications,"stack":stackable}]
         except Exception as e:
             print("error",e)      
@@ -1337,16 +1337,17 @@ def FileGetStackablePositions(request):
         id = request.GET.get('id', None)
         distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
         anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+        animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
         #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
         #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
         if is_number(id) :            
             files = File.objects.filter(id__icontains=id)
             for eachfile in files:               
-                data = exportToPartGLTF("Media/"+eachfile.file.name,distancegap,anglegap)#,thumbwidth,thumbheight)
+                data = exportToPartGLTF("Media/"+eachfile.file.name,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
         else:
             id = request.GET.get('file', None)
             if id is not None:
-                data = exportToPartGLTF("Media/"+id,distancegap,anglegap)#,thumbwidth,thumbheight)
+                data = exportToPartGLTF("Media/"+id,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
     return JsonResponse(data, safe=False) 
 
 def swap(a, b):
@@ -1732,21 +1733,40 @@ def getStackedShape(aShape,zmin,zmax,zhigh,direction,boxshape,shapeTol,gapTol,de
     return fullShiftShape
 
 def checkAnyHole(myShapeOuter,myShapeInner,holescale=0.8,debugMe=False):
-    myShapeCommon = BRepAlgoAPI_Common(myShapeOuter,myShapeInner).Shape()
+    try:
+        myShapeCommon = BRepAlgoAPI_Common(myShapeOuter,myShapeInner).Shape()
+    except Exception as e:
+        print("Exception while performing shape common",e)
+        return True, None
     if (myShapeCommon == None):
         if debugMe:
             print("No common between these objects")
         return True, None
+    #print("Reached here1")
     xminc, yminc, zminc, xmaxc, ymaxc, zmaxc = get_bounding_details(myShapeCommon)
-    scaleInnerShape = scale_shape(myShapeCommon, holescale, holescale, holescale)
+    #print("Reached here2")
+    try:
+        scaleInnerShape = scale_shape(myShapeCommon, holescale, holescale, holescale)
+    except Exception as e:
+        print("Exception while scaling shape common",e)
+        return True, None
+    #print("Reached here3")
     xmind, ymind, zmind, xmaxd, ymaxd, zmaxd = get_bounding_details(scaleInnerShape)
+    #print("Reached here4")
     scaledShape = translate_shp(scaleInnerShape,(xmaxc+xminc-xmaxd-xmind)/2,(ymaxc+yminc-ymaxd-ymind)/2,(zmaxc+zminc-zmaxd-zmind)/2,True)
-    myShapeHole = BRepAlgoAPI_Common(scaledShape,myShapeOuter).Shape()
+    #print("Reached here5")
+    try:
+        myShapeHole = BRepAlgoAPI_Common(scaledShape,myShapeOuter).Shape()
+    except Exception as e:
+        print("Exception while performing hole common",e)
+        return True, None    
     if (myShapeHole == None):
         if debugMe:
             print("Hole between these objects")
         return True, None
-    myHoleDimension = get_bounding_details(myShapeHole) 
+    #print("Reached here7")
+    myHoleDimension = get_bounding_details(myShapeHole)
+    #print("Reached here8") 
     if myHoleDimension == (0, 0, 0, 0, 0, 0) :
         #if debugMe:
         #    print("Holes between these objects")
@@ -1765,8 +1785,48 @@ def checkAnyHole(myShapeOuter,myShapeInner,holescale=0.8,debugMe=False):
             print("Not tessellatable Holes between these objects with dimension",myHoleDimension)
             return True, myShapeHole
     
-        
+def writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,xDist,yDist,zDist,suffix, debugMe=False):
+    if debugMe:
+        try:
+            aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
+            colorfile = "Display/"+"MyShapeCommon"+suffix+"_COLOR.step"                             
+            OCPStepIGESAnalyser.StepExportWithColor(shape=commonHoleShape,color=aColor,name="MyShapeCommon").write_file(filename=colorfile)
+            colorfile = "Display/"+"MyShapeCompound"+suffix+"_COLOR.step"                             
+            OCPStepIGESAnalyser.StepExportWithColor(shape=myShapeInner,color=aColor,name="MyShapeCompound").write_file(filename=colorfile)
+            colorfile = "Display/"+"MyShapeOuter"+suffix+"_COLOR.step"                             
+            OCPStepIGESAnalyser.StepExportWithColor(shape=tranShape,color=aColor,name="MyShapeOuter").write_file(filename=colorfile)
+            colorfile = "Display/"+"MyShapeInner"+suffix+"_COLOR.step"                             
+            OCPStepIGESAnalyser.StepExportWithColor(shape=myCommonShape,color=aColor,name="MyShapeInner").write_file(filename=colorfile)
+            mycommonholeshape = translate_shp(commonHoleShape,xDist,yDist,zDist,True)       
+            myCommonShapez = translate_shp(myCommonShape,xDist*2,yDist*2,zDist*2,True)
+            myCommonCompundz = translate_shp(myShapeInner,xDist*3,yDist*3,zDist*3,True)
+            tranShapez = translate_shp(tranShape,xDist*4,yDist*4,zDist*4,True)
+            shapex=[myCommonShapez,tranShapez,myShapeOuter,myCommonCompundz,mycommonholeshape]
+            fullShapex,_ = list_of_shapes_to_compound(shapex)
+            colorfile = "Display/"+"MyShapeMergedX"+suffix+"_COLOR.step"                             
+            OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapex,color=aColor,name="MyShapeMergedX").write_file(filename=colorfile)
+            shapey=[myCommonShape,myShapeOuter]
+            fullShapey,_ = list_of_shapes_to_compound(shapey)
+            colorfile = "Display/"+"MyShapeOriginal"+suffix+"_COLOR.step"                             
+            OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapey,color=aColor,name="MyShapeOriginal").write_file(filename=colorfile)
+            shapez=[commonHoleShape,myCommonShapez,tranShapez]
+            fullShapez,_ = list_of_shapes_to_compound(shapez)
+            colorfile = "Display/"+"MyShapeMergedZ"+suffix+"_COLOR.step"                             
+            OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapez,color=aColor,name="MyShapeMergedZ").write_file(filename=colorfile)
+            shapeyz=[myCommonShape,tranShape]
+            fullShapeyz,_ = list_of_shapes_to_compound(shapeyz)
+            colorfile = "Display/"+"MyShapeTrans"+suffix+"_COLOR.step"                             
+            OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapeyz,color=aColor,name="MyShapeTransT").write_file(filename=colorfile)
+                                        
+        except Exception as e:
+            print(e,"File, %s has error" % colorfile) 
+    
 
+def makeCuboid(x,y,z,dx,dy,dz):
+    corner = gp_Pnt(x, y, z)            
+    myBox = BRepPrimAPI_MakeBox(corner,dx,dy,dz).Shape()
+    return myBox
+    
 def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInnerDimension,direction,holescale=0.8,removegap=1.0,explodegap=10.0,debugMe=False):
     #return True, None
     
@@ -1777,17 +1837,18 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
     zminn, yminn, zminn, xmaxn, ymaxn, zmaxn = xmino, ymino, zmino, xmaxo, ymaxo, zmaxo
     myCount = 0
     holeFound = True
+    myBox = None
     if (direction==(0,0,1)) :
         if (zmino <= zmaxi) :            
-            corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmino-explodegap)            
+            """ corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmino-explodegap)            
             myBox = BRepPrimAPI_MakeBox(corner,(xmaxo-xmino)+2*explodegap,(ymaxo-ymino)+2*explodegap,(zmaxi-zmino)+2*explodegap).Shape()
-            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape()
+            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
             myCommonShape=myShapeInner
             if myCommonShape==None:
                 if debugMe:
                     print("Empty From Bottom To Top")
                 return True, (0,0,1)
-            myHoleDimension = get_bounding_details(myCommonShape)
+            myHoleDimension = myInnerDimension
             if myHoleDimension == (0, 0, 0, 0, 0, 0) :
                 if debugMe:
                     print("Empty Space From Bottom To Top")
@@ -1802,18 +1863,27 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
                 zminn=0           
             else:
                 zminn = (zminc-zmaxo) 
-                tranShape = translate_shp(myShapeOuter,0,0,zminn,True)    
+                #print("Reached here1a")
+                tranShape = translate_shp(myShapeOuter,0,0,zminn,True)   
+                #print("Reached here1b") 
                 holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe)                 
             while ( (holeFound==True) and ( (zminn+zmino) <= zmaxc) ):
                 zminn += removegap
-                tranShape = translate_shp(myShapeOuter,0,0,zminn,True)    
-                holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe) 
+                #print("Reached here1c") 
+                tranShape = translate_shp(myShapeOuter,0,0,zminn,True) 
+                #print("Reached here1d") 
+                holeFound, commonHoleShape = checkAnyHole(tranShape,myCommonShape,holescale,debugMe) 
+                #print("Reached here1e")
                 myCount += 1
                 if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
                     print("Holes only found so far",myCount,holeFound)
+                    if (debugMe and holeFound==False):
+                        writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,xmaxo-xmino+4*explodegap,0,0,"Top")  
             if (holeFound==True) :
                 if debugMe:
-                    print("Only holes From Bottom To Top")
+                    print("Only holes From Bottom To Top",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
+                    writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,xmaxo-xmino+4*explodegap,0,0,"Top")  
+            
                 return True, (0,0,1)
         else:
             if debugMe:
@@ -1821,15 +1891,15 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
             return True, (0,0,1)
     if (direction==(0,0,-1)) :
         if  (zmaxo >= zmini) :
-            corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmini-explodegap)            
+            """ corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmini-explodegap)            
             myBox = BRepPrimAPI_MakeBox(corner,(xmaxo-xmino)+2*explodegap,(ymaxo-ymino)+2*explodegap,(zmaxo-zmini)+2*explodegap).Shape()
-            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape()
+            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
             myCommonShape=myShapeInner
             if myCommonShape==None:
                 if debugMe:
                     print("Empty From Top To Bottom")
                 return True, (0,0,-1)
-            myHoleDimension = get_bounding_details(myCommonShape)
+            myHoleDimension = myInnerDimension
             if myHoleDimension == (0, 0, 0, 0, 0, 0) :
                 if debugMe:
                     print("Empty Space From Top To Bottom")
@@ -1844,18 +1914,27 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
                 zmaxn=0           
             else:
                 zmaxn = (zmaxc-zmino) 
-                tranShape = translate_shp(myShapeOuter,0,0,zmaxn,True)    
+                #print("Reached here2a")
+                tranShape = translate_shp(myShapeOuter,0,0,zmaxn,True)   
+                #print("Reached here2b") 
                 holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe)      
             while ( (holeFound==True) and ( (zmaxn+zmaxo) >= zminc) ):
                 zmaxn -= removegap
-                tranShape = translate_shp(myShapeOuter,0,0,zmaxn,True)    
-                holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe) 
+                #print("Reached here2c")
+                tranShape = translate_shp(myShapeOuter,0,0,zmaxn,True)   
+                #print("Reached here2d") 
+                holeFound, commonHoleShape = checkAnyHole(tranShape,myCommonShape,holescale,debugMe)
+                #print("Reached here2e") 
                 myCount += 1
                 if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
                     print("Holes only found so far",myCount,holeFound)
+                    if (debugMe and holeFound==False):
+                        writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,xmaxo-xmino+4*explodegap,0,0,"Bottom")
             if holeFound==True:
                 if debugMe:
-                    print("Only holes From Top To Bottom")
+                    print("Only holes From Top To Bottom",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
+                    writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,xmaxo-xmino+4*explodegap,0,0,"Bottom")
+           
                 return True, (0,0,-1) 
         else:
             if debugMe:
@@ -1863,15 +1942,15 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
             return True, (0,0,-1)  
     if (direction==(1,0,0)) :
         if (xmino <= xmaxi) :           
-            corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmino-explodegap)            
+            """ corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmino-explodegap)            
             myBox = BRepPrimAPI_MakeBox(corner,(xmaxi-xmino)+2*explodegap,(ymaxo-ymino)+2*explodegap,(zmaxo-zmino)+2*explodegap).Shape()
-            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape()
+            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
             myCommonShape=myShapeInner
             if myCommonShape==None:
                 if debugMe:
                     print("Empty From Left To Right")
                 return True, (1,0,0)
-            myHoleDimension = get_bounding_details(myCommonShape)
+            myHoleDimension = myInnerDimension
             if myHoleDimension == (0, 0, 0, 0, 0, 0) :
                 if debugMe:
                     print("Empty Space From Left To Right")
@@ -1885,16 +1964,23 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
                 holeFound=True
                 xminn=0           
             else:
-                xminn = (xminc-xmaxo) 
-                tranShape = translate_shp(myShapeOuter,xminn,0,0,True)    
+                xminn = (xminc-xmaxo)
+                #print("Reached here3a") 
+                tranShape = translate_shp(myShapeOuter,xminn,0,0,True)
+                #print("Reached here3b")    
                 holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe)                 
             while ( (holeFound==True) and ( (xminn+xmino) <= xmaxc) ):
                 xminn += removegap
-                tranShape = translate_shp(myShapeOuter,xminn,0,0,True)    
-                holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe) 
+                #print("Reached here3c")
+                tranShape = translate_shp(myShapeOuter,xminn,0,0,True)
+                #print("Reached here3d")    
+                holeFound, commonHoleShape = checkAnyHole(tranShape,myCommonShape,holescale,debugMe)
+                #print("Reached here3e") 
                 myCount += 1
                 if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
                     print("Holes only found so far",myCount,holeFound)
+                    if (debugMe and holeFound==False):
+                        writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,0,0,zmaxo-zmino+4*explodegap,"Right")                    
                     """ if (debugMe and holeFound==False):
                         try:
                             aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
@@ -1927,7 +2013,9 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
                             print(e,"File, %s has error" % colorfile)  """
             if (holeFound==True) :
                 if debugMe:
-                    print("Only holes From Left To Right")
+                    print("Only holes From Left To Right",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
+                    writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,0,0,zmaxo-zmino+4*explodegap,"Right")                    
+                    
                 return True, (1,0,0)
         else:
             if debugMe:
@@ -1935,15 +2023,15 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
             return True, (1,0,0)
     if (direction==(-1,0,0)) :
         if  (xmaxo >= xmini) :            
-            corner = gp_Pnt(xmini-explodegap, ymino-explodegap, zmino-explodegap)            
+            """  corner = gp_Pnt(xmini-explodegap, ymino-explodegap, zmino-explodegap)            
             myBox = BRepPrimAPI_MakeBox(corner,(xmaxo-xmini)+2*explodegap,(ymaxo-ymino)+2*explodegap,(zmaxo-zmino)+2*explodegap).Shape()
-            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape()
+            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
             myCommonShape=myShapeInner
             if myCommonShape==None:
                 if debugMe:
                     print("Empty From Right To Left")
                 return True, (-1,0,0)
-            myHoleDimension = get_bounding_details(myCommonShape)
+            myHoleDimension = myInnerDimension
             if myHoleDimension == (0, 0, 0, 0, 0, 0) :
                 if debugMe:
                     print("Empty Space From Right To Left")
@@ -1957,19 +2045,29 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
                 holeFound=True 
                 xmaxn=0           
             else:
-                xmaxn = (xmaxc-xmino) 
-                tranShape = translate_shp(myShapeOuter,xmaxn,0,0,True)    
+                xmaxn = (xmaxc-xmino)
+                #print("Reached here4a") 
+                tranShape = translate_shp(myShapeOuter,xmaxn,0,0,True)
+                #print("Reached here4b")    
                 holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe)      
             while ( (holeFound==True) and ( (xmaxn+xmaxo) >= xminc) ):
                 xmaxn -= removegap
-                tranShape = translate_shp(myShapeOuter,xmaxn,0,0,True)    
-                holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe) 
+                #print("Reached here4c")
+                tranShape = translate_shp(myShapeOuter,xmaxn,0,0,True)
+                #print("Reached here4d")    
+                holeFound, commonHoleShape = checkAnyHole(tranShape,myCommonShape,holescale,debugMe)
+                #print("Reached here4e") 
                 myCount += 1
                 if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
                     print("Holes only found so far",myCount,holeFound)
+                    if (debugMe and holeFound==False):
+                        writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,0,0,zmaxo-zmino+4*explodegap,"Left")                    
+                    
             if holeFound==True:
                 if debugMe:
-                    print("Only holes From Right To Left")
+                    print("Only holes From Right To Left",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
+                    writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,0,0,zmaxo-zmino+4*explodegap,"Left")                    
+
                 return True, (-1,0,0) 
         else:
             if debugMe:
@@ -1977,15 +2075,15 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
             return True, (-1,0,0)  
     if (direction==(0,1,0)) :
         if (ymino <= ymaxi) :        
-            corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmino-explodegap)            
+            """ corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmino-explodegap)            
             myBox = BRepPrimAPI_MakeBox(corner,(xmaxo-xmino)+2*explodegap,(ymaxi-ymino)+2*explodegap,(zmaxo-zmino)+2*explodegap).Shape()
-            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape()
+            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
             myCommonShape=myShapeInner
             if myCommonShape==None:
                 if debugMe:
                     print("Empty From Front To Back")
                 return True, (0,1,0)
-            myHoleDimension = get_bounding_details(myCommonShape)
+            myHoleDimension = myInnerDimension
             if myHoleDimension == (0, 0, 0, 0, 0, 0) :
                 if debugMe:
                     print("Empty Space From Front To Back")
@@ -1999,19 +2097,28 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
                 holeFound=True
                 yminn=0           
             else:
-                yminn = (yminc-ymaxo) 
-                tranShape = translate_shp(myShapeOuter,0,yminn,0,True)    
+                yminn = (yminc-ymaxo)
+                #print("Reached here5a") 
+                tranShape = translate_shp(myShapeOuter,0,yminn,0,True)
+                #print("Reached here5b")    
                 holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe)                 
             while ( (holeFound==True) and ( (yminn+ymino) <= ymaxc) ):
                 yminn += removegap
-                tranShape = translate_shp(myShapeOuter,0,yminn,0,True)    
-                holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe) 
+                #print("Reached here5c")
+                tranShape = translate_shp(myShapeOuter,0,yminn,0,True)
+                #print("Reached here5d")    
+                holeFound, commonHoleShape = checkAnyHole(tranShape,myCommonShape,holescale,debugMe)
+                #print("Reached here5e") 
                 myCount += 1
                 if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
                     print("Holes only found so far",myCount,holeFound)
+                    if (debugMe and holeFound==False):
+                        writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,xmaxo-xmino+4*explodegap,0,0,"Back")
             if (holeFound==True) :
                 if debugMe:
-                    print("Only holes From Front To Back")
+                    print("Only holes From Front To Back",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
+                    writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,xmaxo-xmino+4*explodegap,0,0,"Back")
+ 
                 return True, (0,1,0)
         else:
             if debugMe:
@@ -2019,15 +2126,15 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
             return True, (0,1,0)
     if (direction==(0,-1,0)) :
         if  (ymaxo >= ymini) :
-            corner = gp_Pnt(xmino-explodegap, ymini-explodegap, zmino-explodegap)            
+            """ corner = gp_Pnt(xmino-explodegap, ymini-explodegap, zmino-explodegap)            
             myBox = BRepPrimAPI_MakeBox(corner,(xmaxo-xmino)+2*explodegap,(ymaxo-ymini)+2*explodegap,(zmaxo-zmino)+2*explodegap).Shape()
-            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape()
+            myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
             myCommonShape=myShapeInner
             if myCommonShape==None:
                 if debugMe:
                     print("Empty From Back To Front")
                 return True, (0,-1,0)
-            myHoleDimension = get_bounding_details(myCommonShape)
+            myHoleDimension = myInnerDimension
             if myHoleDimension == (0, 0, 0, 0, 0, 0) :
                 if debugMe:
                     print("Empty Space From Back To Front")
@@ -2041,19 +2148,29 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
                 holeFound=True 
                 ymaxn=0           
             else:
-                ymaxn = (ymaxc-ymino) 
-                tranShape = translate_shp(myShapeOuter,0,ymaxn,0,True)    
+                ymaxn = (ymaxc-ymino)
+                #print("Reached here6a") 
+                tranShape = translate_shp(myShapeOuter,0,ymaxn,0,True)
+                #print("Reached here6b")    
                 holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe)      
             while ( (holeFound==True) and ( (ymaxn+ymaxo) >= yminc) ):
                 ymaxn -= removegap
-                tranShape = translate_shp(myShapeOuter,0,ymaxn,0,True)    
-                holeFound, _ = checkAnyHole(tranShape,myCommonShape,holescale,debugMe) 
+                #print("Reached here6c")
+                tranShape = translate_shp(myShapeOuter,0,ymaxn,0,True)
+                #print("Reached here6d")    
+                holeFound, commonHoleShape = checkAnyHole(tranShape,myCommonShape,holescale,debugMe) 
+                #print("Reached here6e")
                 myCount += 1
                 if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
                     print("Holes only found so far",myCount,holeFound)
+                    if (debugMe and holeFound==False):                       
+                        writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,xmaxo-xmino+4*explodegap,0,0,"Front")                           
+                          
             if holeFound==True:
                 if debugMe:
-                    print("Only holes From Back To Front")
+                    print("Only holes From Back To Front",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
+                    writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,xmaxo-xmino+4*explodegap,0,0,"Front")                           
+                        
                 return True, (0,-1,0) 
         else:
             if debugMe:
@@ -2172,28 +2289,79 @@ def checkCommonHoleInDirection(myShapeOuter,myOuterDimension,myShapeInner,myInne
                 print("Away From Back To Front")
             return True, (0,-1,0) """
     return holeFound, (0,0,0)
-    
-def checkCommonHole(myShapeOuter,myOuterDimension,myShapeInner,myInnerDimension,holescale=0.8,removegap=1.0,explodegap=10.0,debugMe=False):
-    #return True, None
-    
+
+def isColliding(myOuterDimension,myInnerDimension,direction):
     xmino, ymino, zmino, xmaxo, ymaxo, zmaxo = myOuterDimension
     xmini, ymini, zmini, xmaxi, ymaxi, zmaxi = myInnerDimension
-    xminw, yminw, zminw, xmaxw, ymaxw, zmaxw = min(xmino,xmini), min(ymino,ymini), min(zmino,zmini),\
-         max(xmaxo,xmaxi), max(ymaxo,ymaxi), max(zmaxo,zmaxi) 
+    xminw, yminw, zminw, xmaxw, ymaxw, zmaxw = max(xmino,xmini), max(ymino,ymini), max(zmino,zmini),\
+         min(xmaxo,xmaxi), min(ymaxo,ymaxi), min(zmaxo,zmaxi) 
+    if direction==(0,0,1):
+        if ( (zmino <= zmaxi) and (xminw <= xmaxw) and (yminw <= ymaxw)):
+            return True
+        else:
+            return False
+    if direction==(0,0,-1):
+        if ( (zmini <= zmaxo) and (xminw <= xmaxw) and (yminw <= ymaxw)):
+            return True
+        else:
+            return False 
+    if direction==(1,0,0):
+        if ( (xmino <= xmaxi) and (yminw <= ymaxw) and (zminw <= zmaxw)):
+            return True
+        else:
+            return False
+    if direction==(-1,0,0):
+        if ( (xmini <= xmaxo) and (yminw <= ymaxw) and (zminw <= zmaxw)):
+            return True
+        else:
+            return False
+    if direction==(0,1,0):
+        if ( (ymino <= ymaxi) and (zminw <= zmaxw) and (xminw <= xmaxw)):
+            return True
+        else:
+            return False
+    if direction==(0,-1,0):
+        if ( (ymini <= ymaxo) and (zminw <= zmaxw) and (xminw <= xmaxw)):
+            return True
+        else:
+            return False                    
+    return False
+    
+def checkCommonHole(shapesArray,shapeorder,shapesdim,orderpos,orderlast,holescale=0.8,removegap=1.0,explodegap=10.0,debugMe=False):
+    #return True, None
+    myShapeOuter=shapesArray[shapeorder[orderpos]]
+    myOuterDimension = shapesdim[orderpos]
+    xmino, ymino, zmino, xmaxo, ymaxo, zmaxo = myOuterDimension
+    
     directions=[]
-    directions.append(((0,0,1),zmaxw-zmaxo))
-    directions.append(((0,0,-1),zmino-zminw))
-    directions.append(((1,0,0),xmaxw-xmaxo))
-    directions.append(((-1,0,0),xmino-xminw))
-    directions.append(((0,1,0),ymaxw-ymaxo))
-    directions.append(((0,-1,0),ymino-yminw))
+    directions.append(((0,0,1),zmino-zmaxo))
+    directions.append(((0,0,-1),zmino-zmaxo))
+    directions.append(((1,0,0),xmino-xmaxo))
+    directions.append(((-1,0,0),xmino-xmaxo))
+    directions.append(((0,1,0),ymino-ymaxo))
+    directions.append(((0,-1,0),ymino-ymaxo))
     if debugMe:
         print(directions)
     lenDirections = len(directions)
     
     holeFound = False
     for i in range(0,lenDirections):
-        direction,length = directions[i]
+        direction,_ = directions[i]
+        myShapes = []
+        for iPos in range(len(shapesArray)-orderlast+1):
+            if (iPos!=orderpos):
+                coliding = isColliding(myOuterDimension,shapesdim[iPos],direction)
+                if(coliding):
+                    myShapes.append(shapesArray[shapeorder[iPos]])
+                    if debugMe:
+                        print("Adding",iPos,shapeorder[iPos],"for collision detections")
+                else:
+                    if debugMe:
+                        print("Not Adding",iPos,shapeorder[iPos],"for collision detections")         
+        if(len(myShapes)==0):
+            return True, direction 
+        myShapeInner,_ = list_of_shapes_to_compound(myShapes)
+        myInnerDimension = get_bounding_details(myShapeInner)
         #if debugMe:
         #    print(direction,length,directions[i])
         holeFound, result =  checkCommonHoleInDirection(myShapeOuter,myOuterDimension,\
@@ -3209,7 +3377,7 @@ def ExplodeParts(shapeColorArray,shapeArray,name,dimension,explodegap,center,hol
     shapesColorArray=[]
     shapesArray=[]
     if testMe:
-        for i in [2,4,5,6,8]:
+        for i in [9,10,11,15,16]:
             shapesColorArray.append(shapeColorArray[i])
             shapesArray.append(shapeArray[i])
     else:
@@ -3506,16 +3674,15 @@ def ExplodeParts(shapeColorArray,shapeArray,name,dimension,explodegap,center,hol
             myDirectionAtZero=(0,0,0)
             for i in range(0,lenShape-k+1):                
                 j=lenShape-k-i
-                debugMe = True #(k==3) and (i==0) #True #shapeorder[j]==2 or shapeorder[j]==3
+                debugMe = True #k==1 and i==4 #True #(k==3) and (i==0) #True #shapeorder[j]==2 or shapeorder[j]==3
                 if debugMe:
                     print(k,j,shapeorder[j],shapeorder)
-                myExcludeCompound = excluded_list_of_shapes_to_compound(shapesArray,shapeorder,j,k,False)
-                myExcludeDimension = get_bounding_details(myExcludeCompound)
+                #myExcludeCompound = excluded_list_of_shapes_to_compound(shapesArray,shapeorder,j,k,False)
+                #myExcludeDimension = get_bounding_details(myExcludeCompound)
                 #print("My Shape TOl, Gap Tol",shapeTol,gapTol)
                 myCommonCompound,myHoles=None,None
                 #enclosed,_,myDirection, myCommonCompound,myHoles = isRemovable(shape[shapeorder[j]],shapesdim[j],myExcludeCompound,myExcludeDimension,shapeTol,gapTol,debugMe)
-                enclosed,myDirection = checkCommonHole(shapesArray[shapeorder[j]],shapesdim[j],myExcludeCompound,myExcludeDimension,\
-                    holescale,removegap,0.1,debugMe) #explodegap=10 increases the time, 0 has bug for borders and hence 0.1 used.
+                enclosed,myDirection = checkCommonHole(shapesArray,shapeorder,shapesdim,j,k,holescale,removegap,0.1,debugMe) #explodegap=10 increases the time, 0 has bug for borders and hence 0.1 used.
                 #print(k,i,j,shapeorder[j],enclosed,myExcludeDimension,lenShape-k)
                 if myDirectionAtZero==(0,0,0):
                     myDirectionAtZero=myDirection
@@ -3534,7 +3701,7 @@ def ExplodeParts(shapeColorArray,shapeArray,name,dimension,explodegap,center,hol
                     break
                 else:
                     #if debugMe:
-                    print(k,i,j,shapeorder[j],enclosed,myExcludeDimension,lenShape-k)
+                    print(k,i,j,shapeorder[j],enclosed,lenShape-k)
                     if(myCommonCompound!=None and debugMe):
                         commonObjects.append((myCommonCompound,shapeorder[j],myHoles))
                     
@@ -3814,7 +3981,7 @@ def getShapesFromOutPutShapes(shapes,mytree):
     #print(retshapes,onlyshapes)
     return (retshapes,onlyshapes,findAssemblyShapeName(1,mytree))
 
-def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,holescale = 0.8,removegap=1.0):#,thumbwidth,thumbheight):
+def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,holescale = 0.8,removegap=1.0,animationtime=1.5):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -3947,7 +4114,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                edgesize=0, vertexsize=0, animations=moveArrays,shapeorder=shapeorder,delay=2).dump()
+                edgesize=0, vertexsize=0, animations=moveArrays,shapeorder=shapeorder,delay=animationtime).dump()
             dictionary['assemblyorder']={"order":shapeorder,"direction":shapesdirection}
         except Exception as e:
             print("error",e)
@@ -3977,16 +4144,17 @@ def FileGetAssemblyOrder(request):
         holescale = convertToFloat(request.GET.get('holescale',"0.8"),0.8)
         removegap = convertToFloat(request.GET.get('removegap',"1.0"),1.0)
         center=convertToBool(request.GET.get('center',"true"),True)
+        animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
         #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
         #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
         print(id,distancegap,anglegap,explodegap,center)
         if is_number(id) :            
             files = File.objects.filter(id__icontains=id)
             for eachfile in files:               
-                data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap)#,thumbwidth,thumbheight)
+                data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime)#,thumbwidth,thumbheight)
         else:
             id = request.GET.get('file', None)
             if id is not None:
-                data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap)#,thumbwidth,thumbheight)
+                data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime)#,thumbwidth,thumbheight)
     return JsonResponse(data, safe=False)      
     

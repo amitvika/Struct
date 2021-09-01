@@ -35,14 +35,14 @@ export const getHierarchySplitFiles = (id, includeParts, distancegap, anglegap, 
     return axios.get(splitURL);
 }
 
-export const getPartsStackableInfo = (id, distancegap, anglegap) => {
-    const stackURL = `${host}/stackable?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}`;
+export const getPartsStackableInfo = (id, distancegap, anglegap, animationtime) => {
+    const stackURL = `${host}/stackable?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}`;
     console.log(stackURL);
     return axios.get(stackURL);
 }
 
-export const getPartsAssemblyOrder = (id, distancegap, anglegap, explodegap, center, holescale, removegap) => {
-    const orderURL = `${host}/assemblyorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&explodegap=${explodegap}&center=${center}&holescale=${holescale}&removegap=${removegap}`;
+export const getPartsAssemblyOrder = (id, distancegap, anglegap, explodegap, center, holescale, removegap, animationtime) => {
+    const orderURL = `${host}/assemblyorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&explodegap=${explodegap}&center=${center}&holescale=${holescale}&removegap=${removegap}&animationtime=${animationtime}`;
 	console.log(orderURL);
     return axios.get(orderURL);
 }
