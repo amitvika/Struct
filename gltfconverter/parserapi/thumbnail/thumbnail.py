@@ -5658,19 +5658,28 @@ class OffscreenRenderer(object):
             pass
 
 def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path, transparent=False):
-
+    
     # Create scene
     try:
         scene = Scene(ambient_light=np.array([0.2, 0.2, 0.2, 1.0]))
     except Exception as e:
-        print("Error",e)
+        print("createThumbnailError1",e)
+        return
 
     # Load objects
-    object_gltf = trimesh.load(model_path,file_type="gltf")
+    try:
+        object_gltf = trimesh.load(model_path,file_type="gltf")
+    except Exception as e:
+        print("createThumbnailError2",e)
+        return
     object_meshes = []
     for key in list(object_gltf.geometry.keys()):
         object_trimesh = object_gltf.geometry[key]
-        object_meshes.append(Mesh.from_trimesh(object_trimesh))
+        try:
+            object_meshes.append(Mesh.from_trimesh(object_trimesh))
+        except Exception as e:
+            print("createThumbnailError3",e)
+            return
 
     # Set up lighting
     light = DirectionalLight(color=np.ones(3), intensity=5.0)
@@ -5684,7 +5693,11 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
     # Add objects to scene
     scene.add(light, pose=light_pose)
     for mesh in object_meshes:
-        scene.add(mesh)
+        try:
+            scene.add(mesh)
+        except Exception as e:
+            print("createThumbnailError4",e)
+            return
 
     # Create render camera using scene centroid information
     cam = PerspectiveCamera(yfov=(np.pi / 4.0)) #3.0
@@ -5708,9 +5721,18 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
     try:
         r = OffscreenRenderer(viewport_width=thumbnail_width, viewport_height=thumbnail_height)
     except Exception as e:
-        print("Error",e)
-    color, _ = r.render(scene)
-    myImage = Image.Image.fromarray(color)
+        print("createThumbnailError5",e)
+        return
+    try:
+        color, _ = r.render(scene)
+    except Exception as e:
+        print("createThumbnailError6",e)
+        return
+    try:
+        myImage = Image.Image.fromarray(color)
+    except Exception as e:
+        print("createThumbnailError7",e)
+        return
     if transparent:
         rgba = myImage.convert("RGBA")  #routine to save transparent image which might be slower and hence commented.
         datas = rgba.getdata()  
@@ -5724,5 +5746,13 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
         rgba.putdata(newData) 
         rgba.save(thumbnail_save_path, "PNG")
     else:
-        myImage.save(thumbnail_save_path, "PNG")
-    r.delete()
+        try:
+            myImage.save(thumbnail_save_path, "PNG")
+        except Exception as e:
+            print("createThumbnailError8",e)
+            return
+    try:
+        r.delete()
+    except Exception as e:
+        print("createThumbnailError9",e)
+        return
