@@ -24,10 +24,10 @@ import os
 import pickle
 
 from pathlib import Path
-from .structparts import Part
+#from .structparts import Part
 from .structparts import Assembly
-from .structparts.codec.step import (Importer, Exporter)
-from .structparts.codec.mstep import Exporter
+#from .structparts.codec.step import (Importer, Exporter)
+#from .structparts.codec.mstep import Exporter
 from .structparts import conversion
 #from .structparts.structquery.occ_impl import OCPDataExchange
 from .structparts.structquery.occ_impl import OCPStepIGESAnalyser, OCPImporters
@@ -38,75 +38,122 @@ from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
     getPartStackablePositions, get_bounding_details, scale_shape,
     recognize_direction, recognize_entity)
 from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices
-from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
+#from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
-from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound, excluded_list_of_shapes_to_compound
+from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound #, excluded_list_of_shapes_to_compound
+from .assemblyorder import FindAssemblingOrder
 
 from decimal import Decimal 
+import traceback
+import logging
+from logging.handlers import TimedRotatingFileHandler
+
+logHandler = TimedRotatingFileHandler("Display/APIWatcher.Log",when="midnight")
+logFormatter = logging.Formatter('%(asctime)s %(message)s')
+logHandler.setFormatter( logFormatter )
+logger = logging.getLogger()
+logger.addHandler( logHandler )
+logger.setLevel( logging.INFO )
 
 gltf_dict = gltfdict()
 
 @api_view(['GET', 'POST', 'DELETE'])
 def FileUploadView(request):
-    if request.method == 'GET':
-        files = File.objects.all()
-        
-        id = request.GET.get('id', None)
-        if id is not None:
-            files = files.filter(id__icontains=id)
-        
-        files_serializer = FileSerializer(files, many=True)
-        return JsonResponse(files_serializer.data, safe=False)
-        # 'safe=False' for objects serialization
- 
-    elif request.method == 'POST':
-        #parser_class = (FileUploadParser,)
-        #file_data = JSONParser().parse(request.data)
-        f = request.data['file']
-        request.data._mutable = True
-        request.data['filename'] = f.name
-        request.data._mutable = False
-        file_serializer = FileSerializer(data=request.data)
-        #f = request.data['file']
-        #file_serializer.data['file']=f
-        #file_serializer.filename = f.name
-        #print(file_serializer)
-        if file_serializer.is_valid():
-            file_serializer.save()
-            #print(file_serializer.data)
-            return JsonResponse(file_serializer.data, status=status.HTTP_201_CREATED) 
-        return JsonResponse(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        if request.method == 'GET':
+            files = File.objects.all()
+            
+            id = request.GET.get('id', None)
+            if id is not None:
+                files = files.filter(id__icontains=id)
+            
+            files_serializer = FileSerializer(files, many=True)
+            return JsonResponse(files_serializer.data, safe=False)
+            # 'safe=False' for objects serialization
     
-    elif request.method == 'DELETE':
-        count = File.objects.all().delete()
-        return JsonResponse({'message': '{} files were deleted successfully!'.format(count[0])}, status=status.HTTP_204_NO_CONTENT)
- 
+        elif request.method == 'POST':
+            #parser_class = (FileUploadParser,)
+            #file_data = JSONParser().parse(request.data)
+            f = request.data['file']
+            request.data._mutable = True
+            request.data['filename'] = f.name
+            request.data._mutable = False
+            file_serializer = FileSerializer(data=request.data)
+            #f = request.data['file']
+            #file_serializer.data['file']=f
+            #file_serializer.filename = f.name
+            #print(file_serializer)
+            if file_serializer.is_valid():
+                file_serializer.save()
+                #print(file_serializer.data)
+                return JsonResponse(file_serializer.data, status=status.HTTP_201_CREATED) 
+            return JsonResponse(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        elif request.method == 'DELETE':
+            count = File.objects.all().delete()
+            return JsonResponse({'message': '{} files were deleted successfully!'.format(count[0])}, status=status.HTTP_204_NO_CONTENT)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
  
 @api_view(['GET', 'PUT', 'DELETE'])
 def FileReplaceView(request, pk):
-    try: 
-        file = File.objects.get(pk=pk) 
-    except File.DoesNotExist: 
-        return JsonResponse({'message': 'The file does not exist'}, status=status.HTTP_404_NOT_FOUND) 
- 
-    if request.method == 'GET': 
-        file_serializer = FileSerializer(file) 
-        return JsonResponse(file_serializer.data) 
- 
-    elif request.method == 'PUT': 
-        file_data = JSONParser().parse(request) 
-        file_serializer = FileSerializer(file, data=file_data) 
-        if file_serializer.is_valid(): 
-            file_serializer.save() 
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        try: 
+            file = File.objects.get(pk=pk) 
+        except File.DoesNotExist: 
+            return JsonResponse({'message': 'The file does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+    
+        if request.method == 'GET': 
+            file_serializer = FileSerializer(file) 
             return JsonResponse(file_serializer.data) 
-        return JsonResponse(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
- 
-    elif request.method == 'DELETE': 
-        file.delete() 
-        return JsonResponse({'message': 'File was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
-
+    
+        elif request.method == 'PUT': 
+            file_data = JSONParser().parse(request) 
+            file_serializer = FileSerializer(file, data=file_data) 
+            if file_serializer.is_valid(): 
+                file_serializer.save() 
+                return JsonResponse(file_serializer.data) 
+            return JsonResponse(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+    
+        elif request.method == 'DELETE': 
+            file.delete() 
+            return JsonResponse({'message': 'File was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
 def obj_to_string(obj, extra='    '):
     return str(obj.__class__) + '\n' + '\n'.join(
@@ -176,22 +223,41 @@ def getFile(id,key):
     
 @api_view(['GET'])
 def FileGetView(request):
-    data = []
-    if request.method == 'GET':
-        id = request.GET.get('id', None)
-        #print(id)        
-        if is_number(id) :
-            if id==0:
-               id = request.GET.get('file', None)
-               data = getFile(id,"Media/")
-            else :
-                files = File.objects.filter(id__icontains=id)
-                for eachfile in files:
-                   data = getFile(eachfile.file.name,"Media/")
-        else:
-            id = request.GET.get('file', None)
-            data = getFile(id,"Media/")
-    return JsonResponse(data, safe=False)
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'GET':
+            id = request.GET.get('id', None)
+            #print(id)        
+            if is_number(id) :
+                if id==0:
+                    id = request.GET.get('file', None)
+                    data = getFile(id,"Media/")
+                else :
+                    files = File.objects.filter(id__icontains=id)
+                    for eachfile in files:
+                        data = getFile(eachfile.file.name,"Media/")
+            else:
+                id = request.GET.get('file', None)
+                data = getFile(id,"Media/")
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
 """ def validFileName(s) :
     return "".join( x for x in s if (x.isalnum() or x in "._- ")) """
@@ -223,10 +289,11 @@ def exportToStepCadQuery(sourceFileName):
             shape = conversion.read_iges_file(sourceFileName, as_compound=True)
             conversion.write_step_file(shape[0], newfilename, application_protocol="AP242DIS")
             return (newfilename, True)
-        return ("", False)
+        return ({}, False)
        
     except:
-        raise ValueError("File Could not be loaded")  
+        return ({},False)
+        #raise ValueError("File Could not be loaded")  
 
 def exportToGLTF(sourceFileName,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight):
     """
@@ -367,10 +434,11 @@ def exportToGLTF(sourceFileName,distancegap,anglegap,disectparts,moverotate,thum
             except Exception as e:
                 print("error",e)                
             return (dictionary, True)
-        return ("",True)
+        return ({},True)
        
     except:
-        raise ValueError("File Could not be loaded")  
+        return ({},True)
+        #raise ValueError("File Could not be loaded")  
 
 
 def splitFileCadQuery(id,key,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight):
@@ -525,42 +593,61 @@ def findMinimumDistance(xmove,ymove,zmove,xrotate,yrotate,zrotate,moverotate,fna
 
 @api_view(['GET'])
 def FileSplit(request):
-    data = []
-    if request.method == 'GET':
-        id = request.GET.get('id', None)
-        includeparts =convertToBool(request.GET.get('includeparts',"false"),False)
-        distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
-        anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-        disectparts = convertToBool(request.GET.get('disectparts',"false"),False)
-        moverotate = convertToInt(request.GET.get('moverotate',"0"),0)   
-        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
-        thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)   
-        #print(includeparts)
-        if includeparts:           
-            print("I am including minorparts")
-        else:
-            print("I am excluding minorparts")
-        if disectparts:           
-            print("I am disecting to get vertices")
-        else:            
-            print("I am not disecting to get vertices")      
-        print("Got request for",id,includeparts,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
-        if moverotate==0:
-            if is_number(id) :
-                files = File.objects.filter(id__icontains=id)
-                for eachfile in files:
-                    if includeparts:
-                        data = splitFile(eachfile.file.name,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
-                    else:
-                        data = splitFileCadQuery(eachfile.file.name,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'GET':
+            id = request.GET.get('id', None)
+            includeparts =convertToBool(request.GET.get('includeparts',"false"),False)
+            distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            disectparts = convertToBool(request.GET.get('disectparts',"false"),False)
+            moverotate = convertToInt(request.GET.get('moverotate',"0"),0)   
+            thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
+            thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)   
+            #print(includeparts)
+            if includeparts:           
+                print("I am including minorparts")
             else:
-                id = request.GET.get('file', None)
-                if id is not None:
-                    if includeparts:
-                        data = splitFile(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
-                    else:
-                        data = splitFileCadQuery(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
-    return JsonResponse(data, safe=False)
+                print("I am excluding minorparts")
+            if disectparts:           
+                print("I am disecting to get vertices")
+            else:            
+                print("I am not disecting to get vertices")      
+            print("Got request for",id,includeparts,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+            if moverotate==0:
+                if is_number(id) :
+                    files = File.objects.filter(id__icontains=id)
+                    for eachfile in files:
+                        if includeparts:
+                            data = splitFile(eachfile.file.name,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+                        else:
+                            data = splitFileCadQuery(eachfile.file.name,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+                else:
+                    id = request.GET.get('file', None)
+                    if id is not None:
+                        if includeparts:
+                            data = splitFile(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+                        else:
+                            data = splitFileCadQuery(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
 def createShapeArray(shapes):
     shapeArray=[]
@@ -674,7 +761,8 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
         return (dictionary, True)
        
     except:
-        raise ValueError("File Could not be loaded")  
+        return ({},True)
+        #raise ValueError("File Could not be loaded")  
 
 def splitHierarchyFile(id,key,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight):
     data =[]
@@ -705,42 +793,61 @@ def splitHierarchyFile(id,key,includeparts,distancegap,anglegap,disectparts,move
 
 @api_view(['GET'])
 def FileHierarchySplit(request):
-    data = []
-    if request.method == 'GET':
-        id = request.GET.get('id', None)
-        includeparts =convertToBool(request.GET.get('includeparts',"false"),False)
-        distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
-        anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-        disectparts = convertToBool(request.GET.get('disectparts',"false"),False)
-        moverotate = convertToInt(request.GET.get('moverotate',"0"),0)  
-        edgesize = convertToFloat(request.GET.get('edgesize',"0.3"),0.3) 
-        vertexsize = convertToFloat(request.GET.get('vertexsize',"0.3"),1.0)
-        thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
-        thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
-        #print(includeparts)
-        if includeparts:           
-            print("I am including minorparts")
-        else:
-            print("I am excluding minorparts")
-        if disectparts:           
-            print("I am disecting to get vertices")
-        else:            
-            print("I am not disecting to get vertices")      
-        print("Got request for",id,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
-        if moverotate==0:
-            if is_number(id) :            
-                files = File.objects.filter(id__icontains=id)
-                for eachfile in files:
-                    data = splitHierarchyFile(
-                        eachfile.file.name,"Media/",includeparts,distancegap,anglegap,
-                        disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'GET':
+            id = request.GET.get('id', None)
+            includeparts =convertToBool(request.GET.get('includeparts',"false"),False)
+            distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            disectparts = convertToBool(request.GET.get('disectparts',"false"),False)
+            moverotate = convertToInt(request.GET.get('moverotate',"0"),0)  
+            edgesize = convertToFloat(request.GET.get('edgesize',"0.3"),0.3) 
+            vertexsize = convertToFloat(request.GET.get('vertexsize',"0.3"),1.0)
+            thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
+            thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
+            #print(includeparts)
+            if includeparts:           
+                print("I am including minorparts")
             else:
-                id = request.GET.get('file', None)
-                if id is not None:
-                    data = splitHierarchyFile(
-                        id,"Media/",includeparts,distancegap,anglegap,
-                        disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
-    return JsonResponse(data, safe=False)
+                print("I am excluding minorparts")
+            if disectparts:           
+                print("I am disecting to get vertices")
+            else:            
+                print("I am not disecting to get vertices")      
+            print("Got request for",id,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
+            if moverotate==0:
+                if is_number(id) :            
+                    files = File.objects.filter(id__icontains=id)
+                    for eachfile in files:
+                        data = splitHierarchyFile(
+                            eachfile.file.name,"Media/",includeparts,distancegap,anglegap,
+                            disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
+                else:
+                    id = request.GET.get('file', None)
+                    if id is not None:
+                        data = splitHierarchyFile(
+                            id,"Media/",includeparts,distancegap,anglegap,
+                            disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
 def get2DTextures(where):
     #from path import path 
@@ -761,58 +868,114 @@ def get3DTextures(where):
 
 @api_view(['GET'])
 def FileGetTextures(request):
-    data = []
-    if request.method == 'GET':
-        my2textures = get2DTextures("Media/2D/")        
-        my3textures = get3DTextures("Media/3D/")
-        data = {"textures2D":my2textures,"textures3D":my3textures}
-    return JsonResponse(data, safe=False)
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'GET':
+            my2textures = get2DTextures("Media/2D/")        
+            my3textures = get3DTextures("Media/3D/")
+            data = {"textures2D":my2textures,"textures3D":my3textures}
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
 @api_view(['GET'])
 def FileGetFiles(request):
-    files = []
-    if request.method == 'GET':
-        files = File.objects.all()        
-        id = request.GET.get('id', None)
-        if id is not None:
-            files = files.filter(id__icontains=id)  
-    files_list = [ {"id":afile.id,"file":afile.file.path,"filename":afile.filename} for afile in files ]
-    #print(files_list)
-    return JsonResponse(files_list, safe=False)
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        files = []
+        if request.method == 'GET':
+            files = File.objects.all()        
+            id = request.GET.get('id', None)
+            if id is not None:
+                files = files.filter(id__icontains=id)  
+        files_list = [ {"id":afile.id,"file":afile.file.path,"filename":afile.filename} for afile in files ]
+        #print(files_list)
+        return JsonResponse(files_list, safe=False)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
 @api_view(['GET'])
 def FileGetMinimumDistance(request):
-    data = []
-    if request.method == 'GET':        
-        xmove = convertToFloat(request.GET.get('xmove',"0.0"),0.0)
-        ymove = convertToFloat(request.GET.get('ymove',"0.0"),0.0)
-        zmove = convertToFloat(request.GET.get('zmove',"0.0"),0.0)
-        xrotate = convertToFloat(request.GET.get('xrotate',"0.0"),0.0)
-        yrotate = convertToFloat(request.GET.get('yrotate',"0.0"),0.0)
-        zrotate = convertToFloat(request.GET.get('zrotate',"0.0"),0.0)
-        fname = request.GET.get('fname',"")
-        sname = request.GET.get('sname',"")
-        moverotate = convertToInt(request.GET.get('moverotate',"0"),0)              
-        print("Got request for",xmove,ymove,zmove,xrotate,yrotate,zrotate,moverotate,fname,sname)
-        if moverotate:
-            (distance, points1, points2), coplaner, parallel, normal, opposite, concentric, coradial, angle = findMinimumDistance(
-                xmove,ymove,zmove,xrotate,yrotate,zrotate,moverotate,fname,sname)
-            #print(distance,points1,points2)
-            data = {
-                "distance":distance,
-                "points1":points1,
-                "points2":points2,
-                "coplaner":coplaner,
-                "parallel":parallel,
-                "normal": normal,
-                "opposite": opposite, 
-                "concentric":concentric,
-                "coradial": coradial,
-                "angle" : angle
-            }
-            #print(data)        
-    return JsonResponse(data, safe=False)
-
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'GET':        
+            xmove = convertToFloat(request.GET.get('xmove',"0.0"),0.0)
+            ymove = convertToFloat(request.GET.get('ymove',"0.0"),0.0)
+            zmove = convertToFloat(request.GET.get('zmove',"0.0"),0.0)
+            xrotate = convertToFloat(request.GET.get('xrotate',"0.0"),0.0)
+            yrotate = convertToFloat(request.GET.get('yrotate',"0.0"),0.0)
+            zrotate = convertToFloat(request.GET.get('zrotate',"0.0"),0.0)
+            fname = request.GET.get('fname',"")
+            sname = request.GET.get('sname',"")
+            moverotate = convertToInt(request.GET.get('moverotate',"0"),0)              
+            print("Got request for",xmove,ymove,zmove,xrotate,yrotate,zrotate,moverotate,fname,sname)
+            if moverotate:
+                (distance, points1, points2), coplaner, parallel, normal, opposite, concentric, coradial, angle = findMinimumDistance(
+                    xmove,ymove,zmove,xrotate,yrotate,zrotate,moverotate,fname,sname)
+                #print(distance,points1,points2)
+                data = {
+                    "distance":distance,
+                    "points1":points1,
+                    "points2":points2,
+                    "coplaner":coplaner,
+                    "parallel":parallel,
+                    "normal": normal,
+                    "opposite": opposite, 
+                    "concentric":concentric,
+                    "coradial": coradial,
+                    "angle" : angle
+                }
+                #print(data)        
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 def findMates(firstshell,secondshell):
     
     coplaner = "unknown"
@@ -848,50 +1011,68 @@ def findMates(firstshell,secondshell):
 
 @api_view(['GET', 'POST'])
 def FileGetShapeInfo(request):
-    data = []
-    if request.method == 'GET':       
-        sname = request.GET.get('fname',"")         
-        if sname=="":
-            steps = request.GET.get('steps',"")   
-            fnames=steps.split(",")
-            start = convertToInt(request.GET.get('start',"0"),0)
-        else:
-            fnames=[sname]
-            start=0
-        structArray=[]
-        thisshell=[]
-        #mateCollection=[]
-        for index in range(len(fnames)):
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'GET':       
+            sname = request.GET.get('fname',"")         
+            if sname=="":
+                steps = request.GET.get('steps',"")   
+                fnames=steps.split(",")
+                start = convertToInt(request.GET.get('start',"0"),0)
+            else:
+                fnames=[sname]
+                start=0
+            structArray=[]
+            thisshell=[]
+            #mateCollection=[]
+            for index in range(len(fnames)):
 
-            fname = fnames[index]        
-            #print("Got request for",fname,index,start)
-            if fname:
-                try:
-                    with open("Display/"+fname+".pickle", 'rb') as f:
-                        #print("storing to",index)
-                        thisshell.append(pickle.load(f))
-                        #print("stored to",index)
-                        data = []
-                        if index >=start :
-                            dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data)
-                            mateArray=[]
-                            for mateindex in range(index):
-                                mymates = findMates(thisshell[mateindex],thisshell[index])
-                                mateArray.append((mymates))
-                            structArray.append((data,(mateArray)))                            
-                except Exception as e:
-                    print("Error while loading",fname,e)
-    elif request.method == 'POST':
-        tree = request.data['tree']
-        #print(tree)
-        structArray = json.loads(tree)
-        mycount = 0
-        for mydata in structArray:
-            mycount = mycount + 1
-            #print(mycount, mydata)              
-                   
-    return JsonResponse(structArray, safe=False)
-
+                fname = fnames[index]        
+                #print("Got request for",fname,index,start)
+                if fname:
+                    try:
+                        with open("Display/"+fname+".pickle", 'rb') as f:
+                            #print("storing to",index)
+                            thisshell.append(pickle.load(f))
+                            #print("stored to",index)
+                            data = []
+                            if index >=start :
+                                dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data)
+                                mateArray=[]
+                                for mateindex in range(index):
+                                    mymates = findMates(thisshell[mateindex],thisshell[index])
+                                    mateArray.append((mymates))
+                                structArray.append((data,(mateArray)))                            
+                    except Exception as e:
+                        print("Error while loading",fname,e)
+        elif request.method == 'POST':
+            tree = request.data['tree']
+            #print(tree)
+            structArray = json.loads(tree)
+            mycount = 0
+            for mydata in structArray:
+                mycount = mycount + 1
+                #print(mycount, mydata)              
+                    
+        return JsonResponse(structArray, safe=False)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 def getFacesDimensions(aShape):
     faces_dict = {}
     edges_dict = {}
@@ -1328,28 +1509,47 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
         return dictionary
        
     except:
-        raise ValueError("File Could not be loaded")   
+        return {}
+        #raise ValueError("File Could not be loaded")   
 
 @api_view(['GET'])
 def FileGetStackablePositions(request):
-    data = []
-    if request.method == 'GET':
-        id = request.GET.get('id', None)
-        distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
-        anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-        animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
-        #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
-        #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
-        if is_number(id) :            
-            files = File.objects.filter(id__icontains=id)
-            for eachfile in files:               
-                data = exportToPartGLTF("Media/"+eachfile.file.name,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
-        else:
-            id = request.GET.get('file', None)
-            if id is not None:
-                data = exportToPartGLTF("Media/"+id,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
-    return JsonResponse(data, safe=False) 
-
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'GET':
+            id = request.GET.get('id', None)
+            distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
+            #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
+            #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
+            if is_number(id) :            
+                files = File.objects.filter(id__icontains=id)
+                for eachfile in files:               
+                    data = exportToPartGLTF("Media/"+eachfile.file.name,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
+            else:
+                id = request.GET.get('file', None)
+                if id is not None:
+                    data = exportToPartGLTF("Media/"+id,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
+        return JsonResponse(data, safe=False) 
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 def swap(a, b):
     return b, a
 
@@ -4109,7 +4309,10 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             #shape = Wholeshape
             #shapeArray = createShapeArray(shape)
-            nshape, moveArrays, shapeorder, shapesdirection = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap)
+            whatGotHere = FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap).ExplodeParts()
+            #whatGotHere = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap)
+            print("After calling Assembly order",whatGotHere)
+            nshape, moveArrays, shapeorder, shapesdirection = whatGotHere
             print(nshape,moveArrays,shapeorder,shapesdirection)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
@@ -4129,32 +4332,52 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
        
        
     except:
-        raise ValueError("File Could not be loaded") 
+        return {}
+        #raise ValueError("File Could not be loaded") 
 
 
 
 @api_view(['GET'])
 def FileGetAssemblyOrder(request):
-    data = []
-    if request.method == 'GET':
-        id = request.GET.get('id', None)
-        distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
-        anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-        explodegap = convertToFloat(request.GET.get('explodegap',"0.3"),0.3)
-        holescale = convertToFloat(request.GET.get('holescale',"0.8"),0.8)
-        removegap = convertToFloat(request.GET.get('removegap',"1.0"),1.0)
-        center=convertToBool(request.GET.get('center',"true"),True)
-        animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
-        #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
-        #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
-        print(id,distancegap,anglegap,explodegap,center)
-        if is_number(id) :            
-            files = File.objects.filter(id__icontains=id)
-            for eachfile in files:               
-                data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime)#,thumbwidth,thumbheight)
-        else:
-            id = request.GET.get('file', None)
-            if id is not None:
-                data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime)#,thumbwidth,thumbheight)
-    return JsonResponse(data, safe=False)      
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'GET':
+            id = request.GET.get('id', None)
+            distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            explodegap = convertToFloat(request.GET.get('explodegap',"0.3"),0.3)
+            holescale = convertToFloat(request.GET.get('holescale',"0.8"),0.8)
+            removegap = convertToFloat(request.GET.get('removegap',"1.0"),1.0)
+            center=convertToBool(request.GET.get('center',"true"),True)
+            animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
+            #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
+            #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
+            print(id,distancegap,anglegap,explodegap,center)
+            if is_number(id) :            
+                files = File.objects.filter(id__icontains=id)
+                for eachfile in files:               
+                    data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime)#,thumbwidth,thumbheight)
+            else:
+                id = request.GET.get('file', None)
+                if id is not None:
+                    data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime)#,thumbwidth,thumbheight)
+        return JsonResponse(data, safe=False)    
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)  
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
     

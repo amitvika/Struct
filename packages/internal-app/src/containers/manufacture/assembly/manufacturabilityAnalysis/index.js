@@ -578,16 +578,16 @@ export default function ManufacturabilityAnalysis(props) {
       return "Bottom";
     }
     if(x==1) {
-      return "Right";
-    }
-    if(x==-1) {
-      return "Left";
-    }
-    if(y==1) {
       return "Back";
     }
-    if(y==-1) {
+    if(x==-1) {
       return "Front";
+    }
+    if(y==1) {
+      return "Right";
+    }
+    if(y==-1) {
+      return "Left";
     }
     console.log("Direction",direction);
     return direction;
