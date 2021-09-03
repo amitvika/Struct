@@ -2792,8 +2792,11 @@ class StepIgesAnalyser():
             "tree":self.tstep_dict['tree'],
             "store":self.basefilename
         }
-        mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG))
-        mythread.start()
+        if self.writethread:
+            mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG))
+            mythread.start()
+        else:
+            self.write_in_thread(dict_return,getPNG)
         #self.mstep_dict['tree']=self.tstep_dict['tree']
 
         try:

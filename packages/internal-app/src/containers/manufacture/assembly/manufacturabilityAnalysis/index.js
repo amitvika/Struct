@@ -576,6 +576,12 @@ export default function ManufacturabilityAnalysis(props) {
     }
     if(z==-1) {
       return "Bottom";
+    }    
+    if(y==1) {
+      return "Right";
+    }
+    if(y==-1) {
+      return "Left";
     }
     if(x==1) {
       return "Back";
@@ -583,14 +589,8 @@ export default function ManufacturabilityAnalysis(props) {
     if(x==-1) {
       return "Front";
     }
-    if(y==1) {
-      return "Right";
-    }
-    if(y==-1) {
-      return "Left";
-    }
     console.log("Direction",direction);
-    return direction;
+    return "Any";
   }
   const getTable = (gltfjson) => {
     let currentData = [];
@@ -626,12 +626,22 @@ export default function ManufacturabilityAnalysis(props) {
       console.log("About to set Featured List", currentData);
       setFilteredList(currentData);
       console.log("Setting Featured List", currentData, filteredList);
-
+      console.log(gltfjson.assemblyorder);
+      if (gltfjson.assemblyorder.current) {
+        if (gltfjson.assemblyorder.complete!=gltfjson.assemblyorder.order.length) {
+          const progressString="Completed "+gltfjson.assemblyorder.complete.toString()+
+            " Out of "+gltfjson.assemblyorder.order.length.toString()+" At "+
+            gltfjson.assemblyorder.current+" From "+gltfjson.assemblyorder.start+"\n"+
+            " Please try atleast after a minute";
+          alert(progressString);
+        }        
+      }
     } else {
       console.log("Going to set Featured List", currentData);
       setFilteredList(currentData);
       console.log("Final Setting Featured List", currentData, filteredList);
     }
+    
     //return currentData;
   }
   useEffect(() => {
@@ -643,6 +653,8 @@ export default function ManufacturabilityAnalysis(props) {
     let gltfjsonlen = Object.keys(gltfjson).length;
     if (gltfjsonlen > 0) {
       gltfjsonlen += gltfjson?.gltf?.accessors?.length;
+      gltfjsonlen += gltfjson?.assemblyorder?.complete;
+      console.log(gltfjsonlen);
     }
     if (gltfjsonlen > 0) {
       setState({
@@ -691,7 +703,7 @@ export default function ManufacturabilityAnalysis(props) {
 
   return (
     <Paper className={classes.mainContainer}>
-      <Paper className={classes.viewerContainer} square={true}>
+      <Paper className={classes.viewerContainer} square={"true"}>
         {
           !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
           <GLTFRenderer

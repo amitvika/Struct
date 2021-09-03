@@ -50,7 +50,7 @@ import traceback
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
-logHandler = TimedRotatingFileHandler("Display/APIWatcher.Log",when="midnight")
+logHandler = TimedRotatingFileHandler("Media/Log/APIWatcher.Log",when="midnight")
 logFormatter = logging.Formatter('%(asctime)s %(message)s')
 logHandler.setFormatter( logFormatter )
 logger = logging.getLogger()
@@ -4309,25 +4309,25 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             #shape = Wholeshape
             #shapeArray = createShapeArray(shape)
-            whatGotHere = FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap).ExplodeParts()
+            dictionary = FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap).ExplodeParts(sourceFileName,distancegap,anglegap,animationtime)
             #whatGotHere = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap)
-            print("After calling Assembly order",whatGotHere)
-            nshape, moveArrays, shapeorder, shapesdirection = whatGotHere
+            #print("After calling Assembly order",dictionary)
+            """ nshape, moveArrays, shapeorder, shapesdirection = dictionary
             print(nshape,moveArrays,shapeorder,shapesdirection)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=nshape,includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                 edgesize=0, vertexsize=0, animations=moveArrays,shapeorder=shapeorder,delay=animationtime).dump()
-            dictionary['assemblyorder']={"order":shapeorder,"direction":shapesdirection}
+            dictionary['assemblyorder']={"order":shapeorder,"direction":shapesdirection} """
         except Exception as e:
             print("error",e)
-        try:
+        """ try:
             orderfile = "Display/"+dictionary["store"]+".order"
             print("Writing,",orderfile)
             with open(orderfile, 'w') as fh:
                 fh.write(json.dumps(dictionary["assemblyorder"], sort_keys=True, indent=2 ))
         except Exception as e:
-            print("Error while writing orderfile",e)      
+            print("Error while writing orderfile",e)   """    
         return dictionary
        
        
