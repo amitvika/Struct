@@ -23,7 +23,13 @@ class FindAssemblingOrder(object):
         self.dimension = dimension 
         self.explodegap = explodegap 
         self.center = center 
-        self.holescale = holescale       
+        self.holescale = holescale     
+        if holescale <= 0:
+            self.holescale=1.0
+        if self.holescale < 1.0 :
+            self.onebyholescale = 1/self.holescale
+        else:
+            self.onebyholescale = self.holescale             
         self.removegap = removegap
         self.gltf_dict = gltfdict()
         self.sixdirections=[]
@@ -35,6 +41,25 @@ class FindAssemblingOrder(object):
         self.sixdirections.append(((0,-1,0),"Left"))
         self.oppositedirections=[1,0,3,2,5,4]
     
+    def scaleMyPart(self,myShapeCommon,myShapeDimension):
+        xminc, yminc, zminc, xmaxc, ymaxc, zmaxc = myShapeDimension
+        #print("Reached here2")
+        try:
+            scaleInnerShape = scale_shape(myShapeCommon, self.holescale, self.holescale, self.holescale)
+        except Exception as e:
+            print("Exception while scaling shape",e)
+            return myShapeCommon,myShapeDimension
+        #print("Reached here3")
+        xmind, ymind, zmind, xmaxd, ymaxd, zmaxd = get_bounding_details(scaleInnerShape)
+        #print("Reached here4")
+        scaledShape = translate_shp(scaleInnerShape,(xmaxc+xminc-xmaxd-xmind)/2,\
+            (ymaxc+yminc-ymaxd-ymind)/2,(zmaxc+zminc-zmaxd-zmind)/2,True)
+        scaledDimension = get_bounding_details(scaledShape)
+        if scaledDimension==(0,0,0,0,0,0):
+            print("Exception while scaling shape returned 0 dimension")
+            return  myShapeCommon,myShapeDimension
+        return scaledShape, scaledDimension
+
     def checkAnyHole(self, myShapeOuter,myShapeInner,debugMe=False):
         try:
             myShapeCommon = BRepAlgoAPI_Common(myShapeOuter,myShapeInner).Shape()
@@ -88,6 +113,38 @@ class FindAssemblingOrder(object):
             else:
                 print("Not tessellatable Holes between these objects with dimension",myHoleDimension)
                 return True, myShapeHole
+    
+    def checkScaledHole(self, myShapeOuter,myShapeInner,debugMe=False):
+        try:
+            myShapeCommon = BRepAlgoAPI_Common(myShapeOuter,myShapeInner).Shape()
+        except Exception as e:
+            print("Exception while performing shape common",e)
+            return True, None
+        if (myShapeCommon == None):
+            if debugMe:
+                print("No common between these objects")
+            return True, None
+        #print("Reached here7")
+        myHoleDimension = get_bounding_details(myShapeCommon)
+        #print("Reached here8") 
+        if myHoleDimension == (0, 0, 0, 0, 0, 0) :
+            #if debugMe:
+            #    print("Holes between these objects")
+            return True, None
+        else:
+            #try:
+            #    tessellatable = OCPStepIGESAnalyser.isTessellatable(myHoleDimension)
+            #except Exception as e:
+            #    tessellatable=True
+            #    print("Error in tesselation", e)
+            tessellatable=True
+            if tessellatable:
+                print("No Holes between these objects with dimension",myHoleDimension)
+                return False, myShapeCommon
+            else:
+                print("Not tessellatable Holes between these objects with dimension",myHoleDimension)
+                return True, myShapeCommon
+
     def writeForDebugging(self,commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,xDist,yDist,zDist,suffix, debugMe=False):
         if debugMe:
             try:
@@ -579,6 +636,8 @@ class FindAssemblingOrder(object):
         xmin, ymin, zmin, xmax, ymax, zmax = self.dimension 
         xc, yc, zc = (xmin+xmax)/2, (ymin+ymax)/2 , (zmin+zmax)/2
         xd, yd, zd = xmax-xmin, ymax-ymin, zmax-zmin
+
+        
         lenShape = len(self.shapeArray)
     
         maxGap = ( 1 if (lenShape<=1) else (lenShape-1) ) * self.explodegap
@@ -620,6 +679,7 @@ class FindAssemblingOrder(object):
         self.shapesvolume=[]               
         self.shapesdimension=[]
         self.shapesmove=[]
+        self.scaledshapes=[]
         
         fullShape,converted = list_of_shapes_to_compound(self.shapesArray)
         if(converted):
@@ -639,9 +699,11 @@ class FindAssemblingOrder(object):
             if not self.center:
                 newShape=translate_shp(aShape,xmove+xt, ymove+yt, zmove+zt, True)
             else:
-                newShape=translate_shp(aShape,xt, yt, zt, True)
-            newShapes.append((newShape,aName,aColor))
+                newShape=translate_shp(aShape,xt, yt, zt, True)            
+            newShapes.append((newShape,aName,aColor))            
             moveArrays.append((xmove, ymove, zmove))
+            scaledShape,scaledDimension = self.scaleMyPart(aShape,(xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))
+            self.scaledshapes.append((scaledShape,scaledDimension))
             #shapesdim.append(xmins+xmove+xt, ymins+ymove+xt, zmins+zmove+xt, xmaxs+xmove+xt, ymaxs+ymove+xt, zmaxs+zmove+xt)
             self.shapeorder.append(i)
             shapereverseorder.append(i)
