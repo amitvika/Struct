@@ -59,43 +59,45 @@ export default function TemplateModal({ isModalOpened, handleTemplateClick }) {
     <>
 
       <Modal
+      className='makeStyles-paper-17'
         open={isModalOpened}
         toggleModal={handleTemplateClick}
       >
-        <Grid container>
-          <Grid item sm={2}>
-            <Paper style={{ margin: 10, marginBottom: "70px" }}>
+          <Grid container>
+            <Grid item sm={2}>
+              <Paper style={{ margin: 10, marginBottom: "70px" }}>
 
-              <Tabs
-                className='MuiTab-wrapper'
-                orientation="vertical"
-                variant="scrollable"
-                value={tabIndex}
-                onChange={handleTabChange}>
-                {renderTab()}
-              </Tabs>
-              <Snackbar
-                style={{
-                  left: '10%'
-                }}
-                open={true}
-              >
-                <Button
-                  size="large"
-                  variant="contained"
-                  color="primary"
+                <Tabs
+                  className='MuiTab-wrapper'
+                  orientation="vertical"
+                  variant="scrollable"
+                  value={tabIndex}
+                  onChange={handleTabChange}>
+                  {renderTab()}
+                </Tabs>
+                <Snackbar
+                  style={{
+                    left: '10%'
+                  }}
+                  open={true}
                 >
-                  Save
-                </Button>
-              </Snackbar>
-            </Paper>
-          </Grid>
-          <Grid item sm sm={10}>
-            {renderPageSwitch()}
-          </Grid>
+                  <Button
+                    size="large"
+                    variant="contained"
+                    color="primary"
+                  >
+                    Save
+                  </Button>
+                </Snackbar>
 
-        </Grid>
+              </Paper>
+            </Grid>
+            <Grid item sm sm={10}>
+              {renderPageSwitch()}
+            </Grid>
 
+          </Grid>
+ 
       </Modal >
     </>
   );
