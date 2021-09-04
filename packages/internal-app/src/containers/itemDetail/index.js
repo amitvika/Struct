@@ -545,7 +545,6 @@ const ItemDetail = () => {
         //console.log("IsLoading, inside",isLoading);
     }
 
-
     const tabList = {
         pdcu: "Product Design or CAD Upload", cc: "Compliance and Certifications", gdtac: "GD&T and Assembly Constraints",
         sft: "Surface Finish and Treatment", fls: "Functional Load and Simulation", dm: "Design Modifications",

@@ -1,9 +1,16 @@
 import React from 'react'
+import Viewer from '@ravibasil/common/components/Viewer';
+import Paper from '@material-ui/core/Paper';
+import Headding from '@ravibasil/common/components/atoms/Headding';
 
-export default function CAD() {
+export default function CadTab({ gltfjson = {}, setgltfjson }) {
   return (
-    <div>
-      <h1>this is cad page</h1>
-    </div>
+    <Paper style={{ padding: 20, margin: 10, }}>
+      <Headding>ThreeJS Screen</Headding>
+      <Viewer
+        gltfjson={gltfjson}
+        setgltfjson={setgltfjson}
+      />
+    </Paper>
   )
 }
