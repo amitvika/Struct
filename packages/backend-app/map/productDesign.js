@@ -30,6 +30,8 @@ exports.mapProductDesign = (item = {}) => {
         // created_by: get(item, 'created_by._id', ''),
         // updated_by_name: get(item, 'updated_by.name', ''),
         // updated_by: get(item, 'updated_by._id', ''),
+        hierarchySchema: get(item, 'hierarchySchema', []),
+        criteriaSchema: get(item, 'criteriaSchema', {}),
         is_archived: item.is_archived
     }
 }
