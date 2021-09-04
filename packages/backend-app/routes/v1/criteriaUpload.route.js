@@ -12,5 +12,6 @@ router.get("/", Controller.get);
 
 router.post("/", Controller.upsert);
 
+router.get("/latest", Controller.getLatest);
 
 module.exports = router;

@@ -2,12 +2,9 @@ import React, { useState } from 'react'
 import { Headding } from '@ravibasil/common/components';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { useSelector } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
 import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
-import { uploadFileS3Bucket } from '@ravibasil/common/api/aws';
 
 const useStyles = makeStyles((theme) => ({
     button: {
@@ -25,9 +22,7 @@ export default function FileUpload({ value, handleOnChange, isDesignModalOpened 
     const classes = useStyles();
 
     const [selectedFile, setSelectedFile] = useState(null);
-    const [isLoading, setLoading] = useState(false);
-    const { user } = useSelector(state => state.auth);
-
+    
     const handleOnFileChange = async (event) => {
         if (!event.target.files[0]) {
             return;
@@ -36,14 +31,8 @@ export default function FileUpload({ value, handleOnChange, isDesignModalOpened 
     };
 
     const handleLoadFile = async () => {
-        setLoading(true);
-
-        const file_url = await uploadFileS3Bucket(selectedFile);
-        // loaded_by, cleared_by, loaded_at, cleared_at 
-        handleOnChange('new_file', { file_name: selectedFile.name, file_url, loaded_by_name: user.name, loaded_by: user.id });
         setSelectedFile(null);
-
-        setLoading(false);
+        handleOnChange(selectedFile);
     }
 
     const handleClearFile = () => {
@@ -98,7 +87,6 @@ export default function FileUpload({ value, handleOnChange, isDesignModalOpened 
                 <Headding bold title={'File Load'} />
             </Grid>
             {renderButtonsView()}
-            {isLoading && <CircularProgress />}
             {
                 value.file_url &&
                 <Grid item xs={12}>
