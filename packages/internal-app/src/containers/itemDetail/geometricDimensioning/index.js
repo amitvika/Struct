@@ -981,7 +981,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
 
     <Paper className={classes.mainContainer}>
 
-      <Paper className={`${classes.paper} ${classes.viewerContainer}`} square={"true"}>
+      <Paper className={`${classes.paper} ${classes.viewerContainer}`} >
         <Viewer
           {...state}
           fileGDT={fileGDT}

@@ -81,7 +81,7 @@ export default function ManufacturabilityAnalysis(props) {
   const [state, _setState] = useState({});
   const [ctrlKey, setCtrlKey] = useState(false);
   const [filteredList, setFilteredList] = useState([]);
-
+  const [alerter,setAlerter]=useState("");
 
   const setState = (data) => {
     _setState(prevState => {
@@ -633,12 +633,23 @@ export default function ManufacturabilityAnalysis(props) {
             " Out of "+gltfjson.assemblyorder.order.length.toString()+" At "+
             gltfjson.assemblyorder.current+" From "+gltfjson.assemblyorder.start+"\n"+
             " Please try atleast after a minute";
-          alert(progressString);
+          setAlerter(progressString);
+        } else {
+          if(alerter!="") {
+            setAlerter("");
+          }
         }        
+      } else {
+        if(alerter!="") {
+          setAlerter("");
+        }
       }
     } else {
       console.log("Going to set Featured List", currentData);
       setFilteredList(currentData);
+      if(alerter!="") {
+        setAlerter("");
+      }
       console.log("Final Setting Featured List", currentData, filteredList);
     }
     
@@ -653,8 +664,10 @@ export default function ManufacturabilityAnalysis(props) {
     let gltfjsonlen = Object.keys(gltfjson).length;
     if (gltfjsonlen > 0) {
       gltfjsonlen += gltfjson?.gltf?.accessors?.length;
-      gltfjsonlen += gltfjson?.assemblyorder?.complete;
-      console.log(gltfjsonlen);
+      if (gltfjson && gltfjson.assemblyorder && gltfjson.assemblyorder.complete) {
+        gltfjsonlen += gltfjson.assemblyorder.complete;
+      }     
+      console.log("Setting gltflen",gltfjsonlen,gltfjson);
     }
     if (gltfjsonlen > 0) {
       setState({
@@ -699,11 +712,15 @@ export default function ManufacturabilityAnalysis(props) {
   let gltfjsonlen = Object.keys(gltfjson).length;
   if (gltfjsonlen > 0) {
     gltfjsonlen += gltfjson?.gltf?.accessors?.length;
+    if (gltfjson && gltfjson.assemblyorder && gltfjson.assemblyorder.complete) {
+      gltfjsonlen += gltfjson.assemblyorder.complete+1;
+    }     
+    console.log("Setting outside gltflen",gltfjsonlen,gltfjson);
   }
 
   return (
     <Paper className={classes.mainContainer}>
-      <Paper className={classes.viewerContainer} square={"true"}>
+      <Paper className={classes.viewerContainer} >
         {
           !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
           <GLTFRenderer
@@ -732,7 +749,7 @@ export default function ManufacturabilityAnalysis(props) {
 
       </Paper>
       <TableOrderView
-        title={'Order of Assembly'}
+        title={alerter==""?'Order of Assembly':alerter}
         list={filteredList}
         columns={columns}
         setColumns={setColumns}

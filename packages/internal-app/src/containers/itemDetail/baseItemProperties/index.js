@@ -162,7 +162,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
             {
                 <>
                     <Grid style={{ display: 'flex' }}>
-                        <Paper style={{ padding: 20, margin: 10, width: '40rem' }} square={"true"}>
+                        <Paper style={{ padding: 20, margin: 10, width: '40rem' }} >
                             {
                                 !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
                                 <GLTFRenderer

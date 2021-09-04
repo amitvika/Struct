@@ -1063,7 +1063,7 @@ class StepIgesAnalyser():
         distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
         animations=[], delay=1.0, shapeorder=[], 
         thumbheight=96, thumbwidth=96, multipleGLTF=1200, 
-        writethread=True, writePickle=True, 
+        writethread=True, writepickle=True, writefiles=True,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False):
         """Supply one or the other: document or STEP filename or Shapes."""
 
@@ -1077,6 +1077,7 @@ class StepIgesAnalyser():
         self.fname = filename
         self.createFiles = (moverotate==0)
         self.edgeGapStr = str(math.trunc(edgesize*10))
+        self.writefiles = writefiles
         #print("I m initializing")
         if filename:
             _, tail = os.path.split(self.fname)
@@ -1131,13 +1132,13 @@ class StepIgesAnalyser():
         if (self.edgesize == 0) and (self.vertexsize==0):
             self.writeStep = False
             self.writeColorStep = False
-            self.writePickle = False
+            self.writepickle = False
             self.traversesubshapes = False
             self.includeUV = False
         else:
             self.writeStep = writeStep
             self.writeColorStep = writeColorStep
-            self.writePickle = writePickle
+            self.writepickle = writepickle
             self.traversesubshapes = traversesubshapes
             self.includeUV = includeUV
         try:
@@ -2721,19 +2722,25 @@ class StepIgesAnalyser():
     def write_in_thread(self,dict,imagePNG):
         try:
             newfilename = "Display/"+dict["store"]+".gltf"
-            print("Writing",newfilename)
-            with open(newfilename, 'w') as fh:
-                fh.write(json.dumps(dict["gltf"], sort_keys=True, indent=2 ))
+            if self.writefiles:
+                print("Writing",newfilename)
+                with open(newfilename, 'w') as fh:
+                    fh.write(json.dumps(dict["gltf"], sort_keys=True, indent=2 ))
+            else:
+                print("Not Writing",newfilename)
         except Exception as e:
             print("While Writing",newfilename,e)
         try:
             treefilename = "Display/"+dict["store"]+".tree"
-            print("Writing",treefilename)
-            with open(treefilename, 'w') as fh:
-                fh.write(json.dumps(dict["tree"], sort_keys=True, indent=2 ))
+            if self.writefiles:
+                print("Writing",treefilename)
+                with open(treefilename, 'w') as fh:
+                    fh.write(json.dumps(dict["tree"], sort_keys=True, indent=2 ))
+            else:
+                print("Not Writing",treefilename)
         except Exception as e:
             print("While Writing",treefilename,e)
-        if imagePNG:           
+        if imagePNG and self.writefiles:           
             try:
                 imagefilename = "Display/"+dict["store"]+".png"
                 print("Writing",imagefilename)
@@ -2988,7 +2995,7 @@ class StepIgesAnalyser():
                     print("Error while writing shape to STEP file.")
                 if not os.path.isfile(newfilename):
                     print("File %s was not saved to filesystem." % newfilename)
-            if self.writePickle:
+            if self.writepickle and self.writefiles:
                 try:
                     picklefile = "Display/"+basename+".pickle"
                     with open(picklefile, 'wb') as f:
@@ -3050,7 +3057,7 @@ class StepIgesAnalyser():
                     print("Error while writing shape to STEP file.")
                 if not os.path.isfile(newfilename):
                     print("File %s was not saved to filesystem." % newfilename)
-            if self.writePickle:
+            if self.writepickle and self.writefiles:
                 try:
                     picklefile = "Display/"+basename+".pickle"
                     with open(picklefile, 'wb') as f:
@@ -3590,12 +3597,12 @@ class StepIgesAnalyser():
                 ) 
                 mesher_dict["uv"] = os.path.basename(newfilename) """  
                 newfilename = "Display/"+self.getBaseFileName()+".bin"
-                if self.createFiles:
+                if self.createFiles and self.writefiles:
                     fileWritten = False
                     #print("Writing File",newfilename)
                     # write mesh file
                     try:
-
+                        
                         with open(newfilename, 'wb') as fh:
                             for chunk in buff.buffer_iter():
                                 fh.write(chunk)

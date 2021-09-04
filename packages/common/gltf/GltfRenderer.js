@@ -2302,7 +2302,7 @@ class GLTFRenderer extends Component {
                     //console.log(progress);
                 }
                 parser.parse( onload, onError, onProgress );
-    
+                console.log("Parsing started",this.props.gltfobj.gltf);
                
             }
         //}

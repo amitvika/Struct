@@ -161,7 +161,7 @@ class MuiVirtualizedTable extends React.PureComponent {
         component="div"
         className={clsx(classes.tableCell, classes.flexContainer, classes.noClick)}
         variant="head"
-        style={{ height: headerHeight, 'font-weight': 'bold' }}
+        style={{ height: headerHeight, fontWeight: 'bold' }}
         align={columns[columnIndex].align || 'right' }
       >
         <span>{label}<SortIndicator SortDirection={this.state.sortDirection}/></span>

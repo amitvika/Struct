@@ -1193,16 +1193,29 @@ def duplicateShapes(shape,dimension,depthable,stackable):
         while distance > 1e-2:
             AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)
             (wdistance, distance, points1, points2) = minimum_z_distance(shape[0],AnotherShape)
-            
-            if ( (prevdistance-distance) >= (0.4*distance/1.4)):
-                zmove -= distance
-                prevdistance = distance * 1.4
-                print("Dmove1", zmove, distance, wdistance, points1, points2, prevdistance)
-            else:
-                #print("Zmove", zmove, distance, points1, points2)
-                zmove -= distance/1.4        
-                prevdistance = distance
-                print("Dmove2", zmove, distance, points1, points2, prevdistance)
+            AnotherShape=translate_shp(shape[0],xmove, ymove, zmove-wdistance, True)
+            myshapecommon = BRepAlgoAPI_Common(AnotherShape,shape[0]).Shape()
+            if myshapecommon==None:
+                distance = wdistance  
+                zmove -= wdistance
+            _,_,zmins,_,_,zmaxs= get_bounding_details(myshapecommon)             
+            if (zmaxs-zmins) < wdistance:
+                distance = wdistance-zmaxs+zmins 
+                zmove = zmove-wdistance+zmaxs-zmins 
+                print("Dmove0", zmove, distance, wdistance, points1, points2, prevdistance) 
+                AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)
+                (wdistance, distance, points1, points2) = minimum_z_distance(shape[0],AnotherShape)
+            else:        
+                print(get_bounding_details(myshapecommon))    
+                if ( (prevdistance-distance) >= (0.4*distance/1.4)):
+                    zmove -= distance
+                    prevdistance = distance * 1.4
+                    print("Dmove1", zmove, distance, wdistance, points1, points2, prevdistance)
+                else:
+                    #print("Zmove", zmove, distance, points1, points2)
+                    zmove -= distance/1.4        
+                    prevdistance = distance
+                    print("Dmove2", zmove, distance, points1, points2, prevdistance)
         
         stackability = (len(points1) >2) and (len(points2) >2)       
         print("Stackability",len(points1),len(points2),(len(points1) >2) and (len(points2) >2),stackability)
@@ -4206,8 +4219,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump() """
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,ascompound=True,includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,
+                    filename=sourceFileName,includeparts=False,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
                     edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
@@ -4234,7 +4247,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 shape = conversion.read_stl_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
@@ -4271,7 +4284,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 shape = conversion.read_brep_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
@@ -4289,7 +4302,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,anglegap=anglegap,ascompound=True,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
+                    anglegap=anglegap,ascompound=True,writefiles=False,
                     thumbwidth=0,thumbheight=0).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
                 """ dimension, myShapes = outputShapes
