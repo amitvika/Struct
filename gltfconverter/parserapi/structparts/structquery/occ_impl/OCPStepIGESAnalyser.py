@@ -790,6 +790,51 @@ class RotationBuffer(object):
         buffer.seek(0)
         return buffer.read()
 
+def isTessellatable(shape) :        
+   
+    try:
+        topologyExplorer = Topo(shape,ignore_orientation=False)
+        faceiterator = topologyExplorer.faces()
+    except Exception as e:
+        print("Tessllation Error:", e) 
+        return False 
+
+     
+    list_of_faces = list(faceiterator)
+        
+    if(len(list_of_faces) > 0):
+        #print("I have reached here 0")
+        BRepMesh_IncrementalMesh(shape, 0.2, True, 1)
+        #print("I have ok reached here 1")
+        offset = 0
+        bt = BRep_Tool()
+        
+        facecount = 0
+        
+        for face in list_of_faces:  
+            facecount+=1
+            location = TopLoc_Location()
+            facing = (bt.Triangulation(face, location))
+            if facing:
+                
+                #print(reverse,face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED,fill=="Hole",fill)
+                #print(reverse,face,location)
+                vert = facing.Nodes()
+                tri = facing.Triangles()
+                if( (len(tri)>0) and (len(vert)>0) ):
+                    return True
+                             
+                                    
+                offset += facing.NbNodes()
+            else:
+                print("No facing info for", face)
+        
+    else:
+        print("No faces for the shape",shape)
+    
+    
+    return False  
+
 class StepExportWithColor(object):
     '''
     STEP export that support layers & colors
@@ -856,7 +901,83 @@ class StepExportWithColor(object):
         self.doc.SetRequestedName(TCollection_ExtendedString(name))
         status = self.app.SaveAs(self.doc, TCollection_ExtendedString(filename))
         self.app.Close(self.doc)
-        return status == PCDM_StoreStatus.PCDM_SS_OK  """     
+        return status == PCDM_StoreStatus.PCDM_SS_OK  """ 
+    def tessellate(self, shape) :
+        
+        vertices = []
+        triangles = []
+        try:
+            topologyExplorer = Topo(shape,ignore_orientation=False)
+        except Exception as e:
+            print("Tessllation Error:", e) 
+            return False 
+       
+        faceiterator = topologyExplorer.faces() 
+        list_of_faces = list(faceiterator)
+          
+        if(len(list_of_faces) > 0):
+            #print("I have reached here 0")
+            BRepMesh_IncrementalMesh(shape, self.distancegap, True, self.anglegap)
+            #print("I have ok reached here 1")
+            offset = 0
+            bt = BRep_Tool()
+            
+            facecount = 0
+            
+            for face in list_of_faces:  
+                facecount+=1
+                fill, _, _ = recognize_direction(face)  
+               
+                #print(facecount, face)     
+                
+                location = TopLoc_Location()
+                facing = (bt.Triangulation(face, location))
+                if facing:
+                    Trsf = location.Transformation()
+                    reverse = (
+                        True
+                        if (face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) or (fill=="Hole")
+                        else False
+                    )
+                    #print(reverse,face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED,fill=="Hole",fill)
+                    #print(reverse,face,location)
+                    vert = facing.Nodes()
+                    tri = facing.Triangles()
+                    
+                    
+                    # add vertices
+                    vertices += [
+                        (v.X(),v.Y(),v.Z()) 
+                        for v in (v.Transformed(Trsf) for v in vert)
+                    ]
+                    #print(offset,len(vert))
+                    #length_vert = len(vert)
+                            
+                    # add triangles
+                    triangles += [
+                        (
+                            t.Value(1) + offset - 1,
+                            t.Value(3) + offset - 1,
+                            t.Value(2) + offset - 1,
+                        )
+                        if reverse
+                        else (
+                            t.Value(1) + offset - 1,
+                            t.Value(2) + offset - 1,
+                            t.Value(3) + offset - 1,
+                        )
+                        for t in tri
+                    ]                
+                                       
+                    offset += facing.NbNodes()
+                else:
+                    print("No facing info for", face)
+            
+        else:
+            print("No faces for the shape",shape)
+        
+        
+        return (vertices, triangles)    
        
 
 
@@ -942,7 +1063,7 @@ class StepIgesAnalyser():
         distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
         animations=[], delay=1.0, shapeorder=[], 
         thumbheight=96, thumbwidth=96, multipleGLTF=1200, 
-        writethread=True, writePickle=True, 
+        writethread=True, writepickle=True, writefiles=True,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False):
         """Supply one or the other: document or STEP filename or Shapes."""
 
@@ -956,6 +1077,7 @@ class StepIgesAnalyser():
         self.fname = filename
         self.createFiles = (moverotate==0)
         self.edgeGapStr = str(math.trunc(edgesize*10))
+        self.writefiles = writefiles
         #print("I m initializing")
         if filename:
             _, tail = os.path.split(self.fname)
@@ -1010,13 +1132,13 @@ class StepIgesAnalyser():
         if (self.edgesize == 0) and (self.vertexsize==0):
             self.writeStep = False
             self.writeColorStep = False
-            self.writePickle = False
+            self.writepickle = False
             self.traversesubshapes = False
             self.includeUV = False
         else:
             self.writeStep = writeStep
             self.writeColorStep = writeColorStep
-            self.writePickle = writePickle
+            self.writepickle = writepickle
             self.traversesubshapes = traversesubshapes
             self.includeUV = includeUV
         try:
@@ -2600,19 +2722,25 @@ class StepIgesAnalyser():
     def write_in_thread(self,dict,imagePNG):
         try:
             newfilename = "Display/"+dict["store"]+".gltf"
-            print("Writing",newfilename)
-            with open(newfilename, 'w') as fh:
-                fh.write(json.dumps(dict["gltf"], sort_keys=True, indent=2 ))
+            if self.writefiles:
+                print("Writing",newfilename)
+                with open(newfilename, 'w') as fh:
+                    fh.write(json.dumps(dict["gltf"], sort_keys=True, indent=2 ))
+            else:
+                print("Not Writing",newfilename)
         except Exception as e:
             print("While Writing",newfilename,e)
         try:
             treefilename = "Display/"+dict["store"]+".tree"
-            print("Writing",treefilename)
-            with open(treefilename, 'w') as fh:
-                fh.write(json.dumps(dict["tree"], sort_keys=True, indent=2 ))
+            if self.writefiles:
+                print("Writing",treefilename)
+                with open(treefilename, 'w') as fh:
+                    fh.write(json.dumps(dict["tree"], sort_keys=True, indent=2 ))
+            else:
+                print("Not Writing",treefilename)
         except Exception as e:
             print("While Writing",treefilename,e)
-        if imagePNG:           
+        if imagePNG and self.writefiles:           
             try:
                 imagefilename = "Display/"+dict["store"]+".png"
                 print("Writing",imagefilename)
@@ -2671,8 +2799,11 @@ class StepIgesAnalyser():
             "tree":self.tstep_dict['tree'],
             "store":self.basefilename
         }
-        mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG))
-        mythread.start()
+        if self.writethread:
+            mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG))
+            mythread.start()
+        else:
+            self.write_in_thread(dict_return,getPNG)
         #self.mstep_dict['tree']=self.tstep_dict['tree']
 
         try:
@@ -2864,7 +2995,7 @@ class StepIgesAnalyser():
                     print("Error while writing shape to STEP file.")
                 if not os.path.isfile(newfilename):
                     print("File %s was not saved to filesystem." % newfilename)
-            if self.writePickle:
+            if self.writepickle and self.writefiles:
                 try:
                     picklefile = "Display/"+basename+".pickle"
                     with open(picklefile, 'wb') as f:
@@ -2926,7 +3057,7 @@ class StepIgesAnalyser():
                     print("Error while writing shape to STEP file.")
                 if not os.path.isfile(newfilename):
                     print("File %s was not saved to filesystem." % newfilename)
-            if self.writePickle:
+            if self.writepickle and self.writefiles:
                 try:
                     picklefile = "Display/"+basename+".pickle"
                     with open(picklefile, 'wb') as f:
@@ -3466,12 +3597,12 @@ class StepIgesAnalyser():
                 ) 
                 mesher_dict["uv"] = os.path.basename(newfilename) """  
                 newfilename = "Display/"+self.getBaseFileName()+".bin"
-                if self.createFiles:
+                if self.createFiles and self.writefiles:
                     fileWritten = False
                     #print("Writing File",newfilename)
                     # write mesh file
                     try:
-
+                        
                         with open(newfilename, 'wb') as fh:
                             for chunk in buff.buffer_iter():
                                 fh.write(chunk)

@@ -70,9 +70,9 @@ export default function ManufacturabilityAnalysis(props) {
       { title: 'Transfer Holding', field: 'quantity', type: 'numeric' },
   ]) */
   const [columns, setColumns] = useState([
-    { label: 'Mates', dataKey: 'index', editable: "never", numeric: true, align:"right", width: 90 },
-    { label: 'Mate Name', dataKey: 'name', editable: "never", numeric: false, align:"left", width: 200, 'word-break': 'break-all' },
     { label: 'Insertion Order', dataKey: 'order', numeric: true, align:"right",editable: "never", width: 90 },
+    { label: 'Mate Name', dataKey: 'name', editable: "never", numeric: false, align:"left", width: 200, 'word-break': 'break-all' },
+    { label: 'Insertion Direction', dataKey: 'direction', editable: "never", numeric: false, align:"right", width: 90 },   
     { label: 'Insertion Type', dataKey: 'insert', numeric: false, align:"left",  editable: "never", width: 90 },
     { label: 'Dispensing', dataKey: 'dispense', numeric: true,  align:"right", type: 'numeric', width: 90 },
     { label: 'Transfer Holding', dataKey: 'quantity', numeric: true, align:"right", type: 'numeric', width: 90 },
@@ -81,7 +81,7 @@ export default function ManufacturabilityAnalysis(props) {
   const [state, _setState] = useState({});
   const [ctrlKey, setCtrlKey] = useState(false);
   const [filteredList, setFilteredList] = useState([]);
-
+  const [alerter,setAlerter]=useState("");
 
   const setState = (data) => {
     _setState(prevState => {
@@ -567,11 +567,41 @@ export default function ManufacturabilityAnalysis(props) {
     }
     return null;
   }
-
+  const getDirection = (direction) => {
+    const x=direction[0];
+    const y=direction[1];
+    const z=direction[2];
+    if(z==1) {
+      return "Top";
+    }
+    if(z==-1) {
+      return "Bottom";
+    }    
+    if(y==1) {
+      return "Right";
+    }
+    if(y==-1) {
+      return "Left";
+    }
+    if(x==1) {
+      return "Back";
+    }
+    if(x==-1) {
+      return "Front";
+    }
+    console.log("Direction",direction);
+    return "Any";
+  }
   const getTable = (gltfjson) => {
     let currentData = [];
     if (gltfjson && gltfjson.tree && gltfjson.assemblyorder) {
-      console.log("Setting table", gltfjson.tree, gltfjson.assemblyorder);
+      if (gltfjson.assemblyorder.order) {
+        console.log("Setting table", gltfjson.tree, gltfjson.assemblyorder);
+      } else {
+        alert("Assembly order structure changed. Please reload the step file once again");
+        return;
+      }
+     
       for (let index = 2; index < gltfjson.tree.length; index++) {
         const element = gltfjson.tree[index];
         //console.log(element);
@@ -580,25 +610,49 @@ export default function ManufacturabilityAnalysis(props) {
           'index': index - 1,
           'name': element[gltf_Dict['name']],
           'order': null,
+          'direction':null,
           'insert': "Sliding",
           'dispense': null,
           'quantity': null
         });
 
       }
-      for (let index = 0; index < gltfjson.assemblyorder.length; index++) {
-        const element = gltfjson.assemblyorder[index];
-        currentData[element].order = index + 1;
+      for (let index = 0; index < gltfjson.assemblyorder.order.length; index++) {
+        currentData[index].direction = getDirection(gltfjson.assemblyorder.direction[index]);
+        const element = gltfjson.assemblyorder.order[index];
+        currentData[element].order = index + 1;        
+        
       }
       console.log("About to set Featured List", currentData);
       setFilteredList(currentData);
       console.log("Setting Featured List", currentData, filteredList);
-
+      console.log(gltfjson.assemblyorder);
+      if (gltfjson.assemblyorder.current) {
+        if (gltfjson.assemblyorder.complete!=gltfjson.assemblyorder.order.length) {
+          const progressString="Completed "+gltfjson.assemblyorder.complete.toString()+
+            " Out of "+gltfjson.assemblyorder.order.length.toString()+" At "+
+            gltfjson.assemblyorder.current+" From "+gltfjson.assemblyorder.start+"\n"+
+            " Please try atleast after a minute";
+          setAlerter(progressString);
+        } else {
+          if(alerter!="") {
+            setAlerter("");
+          }
+        }        
+      } else {
+        if(alerter!="") {
+          setAlerter("");
+        }
+      }
     } else {
       console.log("Going to set Featured List", currentData);
       setFilteredList(currentData);
+      if(alerter!="") {
+        setAlerter("");
+      }
       console.log("Final Setting Featured List", currentData, filteredList);
     }
+    
     //return currentData;
   }
   useEffect(() => {
@@ -610,6 +664,10 @@ export default function ManufacturabilityAnalysis(props) {
     let gltfjsonlen = Object.keys(gltfjson).length;
     if (gltfjsonlen > 0) {
       gltfjsonlen += gltfjson?.gltf?.accessors?.length;
+      if (gltfjson && gltfjson.assemblyorder && gltfjson.assemblyorder.complete) {
+        gltfjsonlen += gltfjson.assemblyorder.complete;
+      }     
+      console.log("Setting gltflen",gltfjsonlen,gltfjson);
     }
     if (gltfjsonlen > 0) {
       setState({
@@ -654,11 +712,15 @@ export default function ManufacturabilityAnalysis(props) {
   let gltfjsonlen = Object.keys(gltfjson).length;
   if (gltfjsonlen > 0) {
     gltfjsonlen += gltfjson?.gltf?.accessors?.length;
+    if (gltfjson && gltfjson.assemblyorder && gltfjson.assemblyorder.complete) {
+      gltfjsonlen += gltfjson.assemblyorder.complete+1;
+    }     
+    console.log("Setting outside gltflen",gltfjsonlen,gltfjson);
   }
 
   return (
     <Paper className={classes.mainContainer}>
-      <Paper className={classes.viewerContainer} square={true}>
+      <Paper className={classes.viewerContainer} >
         {
           !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
           <GLTFRenderer
@@ -687,7 +749,7 @@ export default function ManufacturabilityAnalysis(props) {
 
       </Paper>
       <TableOrderView
-        title={'Order of Assembly'}
+        title={alerter==""?'Order of Assembly':alerter}
         list={filteredList}
         columns={columns}
         setColumns={setColumns}

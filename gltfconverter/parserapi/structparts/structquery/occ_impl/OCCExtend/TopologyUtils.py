@@ -639,10 +639,31 @@ def list_of_shapes_to_compound(list_of_shapes: List[TopoDS_Shape]) -> Tuple[Topo
     the_builder.MakeCompound(the_compound)
     for shp in list_of_shapes:
         # first ensure the shape is not Null
-        if shp.IsNull():
-            all_shapes_converted = False
-            print("A shape null")
-            continue
-        else:
-            the_builder.Add(the_compound, shp)
+        if shp!=None:
+            if shp.IsNull():
+                all_shapes_converted = False
+                print("A shape null")
+                continue
+            else:
+                the_builder.Add(the_compound, shp)
     return the_compound, all_shapes_converted
+
+def excluded_list_of_shapes_to_compound(list_of_shapes: List[TopoDS_Shape], list_of_order:List[int], exclude:int, last:int, debug:bool=False) -> TopoDS_Compound:
+    """ takes a list of shape in input, gather all shapes into one compound
+    returns the compund and a shape
+    """
+    
+    the_compound = TopoDS_Compound()
+    the_builder = BRep_Builder()
+    the_builder.MakeCompound(the_compound)
+    myLen = len(list_of_shapes)-last+1
+    for i in range(myLen):
+        list_of_order_i=list_of_order[i]
+        if (list_of_order_i >=0) and (list_of_order_i <=myLen):
+            shp = list_of_shapes[list_of_order_i]
+            if (i!=exclude) and (shp!=None):
+                if not shp.IsNull():
+                    the_builder.Add(the_compound,shp)
+                    if debug:
+                        print("adding",i,list_of_order_i)
+    return the_compound 

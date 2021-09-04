@@ -104,7 +104,7 @@ export default function Stackability(props) {
         gltfjsonlen += gltfjson?.gltf?.accessors?.length;
     }
     return (<Paper className={classes.mainContainer}>
-            <Paper className={classes.viewerContainer} square={true}>
+            <Paper className={classes.viewerContainer} >
                 {
                     !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
                     <GLTFRenderer

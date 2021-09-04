@@ -89,7 +89,7 @@ export const myMenus =  [ {
           groups:[ {
             name:'speed',
             values: {
-              zoomSpeed: 0.3,
+              zoomSpeed: 0.7,
               panSpeed: 1.0,
               rotateSpeed: 2.0,
               ctrlKey:false

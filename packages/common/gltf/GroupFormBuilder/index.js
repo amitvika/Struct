@@ -63,7 +63,7 @@ export default class GroupFormBuilder extends React.Component {
     return (
       this.state.opened &&
       ( <Box
-          p={1} zindex="tooltip" square={true}
+          p={1} zindex="tooltip" 
           style={{
             ...this.style,
             backgroundColor: '#fefefe',
