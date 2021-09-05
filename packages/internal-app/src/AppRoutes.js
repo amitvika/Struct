@@ -33,7 +33,7 @@ import Administrative from './containers/administrative';
 import ViewMyProfile from './containers/viewMyProfile'
 
 
-import Viewer from './gltf/DropZone'
+import Viewer from './DynamicHierarchy'
 
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);

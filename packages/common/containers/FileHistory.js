@@ -17,6 +17,10 @@ export default function FileHistory({ link_id, selectedFileName }) {
   const [fileHistory, setFileHistory] = React.useState([]);
 
   React.useEffect(() => {
+    if(!link_id){
+      return;
+    }
+    
     fetchFileHistoryApi(link_id)
       .then(res => {
         setFileHistory(res.data)

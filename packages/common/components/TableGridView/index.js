@@ -123,7 +123,7 @@ const TableGridView = ({
   }
 
   const handleUpdate = (newData, oldData) => {
-    return upsertItem(newData)
+    return upsertItem({ ...newData, id: selectedListItem.id })
   }
 
   const handleDelete = (oldData) => {

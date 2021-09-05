@@ -11,17 +11,19 @@ const DesignPage = () => {
   const handleItemClick = (id, { type, name }) => history.push(`/design?type=${type}&id=${id}&name=${name}`);
 
   return (
-    <TableGridView
-      title={'Product Design'}
-      fields={fields}
-      fetchList={ProductDesignAPI.fetchProductDesigns}
-      upsertListItem={ProductDesignAPI.upsertProductDesign}
-      isAddEditActionsEnabled={true}
-      handleItemClick={handleItemClick}
-      isAddEditLinkVisible={true}
-      AddUpdateModal={AddUpdateModal}
-      isDesignModalOpened={true}
-    />
+  
+      <TableGridView
+        title={'Product Design'}
+        fields={fields}
+        fetchList={ProductDesignAPI.fetchProductDesigns}
+        upsertListItem={ProductDesignAPI.upsertProductDesign}
+        isAddEditActionsEnabled={true}
+        handleItemClick={handleItemClick}
+        isAddEditLinkVisible={true}
+        AddUpdateModal={AddUpdateModal}
+        isDesignModalOpened={true}
+      />
+
   );
 }
 
