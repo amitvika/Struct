@@ -1137,6 +1137,7 @@ class FindAssemblingOrder(object):
                     firstTime = False
                 else:
                     self.moveArrays.append((0, 0, 0))
+        print(self.dimension,get_bounding_details(fullShape))
         for i  in range(lenShape):
             (aShape,aName,aColor) = self.shapesColorArray[i]
             xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
@@ -1211,7 +1212,7 @@ class FindAssemblingOrder(object):
         myDirections.append((self.sixdirections[5],xmins-xmin))
         lenDirections = len(myDirections)
         if debugMe:
-            print("Before Guess",myDirections)
+            print("Before Guess",myDirections,checkingDimension,fullDimension)
         for i in range(0,lenDirections-1):           
             for j in range(0,lenDirections-1-i):
                 _,length1 = myDirections[j+1]
@@ -1229,9 +1230,24 @@ class FindAssemblingOrder(object):
             
 
             lenShape = len(self.shapeArray)
+            Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.shapesdimension[0] 
+            for i in range(1,lenShape):
+                xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesdimension[i]
+                if(xmins < Xxmin):
+                    Xxmin = xmins
+                if(ymins < Yymin):
+                    Yymin = ymins
+                if(zmins < Zzmin):
+                    Zzmin = zmins
+                if(xmaxs > Xxmax):
+                    Xxmax = xmaxs
+                if(ymaxs > Yymax):
+                    Yymax = ymaxs
+                if(zmaxs > Zzmax):
+                    Zzmax = zmaxs
             k = 1
             commonObjects=[]
-            Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.dimension
+            #Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.dimension
             while k < lenShape:
                 currenttime = datetime.now()
                 timingdelta = currenttime-previoustime
@@ -1263,7 +1279,7 @@ class FindAssemblingOrder(object):
                         j=lenShape-k-i
                         debugMe = True # k==1 and i==0 #True #k==1 and i==4 #True #(k==3) and (i==0) #True #shapeorder[j]==2 or shapeorder[j]==3
                         if debugMe:
-                            print(k,j,self.shapeorder[j],self.shapeorder,toBeScaled,currenttime)
+                            print(k,j,self.shapeorder[j],self.shapeorder,toBeScaled,currenttime,self.dimension,(Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax))
                         myGuessDirections = self.guessDirections(self.shapesdimension[j], (Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax),debugMe)
                         #myExcludeCompound = excluded_list_of_shapes_to_compound(shapesArray,shapeorder,j,k,False)
                         #myExcludeDimension = get_bounding_details(myExcludeCompound)

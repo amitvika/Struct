@@ -1596,7 +1596,7 @@ class GLTFRenderer extends Component {
     };
 
     onMouseClick = (event) => {
-
+        
         if (this.INTERSECTED !== null) {
             //console.log("Before",this.INTERSECTED.material.color);
             //console.log("Before", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
@@ -1615,6 +1615,11 @@ class GLTFRenderer extends Component {
             //console.log("After",this.INTERSECTED.material.color);
             //if(this.INTERSECTED.selectedshell) this.INTERSECTED = null;
         } else {
+            console.log("I got to click");
+            this.changeStateOfSelection(this.INTERSECTED, event);
+            if (this.props.onClick) {
+                this.props.onClick(this.INTERSECTED, SELECTDISTANCE, event);
+            }
             //console.log(event.clientX, event.clientY);
         }
 
@@ -3090,6 +3095,14 @@ class GLTFRenderer extends Component {
                 });
                 console.log(this.state_selectedObjects,meshmaterial);
 
+            } else {
+                this.state_selectedObjects.forEach(elementobject => {
+                
+                    elementobject.selectedshell = false;
+                    this.setOriginalColor(elementobject);
+                    //elementobject.material.color.setHex(elementobject.currentHex);
+                   
+                });
             }
         }
     };
