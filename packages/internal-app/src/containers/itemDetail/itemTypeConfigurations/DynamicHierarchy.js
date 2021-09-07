@@ -60,14 +60,14 @@ export default function DynamicHierarchy({
   };
 
   const renderDropdowns = () => {
-    return hierarchyDropdownList
-      .filter((item) => {
+    return hierarchyDropdownList ? (hierarchyDropdownList.length > 0) ?
+      hierarchyDropdownList.filter((item) => {
         if (initialValue.includes(item.label)) {
           return true;
         }
         return false;
       })
-      .map((item) => renderFields(item));
+      .map((item) => renderFields(item)):false:false;
   };
 
   return <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>;

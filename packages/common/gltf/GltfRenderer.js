@@ -3859,7 +3859,7 @@ class GLTFRenderer extends Component {
     buildMenus = (myIndex) => { return myMenus.map( (data, index) => (
         (this.props.fileGDT || (index < 3)) && (
         <Button aria-describedby={this.idEl[index]} id={'pop'+index.toString()} type="button" 
-        variant="contained" 
+        variant="contained" key={this.openEl[index]?"O":"I"+index.toString()}
         onClick={
             (event)=>{this.handlePopperClick(event,index);} }
             color={(index == myIndex && this.openEl[index])?"primary":"default"}
@@ -3979,7 +3979,7 @@ class GLTFRenderer extends Component {
         //console.log("BuildMenus",this.buildMenus);
         return (
             <> 
-                <Grid container spacing={0} direction="column" justifyContent="center" alignItems="center">
+                <Grid container spacing={0} direction="column" alignItems="center">
                    
                     <Grid p={1}> 
                         {this.buildMenus(this.state.selectedmenu)} 
@@ -3994,7 +3994,7 @@ class GLTFRenderer extends Component {
                    
                     <Popper style={{zIndex: 1600}}
                         id={this.idEl[this.state.selectedmenu]} 
-                        open={this.openEl[this.state.selectedmenu]} 
+                        open={this.openEl[this.state.selectedmenu]||false} 
                         anchorEl={this.state.anchorEls[this.state.selectedmenu]} 
                         placement={"bottom"}>
                         <ClickAwayListener onClickAway={(event)=>{

@@ -113,7 +113,8 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                     fileStore: data.store,
                     fileGDT: null,
                     fileMPPS: null,
-                    fileStack: null
+                    fileStack: null,
+                    fileKinetic:null
                 }));
                 //console.log(itemProperties);
                 const multiAssmebly = get(data, 'tree', []).length > 0;
@@ -192,7 +193,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                                 <Grid container  >
                                     {
                                         tabArray.map(tabName => (
-                                            <Grid item xs={6}>
+                                            <Grid item xs={6} key={tabName}>
 
                                                 <Paper onClick={() => handleTabChange2(tabName)} style={{
                                                     backgroundColor: selectedTab === tabName ? "#777c80" : "",

@@ -1061,7 +1061,7 @@ class StepIgesAnalyser():
     def __init__(
         self, document=None, filename=None, shapeslist=None, includeparts=False, ascompound=False, 
         distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
-        animations=[], delay=1.0, shapeorder=[], 
+        animations=[], delay=1.0, shapeorder=[], kineticorder=[],
         thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=True,
         writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False):
@@ -1093,8 +1093,13 @@ class StepIgesAnalyser():
             if len(animations) > 0:
                 if len(shapeorder) > 0:
                     self.basefilename = pathfilename+"M"+self.edgeGapStr
-                else:
+                elif len(kineticorder) >0:
+                    self.basefilename = pathfilename+"K"+self.edgeGapStr
+                else:    
                     self.basefilename = pathfilename+"S"+self.edgeGapStr
+                self.writethread = False
+            elif len(kineticorder) >0:
+                self.basefilename = pathfilename+"K"+self.edgeGapStr
                 self.writethread = False
             else:
                 self.basefilename = pathfilename+self.edgeGapStr

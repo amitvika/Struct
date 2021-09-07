@@ -55,7 +55,7 @@ let state_selectedObjects = [];
 //let filteredList = [];
 export default function ManufacturabilityAnalysis(props) {
   const { fileId, gltfjson, isLoading } = props;
-  const [list, setList] = useState([]);
+  //const [list, setList] = useState([]);
   const [isFileLoading, setIsLoading] = useState(isLoading);
   //const [filteredList, setFilteredList] = useState([]);
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
