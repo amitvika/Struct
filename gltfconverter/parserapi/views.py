@@ -48,14 +48,68 @@ from .assemblyorder import FindAssemblingOrder
 from decimal import Decimal 
 import traceback
 import logging
+import textwrap
+
 from logging.handlers import TimedRotatingFileHandler
 
+
+class HttpFormatter(logging.Formatter):
+
+    def _formatHeaders(self, d):
+        return '\n'.join(f'{k}: {v}' for k, v in d.items())
+
+    def formatMessage(self, record):
+        return super().formatMessage(record)        
+        """ if record.req:
+            result += textwrap.dedent('''
+                ---------------- request ----------------
+                {req.method} {req.url}
+                {reqhdrs}
+
+                {req.body}
+                ---------------- response ----------------
+                {res.status_code} {res.reason} {res.url}
+                {reshdrs}
+
+                {res.text}
+            ''').format(
+                req=record.req,
+                res=record.res,
+                reqhdrs=self._formatHeaders(record.req.headers),
+                reshdrs=self._formatHeaders(record.res.headers),
+            )
+
+        return result """
+
+    
+
 logHandler = TimedRotatingFileHandler("Media/Log/APIWatcher.Log",when="midnight")
-logFormatter = logging.Formatter('%(asctime)s %(message)s')
+#logFormatter = logging.Formatter('%(asctime)s %(message)s')
+logFormatter = HttpFormatter('{asctime} {levelname} {name} {message}', style='{')
 logHandler.setFormatter( logFormatter )
 logger = logging.getLogger()
 logger.addHandler( logHandler )
 logger.setLevel( logging.INFO )
+
+
+
+def logRoundtrip(response, *args, **kwargs): 
+        extra = {
+            'req': {
+                'method': response.request.method,
+                'url': response.request.url,
+                'headers': response.request.headers,
+                'body': response.request.body,
+            }, 
+            'res': {
+                'code': response.status_code,
+                'reason': response.reason,
+                'url': response.url,
+                'headers': response.headers,
+                'body': response.text
+            },
+        }
+        logger.debug('HTTP roundtrip', extra=extra)
 
 gltf_dict = gltfdict()
 
@@ -112,6 +166,17 @@ def FileUploadView(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
  
 @api_view(['GET', 'PUT', 'DELETE'])
 def FileReplaceView(request, pk):
@@ -154,6 +219,17 @@ def FileReplaceView(request, pk):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
 
 def obj_to_string(obj, extra='    '):
     return str(obj.__class__) + '\n' + '\n'.join(
@@ -258,6 +334,17 @@ def FileGetView(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
 
 """ def validFileName(s) :
     return "".join( x for x in s if (x.isalnum() or x in "._- ")) """
@@ -648,6 +735,17 @@ def FileSplit(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
 
 def createShapeArray(shapes):
     shapeArray=[]
@@ -686,7 +784,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                 ( _,  _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,includeparts=includeparts,distancegap=distancegap,
                     anglegap=anglegap,disectparts=disectparts,moverotate=moverotate,
-                    thumbwidth=thumbwidth,thumbheight=thumbheight,
+                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
                     edgesize=edgesize, vertexsize=vertexsize).dump()
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
@@ -715,7 +813,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                 (_,_, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
-                    thumbwidth=thumbwidth,thumbheight=thumbheight,
+                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
                     moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize).dump() 
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
@@ -734,7 +832,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                 (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
-                    thumbwidth=thumbwidth,thumbheight=thumbheight,
+                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
                     moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize).dump()  
                 #dictionary['thumbnail']=thumbnail                             
             except Exception as e:
@@ -752,7 +850,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                 (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
-                    thumbwidth=thumbwidth,thumbheight=thumbheight,
+                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
                     moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize).dump() 
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
@@ -848,6 +946,17 @@ def FileHierarchySplit(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
 
 def get2DTextures(where):
     #from path import path 
@@ -893,6 +1002,17 @@ def FileGetTextures(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
 
 @api_view(['GET'])
 def FileGetFiles(request):
@@ -924,6 +1044,17 @@ def FileGetFiles(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
 
 @api_view(['GET'])
 def FileGetMinimumDistance(request):
@@ -976,6 +1107,17 @@ def FileGetMinimumDistance(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
 def findMates(firstshell,secondshell):
     
     coplaner = "unknown"
@@ -1073,6 +1215,17 @@ def FileGetShapeInfo(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
 def getFacesDimensions(aShape):
     faces_dict = {}
     edges_dict = {}
@@ -1301,7 +1454,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
                 shape = conversion.read_step_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
                     thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
@@ -1347,7 +1500,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
                 shape = conversion.read_stl_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
@@ -1383,7 +1536,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
                 shape = conversion.read_iges_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
@@ -1419,7 +1572,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
                 shape = conversion.read_brep_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
                     thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
@@ -1454,7 +1607,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),ascompound=True,
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),ascompound=True, logging=logging, 
                     distancegap=distancegap,anglegap=anglegap).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
                 """ dimension, _ = outputShapes
@@ -1492,21 +1645,21 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
                 shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
                 thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump() 
             else:
                 if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()  
             #print(outputShapes)
             dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
             shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)                         
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
-                anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
+                anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0, logging=logging, 
                 edgesize=0, vertexsize=0, animations=moveArrays, delay=animationtime).dump()
             dictionary["stackable"] = [{"count":replications,"stack":stackable}]
         except Exception as e:
@@ -1563,6 +1716,17 @@ def FileGetStackablePositions(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
 def swap(a, b):
     return b, a
 
@@ -4219,7 +4383,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,
                     edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump() """
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,includeparts=False,distancegap=distancegap,
+                    filename=sourceFileName,includeparts=False,distancegap=distancegap, logging=logging, 
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
                     edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
                 """ dimension, myShapes = outputShapes
@@ -4247,7 +4411,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 shape = conversion.read_stl_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
@@ -4284,7 +4448,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 shape = conversion.read_brep_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
@@ -4303,7 +4467,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
-                    anglegap=anglegap,ascompound=True,writefiles=False,
+                    anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
                 """ dimension, myShapes = outputShapes
@@ -4323,7 +4487,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             #shape = Wholeshape
             #shapeArray = createShapeArray(shape)
-            dictionary = FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap).ExplodeParts(sourceFileName,distancegap,anglegap,animationtime)
+            dictionary = FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap).\
+                ExplodeParts(sourceFileName,distancegap,anglegap,animationtime,logging)
             #whatGotHere = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap)
             #print("After calling Assembly order",dictionary)
             """ nshape, moveArrays, shapeorder, shapesdirection = dictionary
@@ -4394,4 +4559,15 @@ def FileGetAssemblyOrder(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
     

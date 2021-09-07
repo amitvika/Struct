@@ -1062,8 +1062,8 @@ class StepIgesAnalyser():
         self, document=None, filename=None, shapeslist=None, includeparts=False, ascompound=False, 
         distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
         animations=[], delay=1.0, shapeorder=[], 
-        thumbheight=96, thumbwidth=96, multipleGLTF=1200, 
-        writethread=True, writepickle=True, writefiles=True,
+        thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=True,
+        writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False):
         """Supply one or the other: document or STEP filename or Shapes."""
 
@@ -1078,6 +1078,8 @@ class StepIgesAnalyser():
         self.createFiles = (moverotate==0)
         self.edgeGapStr = str(math.trunc(edgesize*10))
         self.writefiles = writefiles
+        self.logging = logging
+        self.addfeaturesThread = addfeaturesThread
         #print("I m initializing")
         if filename:
             _, tail = os.path.split(self.fname)
@@ -1093,14 +1095,18 @@ class StepIgesAnalyser():
                     self.basefilename = pathfilename+"M"+self.edgeGapStr
                 else:
                     self.basefilename = pathfilename+"S"+self.edgeGapStr
+                self.writethread = False
             else:
                 self.basefilename = pathfilename+self.edgeGapStr
+                self.writethread = writethread
             if ascompound:
-                self.basefilename = self.basefilename + "A"            
+                self.basefilename = self.basefilename + "A" 
+                self.writethread = False
         else:
             self.basefilename = "./"
             self.fname = "NoName"
             self.stepiges=True
+            self.writethread = writethread
         #print(self.fname,self.basefilename)
         self.includeparts = includeparts
         self.ascompound = ascompound
@@ -1127,8 +1133,7 @@ class StepIgesAnalyser():
         self.shapeorder = shapeorder
         self.thumbheight = thumbheight
         self.thumbwidth = thumbwidth     
-        self.multiplegltf = multipleGLTF      
-        self.writethread =   writethread   
+        self.multiplegltf = multipleGLTF 
         if (self.edgesize == 0) and (self.vertexsize==0):
             self.writeStep = False
             self.writeColorStep = False
@@ -2389,14 +2394,23 @@ class StepIgesAnalyser():
             "tree":self.tstep_dict['tree'],
             "store":self.basefilename
         }
-
-        mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False))
-        mythread.start()
+        if self.writethread:
+            mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False))
+            mythread.start()
+        else:
+            self.write_in_thread(dict_return,False)
+        """ mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False))
+        mythread.start() """
         print(self.basefilename,"Features are seperated")
         return len(self.tstep_dict['tree'])
             #self.tree+="</ul></li></ul>" 
     
     def addFeatures(self):  
+        try:
+            if self.logging != None and self.addfeaturesThread:
+                self.logging.info("Started addFeatures Thread") 
+        except Exception as e:
+            print("Error while logging",e)
         _, tail = os.path.split(self.fname)
         pathfilename, _ = os.path.splitext(tail)
         myTreeLen = len(self.tstep_dict["tree"])
@@ -2442,6 +2456,12 @@ class StepIgesAnalyser():
                         myTreeLen+=addedTrees
         with open(newfilename, 'w') as fh:
             fh.write(json.dumps({"begin":lenfeature,"end":lenFeatures,"children":myParentId_Dict}, sort_keys=True, indent=2 ))
+        
+        try:
+            if self.logging != None and self.addfeaturesThread:
+                self.logging.info("Completed addFeatures Thread ")
+        except Exception as e:
+            print("Error while logging",e)
     
     def addAnimations(self):
         lenAnimations = len(self.animations)
@@ -2721,6 +2741,11 @@ class StepIgesAnalyser():
 
     def write_in_thread(self,dict,imagePNG):
         try:
+            if logging != None and self.writethread:
+                logging.info("Started writing gltf files in Thread ")
+        except Exception as e:
+            print("Error while logging",e)
+        try:
             newfilename = "Display/"+dict["store"]+".gltf"
             if self.writefiles:
                 print("Writing",newfilename)
@@ -2747,6 +2772,12 @@ class StepIgesAnalyser():
                 createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            
             except Exception as e:
                 print("While Writing",imagefilename,e)
+        try:
+            if logging != None and self.writethread:
+                logging.info("Completed writing gltf files in Thread ")
+        except Exception as e:
+            print("Error while logging",e)
+
     
     def dump(self):
         """Return assembly structure in indented outline form.
@@ -2807,7 +2838,7 @@ class StepIgesAnalyser():
         #self.mstep_dict['tree']=self.tstep_dict['tree']
 
         try:
-            if(self.writethread):
+            if(self.addfeaturesThread):
                 myanotherthread = threading.Thread(target=self.addFeatures)
                 myanotherthread.start()
             else:
@@ -2976,7 +3007,11 @@ class StepIgesAnalyser():
         a_shape: the topods_shape to export (a compound, a solid etc.)
         outname: FileName to store
         """
-        
+        try:
+            if logging != None and self.writethread:
+                logging.info("Started writing step files in Thread ")
+        except Exception as e:
+            print("Error while logging",e)
         
         #basename = self.validFileName(outname)+str(self.fileId)+".step"
         #newfilename = self.direntry+"/"+ basename
@@ -3018,6 +3053,12 @@ class StepIgesAnalyser():
                 print(e,"File, %s has error" % colorfile) """
         else:
             print("File, %s is not saved since it is meant for analysis" % newfilename)
+        
+        try:
+            if logging != None and self.writethread:
+                logging.info("Complted writing step files in Thread ")
+        except Exception as e:
+            print("Error while logging",e)
        
     def write_step_file(self, a_shape, outname, colorname):
         """ exports a shape to a STEP file
@@ -3026,8 +3067,13 @@ class StepIgesAnalyser():
         
         basename = self.getBaseFileName()
         newfilename = "Display/"+basename+".step"
-        mythread = threading.Thread(target=self.write_step_file_in_thread,args=(a_shape, outname, colorname, basename, newfilename))
-        mythread.start()
+        if self.writethread:
+            mythread = threading.Thread(target=self.write_step_file_in_thread,args=(a_shape, outname, colorname, basename, newfilename))
+            mythread.start()
+        else:
+            self.write_step_file_in_thread(a_shape, outname, colorname, basename, newfilename)        
+        """ mythread = threading.Thread(target=self.write_step_file_in_thread,args=(a_shape, outname, colorname, basename, newfilename))
+        mythread.start() """
         return (newfilename, basename) 
 
 

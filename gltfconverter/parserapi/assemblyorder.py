@@ -16,7 +16,7 @@ def swap(a, b):
 
 class FindAssemblingOrder(object):
     
-    def __init__(self, shapeColorArray,shapeArray,name,dimension,explodegap=10.0,center=True,holescale=0.8,removegap=1.0):
+    def __init__(self, shapeColorArray,shapeArray,name,dimension,explodegap=10.0,center=True,holescale=0.8,removegap=1.0,logging=None):
         
         self.shapeArray = shapeArray 
         self.shapeColorArray = shapeColorArray 
@@ -24,7 +24,8 @@ class FindAssemblingOrder(object):
         self.dimension = dimension 
         self.explodegap = explodegap 
         self.center = center 
-        self.holescale = holescale     
+        self.holescale = holescale   
+        self.logging = logging  
         if holescale <= 0:
             self.holescale=1.0
         if self.holescale < 1.0 :
@@ -1181,7 +1182,7 @@ class FindAssemblingOrder(object):
         dictionary={}
         try:
             (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=self.newShapes,includeparts=False,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=self.newShapes,includeparts=False,distancegap=distancegap,logging=self.logging,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,writethread=False,
                     edgesize=0, vertexsize=0, animations=self.moveArrays,shapeorder=self.shapeorder,delay=animationtime).dump()
             dictionary['assemblyorder']={   "order":self.shapeorder,
@@ -1223,6 +1224,11 @@ class FindAssemblingOrder(object):
             print("After Guess",myDirections)
         return myDirections
     def threadAssembling(self,sourceFileName,distancegap,anglegap,animationtime,starttime,debugMe):
+        try:
+            if self.logging != None and self.byThread:
+                self.logging.info("Started thread assembling") 
+        except Exception as e:
+            print("Error while logging",e)
         if(self.center):    
             
             
@@ -1436,10 +1442,16 @@ class FindAssemblingOrder(object):
         
         dictionary = self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape)  
         print(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape)
+        try:
+            if self.logging != None and self.byThread:
+                self.logging.info("Completed thread assembling") 
+        except Exception as e:
+            print("Error while logging",e)
         return dictionary 
 
     def ExplodeParts(self,sourceFileName,distancegap,anglegap,animationtime,bythread=True,debugMe=False):
         #print("ExploreParts",shapeTol,gapTol)
+        self.byThread=bythread
         starttime=datetime.now()
         dictionary={}
         try:
