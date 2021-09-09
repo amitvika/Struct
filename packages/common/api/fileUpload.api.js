@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // const host = `https://cadapi.struct.services/api/v0`;
-// const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
+const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
+
 const baseURL = `https://cadapi.struct.services`;
 
 const host = `${baseURL}/api/v0`
@@ -16,6 +17,14 @@ export const fetchShapeInfo = async (tree) => {
     var formTree = new FormData();
     formTree.append('tree', JSON.stringify(tree));
     return axios.post(`${host}/shapeinfo/`, formTree);
+};
+
+export const saveActuatorInfo = async (tree,name) => {    
+    console.log(tree);
+    var formTree = new FormData();
+    formTree.append('tree', JSON.stringify(tree));
+    formTree.append('name',name);
+    return axios.post(`${host}/savetree/`, formTree);
 };
 
 export const getGLTFJson = (id) => {

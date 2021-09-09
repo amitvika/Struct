@@ -236,6 +236,7 @@ const ItemDetail = () => {
                 return;
             }
             if (myTabIndex == "iupc") {
+                console.log("Checking iupc",myTabIndex,item);
                 if (!item.fileKinetic || item.fileKinetic === null) {
                     console.log("Checking Store", item.fileStore);
                     if (item.fileStore && item.fileStore.length > 0) {
@@ -375,11 +376,13 @@ const ItemDetail = () => {
                 whichOneToLoad = fileMPPS;
             } else if(myTabIndex=="stack") {
                 whichOneToLoad = fileStack;
-            } else if(myTabIndex=="ipcu") {
+            } else if(myTabIndex=="iupc") {
                 whichOneToLoad = fileKinetic;
             } else {
                 whichOneToLoad = fileGDT;
             }  
+            console.log("Checking",myTabIndex,whichOneToLoad,"FileStore",fileStore,
+                "fileMPPS",fileMPPS,"fileStack",fileStack,"fileKinetic",fileKinetic,"fileGDT",fileGDT);
             const gltfRes = await getGltfForStore(whichOneToLoad);
             const treeRes = await getTreeForStore(whichOneToLoad);
             let stackRes = {data:null};
@@ -466,6 +469,7 @@ const ItemDetail = () => {
                     tabIndex={tabIndex}
                 />
             case "iupc":
+                console.log("IUPC",itemProperties,gltfjson);
                 return <ItemTypeConfigurations
                     itemId={id}
                     fileId={itemProperties.fileId}

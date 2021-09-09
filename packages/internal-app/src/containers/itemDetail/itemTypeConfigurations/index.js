@@ -25,6 +25,8 @@ import Headding from '@ravibasil/common/components/atoms/Headding';
 import DynamicCriteria from './DynamicCriteria';
 import DynamicHierarchy from './DynamicHierarchy';
 import CriteriaUploadAPI from '@ravibasil/common/api/criteriaUpload.api';
+import { saveActuatorInfo } from '@ravibasil/common/api/fileUpload.api';
+
 import get from 'lodash/get';
 
 const DEFAULTDISTANCEGAP = 0.1;
@@ -60,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
 let state_selectedObjects = [];
 
 export default function ItemTypeConfiguration(props) {
-  const { fileId, gltfjson, isLoading } = props;
+  const { fileId, gltfjson, isLoading, itemProperties } = props;
   //const [list, setList] = useState([]);
   const [isFileLoading, setIsLoading] = useState(isLoading);
   //const [filteredList, setFilteredList] = useState([]);
@@ -72,12 +74,14 @@ export default function ItemTypeConfiguration(props) {
   const [criteriaFields, setCriteriaFields] = useState({});
   const [title, setTitle] = useState([]);
   const [columns, setColumns] = useState([
-    { label: 'Mate Name', dataKey: 'name', editable: "never", numeric: false, align:"left", width: 200 },
-    { label: 'Actuator ', dataKey: 'actuator', radio:true, editable: "never", numeric: false, align:"right", width: 90 },   
-    { label: 'Target Position', dataKey: 'position', editable: "never", numeric: false, align:"left", width: 120 },
-    { label: 'Target Angle', dataKey: 'angle', editable: "never", numeric: true,  align:"right", width: 90 }  
+    { title: 'Actuator', dataKey: 'name', type:"view", align:"left", sortable:true, resizable:true, width: 200 },
+    { title: 'Actuator Type',  dataKey: 'actuator', type:"select", options:["None","Linear","Rotational"],align:"center", sortable:true, resizable:true, width: 90 },   
+    { title: 'X',  dataKey: 'posx', type:"number", align:"right", sortable:true, resizable:true, width: 50 },
+    { title: 'Y',  dataKey: 'posy', type:"number", align:"right", sortable:true, resizable:true, width: 50 },
+    { title: 'Z',  dataKey: 'posz', type:"number", align:"right", sortable:true, resizable:true, width: 50 },
+    { title: "\u03B8", dataKey: 'angle', type:"number",  align:"center", sortable:true, resizable:true, width: 60 }  
   ])
-
+ 
   const [state, _setState] = useState({});
   const [ctrlKey, setCtrlKey] = useState(false);
   const [filteredList, setFilteredList] = useState([]);
@@ -395,12 +399,25 @@ export default function ItemTypeConfiguration(props) {
     }
   }
 
-  const addSelectionFromTree = async (selectedNodes, event) => {
+  const addSelectionFromTable = async (selectedNodes, event) => {
 
-    console.log("Selected Node", selectedNodes, "Event", event);
+    console.log("Selected Node", selectedNodes, "Event", event, "Props", this);
+    if (!state.gltfjson && this && this.props) {
+      setState({gltfjson:this.props.gltfjson})
+    }
     if (selectedNodes?.index) {
-      const myTree = { ...state.gltfjson.tree[selectedNodes.index] };
-      console.log(myTree);
+     
+      console.log("My json",state.gltfjson);
+      var myTree=null;
+      if(state.gltfjson) {
+        myTree = { ...state.gltfjson.tree[selectedNodes.index] };
+        console.log("My tree",state.gltfjson.tree);
+      
+        console.log("Indexofmytree",myTree);
+      } else {
+        console.log("Problem in state");
+      }
+      
       if (myTree) {
         //myTree.selectedshell = true;
         if (event && (event.ctrlKey != ctrlKey)) {
@@ -421,6 +438,48 @@ export default function ItemTypeConfiguration(props) {
     }
 
   };
+  const updateSelectionFromTable = async (rowIndex, columnIndex, dataRow, value) => {
+
+      console.log("Changed cell", (rowIndex, columnIndex, dataRow, value));
+      if (!state.gltfjson) {
+        setState({gltfjson:this.props.gltfjson})
+      }
+     
+      var myTree=null;
+      if(state.gltfjson) {
+        console.log("My json",state.gltfjson);
+        myTree = state.gltfjson;
+        console.log("My tree",myTree.tree[dataRow.index],"Columns",columns[columnIndex]);
+        myTree.tree[dataRow.index][columns[columnIndex].dataKey]=value;
+        setState({gltfjson:myTree});
+        console.log("Indexofmytree",myTree.tree[dataRow.index][columns[columnIndex].dataKey],myTree);
+        console.log("About to set", myTree);
+        setState({ gltfjson: myTree });
+        console.log("Setting", myTree);
+        getTable(myTree);
+        } else {
+          console.log("Problem in state");
+        }
+    
+  };
+
+  const saveSelectionFromTable = async () => {
+    var myJsonTree;
+    if (!state.gltfjson) {
+      setState({gltfjson:this.props.gltfjson})
+    }
+    if(state.gltfjson) {
+      myJsonTree = state.gltfjson.tree;
+    } else {
+      myJsonTree = this?.props?.gltfjson?.tree;
+    }
+    if(myJsonTree) {
+      console.log("Saving",myJsonTree,itemProperties.fileKinetic);
+      saveActuatorInfo(myJsonTree,itemProperties.fileKinetic);
+    }
+  
+};
+
   const resetSelectionFromTree = async () => {
     if ((state.whatchange != 0) || state.renderdata != []) {
       setState({ whatchange: 0, renderdata: [] });
@@ -554,6 +613,10 @@ export default function ItemTypeConfiguration(props) {
     }
     //setResetMe(true);
     //getTable(state.gltfjson);
+    console.log("Before my state tree", state.gltfjson.tree, state_selectedObjects);
+    state_selectedObjects.forEach(element => {
+      setSelectedShellForce(element, element.selectedshell);
+    });
     console.log("Finally my state tree", state.gltfjson.tree, state_selectedObjects);
   }
 
@@ -614,13 +677,16 @@ export default function ItemTypeConfiguration(props) {
       for (let index = 1; index < gltfjson.tree.length; index++) {
         const element = gltfjson.tree[index];
         //console.log(element);
-        currentData.push({
-          ...element,
+        currentData.push({          
+          'id':index,
           'index': index,
           'name': element[gltf_Dict['name']],
           'actuator': "None",
-          'position':"{x:0,y:0,z:0}",
-          'angle': "0"
+          'posx': "0",
+          'posy': "0",
+          'posz': "0",
+          'angle': "0",
+          ...element
         });
 
       }
@@ -758,11 +824,13 @@ export default function ItemTypeConfiguration(props) {
 
       </Paper>
       <TableOrderView
-        title={alerter==""?'Kinetic Modelling Entries':alerter}
+        title={alerter==""?'Kinematic Modelling Entries':alerter}
         list={filteredList}
         columns={columns}
         setColumns={setColumns}
-        handleDataRowClick={addSelectionFromTree}
+        handleDataRowClick={addSelectionFromTable}
+        handleDataCellChange={updateSelectionFromTable}  
+        saveDataTable={saveSelectionFromTable}     
         style={{ width: 500 }}
       >
       </TableOrderView>

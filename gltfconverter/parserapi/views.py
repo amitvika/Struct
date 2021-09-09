@@ -4639,7 +4639,14 @@ def exportToKineticGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5):#
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                 edgesize=0, vertexsize=0, kineticorder=[1],delay=animationtime).dump()
         except Exception as e:
-            print("error",e)           
+            print("error",e) 
+        try:
+            picklefile = "Display/"+dictionary["store"]+".pickle"
+            with open(picklefile, 'wb') as f:
+                # Pickle the 'data' dictionary using the highest protocol available.
+                pickle.dump(shapeArray, f, pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            print(e,"File, %s has error" % picklefile)          
         return dictionary
        
        
@@ -4679,6 +4686,53 @@ def FileGetKineticOrder(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)  
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
+
+@api_view(['GET', 'POST'])
+def FileSaveTree(request):
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'POST':
+            tree = request.data['tree']
+            #print(tree)
+            structArray = json.loads(tree)
+            name = request.data['name']
+            try:
+                treefile = "Display/"+name+'.tree'
+                print("Writing,",treefile)
+                with open(treefile, 'w') as fh:
+                    fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
+            except Exception as e:
+                print("Error while writing stackfile",e)      
+        return JsonResponse(structArray, safe=False)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
