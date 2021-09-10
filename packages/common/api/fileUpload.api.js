@@ -56,10 +56,10 @@ export const getPartsAssemblyOrder = (id, distancegap, anglegap, explodegap, cen
     return axios.get(orderURL);
 }
 
-export const getPartsKineticOrder = (id, distancegap, anglegap, animationtime) => {
-    const kineticURL = `${host}/kineticorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}`;
-	console.log(kineticURL);
-    return axios.get(kineticURL);
+export const getPartsKinematicOrder = (id, distancegap, anglegap, animationtime) => {
+    const kinematicURL = `${host}/kinematicorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}`;
+	console.log(kinematicURL);
+    return axios.get(kinematicURL);
 }
 
 export const getMinimumDistance = (xmove, ymove, zmove, xrotate, yrotate, zrotate, moverotate, fname, sname) => {

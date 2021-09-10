@@ -85,6 +85,7 @@ from .OCPAssembly import Color
 from .OCCExtend.ShapeFactory import recognize_direction, recognize_curve
 from ....thumbnail.thumbnail import createThumbnail
 from .gltfDictionary import gltfdict
+from .Quaternion import Quaternion
 
 @contextmanager
 def measure_time(log, name):
@@ -1061,7 +1062,7 @@ class StepIgesAnalyser():
     def __init__(
         self, document=None, filename=None, shapeslist=None, includeparts=False, ascompound=False, 
         distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
-        animations=[], delay=1.0, shapeorder=[], kineticorder=[],
+        animations=None, delay=1.0, shapeorder=[], kinematicanimation=None,
         thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=True,
         writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False):
@@ -1090,15 +1091,13 @@ class StepIgesAnalyser():
             else:
                 file_extension = "stp"
             self.stepiges = (file_extension) == "stp" or (file_extension == "step")
-            if len(animations) > 0:
-                if len(shapeorder) > 0:
+            if animations!=None and len(animations) > 0:
+                if shapeorder!=None and len(shapeorder) > 0:
                     self.basefilename = pathfilename+"M"+self.edgeGapStr
-                elif len(kineticorder) >0:
-                    self.basefilename = pathfilename+"K"+self.edgeGapStr
                 else:    
                     self.basefilename = pathfilename+"S"+self.edgeGapStr
                 self.writethread = False
-            elif len(kineticorder) >0:
+            elif kinematicanimation!=None:
                 self.basefilename = pathfilename+"K"+self.edgeGapStr
                 self.writethread = False
             else:
@@ -1113,6 +1112,7 @@ class StepIgesAnalyser():
             self.stepiges=True
             self.writethread = writethread
         #print(self.fname,self.basefilename)
+        self.kinematicanimation=kinematicanimation
         self.includeparts = includeparts
         self.ascompound = ascompound
         if self.includeparts:
@@ -2469,280 +2469,432 @@ class StepIgesAnalyser():
             print("Error while logging",e)
     
     def addAnimations(self):
-        lenAnimations = len(self.animations)
+        if self.animations == None:
+            return            
+        lenAnimations = len(self.animations)        
+        if( lenAnimations<=0  ):
+            return
+        samplers = []
+        chanels = []
         lenShapeOrder = len(self.shapeorder)
-        if( lenAnimations>0  ):
-            samplers = []
-            chanels = []
-            if lenShapeOrder>0:
-                rotationtimebuff = TimeBuffer(
-                    max_index=lenAnimations+2
-                )            
-                rotationbuff =RotationBuffer(
-                    max_index=lenAnimations+2
-                )
-                for steps in range(lenAnimations+3):
-                    rotationtimebuff.add_time(steps*self.delay)
-                    theta = 2*math.pi*steps/(lenAnimations+2)
-                    rotationbuff.add_rotation(0,0,math.sin(theta),math.cos(theta))
-                buffer_index = len(self.mstep_dict['buffers'])
-                rotationlen = len(rotationtimebuff)
-                buffer_dict = {
-                    "byteLength":  rotationlen                                 
-                }   
-                base64data = base64.b64encode(rotationtimebuff.read()).decode('ascii')
-                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
-                    mimetype="application/octet-stream",
-                    data=base64data,
-                )   
-                self.mstep_dict['buffers'].append(buffer_dict)          
-                bufferView_index = len(self.mstep_dict['bufferViews'])
-                bufferview = {
-                    "buffer" : buffer_index,
-                    "byteOffset" : 0,
-                    "byteLength" : rotationlen
-                }            
-                self.mstep_dict['bufferViews'].append(bufferview)
-                buffer_index = len(self.mstep_dict['buffers'])
-                rotationlen = len(rotationbuff)
-                buffer_dict = {
-                    "byteLength":  rotationlen                                 
-                }   
-                base64data = base64.b64encode(rotationbuff.read()).decode('ascii')
-                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
-                    mimetype="application/octet-stream",
-                    data=base64data,
-                )  
-                self.mstep_dict['buffers'].append(buffer_dict) 
-                bufferView_index = len(self.mstep_dict['bufferViews'])
-                bufferview = {
-                    "buffer" : buffer_index,
-                    "byteOffset" : 0,
-                    "byteLength" : rotationlen
-                }            
-                self.mstep_dict['bufferViews'].append(bufferview)
-                accessor_index = len(self.mstep_dict['accessors'])
-                accessorview = [ {
-                    "bufferView" : bufferView_index-1,
-                    "byteOffset" : 0,
-                    "componentType" : 5126,
-                    "count" : lenAnimations+3,
-                    "type" : "SCALAR",
-                    "max" : [ rotationtimebuff.time_max ],
-                    "min" : [ rotationtimebuff.time_min ]
-                    },
-                    {
-                    "bufferView" : bufferView_index,
-                    "byteOffset" : 0,
-                    "componentType" : 5126,
-                    "count" : lenAnimations+3,
-                    "type" : "VEC4",
-                    "max" : [ rotationbuff.rotation_umax, rotationbuff.rotation_vmax, rotationbuff.rotation_wmax, rotationbuff.rotation_xmax ],
-                    "min" : [ rotationbuff.rotation_umin, rotationbuff.rotation_vmin, rotationbuff.rotation_wmin, rotationbuff.rotation_xmin ]
-                    } ]
-                self.mstep_dict['accessors'].append(accessorview[0])
-                self.mstep_dict['accessors'].append(accessorview[1])
-                
-                self.mstep_dict['nodes'][2]['rotation']=[ 0.0, 0.0, 0.0, 1.0 ]
-               
-                sampler = { 
-                    "input" : accessor_index,
-                    "interpolation" : "LINEAR",
-                    "output" : accessor_index+1
-                }
-                samplers.append(sampler)            
-                chanel = {
-                        "sampler" : 0,
-                        "target" : {
-                        "node" : 2,
-                        "path" : "rotation"
-                        }
-                    }
-                chanels.append(chanel)
-                startRange = 0
-            else:
-               startRange = 1  
-                      
-            for steps in range(1,lenAnimations+1):
-                #print(steps,lenAnimations)
-                lenOfAnimationsTime = steps+1 #or lenAnimations ; it works for both...
-                timebuff = TimeBuffer(
-                    max_index=2
-                )  
-                translationbuff =TranslationBuffer(
-                    max_index=2
-                )
-                mystep = steps-1
-                if lenShapeOrder > 0:
-                    mystep = self.shapeorder[steps-1]  
-                u,v,w=self.animations[mystep]
-                #print("steps",steps, u,v,w)
-                if lenShapeOrder > 0:
-                    for istep in range(lenOfAnimationsTime):  
-                        timebuff.add_time(istep*self.delay)
-                        if istep < steps:                 
-                            translationbuff.add_translation(0,0,0)
-                        else:
-                            translationbuff.add_translation(-u,-v,-w)
-                    #timebuff.add_time(steps*self.delay)
-                    #print(steps-1)
-                    
-                    #print (steps-1,u,v,w)
-                    
-                else:
-                    timebuff.add_time(0)
-                    #translationbuff.add_translation(0,0,0)
-                    #print(steps-1)
-                    #timebuff.add_time(self.delay)
-                    #u,v,w=self.animations[steps-1]
-                    #print (steps-1,u,v,w)
-                    translationbuff.add_translation(-u,-v,-w)
-                    for istep in range(1,lenOfAnimationsTime):  
-                        timebuff.add_time(istep*self.delay)                 
-                        translationbuff.add_translation(0,0,0)                                       
-                buffer_index = len(self.mstep_dict['buffers'])
-                timelen = len(timebuff)
-                #print(timelen,self.rotateFirst)
-                buffer_dict = {
-                    "byteLength":  timelen                                 
-                }   
-                base64data = base64.b64encode(timebuff.read()).decode('ascii')
-                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
-                    mimetype="application/octet-stream",
-                    data=base64data,
-                )   
-                self.mstep_dict['buffers'].append(buffer_dict)          
-                bufferView_index = len(self.mstep_dict['bufferViews'])
-                bufferview = {
-                    "buffer" : buffer_index,
-                    "byteOffset" : 0,
-                    "byteLength" : timelen
-                }            
-                self.mstep_dict['bufferViews'].append(bufferview)
-                buffer_index = len(self.mstep_dict['buffers'])
-                translationlen = len(translationbuff)
-                buffer_dict = {
-                    "byteLength":  translationlen                                 
-                }   
-                base64data = base64.b64encode(translationbuff.read()).decode('ascii')
-                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
-                    mimetype="application/octet-stream",
-                    data=base64data,
-                )  
-                self.mstep_dict['buffers'].append(buffer_dict) 
-                bufferView_index = len(self.mstep_dict['bufferViews'])
-                bufferview = {
-                    "buffer" : buffer_index,
-                    "byteOffset" : 0,
-                    "byteLength" : translationlen
-                }            
-                self.mstep_dict['bufferViews'].append(bufferview)
-                accessor_index = len(self.mstep_dict['accessors'])
-                accessorview = [ {
-                    "bufferView" : bufferView_index-1,
-                    "byteOffset" : 0,
-                    "componentType" : 5126,
-                    "count" : lenOfAnimationsTime, #steps+1,
-                    "type" : "SCALAR",
-                    "max" : [ timebuff.time_max ],
-                    "min" : [ timebuff.time_min ]
-                    },
-                    {
-                    "bufferView" : bufferView_index,
-                    "byteOffset" : 0,
-                    "componentType" : 5126,
-                    "count" : lenOfAnimationsTime, #steps+1,
-                    "type" : "VEC3",
-                    "max" : [ translationbuff.translation_umax, translationbuff.translation_vmax,translationbuff.translation_wmax ],
-                    "min" : [ translationbuff.translation_umin,translationbuff.translation_vmin,translationbuff.translation_wmin ]
-                    } ]
-                self.mstep_dict['accessors'].append(accessorview[0])
-                self.mstep_dict['accessors'].append(accessorview[1])
-                node_id = mystep+3
-                if lenShapeOrder > 0:
-                    self.mstep_dict['nodes'][node_id]['translation']=[ 0.0, 0.0, 0.0 ]
-                else:
-                    self.mstep_dict['nodes'][node_id]['translation']=[ -u, -v, -w]
-                sampler = { 
-                    "input" : accessor_index,
-                    "interpolation" : "LINEAR",
-                    "output" : accessor_index+1
-                }
-                samplers.append(sampler)            
-                chanel = {
-                    "sampler" : steps-startRange,
-                    "target" : {
-                    "node" : node_id,
-                    "path" : "translation"
-                    }
-                }
-                chanels.append(chanel)
-
-            animationchannels = [{
-                "samplers" : samplers,
-                "channels" : chanels
-                }
-            ]
-            self.mstep_dict['animations']=animationchannels
-
-            """ animationbuffer =  {
-                "uri" : "data:application/octet-stream;base64,AAAAAAAAgD4AAAA/AABAPwAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAD0/TQ/9P00PwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAPT9ND/0/TS/AAAAAAAAAAAAAAAAAACAPw==",
-                "byteLength" : 100
-                }
-            animationbufferview = {
-                "buffer" : 1,
+        if lenShapeOrder>0:
+            rotationtimebuff = TimeBuffer(
+                max_index=lenAnimations+2
+            )            
+            rotationbuff =RotationBuffer(
+                max_index=lenAnimations+2
+            )
+            for steps in range(lenAnimations+3):
+                rotationtimebuff.add_time(steps*self.delay)
+                theta = 2*math.pi*steps/(lenAnimations+2)
+                rotationbuff.add_rotation(0,0,math.sin(theta),math.cos(theta))
+            buffer_index = len(self.mstep_dict['buffers'])
+            rotationlen = len(rotationtimebuff)
+            buffer_dict = {
+                "byteLength":  rotationlen                                 
+            }   
+            base64data = base64.b64encode(rotationtimebuff.read()).decode('ascii')
+            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                mimetype="application/octet-stream",
+                data=base64data,
+            )   
+            self.mstep_dict['buffers'].append(buffer_dict)          
+            bufferView_index = len(self.mstep_dict['bufferViews'])
+            bufferview = {
+                "buffer" : buffer_index,
                 "byteOffset" : 0,
                 "byteLength" : rotationlen
-                }
-            animationaccessorview = [ {
-                "bufferView" : 2,
+            }            
+            self.mstep_dict['bufferViews'].append(bufferview)
+            buffer_index = len(self.mstep_dict['buffers'])
+            rotationlen = len(rotationbuff)
+            buffer_dict = {
+                "byteLength":  rotationlen                                 
+            }   
+            base64data = base64.b64encode(rotationbuff.read()).decode('ascii')
+            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                mimetype="application/octet-stream",
+                data=base64data,
+            )  
+            self.mstep_dict['buffers'].append(buffer_dict) 
+            bufferView_index = len(self.mstep_dict['bufferViews'])
+            bufferview = {
+                "buffer" : buffer_index,
+                "byteOffset" : 0,
+                "byteLength" : rotationlen
+            }            
+            self.mstep_dict['bufferViews'].append(bufferview)
+            accessor_index = len(self.mstep_dict['accessors'])
+            accessorview = [ {
+                "bufferView" : bufferView_index-1,
                 "byteOffset" : 0,
                 "componentType" : 5126,
-                "count" : 5,
+                "count" : lenAnimations+3,
                 "type" : "SCALAR",
-                "max" : [ 1.0 ],
-                "min" : [ 0.0 ]
+                "max" : [ rotationtimebuff.time_max ],
+                "min" : [ rotationtimebuff.time_min ]
                 },
                 {
-                "bufferView" : 2,
-                "byteOffset" : 20,
+                "bufferView" : bufferView_index,
+                "byteOffset" : 0,
                 "componentType" : 5126,
-                "count" : 5,
+                "count" : lenAnimations+3,
                 "type" : "VEC4",
-                "max" : [ 0.0, 0.0, 1.0, 1.0 ],
-                "min" : [ 0.0, 0.0, 0.0, -0.707 ]
+                "max" : [ rotationbuff.rotation_umax, rotationbuff.rotation_vmax, rotationbuff.rotation_wmax, rotationbuff.rotation_xmax ],
+                "min" : [ rotationbuff.rotation_umin, rotationbuff.rotation_vmin, rotationbuff.rotation_wmin, rotationbuff.rotation_xmin ]
                 } ]
-            animationchannels = [{
-                "samplers" : [
-                    {
-                    "input" : 2,
-                    "interpolation" : "LINEAR",
-                    "output" : 3
-                    }
-                ],
-                "channels" : [ {
+            self.mstep_dict['accessors'].append(accessorview[0])
+            self.mstep_dict['accessors'].append(accessorview[1])
+            
+            self.mstep_dict['nodes'][2]['rotation']=[ 0.0, 0.0, 0.0, 1.0 ]
+            
+            sampler = { 
+                "input" : accessor_index,
+                "interpolation" : "LINEAR",
+                "output" : accessor_index+1
+            }
+            samplers.append(sampler)            
+            chanel = {
                     "sampler" : 0,
                     "target" : {
                     "node" : 2,
                     "path" : "rotation"
                     }
-                } ]
                 }
-            ]
-            buffer_length_current = len(self.mstep_dict['buffers'])        
-            self.mstep_dict['buffers'].append(animationbuffer)
+            chanels.append(chanel)
+            startRange = 0
+        else:
+            startRange = 1  
+                    
+        for steps in range(1,lenAnimations+1):
+            #print(steps,lenAnimations)
+            lenOfAnimationsTime = steps+1 #or lenAnimations ; it works for both...
+            timebuff = TimeBuffer(
+                max_index=2
+            )  
+            translationbuff =TranslationBuffer(
+                max_index=2
+            )
+            mystep = steps-1
+            if lenShapeOrder > 0:
+                mystep = self.shapeorder[steps-1]  
+            u,v,w=self.animations[mystep]
+            #print("steps",steps, u,v,w)
+            if lenShapeOrder > 0:
+                for istep in range(lenOfAnimationsTime):  
+                    timebuff.add_time(istep*self.delay)
+                    if istep < steps:                 
+                        translationbuff.add_translation(0,0,0)
+                    else:
+                        translationbuff.add_translation(-u,-v,-w)
+                #timebuff.add_time(steps*self.delay)
+                #print(steps-1)
+                
+                #print (steps-1,u,v,w)
+                
+            else:
+                timebuff.add_time(0)
+                #translationbuff.add_translation(0,0,0)
+                #print(steps-1)
+                #timebuff.add_time(self.delay)
+                #u,v,w=self.animations[steps-1]
+                #print (steps-1,u,v,w)
+                translationbuff.add_translation(-u,-v,-w)
+                for istep in range(1,lenOfAnimationsTime):  
+                    timebuff.add_time(istep*self.delay)                 
+                    translationbuff.add_translation(0,0,0)                                       
+            buffer_index = len(self.mstep_dict['buffers'])
+            timelen = len(timebuff)
+            #print(timelen,self.rotateFirst)
+            buffer_dict = {
+                "byteLength":  timelen                                 
+            }   
+            base64data = base64.b64encode(timebuff.read()).decode('ascii')
+            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                mimetype="application/octet-stream",
+                data=base64data,
+            )   
+            self.mstep_dict['buffers'].append(buffer_dict)          
             bufferView_index = len(self.mstep_dict['bufferViews'])
-            animationbufferview['buffer']=buffer_length_current
-            self.mstep_dict['bufferViews'].append(animationbufferview)
+            bufferview = {
+                "buffer" : buffer_index,
+                "byteOffset" : 0,
+                "byteLength" : timelen
+            }            
+            self.mstep_dict['bufferViews'].append(bufferview)
+            buffer_index = len(self.mstep_dict['buffers'])
+            translationlen = len(translationbuff)
+            buffer_dict = {
+                "byteLength":  translationlen                                 
+            }   
+            base64data = base64.b64encode(translationbuff.read()).decode('ascii')
+            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                mimetype="application/octet-stream",
+                data=base64data,
+            )  
+            self.mstep_dict['buffers'].append(buffer_dict) 
+            bufferView_index = len(self.mstep_dict['bufferViews'])
+            bufferview = {
+                "buffer" : buffer_index,
+                "byteOffset" : 0,
+                "byteLength" : translationlen
+            }            
+            self.mstep_dict['bufferViews'].append(bufferview)
             accessor_index = len(self.mstep_dict['accessors'])
-            animationaccessorview[0]['bufferView']=bufferView_index
-            animationaccessorview[1]['bufferView']=bufferView_index
-            self.mstep_dict['accessors'].append(animationaccessorview[0])
-            self.mstep_dict['accessors'].append(animationaccessorview[1])
-            animationchannels[0]['samplers'][0]['input']=accessor_index
-            animationchannels[0]['samplers'][0]['output']=accessor_index+1
-            self.mstep_dict['nodes'][2]['rotation']=[ 0.0, 0.0, 0.0, 1.0 ]
-            self.mstep_dict['animations']=animationchannels """
+            accessorview = [ {
+                "bufferView" : bufferView_index-1,
+                "byteOffset" : 0,
+                "componentType" : 5126,
+                "count" : lenOfAnimationsTime, #steps+1,
+                "type" : "SCALAR",
+                "max" : [ timebuff.time_max ],
+                "min" : [ timebuff.time_min ]
+                },
+                {
+                "bufferView" : bufferView_index,
+                "byteOffset" : 0,
+                "componentType" : 5126,
+                "count" : lenOfAnimationsTime, #steps+1,
+                "type" : "VEC3",
+                "max" : [ translationbuff.translation_umax, translationbuff.translation_vmax,translationbuff.translation_wmax ],
+                "min" : [ translationbuff.translation_umin,translationbuff.translation_vmin,translationbuff.translation_wmin ]
+                } ]
+            self.mstep_dict['accessors'].append(accessorview[0])
+            self.mstep_dict['accessors'].append(accessorview[1])
+            node_id = mystep+3
+            if lenShapeOrder > 0:
+                self.mstep_dict['nodes'][node_id]['translation']=[ 0.0, 0.0, 0.0 ]
+            else:
+                self.mstep_dict['nodes'][node_id]['translation']=[ -u, -v, -w]
+            sampler = { 
+                "input" : accessor_index,
+                "interpolation" : "LINEAR",
+                "output" : accessor_index+1
+            }
+            samplers.append(sampler)            
+            chanel = {
+                "sampler" : steps-startRange,
+                "target" : {
+                "node" : node_id,
+                "path" : "translation"
+                }
+            }
+            chanels.append(chanel)
+
+        animationchannels = [{
+            "samplers" : samplers,
+            "channels" : chanels
+            }
+        ]
+        self.mstep_dict['animations']=animationchannels
+
+        """ animationbuffer =  {
+            "uri" : "data:application/octet-stream;base64,AAAAAAAAgD4AAAA/AABAPwAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAD0/TQ/9P00PwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAPT9ND/0/TS/AAAAAAAAAAAAAAAAAACAPw==",
+            "byteLength" : 100
+            }
+        animationbufferview = {
+            "buffer" : 1,
+            "byteOffset" : 0,
+            "byteLength" : rotationlen
+            }
+        animationaccessorview = [ {
+            "bufferView" : 2,
+            "byteOffset" : 0,
+            "componentType" : 5126,
+            "count" : 5,
+            "type" : "SCALAR",
+            "max" : [ 1.0 ],
+            "min" : [ 0.0 ]
+            },
+            {
+            "bufferView" : 2,
+            "byteOffset" : 20,
+            "componentType" : 5126,
+            "count" : 5,
+            "type" : "VEC4",
+            "max" : [ 0.0, 0.0, 1.0, 1.0 ],
+            "min" : [ 0.0, 0.0, 0.0, -0.707 ]
+            } ]
+        animationchannels = [{
+            "samplers" : [
+                {
+                "input" : 2,
+                "interpolation" : "LINEAR",
+                "output" : 3
+                }
+            ],
+            "channels" : [ {
+                "sampler" : 0,
+                "target" : {
+                "node" : 2,
+                "path" : "rotation"
+                }
+            } ]
+            }
+        ]
+        buffer_length_current = len(self.mstep_dict['buffers'])        
+        self.mstep_dict['buffers'].append(animationbuffer)
+        bufferView_index = len(self.mstep_dict['bufferViews'])
+        animationbufferview['buffer']=buffer_length_current
+        self.mstep_dict['bufferViews'].append(animationbufferview)
+        accessor_index = len(self.mstep_dict['accessors'])
+        animationaccessorview[0]['bufferView']=bufferView_index
+        animationaccessorview[1]['bufferView']=bufferView_index
+        self.mstep_dict['accessors'].append(animationaccessorview[0])
+        self.mstep_dict['accessors'].append(animationaccessorview[1])
+        animationchannels[0]['samplers'][0]['input']=accessor_index
+        animationchannels[0]['samplers'][0]['output']=accessor_index+1
+        self.mstep_dict['nodes'][2]['rotation']=[ 0.0, 0.0, 0.0, 1.0 ]
+        self.mstep_dict['animations']=animationchannels """
+
+    def addKinematicAnimations(self):
+        if self.kinematicanimation==None:
+            return
+        lenAnimations = len(self.kinematicanimation)
+        
+        if( lenAnimations<=0  ):
+            return
+
+        samplers = []
+        chanels = []
+        
+        startRange = 1  
+        lenShapeOrder = len(self.shapeorder)           
+        for steps in range(1,lenAnimations+1):
+            #print(steps,lenAnimations)
+            lenOfAnimationsTime = steps+1 #or lenAnimations ; it works for both...
+            timebuff = TimeBuffer(
+                max_index=2
+            )  
+            
+            mystep = steps-1
+            if lenShapeOrder > 0:
+                mystep = self.shapeorder[steps-1]  
+            u,v,w,a=self.kinematicanimation[mystep]
+
+            if a==0:
+                translationbuff =TranslationBuffer(
+                    max_index=2
+                )
+            else:
+                rotationbuff =RotationBuffer(
+                    max_index=2
+                )   
+            
+            for istep in range(lenOfAnimationsTime):  
+                timebuff.add_time(istep*self.delay)
+                if a==0:
+                    if istep < steps:                 
+                        translationbuff.add_translation(0,0,0)
+                    else:
+                        translationbuff.add_translation(u,v,w)
+                else:
+                    if istep < steps:                 
+                        translationbuff.add_translation(0,0,0)
+                    else:
+                        my_quaternion = Quaternion(axis=[u, v, w], angle=a)
+                        my_quaternion.normalise()
+                        print("My Quaternion",my_quaternion.q)
+                        rotationbuff.add_rotation(my_quaternion.q)
+                                                 
+            buffer_index = len(self.mstep_dict['buffers'])
+            timelen = len(timebuff)
+            #print(timelen,self.rotateFirst)
+            buffer_dict = {
+                "byteLength":  timelen                                 
+            }   
+            base64data = base64.b64encode(timebuff.read()).decode('ascii')
+            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                mimetype="application/octet-stream",
+                data=base64data,
+            )   
+            self.mstep_dict['buffers'].append(buffer_dict)          
+            bufferView_index = len(self.mstep_dict['bufferViews'])
+            bufferview = {
+                "buffer" : buffer_index,
+                "byteOffset" : 0,
+                "byteLength" : timelen
+            }            
+            self.mstep_dict['bufferViews'].append(bufferview)
+            buffer_index = len(self.mstep_dict['buffers'])
+            translationlen = len(translationbuff)
+            rotationlen = len(rotationbuff)
+            buffer_dict = {
+                "byteLength":  translationlen if a==0 else rotationlen                                   
+            }   
+            if a==0:
+                base64data = base64.b64encode(translationbuff.read()).decode('ascii')
+            else:
+                base64data = base64.b64encode(rotationbuff.read()).decode('ascii')
+            
+            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                mimetype="application/octet-stream",
+                data=base64data,
+            )  
+            self.mstep_dict['buffers'].append(buffer_dict) 
+            bufferView_index = len(self.mstep_dict['bufferViews'])
+            bufferview = {
+                "buffer" : buffer_index,
+                "byteOffset" : 0,
+                "byteLength" : translationlen if a==0 else rotationlen
+            }            
+            self.mstep_dict['bufferViews'].append(bufferview)
+            accessor_index = len(self.mstep_dict['accessors'])
+            accessorview = [ {
+                "bufferView" : bufferView_index-1,
+                "byteOffset" : 0,
+                "componentType" : 5126,
+                "count" : lenOfAnimationsTime, #steps+1,
+                "type" : "SCALAR",
+                "max" : [ timebuff.time_max ],
+                "min" : [ timebuff.time_min ]
+                },
+                {
+                "bufferView" : bufferView_index,
+                "byteOffset" : 0,
+                "componentType" : 5126,
+                "count" : lenOfAnimationsTime, #steps+1,
+                "type" : "VEC3" if a==0 else "VEC4",
+                "max" : [ translationbuff.translation_umax, translationbuff.translation_vmax,translationbuff.translation_wmax ] if a==0 \
+                    else [ rotationbuff.rotation_umax, rotationbuff.rotation_vmax,rotationbuff.rotation_wmax ] ,
+                "min" : [ translationbuff.translation_umin,translationbuff.translation_vmin,translationbuff.translation_wmin ] if a==0 \
+                    else [ rotationbuff.rotation_umin,rotationbuff.rotation_vmin,rotationbuff.rotation_wmin ]
+                } ]
+            self.mstep_dict['accessors'].append(accessorview[0])
+            self.mstep_dict['accessors'].append(accessorview[1])
+            node_id = mystep+3
+            
+            if a==0:
+                self.mstep_dict['nodes'][node_id]['translation']=[ 0.0, 0.0, 0.0 ]
+            else:
+                my_quaternion = Quaternion(axis=[u, v, w], angle=0)
+                my_quaternion.normalise()
+                print("Initial position of rotation",my_quaternion.q)
+                self.mstep_dict['nodes'][node_id]['rotation']=my_quaternion.q
+            
+            sampler = { 
+                "input" : accessor_index,
+                "interpolation" : "LINEAR",
+                "output" : accessor_index+1
+            }
+            samplers.append(sampler)            
+            chanel = {
+                "sampler" : steps-startRange,
+                "target" : {
+                "node" : node_id,
+                "path" : "translation" if a==0 else "rotation"
+                }
+            }
+            chanels.append(chanel)
+
+        animationchannels = [{
+            "samplers" : samplers,
+            "channels" : chanels
+            }
+        ]
+        self.mstep_dict['animations']=animationchannels
+
+        
 
     def write_in_thread(self,dict,imagePNG):
         try:
@@ -2807,7 +2959,7 @@ class StepIgesAnalyser():
             self.getShapes()
         if self.delay != 0:
             self.addAnimations()
-          
+            self.addKinematicAnimations()
         #print("Shapes Len",len(self.animations),len(self.outputShapes))
         #self.mstep_dict['download']=self.tree
         # Write self.mstep_dict to file as JSON string       

@@ -474,8 +474,8 @@ export default function ItemTypeConfiguration(props) {
       myJsonTree = this?.props?.gltfjson?.tree;
     }
     if(myJsonTree) {
-      console.log("Saving",myJsonTree,itemProperties.fileKinetic);
-      saveActuatorInfo(myJsonTree,itemProperties.fileKinetic);
+      console.log("Saving",myJsonTree,itemProperties.fileKinematic);
+      saveActuatorInfo(myJsonTree,itemProperties.fileKinematic);
     }
   
 };
