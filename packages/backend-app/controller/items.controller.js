@@ -117,7 +117,7 @@ exports.getAll = async (req, res) => {
                 fileGDT: itemDetail.fileGDT,
                 fileMPPS: itemDetail.fileMPPS,
                 fileStack: itemDetail.fileStack,
-                fileKinetic: itemDetail.fileKinetic,
+                fileKinematic: itemDetail.fileKinematic,
                 fileId: itemDetail.fileId
             }))
         res.json(itemDetails);
@@ -217,7 +217,7 @@ exports.update = async (req, res) => {
             updateData.fileGDT = body.fileGDT;
             updateData.fileMPPS = body.fileMPPS;
             updateData.fileStack = body.fileStack;
-            updateData.fileKinetic = body.fileKinetic;
+            updateData.fileKinematic = body.fileKinematic;
         }
 
         if ((body.itemGeometry && body.itemGeometry.isEndProductSelected === false) || body.selectedClientId === null) {

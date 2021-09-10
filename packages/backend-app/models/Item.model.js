@@ -72,7 +72,7 @@ const ItemSchema = new mongoose.Schema({
     fileGDT: {type: String},
     fileMPPS:{type: String},
     fileStack:{type: String},
-    fileKinetic:{type: String},
+    fileKinematic:{type: String},
 }, {
     timestamps: true
 });

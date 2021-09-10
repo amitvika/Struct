@@ -114,7 +114,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
                     fileGDT: null,
                     fileMPPS: null,
                     fileStack: null,
-                    fileKinetic:null
+                    fileKinematic:null
                 }));
                 //console.log(itemProperties);
                 const multiAssmebly = get(data, 'tree', []).length > 0;

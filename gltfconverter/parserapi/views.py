@@ -4325,6 +4325,7 @@ def getShapesFromOutPutShapes(shapes,mytree):
     retshapes=[]
     subshapes=[]
     onlyshapes=[]
+    retcoloredshapes=[]
     subshapesStarted = False
     subShapeName = ''
     subShapeColor=None
@@ -4337,6 +4338,14 @@ def getShapesFromOutPutShapes(shapes,mytree):
                 mergedshape,_ =  list_of_shapes_to_compound(subshapes)
                 retshapes.append((mergedshape,subShapeName,subShapeColor))
                 onlyshapes.append(mergedshape)
+                red = 0
+                green = 0
+                blue = 0
+                if subShapeColor:
+                    red = subShapeColor.Red()
+                    green = subShapeColor.Green()
+                    blue = subShapeColor.Blue()
+                retcoloredshapes.append((mergedshape,subShapeName,red,green,blue))
                 subshapes=[]
                 subshapesStarted=False
                 subShapeName=''
@@ -4358,8 +4367,16 @@ def getShapesFromOutPutShapes(shapes,mytree):
         mergedshape,_ =  list_of_shapes_to_compound(subshapes)
         retshapes.append((mergedshape,subShapeName,subShapeColor))   
         onlyshapes.append(mergedshape) 
+        red = 0
+        green = 0
+        blue = 0
+        if subShapeColor:
+            red = subShapeColor.Red()
+            green = subShapeColor.Green()
+            blue = subShapeColor.Blue()
+        retcoloredshapes.append((mergedshape,subShapeName,red,green,blue))
     #print(retshapes,onlyshapes)
-    return (retshapes,onlyshapes,findAssemblyShapeName(1,mytree))
+    return (retshapes,onlyshapes,retcoloredshapes,findAssemblyShapeName(1,mytree))
 
 def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,holescale = 0.8,removegap=1.0,animationtime=1.5):#,thumbwidth,thumbheight):
     """
@@ -4487,7 +4504,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             #return dictionary 
         try:
             dimension, myShapes = outputShapes
-            shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            shapeArray,shape,shapePickles,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             #shape = Wholeshape
             #shapeArray = createShapeArray(shape)
             dictionary = FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap).\
@@ -4509,7 +4526,14 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             with open(orderfile, 'w') as fh:
                 fh.write(json.dumps(dictionary["assemblyorder"], sort_keys=True, indent=2 ))
         except Exception as e:
-            print("Error while writing orderfile",e)   """    
+            print("Error while writing orderfile",e)   """
+        try:
+            picklefile = "Display/"+dictionary["store"]+".pickle"
+            with open(picklefile, 'wb') as f:
+                # Pickle the 'data' dictionary using the highest protocol available.
+                pickle.dump(shapePickles, f, pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            print(e,"File, %s has error" % picklefile)      
         return dictionary
        
        
@@ -4575,7 +4599,7 @@ def FileGetAssemblyOrder(request):
                 print("Error while logging",e)
 
 
-def exportToKineticGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5):#,thumbwidth,thumbheight):
+def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -4633,18 +4657,18 @@ def exportToKineticGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5):#
         
         try:
             _, myShapes = outputShapes
-            shapeArray,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            shapeArray,_,shapePickles,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                edgesize=0, vertexsize=0, kineticorder=[1],delay=animationtime).dump()
+                edgesize=0, vertexsize=0, kinematicanimation=[],shapeorder=[], delay=animationtime).dump()
         except Exception as e:
             print("error",e) 
         try:
             picklefile = "Display/"+dictionary["store"]+".pickle"
             with open(picklefile, 'wb') as f:
                 # Pickle the 'data' dictionary using the highest protocol available.
-                pickle.dump(shapeArray, f, pickle.HIGHEST_PROTOCOL)
+                pickle.dump(shapePickles, f, pickle.HIGHEST_PROTOCOL)
         except Exception as e:
             print(e,"File, %s has error" % picklefile)          
         return dictionary
@@ -4657,7 +4681,7 @@ def exportToKineticGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5):#
 
 
 @api_view(['GET'])
-def FileGetKineticOrder(request):
+def FileGetKinematicAnimation(request):
     try:
         try:
             logging.info(request)
@@ -4673,11 +4697,11 @@ def FileGetKineticOrder(request):
             if is_number(id) :            
                 files = File.objects.filter(id__icontains=id)
                 for eachfile in files:               
-                    data = exportToKineticGLTF("Media/"+eachfile.file.name,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
+                    data = exportTokinematicGLTF("Media/"+eachfile.file.name,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
             else:
                 id = request.GET.get('file', None)
                 if id is not None:
-                    data = exportToKineticGLTF("Media/"+id,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
+                    data = exportTokinematicGLTF("Media/"+id,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False)    
     except Exception as e:
         try:
@@ -4724,7 +4748,16 @@ def FileSaveTree(request):
                 with open(treefile, 'w') as fh:
                     fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
             except Exception as e:
-                print("Error while writing stackfile",e)      
+                print("Error while writing stackfile",e)  
+        try:
+
+            with open("Display/"+name+".pickle", 'rb') as f:
+                # The protocol version used is detected automatically, so we do not
+                # have to specify it.
+                colorShapeArray = pickle.load(f)
+            
+        except Exception as e:
+            print("Error while loading",name,e)       
         return JsonResponse(structArray, safe=False)
     except Exception as e:
         try:
