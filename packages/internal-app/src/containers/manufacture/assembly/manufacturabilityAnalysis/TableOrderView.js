@@ -18,9 +18,7 @@ const styles = (theme) => ({
     boxSizing: 'border-box',
     borderSpacing: 0
   },
-  table: {
-    // temporary right-to-left patch, waiting for
-    // https://github.com/bvaughn/react-virtualized/issues/454
+  table: {    
     '& .ReactVirtualized__Table__headerRow': {
       flip: false,
       paddingRight: theme.direction === 'rtl' ? '0 !important' : undefined,

@@ -55,7 +55,7 @@ let state_selectedObjects = [];
 //let filteredList = [];
 export default function ManufacturabilityAnalysis(props) {
   const { fileId, gltfjson, isLoading } = props;
-  const [list, setList] = useState([]);
+  //const [list, setList] = useState([]);
   const [isFileLoading, setIsLoading] = useState(isLoading);
   //const [filteredList, setFilteredList] = useState([]);
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
@@ -355,7 +355,7 @@ export default function ManufacturabilityAnalysis(props) {
       let myTree = { ...state.gltfjson };
       for (let index = 0; index < myTree.tree.length; index++) {
         const element = myTree.tree[index];
-        element.selectedshell = (index == curData);
+        element.selectedshell = (index == curData) && setoption;
       }
       console.log("About to set", myTree);
       setState({ gltfjson: myTree });
@@ -433,6 +433,8 @@ export default function ManufacturabilityAnalysis(props) {
 
 
     //console.log("outside SELECTMEASURE",data);
+    var copy_selectobjects = [];
+
     if (data) {
       console.log(data);
       var toAdd = true;
@@ -446,8 +448,7 @@ export default function ManufacturabilityAnalysis(props) {
         console.log("Set Ctrk Key");
       }
 
-      var copy_selectobjects = [];
-
+      
       var stateLength = 0;
       if (!toAdd) {
         console.log("Not to add", data, state_selectedObjects);
@@ -540,6 +541,16 @@ export default function ManufacturabilityAnalysis(props) {
            //mates: copy_mateobjects
        });  */
 
+    } else {
+      state_selectedObjects.forEach(element => {
+        
+        console.log("before set sel", element);
+        element.selectedshell = false;
+        setSelectedShellForce(element, false);
+        console.log("after set sel", element);
+       
+      });
+      state_selectedObjects = arrayCopy(copy_selectobjects);
     }
     //setResetMe(true);
     //getTable(state.gltfjson);
@@ -549,17 +560,21 @@ export default function ManufacturabilityAnalysis(props) {
   const handleModelClick = (data, what, event) => {
     console.log(data, what, event);
     if (what == SELECTDISTANCE) {
-      console.log(data);
-      const mymesh = findMyMaterial(data);
-      if (mymesh) {
-        mymesh.selectedshell = data.selectedshell;
-        setSelectedShell(mymesh, data.selectedshell);
-        console.log("Doing mymesh", mymesh, state_selectedObjects);
-        return changeStateOfSelection(mymesh, event);
+      if(data) {
+        console.log(data);
+        const mymesh = findMyMaterial(data);
+        if (mymesh) {
+          mymesh.selectedshell = data.selectedshell;
+          setSelectedShell(mymesh, data.selectedshell);
+          console.log("Doing mymesh", mymesh, state_selectedObjects);
+          return changeStateOfSelection(mymesh, event);
+        } else {
+          console.log("No Mesh", mymesh, data);
+        }
       } else {
-        console.log("No Mesh", mymesh, data);
+        console.log("Resetting",data);
+        return changeStateOfSelection(data, event);
       }
-
       if (event && (event.ctrlKey != ctrlKey)) {
         //console.log(event.ctrlKey);
         setCtrlKey(ctrlKey, event.ctrlKey);

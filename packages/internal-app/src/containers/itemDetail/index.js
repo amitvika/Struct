@@ -31,8 +31,8 @@ import { setCurrentItemAction } from '../../actions/itemActions'
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks'
 import './style.css'
-import {getPartsStackableInfo, getPartsAssemblyOrder, getHierarchySplitFiles, getAFileFromStore, 
-    getGltfForStore, getTreeForStore, resourcePathURL } from '@ravibasil/common/api/fileUpload.api'
+import {getPartsStackableInfo, getPartsAssemblyOrder, getPartsKineticOrder, getHierarchySplitFiles, 
+    getAFileFromStore, getGltfForStore, getTreeForStore, resourcePathURL } from '@ravibasil/common/api/fileUpload.api'
 import LoadingModal from "@ravibasil/common/components/LoadingModal";
 
 const DEFAULTDISTANCEGAP = 0.1;
@@ -154,7 +154,7 @@ const ItemDetail = () => {
                     const multiAssmebly = get(repos, 'tree', []).length > 0;
                     const stack = repos['store'];
                     item.fileStack= stack;
-                    setgltfjson({ ...repos, mpps:item.fileMPPS, store:item.fileStore, stack:stack,
+                    setgltfjson({ ...repos, kinetic:item.fileKinetic, mpps:item.fileMPPS, store:item.fileStore, stack:stack,
                             gdt: item.fileGDT, multiAssmebly: multiAssmebly });
                     setItemProperties(prevData => ({
                         ...prevData,
@@ -168,7 +168,7 @@ const ItemDetail = () => {
         }
         else {
             //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
-            fetchGLTFAndTree("stack", item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack);
+            fetchGLTFAndTree("stack", item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack, item.fileKinetic);
         }
            
     };
@@ -203,7 +203,7 @@ const ItemDetail = () => {
                     const multiAssmebly = get(repos, 'tree', []).length > 0;
                     const mpps = repos['store'];
                     item.fileMPPS= mpps;
-                    setgltfjson({ ...repos, mpps:mpps, store:item.fileStore, stack:item.fileStack,
+                    setgltfjson({ ...repos, kinetic:item.fileKinetic, mpps:mpps, store:item.fileStore, stack:item.fileStack,
                             gdt: item.fileGDT, multiAssmebly: multiAssmebly });
                     setItemProperties(prevData => ({
                         ...prevData,
@@ -218,7 +218,7 @@ const ItemDetail = () => {
         }
         else {
             //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
-            fetchGLTFAndTree("mpps", item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack);
+            fetchGLTFAndTree("mpps", item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack, item.fileKinetic);
         }
     };
     const setGLTFAndTree = (item, myTabIndex) => {
@@ -228,37 +228,37 @@ const ItemDetail = () => {
                 setIsLoading(false);
                 return;
             }
-            if (myTabIndex == "mpps") {
-                if (!item.fileMPPS || item.fileMPPS === null) {
+            if (myTabIndex == "iupc") {
+                console.log("Checking iupc",myTabIndex,item);
+                if (!item.fileKinetic || item.fileKinetic === null) {
                     console.log("Checking Store", item.fileStore);
                     if (item.fileStore && item.fileStore.length > 0) {
-                        const fileMPPS = item.fileStore.slice(0, item.fileStore.length - 1) + "M0";
-                        console.log("Checking MPPS", fileMPPS);
-                        if (doesFileExist(resourcePathURL + fileMPPS + ".gltf")) {
-                            console.log("Found", fileMPPS);
-                            item.fileMPPS = fileMPPS;
+                        const fileKinetic = item.fileStore.slice(0, item.fileStore.length - 1) + "K0";
+                        console.log("Checking Kinetic", fileKinetic);
+                        if (doesFileExist(resourcePathURL + fileKinetic + ".gltf")) {
+                            console.log("Found", fileKinetic);
+                            item.fileKinetic = fileKinetic;
                         } else {
-                            console.log("GDT Not Found", fileMPPS);
+                            console.log("Kinetic Not Found", fileKinetic);
                         }
                     } else {
                         console.log("Store Not Found", item.fileStore);
                     }
                 }
-                if (!item.fileMPPS || item.fileMPPS === null) {
-                    console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+                if (!item.fileKinetic || item.fileKinetic === null) {
+                    console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileKinetic,item.fileId);
                     setIsLoading(true);
-                    getPartsAssemblyOrder(item.fileId, stateprops.distancegap, stateprops.anglegap,stateprops.explodegap, 
-                        stateprops.fromcenter,stateprops.holescale,stateprops.removegap,stateprops.animationtime)
+                    getPartsKineticOrder(item.fileId, stateprops.distancegap, stateprops.anglegap, stateprops.animationtime)
                         .then(res => res.data)
                         .then((repos) => {
                             const multiAssmebly = get(repos, 'tree', []).length > 0;
-                            const mpps = repos['store'];
-                            item.fileMPPS= mpps;
-                            setgltfjson({ ...repos, mpps:mpps, store:item.fileStore, stack:item.fileStack,
+                            const kinetic = repos['store'];
+                            item.fileKinetic= kinetic;
+                            setgltfjson({ ...repos, kinetic:kinetic, mpps:item.fileMPPS, store:item.fileStore, stack:item.fileStack,
                                  gdt: item.fileGDT, multiAssmebly: multiAssmebly });
                             setItemProperties(prevData => ({
                                 ...prevData,
-                                fileMPPS: mpps
+                                fileKinetic: kinetic
                             }));
                             setIsLoading(false);
                         }).catch(err => {
@@ -268,7 +268,7 @@ const ItemDetail = () => {
                 }
                 else {
                     //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
-                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack);
+                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack, item.fileKinetic);
                 }
             } else if (myTabIndex == "pdcu") {
                 if (!item.fileStore || item.fileStore === null) {
@@ -281,10 +281,10 @@ const ItemDetail = () => {
                             const multiAssmebly = get(repos, 'tree', []).length > 0;
                             const store = repos['store'];
                             item.fileStore = store;
-                            console.log("Fetching Data",{ ...repos, mpps:item.fileMPPS, stack:item.fileStack, gdt: item.fileGDT, multiAssmebly: multiAssmebly });
-                            
- 
-                            setgltfjson({ ...repos, mpps:item.fileMPPS, stack:item.fileStack, gdt: item.fileGDT, multiAssmebly: multiAssmebly });
+                            console.log("Fetching Data",{ ...repos, kinetic:item.fileKinetic, mpps:item.fileMPPS, stack:item.fileStack, 
+                                gdt: item.fileGDT, multiAssmebly: multiAssmebly });
+                            setgltfjson({ ...repos, kinetic:item.fileKinetic, mpps:item.fileMPPS, stack:item.fileStack, 
+                                gdt: item.fileGDT, multiAssmebly: multiAssmebly });
                             setItemProperties(prevData => ({
                                 ...prevData,
                                 fileStore: store
@@ -297,7 +297,7 @@ const ItemDetail = () => {
                 }
                 else {
                     //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
-                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack);
+                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack, item.fileKinetic);
                 }
             } else {
                 if (!item.fileGDT || item.fileGDT === null) {
@@ -326,9 +326,10 @@ const ItemDetail = () => {
                         .then((repos) => {
                             const gdt = repos['store'];
                             item.fileGDT = gdt;
-                            console.log("Fetching Data",{ ...repos, mpps:item.fileMPPS, stack:item.fileStack, gdt: gdt, store: item.fileStore });
+                            console.log("Fetching Data",{ ...repos,kinetic:item.fileKinetic, mpps:item.fileMPPS, stack:item.fileStack, 
+                                gdt: gdt, store: item.fileStore });
                             
-                            setgltfjson({ ...repos, mpps:item.fileMPPS, stack:item.fileStack, gdt: gdt, store: item.fileStore });
+                            setgltfjson({ ...repos,kinetic:item.fileKinetic, mpps:item.fileMPPS, stack:item.fileStack, gdt: gdt, store: item.fileStore });
                             //console.log("After getting reposi",repos, {...repos,gdt:gdt,store:item.fileStore},isLoading);
                             setItemProperties(prevData => ({
                                 ...prevData,
@@ -344,7 +345,7 @@ const ItemDetail = () => {
                 }
                 else {
                     //console.log("Down1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
-                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack);
+                    fetchGLTFAndTree(myTabIndex, item.fileStore, item.fileGDT, item.fileMPPS, item.fileStack, item.fileKinetic);
                 }
             }
         } else {
@@ -357,9 +358,9 @@ const ItemDetail = () => {
         console.log("---", id)
         event.stopPropagation();
     }
-    const fetchGLTFAndTree = async (myTabIndex, fileStore, fileGDT, fileMPPS, fileStack) => {
+    const fetchGLTFAndTree = async (myTabIndex, fileStore, fileGDT, fileMPPS, fileStack, fileKinetic) => {
         try {
-            let obj = { gltf: {}, tree: {}, store: fileStore, gdt: fileGDT, mpps: fileMPPS, stack:fileStack };
+            let obj = { gltf: {}, tree: {}, store: fileStore, gdt: fileGDT, mpps: fileMPPS, stack:fileStack, kinetic:fileKinetic };
             setIsLoading(true);
             let whichOneToLoad=null;
             if (myTabIndex == "pdcu") {
@@ -368,9 +369,13 @@ const ItemDetail = () => {
                 whichOneToLoad = fileMPPS;
             } else if(myTabIndex=="stack") {
                 whichOneToLoad = fileStack;
+            } else if(myTabIndex=="iupc") {
+                whichOneToLoad = fileKinetic;
             } else {
                 whichOneToLoad = fileGDT;
             }  
+            console.log("Checking",myTabIndex,whichOneToLoad,"FileStore",fileStore,
+                "fileMPPS",fileMPPS,"fileStack",fileStack,"fileKinetic",fileKinetic,"fileGDT",fileGDT);
             const gltfRes = await getGltfForStore(whichOneToLoad);
             const treeRes = await getTreeForStore(whichOneToLoad);
             let stackRes = {data:null};
@@ -457,12 +462,16 @@ const ItemDetail = () => {
                     tabIndex={tabIndex}
                 />
             case "iupc":
+                console.log("IUPC",itemProperties,gltfjson);
                 return <ItemTypeConfigurations
                     itemId={id}
+                    fileId={itemProperties.fileId}
                     itemProperties={itemProperties}
                     setItemProperties={setItemProperties}
                     gltfjson={gltfjson}
-                    setgltfjson={setgltfjson} />
+                    setgltfjson={setgltfjson}
+                    isLoading={isLoading} 
+                     />
             case 5:
                 return <VendorDetails />
             case "mpps":
@@ -557,8 +566,9 @@ const ItemDetail = () => {
         let tabP = []
         Object.keys(tabList).forEach((key, index) => {
             tabP.push(
-                <Tab label={`${index + 1}. ${tabList[key]}`} value={key} style={{ textAlign: 'left' }} />)
+                <Tab label={`${index + 1}. ${tabList[key]}`} value={key} key={key} style={{ textAlign: 'left' }} />)
         })
+        console.log(tabP)
         return tabP
     }
 

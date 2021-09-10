@@ -712,7 +712,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   const changeStateOfSelection = async (data, event) => {
     mapdata = {}
     //console.log("Data for shapeinfo",data,selectedOption,event);
-
+    console.log("Reaching here after clicking",event);
     if (selectedOption == SELECTMEASURE) {
       //console.log("Inside SELECTMEASURE",data);
       if (data.selectedshell) {
@@ -785,6 +785,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
       }
     } else {
       //console.log("outside SELECTMEASURE",data);
+      var copy_selectobjects = [];
+      var copy_parentobjects = [];
+      var copy_mateobjects = [];
       if (data) {
         //console.log(data);
         var toAdd = true;
@@ -795,9 +798,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         if (event && (event.ctrlKey != ctrlKey)) {
           setCtrlKey(event.ctrlKey);
         }
-        var copy_selectobjects = [];
-        var copy_parentobjects = [];
-        var copy_mateobjects = [];
+       
         var stateLength = 0;
         if (!toAdd) {
           state.selectedObjects.forEach(element => {
@@ -947,28 +948,45 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         }
 
 
+      } else {
+        console.log("I am reaching here to reset selections");
+        state.selectedObjects.forEach(element => {          
+          element.selectedshell = false;
+          setSelectedShell(element, false);       
+        });
+        setState({
+          selectedObjects: copy_selectobjects,
+          mates: copy_mateobjects
+        });
+        setState({ parentObjects: [] });
       }
     }
     //console.log("Finally my state tree",state.gltfjson.tree);
   }
 
   const handleModelClick = (data, what, event) => {
-    console.log(data, what, event);
+    console.log("From Handle Model Click",data, what, event);
     if (what == SELECTDISTANCE) {
-      console.log(data);
-      const mymesh = findMyMaterial(data);
-      if (mymesh) {
-        mymesh.selectedshell = data.selectedshell;
-        setSelectedShell(mymesh, data.selectedshell);
-        return changeStateOfSelection(mymesh, event);
+      if(data) {
+        console.log(data);
+        const mymesh = findMyMaterial(data);
+        if (mymesh) {
+          mymesh.selectedshell = data.selectedshell;
+          setSelectedShell(mymesh, data.selectedshell);
+          return changeStateOfSelection(mymesh, event);
+        } else {
+          console.log("No Mesh", mymesh, data);
+        }  
+       
       } else {
-        console.log("No Mesh", mymesh, data);
+        console.log("Resetting",data);
+        return changeStateOfSelection(data, event);
       }
-
       if (event && (event.ctrlKey != ctrlKey)) {
         //console.log(event.ctrlKey);
         setCtrlKey(ctrlKey, event.ctrlKey);
       }
+      
     }
     return null;
   }

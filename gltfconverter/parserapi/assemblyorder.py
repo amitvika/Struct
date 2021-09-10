@@ -16,7 +16,7 @@ def swap(a, b):
 
 class FindAssemblingOrder(object):
     
-    def __init__(self, shapeColorArray,shapeArray,name,dimension,explodegap=10.0,center=True,holescale=0.8,removegap=1.0):
+    def __init__(self, shapeColorArray,shapeArray,name,dimension,explodegap=10.0,center=True,holescale=0.8,removegap=1.0,logging=None):
         
         self.shapeArray = shapeArray 
         self.shapeColorArray = shapeColorArray 
@@ -24,7 +24,8 @@ class FindAssemblingOrder(object):
         self.dimension = dimension 
         self.explodegap = explodegap 
         self.center = center 
-        self.holescale = holescale     
+        self.holescale = holescale   
+        self.logging = logging  
         if holescale <= 0:
             self.holescale=1.0
         if self.holescale < 1.0 :
@@ -65,7 +66,7 @@ class FindAssemblingOrder(object):
             return  myShapeCommon, myShapeDimension, False
         return scaledShape, scaledDimension, True
 
-    def checkAnyHole(self, myShapeOuter,myShapeInner,debugMe=False):
+    def checkAnyHole(self, myShapeOuter,myShapeInner,toBeScaled,debugMe=False):
         try:
             myShapeCommon = BRepAlgoAPI_Common(myShapeOuter,myShapeInner).Shape()
         except Exception as e:
@@ -84,7 +85,7 @@ class FindAssemblingOrder(object):
             return True, None     
         #print("Reached here3")
         myShapeDimension = get_bounding_details(myShapeOuter)
-        scaledShape, _ , scaledHere =self.scaleMyPart(myShapeCommon,myShapeDimension,self.holescale)
+        scaledShape, _ , scaledHere =self.scaleMyPart(myShapeCommon,myShapeDimension,toBeScaled)
         """ try:
             scaleInnerShape = scale_shape(myShapeCommon, self.holescale, self.holescale, self.holescale)
         except Exception as e:
@@ -124,10 +125,10 @@ class FindAssemblingOrder(object):
             #    print("Error in tesselation", e)
             tessellatable=True
             if tessellatable:
-                print("No Holes between these objects with dimension",myHoleDimension)
+                print("No Holes between these objects with dimension",myHoleDimension,myShapeDimension)
                 return False, myShapeHole
             else:
-                print("Not tessellatable Holes between these objects with dimension",myHoleDimension)
+                print("Not tessellatable Holes between these objects with dimension",myHoleDimension,myShapeDimension)
                 return True, myShapeHole
     
     def checkScaledHole(self, myShapeOuter, myShapeOriginal, myShapeInner, debugMe=False):
@@ -272,7 +273,7 @@ class FindAssemblingOrder(object):
             except:
                 print(e,"Some Exceptions") 
    
-    def checkCommonHoleInDirection(self, myShapeOuter,myOuterDimension, myShapeInner,myInnerDimension, direction, debugMe=False):
+    def checkCommonHoleInDirection(self, myShapeOuter,myOuterDimension, myShapeInner,myInnerDimension, direction, toBeScaled, debugMe=False):
         #return True, None
         
         #dirX, dirY, dirZ = direction
@@ -311,13 +312,13 @@ class FindAssemblingOrder(object):
                     #print("Reached here1a")
                     tranShape = translate_shp(myShapeOuter,0,0,zminn,True)   
                     #print("Reached here1b") 
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe)                 
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)                 
                 while ( (holeFound==True) and ( (zminn+zmino) <= zmaxc) ):
                     zminn += self.removegap
                     #print("Reached here1c") 
                     tranShape = translate_shp(myShapeOuter,0,0,zminn,True) 
                     #print("Reached here1d") 
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe) 
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
                     #print("Reached here1e")
                     myCount += 1
                     if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
@@ -364,13 +365,13 @@ class FindAssemblingOrder(object):
                     #print("Reached here2a")
                     tranShape = translate_shp(myShapeOuter,0,0,zmaxn,True)   
                     #print("Reached here2b") 
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe)      
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)       
                 while ( (holeFound==True) and ( (zmaxn+zmaxo) >= zminc) ):
                     zmaxn -= self.removegap
                     #print("Reached here2c")
                     tranShape = translate_shp(myShapeOuter,0,0,zmaxn,True)   
                     #print("Reached here2d") 
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe)
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
                     #print("Reached here2e") 
                     myCount += 1
                     if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
@@ -417,13 +418,13 @@ class FindAssemblingOrder(object):
                     #print("Reached here3a") 
                     tranShape = translate_shp(myShapeOuter,xminn,0,0,True)
                     #print("Reached here3b")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe)                 
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)                
                 while ( (holeFound==True) and ( (xminn+xmino) <= xmaxc) ):
                     xminn += self.removegap
                     #print("Reached here3c")
                     tranShape = translate_shp(myShapeOuter,xminn,0,0,True)
                     #print("Reached here3d")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe)
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
                     #print("Reached here3e") 
                     myCount += 1
                     if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
@@ -471,13 +472,13 @@ class FindAssemblingOrder(object):
                     #print("Reached here4a") 
                     tranShape = translate_shp(myShapeOuter,xmaxn,0,0,True)
                     #print("Reached here4b")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe)      
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)    
                 while ( (holeFound==True) and ( (xmaxn+xmaxo) >= xminc) ):
                     xmaxn -= self.removegap
                     #print("Reached here4c")
                     tranShape = translate_shp(myShapeOuter,xmaxn,0,0,True)
                     #print("Reached here4d")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe)
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
                     #print("Reached here4e") 
                     myCount += 1
                     if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
@@ -525,13 +526,13 @@ class FindAssemblingOrder(object):
                     #print("Reached here5a") 
                     tranShape = translate_shp(myShapeOuter,0,yminn,0,True)
                     #print("Reached here5b")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe)                 
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)                
                 while ( (holeFound==True) and ( (yminn+ymino) <= ymaxc) ):
                     yminn += self.removegap
                     #print("Reached here5c")
                     tranShape = translate_shp(myShapeOuter,0,yminn,0,True)
                     #print("Reached here5d")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe)
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
                     #print("Reached here5e") 
                     myCount += 1
                     if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
@@ -578,13 +579,13 @@ class FindAssemblingOrder(object):
                     #print("Reached here6a") 
                     tranShape = translate_shp(myShapeOuter,0,ymaxn,0,True)
                     #print("Reached here6b")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe)      
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)      
                 while ( (holeFound==True) and ( (ymaxn+ymaxo) >= yminc) ):
                     ymaxn -= self.removegap
                     #print("Reached here6c")
                     tranShape = translate_shp(myShapeOuter,0,ymaxn,0,True)
                     #print("Reached here6d")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,debugMe) 
+                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
                     #print("Reached here6e")
                     myCount += 1
                     if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
@@ -991,16 +992,16 @@ class FindAssemblingOrder(object):
                 return False                    
         return False
         
-    def checkCommonHole(self,orderpos,orderlast,debugMe=False):
+    def checkCommonHole(self,orderpos,orderlast,toBeScaled,myGuessDirections,debugMe=False):
         #return True, None
         myShapeOuter=self.shapesArray[self.shapeorder[orderpos]]
         myOuterDimension = self.shapesdimension[orderpos]
         #myScaledShapeOuter, myScaledShapeDimension = self.scaledshapes[self.shapeorder[orderpos]]
-        lenDirections = len(self.sixdirections)
+        lenDirections = len(myGuessDirections)
         
         for i in range(0,lenDirections):
-            direction,_ = self.sixdirections[i]
-            allPartsHoleFound=True
+            (direction,_),_ = myGuessDirections[i]
+            #allPartsHoleFound=True
             myShapes = []
             for iPos in range(len(self.shapesArray)-orderlast+1):                
                 if (iPos!=orderpos):
@@ -1012,7 +1013,7 @@ class FindAssemblingOrder(object):
                     else:
                         if debugMe:
                             print("Not Adding to Find Collisions",iPos,self.shapeorder[iPos],"For",orderpos,self.shapeorder[orderpos],"In",direction, "At pass",orderlast)
-                                 
+                                
             if(len(myShapes)==0):
                 return True, direction 
             if(len(myShapes)==1):
@@ -1021,9 +1022,9 @@ class FindAssemblingOrder(object):
                 myShapeInner,_ = list_of_shapes_to_compound(myShapes)
             myInnerDimension = get_bounding_details(myShapeInner)
             holeFound, result =  self.checkCommonHoleInDirection(myShapeOuter,myOuterDimension, myShapeInner,myInnerDimension,\
-                direction,debugMe)
+                direction,toBeScaled,debugMe)
             if debugMe:
-                print("Found Holes :",holeFound,result,direction,orderpos,self.shapeorder[orderpos],"In",direction, "At pass",orderlast)
+                print("Found Holes :",holeFound,result,direction,orderpos,self.shapeorder[orderpos],"In",direction, "At pass",orderlast,toBeScaled)
             if holeFound==True:
                 return True, direction
             """ for iPos in range(len(self.shapesArray)-orderlast+1):  
@@ -1036,7 +1037,7 @@ class FindAssemblingOrder(object):
                             if debugMe:
                                 print("Checking Collision with",iPos,self.shapeorder[iPos],"For",orderpos,self.shapeorder[orderpos],"In",direction, "At pass",orderlast)
                             holeFound, result =  self.checkCommonHoleInDirection(myShapeOuter,myOuterDimension,\
-                               self.shapesArray[self.shapeorder[iPos]],myInnerDimension,direction,debugMe)
+                            self.shapesArray[self.shapeorder[iPos]],myInnerDimension,direction,debugMe)
                             if debugMe:
                                 print(result,direction,holeFound)
                             self.cacheCollisionBetweenParts[i][self.shapeorder[orderpos]][self.shapeorder[iPos]]=holeFound
@@ -1063,17 +1064,17 @@ class FindAssemblingOrder(object):
                     print("Found only Holes in",orderpos,self.shapeorder[orderpos],"In",direction, "At pass",orderlast)
                 return True, direction 
             """
-        if debugMe:
-            print("No Holes found in all directions","For",orderpos,self.shapeorder[orderpos],"In",direction, "At pass",orderlast)
-        """ for i in range(0,lenDirections-1):           
-            for j in range(0,lenDirections-1-i):
-                _,length1 = directions[j+1]
-                _,length = directions[j]
-                if(length > length1) :
-                    directions[j+1], directions[j] = swap(directions[j+1],directions[j])
-        if debugMe:
-            print(directions) 
-        result, _ = directions[0] """
+            if debugMe:
+                print("No Holes found in all directions","For",orderpos,self.shapeorder[orderpos],"In",direction, "At pass",orderlast, toBeScaled)
+            """ for i in range(0,lenDirections-1):           
+                for j in range(0,lenDirections-1-i):
+                    _,length1 = directions[j+1]
+                    _,length = directions[j]
+                    if(length > length1) :
+                        directions[j+1], directions[j] = swap(directions[j+1],directions[j])
+            if debugMe:
+                print(directions) 
+            result, _ = directions[0] """
         return False, (0,0,0)
     
     def InitExplodeParts(self,debugMe=False):
@@ -1137,6 +1138,7 @@ class FindAssemblingOrder(object):
                     firstTime = False
                 else:
                     self.moveArrays.append((0, 0, 0))
+        print(self.dimension,get_bounding_details(fullShape))
         for i  in range(lenShape):
             (aShape,aName,aColor) = self.shapesColorArray[i]
             xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
@@ -1180,7 +1182,7 @@ class FindAssemblingOrder(object):
         dictionary={}
         try:
             (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=self.newShapes,includeparts=False,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=self.newShapes,includeparts=False,distancegap=distancegap,logging=self.logging,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,writethread=False,
                     edgesize=0, vertexsize=0, animations=self.moveArrays,shapeorder=self.shapeorder,delay=animationtime).dump()
             dictionary['assemblyorder']={   "order":self.shapeorder,
@@ -1199,7 +1201,34 @@ class FindAssemblingOrder(object):
                 print("Error while writing orderfile",e) 
         return dictionary
 
+    def guessDirections(self,checkingDimension,fullDimension,debugMe=False):
+        xmin, ymin, zmin, xmax, ymax, zmax = fullDimension
+        xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = checkingDimension
+        myDirections=[]       
+        myDirections.append((self.sixdirections[0],zmax-zmaxs))
+        myDirections.append((self.sixdirections[1],zmins-zmin))
+        myDirections.append((self.sixdirections[2],ymax-ymaxs))
+        myDirections.append((self.sixdirections[3],ymins-ymin))
+        myDirections.append((self.sixdirections[4],xmax-xmaxs))
+        myDirections.append((self.sixdirections[5],xmins-xmin))
+        lenDirections = len(myDirections)
+        if debugMe:
+            print("Before Guess",myDirections,checkingDimension,fullDimension)
+        for i in range(0,lenDirections-1):           
+            for j in range(0,lenDirections-1-i):
+                _,length1 = myDirections[j+1]
+                _,length = myDirections[j]
+                if(length > length1) :
+                    myDirections[j+1], myDirections[j] = swap(myDirections[j+1],myDirections[j])
+        if debugMe:
+            print("After Guess",myDirections)
+        return myDirections
     def threadAssembling(self,sourceFileName,distancegap,anglegap,animationtime,starttime,debugMe):
+        try:
+            if self.logging != None and self.byThread:
+                self.logging.info("Started thread assembling") 
+        except Exception as e:
+            print("Error while logging",e)
         if(self.center):    
             
             
@@ -1207,8 +1236,24 @@ class FindAssemblingOrder(object):
             
 
             lenShape = len(self.shapeArray)
+            Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.shapesdimension[0] 
+            for i in range(1,lenShape):
+                xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesdimension[i]
+                if(xmins < Xxmin):
+                    Xxmin = xmins
+                if(ymins < Yymin):
+                    Yymin = ymins
+                if(zmins < Zzmin):
+                    Zzmin = zmins
+                if(xmaxs > Xxmax):
+                    Xxmax = xmaxs
+                if(ymaxs > Yymax):
+                    Yymax = ymaxs
+                if(zmaxs > Zzmax):
+                    Zzmax = zmaxs
             k = 1
             commonObjects=[]
+            #Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.dimension
             while k < lenShape:
                 currenttime = datetime.now()
                 timingdelta = currenttime-previoustime
@@ -1230,39 +1275,52 @@ class FindAssemblingOrder(object):
                                 self.shapesdimension[j+1], self.shapesdimension[j] = swap(self.shapesdimension[j+1], self.shapesdimension[j])
                 enclosed = False
                 myDirectionAtZero=(0,0,0)
-                for i in range(0,lenShape-k+1):                
-                    j=lenShape-k-i
-                    debugMe = True # k==1 and i==0 #True #k==1 and i==4 #True #(k==3) and (i==0) #True #shapeorder[j]==2 or shapeorder[j]==3
-                    if debugMe:
-                        print(k,j,self.shapeorder[j],self.shapeorder)
-                    #myExcludeCompound = excluded_list_of_shapes_to_compound(shapesArray,shapeorder,j,k,False)
-                    #myExcludeDimension = get_bounding_details(myExcludeCompound)
-                    #print("My Shape TOl, Gap Tol",shapeTol,gapTol)
-                    myCommonCompound,myHoles=None,None
-                    #enclosed,_,myDirection, myCommonCompound,myHoles = isRemovable(shape[shapeorder[j]],shapesdim[j],myExcludeCompound,myExcludeDimension,shapeTol,gapTol,debugMe)
-                    enclosed,myDirection = self.checkCommonHole(j,k,debugMe) 
-                    #print(k,i,j,shapeorder[j],enclosed,myExcludeDimension,lenShape-k)
-                    if myDirectionAtZero==(0,0,0):
-                        myDirectionAtZero=myDirection
-                    if (enclosed):
-                        self.shapesdirection[self.shapeorder[j]]=myDirection
-                        if(myCommonCompound!=None and debugMe ):
-                            commonObjects.append((myCommonCompound,self.shapeorder[j], myHoles))
-                        if (j!=(lenShape-k)):
-                            j1=lenShape-k
-                            self.shapeorder[j1], self.shapeorder[j] = swap(self.shapeorder[j1], self.shapeorder[j])                
-                            self.shapesmove[j1], self.shapesmove[j] = swap(self.shapesmove[j1], self.shapesmove[j])
-                            self.shapesdistance[j1], self.shapesdistance[j] = swap(self.shapesdistance[j1], self.shapesdistance[j])
-                            self.shapesvolume[j1], self.shapesvolume[j] = swap(self.shapesvolume[j1], self.shapesvolume[j])
-                            self.shapesdimension[j1], self.shapesdimension[j] = swap(self.shapesdimension[j1], self.shapesdimension[j])                    
-                        print(k,i,j,self.shapeorder[lenShape-k],enclosed,myDirection,lenShape-k)
-                        break
+                
+                for holesize in range(0,2):
+                    if holesize == 0:
+                        toBeScaled = self.holescale
                     else:
-                        #if debugMe:
-                        print(k,i,j,self.shapeorder[j],enclosed,lenShape-k)
-                        if(myCommonCompound!=None and debugMe):
-                            commonObjects.append((myCommonCompound,self.shapeorder[j],myHoles))
-                        
+                        toBeScaled = self.holescale / 1.1
+                    for i in range(0,lenShape-k+1):                
+                        j=lenShape-k-i
+                        debugMe = True # k==1 and i==0 #True #k==1 and i==4 #True #(k==3) and (i==0) #True #shapeorder[j]==2 or shapeorder[j]==3
+                        if debugMe:
+                            print(k,j,self.shapeorder[j],self.shapeorder,toBeScaled,currenttime,self.dimension,(Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax))
+                        myGuessDirections = self.guessDirections(self.shapesdimension[j], (Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax),debugMe)
+                        #myExcludeCompound = excluded_list_of_shapes_to_compound(shapesArray,shapeorder,j,k,False)
+                        #myExcludeDimension = get_bounding_details(myExcludeCompound)
+                        #print("My Shape TOl, Gap Tol",shapeTol,gapTol)
+                        myCommonCompound,myHoles=None,None
+                        #enclosed,_,myDirection, myCommonCompound,myHoles = isRemovable(shape[shapeorder[j]],shapesdim[j],myExcludeCompound,myExcludeDimension,shapeTol,gapTol,debugMe)
+                        enclosed,myDirection = self.checkCommonHole(j,k,toBeScaled,myGuessDirections,debugMe) 
+                        #print(k,i,j,shapeorder[j],enclosed,myExcludeDimension,lenShape-k)
+                        if myDirectionAtZero==(0,0,0):
+                            myDirectionAtZero=myDirection
+                        if (enclosed):
+                            self.shapesdirection[self.shapeorder[j]]=myDirection
+                            if(myCommonCompound!=None and debugMe ):
+                                commonObjects.append((myCommonCompound,self.shapeorder[j], myHoles))
+                            if (j!=(lenShape-k)):
+                                j1=lenShape-k
+                                self.shapeorder[j1], self.shapeorder[j] = swap(self.shapeorder[j1], self.shapeorder[j])                
+                                self.shapesmove[j1], self.shapesmove[j] = swap(self.shapesmove[j1], self.shapesmove[j])
+                                self.shapesdistance[j1], self.shapesdistance[j] = swap(self.shapesdistance[j1], self.shapesdistance[j])
+                                self.shapesvolume[j1], self.shapesvolume[j] = swap(self.shapesvolume[j1], self.shapesvolume[j])
+                                self.shapesdimension[j1], self.shapesdimension[j] = swap(self.shapesdimension[j1], self.shapesdimension[j])                    
+                            print(k,i,j,self.shapeorder[lenShape-k],enclosed,myDirection,lenShape-k,toBeScaled)
+                            break
+                        else:
+                            #if debugMe:
+                            print(k,i,j,self.shapeorder[j],enclosed,lenShape-k,toBeScaled)
+                            if(myCommonCompound!=None and debugMe):
+                                commonObjects.append((myCommonCompound,self.shapeorder[j],myHoles))
+                    if enclosed:
+                        print("In", holesize, "Pass able to remove",k)
+                        break  
+                    else:
+                        (aShape,aName,aColor) = self.shapesColorArray[self.shapeorder[lenShape-k]]
+                        print("No objects can be removed",k,"When hole size is",toBeScaled,"For", aName)                
+                                          
                 if enclosed==False:
                     (aShape,aName,aColor) = self.shapesColorArray[self.shapeorder[lenShape-k]]
                     print("No objects can be removed",k,"Removing part forcefully largest distant from center",aName)                
@@ -1381,11 +1439,19 @@ class FindAssemblingOrder(object):
                     self.shapeorder.append(currentIndex)
                     currentIndex +=1
         currenttime=datetime.now()
+        
         dictionary = self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape)  
+        print(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape)
+        try:
+            if self.logging != None and self.byThread:
+                self.logging.info("Completed thread assembling") 
+        except Exception as e:
+            print("Error while logging",e)
         return dictionary 
 
     def ExplodeParts(self,sourceFileName,distancegap,anglegap,animationtime,bythread=True,debugMe=False):
         #print("ExploreParts",shapeTol,gapTol)
+        self.byThread=bythread
         starttime=datetime.now()
         dictionary={}
         try:

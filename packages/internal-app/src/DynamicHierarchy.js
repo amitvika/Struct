@@ -111,13 +111,15 @@ export default function DynamicHierarchy() {
   }
 
   const renderDropdowns = () => {
-    return hierarchyDropdownList.filter(item => {
+    return hierarchyDropdownList?
+      hierarchyDropdownList.length<=0 ? false : 
+      hierarchyDropdownList.filter(item => {
       if (initialValue.includes(item.label)) {
         return true;
       }
       return false;
     })
-      .map(item => renderFields(item))
+      .map(item => renderFields(item)) : false;
   }
 
   return (
