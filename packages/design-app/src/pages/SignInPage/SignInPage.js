@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 
-import { useQuery } from '@ravibasil/common/utils/customHooks'
+import { useQuery } from '@ravibasil/common/utils/customHooks';
 import SignInForm from '@ravibasil/common/components/SignInForm';
 import LoadingModal from '@ravibasil/common/components/LoadingModal';
 
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from '../../context/AuthContext';
 import AuthService from '../../services/AuthServices';
+import { loadUserApi } from '@ravibasil/common/api/auth';
 
 const SignInPage = () => {
   const { authUser, setAuthUser } = React.useContext(AuthContext);
@@ -20,30 +21,36 @@ const SignInPage = () => {
     }
   }, [authUser.user]);
 
+  const fetchUser = async () => {
+    try {
+      setIsLoading(true);
+      const resUser = await AuthService.fetchUser();
+      setAuthUser({ user: resUser, isAuthenticated: true });
+      console.log(resUser)
+
+      // setTimeout(() => {
+      //   setIsLoading(false);
+      //   history.push('/design');
+      // }, 3000);
+
+    } catch (error) {
+      console.log('Error', error);
+    }
+  };
+
   useEffect(() => {
     if (query.get('token')) {
-
-      setIsLoading(true);
       localStorage.setItem('token', query.get('token'));
-
-      setTimeout(() => {
-        setIsLoading(false)
-        history.push('/design');
-      }, 3000)
+      fetchUser();
     }
-
-  }, [query.get('token')])
-
-
+  }, [query.get('token')]);
+  
   const handleLoginSubmit = async (data) => {
     try {
       const user = await AuthService.signIn(data);
       setAuthUser({ user });
-    }
-    catch (error) {
-
-    }
-  }
+    } catch (error) {}
+  };
 
   return (
     <>
@@ -51,7 +58,6 @@ const SignInPage = () => {
       <SignInForm handleLoginSubmit={handleLoginSubmit} />
     </>
   );
-}
-
+};
 
 export default SignInPage;

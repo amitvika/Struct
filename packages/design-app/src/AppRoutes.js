@@ -17,6 +17,8 @@ import Architecture from './containers/architecture'
 import PredesignedComponents from './containers/predesigned'
 import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
+import OmniDesign from './pages/Omnidesign'
+import MyProfile from './pages/myProfile'
 
 export default function Routes() {
   return (
@@ -35,6 +37,9 @@ export default function Routes() {
               <Route path='/architecture' component={Architecture} />
               <Route path='/predesigned' component={PredesignedComponents} />
               <Route path='/appdesigner' component={AppDesignerPage} />
+
+              <Route path='/omnidesign' component={OmniDesign} />
+              <Route path='/my_profile' component={MyProfile} />
             </Switch>
           </Layout>
         </div>

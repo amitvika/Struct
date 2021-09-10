@@ -5,20 +5,13 @@ import {
     Paper,
     Tab,
     Tabs,
-    Box,
     Grid,
-    Breadcrumbs,
-    Typography,
-    CircularProgress,
-    IconButton
 } from "@material-ui/core";
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import EditIcon from '@material-ui/icons/Edit';
 import SubHeaderWithArrow from '../../components/SubHeaderWithArrow'
-import { NavLink, useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
-import ClipboardText from '@ravibasil/common/components/ClipboardText'
 
 import BaseItemProperties from './baseItemProperties';
 import GeometricDimensioning from './geometricDimensioning';
