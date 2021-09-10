@@ -1112,6 +1112,7 @@ class StepIgesAnalyser():
             self.stepiges=True
             self.writethread = writethread
         #print(self.fname,self.basefilename)
+        self.kinematicanimation=kinematicanimation
         self.includeparts = includeparts
         self.ascompound = ascompound
         if self.includeparts:
@@ -2747,9 +2748,9 @@ class StepIgesAnalyser():
         self.mstep_dict['animations']=animationchannels """
 
     def addKinematicAnimations(self):
-        if self.addKinematicAnimations==None:
+        if self.kinematicanimation==None:
             return
-        lenAnimations = len(self.kinematicanimations)
+        lenAnimations = len(self.kinematicanimation)
         
         if( lenAnimations<=0  ):
             return
@@ -2769,7 +2770,7 @@ class StepIgesAnalyser():
             mystep = steps-1
             if lenShapeOrder > 0:
                 mystep = self.shapeorder[steps-1]  
-            u,v,w,a=self.kinematicanimations[mystep]
+            u,v,w,a=self.kinematicanimation[mystep]
 
             if a==0:
                 translationbuff =TranslationBuffer(
