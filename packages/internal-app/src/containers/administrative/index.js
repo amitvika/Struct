@@ -93,12 +93,10 @@ const Administrative = () => {
               <Tab
                 label="Users"
                 value={0}
-                className='tab'
               />
               <Tab
                 label="Team Setup"
                 value={1}
-                className='tab'
               />
               <Tab
                 label="Task Assignment Rules"

@@ -15,8 +15,7 @@ export const signIn = async (credential) => {
 export const fetchUser = async () => {
   try {
     const res = await loadUserApi();
-    const { user } = res.data
-    return user;
+    return res.data;
   }
   catch (err) {
   };

@@ -26,12 +26,11 @@ const SignInPage = () => {
       setIsLoading(true);
       const resUser = await AuthService.fetchUser();
       setAuthUser({ user: resUser, isAuthenticated: true });
-      console.log(resUser)
 
-      // setTimeout(() => {
-      //   setIsLoading(false);
-      //   history.push('/design');
-      // }, 3000);
+      setTimeout(() => {
+        setIsLoading(false);
+        history.push('/design');
+      }, 3000);
 
     } catch (error) {
       console.log('Error', error);
