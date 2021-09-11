@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react'
 import get from 'lodash/get';
 import MainModal from '@ravibasil/common/components/Modal';
 import FactoriesAPI from '@ravibasil/common/api/factories.api';
-import Select from '@ravibasil/common/components/atoms/Select';
-import Headding from '@ravibasil/common/components/atoms/Headding'
-import { Paper, Grid, Button } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import SelectorView from '@ravibasil/common/components/SelectorView';
 import { columnsFields } from '@ravibasil/common/constants/factory';

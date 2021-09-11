@@ -6,13 +6,13 @@ import {
   Select,
   Input,
   Textarea,
-  Headding
+  Headding,
 } from '@ravibasil/common/components';
-import Modal from '@ravibasil/common/components/Modal'
+import Modal from '@ravibasil/common/components/Modal';
 import Popover from '@material-ui/core/Popover';
 import Typography from '@material-ui/core/Typography';
-import FileHistory from '@ravibasil/common/containers/FileHistory'
-import FileUploadOnAWS from '@ravibasil/common/containers/FileUploadOnAWS'
+import FileHistory from '@ravibasil/common/containers/FileHistory';
+import FileUploadOnAWS from '@ravibasil/common/containers/FileUploadOnAWS';
 import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     left: '10%',
     overflow: 'scroll',
     height: '100%',
-    display: 'block'
+    display: 'block',
   },
   paper: {
     padding: theme.spacing(1),
@@ -32,7 +32,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function AddDocumentationModal({ open, toggleModal, handleUpdate, isEditing, selectedValue }) {
+export default function AddDocumentationModal({
+  open,
+  toggleModal,
+  handleUpdate,
+  isEditing,
+  selectedValue,
+}) {
   const classes = useStyles();
   const [isDesignModalOpened, setIsDesignModalOpened] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState('');
@@ -40,7 +46,7 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
 
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const { user } = useSelector(state => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
   const handlePopoverOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -54,44 +60,41 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
 
   useEffect(() => {
     if (selectedValue) {
-      setdocumentValue(selectedValue)
-    }
-    else {
+      setdocumentValue(selectedValue);
+    } else {
       setdocumentValue({});
     }
-    console.log(selectedValue)
-  }, [selectedValue])
+    console.log(selectedValue);
+  }, [selectedValue]);
 
   const handleOnChange = (name, data) => {
-
     let file_history = documentValue.file_history || [];
-    if (name === "new_file") {
+    if (name === 'new_file') {
       file_history = [data, ...file_history];
-      setSelectedFileName(data.file_url)
+      setSelectedFileName(data.file_url);
     }
 
-    setdocumentValue(preValue => ({
+    setdocumentValue((preValue) => ({
       ...preValue,
       [name]: data,
       file_url: data.file_url ? data.file_url : preValue.file_url,
-      file_history
+      file_history,
     }));
-  }
+  };
 
   const handleSaveButton = () => {
     if (documentValue) {
-      handleUpdate(documentValue)
+      handleUpdate(documentValue);
     }
     toggleModal();
-  }
+  };
 
   const handleArchive = () => {
-    setdocumentValue(preValue => ({
+    setdocumentValue((preValue) => ({
       ...preValue,
-      is_archived: preValue.is_archived ? false : true
-    }))
-
-  }
+      is_archived: preValue.is_archived ? false : true,
+    }));
+  };
 
   return (
     <Modal
@@ -100,7 +103,11 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
       title={`${isEditing ? 'Update ' : 'Add'} Documentation`}
     >
       <Grid className="section-padding-left" container spacing={4}>
-        <Grid item xs={12} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Grid
+          item
+          xs={12}
+          style={{ display: 'flex', justifyContent: 'flex-end' }}
+        >
           <Button
             variant="contained"
             color="secondary"
@@ -108,7 +115,8 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
             aria-haspopup="true"
             onMouseEnter={handlePopoverOpen}
             onMouseLeave={handlePopoverClose}
-            onClick={handleArchive}>
+            onClick={handleArchive}
+          >
             {`${documentValue.is_archived ? 'Unarchive' : 'Archive'}`}
           </Button>
           <Popover
@@ -130,9 +138,11 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
             onClose={handlePopoverClose}
             disableRestoreFocus
           >
-            <Typography>Archive is the same thing as deleting except you can "un-delete" an item if you need it again</Typography>
+            <Typography>
+              Archive is the same thing as deleting except you can "un-delete"
+              an item if you need it again
+            </Typography>
           </Popover>
-
         </Grid>
         <Grid item xs={4}>
           <Headding bold title={'Name'} />
@@ -153,9 +163,9 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
           <Select
             placeholder="Select"
             options={[
-              { label: "Requirements", value: "Requirements" },
+              { label: 'Requirements', value: 'Requirements' },
               { label: 'Service Agreement', value: 'Service Agreement' },
-              { label: 'Communications', value: 'Communications' }
+              { label: 'Communications', value: 'Communications' },
             ]}
             onChange={(data) => handleOnChange('category', data.value)}
             value={documentValue.category && { label: documentValue.category }}
@@ -176,20 +186,26 @@ export default function AddDocumentationModal({ open, toggleModal, handleUpdate,
         <FileUploadOnAWS
           user={user}
           value={documentValue}
-          handleOnChange={handleOnChange} isDesignModalOpened={isDesignModalOpened}
-          fileType={"/"} />
+          handleOnChange={handleOnChange}
+          isDesignModalOpened={isDesignModalOpened}
+          fileType={'/'}
+        />
         <FileHistory
           selectedFileName={selectedFileName}
-          link_id={documentValue.id} />
-
+          link_id={documentValue.id}
+        />
 
         <Grid item xs={12} className={classes.action_button}>
-          <Button variant="contained" color="primary" onClick={handleSaveButton} style={{ width: '100%' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSaveButton}
+            style={{ width: '100%' }}
+          >
             {isEditing ? 'Update' : 'Save'}
           </Button>
         </Grid>
       </Grid>
-
-    </Modal >
+    </Modal>
   );
 }
