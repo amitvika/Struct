@@ -8,6 +8,7 @@ import { withStyles, makeStyles } from '@material-ui/core/styles';
 //import { Overlay } from 'react-overlays';
 import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
+import Button from '@material-ui/core/Button';
 import SaveOutlinedIcon from '@material-ui/icons/SaveOutlined';
 
 import Paper from '@material-ui/core/Paper';
@@ -385,7 +386,14 @@ export default function TableOrderView({
         'fontSize': 20
       }} align='center'>
         {title}
-        <SaveOutlinedIcon onClick={saveDataTable}/>
+        <Button aria-describedby={"Save Controls"} 
+            id={'popsave'} type="button" 
+            variant="contained" 
+            color="primary"
+            onClick={(event)=>{saveDataTable()}}                        
+            startIcon={<SaveOutlinedIcon/>} 
+        >
+        </Button>                
       </div>
       <VirtualizedTable
         rowCount={data ? data.length : 0}

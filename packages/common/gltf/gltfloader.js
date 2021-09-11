@@ -2019,23 +2019,24 @@ class GLTFParser {
 		const parser = this;
 		const json = this.json;
 		const extensions = this.extensions;
-		console.log("parsing",json); 
+		
+		//console.log("parsing",json); 
 		// Clear the loader cache
 		this.cache.removeAll();
 
 		// Mark the special nodes/meshes in json for efficient parse
 		this._invokeAll( function ( ext ) {
-			console.log("getting",ext); 
+			//console.log("getting",ext); 
 			return ext._markDefs && ext._markDefs();
 
 		} );
 
 		Promise.all( this._invokeAll( function ( ext ) {
-			console.log("obtaining",ext);
+			//console.log("obtaining",ext);
 			return ext.beforeRoot && ext.beforeRoot();
 
 		} ) ).then( function () {
-			console.log("obtaining promise");
+			//console.log("obtaining promise");
 			return Promise.all( [
 
 				parser.getDependencies( 'scene' ),
@@ -2045,7 +2046,7 @@ class GLTFParser {
 			] );
 
 		} ).then( function ( dependencies ) {
-			console.log("getting promise",dependencies);
+			//console.log("getting promise",dependencies);
 			const result = {
 				scene: dependencies[ 0 ][ json.scene || 0 ],
 				scenes: dependencies[ 0 ],
@@ -2061,11 +2062,11 @@ class GLTFParser {
 			assignExtrasToUserData( result, json );
 
 			Promise.all( parser._invokeAll( function ( ext ) {
-				console.log("getting promise ext",ext);
+				//console.log("getting promise ext",ext);
 				return ext.afterRoot && ext.afterRoot( result );
 
 			} ) ).then( function () {
-				console.log("loading results");
+				//console.log("loading results");
 				onLoad( result );
 
 			} );
@@ -2210,7 +2211,7 @@ class GLTFParser {
 
 		const cacheKey = type + ':' + index;
 		let dependency = this.cache.get( cacheKey );
-		console.log("Getting Dependencies from Promise",type,index,dependency)
+		//console.log("Getting Dependencies from Promise",type,index,dependency)
 		if ( ! dependency ) {
 
 			switch ( type ) {
@@ -2285,7 +2286,7 @@ class GLTFParser {
 			this.cache.add( cacheKey, dependency );
 
 		}
-		console.log("After Getting Dependencies from Promise",type,index,dependency)
+		//console.log("After Getting Dependencies from Promise",type,index,dependency)
 		return dependency;
 
 	}
@@ -2305,7 +2306,7 @@ class GLTFParser {
 			const defs = this.json[ type + ( type === 'mesh' ? 'es' : 's' ) ] || [];
 
 			dependencies = Promise.all( defs.map( function ( def, index ) {
-				console.log("Type",type,index,def);
+				//console.log("Type",type,index,def);
 				return parser.getDependency( type, index );
 
 			} ) );
@@ -2313,7 +2314,7 @@ class GLTFParser {
 			this.cache.add( type, dependencies );
 
 		} else {
-			console.log("cache dependencies",dependencies);
+			//console.log("cache dependencies",dependencies);
 		}
 
 		return dependencies;
@@ -3332,7 +3333,7 @@ class GLTFParser {
 		const pendingOutputAccessors = [];
 		const pendingSamplers = [];
 		const pendingTargets = [];
-		console.log("Animation Def",animationDef);
+		//console.log("Animation Def",animationDef);
 		for ( let i = 0, il = animationDef.channels.length; i < il; i ++ ) {
 
 			const channel = animationDef.channels[ i ];
@@ -3347,7 +3348,7 @@ class GLTFParser {
 			pendingOutputAccessors.push( this.getDependency( 'accessor', output ) );
 			pendingSamplers.push( sampler );
 			pendingTargets.push( target );
-			console.log("Each animations",channel,sampler,target,name,input,output);
+			//console.log("Each animations",channel,sampler,target,name,input,output);
 		}
 
 		return Promise.all( [
@@ -3359,7 +3360,7 @@ class GLTFParser {
 			Promise.all( pendingTargets )
 
 		] ).then( function ( dependencies ) {
-			console.log("Load animations",dependencies);
+			//console.log("Load animations",dependencies);
 			const nodes = dependencies[ 0 ];
 			const inputAccessors = dependencies[ 1 ];
 			const outputAccessors = dependencies[ 2 ];
@@ -3480,7 +3481,7 @@ class GLTFParser {
 			}
 
 			const name = animationDef.name ? animationDef.name : 'animation_' + animationIndex;
-			console.log("Parsed animations",name);
+			//console.log("Parsed animations",name);
 			return new AnimationClip( name, undefined, tracks );
 
 		} ).catch(err => console.log('There was an error:' + err));
@@ -3680,7 +3681,7 @@ class GLTFParser {
 		const nodeIds = sceneDef.nodes || [];
 
 		const pending = [];
-		console.log("Loading scenes",nodeIds);
+		//console.log("Loading scenes",nodeIds);
 		for ( let i = 0, il = nodeIds.length; i < il; i ++ ) {
 
 			pending.push( buildNodeHierachy( nodeIds[ i ], scene, json, parser ) );
@@ -3688,7 +3689,7 @@ class GLTFParser {
 		}
 
 		return Promise.all( pending ).then( function () {
-			console.log("Reuring scenes",scene);
+			//console.log("Reuring scenes",scene);
 			return scene;
 
 		} );

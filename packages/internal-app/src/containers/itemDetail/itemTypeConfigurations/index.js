@@ -25,7 +25,7 @@ import Headding from '@ravibasil/common/components/atoms/Headding';
 import DynamicCriteria from './DynamicCriteria';
 import DynamicHierarchy from './DynamicHierarchy';
 import CriteriaUploadAPI from '@ravibasil/common/api/criteriaUpload.api';
-import { saveActuatorInfo } from '@ravibasil/common/api/fileUpload.api';
+import { getAFileFromStore, saveActuatorInfo } from '@ravibasil/common/api/fileUpload.api';
 
 import get from 'lodash/get';
 
@@ -65,6 +65,7 @@ export default function ItemTypeConfiguration(props) {
   const { fileId, gltfjson, isLoading, itemProperties } = props;
   //const [list, setList] = useState([]);
   const [isFileLoading, setIsLoading] = useState(isLoading);
+  const [firstTimeLoading,setFirstTimeLoading]=useState(false);
   //const [filteredList, setFilteredList] = useState([]);
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
   const [resetOption, setResetOption] = useState(true);
@@ -82,7 +83,8 @@ export default function ItemTypeConfiguration(props) {
     { title: "\u03B8", dataKey: 'angle', type:"number",  align:"center", sortable:true, resizable:true, width: 60 }  
   ])
  
-  const [state, _setState] = useState({});
+  const [state, _setState] = useState({gltfjson:gltfjson,
+                                        mycounter:0});
   const [ctrlKey, setCtrlKey] = useState(false);
   const [filteredList, setFilteredList] = useState([]);
   const [alerter,setAlerter]=useState("");
@@ -280,7 +282,7 @@ export default function ItemTypeConfiguration(props) {
     //console.log(state.gltfjson.tree);
     if (state.gltfjson.tree) {
       for (var i = 0; i < state.gltfjson.tree.length; i++) {
-        //console.log(state.gltfjson.tree[i]);
+        console.log("Checking",state.gltfjson.tree[i],state.gltfjson.tree[i][gltf_Dict["name"]],data["name"]);
         if (state.gltfjson.tree[i][gltf_Dict["name"]] == data["name"]) {
           return state.gltfjson.tree[i];
         }
@@ -330,7 +332,7 @@ export default function ItemTypeConfiguration(props) {
         console.log("Going to Set", myTree, data, curData);
         setState({ gltfjson: myTree });
         console.log("Finally Setting", myTree, data, curData, state.gltfjson);
-        getTable(myTree);
+        getTable(myTree,true);
       } else {
         console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
       }
@@ -364,7 +366,7 @@ export default function ItemTypeConfiguration(props) {
       console.log("About to set", myTree);
       setState({ gltfjson: myTree });
       console.log("Setting", myTree, data, curData, state.gltfjson);
-      getTable(myTree);
+      getTable(myTree,true);
     } else {
       console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
     }
@@ -372,36 +374,42 @@ export default function ItemTypeConfiguration(props) {
 
   };
   const doOneSelection = (element, event) => {
-    console.log("Starting", element);
-    const aShape = element[gltf_Dict['name']];
-    const first4chars = aShape.slice(0, 4);
-    const first6chars = aShape.slice(0, 6);
-    if ((first4chars == "FACE") || (first4chars == "EDGE") ||
-      (first4chars == "PART") || (first6chars == "VERTEX")) {
-      console.log("Setting..", element);
-      element.selectedshell = true;
-      setSelectedShell(element, true);
-
-      console.log("Setting..Done", element);
-      const mymesh = element; //findMyMaterial(element);                       
-      console.log("Before", mymesh);
-      if (mymesh) {
-        mymesh.selectedshell = true;
-        //setSelectedShellForce(mymesh,true);                
-        changeStateOfSelection(mymesh, event);
-        if (event) {
-          event['ctrlKey'] = true;
+    if(element) {
+      console.log("Starting", element);
+      const aShape = element[gltf_Dict['name']];
+      if(aShape) {
+        const first4chars = aShape.slice(0, 4);
+        const first6chars = aShape.slice(0, 6);
+        if ((first4chars == "FACE") || (first4chars == "EDGE") ||
+          (first4chars == "PART") || (first6chars == "VERTEX")) {
+          console.log("Setting..", element);
+          element.selectedshell = true;
+          setSelectedShell(element, true);
+    
+          console.log("Setting..Done", element);
+          const mymesh = element; //findMyMaterial(element);                       
+          console.log("Before", mymesh);
+          if (mymesh) {
+            mymesh.selectedshell = true;
+            //setSelectedShellForce(mymesh,true);                
+            changeStateOfSelection(mymesh, event);
+            if (event) {
+              event['ctrlKey'] = true;
+            }
+          }
+          console.log("aftet", mymesh);
+    
+    
         }
       }
-      console.log("aftet", mymesh);
-
-
+      
     }
+    
   }
 
   const addSelectionFromTable = async (selectedNodes, event) => {
-
-    console.log("Selected Node", selectedNodes, "Event", event, "Props", this);
+    setFirstTimeLoading(true);
+    console.log("Selected Node", selectedNodes, "Event", event, "Props", firstTimeLoading);
     if (!state.gltfjson && this && this.props) {
       setState({gltfjson:this.props.gltfjson})
     }
@@ -439,7 +447,7 @@ export default function ItemTypeConfiguration(props) {
 
   };
   const updateSelectionFromTable = async (rowIndex, columnIndex, dataRow, value) => {
-
+      setFirstTimeLoading(true);
       console.log("Changed cell", (rowIndex, columnIndex, dataRow, value));
       if (!state.gltfjson) {
         setState({gltfjson:this.props.gltfjson})
@@ -456,7 +464,7 @@ export default function ItemTypeConfiguration(props) {
         console.log("About to set", myTree);
         setState({ gltfjson: myTree });
         console.log("Setting", myTree);
-        getTable(myTree);
+        getTable(myTree,true);
         } else {
           console.log("Problem in state");
         }
@@ -465,6 +473,7 @@ export default function ItemTypeConfiguration(props) {
 
   const saveSelectionFromTable = async () => {
     var myJsonTree;
+    setFirstTimeLoading(true);
     if (!state.gltfjson) {
       setState({gltfjson:this.props.gltfjson})
     }
@@ -475,10 +484,38 @@ export default function ItemTypeConfiguration(props) {
     }
     if(myJsonTree) {
       console.log("Saving",myJsonTree,itemProperties.fileKinematic);
-      saveActuatorInfo(myJsonTree,itemProperties.fileKinematic);
+      saveActuatorInfo(myJsonTree,itemProperties.fileKinematic)
+      .then(res => {
+        console.log("Getting Resources",res,res.data);
+        getAFileFromStore(itemProperties.fileKinematic,"gltf")
+        .then(res => res.data)
+        .then((data) => {
+          const gltfobj = data;
+          getAFileFromStore(itemProperties.fileKinematic,"tree")
+          .then(res => res.data)
+          .then((data) => {
+            const curTree = data;
+            var mygltfjson = state.gltfjson;
+            mygltfjson.gltf = gltfobj;
+            mygltfjson.tree = curTree;
+            const mycounter = state.mycounter+1;
+            setState({gltfjson:mygltfjson,
+                      mycounter:mycounter});
+            curTree.forEach(element => {
+              if(element.selectedshell) {
+                console.log("Setting to reset",curTree);
+                setState({ renderdata: [element], whatchange: SELECTDISTANCE });
+                console.log("After Setting to reset",curTree);
+                doOneSelection(element, null);
+                console.log("Finally Setting to reset",curTree);
+              }
+            });            
+          });
+        });
+      });
     }
   
-};
+  };
 
   const resetSelectionFromTree = async () => {
     if ((state.whatchange != 0) || state.renderdata != []) {
@@ -490,7 +527,7 @@ export default function ItemTypeConfiguration(props) {
     mapdata = {}
     //console.log("Data for shapeinfo",data,selectedOption,event);
 
-
+    console.log("Getting to select",data,"Event",event);
     //console.log("outside SELECTMEASURE",data);
     var copy_selectobjects = [];
 
@@ -622,6 +659,7 @@ export default function ItemTypeConfiguration(props) {
 
   const handleModelClick = (data, what, event) => {
     console.log(data, what, event);
+    setFirstTimeLoading(true);
     if (what == SELECTDISTANCE) {
       if(data) {
         console.log(data);
@@ -670,12 +708,18 @@ export default function ItemTypeConfiguration(props) {
     console.log("Direction",direction);
     return "Any";
   }
-  const getTable = (gltfjson) => {
+  const getTable = (gltfjsonParam,doupdate) => {
     let currentData = [];
-    if (gltfjson && gltfjson.tree ) {
+    if (gltfjsonParam && gltfjsonParam.tree ) {
            
-      for (let index = 1; index < gltfjson.tree.length; index++) {
-        const element = gltfjson.tree[index];
+      for (let index = 1; index < gltfjsonParam.tree.length; index++) {
+        if(firstTimeLoading==false && doupdate==false) {
+          gltfjsonParam.tree[index].selectedshell=false;
+        }
+        
+        const element = gltfjsonParam.tree[index];
+       
+        
         //console.log(element);
         currentData.push({          
           'id':index,
@@ -688,9 +732,12 @@ export default function ItemTypeConfiguration(props) {
           'angle': "0",
           ...element
         });
-
+        console.log("firstTimeLoading",firstTimeLoading,element);
       }
-     
+      if (firstTimeLoading==false) {
+        setState({gltfjson:gltfjsonParam});      
+      }
+      
       console.log("About to set Featured List", currentData);
       setFilteredList(currentData);
       console.log("Setting Featured List", currentData, filteredList);
@@ -714,7 +761,7 @@ export default function ItemTypeConfiguration(props) {
     console.log("Reaching", gltfjson, fileId, isLoading);
     let gltfjsonlen = Object.keys(gltfjson).length;
     if (gltfjsonlen > 0) {
-      gltfjsonlen += gltfjson?.gltf?.accessors?.length;
+      gltfjsonlen += gltfjson?.gltf?.accessors?.length + (state.mycounter?state.mycounter:0);
       if (gltfjson && gltfjson.assemblyorder && gltfjson.assemblyorder.complete) {
         gltfjsonlen += gltfjson.assemblyorder.complete;
       }     
@@ -740,7 +787,7 @@ export default function ItemTypeConfiguration(props) {
         whatchange: 0,
       });
       console.log("Reaching useEffect1");
-      getTable(gltfjson);
+      getTable(gltfjson,false);
       //setResetMe(true);
     }
   }, [gltfjson]);
@@ -751,13 +798,13 @@ export default function ItemTypeConfiguration(props) {
   }, [state.gltfjson?.tree]); */
 
   
-  let gltfjsonlen = Object.keys(gltfjson).length;
+  let gltfjsonlen = Object.keys(state.gltfjson).length;
   if (gltfjsonlen > 0) {
-    gltfjsonlen += gltfjson?.gltf?.accessors?.length;
-    if (gltfjson && gltfjson.assemblyorder && gltfjson.assemblyorder.complete) {
-      gltfjsonlen += gltfjson.assemblyorder.complete+1;
+    gltfjsonlen += state.gltfjson?.gltf?.accessors?.length+ (state.mycounter?state.mycounter:0);
+    if (state.gltfjson && state.gltfjson.assemblyorder && state.gltfjson.assemblyorder.complete) {
+      gltfjsonlen += state.gltfjson.assemblyorder.complete+1;
     }     
-    console.log("Setting outside gltflen",gltfjsonlen,gltfjson);
+    console.log("Setting outside gltflen",gltfjsonlen,state.gltfjson,gltfjson,state.mycounter);
   }
   useEffect(() => {
     CriteriaUploadAPI.getCadDetails()
@@ -797,10 +844,10 @@ export default function ItemTypeConfiguration(props) {
       {!isLoading &&(<Paper className={classes.mainContainer}>
       <Paper className={classes.viewerContainer} >
         {
-          !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
+          !isLoading && Object.keys(state.gltfjson).length > 0 && !isFileLoading &&
           <GLTFRenderer
             //gltfjson={JSON.stringify(gltfjson)}
-            gltfobj={gltfjson}
+            gltfobj={state.gltfjson}
             fileGDT={null}
             //view="Perspective"
             activefile={fileId + gltfjsonlen.toString()}

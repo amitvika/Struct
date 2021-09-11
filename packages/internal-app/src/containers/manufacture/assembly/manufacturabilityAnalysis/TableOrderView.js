@@ -5,10 +5,16 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
-import TableCell from '@material-ui/core/TableCell';
+//import { Overlay } from 'react-overlays';
+import TextField from '@material-ui/core/TextField';
+import Select from '@material-ui/core/Select';
+import Button from '@material-ui/core/Button';
+import SaveOutlinedIcon from '@material-ui/icons/SaveOutlined';
+import RotateLeftSharpIcon from '@material-ui/icons/RotateLeftSharp';
 import Paper from '@material-ui/core/Paper';
-import { AutoSizer, Column, CellMeasurer, CellMeasurerCache, Table, SortIndicator, SortDirection } from 'react-virtualized';
-
+import { AutoResizer, BaseTable, SortOrder } from '@ravibasil/common/gltf/GridTable';
+import { createGlobalStyle } from 'styled-components/macro';
+import styled  from 'styled-components';
 //import TableHead from '@material-ui/core/TableHead';
 //let rowParent = null;
 const styles = (theme) => ({
@@ -23,11 +29,33 @@ const styles = (theme) => ({
       flip: false,
       paddingRight: theme.direction === 'rtl' ? '0 !important' : undefined,
     },
-    borderSpacing: 0
+    borderSpacing: 0,
+    whiteSpace: "normal",
+    wordWrap: 'break-word',
+    wordBreak: 'break-all'
+    
   },
   tableRow: {
     cursor: 'pointer',
-    borderSpacing: 0
+    borderSpacing: 0,
+    backgroundColor: '#FFFFFF',
+    whiteSpace: "normal",
+    wordWrap: 'break-word',
+    wordBreak: 'break-all'
+  },
+  selectedTableRow: {
+    cursor: 'pointer',
+    borderSpacing: 0,
+    backgroundColor: '#00FF00',
+    whiteSpace: "normal",
+    wordWrap: 'break-word',
+    wordBreak: 'break-all'
+  },
+  headerTableRow: {
+    flex: 1,
+    borderSpacing: 0,
+    fontWeight:'bold'
+   
   },
   tableRowHover: {
     '&:hover': {
@@ -36,11 +64,20 @@ const styles = (theme) => ({
   },
   tableCell: {
     flex: 1,
-    borderSpacing: 0
+    borderSpacing: 0,
+    whiteSpace: "normal",
+    wordWrap: 'break-word',
+    wordBreak: 'break-all'
   },
   noClick: {
     cursor: 'initial',
   },
+  'sticky-row': {
+    '& .sticky-row.BaseTable__row': {
+      backgroundColor: '#00FF00'
+    }
+  },
+  backgroundColor:theme.palette.grey[255],
   mainContainer: { margin: 10, padding: 10, display: 'inline-flex', minWidth: '100%' },
   viewerContainer: {
     flex: 1,
@@ -49,17 +86,45 @@ const styles = (theme) => ({
     display: 'inline-block',
     boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
     borderSpacing: 0,
-    minWidth: 720
+    minWidth: 700
   }
 });
+const CellContainer = styled.div`
+    display: flex;
+    flex: 1 0 100%;
+    align-items: center;
+    height: 100%;
+    overflow: hidden;
+    margin: 0 -5px;
+    padding: 5px;
+    border: 1px dashed transparent;
+  `
+
+const GlobalStyle = createGlobalStyle`
+  .BaseTable__row:hover,
+  .BaseTable__row--hover {
+    ${CellContainer} {
+      border: 1px dashed #ccc;
+    }
+  }
+`
+
+/* const Select = styled.select`
+  width: 100%;
+  height: 30px;
+  margin-top: 10px;
+` */
 const useStyles = makeStyles(styles);
 const GetSortOrder=(sortBy, sortDirection)=> {    
-  return function(a, b) {    
-      if (a[sortBy] > b[sortBy]) {    
-          return (sortDirection==SortDirection.ASC?1:-1);    
-      } else if (a[sortBy] < b[sortBy]) {    
-          return (sortDirection==SortDirection.DESC?1:-1);    
-      }    
+  return function(a, b) {  
+      if (sortDirection) {
+        if (a[sortBy] > b[sortBy]) {    
+          return (sortDirection==SortOrder.ASC?1:-1);    
+        } else if (a[sortBy] < b[sortBy]) {    
+            return (sortDirection==SortOrder.DESC?1:-1);    
+        }  
+      }  
+       
       return 0;    
   }    
 }    
@@ -68,146 +133,112 @@ class MuiVirtualizedTable extends React.PureComponent {
     headerHeight: 24,
     rowHeight: 12,
   };
-  cache = new CellMeasurerCache({
+  /* cache = new CellMeasurerCache({
     fixedWidth: true,
     height: this.props.rowHeight
-  });
+  }); */
   
   state = {    
     sortBy: "order",
-    sortDirection: SortDirection.ASC,
-    sortedlist:this.props.list
+    sortDirection: SortOrder.ASC,
+    sortedlist:this.props.list,
+    sortState: this.props.defaultSort,
   };
 
-  getRowClassName = ({ index }) => {
+  getRowClassName = (gotHere) => {
+    const {rowIndex}=gotHere;
+    const {list}=this.props;
+    //console.log("Reaching getRowClassName",gotHere,list,this.props);
     const { classes, onRowClick } = this.props;
-    return clsx(classes.tableRow, classes.flexContainer, {
-      [classes.tableRowHover]: index !== -1 && onRowClick != null,
-    });
+    //console.log(classes.tableRow);
+    const Megot = clsx(classes.tableRow, classes.flexContainer, {
+      [classes.tableRowHover]: rowIndex !== -1 && onRowClick != null
+     }
+  );
+    const classHere = rowIndex >=0 ? list[rowIndex].selectedshell ? 
+    clsx(classes.selectedTableRow, classes.flexContainer, {
+      [classes.tableRowHover]: rowIndex !== -1 && onRowClick != null
+     }
+  ): Megot : Megot;
+    //if((rowIndex >=0) && list[rowIndex].selectedshell) 
+    //  return 'sticky-row';
+    //
+       //console.log(classHere);
+      return classHere; 
+  };
+
+
+  getHeaderClassName = (gotHere) => {
+    //const {rowIndex}=gotHere;
+    //console.log("Reaching headerClassName",gotHere);
+    const { classes } = this.props;
+    return clsx(classes.headerTableRow, classes.flexContainer);
 
   };
-  /*  rowRenderer=(params)=> {
-     return (
-       <CellMeasurer
-         cache={this.props.cache}
-         columnIndex={0}
-         key={params.key}
-         parent={rowParent}
-         rowIndex={params.rowIndex}
-       >
-        {Table.defaultProps.rowRenderer(params)}
-       </CellMeasurer>
-     );
-   } */
-  cellRenderer = ({ cellData, columnIndex, dataKey, parent, rowIndex, style }) => {
-    //rowParent = parent;
-    const { columns, classes, rowHeight, onRowClick, cache } = this.props;
-    return (
-      <CellMeasurer
-        cache={this.cache}
-        columnIndex={columnIndex}
-        key={dataKey}
-        parent={parent}
-        rowIndex={rowIndex}>
-        <TableCell
-          component="div"
-          className={clsx(classes.tableCell, classes.flexContainer, {
-            [classes.noClick]: onRowClick == null,
-          })}
-          variant="body"
-          style={{
-            borderSpacing: 0,
-            height: this.cache.rowHeight,
-            rowGap: 0,
-            /*  paddingTop:0,
-             paddingBottom:0, */
-            whiteSpace: "normal",
-            wordWrap: 'break-word',
-            wordBreak: 'break-all'
-          }}
-          align={(columnIndex == null ? "left": columns[columnIndex].align ||  'right' )}
-        >
-          {cellData}
-        </TableCell>
-      </CellMeasurer>
-    );
-  };
- 
   
-  sort=({ sortBy, sortDirection }) =>{
+  
+  sortTableColumn=(whatIsGot) =>{
+    const {column,key,order}=whatIsGot;
     const {list,setData,setSortBy,setSortDirection} = this.props;
-    console.log(list);
+    //console.log(whatIsGot,list,this.props,key,order);
     let sortedList  = list;
-    sortedList.sort(GetSortOrder(sortBy,sortDirection));  
+    sortedList.sort(GetSortOrder(key,order));  
     
-    this.setState({ sortBy, sortDirection, sortedList });
+    this.setState({ key, order, sortedList });
     if(setData) {
       setData(sortedList);
     }
     if(setSortBy) {
-      setSortBy(sortBy);      
+      setSortBy(key);      
     }
     if(setSortDirection) {
-      setSortDirection(sortDirection)
+      setSortDirection(order)
     }
+    
+    this.setState( { sortState: {
+      ...this.state.sortState,
+      [key]: this.state.sortState[key] === SortOrder.DESC  ?  SortOrder.ASC: SortOrder.DESC,
+    } } );
   }
-  headerRenderer = ({ label, columnIndex }) => {
-    const { headerHeight, columns, classes } = this.props;
-
-    return (
-      <TableCell
-        component="div"
-        className={clsx(classes.tableCell, classes.flexContainer, classes.noClick)}
-        variant="head"
-        style={{ height: headerHeight, fontWeight: 'bold' }}
-        align={columns[columnIndex].align || 'right' }
-      >
-        <span>{label}<SortIndicator SortDirection={this.state.sortDirection}/></span>
-      </TableCell>
-    );
-  };
-  getRowStyle = (row) => {
-    const { list } = this.props;
-    if (row.index < 0) return;
-    if (list[row.index].selectedshell) {
-      return {
-        backgroundColor: '#0f0',
-        borderSpacing: 0
-      };
-    }
-    return {
-      backgroundColor: '#fff',
-      borderSpacing: 0
-    };
+  
+  
+  rowEventHandlers = {
+    onClick: this.props.onRowClick
   }
 
   render() {
-    const { classes, columns, rowHeight, rowWidth, headerHeight, ...tableProps } = this.props;
-
+    const { classes, columns, rowHeight, rowWidth, headerHeight,  list, ...tableProps } = this.props;
+    //console.log("My Props",this.props);
     return (
-      <AutoSizer>
-        {({ height, width }) => (
-          <Table
+      <AutoResizer>
+      {({ width, height }) => (
+          <BaseTable
+            
             height={height}
             width={width}
+            data={list}
             rowWidth={rowWidth}
-            rowHeight={rowHeight} //this.cache.rowheight will do efffective height
-            gridStyle={{
-              direction: 'inherit',
-            }}
-            headerHeight={headerHeight}
-            className={classes.table}
-            {...tableProps}
+            
+            //footerHeight={0}       
+            //headerHeight={[headerHeight]}
+            //className={classes.table}
+            
             rowClassName={this.getRowClassName}
-            rowStyle={this.getRowStyle}
-            deferredMeasurementCache={this.cache}
-            sort={this.sort}
-            sortBy={this.state.sortBy}
-            sortDirection={this.state.sortDirection}           
+            //headerClassName={this.getHeaderClassName}
+            onColumnSort={this.sortTableColumn}
+            sortBy={{'key':this.state.sortBy,
+                     'order':this.state.sortDirection
+                    }}
+            sortDirection={this.state.sortDirection}  
+            columns={columns}    
+            ignoreFunctionInColumnCompare={false} 
+            estimatedRowHeight={40}  
+            sortState={this.state.sortState}            
+            rowEventHandlers={this.rowEventHandlers}  
           /*cache={cache}
           rowRenderer={this.rowRenderer} */
           >
-            {columns.map(({ dataKey, ...other }, index) => {
+            {/* {columns.map(({ dataKey, ...other }, index) => {
               return (
                 <Column
                   key={dataKey}
@@ -223,11 +254,11 @@ class MuiVirtualizedTable extends React.PureComponent {
                   {...other}
                 />
               );
-            })}
-          </Table>
-        )}
-      </AutoSizer>
-    );
+            })} */}
+          </BaseTable>
+          )}
+          </AutoResizer>
+        );
   }
 }
 
@@ -236,7 +267,7 @@ MuiVirtualizedTable.propTypes = {
   columns: PropTypes.arrayOf(
     PropTypes.shape({
       dataKey: PropTypes.string.isRequired,
-      label: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
       numeric: PropTypes.bool,
       align:PropTypes.string.isRequired,
       width: PropTypes.number.isRequired,
@@ -246,15 +277,65 @@ MuiVirtualizedTable.propTypes = {
   onRowClick: PropTypes.func,
   rowHeight: PropTypes.number,
 };
+class EditableCell extends React.PureComponent {
+  state = {
+    value: this.props.cellData
+  }
+
+  
+  render() {
+    const { container, rowIndex, columnIndex, columns,rowData } = this.props
+    //console.log("Cell Rendering",this.props);
+    const { value } = this.state;
+    const currentColumn = columns[columnIndex];
+    const onChange=(event) => {
+      console.log(event);
+      console.log("GOt here",event,rowIndex,columnIndex,currentColumn.onCellChange);
+      this.setState({
+        value: event.target.value
+      })
+      columns[columnIndex].onCellChange(rowIndex,columnIndex,rowData,event.target.value);
+    } 
+    if (currentColumn.type=="select") {
+      const optionTags = currentColumn.options.map((aOption, aIndex) => (
+        <option value={aOption}>{aOption}</option>
+      ));
+      return (
+        <CellContainer>              
+              <Select value={value} onChange={onChange}>
+                {optionTags}                  
+              </Select>              
+        </CellContainer>
+      ) 
+    }
+    if (currentColumn.type=="number" || currentColumn.type=="text" ) {     
+      return (
+        <CellContainer>              
+            <TextField onChange={onChange} value={value}/>             
+        </CellContainer>
+      ) 
+    }
+    //console.log("myColChange",myColChange);
+    return (
+      <CellContainer>              
+            {value}             
+      </CellContainer>
+    )
+  }
+}
 
 const VirtualizedTable = withStyles(styles)(MuiVirtualizedTable);
 
 export default function TableOrderView({
   handleDataRowClick = () => { },
+  handleDataCellChange = () => { },
+  saveDataTable = () => {},
+  resetDataTable = () => {},
   list,
   columns,
   setColumns,
-  title
+  title,
+  alerter
 }) {
 
   const classes = useStyles();
@@ -266,16 +347,38 @@ export default function TableOrderView({
     setData(mydata);
   }
 
+  const [data, setData] = useState(list);
+  const [sortBy,setSortBy] = useState("order");
+  const [sortDirection,setSortDirection] = useState(SortOrder.ASC);
+  
   useEffect(() => {
     console.log("UseEffect",list,sortBy,sortDirection);
     let sortedList  = list;
     sortedList.sort(GetSortOrder(sortBy,sortDirection));  
     setData(sortedList);
   }, [list]);
+  
+  const onCellChange=(rowIndex,columnIndex,dataRow,value)=>{
+    console.log(rowIndex,columnIndex,dataRow,value);  
+    console.log("BeforeCellChange",data,sortBy,sortDirection);
+    handleDataCellChange(rowIndex,columnIndex,dataRow,value);
+    console.log("AfterCellChange",data,sortBy,sortDirection);
+  };
+  
+  const defaultSort={};
+  var mycolumns = [];
+  columns.forEach(element => {
+    var editable = element;
+    if(element.type && element.type!="view"){      
+      editable.cellRenderer=EditableCell;
+      editable.onCellChange=onCellChange;
+    } 
+    element.key = element.dataKey;
+    mycolumns.push(editable);
+    defaultSort[element.dataKey]=element.inititalsort?element.inititalsort:SortOrder.ASC;    
+  });
+  
 
-  const [data, setData] = useState(list);
-  const [sortBy,setSortBy] = useState("order");
-  const [sortDirection,setSortDirection] = useState(SortDirection.ASC);
   return (
     <Paper className={classes.viewerContainer}>
 
@@ -283,11 +386,36 @@ export default function TableOrderView({
         'fontWeight': 'bold',
         'textAlign': 'center',
         'fontSize': 20
-      }} align='center'>{title}</div>
+      }} align='center'>
+        {title}
+        &nbsp;
+        {/* { (!alerter || alerter=="") && 
+          <Button aria-describedby={"Save Controls"} 
+              id={'popsave'} type="button" 
+              variant="contained" 
+              color="primary"
+              onClick={(event)=>{saveDataTable()}}                        
+              startIcon={<SaveOutlinedIcon/>} 
+            >
+            </Button>           
+         }  */}       
+         { alerter && alerter!="" && 
+            <Button aria-describedby={"Reset Controls"} 
+              id={'popreset'} type="button" 
+              variant="contained" 
+              color="primary"
+              onClick={(event)=>{resetDataTable()}}                        
+              startIcon={<RotateLeftSharpIcon/> } 
+            >
+            </Button>
+             
+          }
+             
+      </div>
       <VirtualizedTable
         rowCount={data ? data.length : 0}
         rowGetter={({ index }) => data[index]}
-        columns={columns}
+        columns={mycolumns}
         onRowClick={(thisdata) => {
           console.log(thisdata);
           resetMySelection(thisdata);
@@ -295,49 +423,14 @@ export default function TableOrderView({
           handleDataRowClick(thisdata.rowData, thisdata.event);
           console.log("AfterDataRowClock",data,sortBy,sortDirection);
         }}
-        headerHeight={50}
-        rowHeight={50}
+        //headerHeight={50}
+        //rowHeight={50}
         list={data}
         setData={setData}
         setSortBy={setSortBy}
         setSortDirection={setSortDirection}
+        defaultSort={defaultSort}
       />
     </Paper>
-  );
-  /*  return (
-     <MaterialTable
-       columns={columns}
-       data={list}
-       title={title}
-       options={{
-         actionsColumnIndex: 6,
-         addRowPosition: "first",
-         exportButton: false,
-         exportFileName: "Client",
-         cellStyle: {
-           textAlign: 'center'
-         },
-         headerStyle: {
-           textAlign: 'center',
-           fontWeight: 'bold'
-         },
-         rowStyle:  rowData => ({
-           backgroundColor: rowData.selectedshell ?   "#0f0" : "#fff" 
-         }),
-         selection: false,
-         search: true,
-         
-       }}
- 
- 
-       onRowClick={(event, rowdata) => {
-         
-         if(handleDataRowClick) {          
-          
-           handleDataRowClick(rowdata,event);
-         }
-       }} 
-       
-     />
-   )*/
+  ); 
 }

@@ -79,6 +79,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
         setIsLoading(true);
         upload3DFile(data)
             .then(res => {
+                console.log("Getting Resources",res,res.data);
                 setFiles([res.data])
                 setFileId(res.data.id);
                 getView(res.data.id);
