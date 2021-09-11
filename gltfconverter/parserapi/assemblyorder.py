@@ -1355,7 +1355,19 @@ class FindAssemblingOrder(object):
                 k += 1
             if(lenShape>1):
                 self.shapesdirection[self.shapeorder[0]]=self.shapesdirection[self.shapeorder[1]]
-            
+                print("Before",self.shapesvolume,self.shapesvolume[1] > self.shapesvolume[0],self.shapesdirection)
+                if self.shapesvolume[1] > self.shapesvolume[0] :
+                    j=0
+                    j1=1
+                    self.shapeorder[j1], self.shapeorder[j] = swap(self.shapeorder[j1], self.shapeorder[j])                
+                    self.shapesmove[j1], self.shapesmove[j] = swap(self.shapesmove[j1], self.shapesmove[j])
+                    self.shapesdistance[j1], self.shapesdistance[j] = swap(self.shapesdistance[j1], self.shapesdistance[j])
+                    self.shapesvolume[j1], self.shapesvolume[j] = swap(self.shapesvolume[j1], self.shapesvolume[j])
+                    self.shapesdimension[j1], self.shapesdimension[j] = swap(self.shapesdimension[j1], self.shapesdimension[j])                    
+                    self.shapesdirection[self.shapeorder[0]]=tuple(-x for x in self.shapesdirection[self.shapeorder[0]])
+                    self.shapesdirection[self.shapeorder[1]]=tuple(-x for x in self.shapesdirection[self.shapeorder[1]])
+                    print("AFter",self.shapesvolume,self.shapesvolume[1] > self.shapesvolume[0],self.shapesdirection)
+
             for i  in range(lenShape):
                 self.shapereverseorder[self.shapeorder[i]] = i
             for i  in range(lenShape):

@@ -739,7 +739,7 @@ class RotationBuffer(object):
             struct.pack('<f', x)
         )
   
-
+    
     def buffer_iter(self, block_size=1024):
         """
         Iterate through chunks of the vertices, and indices buffers seamlessly.
@@ -2759,9 +2759,10 @@ class StepIgesAnalyser():
         chanels = []
         
         startRange = 1  
-        lenShapeOrder = len(self.shapeorder)           
+        lenShapeOrder = len(self.shapeorder)     
+        print("Len Nodes",len(self.mstep_dict['nodes']))      
         for steps in range(1,lenAnimations+1):
-            #print(steps,lenAnimations)
+            print(steps,lenAnimations,lenShapeOrder)
             lenOfAnimationsTime = steps+1 #or lenAnimations ; it works for both...
             timebuff = TimeBuffer(
                 max_index=2
@@ -2769,14 +2770,20 @@ class StepIgesAnalyser():
             
             mystep = steps-1
             if lenShapeOrder > 0:
-                mystep = self.shapeorder[steps-1]  
-            u,v,w,a=self.kinematicanimation[mystep]
-
+                mystep = self.shapeorder[steps-1] 
+            u,v,w,a=self.kinematicanimation[steps-1]
+            print(mystep,u,v,w,a,lenAnimations,lenShapeOrder,steps-1)
             if a==0:
                 translationbuff =TranslationBuffer(
                     max_index=2
                 )
             else:
+                dist = math.sqrt(u*u + v*v +w*w)
+                if dist==0:
+                    u, v, w = 1, 1, 1
+                else:
+                    u, v, w = u/dist, v/dist, w/dist
+                
                 rotationbuff =RotationBuffer(
                     max_index=2
                 )   
@@ -2789,13 +2796,14 @@ class StepIgesAnalyser():
                     else:
                         translationbuff.add_translation(u,v,w)
                 else:
-                    if istep < steps:                 
-                        translationbuff.add_translation(0,0,0)
+                    if istep < steps:
+                        rotationbuff.add_rotation(0,0,0,1)
                     else:
                         my_quaternion = Quaternion(axis=[u, v, w], angle=a)
                         my_quaternion.normalise()
                         print("My Quaternion",my_quaternion.q)
-                        rotationbuff.add_rotation(my_quaternion.q)
+                        [a1,a2,a3,a4]=my_quaternion.q
+                        rotationbuff.add_rotation(a2,a3,a4,a1)
                                                  
             buffer_index = len(self.mstep_dict['buffers'])
             timelen = len(timebuff)
@@ -2817,8 +2825,10 @@ class StepIgesAnalyser():
             }            
             self.mstep_dict['bufferViews'].append(bufferview)
             buffer_index = len(self.mstep_dict['buffers'])
-            translationlen = len(translationbuff)
-            rotationlen = len(rotationbuff)
+            if a==0:
+                translationlen = len(translationbuff)
+            else:
+                rotationlen = len(rotationbuff)
             buffer_dict = {
                 "byteLength":  translationlen if a==0 else rotationlen                                   
             }   
@@ -2862,16 +2872,17 @@ class StepIgesAnalyser():
                 } ]
             self.mstep_dict['accessors'].append(accessorview[0])
             self.mstep_dict['accessors'].append(accessorview[1])
-            node_id = mystep+3
-            
+            node_id = mystep+2
+            print(node_id)
             if a==0:
                 self.mstep_dict['nodes'][node_id]['translation']=[ 0.0, 0.0, 0.0 ]
             else:
-                my_quaternion = Quaternion(axis=[u, v, w], angle=0)
-                my_quaternion.normalise()
-                print("Initial position of rotation",my_quaternion.q)
-                self.mstep_dict['nodes'][node_id]['rotation']=my_quaternion.q
-            
+                #my_quaternion = Quaternion(axis=[u, v, w], angle=0)
+                #my_quaternion.normalise()
+                #print("Initial position of rotation",my_quaternion.q)
+                #[a1,a2,a3,a4] = my_quaternion.q
+                self.mstep_dict['nodes'][node_id]['rotation']=[ 0.0, 0, 0, 1 ]
+            #print(self.mstep_dict)
             sampler = { 
                 "input" : accessor_index,
                 "interpolation" : "LINEAR",

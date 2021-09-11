@@ -17,7 +17,7 @@ import {
   SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE,
   SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray, gltf_Dict
 } from "@ravibasil/common/gltf/Tree/utils";
-
+import { getAFileFromStore } from '@ravibasil/common/api/fileUpload.api';
 import '../../style.css';
 
 const DEFAULTDISTANCEGAP = 0.1;
@@ -54,9 +54,10 @@ let state_selectedObjects = [];
 //let reSetMe = true;
 //let filteredList = [];
 export default function ManufacturabilityAnalysis(props) {
-  const { fileId, gltfjson, isLoading } = props;
+  const { fileId, gltfjson, isLoading, itemProperties } = props;
   //const [list, setList] = useState([]);
   const [isFileLoading, setIsLoading] = useState(isLoading);
+  const [firstTimeLoading,setFirstTimeLoading]=useState(false);
   //const [filteredList, setFilteredList] = useState([]);
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
   const [resetOption, setResetOption] = useState(true);
@@ -68,7 +69,7 @@ export default function ManufacturabilityAnalysis(props) {
       { title: 'Insertion Type', field: 'insert', editable: "never" },
       { title: 'Dispensing', field: 'dispense', type: 'numeric' },
       { title: 'Transfer Holding', field: 'quantity', type: 'numeric' },
-  ]) */
+  ]) 
   const [columns, setColumns] = useState([
     { label: 'Insertion Order', dataKey: 'order', numeric: true, align:"right",editable: "never", width: 90 },
     { label: 'Mate Name', dataKey: 'name', editable: "never", numeric: false, align:"left", width: 200, 'word-break': 'break-all' },
@@ -77,8 +78,18 @@ export default function ManufacturabilityAnalysis(props) {
     { label: 'Dispensing', dataKey: 'dispense', numeric: true,  align:"right", type: 'numeric', width: 90 },
     { label: 'Transfer Holding', dataKey: 'quantity', numeric: true, align:"right", type: 'numeric', width: 90 },
   ])
+  */
+  const [columns, setColumns] = useState([
+    { title:'Insertion Order', dataKey: 'order', type:"view", align:"right", sortable:true, resizable:true, width: 100 },
+    { title:'Mate Name', dataKey: 'name',  type:"view", align:"left", sortable:true, resizable:true, width: 200 },   
+    { title:'Insertion Direction', dataKey: 'direction', type:"view", options:["Top","Bottom","Right","Left","Front","Back"],align:"center", sortable:true, resizable:true, width: 100 },
+    { title:'Insertion Type', dataKey: 'insert', type:"view", align:"left", sortable:true, resizable:true, width: 100 },
+    { title:'Dispensing', dataKey: 'dispense',  type:"view", align:"right", sortable:true, resizable:true, width: 110 },
+    { title:'Transfer Holding', dataKey: 'quantity', type:"view",  align:"right", sortable:true, resizable:true, width: 90 }  
+  ])
 
-  const [state, _setState] = useState({});
+  const [state, _setState] = useState({gltfjson:gltfjson,
+                                        mycounter:0});
   const [ctrlKey, setCtrlKey] = useState(false);
   const [filteredList, setFilteredList] = useState([]);
   const [alerter,setAlerter]=useState("");
@@ -326,7 +337,7 @@ export default function ManufacturabilityAnalysis(props) {
         console.log("Going to Set", myTree, data, curData);
         setState({ gltfjson: myTree });
         console.log("Finally Setting", myTree, data, curData, state.gltfjson);
-        getTable(myTree);
+        getTable(myTree,true);
       } else {
         console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
       }
@@ -360,44 +371,51 @@ export default function ManufacturabilityAnalysis(props) {
       console.log("About to set", myTree);
       setState({ gltfjson: myTree });
       console.log("Setting", myTree, data, curData, state.gltfjson);
-      getTable(myTree);
+      getTable(myTree,true);
     } else {
       console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
     }
 
 
   };
+  
   const doOneSelection = (element, event) => {
     console.log("Starting", element);
-    const aShape = element[gltf_Dict['name']];
-    const first4chars = aShape.slice(0, 4);
-    const first6chars = aShape.slice(0, 6);
-    if ((first4chars == "FACE") || (first4chars == "EDGE") ||
-      (first4chars == "PART") || (first6chars == "VERTEX")) {
-      console.log("Setting..", element);
-      element.selectedshell = true;
-      setSelectedShell(element, true);
-
-      console.log("Setting..Done", element);
-      const mymesh = element; //findMyMaterial(element);                       
-      console.log("Before", mymesh);
-      if (mymesh) {
-        mymesh.selectedshell = true;
-        //setSelectedShellForce(mymesh,true);                
-        changeStateOfSelection(mymesh, event);
-        if (event) {
-          event['ctrlKey'] = true;
+    if(element) {
+      const aShape = element[gltf_Dict['name']];
+      if(aShape) {
+        const first4chars = aShape.slice(0, 4);
+        const first6chars = aShape.slice(0, 6);
+        if ((first4chars == "FACE") || (first4chars == "EDGE") ||
+          (first4chars == "PART") || (first6chars == "VERTEX")) {
+          console.log("Setting..", element);
+          element.selectedshell = true;
+          setSelectedShell(element, true);
+    
+          console.log("Setting..Done", element);
+          const mymesh = element; //findMyMaterial(element);                       
+          console.log("Before", mymesh);
+          if (mymesh) {
+            mymesh.selectedshell = true;
+            //setSelectedShellForce(mymesh,true);                
+            changeStateOfSelection(mymesh, event);
+            if (event) {
+              event['ctrlKey'] = true;
+            }
+          }
+          console.log("aftet", mymesh);    
+    
         }
       }
-      console.log("aftet", mymesh);
-
-
+      
     }
+    
   }
 
   const addSelectionFromTree = async (selectedNodes, event) => {
 
     console.log("Selected Node", selectedNodes, "Event", event);
+    setFirstTimeLoading(true);
     if (selectedNodes?.index) {
       const myTree = { ...state.gltfjson.tree[selectedNodes.index + 1] };
       console.log(myTree);
@@ -554,11 +572,16 @@ export default function ManufacturabilityAnalysis(props) {
     }
     //setResetMe(true);
     //getTable(state.gltfjson);
+    console.log("Before my state tree", state.gltfjson.tree, state_selectedObjects);
+    state_selectedObjects.forEach(element => {
+      setSelectedShellForce(element, element.selectedshell);
+    });
     console.log("Finally my state tree", state.gltfjson.tree, state_selectedObjects);
   }
 
   const handleModelClick = (data, what, event) => {
     console.log(data, what, event);
+    setFirstTimeLoading(true);
     if (what == SELECTDISTANCE) {
       if(data) {
         console.log(data);
@@ -582,6 +605,117 @@ export default function ManufacturabilityAnalysis(props) {
     }
     return null;
   }
+  const updateSelectionFromTable = async (rowIndex, columnIndex, dataRow, value) => {
+    setFirstTimeLoading(true);
+    console.log("Changed cell", (rowIndex, columnIndex, dataRow, value));
+    if (!state.gltfjson) {
+      setState({gltfjson:this.props.gltfjson})
+    }
+   
+    var myTree=null;
+    if(state.gltfjson) {
+      console.log("My json",state.gltfjson);
+      myTree = state.gltfjson;
+      console.log("My tree",myTree.tree[dataRow.index+1],"Columns",columns[columnIndex]);
+      myTree.tree[dataRow.index+1][columns[columnIndex].dataKey]=value;
+      setState({gltfjson:myTree});
+      console.log("Indexofmytree",myTree.tree[dataRow.index+1][columns[columnIndex].dataKey],myTree);
+      console.log("About to set", myTree);
+      setState({ gltfjson: myTree });
+      console.log("Setting", myTree);
+      getTable(myTree,true);
+      } else {
+        console.log("Problem in state");
+      }
+  
+  };
+
+  const saveSelectionFromTable = async () => {
+    var myJsonTree;
+    setFirstTimeLoading(true);
+    if (!state.gltfjson) {
+      setState({gltfjson:this.props.gltfjson})
+    }
+    if(state.gltfjson) {
+      myJsonTree = state.gltfjson.tree;
+    } else {
+      myJsonTree = this?.props?.gltfjson?.tree;
+    }
+    if(myJsonTree) {
+      
+        getAFileFromStore(itemProperties.fileMPPS,"gltf")
+        .then(res => res.data)
+        .then((data) => {
+          const gltfobj = data;
+          getAFileFromStore(itemProperties.fileMPPS,"tree")
+          .then(res => res.data)
+          .then((data) => {
+            const curTree = data;
+            var mygltfjson = state.gltfjson;
+            mygltfjson.gltf = gltfobj;
+            mygltfjson.tree = curTree;
+            const mycounter = state.mycounter+1;
+            setState({gltfjson:mygltfjson,
+                      mycounter:mycounter});
+            curTree.forEach(element => {
+              if(element.selectedshell) {
+                console.log("Setting to reset",curTree);
+                setState({ renderdata: [element], whatchange: SELECTDISTANCE });
+                console.log("After Setting to reset",curTree);
+                doOneSelection(element, null);
+                console.log("Finally Setting to reset",curTree);
+              }
+            });            
+          });
+        });
+      
+    }
+
+  };
+
+  const restSelectionFromTable = async () => {
+    var myJsonTree;
+    setFirstTimeLoading(true);
+    if (!state.gltfjson) {
+      setState({gltfjson:this.props.gltfjson})
+    }
+    if(state.gltfjson) {
+      myJsonTree = state.gltfjson.tree;
+    } else {
+      myJsonTree = this?.props?.gltfjson?.tree;
+    }
+    if(myJsonTree) {
+      console.log("Saving",myJsonTree,itemProperties.fileMPPS);
+      
+        getAFileFromStore(itemProperties.fileMPPS,"gltf")
+        .then(res => res.data)
+        .then((data) => {
+          const gltfobj = data;
+          getAFileFromStore(itemProperties.fileMPPS,"tree")
+          .then(res => res.data)
+          .then((data) => {
+            const curTree = data;
+            getAFileFromStore(itemProperties.fileMPPS,"order")
+            .then(res => res.data)
+            .then((data) => {
+              const curOrder = data;
+              var mygltfjson = state.gltfjson;
+              mygltfjson.gltf = gltfobj;
+              mygltfjson.tree = curTree;
+              mygltfjson.assemblyorder=curOrder;           
+              getTable(mygltfjson,true);
+              const mycounter = state.mycounter+1;
+              setState({gltfjson:mygltfjson,
+                        mycounter:mycounter});  
+                        
+            });            
+          });
+        });
+      
+    }
+
+  };
+
   const getDirection = (direction) => {
     const x=direction[0];
     const y=direction[1];
@@ -607,46 +741,51 @@ export default function ManufacturabilityAnalysis(props) {
     console.log("Direction",direction);
     return "Any";
   }
-  const getTable = (gltfjson) => {
+  const getTable = (gltfjsonParam,doupdate) => {
+    console.log(gltfjsonParam,gltfjson);
     let currentData = [];
-    if (gltfjson && gltfjson.tree && gltfjson.assemblyorder) {
-      if (gltfjson.assemblyorder.order) {
-        console.log("Setting table", gltfjson.tree, gltfjson.assemblyorder);
+    if (gltfjsonParam && gltfjsonParam.tree && gltfjsonParam.assemblyorder) {
+      if (gltfjsonParam.assemblyorder.order) {
+        console.log("Setting table", gltfjsonParam.tree, gltfjsonParam.assemblyorder);
       } else {
         alert("Assembly order structure changed. Please reload the step file once again");
         return;
       }
      
-      for (let index = 2; index < gltfjson.tree.length; index++) {
-        const element = gltfjson.tree[index];
+      for (let index = 2; index < gltfjsonParam.tree.length; index++) {
+        if(firstTimeLoading==false && doupdate==false) {
+          gltfjsonParam.tree[index].selectedshell=false;
+        }
+        
+        const element = gltfjsonParam.tree[index];
         //console.log(element);
-        currentData.push({
-          ...element,
+        currentData.push({ 
+          'id':index,         
           'index': index - 1,
           'name': element[gltf_Dict['name']],
           'order': null,
           'direction':null,
           'insert': "Sliding",
           'dispense': null,
-          'quantity': null
+          'quantity': null,
+          ...element,
         });
 
       }
-      for (let index = 0; index < gltfjson.assemblyorder.order.length; index++) {
-        currentData[index].direction = getDirection(gltfjson.assemblyorder.direction[index]);
-        const element = gltfjson.assemblyorder.order[index];
-        currentData[element].order = index + 1;        
-        
+      for (let index = 0; index < gltfjsonParam.assemblyorder.order.length; index++) {
+        currentData[index].direction = getDirection(gltfjsonParam.assemblyorder.direction[index]);
+        const element = gltfjsonParam.assemblyorder.order[index];
+        currentData[element].order = index + 1; 
       }
       console.log("About to set Featured List", currentData);
       setFilteredList(currentData);
       console.log("Setting Featured List", currentData, filteredList);
-      console.log(gltfjson.assemblyorder);
-      if (gltfjson.assemblyorder.current) {
-        if (gltfjson.assemblyorder.complete!=gltfjson.assemblyorder.order.length) {
-          const progressString="Completed "+gltfjson.assemblyorder.complete.toString()+
-            " Out of "+gltfjson.assemblyorder.order.length.toString()+" At "+
-            gltfjson.assemblyorder.current+" From "+gltfjson.assemblyorder.start+"\n"+
+      console.log(gltfjsonParam.assemblyorder);
+      if (gltfjsonParam.assemblyorder.current) {
+        if (gltfjsonParam.assemblyorder.complete!=gltfjsonParam.assemblyorder.order.length) {
+          const progressString="Completed "+gltfjsonParam.assemblyorder.complete.toString()+
+            " Out of "+gltfjsonParam.assemblyorder.order.length.toString()+" At "+
+            gltfjsonParam.assemblyorder.current+" From "+gltfjsonParam.assemblyorder.start+"\n"+
             " Please try atleast after a minute";
           setAlerter(progressString);
         } else {
@@ -675,8 +814,8 @@ export default function ManufacturabilityAnalysis(props) {
   }, [isLoading]);
   useEffect(() => {
     const includeParts = true;
-    console.log("Reaching", gltfjson, fileId, isLoading);
-    let gltfjsonlen = Object.keys(gltfjson).length;
+    console.log("Reaching in useeffect", gltfjson, fileId, isLoading, state.mycounter?state.mycounter:0);
+    let gltfjsonlen = Object.keys(gltfjson).length +  (state.mycounter?state.mycounter:0);
     if (gltfjsonlen > 0) {
       gltfjsonlen += gltfjson?.gltf?.accessors?.length;
       if (gltfjson && gltfjson.assemblyorder && gltfjson.assemblyorder.complete) {
@@ -704,8 +843,10 @@ export default function ManufacturabilityAnalysis(props) {
         whatchange: 0,
       });
       console.log("Reaching useEffect1");
-      getTable(gltfjson);
+      getTable(gltfjson,false);
       //setResetMe(true);
+    } else {
+      console.log("Not Setting gltflen",gltfjsonlen,gltfjson);
     }
   }, [gltfjson]);
 
@@ -724,7 +865,7 @@ export default function ManufacturabilityAnalysis(props) {
       <Spinner animation="border" />
     </div>)
   }
-  let gltfjsonlen = Object.keys(gltfjson).length;
+  let gltfjsonlen = Object.keys(state.gltfjson).length+(state.mycounter?state.mycounter:0);
   if (gltfjsonlen > 0) {
     gltfjsonlen += gltfjson?.gltf?.accessors?.length;
     if (gltfjson && gltfjson.assemblyorder && gltfjson.assemblyorder.complete) {
@@ -737,10 +878,10 @@ export default function ManufacturabilityAnalysis(props) {
     <Paper className={classes.mainContainer}>
       <Paper className={classes.viewerContainer} >
         {
-          !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
+          !isLoading && Object.keys(state.gltfjson).length > 0 && !isFileLoading &&
           <GLTFRenderer
             //gltfjson={JSON.stringify(gltfjson)}
-            gltfobj={gltfjson}
+            gltfobj={state.gltfjson}
             fileGDT={null}
             //view="Perspective"
             activefile={fileId + gltfjsonlen.toString()}
@@ -765,11 +906,15 @@ export default function ManufacturabilityAnalysis(props) {
       </Paper>
       <TableOrderView
         title={alerter==""?'Order of Assembly':alerter}
+        alerter={alerter}
         list={filteredList}
         columns={columns}
         setColumns={setColumns}
         handleDataRowClick={addSelectionFromTree}
-        style={{ width: 720 }}
+        handleDataCellChange={updateSelectionFromTable}  
+        saveDataTable={saveSelectionFromTable} 
+        resetDataTable={restSelectionFromTable} 
+        style={{ width: 700 }}
       >
       </TableOrderView>
 

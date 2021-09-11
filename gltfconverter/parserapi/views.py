@@ -598,6 +598,7 @@ def convertToBool(value,default):
         return default
 
 def convertToFloat(value,default):
+    print("Value=",value)
     if value is not None:
         try:
             floatValue = float(value)
@@ -4528,10 +4529,22 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
         except Exception as e:
             print("Error while writing orderfile",e)   """
         try:
+            myPickle = {'sourceType':'Order',
+                            'sourceFileName':sourceFileName,
+                            'distancegap':distancegap,
+                            'anglegap':anglegap,
+                            'explodegap':explodegap,
+                            'center':center,
+                            'holescale':holescale,
+                            'removegap':removegap,
+                            'animationtime':animationtime,
+                            'colorshapes':shapePickles,
+                            'assemblyname':aName,
+                            'dimension':dimension} 
             picklefile = "Display/"+dictionary["store"]+".pickle"
             with open(picklefile, 'wb') as f:
-                # Pickle the 'data' dictionary using the highest protocol available.
-                pickle.dump(shapePickles, f, pickle.HIGHEST_PROTOCOL)
+                # Pickle the 'data' dictionary using the highest protocol available.                               
+                pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
         except Exception as e:
             print(e,"File, %s has error" % picklefile)      
         return dictionary
@@ -4665,8 +4678,15 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5)
         except Exception as e:
             print("error",e) 
         try:
+            myPickle = {'sourceType':'Kinematic',
+                            'sourceFileName':sourceFileName,
+                            'distancegap':distancegap,
+                            'anglegap':anglegap,
+                            'animationtime':animationtime,
+                            'colorshapes':shapePickles}
             picklefile = "Display/"+dictionary["store"]+".pickle"
-            with open(picklefile, 'wb') as f:
+            with open(picklefile, 'wb') as f:                                
+                pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
                 # Pickle the 'data' dictionary using the highest protocol available.
                 pickle.dump(shapePickles, f, pickle.HIGHEST_PROTOCOL)
         except Exception as e:
@@ -4736,29 +4756,68 @@ def FileSaveTree(request):
             logging.info(request)
         except Exception as e:
             print("Error while logging",e)
-        data = []
+        dictionary={}
         if request.method == 'POST':
             tree = request.data['tree']
             #print(tree)
             structArray = json.loads(tree)
             name = request.data['name']
+            
+            try:
+                colorShapeArray=[]
+                with open("Display/"+name+".pickle", 'rb') as f:
+                    # The protocol version used is detected automatically, so we do not
+                    # have to specify it.
+                    myPickle = pickle.load(f)
+                sourceType = myPickle['sourceType']
+                if sourceType=='Kinematic':
+                    sourceFileName=myPickle['sourceFileName']
+                    distancegap=convertToFloat(myPickle['distancegap'],0.1)
+                    anglegap=convertToFloat(myPickle['anglegap'],0.5)
+                    animationtime=convertToFloat(myPickle['animationtime'],1.0)
+                    colorShapeArray=myPickle['colorshapes']
+                    #sourceFileName = name[:-2]
+                    shapeArray=[]
+                    kinematicanimation=[]
+                    shapeorder=[]
+                    print("Filename got",sourceFileName,"from",name,name[:-2])
+                    for eachShapeInfo in colorShapeArray:
+                        mergedshape,subShapeName,red,green,blue = eachShapeInfo
+                        aColor = Quantity_Color(red,green,blue, Quantity_TOC_RGB)
+                        shapeArray.append((mergedshape,subShapeName,aColor))
+                        print(eachShapeInfo)
+                    print(shapeArray)
+                    for aTree in structArray:
+                        print("Tree",aTree,shapeorder)  
+                        posx, posy, posz, angle = 0, 0, 0, 0                 
+                        if gltf_dict["id"] in aTree:
+                            index=aTree[gltf_dict["id"]]-2                        
+                        if "posx" in aTree:                    
+                            posx=convertToFloat(aTree["posx"],0)
+                        if "posy" in aTree:
+                            posy=convertToFloat(aTree["posy"],0)
+                        if "posz" in aTree:
+                            posz=convertToFloat(aTree["posz"],0)
+                        if "angle" in aTree:
+                            angle=convertToFloat(aTree["angle"],0)                    
+                        if(posx!=0 or posy!=0 or posz!=0 or angle!=0):
+                            kinematicanimation.append((posx,posy,posz,angle))
+                            shapeorder.append(index)
+                    print(kinematicanimation,shapeorder)  
+                    (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                        filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
+                        anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,edgesize=0,vertexsize=0,
+                        kinematicanimation=kinematicanimation,shapeorder=shapeorder,delay=animationtime).dump()
+            except Exception as e:
+                print("Error while loading",name,e)   
             try:
                 treefile = "Display/"+name+'.tree'
                 print("Writing,",treefile)
                 with open(treefile, 'w') as fh:
                     fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
             except Exception as e:
-                print("Error while writing stackfile",e)  
-        try:
-
-            with open("Display/"+name+".pickle", 'rb') as f:
-                # The protocol version used is detected automatically, so we do not
-                # have to specify it.
-                colorShapeArray = pickle.load(f)
-            
-        except Exception as e:
-            print("Error while loading",name,e)       
-        return JsonResponse(structArray, safe=False)
+                print("Error while writing treefile",e)     
+        return JsonResponse(dictionary, safe=False)
     except Exception as e:
         try:
             logging.error(traceback.format_exc())
