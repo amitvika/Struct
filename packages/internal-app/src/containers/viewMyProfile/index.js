@@ -14,6 +14,7 @@ import MyAccess from './myAccess'
 import MyTeam from './myTeam';
 import MyCreatedObjects from './myCreatedObjects'
 import Tasks from './Tasks'
+import './style.css'
 
 
 const ViewMyProfile = () => {
@@ -88,10 +89,10 @@ const ViewMyProfile = () => {
 							value={tabIndex}
 							onChange={handleTabChange}>
 
-							<Tab label="My Teams" value={0} />
-							<Tab label="My Access" value={1} />
-							<Tab label="My Created Objects" value={2} />
-							<Tab label="Tasks" value={3} />
+							<Tab label="My Teams" value={0} className='tab'/>
+							<Tab label="My Access" value={1} className='tab'/>
+							<Tab label="My Created Objects" value={2} className='tab'/>
+							<Tab label="Tasks" value={3} className='tab'/>
 						</Tabs>
 					</Paper>
 				</Grid>

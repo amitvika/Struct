@@ -1,4 +1,4 @@
-import { loginApi, registrationApi, loadUserApi } from '@ravibasil/common/api/auth';
+import { loginApi,loadUserApi } from '@ravibasil/common/api/auth';
 
 export const signIn = async (credential) => {
   try {
@@ -12,7 +12,16 @@ export const signIn = async (credential) => {
   };
 };
 
+export const fetchUser = async () => {
+  try {
+    const res = await loadUserApi();
+    return res.data;
+  }
+  catch (err) {
+  };
+};
 
 export default {
-  signIn
+  signIn,
+  fetchUser
 }
