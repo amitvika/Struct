@@ -17,29 +17,38 @@ import {
   SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE,
   SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray, gltf_Dict
 } from "@ravibasil/common/gltf/Tree/utils";
-import { getAFileFromStore } from '@ravibasil/common/api/fileUpload.api';
+import { getAFileFromStore,saveTreeInfo,getPartsAssemblyOrder } from '@ravibasil/common/api/fileUpload.api';
 import '../../style.css';
+
 
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
 const DEFAULTEXPLODEGAP = 10;
 const DEFAULTFROMCENTER = true;
+const DEFAULTHOLESCALE = 0.77;
+const DEFAULTREMOVEGAP = 8;
+const DEFAULTANIMATIONTIME=1.0;
 const DEFAULTDISECT = false;
 const DEFAULTSHOWDISECT = false;
 const DEFAULTSHOWINFOONSELECT = false;
 const DEFAULTMATERIALNAME = "Basic";
-const DEFAULTMATERIALTYPE = [{ "id": 1, "name": DEFAULTMATERIALNAME }];
+const DEFAULTMATERIALTYPE = [{ "id": 1, "name": "Basic" }];
+
 
 const stateprops = {
-  distancegap: DEFAULTDISTANCEGAP,
-  anglegap: DEFAULTANGLEGAP,
-  explodegap: DEFAULTEXPLODEGAP,
-  disect: DEFAULTDISECT,
-  showdisect: DEFAULTSHOWDISECT,
-  showinfoonselect: DEFAULTSHOWINFOONSELECT,
-  materialtype: DEFAULTMATERIALTYPE,
-  fromcenter: DEFAULTFROMCENTER
+    distancegap: DEFAULTDISTANCEGAP,
+    anglegap: DEFAULTANGLEGAP,
+    explodegap: DEFAULTEXPLODEGAP,
+    disect: DEFAULTDISECT,
+    showdisect: DEFAULTSHOWDISECT,
+    showinfoonselect: DEFAULTSHOWINFOONSELECT,
+    materialtype: DEFAULTMATERIALTYPE,
+    fromcenter:DEFAULTFROMCENTER,
+    holescale:DEFAULTHOLESCALE,
+    removegap:DEFAULTREMOVEGAP,
+    animationtime:DEFAULTANIMATIONTIME
 }
+
 const useStyles = makeStyles((theme) => ({
   mainContainer: { margin: 10, padding: 10, display: 'inline-flex', minWidth: '100%' },
   viewerContainer: {
@@ -79,21 +88,23 @@ export default function ManufacturabilityAnalysis(props) {
     { label: 'Transfer Holding', dataKey: 'quantity', numeric: true, align:"right", type: 'numeric', width: 90 },
   ])
   */
-  const [columns, setColumns] = useState([
-    { title:'Insertion Order', dataKey: 'order', type:"view", align:"right", sortable:true, resizable:true, width: 100 },
-    { title:'Mate Name', dataKey: 'name',  type:"view", align:"left", sortable:true, resizable:true, width: 200 },   
-    { title:'Insertion Direction', dataKey: 'direction', type:"view", options:["Top","Bottom","Right","Left","Front","Back"],align:"center", sortable:true, resizable:true, width: 100 },
-    { title:'Insertion Type', dataKey: 'insert', type:"view", align:"left", sortable:true, resizable:true, width: 100 },
-    { title:'Dispensing', dataKey: 'dispense',  type:"view", align:"right", sortable:true, resizable:true, width: 110 },
-    { title:'Transfer Holding', dataKey: 'quantity', type:"view",  align:"right", sortable:true, resizable:true, width: 90 }  
-  ])
+  
 
   const [state, _setState] = useState({gltfjson:gltfjson,
                                         mycounter:0});
   const [ctrlKey, setCtrlKey] = useState(false);
   const [filteredList, setFilteredList] = useState([]);
-  const [alerter,setAlerter]=useState("");
+  const [alerter,setAlerter]=useState("Initializing");
 
+  const [columns, setColumns] = useState([
+    { title:'Insertion Order', dataKey: 'order', type:"view", align:"right", sortable:true, resizable:true, width: 100 },
+    { title:'Mate Name', dataKey: 'name',  type:"view", align:"left", sortable:true, resizable:true, width: 200 },   
+    { title:'Insertion Direction', dataKey: 'direction', type: (alerter && alerter!="")? "view" : "select" , 
+        options:["Top","Bottom","Right","Left","Front","Back","Any"],align:"center", sortable:true, resizable:true, width: 100 },
+    { title:'Insertion Type', dataKey: 'insert', type:"view", align:"left", sortable:true, resizable:true, width: 100 },
+    { title:'Dispensing', dataKey: 'dispense',  type:"view", align:"right", sortable:true, resizable:true, width: 110 },
+    { title:'Transfer Holding', dataKey: 'quantity', type:"view",  align:"right", sortable:true, resizable:true, width: 90 }  
+  ])
   const setState = (data) => {
     _setState(prevState => {
       return {
@@ -417,7 +428,7 @@ export default function ManufacturabilityAnalysis(props) {
     console.log("Selected Node", selectedNodes, "Event", event);
     setFirstTimeLoading(true);
     if (selectedNodes?.index) {
-      const myTree = { ...state.gltfjson.tree[selectedNodes.index + 1] };
+      const myTree = findMyMaterial(selectedNodes);
       console.log(myTree);
       if (myTree) {
         //myTree.selectedshell = true;
@@ -607,30 +618,38 @@ export default function ManufacturabilityAnalysis(props) {
   }
   const updateSelectionFromTable = async (rowIndex, columnIndex, dataRow, value) => {
     setFirstTimeLoading(true);
-    console.log("Changed cell", (rowIndex, columnIndex, dataRow, value));
+    console.log("Changed cell", rowIndex, columnIndex, dataRow, value);
     if (!state.gltfjson) {
       setState({gltfjson:this.props.gltfjson})
-    }
-   
+    }   
     var myTree=null;
     if(state.gltfjson) {
       console.log("My json",state.gltfjson);
-      myTree = state.gltfjson;
-      console.log("My tree",myTree.tree[dataRow.index+1],"Columns",columns[columnIndex]);
-      myTree.tree[dataRow.index+1][columns[columnIndex].dataKey]=value;
-      setState({gltfjson:myTree});
-      console.log("Indexofmytree",myTree.tree[dataRow.index+1][columns[columnIndex].dataKey],myTree);
-      console.log("About to set", myTree);
-      setState({ gltfjson: myTree });
-      console.log("Setting", myTree);
-      getTable(myTree,true);
+      if(dataRow) {
+        console.log(dataRow);
+        const myTree = findMyMaterial(dataRow);
+        if (myTree) {
+          myTree.selectedshell = true;
+          dataRow.selectedshell = true;
+          myTree[columns[columnIndex].dataKey]=value;
+          setSelectedShellForce(myTree, true);
+          setState({ renderdata: [myTree], whatchange: SELECTDISTANCE });
+          let event={};
+          event['ctrlKey']=false;
+          doOneSelection(myTree, event);
+        }
+        
       } else {
-        console.log("Problem in state");
+        console.log("Problem in dataRow");
       }
-  
+    } else {
+      console.log("Problem in state");
+    }
+
   };
 
-  const saveSelectionFromTable = async () => {
+  const saveSelectionFromTable = async (mydata) => {
+    console.log(mydata);
     var myJsonTree;
     setFirstTimeLoading(true);
     if (!state.gltfjson) {
@@ -642,7 +661,15 @@ export default function ManufacturabilityAnalysis(props) {
       myJsonTree = this?.props?.gltfjson?.tree;
     }
     if(myJsonTree) {
-      
+      var gltfjsonParam = state.gltfjson;
+      for (let index = 2; index < gltfjsonParam.tree.length; index++) {
+        gltfjsonParam.tree[index]=mydata[index-2];        
+      }
+      console.log("Saving", gltfjsonParam.tree,itemProperties.fileMPPS);
+      saveTreeInfo( gltfjsonParam.tree,itemProperties.fileMPPS)
+      .then(res => res.data)
+      .then((data) => { 
+        console.log("Getting Resources",data);
         getAFileFromStore(itemProperties.fileMPPS,"gltf")
         .then(res => res.data)
         .then((data) => {
@@ -651,29 +678,73 @@ export default function ManufacturabilityAnalysis(props) {
           .then(res => res.data)
           .then((data) => {
             const curTree = data;
-            var mygltfjson = state.gltfjson;
-            mygltfjson.gltf = gltfobj;
-            mygltfjson.tree = curTree;
-            const mycounter = state.mycounter+1;
-            setState({gltfjson:mygltfjson,
-                      mycounter:mycounter});
-            curTree.forEach(element => {
-              if(element.selectedshell) {
-                console.log("Setting to reset",curTree);
-                setState({ renderdata: [element], whatchange: SELECTDISTANCE });
-                console.log("After Setting to reset",curTree);
-                doOneSelection(element, null);
-                console.log("Finally Setting to reset",curTree);
-              }
-            });            
+            getAFileFromStore(itemProperties.fileMPPS,"order")
+            .then(res => res.data)
+            .then((data) => {
+              const curOrder = data;
+              var mygltfjson = gltfjsonParam;
+              mygltfjson.gltf = gltfobj;
+              mygltfjson.tree = curTree;
+              mygltfjson.assemblyorder = curOrder;
+              const mycounter = state.mycounter+1;
+              setState({gltfjson:mygltfjson,
+                        mycounter:mycounter});  
+              getTable(mygltfjson,true);     
+            });              
           });
         });
-      
+      });
     }
 
   };
 
-  const restSelectionFromTable = async () => {
+  const resetSelectionFromTable = async () => {
+    var myJsonTree;
+    setFirstTimeLoading(true);
+    if (!state.gltfjson) {
+      setState({gltfjson:this.props.gltfjson})
+    }
+    if(state.gltfjson) {
+      myJsonTree = state.gltfjson.tree;
+    } else {
+      myJsonTree = this?.props?.gltfjson?.tree;
+    }
+    if(myJsonTree) {
+      console.log("Saving",myJsonTree,itemProperties.fileMPPS);
+      getPartsAssemblyOrder(itemProperties.fileId, stateprops.distancegap, stateprops.anglegap, stateprops.explodegap, 
+        stateprops.fromcenter,stateprops.holescale,stateprops.removegap,stateprops.animationtime)
+        .then(res => res.data)
+        .then((data) => {      
+          console.log("Getting Resources",data);
+          getAFileFromStore(itemProperties.fileMPPS,"gltf")
+          .then(res => res.data)
+          .then((data) => {
+            const gltfobj = data;
+            getAFileFromStore(itemProperties.fileMPPS,"tree")
+            .then(res => res.data)
+            .then((data) => {
+              const curTree = data;              
+              getAFileFromStore(itemProperties.fileMPPS,"order")
+              .then(res => res.data)
+              .then((data) => {
+                const curOrder = data;
+                var mygltfjson = state.gltfjson;
+                mygltfjson.gltf = gltfobj;
+                mygltfjson.tree = curTree;
+                mygltfjson.assemblyorder = curOrder;
+                const mycounter = state.mycounter+1;
+                setState({gltfjson:mygltfjson,
+                          mycounter:mycounter}); 
+                getTable(mygltfjson,true);  
+              });                     
+            });
+        });
+      });
+    }
+
+  };
+
+  const fetchSelectionFromTable = async () => {
     var myJsonTree;
     setFirstTimeLoading(true);
     if (!state.gltfjson) {
@@ -707,10 +778,35 @@ export default function ManufacturabilityAnalysis(props) {
               const mycounter = state.mycounter+1;
               setState({gltfjson:mygltfjson,
                         mycounter:mycounter});  
-                        
+              getTable(mygltfjson,true);          
             });            
           });
         });
+      
+    }
+
+  };
+
+  const updateOrderFromTable = async (mydata,oldIndex,newIndex) => {
+    var myJsonTree;
+    console.log("Updating order change in the tree",mydata,oldIndex,newIndex);
+    setFirstTimeLoading(true);
+    if (!state.gltfjson) {
+      setState({gltfjson:this.props.gltfjson})
+    }
+    if(state.gltfjson) {
+      myJsonTree = state.gltfjson.tree;
+    } else {
+      myJsonTree = this?.props?.gltfjson?.tree;
+    }
+    if(myJsonTree) {
+      var gltfjsonParam = state.gltfjson;
+      for (let index = 2; index < gltfjsonParam.tree.length; index++) {
+        gltfjsonParam.tree[index]=mydata[index-2];
+        gltfjsonParam.tree[index].selectedshell=((index-2)==newIndex);
+      }
+      setState({gltfjson:gltfjsonParam});
+      
       
     }
 
@@ -772,11 +868,25 @@ export default function ManufacturabilityAnalysis(props) {
         });
 
       }
+      var itemset=false;
       for (let index = 0; index < gltfjsonParam.assemblyorder.order.length; index++) {
-        currentData[index].direction = getDirection(gltfjsonParam.assemblyorder.direction[index]);
+        if(!currentData[index].direction) {
+          currentData[index].direction = getDirection(gltfjsonParam.assemblyorder.direction[index]);
+          if (gltfjsonParam.assemblyorder.complete==gltfjsonParam.assemblyorder.order.length) {
+            gltfjsonParam.tree[index+2].direction = currentData[index].direction;
+          }
+          itemset=true;
+        }        
         const element = gltfjsonParam.assemblyorder.order[index];
-        currentData[element].order = index + 1; 
+        if(!currentData[element].order) {
+          currentData[element].order = index + 1; 
+          if (gltfjsonParam.assemblyorder.complete==gltfjsonParam.assemblyorder.order.length) {
+            gltfjsonParam.tree[element+2].order = currentData[element].order;
+          }
+          itemset=true;
+        }
       }
+      
       console.log("About to set Featured List", currentData);
       setFilteredList(currentData);
       console.log("Setting Featured List", currentData, filteredList);
@@ -787,15 +897,25 @@ export default function ManufacturabilityAnalysis(props) {
             " Out of "+gltfjsonParam.assemblyorder.order.length.toString()+" At "+
             gltfjsonParam.assemblyorder.current+" From "+gltfjsonParam.assemblyorder.start+"\n"+
             " Please try atleast after a minute";
-          setAlerter(progressString);
+          setAlerter(progressString);  
+               
         } else {
           if(alerter!="") {
             setAlerter("");
+            var mycolumns=columns;
+            mycolumns[2].type="select";
+            setColumns(mycolumns);
+          }
+          if(itemset) {
+            setState({gltfjson:gltfjsonParam});
           }
         }        
       } else {
         if(alerter!="") {
           setAlerter("");
+          var mycolumns=columns;
+          mycolumns[2].type="select";
+          setColumns(mycolumns);
         }
       }
     } else {
@@ -803,6 +923,9 @@ export default function ManufacturabilityAnalysis(props) {
       setFilteredList(currentData);
       if(alerter!="") {
         setAlerter("");
+        var mycolumns=columns;
+        mycolumns[2].type="select";
+        setColumns(mycolumns);
       }
       console.log("Final Setting Featured List", currentData, filteredList);
     }
@@ -913,7 +1036,9 @@ export default function ManufacturabilityAnalysis(props) {
         handleDataRowClick={addSelectionFromTree}
         handleDataCellChange={updateSelectionFromTable}  
         saveDataTable={saveSelectionFromTable} 
-        resetDataTable={restSelectionFromTable} 
+        resetDataTable={resetSelectionFromTable} 
+        fetchDataTable={fetchSelectionFromTable} 
+        updateOrderChange={updateOrderFromTable}
         style={{ width: 700 }}
       >
       </TableOrderView>

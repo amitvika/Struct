@@ -1,5 +1,5 @@
 export { default as BaseTable } from './BaseTable';
-
+export { default as DraggableTable } from './DraggableTable';
 export { default as Column, Alignment, FrozenDirection } from './Column';
 export { default as SortOrder } from './SortOrder';
 export { default as AutoResizer } from './AutoResizer';

@@ -11,8 +11,9 @@ import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
 import SaveOutlinedIcon from '@material-ui/icons/SaveOutlined';
 import RotateLeftSharpIcon from '@material-ui/icons/RotateLeftSharp';
+import DynamicFeedOutlinedIcon from '@material-ui/icons/DynamicFeedOutlined';
 import Paper from '@material-ui/core/Paper';
-import { AutoResizer, BaseTable, SortOrder } from '@ravibasil/common/gltf/GridTable';
+import { AutoResizer, BaseTable, DraggableTable, SortOrder } from '@ravibasil/common/gltf/GridTable';
 import { createGlobalStyle } from 'styled-components/macro';
 import styled  from 'styled-components';
 //import TableHead from '@material-ui/core/TableHead';
@@ -117,6 +118,7 @@ const GlobalStyle = createGlobalStyle`
 const useStyles = makeStyles(styles);
 const GetSortOrder=(sortBy, sortDirection)=> {    
   return function(a, b) {  
+    if(sortBy) {
       if (sortDirection) {
         if (a[sortBy] > b[sortBy]) {    
           return (sortDirection==SortOrder.ASC?1:-1);    
@@ -124,8 +126,8 @@ const GetSortOrder=(sortBy, sortDirection)=> {
             return (sortDirection==SortOrder.DESC?1:-1);    
         }  
       }  
-       
-      return 0;    
+    }
+    return 0;    
   }    
 }    
 class MuiVirtualizedTable extends React.PureComponent {
@@ -137,18 +139,30 @@ class MuiVirtualizedTable extends React.PureComponent {
     fixedWidth: true,
     height: this.props.rowHeight
   }); */
-  
+  constructor(props) {
+    super(props);
+    this.setState({sortedlist:this.props.list,
+      sortState: this.props.defaultSort});
+    console.log("Getting SortedList",this.state.sortedlist);
+  }
   state = {    
     sortBy: "order",
     sortDirection: SortOrder.ASC,
-    sortedlist:this.props.list,
-    sortState: this.props.defaultSort,
+    sortedlist: this.props.list,
+    sortState: this.props.defaultSort,    
   };
-
+  static getDerivedStateFromProps(props, current_state) {
+    if (current_state.sortedlist !== props.list) {
+      return {
+        sortedlist: props.list
+      }
+    }
+    return null;
+  }
   getRowClassName = (gotHere) => {
     const {rowIndex}=gotHere;
     const {list}=this.props;
-    //console.log("Reaching getRowClassName",gotHere,list,this.props);
+    console.log("Reaching getRowClassName",gotHere,list,this.props);
     const { classes, onRowClick } = this.props;
     //console.log(classes.tableRow);
     const Megot = clsx(classes.tableRow, classes.flexContainer, {
@@ -163,7 +177,7 @@ class MuiVirtualizedTable extends React.PureComponent {
     //if((rowIndex >=0) && list[rowIndex].selectedshell) 
     //  return 'sticky-row';
     //
-       //console.log(classHere);
+      console.log(classHere);
       return classHere; 
   };
 
@@ -180,13 +194,13 @@ class MuiVirtualizedTable extends React.PureComponent {
   sortTableColumn=(whatIsGot) =>{
     const {column,key,order}=whatIsGot;
     const {list,setData,setSortBy,setSortDirection} = this.props;
-    //console.log(whatIsGot,list,this.props,key,order);
-    let sortedList  = list;
-    sortedList.sort(GetSortOrder(key,order));  
+    console.log(whatIsGot,list,this.props,key,order);
+    let sortedlist  = list;
+    sortedlist.sort(GetSortOrder(key,order));  
     
-    this.setState({ key, order, sortedList });
+    this.setState({ key, order, sortedlist });
     if(setData) {
-      setData(sortedList);
+      setData(sortedlist);
     }
     if(setSortBy) {
       setSortBy(key);      
@@ -194,11 +208,13 @@ class MuiVirtualizedTable extends React.PureComponent {
     if(setSortDirection) {
       setSortDirection(order)
     }
+    if(key) {
+      this.setState( { sortState: {
+        ...this.state.sortState,
+        [key]: this.state.sortState[key] === SortOrder.DESC  ?  SortOrder.ASC: SortOrder.DESC,
+      } } );
+    }
     
-    this.setState( { sortState: {
-      ...this.state.sortState,
-      [key]: this.state.sortState[key] === SortOrder.DESC  ?  SortOrder.ASC: SortOrder.DESC,
-    } } );
   }
   
   
@@ -207,16 +223,19 @@ class MuiVirtualizedTable extends React.PureComponent {
   }
 
   render() {
-    const { classes, columns, rowHeight, rowWidth, headerHeight,  list, ...tableProps } = this.props;
+    const { classes, columns, rowHeight, rowWidth, headerHeight, draggable, setSortBy, ...tableProps } = this.props;
     //console.log("My Props",this.props);
     return (
       <AutoResizer>
       {({ width, height }) => (
-          <BaseTable
+         <React.Fragment>
+         {draggable && <DraggableTable
             
+            {...tableProps}
+
             height={height}
             width={width}
-            data={list}
+            data={this.state.sortedlist}
             rowWidth={rowWidth}
             
             //footerHeight={0}       
@@ -235,6 +254,7 @@ class MuiVirtualizedTable extends React.PureComponent {
             estimatedRowHeight={40}  
             sortState={this.state.sortState}            
             rowEventHandlers={this.rowEventHandlers}  
+            setSortBy={setSortBy}
           /*cache={cache}
           rowRenderer={this.rowRenderer} */
           >
@@ -255,7 +275,55 @@ class MuiVirtualizedTable extends React.PureComponent {
                 />
               );
             })} */}
-          </BaseTable>
+          </DraggableTable>
+            }
+          {!draggable && <DraggableTable
+         
+
+          height={height}
+          width={width}
+          data={this.state.sortedList}
+          rowWidth={rowWidth}
+          
+          //footerHeight={0}       
+          //headerHeight={[headerHeight]}
+          //className={classes.table}
+          
+          rowClassName={this.getRowClassName}
+          //headerClassName={this.getHeaderClassName}
+          onColumnSort={this.sortTableColumn}
+          sortBy={{'key':this.state.sortBy,
+                   'order':this.state.sortDirection
+                  }}
+          sortDirection={this.state.sortDirection}  
+          columns={columns}    
+          ignoreFunctionInColumnCompare={false} 
+          estimatedRowHeight={40}  
+          sortState={this.state.sortState}            
+          rowEventHandlers={this.rowEventHandlers}  
+        /*cache={cache}
+        rowRenderer={this.rowRenderer} */
+        >
+          {/* {columns.map(({ dataKey, ...other }, index) => {
+            return (
+              <Column
+                key={dataKey}
+                headerRenderer={(headerProps) =>
+                  this.headerRenderer({
+                    ...headerProps,
+                    columnIndex: index,
+                  })
+                }
+                className={classes.flexContainer}
+                cellRenderer={this.cellRenderer}
+                dataKey={dataKey}
+                {...other}
+              />
+            );
+          })} */}
+        </DraggableTable>
+        }
+        </React.Fragment>
           )}
           </AutoResizer>
         );
@@ -285,7 +353,7 @@ class EditableCell extends React.PureComponent {
   
   render() {
     const { container, rowIndex, columnIndex, columns,rowData } = this.props
-    //console.log("Cell Rendering",this.props);
+    console.log("Cell Rendering",this.props);
     const { value } = this.state;
     const currentColumn = columns[columnIndex];
     const onChange=(event) => {
@@ -296,12 +364,16 @@ class EditableCell extends React.PureComponent {
       })
       columns[columnIndex].onCellChange(rowIndex,columnIndex,rowData,event.target.value);
     } 
+    const onClick=(event) => {     
+      console.log("GOT here",event,rowIndex,columnIndex,currentColumn.onRowClick);     
+      columns[columnIndex].onRowClick(rowData,event);
+    } 
     if (currentColumn.type=="select") {
       const optionTags = currentColumn.options.map((aOption, aIndex) => (
-        <option value={aOption}>{aOption}</option>
+        <option key={aOption} value={aOption}>{aOption}</option>
       ));
       return (
-        <CellContainer>              
+        <CellContainer key={currentColumn.dataKey}>              
               <Select value={value} onChange={onChange}>
                 {optionTags}                  
               </Select>              
@@ -310,14 +382,14 @@ class EditableCell extends React.PureComponent {
     }
     if (currentColumn.type=="number" || currentColumn.type=="text" ) {     
       return (
-        <CellContainer>              
+        <CellContainer key={currentColumn.dataKey}>              
             <TextField onChange={onChange} value={value}/>             
         </CellContainer>
       ) 
     }
     //console.log("myColChange",myColChange);
     return (
-      <CellContainer>              
+      <CellContainer onClick={onClick} key={currentColumn.dataKey} >              
             {value}             
       </CellContainer>
     )
@@ -331,6 +403,8 @@ export default function TableOrderView({
   handleDataCellChange = () => { },
   saveDataTable = () => {},
   resetDataTable = () => {},
+  fetchDataTable = () => {},
+  updateOrderChange=()=>{},
   list,
   columns,
   setColumns,
@@ -358,6 +432,12 @@ export default function TableOrderView({
     setData(sortedList);
   }, [list]);
   
+  const  onRowClick=(dataRow,event) => {    
+    console.log("BeforeDataRowClock",data,sortBy,sortDirection);
+    handleDataRowClick(dataRow, event);
+    console.log("AfterDataRowClock",data,sortBy,sortDirection);
+  }
+
   const onCellChange=(rowIndex,columnIndex,dataRow,value)=>{
     console.log(rowIndex,columnIndex,dataRow,value);  
     console.log("BeforeCellChange",data,sortBy,sortDirection);
@@ -372,7 +452,13 @@ export default function TableOrderView({
     if(element.type && element.type!="view"){      
       editable.cellRenderer=EditableCell;
       editable.onCellChange=onCellChange;
-    } 
+      editable.onRowClick=onRowClick;
+    } else  {
+      console.log("Setting",element);
+      editable.cellRenderer=EditableCell;
+      editable.onRowClick=onRowClick;
+      editable.onCellChange=onCellChange;
+    }
     element.key = element.dataKey;
     mycolumns.push(editable);
     defaultSort[element.dataKey]=element.inititalsort?element.inititalsort:SortOrder.ASC;    
@@ -389,26 +475,36 @@ export default function TableOrderView({
       }} align='center'>
         {title}
         &nbsp;
-        {/* { (!alerter || alerter=="") && 
+        { (!alerter || alerter=="") && 
+          <>
           <Button aria-describedby={"Save Controls"} 
               id={'popsave'} type="button" 
               variant="contained" 
               color="primary"
-              onClick={(event)=>{saveDataTable()}}                        
+              onClick={(event)=>{saveDataTable(data)}}                        
               startIcon={<SaveOutlinedIcon/>} 
             >
-            </Button>           
-         }  */}       
+            </Button> 
+            &nbsp;
+            <Button aria-describedby={"Reset Controls"} 
+              id={'popreset'} type="button" 
+              variant="contained" 
+              color="primary"
+              onClick={(event)=>{resetDataTable(data)}}                        
+              startIcon={<RotateLeftSharpIcon/> } 
+            >  
+             </Button> 
+            </>        
+         }     
          { alerter && alerter!="" && 
             <Button aria-describedby={"Reset Controls"} 
               id={'popreset'} type="button" 
               variant="contained" 
               color="primary"
-              onClick={(event)=>{resetDataTable()}}                        
-              startIcon={<RotateLeftSharpIcon/> } 
+              onClick={(event)=>{fetchDataTable()}}                        
+              startIcon={<DynamicFeedOutlinedIcon/> } 
             >
-            </Button>
-             
+            </Button>            
           }
              
       </div>
@@ -423,6 +519,14 @@ export default function TableOrderView({
           handleDataRowClick(thisdata.rowData, thisdata.event);
           console.log("AfterDataRowClock",data,sortBy,sortDirection);
         }}
+        updateOrderChange={
+            (mydata,oldIndex,newIndex)=>{
+              console.log("Before order change",(mydata,data,oldIndex,newIndex));
+              resetMySelection(mydata);
+              updateOrderChange(mydata,oldIndex,newIndex);
+              console.log("After order change",(mydata,data,oldIndex,newIndex))
+            }
+          }
         //headerHeight={50}
         //rowHeight={50}
         list={data}
@@ -430,6 +534,7 @@ export default function TableOrderView({
         setSortBy={setSortBy}
         setSortDirection={setSortDirection}
         defaultSort={defaultSort}
+        draggable={!alerter || alerter==""}
       />
     </Paper>
   ); 

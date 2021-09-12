@@ -19,7 +19,7 @@ export const fetchShapeInfo = async (tree) => {
     return axios.post(`${host}/shapeinfo/`, formTree);
 };
 
-export const saveActuatorInfo = async (tree,name) => {    
+export const saveTreeInfo = async (tree,name) => {    
     console.log(tree);
     var formTree = new FormData();
     formTree.append('tree', JSON.stringify(tree));

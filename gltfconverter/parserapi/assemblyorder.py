@@ -1124,6 +1124,7 @@ class FindAssemblingOrder(object):
         self.shapesdistance=[]
         self.shapesvolume=[]               
         self.shapesdimension=[]
+        self.shapesoriginaldimension=[]
         self.shapesmove=[]
         #self.scaledshapes=[]
         
@@ -1162,6 +1163,7 @@ class FindAssemblingOrder(object):
             self.shapesdistance.append( ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 )
             self.shapesvolume.append(abs((xmaxs-xmins)*(ymaxs-ymins)*(zmaxs-zmins)))         
             self.shapesdimension.append((xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))  
+            self.shapesoriginaldimension.append((xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))
         k=1
         for i in range(0,lenShape-k):
             #swapper = False
@@ -1478,8 +1480,126 @@ class FindAssemblingOrder(object):
         except Exception as e:
             print("Error in Exploding Parts",e)   
         return dictionary
+
+    def getDirection(self,direction):
+        if direction=="Top":
+            return (0,0,1)
+        elif direction=="Bottom":
+            return (0,0,-1)
+        elif direction=="Right":
+            return (0,1,0)
+        elif direction=="Left":
+            return (0,-1,0)   
+        elif direction=="Back":
+            return (1,0,0)
+        elif direction=="Front":
+            return (-1,0,0)
+        else:
+            return(0,0,0)
+    
+    def reChangeOrder(self,changedshapeorder,changedshapedirection,sourceFileName,distancegap,anglegap,animationtime,debugMe=False):
         
-  
+        starttime=datetime.now()
+        dictionary={}
+        self.byThread=False
+        self.InitExplodeParts(debugMe)
+        lenShape = len(self.shapeArray)
+        xmin, ymin, zmin, xmax, ymax, zmax = self.dimension 
+        xc, yc, zc = (xmin+xmax)/2, (ymin+ymax)/2 , (zmin+zmax)/2
+        if(self.center):    
+           
+            lenShape = len(self.shapeArray)
+            Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.shapesoriginaldimension[0] 
+            self.shapesdirection[0] = self.getDirection(changedshapedirection[0])  
+            self.shapeorder[0]=changedshapeorder[0]
+            for i in range(1,lenShape):
+                xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesoriginaldimension[i]
+                if(xmins < Xxmin):
+                    Xxmin = xmins
+                if(ymins < Yymin):
+                    Yymin = ymins
+                if(zmins < Zzmin):
+                    Zzmin = zmins
+                if(xmaxs > Xxmax):
+                    Xxmax = xmaxs
+                if(ymaxs > Yymax):
+                    Yymax = ymaxs
+                if(zmaxs > Zzmax):
+                    Zzmax = zmaxs
+                self.shapesdirection[i] = self.getDirection(changedshapedirection[i]) 
+                self.shapeorder[i]=changedshapeorder[i]  
+             
+            xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax
+            #shiftX,shiftY,shiftZ = 0,0,0   
+            prevX, prevY, prevZ = 0,0,0   
+
+            for i  in range(lenShape):
+                #(aShape,aName,aColor) = shapeArray[i]
+                #xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
+                myIndex = self.shapeorder[i]
+               
+                (newShape,aName,aColor) = self.newShapes[myIndex+1]
+                direction = self.shapesdirection[myIndex]
+                xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesoriginaldimension[myIndex]
+                
+                if (direction==(0,0,0)) :
+                    if (prevX==0) and (prevY==0) and (prevZ==0):
+                        directionX,directionY,directionZ = 0, 0, 1
+                    else:
+                        directionX,directionY,directionZ = prevX, prevY, prevZ 
+                else:
+                    directionX,directionY,directionZ = direction
+                    prevX, prevY, prevZ = directionX,directionY,directionZ
+                
+                if directionZ==1: 
+                    xmove = 0
+                    ymove = 0
+                    zmove = zmaxp + self.explodegap
+                    zmaxp = zmove + (zmaxs-zmins)
+                if directionZ==-1:
+                    xmove = 0
+                    ymove = 0
+                    zmove = zminp - (zmaxs-zmins+self.explodegap)
+                    zminp = zmove
+                if directionX==1: 
+                    xmove = xmaxp + self.explodegap
+                    ymove = 0
+                    zmove = 0
+                    xmaxp = xmove + (xmaxs-xmins)
+                if directionX==-1:
+                    xmove = xminp - (xmaxs-xmins+self.explodegap)
+                    ymove = 0
+                    zmove = 0
+                    xminp = xmove
+                if directionY==1: 
+                    xmove = 0
+                    ymove = ymaxp + self.explodegap
+                    zmove = 0
+                    ymaxp = ymove + (ymaxs-ymins)
+                if directionY==-1:
+                    xmove = 0
+                    ymove = yminp - (ymaxs-ymins+self.explodegap)
+                    zmove = 0
+                    yminp = ymove
+                
+                self.moveArrays[myIndex]=(xmove, ymove, zmove)
+                finalShape=translate_shp(newShape,xmove, ymove, zmove, True) 
+                
+                print(direction,i,myIndex, (xmove, ymove, zmove),  aName,\
+                        (xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))  
+                self.newShapes[myIndex+1] = (finalShape,aName,aColor)    
+                
+        currenttime=datetime.now()
+        
+        dictionary = self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape)  
+        print(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape,self.shapeorder)
+        try:
+            if self.logging != None and self.byThread:
+                self.logging.info("Completed thread assembling") 
+        except Exception as e:
+            print("Error while logging",e)
+        return dictionary 
+    
 
   
     
