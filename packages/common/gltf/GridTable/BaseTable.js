@@ -31,7 +31,7 @@ import {
   noop,
 } from './utils';
 
-import './_BaseTable.scss';
+import './BaseTable.scss';
 
 const getColumns = memoize((columns, children) => columns || normalizeColumns(children));
 
@@ -371,11 +371,12 @@ class BaseTable extends React.PureComponent {
       onRowHover: hasFrozenColumns ? this._handleRowHover : null,
       onRowHeightChange: hasFrozenColumns ? this._handleFrozenRowHeightChange : this._handleRowHeightChange,
     };
-
+    //console.log("Reachibg here2",rowData);
     return <TableRow {...rowProps} />;
   }
 
   renderRowCell({ isScrolling, columns, column, columnIndex, rowData, rowIndex, expandIcon }) {
+    //console.log("Reachibg here3",rowData);
     if (column[ColumnManager.PlaceholderKey]) {
       return (
         <div
@@ -404,6 +405,7 @@ class BaseTable extends React.PureComponent {
     const extraProps = callOrReturn(this.props.cellProps, { columns, column, columnIndex, rowData, rowIndex });
     const { tagName, ...rest } = extraProps || {};
     const Tag = tagName || 'div';
+    //console.log("Reachibg here4",cellData);
     return (
       <Tag
         role="gridcell"
@@ -490,7 +492,7 @@ class BaseTable extends React.PureComponent {
     const extraProps = callOrReturn(headerCellProps, { columns, column, columnIndex, headerIndex });
     const { tagName, ...rest } = extraProps || {};
     const Tag = tagName || 'div';
-    console.log("Reachibg here",column);
+    //console.log("Reachibg here",column);
     return (
       <Tag
         role="gridcell"
@@ -534,6 +536,7 @@ class BaseTable extends React.PureComponent {
       // make sure `scrollLeft` is always integer to fix a sync bug when scrolling to end horizontally
       tableWidth = Math.max(Math.round(columnsWidth), tableWidth);
     }
+    //console.log("Reachibg here5",this._data);
     return (
       <GridTable
         {...rest}
@@ -566,6 +569,7 @@ class BaseTable extends React.PureComponent {
     const containerHeight = this._getFrozenContainerHeight();
     const offset = this._verticalScrollbarSize || 20;
     const columnsWidth = this.columnManager.getLeftFrozenColumnsWidth();
+    //console.log("Reachibg here6",this._data);
     return (
       <GridTable
         {...rest}
@@ -600,6 +604,7 @@ class BaseTable extends React.PureComponent {
     const containerHeight = this._getFrozenContainerHeight();
     const columnsWidth = this.columnManager.getRightFrozenColumnsWidth();
     const scrollbarWidth = this._verticalScrollbarSize;
+    //console.log("Reachibg here7",this._data);
     return (
       <GridTable
         {...rest}
@@ -652,12 +657,14 @@ class BaseTable extends React.PureComponent {
       left,
       height: this._getTableHeight() - this._horizontalScrollbarSize,
     };
+    //console.log("Reachibg here7",this._data);
     return <div className={this._prefixClass('resizing-line')} style={style} />;
   }
 
   renderFooter() {
     const { footerHeight, footerRenderer } = this.props;
     if (footerHeight === 0) return null;
+    //console.log("Reachibg here8",this._data);
     return (
       <div className={this._prefixClass('footer')} style={{ height: footerHeight }}>
         {renderElement(footerRenderer)}
@@ -667,9 +674,10 @@ class BaseTable extends React.PureComponent {
 
   renderEmptyLayer() {
     const { data, frozenData, footerHeight, emptyRenderer } = this.props;
-
+    //console.log("Reachibg here9",data,"Frozendata",frozenData);
     if ((data && data.length) || (frozenData && frozenData.length)) return null;
     const headerHeight = this._getHeaderHeight();
+    
     return (
       <div className={this._prefixClass('empty-layer')} style={{ top: headerHeight, bottom: footerHeight }}>
         {renderElement(emptyRenderer)}
@@ -679,7 +687,7 @@ class BaseTable extends React.PureComponent {
 
   renderOverlay() {
     const { overlayRenderer } = this.props;
-
+    //console.log("Reachibg here10",overlayRenderer);
     return <div className={this._prefixClass('overlay')}>{!!overlayRenderer && renderElement(overlayRenderer)}</div>;
   }
 
@@ -725,6 +733,7 @@ class BaseTable extends React.PureComponent {
       [`${classPrefix}--disabled`]: disabled,
       [`${classPrefix}--dynamic`]: !!estimatedRowHeight,
     });
+    //console.log("Reachibg here11",data,"internal data",this._data);
     return (
       <div ref={this._setContainerRef} className={cls} style={containerStyle}>
         {this.renderFooter()}
@@ -747,6 +756,7 @@ class BaseTable extends React.PureComponent {
 
   componentDidUpdate(prevProps, prevState) {
     const { data, height, maxHeight, estimatedRowHeight } = this.props;
+    //console.log("Reachibg here12",data,prevProps,prevState);
     if (data !== prevProps.data) {
       this._lastScannedRowIndex = -1;
       this._hasDataChangedSinceEndReached = true;

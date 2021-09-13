@@ -143,7 +143,7 @@ class MuiVirtualizedTable extends React.PureComponent {
     super(props);
     this.setState({sortedlist:this.props.list,
       sortState: this.props.defaultSort});
-    console.log("Getting SortedList",this.state.sortedlist);
+    //console.log("Getting SortedList",this.state.sortedlist);
   }
   state = {    
     sortBy: "order",
@@ -152,6 +152,7 @@ class MuiVirtualizedTable extends React.PureComponent {
     sortState: this.props.defaultSort,    
   };
   static getDerivedStateFromProps(props, current_state) {
+    //console.log("derivedstate",props, current_state);
     if (current_state.sortedlist !== props.list) {
       return {
         sortedlist: props.list
@@ -159,10 +160,17 @@ class MuiVirtualizedTable extends React.PureComponent {
     }
     return null;
   }
+  componentDidUpdate(prevProps, prevState) {
+    const { list } = this.props;
+    //console.log("Reachibg here my set",list,prevProps,prevState,this.state.sortedlist);
+    if (list !== prevProps.list) {
+      this.setState({sortedlist:this.props.list});
+    }
+  }
   getRowClassName = (gotHere) => {
     const {rowIndex}=gotHere;
     const {list}=this.props;
-    console.log("Reaching getRowClassName",gotHere,list,this.props);
+    //console.log("Reaching getRowClassName",gotHere,list,this.props);
     const { classes, onRowClick } = this.props;
     //console.log(classes.tableRow);
     const Megot = clsx(classes.tableRow, classes.flexContainer, {
@@ -177,7 +185,7 @@ class MuiVirtualizedTable extends React.PureComponent {
     //if((rowIndex >=0) && list[rowIndex].selectedshell) 
     //  return 'sticky-row';
     //
-      console.log(classHere);
+      //console.log(classHere);
       return classHere; 
   };
 
@@ -224,7 +232,7 @@ class MuiVirtualizedTable extends React.PureComponent {
 
   render() {
     const { classes, columns, rowHeight, rowWidth, headerHeight, draggable, setSortBy, ...tableProps } = this.props;
-    //console.log("My Props",this.props);
+    //console.log("ste",this.state.sortedlist,"myprops",this.props.list, this.props);
     return (
       <AutoResizer>
       {({ width, height }) => (
@@ -235,7 +243,7 @@ class MuiVirtualizedTable extends React.PureComponent {
 
             height={height}
             width={width}
-            data={this.state.sortedlist}
+            data={this.state.sortedlist||this.props.list}
             rowWidth={rowWidth}
             
             //footerHeight={0}       
@@ -277,12 +285,13 @@ class MuiVirtualizedTable extends React.PureComponent {
             })} */}
           </DraggableTable>
             }
-          {!draggable && <DraggableTable
-         
+          {!draggable && <BaseTable
+          
+          {...tableProps}
 
           height={height}
           width={width}
-          data={this.state.sortedList}
+          data={this.state.sortedlist||this.props.list}
           rowWidth={rowWidth}
           
           //footerHeight={0}       
@@ -301,6 +310,7 @@ class MuiVirtualizedTable extends React.PureComponent {
           estimatedRowHeight={40}  
           sortState={this.state.sortState}            
           rowEventHandlers={this.rowEventHandlers}  
+          setSortBy={setSortBy}
         /*cache={cache}
         rowRenderer={this.rowRenderer} */
         >
@@ -321,7 +331,7 @@ class MuiVirtualizedTable extends React.PureComponent {
               />
             );
           })} */}
-        </DraggableTable>
+        </BaseTable>
         }
         </React.Fragment>
           )}
@@ -353,41 +363,47 @@ class EditableCell extends React.PureComponent {
   
   render() {
     const { container, rowIndex, columnIndex, columns,rowData } = this.props
-    console.log("Cell Rendering",this.props);
+    //console.log("Cell Rendering",this.props);
     const { value } = this.state;
     const currentColumn = columns[columnIndex];
     const onChange=(event) => {
-      console.log(event);
-      console.log("GOt here",event,rowIndex,columnIndex,currentColumn.onCellChange);
+      //console.log(event);
+      console.log("GOt here",event,rowIndex,columnIndex,rowData);
       this.setState({
         value: event.target.value
       })
       columns[columnIndex].onCellChange(rowIndex,columnIndex,rowData,event.target.value);
     } 
     const onClick=(event) => {     
-      console.log("GOT here",event,rowIndex,columnIndex,currentColumn.onRowClick);     
+      console.log("GOT here",event,rowIndex,columnIndex,rowData);     
       columns[columnIndex].onRowClick(rowData,event);
     } 
-    if (currentColumn.type=="select") {
-      const optionTags = currentColumn.options.map((aOption, aIndex) => (
-        <option key={aOption} value={aOption}>{aOption}</option>
-      ));
-      return (
-        <CellContainer key={currentColumn.dataKey}>              
-              <Select value={value} onChange={onChange}>
-                {optionTags}                  
-              </Select>              
-        </CellContainer>
-      ) 
+    //console.log(currentColumn);
+    const myAlerter = currentColumn.alerter();
+    if(!myAlerter || myAlerter=="") {
+      if (currentColumn.type=="select") {
+        const optionTags = currentColumn.options.map((aOption, aIndex) => (
+          <option key={aOption} value={aOption}>{aOption}</option>
+        ));
+        return (
+          <CellContainer key={currentColumn.dataKey}>              
+                <Select value={value} onChange={onChange}>
+                  {optionTags}                  
+                </Select>              
+          </CellContainer>
+        ) 
+      }
+      if (currentColumn.type=="number" || currentColumn.type=="text" ) {     
+        return (
+          <CellContainer key={currentColumn.dataKey}>              
+              <TextField onChange={onChange} value={value}/>             
+          </CellContainer>
+        ) 
+      }
     }
-    if (currentColumn.type=="number" || currentColumn.type=="text" ) {     
-      return (
-        <CellContainer key={currentColumn.dataKey}>              
-            <TextField onChange={onChange} value={value}/>             
-        </CellContainer>
-      ) 
-    }
-    //console.log("myColChange",myColChange);
+    
+    //console.log("myColChange",onClick,currentColumn.dataKey,value);
+    
     return (
       <CellContainer onClick={onClick} key={currentColumn.dataKey} >              
             {value}             
@@ -445,6 +461,9 @@ export default function TableOrderView({
     console.log("AfterCellChange",data,sortBy,sortDirection);
   };
   
+  const getAlerter=()=>{
+    return alerter;
+  }
   const defaultSort={};
   var mycolumns = [];
   columns.forEach(element => {
@@ -459,7 +478,8 @@ export default function TableOrderView({
       editable.onRowClick=onRowClick;
       editable.onCellChange=onCellChange;
     }
-    element.key = element.dataKey;
+    editable.key = element.dataKey;
+    editable.alerter = getAlerter;
     mycolumns.push(editable);
     defaultSort[element.dataKey]=element.inititalsort?element.inititalsort:SortOrder.ASC;    
   });
@@ -490,15 +510,15 @@ export default function TableOrderView({
               id={'popreset'} type="button" 
               variant="contained" 
               color="primary"
-              onClick={(event)=>{resetDataTable(data)}}                        
+              onClick={(event)=>{resetDataTable()}}                        
               startIcon={<RotateLeftSharpIcon/> } 
             >  
              </Button> 
             </>        
          }     
          { alerter && alerter!="" && 
-            <Button aria-describedby={"Reset Controls"} 
-              id={'popreset'} type="button" 
+            <Button aria-describedby={"Fetch Controls"} 
+              id={'popfetch'} type="button" 
               variant="contained" 
               color="primary"
               onClick={(event)=>{fetchDataTable()}}                        
@@ -521,10 +541,10 @@ export default function TableOrderView({
         }}
         updateOrderChange={
             (mydata,oldIndex,newIndex)=>{
-              console.log("Before order change",(mydata,data,oldIndex,newIndex));
+              console.log("Before order change",mydata,data,oldIndex,newIndex);
               resetMySelection(mydata);
               updateOrderChange(mydata,oldIndex,newIndex);
-              console.log("After order change",(mydata,data,oldIndex,newIndex))
+              console.log("After order change",mydata,data,oldIndex,newIndex)
             }
           }
         //headerHeight={50}

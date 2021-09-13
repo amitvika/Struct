@@ -774,7 +774,7 @@ export default function ManufacturabilityAnalysis(props) {
               mygltfjson.gltf = gltfobj;
               mygltfjson.tree = curTree;
               mygltfjson.assemblyorder=curOrder;           
-              getTable(mygltfjson,true);
+              //getTable(mygltfjson,true);
               const mycounter = state.mycounter+1;
               setState({gltfjson:mygltfjson,
                         mycounter:mycounter});  
@@ -895,7 +895,7 @@ export default function ManufacturabilityAnalysis(props) {
         if (gltfjsonParam.assemblyorder.complete!=gltfjsonParam.assemblyorder.order.length) {
           const progressString="Completed "+gltfjsonParam.assemblyorder.complete.toString()+
             " Out of "+gltfjsonParam.assemblyorder.order.length.toString()+" At "+
-            gltfjsonParam.assemblyorder.current+" From "+gltfjsonParam.assemblyorder.start+"\n"+
+            gltfjsonParam.assemblyorder.current+" From "+gltfjsonParam.assemblyorder.start+"&nbsp;"+
             " Please try atleast after a minute";
           setAlerter(progressString);  
                
