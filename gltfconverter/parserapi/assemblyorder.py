@@ -1106,6 +1106,7 @@ class FindAssemblingOrder(object):
         testMe=False
         self.shapesColorArray=[]
         self.shapesArray=[]
+        self.shapesordereddirection=[]
         if testMe:
             for i in [9,10,11,15,16]:
                 self.shapesColorArray.append(self.shapeColorArray[i])
@@ -1159,6 +1160,7 @@ class FindAssemblingOrder(object):
             self.shapereverseorder.append(i)
             self.shapeassembleorder.append(i)
             self.shapesdirection.append((0,0,0))
+            self.shapesordereddirection.append((0,0,0))
             self.shapesmove.append((xmove, ymove, zmove))
             self.shapesdistance.append( ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 )
             self.shapesvolume.append(abs((xmaxs-xmins)*(ymaxs-ymins)*(zmaxs-zmins)))         
@@ -1510,7 +1512,7 @@ class FindAssemblingOrder(object):
            
             lenShape = len(self.shapeArray)
             Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.shapesoriginaldimension[0] 
-            self.shapesdirection[0] = self.getDirection(changedshapedirection[0])  
+            self.shapesordereddirection[0] = self.getDirection(changedshapedirection[0])  
             self.shapeorder[0]=changedshapeorder[0]
             for i in range(1,lenShape):
                 xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesoriginaldimension[i]
@@ -1526,7 +1528,7 @@ class FindAssemblingOrder(object):
                     Yymax = ymaxs
                 if(zmaxs > Zzmax):
                     Zzmax = zmaxs
-                self.shapesdirection[i] = self.getDirection(changedshapedirection[i]) 
+                self.shapesordereddirection[i] = self.getDirection(changedshapedirection[i]) 
                 self.shapeorder[i]=changedshapeorder[i]  
              
             xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax
@@ -1539,7 +1541,9 @@ class FindAssemblingOrder(object):
                 myIndex = self.shapeorder[i]
                
                 (newShape,aName,aColor) = self.newShapes[myIndex+1]
-                direction = self.shapesdirection[myIndex]
+                direction = self.shapesordereddirection[i]
+                self.shapesdirection[myIndex]=direction
+
                 xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesoriginaldimension[myIndex]
                 
                 if (direction==(0,0,0)) :
