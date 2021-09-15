@@ -31,7 +31,6 @@ const SignInPage = () => {
         setIsLoading(false);
         history.push('/design');
       }, 3000);
-
     } catch (error) {
       console.log('Error', error);
     }
@@ -43,11 +42,11 @@ const SignInPage = () => {
       fetchUser();
     }
   }, [query.get('token')]);
-  
+
   const handleLoginSubmit = async (data) => {
     try {
       const user = await AuthService.signIn(data);
-      setAuthUser({ user });
+      setAuthUser({ user, isAuthenticated: true });
     } catch (error) {}
   };
 

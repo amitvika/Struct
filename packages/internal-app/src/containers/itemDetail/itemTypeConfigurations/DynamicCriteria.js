@@ -42,9 +42,9 @@ export default function DynamicCriteria({
   };
 
   const renderCriteria = () => {
+    console.log(currentCrieteriaValue, criteriaFields)
     if (currentCrieteriaValue && criteriaFields[currentCrieteriaValue]) {
-      let { fields = [], criteriaTitle = '' } =
-        criteriaFields[currentCrieteriaValue];
+      let { fields = [], criteriaTitle = '' } = criteriaFields[currentCrieteriaValue];
       return (
         <Paper style={{ padding: 20, margin: 10 }}>
           <Headding style={{fontSize: 24}}>{criteriaTitle}</Headding>
