@@ -2579,7 +2579,7 @@ class StepIgesAnalyser():
             if lenShapeOrder > 0:
                 mystep = self.shapeorder[steps-1]  
             u,v,w=self.animations[mystep]
-            #print("steps",steps, u,v,w)
+            print("steps",steps,mystep, u,v,w)
             if lenShapeOrder > 0:
                 for istep in range(lenOfAnimationsTime):  
                     timebuff.add_time(istep*self.delay)

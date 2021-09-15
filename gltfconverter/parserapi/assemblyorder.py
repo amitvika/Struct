@@ -1,16 +1,21 @@
 
 
+from OCC.Core.Bnd import Bnd_OBB
+from OCC.Core.gp import (gp_Pnt, gp_XYZ, gp_Ax2, gp_Dir)
 from .structparts.structquery.occ_impl import OCPStepIGESAnalyser
 from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
-from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (translate_shp, get_bounding_details, scale_shape)
+from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (translate_shp, get_bounding_details, get_oriented_bounding_details, scale_shape)
 #from OCC.Core.gp import gp_Pnt 
-#from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound
 from datetime import datetime
 import threading
 import json
+import math
+import sys
+
 def swap(a, b):
     return b, a
 
@@ -272,341 +277,48 @@ class FindAssemblingOrder(object):
                 print(e,"File, %s has Outer error" % colorfile) 
             except:
                 print(e,"Some Exceptions") 
+
+    
    
-    def checkCommonHoleInDirection(self, myShapeOuter,myOuterDimension, myShapeInner,myInnerDimension, direction, toBeScaled, debugMe=False):
+    def checkCommonHoleInDirection(self, myShapeOuter,myOuterDimension, myShapeInner,myInnerDimension, axisdirection, checkingBox, fullBox, toBeScaled, debugMe=False):
         #return True, None
-        
-        #dirX, dirY, dirZ = direction
+        print(axisdirection)
+        adirX, adirY, adirZ = axisdirection
 
         xmino, ymino, zmino, xmaxo, ymaxo, zmaxo = myOuterDimension
-        xmini, ymini, zmini, xmaxi, ymaxi, zmaxi = myInnerDimension
-        zminn, yminn, zminn, xmaxn, ymaxn, zmaxn = xmino, ymino, zmino, xmaxo, ymaxo, zmaxo
-        myCount = 0
-        holeFound = True
-        myBox = None
-        if (direction==(0,0,1)) :
-            if (zmino <= zmaxi) :            
-                """ corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmino-explodegap)            
-                myBox = BRepPrimAPI_MakeBox(corner,(xmaxo-xmino)+2*explodegap,(ymaxo-ymino)+2*explodegap,(zmaxi-zmino)+2*explodegap).Shape()
-                myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
-                myCommonShape=myShapeInner
-                if myCommonShape==None:
-                    if debugMe:
-                        print("Empty From Bottom To Top")
-                    return True, (0,0,1)
-                myHoleDimension = myInnerDimension
-                if myHoleDimension == (0, 0, 0, 0, 0, 0) :
-                    if debugMe:
-                        print("Empty Space From Bottom To Top")
-                    return True, (0,0,1)
-                xminc, yminc, zminc, xmaxc, ymaxc, zmaxc = myHoleDimension
-                holeFound = False
-                if debugMe:
-                    print(myHoleDimension,myInnerDimension,myOuterDimension)
-                if (zmaxo >= zminc) :
-                    #holeFound, _ = checkAnyHole(myShapeOuter,myShapeInner,holescale,debugMe) 
-                    holeFound=True
-                    zminn=0           
-                else:
-                    zminn = (zminc-zmaxo) 
-                    #print("Reached here1a")
-                    tranShape = translate_shp(myShapeOuter,0,0,zminn,True)   
-                    #print("Reached here1b") 
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)                 
-                while ( (holeFound==True) and ( (zminn+zmino) <= zmaxc) ):
-                    zminn += self.removegap
-                    #print("Reached here1c") 
-                    tranShape = translate_shp(myShapeOuter,0,0,zminn,True) 
-                    #print("Reached here1d") 
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
-                    #print("Reached here1e")
-                    myCount += 1
-                    if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
-                        print("Holes only found so far",myCount,holeFound)
-                        if (debugMe and holeFound==False):
-                            self.writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,\
-                                xmaxo-xmino+4*self.explodegap,0,0,"Top",debugMe)  
-                if (holeFound==True) :
-                    if debugMe:
-                        print("Only holes From Bottom To Top",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
-                        self.writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,\
-                            xmaxo-xmino+4*self.explodegap,0,0,"Top",debugMe)  
-                
-                    return True, (0,0,1)
-            else:
-                if debugMe:
-                    print("Away From Bottom To Top")
-                return True, (0,0,1)
-        if (direction==(0,0,-1)) :
-            if  (zmaxo >= zmini) :
-                """ corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmini-explodegap)            
-                myBox = BRepPrimAPI_MakeBox(corner,(xmaxo-xmino)+2*explodegap,(ymaxo-ymino)+2*explodegap,(zmaxo-zmini)+2*explodegap).Shape()
-                myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
-                myCommonShape=myShapeInner
-                if myCommonShape==None:
-                    if debugMe:
-                        print("Empty From Top To Bottom")
-                    return True, (0,0,-1)
-                myHoleDimension = myInnerDimension
-                if myHoleDimension == (0, 0, 0, 0, 0, 0) :
-                    if debugMe:
-                        print("Empty Space From Top To Bottom")
-                    return True, (0,0,-1)
-                xminc, yminc, zminc, xmaxc, ymaxc, zmaxc = myHoleDimension
-                holeFound = False
-                if debugMe:
-                    print(myHoleDimension,myInnerDimension,myOuterDimension)
-                if (zmino <= zmaxc) :
-                    #holeFound, _ = checkAnyHole(myShapeOuter,myShapeInner,holescale,debugMe) 
-                    holeFound=True 
-                    zmaxn=0           
-                else:
-                    zmaxn = (zmaxc-zmino) 
-                    #print("Reached here2a")
-                    tranShape = translate_shp(myShapeOuter,0,0,zmaxn,True)   
-                    #print("Reached here2b") 
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)       
-                while ( (holeFound==True) and ( (zmaxn+zmaxo) >= zminc) ):
-                    zmaxn -= self.removegap
-                    #print("Reached here2c")
-                    tranShape = translate_shp(myShapeOuter,0,0,zmaxn,True)   
-                    #print("Reached here2d") 
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
-                    #print("Reached here2e") 
-                    myCount += 1
-                    if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
-                        print("Holes only found so far",myCount,holeFound)
-                        if (debugMe and holeFound==False):
-                            self.writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,\
-                                xmaxo-xmino+4*self.explodegap,0,0,"Bottom",debugMe)  
-                if holeFound==True:
-                    if debugMe:
-                        print("Only holes From Top To Bottom",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
-                        self.writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,\
-                            xmaxo-xmino+4*self.explodegap,0,0,"Bottom",debugMe)  
-            
-                    return True, (0,0,-1) 
-            else:
-                if debugMe:
-                    print("Away From Top to Bottom")
-                return True, (0,0,-1)  
-        if (direction==(1,0,0)) :
-            if (xmino <= xmaxi) :           
-                """ corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmino-explodegap)            
-                myBox = BRepPrimAPI_MakeBox(corner,(xmaxi-xmino)+2*explodegap,(ymaxo-ymino)+2*explodegap,(zmaxo-zmino)+2*explodegap).Shape()
-                myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
-                myCommonShape=myShapeInner
-                if myCommonShape==None:
-                    if debugMe:
-                        print("Empty From Front To Back")
-                    return True, (1,0,0)
-                myHoleDimension = myInnerDimension
-                if myHoleDimension == (0, 0, 0, 0, 0, 0) :
-                    if debugMe:
-                        print("Empty Space From Front To Back")
-                    return True, (1,0,0)
-                xminc, yminc, zminc, xmaxc, ymaxc, zmaxc = myHoleDimension
-                holeFound = False
-                if debugMe:
-                    print(myHoleDimension,myInnerDimension,myOuterDimension)
-                if (xmaxo >= xminc) :
-                    #holeFound, _ = checkAnyHole(myShapeOuter,myShapeInner,holescale,debugMe) 
-                    holeFound=True
-                    xminn=0           
-                else:
-                    xminn = (xminc-xmaxo)
-                    #print("Reached here3a") 
-                    tranShape = translate_shp(myShapeOuter,xminn,0,0,True)
-                    #print("Reached here3b")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)                
-                while ( (holeFound==True) and ( (xminn+xmino) <= xmaxc) ):
-                    xminn += self.removegap
-                    #print("Reached here3c")
-                    tranShape = translate_shp(myShapeOuter,xminn,0,0,True)
-                    #print("Reached here3d")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
-                    #print("Reached here3e") 
-                    myCount += 1
-                    if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
-                        print("Holes only found so far",myCount,holeFound)
-                        if (debugMe and holeFound==False):
-                            self.writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,0,0,\
-                                zmaxo-zmino+4*self.explodegap,"Back",debugMe)                     
-                        
-                if (holeFound==True) :
-                    if debugMe:
-                        print("Only holes From Front To Back",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
-                        self.writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,0,0,\
-                            zmaxo-zmino+4*self.explodegap,"Back",debugMe)                    
-                        
-                    return True, (1,0,0)
-            else:
-                if debugMe:
-                    print("Away From Front To Back")
-                return True, (1,0,0)
-        if (direction==(-1,0,0)) :
-            if  (xmaxo >= xmini) :            
-                """  corner = gp_Pnt(xmini-explodegap, ymino-explodegap, zmino-explodegap)            
-                myBox = BRepPrimAPI_MakeBox(corner,(xmaxo-xmini)+2*explodegap,(ymaxo-ymino)+2*explodegap,(zmaxo-zmino)+2*explodegap).Shape()
-                myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
-                myCommonShape=myShapeInner
-                if myCommonShape==None:
-                    if debugMe:
-                        print("Empty From Back To Front")
-                    return True, (-1,0,0)
-                myHoleDimension = myInnerDimension
-                if myHoleDimension == (0, 0, 0, 0, 0, 0) :
-                    if debugMe:
-                        print("Empty Space From Back To Front")
-                    return True, (-1,0,0)
-                xminc, yminc, zminc, xmaxc, ymaxc, zmaxc = myHoleDimension
-                holeFound = False
-                if debugMe:
-                    print(myHoleDimension,myInnerDimension,myOuterDimension)
-                if (xmino <= xmaxc) :
-                    #holeFound, _ = checkAnyHole(myShapeOuter,myShapeInner,holescale,debugMe) 
-                    holeFound=True 
-                    xmaxn=0           
-                else:
-                    xmaxn = (xmaxc-xmino)
-                    #print("Reached here4a") 
-                    tranShape = translate_shp(myShapeOuter,xmaxn,0,0,True)
-                    #print("Reached here4b")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)    
-                while ( (holeFound==True) and ( (xmaxn+xmaxo) >= xminc) ):
-                    xmaxn -= self.removegap
-                    #print("Reached here4c")
-                    tranShape = translate_shp(myShapeOuter,xmaxn,0,0,True)
-                    #print("Reached here4d")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
-                    #print("Reached here4e") 
-                    myCount += 1
-                    if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
-                        print("Holes only found so far",myCount,holeFound)
-                        if (debugMe and holeFound==False):
-                            self.writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,0,0,\
-                                zmaxo-zmino+4*self.explodegap,"Front",debugMe)                      
-                        
-                if holeFound==True:
-                    if debugMe:
-                        print("Only holes From Back To Front",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
-                        self.writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,0,0,\
-                            zmaxo-zmino+4*self.explodegap,"Front",debugMe)                    
-
-                    return True, (-1,0,0) 
-            else:
-                if debugMe:
-                    print("Away From Back to Front")
-                return True, (-1,0,0)  
-        if (direction==(0,1,0)) :
-            if (ymino <= ymaxi) :        
-                """ corner = gp_Pnt(xmino-explodegap, ymino-explodegap, zmino-explodegap)            
-                myBox = BRepPrimAPI_MakeBox(corner,(xmaxo-xmino)+2*explodegap,(ymaxi-ymino)+2*explodegap,(zmaxo-zmino)+2*explodegap).Shape()
-                myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
-                myCommonShape=myShapeInner
-                if myCommonShape==None:
-                    if debugMe:
-                        print("Empty From Left To Right")
-                    return True, (0,1,0)
-                myHoleDimension = myInnerDimension
-                if myHoleDimension == (0, 0, 0, 0, 0, 0) :
-                    if debugMe:
-                        print("Empty Space From Left To Right")
-                    return True, (0,1,0)
-                xminc, yminc, zminc, xmaxc, ymaxc, zmaxc = myHoleDimension
-                holeFound = False
-                if debugMe:
-                    print(myHoleDimension,myInnerDimension,myOuterDimension)
-                if (ymaxo >= yminc) :
-                    #holeFound, _ = checkAnyHole(myShapeOuter,myShapeInner,holescale,debugMe) 
-                    holeFound=True
-                    yminn=0           
-                else:
-                    yminn = (yminc-ymaxo)
-                    #print("Reached here5a") 
-                    tranShape = translate_shp(myShapeOuter,0,yminn,0,True)
-                    #print("Reached here5b")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)                
-                while ( (holeFound==True) and ( (yminn+ymino) <= ymaxc) ):
-                    yminn += self.removegap
-                    #print("Reached here5c")
-                    tranShape = translate_shp(myShapeOuter,0,yminn,0,True)
-                    #print("Reached here5d")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
-                    #print("Reached here5e") 
-                    myCount += 1
-                    if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
-                        print("Holes only found so far",myCount,holeFound)
-                        if (debugMe and holeFound==False):
-                            self.writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,\
-                                xmaxo-xmino+4*self.explodegap,0,0,"Right",debugMe)  
-                if (holeFound==True) :
-                    if debugMe:
-                        print("Only holes From Left To Right",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
-                        self.writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,\
-                            xmaxo-xmino+4*self.explodegap,0,0,"Right",debugMe)  
-    
-                    return True, (0,1,0)
-            else:
-                if debugMe:
-                    print("Away From Left To Right")
-                return True, (0,1,0)
-        if (direction==(0,-1,0)) :
-            if  (ymaxo >= ymini) :
-                """ corner = gp_Pnt(xmino-explodegap, ymini-explodegap, zmino-explodegap)            
-                myBox = BRepPrimAPI_MakeBox(corner,(xmaxo-xmino)+2*explodegap,(ymaxo-ymini)+2*explodegap,(zmaxo-zmino)+2*explodegap).Shape()
-                myCommonShape=BRepAlgoAPI_Common(myBox,myShapeInner).Shape() """
-                myCommonShape=myShapeInner
-                if myCommonShape==None:
-                    if debugMe:
-                        print("Empty From Right To Left")
-                    return True, (0,-1,0)
-                myHoleDimension = myInnerDimension
-                if myHoleDimension == (0, 0, 0, 0, 0, 0) :
-                    if debugMe:
-                        print("Empty Space From Right To Left")
-                    return True, (0,-1,0)
-                xminc, yminc, zminc, xmaxc, ymaxc, zmaxc = myHoleDimension
-                holeFound = False
-                if debugMe:
-                    print(myHoleDimension,myInnerDimension,myOuterDimension)
-                if (ymino <= ymaxc) :
-                    #holeFound, _ = checkAnyHole(myShapeOuter,myShapeInner,holescale,debugMe) 
-                    holeFound=True 
-                    ymaxn=0           
-                else:
-                    ymaxn = (ymaxc-ymino)
-                    #print("Reached here6a") 
-                    tranShape = translate_shp(myShapeOuter,0,ymaxn,0,True)
-                    #print("Reached here6b")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)      
-                while ( (holeFound==True) and ( (ymaxn+ymaxo) >= yminc) ):
-                    ymaxn -= self.removegap
-                    #print("Reached here6c")
-                    tranShape = translate_shp(myShapeOuter,0,ymaxn,0,True)
-                    #print("Reached here6d")    
-                    holeFound, commonHoleShape = self.checkAnyHole(tranShape,myCommonShape,toBeScaled,debugMe)   
-                    #print("Reached here6e")
-                    myCount += 1
-                    if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
-                        print("Holes only found so far",myCount,holeFound)
-                        if (debugMe and holeFound==False):                       
-                            self.writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,\
-                                xmaxo-xmino+4*self.explodegap,0,0,"Left",debugMe)                             
-                            
-                if holeFound==True:
-                    if debugMe:
-                        print("Only holes From Right To Left",get_bounding_details(myBox),myInnerDimension,myHoleDimension)
-                        self.writeForDebugging(myBox,tranShape,myCommonShape,myShapeOuter,myShapeInner,\
-                            xmaxo-xmino+4*self.explodegap,0,0,"Left",debugMe)                          
-                            
-                    return True, (0,-1,0) 
-            else:
-                if debugMe:
-                    print("Away From Right to Left")
-                return True, (0,-1,0) 
+       
+         
         
-        return holeFound, (0,0,0)
+        xminn, yminn, zminn =  adirX*self.removegap,  adirY*self.removegap,  adirZ*self.removegap
+        holeFound=True
+        myCount = 0
+        checkingOuterBox = self.translateOBB(checkingBox, xminn, yminn, zminn)
+        while ( (holeFound==True) and ( checkingOuterBox.IsOut(fullBox)==False) ):                    
+            #print("Reached here1c") 
+            tranShape = translate_shp(myShapeOuter,xminn, yminn, zminn,True) 
+            #print("Reached here1d") 
+            holeFound, commonHoleShape = self.checkAnyHole(tranShape,myShapeInner,toBeScaled,debugMe)   
+            #print("Reached here1e")
+            myCount += 1
+            if ( ( ( (myCount % 10) == 0) or (holeFound==False)) and debugMe ):
+                print("Holes only found so far",myCount,holeFound)
+                if (debugMe and holeFound==False):
+                    self.writeForDebugging(commonHoleShape,tranShape,myShapeInner,myShapeOuter,myShapeInner,\
+                        xmaxo-xmino+4*self.explodegap,0,0,"Top",debugMe)  
+            xminn, yminn, zminn = xminn+adirX*self.removegap, yminn+adirY*self.removegap, zminn+adirZ*self.removegap
+            checkingOuterBox = self.translateOBB(checkingBox, xminn, yminn, zminn)
+        
+        if (holeFound==True) :
+            if debugMe:
+                print("Only holes ",axisdirection,myInnerDimension)
+                self.writeForDebugging(myShapeOuter,tranShape,myShapeInner,myShapeOuter,myShapeInner,\
+                    xmaxo-xmino+4*self.explodegap,0,0,"Top",debugMe)  
+        
+            return True, checkingOuterBox
+        
+        
+        return holeFound, None 
+
 
     def checkScaledCommonHoleInDirection(self, myShapeOuter,myOuterDimension, myShapeOriginal,myOriginalDimension, myShapeInner,myInnerDimension,direction,debugMe=False):
         #return True, None
@@ -991,42 +703,68 @@ class FindAssemblingOrder(object):
             else:
                 return False                    
         return False
-        
-    def checkCommonHole(self,orderpos,orderlast,toBeScaled,myGuessDirections,debugMe=False):
+    
+    def roundoff(self, point):
+        multiplier = 1
+        if(sys.maxsize/10000 > point) :
+            multiplier = 10000
+        else:
+            if(sys.maxsize/1000 > point) :
+                multiplier = 1000
+            else:
+                if(sys.maxsize/100 > point) :
+                    multiplier = 100
+                else:
+                    if(sys.maxsize/10 > point) :
+                        multiplier = 10
+                    else:
+                        multiplier = 1   
+    
+        return round(point*multiplier,2) / multiplier
+
+    def getCenterFromOBB(self,obb):
+        center = obb.Center()
+
+        return (self.roundoff(center.X()),self.roundoff(center.Y()),self.roundoff(center.Z()))   
+    
+    def checkCommonHole(self,orderpos,orderlast,toBeScaled,myOBBDirections,debugMe=False):
         #return True, None
         myShapeOuter=self.shapesArray[self.shapeorder[orderpos]]
         myOuterDimension = self.shapesdimension[orderpos]
         #myScaledShapeOuter, myScaledShapeDimension = self.scaledshapes[self.shapeorder[orderpos]]
+        myGuessDirections,checkingBox,fullBox = myOBBDirections
         lenDirections = len(myGuessDirections)
-        
+        print(myOBBDirections)
         for i in range(0,lenDirections):
-            (direction,_),_ = myGuessDirections[i]
+            (axisdirection),_ = myGuessDirections[i]
             #allPartsHoleFound=True
             myShapes = []
             for iPos in range(len(self.shapesArray)-orderlast+1):                
                 if (iPos!=orderpos):
-                    coliding = self.isColliding(myOuterDimension,self.shapesdimension[iPos],direction)                   
+                    coliding = True#self.isColliding(myOuterDimension,self.shapesdimension[iPos],direction)                   
                     if(coliding):
                         if debugMe:
-                            print("Adding to Find Collisions",iPos,self.shapeorder[iPos],"For",orderpos,self.shapeorder[orderpos],"In",direction, "At pass",orderlast)
+                            print("Adding to Find Collisions",iPos,self.shapeorder[iPos],"For",orderpos,self.shapeorder[orderpos],"In",axisdirection, "At pass",orderlast)
                         myShapes.append(self.shapesArray[self.shapeorder[iPos]])                        
                     else:
                         if debugMe:
-                            print("Not Adding to Find Collisions",iPos,self.shapeorder[iPos],"For",orderpos,self.shapeorder[orderpos],"In",direction, "At pass",orderlast)
+                            print("Not Adding to Find Collisions",iPos,self.shapeorder[iPos],"For",orderpos,self.shapeorder[orderpos],"In",axisdirection, "At pass",orderlast)
                                 
             if(len(myShapes)==0):
-                return True, direction 
+                _,_,mycenter,_,_ = checkingBox
+                return True, axisdirection, mycenter 
             if(len(myShapes)==1):
                 myShapeInner=myShapes[0]
             else:
                 myShapeInner,_ = list_of_shapes_to_compound(myShapes)
             myInnerDimension = get_bounding_details(myShapeInner)
-            holeFound, result =  self.checkCommonHoleInDirection(myShapeOuter,myOuterDimension, myShapeInner,myInnerDimension,\
-                direction,toBeScaled,debugMe)
+            holeFound,lastPosition  =  self.checkCommonHoleInDirection(myShapeOuter,myOuterDimension, myShapeInner,myInnerDimension,\
+                axisdirection,checkingBox,fullBox,toBeScaled,debugMe)
             if debugMe:
-                print("Found Holes :",holeFound,result,direction,orderpos,self.shapeorder[orderpos],"In",direction, "At pass",orderlast,toBeScaled)
+                print("Found Holes :",holeFound ,axisdirection,orderpos,self.shapeorder[orderpos],"In",axisdirection, "At pass",orderlast,toBeScaled)
             if holeFound==True:
-                return True, direction
+                mycenter = self.getCenterFromOBB(lastPosition)
+                return True, axisdirection, mycenter
             """ for iPos in range(len(self.shapesArray)-orderlast+1):  
                 if (iPos!=orderpos):
                     cacheValue = self.cacheCollisionBetweenParts[i][self.shapeorder[orderpos]][self.shapeorder[iPos]]
@@ -1065,7 +803,7 @@ class FindAssemblingOrder(object):
                 return True, direction 
             """
             if debugMe:
-                print("No Holes found in all directions","For",orderpos,self.shapeorder[orderpos],"In",direction, "At pass",orderlast, toBeScaled)
+                print("No Holes found in all directions","For",orderpos,self.shapeorder[orderpos],"In",axisdirection, "At pass",orderlast, toBeScaled)
             """ for i in range(0,lenDirections-1):           
                 for j in range(0,lenDirections-1-i):
                     _,length1 = directions[j+1]
@@ -1075,7 +813,7 @@ class FindAssemblingOrder(object):
             if debugMe:
                 print(directions) 
             result, _ = directions[0] """
-        return False, (0,0,0)
+        return False, (0,0,0), None
     
     def InitExplodeParts(self,debugMe=False):
         #print("ExploreParts",shapeTol,gapTol)
@@ -1108,7 +846,7 @@ class FindAssemblingOrder(object):
         self.shapesArray=[]
         self.shapesordereddirection=[]
         if testMe:
-            for i in [9,10,11,15,16]:
+            for i in [0,1,2,3,4]:
                 self.shapesColorArray.append(self.shapeColorArray[i])
                 self.shapesArray.append(self.shapeArray[i])
         else:
@@ -1118,8 +856,7 @@ class FindAssemblingOrder(object):
         self.newShapes=[]
         self.moveArrays=[]
         self.shapesdirection=[]
-        self.shapereverseorder=[]
-        self.shapeassembleorder=[]
+       
         self.shapeorder=[] 
 
         self.shapesdistance=[]
@@ -1127,6 +864,7 @@ class FindAssemblingOrder(object):
         self.shapesdimension=[]
         self.shapesoriginaldimension=[]
         self.shapesmove=[]
+        self.directiondata=[]
         #self.scaledshapes=[]
         
         fullShape,converted = list_of_shapes_to_compound(self.shapesArray)
@@ -1144,6 +882,11 @@ class FindAssemblingOrder(object):
         for i  in range(lenShape):
             (aShape,aName,aColor) = self.shapesColorArray[i]
             xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
+            obbs = get_oriented_bounding_details(aShape)
+            print(aName)
+            directionData = self.getSixDirectionsFromOBB(obbs)
+           
+            self.directiondata.append(directionData)
             xmove, ymove, zmove = (((xmins+xmaxs)/2)-xc)*xs, (((ymins+ymaxs)/2)-yc)*ys, (((zmins+zmaxs)/2)-zc)*zs
             if not self.center:
                 newShape=translate_shp(aShape,xmove+xt, ymove+yt, zmove+zt, True)
@@ -1156,11 +899,9 @@ class FindAssemblingOrder(object):
             #scaledShape,scaledDimension,_ = self.scaleMyPart(aShape,(xmins, ymins, zmins, xmaxs, ymaxs, zmaxs),self.onebyholescale)
             #self.scaledshapes.append((scaledShape,scaledDimension))
             #shapesdim.append(xmins+xmove+xt, ymins+ymove+xt, zmins+zmove+xt, xmaxs+xmove+xt, ymaxs+ymove+xt, zmaxs+zmove+xt)
-            self.shapeorder.append(i)
-            self.shapereverseorder.append(i)
-            self.shapeassembleorder.append(i)
-            self.shapesdirection.append((0,0,0))
-            self.shapesordereddirection.append((0,0,0))
+            self.shapeorder.append(i)           
+            self.shapesdirection.append(((0,0,0),(0,0,0)))
+            self.shapesordereddirection.append(((0,0,0),(0,0,0)))
             self.shapesmove.append((xmove, ymove, zmove))
             self.shapesdistance.append( ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 )
             self.shapesvolume.append(abs((xmaxs-xmins)*(ymaxs-ymins)*(zmaxs-zmins)))         
@@ -1205,19 +946,30 @@ class FindAssemblingOrder(object):
                 print("Error while writing orderfile",e) 
         return dictionary
 
-    def guessDirections(self,checkingDimension,fullDimension,debugMe=False):
+    def getLastPoint(self,axisc,minp,maxp):
+        if(axisc > 0):
+                lastp = maxp
+        elif(axisc < 0):
+            lastp = minp
+        else:
+            lastp = (maxp+minp)/2
+        return lastp
+
+    def guessDirections(self,checkingBox,fullDimension,debugMe=False):
         xmin, ymin, zmin, xmax, ymax, zmax = fullDimension
-        xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = checkingDimension
-        myDirections=[]       
-        myDirections.append((self.sixdirections[0],zmax-zmaxs))
-        myDirections.append((self.sixdirections[1],zmins-zmin))
-        myDirections.append((self.sixdirections[2],ymax-ymaxs))
-        myDirections.append((self.sixdirections[3],ymins-ymin))
-        myDirections.append((self.sixdirections[4],xmax-xmaxs))
-        myDirections.append((self.sixdirections[5],xmins-xmin))
+        (myPositionalDirections, _,(centerX,centerY,centerZ),_,_) = checkingBox        
+        myDirections=[]
+        for myDirection in myPositionalDirections:
+            (axisX,axisY,axisZ) = myDirection
+            lastX = self.getLastPoint(axisX,xmin,xmax)
+            lastY = self.getLastPoint(axisY,ymin,ymax)
+            lastZ = self.getLastPoint(axisZ,zmin,zmax)
+            minDistance = (centerX-lastX)*(centerX-lastX)+(centerY-lastY)*(centerY-lastY)+(centerZ-lastZ)*(centerZ-lastZ)
+            myDirections.append((myDirection,minDistance))       
+        
         lenDirections = len(myDirections)
         if debugMe:
-            print("Before Guess",myDirections,checkingDimension,fullDimension)
+            print("Before Guess",myDirections,checkingBox,fullDimension)
         for i in range(0,lenDirections-1):           
             for j in range(0,lenDirections-1-i):
                 _,length1 = myDirections[j+1]
@@ -1226,7 +978,77 @@ class FindAssemblingOrder(object):
                     myDirections[j+1], myDirections[j] = swap(myDirections[j+1],myDirections[j])
         if debugMe:
             print("After Guess",myDirections)
-        return myDirections
+        fullDimensionOBB=self.getOBBFromDimension(fullDimension)
+        return myDirections,checkingBox,fullDimensionOBB
+    
+    def getSixDirectionsFromOBB(self,obb):
+              
+        aBaryCenter = obb.Center()
+        aXDir = obb.XDirection()
+        aYDir = obb.YDirection()
+        aZDir = obb.ZDirection()
+        axx = self.roundoff(aXDir.X())
+        axy = self.roundoff(aXDir.Y())
+        axz = self.roundoff(aXDir.Z())
+        ayx = self.roundoff(aYDir.X())
+        ayy = self.roundoff(aYDir.Y())
+        ayz = self.roundoff(aYDir.Z())
+        azx = self.roundoff(aZDir.X())
+        azy = self.roundoff(aZDir.Y())
+        azz = self.roundoff(aZDir.Z())
+        """ aHalfX = obb.XHSize()
+        aHalfY = obb.YHSize()
+        aHalfZ = obb.ZHSize()
+        ax = gp_XYZ(aXDir.X(), aXDir.Y(), aXDir.Z())
+        ay = gp_XYZ(aYDir.X(), aYDir.Y(), aYDir.Z())
+        az = gp_XYZ(aZDir.X(), aZDir.Y(), aZDir.Z())
+        p = gp_Pnt(aBaryCenter.X(), aBaryCenter.Y(), aBaryCenter.Z())
+        anAxes = gp_Ax2(p, gp_Dir(aZDir), gp_Dir(aXDir))
+        anAxes.SetLocation(gp_Pnt(p.XYZ() - ax*aHalfX - ay*aHalfY - az*aHalfZ))
+        aBox = BRepPrimAPI_MakeBox(anAxes, 2.0*aHalfX, 2.0*aHalfY, 2.0*aHalfZ).Shape() """
+        myDirections=[] 
+        myDirections.append((azx,azy,azz))
+        myDirections.append((-azx,-azy,-azz))
+        myDirections.append((ayx,ayy,ayz))
+        myDirections.append((-ayx,-ayy,-ayz))
+        myDirections.append((axx,axy,axz))
+        myDirections.append((-axx,-axy,-axz))
+        myDiagonal=math.sqrt(obb.XHSize()*obb.XHSize()+obb.YHSize()*obb.YHSize()+obb.ZHSize()*obb.ZHSize())
+        print (myDirections, (obb.XHSize(),obb.YHSize(),obb.XHSize()), (aBaryCenter.X(), aBaryCenter.Y(), aBaryCenter.Z()))
+        return (myDirections,obb,(self.roundoff(aBaryCenter.X()), self.roundoff(aBaryCenter.Y()), self.roundoff(aBaryCenter.Z())), myDiagonal, (obb.XHSize(),obb.YHSize(),obb.XHSize()) )
+
+    def getOBBFromDimension(self,dimension):
+        
+        xmin, ymin, zmin, xmax, ymax, zmax = dimension
+        corner = gp_Pnt(xmin, ymin, zmin)            
+        myBox = BRepPrimAPI_MakeBox(corner,xmax-xmin,ymax-ymin,zmax-zmin).Shape()
+        obbs = get_oriented_bounding_details(myBox)
+        return obbs   
+    
+    def translateOBB(self,obbStructure,x,y,z):
+        _,obb,_,_,_=obbStructure
+        #print("Translating",obb)
+        resultOBB = Bnd_OBB()        
+        mehere = resultOBB.XDirection()
+        shiftedCenter = obb.Center()+gp_XYZ(x,y,z)
+        resultOBB.SetCenter(gp_Pnt(shiftedCenter))
+        resultOBB.SetXComponent(gp_Dir(obb.XDirection()),obb.XHSize())
+        resultOBB.SetYComponent(gp_Dir(obb.YDirection()),obb.YHSize())
+        resultOBB.SetZComponent(gp_Dir(obb.ZDirection()),obb.ZHSize())       
+        return resultOBB
+
+
+    def printOBB(self,aShapeIndex):
+        obb = self.directiondata[aShapeIndex]
+        print(obb)
+
+    def getMoveXYZ(self,aShapeIndex, direction,displacement):
+        (myDirections, _,_,_,_) = self.directiondata[aShapeIndex]
+        directionX,directionY,directionZ = myDirections[direction]
+        return directionX*displacement, directionY*displacement, directionZ*displacement
+        
+    
+
     def threadAssembling(self,sourceFileName,distancegap,anglegap,animationtime,starttime,debugMe):
         try:
             if self.logging != None and self.byThread:
@@ -1239,7 +1061,7 @@ class FindAssemblingOrder(object):
             previoustime = starttime # current date and time
             
 
-            lenShape = len(self.shapeArray)
+            lenShape = len(self.shapesArray)
             Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.shapesdimension[0] 
             for i in range(1,lenShape):
                 xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesdimension[i]
@@ -1284,24 +1106,26 @@ class FindAssemblingOrder(object):
                     if holesize == 0:
                         toBeScaled = self.holescale
                     else:
-                        toBeScaled = self.holescale / 1.1
+                        toBeScaled = self.holescale / 1.25
                     for i in range(0,lenShape-k+1):                
                         j=lenShape-k-i
                         debugMe = True # k==1 and i==0 #True #k==1 and i==4 #True #(k==3) and (i==0) #True #shapeorder[j]==2 or shapeorder[j]==3
                         if debugMe:
                             print(k,j,self.shapeorder[j],self.shapeorder,toBeScaled,currenttime,self.dimension,(Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax))
-                        myGuessDirections = self.guessDirections(self.shapesdimension[j], (Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax),debugMe)
+                        myGuessDirections = self.guessDirections(self.directiondata[self.shapeorder[j]], (Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax),debugMe)
                         #myExcludeCompound = excluded_list_of_shapes_to_compound(shapesArray,shapeorder,j,k,False)
                         #myExcludeDimension = get_bounding_details(myExcludeCompound)
                         #print("My Shape TOl, Gap Tol",shapeTol,gapTol)
                         myCommonCompound,myHoles=None,None
+                        whatIgot = self.checkCommonHole(j,k,toBeScaled,myGuessDirections,debugMe) 
+                        print("What I Got here",whatIgot)
                         #enclosed,_,myDirection, myCommonCompound,myHoles = isRemovable(shape[shapeorder[j]],shapesdim[j],myExcludeCompound,myExcludeDimension,shapeTol,gapTol,debugMe)
-                        enclosed,myDirection = self.checkCommonHole(j,k,toBeScaled,myGuessDirections,debugMe) 
+                        enclosed, myAxisDirection, myLastPosition = whatIgot #self.checkCommonHole(j,k,toBeScaled,myGuessDirections,debugMe) 
                         #print(k,i,j,shapeorder[j],enclosed,myExcludeDimension,lenShape-k)
                         if myDirectionAtZero==(0,0,0):
-                            myDirectionAtZero=myDirection
+                            myDirectionAtZero=myAxisDirection
                         if (enclosed):
-                            self.shapesdirection[self.shapeorder[j]]=myDirection
+                            self.shapesdirection[self.shapeorder[j]]=(myAxisDirection,myLastPosition)
                             if(myCommonCompound!=None and debugMe ):
                                 commonObjects.append((myCommonCompound,self.shapeorder[j], myHoles))
                             if (j!=(lenShape-k)):
@@ -1311,7 +1135,7 @@ class FindAssemblingOrder(object):
                                 self.shapesdistance[j1], self.shapesdistance[j] = swap(self.shapesdistance[j1], self.shapesdistance[j])
                                 self.shapesvolume[j1], self.shapesvolume[j] = swap(self.shapesvolume[j1], self.shapesvolume[j])
                                 self.shapesdimension[j1], self.shapesdimension[j] = swap(self.shapesdimension[j1], self.shapesdimension[j])                    
-                            print(k,i,j,self.shapeorder[lenShape-k],enclosed,myDirection,lenShape-k,toBeScaled)
+                            print(k,i,j,self.shapeorder[lenShape-k],enclosed,lenShape-k,toBeScaled)
                             break
                         else:
                             #if debugMe:
@@ -1367,78 +1191,52 @@ class FindAssemblingOrder(object):
                     self.shapesmove[j1], self.shapesmove[j] = swap(self.shapesmove[j1], self.shapesmove[j])
                     self.shapesdistance[j1], self.shapesdistance[j] = swap(self.shapesdistance[j1], self.shapesdistance[j])
                     self.shapesvolume[j1], self.shapesvolume[j] = swap(self.shapesvolume[j1], self.shapesvolume[j])
-                    self.shapesdimension[j1], self.shapesdimension[j] = swap(self.shapesdimension[j1], self.shapesdimension[j])                    
-                    self.shapesdirection[self.shapeorder[0]]=tuple(-x for x in self.shapesdirection[self.shapeorder[0]])
-                    self.shapesdirection[self.shapeorder[1]]=tuple(-x for x in self.shapesdirection[self.shapeorder[1]])
+                    self.shapesdimension[j1], self.shapesdimension[j] = swap(self.shapesdimension[j1], self.shapesdimension[j]) 
+                    myaxisdirection, mylastposition = self.shapesdirection[self.shapeorder[0]] 
+                    print(  myaxisdirection, mylastposition )                  
+                    self.shapesdirection[self.shapeorder[0]]=(tuple(-x for x in myaxisdirection),mylastposition)                    
+                    myaxisdirection, mylastposition = self.shapesdirection[self.shapeorder[1]] 
+                    print( myaxisdirection, mylastposition )  
+                    self.shapesdirection[self.shapeorder[1]]=(tuple(-x for x in myaxisdirection),mylastposition)
                     print("AFter",self.shapesvolume,self.shapesvolume[1] > self.shapesvolume[0],self.shapesdirection)
 
+            
             for i  in range(lenShape):
-                self.shapereverseorder[self.shapeorder[i]] = i
-            for i  in range(lenShape):
-                self.shapeassembleorder[self.shapereverseorder[i]] = i
-            for i  in range(lenShape):
-                print(i,self.shapeassembleorder[i],self.shapesdirection[self.shapeassembleorder[i]])
+                print(i,self.shapeorder[i],self.shapesdirection[self.shapeorder[i]])
             xmin, ymin, zmin, xmax, ymax, zmax = self.dimension 
             xc, yc, zc = (xmin+xmax)/2, (ymin+ymax)/2 , (zmin+zmax)/2
-            xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = self.dimension
+           
+            previousdistance = self.explodegap
+            previousaxis = (0,1,0)
             #shiftX,shiftY,shiftZ = 0,0,0   
-            prevX, prevY, prevZ = 0,0,0   
+            #prevX, prevY, prevZ = 0,0,0   
             for i  in range(lenShape):
                 #(aShape,aName,aColor) = shapeArray[i]
                 #xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
-            
-                (bShape,bName,bColor) = self.shapesColorArray[self.shapeassembleorder[i]]
-                (newShape,aName,aColor) = self.newShapes[self.shapeassembleorder[i]+1]
-                direction = self.shapesdirection[self.shapeassembleorder[i]]
-                xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesdimension[self.shapereverseorder[self.shapeassembleorder[i]]]
-                
-                if (direction==(0,0,0)) :
-                    if (prevX==0) and (prevY==0) and (prevZ==0):
-                        directionX,directionY,directionZ = 0, 0, 1
-                    else:
-                        directionX,directionY,directionZ = prevX, prevY, prevZ 
+                myIndex = self.shapeorder[i]
+                (bShape,bName,bColor) = self.shapesColorArray[myIndex]
+                (newShape,aName,aColor) = self.newShapes[myIndex+1]
+                axisdirection,lastposition = self.shapesdirection[myIndex]
+                if axisdirection==None:
+                    axisdirection = previousaxis
+                if lastposition!=None:                     
+                    lastcenterx, lastcentery, lastcenterz = lastposition
+                    _,_,(currentcenterx,currentcentery,currentcenterz),_,_ = self.directiondata[myIndex]
+                    distance = math.sqrt((currentcenterx-lastcenterx)*(currentcenterx-lastcenterx)+\
+                        (currentcentery-lastcentery)*(currentcentery-lastcentery)+\
+                            (currentcenterz-lastcenterz)*(currentcenterz-lastcenterz)) + self.explodegap*2*i
                 else:
-                    directionX,directionY,directionZ = direction
-                    prevX, prevY, prevZ = directionX,directionY,directionZ
-                
-                if directionZ==1: 
-                    xmove = 0
-                    ymove = 0
-                    zmove = zmaxp + self.explodegap
-                    zmaxp = zmove + (zmaxs-zmins)
-                if directionZ==-1:
-                    xmove = 0
-                    ymove = 0
-                    zmove = zminp - (zmaxs-zmins+self.explodegap)
-                    zminp = zmove
-                if directionX==1: 
-                    xmove = xmaxp + self.explodegap
-                    ymove = 0
-                    zmove = 0
-                    xmaxp = xmove + (xmaxs-xmins)
-                if directionX==-1:
-                    xmove = xminp - (xmaxs-xmins+self.explodegap)
-                    ymove = 0
-                    zmove = 0
-                    xminp = xmove
-                if directionY==1: 
-                    xmove = 0
-                    ymove = ymaxp + self.explodegap
-                    zmove = 0
-                    ymaxp = ymove + (ymaxs-ymins)
-                if directionY==-1:
-                    xmove = 0
-                    ymove = yminp - (ymaxs-ymins+self.explodegap)
-                    zmove = 0
-                    yminp = ymove
-                
-                self.moveArrays[self.shapeassembleorder[i]]=(xmove, ymove, zmove)
+                    distance = previousdistance + 4*self.explodegap
+                ax,ay,az=axisdirection
+                xmove,ymove,zmove = ax*distance, ay*distance, az*distance
+                self.moveArrays[myIndex]=(xmove, ymove, zmove)
                 finalShape=translate_shp(newShape,xmove, ymove, zmove, True) 
-                
-                print(direction,i,self.shapeassembleorder[i],self.shapereverseorder[self.shapeassembleorder[i]],\
+                previousaxis=ax,ay,az
+                previousdistance=distance
+                print(axisdirection,i,myIndex,self.shapeorder[i],\
                     (xmove, ymove, zmove),  aName,bName,\
                         (xmins, ymins, zmins, xmaxs, ymaxs, zmaxs),get_bounding_details(bShape))  
-                self.newShapes[self.shapeassembleorder[i]+1] = (finalShape,aName,aColor)    
+                self.newShapes[myIndex+1] = (finalShape,aName,aColor)    
         debugMe = False
         if debugMe==True:
             aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
@@ -1505,14 +1303,14 @@ class FindAssemblingOrder(object):
         dictionary={}
         self.byThread=False
         self.InitExplodeParts(debugMe)
-        lenShape = len(self.shapeArray)
+        lenShape = len(self.shapesArray)
         xmin, ymin, zmin, xmax, ymax, zmax = self.dimension 
         xc, yc, zc = (xmin+xmax)/2, (ymin+ymax)/2 , (zmin+zmax)/2
         if(self.center):    
            
-            lenShape = len(self.shapeArray)
+            lenShape = len(self.shapesArray)
             Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.shapesoriginaldimension[0] 
-            self.shapesordereddirection[0] = self.getDirection(changedshapedirection[0])  
+            self.shapesordereddirection[0] = changedshapedirection[0]  
             self.shapeorder[0]=changedshapeorder[0]
             for i in range(1,lenShape):
                 xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesoriginaldimension[i]
@@ -1528,15 +1326,16 @@ class FindAssemblingOrder(object):
                     Yymax = ymaxs
                 if(zmaxs > Zzmax):
                     Zzmax = zmaxs
-                self.shapesordereddirection[i] = self.getDirection(changedshapedirection[i]) 
+                self.shapesordereddirection[i] = changedshapedirection[i] 
                 self.shapeorder[i]=changedshapeorder[i]  
              
-            xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax
+            #xminp, yminp, zminp, xmaxp, ymaxp, zmaxp = Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax
             #shiftX,shiftY,shiftZ = 0,0,0   
-            prevX, prevY, prevZ = 0,0,0   
-
+            #prevX, prevY, prevZ = 0,0,0   
+            previousaxis=(0,1,0)
+            previousdistance = 0
             for i  in range(lenShape):
-                #(aShape,aName,aColor) = shapeArray[i]
+               
                 #xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
                 myIndex = self.shapeorder[i]
                
@@ -1545,8 +1344,29 @@ class FindAssemblingOrder(object):
                 self.shapesdirection[myIndex]=direction
 
                 xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesoriginaldimension[myIndex]
-                
-                if (direction==(0,0,0)) :
+                (aaShape,aaName,aaColor) = self.shapesColorArray[myIndex]
+                print(aaName)
+                axisdirection,lastposition = self.shapesdirection[myIndex]
+                if axisdirection==None:
+                    axisdirection = previousaxis
+                if lastposition!=None:                     
+                    lastcenterx, lastcentery, lastcenterz = lastposition
+                    _,_,(currentcenterx,currentcentery,currentcenterz),_,_ = self.directiondata[myIndex]
+                    distance = math.sqrt((currentcenterx-lastcenterx)*(currentcenterx-lastcenterx)+\
+                        (currentcentery-lastcentery)*(currentcentery-lastcentery)+\
+                            (currentcenterz-lastcenterz)*(currentcenterz-lastcenterz)) + self.explodegap*2*i
+                else:
+                    distance = previousdistance + 4*self.explodegap
+                ax,ay,az=axisdirection
+                xmove,ymove,zmove = ax*distance, ay*distance, az*distance
+
+                self.moveArrays[myIndex]=(xmove, ymove, zmove)
+                previousaxis=ax,ay,az
+                previousdistance=distance
+                print(axisdirection,i,myIndex,self.shapeorder[i],\
+                    (xmove, ymove, zmove),  aName,\
+                        (xmins, ymins, zmins, xmaxs, ymaxs, zmaxs)) 
+                """ if (direction==(0,0,0)) :
                     if (prevX==0) and (prevY==0) and (prevZ==0):
                         directionX,directionY,directionZ = 0, 0, 1
                     else:
@@ -1556,39 +1376,27 @@ class FindAssemblingOrder(object):
                     prevX, prevY, prevZ = directionX,directionY,directionZ
                 
                 if directionZ==1: 
-                    xmove = 0
-                    ymove = 0
-                    zmove = zmaxp + self.explodegap
+                    xmove,ymove,zmove = self.getMoveXYZ(myIndex,direction, zmaxp + self.explodegap) 
                     zmaxp = zmove + (zmaxs-zmins)
                 if directionZ==-1:
-                    xmove = 0
-                    ymove = 0
-                    zmove = zminp - (zmaxs-zmins+self.explodegap)
+                    xmove,ymove,zmove = self.getMoveXYZ(myIndex,direction, zminp - (zmaxs-zmins+self.explodegap)) 
                     zminp = zmove
                 if directionX==1: 
-                    xmove = xmaxp + self.explodegap
-                    ymove = 0
-                    zmove = 0
+                    xmove,ymove,zmove = self.getMoveXYZ(myIndex,direction, xmaxp + self.explodegap) 
                     xmaxp = xmove + (xmaxs-xmins)
                 if directionX==-1:
-                    xmove = xminp - (xmaxs-xmins+self.explodegap)
-                    ymove = 0
-                    zmove = 0
+                    xmove,ymove,zmove = self.getMoveXYZ(myIndex,direction, xminp - (xmaxs-xmins+self.explodegap)) 
                     xminp = xmove
                 if directionY==1: 
-                    xmove = 0
-                    ymove = ymaxp + self.explodegap
-                    zmove = 0
+                    xmove,ymove,zmove = self.getMoveXYZ(myIndex,direction, ymaxp + self.explodegap) 
                     ymaxp = ymove + (ymaxs-ymins)
                 if directionY==-1:
-                    xmove = 0
-                    ymove = yminp - (ymaxs-ymins+self.explodegap)
-                    zmove = 0
-                    yminp = ymove
+                    xmove,ymove,zmove = self.getMoveXYZ(myIndex,direction, yminp - (ymaxs-ymins+self.explodegap))
+                    yminp = ymove """
                 
                 self.moveArrays[myIndex]=(xmove, ymove, zmove)
                 finalShape=translate_shp(newShape,xmove, ymove, zmove, True) 
-                
+                #self.printOBB(myIndex)
                 print(direction,i,myIndex, (xmove, ymove, zmove),  aName,\
                         (xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))  
                 self.newShapes[myIndex+1] = (finalShape,aName,aColor)    

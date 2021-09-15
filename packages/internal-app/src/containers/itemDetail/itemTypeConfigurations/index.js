@@ -852,6 +852,7 @@ export default function ItemTypeConfiguration(props) {
             //gltfjson={JSON.stringify(gltfjson)}
             gltfobj={state.gltfjson}
             fileGDT={null}
+            fileAnimation={true}
             //view="Perspective"
             activefile={fileId + gltfjsonlen.toString()}
             backcolor={DEFAULTBACKCOLOR}

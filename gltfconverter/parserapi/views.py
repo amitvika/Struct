@@ -4839,7 +4839,19 @@ def FileSaveTree(request):
                             index=aTree[gltf_dict["id"]]-3 
                             if index>=0:
                                 shapeorder.append(index)
-                                shapedirection.append(aTree['direction'])
+                                if "AX" in aTree:                    
+                                    ax=convertToFloat(aTree["AX"],0)
+                                if "AY" in aTree:                    
+                                    ay=convertToFloat(aTree["AY"],0)
+                                if "AZ" in aTree:                    
+                                    az=convertToFloat(aTree["AZ"],0)
+                                if "CX" in aTree:                    
+                                    cx=convertToFloat(aTree["CX"],0)
+                                if "CY" in aTree:                    
+                                    cy=convertToFloat(aTree["CY"],0)
+                                if "CZ" in aTree:                    
+                                    cz=convertToFloat(aTree["CZ"],0)                        
+                                shapedirection.append(((ax,ay,az),(cx,cy,cz)))
                     dictionary = FindAssemblingOrder(shapeArray,shapesAlone,assemblyname,dimension,explodegap,center,holescale,removegap,logging).\
                                     reChangeOrder(shapeorder,shapedirection,sourceFileName,distancegap,anglegap,animationtime)
             except Exception as e:

@@ -15,6 +15,7 @@ export default function Viewer({ gltfjson = {}, fileId = '', fileGDT = '', selec
           gltfobj={gltfjson}
           activefile={fileId}
           fileGDT={fileGDT}
+          fileAnimation={false}
           backcolor={DEFAULTBACKCOLOR}
           selectcolor={DEFAULTSELECTCOLOR}
           touchcolor={DEFAULTTOUCHCOLOR}

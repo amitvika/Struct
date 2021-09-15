@@ -30,6 +30,7 @@ export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', act
                     //gltfjson={JSON.stringify(gltfjson)}
                     gltfobj={gltfjson}
                     fileGDT={fileGDT}
+                    fileAnimation={false}
                     activefile={activefile+gltfjsonlen.toString()}
                     backcolor={DEFAULTBACKCOLOR}
                     selectcolor={DEFAULTSELECTCOLOR}

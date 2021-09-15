@@ -98,12 +98,13 @@ export default function ManufacturabilityAnalysis(props) {
 
   const [columns, setColumns] = useState([
     { title:'Insertion Order', dataKey: 'order', type:"view", align:"right", sortable:true, resizable:true, width: 100 },
-    { title:'Mate Name', dataKey: 'name',  type:"view", align:"left", sortable:true, resizable:true, width: 200 },   
-    { title:'Insertion Direction', dataKey: 'direction', type: (alerter && alerter!="")? "view" : "select" , 
-        options:["Top","Bottom","Right","Left","Front","Back","Any"],align:"center", sortable:true, resizable:true, width: 100 },
+    { title:'Mate Name', dataKey: 'name',  type:"view", align:"left", sortable:true, resizable:true, width: 170 },   
+    { title:'X', dataKey: 'AX', type: (alerter && alerter!="")? "view" : "number", align:"right", sortable:true, resizable:true, width: 50 },
+    { title:'Y', dataKey: 'AY', type: (alerter && alerter!="")? "view" : "number", align:"right", sortable:true, resizable:true, width: 50 },
+    { title:'Z', dataKey: 'AZ', type: (alerter && alerter!="")? "view" : "number", align:"right", sortable:true, resizable:true, width: 50 },
     { title:'Insertion Type', dataKey: 'insert', type:"view", align:"left", sortable:true, resizable:true, width: 100 },
-    { title:'Dispensing', dataKey: 'dispense',  type:"view", align:"right", sortable:true, resizable:true, width: 110 },
-    { title:'Transfer Holding', dataKey: 'quantity', type:"view",  align:"right", sortable:true, resizable:true, width: 90 }  
+    { title:'Dispensing', dataKey: 'dispense',  type:"view", align:"right", sortable:true, resizable:true, width: 120 },
+    { title:'Transfer Holding', dataKey: 'quantity', type:"view",  align:"right", sortable:true, resizable:true, width: 100 }  
   ])
   const setState = (data) => {
     _setState(prevState => {
@@ -841,10 +842,10 @@ export default function ManufacturabilityAnalysis(props) {
     console.log(gltfjsonParam,gltfjson);
     let currentData = [];
     if (gltfjsonParam && gltfjsonParam.tree && gltfjsonParam.assemblyorder) {
-      if (gltfjsonParam.assemblyorder.order) {
+      if (gltfjsonParam.assemblyorder.order && gltfjsonParam.assemblyorder.direction && gltfjsonParam.assemblyorder.direction[0].length==2 ) {
         console.log("Setting table", gltfjsonParam.tree, gltfjsonParam.assemblyorder);
       } else {
-        alert("Assembly order structure changed. Please reload the step file once again");
+        alert("Assembly order structure changed. Please reload the step file once again ");
         return;
       }
      
@@ -860,7 +861,12 @@ export default function ManufacturabilityAnalysis(props) {
           'index': index - 1,
           'name': element[gltf_Dict['name']],
           'order': null,
-          'direction':null,
+          'AX':0,
+          'AY':0,
+          'AZ':1,
+          'CX':0,
+          'CY':0,
+          'CZ':1,
           'insert': "Sliding",
           'dispense': null,
           'quantity': null,
@@ -870,10 +876,23 @@ export default function ManufacturabilityAnalysis(props) {
       }
       var itemset=false;
       for (let index = 0; index < gltfjsonParam.assemblyorder.order.length; index++) {
-        if(!currentData[index].direction) {
-          currentData[index].direction = getDirection(gltfjsonParam.assemblyorder.direction[index]);
+        if(currentData[index].AX != gltfjsonParam.assemblyorder.direction[index][0][0] || 
+           currentData[index].AY != gltfjsonParam.assemblyorder.direction[index][0][1] ||
+           currentData[index].AZ != gltfjsonParam.assemblyorder.direction[index][0][2] 
+          ) {
+          currentData[index].AX = gltfjsonParam.assemblyorder.direction[index][0][0];
+          currentData[index].AY = gltfjsonParam.assemblyorder.direction[index][0][1];
+          currentData[index].AZ = gltfjsonParam.assemblyorder.direction[index][0][2];
+          currentData[index].CX = gltfjsonParam.assemblyorder.direction[index][1][0];
+          currentData[index].CY = gltfjsonParam.assemblyorder.direction[index][1][1];
+          currentData[index].CZ = gltfjsonParam.assemblyorder.direction[index][1][2];
           if (gltfjsonParam.assemblyorder.complete==gltfjsonParam.assemblyorder.order.length) {
-            gltfjsonParam.tree[index+2].direction = currentData[index].direction;
+            gltfjsonParam.tree[index+2].AX = currentData[index].AX;
+            gltfjsonParam.tree[index+2].AY = currentData[index].AY;
+            gltfjsonParam.tree[index+2].AZ = currentData[index].AZ;
+            gltfjsonParam.tree[index+2].CX = currentData[index].CX;
+            gltfjsonParam.tree[index+2].CY = currentData[index].CY;
+            gltfjsonParam.tree[index+2].CZ = currentData[index].CZ;            
           }
           itemset=true;
         }        
@@ -895,7 +914,7 @@ export default function ManufacturabilityAnalysis(props) {
         if (gltfjsonParam.assemblyorder.complete!=gltfjsonParam.assemblyorder.order.length) {
           const progressString="Completed "+gltfjsonParam.assemblyorder.complete.toString()+
             " Out of "+gltfjsonParam.assemblyorder.order.length.toString()+" At "+
-            gltfjsonParam.assemblyorder.current+" From "+gltfjsonParam.assemblyorder.start+"&nbsp;"+
+            gltfjsonParam.assemblyorder.current+" From "+gltfjsonParam.assemblyorder.start+" \u00a0 "+
             " Please try atleast after a minute";
           setAlerter(progressString);  
                
@@ -903,7 +922,9 @@ export default function ManufacturabilityAnalysis(props) {
           if(alerter!="") {
             setAlerter("");
             var mycolumns=columns;
-            mycolumns[2].type="select";
+            mycolumns[2].type="number";
+            mycolumns[3].type="number";
+            mycolumns[4].type="number";
             setColumns(mycolumns);
           }
           if(itemset) {
@@ -914,7 +935,9 @@ export default function ManufacturabilityAnalysis(props) {
         if(alerter!="") {
           setAlerter("");
           var mycolumns=columns;
-          mycolumns[2].type="select";
+          mycolumns[2].type="number";
+          mycolumns[3].type="number";
+          mycolumns[4].type="number";
           setColumns(mycolumns);
         }
       }
@@ -923,8 +946,10 @@ export default function ManufacturabilityAnalysis(props) {
       setFilteredList(currentData);
       if(alerter!="") {
         setAlerter("");
-        var mycolumns=columns;
-        mycolumns[2].type="select";
+        var mycolumns=columns;       
+        mycolumns[2].type="number";
+        mycolumns[3].type="number";
+        mycolumns[4].type="number";
         setColumns(mycolumns);
       }
       console.log("Final Setting Featured List", currentData, filteredList);
@@ -1006,6 +1031,7 @@ export default function ManufacturabilityAnalysis(props) {
             //gltfjson={JSON.stringify(gltfjson)}
             gltfobj={state.gltfjson}
             fileGDT={null}
+            fileAnimation={true}
             //view="Perspective"
             activefile={fileId + gltfjsonlen.toString()}
             backcolor={DEFAULTBACKCOLOR}
@@ -1039,7 +1065,7 @@ export default function ManufacturabilityAnalysis(props) {
         resetDataTable={resetSelectionFromTable} 
         fetchDataTable={fetchSelectionFromTable} 
         updateOrderChange={updateOrderFromTable}
-        style={{ width: 700 }}
+        style={{ width: 750 }}
       >
       </TableOrderView>
 

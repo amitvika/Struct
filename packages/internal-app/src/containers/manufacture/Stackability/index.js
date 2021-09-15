@@ -111,6 +111,7 @@ export default function Stackability(props) {
                         //gltfjson={JSON.stringify(gltfjson)}
                         gltfobj={gltfjson}
                         fileGDT={null}
+                        fileAnimation={true}
                         //view="Perspective"
                         activefile={fileId+gltfjsonlen.toString()}
                         backcolor={DEFAULTBACKCOLOR}
