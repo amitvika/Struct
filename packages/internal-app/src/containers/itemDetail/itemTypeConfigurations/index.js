@@ -825,7 +825,10 @@ export default function ItemTypeConfiguration(props) {
   
   return (
     <Paper style={{ padding: 20, margin: 10 }}>
-      <Headding >{title}</Headding>
+      <Headding >
+        {/* {title} */}
+        Configure Item
+        </Headding>
       <DynamicHierarchy
         hierarchyDropdownList={hierarchyDropdownList}
         initialValue={initialValue}
