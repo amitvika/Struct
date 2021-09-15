@@ -256,8 +256,8 @@ def get_bounding_details(shape, tol=1e-6, optimal_BB=True):
         zmin, zmax = swap(zmin,zmax) 
     return  (xmin, ymin, zmin, xmax, ymax, zmax)
 
-def get_bounding_details_common(shape, tol=1e-6, optimal_BB=True):
-    """ return the bounding box of the TopoDS_Shape `shape`
+def get_oriented_bounding_details(shape, optimal_BB=True):
+    """ return the minimum bounding box of the TopoDS_Shape `shape`
 
     Parameters
     ----------
@@ -265,68 +265,29 @@ def get_bounding_details_common(shape, tol=1e-6, optimal_BB=True):
     shape : TopoDS_Shape or a subclass such as TopoDS_Face
         the shape to compute the bounding box from
 
-    tol: float
-        tolerance of the computed boundingbox
-
+    
     use_triangulation : bool, True by default
         This makes the computation more accurate
 
     Returns
     -------
-        if `as_pnt` is True, return a tuple of gp_Pnt instances
-         for the lower and another for the upper X,Y,Z values representing the bounding box
-
-        if `as_pnt` is False, return a tuple of lower and then upper X,Y,Z values
-         representing the bounding box
+        Bnd_OBB
     """
-    bbox = Bnd_Box()
-    bbox.SetGap(tol)
+    
+
+    obb = Bnd_OBB()
+    
     try:
         if optimal_BB:
             use_triangulation = True
-            use_shapetolerance = True
-            topologyExplorer = TopologyExplorer(shape,ignore_orientation=False)
-            faceiterator = list(topologyExplorer.faces())
-            for aface in faceiterator:
-                brepbndlib_AddOptimal(aface, bbox, use_triangulation, use_shapetolerance)
+            use_shapetolerance = False
+            brepbndlib_AddOBB(shape, obb, use_triangulation, optimal_BB, use_shapetolerance)           
         else:
-            brepbndlib_Add(shape, bbox)
+            brepbndlib_AddOBB(shape, obb)
     except Exception as e:
         print("Unable to find bounding box,",e)        
-    # note: useTriangulation is True by default, we set it explicitely, but t's not necessary
+    return obb
     
-    xmin, ymin, zmin, xmax, ymax, zmax = 0, 0, 0, 0, 0, 0
-    try:
-        xmin, ymin, zmin, xmax, ymax, zmax = bbox.Get()
-    except Exception as e:
-        pass
-        #print("Empty box,",e)  
-    #round off to 3 digits..
-    max_all = max(abs(xmin), abs(ymin), abs(zmin), abs(xmax), abs(ymax), abs(zmax))
-    multiplier = 1
-    if(sys.maxsize/1000 > max_all) :
-        multiplier = 1000
-    else:
-        if(sys.maxsize/100 > max_all) :
-            multiplier = 100
-        else:
-            if(sys.maxsize/10 > max_all) :
-                multiplier = 10
-            else:
-                multiplier = 1    
-    xmin = ceil(xmin*multiplier)/multiplier
-    ymin = ceil(ymin*multiplier)/multiplier
-    zmin = ceil(zmin*multiplier)/multiplier
-    xmax = floor(xmax*multiplier)/multiplier
-    ymax = floor(ymax*multiplier)/multiplier
-    zmax = floor(zmax*multiplier)/multiplier
-    if xmin > xmax:
-        xmin, xmax = swap(xmin,xmax)
-    if ymin > ymax:
-        ymin, ymax = swap(ymin,ymax)
-    if zmin > zmax:
-        zmin, zmax = swap(zmin,zmax) 
-    return  (xmin, ymin, zmin, xmax, ymax, zmax)
 
 def roundOffMe(dimension):
     x1, x2, x3, x4, x5, x6 = dimension

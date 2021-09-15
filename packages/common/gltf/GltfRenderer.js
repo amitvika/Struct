@@ -32,6 +32,8 @@ import {
     MeshPhysicalMaterial,
     DefaultLoadingManager,
     OrthographicCamera,
+    PlaneGeometry,
+    Mesh
    /* Group,
     SphereBufferGeometry,
     LineBasicMaterial,
@@ -147,6 +149,7 @@ class GLTFRenderer extends Component {
         actionStates: {},
         camera: DEFAULT_CAMERA,
         wiremesh: false,
+        castshadow: false,
         opaque: "True",
         skeleton: false,
         grid: false,
@@ -158,6 +161,9 @@ class GLTFRenderer extends Component {
         zoomToCursor:true,
         maxZoomIn: 50.0,
         maxZoomOut: 50.0,
+        animationSpeed:1.0,
+        animationTime:0,
+        pauseAnimation:"Continue",
         // Lights
         addLights: true,
         exposure: 1.0,
@@ -501,7 +507,7 @@ class GLTFRenderer extends Component {
             this.skeletonHelpers = [];
             this.gridHelper = null;
             this.axesHelper = null;
-            
+            this.shadowmesh = null;
             this.addCameraAndControls(this.state.view);
            
             //this.addGUI();
@@ -539,7 +545,7 @@ class GLTFRenderer extends Component {
                 //console.log("My Menus", myMenus);
                 for (let index = 0; index < myMenus.length; index++) {
                     //console.log("My Groups", myMenus[index].groups);
-                    if(this.props.fileGDT || (index < 3)) {                        
+                    if( (index < 3) || ( (this.props.fileGDT) && index==3) || ( (this.props.fileAnimation) && index==4) ) {                        
                         for (let group = 0; group < myMenus[index].groups.length; group++) {
                             //console.log("My Fields and Values",myMenus[index].groups[group]);
                             this.changeValues(myMenus[index].groups[group].values,index,group,myMenus[index].folder,myMenus[index].groups[group].name);  
@@ -740,7 +746,7 @@ class GLTFRenderer extends Component {
                                 //console.log("after",material);
                             });
                         }    
-                        this.changeMaterialStats(node.material,this.state.side,this.state.opaque,this.state.wiremesh);
+                        this.changeMaterialStats(node.material,this.state.side,this.state.opaque,this.state.wiremesh,this.state.castshadow);
                     }
                 });
             });
@@ -861,7 +867,7 @@ class GLTFRenderer extends Component {
         //this.updateGUI();
         this.updateTextureEncoding(this.state.textureEncoding);
         this.updateDisplay(this.state.side,this.state.opaque,
-            this.state.wiremesh,this.state.skeleton,this.state.grid);
+            this.state.wiremesh,this.state.castshadow,this.state.skeleton,this.state.grid);
         
         //window.content = this.content;
         //console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
@@ -892,17 +898,63 @@ class GLTFRenderer extends Component {
         if (!clips.length) return;
         console.log(this.content[0]);
         this.mixer = new AnimationMixer(this.content[0]);
-        this.playAllClips();
+        this.playAllClips(this.state.pauseAnimation,true);
     };
 
-    playAllClips = () => {
+    playAllClips = (pauseAnimation,reset) => {
         this.clips.forEach((clip) => {
-            console.log(clip);
-            this.mixer.clipAction(clip).reset().play();
+            //console.log(clip,reset);
+            if(pauseAnimation=="Continue") {
+                if(reset) {
+                    this.mixer.clipAction(clip).reset().play();
+                } else {
+                    this.mixer.clipAction(clip).play();
+                }
+                
+            } else {
+                if(reset) {
+                    this.mixer.clipAction(clip).reset().stop();
+                } else {
+                    this.mixer.clipAction(clip).stop();
+                }
+            }
             this.state.actionStates[clip.name] = true;
         });
     };
 
+    updateAimationSpeed = (animationSpeed) => {
+        if (this.mixer && animationSpeed!=0) {
+            this.mixer.timeScale = animationSpeed;
+        } 
+    }
+
+    updatePauseAnimation = (pauseAnimation) => {
+        if(this.mixer) {
+            this.clips.forEach((clip) => {  
+                const action = this.mixer.clipAction(clip);
+                /* console.log(clip,this.mixer.time,this.mixer.timeScale,
+                    action.time,action.timeScale,action.loop,action.weight,
+                    action.getEffectiveTimeScale(),action.getEffectiveWeight(),pauseAnimation ); */     
+                action.paused = (pauseAnimation=="Pause");            
+            });
+        }        
+    }
+
+    updateAnimationTime = (animationTime) => {
+        if(this.mixer) {
+            this.clips.forEach((clip) => {  
+                const action = this.mixer.clipAction(clip);
+                const actiontime = clip.duration*animationTime/10;
+                action.reset();
+                if(actiontime!=0) {
+                    this.mixer.setTime(actiontime);
+                }                 
+                //console.log(this.state.pauseAnimation);
+                action.paused=(this.state.pauseAnimation=="Pause");           
+            });
+        }
+    }
+    
     /**
     * @param {string} name
     */
@@ -1001,14 +1053,25 @@ class GLTFRenderer extends Component {
         //console.log(lights);
     };
 
-    updateDisplay = (mySide,myOpaque,myWiremesh,mySkeleton,myGrid) => {
+    updateDisplay = (mySide,myOpaque,myWiremesh,myCastShadow,mySkeleton,myGrid) => {
         if (this.skeletonHelpers.length) {
             this.skeletonHelpers.forEach((helper) => this.scene.remove(helper));
         }
         if(this.content) {
+            if (!myCastShadow && this.shadowmesh) {
+                this.scene.remove(this.shadowmesh);               
+                this.shadowmesh=null;
+            }
+            if(myCastShadow && !this.shadowmesh) {
+                const mesh = new Mesh( new PlaneGeometry( 100, 100 ), new MeshPhongMaterial( { color: 0xFFFFFF, depthWrite: false } ) );
+			    mesh.rotation.x = - Math.PI / 2;
+				mesh.receiveShadow = true;
+				this.scene.add( mesh );
+                this.shadowmesh=mesh;
+            }
             this.content.forEach(element => {
                 traverseMaterials(element, (material) => {
-                    this.changeMaterialStats(material,mySide,myOpaque,myWiremesh);
+                    this.changeMaterialStats(material,mySide,myOpaque,myWiremesh,myCastShadow);
                 });
             });
             this.content.forEach(element => {
@@ -1134,35 +1197,42 @@ class GLTFRenderer extends Component {
             //this.state.side = sideCtrl.object.side;
             this.setState({side:sideCtrl.object.side});
             this.updateDisplay(sideCtrl.object.side,this.state.opaque,
-                this.state.wiremesh,this.state.skeleton,this.state.grid);
+                this.state.wiremesh,this.state.castshadow,this.state.skeleton,this.state.grid);
         });
         const depthCtrl = dispFolder.add(this.state, 'opaque', ['True', 'False', 'Self']);
         depthCtrl.onChange(() => {
             //this.state.opaque = depthCtrl.object.opaque;
             this.setState({opaque:depthCtrl.object.opaque});
             this.updateDisplay(this.state.side,depthCtrl.object.opaque,
-                this.state.wiremesh,this.state.skeleton,this.state.grid);
+                this.state.wiremesh,this.state.castshadow,this.state.skeleton,this.state.grid);
         });
         const wiremeshCtrl = dispFolder.add(this.state, 'wiremesh');
         wiremeshCtrl.onChange(() => {
             //this.state.wiremesh = wiremeshCtrl.object.wiremesh;
             this.setState({wiremesh:wiremeshCtrl.object.wiremesh});
             this.updateDisplay(this.state.side,this.state.opaque,
-                wiremeshCtrl.object.wiremesh,this.state.skeleton,this.state.grid);
+                wiremeshCtrl.object.wiremesh,this.state.castshadow,this.state.skeleton,this.state.grid);
+        });
+        const castShadowCtrl = dispFolder.add(this.state, 'castshadow');
+        castShadowCtrl.onChange(() => {
+            //this.state.wiremesh = wiremeshCtrl.object.wiremesh;
+            this.setState({castshadow:castShadowCtrl.object.castshadow});
+            this.updateDisplay(this.state.side,this.state.opaque,
+               this.state.wiremesh,castShadowCtrl.object.castshadow,this.state.skeleton,this.state.grid);
         });
         const skeletonCtrl = dispFolder.add(this.state, 'skeleton');
         skeletonCtrl.onChange(() => {
             //this.state.skeleton = skeletonCtrl.object.skeleton;
             this.setState({skeleton:skeletonCtrl.object.skeleton});
             this.updateDisplay(this.state.side,this.state.opaque,
-                this.state.wiremesh,skeletonCtrl.object.skeleton,this.state.grid);
+                this.state.wiremesh,this.state.castshadow,skeletonCtrl.object.skeleton,this.state.grid);
         });
         const gridCtrl = dispFolder.add(this.state, 'grid');
         gridCtrl.onChange(() => {
             //this.state.grid = gridCtrl.object.grid;
             this.setState({grid:gridCtrl.object.grid});
             this.updateDisplay(this.state.side,this.state.opaque,
-                this.state.wiremesh,this.state.skeleton,gridCtrl.object.grid);
+                this.state.wiremesh,this.state.castshadow,this.state.skeleton,gridCtrl.object.grid);
         });
         if(this.controls) {
             dispFolder.add(this.controls, 'autoRotate');
@@ -3399,8 +3469,9 @@ class GLTFRenderer extends Component {
         
     };
 
-    changeMaterialStats(material,mySide,myOpaque,myWiremesh) {
+    changeMaterialStats(material,mySide,myOpaque,myWiremesh,myCastShadow) {
         material.wireframe = myWiremesh;
+        material.castShadow = myCastShadow;
         material.depthTest = true;
         material.depthWrite = myOpaque == "True" ? true : myOpaque == "False" ? false : !material.transparent;
         material.side = mySide == "Front" ? FrontSide : mySide == "Back" ? BackSide : DoubleSide;
@@ -3657,7 +3728,7 @@ class GLTFRenderer extends Component {
                         } 
                         if(toSet) {
                             this.updateDisplay(values.side,this.state.opaque,
-                                this.state.wiremesh,this.state.skeleton,this.state.grid);
+                                this.state.wiremesh,this.state.castshadow,this.state.skeleton,this.state.grid);
                         } 
                         break;
                     case 2:
@@ -3667,12 +3738,16 @@ class GLTFRenderer extends Component {
                         }
                         if(toSet) {
                             this.updateDisplay(this.state.side,values.opaque,
-                                this.state.wiremesh,this.state.skeleton,this.state.grid);
+                                this.state.wiremesh,this.state.castshadow,this.state.skeleton,this.state.grid);
                         } 
                         break;
                     case 3:
                         if(values.wiremesh != this.state.wiremesh) {
                             this.setState({wiremesh:values.wiremesh});  
+                            toSet = true;
+                        }
+                        if(values.castshadow != this.state.castshadow) {
+                            this.setState({castshadow:values.castshadow});  
                             toSet = true;
                         }
                         if(values.skeleton != this.state.skeleton) {
@@ -3685,7 +3760,7 @@ class GLTFRenderer extends Component {
                         }
                         if(toSet) {
                             this.updateDisplay(this.state.side,this.state.opaque,
-                                values.wiremesh,values.skeleton,values.grid);
+                                values.wiremesh,values.castshadow,values.skeleton,values.grid);
                         } 
                         break;
                     case 4:
@@ -3813,7 +3888,7 @@ class GLTFRenderer extends Component {
                         break;
                 }
                 break;
-            case 3:
+            case 3:                
                 const mySelectedoption = this.getOptionValueFromString(values.selectedOption);
                 if(mySelectedoption!=this.props.selectedoption) {
                     if(this.props.setSelectedOption) {
@@ -3834,8 +3909,24 @@ class GLTFRenderer extends Component {
                             this.props.selectAllSelectedSolids(mySelectedoption);
                         }                        
                     }
-                   
-                }                
+                
+                }
+                break;
+            case 4:
+                if(values.animationSpeed != this.state.animationSpeed) {
+                    this.setState({animationSpeed:values.animationSpeed});
+                    this.updateAimationSpeed(values.animationSpeed);   
+                }  
+                
+                if(values.pauseAnimation != this.state.pauseAnimation) {
+                    this.setState({pauseAnimation:values.pauseAnimation});                               
+                    this.updatePauseAnimation(values.pauseAnimation);   
+                } 
+
+                if(values.animationTime != this.state.animationTime) {
+                    this.setState({animationTime:values.animationTime});                               
+                    this.updateAnimationTime(values.animationTime);   
+                } 
                 break;
             default:
                 break;
@@ -3864,7 +3955,7 @@ class GLTFRenderer extends Component {
     };
     
     buildMenus = (myIndex) => { return myMenus.map( (data, index) => (
-        (this.props.fileGDT || (index < 3)) && (
+        ( (index < 3) || ( (this.props.fileGDT) && index==3) || ( (this.props.fileAnimation) && index==4) ) && (
         <Button aria-describedby={this.idEl[index]} id={'pop'+index.toString()} type="button" 
         variant="contained" key={this.openEl[index]?"O":"I"+index.toString()}
         onClick={
@@ -3983,7 +4074,7 @@ class GLTFRenderer extends Component {
             }
             return id.toString();
         }
-        //console.log("BuildMenus",this.buildMenus);
+        //console.log("fileAnimation",this.props.fileAnimation);
         return (
             <> 
                 <Grid container spacing={0} direction="column" alignItems="center">

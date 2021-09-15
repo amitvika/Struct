@@ -4508,8 +4508,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             shapeArray,shape,shapePickles,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             #shape = Wholeshape
             #shapeArray = createShapeArray(shape)
-            dictionary = FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap).\
-                ExplodeParts(sourceFileName,distancegap,anglegap,animationtime,logging)
+            dictionary = FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap,logging).\
+                ExplodeParts(sourceFileName,distancegap,anglegap,animationtime)
             #whatGotHere = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap)
             #print("After calling Assembly order",dictionary)
             """ nshape, moveArrays, shapeorder, shapesdirection = dictionary
@@ -4571,7 +4571,7 @@ def FileGetAssemblyOrder(request):
             explodegap = convertToFloat(request.GET.get('explodegap',"0.3"),0.3)
             holescale = convertToFloat(request.GET.get('holescale',"0.8"),0.8)
             removegap = convertToFloat(request.GET.get('removegap',"1.0"),1.0)
-            center=convertToBool(request.GET.get('center',"true"),True)
+            center = convertToBool(request.GET.get('center',"true"),True)
             animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
             #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
             #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
@@ -4808,15 +4808,62 @@ def FileSaveTree(request):
                         filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
                         anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,edgesize=0,vertexsize=0,
                         kinematicanimation=kinematicanimation,shapeorder=shapeorder,delay=animationtime).dump()
+                elif sourceType=='Order':
+                    sourceFileName = myPickle['sourceFileName']
+                    distancegap = convertToFloat(myPickle['distancegap'],0.1)
+                    anglegap = convertToFloat(myPickle['anglegap'],0.5)
+                    explodegap = convertToFloat(myPickle['explodegap'],10)
+                    center = convertToBool(myPickle['center'],True)
+                    holescale= convertToFloat(myPickle['holescale'],0.77)
+                    removegap= convertToFloat(myPickle['removegap'],8)
+                    animationtime=convertToFloat(myPickle['animationtime'],1)
+                    colorShapeArray=myPickle['colorshapes']
+                    assemblyname=myPickle['assemblyname']
+                    dimension=myPickle['dimension']
+                    shapeArray=[]    
+                    shapesAlone=[]               
+                    shapeorder=[]
+                    shapedirection=[]
+                    print("Filename got",sourceFileName,"from",name,name[:-2])
+                    for eachShapeInfo in colorShapeArray:
+                        mergedshape,subShapeName,red,green,blue = eachShapeInfo
+                        aColor = Quantity_Color(red,green,blue, Quantity_TOC_RGB)
+                        shapeArray.append((mergedshape,subShapeName,aColor))
+                        shapesAlone.append(mergedshape)
+                        print(eachShapeInfo)
+                    print(shapeArray)
+                    for aTree in structArray:
+                        print("Tree",aTree,shapeorder)  
+                        posx, posy, posz, angle = 0, 0, 0, 0                 
+                        if gltf_dict["id"] in aTree:
+                            index=aTree[gltf_dict["id"]]-3 
+                            if index>=0:
+                                shapeorder.append(index)
+                                if "AX" in aTree:                    
+                                    ax=convertToFloat(aTree["AX"],0)
+                                if "AY" in aTree:                    
+                                    ay=convertToFloat(aTree["AY"],0)
+                                if "AZ" in aTree:                    
+                                    az=convertToFloat(aTree["AZ"],0)
+                                if "CX" in aTree:                    
+                                    cx=convertToFloat(aTree["CX"],0)
+                                if "CY" in aTree:                    
+                                    cy=convertToFloat(aTree["CY"],0)
+                                if "CZ" in aTree:                    
+                                    cz=convertToFloat(aTree["CZ"],0)                        
+                                shapedirection.append(((ax,ay,az),(cx,cy,cz)))
+                    dictionary = FindAssemblingOrder(shapeArray,shapesAlone,assemblyname,dimension,explodegap,center,holescale,removegap,logging).\
+                                    reChangeOrder(shapeorder,shapedirection,sourceFileName,distancegap,anglegap,animationtime)
             except Exception as e:
-                print("Error while loading",name,e)   
-            try:
-                treefile = "Display/"+name+'.tree'
-                print("Writing,",treefile)
-                with open(treefile, 'w') as fh:
-                    fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
-            except Exception as e:
-                print("Error while writing treefile",e)     
+                print("Error while loading",name,e) 
+            if sourceType!='Order':  
+                try:
+                    treefile = "Display/"+name+'.tree'
+                    print("Writing,",treefile)
+                    with open(treefile, 'w') as fh:
+                        fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
+                except Exception as e:
+                    print("Error while writing treefile",e)     
         return JsonResponse(dictionary, safe=False)
     except Exception as e:
         try:

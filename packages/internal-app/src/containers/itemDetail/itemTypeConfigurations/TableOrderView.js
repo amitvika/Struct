@@ -311,7 +311,7 @@ class EditableCell extends React.PureComponent {
     if (currentColumn.type=="number" || currentColumn.type=="text" ) {     
       return (
         <CellContainer>              
-            <TextField onChange={onChange} value={value}/>             
+            <TextField onChange={onChange} value={value} type={currentColumn.type}/>             
         </CellContainer>
       ) 
     }

@@ -25,7 +25,7 @@ import Headding from '@ravibasil/common/components/atoms/Headding';
 import DynamicCriteria from './DynamicCriteria';
 import DynamicHierarchy from './DynamicHierarchy';
 import CriteriaUploadAPI from '@ravibasil/common/api/criteriaUpload.api';
-import { getAFileFromStore, saveActuatorInfo } from '@ravibasil/common/api/fileUpload.api';
+import { getAFileFromStore, saveTreeInfo } from '@ravibasil/common/api/fileUpload.api';
 
 import get from 'lodash/get';
 
@@ -484,7 +484,7 @@ export default function ItemTypeConfiguration(props) {
     }
     if(myJsonTree) {
       console.log("Saving",myJsonTree,itemProperties.fileKinematic);
-      saveActuatorInfo(myJsonTree,itemProperties.fileKinematic)
+      saveTreeInfo(myJsonTree,itemProperties.fileKinematic)
       .then(res => {
         console.log("Getting Resources",res,res.data);
         getAFileFromStore(itemProperties.fileKinematic,"gltf")
@@ -501,12 +501,15 @@ export default function ItemTypeConfiguration(props) {
             const mycounter = state.mycounter+1;
             setState({gltfjson:mygltfjson,
                       mycounter:mycounter});
+            let event={};
+            event['ctrlKey']=false;
             curTree.forEach(element => {
               if(element.selectedshell) {
                 console.log("Setting to reset",curTree);
                 setState({ renderdata: [element], whatchange: SELECTDISTANCE });
-                console.log("After Setting to reset",curTree);
-                doOneSelection(element, null);
+                console.log("After Setting to reset",curTree);               
+                doOneSelection(element, event);
+                event['ctrlKey']=true;
                 console.log("Finally Setting to reset",curTree);
               }
             });            
@@ -852,6 +855,7 @@ export default function ItemTypeConfiguration(props) {
             //gltfjson={JSON.stringify(gltfjson)}
             gltfobj={state.gltfjson}
             fileGDT={null}
+            fileAnimation={true}
             //view="Perspective"
             activefile={fileId + gltfjsonlen.toString()}
             backcolor={DEFAULTBACKCOLOR}

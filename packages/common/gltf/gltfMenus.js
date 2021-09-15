@@ -4,6 +4,7 @@ import SpeedOutlinedIcon from '@material-ui/icons/SpeedOutlined';
 import BrightnessMediumOutlinedIcon from '@material-ui/icons/BrightnessMediumOutlined';
 //import PhotoSizeSelectActualOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActualOutlined';
 import WeekendOutlinedIcon from '@material-ui/icons/WeekendOutlined';
+import MovieOutlinedIcon from '@material-ui/icons/MovieOutlined';
 export const myMenus =  [ { 
           folder:'Display',
           icon:<AddToQueueOutlinedIcon/>,
@@ -48,6 +49,7 @@ export const myMenus =  [ {
                 name:'mesh',
                 values: {
                   wiremesh: false,
+                  castshadow:false,
                   skeleton: false,
                   grid: false,                  
                   ctrlKey:false
@@ -56,7 +58,11 @@ export const myMenus =  [ {
                   name: 'Wire Mesh',
                   type: 'checkbox',
                   key: 'wiremesh'   
-                }, {
+                }/* , {
+                  name: 'Cast Shadow',
+                  type: 'checkbox',
+                  key: 'castshadow'   
+                } */, {
                   name: 'Skeleton',
                   type: 'checkbox',
                   key: 'skeleton'   
@@ -257,6 +263,42 @@ export const myMenus =  [ {
               key: 'selectedOption'   
             }]
           }
+        ]
+        }, { 
+          folder:'Animation',
+          icon:<MovieOutlinedIcon/>,
+          groups:[ {
+            name:'control',
+            values: {
+              animationSpeed: 0.7,
+              animationTime:0,
+              pauseAnimation: "Continue",
+              ctrlKey:false
+            },
+            fields: [{
+              name: 'Animation Speed',
+              type: 'slider',
+              auto: 'auto',
+              step: 0.1,
+              min:  0.1, 
+              max:  10.0, 
+              key: 'animationSpeed'   
+            },{
+              name: 'Animation Time',
+              type: 'slider',
+              auto: 'auto',
+              step: 0.1,
+              min:  0.1, 
+              max:  10.0, 
+              key: 'animationTime'   
+            }, {
+              name: 'Pause',
+              type: 'radio',
+              items: ["Continue","Pause"],
+              key: 'pauseAnimation'   
+            }
+           ] 
+         }
         ]
         }
       ];
