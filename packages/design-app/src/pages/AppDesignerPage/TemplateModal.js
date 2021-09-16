@@ -1,108 +1,106 @@
-import React, { useState, useRef } from 'react';
-import Modal from '@ravibasil/common/components/Modal'
-import { Paper, makeStyles, Tabs, Tab, Grid, Snackbar, Button } from '@material-ui/core';
-import Templates from './TemplatesTab'
-import Styles from './StylesTab'
-import './style.css'
+import React, { useState } from 'react';
+import Modal from '@ravibasil/common/components/Modal';
+import { Paper, Tabs, Tab, Grid, Divider, Button } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import Templates from './TemplatesTab';
+import Styles from './StylesTab';
+import './style.css';
 import LoginTab from './LoginTab';
-
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    backgroundColor: theme.palette.background.paper,
-    display: 'flex',
-    // height: 224,
   },
-  tabs: {
-    borderRight: `1px solid ${theme.palette.divider}`,
+  paper: {
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    marginTop: '10px',
+    marginBottom: '10px',
   },
+  tabPaper: {
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    cursor: 'pointer',
+    transition: '0.3s',
+    '&:hover, &:focus': {
+      backgroundColor: '#DCDCDC',
+    },
+  },
+  selectedTab: {
+    backgroundColor: 'blue',
+  },
+ modal : {
+     maxHeight: '800px !important'
+ }
+ 
 }));
-
 
 export default function TemplateModal({ isModalOpened, handleTemplateClick }) {
   const classes = useStyles();
-  const [tabIndex, setTabIndex] = useState("Templates");
+  const [selectedTab, setSelectedTab] = useState('');
 
-  const tabList = {
-    templates: "Templates", styles: "Styles", login: "Login & Authentication"
+  const tabArray = ['Templates', 'Styles', 'Login & Authentication'];
+  const handleTabChange = (tabName) => {
+    // setSelectedTab(tabName);
+    if (tabName === selectedTab) {
+      setSelectedTab('');
+    }
+    else {
+      setSelectedTab(tabName);
+    }
+  };
+  const renderDetailPanel = () => {
+
+    if (selectedTab === 'Templates') {
+      return <Templates />
+    }
+    else if (selectedTab === 'Styles') {
+      return <Styles/>
+    }
+    else if (selectedTab === 'Login & Authentication') {
+      return <LoginTab />
+    }
+  
+    else {
+
+      return null
+
+    }
+
   }
 
-  const renderTab = () => {
-    let tabP = []
-    Object.keys(tabList).forEach((key, index) => {
-      tabP.push(
-        <Tab label={`${index + 1}. ${tabList[key]}`} value={key} style={{ textAlign: 'left' }} />)
-    })
-    return tabP
-  }
-  const renderPageSwitch = () => {
-    switch (tabIndex) {
-      case 0:
-        return "Add vendor items here";
-      case "templates":
-        return <Templates />
-      case "styles":
-        return <Styles />
-      case "login":
-        return <LoginTab />
-      default:
-        return "Undefined Tab Index";
-    }
-  }
-  const handleTabChange = (event, newTabIndex) => {
-    if (tabIndex != newTabIndex) {
-      setTabIndex(newTabIndex);
-    }
-  }
+
+
   return (
-    <>
-
-      <Modal
-      className='makeStyles-paper-17'
-        open={isModalOpened}
-        toggleModal={handleTemplateClick}
-      >
-          <Grid container>
-            <Grid item sm={2}>
-              <Paper style={{ margin: 10, marginBottom: "70px" }}>
-
-                <Tabs
-                  className='MuiTab-wrapper'
-                  orientation="vertical"
-                  variant="scrollable"
-                  value={tabIndex}
-                  onChange={handleTabChange}>
-                  {renderTab()}
-                </Tabs>
-                <Snackbar
-                  style={{
-                    left: '10%'
-                  }}
-                  open={true}
-                >
-                  <Button
-                    size="large"
-                    variant="contained"
-                    color="primary"
-                  >
-                    Save
-                  </Button>
-                </Snackbar>
-
+    <Modal
+      // className={classes.modal}
+      open={isModalOpened}
+      toggleModal={handleTemplateClick}
+    >
+      <Paper elevation={3} className={classes.paper}>
+        <Grid container spacing={1}>
+          {tabArray.map((tabName) => (
+            <Grid item xs={2} key={tabName}>
+              <Paper
+                onClick={() => handleTabChange(tabName)}
+                style={{
+                  backgroundColor: selectedTab === tabName ? '#343a40' : '',
+                  color: selectedTab === tabName ? 'white' : '',
+                }}
+                className={classes.tabPaper}
+              >
+                {tabName}
               </Paper>
             </Grid>
-            <Grid item sm sm={10}>
-              {renderPageSwitch()}
-            </Grid>
-
-          </Grid>
- 
-      </Modal >
-    </>
+          ))}
+        </Grid>
+        <Divider orientation="horizontal" flexItem />
+        {renderDetailPanel()}
+      </Paper>
+  
+    
+    </Modal>
   );
 }
-
-
-
-

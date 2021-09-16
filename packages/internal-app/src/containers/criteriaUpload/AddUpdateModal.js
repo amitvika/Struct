@@ -15,6 +15,7 @@ import FileHistory from './FileHistory';
 import { useSelector } from 'react-redux';
 import { uploadFileS3Bucket } from '@ravibasil/common/api/aws';
 import { hierarchyFileParser, criteriaFileParser } from './parser';
+import LoadingModal from '@ravibasil/common/components/LoadingModal';
 
 export default function AddUpdateModal({
   title,
@@ -30,6 +31,7 @@ export default function AddUpdateModal({
   const [selectedType, setSelectedType] = useState('');
   const { user } = useSelector((state) => state.auth);
   const [isLoading, setLoading] = useState(false);
+  const [refreshFileHistory, setRefreshFileHistory] = useState(false);
 
   useEffect(() => {
     if (selectedValue) {
@@ -52,10 +54,13 @@ export default function AddUpdateModal({
     }));
   };
 
-  const handleSaveButton = () => {
+  const handleSaveButton = async () => {
+    setLoading(true);
     if (value) {
-      handleUpdate(value);
+      await handleUpdate(value);
     }
+    setRefreshFileHistory(!refreshFileHistory);
+    setLoading(true);
     // toggleModal();
   };
 
@@ -68,21 +73,14 @@ export default function AddUpdateModal({
   const handleFileChange = async (selectedFile) => {
     setLoading(true);
 
-    let updateObj = {};
-
-    if (value.category === 'criteria') {
-      let criteriaSchema = await criteriaFileParser(selectedFile);
-      updateObj = { criteriaSchema };
-    } else if (value.category === 'hierarchy') {
-      let hierarchySchema = await hierarchyFileParser(selectedFile);
-      updateObj = { hierarchySchema };
-    } else {
-      return;
-    }
-
+    let criteriaSchema = await criteriaFileParser(selectedFile);
+    let hierarchySchema = await hierarchyFileParser(selectedFile);
+    
     const file_url = await uploadFileS3Bucket(selectedFile);
-    updateObj = {
-      ...updateObj,
+
+    let updateObj = {
+      criteriaSchema,
+      hierarchySchema,
       new_file: {
         file_name: selectedFile.name,
         file_url,
@@ -91,8 +89,8 @@ export default function AddUpdateModal({
       },
     };
 
-    setValue((prev) => ({ ...prev, ...updateObj }));
 
+    setValue((prev) => ({ ...prev, ...updateObj }));
     setLoading(false);
   };
 
@@ -102,7 +100,7 @@ export default function AddUpdateModal({
       open={open}
       toggleModal={toggleModal}
     >
-      {isLoading && <CircularProgress />}
+      {isLoading && <LoadingModal isLoading={isLoading}/>}
       <Grid className="section-padding-left" container spacing={4}>
         <Grid item xs={4}>
           <Headding bold title={'Name'} />
@@ -160,7 +158,7 @@ export default function AddUpdateModal({
         </Grid>
 
         <FileUpload value={value} handleOnChange={handleFileChange} />
-        <FileHistory link_id={value.id} />
+        <FileHistory link_id={value.id} refreshFileHistory={refreshFileHistory}/>
 
         <Grid item xs={6}>
           <Button

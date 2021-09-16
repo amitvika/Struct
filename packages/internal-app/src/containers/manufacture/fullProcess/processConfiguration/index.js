@@ -48,14 +48,20 @@ export default function ProductionTable() {
         {
             title: 'Select Factory',
             field: "factory",
-            editable: 'never',
+            // editable: 'never',
             render: (rowData) => {
                 return (
-                    <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={(event) => handleFactoryClick(event, rowData)}>
+                    <span style={{ cursor: 'pointer'}} onClick={(event) => handleFactoryClick(event, rowData)}>
                         <Link>  {rowData.factory_id ? rowData.factory_name : 'Select'} </Link></span>
                 )
-            }
-        },
+            },
+            editComponent: (rowData) => {
+              return (
+                  <span style={{ cursor: 'pointer'}} onClick={(event) => handleFactoryClick(event, rowData)}>
+                      <Link>  {rowData.factory_id ? rowData.factory_name : 'Select'} </Link></span>
+              )
+          },
+          }
     ])
 
     const handleFactoryClick = (event, rowData) => {
@@ -171,8 +177,10 @@ export default function ProductionTable() {
     }
 
     const assignFactory = (value) => {
+     
         if (Object.keys(value).length > 0) {
             upsertItem(value)
+             console.log("assign factory",value)
         }
 
     }
