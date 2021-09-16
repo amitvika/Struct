@@ -31,7 +31,7 @@ from OCC.Core.TopoDS import (TopoDS_Face, TopoDS_Edge, TopoDS_Shape)
 
 from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
 from OCC.Core.gp import (gp_Vec, gp_Pnt, gp_Trsf, gp_OX, gp_OY,
-                         gp_OZ, gp_XYZ, gp_Ax2, gp_Dir, gp_GTrsf, gp_Mat)
+                         gp_OZ, gp_XYZ, gp_Ax2, gp_Ax3, gp_Dir, gp_GTrsf, gp_Mat)
 
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.TColStd import (TColStd_Array1OfInteger, TColStd_Array1OfReal, TColStd_Array2OfReal)
@@ -2288,20 +2288,20 @@ def recognize_edge_entity(topods_edge):
         gp_Line = curve.Line()
         entity['location'] = gp_Line.Location() 
         axis1=gp_Line.Position()
-        entity['position'] = gp_Ax2( axis1.Location(),axis1.Direction() )  # a point of the axis
+        entity['position'] = gp_Ax3(gp_Ax2( axis1.Location(),axis1.Direction() ))  # a point of the axis
         
     elif curve_type == GeomAbs_Circle:
         entity['kind'] = "Circle"   
         gp_circle = curve.Circle()
         entity['location'] = gp_circle.Location() 
-        entity['position'] = gp_circle.Position() 
+        entity['position'] = gp_Ax3(gp_circle.Position())
         entity['radius'] = gp_circle.Radius()
         entity['center'] = getXYZ(gp_circle.Location())
     elif curve_type == GeomAbs_Ellipse:
         entity['kind'] = "Ellipse"   
         gp_ellipse = curve.Ellipse()
         entity['location'] = gp_ellipse.Location() 
-        entity['position'] = gp_ellipse.Position() 
+        entity['position'] = gp_Ax3(gp_ellipse.Position())
         entity['majorradius'] = gp_ellipse.MajorRadius()
         entity['minorradius'] = gp_ellipse.MinorRadius()
         entity['center'] = getXYZ(gp_ellipse.Location())     
@@ -2309,7 +2309,7 @@ def recognize_edge_entity(topods_edge):
         entity['kind'] = "Hyperbola" 
         gp_hyperbola = curve.Hyperbola()
         entity['location'] = gp_hyperbola.Location() 
-        entity['position'] = gp_hyperbola.Position() 
+        entity['position'] = gp_Ax3(gp_hyperbola.Position()) 
         entity['major'] = gp_hyperbola.MajorRadius()
         entity['minor'] = gp_hyperbola.MinorRadius()
         entity['location'] = getXYZ(gp_hyperbola.Position().Location())  # a point of the axis
@@ -2319,7 +2319,7 @@ def recognize_edge_entity(topods_edge):
         entity['kind'] = "Parabola"   
         gp_parabola = curve.Parabola()
         entity['location'] = gp_parabola.Location() 
-        entity['position'] = gp_parabola.Position() 
+        entity['position'] = gp_Ax3(gp_parabola.Position()) 
         entity['focal'] = gp_parabola.Focal()        
         entity['location'] = getXYZ(gp_parabola.Position().Location())  # a point of the axis
         entity['direction'] = getXYZ(gp_parabola.Position().Direction())

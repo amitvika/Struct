@@ -1119,6 +1119,14 @@ def FileGetMinimumDistance(request):
                 logging.exception(e)
             except Exception as e:
                 print("Error while logging",e)
+
+def IsEqualWithTollerance(first,second,tollerance):
+    difference = first-second
+    return (difference >= -tollerance) and (difference <=tollerance)
+
+def IsCircular(checkEntity):
+    return (checkEntity["kind"]=="Sphere") or (checkEntity["kind"]=="Cylinder") or\
+                (checkEntity["kind"]=="Circle") or (checkEntity["kind"]=="Cone") 
 def findMates(firstshell,secondshell):
     
     coplaner = "unknown"
@@ -1133,7 +1141,7 @@ def findMates(firstshell,secondshell):
         secondEntity = recognize_entity(secondshell)
         firstAxis =  firstEntity["position"]
         secondAxis = secondEntity["position"]
-        if(firstAxis and secondAxis and (firstEntity['type']==secondEntity['type'])):               
+        if(firstAxis and secondAxis):               
             coplaner = firstAxis.IsCoplanar (secondAxis, 0.1, 0.5)
             firstDir = firstAxis.Direction()
             secondDir = secondAxis.Direction()
@@ -1143,10 +1151,16 @@ def findMates(firstshell,secondshell):
             concentric = (firstEntity["center"]==secondEntity["center"])
             if concentric==False:
                 concentric=firstDir.IsEqual(secondDir,0.1)
+                if concentric==True:
+                    ex=IsEqualWithTollerance(firstDir.X(),secondDir.X(),0.1)
+                    ey=IsEqualWithTollerance(firstDir.Y(),secondDir.Y(),0.1)
+                    ez=IsEqualWithTollerance(firstDir.Z(),secondDir.Z(),0.1)
+                    concentric = ( (ex) or  (ey) or (ez) ) and \
+                        ( ( (IsCircular(firstEntity) and IsCircular(secondEntity) ) ) or \
+                            (firstEntity["type"]=="Face" and secondEntity["type"]=="Face") )
+                    
             print(firstEntity["center"],secondEntity["center"],concentric,firstDir.X(),firstDir.Y(),firstDir.Z(), secondDir.X(),secondDir.Y(),secondDir.Z())
-            if ( ((firstEntity["kind"]=="Sphere") or (firstEntity["kind"]=="Cylinder") or\
-                (firstEntity["kind"]=="Circle") or (firstEntity["kind"]=="Cone") ) and \
-                (firstEntity["kind"]==secondEntity["kind"])): 
+            if ( IsCircular(firstEntity) and (firstEntity["kind"]==secondEntity["kind"])): 
                 coradial = (firstEntity["radius"] == secondEntity["radius"]) and concentric
             else:
                 coradial = False  
