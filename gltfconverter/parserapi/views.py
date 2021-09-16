@@ -1137,10 +1137,13 @@ def findMates(firstshell,secondshell):
             coplaner = firstAxis.IsCoplanar (secondAxis, 0.1, 0.5)
             firstDir = firstAxis.Direction()
             secondDir = secondAxis.Direction()
-            parallel = firstDir.IsParallel(secondDir, 0.5)
-            normal = firstDir.IsNormal(secondDir, 0.5)
-            opposite = firstDir.IsOpposite(secondDir, 0.5)
+            parallel = firstDir.IsParallel(secondDir, 0.1)
+            normal = firstDir.IsNormal(secondDir, 0.1)
+            opposite = firstDir.IsOpposite(secondDir, 0.1)            
             concentric = (firstEntity["center"]==secondEntity["center"])
+            if concentric==False:
+                concentric=firstDir.IsEqual(secondDir,0.1)
+            print(firstEntity["center"],secondEntity["center"],concentric,firstDir.X(),firstDir.Y(),firstDir.Z(), secondDir.X(),secondDir.Y(),secondDir.Z())
             if ( ((firstEntity["kind"]=="Sphere") or (firstEntity["kind"]=="Cylinder") or\
                 (firstEntity["kind"]=="Circle") or (firstEntity["kind"]=="Cone") ) and \
                 (firstEntity["kind"]==secondEntity["kind"])): 

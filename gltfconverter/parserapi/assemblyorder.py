@@ -1118,7 +1118,7 @@ class FindAssemblingOrder(object):
                         #print("My Shape TOl, Gap Tol",shapeTol,gapTol)
                         myCommonCompound,myHoles=None,None
                         whatIgot = self.checkCommonHole(j,k,toBeScaled,myGuessDirections,debugMe) 
-                        print("What I Got here",whatIgot)
+                        #print("What I Got here",whatIgot)
                         #enclosed,_,myDirection, myCommonCompound,myHoles = isRemovable(shape[shapeorder[j]],shapesdim[j],myExcludeCompound,myExcludeDimension,shapeTol,gapTol,debugMe)
                         enclosed, myAxisDirection, myLastPosition = whatIgot #self.checkCommonHole(j,k,toBeScaled,myGuessDirections,debugMe) 
                         #print(k,i,j,shapeorder[j],enclosed,myExcludeDimension,lenShape-k)
