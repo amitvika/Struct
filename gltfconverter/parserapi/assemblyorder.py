@@ -4,7 +4,8 @@ from OCC.Core.Bnd import Bnd_OBB
 from OCC.Core.gp import (gp_Pnt, gp_XYZ, gp_Ax2, gp_Dir)
 from .structparts.structquery.occ_impl import OCPStepIGESAnalyser
 from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
-from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (translate_shp, get_bounding_details, get_oriented_bounding_details, scale_shape)
+from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (translate_shp, get_bounding_details,\
+     get_oriented_bounding_details, scale_shape, minimum_distance)
 #from OCC.Core.gp import gp_Pnt 
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
@@ -278,9 +279,19 @@ class FindAssemblingOrder(object):
             except:
                 print(e,"Some Exceptions") 
 
-    
+    def checkOuter(self,checkingOuterBox,fullBox,seperateBoxes):
+        retValue = checkingOuterBox.IsOut(fullBox)
+        if retValue==True:
+            return retValue
+        for aBox in seperateBoxes:
+            retValue = checkingOuterBox.IsOut(aBox)
+            if retValue==False:
+                return retValue
+        print("I have got True here! when there are",len(seperateBoxes),"seperate boxes")
+        return True
+
    
-    def checkCommonHoleInDirection(self, myShapeOuter,myOuterDimension, myShapeInner,myInnerDimension, axisdirection, checkingBox, fullBox, toBeScaled, debugMe=False):
+    def checkCommonHoleInDirection(self, myShapeOuter,myOuterDimension, myShapeInner,myInnerDimension, axisdirection, checkingBox, fullBox, seperateBoxes, toBeScaled, debugMe=False):
         #return True, None
         print(axisdirection)
         adirX, adirY, adirZ = axisdirection
@@ -293,7 +304,8 @@ class FindAssemblingOrder(object):
         holeFound=True
         myCount = 0
         checkingOuterBox = self.translateOBB(checkingBox, xminn, yminn, zminn)
-        while ( (holeFound==True) and ( checkingOuterBox.IsOut(fullBox)==False) ):                    
+        tranShape = myShapeOuter
+        while ( (holeFound==True) and ( self.checkOuter(checkingOuterBox,fullBox,seperateBoxes) ==False) ):                    
             #print("Reached here1c") 
             tranShape = translate_shp(myShapeOuter,xminn, yminn, zminn,True) 
             #print("Reached here1d") 
@@ -727,6 +739,49 @@ class FindAssemblingOrder(object):
 
         return (self.roundoff(center.X()),self.roundoff(center.Y()),self.roundoff(center.Z()))   
     
+    def getAdjustantBoxes(self,orderpos,orderlast):
+         
+        myAdjustantBoxes = []
+        _,currentOBB,_,_,_=self.directiondata[self.shapeorder[orderpos]]
+        for iPos in range(len(self.shapesArray)-orderlast+1):                
+            if (iPos!=orderpos):                                        
+                _,obb,_,_,_=self.directiondata[self.shapeorder[iPos]]
+                if currentOBB.IsOut(obb)==False:
+                    myAdjustantBoxes.append((iPos,self.shapeorder[iPos]))                  
+        
+        return myAdjustantBoxes
+    
+    def isSmallestSurface(self,orderpos,orderlast):
+        
+        lowerSurfaceArea=self.shapessurface[orderpos]
+       
+        for iPos in range(len(self.shapesArray)-orderlast+1):
+            if (iPos!=orderpos):   
+                surfaceArea=self.shapessurface[iPos]                                   
+                if surfaceArea<lowerSurfaceArea:
+                    print("Cheking Smaller found another",orderpos,orderlast,iPos,self.shapessurface,lowerSurfaceArea,surfaceArea)
+                    return False
+        print("Cheking Smaller nothing found",orderpos,orderlast,self.shapessurface,lowerSurfaceArea)
+        return True                  
+
+    def touchedAdjustantBoxes(self,orderpos):
+        myShape = self.shapesArray[self.shapeorder[orderpos]]
+        myCount = len(self.myAdjustantBoxes)
+        if myCount <=1:
+            return myCount
+        else:
+            myCount=0
+        for _,aBoxPos in self.myAdjustantBoxes:  
+            thisShape = self.shapesArray[aBoxPos] 
+            (thisdistance, p1, p2) = minimum_distance(thisShape,myShape)
+            if (thisdistance<=0.001) :
+                myCount+=1
+            else:
+                print("My Distance",(thisdistance, p1, p2))
+            if myCount >1:
+                return myCount
+        return myCount
+
     def checkCommonHole(self,orderpos,orderlast,toBeScaled,myOBBDirections,debugMe=False):
         #return True, None
         myShapeOuter=self.shapesArray[self.shapeorder[orderpos]]
@@ -735,10 +790,20 @@ class FindAssemblingOrder(object):
         myGuessDirections,checkingBox,fullBox = myOBBDirections
         lenDirections = len(myGuessDirections)
         print(myOBBDirections)
+        myShapes = []
+        mySeperateBoxes = []
+        for iPos in range(len(self.shapesArray)-orderlast+1):                
+            if (iPos!=orderpos):
+                myShapes.append(self.shapesArray[self.shapeorder[iPos]])                        
+                _,obb,_,_,_=self.directiondata[self.shapeorder[iPos]]
+                mySeperateBoxes.append(obb)  
+                #_,myname,_ = self.shapesColorArray[self.shapeorder[iPos]] 
+        _,myname,_ = self.shapesColorArray[self.shapeorder[orderpos]] 
+        print("checking",orderpos,orderlast,myname)    
         for i in range(0,lenDirections):
             (axisdirection),_ = myGuessDirections[i]
             #allPartsHoleFound=True
-            myShapes = []
+            """ myShapes = []
             for iPos in range(len(self.shapesArray)-orderlast+1):                
                 if (iPos!=orderpos):
                     coliding = True#self.isColliding(myOuterDimension,self.shapesdimension[iPos],direction)                   
@@ -749,7 +814,7 @@ class FindAssemblingOrder(object):
                     else:
                         if debugMe:
                             print("Not Adding to Find Collisions",iPos,self.shapeorder[iPos],"For",orderpos,self.shapeorder[orderpos],"In",axisdirection, "At pass",orderlast)
-                                
+           """                      
             if(len(myShapes)==0):
                 _,_,mycenter,_,_ = checkingBox
                 return True, axisdirection, mycenter 
@@ -758,10 +823,10 @@ class FindAssemblingOrder(object):
             else:
                 myShapeInner,_ = list_of_shapes_to_compound(myShapes)
             myInnerDimension = get_bounding_details(myShapeInner)
-            holeFound,lastPosition  =  self.checkCommonHoleInDirection(myShapeOuter,myOuterDimension, myShapeInner,myInnerDimension,\
-                axisdirection,checkingBox,fullBox,toBeScaled,debugMe)
+            holeFound,lastPosition = self.checkCommonHoleInDirection(myShapeOuter,myOuterDimension, myShapeInner,myInnerDimension,\
+                axisdirection,checkingBox,fullBox,mySeperateBoxes,toBeScaled,debugMe)
             if debugMe:
-                print("Found Holes :",holeFound ,axisdirection,orderpos,self.shapeorder[orderpos],"In",axisdirection, "At pass",orderlast,toBeScaled)
+                print("Found Holes :",holeFound ,axisdirection,orderpos,self.shapeorder[orderpos],"In",axisdirection, "At pass",orderlast,toBeScaled,i)
             if holeFound==True:
                 mycenter = self.getCenterFromOBB(lastPosition)
                 return True, axisdirection, mycenter
@@ -803,7 +868,7 @@ class FindAssemblingOrder(object):
                 return True, direction 
             """
             if debugMe:
-                print("No Holes found in all directions","For",orderpos,self.shapeorder[orderpos],"In",axisdirection, "At pass",orderlast, toBeScaled)
+                print("No Holes found in all directions","For",orderpos,self.shapeorder[orderpos],"In",axisdirection, "At pass",orderlast, toBeScaled,i)
             """ for i in range(0,lenDirections-1):           
                 for j in range(0,lenDirections-1-i):
                     _,length1 = directions[j+1]
@@ -813,7 +878,13 @@ class FindAssemblingOrder(object):
             if debugMe:
                 print(directions) 
             result, _ = directions[0] """
-        return False, (0,0,0), None
+        (axisdirection),_ = myGuessDirections[0]
+        return False, axisdirection, None
+    
+    def getMinimumDistance(self,mydimension,fulldimension):
+        xmin, ymin, zmin, xmax, ymax, zmax = fulldimension
+        xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = mydimension
+        return(min(xmins-xmin,(xmax-xmaxs),(ymins-ymin),(ymax-ymaxs),(zmins-zmin),(zmax-zmaxs)))
     
     def InitExplodeParts(self,debugMe=False):
         #print("ExploreParts",shapeTol,gapTol)
@@ -846,7 +917,7 @@ class FindAssemblingOrder(object):
         self.shapesArray=[]
         self.shapesordereddirection=[]
         if testMe:
-            for i in [0,1,2,3,4]:
+            for i in [4,5,6,7,8,9]:
                 self.shapesColorArray.append(self.shapeColorArray[i])
                 self.shapesArray.append(self.shapeArray[i])
         else:
@@ -860,11 +931,13 @@ class FindAssemblingOrder(object):
         self.shapeorder=[] 
 
         self.shapesdistance=[]
-        self.shapesvolume=[]               
+        self.shapesvolume=[] 
+        self.shapessurface=[]              
         self.shapesdimension=[]
         self.shapesoriginaldimension=[]
         self.shapesmove=[]
         self.directiondata=[]
+        self.guessDirectionArrays=[]
         #self.scaledshapes=[]
         
         fullShape,converted = list_of_shapes_to_compound(self.shapesArray)
@@ -878,15 +951,30 @@ class FindAssemblingOrder(object):
                     firstTime = False
                 else:
                     self.moveArrays.append((0, 0, 0))
+        
         print(self.dimension,get_bounding_details(fullShape))
+        """  if testMe:
+            try:
+                aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
+                currenttime = datetime.now()
+                suffix = currenttime.strftime("%H-%M-%S")                
+                colorfile = "Media/Log/"+"ReducedSrep"+suffix+"_COLOR.step"  
+                try:                           
+                    OCPStepIGESAnalyser.StepExportWithColor(shape=fullShape,color=aColor,name="MyShapeCommon").write_file(filename=colorfile)
+                except Exception as e:
+                    print(e,"File, %s has error" % colorfile)     
+            except Exception as e:
+                print("Exception while writing") """
         for i  in range(lenShape):
             (aShape,aName,aColor) = self.shapesColorArray[i]
             xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
             obbs = get_oriented_bounding_details(aShape)
             print(aName)
             directionData = self.getSixDirectionsFromOBB(obbs)
-           
+            _,_,(centerHere),_,_=directionData
+            print(i,aName,(xmins+xmaxs)/2,(ymins+ymaxs)/2,(zmins+zmaxs)/2,centerHere)
             self.directiondata.append(directionData)
+           
             xmove, ymove, zmove = (((xmins+xmaxs)/2)-xc)*xs, (((ymins+ymaxs)/2)-yc)*ys, (((zmins+zmaxs)/2)-zc)*zs
             if not self.center:
                 newShape=translate_shp(aShape,xmove+xt, ymove+yt, zmove+zt, True)
@@ -903,25 +991,79 @@ class FindAssemblingOrder(object):
             self.shapesdirection.append(((0,0,0),(0,0,0)))
             self.shapesordereddirection.append(((0,0,0),(0,0,0)))
             self.shapesmove.append((xmove, ymove, zmove))
-            self.shapesdistance.append( ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 )
-            self.shapesvolume.append(abs((xmaxs-xmins)*(ymaxs-ymins)*(zmaxs-zmins)))         
+            _,_,(ddcx,ddcy,ddcz),_,(ddhx,ddhy,ddhz)=self.directiondata[self.shapeorder[i]]
+            self.shapesdistance.append( (ddcx+xmove-xc)**2+(ddcy+ymove-yc)**2+(ddcz+zmove-zc)**2 )
+            self.shapesvolume.append(ddhx*ddhy*ddhz)
+            self.shapessurface.append(ddhx*ddhy+ddhx*ddhz*ddhy*ddhz)        
             self.shapesdimension.append((xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))  
             self.shapesoriginaldimension.append((xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))
-        k=1
+            self.guessDirectionArrays.append([])
+        Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.shapesdimension[0] 
+        for i in range(1,lenShape):
+            xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesdimension[i]
+            if(xmins < Xxmin):
+                Xxmin = xmins
+            if(ymins < Yymin):
+                Yymin = ymins
+            if(zmins < Zzmin):
+                Zzmin = zmins
+            if(xmaxs > Xxmax):
+                Xxmax = xmaxs
+            if(ymaxs > Yymax):
+                Yymax = ymaxs
+            if(zmaxs > Zzmax):
+                Zzmax = zmaxs
+        
+        
+        self.OuterOBBBox = self.getOBBFromDimension((Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax))
+        for i in range(0,lenShape):
+            xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesdimension[i]
+            xmove, ymove, zmove = self.shapesmove[i]
+            myDirectionData = self.directiondata[self.shapeorder[i]]
+            _,_,(ddcx,ddcy,ddcz),_,_=myDirectionData    
+            #self.shapesdistance[i]= -self.getMinimumDistance((xmins, ymins, zmins, xmaxs, ymaxs, zmaxs),(Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax))#
+            self.shapesdistance[i]=(ddcx+xmove-xc)**2+(ddcy+ymove-yc)**2+(ddcz+zmove-zc)**2              
+            myGuessDirections=self.guessDirections(self.directiondata[self.shapeorder[i]],(Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax))
+            #_, myDistance = myGuessDirections[0]
+            #self.shapesdistance[self.shapeorder[i]]=-myDistance
+            self.guessDirectionArrays[self.shapeorder[i]]=myGuessDirections
+        k = 1
         for i in range(0,lenShape-k):
             #swapper = False
             for j in range(0,lenShape-k-i):
                 if(( (self.shapesdistance[j+1] < self.shapesdistance[j]) or \
-                    ((self.shapesdistance[j+1] == self.shapesdistance[j]) and (self.shapesvolume[j+1] < self.shapesvolume[j]))  ) ):
+                    ((self.shapesdistance[j+1] == self.shapesdistance[j]) and (self.shapessurface[j+1] > self.shapessurface[j]))  ) ):
                     #if(swapper):
                     self.shapeorder[j+1], self.shapeorder[j] = swap(self.shapeorder[j+1], self.shapeorder[j])                
                     self.shapesmove[j+1], self.shapesmove[j] = swap(self.shapesmove[j+1], self.shapesmove[j])
                     self.shapesdistance[j+1], self.shapesdistance[j] = swap(self.shapesdistance[j+1], self.shapesdistance[j])
                     self.shapesvolume[j+1], self.shapesvolume[j] = swap(self.shapesvolume[j+1], self.shapesvolume[j])
+                    self.shapessurface[j+1], self.shapessurface[j] = swap(self.shapessurface[j+1], self.shapessurface[j])
                     self.shapesdimension[j+1], self.shapesdimension[j] = swap(self.shapesdimension[j+1], self.shapesdimension[j])
-        
+        self.myAdjustantBoxes=self.getAdjustantBoxes(lenShape-k,k)
+        """ currentSurfaceArea = self.shapessurface[self.shapeorder[lenShape-k]]
+        lowSurfaceArea = lenShape-k
+        for (iPos,OrderPos) in self.myAdjustantBoxes:
+            if currentSurfaceArea > self.shapessurface[OrderPos] :
+                lowSurfaceArea = iPos
+                currentSurfaceArea = self.shapessurface[OrderPos]
+        if lowSurfaceArea != (lenShape-k):
+            self.shapesdistance[lowSurfaceArea] = self.shapesdistance[self.shapeorder[lenShape-k]]+1
+            for i in range(0,lenShape-k):
+            #swapper = False
+                for j in range(0,lenShape-k-i):
+                    if(( (self.shapesdistance[j+1] < self.shapesdistance[j]) or \
+                        ((self.shapesdistance[j+1] == self.shapesdistance[j]) and (self.shapessurface[j+1] > self.shapessurface[j]))  ) ):
+                        #if(swapper):
+                        self.shapeorder[j+1], self.shapeorder[j] = swap(self.shapeorder[j+1], self.shapeorder[j])                
+                        self.shapesmove[j+1], self.shapesmove[j] = swap(self.shapesmove[j+1], self.shapesmove[j])
+                        self.shapesdistance[j+1], self.shapesdistance[j] = swap(self.shapesdistance[j+1], self.shapesdistance[j])
+                        self.shapesvolume[j+1], self.shapesvolume[j] = swap(self.shapesvolume[j+1], self.shapesvolume[j])
+                        self.shapessurface[j+1], self.shapessurface[j] = swap(self.shapessurface[j+1], self.shapessurface[j])
+                        self.shapesdimension[j+1], self.shapesdimension[j] = swap(self.shapesdimension[j+1], self.shapesdimension[j])
+            self.myAdjustantBoxes=self.getAdjustantBoxes(lenShape-k,k) """
         #self.cacheCollisionBetweenParts = [[[None for k in range(lenShape)] for j in range(lenShape)] for i in range(len(self.sixdirections))]
-        print(lenShape,self.shapeorder,self.shapesdistance,self.shapesvolume,self.shapesdimension)#,self.scaledshapes)
+        print(lenShape,self.shapeorder,self.shapesdistance,self.shapesvolume, self.shapessurface, self.shapesdimension)#,self.scaledshapes)
 
     def writeToGltfFile(self,sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,processed):
         dictionary={}
@@ -957,29 +1099,44 @@ class FindAssemblingOrder(object):
 
     def guessDirections(self,checkingBox,fullDimension,debugMe=False):
         xmin, ymin, zmin, xmax, ymax, zmax = fullDimension
-        (myPositionalDirections, _,(centerX,centerY,centerZ),_,_) = checkingBox        
+        (myPositionalDirections, _,(centerX,centerY,centerZ),_,(Hx,Hy,Hz)) = checkingBox        
         myDirections=[]
+        index=0
         for myDirection in myPositionalDirections:
             (axisX,axisY,axisZ) = myDirection
+            index +=1
             lastX = self.getLastPoint(axisX,xmin,xmax)
             lastY = self.getLastPoint(axisY,ymin,ymax)
             lastZ = self.getLastPoint(axisZ,zmin,zmax)
-            minDistance = (centerX-lastX)*(centerX-lastX)+(centerY-lastY)*(centerY-lastY)+(centerZ-lastZ)*(centerZ-lastZ)
+            firstX, firstY, firstZ = centerX, centerY, centerZ
+            """ if index==1:
+                firstZ -= Hz
+            elif index==2:
+                firstZ += Hz
+            elif index==3:
+                firstY -= Hy
+            elif index==4:
+                firstY += Hy
+            elif index==5:
+                firstX -= Hx
+            else:
+                firstX += Hx """
+            minDistance = (firstX-lastX)*(firstX-lastX)+(firstY-lastY)*(firstY-lastY)+(firstZ-lastZ)*(firstZ-lastZ)
             myDirections.append((myDirection,minDistance))       
         
         lenDirections = len(myDirections)
-        if debugMe:
-            print("Before Guess",myDirections,checkingBox,fullDimension)
+        #if debugMe:
+        #    print("Before Guess",myDirections,checkingBox,fullDimension)
         for i in range(0,lenDirections-1):           
             for j in range(0,lenDirections-1-i):
                 _,length1 = myDirections[j+1]
                 _,length = myDirections[j]
                 if(length > length1) :
                     myDirections[j+1], myDirections[j] = swap(myDirections[j+1],myDirections[j])
-        if debugMe:
-            print("After Guess",myDirections)
-        fullDimensionOBB=self.getOBBFromDimension(fullDimension)
-        return myDirections,checkingBox,fullDimensionOBB
+        #if debugMe:
+        #    print("After Guess",myDirections)
+        #fullDimensionOBB=self.getOBBFromDimension(fullDimension)
+        return myDirections#,checkingBox#,fullDimensionOBB
     
     def getSixDirectionsFromOBB(self,obb):
               
@@ -1045,10 +1202,8 @@ class FindAssemblingOrder(object):
     def getMoveXYZ(self,aShapeIndex, direction,displacement):
         (myDirections, _,_,_,_) = self.directiondata[aShapeIndex]
         directionX,directionY,directionZ = myDirections[direction]
-        return directionX*displacement, directionY*displacement, directionZ*displacement
-        
+        return directionX*displacement, directionY*displacement, directionZ*displacement       
     
-
     def threadAssembling(self,sourceFileName,distancegap,anglegap,animationtime,starttime,debugMe):
         try:
             if self.logging != None and self.byThread:
@@ -1062,43 +1217,18 @@ class FindAssemblingOrder(object):
             
 
             lenShape = len(self.shapesArray)
-            Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.shapesdimension[0] 
-            for i in range(1,lenShape):
-                xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesdimension[i]
-                if(xmins < Xxmin):
-                    Xxmin = xmins
-                if(ymins < Yymin):
-                    Yymin = ymins
-                if(zmins < Zzmin):
-                    Zzmin = zmins
-                if(xmaxs > Xxmax):
-                    Xxmax = xmaxs
-                if(ymaxs > Yymax):
-                    Yymax = ymaxs
-                if(zmaxs > Zzmax):
-                    Zzmax = zmaxs
-            k = 1
+            
+            k=1
             commonObjects=[]
             #Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.dimension
+            
             while k < lenShape:
                 currenttime = datetime.now()
                 timingdelta = currenttime-previoustime
                 if timingdelta.seconds > 5:
                     dictionary = self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,k)  
                     previoustime=currenttime
-                
-                if k!=1 :
-                    for i in range(0,lenShape-k):
-                        #swapper = False
-                        for j in range(0,lenShape-k-i):
-                            if(( (self.shapesdistance[j+1] < self.shapesdistance[j]) or \
-                                ((self.shapesdistance[j+1] == self.shapesdistance[j]) and (self.shapesvolume[j+1] < self.shapesvolume[j]))  ) ):
-                                #if(swapper):
-                                self.shapeorder[j+1], self.shapeorder[j] = swap(self.shapeorder[j+1], self.shapeorder[j])                
-                                self.shapesmove[j+1], self.shapesmove[j] = swap(self.shapesmove[j+1], self.shapesmove[j])
-                                self.shapesdistance[j+1], self.shapesdistance[j] = swap(self.shapesdistance[j+1], self.shapesdistance[j])
-                                self.shapesvolume[j+1], self.shapesvolume[j] = swap(self.shapesvolume[j+1], self.shapesvolume[j])
-                                self.shapesdimension[j+1], self.shapesdimension[j] = swap(self.shapesdimension[j+1], self.shapesdimension[j])
+                  
                 enclosed = False
                 myDirectionAtZero=(0,0,0)
                 
@@ -1106,13 +1236,13 @@ class FindAssemblingOrder(object):
                     if holesize == 0:
                         toBeScaled = self.holescale
                     else:
-                        toBeScaled = self.holescale / 1.25
+                        toBeScaled = self.holescale / 1.1
                     for i in range(0,lenShape-k+1):                
                         j=lenShape-k-i
                         debugMe = True # k==1 and i==0 #True #k==1 and i==4 #True #(k==3) and (i==0) #True #shapeorder[j]==2 or shapeorder[j]==3
                         if debugMe:
-                            print(k,j,self.shapeorder[j],self.shapeorder,toBeScaled,currenttime,self.dimension,(Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax))
-                        myGuessDirections = self.guessDirections(self.directiondata[self.shapeorder[j]], (Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax),debugMe)
+                            print(k,j,self.shapeorder[j],self.shapeorder,toBeScaled,currenttime,self.dimension)
+                        myGuessDirections = self.guessDirectionArrays[self.shapeorder[j]],self.directiondata[self.shapeorder[j]], self.OuterOBBBox  #self.guessDirections(self.directiondata[self.shapeorder[j]], (Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax),debugMe)
                         #myExcludeCompound = excluded_list_of_shapes_to_compound(shapesArray,shapeorder,j,k,False)
                         #myExcludeDimension = get_bounding_details(myExcludeCompound)
                         #print("My Shape TOl, Gap Tol",shapeTol,gapTol)
@@ -1134,16 +1264,64 @@ class FindAssemblingOrder(object):
                                 self.shapesmove[j1], self.shapesmove[j] = swap(self.shapesmove[j1], self.shapesmove[j])
                                 self.shapesdistance[j1], self.shapesdistance[j] = swap(self.shapesdistance[j1], self.shapesdistance[j])
                                 self.shapesvolume[j1], self.shapesvolume[j] = swap(self.shapesvolume[j1], self.shapesvolume[j])
+                                self.shapessurface[j1], self.shapessurface[j] = swap(self.shapessurface[j1], self.shapessurface[j])
                                 self.shapesdimension[j1], self.shapesdimension[j] = swap(self.shapesdimension[j1], self.shapesdimension[j])                    
                             print(k,i,j,self.shapeorder[lenShape-k],enclosed,lenShape-k,toBeScaled)
                             break
                         else:
+                            isSmaller = self.isSmallestSurface(j,k)
+                            partsNearTome=0
+                            if (isSmaller and (i!=0)):
+                                partsNearTome = self.touchedAdjustantBoxes(j)
+                                print("I am smaller with following values", partsNearTome, len(self.myAdjustantBoxes)<=1, len(self.myAdjustantBoxes), self.myAdjustantBoxes)
+                            
+                            if ((i==0) or (isSmaller and (partsNearTome<=1)) ):
+                                
+                                if isSmaller:
+                                    
+                                    (aShape,aName,aColor) = self.shapesColorArray[self.shapeorder[lenShape-k]]
+                                    print("No objects can be removed",k,"Removing part forcefully smallest surface area from center",aName)                
+                                    self.shapesdirection[self.shapeorder[j]]=(myAxisDirection,myLastPosition)
+                                    if (j!=(lenShape-k)):
+                                        j1=lenShape-k
+                                        self.shapeorder[j1], self.shapeorder[j] = swap(self.shapeorder[j1], self.shapeorder[j])                
+                                        self.shapesmove[j1], self.shapesmove[j] = swap(self.shapesmove[j1], self.shapesmove[j])
+                                        self.shapesdistance[j1], self.shapesdistance[j] = swap(self.shapesdistance[j1], self.shapesdistance[j])
+                                        self.shapesvolume[j1], self.shapesvolume[j] = swap(self.shapesvolume[j1], self.shapesvolume[j])
+                                        self.shapessurface[j1], self.shapessurface[j] = swap(self.shapessurface[j1], self.shapessurface[j])
+                                        self.shapesdimension[j1], self.shapesdimension[j] = swap(self.shapesdimension[j1], self.shapesdimension[j])                    
+                                    if (k!=1) :
+                                        (_,myLastPosition)= self.shapesdirection[self.shapeorder[lenShape-k+1]]                   
+                                        self.shapesdirection[self.shapeorder[lenShape-k]]=(myAxisDirection,myLastPosition)
+                                    enclosed=True
+                                    break
+                                else:
+                                    print("Going for special checking!!")
+                                for  (iAdjustPos,iOrderPos) in self.myAdjustantBoxes:
+                                    myGuessDirections = self.guessDirectionArrays[iOrderPos],self.directiondata[self.shapeorder[j]], self.OuterOBBBox  #self.guessDirections(self.directiondata[self.shapeorder[j]], (Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax),debugMe)
+                                    print("Special Checking",iAdjustPos,iOrderPos,j,k)
+                                    whatIgot = self.checkCommonHole(j,k,toBeScaled,myGuessDirections,debugMe) 
+                                    enclosed, myAxisDirection, myLastPosition = whatIgot
+                                    if enclosed:
+                                        self.shapesdirection[self.shapeorder[j]]=(myAxisDirection,myLastPosition)                                        
+                                        if (j!=(lenShape-k)):
+                                            j1=lenShape-k
+                                            self.shapeorder[j1], self.shapeorder[j] = swap(self.shapeorder[j1], self.shapeorder[j])                
+                                            self.shapesmove[j1], self.shapesmove[j] = swap(self.shapesmove[j1], self.shapesmove[j])
+                                            self.shapesdistance[j1], self.shapesdistance[j] = swap(self.shapesdistance[j1], self.shapesdistance[j])
+                                            self.shapesvolume[j1], self.shapesvolume[j] = swap(self.shapesvolume[j1], self.shapesvolume[j])
+                                            self.shapessurface[j1], self.shapessurface[j] = swap(self.shapessurface[j1], self.shapessurface[j])
+                                            self.shapesdimension[j1], self.shapesdimension[j] = swap(self.shapesdimension[j1], self.shapesdimension[j])                    
+                                        print(k,i,j,self.shapeorder[lenShape-k],enclosed,lenShape-k,toBeScaled)                            
+                                        break
+                                if enclosed:
+                                    break
                             #if debugMe:
                             print(k,i,j,self.shapeorder[j],enclosed,lenShape-k,toBeScaled)
                             if(myCommonCompound!=None and debugMe):
                                 commonObjects.append((myCommonCompound,self.shapeorder[j],myHoles))
                     if enclosed:
-                        print("In", holesize, "Pass able to remove",k)
+                        print("In", holesize, "Pass able to remove",k,"after iteration",i)
                         break  
                     else:
                         (aShape,aName,aColor) = self.shapesColorArray[self.shapeorder[lenShape-k]]
@@ -1174,23 +1352,67 @@ class FindAssemblingOrder(object):
                         Yymax = ymaxs
                     if(zmaxs > Zzmax):
                         Zzmax = zmaxs
+                self.OuterOBBBox = self.getOBBFromDimension((Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax))
                 xc, yc, zc = (Xxmin+Xxmax)/2, (Yymin+Yymax)/2 , (Zzmin+Zzmax)/2
                 #print("before",xc,yc,zc,k, shapesdis)
                 for i in range(0,lenShape-k):
                     xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = self.shapesdimension[i]
                     xmove, ymove, zmove = self.shapesmove[i]
-                    self.shapesdistance[i]= ((xmins+xmaxs)/2+xmove-xc)**2+((ymins+ymaxs)/2+ymove-yc)**2+((zmins+zmaxs)/2+zmove-zc)**2 
+                    myDirectionData = self.directiondata[self.shapeorder[i]]
+                    _,_,(ddcx,ddcy,ddcz),_,_=myDirectionData                   
+                    #self.shapesdistance[i]= -self.getMinimumDistance((xmins, ymins, zmins, xmaxs, ymaxs, zmaxs),(Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax))#
+                    self.shapesdistance[i]=(ddcx+xmove-xc)**2+(ddcy+ymove-yc)**2+(ddcz+zmove-zc)**2   
+                    myGuessDirections=self.guessDirections(myDirectionData,(Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax))
+                    #_, myDistance = myGuessDirections[0]
+                    #self.shapesdistance[self.shapeorder[i]]=-myDistance
+                    self.guessDirectionArrays[self.shapeorder[i]]=myGuessDirections
                 k += 1
+                for i in range(0,lenShape-k):
+                    #swapper = False
+                    for j in range(0,lenShape-k-i):
+                        if(( (self.shapesdistance[j+1] < self.shapesdistance[j]) or \
+                            ((self.shapesdistance[j+1] == self.shapesdistance[j]) and (self.shapessurface[j+1] > self.shapessurface[j]))  ) ):
+                            #if(swapper):
+                            self.shapeorder[j+1], self.shapeorder[j] = swap(self.shapeorder[j+1], self.shapeorder[j])                
+                            self.shapesmove[j+1], self.shapesmove[j] = swap(self.shapesmove[j+1], self.shapesmove[j])
+                            self.shapesdistance[j+1], self.shapesdistance[j] = swap(self.shapesdistance[j+1], self.shapesdistance[j])
+                            self.shapesvolume[j+1], self.shapesvolume[j] = swap(self.shapesvolume[j+1], self.shapesvolume[j])
+                            self.shapessurface[j+1], self.shapessurface[j] = swap(self.shapessurface[j+1], self.shapessurface[j])
+                            self.shapesdimension[j+1], self.shapesdimension[j] = swap(self.shapesdimension[j+1], self.shapesdimension[j])
+
+                self.myAdjustantBoxes=self.getAdjustantBoxes(lenShape-k,k)
+                """ currentSurfaceArea = self.shapessurface[self.shapeorder[lenShape-k]]
+                lowSurfaceArea = lenShape-k
+                for (iPos,OrderPos) in self.myAdjustantBoxes:
+                    if currentSurfaceArea > self.shapessurface[OrderPos] :
+                        lowSurfaceArea = iPos
+                        currentSurfaceArea = self.shapessurface[OrderPos]
+                if lowSurfaceArea != (lenShape-k):
+                    self.shapesdistance[lowSurfaceArea] = self.shapesdistance[self.shapeorder[lenShape-k]]+1
+                    for i in range(0,lenShape-k):
+                    #swapper = False
+                        for j in range(0,lenShape-k-i):
+                            if(( (self.shapesdistance[j+1] < self.shapesdistance[j]) or \
+                                ((self.shapesdistance[j+1] == self.shapesdistance[j]) and (self.shapessurface[j+1] > self.shapessurface[j]))  ) ):
+                                #if(swapper):
+                                self.shapeorder[j+1], self.shapeorder[j] = swap(self.shapeorder[j+1], self.shapeorder[j])                
+                                self.shapesmove[j+1], self.shapesmove[j] = swap(self.shapesmove[j+1], self.shapesmove[j])
+                                self.shapesdistance[j+1], self.shapesdistance[j] = swap(self.shapesdistance[j+1], self.shapesdistance[j])
+                                self.shapesvolume[j+1], self.shapesvolume[j] = swap(self.shapesvolume[j+1], self.shapesvolume[j])
+                                self.shapessurface[j+1], self.shapessurface[j] = swap(self.shapessurface[j+1], self.shapessurface[j])
+                                self.shapesdimension[j+1], self.shapesdimension[j] = swap(self.shapesdimension[j+1], self.shapesdimension[j])
+                    self.myAdjustantBoxes=self.getAdjustantBoxes(lenShape-k,k) """
             if(lenShape>1):
                 self.shapesdirection[self.shapeorder[0]]=self.shapesdirection[self.shapeorder[1]]
-                print("Before",self.shapesvolume,self.shapesvolume[1] > self.shapesvolume[0],self.shapesdirection)
-                if self.shapesvolume[1] > self.shapesvolume[0] :
+                print("Before",self.shapessurface,self.shapessurface[1] > self.shapessurface[0],self.shapesdirection)
+                if self.shapessurface[1] > self.shapessurface[0] :
                     j=0
                     j1=1
                     self.shapeorder[j1], self.shapeorder[j] = swap(self.shapeorder[j1], self.shapeorder[j])                
                     self.shapesmove[j1], self.shapesmove[j] = swap(self.shapesmove[j1], self.shapesmove[j])
                     self.shapesdistance[j1], self.shapesdistance[j] = swap(self.shapesdistance[j1], self.shapesdistance[j])
                     self.shapesvolume[j1], self.shapesvolume[j] = swap(self.shapesvolume[j1], self.shapesvolume[j])
+                    self.shapessurface[j1], self.shapessurface[j] = swap(self.shapessurface[j1], self.shapessurface[j])
                     self.shapesdimension[j1], self.shapesdimension[j] = swap(self.shapesdimension[j1], self.shapesdimension[j]) 
                     myaxisdirection, mylastposition = self.shapesdirection[self.shapeorder[0]] 
                     print(  myaxisdirection, mylastposition )                  
@@ -1198,7 +1420,7 @@ class FindAssemblingOrder(object):
                     myaxisdirection, mylastposition = self.shapesdirection[self.shapeorder[1]] 
                     print( myaxisdirection, mylastposition )  
                     self.shapesdirection[self.shapeorder[1]]=(tuple(-x for x in myaxisdirection),mylastposition)
-                    print("AFter",self.shapesvolume,self.shapesvolume[1] > self.shapesvolume[0],self.shapesdirection)
+                    print("AFter",self.shapessurface,self.shapessurface[1] > self.shapessurface[0],self.shapesdirection)
 
             
             for i  in range(lenShape):
@@ -1214,7 +1436,7 @@ class FindAssemblingOrder(object):
                 #(aShape,aName,aColor) = shapeArray[i]
                 #xmins, ymins, zmins, xmaxs, ymaxs, zmaxs = get_bounding_details(aShape) 
                 myIndex = self.shapeorder[i]
-                (bShape,bName,bColor) = self.shapesColorArray[myIndex]
+                #(bShape,bName,bColor) = self.shapesColorArray[myIndex]
                 (newShape,aName,aColor) = self.newShapes[myIndex+1]
                 axisdirection,lastposition = self.shapesdirection[myIndex]
                 if axisdirection==None:
@@ -1233,9 +1455,7 @@ class FindAssemblingOrder(object):
                 finalShape=translate_shp(newShape,xmove, ymove, zmove, True) 
                 previousaxis=ax,ay,az
                 previousdistance=distance
-                print(axisdirection,i,myIndex,self.shapeorder[i],\
-                    (xmove, ymove, zmove),  aName,bName,\
-                        (xmins, ymins, zmins, xmaxs, ymaxs, zmaxs),get_bounding_details(bShape))  
+                print(axisdirection,i,myIndex,self.shapeorder[i], (xmove, ymove, zmove),  aName)  
                 self.newShapes[myIndex+1] = (finalShape,aName,aColor)    
         debugMe = False
         if debugMe==True:
