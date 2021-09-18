@@ -1,14 +1,14 @@
-import React from "react";
+import React from 'react';
 
-import AccessSetupAPI from '@ravibasil/common/api/accessSetup.api';
-import TableGridView from '@ravibasil/common/components/TableGridView';
-import { accessSetupFields } from '@ravibasil/common/constants/accessSetup'
+import AccessSetupAPI from '@monostruct/common/api/accessSetup.api';
+import TableGridView from '@monostruct/common/components/TableGridView';
+import { accessSetupFields } from '@monostruct/common/constants/accessSetup';
 import ManageAccessSetupModal from './ManageAccessSetupModal';
-import AccessConfiguration from "../../pages/AccessConfiguration";
+import AccessConfiguration from '../../pages/AccessConfiguration';
 
 const AccessSetup = ({ handleTabChange, accessSetupId }) => {
   if (accessSetupId) {
-    return <AccessConfiguration accessSetupId={accessSetupId} />
+    return <AccessConfiguration accessSetupId={accessSetupId} />;
   }
   return (
     <TableGridView
@@ -21,6 +21,6 @@ const AccessSetup = ({ handleTabChange, accessSetupId }) => {
       handleItemClick={(id) => handleTabChange({}, 3, id)}
     />
   );
-}
+};
 
 export default AccessSetup;

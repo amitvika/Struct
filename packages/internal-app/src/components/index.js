@@ -1,15 +1,8 @@
-import Input from '@ravibasil/common/components/atoms/Input';
-import Headding from '@ravibasil/common/components/atoms/Headding';
-import Space from '@ravibasil/common/components/atoms/Space';
-import Select from '@ravibasil/common/components/atoms/Select';
-import Textarea from '@ravibasil/common/components/atoms/Textarea'
+import Input from '@monostruct/common/components/atoms/Input';
+import Headding from '@monostruct/common/components/atoms/Headding';
+import Space from '@monostruct/common/components/atoms/Space';
+import Select from '@monostruct/common/components/atoms/Select';
+import Textarea from '@monostruct/common/components/atoms/Textarea';
 import FileUpload from './FileUpload';
 
-export {
-    Input,
-    Headding,
-    Select,
-    Textarea,
-    Space,
-    FileUpload
-}
+export { Input, Headding, Select, Textarea, Space, FileUpload };

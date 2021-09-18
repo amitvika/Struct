@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { useQuery } from '@ravibasil/common/utils/customHooks';
-import SignInForm from '@ravibasil/common/components/SignInForm';
-import LoadingModal from '@ravibasil/common/components/LoadingModal';
+import { useQuery } from '@monostruct/common/utils/customHooks';
+import SignInForm from '@monostruct/common/components/SignInForm';
+import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 import { AuthContext } from '../../context/AuthContext';
 import AuthService from '../../services/AuthServices';
-import { loadUserApi } from '@ravibasil/common/api/auth';
+import { loadUserApi } from '@monostruct/common/api/auth';
 
 const SignInPage = () => {
   const { authUser, setAuthUser } = React.useContext(AuthContext);

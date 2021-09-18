@@ -7,38 +7,32 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Grid
-} from "@material-ui/core";
-import { Headding } from '@ravibasil/common/components';
-import { fetchFileHistoryApi } from '@ravibasil/common/api/fileHistory.api';
+  Grid,
+} from '@material-ui/core';
+import { Headding } from '@monostruct/common/components';
+import { fetchFileHistoryApi } from '@monostruct/common/api/fileHistory.api';
 
 export default function FileHistory({ link_id, selectedFileName }) {
-
   const [fileHistory, setFileHistory] = React.useState([]);
 
   React.useEffect(() => {
-    if(!link_id){
+    if (!link_id) {
       return;
     }
-    
+
     fetchFileHistoryApi(link_id)
-      .then(res => {
-        setFileHistory(res.data)
+      .then((res) => {
+        setFileHistory(res.data);
       })
-      .catch(error => {
-
-      })
-    console.log("File Nmae", fileHistory)
+      .catch((error) => {});
+    console.log('File Nmae', fileHistory);
   }, [selectedFileName]);
-
 
   return (
     <Grid item xs={12}>
       <Headding bold title={'File History'} />
       <TableContainer component={Paper}>
-
         <Table aria-label="simple table">
-
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
@@ -49,25 +43,24 @@ export default function FileHistory({ link_id, selectedFileName }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {
-              fileHistory.map((item, index) => {
-                return (<TableRow key={index}>
+            {fileHistory.map((item, index) => {
+              return (
+                <TableRow key={index}>
                   <TableCell>
-                    <a href={item.file_url}
-                      target="_blank">
+                    <a href={item.file_url} target="_blank">
                       {item.file_name}
-                    </a></TableCell>
+                    </a>
+                  </TableCell>
                   <TableCell>{item.loaded_by_name}</TableCell>
                   <TableCell>{item.loaded_at}</TableCell>
                   <TableCell>{item.cleared_by}</TableCell>
                   <TableCell>{item.cleared_at}</TableCell>
-                </TableRow>)
-              })
-            }
-
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
     </Grid>
-  )
+  );
 }

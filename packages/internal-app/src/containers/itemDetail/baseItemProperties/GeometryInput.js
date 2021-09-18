@@ -14,9 +14,9 @@ import {
 import { Tooltip } from 'reactstrap';
 import Grid from '@material-ui/core/Grid';
 
-import Select from '@ravibasil/common/components/atoms/Select';
-import Input from '@ravibasil/common/components/atoms/Input';
-import Headding from '@ravibasil/common/components/atoms/Headding';
+import Select from '@monostruct/common/components/atoms/Select';
+import Input from '@monostruct/common/components/atoms/Input';
+import Headding from '@monostruct/common/components/atoms/Headding';
 import MaterialModal from './MaterialModal';
 import MaterialPropertiesModal from './MaterialPropertiesModal';
 

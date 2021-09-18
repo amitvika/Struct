@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 //import Paper from '@material-ui/core/Paper';
 import { Paper, CircularProgress, makeStyles } from '@material-ui/core';
 import TableOrderView from './TableOrderView';
-import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer.js';
+import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer.js';
 import {
   SELECTBACKCOLOR,
   SELECTSELECTCOLOR,
@@ -30,17 +30,17 @@ import {
   SELECTFEATURE,
   prettyPrintArray,
   gltf_Dict,
-} from '@ravibasil/common/gltf/Tree/utils';
+} from '@monostruct/common/gltf/Tree/utils';
 
-import Headding from '@ravibasil/common/components/atoms/Headding';
+import Headding from '@monostruct/common/components/atoms/Headding';
 
 import DynamicHierarchy from './DynamicHierarchy';
 
 import {
   getAFileFromStore,
   saveTreeInfo,
-} from '@ravibasil/common/api/fileUpload.api';
-import LoadingModal from '@ravibasil/common/components/LoadingModal';
+} from '@monostruct/common/api/fileUpload.api';
+import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
@@ -946,8 +946,8 @@ export default function ItemTypeConfiguration(props) {
 
   return (
     <>
-      <Headding style={{ fontSize: 24, fontWeight: 'bold' }}>
-        Configure Item
+      <Headding style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 20 }}>
+        {itemProperties.itemGeometry.itemType || 'Configure Item'}
       </Headding>
       <LoadingModal isLoading={isLoading} />
       {renderExcelUI()}

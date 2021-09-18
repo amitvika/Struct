@@ -1,10 +1,10 @@
-import React from 'react'
-import TableWithFilter from '@ravibasil/common/components/TableWithFilter'
+import React from 'react';
+import TableWithFilter from '@monostruct/common/components/TableWithFilter';
 
 export default function Sample() {
   return (
     <div>
-      <TableWithFilter/>
+      <TableWithFilter />
     </div>
-  )
+  );
 }

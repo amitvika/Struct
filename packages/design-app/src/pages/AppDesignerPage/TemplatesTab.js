@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Modal from '@ravibasil/common/components/Modal';
+import Modal from '@monostruct/common/components/Modal';
 import { Paper, Tabs, Tab, Grid, Divider, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Templates from './TemplatesTab';
@@ -45,7 +45,13 @@ export default function Template() {
   const classes = useStyles();
   const [selectedTab, setSelectedTab] = useState('');
 
-  const tabArray = ["Online Store", "Blog", "Biography", "Business Page", "Forum"];
+  const tabArray = [
+    'Online Store',
+    'Blog',
+    'Biography',
+    'Business Page',
+    'Forum',
+  ];
   const handleTabChange = (tabName) => {
     setSelectedTab(tabName);
   };
@@ -60,7 +66,7 @@ export default function Template() {
   //   else if (selectedTab === 'Login & Authentication') {
   //     return <LoginTab />
   //   }
-  
+
   //   else {
 
   //     return null
@@ -69,30 +75,26 @@ export default function Template() {
 
   // }
 
-
-
   return (
-  
-      <Paper elevation={3} className={classes.paper}>
-        <Grid container spacing={1}>
-          {tabArray.map((tabName) => (
-            <Grid item xs={2} key={tabName}>
-              <Paper
-                onClick={() => handleTabChange(tabName)}
-                style={{
-                  backgroundColor: selectedTab === tabName ? '#343a40' : '',
-                  color: selectedTab === tabName ? 'white' : '',
-                }}
-                className={classes.tabPaper}
-              >
-                {tabName}
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-        <Divider orientation="horizontal" />
-        {/* {renderDetailPanel()} */}
-      </Paper>
-  
+    <Paper elevation={3} className={classes.paper}>
+      <Grid container spacing={1}>
+        {tabArray.map((tabName) => (
+          <Grid item xs={2} key={tabName}>
+            <Paper
+              onClick={() => handleTabChange(tabName)}
+              style={{
+                backgroundColor: selectedTab === tabName ? '#343a40' : '',
+                color: selectedTab === tabName ? 'white' : '',
+              }}
+              className={classes.tabPaper}
+            >
+              {tabName}
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+      <Divider orientation="horizontal" />
+      {/* {renderDetailPanel()} */}
+    </Paper>
   );
 }

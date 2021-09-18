@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import get from 'lodash/get';
-import MainModal from '@ravibasil/common/components/Modal';
-import FactoriesAPI from '@ravibasil/common/api/factories.api';
+import MainModal from '@monostruct/common/components/Modal';
+import FactoriesAPI from '@monostruct/common/api/factories.api';
 import { useDispatch, useSelector } from 'react-redux';
-import SelectorView from '@ravibasil/common/components/SelectorView';
-import { columnsFields } from '@ravibasil/common/constants/factory';
+import SelectorView from '@monostruct/common/components/SelectorView';
+import { columnsFields } from '@monostruct/common/constants/factory';
 
 export default function SelectFactoryModal({
   isModalOpened,
@@ -14,7 +14,7 @@ export default function SelectFactoryModal({
   assignFactory,
 }) {
   const handleChange = (data) => {
-    console.log("data",data)
+    console.log('data', data);
     if (data[0]) {
       let updatedValue = { ...selectedValue, factory_id: data[0] };
       console.log('updatedValue', updatedValue);

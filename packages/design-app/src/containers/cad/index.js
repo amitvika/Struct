@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import EditIcon from '@material-ui/icons/Edit';
-// import SubHeaderWithArrow from "@ravibasil/internal-app/components/SubHeaderWithArrow";
+// import SubHeaderWithArrow from "@monostruct/internal-app/components/SubHeaderWithArrow";
 import { useParams, useHistory } from 'react-router-dom';
 // import { useDispatch, useSelector } from 'react-redux';
-import { useQuery } from '@ravibasil/internal-app/src/utils/customHooks';
+import { useQuery } from '@monostruct/internal-app/src/utils/customHooks';
 import './style.css';
 
 const CadTab = () => {
@@ -29,7 +29,7 @@ const CadTab = () => {
     if (tabIndex != newTabIndex) {
       // setIsLoading(true);
       setTabIndex(newTabIndex);
-     
+
       history.push({
         pathname: `/items/${id}`,
         search: `?tab=${newTabIndex}`,

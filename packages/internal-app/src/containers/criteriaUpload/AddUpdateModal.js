@@ -6,16 +6,16 @@ import {
   Input,
   Textarea,
   Headding,
-} from '@ravibasil/common/components';
+} from '@monostruct/common/components';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import Modal from '@ravibasil/common/components/Modal';
+import Modal from '@monostruct/common/components/Modal';
 import FileUpload from './FileUpload';
 import FileHistory from './FileHistory';
 import { useSelector } from 'react-redux';
-import { uploadFileS3Bucket } from '@ravibasil/common/api/aws';
+import { uploadFileS3Bucket } from '@monostruct/common/api/aws';
 import { hierarchyFileParser, criteriaFileParser } from './parser';
-import LoadingModal from '@ravibasil/common/components/LoadingModal';
+import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 export default function AddUpdateModal({
   title,
@@ -74,7 +74,7 @@ export default function AddUpdateModal({
 
     let criteriaSchema = await criteriaFileParser(selectedFile);
     let hierarchySchema = await hierarchyFileParser(selectedFile);
-    
+
     const file_url = await uploadFileS3Bucket(selectedFile);
 
     let updateObj = {
@@ -88,7 +88,7 @@ export default function AddUpdateModal({
       },
     };
 
-console.log("updateObj",updateObj)
+    console.log('updateObj', updateObj);
     setValue((prev) => ({ ...prev, ...updateObj }));
     setLoading(false);
   };
@@ -99,7 +99,7 @@ console.log("updateObj",updateObj)
       open={open}
       toggleModal={toggleModal}
     >
-      {isLoading && <LoadingModal isLoading={isLoading}/>}
+      {isLoading && <LoadingModal isLoading={isLoading} />}
       <Grid className="section-padding-left" container spacing={4}>
         <Grid item xs={4}>
           <Headding bold title={'Name'} />
@@ -157,7 +157,10 @@ console.log("updateObj",updateObj)
         </Grid>
 
         <FileUpload value={value} handleOnChange={handleFileChange} />
-        <FileHistory link_id={value.id} refreshFileHistory={refreshFileHistory}/>
+        <FileHistory
+          link_id={value.id}
+          refreshFileHistory={refreshFileHistory}
+        />
 
         <Grid item xs={6}>
           <Button

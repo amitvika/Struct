@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Spinner } from "reactstrap";
-import { useHistory } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Spinner } from 'reactstrap';
+import { useHistory } from 'react-router-dom';
 
-import API from '@ravibasil/common/api/vendor.api';
-import Toolbar from '@ravibasil/common/components/TableGridView/Toolbar';
-import TableView from '@ravibasil/common/components/TableGridView/TableView';
-import GridView from '@ravibasil/common/components/TableGridView/GridView';
-import DefaultContainer from '@ravibasil/common/components/DefaultContainer';
-import AddEditVendorModal from '../../components/AddEditVendorModal'
+import API from '@monostruct/common/api/vendor.api';
+import Toolbar from '@monostruct/common/components/TableGridView/Toolbar';
+import TableView from '@monostruct/common/components/TableGridView/TableView';
+import GridView from '@monostruct/common/components/TableGridView/GridView';
+import DefaultContainer from '@monostruct/common/components/DefaultContainer';
+import AddEditVendorModal from '../../components/AddEditVendorModal';
 
 const VendorListPage = () => {
   let history = useHistory();
@@ -23,36 +23,30 @@ const VendorListPage = () => {
   const [selectedVendorId, setSelectedVendorId] = useState('');
   const [isDeletedItemVisible, setIsDeletedItemVisible] = useState(false);
   const [isGridViewSelected, setIsGridViewSelected] = useState(true);
-  const [isAddEditModalOpened, setIsAddEditModalOpened] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
+  const [isAddEditModalOpened, setIsAddEditModalOpened] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [selectedListItem, setSelectedListItem] = useState(null);
 
-
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState('');
   const handleSearchInput = (event) => {
-    let searchText = event.target.value
-    setSearchTerm(searchText)
+    let searchText = event.target.value;
+    setSearchTerm(searchText);
 
     let fiteredData = vendorList.filter((item) => {
-
-      if (searchText === "") {
-        return item
+      if (searchText === '') {
+        return item;
+      } else if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
+        return item;
+      } else if (item.id.toLowerCase().includes(searchText.toLowerCase())) {
+        return item;
       }
-      else if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
-        return item
-      }
-      else if (item.id.toLowerCase().includes(searchText.toLowerCase())) {
-        return item
-      }
-
-    }
-    )
-    setFilteredVendorList(fiteredData)
-  }
+    });
+    setFilteredVendorList(fiteredData);
+  };
 
   const [columnsFields, setColumns] = useState([
-    { title: "ID", field: "id", editable: "never", align: 'center' },
-    { title: "Name", field: "name", type: 'text' },
+    { title: 'ID', field: 'id', editable: 'never', align: 'center' },
+    { title: 'Name', field: 'name', type: 'text' },
     // { title: "Source", field: "source" },
     // {
     //     title: 'History',
@@ -65,26 +59,25 @@ const VendorListPage = () => {
     //             handleHistoryToggle({ rowId: rowData.id })
     //         }}> Show History </span>
     // },
-  ])
+  ]);
 
   const alertForError = (err) => {
     setIsLoading(false);
     if (err.response && err.response.data) {
       setMessage(err.response.data.message);
-      setSnackBarAlertType("error");
+      setSnackBarAlertType('error');
       setSnackBar(true);
     }
-  }
+  };
 
   const handleHistoryToggle = ({ rowId }) => {
     setIsHistoryModalOpened(!isHistoryModalOpened);
-    setSelectedVendorId(rowId)
-  }
+    setSelectedVendorId(rowId);
+  };
 
   const handleAlertClose = (event, reason) => {
     setSnackBar(!snackBar);
   };
-
 
   const handleShowDelete = () => {
     // const columns = this.state.columns;
@@ -116,41 +109,37 @@ const VendorListPage = () => {
             id: x._id,
             name: x.name,
             source: x.source,
-            logoUrl: x.logoUrl
-          }
-        })
+            logoUrl: x.logoUrl,
+          };
+        });
 
-        setVendorList(vendors)
-        setFilteredVendorList(vendors)
+        setVendorList(vendors);
+        setFilteredVendorList(vendors);
       }
       setIsLoading(false);
-
     } catch (error) {
-      console.log(error)
-      alertForError(error)
+      console.log(error);
+      alertForError(error);
     }
   };
 
-
   const fetchList = (query) => {
-    API
-      .getVendorsApi(`limit=${query.pageSize}&page=${query.page + 1}&search=${query.search}`)
-      .then(result => {
+    API.getVendorsApi(
+      `limit=${query.pageSize}&page=${query.page + 1}&search=${query.search}`
+    )
+      .then((result) => {
         let rowData = result.docs;
 
         rowData = rowData.map((item, index) => {
           return {
             id: item._id,
             name: item.name,
-            source: item.source
+            source: item.source,
           };
         });
-
       })
-      .catch(err => console.log(err));
-
-  }
-
+      .catch((err) => console.log(err));
+  };
 
   const addVendor = (newData) => {
     return new Promise((resolve, reject) => {
@@ -158,22 +147,21 @@ const VendorListPage = () => {
         {
           const newClient = {
             name: newData.name,
-            source: newData.source
+            source: newData.source,
           }; //
 
           API.addVendorApi(newClient)
-            .then(res => {
+            .then((res) => {
               fetchVendorList();
             })
-            .catch(err => {
-              alertForError(err)
+            .catch((err) => {
+              alertForError(err);
             });
-
         }
         resolve();
       }, 10);
-    })
-  }
+    });
+  };
 
   const updateVendor = (newData, oldData) => {
     return new Promise((resolve, reject) => {
@@ -182,72 +170,71 @@ const VendorListPage = () => {
           console.log(newData.client);
           const data = {
             name: newData.name,
-            source: newData.source
-          }
+            source: newData.source,
+          };
 
           API.updateVendorApi(newData.id, data)
-            .then(res => {
-              fetchVendorList()
+            .then((res) => {
+              fetchVendorList();
             })
-            .catch(err => {
-              alertForError(err)
+            .catch((err) => {
+              alertForError(err);
             });
-
         }
         resolve();
       }, 1000);
-    })
-  }
+    });
+  };
 
   const deleteVendor = (oldData) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         {
           API.deleteVendorApi(oldData.id)
-            .then(res => {
+            .then((res) => {
               fetchVendorList();
             })
-            .catch(err => {
-              alertForError(err)
+            .catch((err) => {
+              alertForError(err);
             });
         }
         resolve();
       }, 1000);
-    })
-  }
+    });
+  };
   const toggleAddEditModal = () => {
     if (isAddEditModalOpened) {
       setSelectedListItem(null);
       setIsEditing(false);
     }
-    setIsAddEditModalOpened(!isAddEditModalOpened)
-  }
+    setIsAddEditModalOpened(!isAddEditModalOpened);
+  };
   const toggleEditModal = (vendor) => {
     if (isAddEditModalOpened) {
       setSelectedListItem(null);
-      setIsEditing(false)
+      setIsEditing(false);
+    } else {
+      setSelectedListItem(vendor);
+      setIsEditing(true);
     }
-    else {
-      setSelectedListItem(vendor)
-      setIsEditing(true)
-    }
-    setIsAddEditModalOpened(!isAddEditModalOpened)
-  }
-
+    setIsAddEditModalOpened(!isAddEditModalOpened);
+  };
 
   const handleTableRowClick = (event) => {
     history.push(`/vendors/${event.id}`);
-  }
+  };
 
   if (isLoading) {
-    return (<div
-      style={{
-        display: "flex",
-        justifyContent: "center"
-      }}
-    >
-      <Spinner animation="border" />
-    </div>)
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
+        <Spinner animation="border" />
+      </div>
+    );
   }
 
   return (
@@ -259,18 +246,17 @@ const VendorListPage = () => {
       snackBar={snackBar}
       handleAlertClose={handleAlertClose}
       message={message}
-      snackBarAlertType={snackBarAlertType}>
-
+      snackBarAlertType={snackBarAlertType}
+    >
       <AddEditVendorModal
         // title={"Vendor"}
-        title={isEditing ? "" : "Vendor"}
+        title={isEditing ? '' : 'Vendor'}
         isAddEditModalOpened={isAddEditModalOpened}
         toggleAddEditModal={toggleAddEditModal}
         updateVendor={isEditing ? updateVendor : addVendor}
         fields={columnsFields}
         isEditing={isEditing}
         selectedValue={selectedListItem}
-
       />
 
       <Toolbar
@@ -292,28 +278,28 @@ const VendorListPage = () => {
         handleSearchInput={handleSearchInput}
       />
 
-      {
-        isGridViewSelected ?
-          <GridView
-            list={filteredVendorList}
-            handleHistoryToggle={handleHistoryToggle}
-            columnsFields={columnsFields}
-            handleTableRowClick={handleTableRowClick}
-            isAddEditLinkVisible={true}
-            handleEditButtonPress={toggleEditModal} /> :
-          <TableView
-            list={filteredVendorList}
-            handleAdd={addVendor}
-            handleUpdate={updateVendor}
-            handleDelete={deleteVendor}
-            handleTableRowClick={handleTableRowClick}
-            columns={columnsFields}
-            setColumns={setColumns}
-
-          />
-      }
+      {isGridViewSelected ? (
+        <GridView
+          list={filteredVendorList}
+          handleHistoryToggle={handleHistoryToggle}
+          columnsFields={columnsFields}
+          handleTableRowClick={handleTableRowClick}
+          isAddEditLinkVisible={true}
+          handleEditButtonPress={toggleEditModal}
+        />
+      ) : (
+        <TableView
+          list={filteredVendorList}
+          handleAdd={addVendor}
+          handleUpdate={updateVendor}
+          handleDelete={deleteVendor}
+          handleTableRowClick={handleTableRowClick}
+          columns={columnsFields}
+          setColumns={setColumns}
+        />
+      )}
     </DefaultContainer>
   );
-}
+};
 
 export default VendorListPage;

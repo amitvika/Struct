@@ -47,7 +47,7 @@ import { GUI } from './GUI.js';
 //import CameraSpinControls from './CameraSpinControls.js';
 import { TrackballControls } from "./TrackballControls.js";
 
-import { resourcePathURL, resourcePathBase, getAFileFromStore } from '@ravibasil/common/api/fileUpload.api.js'
+import { resourcePathURL, resourcePathBase, getAFileFromStore } from '@monostruct/common/api/fileUpload.api.js'
 import {
     SELECTCOLOR, SELECTTEXTURE, SELECTMETAL, SELECTROUGH, SELECTOPAQUE,
     SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,

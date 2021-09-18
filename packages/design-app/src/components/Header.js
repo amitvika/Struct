@@ -1,10 +1,10 @@
-import React,{useRef, useState,useContext} from 'react';
+import React, { useRef, useState, useContext } from 'react';
 
-import { AppBar, Toolbar, makeStyles,Paper } from '@material-ui/core';
+import { AppBar, Toolbar, makeStyles, Paper } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import Grow from '@material-ui/core/Grow'
-import Popper from '@material-ui/core/Popper'
+import Grow from '@material-ui/core/Grow';
+import Popper from '@material-ui/core/Popper';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
@@ -12,9 +12,9 @@ import Switch from '@material-ui/core/Switch';
 import Box from '@material-ui/core/Box';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { useDispatch, useSelector } from 'react-redux';
-import {logout} from '@ravibasil/internal-app/src/actions/authActions'
+import { logout } from '@monostruct/internal-app/src/actions/authActions';
 import { useHistory } from 'react-router-dom';
-import { setThemeAction } from '@ravibasil/internal-app/src/actions/theme.action'
+import { setThemeAction } from '@monostruct/internal-app/src/actions/theme.action';
 
 import { AuthContext } from '../context/AuthContext';
 
@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   },
   menuButton: {
     ...theme.menuButton,
-    marginRight: '0px'
+    marginRight: '0px',
   },
   menuContainer: {
     display: 'flex',
@@ -56,44 +56,44 @@ export default function Header() {
   const dispatch = useDispatch();
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
-  const { authUser :{isAuthenticated, user} } = useContext(AuthContext);
+  const {
+    authUser: { isAuthenticated, user },
+  } = useContext(AuthContext);
   const [lightThemeSelected, setLightThemeSelected] = useState(false);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
   };
   const handleLogout = () => {
-
     dispatch(logout());
-    history.replace('/')
-  }
+    history.replace('/');
+  };
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }
-  
+
     setOpen(false);
   };
   const handleLink = (path) => {
     setOpen(false);
     history.push(path);
-  }
+  };
   const handleListKeyDown = (event) => {
     if (event.key === 'Tab') {
       event.preventDefault();
       setOpen(false);
     }
-  }  
+  };
   const handleThemeChange = (event) => {
-    setLightThemeSelected(event.target.checked)
+    setLightThemeSelected(event.target.checked);
     if (event.target.checked) {
-      dispatch(setThemeAction({ themeName: 'darkTheme' }))
-    }
-    else {
-      dispatch(setThemeAction({ themeName: 'lightTheme' }))
+      dispatch(setThemeAction({ themeName: 'darkTheme' }));
+    } else {
+      dispatch(setThemeAction({ themeName: 'lightTheme' }));
     }
   };
-  
+
   const displayDesktop = () => {
     return (
       <Toolbar className={classes.toolbar}>
@@ -202,7 +202,7 @@ export default function Header() {
                     key={`user_setup_link`}
                     onClick={() => handleLink('/my_profile')}
                   >
-                   My Profile
+                    My Profile
                   </MenuItem>
                   {/* <MenuItem key={`theme_changer`}>
                     <Switch

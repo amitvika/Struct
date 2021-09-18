@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { useQuery } from '@ravibasil/common/utils/customHooks'
-import LoadingModal from '@ravibasil/common/components/LoadingModal';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from '@monostruct/common/utils/customHooks';
+import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 export default function HomePage() {
   const query = useQuery();
@@ -10,13 +10,12 @@ export default function HomePage() {
     setIsLoading(true);
     localStorage.setItem('token', query.get('token'));
 
-    setTimeout(() => setIsLoading(false), 3000)
-
-  }, [query.get('token')])
+    setTimeout(() => setIsLoading(false), 3000);
+  }, [query.get('token')]);
 
   return (
     <div>
       <LoadingModal isLoading={false} />
     </div>
-  )
+  );
 }

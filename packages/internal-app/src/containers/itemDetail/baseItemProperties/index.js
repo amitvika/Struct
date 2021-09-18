@@ -15,15 +15,15 @@ import GeometryInput from './GeometryInput';
 import { makeStyles } from '@material-ui/core/styles';
 import get from 'lodash/get';
 
-import { Headding, FileUpload } from '@ravibasil/common/components';
+import { Headding, FileUpload } from '@monostruct/common/components';
 import {
   upload3DFile,
   getHierarchySplitFiles,
-} from '@ravibasil/common/api/fileUpload.api';
+} from '@monostruct/common/api/fileUpload.api';
 
-import ItemAPI from '@ravibasil/common/api/items.api';
+import ItemAPI from '@monostruct/common/api/items.api';
 
-import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer';
+import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';
 import {
   showErrorAlert,
   showSuccessAlert,
@@ -35,10 +35,10 @@ import {
   SELECTSOLID,
   SELECTHIRERACHY,
   SELECTFEATURE,
-} from '@ravibasil/common/gltf/Tree/utils';
+} from '@monostruct/common/gltf/Tree/utils';
 
 import '../style.css';
-import FileHistory from '@ravibasil/common/containers/FileHistory';
+import FileHistory from '@monostruct/common/containers/FileHistory';
 
 const useStyles = makeStyles((theme) => ({
   root: {

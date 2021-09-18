@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Headding } from '@ravibasil/common/components';
+import { Headding } from '@monostruct/common/components';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 

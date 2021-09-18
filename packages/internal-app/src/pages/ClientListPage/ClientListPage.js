@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 
-import TableGridView from '@ravibasil/common/components/TableGridView';
-import ClientAPI from '@ravibasil/common/api/clients.api';
-import { columnsFields } from '@ravibasil/common/constants/client'
-import { useHistory } from "react-router-dom";
+import TableGridView from '@monostruct/common/components/TableGridView';
+import ClientAPI from '@monostruct/common/api/clients.api';
+import { columnsFields } from '@monostruct/common/constants/client';
+import { useHistory } from 'react-router-dom';
 
 const ClientListPage = () => {
   let history = useHistory();
@@ -18,9 +18,8 @@ const ClientListPage = () => {
       isAddEditActionsEnabled={true}
       handleItemClick={handleItemClick}
       isAddEditLinkVisible={true}
-
     />
   );
-}
+};
 
 export default ClientListPage;

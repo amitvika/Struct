@@ -1,7 +1,7 @@
 import ThemeProvider from './ThemeProvider';
 // import store from '../../internal-app/src/store';
-import store from '@ravibasil/internal-app/src/store'
-import { Provider } from "react-redux";
+import store from '@monostruct/internal-app/src/store';
+import { Provider } from 'react-redux';
 import AppRoutes from './AppRoutes';
 import { AuthContextProvider } from './context/AuthContext';
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Modal from '@ravibasil/common/components/Modal';
+import Modal from '@monostruct/common/components/Modal';
 import { Paper, Tabs, Tab, Grid, Divider, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Templates from './TemplatesTab';
@@ -31,10 +31,9 @@ const useStyles = makeStyles((theme) => ({
   selectedTab: {
     backgroundColor: 'blue',
   },
- modal : {
-     maxHeight: '800px !important'
- }
- 
+  modal: {
+    maxHeight: '800px !important',
+  },
 }));
 
 export default function TemplateModal({ isModalOpened, handleTemplateClick }) {
@@ -46,32 +45,21 @@ export default function TemplateModal({ isModalOpened, handleTemplateClick }) {
     // setSelectedTab(tabName);
     if (tabName === selectedTab) {
       setSelectedTab('');
-    }
-    else {
+    } else {
       setSelectedTab(tabName);
     }
   };
   const renderDetailPanel = () => {
-
     if (selectedTab === 'Templates') {
-      return <Templates />
+      return <Templates />;
+    } else if (selectedTab === 'Styles') {
+      return <Styles />;
+    } else if (selectedTab === 'Login & Authentication') {
+      return <LoginTab />;
+    } else {
+      return null;
     }
-    else if (selectedTab === 'Styles') {
-      return <Styles/>
-    }
-    else if (selectedTab === 'Login & Authentication') {
-      return <LoginTab />
-    }
-  
-    else {
-
-      return null
-
-    }
-
-  }
-
-
+  };
 
   return (
     <Modal
@@ -99,8 +87,6 @@ export default function TemplateModal({ isModalOpened, handleTemplateClick }) {
         <Divider orientation="horizontal" flexItem />
         {renderDetailPanel()}
       </Paper>
-  
-    
     </Modal>
   );
 }

@@ -1,38 +1,35 @@
-import React, { Component } from 'react'
-import FileUpload from '@ravibasil/common/components/FileUpload';
-import ProcessGroupAPI from '@ravibasil/common/api/processGroup.api'
+import React, { Component } from 'react';
+import FileUpload from '@monostruct/common/components/FileUpload';
+import ProcessGroupAPI from '@monostruct/common/api/processGroup.api';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 export default class ProcessHelper extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
       isFileUploading: false,
-      jsonMesh: {}
-    }
+      jsonMesh: {},
+    };
   }
-
 
   handleFileUpload = (data) => {
     this.setState({
-      isFileUploading: true
-    })
-    ProcessGroupAPI
-      .uploadStepfile(data)
-      .then(res => {
+      isFileUploading: true,
+    });
+    ProcessGroupAPI.uploadStepfile(data)
+      .then((res) => {
         this.setState({
           isFileUploading: false,
-          jsonMesh: res.data
-        })
+          jsonMesh: res.data,
+        });
       })
-      .catch(error => {
-        console.log('----->>>>', error)
+      .catch((error) => {
+        console.log('----->>>>', error);
         this.setState({
-          isFileUploading: false
-        })
-      })
-  }
+          isFileUploading: false,
+        });
+      });
+  };
 
   render() {
     return (
@@ -43,7 +40,7 @@ export default class ProcessHelper extends Component {
           isLoading={this.state.isFileUploading}
           data={this.state.jsonMesh}
         /> */}
-      </div >
-    )
+      </div>
+    );
   }
 }

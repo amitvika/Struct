@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import FileUpload from '@ravibasil/common/components/FileUpload';
-import Headding from '@ravibasil/common/components/atoms/Headding';
-import Select from '@ravibasil/common/components/atoms/Select';
+import FileUpload from '@monostruct/common/components/FileUpload';
+import Headding from '@monostruct/common/components/atoms/Headding';
+import Select from '@monostruct/common/components/atoms/Select';
 import readXlsxFile from 'read-excel-file';
 import DynamicCriteria from './containers/itemTypeConfigurations/DynamicCriteria';
 

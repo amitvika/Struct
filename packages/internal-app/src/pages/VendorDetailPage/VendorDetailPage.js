@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
 import SubHeaderWithArrow from '../../components/SubHeaderWithArrow';
 import { useParams, useHistory, useLocation } from 'react-router-dom';
-import VendorAPI from '@ravibasil/common/api/vendor.api';
-import LogoView from '@ravibasil/common/components/LogoView';
-import TabContainer from '@ravibasil/common/components/TabContainer';
-import TabPanelContainer from '@ravibasil/common/components/TabPanelContainer';
+import VendorAPI from '@monostruct/common/api/vendor.api';
+import LogoView from '@monostruct/common/components/LogoView';
+import TabContainer from '@monostruct/common/components/TabContainer';
+import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
