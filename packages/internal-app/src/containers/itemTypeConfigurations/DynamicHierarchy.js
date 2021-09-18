@@ -1,15 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Headding from '@ravibasil/common/components/atoms/Headding';
 import Select from '@ravibasil/common/components/atoms/Select';
+import DynamicCriteria from './DynamicCriteria';
+import CriteriaUploadAPI from '@ravibasil/common/api/criteriaUpload.api';
+import get from 'lodash/get';
 
-export default function DynamicHierarchy({
-  hierarchyDropdownList = [],
-  initialValue,
-  setInitialValue,
-}) {
+export default function DynamicHierarchy(props) {
   const [dataValue, setDataValue] = useState({});
+  const [initialValue, setInitialValue] = useState(['Item Type']);
+  const [criteriaFields, setCriteriaFields] = useState({});
+  const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
+
+  useEffect(() => {
+    CriteriaUploadAPI.getCadDetails()
+      .then((resp) => {
+        setHierarchyDropdownList(get(resp, 'data.hierarchySchema', {}));
+        setCriteriaFields(get(resp, 'data.criteriaSchema', []));
+      })
+      .catch((error) => {});
+  }, []);
 
   const handleOnChange = (label, value) => {
     setDataValue((preData) => {
@@ -17,6 +28,9 @@ export default function DynamicHierarchy({
     });
 
     const dataIndex = initialValue.indexOf(label);
+
+    console.log('-----', initialValue, value,dataIndex);
+
 
     setInitialValue((prev) => {
       if (prev.length > dataIndex) {
@@ -52,7 +66,6 @@ export default function DynamicHierarchy({
               handleOnChange(`${fieldItem.label}`, data.value)
             }
             value={setValue(fieldItem.label)}
-            // value={dataValue[fieldItem.label] && { label: `${dataValue[fieldItem.label]}` }}
           />
         </Grid>
       </Grid>
@@ -60,15 +73,32 @@ export default function DynamicHierarchy({
   };
 
   const renderDropdowns = () => {
-    return hierarchyDropdownList ? (hierarchyDropdownList.length > 0) ?
-      hierarchyDropdownList.filter((item) => {
+    return hierarchyDropdownList
+      .filter((item) => {
+        // setItemType(initialValue)
         if (initialValue.includes(item.label)) {
+         
+          // console.log("setItem Type", setItemType)
           return true;
         }
         return false;
       })
-      .map((item) => renderFields(item)):false:false;
+      .map((item) => renderFields(item));
+     
   };
 
-  return <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>;
+
+  if (hierarchyDropdownList.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>
+      <DynamicCriteria
+        criteriaFields={criteriaFields}
+        currentCrieteriaValue={initialValue.slice(1).join('|')}
+      />
+    </>
+  );
 }

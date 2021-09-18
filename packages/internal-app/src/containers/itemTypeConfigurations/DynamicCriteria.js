@@ -42,7 +42,6 @@ export default function DynamicCriteria({
   };
 
   const renderCriteria = () => {
-    console.log(currentCrieteriaValue, criteriaFields)
     if (currentCrieteriaValue && criteriaFields[currentCrieteriaValue]) {
       let { fields = [], criteriaTitle = '' } = criteriaFields[currentCrieteriaValue];
       return (

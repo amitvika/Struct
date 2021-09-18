@@ -51,6 +51,27 @@ export default function MachineTool_Workholding({ itemConfiguration, handleOnCha
                             </Grid>
                         </>
                     }
+                     {/* {
+                        itemConfiguration.machineToolWorkholding === 'Motion Control' &&
+                        <>
+                            <Grid item xs={4}>
+                                <Headding bold>Sub-Type</Headding>
+                            </Grid>
+                            <Grid item xs={8}>
+                                <Select
+                                    label="For Motion Control"
+                                    placeholder="Select"
+                                    options={[
+                                        { label: 'Linear ', value: 'Linear' },
+                                        { label: 'Rotary ', value: 'Rotary ' },
+                                    ]}
+                                    onChange={(data) => handleOnChange('machineActuator', data.value)}
+                                    value={itemConfiguration.machineActuator && { label: itemConfiguration.machineActuator }}
+
+                                />
+                            </Grid>
+                        </>
+                    } */}
                     {
                         itemConfiguration.machineToolWorkholding === 'Workholding' &&
                         <>

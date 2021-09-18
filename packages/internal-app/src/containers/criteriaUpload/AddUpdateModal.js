@@ -19,7 +19,6 @@ import LoadingModal from '@ravibasil/common/components/LoadingModal';
 
 export default function AddUpdateModal({
   title,
-  fields,
   open,
   toggleModal,
   handleUpdate,
@@ -60,7 +59,7 @@ export default function AddUpdateModal({
       await handleUpdate(value);
     }
     setRefreshFileHistory(!refreshFileHistory);
-    setLoading(true);
+    setLoading(false);
     // toggleModal();
   };
 
@@ -89,7 +88,7 @@ export default function AddUpdateModal({
       },
     };
 
-
+console.log("updateObj",updateObj)
     setValue((prev) => ({ ...prev, ...updateObj }));
     setLoading(false);
   };
@@ -114,7 +113,7 @@ export default function AddUpdateModal({
           />
         </Grid>
 
-        <Grid item xs={4}>
+        {/* <Grid item xs={4}>
           <Headding bold title={'Category'} />
         </Grid>
         <Grid item xs={8}>
@@ -126,7 +125,7 @@ export default function AddUpdateModal({
             onChange={(data) => handleTypeChange(data.value)}
             value={value.category && { label: value.category }}
           />
-        </Grid>
+        </Grid> */}
 
         {isTypeSelected && (
           <>

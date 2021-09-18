@@ -90,6 +90,7 @@ export const login = (data) => dispatch => {
     });
 };
 
+
 //setup config/headers and token
 export const tokenConfig = getState => {
   const token = getState().auth.token; //getting the token from localstorage
