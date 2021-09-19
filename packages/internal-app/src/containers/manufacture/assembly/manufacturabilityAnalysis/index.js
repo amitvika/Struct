@@ -867,6 +867,7 @@ export default function ManufacturabilityAnalysis(props) {
           'CX':0,
           'CY':0,
           'CZ':1,
+          'CW':0,
           'insert': "Sliding",
           'dispense': null,
           'quantity': null,
@@ -886,13 +887,15 @@ export default function ManufacturabilityAnalysis(props) {
           currentData[index].CX = gltfjsonParam.assemblyorder.direction[index][1][0];
           currentData[index].CY = gltfjsonParam.assemblyorder.direction[index][1][1];
           currentData[index].CZ = gltfjsonParam.assemblyorder.direction[index][1][2];
+          currentData[index].CW = gltfjsonParam.assemblyorder.direction[index][1][3];
           if (gltfjsonParam.assemblyorder.complete==gltfjsonParam.assemblyorder.order.length) {
             gltfjsonParam.tree[index+2].AX = currentData[index].AX;
             gltfjsonParam.tree[index+2].AY = currentData[index].AY;
             gltfjsonParam.tree[index+2].AZ = currentData[index].AZ;
             gltfjsonParam.tree[index+2].CX = currentData[index].CX;
             gltfjsonParam.tree[index+2].CY = currentData[index].CY;
-            gltfjsonParam.tree[index+2].CZ = currentData[index].CZ;            
+            gltfjsonParam.tree[index+2].CZ = currentData[index].CZ;     
+            gltfjsonParam.tree[index+2].CW = currentData[index].CW;       
           }
           itemset=true;
         }        
