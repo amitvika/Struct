@@ -771,7 +771,7 @@ const ItemDetail = () => {
     <>
       <LoadingModal isLoading={isLoading} />
       <Grid container>
-        <Grid item sm sm={12}>
+        <Grid item sm={12}>
           <SubHeaderWithArrow action={'/items'} title={'Items Details'} />
           <Paper style={{ padding: 10, margin: 10, display: 'flex' }}>
             <Grid>

@@ -76,9 +76,9 @@ export default function BaseItemProperties({
   const [selectedTab, setselectedTab] = useState('');
   const [value, setValue] = useState(2);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+  // const handleChange = (event, newValue) => {
+  //   setValue(newValue);
+  // };
   const tabArray = ['Source: Product Design', 'Source: CAD'];
 
   // useEffect(() => {
@@ -157,13 +157,13 @@ export default function BaseItemProperties({
         // setIsLoading(false);
       });
   };
-  const handleTabChange2 = (tabName) => {
-    if (tabName === selectedTab) {
-      setselectedTab('');
-    } else {
-      setselectedTab(tabName);
-    }
-  };
+  // const handleTabChange2 = (tabName) => {
+  //   if (tabName === selectedTab) {
+  //     setselectedTab('');
+  //   } else {
+  //     setselectedTab(tabName);
+  //   }
+  // };
   let gltfjsonlen = Object.keys(gltfobj).length;
   if (gltfjsonlen > 0) {
     gltfjsonlen += gltfobj?.gltf?.accessors?.length;
@@ -174,7 +174,7 @@ export default function BaseItemProperties({
       {
         <>
           <Grid style={{ display: 'flex' }}>
-            <Paper style={{ padding: 20, margin: 10, width: '40rem' }}>
+            <Paper style={{ padding: 20, margin: 10, width: '75rem' }}>
               {!isLoading &&
                 Object.keys(gltfjson).length > 0 &&
                 !isFileLoading && (
@@ -199,9 +199,9 @@ export default function BaseItemProperties({
                 )}
               {(isLoading || isFileLoading) && <CircularProgress />}
             </Paper>
-            <Grid style={{ width: '60rem' }}>
+            <Grid style={{ width: '25rem' }}>
               <Paper style={{ padding: 20, margin: 10, fontWeight: 'bold' }}>
-                <Grid container>
+                {/* <Grid container>
                   {tabArray.map((tabName) => (
                     <Grid item xs={6} key={tabName}>
                       <Paper
@@ -217,7 +217,7 @@ export default function BaseItemProperties({
                       </Paper>
                     </Grid>
                   ))}
-                </Grid>
+                </Grid> */}
 
                 <Headding fontSize={24} bold title={'Upload Cad'} />
                 {isStepLoaded ? (

@@ -974,20 +974,21 @@ export default function ManufacturabilityAnalysis(props) {
 
         const element = gltfjsonParam.tree[index];
         //console.log(element);
-        currentData.push({
-          id: index,
-          index: index - 1,
-          name: element[gltf_Dict['name']],
-          order: null,
-          AX: 0,
-          AY: 0,
-          AZ: 1,
-          CX: 0,
-          CY: 0,
-          CZ: 1,
-          insert: 'Sliding',
-          dispense: null,
-          quantity: null,
+        currentData.push({ 
+          'id':index,         
+          'index': index - 1,
+          'name': element[gltf_Dict['name']],
+          'order': null,
+          'AX':0,
+          'AY':0,
+          'AZ':1,
+          'CX':0,
+          'CY':0,
+          'CZ':1,
+          'CW':0,
+          'insert': "Sliding",
+          'dispense': null,
+          'quantity': null,
           ...element,
         });
       }
@@ -1021,12 +1022,21 @@ export default function ManufacturabilityAnalysis(props) {
             gltfjsonParam.assemblyorder.complete ==
             gltfjsonParam.assemblyorder.order.length
           ) {
-            gltfjsonParam.tree[index + 2].AX = currentData[index].AX;
-            gltfjsonParam.tree[index + 2].AY = currentData[index].AY;
-            gltfjsonParam.tree[index + 2].AZ = currentData[index].AZ;
-            gltfjsonParam.tree[index + 2].CX = currentData[index].CX;
-            gltfjsonParam.tree[index + 2].CY = currentData[index].CY;
-            gltfjsonParam.tree[index + 2].CZ = currentData[index].CZ;
+          currentData[index].AX = gltfjsonParam.assemblyorder.direction[index][0][0];
+          currentData[index].AY = gltfjsonParam.assemblyorder.direction[index][0][1];
+          currentData[index].AZ = gltfjsonParam.assemblyorder.direction[index][0][2];
+          currentData[index].CX = gltfjsonParam.assemblyorder.direction[index][1][0];
+          currentData[index].CY = gltfjsonParam.assemblyorder.direction[index][1][1];
+          currentData[index].CZ = gltfjsonParam.assemblyorder.direction[index][1][2];
+          currentData[index].CW = gltfjsonParam.assemblyorder.direction[index][1][3];
+          if (gltfjsonParam.assemblyorder.complete==gltfjsonParam.assemblyorder.order.length) {
+            gltfjsonParam.tree[index+2].AX = currentData[index].AX;
+            gltfjsonParam.tree[index+2].AY = currentData[index].AY;
+            gltfjsonParam.tree[index+2].AZ = currentData[index].AZ;
+            gltfjsonParam.tree[index+2].CX = currentData[index].CX;
+            gltfjsonParam.tree[index+2].CY = currentData[index].CY;
+            gltfjsonParam.tree[index+2].CZ = currentData[index].CZ;     
+            gltfjsonParam.tree[index+2].CW = currentData[index].CW;       
           }
           itemset = true;
         }

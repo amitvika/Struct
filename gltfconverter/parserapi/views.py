@@ -4851,24 +4851,40 @@ def FileSaveTree(request):
                     print(shapeArray)
                     for aTree in structArray:
                         print("Tree",aTree,shapeorder)  
-                        posx, posy, posz, angle = 0, 0, 0, 0                 
+                        #posx, posy, posz, angle = 0, 0, 0, 0                 
                         if gltf_dict["id"] in aTree:
                             index=aTree[gltf_dict["id"]]-3 
                             if index>=0:
                                 shapeorder.append(index)
                                 if "AX" in aTree:                    
                                     ax=convertToFloat(aTree["AX"],0)
+                                else:
+                                    ax=0
                                 if "AY" in aTree:                    
                                     ay=convertToFloat(aTree["AY"],0)
+                                else:
+                                    ay=0
                                 if "AZ" in aTree:                    
                                     az=convertToFloat(aTree["AZ"],0)
+                                else:
+                                    az=0
                                 if "CX" in aTree:                    
                                     cx=convertToFloat(aTree["CX"],0)
+                                else:
+                                    cx=0
                                 if "CY" in aTree:                    
                                     cy=convertToFloat(aTree["CY"],0)
+                                else:
+                                    cy=0
                                 if "CZ" in aTree:                    
-                                    cz=convertToFloat(aTree["CZ"],0)                        
-                                shapedirection.append(((ax,ay,az),(cx,cy,cz)))
+                                    cz=convertToFloat(aTree["CZ"],0)  
+                                else:
+                                    cz=0   
+                                if "CW" in aTree:                    
+                                    cw=convertToFloat(aTree["CW"],0) 
+                                else:
+                                    cw=0                   
+                                shapedirection.append(((ax,ay,az),(cx,cy,cz,cw)))
                     dictionary = FindAssemblingOrder(shapeArray,shapesAlone,assemblyname,dimension,explodegap,center,holescale,removegap,logging).\
                                     reChangeOrder(shapeorder,shapedirection,sourceFileName,distancegap,anglegap,animationtime)
             except Exception as e:

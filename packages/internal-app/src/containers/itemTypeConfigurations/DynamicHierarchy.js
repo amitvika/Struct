@@ -37,7 +37,7 @@ export default function DynamicHierarchy(props) {
   const handleOnChangeRestDropdown = (label, value, dropValue) => {
     setDropdownSelections([...dropdownSelections, value]);
 
-    console.log('--------dropValue', dropValue);
+    console.log('--------dropValue', label, value, dropValue);
     setInitialValue(dropValue);
   };
 
