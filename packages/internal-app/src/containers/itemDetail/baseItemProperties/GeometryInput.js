@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Button,
-  Snackbar,
+  CircularProgress,
   Paper,
   Table,
   TableBody,
@@ -10,6 +10,8 @@ import {
   TableHead,
   TableRow,
   Icon,
+  Typography,
+  IconButton,
 } from '@material-ui/core';
 import { Tooltip } from 'reactstrap';
 import Grid from '@material-ui/core/Grid';
@@ -19,12 +21,24 @@ import Input from '@monostruct/common/components/atoms/Input';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import MaterialModal from './MaterialModal';
 import MaterialPropertiesModal from './MaterialPropertiesModal';
+import { FileUpload } from '@monostruct/common/components';
+import FileHistory from '@monostruct/common/containers/FileHistory';
+import ExportLogo from '../../../assets/images/export.png';
+import { download } from '@monostruct/common/api/fileUpload.api';
+import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 export default function GeometryInput({
   itemProperties = {},
   setItemProperties,
+  setFileName,
+  fileName,
+  handleFileUpload,
+  itemId,
+  isLoading,
 }) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [fileId, setFileId] = useState(0);
+
   const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
 
   const itemGeometry = itemProperties.itemGeometry || {};
@@ -34,6 +48,10 @@ export default function GeometryInput({
     itemGeometry.materials || []
   );
   // const [materialSelected, ]
+  console.log('item Properties. file store', itemProperties.fileStore);
+  const handleExportButton = () => {
+    download(itemProperties.fileStore);
+  };
 
   const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
   const toggleMaterial = () => {
@@ -79,7 +97,8 @@ export default function GeometryInput({
   }, [selectedMaterials]);
 
   return (
-    <Paper style={{ padding: 20, margin: 10 }}>
+    <div style={{ margin: 10 }}>
+      <LoadingModal isLoading={isLoading} />
       {isMaterialModalOpen && (
         <MaterialModal
           toggleMaterial={toggleMaterial}
@@ -100,92 +119,61 @@ export default function GeometryInput({
           setMaterialProperties={setMaterialProperties}
         />
       )}
-      <Headding fontSize={24} bold title={'Item Properties'} />
+      <Headding  bold title={'Item Properties'} style={{fontSize: 'xxLarge', textAlign: 'center'}} />
 
       <Paper style={{ padding: 20, margin: 10 }}>
         <Grid className="section-padding-left" container spacing={4}>
-          <Grid item xs={4}>
-            <Headding fontSize={20} bold title={'Item Material'} />
+      
+          <Grid item xs={12} style={{ display: 'flex' }}>
+            {/* <Headding bold title={'Design Source'} /> */}
+            <Typography variant='h5' style={{fontWeight: 'bold'}} >Design Source</Typography>
           </Grid>
-          <Grid item xs={8}>
-            <Button
-              size="large"
-              variant="contained"
-              color="primary"
-              disabled={itemProperties.assemblyType === 'Multi-Item Assembly'}
-              onClick={toggleMaterial}
-            >
-              Select Material
-            </Button>
-          </Grid>
-          {selectedMaterials.length > 0 && (
-            <Grid item xs={12}>
-              <Headding bold title={'Selected Materials'} />
 
-              <TableContainer className="mb-2" component={Paper}>
-                <Table aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>S No</TableCell>
-                      <TableCell>Material Name</TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {selectedMaterials.map((materialRow) => (
-                      <TableRow key={materialRow._id}>
-                        <TableCell>{materialRow._id}</TableCell>
-                        <TableCell>{materialRow.name}</TableCell>
-                        <TableCell
-                          style={{ cursor: 'pointer' }}
-                          onClick={() =>
-                            handleMaterialPropertieView(materialRow)
-                          }
-                        >
-                          View Material Properties
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
-          )}
-        </Grid>
-      </Paper>
-
-      <Paper style={{ padding: 20, margin: 10 }}>
-        <Grid className="section-padding-left" container spacing={4}>
           <Grid item xs={12}>
-            <Headding fontSize={20} bold title={'Item Category Details'} />
+            {!itemProperties.fileStore && (
+              <Paper style={{ padding: 5, fontWeight: 'bold' }}>
+                <Headding fontSize={24} bold title={'Upload Cad'} />
+                <FileUpload
+                  fileName={fileName}
+                  setFileName={setFileName}
+                  handleFileUpload={handleFileUpload}
+                  itemId={itemId}
+                />
+              </Paper>
+            )}
+            {itemProperties.fileStore && (
+              <div style={{display: 'flex', justifyContent: 'space-around'}}>
+                <Headding title={itemProperties.fileStore} style={{color: 'blue'}} />
+                <IconButton margin="auto" onClick={handleExportButton}>
+                  <img
+                    src={ExportLogo}
+                    style={{ width: '20px', paddingTop: '2px' }}
+                    alt="pictur"
+                  />
+                </IconButton>
+              </div>
+            )}
           </Grid>
+          {/* <FileHistory selectedFileName={fileName} link_id={fileId.id} /> */}
 
-          <Grid item xs={4}>
+          {/* <Grid item xs={4}>
             <Headding bold title={'Single Item Part or Multi-Item Assembly'} />
           </Grid>
           <Grid item xs={8}>
             <span>{itemProperties.assemblyType}</span>
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={4}>
             <Headding bold title={'Item Type'} />
           </Grid>
           <Grid item xs={8}>
             <Select
-              // label="Item Type"
               placeholder="Select"
               options={[
-                // { label: 'Machine - Actuator', value: 'Submachine - Actuator' },
-                // { label: 'Machine - Motion Control', value: 'Machine - Motion Control' },
                 {
                   label: 'Machine - Compound/Tool/Workholding',
                   value: 'Machine - Compound/Tool/Workholding',
                 },
-                // { label: "Machine - Workpiece Environment Modification", value: "Machine - Workpiece Environment Modification" },
-                // { label: "Workholding - Pressure Vessel", value: "Workholding - Pressure Vessel" },
-                // { label: "Workholding - Liquid Container", value: "Workholding - Liquid Container" },
-                // { label: "Tool", value: "Tool" },
-                // { label: "Machine - Tool", value: "Machine - Tool" },
                 { label: 'Unassembled Kit', value: 'Unassembled Kit' },
                 {
                   label: 'Structure and/or Facade',
@@ -197,6 +185,7 @@ export default function GeometryInput({
               value={itemGeometry.itemType && { label: itemGeometry.itemType }}
             />
           </Grid>
+
           {itemGeometry.itemType === 'Any Other Object/Item' && (
             <>
               <Grid item xs={4} style={{ display: 'flex' }}>
@@ -264,6 +253,7 @@ export default function GeometryInput({
           )}
         </Grid>
       </Paper>
+
       {itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' && (
         <Paper style={{ padding: 20, margin: 10 }}>
           <Grid className="section-padding-left" container spacing={4}>
@@ -485,6 +475,57 @@ export default function GeometryInput({
           </Grid>
         </Paper>
       )}
-    </Paper>
+      <Paper style={{ padding: 20, margin: 10 }}>
+        <Grid className="section-padding-left" container spacing={4}>
+          <Grid item xs={4}>
+            <Headding fontSize={20} bold title={'Item Material'} />
+          </Grid>
+          <Grid item xs={8}>
+            <Button
+              size="large"
+              variant="contained"
+              color="primary"
+              disabled={itemProperties.assemblyType === 'Multi-Item Assembly'}
+              onClick={toggleMaterial}
+            >
+              Select Material
+            </Button>
+          </Grid>
+          {selectedMaterials.length > 0 && (
+            <Grid item xs={12}>
+              <Headding bold title={'Selected Materials'} />
+
+              <TableContainer className="mb-2" component={Paper}>
+                <Table aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>S No</TableCell>
+                      <TableCell>Material Name</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {selectedMaterials.map((materialRow) => (
+                      <TableRow key={materialRow._id}>
+                        <TableCell>{materialRow._id}</TableCell>
+                        <TableCell>{materialRow.name}</TableCell>
+                        <TableCell
+                          style={{ cursor: 'pointer' }}
+                          onClick={() =>
+                            handleMaterialPropertieView(materialRow)
+                          }
+                        >
+                          View Material Properties
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Grid>
+          )}
+        </Grid>
+      </Paper>
+    </div>
   );
 }

@@ -1,5 +1,4 @@
 import React, { useRef, useState, useContext } from 'react';
-
 import { AppBar, Toolbar, makeStyles, Paper } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';

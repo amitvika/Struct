@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
-import {
-  Button,
-  Snackbar,
-  Paper,
-  CircularProgress,
-  Tab,
-  Tabs,
-} from '@material-ui/core';
-import AppBar from '@material-ui/core/AppBar';
+import { Paper, CircularProgress } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 
 import GeometryInput from './GeometryInput';
-import { makeStyles } from '@material-ui/core/styles';
 import get from 'lodash/get';
 
-import { Headding, FileUpload } from '@monostruct/common/components';
 import {
   upload3DFile,
   getHierarchySplitFiles,
@@ -32,29 +22,12 @@ import {
   DEFAULTBACKCOLOR,
   DEFAULTSELECTCOLOR,
   DEFAULTTOUCHCOLOR,
-  SELECTSOLID,
   SELECTHIRERACHY,
   SELECTFEATURE,
 } from '@monostruct/common/gltf/Tree/utils';
 
 import '../style.css';
-import FileHistory from '@monostruct/common/containers/FileHistory';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  tabPaper: {
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    cursor: 'pointer',
-    transition: '0.3s',
-    '&:hover, &:focus': {
-      backgroundColor: '#DCDCDC',
-    },
-  },
-}));
 const DEFAULTMATERIALNAME = 'Basic';
 export default function BaseItemProperties({
   itemId,
@@ -64,28 +37,16 @@ export default function BaseItemProperties({
   setgltfjson,
 }) {
   const dispatch = useDispatch();
-  const classes = useStyles();
+
   const [isLoading, setIsLoading] = useState(false);
   const [isStepLoaded, setIsStepLoaded] = useState(false);
-  const [threejsObject, setThreejsObject] = useState({});
+  // const [threejsObject, setThreejsObject] = useState({});
   const [fileName, setFileName] = useState('');
   const [gltfobj, setGltfObj] = useState(gltfjson);
   const [fileId, setFileId] = useState(0);
-  const [files, setFiles] = useState([]);
+  // const [files, setFiles] = useState([]);
   const [isFileLoading, setIsFileLoading] = useState(false);
-  const [selectedTab, setselectedTab] = useState('');
-  const [value, setValue] = useState(2);
 
-  // const handleChange = (event, newValue) => {
-  //   setValue(newValue);
-  // };
-  const tabArray = ['Source: Product Design', 'Source: CAD'];
-
-  // useEffect(() => {
-  //   if (itemProperties.fileId) {
-  //     getView(itemProperties.fileId)
-  //   }
-  // }, [])
   useEffect(() => {
     console.log('Setting gltf', gltfjson);
     setGltfObj(gltfjson);
@@ -96,10 +57,9 @@ export default function BaseItemProperties({
     upload3DFile(data)
       .then((res) => {
         console.log('Getting Resources', res, res.data);
-        setFiles([res.data]);
+        // setFiles([res.data]);
         setFileId(res.data.id);
         getView(res.data.id);
-        console.log('File Id:', fileId, fileName);
 
         // setItemProperties(prevData => ({
         //     ...prevData,
@@ -150,7 +110,7 @@ export default function BaseItemProperties({
     // setIsLoading(true);
     ItemAPI.deleteItemGeomtery(itemId)
       .then((res) => {
-        setThreejsObject({});
+        // setThreejsObject({});
         setIsStepLoaded(false);
       })
       .catch((error) => {
@@ -172,86 +132,41 @@ export default function BaseItemProperties({
   return (
     <div>
       {
-        <>
-          <Grid style={{ display: 'flex' }}>
-            <Paper style={{ padding: 20, margin: 10, width: '75rem' }}>
-              {!isLoading &&
-                Object.keys(gltfjson).length > 0 &&
-                !isFileLoading && (
-                  <GLTFRenderer
-                    //gltfjson={JSON.stringify(gltfjson)}
-                    gltfobj={gltfobj}
-                    fileGDT={null}
-                    fileAnimation={false}
-                    activefile={fileId + gltfjsonlen.toString()}
-                    backcolor={DEFAULTBACKCOLOR}
-                    selectcolor={DEFAULTSELECTCOLOR}
-                    touchcolor={DEFAULTTOUCHCOLOR}
-                    selectedoption={SELECTFEATURE}
-                    splitmethod={SELECTHIRERACHY}
-                    changedata={[]}
-                    data2texture={null}
-                    data3texture={null}
-                    materialtype={DEFAULTMATERIALNAME}
-                    whatchanged={0}
-                    dataselection={0}
-                  />
-                )}
-              {(isLoading || isFileLoading) && <CircularProgress />}
-            </Paper>
-            <Grid style={{ width: '25rem' }}>
-              <Paper style={{ padding: 20, margin: 10, fontWeight: 'bold' }}>
-                {/* <Grid container>
-                  {tabArray.map((tabName) => (
-                    <Grid item xs={6} key={tabName}>
-                      <Paper
-                        onClick={() => handleTabChange2(tabName)}
-                        style={{
-                          backgroundColor:
-                            selectedTab === tabName ? '#777c80' : '',
-                          color: selectedTab === tabName ? 'white' : '',
-                        }}
-                        className={classes.tabPaper}
-                      >
-                        {tabName}
-                      </Paper>
-                    </Grid>
-                  ))}
-                </Grid> */}
-
-                <Headding fontSize={24} bold title={'Upload Cad'} />
-                {isStepLoaded ? (
-                  <Button
-                    className="mt-2 mb-3"
-                    variant="contained"
-                    color="primary"
-                    onClick={removeFile}
-                  >
-                    Clear File
-                  </Button>
-                ) : (
-                  <>
-                    <FileUpload
-                      fileName={fileName}
-                      setFileName={setFileName}
-                      handleFileUpload={handleFileUpload}
-                      itemId={itemId}
-                    />
-                    <FileHistory
-                      selectedFileName={fileName}
-                      link_id={fileId.id}
-                    />
-                  </>
-                )}
-                {isLoading && <CircularProgress />}
-              </Paper>
-              <GeometryInput
-                setItemProperties={setItemProperties}
-                itemProperties={itemProperties}
+        <Grid style={{ display: 'flex' }}>
+          <Paper style={{ padding: 20, margin: 10, width: '75vw' }}>
+            {!isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading && (
+              <GLTFRenderer
+                //gltfjson={JSON.stringify(gltfjson)}
+                gltfobj={gltfobj}
+                fileGDT={null}
+                fileAnimation={false}
+                activefile={fileId + gltfjsonlen.toString()}
+                backcolor={DEFAULTBACKCOLOR}
+                selectcolor={DEFAULTSELECTCOLOR}
+                touchcolor={DEFAULTTOUCHCOLOR}
+                selectedoption={SELECTFEATURE}
+                splitmethod={SELECTHIRERACHY}
+                changedata={[]}
+                data2texture={null}
+                data3texture={null}
+                materialtype={DEFAULTMATERIALNAME}
+                whatchanged={0}
+                dataselection={0}
               />
-            </Grid>
+            )}
+            {(isLoading || isFileLoading) && <CircularProgress />}
+          </Paper>
+          <Grid style={{ width: '25vw' }}>
+            <GeometryInput
+              isLoading={isLoading}
+              itemId={itemId}
+              handleFileUpload={handleFileUpload}
+              removeFile={removeFile}
+              setItemProperties={setItemProperties}
+              itemProperties={itemProperties}
+            />
           </Grid>
-        </>
+        </Grid>
       }
     </div>
   );
