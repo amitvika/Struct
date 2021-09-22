@@ -29,6 +29,9 @@ const Selection = (props) => {
     measure();
   }, []);
 
+  useEffect(() => {
+    measure();
+  }, [node]);
 
   const className = classNames({
     'mi mi-check-box flex-wrap': selected,
@@ -72,10 +75,18 @@ class Extensions extends Component {
   componentDidMount() {
     this.setState(this.props.nodes);
   }
-
+  componentDidUpdate(prevProps, prevState) {
+    console.log("Updating Props",prevProps,prevState,this.props);
+    if(prevProps.nodes !== this.props.nodes){
+      this.setState({nodes:this.props.nodes});
+    }     
+  }
   handleExpandChange = (nodes) => {
     this.setState({ nodes: nodes });
     console.log("On Expand", nodes);
+    if(this.props.onExpanisonChange) {
+      this.props.onExpanisonChange(nodes);
+    }
   };
 
   handleSelectChange = (nodes, updatedNode) => {
@@ -240,17 +251,21 @@ class Extensions extends Component {
 }
 
 export default function Assembly(props) {
-  const { assemblyTree, OnAddition } = props;
+  const { assemblyTree, OnAddition, OnExpansion } = props;
   const [nodes, setNodes] = useState(assemblyTree);
   let toBuildTree = true;
 
   useEffect(() => {
+    console.log("Changing Props",props);
     setMyChecked(props.assemblyTree);
   }, [props.assemblyTree]);
 
   useEffect(() => {
     if (toBuildTree) {
+      console.log("Empty Props",props);
       setMyChecked(props.assemblyTree);
+    } else {
+      console.log("Already Built",props);
     }
 
   }, []);
@@ -268,5 +283,8 @@ export default function Assembly(props) {
     }
   }; */
 
-  return <Extensions onSelectionChange={OnAddition} nodes={nodes} />;
+  return <Extensions 
+    onSelectionChange={OnAddition}
+    onExpanisonChange={OnExpansion} 
+    nodes={nodes} />;
 }

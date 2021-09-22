@@ -16,7 +16,9 @@ import {
   SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE,
   SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray, gltf_Dict
 } from "@ravibasil/common/gltf/Tree/utils";
-
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup  from '@material-ui/core/RadioGroup';
 import { makeStyles } from '@material-ui/core/styles';
 import Assembly from '../assembly';
 
@@ -46,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
   },
   viewerContainer: {
-    minWidth: '600px',
+    minWidth: '800px',
     display: 'inline-block',
   },
   assemblyTreeContainer: {
@@ -54,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
     minWidth: '300px'
   }
 }));
-
+let myGlobalTree = null;
 export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfjson, isLoading }) {
   const classes = useStyles();
 
@@ -65,10 +67,11 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   const [resetOption, setResetOption] = useState(true);
   const [value, setValue] = React.useState('female');
   const [ctrlKey, setCtrlKey] = useState(false);
-
+  const [optionForAssemblyTree,setOptionForAssemblyTree] = useState("Assembly Tree");
   const handleChange = (event) => {
     setValue(event.target.value);
   };
+  
   /*
   const renderLeafElements = () => {
 
@@ -120,6 +123,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         renderdata: {},
         whatchange: 0,
       });
+      myGlobalTree=null;
     }
   }, [gltfjson]);
 
@@ -144,7 +148,15 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
       mates: []
     });
   }
-
+  const setStateOfgltf=(gltfjsonobj)=> {
+    console.log("setting gltf json",gltfjsonobj);
+    setState({gltfjson:gltfjsonobj});
+  }
+  const setStateOfTree=(gltftree)=> {
+    let myTree = { ...state.gltfjson };
+    myTree.tree = gltftree;
+    setState({ gltfjson: myTree });   
+  }
   const arrayFindIndex = (arr, value, parent = false) => {
 
     return arr.findIndex(function (ele) {
@@ -320,8 +332,14 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
             'expanded': item[gltf_Dict['id']] == "1",
             'selected': item.selectedshell
           }
+          console.log("Setting states here1",item['state']);
         } else {
           item['state'].selected = item.selectedshell;
+          const currentNode = findMyTreeNode(item);
+          if(currentNode) {
+            item['state'].expanded = currentNode['state'].expanded;
+          }
+          console.log("Setting states here2",item, item['state'],"Current Node",currentNode);
         }
         const { [idKey]: id, [parentKey]: parentId = 0 } = item;
         childrenOf[id] = childrenOf[id] || [];
@@ -333,6 +351,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
           : tree.push(item);
       }
     });
+    myGlobalTree = tree;
     return tree;
   }
 
@@ -535,6 +554,34 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
 
   }
 
+  const findrecursiveTreeNode = (node,myParent) => {
+    //console.log("Checking",myParent,myParent[gltf_Dict["name"]],"For Checking",node,node[gltf_Dict["name"]]);
+    if(myParent[gltf_Dict["name"]]==node[gltf_Dict["name"]]) {
+      console.log("Checking",myParent,"Found Checking",node);
+      return myParent;
+    }
+    if ((myParent.children) && (myParent.children.length > 0)) {      
+      for (let index = 0; index < myParent.children.length; index++) {
+        const element = myParent.children[index];
+        const gotAnswer = findrecursiveTreeNode(node,element);
+        if(gotAnswer) {
+          //console.log("Checking",myParent,"Inside Found Checking",node);
+          return gotAnswer;
+        }
+      }
+    }
+    //console.log("Checking",myParent,"Outside Checking",node);
+    return null;
+  }
+  const findMyTreeNode = (node) => {
+    //console.log("FInding my treenode",myGlobalTree);
+    if(myGlobalTree) {
+      return findrecursiveTreeNode(node,myGlobalTree[0]);
+    } else {
+      return null;
+    }
+    
+  }
 
 
   const findMyMaterial = (data) => {
@@ -685,6 +732,11 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
       }
       console.log("aftet", mymesh);
     }
+  }
+
+  const expandSelectionFromTree = (nodes) => {
+    myGlobalTree = nodes;
+    console.log("Expansion",myGlobalTree);
   }
 
   const addSelectionFromTree = async (selectedNodes) => {
@@ -963,7 +1015,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     }
     //console.log("Finally my state tree",state.gltfjson.tree);
   }
-
+  const setOptionForAssemblyTreeOptions = (event) => {
+    setOptionForAssemblyTree(event.target.value);
+  }
   const handleModelClick = (data, what, event) => {
     console.log("From Handle Model Click",data, what, event);
     if (what == SELECTDISTANCE) {
@@ -994,11 +1048,39 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   if (isLoading) {
     return <CircularProgress />;
   }
-
+ 
   return (
 
     <Paper className={classes.mainContainer}>
-
+      {(state.gltfjson?.tree) && (
+        <div className={` ${classes.assemblyTreeContainer}`}>
+          <RadioGroup
+            row
+            aria-label="Option To Show"
+            defaultValue="Assembly Tree"
+            name="row-radio-buttons-group"
+            onChange={setOptionForAssemblyTreeOptions} value={optionForAssemblyTree}
+          >
+            <FormControlLabel 
+              value="Assembly Tree" 
+              control={<Radio />} 
+              label="Assembly Tree" 
+              checked={optionForAssemblyTree=="Assembly Tree"}
+            />
+            <FormControlLabel 
+              value="Configuration" 
+              control={<Radio />} 
+              label="Configuration"
+              checked={optionForAssemblyTree=="Configuration"}
+            />           
+          </RadioGroup>
+          <Assembly
+            assemblyTree={buildParentChildTree(state.gltfjson.tree, selectedOption)}
+            OnAddition={addSelectionFromTree}
+            OnExpansion={expandSelectionFromTree}
+          />
+        </div>
+      )}
       <Paper className={`${classes.paper} ${classes.viewerContainer}`} >
         <Viewer
           {...state}
@@ -1012,19 +1094,12 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
           resetSelections={resetSelections}
           selectAllSelectedSolids={selectAllSelectedSolids}
           resetSelectionFromTree={resetSelectionFromTree}
+          setStateOfTree={setStateOfTree}
+          setStateOfgltf={setStateOfgltf}
         ></Viewer>
       </Paper>
-
-
-      {(state.gltfjson?.tree) && (
-        <div className={` ${classes.assemblyTreeContainer}`}>
-          <Assembly
-            assemblyTree={buildParentChildTree(state.gltfjson.tree, selectedOption)}
-            OnAddition={addSelectionFromTree}
-          />
-        </div>
-      )}
-      <ViewerToolbar
+      {optionForAssemblyTree=="Configuration" && (
+        <ViewerToolbar
         {...state}
         selectedOption={selectedOption}
         setSelectedOption={setSelectedOption}
@@ -1033,6 +1108,8 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         setCtrlKey={setCtrlKey}
         toolbar={true}
       />
+      )}
+      
 
     </Paper>
 

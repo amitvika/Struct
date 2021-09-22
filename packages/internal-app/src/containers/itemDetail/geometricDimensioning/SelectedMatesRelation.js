@@ -10,8 +10,38 @@ import LabelledCheckBox from '@ravibasil/common/components/LabelledCheckBox';
 import Checkbox from '@material-ui/core/Checkbox';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import CircleChecked from '@material-ui/icons/CheckCircleOutline';
+import { withStyles, makeStyles } from "@material-ui/core/styles";
+
+
+const useStyles = makeStyles({
+  table: {
+    minWidth: 400
+  },
+  tableRow: {
+    height: 30
+  },
+  tableCell: {
+    padding: "0px 8px",
+    whiteSpace: "normal",
+    wordWrap: "break-word",
+    wordBreak: "break-all"   
+  }
+});
+
+const StyledTableRow = withStyles((theme) => ({
+  root: {
+    height: 30
+  }
+}))(TableRow);
+
+const StyledTableCell = withStyles((theme) => ({
+  root: {
+    padding: "0px 8px"
+  }
+}))(TableCell);
 
 const SelectedMatesRelation = (props) => {
+  const classes = useStyles();
   const {
     mates,
     featureList,
@@ -108,8 +138,8 @@ const SelectedMatesRelation = (props) => {
     }
     return myCheckBoxes.map((row, index) => (
       <React.Fragment>
-        <TableRow key={index * 3}>
-          <TableCell key={3 * index + 1} align="right" style={myStyle} ><LabelledCheckBox
+        <StyledTableRow key={index * 3}>
+          <StyledTableCell key={3 * index + 1} align="right" style={myStyle} ><LabelledCheckBox
             checked={_isSelected[2 * index]}
             disabled={myCheckBoxes[index] == "coplaner" ? !coplaner :
               myCheckBoxes[index] == "concentric" ? !concentric :
@@ -126,8 +156,9 @@ const SelectedMatesRelation = (props) => {
 
               onSelect(label, e);
 
-            }} /> </TableCell>
-          <TableCell key={3 * index + 2} align="left" ><Checkbox
+            }} /> 
+            </StyledTableCell>
+          <StyledTableCell key={3 * index + 2} align="left" ><Checkbox
             checked={_isSelected[2 * index + 1]}
             checkedIcon={<CircleChecked />}
             icon={<CancelOutlinedIcon />}
@@ -143,17 +174,18 @@ const SelectedMatesRelation = (props) => {
 
               onSelect(label, e);
 
-            }} /> </TableCell>
-        </TableRow>
+            }} /> 
+            </StyledTableCell>
+        </StyledTableRow>
         {(index >= mateAngle) && (
-          <TableRow key={3 * index + 9} style={myStyle}>
-            <TableCell key={3 * index + 10} align="right" size="small" style={myStyle}>
+          <StyledTableRow key={3 * index + 9} style={myStyle}>
+            <StyledTableCell key={3 * index + 10} align="right" size="small" style={myStyle}>
               <input type="number" aria-invalid="false" id={"Numb" + 3 * index + 10} value={(anglefound && index == mateAngle) ? angle : ""} onChange={(e) => { console.log(e); }} />
-            </TableCell>
+            </StyledTableCell>
             {/*  <TableCell key={3*index+11} align="right">
                         <input type="number" aria-invalid="false" id={"Numb"+3*index+11}/>                        
                      </TableCell> */}
-          </TableRow>
+          </StyledTableRow>
         )}
       </React.Fragment>
 
@@ -163,11 +195,11 @@ const SelectedMatesRelation = (props) => {
 
   return (
     <TableContainer component={Paper} style={{ minWidth: 400 }}>
-      <Table aria-label="simple table">
+      <Table className={classes.table} aria-label="simple table">
         <TableHead>
-          <TableRow>
-            <TableCell align="right">Mate</TableCell>
-            <TableCell align="right">Estimated Mate</TableCell>
+          <TableRow className={classes.tableRow}>
+            <TableCell className={classes.tableCell} align="right">Mate</TableCell>
+            <TableCell className={classes.tableCell} align="left">Estimated Mate</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

@@ -270,7 +270,7 @@ export const myMenus =  [ {
           groups:[ {
             name:'control',
             values: {
-              animationSpeed: 0.7,
+              animationSpeed: 1,
               animationTime:0,
               pauseAnimation: "Continue",
               ctrlKey:false

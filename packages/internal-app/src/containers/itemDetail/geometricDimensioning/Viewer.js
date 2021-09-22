@@ -7,10 +7,19 @@ import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,
     SELECTSOLID, SELECTHIRERACHY, SELECTDISTANCE, SELECTFEATURE } from "@ravibasil/common/gltf/Tree/utils";
 const DEFAULTMATERIALNAME = "Basic";
 
-export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', activefile = '', 
-    isLoading=false, renderdata={}, whatchange=0, selectedOption = SELECTFEATURE, splitMethod = SELECTHIRERACHY,
-    handleModelClick = () => { },  setSelectedOption= () => { }, setCtrlKey= () => { }, 
-    resetSelections= () => { },  selectAllSelectedSolids = () => { } , resetSelectionFromTree = () => {}   }) {
+export default function Viewer({   
+    gltfjson = {}, ctrlKey=false, fileGDT='', activefile = '', 
+    isLoading=false, renderdata={}, whatchange=0, 
+    selectedOption = SELECTFEATURE, splitMethod = SELECTHIRERACHY,
+    handleModelClick = () => { },  
+    setSelectedOption= () => { }, 
+    setCtrlKey= () => { }, 
+    resetSelections= () => { },  
+    selectAllSelectedSolids = () => { } , 
+    resetSelectionFromTree = () => {},
+    setStateOfTree= () => {},
+    setStateOfgltf= () => {}, 
+    }) {
     //console.log(gltfjson);
     let gltfjsonlen =  Object.keys(gltfjson).length;
     if (gltfjsonlen > 0) {
@@ -49,7 +58,9 @@ export default function Viewer({   gltfjson = {}, ctrlKey=false, fileGDT='', act
                     setCtrlKey={setCtrlKey}                              
                     resetSelections={resetSelections}
                     selectAllSelectedSolids={selectAllSelectedSolids}   
-                    resetSelectionFromTree={resetSelectionFromTree} 
+                    resetSelectionFromTree={resetSelectionFromTree}
+                    setStateOfTree={setStateOfTree}
+                    setStateOfgltf={setStateOfgltf} 
                 />
                
             }

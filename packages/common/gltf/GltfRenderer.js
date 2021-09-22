@@ -177,7 +177,7 @@ class GLTFRenderer extends Component {
         anchorEls:new Array(myMenus.length),
         selectedmenu:0,
         displaytext:null,
-
+        //gltfobj:this.props.gltfobj
     };
     state_selectedObjects = [];
     
@@ -208,7 +208,7 @@ class GLTFRenderer extends Component {
     selectedoption = SELECTMEASURE;
     changeddataarray = [];
     changedctrlkey = false;
-
+    changeState = false;
     constructor(props) {
         super(props);
         this.node = React.createRef();
@@ -223,7 +223,47 @@ class GLTFRenderer extends Component {
     componentWillUnmount() {
         this.cleanup();
     };
-  
+    
+    /* static getDerivedStateFromProps(props, current_state) {
+        //console.log("derivedstate",props, current_state);
+        if (current_state.gltfobj.gltf !== props.gltfobj.gltf) {
+          return {
+            gltfobj: props.gltfobj
+          }
+        }
+        return null;
+    } */
+    
+    componentDidUpdate(prevProps, prevState) {
+        //var toChange = ( (prevProps.gltfobj !== this.props.gltfobj)  || (prevState.gltfobj  !== this.props.gltfobj) );
+        var toChange = (prevProps.gltfobj !== this.props.gltfobj);
+        toChange = toChange || (prevProps.activeFile !== this.props.activefile);  
+        toChange = toChange || (prevProps.materialtype != this.props.materialtype);
+        toChange = toChange || (prevProps.selectedoption != this.props.selectedoption);
+        //console.log("Reachibg here my set",list,prevProps,prevState,this.state.sortedlist);
+        if (toChange && this.changeState==false) {
+            //this.setState({gltfobj:this.props.gltfobj});
+            if (this.selectedoption != this.props.selectedoption) {
+                this.changeSelectedOption();                       
+            } 
+            if (this.activeFile != this.props.activefile ||
+                this.materialtype != this.props.materialtype ) {               
+                if(this.selectedoption == this.props.selectedoption) {
+                    this.changeSelectedOption();
+                }
+                if(this.initDone) {
+                    this.alter();                               
+                }            
+            }
+        }
+        if(this.changeState==true) {
+            console.log("I am not changing state eventhough props changed")
+            this.changeState=false;
+        } else {
+            console.log("Changing property status:",toChange,this.changeState)
+        }
+    }
+
     handlePopperClick = (event,param) => {   
         let anchorEls = [...this.state.anchorEls]; 
         if(this.state.selectedmenu != param) {
@@ -440,6 +480,7 @@ class GLTFRenderer extends Component {
     };
 
     init = () => {
+        //this.gltfJSON = state.gltfobj || this.props.gltfobj.gltf||this.props.gltfobj;
         this.gltfJSON = this.props.gltfobj.gltf||this.props.gltfobj;
         this.lights = [];
         this.content = null;
@@ -937,7 +978,9 @@ class GLTFRenderer extends Component {
                     action.getEffectiveTimeScale(),action.getEffectiveWeight(),pauseAnimation ); */     
                 action.paused = (pauseAnimation=="Pause");            
             });
-        }        
+            //console.log(this.mixer.timeScale);
+        } 
+               
     }
 
     updateAnimationTime = (animationTime) => {
@@ -2344,6 +2387,7 @@ class GLTFRenderer extends Component {
         //console.log("Getting me!");
         //if(this.controls) {
             //console.log("Getting me2!");
+            //this.gltfJSON = state.gltfobj.gltf || this.props.gltfobj.gltf;
             this.gltfJSON = this.props.gltfobj.gltf;
             this.activeFile = this.props.activefile;
             this.materialtype = this.props.materialtype;
@@ -2352,7 +2396,7 @@ class GLTFRenderer extends Component {
                 console.log("Getting me3!");
                 //this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');
                 //console.log(this.props.gltfobj.gltf);
-                const parser = new GLTFParser( this.props.gltfobj.gltf, {
+                const parser = new GLTFParser( this.gltfJSON, {
 
                     path: resourcePathURL || '',
                     crossOrigin: 'anonymous',
@@ -2386,7 +2430,9 @@ class GLTFRenderer extends Component {
 
 
     updateChildsOfMine = (myColor, myTexture, myMetal, myRough, myOpaque, myId, whatchanged) => {
-        this.props.gltfobj.tree.forEach(element => {
+        //const myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
+        const myStateTree = this.props.gltfobj.tree;
+        myTree.forEach(element => {
             if (element[gltf_Dict["parentId"]] == myId) {
                 if (element[gltf_Dict["leaf"]]) {
                     if (element[gltf_Dict["name"]]) {
@@ -2539,7 +2585,19 @@ class GLTFRenderer extends Component {
         .then((data) => {
                 //console.log(data);
                 //console.log(this.props.gltfobj.tree);
-                this.props.gltfobj.tree = [...this.props.gltfobj.tree,...data];
+                //var myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
+                var myStateTree = this.props.gltfobj.tree;
+                myStateTree = [...myStateTree,...data];
+                //var gltfobj = { ...state.gltfobj } || { ...this.props.gltfobj }
+                var gltfobj = { ...this.props.gltfobj }
+                gltfobj.tree = myStateTree; 
+                //this.changeState = true;
+                //this.setState({gltfobj:gltfobj});
+                if(this.props.setStateOfgltf) {
+                    this.props.setStateOfgltf(gltfobj);
+                }
+                //this.props.gltfobj.tree = [...this.props.gltfobj.tree,...data];
+                                    
                 //console.log(this.props.gltfobj.tree);
         }).catch(err => {           
             console.log("Error While Loading Tree", err);
@@ -2563,14 +2621,17 @@ class GLTFRenderer extends Component {
             
             var myParentID = -1;
             var findEdges = 0;
-            for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == mynode.name) {
-                    myParentID =  this.props.gltfobj.tree[i][gltf_Dict["id"]];
+            //const myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
+            const myStateTree = this.props.gltfobj.tree;
+                
+            for (var i = 0; i < myStateTree.length; i++) {
+                if (myStateTree[i][gltf_Dict["name"]] == mynode.name) {
+                    myParentID =  myStateTree[i][gltf_Dict["id"]];
                     //myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
-                    findEdges = this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]];
+                    findEdges = myStateTree[i][gltf_Dict["subfeatures"]];
                     if(!findEdges) {
-                        if(this.props.gltfobj.tree[i][gltf_Dict["element"]]=="F"){
-                            myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
+                        if(myStateTree[i][gltf_Dict["element"]]=="F"){
+                            myParentID = myStateTree[i][gltf_Dict["parentId"]];
                         }
                     }
                     break;
@@ -2584,9 +2645,9 @@ class GLTFRenderer extends Component {
             if(myParentID != -1 && !findEdges) {
                 let featureSetStart=0;
                 if(!findEdges) {
-                    for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                        if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
-                            findEdges=this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]];
+                    for (var i = 0; i < myStateTree.length; i++) {
+                        if (myStateTree[i][gltf_Dict["parentId"]] == myParentID) {
+                            findEdges=myStateTree[i][gltf_Dict["subfeatures"]];
                             if(findEdges=="v") {
                                 featureSetStart=3;
                                 break;
@@ -2598,9 +2659,9 @@ class GLTFRenderer extends Component {
                     featureSetStart=2;
                 }
                 if(findEdges!="e" && findEdges!="v") {
-                    for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                        if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
-                            if(this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]]=="e"){
+                    for (var i = 0; i < myStateTree.length; i++) {
+                        if (myStateTree[i][gltf_Dict["parentId"]] == myParentID) {
+                            if(myStateTree[i][gltf_Dict["subfeatures"]]=="e"){
                                 findEdges="e";
                                 featureSetStart=2;
                                 //console.log("Finds already edges",i,this.props.gltfobj.tree[i],this.props.gltfobj.tree[i][gltf_Dict["parentId"]],myParentID,this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]]);
@@ -2613,9 +2674,9 @@ class GLTFRenderer extends Component {
                     featureSetStart=1;
                 }
                 if(findEdges!="f"  && findEdges!="e" && findEdges!="v") {
-                    for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                        if (this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentID) {
-                            if(this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]]=="f"){
+                    for (var i = 0; i < myStateTree.length; i++) {
+                        if (myStateTree[i][gltf_Dict["parentId"]] == myParentID) {
+                            if(myStateTree[i][gltf_Dict["subfeatures"]]=="f"){
                                 findEdges="f";
                                 featureSetStart=1;
                                 //console.log("Finds already edges",i,this.props.gltfobj.tree[i],this.props.gltfobj.tree[i][gltf_Dict["parentId"]],myParentID,this.props.gltfobj.tree[i][gltf_Dict["subfeatures"]]);
@@ -2732,12 +2793,13 @@ class GLTFRenderer extends Component {
     
     findMyParentPart = (mynode) => {
         var myParentID = -1;
-        
-        for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-            if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == mynode.name) {
-                myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];              
-                if(this.props.gltfobj.tree[i][gltf_Dict["element"]]=="P") {
-                    return this.props.gltfobj.tree[i];
+        //const myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
+        const myStateTree = this.props.gltfobj.tree;    
+        for (var i = 0; i < myStateTree.length; i++) {
+            if (myStateTree[i][gltf_Dict["name"]] == mynode.name) {
+                myParentID = myStateTree[i][gltf_Dict["parentId"]];              
+                if(myStateTree[i][gltf_Dict["element"]]=="P") {
+                    return myStateTree[i];
                 } else {
                     break;
                 }               
@@ -2748,11 +2810,11 @@ class GLTFRenderer extends Component {
             return null;
         } else {
             var myParentsParentID = -1;
-            for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                if (this.props.gltfobj.tree[i][gltf_Dict["id"]] == myParentID) {
-                    myParentsParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
-                    if(this.props.gltfobj.tree[i][gltf_Dict["element"]]=="P") {
-                        return this.props.gltfobj.tree[i];
+            for (var i = 0; i < myStateTree.length; i++) {
+                if (myStateTree[i][gltf_Dict["id"]] == myParentID) {
+                    myParentsParentID = myStateTree[i][gltf_Dict["parentId"]];
+                    if(myStateTree[i][gltf_Dict["element"]]=="P") {
+                        return myStateTree[i];
                     } else {
                         break;
                     }   
@@ -2763,10 +2825,10 @@ class GLTFRenderer extends Component {
                 //console.log("Pushing", myParentsParentID, myParentID, myID);
                 return null;
             } else {
-                for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                    if ((this.props.gltfobj.tree[i][gltf_Dict["id"]] == myParentsParentID)) {
-                        if(this.props.gltfobj.tree[i][gltf_Dict["element"]]=="P") {
-                            return this.props.gltfobj.tree[i];
+                for (var i = 0; i < myStateTree.length; i++) {
+                    if ((myStateTree[i][gltf_Dict["id"]] == myParentsParentID)) {
+                        if(myStateTree[i][gltf_Dict["element"]]=="P") {
+                            return myStateTree[i];
                         } 
                     }
                 }
@@ -2833,10 +2895,12 @@ class GLTFRenderer extends Component {
 
         var myParentID = -1;
         var myID = -1;
-        for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-            if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == mynode.name) {
-                myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
-                myID = this.props.gltfobj.tree[i][gltf_Dict["id"]];
+        //const myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
+        const myStateTree = this.props.gltfobj.tree; 
+        for (var i = 0; i < myStateTree.length; i++) {
+            if (myStateTree[i][gltf_Dict["name"]] == mynode.name) {
+                myParentID = myStateTree[i][gltf_Dict["parentId"]];
+                myID = myStateTree[i][gltf_Dict["id"]];
                 //console.log("Getting Here1",this.props.gltfobj.tree[i]);
                 break;
             }
@@ -2850,9 +2914,9 @@ class GLTFRenderer extends Component {
         var myMaterials = [];
         if (myParentID != -1) {
             var myParentsParentID = -1;
-            for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                if (this.props.gltfobj.tree[i][gltf_Dict["id"]] == myParentID) {
-                    myParentsParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
+            for (var i = 0; i < myStateTree.length; i++) {
+                if (myStateTree[i][gltf_Dict["id"]] == myParentID) {
+                    myParentsParentID = myStateTree[i][gltf_Dict["parentId"]];
                     break;
                 }
             }
@@ -2862,20 +2926,20 @@ class GLTFRenderer extends Component {
                 //console.log("Pushing", myParentsParentID, myParentID, myID);
                 myParents.push(myID);
             } else {
-                for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                    if ((this.props.gltfobj.tree[i][gltf_Dict["parentId"]] == myParentsParentID)) {
-                        myParents.push(this.props.gltfobj.tree[i][gltf_Dict["id"]]);
+                for (var i = 0; i < myStateTree.length; i++) {
+                    if ((myStateTree[i][gltf_Dict["parentId"]] == myParentsParentID)) {
+                        myParents.push(myStateTree[i][gltf_Dict["id"]]);
                     }
                 }
             }
             //console.log("MyParents",myParents);
             for (var j = 0; j < myParents.length; j++) {
                 myParentID = myParents[j];
-                for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                    if (this.props.gltfobj.tree[i][gltf_Dict["id"]] == myParentID) {
-                        var myChild = this.findMyMaterial(this.props.gltfobj.tree[i]);
+                for (var i = 0; i < myStateTree.length; i++) {
+                    if (myStateTree[i][gltf_Dict["id"]] == myParentID) {
+                        var myChild = this.findMyMaterial(myStateTree[i]);
                         if (myChild) {
-                            if ((this.props.gltfobj.tree[i][gltf_Dict["element"]]=="P") ||
+                            if ((myStateTree[i][gltf_Dict["element"]]=="P") ||
                                 (this.onlyparts(myChild.name)) ) {
                                 myMaterials.push(myChild);
                             }
@@ -3510,18 +3574,20 @@ class GLTFRenderer extends Component {
             (this.props.splitmethod != SELECTDISECTPARTS)) {
             return name;
         }
+        //const myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
+        const myStateTree = this.props.gltfobj.tree;
         var myParentID = -1;
-        for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-            if (this.props.gltfobj.tree[i][gltf_Dict["name"]] == name) {
-                myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
+        for (var i = 0; i < myStateTree.length; i++) {
+            if (myStateTree[i][gltf_Dict["name"]] == name) {
+                myParentID = myStateTree[i][gltf_Dict["parentId"]];
                 break;
             }
         }
         var myParentName = "";
         if (myParentID != -1) {
-            for (var i = 0; i < this.props.gltfobj.tree.length; i++) {
-                if (this.props.gltfobj.tree[i][gltf_Dict["id"]] == myParentID) {
-                    myParentName = this.props.gltfobj.tree[i][gltf_Dict["name"]];
+            for (var i = 0; i < myStateTree.length; i++) {
+                if (myStateTree[i][gltf_Dict["id"]] == myParentID) {
+                    myParentName = myStateTree[i][gltf_Dict["name"]];
                     break;
                 }
             }
@@ -3678,7 +3744,18 @@ class GLTFRenderer extends Component {
                             .then((data) => {
                                     //console.log(data);
                                     //console.log(this.props.gltfobj.tree);
-                                    this.props.gltfobj.tree = [...this.props.gltfobj.tree,...data];
+                                    //var myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
+                                    var myStateTree = this.props.gltfobj.tree;
+                                    myStateTree = [...myStateTree,...data];
+                                    //var gltfobj = { ...state.gltfobj } || { ...this.props.gltfobj }
+                                    var gltfobj = { ...this.props.gltfobj }
+                                    gltfobj.tree = myStateTree; 
+                                    //this.changeState = true;
+                                    //this.setState({gltfobj:gltfobj});
+                                    if(this.props.setStateOfgltf) {
+                                        this.props.setStateOfgltf(gltfobj);
+                                    }
+                                    //this.props.gltfobj.tree = [...this.props.gltfobj.tree,...data];
                                     //console.log(this.props.gltfobj.tree);
                             }).catch(err => {           
                                 console.log("Error While Loading Tree", err);
