@@ -20,6 +20,7 @@ import Box from '@material-ui/core/Box';
 
 import SelectedFeatureMenu from './SelectedFeatureMenu';
 import SelectedMatesRelation from './SelectedMatesRelation';
+import SelectedGDTMenu from './SelectedGDTMenu';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -60,7 +61,17 @@ export default function ViewerToolbar({
   toolbar,
 }) {
   const classes = useStyles();
-
+  
+  const renderTitle = (title) => {
+    return <div style={{
+                        'fontWeight': 'bold',
+                        'textAlign': 'center',
+                        'fontSize': 20
+                      }} align='center'>
+            {title}
+          </div> 
+  }
+  
   const renderToolBarButtons = () => {
     if (toolbar && splitMethod != 0) {
       return (
@@ -168,31 +179,39 @@ export default function ViewerToolbar({
 
   return (
     <>
-      <Box style={{ flex: 1 }}>
-        {renderToolBarButtons()}
-
-        <Box className={classes.tableContainer}>
-          <Paper className={classes.paper}>
-            <SelectedFeatureMenu
-              features={selectedOption != SELECTASSEMBLY}
-              featureList={
-                selectedOption != SELECTASSEMBLY
-                  ? selectedObjects
-                  : parentObjects
-              }
-            />
-          </Paper>
-          {selectedObjects?.length >= 2 &&
-            selectedOption != SELECTSOLID &&
-            selectedOption != SELECTASSEMBLY && (
+      <Box style={{ flex: 1 }} >
+       {/*renderToolBarButtons()*/}
+         {
+           
+            (selectedObjects?.length >= 2) && (selectedOption != SELECTSOLID) && (selectedOption != SELECTASSEMBLY) && (
+              <Box>
+              {renderTitle("Assembly Mates")} 
               <Paper className={classes.paper}>
                 <SelectedMatesRelation
                   mates={mates}
                   featureList={selectedObjects}
                 />
               </Paper>
-            )}
-        </Box>
+              </Box>
+            )
+           
+          }
+          <Box>
+            {renderTitle("Geometric Dimensioning and Tolerancing")}             
+            <Paper className={classes.paper}>
+              <SelectedGDTMenu
+                features={(selectedOption != SELECTASSEMBLY)}
+                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects} />
+            </Paper >
+          </Box>
+          <Box>
+            {renderTitle("Feature Identification")}
+            <Paper className={classes.paper}>
+              <SelectedFeatureMenu
+                features={(selectedOption != SELECTASSEMBLY)}
+                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects} />
+            </Paper >
+          </Box>
       </Box>
     </>
   );

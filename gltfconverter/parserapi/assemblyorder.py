@@ -335,9 +335,10 @@ class FindAssemblingOrder(object):
                 if (debugMe and holeFound==False):
                     self.writeForDebugging(commonHoleShape,tranShape,myShapeInner,myShapeOuter,myShapeInner,\
                         xmaxo-xmino+4*self.explodegap,0,0,"Top",debugMe)  
-            xminn, yminn, zminn = xminn+adirX*self.removegap, yminn+adirY*self.removegap, zminn+adirZ*self.removegap
-            checkingOuterBox = self.translateOBB(checkingBox, xminn, yminn, zminn)
-            checkOuterValue = self.checkOuter(checkingOuterBox,fullBox)
+            if (holeFound==True):
+                xminn, yminn, zminn = xminn+adirX*self.removegap, yminn+adirY*self.removegap, zminn+adirZ*self.removegap
+                checkingOuterBox = self.translateOBB(checkingBox, xminn, yminn, zminn)
+                checkOuterValue = self.checkOuter(checkingOuterBox,fullBox)
 
         if (holeFound==True) :
             if debugMe:
@@ -1108,6 +1109,25 @@ class FindAssemblingOrder(object):
         except Exception as e:
                 print("Error while writing orderfile",e) 
         return dictionary
+    
+    def writeToOrderFile(self,storename,starttime,currenttime,processed):
+        mydictionary={}
+        try:
+            mydictionary={"order":self.shapeorder,
+                "direction":self.shapesdirection,
+                "start":starttime.strftime("%H:%M:%S"),
+                "current":currenttime.strftime("%H:%M:%S"),
+                "complete":processed } 
+            try:
+                orderfile = "Display/"+storename+".order"
+                print("Writing,",orderfile)
+                with open(orderfile, 'w') as fh:
+                    fh.write(json.dumps(mydictionary, sort_keys=True, indent=2 ))
+            except Exception as e:
+                print("Error while writing orderfile",e) 
+        except Exception as e:
+                print("Error while writing orderfile",e) 
+        return mydictionary
 
     def getLastPoint(self,axisc,minp,maxp):
         if(axisc > 0):
@@ -1120,12 +1140,12 @@ class FindAssemblingOrder(object):
 
     def guessDirections(self,checkingBox,debugMe=False):
         xmin, ymin, zmin, xmax, ymax, zmax = self.myFullDimension
-        (myPositionalDirections, _,(centerX,centerY,centerZ),_,_) = checkingBox        
+        (myPositionalDirections, _,(centerX,centerY,centerZ),_,(Hx,Hy,Hz)) = checkingBox        
         myDirections=[]
-        #index=0
+        index=0
         for myDirection in myPositionalDirections:
             (axisX,axisY,axisZ) = myDirection
-            #index +=1
+            index +=1
             lastX = self.getLastPoint(axisX,xmin,xmax)
             lastY = self.getLastPoint(axisY,ymin,ymax)
             lastZ = self.getLastPoint(axisZ,zmin,zmax)
@@ -1142,7 +1162,29 @@ class FindAssemblingOrder(object):
                 firstX -= Hx
             else:
                 firstX += Hx """
-            minDistance = (firstX-lastX)*(firstX-lastX)+(firstY-lastY)*(firstY-lastY)+(firstZ-lastZ)*(firstZ-lastZ)
+            minimumdistance = -1e10
+            if axisX != 0:
+                thisdistance = (lastX-firstX) / axisX                
+                if minimumdistance < thisdistance :
+                    minimumdistance = thisdistance
+                print("axisX",thisdistance,lastX,firstX,minimumdistance)
+            #else:
+            #    print("axisX:0?",lastX,firstX,minimumdistance)
+            if axisY != 0:
+                thisdistance = (lastY-firstY) / axisY                
+                if minimumdistance < thisdistance :
+                    minimumdistance = thisdistance 
+                print("axisY",thisdistance,lastY,firstY,minimumdistance)
+            #else:
+            #    print("axisY:0?",lastY,firstY,minimumdistance)       
+            if axisZ != 0:
+                thisdistance = (lastZ-firstZ) / axisZ                
+                if minimumdistance < thisdistance :
+                    minimumdistance = thisdistance 
+                print("axisZ",thisdistance,lastZ,firstZ,minimumdistance) 
+            #else:
+            #    print("axisZ:0?",lastZ,firstZ,minimumdistance)
+            minDistance = minimumdistance # (firstX-lastX)*(firstX-lastX)+(firstY-lastY)*(firstY-lastY)+(firstZ-lastZ)*(firstZ-lastZ)
             myDirections.append((myDirection,minDistance))       
         
         lenDirections = len(myDirections)
@@ -1253,7 +1295,7 @@ class FindAssemblingOrder(object):
         directionX,directionY,directionZ = myDirections[direction]
         return directionX*displacement, directionY*displacement, directionZ*displacement       
     
-    def threadAssembling(self,sourceFileName,distancegap,anglegap,animationtime,starttime,debugMe):
+    def threadAssembling(self,sourceFileName,distancegap,anglegap,animationtime,starttime,storename,debugMe):
         try:
             if self.logging != None and self.byThread:
                 self.logging.info("Started thread assembling") 
@@ -1274,8 +1316,8 @@ class FindAssemblingOrder(object):
             while k < lenShape:
                 currenttime = datetime.now()
                 timingdelta = currenttime-previoustime
-                if timingdelta.seconds > 5:
-                    dictionary = self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,k)  
+                if (timingdelta.seconds > 5) and (self.byThread):
+                    self.writeToOrderFile(storename,starttime,currenttime,k)  
                     previoustime=currenttime
                   
                 enclosed = False
@@ -1563,10 +1605,11 @@ class FindAssemblingOrder(object):
             currenttime=datetime.now()             
             if bythread:
                 dictionary=self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,0)                
-                mythread = threading.Thread(target=self.threadAssembling,args=(sourceFileName,distancegap,anglegap,animationtime,starttime,debugMe))
+                mythread = threading.Thread(target=self.threadAssembling,\
+                    args=(sourceFileName,distancegap,anglegap,animationtime,starttime,dictionary["store"],debugMe))
                 mythread.start()
             else:
-                dictionary = self.threadAssembling(sourceFileName,distancegap,anglegap,animationtime,starttime,debugMe)       
+                dictionary = self.threadAssembling(sourceFileName,distancegap,anglegap,animationtime,starttime,None,debugMe)       
         except Exception as e:
             print("Error in Exploding Parts",e)   
         return dictionary

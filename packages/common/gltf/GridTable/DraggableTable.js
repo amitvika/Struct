@@ -54,7 +54,7 @@ class DraggableTable extends React.PureComponent {
      
   };
   
-  static getDerivedStateFromProps(props, current_state) {
+  /* static getDerivedStateFromProps(props, current_state) {
     console.log("current state",props,current_state);
     if (current_state.data !== props.data && current_state.changedata==false) {
       return {
@@ -67,7 +67,15 @@ class DraggableTable extends React.PureComponent {
       }
     }
     return null;
+  } */
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log("current state",prevProps,prevState);  
+    if(prevProps.data != this.props.data) {
+      this.setState({data:this.props.data});
+    } 
   }
+
   getContainer = () => {
     return this.table.current.getDOMNode().querySelector('.BaseTable__body')
   }

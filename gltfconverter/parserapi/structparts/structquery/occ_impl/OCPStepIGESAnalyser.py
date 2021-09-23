@@ -1514,7 +1514,7 @@ class StepIgesAnalyser():
             list_of_compounds=[]
             only_soilds = []
             only_Colors=[(parentColor.Red(),parentColor.Green(),parentColor.Blue())]
-            print("No of Faces",len(faces_dict))
+            print("\t"*self.indent,"No of Faces",len(faces_dict))
             if len(faces_dict) > self.multiplegltf/3:
                 doCompact = True            
             for hash_solidface, solidface in faces_dict.items(): 
@@ -1560,7 +1560,7 @@ class StepIgesAnalyser():
                     #print(hashcode,localTransform)
             if doCompact:                
                 len_color_arr = len(only_Colors)
-                print("No of colors found",len_color_arr,"Faces",len(faces_dict))
+                print("\t"*self.indent,"No of colors found",len_color_arr,"Faces",len(faces_dict))
                 if (len_color_arr<=2) or doParts or (len(faces_dict) > self.multiplegltf):
                     (R,G,B)=only_Colors[len_color_arr-1]
                     #print("Colors",R,G,B,len_color_arr,len(only_soilds))
@@ -1652,7 +1652,9 @@ class StepIgesAnalyser():
             if(SubLengthHere==0):
                 print("Skipping",SubLengthHere,self.indent)
             for i in range(SubLengthHere):
-                print("Processing",i,SubLengthHere,self.indent)
+                printindent = "\t" * self.indent
+                printoutput = f"{printindent}Processing{i}{SubLengthHere}{self.indent}"
+                print(printoutput)
                 #print("I have reached here 3")
                 subLabelFromComponents = subComponentsFromParent.Value(i+1)
                 subLabelEntry = subLabelFromComponents.EntryDumpToString()
@@ -1737,7 +1739,7 @@ class StepIgesAnalyser():
                     #myFaceType=[]
                     #print(shape_faces)
                     toAddFaces = (disect_type=="PART")
-                    print("No of subparts",len(shape_compounds))
+                    print("\t"*self.indent,"No of subparts",len(shape_compounds))
                     parentIDNotAdded = True
                     for shape_disp,faceColor,shapeInFile in shape_compounds:
                         #print("I have reached here 16")
