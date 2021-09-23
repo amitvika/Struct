@@ -1,177 +1,180 @@
-import React, { useState, useEffect } from "react";
-import {
-	Button
-} from "@material-ui/core";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@material-ui/core';
 
-import ThreejsViewModal from '../ThreejsViewModal'
+import ThreejsViewModal from '../ThreejsViewModal';
 import AddLineItem from './AddLineItem';
 import AssemblySequenceNumber from './AssemblySequenceNumber';
 import ConfigureItemAssembly from './ConfigureItemAssemblyModal';
 import ItemSelectionModal from '../ItemSelectionModal';
-import ProcessAPI from '@ravibasil/common/api/process.api';
+import ProcessAPI from '@monostruct/common/api/process.api';
 
 export default function Assembly(props) {
-	const [assemblyProcessData, setAssemblyProcessData] = useState('');
-	const [isThreejsVisible, setIsThreejsVisible] = useState(false);
+  const [assemblyProcessData, setAssemblyProcessData] = useState('');
+  const [isThreejsVisible, setIsThreejsVisible] = useState(false);
 
-	const [assemblySequenceList, setAssemblySequenceList] = useState([]);
-	const [selectedAssemblySequence, setSelectedAssemblySequence] = useState(null);
-	const [isAssemblySequenceSynced, setIsAssemblySequenceSynced] = useState(true);
+  const [assemblySequenceList, setAssemblySequenceList] = useState([]);
+  const [selectedAssemblySequence, setSelectedAssemblySequence] =
+    useState(null);
+  const [isAssemblySequenceSynced, setIsAssemblySequenceSynced] =
+    useState(true);
 
-	useEffect(() => {
-		ProcessAPI.getProcessData(props.processId)
-			.then(res => {
-				if (res.data) {
-					setAssemblyProcessData(res.data)
-				}
+  useEffect(() => {
+    ProcessAPI.getProcessData(props.processId)
+      .then((res) => {
+        if (res.data) {
+          setAssemblyProcessData(res.data);
+        }
 
-				if (res.data.assemblySequences) {
-					setAssemblySequenceList(res.data.assemblySequences)
-				}
-			})
-			.catch(error => {
+        if (res.data.assemblySequences) {
+          setAssemblySequenceList(res.data.assemblySequences);
+        }
+      })
+      .catch((error) => {});
+  }, [props.processId]);
 
-			})
+  const addItemToAssembly = () => {
+    let maxCount = 0;
+    if (assemblySequenceList.length > 0) {
+      maxCount = Math.max.apply(
+        Math,
+        assemblySequenceList.map(function (o) {
+          return o.orderNumber;
+        })
+      );
+    }
 
-	}, [props.processId]);
+    const updateAssemblySequence = [
+      ...assemblySequenceList,
+      { orderNumber: maxCount + 1 },
+    ];
 
-	const addItemToAssembly = () => {
+    syncProcessData({ assemblySequences: updateAssemblySequence });
+  };
 
-		let maxCount = 0;
-		if (assemblySequenceList.length > 0) {
-			maxCount = Math.max.apply(Math, assemblySequenceList.map(function (o) { return o.orderNumber; }))
-		}
+  const deleteAssemblySequence = (sequenceId) => {
+    const updateAssemblySequence = assemblySequenceList
+      .filter((sequence) => sequence._id !== sequenceId)
+      .map((sequence, index) => ({ ...sequence, orderNumber: index + 1 }));
 
-		const updateAssemblySequence = [...assemblySequenceList, { orderNumber: maxCount + 1 }]
+    syncProcessData({ assemblySequences: updateAssemblySequence });
+  };
 
-		syncProcessData({ assemblySequences: updateAssemblySequence });
-	}
+  const handleUpdateAssemblySequence = (updatedData) => {
+    const updateAssemblySequence = assemblySequenceList.map((sequence) => {
+      if (sequence._id === selectedAssemblySequence._id) {
+        return { ...sequence, ...updatedData };
+      } else {
+        return sequence;
+      }
+    });
 
-	const deleteAssemblySequence = (sequenceId) => {
-		const updateAssemblySequence = assemblySequenceList
-			.filter(sequence => sequence._id !== sequenceId)
-			.map((sequence, index) => ({ ...sequence, orderNumber: index + 1 }));
+    setSelectedAssemblySequence((prevState) => ({
+      ...prevState,
+      ...updatedData,
+    }));
+    setAssemblySequenceList(updateAssemblySequence);
+    setIsAssemblySequenceSynced(false);
+  };
 
-		syncProcessData({ assemblySequences: updateAssemblySequence });
-	}
+  const syncProcessData = (updatedData) => {
+    if (updatedData.assemblySequences) {
+      updatedData.assemblySequences = updatedData?.assemblySequences.map(
+        (sequenceItem) => ({
+          ...sequenceItem,
+          itemId: sequenceItem?.itemId?._id,
+        })
+      );
+    } else {
+      updatedData.assemblySequences = [];
+    }
+    ProcessAPI.updateProcessData(props.processId, updatedData)
+      .then((res) => {
+        console.log('Response', res);
+        if (res.data) {
+          setAssemblyProcessData(res.data);
+        }
 
+        if (res.data.assemblySequences) {
+          setAssemblySequenceList(res.data.assemblySequences);
+          setIsAssemblySequenceSynced(true);
+        }
+      })
+      .catch((error) => {
+        console.log('error', error);
+      });
+  };
 
-	const handleUpdateAssemblySequence = (updatedData) => {
-		const updateAssemblySequence = assemblySequenceList
-			.map(sequence => {
-				if (sequence._id === selectedAssemblySequence._id) {
-					return { ...sequence, ...updatedData };
-				}
-				else {
-					return sequence
-				}
-			});
+  const [
+    isConfigureItemAssemblyModalOpen,
+    setIsConfigureItemAssemblyModalOpen,
+  ] = useState(false);
 
+  const toggleConfigureItemAssembly = (assemblySequence) => {
+    if (!isAssemblySequenceSynced) {
+      syncProcessData({ assemblySequences: assemblySequenceList });
+    }
 
-		setSelectedAssemblySequence(prevState => ({ ...prevState, ...updatedData }))
-		setAssemblySequenceList(updateAssemblySequence)
-		setIsAssemblySequenceSynced(false);
-	}
+    if (isConfigureItemAssemblyModalOpen) {
+      setSelectedAssemblySequence(null);
+    } else {
+      setSelectedAssemblySequence(assemblySequence);
+    }
+    setIsConfigureItemAssemblyModalOpen(!isConfigureItemAssemblyModalOpen);
+  };
 
-	const syncProcessData = (updatedData) => {
-		if (updatedData.assemblySequences) {
-			updatedData.assemblySequences = updatedData?.assemblySequences
-				.map(sequenceItem => ({ ...sequenceItem, itemId: sequenceItem?.itemId?._id }))
-		}
-		else {
-			updatedData.assemblySequences = [];
-		}
-		ProcessAPI.updateProcessData(props.processId, updatedData)
-			.then(res => {
-				console.log('Response', res)
-				if (res.data) {
-					setAssemblyProcessData(res.data)
-				}
+  const [isItemSelectionModalOpen, setIsItemSelectionModalOpen] =
+    useState(false);
+  const toggleItemSelection = () => {
+    setIsItemSelectionModalOpen(!isItemSelectionModalOpen);
+  };
 
-				if (res.data.assemblySequences) {
-					setAssemblySequenceList(res.data.assemblySequences)
-					setIsAssemblySequenceSynced(true);
-				}
-			})
-			.catch(error => {
-				console.log('error', error)
-			})
-	}
+  return (
+    <div>
+      <ThreejsViewModal
+        isVisible={isThreejsVisible}
+        setIsThreejsVisible={setIsThreejsVisible}
+        assemblyProcessData={assemblyProcessData}
+      />
 
-	const [isConfigureItemAssemblyModalOpen, setIsConfigureItemAssemblyModalOpen] = useState(false);
+      <ConfigureItemAssembly
+        toggleConfigureItemAssembly={toggleConfigureItemAssembly}
+        isConfigureItemAssemblyModalOpen={isConfigureItemAssemblyModalOpen}
+        toggleItemSelection={toggleItemSelection}
+        handleUpdateAssemblySequence={handleUpdateAssemblySequence}
+        selectedAssemblySequence={selectedAssemblySequence}
+      />
 
-	const toggleConfigureItemAssembly = (assemblySequence) => {
+      <ItemSelectionModal
+        selectedAssemblySequence={selectedAssemblySequence}
+        toggleItemSelection={toggleItemSelection}
+        isItemSelectionModalOpen={isItemSelectionModalOpen}
+        handleUpdateAssemblySequence={handleUpdateAssemblySequence}
+      />
 
-		if (!isAssemblySequenceSynced) {
-			syncProcessData({ assemblySequences: assemblySequenceList })
-		}
+      <AddLineItem {...props} assemblyProcessData={assemblyProcessData} />
 
-		if (isConfigureItemAssemblyModalOpen) {
-			setSelectedAssemblySequence(null);
-		}
-		else {
-			setSelectedAssemblySequence(assemblySequence);
-		}
-		setIsConfigureItemAssemblyModalOpen(!isConfigureItemAssemblyModalOpen);
-
-	}
-
-	const [isItemSelectionModalOpen, setIsItemSelectionModalOpen] = useState(false);
-	const toggleItemSelection = () => {
-		setIsItemSelectionModalOpen(!isItemSelectionModalOpen)
-	}
-
-
-	return (
-		<div>
-			<ThreejsViewModal
-				isVisible={isThreejsVisible}
-				setIsThreejsVisible={setIsThreejsVisible}
-				assemblyProcessData={assemblyProcessData} />
-
-			<ConfigureItemAssembly
-				toggleConfigureItemAssembly={toggleConfigureItemAssembly}
-				isConfigureItemAssemblyModalOpen={isConfigureItemAssemblyModalOpen}
-				toggleItemSelection={toggleItemSelection}
-				handleUpdateAssemblySequence={handleUpdateAssemblySequence}
-				selectedAssemblySequence={selectedAssemblySequence}
-			/>
-
-			<ItemSelectionModal
-				selectedAssemblySequence={selectedAssemblySequence}
-				toggleItemSelection={toggleItemSelection}
-				isItemSelectionModalOpen={isItemSelectionModalOpen}
-				handleUpdateAssemblySequence={handleUpdateAssemblySequence}
-			/>
-
-			<AddLineItem
-				{...props}
-				assemblyProcessData={assemblyProcessData} />
-
-			{
-				assemblySequenceList.map(asnItem => {
-					return (
-						<AssemblySequenceNumber
-							data={asnItem}
-							toggleConfigureItemAssembly={toggleConfigureItemAssembly}
-							isConfigureItemAssemblyModalOpen={isConfigureItemAssemblyModalOpen}
-							deleteAssemblySequence={deleteAssemblySequence}
-							handleUpdateAssemblySequence={handleUpdateAssemblySequence}
-						/>
-					)
-				})
-			}
-			<div style={{ margin: '10px' }}>
-
-				<Button
-					style={{ width: '100%' }}
-					size="large"
-					variant="contained"
-					color="primary"
-					onClick={() => addItemToAssembly()}>
-					Add Item to Assembly
-            </Button>
-			</div>
-		</div>
-	);
+      {assemblySequenceList.map((asnItem) => {
+        return (
+          <AssemblySequenceNumber
+            data={asnItem}
+            toggleConfigureItemAssembly={toggleConfigureItemAssembly}
+            isConfigureItemAssemblyModalOpen={isConfigureItemAssemblyModalOpen}
+            deleteAssemblySequence={deleteAssemblySequence}
+            handleUpdateAssemblySequence={handleUpdateAssemblySequence}
+          />
+        );
+      })}
+      <div style={{ margin: '10px' }}>
+        <Button
+          style={{ width: '100%' }}
+          size="large"
+          variant="contained"
+          color="primary"
+          onClick={() => addItemToAssembly()}
+        >
+          Add Item to Assembly
+        </Button>
+      </div>
+    </div>
+  );
 }

@@ -4,7 +4,7 @@ import { NavLink, useHistory, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Spinner } from 'reactstrap';
 
-import FactoriesAPI from '@ravibasil/common/api/factories.api';
+import FactoriesAPI from '@monostruct/common/api/factories.api';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 
 import BaseFactorySetup from './baseFactorySetup';
@@ -17,8 +17,8 @@ import './style.css';
 
 import get from 'lodash/get';
 import { useQuery } from 'src/utils/customHooks';
-import TabContainer from '@ravibasil/common/components/TabContainer';
-import TabPanelContainer from '@ravibasil/common/components/TabPanelContainer';
+import TabContainer from '@monostruct/common/components/TabContainer';
+import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 
 const FactoriesDetail = () => {
   let { id } = useParams();

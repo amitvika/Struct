@@ -1,18 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Headding from '@ravibasil/common/components/atoms/Headding';
-import Select from '@ravibasil/common/components/atoms/Select';
-import Input from '@ravibasil/common/components/atoms/Input';
+import Headding from '@monostruct/common/components/atoms/Headding';
+import Select from '@monostruct/common/components/atoms/Select';
+import Input from '@monostruct/common/components/atoms/Input';
 
-export default function DynamicCriteria({
-  currentCrieteriaValue,
-  criteriaFields,
-}) {
+export default function DynamicCriteria({ selectedField, criteriaFields }) {
   const renderFields = (fields) => {
     return fields.map((fieldItem) => {
       return (
-        <Grid container spacing={2} container key={fieldItem.fieldName}>
+        <Grid container spacing={2} key={fieldItem.fieldName}>
           <Grid item xs={4}>
             <Headding bold title={fieldItem.fieldName} />
           </Grid>
@@ -42,12 +39,11 @@ export default function DynamicCriteria({
   };
 
   const renderCriteria = () => {
-    console.log(currentCrieteriaValue, criteriaFields)
-    if (currentCrieteriaValue && criteriaFields[currentCrieteriaValue]) {
-      let { fields = [], criteriaTitle = '' } = criteriaFields[currentCrieteriaValue];
+    if (selectedField && criteriaFields[selectedField]) {
+      let { fields = [], criteriaTitle = '' } = criteriaFields[selectedField];
       return (
         <Paper style={{ padding: 20, margin: 10 }}>
-          <Headding style={{fontSize: 24}}>{criteriaTitle}</Headding>
+          <Headding style={{ fontSize: 24 }}>{criteriaTitle}</Headding>
           {renderFields(fields)}
         </Paper>
       );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Component } from 'react';
 
-import { gltf_Dict } from '@ravibasil/common/gltf/Tree/utils';
+import { gltf_Dict } from '@monostruct/common/gltf/Tree/utils';
 
 import ToysOutlinedIcon from '@material-ui/icons/ToysOutlined';
 import FilterDramaSharpIcon from '@material-ui/icons/FilterDramaSharp';

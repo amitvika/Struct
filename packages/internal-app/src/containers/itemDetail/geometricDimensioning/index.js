@@ -6,7 +6,7 @@ import {
 } from "@material-ui/core"
 import Viewer from './Viewer';
 import ViewerToolbar from './ViewerToolbar';
-import { getShapeInfo } from '@ravibasil/common/api/fileUpload.api'
+import {  getShapeInfo } from '@monostruct/common/api/fileUpload.api'
 import {
   SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
   DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,
@@ -15,7 +15,7 @@ import {
   SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER, SELECTMEASURE,
   SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE,
   SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray, gltf_Dict
-} from "@ravibasil/common/gltf/Tree/utils";
+} from "@monostruct/common/gltf/Tree/utils";
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup  from '@material-ui/core/RadioGroup';

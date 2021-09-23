@@ -7,34 +7,35 @@ import {
   LOGIN_SUCCESS,
   LOGOUT_SUCCESS,
   REGISTER_FAIL,
-  REGISTER_SUCCESS
-} from "./types";
-import { returnErrors } from "./errorActions";
-import store from "../store";
-import { loginApi, registrationApi, loadUserApi } from '@ravibasil/common/api/auth';
+  REGISTER_SUCCESS,
+} from './types';
+import { returnErrors } from './errorActions';
+import store from '../store';
+import {
+  loginApi,
+  registrationApi,
+  loadUserApi,
+} from '@monostruct/common/api/auth';
 
 export const setUser = () => (dispatch, getState) => {
-    dispatch({ type: 'USER_REFRESH' });
-  };
+  dispatch({ type: 'USER_REFRESH' });
+};
 
 export const loadUser = () => (dispatch, getState) => {
   dispatch({ type: USER_LOADING }); //sets idloading to true
 
-  loadUserApi()
-    .then(res => {
-      if (res && res.data) {
-
-        dispatch({
-          type: USER_LOADED,
-          payload: res.data
-        })
-      }
-      else {
-        dispatch({
-          type: AUTH_ERROR
-        });
-      }
-    })
+  loadUserApi().then((res) => {
+    if (res && res.data) {
+      dispatch({
+        type: USER_LOADED,
+        payload: res.data,
+      });
+    } else {
+      dispatch({
+        type: AUTH_ERROR,
+      });
+    }
+  });
   // .catch(err => {
   //   console.log('---->>>', err)
 
@@ -42,64 +43,61 @@ export const loadUser = () => (dispatch, getState) => {
 };
 
 //Register User
-export const register = (data) => dispatch => {
-
+export const register = (data) => (dispatch) => {
   registrationApi(data)
-    .then(res =>
+    .then((res) =>
       dispatch({
         type: REGISTER_SUCCESS,
-        payload: res.data
+        payload: res.data,
       })
     )
     .then(() => store.dispatch(loadUser()))
-    .catch(err => {
+    .catch((err) => {
       dispatch(
-        returnErrors(err.response.data, err.response.status, "REGISTER_FAIL")
+        returnErrors(err.response.data, err.response.status, 'REGISTER_FAIL')
       );
       dispatch({
-        type: REGISTER_FAIL
+        type: REGISTER_FAIL,
       });
     });
 };
 
 export const logout = () => {
   return {
-    type: LOGOUT_SUCCESS
+    type: LOGOUT_SUCCESS,
   };
 };
 
-export const login = (data) => dispatch => {
-
+export const login = (data) => (dispatch) => {
   dispatch({
-    type: LOGIN_START
-  })
+    type: LOGIN_START,
+  });
 
   loginApi(data)
-    .then(res => {
+    .then((res) => {
       dispatch({
         type: LOGIN_SUCCESS,
-        payload: res.data //this is the response from the server
-      })
-    }
-    )
-    .catch(err => {
+        payload: res.data, //this is the response from the server
+      });
+    })
+    .catch((err) => {
       // returnErrors(err.response.data, err.response.status, "LOGIN_FAIL");
       dispatch({
-        type: LOGIN_FAIL
+        type: LOGIN_FAIL,
       });
     });
 };
 
 //setup config/headers and token
-export const tokenConfig = getState => {
+export const tokenConfig = (getState) => {
   const token = getState().auth.token; //getting the token from localstorage
   const config = {
     headers: {
-      "Content-type": "application/json"
-    }
+      'Content-type': 'application/json',
+    },
   }; //add token to headers
   if (token) {
-    config.headers["x-auth-token"] = token;
+    config.headers['x-auth-token'] = token;
   }
   return config;
 };

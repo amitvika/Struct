@@ -1,442 +1,551 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import {
-    Button,
-    Snackbar,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Icon,
-} from "@material-ui/core";
+  Button,
+  CircularProgress,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Icon,
+  Typography,
+  IconButton,
+} from '@material-ui/core';
 import { Tooltip } from 'reactstrap';
 import Grid from '@material-ui/core/Grid';
 
-import Select from '@ravibasil/common/components/atoms/Select';
-import Input from '@ravibasil/common/components/atoms/Input';
-import Headding from '@ravibasil/common/components/atoms/Headding';
+import Select from '@monostruct/common/components/atoms/Select';
+import Input from '@monostruct/common/components/atoms/Input';
+import Headding from '@monostruct/common/components/atoms/Headding';
 import MaterialModal from './MaterialModal';
 import MaterialPropertiesModal from './MaterialPropertiesModal';
+import { FileUpload } from '@monostruct/common/components';
+// import FileHistory from '@monostruct/common/containers/FileHistory';
+import ExportLogo from '../../../assets/images/export.png';
+import { download } from '@monostruct/common/api/fileUpload.api';
+import LoadingModal from '@monostruct/common/components/LoadingModal';
 
-export default function GeometryInput({ itemProperties = {}, setItemProperties }) {
-    const [tooltipOpen, setTooltipOpen] = useState(false);
-    const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
+export default function GeometryInput({
+  itemProperties = {},
+  setItemProperties,
+  setFileName,
+  fileName,
+  handleFileUpload,
+  itemId,
+  isLoading,
+}) {
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  // const [fileId, setFileId] = useState(0);
 
-    const itemGeometry = itemProperties.itemGeometry || {}
+  const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
 
-    const [materialProperties, setMaterialProperties] = useState({});
-    const [selectedMaterials, setSelectedMaterials] = useState(itemGeometry.materials || []);
-    // const [materialSelected, ]
+  const itemGeometry = itemProperties.itemGeometry || {};
 
-    const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
-    const toggleMaterial = () => {
-        setIsMaterialModalOpen(prevValue => {
-            return !prevValue;
-        })
-    }
+  const [materialProperties, setMaterialProperties] = useState({});
+  const [selectedMaterials, setSelectedMaterials] = useState(
+    itemGeometry.materials || []
+  );
+  // const [materialSelected, ]
+  console.log('item Properties. file store', itemProperties.fileStore);
+  const handleExportButton = () => {
+    download(itemProperties.fileStore);
+  };
 
-    const [isMaterialPropertiesModalOpen, setIsMaterialPropertiesModalOpen] = useState(false);
-    const toggleMaterialProperties = () => {
-        setIsMaterialPropertiesModalOpen(prevValue => {
-            return !prevValue;
-        })
-    }
+  const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
+  const toggleMaterial = () => {
+    setIsMaterialModalOpen((prevValue) => {
+      return !prevValue;
+    });
+  };
 
-    const handleMaterialPropertieView = (material) => {
-        setIsMaterialPropertiesModalOpen(true);
-        setMaterialProperties(material);
-    }
+  const [isMaterialPropertiesModalOpen, setIsMaterialPropertiesModalOpen] =
+    useState(false);
+  const toggleMaterialProperties = () => {
+    setIsMaterialPropertiesModalOpen((prevValue) => {
+      return !prevValue;
+    });
+  };
 
-    const handleOnChange = (name, value) => {
-        setItemProperties(prevData => ({
-            ...prevData,
-            itemGeometry: {
-                ...itemGeometry,
-                [name]: value
-            }
-        }))
-    }
+  const handleMaterialPropertieView = (material) => {
+    setIsMaterialPropertiesModalOpen(true);
+    setMaterialProperties(material);
+  };
 
-    useEffect(() => {
-        setItemProperties(prevProps => {
-            return {
-                ...prevProps,
-                itemGeometry: {
-                    ...itemGeometry,
-                    materials: selectedMaterials
-                }
-            }
-        })
-        return () => {
+  const handleOnChange = (name, value) => {
+    setItemProperties((prevData) => ({
+      ...prevData,
+      itemGeometry: {
+        ...itemGeometry,
+        [name]: value,
+      },
+    }));
+  };
 
-        }
-    }, [selectedMaterials])
+  useEffect(() => {
+    setItemProperties((prevProps) => {
+      return {
+        ...prevProps,
+        itemGeometry: {
+          ...itemGeometry,
+          materials: selectedMaterials,
+        },
+      };
+    });
+    return () => {};
+  }, [selectedMaterials]);
 
-    return (
-        <Paper style={{ padding: 20, margin: 10 }}>
-            {isMaterialModalOpen && <MaterialModal
-                toggleMaterial={toggleMaterial}
-                isMaterialModalOpen={isMaterialModalOpen}
-                materialProperties={materialProperties}
-                handleMaterialPropertieView={handleMaterialPropertieView}
-                selectedMaterials={selectedMaterials}
-                itemProperties={itemProperties}
-                setItemProperties={setItemProperties}
-                setSelectedMaterials={setSelectedMaterials}
-            />}
-            {isMaterialPropertiesModalOpen && <MaterialPropertiesModal
-                toggleMaterialProperties={toggleMaterialProperties}
-                isMaterialPropertiesModalOpen={isMaterialPropertiesModalOpen}
-                materialProperties={materialProperties}
-                setMaterialProperties={setMaterialProperties}
-            />}
-            <Headding fontSize={24} bold title={'Item Properties'} />
+  return (
+    <div style={{ margin: 10 }}>
+      <LoadingModal isLoading={isLoading} />
+      {isMaterialModalOpen && (
+        <MaterialModal
+          toggleMaterial={toggleMaterial}
+          isMaterialModalOpen={isMaterialModalOpen}
+          materialProperties={materialProperties}
+          handleMaterialPropertieView={handleMaterialPropertieView}
+          selectedMaterials={selectedMaterials}
+          itemProperties={itemProperties}
+          setItemProperties={setItemProperties}
+          setSelectedMaterials={setSelectedMaterials}
+        />
+      )}
+      {isMaterialPropertiesModalOpen && (
+        <MaterialPropertiesModal
+          toggleMaterialProperties={toggleMaterialProperties}
+          isMaterialPropertiesModalOpen={isMaterialPropertiesModalOpen}
+          materialProperties={materialProperties}
+          setMaterialProperties={setMaterialProperties}
+        />
+      )}
+      <Paper style={{ padding: 20, margin: 10 }} variant="outlined" square>
+        <Grid className="section-padding-left" container spacing={4}>
+          <Grid item xs={12}>
+            <Typography
+              variant={'h4'}
+              style={{
+                fontSize: 'xxLarge',
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}
+            >
+              Item Properties
+            </Typography>
+          </Grid>
 
-            <Paper style={{ padding: 20, margin: 10 }}>
-                <Grid className="section-padding-left" container spacing={4}>
-                    <Grid item xs={4}>
-                        <Headding fontSize={20} bold title={'Item Material'} />
-                    </Grid>
-                    <Grid item xs={8} >
-                        <Button
-                            size="large"
-                            variant="contained"
-                            color="primary"
-                            disabled={itemProperties.assemblyType === 'Multi-Item Assembly'}
-                            onClick={toggleMaterial}>
-                            Select Material
-                        </Button>
-                    </Grid>
+          <Grid item xs={12} style={{ display: 'flex' }}>
+            <Typography variant="h5" 
+             style={{
+              fontSize: 'xxLarge',
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}>
+              Design Source
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12}>
+            {!itemProperties.fileStore && (
+              <>
+                <Typography variant="h6">Upload Cad</Typography>
+                <FileUpload
+                  fileName={fileName}
+                  setFileName={setFileName}
+                  handleFileUpload={handleFileUpload}
+                  itemId={itemId}
+                />
+              </>
+            )}
+
+            {itemProperties.fileStore && (
+              <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                <Typography variant="h6" style={{ color: 'blue' }}>
+                  {itemProperties.fileStore}
+                </Typography>
+                <IconButton margin="auto" onClick={handleExportButton}>
+                  <img
+                    src={ExportLogo}
+                    style={{ width: '20px', paddingTop: '2px' }}
+                    alt="pictur"
+                  />
+                </IconButton>
+              </div>
+            )}
+          </Grid>
+          {/* <FileHistory selectedFileName={fileName} link_id={fileId.id} /> */}
+
+          <Grid item xs={4}>
+            <Typography variant="h6">
+              {'Single Item Part or Multi-Item Assembly'}{' '}
+            </Typography>
+          </Grid>
+          <Grid item xs={8}>
+            <span>{itemProperties.assemblyType}</span>
+          </Grid>
+
+          <Grid item xs={4}>
+            <Typography variant="h6">Item Type</Typography>
+          </Grid>
+          <Grid item xs={8}>
+            <Select
+              placeholder="Select"
+              options={[
+                {
+                  label: 'Machine - Compound/Tool/Workholding',
+                  value: 'Machine - Compound/Tool/Workholding',
+                },
+                { label: 'Unassembled Kit', value: 'Unassembled Kit' },
+                {
+                  label: 'Structure and/or Facade',
+                  value: 'Any Other Object/Item',
+                },
+                { label: 'Building', value: 'Building' },
+              ]}
+              onChange={(data) => handleOnChange('itemType', data.value)}
+              value={itemGeometry.itemType && { label: itemGeometry.itemType }}
+            />
+          </Grid>
+
+          {itemGeometry.itemType === 'Any Other Object/Item' && (
+            <>
+              <Grid item xs={4} style={{ display: 'flex' }}>
+                <Headding bold title={'Item Category'}></Headding>
+                <Icon style={{ marginLeft: '18px' }} id="TooltipExample">
+                  info
+                </Icon>
+                <Tooltip
+                  placement="top"
+                  isOpen={tooltipOpen}
+                  target="TooltipExample"
+                  toggle={toggleTooltip}
+                >
+                  This allows for selection of the general geometry or matter
+                  state of the item. The downstream impacts include how the item
+                  is handled and transported within Struct Production Systems
+                </Tooltip>
+              </Grid>
+              <Grid item xs={8}>
+                <Select
+                  // label="General Geometry"
+                  placeholder="Select"
+                  options={[
+                    { label: ' Solid', value: ' Solid' },
                     {
-                        selectedMaterials.length > 0 &&
-                        (
-                            <Grid item xs={12}>
-                                <Headding bold title={'Selected Materials'} />
-
-                                <TableContainer className="mb-2" component={Paper}>
-                                    <Table aria-label="simple table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>S No</TableCell>
-                                                <TableCell>Material Name</TableCell>
-                                                <TableCell></TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {
-                                                selectedMaterials.map(materialRow => (
-                                                    <TableRow
-                                                        key={materialRow._id}
-                                                    >
-                                                        <TableCell>{materialRow._id}</TableCell>
-                                                        <TableCell >
-                                                            {materialRow.name}
-                                                        </TableCell>
-                                                        <TableCell style={{ cursor: 'pointer' }} onClick={() => handleMaterialPropertieView(materialRow)}>View Material Properties</TableCell>
-                                                    </TableRow>
-                                                ))
-                                            }
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </Grid>
-                        )
+                      label: 'Bulk Powder/Particles/Grains',
+                      value: 'Bulk Powder/Particles/Grains',
+                    },
+                    { label: 'Liquid', value: 'Liquid' },
+                    { label: 'Gas', value: 'Gas' },
+                  ]}
+                  onChange={(data) =>
+                    handleOnChange('generalGeomerty', data.value)
+                  }
+                  value={
+                    itemGeometry.generalGeomerty && {
+                      label: itemGeometry.generalGeomerty,
                     }
+                  }
+                />
+              </Grid>
+            </>
+          )}
 
-                </Grid>
-            </Paper>
+          {itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' && (
+            <>
+              <Grid item xs={4}>
+                <Headding bold title={'Mixture'} />
+              </Grid>
+              <Grid item xs={8}>
+                <Select
+                  // label="Mixture"
+                  placeholder="Select"
+                  options={[
+                    { label: 'Yes', value: 'Yes' },
+                    { label: 'No', value: 'No' },
+                  ]}
+                  onChange={(data) => handleOnChange('mixture', data.value)}
+                  value={
+                    itemGeometry.mixture && { label: itemGeometry.mixture }
+                  }
+                />
+              </Grid>
+            </>
+          )}
+        </Grid>
+        <Grid className="section-padding-left" container spacing={4}>
+          <Grid item xs={4}>
+            <Headding fontSize={20} bold title={'Item Material'} />
+          </Grid>
+          <Grid item xs={8}>
+            <Button
+              size="large"
+              variant="contained"
+              color="primary"
+              disabled={itemProperties.assemblyType === 'Multi-Item Assembly'}
+              onClick={toggleMaterial}
+            >
+              Select Material
+            </Button>
+          </Grid>
+          {selectedMaterials.length > 0 && (
+            <Grid item xs={12}>
+              <Headding bold title={'Selected Materials'} />
 
-            <Paper style={{ padding: 20, margin: 10 }}>
-                <Grid className="section-padding-left" container spacing={4}>
-                    <Grid item xs={12}>
-                        <Headding fontSize={20} bold title={'Item Category Details'} />
-                    </Grid>
+              <TableContainer className="mb-2" component={Paper}>
+                <Table aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>S No</TableCell>
+                      <TableCell>Material Name</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {selectedMaterials.map((materialRow) => (
+                      <TableRow key={materialRow._id}>
+                        <TableCell>{materialRow._id}</TableCell>
+                        <TableCell>{materialRow.name}</TableCell>
+                        <TableCell
+                          style={{ cursor: 'pointer' }}
+                          onClick={() =>
+                            handleMaterialPropertieView(materialRow)
+                          }
+                        >
+                          View Material Properties
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Grid>
+          )}
+        </Grid>
+      </Paper>
 
-                    <Grid item xs={4}>
-                        <Headding bold title={'Single Item Part or Multi-Item Assembly'} />
-                    </Grid>
-                    <Grid item xs={8}>
-                        <span>{itemProperties.assemblyType}</span>
-                    </Grid>
+      {itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' && (
+        <Paper style={{ padding: 20, margin: 10 }}>
+          <Grid className="section-padding-left" container spacing={4}>
+            <Grid item xs={12}>
+              <Headding size={10} bold title={'Dimensional Properties'} />
+            </Grid>
 
-                    <Grid item xs={4}>
-                        <Headding bold title={'Item Type'} />
-                    </Grid>
-                    <Grid item xs={8}>
-                        <Select
-                            // label="Item Type"
-                            placeholder="Select"
-                            options={[
-                                // { label: 'Machine - Actuator', value: 'Submachine - Actuator' },
-                                // { label: 'Machine - Motion Control', value: 'Machine - Motion Control' },
-                                { label: 'Machine - Compound/Tool/Workholding', value: 'Machine - Compound/Tool/Workholding' },
-                                // { label: "Machine - Workpiece Environment Modification", value: "Machine - Workpiece Environment Modification" },
-                                // { label: "Workholding - Pressure Vessel", value: "Workholding - Pressure Vessel" },
-                                // { label: "Workholding - Liquid Container", value: "Workholding - Liquid Container" },
-                                // { label: "Tool", value: "Tool" },
-                                // { label: "Machine - Tool", value: "Machine - Tool" },
-                                { label: "Unassembled Kit", value: "Unassembled Kit" },
-                                { label: "Structure and/or Facade", value: "Any Other Object/Item" },
-                                { label: "Building", value: 'Building' }
-                            ]}
-                            onChange={(data) => handleOnChange('itemType', data.value)}
-                            value={itemGeometry.itemType && { label: itemGeometry.itemType }}
-                        />
-                    </Grid>
-                    {itemGeometry.itemType === 'Any Other Object/Item' &&
-                        <>
-                            <Grid item xs={4} style={{ display: 'flex' }} >
+            <Grid item xs={4}>
+              <Headding bold title={'X Dim (Length)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="X Dim (Length)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('xDim', event.target.value)}
+                value={itemGeometry.xDim}
+              />
+            </Grid>
 
-                                <Headding bold title={'Item Category'}>
-                                </Headding>
-                                <Icon style={{ marginLeft: '18px' }} id="TooltipExample">info</Icon>
-                                <Tooltip placement="top" isOpen={tooltipOpen} target="TooltipExample" toggle={toggleTooltip}>
-                                    This allows for selection of the general geometry or matter state of the item. The downstream impacts include how the item is handled and transported within Struct Production Systems
-                                </Tooltip>
-                            </Grid>
-                            <Grid item xs={8} >
-                                <Select
-                                    // label="General Geometry"
-                                    placeholder="Select"
-                                    options={[
+            <Grid item xs={4}>
+              <Headding bold title={'X Tolerance'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="X Tolerance"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) =>
+                  handleOnChange('xTolerance', event.target.value)
+                }
+                value={itemGeometry.xTolerance}
+              />
+            </Grid>
 
-                                        { label: ' Solid', value: ' Solid' },
-                                        { label: "Bulk Powder/Particles/Grains", value: "Bulk Powder/Particles/Grains" },
-                                        { label: "Liquid", value: "Liquid" },
-                                        { label: "Gas", value: "Gas" }]}
-                                    onChange={(data) => handleOnChange('generalGeomerty', data.value)}
-                                    value={itemGeometry.generalGeomerty && { label: itemGeometry.generalGeomerty }}
-                                />
-                            </Grid>
-                        </>
-                    }
+            <Grid item xs={4}>
+              <Headding bold title={'Y Dim (Length)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Y Dim (Length)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('yDim', event.target.value)}
+                value={itemGeometry.yDim}
+              />
+            </Grid>
 
-                    {itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' &&
-                        <>
-                            <Grid item xs={4}>
-                                <Headding bold title={'Mixture'} />
-                            </Grid>
-                            <Grid item xs={8}>
-                                <Select
-                                    // label="Mixture"
-                                    placeholder="Select"
-                                    options={[
-                                        { label: "Yes", value: "Yes" },
-                                        { label: "No", value: "No" }]}
-                                    onChange={(data) => handleOnChange('mixture', data.value)}
-                                    value={itemGeometry.mixture && { label: itemGeometry.mixture }}
-                                />
-                            </Grid>
-                        </>
-                    }
-                </Grid>
+            <Grid item xs={4}>
+              <Headding bold title={'Y Tolerance'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Y Tolerance"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) =>
+                  handleOnChange('yTolerance', event.target.value)
+                }
+                value={itemGeometry.yTolerance}
+              />
+            </Grid>
 
-            </Paper>
-            {
-                itemGeometry.generalGeomerty === 'Bulk Powder/Particles/Grains' &&
-                <Paper style={{ padding: 20, margin: 10 }}>
-                    <Grid className="section-padding-left" container spacing={4}>
-                        <Grid item xs={12}>
-                            <Headding size={10} bold title={'Dimensional Properties'} />
-                        </Grid>
+            <Grid item xs={4}>
+              <Headding bold title={'Z Dim (Length)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Z Dim (Length)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('zDim', event.target.value)}
+                value={itemGeometry.zDim}
+              />
+            </Grid>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'X Dim (Length)'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="X Dim (Length)"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('xDim', event.target.value)}
-                                value={itemGeometry.xDim}
-                            />
-                        </Grid>
+            <Grid item xs={4}>
+              <Headding bold title={'Z Tolerance'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Z Tolerance"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) =>
+                  handleOnChange('zTolerance', event.target.value)
+                }
+                value={itemGeometry.zTolerance}
+              />
+            </Grid>
+          </Grid>
+        </Paper>
+      )}
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'X Tolerance'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="X Tolerance"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('xTolerance', event.target.value)}
-                                value={itemGeometry.xTolerance}
-                            />
-                        </Grid>
+      {['Solid'].includes(itemGeometry.generalGeomerty) && (
+        <Paper style={{ padding: 20, margin: 10 }}>
+          <Grid className="section-padding-left" container spacing={4}>
+            <Grid item xs={12}>
+              <Headding size={10} bold title={'Dimensional Properties'} />
+            </Grid>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'Y Dim (Length)'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Y Dim (Length)"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('yDim', event.target.value)}
-                                value={itemGeometry.yDim}
-                            />
-                        </Grid>
+            <Grid item xs={4}>
+              <Headding bold title={'Mass (g)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Mass (g)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) => handleOnChange('mass', event.target.value)}
+                value={itemGeometry.mass}
+              />
+            </Grid>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'Y Tolerance'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Y Tolerance"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('yTolerance', event.target.value)}
-                                value={itemGeometry.yTolerance}
-                            />
-                        </Grid>
+            <Grid item xs={4}>
+              <Headding bold title={'Volume (mm^3)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Volume (mm^3)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) =>
+                  handleOnChange('volume', event.target.value)
+                }
+                value={itemGeometry.volume}
+              />
+            </Grid>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'Z Dim (Length)'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Z Dim (Length)"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('zDim', event.target.value)}
-                                value={itemGeometry.zDim}
-                            />
-                        </Grid>
+            <Grid item xs={4}>
+              <Headding bold title={'Bounding Box x (mm)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Bounding Box x (mm)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) =>
+                  handleOnChange('boundingBoxX', event.target.value)
+                }
+                value={itemGeometry.boundingBoxX}
+              />
+            </Grid>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'Z Tolerance'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Z Tolerance"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('zTolerance', event.target.value)}
-                                value={itemGeometry.zTolerance}
-                            />
-                        </Grid>
-                    </Grid>
-                </Paper>
-            }
+            <Grid item xs={4}>
+              <Headding bold title={'Bounding Box y (mm)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Bounding Box y (mm)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) =>
+                  handleOnChange('boundingBoxY', event.target.value)
+                }
+                value={itemGeometry.boundingBoxY}
+              />
+            </Grid>
 
-            {
-                ['Solid'].includes(itemGeometry.generalGeomerty) &&
-                <Paper style={{ padding: 20, margin: 10 }}>
-                    <Grid className="section-padding-left" container spacing={4}>
-                        <Grid item xs={12}>
-                            <Headding size={10} bold title={'Dimensional Properties'} />
-                        </Grid>
+            <Grid item xs={4}>
+              <Headding bold title={'Bounding Box z (mm)'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Bounding Box z (mm)"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) =>
+                  handleOnChange('boundingBoxZ', event.target.value)
+                }
+                value={itemGeometry.boundingBoxZ}
+              />
+            </Grid>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'Mass (g)'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Mass (g)"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('mass', event.target.value)}
-                                value={itemGeometry.mass}
-                            />
-                        </Grid>
+            <Grid item xs={4}>
+              <Headding bold title={'Number of Faces'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Number of Faces"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) =>
+                  handleOnChange('numberOfFaces', event.target.value)
+                }
+                value={itemGeometry.numberOfFaces}
+              />
+            </Grid>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'Volume (mm^3)'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Volume (mm^3)"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('volume', event.target.value)}
-                                value={itemGeometry.volume}
-                            />
-                        </Grid>
+            <Grid item xs={4}>
+              <Headding bold title={'Number of Edges'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Number of Edges"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) =>
+                  handleOnChange('numberOfEdges', event.target.value)
+                }
+                value={itemGeometry.numberOfEdges}
+              />
+            </Grid>
 
-                        <Grid item xs={4}>
-                            <Headding bold title={'Bounding Box x (mm)'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Bounding Box x (mm)"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('boundingBoxX', event.target.value)}
-                                value={itemGeometry.boundingBoxX}
-                            />
-                        </Grid>
-
-                        <Grid item xs={4}>
-                            <Headding bold title={'Bounding Box y (mm)'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Bounding Box y (mm)"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('boundingBoxY', event.target.value)}
-                                value={itemGeometry.boundingBoxY}
-                            />
-                        </Grid>
-
-                        <Grid item xs={4}>
-                            <Headding bold title={'Bounding Box z (mm)'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Bounding Box z (mm)"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('boundingBoxZ', event.target.value)}
-                                value={itemGeometry.boundingBoxZ}
-                            />
-                        </Grid>
-
-                        <Grid item xs={4}>
-                            <Headding bold title={'Number of Faces'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Number of Faces"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('numberOfFaces', event.target.value)}
-                                value={itemGeometry.numberOfFaces}
-                            />
-                        </Grid>
-
-                        <Grid item xs={4}>
-                            <Headding bold title={'Number of Edges'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Number of Edges"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('numberOfEdges', event.target.value)}
-                                value={itemGeometry.numberOfEdges}
-                            />
-                        </Grid>
-
-                        <Grid item xs={4}>
-                            <Headding bold title={'Number of Corners'} />
-                        </Grid>
-                        <Grid item xs={8}>
-                            <Input
-                                // label="Number of Corners"
-                                placeholder="Enter"
-                                type="number"
-                                onChange={(event) => handleOnChange('numberOfCorners', event.target.value)}
-                                value={itemGeometry.numberOfCorners}
-                            />
-                        </Grid>
-                    </Grid>
-                </Paper>
-            }
-        </Paper >
-    )
+            <Grid item xs={4}>
+              <Headding bold title={'Number of Corners'} />
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                // label="Number of Corners"
+                placeholder="Enter"
+                type="number"
+                onChange={(event) =>
+                  handleOnChange('numberOfCorners', event.target.value)
+                }
+                value={itemGeometry.numberOfCorners}
+              />
+            </Grid>
+          </Grid>
+        </Paper>
+      )}
+    
+    </div>
+  );
 }

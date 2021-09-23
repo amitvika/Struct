@@ -5,63 +5,68 @@ import {
   Select,
   Input,
   Textarea,
-  Headding
-} from '@ravibasil/common/components';
+  Headding,
+} from '@monostruct/common/components';
 
-import Modal from '@ravibasil/common/components/Modal';
-import FileUploadOnAWS from '@ravibasil/common/containers/FileUploadOnAWS';
-import FileHistory from '@ravibasil/common/containers/FileHistory';
+import Modal from '@monostruct/common/components/Modal';
+import FileUploadOnAWS from '@monostruct/common/containers/FileUploadOnAWS';
+import FileHistory from '@monostruct/common/containers/FileHistory';
 
-export default function AddUpdateModal({ title, fields, open, toggleModal, handleUpdate, isEditing, selectedValue }) {
+export default function AddUpdateModal({
+  title,
+  fields,
+  open,
+  toggleModal,
+  handleUpdate,
+  isEditing,
+  selectedValue,
+}) {
   const [value, setValue] = useState({});
-  const [isTypeSelected, setIsTypeSelected] = useState(false)
-  const [selectedType, setSelectedType] = useState('')
+  const [isTypeSelected, setIsTypeSelected] = useState(false);
+  const [selectedType, setSelectedType] = useState('');
 
   // const { user } = useSelector(state => state.auth);
 
-
   useEffect(() => {
     if (selectedValue) {
-      setValue(selectedValue)
-    }
-    else {
+      setValue(selectedValue);
+    } else {
       setValue({});
     }
   }, [selectedValue]);
 
   const handleOnChange = (name, data) => {
-
     let file_history = value.file_history || [];
-    if (name === "new_file") {
-      file_history = [data, ...file_history]
+    if (name === 'new_file') {
+      file_history = [data, ...file_history];
     }
 
-    setValue(preValue => ({
+    setValue((preValue) => ({
       ...preValue,
       [name]: data,
-      file_history
+      file_history,
     }));
-  }
+  };
 
   const handleSaveButton = () => {
     if (value) {
-      handleUpdate(value)
+      handleUpdate(value);
     }
     // toggleModal();
-  }
+  };
 
   const handleTypeChange = (data) => {
     setIsTypeSelected(true);
     setSelectedType(data);
-    handleOnChange('category', data)
-  }
+    handleOnChange('category', data);
+  };
 
   return (
     <Modal
       title={`${isEditing ? `Update ${selectedValue.name}` : 'Add'} ${title}`}
       open={open}
-      toggleModal={toggleModal}>
-
+      toggleModal={toggleModal}
+    >
       <Grid className="section-padding-left" container spacing={4}>
         <Grid item xs={4}>
           <Headding bold title={'Name'} />
@@ -81,29 +86,32 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
         <Grid item xs={8}>
           <Select
             options={[
-              { label: "Criteria", value: "criteria" },
-              { label: 'Hierarchy', value: 'hierarchy' },]}
+              { label: 'Criteria', value: 'criteria' },
+              { label: 'Hierarchy', value: 'hierarchy' },
+            ]}
             onChange={(data) => handleTypeChange(data.value)}
             value={value.category && { label: value.category }}
           />
         </Grid>
 
-        {
-          isTypeSelected &&
+        {isTypeSelected && (
           <>
-            <Grid item xs={4}>
-            </Grid>
+            <Grid item xs={4}></Grid>
             <Grid item xs={8}>
-              <a href={`${process.env.REACT_APP_API}/download/${selectedType}`}
+              <a
+                href={`${process.env.REACT_APP_API}/download/${selectedType}`}
                 target="_blank"
-                style={{ textDecoration: 'none' }}>
+                style={{ textDecoration: 'none' }}
+              >
                 <Button variant="contained" color="secondary">
-                  {selectedType === 'criteria' ? 'Download Criteria Upload Template' : 'Download Hirarchy Upload Template'}
+                  {selectedType === 'criteria'
+                    ? 'Download Criteria Upload Template'
+                    : 'Download Hirarchy Upload Template'}
                 </Button>
               </a>
             </Grid>
           </>
-        }
+        )}
         <Grid item xs={4}>
           <Headding bold title={'Note'} />
         </Grid>
@@ -115,16 +123,23 @@ export default function AddUpdateModal({ title, fields, open, toggleModal, handl
           />
         </Grid>
 
-        <FileUploadOnAWS user={null} value={value} handleOnChange={handleOnChange} />
+        <FileUploadOnAWS
+          user={null}
+          value={value}
+          handleOnChange={handleOnChange}
+        />
         <FileHistory file_history={value.file_history} />
 
         <Grid item xs={6}>
-          <Button variant="contained" color="primary" onClick={handleSaveButton}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSaveButton}
+          >
             {isEditing ? 'Update' : 'Save'}
           </Button>
         </Grid>
       </Grid>
-
     </Modal>
   );
 }

@@ -1,11 +1,23 @@
-import React from 'react'
+import React from 'react';
 // import GLTFRenderer from '../../../gltf/GltfRenderer';
-import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer'
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY } from "@ravibasil/common/gltf/Tree/utils";
-const DEFAULTMATERIALNAME = "Basic";
+import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';
+import {
+  DEFAULTBACKCOLOR,
+  DEFAULTSELECTCOLOR,
+  DEFAULTTOUCHCOLOR,
+  SELECTSOLID,
+  SELECTHIRERACHY,
+} from '@monostruct/common/gltf/Tree/utils';
+const DEFAULTMATERIALNAME = 'Basic';
 
-export default function Viewer({ gltfjson = {}, fileId = '', fileGDT = '', selectedOption = SELECTSOLID, splitMethod = SELECTHIRERACHY,
-  handleModelClick = () => { } }) {
+export default function Viewer({
+  gltfjson = {},
+  fileId = '',
+  fileGDT = '',
+  selectedOption = SELECTSOLID,
+  splitMethod = SELECTHIRERACHY,
+  handleModelClick = () => {},
+}) {
   return (
     <div>
       {
@@ -25,10 +37,11 @@ export default function Viewer({ gltfjson = {}, fileId = '', fileGDT = '', selec
           data2texture={null}
           data3texture={null}
           materialtype={DEFAULTMATERIALNAME}
-          whatchanged={0} dataselection={0}
+          whatchanged={0}
+          dataselection={0}
           onClick={handleModelClick}
         />
       }
     </div>
-  )
+  );
 }

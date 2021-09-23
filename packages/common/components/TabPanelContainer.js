@@ -4,7 +4,7 @@ import { Paper, Grid } from '@material-ui/core';
 export default function TabPanelContainer(props) {
   return (
     <Grid item style={{ flex:1 }}>
-      <Paper style={{ padding: 20, margin: 10 }}>{props.children}</Paper>
+      <Paper style={{ padding: 20, margin: 10 }} variant="outlined" square>{props.children}</Paper>
     </Grid>
   );
 }
