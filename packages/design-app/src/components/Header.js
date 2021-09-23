@@ -7,13 +7,13 @@ import Popper from '@material-ui/core/Popper';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
-import Switch from '@material-ui/core/Switch';
 import Box from '@material-ui/core/Box';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { logout } from '@monostruct/internal-app/src/actions/authActions';
 import { useHistory } from 'react-router-dom';
 import { setThemeAction } from '@monostruct/internal-app/src/actions/theme.action';
+import Logo from '../assets/images/omnidesignLogo.png'
 
 import { AuthContext } from '../context/AuthContext';
 
@@ -125,10 +125,10 @@ export default function Header() {
     >
       <div
         className="d-inline-block align-top"
-        style={{ width: '150', height: '30', fontSize: 'x-large' }}
+        style={{display: 'flex'}}
         // onClick={handleOmniClick}
       >
-        OMNIDESIGN
+        <img src={Logo} alt='logo' style={{width: '100px'}} />
       </div>
     </Typography>
   );

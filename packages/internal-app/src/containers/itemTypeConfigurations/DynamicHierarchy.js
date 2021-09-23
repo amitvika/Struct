@@ -7,7 +7,7 @@ import DynamicCriteria from './DynamicCriteria';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import get from 'lodash/get';
 
-export default function DynamicHierarchy(props) {
+export default function DynamicHierarchy({ setShowKineticModal }) {
   const [initialValue, setInitialValue] = useState(['Item Type']);
   const [criteriaFields, setCriteriaFields] = useState({});
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
@@ -32,12 +32,18 @@ export default function DynamicHierarchy(props) {
   const handleOnChangeForFirstDropDown = (label, value) => {
     setFirstSelectedValue(value);
     setDropdownSelections([value]);
+
+    if(value === 'Motion Control'){
+      setShowKineticModal(true)
+    }
+    else{
+      setShowKineticModal(false)
+    }
   };
 
   const handleOnChangeRestDropdown = (label, value, dropValue) => {
     setDropdownSelections([...dropdownSelections, value]);
 
-    console.log('--------dropValue', label, value, dropValue);
     setInitialValue(dropValue);
   };
 
@@ -94,6 +100,12 @@ export default function DynamicHierarchy(props) {
   if (hierarchyDropdownList.length === 0) {
     return null;
   }
+  // hierarchyDropdownList.map((data) => {
+  //   console.log('****label', data.label);
+  //   if (data.label === 'Workholding/ToolHolding') {
+  //     setShowKineticModal(true);
+  //   }
+  // });
 
   return (
     <>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
-import { Paper, CircularProgress } from '@material-ui/core';
+import { Paper, CircularProgress, makeStyles } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 
 import GeometryInput from './GeometryInput';
@@ -28,6 +28,30 @@ import {
 
 import '../style.css';
 
+const useStyles = makeStyles((theme) => ({
+  container: {
+    display: 'flex',
+    '@media screen and (max-width:1400px)': {
+      width: '100%',
+      flexDirection: 'column-reverse',
+    },
+  },
+  paperContainer: {
+    padding: 20,
+    margin: 10,
+    width: '75%',
+    '@media screen and  (max-width:1400px)': {
+      width: '100%',
+    },
+  },
+  itemContainer: {
+    width: '25%',
+    '@media screen and (max-width:1400px)': {
+      width: '100%',
+    },
+  },
+}));
+
 const DEFAULTMATERIALNAME = 'Basic';
 export default function BaseItemProperties({
   itemId,
@@ -36,12 +60,13 @@ export default function BaseItemProperties({
   gltfjson,
   setgltfjson,
 }) {
+  const classes = useStyles();
   const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isStepLoaded, setIsStepLoaded] = useState(false);
   // const [threejsObject, setThreejsObject] = useState({});
-  const [fileName, setFileName] = useState('');
+  // const [fileName, setFileName] = useState('');
   const [gltfobj, setGltfObj] = useState(gltfjson);
   const [fileId, setFileId] = useState(0);
   // const [files, setFiles] = useState([]);
@@ -132,8 +157,8 @@ export default function BaseItemProperties({
   return (
     <div>
       {
-        <Grid style={{ display: 'flex' }}>
-          <Paper style={{ padding: 20, margin: 10, width: '75vw' }}>
+        <Grid className={classes.container}>
+          <Paper className={classes.paperContainer} variant="outlined" square>
             {!isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading && (
               <GLTFRenderer
                 //gltfjson={JSON.stringify(gltfjson)}
@@ -156,7 +181,7 @@ export default function BaseItemProperties({
             )}
             {(isLoading || isFileLoading) && <CircularProgress />}
           </Paper>
-          <Grid style={{ width: '25vw' }}>
+          <Grid className={classes.itemContainer}>
             <GeometryInput
               isLoading={isLoading}
               itemId={itemId}

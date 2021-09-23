@@ -4,31 +4,31 @@ import { Paper, CircularProgress, makeStyles } from '@material-ui/core';
 import TableOrderView from './TableOrderView';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer.js';
 import {
-  SELECTBACKCOLOR,
-  SELECTSELECTCOLOR,
-  SELECTTOUCHCOLOR,
+  // SELECTBACKCOLOR,
+  // SELECTSELECTCOLOR,
+  // SELECTTOUCHCOLOR,
   DEFAULTBACKCOLOR,
   DEFAULTSELECTCOLOR,
   DEFAULTTOUCHCOLOR,
-  getTexture,
-  SELECT2DTEXTURE,
-  SELECT3DTEXTURE,
-  SELECTMATERIRAL,
+  // getTexture,
+  // SELECT2DTEXTURE,
+  // SELECT3DTEXTURE,
+  // SELECTMATERIRAL,
   SELECTDISTANCE,
-  SELECTSHOWINFO,
+  // SELECTSHOWINFO,
   SELECTSOLID,
-  SELECTFACE,
-  SELECTEDGE,
-  SELECTCORNER,
-  SELECTMEASURE,
-  SELECTCONTINOUS,
+  // SELECTFACE,
+  // SELECTEDGE,
+  // SELECTCORNER,
+  // SELECTMEASURE,
+  // SELECTCONTINOUS,
   SELECTHIRERACHY,
   SELECTDISECTPARTS,
-  SELECTSTACKABLE,
-  SELECTORDER,
+  // SELECTSTACKABLE,
+  // SELECTORDER,
   SELECTASSEMBLY,
   SELECTFEATURE,
-  prettyPrintArray,
+  // prettyPrintArray,
   gltf_Dict,
 } from '@monostruct/common/gltf/Tree/utils';
 
@@ -163,15 +163,15 @@ export default function ItemTypeConfiguration(props) {
 
   const arrayFindIndex = (arr, value, parent = false) => {
     return arr.findIndex(function (ele) {
-      if (parent) return ele.parent[gltf_Dict['name']] == value;
-      return ele[gltf_Dict['name']] == value;
+      if (parent) return ele.parent[gltf_Dict['name']] === value;
+      return ele[gltf_Dict['name']] === value;
     });
   };
 
   const arrayRemove = (arr, value, parent = false) => {
     return arr.filter(function (ele) {
-      if (parent) return ele.parent[gltf_Dict['name']] != value;
-      return ele[gltf_Dict['name']] != value;
+      if (parent) return ele.parent[gltf_Dict['name']] !== value;
+      return ele[gltf_Dict['name']] !== value;
     });
   };
   const arrayCopy = (arr) => {
@@ -191,10 +191,10 @@ export default function ItemTypeConfiguration(props) {
 
     for (var i = 0; i < state.gltfjson.tree.length; i++) {
       if (
-        state.gltfjson.tree[i][gltf_Dict['name']] == mynode[gltf_Dict['name']]
+        state.gltfjson.tree[i][gltf_Dict['name']] === mynode[gltf_Dict['name']]
       ) {
         myParentID = state.gltfjson.tree[i][gltf_Dict['parentId']];
-        if (state.gltfjson.tree[i][gltf_Dict['element']] == 'P') {
+        if (state.gltfjson.tree[i][gltf_Dict['element']] === 'P') {
           return state.gltfjson.tree[i];
         } else {
           break;
@@ -202,14 +202,14 @@ export default function ItemTypeConfiguration(props) {
       }
     }
 
-    if (myParentID == -1) {
+    if (myParentID === -1) {
       return null;
     } else {
       var myParentsParentID = -1;
-      for (var i = 0; i < state.gltfjson.tree.length; i++) {
-        if (state.gltfjson.tree[i][gltf_Dict['id']] == myParentID) {
+      for (i = 0; i < state.gltfjson.tree.length; i++) {
+        if (state.gltfjson.tree[i][gltf_Dict['id']] === myParentID) {
           myParentsParentID = state.gltfjson.tree[i][gltf_Dict['parentId']];
-          if (state.gltfjson.tree[i][gltf_Dict['element']] == 'P') {
+          if (state.gltfjson.tree[i][gltf_Dict['element']] === 'P') {
             return state.gltfjson.tree[i];
           } else {
             break;
@@ -217,14 +217,14 @@ export default function ItemTypeConfiguration(props) {
         }
       }
       //console.log("Parent", myParentsParentID, myParentID, myID);
-      if (myParentsParentID == -1) {
+      if (myParentsParentID === -1) {
         //RootNode
         //console.log("Pushing", myParentsParentID, myParentID, myID);
         return null;
       } else {
-        for (var i = 0; i < state.gltfjson.tree.length; i++) {
-          if (state.gltfjson.tree[i][gltf_Dict['id']] == myParentsParentID) {
-            if (state.gltfjson.tree[i][gltf_Dict['element']] == 'P') {
+        for (i = 0; i < state.gltfjson.tree.length; i++) {
+          if (state.gltfjson.tree[i][gltf_Dict['id']] === myParentsParentID) {
+            if (state.gltfjson.tree[i][gltf_Dict['element']] === 'P') {
               return state.gltfjson.tree[i];
             }
           }
@@ -246,7 +246,7 @@ export default function ItemTypeConfiguration(props) {
       }
     }
 
-    if (myMaterials.length != 0) {
+    if (myMaterials.length !== 0) {
       return [myMaterials, myParentNode];
     }
     return [[mynode], mynode];
@@ -259,7 +259,7 @@ export default function ItemTypeConfiguration(props) {
 
     for (var i = 0; i < state.gltfjson.tree.length; i++) {
       if (
-        state.gltfjson.tree[i][gltf_Dict['name']] == mynode[gltf_Dict['name']]
+        state.gltfjson.tree[i][gltf_Dict['name']] === mynode[gltf_Dict['name']]
       ) {
         myParentID = state.gltfjson.tree[i][gltf_Dict['parentId']];
         myID = state.gltfjson.tree[i][gltf_Dict['id']];
@@ -274,10 +274,10 @@ export default function ItemTypeConfiguration(props) {
     }
     //console.log(myParentID, parentNode);
     var myMaterials = [];
-    if (myParentID != -1) {
+    if (myParentID !== -1) {
       var myParentsParentID = -1;
-      for (var i = 0; i < state.gltfjson.tree.length; i++) {
-        if (state.gltfjson.tree[i][gltf_Dict['id']] == myParentID) {
+      for (i = 0; i < state.gltfjson.tree.length; i++) {
+        if (state.gltfjson.tree[i][gltf_Dict['id']] === myParentID) {
           myParentsParentID = state.gltfjson.tree[i][gltf_Dict['parentId']];
           parentNode = state.gltfjson.tree[i];
           break;
@@ -285,17 +285,17 @@ export default function ItemTypeConfiguration(props) {
       }
       //console.log(myParentID, myParentsParentID, parentNode);
       var myParents = [];
-      if (myParentsParentID == -1) {
+      if (myParentsParentID === -1) {
         //RootNode
         myParents.push(myID);
       } else {
-        for (var i = 0; i < state.gltfjson.tree.length; i++) {
+        for (i = 0; i < state.gltfjson.tree.length; i++) {
           if (
-            state.gltfjson.tree[i][gltf_Dict['parentId']] == myParentsParentID
+            state.gltfjson.tree[i][gltf_Dict['parentId']] === myParentsParentID
           ) {
             myParents.push(state.gltfjson.tree[i][gltf_Dict['id']]);
           } else {
-            if (state.gltfjson.tree[i][gltf_Dict['id']] == myParentsParentID) {
+            if (state.gltfjson.tree[i][gltf_Dict['id']] === myParentsParentID) {
               parentNode = state.gltfjson.tree[i];
             }
           }
@@ -303,12 +303,12 @@ export default function ItemTypeConfiguration(props) {
       }
       for (var j = 0; j < myParents.length; j++) {
         myParentID = myParents[j];
-        for (var i = 0; i < state.gltfjson.tree.length; i++) {
-          if (state.gltfjson.tree[i][gltf_Dict['id']] == myParentID) {
+        for (i = 0; i < state.gltfjson.tree.length; i++) {
+          if (state.gltfjson.tree[i][gltf_Dict['id']] === myParentID) {
             var myChild = state.gltfjson.tree[i];
             if (myChild) {
               if (
-                state.gltfjson.tree[i][gltf_Dict['element']] == 'P' ||
+                state.gltfjson.tree[i][gltf_Dict['element']] === 'P' ||
                 onlyparts(myChild[gltf_Dict['name']])
               ) {
                 myMaterials.push(myChild);
@@ -318,7 +318,7 @@ export default function ItemTypeConfiguration(props) {
         }
       }
     }
-    if (myMaterials.length != 0) {
+    if (myMaterials.length !== 0) {
       return [myMaterials, parentNode];
     }
 
@@ -328,14 +328,14 @@ export default function ItemTypeConfiguration(props) {
   const findMyParentChilds = (mynode, whichOption) => {
     //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
     if (
-      ((whichOption != SELECTSOLID && whichOption != SELECTASSEMBLY) ||
-        state.splitMethod != SELECTDISECTPARTS) &&
+      ((whichOption !== SELECTSOLID && whichOption !== SELECTASSEMBLY) ||
+        state.splitMethod !== SELECTDISECTPARTS) &&
       resetOption
     ) {
       //console.log("I got over Singles",whichOption,resetOption,state.splitMethod);
       return findSingleNode(mynode);
     }
-    if (whichOption == SELECTASSEMBLY) {
+    if (whichOption === SELECTASSEMBLY) {
       //console.log("I got over Family");
       return findFamilyNodes(mynode);
     } else {
@@ -355,7 +355,7 @@ export default function ItemTypeConfiguration(props) {
           state.gltfjson.tree[i][gltf_Dict['name']],
           data['name']
         );
-        if (state.gltfjson.tree[i][gltf_Dict['name']] == data['name']) {
+        if (state.gltfjson.tree[i][gltf_Dict['name']] === data['name']) {
           return state.gltfjson.tree[i];
         }
       }
@@ -363,26 +363,26 @@ export default function ItemTypeConfiguration(props) {
     return null;
   };
 
-  const onlyfaces = (name) => {
-    const first4chars = name.slice(0, 4);
-    const first6chars = name.slice(0, 6);
-    if (
-      first4chars == 'PART' ||
-      first4chars == 'EDGE' ||
-      first6chars == 'VERTEX'
-    ) {
-      return false;
-    }
-    return true;
-  };
+  // const onlyfaces = (name) => {
+  //   const first4chars = name.slice(0, 4);
+  //   const first6chars = name.slice(0, 6);
+  //   if (
+  //     first4chars == 'PART' ||
+  //     first4chars == 'EDGE' ||
+  //     first6chars == 'VERTEX'
+  //   ) {
+  //     return false;
+  //   }
+  //   return true;
+  // };
 
   const onlyparts = (name) => {
     const first4chars = name.slice(0, 4);
-    return first4chars == 'PART';
+    return first4chars === 'PART';
   };
   let mapdata = {};
   const setSelectedShell = (data, setoption) => {
-    if (data.selectedshell != setoption) {
+    if (data.selectedshell !== setoption) {
       data.selectedshell = setoption;
       const myID = data[gltf_Dict['id']];
       let curData = mapdata[myID];
@@ -390,7 +390,7 @@ export default function ItemTypeConfiguration(props) {
         for (let index = 0; index < state.gltfjson.tree.length; index++) {
           const element = state.gltfjson.tree[index];
           //console.log("compare",element,data);
-          if (element[[gltf_Dict['id']]] == myID) {
+          if (element[[gltf_Dict['id']]] === myID) {
             curData = index;
             mapdata[myID] = index;
             break;
@@ -423,7 +423,7 @@ export default function ItemTypeConfiguration(props) {
       for (let index = 0; index < state.gltfjson.tree.length; index++) {
         const element = state.gltfjson.tree[index];
         //console.log("compare",element,data);
-        if (element[[gltf_Dict['id']]] == myID) {
+        if (element[[gltf_Dict['id']]] === myID) {
           curData = index;
           mapdata[myID] = index;
           break;
@@ -434,7 +434,7 @@ export default function ItemTypeConfiguration(props) {
       let myTree = { ...state.gltfjson };
       for (let index = 0; index < myTree.tree.length; index++) {
         const element = myTree.tree[index];
-        element.selectedshell = index == curData && setoption;
+        element.selectedshell = index === curData && setoption;
       }
       console.log('About to set', myTree);
       setState({ gltfjson: myTree });
@@ -458,10 +458,10 @@ export default function ItemTypeConfiguration(props) {
         const first4chars = aShape.slice(0, 4);
         const first6chars = aShape.slice(0, 6);
         if (
-          first4chars == 'FACE' ||
-          first4chars == 'EDGE' ||
-          first4chars == 'PART' ||
-          first6chars == 'VERTEX'
+          first4chars === 'FACE' ||
+          first4chars === 'EDGE' ||
+          first4chars === 'PART' ||
+          first6chars === 'VERTEX'
         ) {
           console.log('Setting..', element);
           element.selectedshell = true;
@@ -511,7 +511,7 @@ export default function ItemTypeConfiguration(props) {
 
       if (myTree) {
         //myTree.selectedshell = true;
-        if (event && event.ctrlKey != ctrlKey) {
+        if (event && event.ctrlKey !== ctrlKey) {
           setCtrlKey(event.ctrlKey);
         }
         setState({ renderdata: [myTree], whatchange: SELECTDISTANCE });
@@ -614,11 +614,11 @@ export default function ItemTypeConfiguration(props) {
     }
   };
 
-  const resetSelectionFromTree = async () => {
-    if (state.whatchange != 0 || state.renderdata != []) {
-      setState({ whatchange: 0, renderdata: [] });
-    }
-  };
+  // const resetSelectionFromTree = async () => {
+  //   if (state.whatchange != 0 || state.renderdata != []) {
+  //     setState({ whatchange: 0, renderdata: [] });
+  //   }
+  // };
 
   const changeStateOfSelection = async (data, event) => {
     mapdata = {};
@@ -635,35 +635,35 @@ export default function ItemTypeConfiguration(props) {
       if (event) {
         toAdd = event.ctrlKey;
       }
-      if (event && event.ctrlKey != ctrlKey) {
+      if (event && event.ctrlKey !== ctrlKey) {
         console.log('my Control key', event.ctrlKey, ctrlKey);
         setCtrlKey(event.ctrlKey);
         console.log('Set Ctrk Key');
       }
 
-      var stateLength = 0;
+      // var stateLength = 0;
       if (!toAdd) {
         console.log('Not to add', data, state_selectedObjects);
         state_selectedObjects.forEach((element) => {
-          if (data[gltf_Dict['name']] != element[gltf_Dict['name']]) {
+          if (data[gltf_Dict['name']] !== element[gltf_Dict['name']]) {
             console.log('before set sel', element);
             element.selectedshell = false;
             setSelectedShell(element, false);
             console.log('after set sel', element);
           }
         });
-        stateLength = 0;
+        // stateLength = 0;
         copy_selectobjects = [];
       } else {
         console.log('Add me here', state_selectedObjects);
         copy_selectobjects = arrayCopy(state_selectedObjects);
-        stateLength = state_selectedObjects.length;
+        // stateLength = state_selectedObjects.length;
       }
       //console.log(data);
       const myAllChildsAndParents = findMyParentChilds(data, selectedOption);
       //console.log(myAllChildsAndParents);
       const myAllChilds = myAllChildsAndParents[0];
-      const myParentNode = myAllChildsAndParents[1];
+      // const myParentNode = myAllChildsAndParents[1];
 
       //console.log("Splitted",myAllChilds,myParentNode)
       for (let elementdata of myAllChilds) {
@@ -676,7 +676,7 @@ export default function ItemTypeConfiguration(props) {
             var alreadyPresent = false;
             for (var i = 0; i < copy_selectobjects.length; i++) {
               if (
-                elementdata[gltf_Dict['name']] ==
+                elementdata[gltf_Dict['name']] ===
                 copy_selectobjects[i][gltf_Dict['name']]
               ) {
                 alreadyPresent = true;
@@ -700,7 +700,7 @@ export default function ItemTypeConfiguration(props) {
               copy_selectobjects,
               elementdata[gltf_Dict['name']]
             );
-            if (currentIndex != -1) {
+            if (currentIndex !== -1) {
               //console.log(currentIndex,elementdata[gltf_Dict["name"]]);
               copy_selectobjects = arrayRemove(
                 copy_selectobjects,
@@ -724,7 +724,7 @@ export default function ItemTypeConfiguration(props) {
             copy_selectobjects.push(elementdata);
             setSelectedShellForce(elementdata, data.selectedshell);
             //copy_mateobjects.push([]);
-            toGetInfo = true;
+            // toGetInfo = true;
             //setState({ selectedObjects: myAllChilds });
           } else {
             copy_selectobjects = [];
@@ -769,7 +769,7 @@ export default function ItemTypeConfiguration(props) {
   const handleModelClick = (data, what, event) => {
     console.log(data, what, event);
     setFirstTimeLoading(true);
-    if (what == SELECTDISTANCE) {
+    if (what === SELECTDISTANCE) {
       if (data) {
         console.log(data);
         const mymesh = findMyMaterial(data);
@@ -785,43 +785,43 @@ export default function ItemTypeConfiguration(props) {
         console.log('Resetting', data);
         return changeStateOfSelection(data, event);
       }
-      if (event && event.ctrlKey != ctrlKey) {
+      if (event && event.ctrlKey !== ctrlKey) {
         //console.log(event.ctrlKey);
         setCtrlKey(ctrlKey, event.ctrlKey);
       }
     }
     return null;
   };
-  const getDirection = (direction) => {
-    const x = direction[0];
-    const y = direction[1];
-    const z = direction[2];
-    if (z == 1) {
-      return 'Top';
-    }
-    if (z == -1) {
-      return 'Bottom';
-    }
-    if (y == 1) {
-      return 'Right';
-    }
-    if (y == -1) {
-      return 'Left';
-    }
-    if (x == 1) {
-      return 'Back';
-    }
-    if (x == -1) {
-      return 'Front';
-    }
-    console.log('Direction', direction);
-    return 'Any';
-  };
+  // const getDirection = (direction) => {
+  //   const x = direction[0];
+  //   const y = direction[1];
+  //   const z = direction[2];
+  //   if (z === 1) {
+  //     return 'Top';
+  //   }
+  //   if (z === -1) {
+  //     return 'Bottom';
+  //   }
+  //   if (y === 1) {
+  //     return 'Right';
+  //   }
+  //   if (y === -1) {
+  //     return 'Left';
+  //   }
+  //   if (x === 1) {
+  //     return 'Back';
+  //   }
+  //   if (x === -1) {
+  //     return 'Front';
+  //   }
+  //   console.log('Direction', direction);
+  //   return 'Any';
+  // };
   const getTable = (gltfjsonParam, doupdate) => {
     let currentData = [];
     if (gltfjsonParam && gltfjsonParam.tree) {
       for (let index = 1; index < gltfjsonParam.tree.length; index++) {
-        if (firstTimeLoading == false && doupdate == false) {
+        if (firstTimeLoading === false && doupdate === false) {
           gltfjsonParam.tree[index].selectedshell = false;
         }
 
@@ -841,7 +841,7 @@ export default function ItemTypeConfiguration(props) {
         });
         console.log('firstTimeLoading', firstTimeLoading, element);
       }
-      if (firstTimeLoading == false) {
+      if (firstTimeLoading === false) {
         setState({ gltfjson: gltfjsonParam });
       }
 
@@ -851,7 +851,7 @@ export default function ItemTypeConfiguration(props) {
     } else {
       console.log('Going to set Featured List', currentData);
       setFilteredList(currentData);
-      if (alerter != '') {
+      if (alerter !== '') {
         setAlerter('');
       }
       console.log('Final Setting Featured List', currentData, filteredList);
@@ -932,13 +932,13 @@ export default function ItemTypeConfiguration(props) {
       state.mycounter
     );
   }
-
+  const [showKineticModel, setShowKineticModal] = useState(false);
   const renderExcelUI = () => {
     if (
       itemProperties.itemGeometry.itemType ===
       'Machine - Compound/Tool/Workholding'
     ) {
-      return <DynamicHierarchy />;
+      return <DynamicHierarchy setShowKineticModal={setShowKineticModal} />;
     } else {
       return null;
     }
@@ -982,16 +982,18 @@ export default function ItemTypeConfiguration(props) {
               )}
             {(isLoading || isFileLoading) && <CircularProgress />}
           </Paper>
-          <TableOrderView
-            title={alerter == '' ? 'Kinematic Modelling Entries' : alerter}
-            list={filteredList}
-            columns={columns}
-            setColumns={setColumns}
-            handleDataRowClick={addSelectionFromTable}
-            handleDataCellChange={updateSelectionFromTable}
-            saveDataTable={saveSelectionFromTable}
-            style={{ width: 500 }}
-          ></TableOrderView>
+          {showKineticModel && (
+            <TableOrderView
+              title={alerter === '' ? 'Kinematic Modelling Entries' : alerter}
+              list={filteredList}
+              columns={columns}
+              setColumns={setColumns}
+              handleDataRowClick={addSelectionFromTable}
+              handleDataCellChange={updateSelectionFromTable}
+              saveDataTable={saveSelectionFromTable}
+              style={{ width: 500 }}
+            ></TableOrderView>
+          )}
         </Paper>
       )}
     </>
