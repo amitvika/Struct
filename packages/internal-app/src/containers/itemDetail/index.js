@@ -41,6 +41,8 @@ import TabPanelContainer from '@ravibasil/common/components/TabPanelContainer';
 
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
+const DEFAULTEDGESIZE = 0.3;
+const DEFAULTVERTEXSIZE = 0.5;
 const DEFAULTEXPLODEGAP = 10;
 const DEFAULTFROMCENTER = true;
 const DEFAULTHOLESCALE = 0.77;
@@ -50,6 +52,7 @@ const DEFAULTDISECT = false;
 const DEFAULTSHOWDISECT = false;
 const DEFAULTSHOWINFOONSELECT = false;
 const DEFAULTMATERIALTYPE = [{ id: 1, name: 'Basic' }];
+const DEFAULTMAXIMUMFACES = 50;
 
 const stateprops = {
   distancegap: DEFAULTDISTANCEGAP,
@@ -63,6 +66,9 @@ const stateprops = {
   holescale: DEFAULTHOLESCALE,
   removegap: DEFAULTREMOVEGAP,
   animationtime: DEFAULTANIMATIONTIME,
+  maximumfaces: DEFAULTMAXIMUMFACES,
+  edgesize: DEFAULTEDGESIZE,
+  vertexsize:DEFAULTVERTEXSIZE
 };
 
 const ItemDetail = () => {
@@ -350,7 +356,8 @@ const ItemDetail = () => {
             stateprops.disect,
             0,
             0,
-            0
+            0,
+            stateprops.maximumfaces
           )
             .then((res) => res.data)
             .then((repos) => {
@@ -423,8 +430,9 @@ const ItemDetail = () => {
             stateprops.anglegap,
             stateprops.disect,
             0,
-            0.3,
-            0.5
+            stateprops.edgesize,
+            stateprops.vertexsize,
+            stateprops.maximumfaces
           )
             .then((res) => res.data)
             .then((repos) => {

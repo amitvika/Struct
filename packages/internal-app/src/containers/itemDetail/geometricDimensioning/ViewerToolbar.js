@@ -18,6 +18,7 @@ import Box from '@material-ui/core/Box';
 import SelectedFeatureMenu from './SelectedFeatureMenu';
 import SelectedMatesRelation from './SelectedMatesRelation';
 import SelectedGDTMenu from './SelectedGDTMenu';
+import SelectedSummaryTable from './SelectedSummaryTable';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -207,6 +208,14 @@ export default function ViewerToolbar({
             {renderTitle("Feature Identification")}
             <Paper className={classes.paper}>
               <SelectedFeatureMenu
+                features={(selectedOption != SELECTASSEMBLY)}
+                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects} />
+            </Paper >
+          </Box>
+          <Box>
+            {renderTitle("Summary Table")}
+            <Paper className={classes.paper}>
+              <SelectedSummaryTable
                 features={(selectedOption != SELECTASSEMBLY)}
                 featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects} />
             </Paper >

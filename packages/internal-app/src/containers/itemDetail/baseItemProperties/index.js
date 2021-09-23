@@ -105,7 +105,7 @@ export default function BaseItemProperties({ itemId, itemProperties, setItemProp
     const getView = (fileId) => {
         setIsFileLoading(true)
 
-        getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0)
+        getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0,50)
             .then(res => res.data)
             .then((data) => {
                 setItemProperties(prevData => ({

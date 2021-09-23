@@ -3066,13 +3066,15 @@ class GLTFRenderer extends Component {
         } else { */
         if ((meshmaterial.currentHex === null) || (typeof meshmaterial.currentHex === 'undefined')) {
             meshmaterial.currentHex = meshmaterial.material.color.getHex();
+            meshmaterial.currentOpaque = meshmaterial.material.opacity;
         } else {
             //console.log("My color2",meshmaterial.currentHex);
         }
         /*}*/
-        //console.log("before",meshmaterial.material.color);
+        console.log("before",meshmaterial,meshmaterial.material.color);
         meshmaterial.material.color = this.convertColor(this.props.touchcolor || DEFAULTTOUCHCOLOR); // this.props.distanceColor || distanceColor);						
-        //console.log("after",meshmaterial.material.color);
+        meshmaterial.material.opacity = 1.0;
+        console.log("after",meshmaterial,meshmaterial.material.color);
     };
 
     setSelectionColor = (meshmaterial) => {
@@ -3085,12 +3087,14 @@ class GLTFRenderer extends Component {
         } else { */
         if ((meshmaterial.currentHex === null) || (typeof meshmaterial.currentHex === 'undefined')) {
             meshmaterial.currentHex = meshmaterial.material.color.getHex();
+            meshmaterial.currentOpaque = meshmaterial.material.opacity;
         } else {
             //console.log("My color2",meshmaterial.currentHex);
         }
         /*}*/
         //console.log("before",meshmaterial.material.color);
         meshmaterial.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR); // this.props.distanceColor || distanceColor);						
+        meshmaterial.material.opacity = 1.0;
         //console.log("after",meshmaterial.material.color);
     };
 
@@ -3098,7 +3102,8 @@ class GLTFRenderer extends Component {
         if( (meshmaterial.currentHex === null) || (typeof meshmaterial.currentHex === 'undefined') ) {
             return;
         }
-        meshmaterial.material.color.setHex(meshmaterial.currentHex);        
+        meshmaterial.material.color.setHex(meshmaterial.currentHex); 
+        meshmaterial.material.opacity = meshmaterial.currentOpaque;       
     }
 
     changeStateOfSelection = (meshmaterial, event) => {

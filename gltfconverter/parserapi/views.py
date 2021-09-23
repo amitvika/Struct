@@ -756,7 +756,7 @@ def createShapeArray(shapes):
         shapeArray.append((aShape,"ID"+str(myID),None))
     return shapeArray
 
-def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight):
+def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -786,7 +786,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                     filename=sourceFileName,includeparts=includeparts,distancegap=distancegap,
                     anglegap=anglegap,disectparts=disectparts,moverotate=moverotate,
                     thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
-                    edgesize=edgesize, vertexsize=vertexsize).dump()
+                    edgesize=edgesize, vertexsize=vertexsize, maximumfacestoinclude=maximumfaces).dump()
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)
@@ -815,7 +815,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                     filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
                     thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
-                    moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize).dump() 
+                    moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize, maximumfacestoinclude=maximumfaces).dump() 
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)
@@ -834,7 +834,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                     filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
                     thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
-                    moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize).dump()  
+                    moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize, maximumfacestoinclude=maximumfaces).dump()  
                 #dictionary['thumbnail']=thumbnail                             
             except Exception as e:
                 print("error",e)
@@ -852,7 +852,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                     filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
                     thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
-                    moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize).dump() 
+                    moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize, maximumfacestoinclude=maximumfaces).dump() 
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)                
@@ -863,7 +863,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
         return ({},True)
         #raise ValueError("File Could not be loaded")  
 
-def splitHierarchyFile(id,key,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight):
+def splitHierarchyFile(id,key,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces):
     data =[]
     if id or is_number(id) :
         _, file_extension = os.path.splitext(id)
@@ -872,14 +872,14 @@ def splitHierarchyFile(id,key,includeparts,distancegap,anglegap,disectparts,move
         try:
             (data, converted) = exportToHierarchyGLTF(
                 sourcefilename,includeparts,distancegap,anglegap,disectparts,moverotate,
-                edgesize,vertexsize,thumbwidth,thumbheight)
+                edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces)
             if converted:
                 return data
             else:   
                 if data :         
                     (data, converted) = exportToHierarchyGLTF(
                         data,includeparts,distancegap,anglegap,disectparts,moverotate,
-                        edgesize,vertexsize,thumbwidth,thumbheight)
+                        edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces)
                     return data                        
                 else:
                     print(" Unable to split", sourcefilename, "since not supported type", file_extension)               
@@ -909,6 +909,7 @@ def FileHierarchySplit(request):
             vertexsize = convertToFloat(request.GET.get('vertexsize',"0.3"),1.0)
             thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
             thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
+            maximumfaces = convertToInt(request.GET.get('maximumfaces',"50"),50)
             #print(includeparts)
             if includeparts:           
                 print("I am including minorparts")
@@ -918,20 +919,20 @@ def FileHierarchySplit(request):
                 print("I am disecting to get vertices")
             else:            
                 print("I am not disecting to get vertices")      
-            print("Got request for",id,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
+            print("Got request for",id,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces)
             if moverotate==0:
                 if is_number(id) :            
                     files = File.objects.filter(id__icontains=id)
                     for eachfile in files:
                         data = splitHierarchyFile(
                             eachfile.file.name,"Media/",includeparts,distancegap,anglegap,
-                            disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
+                            disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces)
                 else:
                     id = request.GET.get('file', None)
                     if id is not None:
                         data = splitHierarchyFile(
                             id,"Media/",includeparts,distancegap,anglegap,
-                            disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight)
+                            disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces)
         return JsonResponse(data, safe=False)
     except Exception as e:
         try:

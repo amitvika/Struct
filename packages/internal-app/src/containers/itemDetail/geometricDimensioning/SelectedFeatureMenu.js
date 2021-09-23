@@ -17,7 +17,7 @@ const useStyles = makeStyles({
     height: 30
   },
   tableCell: {
-    padding: "0px 16px",
+    padding: "0px 8px",
     whiteSpace: "normal",
     wordWrap: "break-word",
     wordBreak: "break-all"

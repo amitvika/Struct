@@ -811,7 +811,7 @@ class DropZone extends Component {
 	getHierarchySplit = (id, includeParts, index, stateprops, edgesize, vertexsize) => {
 		this.setStateLoadingContent(true);
 		getHierarchySplitFiles(id, includeParts, stateprops.distancegap[index], stateprops.anglegap[index],
-			stateprops.disect[index], 0, edgesize, vertexsize)
+			stateprops.disect[index], 0, edgesize, vertexsize, 50)
 			.then(res => res.data)
 			.then((repos) => {
 				//console.log(repos);					

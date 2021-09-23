@@ -1062,7 +1062,7 @@ class StepIgesAnalyser():
     def __init__(
         self, document=None, filename=None, shapeslist=None, includeparts=False, ascompound=False, 
         distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
-        animations=None, delay=1.0, shapeorder=[], kinematicanimation=None,
+        maximumfacestoinclude=48, animations=None, delay=1.0, shapeorder=[], kinematicanimation=None,
         thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=True,
         writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False):
@@ -1081,6 +1081,7 @@ class StepIgesAnalyser():
         self.writefiles = writefiles
         self.logging = logging
         self.addfeaturesThread = addfeaturesThread
+        self.maximumfacestoinclude=maximumfacestoinclude
         #print("I m initializing")
         if filename:
             _, tail = os.path.split(self.fname)
@@ -1567,7 +1568,7 @@ class StepIgesAnalyser():
                     mycompound,_ = list_of_shapes_to_compound(only_soilds)                     
                     hashcode = str(hash(mycompound))+transformationHash
                     list_of_compounds.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hashcode))
-                    return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" , (len_color_arr>2) and (len(faces_dict) < self.multiplegltf)
+                    return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" , (len(faces_dict) < self.maximumfacestoinclude) # (len_color_arr>2) and (len(faces_dict) < self.multiplegltf)
                 else:
                     return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE", False
             #else:
@@ -3748,7 +3749,8 @@ class StepIgesAnalyser():
             mesher_dict = self.findDictionary(mesherDict)
             #print("mesh",mesher_dict)
             mesher_dict[self.gltf_Dict["step"]] = os.path.basename(filenameuri)
-            mesher_dict[self.gltf_Dict["element"]] = filetype[0:1]
+            myFileType = filetype[0:1]
+            mesher_dict[self.gltf_Dict["element"]] = myFileType
             #mesher_dict["fileId"] = self.fileId
             mesher_dict[self.gltf_Dict["leaf"]]=True
             if( solidfound > 0 ) :
@@ -3775,17 +3777,18 @@ class StepIgesAnalyser():
                 mesher_dict[self.gltf_Dict["bin"]]=True
 
                 self.updateParentDimensions(mesher_dict)
+               
                 #print("affter update")
                 if part_color:
                     mesher_dict[self.gltf_Dict["R"]] = part_color.Red()
                     mesher_dict[self.gltf_Dict["G"]] = part_color.Green()
                     mesher_dict[self.gltf_Dict["B"]] = part_color.Blue()
-                    mesher_dict[self.gltf_Dict["A"]] = 1
+                    mesher_dict[self.gltf_Dict["A"]] = (0 if(myFileType=="E" or myFileType=="V") else 1)
                 else:
                     mesher_dict[self.gltf_Dict["R"]] = 0.7529
                     mesher_dict[self.gltf_Dict["G"]] = 0.7529
                     mesher_dict[self.gltf_Dict["B"]] = 0.7529
-                    mesher_dict[self.gltf_Dict["A"]] = 1
+                    mesher_dict[self.gltf_Dict["A"]] = (0 if(myFileType=="E" or myFileType=="V") else 1)
                 mesher_dict[self.gltf_Dict["texture"]] = ""
                 mesher_dict[self.gltf_Dict["metallicFactor"]] = 0.1
                 mesher_dict[self.gltf_Dict["roughnessFactor"]] = 0.7
@@ -3907,7 +3910,7 @@ class StepIgesAnalyser():
                                 material = { #'alphaCutoff': 1.0,
                                         'alphaMode': 'BLEND', 'pbrMetallicRoughness': {
                                         'baseColorFactor': [
-                                            part_color.Red(),part_color.Green(),part_color.Blue(),1.0
+                                            part_color.Red(),part_color.Green(),part_color.Blue(),(0 if(myFileType=="E" or myFileType=="V") else 1)
                                             ], 'metallicFactor': 0.1, 'roughnessFactor': 0.7}}
                             else:
                                 material = self.default_material

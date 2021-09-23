@@ -38,8 +38,8 @@ export const getSplitFiles = (id, includeParts, distancegap, anglegap, disectPar
     return axios.get(splitURL);
 }
 
-export const getHierarchySplitFiles = (id, includeParts, distancegap, anglegap, disectParts, moverotate, edgesize, vertexsize) => {
-    const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}&edgesize=${edgesize}&vertexsize=${vertexsize}`;
+export const getHierarchySplitFiles = (id, includeParts, distancegap, anglegap, disectParts, moverotate, edgesize, vertexsize, maximumfaces) => {
+    const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}&edgesize=${edgesize}&vertexsize=${vertexsize}&maximumfaces=${maximumfaces}`;
     console.log(splitURL);
     return axios.get(splitURL);
 }

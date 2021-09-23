@@ -6,7 +6,7 @@ import {
 } from "@material-ui/core"
 import Viewer from './Viewer';
 import ViewerToolbar from './ViewerToolbar';
-import { getHierarchySplitFiles, getShapeInfo } from '@ravibasil/common/api/fileUpload.api'
+import { getShapeInfo } from '@ravibasil/common/api/fileUpload.api'
 import {
   SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
   DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,
@@ -67,7 +67,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   const [resetOption, setResetOption] = useState(true);
   const [value, setValue] = React.useState('female');
   const [ctrlKey, setCtrlKey] = useState(false);
-  const [optionForAssemblyTree,setOptionForAssemblyTree] = useState("Assembly Tree");
+  const [optionForAssemblyTree,setOptionForAssemblyTree] = useState("Configuration");
   const handleChange = (event) => {
     setValue(event.target.value);
   };
@@ -1054,7 +1054,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     <Paper className={classes.mainContainer}>
       {(state.gltfjson?.tree) && (
         <div className={` ${classes.assemblyTreeContainer}`}>
-          <RadioGroup
+          {/* <RadioGroup
             row
             aria-label="Option To Show"
             defaultValue="Assembly Tree"
@@ -1073,7 +1073,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
               label="Configuration"
               checked={optionForAssemblyTree=="Configuration"}
             />           
-          </RadioGroup>
+          </RadioGroup> */}
           <Assembly
             assemblyTree={buildParentChildTree(state.gltfjson.tree, selectedOption)}
             OnAddition={addSelectionFromTree}
