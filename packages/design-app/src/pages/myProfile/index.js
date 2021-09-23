@@ -45,6 +45,8 @@ const MyProfile = ({ gltfjson, setgltfjson }) => {
   const tabList = {
     myInfo: 'My Info',
     mmt: 'My Machines and Tools',
+    bfc: "Buy From Creators",
+    creators: "Creators"
   };
 
   const renderTab = () => {
@@ -64,7 +66,7 @@ const MyProfile = ({ gltfjson, setgltfjson }) => {
   return (
     <>
       <Grid container>
-        <Grid item sm sm={12}>
+        <Grid item sm={12}>
           <Paper style={{ padding: 10, margin: 10, display: 'flex' }}>
             <Grid style={{ margin: 'auto' }}>
               <h2>{tabList[tabIndex]} </h2>

@@ -12,10 +12,10 @@ import {
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
-// import SubHeaderWithArrow from "@ravibasil/internal-app/src/components/SubHeaderWithArrow";
+// import SubHeaderWithArrow from "@monostruct/internal-app/src/components/SubHeaderWithArrow";
 import { useParams, useHistory } from 'react-router-dom';
 import Designer from './Designer';
-// import Manufacturing from '@ravibasil/internal-app/src/containers/manufacture/index2'
+// import Manufacturing from '@monostruct/internal-app/src/containers/manufacture/index2'
 
 const OmniDesign = ({ gltfjson, setgltfjson }) => {
   // const dispatch = useDispatch();
@@ -58,9 +58,9 @@ const OmniDesign = ({ gltfjson, setgltfjson }) => {
   };
   const handleSaveButton = (e) => {
     setIsEditing(false);
-    setUpdatedValue(e.target.value)
+    setUpdatedValue(e.target.value);
   };
-  
+
   // const handleOnChange = (name, value) => {
   //   setValue(preValue => ({
   //     ...preValue,
@@ -108,7 +108,7 @@ const OmniDesign = ({ gltfjson, setgltfjson }) => {
               {isEditing ? (
                 <FormControl>
                   <TextField
-                    value={isEditing ? updatedValue : tabList[tabIndex] }
+                    value={isEditing ? updatedValue : tabList[tabIndex]}
                     defaultValue={tabList[tabIndex]}
                     onChange={handleUpdatedValue}
                     variant="outlined"

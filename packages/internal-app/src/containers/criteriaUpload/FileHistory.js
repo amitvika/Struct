@@ -9,8 +9,8 @@ import {
   Paper,
   Grid,
 } from '@material-ui/core';
-import { Headding } from '@ravibasil/common/components';
-import { fetchFileHistoryApi } from '@ravibasil/common/api/fileHistory.api';
+import { Headding } from '@monostruct/common/components';
+import { fetchFileHistoryApi } from '@monostruct/common/api/fileHistory.api';
 
 export default function FileHistory({ link_id, refreshFileHistory }) {
   const [fileHistory, setFileHistory] = React.useState([]);

@@ -4,20 +4,15 @@ import {
   CircularProgress,
   makeStyles
 } from "@material-ui/core";
-//import Link from '@material-ui/core/Link';
 import { Spinner } from "reactstrap";
 import TableOrderView from './TableOrderView';
-import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer.js';
+import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer.js';
 import {
-  SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
   DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,
-  getTexture, SELECT2DTEXTURE, SELECT3DTEXTURE,
-  SELECTMATERIRAL, SELECTDISTANCE, SELECTSHOWINFO,
-  SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER, SELECTMEASURE,
-  SELECTCONTINOUS, SELECTHIRERACHY, SELECTDISECTPARTS, SELECTSTACKABLE,
-  SELECTORDER, SELECTASSEMBLY, SELECTFEATURE, prettyPrintArray, gltf_Dict
-} from "@ravibasil/common/gltf/Tree/utils";
-import { getAFileFromStore,saveTreeInfo,getPartsAssemblyOrder } from '@ravibasil/common/api/fileUpload.api';
+  SELECTDISTANCE,SELECTSOLID, SELECTHIRERACHY, SELECTDISECTPARTS,
+ SELECTASSEMBLY, SELECTFEATURE, gltf_Dict
+} from "@monostruct/common/gltf/Tree/utils";
+import { getAFileFromStore,saveTreeInfo,getPartsAssemblyOrder } from '@monostruct/common/api/fileUpload.api';
 import '../../style.css';
 
 
@@ -119,16 +114,16 @@ export default function ManufacturabilityAnalysis(props) {
   const arrayFindIndex = (arr, value, parent = false) => {
 
     return arr.findIndex(function (ele) {
-      if (parent) return ele.parent[gltf_Dict["name"]] == value;
-      return ele[gltf_Dict["name"]] == value;
+      if (parent) return ele.parent[gltf_Dict["name"]] === value;
+      return ele[gltf_Dict["name"]] === value;
     });
   }
 
   const arrayRemove = (arr, value, parent = false) => {
 
     return arr.filter(function (ele) {
-      if (parent) return ele.parent[gltf_Dict["name"]] != value;
-      return ele[gltf_Dict["name"]] != value;
+      if (parent) return ele.parent[gltf_Dict["name"]] !== value;
+      return ele[gltf_Dict["name"]] !== value;
     });
   }
   const arrayCopy = (arr) => {
@@ -147,9 +142,9 @@ export default function ManufacturabilityAnalysis(props) {
     var myParentID = -1;
 
     for (var i = 0; i < state.gltfjson.tree.length; i++) {
-      if (state.gltfjson.tree[i][gltf_Dict["name"]] == mynode[gltf_Dict["name"]]) {
+      if (state.gltfjson.tree[i][gltf_Dict["name"]] === mynode[gltf_Dict["name"]]) {
         myParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
-        if (state.gltfjson.tree[i][gltf_Dict["element"]] == "P") {
+        if (state.gltfjson.tree[i][gltf_Dict["element"]] === "P") {
           return state.gltfjson.tree[i];
         } else {
           break;
@@ -157,14 +152,14 @@ export default function ManufacturabilityAnalysis(props) {
       }
     }
 
-    if (myParentID == -1) {
+    if (myParentID === -1) {
       return null;
     } else {
       var myParentsParentID = -1;
-      for (var i = 0; i < state.gltfjson.tree.length; i++) {
-        if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
+      for ( i = 0; i < state.gltfjson.tree.length; i++) {
+        if (state.gltfjson.tree[i][gltf_Dict["id"]] === myParentID) {
           myParentsParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
-          if (state.gltfjson.tree[i][gltf_Dict["element"]] == "P") {
+          if (state.gltfjson.tree[i][gltf_Dict["element"]] === "P") {
             return state.gltfjson.tree[i];
           } else {
             break;
@@ -172,13 +167,13 @@ export default function ManufacturabilityAnalysis(props) {
         }
       }
       //console.log("Parent", myParentsParentID, myParentID, myID);          
-      if (myParentsParentID == -1) { //RootNode
+      if (myParentsParentID === -1) { //RootNode
         //console.log("Pushing", myParentsParentID, myParentID, myID);
         return null;
       } else {
-        for (var i = 0; i < state.gltfjson.tree.length; i++) {
-          if ((state.gltfjson.tree[i][gltf_Dict["id"]] == myParentsParentID)) {
-            if (state.gltfjson.tree[i][gltf_Dict["element"]] == "P") {
+        for (i = 0; i < state.gltfjson.tree.length; i++) {
+          if ((state.gltfjson.tree[i][gltf_Dict["id"]] === myParentsParentID)) {
+            if (state.gltfjson.tree[i][gltf_Dict["element"]] === "P") {
               return state.gltfjson.tree[i];
             }
           }
@@ -200,7 +195,7 @@ export default function ManufacturabilityAnalysis(props) {
       }
     }
 
-    if (myMaterials.length != 0) {
+    if (myMaterials.length !== 0) {
       return [myMaterials, myParentNode];
     }
     return [[mynode], mynode];
@@ -214,7 +209,7 @@ export default function ManufacturabilityAnalysis(props) {
 
 
     for (var i = 0; i < state.gltfjson.tree.length; i++) {
-      if (state.gltfjson.tree[i][gltf_Dict["name"]] == mynode[gltf_Dict["name"]]) {
+      if (state.gltfjson.tree[i][gltf_Dict["name"]] === mynode[gltf_Dict["name"]]) {
         myParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
         myID = state.gltfjson.tree[i][gltf_Dict["id"]];
         parentNode = state.gltfjson.tree[i];
@@ -228,10 +223,10 @@ export default function ManufacturabilityAnalysis(props) {
     }
     //console.log(myParentID, parentNode);
     var myMaterials = [];
-    if (myParentID != -1) {
+    if (myParentID !== -1) {
       var myParentsParentID = -1;
-      for (var i = 0; i < state.gltfjson.tree.length; i++) {
-        if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
+      for ( i = 0; i < state.gltfjson.tree.length; i++) {
+        if (state.gltfjson.tree[i][gltf_Dict["id"]] === myParentID) {
           myParentsParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
           parentNode = state.gltfjson.tree[i];
           break;
@@ -239,14 +234,14 @@ export default function ManufacturabilityAnalysis(props) {
       }
       //console.log(myParentID, myParentsParentID, parentNode);
       var myParents = [];
-      if (myParentsParentID == -1) { //RootNode
+      if (myParentsParentID === -1) { //RootNode
         myParents.push(myID);
       } else {
-        for (var i = 0; i < state.gltfjson.tree.length; i++) {
-          if (state.gltfjson.tree[i][gltf_Dict["parentId"]] == myParentsParentID) {
+        for ( i = 0; i < state.gltfjson.tree.length; i++) {
+          if (state.gltfjson.tree[i][gltf_Dict["parentId"]] === myParentsParentID) {
             myParents.push(state.gltfjson.tree[i][gltf_Dict["id"]]);
           } else {
-            if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentsParentID) {
+            if (state.gltfjson.tree[i][gltf_Dict["id"]] === myParentsParentID) {
               parentNode = state.gltfjson.tree[i];
             }
           }
@@ -254,11 +249,11 @@ export default function ManufacturabilityAnalysis(props) {
       }
       for (var j = 0; j < myParents.length; j++) {
         myParentID = myParents[j];
-        for (var i = 0; i < state.gltfjson.tree.length; i++) {
-          if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
+        for ( i = 0; i < state.gltfjson.tree.length; i++) {
+          if (state.gltfjson.tree[i][gltf_Dict["id"]] === myParentID) {
             var myChild = state.gltfjson.tree[i];
             if (myChild) {
-              if ((state.gltfjson.tree[i][gltf_Dict["element"]] == "P") ||
+              if ((state.gltfjson.tree[i][gltf_Dict["element"]] === "P") ||
                 onlyparts(myChild[gltf_Dict["name"]])) {
                 myMaterials.push(myChild);
               }
@@ -268,7 +263,7 @@ export default function ManufacturabilityAnalysis(props) {
       }
 
     }
-    if (myMaterials.length != 0) {
+    if (myMaterials.length !== 0) {
 
       return [myMaterials, parentNode];
     }
@@ -279,12 +274,12 @@ export default function ManufacturabilityAnalysis(props) {
 
   const findMyParentChilds = (mynode, whichOption) => {
     //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID);
-    if ((((whichOption != SELECTSOLID) && (whichOption != SELECTASSEMBLY)) ||
-      (state.splitMethod != SELECTDISECTPARTS)) && resetOption) {
+    if ((((whichOption !== SELECTSOLID) && (whichOption !== SELECTASSEMBLY)) ||
+      (state.splitMethod !== SELECTDISECTPARTS)) && resetOption) {
       //console.log("I got over Singles",whichOption,resetOption,state.splitMethod);
       return findSingleNode(mynode);
     }
-    if (whichOption == SELECTASSEMBLY) {
+    if (whichOption === SELECTASSEMBLY) {
       //console.log("I got over Family");
       return findFamilyNodes(mynode);
     } else {
@@ -300,7 +295,7 @@ export default function ManufacturabilityAnalysis(props) {
     if (state.gltfjson.tree) {
       for (var i = 0; i < state.gltfjson.tree.length; i++) {
         //console.log(state.gltfjson.tree[i]);
-        if (state.gltfjson.tree[i][gltf_Dict["name"]] == data["name"]) {
+        if (state.gltfjson.tree[i][gltf_Dict["name"]] === data["name"]) {
           return state.gltfjson.tree[i];
         }
       }
@@ -312,7 +307,7 @@ export default function ManufacturabilityAnalysis(props) {
 
     const first4chars = name.slice(0, 4);
     const first6chars = name.slice(0, 6);
-    if ((first4chars == "PART") || (first4chars == "EDGE") || (first6chars == "VERTEX")) {
+    if ((first4chars === "PART") || (first4chars === "EDGE") || (first6chars === "VERTEX")) {
       return false;
     }
     return true;
@@ -321,12 +316,12 @@ export default function ManufacturabilityAnalysis(props) {
   const onlyparts = (name) => {
 
     const first4chars = name.slice(0, 4);
-    return first4chars == "PART";
+    return first4chars === "PART";
 
   }
   let mapdata = {}
   const setSelectedShell = (data, setoption) => {
-    if (data.selectedshell != setoption) {
+    if (data.selectedshell !== setoption) {
       data.selectedshell = setoption;
       const myID = data[gltf_Dict['id']];
       let curData = mapdata[myID];
@@ -335,7 +330,7 @@ export default function ManufacturabilityAnalysis(props) {
 
           const element = state.gltfjson.tree[index];
           //console.log("compare",element,data);
-          if (element[[gltf_Dict['id']]] == myID) {
+          if (element[[gltf_Dict['id']]] === myID) {
             curData = index;
             mapdata[myID] = index;
             break;
@@ -366,7 +361,7 @@ export default function ManufacturabilityAnalysis(props) {
 
         const element = state.gltfjson.tree[index];
         //console.log("compare",element,data);
-        if (element[[gltf_Dict['id']]] == myID) {
+        if (element[[gltf_Dict['id']]] === myID) {
           curData = index;
           mapdata[myID] = index;
           break;
@@ -378,7 +373,7 @@ export default function ManufacturabilityAnalysis(props) {
       let myTree = { ...state.gltfjson };
       for (let index = 0; index < myTree.tree.length; index++) {
         const element = myTree.tree[index];
-        element.selectedshell = (index == curData) && setoption;
+        element.selectedshell = (index === curData) && setoption;
       }
       console.log("About to set", myTree);
       setState({ gltfjson: myTree });
@@ -398,8 +393,8 @@ export default function ManufacturabilityAnalysis(props) {
       if(aShape) {
         const first4chars = aShape.slice(0, 4);
         const first6chars = aShape.slice(0, 6);
-        if ((first4chars == "FACE") || (first4chars == "EDGE") ||
-          (first4chars == "PART") || (first6chars == "VERTEX")) {
+        if ((first4chars === "FACE") || (first4chars === "EDGE") ||
+          (first4chars === "PART") || (first6chars === "VERTEX")) {
           console.log("Setting..", element);
           element.selectedshell = true;
           setSelectedShell(element, true);
@@ -433,7 +428,7 @@ export default function ManufacturabilityAnalysis(props) {
       console.log(myTree);
       if (myTree) {
         //myTree.selectedshell = true;
-        if (event && (event.ctrlKey != ctrlKey)) {
+        if (event && (event.ctrlKey !== ctrlKey)) {
           setCtrlKey(event.ctrlKey);
         }
         setState({ renderdata: [myTree], whatchange: SELECTDISTANCE });
@@ -452,7 +447,7 @@ export default function ManufacturabilityAnalysis(props) {
 
   };
   const resetSelectionFromTree = async () => {
-    if ((state.whatchange != 0) || state.renderdata != []) {
+    if ((state.whatchange !== 0) || state.renderdata !== []) {
       setState({ whatchange: 0, renderdata: [] });
     }
   };
@@ -472,7 +467,7 @@ export default function ManufacturabilityAnalysis(props) {
       if (event) {
         toAdd = event.ctrlKey;
       }
-      if (event && (event.ctrlKey != ctrlKey)) {
+      if (event && (event.ctrlKey !== ctrlKey)) {
         console.log("my Control key", event.ctrlKey, ctrlKey);
         setCtrlKey(event.ctrlKey);
         console.log("Set Ctrk Key");
@@ -513,7 +508,7 @@ export default function ManufacturabilityAnalysis(props) {
           if (data.selectedshell) {
             var alreadyPresent = false;
             for (var i = 0; i < copy_selectobjects.length; i++) {
-              if (elementdata[gltf_Dict["name"]] == copy_selectobjects[i][gltf_Dict["name"]]) {
+              if (elementdata[gltf_Dict["name"]] === copy_selectobjects[i][gltf_Dict["name"]]) {
                 alreadyPresent = true;
                 break;
               }
@@ -532,7 +527,7 @@ export default function ManufacturabilityAnalysis(props) {
 
           } else {//error here... 
             const currentIndex = arrayFindIndex(copy_selectobjects, elementdata[gltf_Dict["name"]]);
-            if (currentIndex != -1) {
+            if (currentIndex !== -1) {
               //console.log(currentIndex,elementdata[gltf_Dict["name"]]);        
               copy_selectobjects = arrayRemove(copy_selectobjects, elementdata[gltf_Dict["name"]]);
               //console.log("Before Splicing",copy_mateobjects,currentIndex, copy_mateobjects.length);
@@ -594,7 +589,7 @@ export default function ManufacturabilityAnalysis(props) {
   const handleModelClick = (data, what, event) => {
     console.log(data, what, event);
     setFirstTimeLoading(true);
-    if (what == SELECTDISTANCE) {
+    if (what === SELECTDISTANCE) {
       if(data) {
         console.log(data);
         const mymesh = findMyMaterial(data);
@@ -817,22 +812,22 @@ export default function ManufacturabilityAnalysis(props) {
     const x=direction[0];
     const y=direction[1];
     const z=direction[2];
-    if(z==1) {
+    if(z===1) {
       return "Top";
     }
-    if(z==-1) {
+    if(z===-1) {
       return "Bottom";
     }    
-    if(y==1) {
+    if(y===1) {
       return "Right";
     }
-    if(y==-1) {
+    if(y===-1) {
       return "Left";
     }
-    if(x==1) {
+    if(x===1) {
       return "Back";
     }
-    if(x==-1) {
+    if(x===-1) {
       return "Front";
     }
     console.log("Direction",direction);
@@ -850,7 +845,7 @@ export default function ManufacturabilityAnalysis(props) {
       }
      
       for (let index = 2; index < gltfjsonParam.tree.length; index++) {
-        if(firstTimeLoading==false && doupdate==false) {
+        if(firstTimeLoading===false && doupdate===false) {
           gltfjsonParam.tree[index].selectedshell=false;
         }
         
@@ -877,9 +872,9 @@ export default function ManufacturabilityAnalysis(props) {
       }
       var itemset=false;
       for (let index = 0; index < gltfjsonParam.assemblyorder.order.length; index++) {
-        if(currentData[index].AX != gltfjsonParam.assemblyorder.direction[index][0][0] || 
-           currentData[index].AY != gltfjsonParam.assemblyorder.direction[index][0][1] ||
-           currentData[index].AZ != gltfjsonParam.assemblyorder.direction[index][0][2] 
+        if(currentData[index].AX !== gltfjsonParam.assemblyorder.direction[index][0][0] || 
+           currentData[index].AY !== gltfjsonParam.assemblyorder.direction[index][0][1] ||
+           currentData[index].AZ !== gltfjsonParam.assemblyorder.direction[index][0][2] 
           ) {
           currentData[index].AX = gltfjsonParam.assemblyorder.direction[index][0][0];
           currentData[index].AY = gltfjsonParam.assemblyorder.direction[index][0][1];
@@ -888,7 +883,7 @@ export default function ManufacturabilityAnalysis(props) {
           currentData[index].CY = gltfjsonParam.assemblyorder.direction[index][1][1];
           currentData[index].CZ = gltfjsonParam.assemblyorder.direction[index][1][2];
           currentData[index].CW = gltfjsonParam.assemblyorder.direction[index][1][3];
-          if (gltfjsonParam.assemblyorder.complete==gltfjsonParam.assemblyorder.order.length) {
+          if (gltfjsonParam.assemblyorder.complete===gltfjsonParam.assemblyorder.order.length) {
             gltfjsonParam.tree[index+2].AX = currentData[index].AX;
             gltfjsonParam.tree[index+2].AY = currentData[index].AY;
             gltfjsonParam.tree[index+2].AZ = currentData[index].AZ;
@@ -902,7 +897,7 @@ export default function ManufacturabilityAnalysis(props) {
         const element = gltfjsonParam.assemblyorder.order[index];
         if(!currentData[element].order) {
           currentData[element].order = index + 1; 
-          if (gltfjsonParam.assemblyorder.complete==gltfjsonParam.assemblyorder.order.length) {
+          if (gltfjsonParam.assemblyorder.complete===gltfjsonParam.assemblyorder.order.length) {
             gltfjsonParam.tree[element+2].order = currentData[element].order;
           }
           itemset=true;
@@ -914,7 +909,7 @@ export default function ManufacturabilityAnalysis(props) {
       console.log("Setting Featured List", currentData, filteredList);
       console.log(gltfjsonParam.assemblyorder);
       if (gltfjsonParam.assemblyorder.current) {
-        if (gltfjsonParam.assemblyorder.complete!=gltfjsonParam.assemblyorder.order.length) {
+        if (gltfjsonParam.assemblyorder.complete!==gltfjsonParam.assemblyorder.order.length) {
           const progressString="Completed "+gltfjsonParam.assemblyorder.complete.toString()+
             " Out of "+gltfjsonParam.assemblyorder.order.length.toString()+" At "+
             gltfjsonParam.assemblyorder.current+" From "+gltfjsonParam.assemblyorder.start+" \u00a0 "+
@@ -935,7 +930,7 @@ export default function ManufacturabilityAnalysis(props) {
           }
         }        
       } else {
-        if(alerter!="") {
+        if(alerter!=="") {
           setAlerter("");
           var mycolumns=columns;
           mycolumns[2].type="number";
@@ -947,7 +942,7 @@ export default function ManufacturabilityAnalysis(props) {
     } else {
       console.log("Going to set Featured List", currentData);
       setFilteredList(currentData);
-      if(alerter!="") {
+      if(alerter!=="") {
         setAlerter("");
         var mycolumns=columns;       
         mycolumns[2].type="number";
@@ -1057,7 +1052,7 @@ export default function ManufacturabilityAnalysis(props) {
 
       </Paper>
       <TableOrderView
-        title={alerter==""?'Order of Assembly':alerter}
+        title={alerter===""?'Order of Assembly':alerter}
         alerter={alerter}
         list={filteredList}
         columns={columns}

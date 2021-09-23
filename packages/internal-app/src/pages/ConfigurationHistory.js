@@ -1,22 +1,22 @@
-import React, { Component } from "react";
-import MaterialTable from "material-table";
-import { connect } from "react-redux";
-import { Spinner } from "reactstrap";
-import ConfigurationHistoryAPI from '@ravibasil/common/api/configurationHistory.api';
+import React, { Component } from 'react';
+import MaterialTable from 'material-table';
+import { connect } from 'react-redux';
+import { Spinner } from 'reactstrap';
+import ConfigurationHistoryAPI from '@monostruct/common/api/configurationHistory.api';
 
 class ConfigurationHistory extends Component {
   state = {
     rowData: [],
-    tableLoaded: true
+    tableLoaded: true,
   };
 
   dataQueryPage = (query) => {
     return new Promise(async (resolve, reject) => {
-
-      ConfigurationHistoryAPI
-        .getConfigurationHistory(`limit=${query.pageSize}&page=${query.page + 1}`)
-        .then(result => result.data)
-        .then(result => {
+      ConfigurationHistoryAPI.getConfigurationHistory(
+        `limit=${query.pageSize}&page=${query.page + 1}`
+      )
+        .then((result) => result.data)
+        .then((result) => {
           let rowData = result.docs;
 
           rowData = rowData.map((x, index) => {
@@ -28,7 +28,7 @@ class ConfigurationHistory extends Component {
                 client: x.client.name,
                 model: x.model,
                 time: x.date,
-                update: x.update
+                update: x.update,
               };
             } else {
               return {
@@ -38,7 +38,7 @@ class ConfigurationHistory extends Component {
                 client: x.client,
                 model: x.model,
                 time: x.date,
-                update: x.update
+                update: x.update,
               };
             }
           });
@@ -47,48 +47,48 @@ class ConfigurationHistory extends Component {
             data: rowData,
             page: result.page - 1,
             totalCount: result.totalPages,
-          })
+          });
         })
-        .catch(err => console.log(err));
-    })
-  }
+        .catch((err) => console.log(err));
+    });
+  };
   render() {
     return (
       <div>
         {this.state.tableLoaded ? (
           <MaterialTable
             columns={[
-              { title: "Changed By", field: "user" },
-              { title: "Client", field: "client" },
-              { title: "Table", field: "model" },
-              { title: "Change Type", field: "type" },
-              { title: "Updated Item Id", field: "updatedItem" },
-              { title: "Change Date/Time", field: "time" }
+              { title: 'Changed By', field: 'user' },
+              { title: 'Client', field: 'client' },
+              { title: 'Table', field: 'model' },
+              { title: 'Change Type', field: 'type' },
+              { title: 'Updated Item Id', field: 'updatedItem' },
+              { title: 'Change Date/Time', field: 'time' },
             ]}
-            data={query => this.dataQueryPage(query)}
+            data={(query) => this.dataQueryPage(query)}
             title="Configuration History"
-            detailPanel={rowData => {
-              return "Update: " + JSON.stringify(rowData.update);
+            detailPanel={(rowData) => {
+              return 'Update: ' + JSON.stringify(rowData.update);
             }}
             onRowClick={(event, rowData, togglePanel) => togglePanel()}
           />
         ) : (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center"
-              }}
-            >
-              <Spinner animation="border" />
-            </div>
-          )}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <Spinner animation="border" />
+          </div>
+        )}
       </div>
     );
   }
 }
 
-const mapStateToProps = state => ({
-  auth: state.auth
+const mapStateToProps = (state) => ({
+  auth: state.auth,
 });
 
 export default connect(mapStateToProps, null)(ConfigurationHistory);

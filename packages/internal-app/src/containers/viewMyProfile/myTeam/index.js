@@ -1,22 +1,21 @@
-import React from "react";
+import React from 'react';
 
-import UserSetupAPI from '@ravibasil/common/api/teamSetup.api';
-import TableGridView from '@ravibasil/common/components/TableGridView';
-import { teamSetupFields } from '@ravibasil/common/constants/team'
-import TeamMemberModal from './TeamMemberModal'
+import UserSetupAPI from '@monostruct/common/api/teamSetup.api';
+import TableGridView from '@monostruct/common/components/TableGridView';
+import { teamSetupFields } from '@monostruct/common/constants/team';
+import TeamMemberModal from './TeamMemberModal';
 
 const MyTeam = () => {
-
-    return (
-        <TableGridView
-            title={'My Teams'}
-            fields={teamSetupFields}
-            fetchList={UserSetupAPI.fetchMyTeams}
-            isCustomAddButtonVisible={false}
-            ManageTeamModal={TeamMemberModal}
-            isManageTeamVisible={true}
-        />
-    );
-}
+  return (
+    <TableGridView
+      title={'My Teams'}
+      fields={teamSetupFields}
+      fetchList={UserSetupAPI.fetchMyTeams}
+      isCustomAddButtonVisible={false}
+      ManageTeamModal={TeamMemberModal}
+      isManageTeamVisible={true}
+    />
+  );
+};
 
 export default MyTeam;

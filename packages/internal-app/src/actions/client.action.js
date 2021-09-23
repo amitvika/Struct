@@ -1,19 +1,19 @@
-import * as Types from "./types";
-import { fetchClientsApi } from '@ravibasil/common/api/clients.api';
+import * as Types from './types';
+import { fetchClientsApi } from '@monostruct/common/api/clients.api';
 
 export const fetchClientAction = () => (dispatch) => {
   dispatch({ type: Types.CLIENTS_LOADING }); //sets idloading to true
 
   fetchClientsApi()
-    .then(res => {
+    .then((res) => {
       dispatch({
         type: Types.CLIENTS_SUCCESS,
-        payload: res.data
-      })
+        payload: res.data,
+      });
     })
-    .catch(err => {
+    .catch((err) => {
       dispatch({
-        type: Types.CLIENTS_ERROR
+        type: Types.CLIENTS_ERROR,
       });
     });
 };

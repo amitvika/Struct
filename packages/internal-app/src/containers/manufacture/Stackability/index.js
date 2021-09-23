@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-//import { getPartsStackableInfo } from '@ravibasil/common/api/fileUpload.api';
-import { useSelector } from 'react-redux'
+//import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
+import { useSelector } from 'react-redux';
 import { Paper, Grid, CircularProgress, makeStyles } from '@material-ui/core';
 // import { Headding } from '../../../components';
-import Heading from '@ravibasil/common/components/atoms/Headding';
+import Heading from '@monostruct/common/components/atoms/Headding';
 
-import GLTFRenderer from '@ravibasil/common/gltf/GltfRenderer.js';
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, 
-    SELECTFEATURE, SELECTHIRERACHY } from "@ravibasil/common/gltf/Tree/utils";
+import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer.js';
+import {
+  DEFAULTBACKCOLOR,
+  DEFAULTSELECTCOLOR,
+  DEFAULTTOUCHCOLOR,
+  SELECTFEATURE,
+  SELECTHIRERACHY,
+} from '@monostruct/common/gltf/Tree/utils';
 
 import '../style.css';
 
@@ -18,173 +23,196 @@ const DEFAULTFROMCENTER = true;
 const DEFAULTDISECT = false;
 const DEFAULTSHOWDISECT = false;
 const DEFAULTSHOWINFOONSELECT = false;
-const DEFAULTMATERIALNAME = "Basic";
-const DEFAULTMATERIALTYPE = [{ "id": 1, "name": DEFAULTMATERIALNAME }];
+const DEFAULTMATERIALNAME = 'Basic';
+const DEFAULTMATERIALTYPE = [{ id: 1, name: DEFAULTMATERIALNAME }];
 
 const stateprops = {
-    distancegap: DEFAULTDISTANCEGAP,
-    anglegap: DEFAULTANGLEGAP,
-    explodegap: DEFAULTEXPLODEGAP,
-    disect: DEFAULTDISECT,
-    showdisect: DEFAULTSHOWDISECT,
-    showinfoonselect: DEFAULTSHOWINFOONSELECT,
-    materialtype: DEFAULTMATERIALTYPE,
-    fromcenter:DEFAULTFROMCENTER
-}
+  distancegap: DEFAULTDISTANCEGAP,
+  anglegap: DEFAULTANGLEGAP,
+  explodegap: DEFAULTEXPLODEGAP,
+  disect: DEFAULTDISECT,
+  showdisect: DEFAULTSHOWDISECT,
+  showinfoonselect: DEFAULTSHOWINFOONSELECT,
+  materialtype: DEFAULTMATERIALTYPE,
+  fromcenter: DEFAULTFROMCENTER,
+};
 const useStyles = makeStyles((theme) => ({
-    mainContainer: { margin: 10, padding: 10, display: 'inline-flex', minWidth: '100%' },
-    viewerContainer: {
-        width: '600px',
-        height: '600px',
-        padding: '20px',
-        margin: '0px 15px',
-        display: 'inline-block',
-        border: '1px solid rgba(0, 0, 0, 0.3)',
-        boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
-    }
+  mainContainer: {
+    margin: 10,
+    padding: 10,
+    display: 'inline-flex',
+    minWidth: '100%',
+  },
+  viewerContainer: {
+    width: '600px',
+    height: '600px',
+    padding: '20px',
+    margin: '0px 15px',
+    display: 'inline-block',
+    border: '1px solid rgba(0, 0, 0, 0.3)',
+    boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
+  },
 }));
 
 export default function Stackability(props) {
-    const {fileId, gltfjson, isLoading}=props;   
-    const [isFileLoading, setIsLoading] = useState(isLoading);
-   
-    const classes = useStyles();
-   
-    const currentItem = useSelector(state => state.item.currentItem);
-    const [splitfiles, setsplitfiles] = useState({gltfjson});
+  const { fileId, gltfjson, isLoading } = props;
+  const [isFileLoading, setIsLoading] = useState(isLoading);
 
-    useEffect(() => {
-        setsplitfiles(props.gltfjson);
-    }, [props]);
-    const [state, _setState] = useState({});
-   
-    const setState = (data) => {
-        _setState(prevState => {
-            return {
-                ...prevState,
-                ...data
-            }
+  const classes = useStyles();
 
-        })
-    }    
-    useEffect(() => {
-        setIsLoading(isLoading);
-    }, [isLoading]);
-    useEffect(() => {
-        const includeParts = true;
-        console.log("Reaching",gltfjson,fileId,isLoading);
-        let gltfjsonlen =  Object.keys(gltfjson).length;
-        if (gltfjsonlen > 0) {
-            gltfjsonlen += gltfjson?.gltf?.accessors?.length;
-        }
-        if (gltfjsonlen > 0) {
-            setState({
-                selectedindex: 0,
-                activefile: fileId.toString() + includeParts.toString() +
-                    stateprops.distancegap.toString() + stateprops.anglegap.toString() + gltfjsonlen.toString(),
-                gltfjson: gltfjson,
-                dataselection: 0,
-                firstshell: null,
-                secondshell: null,
-                materialname: stateprops.materialtype[0].name,
-                disectstruct: stateprops.disect,
-                showdisect: stateprops.showdisect,
-                showinfoonselect: stateprops.showinfoonselect,
-                //splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
-                selectedObjects: [],
-                parentObjects: [],
-                mates: [],
-                renderdata: {},
-                whatchange: 0,
-            });
-        }
-    }, [gltfjson]);
-    let gltfjsonlen =  Object.keys(gltfjson).length;
+  const currentItem = useSelector((state) => state.item.currentItem);
+  const [splitfiles, setsplitfiles] = useState({ gltfjson });
+
+  useEffect(() => {
+    setsplitfiles(props.gltfjson);
+  }, [props]);
+  const [state, _setState] = useState({});
+
+  const setState = (data) => {
+    _setState((prevState) => {
+      return {
+        ...prevState,
+        ...data,
+      };
+    });
+  };
+  useEffect(() => {
+    setIsLoading(isLoading);
+  }, [isLoading]);
+  useEffect(() => {
+    const includeParts = true;
+    console.log('Reaching', gltfjson, fileId, isLoading);
+    let gltfjsonlen = Object.keys(gltfjson).length;
     if (gltfjsonlen > 0) {
-        gltfjsonlen += gltfjson?.gltf?.accessors?.length;
+      gltfjsonlen += gltfjson?.gltf?.accessors?.length;
     }
-    return (<Paper className={classes.mainContainer}>
-            <Paper className={classes.viewerContainer} >
-                {
-                    !isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&
-                    <GLTFRenderer
-                        //gltfjson={JSON.stringify(gltfjson)}
-                        gltfobj={gltfjson}
-                        fileGDT={null}
-                        fileAnimation={true}
-                        //view="Perspective"
-                        activefile={fileId+gltfjsonlen.toString()}
-                        backcolor={DEFAULTBACKCOLOR}
-                        selectcolor={DEFAULTSELECTCOLOR}
-                        touchcolor={DEFAULTTOUCHCOLOR}
-                        selectedoption={SELECTFEATURE}
-                        splitmethod={SELECTHIRERACHY}
-                        changedata={[]}
-                        data2texture={null}
-                        data3texture={null}
-                        materialtype={DEFAULTMATERIALNAME}
-                        whatchanged={0} dataselection={0}
-                    />
-                }
-                {
-                    (isLoading || isFileLoading) && <CircularProgress />
-                }
+    if (gltfjsonlen > 0) {
+      setState({
+        selectedindex: 0,
+        activefile:
+          fileId.toString() +
+          includeParts.toString() +
+          stateprops.distancegap.toString() +
+          stateprops.anglegap.toString() +
+          gltfjsonlen.toString(),
+        gltfjson: gltfjson,
+        dataselection: 0,
+        firstshell: null,
+        secondshell: null,
+        materialname: stateprops.materialtype[0].name,
+        disectstruct: stateprops.disect,
+        showdisect: stateprops.showdisect,
+        showinfoonselect: stateprops.showinfoonselect,
+        //splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
+        selectedObjects: [],
+        parentObjects: [],
+        mates: [],
+        renderdata: {},
+        whatchange: 0,
+      });
+    }
+  }, [gltfjson]);
+  let gltfjsonlen = Object.keys(gltfjson).length;
+  if (gltfjsonlen > 0) {
+    gltfjsonlen += gltfjson?.gltf?.accessors?.length;
+  }
+  return (
+    <Paper className={classes.mainContainer}>
+      <Paper className={classes.viewerContainer}>
+        {!isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading && (
+          <GLTFRenderer
+            //gltfjson={JSON.stringify(gltfjson)}
+            gltfobj={gltfjson}
+            fileGDT={null}
+            fileAnimation={true}
+            //view="Perspective"
+            activefile={fileId + gltfjsonlen.toString()}
+            backcolor={DEFAULTBACKCOLOR}
+            selectcolor={DEFAULTSELECTCOLOR}
+            touchcolor={DEFAULTTOUCHCOLOR}
+            selectedoption={SELECTFEATURE}
+            splitmethod={SELECTHIRERACHY}
+            changedata={[]}
+            data2texture={null}
+            data3texture={null}
+            materialtype={DEFAULTMATERIALNAME}
+            whatchanged={0}
+            dataselection={0}
+          />
+        )}
+        {(isLoading || isFileLoading) && <CircularProgress />}
+      </Paper>
+      {splitfiles.stackable && splitfiles.stackable.length > 0 && (
+        <Paper style={{ padding: 10, width: '200px', flexWrap: 'wrap' }}>
+          <Grid container spacing={1}>
+            <Grid item xs={12}>
+              <Heading bold>Parts Stackable Info</Heading>
+            </Grid>
+            <Grid item xs={3}>
+              {' '}
+              Count:{' '}
+            </Grid>
+            <Grid item xs={9}>
+              {splitfiles.stackable[0].count} unit(s)
+            </Grid>
+            <Grid item xs={3}>
+              {' '}
+              Any Dir:
+            </Grid>
+            <Grid item xs={9}>
+              {prettyPrintArray(splitfiles.stackable[0].stack.direction)}
+            </Grid>
 
-            </Paper>
-            {splitfiles.stackable && splitfiles.stackable.length > 0 && (
-                <Paper style={{ padding: 10, width: '200px', flexWrap:'wrap' }}>
+            <Grid item xs={3}>
+              Top:
+            </Grid>
+            <Grid item xs={9}>
+              {prettyPrintArray(splitfiles.stackable[0].stack.top)}
+            </Grid>
 
-                    <Grid container spacing={1} >
-                        <Grid item xs={12}>
-                            <Heading bold>Parts Stackable Info</Heading>
-                        </Grid>
-                        <Grid item xs={3}> Count: </Grid>
-                        <Grid item xs={9}>{splitfiles.stackable[0].count} unit(s)</Grid>
-                        <Grid item xs={3}> Any Dir:</Grid>
-                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.direction)}</Grid>
+            <Grid item xs={3}>
+              Bottom:
+            </Grid>
+            <Grid item xs={9}>
+              {prettyPrintArray(splitfiles.stackable[0].stack.bottom)}
+            </Grid>
 
-                        <Grid item xs={3}>
-                            Top:
-                     </Grid>
-                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.top)}</Grid>
+            <Grid item xs={3}>
+              Right:
+            </Grid>
+            <Grid item xs={9}>
+              {prettyPrintArray(splitfiles.stackable[0].stack.right)}
+            </Grid>
 
-                        <Grid item xs={3}>
-                            Bottom:
-                     </Grid>
-                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.bottom)}</Grid>
+            <Grid item xs={3}>
+              Left:
+            </Grid>
+            <Grid item xs={9}>
+              {prettyPrintArray(splitfiles.stackable[0].stack.left)}
+            </Grid>
 
-                        <Grid item xs={3}>
-                            Right:
-                     </Grid>
-                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.right)}</Grid>
-
-
-                        <Grid item xs={3}>
-                            Left:
-                     </Grid>
-                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.left)}</Grid>
-
-                        <Grid item xs={3}>
-                            Front:
-                     </Grid>
-                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.front)}</Grid>
-                        <Grid item xs={3}>
-                            Back:
-                     </Grid>
-                        <Grid item xs={9}>{prettyPrintArray(splitfiles.stackable[0].stack.back)}</Grid>
-
-
-                    </Grid>
-                </Paper>
-            )}
+            <Grid item xs={3}>
+              Front:
+            </Grid>
+            <Grid item xs={9}>
+              {prettyPrintArray(splitfiles.stackable[0].stack.front)}
+            </Grid>
+            <Grid item xs={3}>
+              Back:
+            </Grid>
+            <Grid item xs={9}>
+              {prettyPrintArray(splitfiles.stackable[0].stack.back)}
+            </Grid>
+          </Grid>
         </Paper>
-    )
+      )}
+    </Paper>
+  );
 }
-
 
 export const prettyPrintArray = (json, maxlength = 30) => {
-    if (json) {
-        return JSON.stringify(json).split(',').join(', ');
-    }
-    return "No Info"
-}
+  if (json) {
+    return JSON.stringify(json).split(',').join(', ');
+  }
+  return 'No Info';
+};

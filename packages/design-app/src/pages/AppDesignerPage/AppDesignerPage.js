@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Input from '@ravibasil/common/components/atoms/Input';
+import Input from '@monostruct/common/components/atoms/Input';
 import { Grid, Button, makeStyles, Divider, Paper } from '@material-ui/core';
 import TemplateModal from './TemplateModal';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -8,7 +8,7 @@ import UserAccess from './userAccess';
 import { AppDesignerContextProvider } from '../../context/AppDesignerContext';
 import Navbar from './component/Navbar';
 import Content from './component/Content';
-import Footer from './component/Footer'
+import Footer from './component/Footer';
 
 const useStyles = makeStyles((theme) => ({
   container: {

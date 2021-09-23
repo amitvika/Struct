@@ -6,7 +6,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import LabelledCheckBox from '@ravibasil/common/components/LabelledCheckBox';
+import LabelledCheckBox from '@monostruct/common/components/LabelledCheckBox';
 import Checkbox from '@material-ui/core/Checkbox';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import CircleChecked from '@material-ui/icons/CheckCircleOutline';

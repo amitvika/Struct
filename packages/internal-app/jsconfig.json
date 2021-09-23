@@ -2,7 +2,7 @@
 	"compilerOptions": {
 	  "baseUrl": ".",
 	  "paths": {
-		"@ravibasil/common/*": ["../common/*"]
+		"@monostruct/common/*": ["../common/*"]
 	  }
 	},
 	"exclude": ["node_modules"]

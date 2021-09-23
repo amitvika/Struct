@@ -3,12 +3,12 @@ import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import SubHeaderWithArrow from '../../components/SubHeaderWithArrow';
 import { useParams, useHistory } from 'react-router-dom';
-import API from '@ravibasil/common/api/clients.api';
+import API from '@monostruct/common/api/clients.api';
 import Products from './products';
 import ClientPortal from './clientPortal';
-import LogoView from '@ravibasil/common/components/LogoView';
-import TabContainer from '@ravibasil/common/components/TabContainer';
-import TabPanelContainer from '@ravibasil/common/components/TabPanelContainer';
+import LogoView from '@monostruct/common/components/LogoView';
+import TabContainer from '@monostruct/common/components/TabContainer';
+import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';

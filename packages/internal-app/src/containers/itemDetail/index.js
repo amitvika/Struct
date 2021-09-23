@@ -17,8 +17,8 @@ import Production from './production';
 import SurfaceFinishAndTreatment from './SurfaceFinishAndTreatment';
 import ComplianceAndCertifications from './ComplianceAndCertifications';
 
-import ItemTypeConfigurations from './itemTypeConfigurations';
-import ItemAPI from '@ravibasil/common/api/items.api';
+import ItemTypeConfigurations from '../itemTypeConfigurations';
+import ItemAPI from '@monostruct/common/api/items.api';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions';
 import get from 'lodash/get';
@@ -33,11 +33,11 @@ import {
   getGltfForStore,
   getTreeForStore,
   resourcePathURL,
-} from '@ravibasil/common/api/fileUpload.api';
-import LoadingModal from '@ravibasil/common/components/LoadingModal';
+} from '@monostruct/common/api/fileUpload.api';
+import LoadingModal from '@monostruct/common/components/LoadingModal';
 
-import TabContainer from '@ravibasil/common/components/TabContainer';
-import TabPanelContainer from '@ravibasil/common/components/TabPanelContainer';
+import TabContainer from '@monostruct/common/components/TabContainer';
+import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
@@ -771,7 +771,7 @@ const ItemDetail = () => {
     <>
       <LoadingModal isLoading={isLoading} />
       <Grid container>
-        <Grid item sm sm={12}>
+        <Grid item sm={12}>
           <SubHeaderWithArrow action={'/items'} title={'Items Details'} />
           <Paper style={{ padding: 10, margin: 10, display: 'flex' }}>
             <Grid>

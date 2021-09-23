@@ -1,13 +1,15 @@
-import React, { Fragment, useState } from "react";
-import Button from "@material-ui/core/Button";
+import React, { Fragment, useState } from 'react';
+import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
 import { makeStyles } from '@material-ui/core/styles';
+import { Typography } from '@material-ui/core';
+
 
 const useStyles = makeStyles((theme) => ({
   custom_file: {
     position: 'relative',
     width: '100%',
-    height: 'calc(1.5em + .75rem + 2px)'
+    height: 'calc(1.5em + .75rem + 2px)',
   },
   custom_file_input: {
     zIndex: 2,
@@ -16,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     opacity: 0,
     position: 'relative',
     width: '100%',
-    height: 'calc(1.5em + .75rem + 2px)'
+    height: 'calc(1.5em + .75rem + 2px)',
   },
   custom_file_label: {
     position: 'absolute',
@@ -47,17 +49,22 @@ const useStyles = makeStyles((theme) => ({
       right: 0,
       padding: '.375rem .75rem',
       lineHeight: 1.5,
-      color: '#495057'
-    }
-  }
+      color: '#495057',
+    },
+  },
 }));
 
-export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DXF, GERBER" }) {
+export default function FileUpload({
+  handleFileUpload,
+  itemId,
+  label = 'STEP, DXF, GERBER',
+}) {
   //State
-  const [file, setFile] = useState("");
-  const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [isFileLoaded, setIsFileLoaded] = useState(false);
   const [uploadedFile, setUploadedFile] = useState({});
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState();
   const [uploadPercentage, setUploadPercentage] = useState();
   const [open, setOpen] = React.useState(false);
@@ -65,7 +72,7 @@ export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DX
   const [isFileChanged, setIsFileChanged] = useState(false);
 
   //Methods
-  const onChange = e => {
+  const onChange = (e) => {
     if (!e.target.files[0]) {
       return;
     }
@@ -74,50 +81,54 @@ export default function FileUpload({ handleFileUpload, itemId, label = "STEP, DX
     setIsFileChanged(true);
   };
 
-  const onSubmit = e => {
+  const onSubmit = (e) => {
     const fileSize = file.size / 1024 / 1024;
 
     if (fileName.split('.').pop() === 'STL' && fileSize > 20) {
-      setOpen(true)
+      setOpen(true);
       return;
     }
 
     e.preventDefault();
-    handleFileUpload(file)
+    handleFileUpload(fileName);
+    setIsFileLoaded(true);
+    console.log('**File', fileName);
   };
 
   return (
     <>
       <div style={{ display: 'flex' }}>
-        <Box component="div" className={classes.custom_file}>
-          <input
-            id="btn-upload"
-            name="btn-upload"
-            className={classes.custom_file_input}
-            type="file"
-            accept=".step,.stp,.igs,.iges,.stl,.brep"
-            onChange={onChange} />
+        {isFileLoaded ? (
+          <Typography>{fileName}</Typography>
+        ) : (
+          <>
+            <Box component="div" className={classes.custom_file}>
+              <input
+                id="btn-upload"
+                name="btn-upload"
+                className={classes.custom_file_input}
+                type="file"
+                accept=".step,.stp,.igs,.iges,.stl,.brep"
+                onChange={onChange}
+              />
 
-          <label
-            className={classes.custom_file_label}
-            htmlFor="file">
-            {
-              isFileChanged ? fileName : label
-            }
-            {/* {label} */}
-            {/* fileName*/}
-          </label>
-
-        </Box>
-
-        <Button
-          style={{ marginLeft: "1%", width: '25%' }}
-          variant="contained"
-          color="primary"
-          type="button"
-          onClick={onSubmit}            >
-          Load File
-        </Button>
+              <label className={classes.custom_file_label} htmlFor="file">
+                {isFileChanged ? fileName : label}
+                {/* {label} */}
+                {/* fileName*/}
+              </label>
+            </Box>
+            <Button
+              style={{ marginLeft: '1%', width: '25%' }}
+              variant="contained"
+              color="primary"
+              type="button"
+              onClick={onSubmit}
+            >
+              Load
+            </Button>
+          </>
+        )}
       </div>
       {/* <FileHistory selectedFileName={fileName}
                 link_id={file.id} /> */}

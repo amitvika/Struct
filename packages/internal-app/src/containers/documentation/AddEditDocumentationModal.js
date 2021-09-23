@@ -7,12 +7,12 @@ import {
   Input,
   Textarea,
   Headding,
-} from '@ravibasil/common/components';
-import Modal from '@ravibasil/common/components/Modal';
+} from '@monostruct/common/components';
+import Modal from '@monostruct/common/components/Modal';
 import Popover from '@material-ui/core/Popover';
 import Typography from '@material-ui/core/Typography';
-import FileHistory from '@ravibasil/common/containers/FileHistory';
-import FileUploadOnAWS from '@ravibasil/common/containers/FileUploadOnAWS';
+import FileHistory from '@monostruct/common/containers/FileHistory';
+import FileUploadOnAWS from '@monostruct/common/containers/FileUploadOnAWS';
 import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
