@@ -539,11 +539,15 @@ const ItemDetail = () => {
       const treeRes = await getTreeForStore(whichOneToLoad);
       let stackRes = { data: null };
       let orderRes = { data: null };
+      let gdtRes = { data:null };
       if (myTabIndex == 'stack') {
         stackRes = await getAFileFromStore(whichOneToLoad, 'stack');
       }
       if (myTabIndex == 'mpps') {
         orderRes = await getAFileFromStore(whichOneToLoad, 'order');
+      }
+      if (myTabIndex == 'gdtac') {
+        gdtRes = await getAFileFromStore(whichOneToLoad, 'gdt');
       }
       const multiAssmebly = treeRes.length > 0;
       console.log('Fetched Data', {
@@ -553,6 +557,7 @@ const ItemDetail = () => {
         stackable: stackRes.data,
         assemblyorder: orderRes.data,
         multiAssmebly: multiAssmebly,
+        gdttable:gdtRes.data
       });
 
       setgltfjson({
@@ -562,6 +567,7 @@ const ItemDetail = () => {
         stackable: stackRes.data,
         assemblyorder: orderRes.data,
         multiAssmebly: multiAssmebly,
+        gdttable:gdtRes.data
       });
       setIsLoading(false);
     } catch (error) {

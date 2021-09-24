@@ -1088,10 +1088,11 @@ class StepIgesAnalyser():
             pathfilename, file_extension = os.path.splitext(tail)
             if file_extension:
                 file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
-                file_extension = file_extension.lower()
+                file_extension_lower = file_extension.lower()
             else:
-                file_extension = "stp"
-            self.stepiges = (file_extension) == "stp" or (file_extension == "step")
+                file_extension_lower = "stp"
+            self.fileextension=file_extension
+            self.stepiges = (file_extension_lower) == "stp" or (file_extension_lower == "step")
             if animations!=None and len(animations) > 0:
                 if shapeorder!=None and len(shapeorder) > 0:
                     self.basefilename = pathfilename+"M"+self.edgeGapStr
@@ -2400,7 +2401,13 @@ class StepIgesAnalyser():
         dict_return = {
             "gltf":self.mstep_dict,
             "tree":self.tstep_dict['tree'],
-            "store":self.basefilename
+            "store":self.basefilename,
+            "extension":self.fileextension,
+            "gdttable":[{ "edges":[],
+                          "selectedObjects":[],
+                          "parentObjects":[],
+                          "mates":[],
+                          "option":26 }]
         }
         if self.writethread:
             mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False))
@@ -2999,7 +3006,13 @@ class StepIgesAnalyser():
         dict_return = {
             "gltf":self.mstep_dict,
             "tree":self.tstep_dict['tree'],
-            "store":self.basefilename
+            "store":self.basefilename,
+            "extension":self.fileextension,
+            "gdttable":[{ "edges":[],
+                          "selectedObjects":[],
+                          "parentObjects":[],
+                          "mates":[],
+                          "option":26 }]
         }
         if self.writethread:
             mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG))

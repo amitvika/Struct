@@ -177,6 +177,7 @@ export default function BaseItemProperties({
                 materialtype={DEFAULTMATERIALNAME}
                 whatchanged={0}
                 dataselection={0}
+                activeDataTable={0}
               />
             )}
             {(isLoading || isFileLoading) && <CircularProgress />}

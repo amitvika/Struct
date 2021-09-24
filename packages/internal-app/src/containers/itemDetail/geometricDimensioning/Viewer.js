@@ -24,6 +24,7 @@ export default function Viewer({
     resetSelectionFromTree = () => {},
     setStateOfTree= () => {},
     setStateOfgltf= () => {}, 
+    activeDataTable=0,
     }) {
     //console.log(gltfjson);
     let gltfjsonlen =  Object.keys(gltfjson).length;
@@ -66,6 +67,7 @@ export default function Viewer({
                     resetSelectionFromTree={resetSelectionFromTree}
                     setStateOfTree={setStateOfTree}
                     setStateOfgltf={setStateOfgltf} 
+                    activeDataTable={activeDataTable}
                 />
                
             }

@@ -176,7 +176,7 @@ class GLTFRenderer extends Component {
         intersectedShell: null,
         anchorEls:new Array(myMenus.length),
         selectedmenu:0,
-        displaytext:null,
+        displaytext:null
         //gltfobj:this.props.gltfobj
     };
     state_selectedObjects = [];
@@ -248,9 +248,9 @@ class GLTFRenderer extends Component {
             } 
             if (this.activeFile != this.props.activefile ||
                 this.materialtype != this.props.materialtype ) {               
-                if(this.selectedoption == this.props.selectedoption) {
+                /* if(this.selectedoption == this.props.selectedoption) {
                     this.changeSelectedOption();
-                }
+                } */
                 if(this.initDone) {
                     this.alter();                               
                 }            
@@ -908,8 +908,11 @@ class GLTFRenderer extends Component {
         //this.updateGUI();
         this.updateTextureEncoding(this.state.textureEncoding);
         this.updateDisplay(this.state.side,this.state.opaque,
-            this.state.wiremesh,this.state.castshadow,this.state.skeleton,this.state.grid);
-        
+            this.state.wiremesh,this.state.castshadow,this.state.skeleton,this.state.grid); 
+        if(this.props.fileGDT) {
+            console.log("GDTTable",this.props.gltfobj.gdttable,this.props.activeDataTable);      
+            this.updateGDTTable(this.props.gltfobj.gdttable[this.props.activeDataTable].edges);
+        }         
         //window.content = this.content;
         //console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
         //this.printGraph(this.content[0]);
@@ -924,6 +927,22 @@ class GLTFRenderer extends Component {
 
     };
 
+    updateGDTTable = (gdttableEdges) => {       
+        gdttableEdges.forEach(element => {
+            this.loadAllEdges(element.parent,element.start,element.finish,null);
+        });
+    }
+
+    addGDTTable = (parent,start,finish) => {
+        if (this.props.setStateOfgltf) {
+            let gltfobj = {...this.props.gltfobj}; 
+            gltfobj.gdttable[this.props.activeDataTable].edges.push(
+                {parent:parent,
+                start:start,
+                finish:finish});     
+            this.props.setStateOfgltf(gltfobj);
+        }
+    }
     /**
     * @param {Array<THREE.AnimationClip} clips
     */
@@ -2701,6 +2720,7 @@ class GLTFRenderer extends Component {
                 console.log("Load Features",findEdges,featureSetStart,featureSetFinish);
                 if(featureSetStart < featureSetFinish ) {
                     this.loadAllEdges(myParentID,featureSetStart, featureSetFinish, mynode); //Reusable component..
+                    this.addGDTTable(myParentID,featureSetStart, featureSetFinish);
                     selectHere=false;
                     /* const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
                    
@@ -3724,11 +3744,11 @@ class GLTFRenderer extends Component {
                             } else {
                                 howManyFiles = 0;
                             }                            
-                            if(element=="f") {
+                            if(element=="f" && mynode) {
                                 mynode.facesLoaded = true;
-                            } else if(element=="e") {
+                            } else if(element=="e" && mynode) {
                                 mynode.edgesLoaded = true;                                
-                            } else if(element=="v") {
+                            } else if(element=="v" && mynode) {
                                 mynode.verticesLoaded = true;                                
                             } 
                             element = "-"+element;

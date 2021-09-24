@@ -163,5 +163,7 @@ __pycache__
 *.progress
 *.stack
 *.order
+*.gdt
+
 
 

@@ -138,6 +138,7 @@ export default function Stackability(props) {
             materialtype={DEFAULTMATERIALNAME}
             whatchanged={0}
             dataselection={0}
+            activeDataTable={0}
           />
         )}
         {(isLoading || isFileLoading) && <CircularProgress />}

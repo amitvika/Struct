@@ -684,6 +684,7 @@ class DropZone extends Component {
             }
             whatchanged={this.state.whatchanged}
             dataselection={this.state.dataselection}
+            activeDataTable={0}
             onClick={(data, what, event) => {
               if (what == SELECTDISTANCE) {
                 //console.log(data);

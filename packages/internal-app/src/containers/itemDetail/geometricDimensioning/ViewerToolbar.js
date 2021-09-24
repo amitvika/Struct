@@ -16,6 +16,10 @@ import ApartmentOutlinedIcon from '@material-ui/icons/ApartmentOutlined';
 import DashboardOutlinedIcon from '@material-ui/icons/DashboardOutlined';
 import ExtensionOutlinedIcon from '@material-ui/icons/ExtensionOutlined';
 import FilterDramaOutlinedIcon from '@material-ui/icons/FilterDramaOutlined';
+import SaveOutlinedIcon from '@material-ui/icons/SaveOutlined';
+import RotateLeftSharpIcon from '@material-ui/icons/RotateLeftSharp';
+import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
+
 import Box from '@material-ui/core/Box';
 
 import SelectedFeatureMenu from './SelectedFeatureMenu';
@@ -60,16 +64,61 @@ export default function ViewerToolbar({
   mates,
   setCtrlKey,
   toolbar,
+  activeDataTable,
+  setActiveDataTable,
+  incrementActiveDataTable,
+  saveGDTDataTable,
+  resetActiveDataTable
 }) {
   const classes = useStyles();
   
-  const renderTitle = (title) => {
+  const renderTitle = (title,extras) => {
     return <div style={{
                         'fontWeight': 'bold',
                         'textAlign': 'center',
                         'fontSize': 20
                       }} align='center'>
             {title}
+            {extras!=null && (
+              <>
+               &nbsp;
+              <Button
+                aria-describedby={'Save Controls'}
+                id={'popsave'}
+                type="button"
+                variant="contained"
+                color="primary"
+                onClick={(event) => {                 
+                  saveGDTDataTable();                 
+                }}
+                startIcon={<SaveOutlinedIcon />}
+              ></Button>
+              &nbsp;
+              <Button
+                aria-describedby={'Reset Controls'}
+                id={'popreset'}
+                type="button"
+                variant="contained"
+                color="primary"
+                onClick={(event) => {
+                  resetActiveDataTable();
+                }}
+                startIcon={<RotateLeftSharpIcon />}
+              ></Button>
+              &nbsp;
+              <Button
+                aria-describedby={'Add Controls'}
+                id={'popreset'}
+                type="button"
+                variant="contained"
+                color="primary"
+                onClick={(event) => {
+                  incrementActiveDataTable();
+                }}
+                startIcon={<AddCircleOutlineOutlinedIcon />}
+              ></Button>
+              </>
+            ) }
           </div> 
   }
   
@@ -197,12 +246,15 @@ export default function ViewerToolbar({
             )
            
           }
+          {(selectedObjects?.length >= 1) && (
+            <>
           <Box>
             {renderTitle("Geometric Dimensioning and Tolerancing")}             
             <Paper className={classes.paper}>
               <SelectedGDTMenu
                 features={(selectedOption != SELECTASSEMBLY)}
-                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects} />
+                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}
+              />
             </Paper >
           </Box>
           <Box>
@@ -210,15 +262,22 @@ export default function ViewerToolbar({
             <Paper className={classes.paper}>
               <SelectedFeatureMenu
                 features={(selectedOption != SELECTASSEMBLY)}
-                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects} />
+                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}
+              />
             </Paper >
           </Box>
+          </>
+          )}
           <Box>
-            {renderTitle("Summary Table")}
+            {renderTitle("Summary Table",true)}
+
             <Paper className={classes.paper}>
               <SelectedSummaryTable
                 features={(selectedOption != SELECTASSEMBLY)}
-                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects} />
+                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}
+                activeDataTable={activeDataTable}
+                setActiveDataTable={setActiveDataTable}
+              />
             </Paper >
           </Box>
       </Box>

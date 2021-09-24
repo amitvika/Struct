@@ -1043,6 +1043,7 @@ export default function ManufacturabilityAnalysis(props) {
             materialtype={DEFAULTMATERIALNAME}
             whatchanged={state.whatchange} dataselection={0}
             onClick={handleModelClick}
+            activeDataTable={0}
           //resetSelectionFromTree={resetSelectionFromTree}
           />
         }

@@ -977,6 +977,7 @@ export default function ItemTypeConfiguration(props) {
                   whatchanged={state.whatchange}
                   dataselection={0}
                   onClick={handleModelClick}
+                  activeDataTable={0}
                   //resetSelectionFromTree={resetSelectionFromTree}
                 />
               )}

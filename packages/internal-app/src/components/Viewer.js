@@ -40,6 +40,7 @@ export default function Viewer({
           whatchanged={0}
           dataselection={0}
           onClick={handleModelClick}
+          activeDataTable={0}
         />
       }
     </div>
