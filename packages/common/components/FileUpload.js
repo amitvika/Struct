@@ -90,7 +90,7 @@ export default function FileUpload({
     }
 
     e.preventDefault();
-    handleFileUpload(fileName);
+    handleFileUpload(file);
     setIsFileLoaded(true);
     console.log('**File', fileName);
   };

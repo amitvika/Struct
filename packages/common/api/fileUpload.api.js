@@ -27,6 +27,14 @@ export const saveTreeInfo = async (tree, name) => {
   return axios.post(`${host}/savetree/`, formTree);
 };
 
+export const saveGDTInfo = async (gdt, name) => {
+  console.log(gdt);
+  var formGDT = new FormData();
+  formGDT.append('gdt', JSON.stringify(gdt));
+  formGDT.append('name', name);
+  return axios.post(`${host}/savegdt/`, formGDT);
+};
+
 export const getGLTFJson = (id) => {
   const convertURL = `${host}/convert?id=${id}`;
   return axios.get(convertURL);
@@ -53,9 +61,10 @@ export const getHierarchySplitFiles = (
   disectParts,
   moverotate,
   edgesize,
-  vertexsize
+  vertexsize,
+  maximumfaces
 ) => {
-  const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}&edgesize=${edgesize}&vertexsize=${vertexsize}`;
+  const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}&edgesize=${edgesize}&vertexsize=${vertexsize}&moverotate=${moverotate}&maximumfaces=${maximumfaces}`;
   console.log(splitURL);
   return axios.get(splitURL);
 };

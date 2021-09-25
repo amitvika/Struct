@@ -105,7 +105,7 @@ export default function BaseItemProperties({
   const getView = (fileId) => {
     setIsFileLoading(true);
 
-    getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0)
+    getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0,50)
       .then((res) => res.data)
       .then((data) => {
         setItemProperties((prevData) => ({
@@ -177,6 +177,7 @@ export default function BaseItemProperties({
                 materialtype={DEFAULTMATERIALNAME}
                 whatchanged={0}
                 dataselection={0}
+                activeDataTable={0}
               />
             )}
             {(isLoading || isFileLoading) && <CircularProgress />}

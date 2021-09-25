@@ -26,6 +26,7 @@ export default function Viewer({ gltfjson = {}, fileId = '', fileGDT = '', selec
           materialtype={DEFAULTMATERIALNAME}
           whatchanged={0} dataselection={0}
           onClick={handleModelClick}
+          activeDataTable={0}
         />
       }
     </div>

@@ -75,6 +75,7 @@ export default function Index() {
               materialtype={DEFAULTMATERIALNAME}
               whatchanged={0}
               dataselection={0}
+              activeDataTable={0}
             />
           )}
           {/* <CppTest /> */}

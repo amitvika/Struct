@@ -6,7 +6,7 @@ import {
 } from "@material-ui/core"
 import Viewer from './Viewer';
 import ViewerToolbar from './ViewerToolbar';
-import { getHierarchySplitFiles, getShapeInfo } from '@monostruct/common/api/fileUpload.api'
+import {  getShapeInfo,saveGDTInfo } from '@monostruct/common/api/fileUpload.api'
 import {
   SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
   DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,
@@ -54,6 +54,10 @@ const useStyles = makeStyles((theme) => ({
   assemblyTreeContainer: {
     display: 'inline-block',
     minWidth: '300px'
+  },
+  assemblyTableContainer: {
+    display: 'inline-block',
+    minWidth: '600px'
   }
 }));
 let myGlobalTree = null;
@@ -67,7 +71,8 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   const [resetOption, setResetOption] = useState(true);
   const [value, setValue] = React.useState('female');
   const [ctrlKey, setCtrlKey] = useState(false);
-  const [optionForAssemblyTree,setOptionForAssemblyTree] = useState("Assembly Tree");
+  const [optionForAssemblyTree,setOptionForAssemblyTree] = useState("Configuration");
+  const [activeDataTable,setActiveDataTable] = useState(0);
   const handleChange = (event) => {
     setValue(event.target.value);
   };
@@ -117,12 +122,13 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         showdisect: stateprops.showdisect,
         showinfoonselect: stateprops.showinfoonselect,
         splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
-        selectedObjects: [],
-        parentObjects: [],
-        mates: [],
+        selectedObjects: gltfjson.gdttable[activeDataTable].selectedObjects,
+        parentObjects: gltfjson.gdttable[activeDataTable].parentObjects,
+        mates: gltfjson.gdttable[activeDataTable].mates,
         renderdata: {},
-        whatchange: 0,
+        whatchange: 0
       });
+      setSelectedOption(gltfjson.gdttable[activeDataTable].option);
       myGlobalTree=null;
     }
   }, [gltfjson]);
@@ -147,6 +153,53 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
       parentObjects: [],
       mates: []
     });
+  }
+  const incrementActiveDataTable = () => {
+    let myTree = { ...state.gltfjson };
+    myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects;
+    myTree.gdttable[activeDataTable].parentObjects=state.parentObjects;
+    myTree.gdttable[activeDataTable].mates=state.mates;
+    myTree.gdttable[activeDataTable].option=selectedOption;
+    let activetable = myTree.gdttable.length;
+    myTree.gdttable.push({ "edges":[],
+                          "selectedObjects":[],
+                          "parentObjects":[],
+                          "mates":[],
+                          "option":SELECTFEATURE }); 
+    setState({ gltfjson: myTree,
+              selectedObjects:[],
+              parentObjects:[],
+              mates:[] });  
+    setActiveDataTable(activetable);
+  }
+  const saveGDTDataTable = () => {
+    let myTree = { ...state.gltfjson };
+    myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects;
+    myTree.gdttable[activeDataTable].parentObjects=state.parentObjects;
+    myTree.gdttable[activeDataTable].mates=state.mates;
+    myTree.gdttable[activeDataTable].option=selectedOption;    
+    setState({ gltfjson: myTree,
+              selectedObjects:[],
+              parentObjects:[],
+              mates:[] });  
+    console.log(gltfjson.gdttable,myTree.gdttable,fileGDT);
+    saveGDTInfo(myTree.gdttable,fileGDT)
+    .then(res => res.data)
+    .then((data) => { 
+      console.log("Getting Resources",data);
+    });
+  }
+  const resetActiveDataTable = () => {
+    let myTree = { ...state.gltfjson };
+    myTree.gdttable[activeDataTable].selectedObjects=[];
+    myTree.gdttable[activeDataTable].parentObjects=[];
+    myTree.gdttable[activeDataTable].mates=[];
+    myTree.gdttable[activeDataTable].option=selectedOption;     
+    setState({ gltfjson: myTree,
+              selectedObjects:[],
+              parentObjects:[],
+              mates:[] });  
+    
   }
   const setStateOfgltf=(gltfjsonobj)=> {
     console.log("setting gltf json",gltfjsonobj);
@@ -1054,7 +1107,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     <Paper className={classes.mainContainer}>
       {(state.gltfjson?.tree) && (
         <div className={` ${classes.assemblyTreeContainer}`}>
-          <RadioGroup
+          {/* <RadioGroup
             row
             aria-label="Option To Show"
             defaultValue="Assembly Tree"
@@ -1073,7 +1126,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
               label="Configuration"
               checked={optionForAssemblyTree=="Configuration"}
             />           
-          </RadioGroup>
+          </RadioGroup> */}
           <Assembly
             assemblyTree={buildParentChildTree(state.gltfjson.tree, selectedOption)}
             OnAddition={addSelectionFromTree}
@@ -1096,18 +1149,28 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
           resetSelectionFromTree={resetSelectionFromTree}
           setStateOfTree={setStateOfTree}
           setStateOfgltf={setStateOfgltf}
+          activeDataTable={activeDataTable}
         ></Viewer>
       </Paper>
+      
+      
       {optionForAssemblyTree=="Configuration" && (
-        <ViewerToolbar
-        {...state}
-        selectedOption={selectedOption}
-        setSelectedOption={setSelectedOption}
-        resetSelections={resetSelections}
-        selectAllSelectedSolids={selectAllSelectedSolids}
-        setCtrlKey={setCtrlKey}
-        toolbar={true}
-      />
+        <Paper className={`${classes.paper} ${classes.assemblyTableContainer}`} >
+          <ViewerToolbar
+          {...state}
+          selectedOption={selectedOption}
+          setSelectedOption={setSelectedOption}
+          resetSelections={resetSelections}
+          selectAllSelectedSolids={selectAllSelectedSolids}
+          setCtrlKey={setCtrlKey}
+          toolbar={true}
+          activeDataTable={activeDataTable}
+          setActiveDataTable={setActiveDataTable}
+          incrementActiveDataTable={incrementActiveDataTable}
+          saveGDTDataTable={saveGDTDataTable}
+          resetActiveDataTable={resetActiveDataTable}
+        />
+      </Paper>
       )}
       
 
