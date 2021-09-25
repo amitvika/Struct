@@ -4,15 +4,21 @@ export const hierarchyFileParser = async (file) => {
   try {
     const rows = await readXlsxFile(file, { sheet: 'Item_Type_H' });
 
+    let criteriaSchema = await criteriaFileParser(file);
+
     const numOfRows = rows.length;
 
     let dropList = [];
-    let initialDropdown = { label: 'Item Type', options: [] };
+    let initialDropdown = { title: 'Item Type', options: [] };
 
     for (let i = 1; i < numOfRows; i++) {
       let dataRow = rows[i];
       if (dataRow[0]) {
-        initialDropdown.options.push(dataRow[0]);
+        initialDropdown.options.push({
+          title: dataRow[0],
+          value: dataRow[0],
+          form: criteriaSchema[dataRow[0]],
+        });
       }
     }
 
@@ -23,7 +29,7 @@ export const hierarchyFileParser = async (file) => {
       let valueIndex = dataRow.findIndex(
         (dataColumn) => dataColumn !== null && dataColumn.trim().length > 0
       );
-      let value = dataRow[valueIndex];
+      let parentValue = dataRow[valueIndex];
       let options = [];
 
       for (let j = i + 1; j < numOfRows; j++) {
@@ -33,7 +39,12 @@ export const hierarchyFileParser = async (file) => {
         );
 
         if (valueIndex + 1 === nextValueIndex) {
-          options.push(nextDataRow[nextValueIndex]);
+          let key = `${parentValue}|${nextDataRow[nextValueIndex]}`;
+          options.push({
+            value: key,
+            label: nextDataRow[nextValueIndex],
+            form: criteriaSchema[key],
+          });
         } else if (valueIndex < nextValueIndex) {
         } else if (valueIndex === nextValueIndex) {
           break;
@@ -41,7 +52,7 @@ export const hierarchyFileParser = async (file) => {
       }
 
       if (options.length > 0) {
-        dropList.push({ label: value, options });
+        dropList.push({ title: parentValue, options });
       }
     }
 
@@ -78,7 +89,7 @@ export const criteriaFileParser = async (file) => {
 
     const { rows } = await readXlsxFile(file, { sheet: 'Item_Type_C', map });
 
-    rows.map((rowItem) => {
+    rows.map(rowItem => {
       if (rowItem.hierarchyLevel) {
         currentHierarachy = rowItem.hierarchyLevel;
 
