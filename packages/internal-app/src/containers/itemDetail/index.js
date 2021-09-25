@@ -733,6 +733,7 @@ const ItemDetail = () => {
 
   const tabList = {
     pdcu: 'Product Design or CAD Upload',
+    cf: 'Classification',
     cc: 'Compliance and Certifications',
     gdtac: 'GD&T and Assembly Constraints',
     sft: 'Surface Finish and Treatment',
