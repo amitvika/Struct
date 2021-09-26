@@ -8,120 +8,132 @@ import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import get from 'lodash/get';
 
 export default function DynamicHierarchy({ setShowKineticModal }) {
-  const [initialValue, setInitialValue] = useState(['Item Type']);
-  const [criteriaFields, setCriteriaFields] = useState({});
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
-  const [firstDropdown, setFirstDropdown] = useState({});
-  const [firstSelectedValue, setFirstSelectedValue] = useState('');
-  const [dropdownSelections, setDropdownSelections] = useState([]);
+  const [selections, setSelections] = useState([{ key: 'Item Type', form:{fields:[]} }]);
+  const [stateUpdated, setStateUpdated] = useState(false);
 
   useEffect(() => {
     CriteriaUploadAPI.getCadDetails()
       .then((resp) => {
         const hierarchySchemaArr = get(resp, 'data.hierarchySchema', []);
-        if (hierarchySchemaArr[0]) {
-          setFirstDropdown(hierarchySchemaArr[0]);
-          hierarchySchemaArr.shift();
-          setHierarchyDropdownList(hierarchySchemaArr);
-        }
-        setCriteriaFields(get(resp, 'data.criteriaSchema', []));
+        setHierarchyDropdownList(hierarchySchemaArr);
       })
       .catch((error) => {});
   }, []);
 
-  const handleOnChangeForFirstDropDown = (label, value) => {
-    setFirstSelectedValue(value);
-    setDropdownSelections([value]);
+  const handleDropdownSelection = (title = 'Item Type', value, form) => {
+    // [{key : 'Item Type' , value: 'Actuator', form: []}]
+    let indexOfCurrentSelection = selections.findIndex(
+      (item) => item.key === title
+    );
 
-    if(value === 'Motion Control'){
-      setShowKineticModal(true)
-    }
-    else{
-      setShowKineticModal(false)
-    }
-  };
+    let tempSelections = selections;
 
-  const handleOnChangeRestDropdown = (label, value, dropValue) => {
-    setDropdownSelections([...dropdownSelections, value]);
-
-    setInitialValue(dropValue);
-  };
-
-  const setValue = (label) => {
-    const dataIndex = dropdownSelections.indexOf(label);
     if (
-      dropdownSelections.length > dataIndex &&
-      dropdownSelections[dataIndex + 1]
+      indexOfCurrentSelection > 0 &&
+      indexOfCurrentSelection < selections.length - 1
     ) {
-      // console.log(initialValue[dataIndex + 1])
-      return dropdownSelections[dataIndex + 1];
+      tempSelections = selections.slice(0, indexOfCurrentSelection);
+    } else if (selections.length > 0 && indexOfCurrentSelection < 0) {
+      indexOfCurrentSelection = selections.length;
+      tempSelections[indexOfCurrentSelection] = {};
+    } else if (selections.length === 0) {
+      indexOfCurrentSelection = 0;
+      tempSelections[indexOfCurrentSelection] = {};
+    }
+
+    tempSelections[indexOfCurrentSelection].key = title;
+    tempSelections[indexOfCurrentSelection].value = value;
+    tempSelections[indexOfCurrentSelection].form = form;
+
+    setSelections(tempSelections);
+    setStateUpdated(!stateUpdated);
+  };
+
+  const handleOnChange = (title, value, form) => {
+    handleDropdownSelection(title, value, form);
+
+    // if (value === 'Motion Control') {
+    //   setShowKineticModal(true);
+    // } else {
+    //   setShowKineticModal(false);
+    // }
+  };
+
+  const getSelectionValue = (title) => {
+    const dataIndex = selections.findIndex((item) => item.key === title);
+    if (dataIndex > -1) {
+      return selections[dataIndex].value;
     }
     return '';
   };
 
-  const renderFields = (fieldItem, handleOnChange) => {
+  const getFormFromOptions = (options, valueFinder) => {
+    const dataIndex = options.findIndex((item) => item.value === valueFinder);
+
+    if (dataIndex > -1) {
+      return options[dataIndex].form;
+    } else {
+      return undefined;
+    }
+  };
+
+  const renderFields = (fieldItem) => {
     return (
-      <Grid container spacing={2} key={fieldItem.label}>
+      <Grid container spacing={2} key={fieldItem.title}>
         <Grid item xs={4}>
-          <Headding bold title={fieldItem.label} />
+          <Headding bold title={fieldItem.title} />
         </Grid>
         <Grid item xs={8}>
           <Select
             placeholder="Select"
-            options={fieldItem.options.map((option) => ({
-              label: option,
-              value: option,
-              dropValue: `${fieldItem.label}|${option}`,
-            }))}
-            onChange={(data) =>
-              handleOnChange(`${fieldItem.label}`, data.value, data.dropValue)
-            }
-            value={setValue(fieldItem.label)}
+            options={fieldItem.options}
+            onChange={(data) => {
+              const form = getFormFromOptions(fieldItem.options, data.value);
+              handleOnChange(`${fieldItem.title}`, data.value, form);
+            }}
+            value={getSelectionValue(fieldItem.title)}
           />
         </Grid>
       </Grid>
     );
   };
 
+  const getIndexOfFieldInSelectionArray = (selections, listItem) => {
+    return selections.findIndex((item) => {
+      if (item.key === listItem.title) {
+        return true;
+      } else if (item.value === listItem.title) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+  };
+
   const renderDropdowns = () => {
     return hierarchyDropdownList
-      .filter((item) => {
-        if (dropdownSelections.includes(item.label)) {
+      .filter((listItem) => {
+        let index = getIndexOfFieldInSelectionArray(selections, listItem);
+        if (index > -1) {
           return true;
         }
         return false;
       })
-      .map((item) => renderFields(item, handleOnChangeRestDropdown));
+      .map((listItem) => renderFields(listItem));
   };
-
-  const renderFirstDropdown = () =>
-    renderFields(firstDropdown, handleOnChangeForFirstDropDown);
 
   if (hierarchyDropdownList.length === 0) {
     return null;
   }
-  // hierarchyDropdownList.map((data) => {
-  //   console.log('****label', data.label);
-  //   if (data.label === 'Workholding/ToolHolding') {
-  //     setShowKineticModal(true);
-  //   }
-  // });
 
   return (
     <>
-      <Paper style={{ padding: 20, margin: 10 }}>
-        {renderFirstDropdown()}
-        {renderDropdowns()}
-      </Paper>
+      <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>
 
-      <DynamicCriteria
-        criteriaFields={criteriaFields}
-        selectedField={firstSelectedValue}
-      />
-      <DynamicCriteria
-        criteriaFields={criteriaFields}
-        selectedField={initialValue}
-      />
+      {selections.map((selectionItem) => {
+        return <DynamicCriteria {...selectionItem} />;
+      })}
     </>
   );
 }

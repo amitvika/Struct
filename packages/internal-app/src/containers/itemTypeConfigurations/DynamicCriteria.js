@@ -5,9 +5,9 @@ import Headding from '@monostruct/common/components/atoms/Headding';
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
 
-export default function DynamicCriteria({ selectedField, criteriaFields }) {
-  const renderFields = (fields) => {
-    return fields.map((fieldItem) => {
+export default function DynamicCriteria({ form, key,value }) {
+  const renderFields = () => {
+    return form.fields.map((fieldItem) => {
       return (
         <Grid container spacing={2} key={fieldItem.fieldName}>
           <Grid item xs={4}>
@@ -38,19 +38,24 @@ export default function DynamicCriteria({ selectedField, criteriaFields }) {
     });
   };
 
-  const renderCriteria = () => {
-    if (selectedField && criteriaFields[selectedField]) {
-      let { fields = [], criteriaTitle = '' } = criteriaFields[selectedField];
-      return (
-        <Paper style={{ padding: 20, margin: 10 }}>
-          <Headding style={{ fontSize: 24 }}>{criteriaTitle}</Headding>
-          {renderFields(fields)}
-        </Paper>
-      );
-    } else {
-      return null;
-    }
-  };
+  // const renderCriteria = () => {
+  //   if (selectedField && criteriaFields[selectedField]) {
+  //     let { fields = [], criteriaTitle = '' } = criteriaFields[selectedField];
+  //     return (
+  //       <Paper style={{ padding: 20, margin: 10 }}>
+  //         <Headding style={{ fontSize: 24 }}>{criteriaTitle}</Headding>
+  //         {renderFields(fields)}
+  //       </Paper>
+  //     );
+  //   } else {
+  //     return null;
+  //   }
+  // };
 
-  return renderCriteria();
+  return (
+    <Paper style={{ padding: 20, margin: 10 }}>
+      <Headding style={{ fontSize: 24 }}>{value}</Headding>
+      {renderFields()}
+    </Paper>
+  );
 }

@@ -2,15 +2,13 @@ import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import {
-  Select,
   Input,
   Textarea,
   Headding,
 } from '@monostruct/common/components';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 import Modal from '@monostruct/common/components/Modal';
-import FileUpload from './FileUpload';
+import ExcelFileUpload from '@monostruct/common/components/ExcelFileUpload';
 import FileHistory from './FileHistory';
 import { useSelector } from 'react-redux';
 import { uploadFileS3Bucket } from '@monostruct/common/api/aws';
@@ -135,6 +133,7 @@ export default function AddUpdateModal({
                 href={`${process.env.REACT_APP_API}/download/${selectedType}`}
                 target="_blank"
                 style={{ textDecoration: 'none' }}
+                rel="noreferrer"
               >
                 <Button variant="contained" color="secondary">
                   {selectedType === 'criteria'
@@ -156,7 +155,7 @@ export default function AddUpdateModal({
           />
         </Grid>
 
-        <FileUpload value={value} handleOnChange={handleFileChange} />
+        <ExcelFileUpload value={value} handleOnChange={handleFileChange} />
         <FileHistory
           link_id={value.id}
           refreshFileHistory={refreshFileHistory}
