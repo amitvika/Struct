@@ -4,6 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
+import ThreejsSelection from './ThreejsSelection';
 
 export default function DynamicCriteria({
   formFields,
@@ -27,9 +28,9 @@ export default function DynamicCriteria({
       return (
         <Grid container spacing={2} key={fieldItem.fieldName}>
           <Grid item xs={4}>
-            <Headding bold title={fieldItem.fieldName} />
+            <Headding bold title={`${fieldItem.fieldName} ${fieldItem.inputUnits ? '('+fieldItem.inputUnits+')' : ''}`} />
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={6}>
             {fieldItem.fieldType === 'Input' && (
               <Input
                 placeholder="Enter"
@@ -52,6 +53,8 @@ export default function DynamicCriteria({
                 value={fieldItem.value}
               />
             )}
+
+            {fieldItem.fieldType === 'Custom' && <ThreejsSelection />}
           </Grid>
         </Grid>
       );
