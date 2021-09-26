@@ -45,6 +45,12 @@ const SelectedMatesRelation = (props) => {
   const {
     mates,
     featureList,
+    mateValues,
+    angleMate,
+    offsetMate,
+    setMateValues,
+    setAngle,
+    setOffset,
     onSelect = (a, b) => { console.log(a, b); }
   } = props
   const myCheckBoxes = ["coplaner", "parallel", "normal", "opposite",
@@ -53,7 +59,7 @@ const SelectedMatesRelation = (props) => {
   const fillCheckboxValues = () => {
     var isSelected = [];
     for (let index = 0; index < myCheckBoxes.length - 2; index++) {
-      isSelected.push(false);
+      isSelected.push(mateValues[index]);
       var valuefound = true;
       for (let mateindex = 1; mateindex < props.mates.length; mateindex++) {
         const element = props.mates[mateindex];
@@ -113,7 +119,7 @@ const SelectedMatesRelation = (props) => {
     if (mates.length > 1) {
       if (mates[1].length >= 1) {
         if (mates[1][0].length > 8) {
-          angle = mates[1][0][AngleIndex];
+          angle = mates[1][0][AngleIndex];          
           for (let mateindex = 1; mateindex < mates.length; mateindex++) {
             const element = mates[mateindex];
             if (anglefound) {
@@ -153,7 +159,7 @@ const SelectedMatesRelation = (props) => {
                 _o[2 * index] = !_o[2 * index]
                 return _o
               })
-
+              setMateValues(index,!mateValues[index]);
               onSelect(label, e);
 
             }} /> 
@@ -163,6 +169,7 @@ const SelectedMatesRelation = (props) => {
             checkedIcon={<CircleChecked />}
             icon={<CancelOutlinedIcon />}
             label={row}
+            disabled={true}
             onChange={(label, e) => {
               console.log(e);
               const dataselect = e;
@@ -180,7 +187,17 @@ const SelectedMatesRelation = (props) => {
         {(index >= mateAngle) && (
           <StyledTableRow key={3 * index + 9} style={myStyle}>
             <StyledTableCell key={3 * index + 10} align="right" size="small" style={myStyle}>
-              <input type="number" aria-invalid="false" id={"Numb" + 3 * index + 10} value={(anglefound && index == mateAngle) ? angle : ""} onChange={(e) => { console.log(e); }} />
+              <input 
+                type="number" aria-invalid="false" id={"Numb" + 3 * index + 10} 
+                value={(anglefound && index == mateAngle) ? angle||angleMate : (index == mateAngle) ? angleMate : offsetMate } 
+                onChange={(e) => { 
+                    console.log(e); 
+                    if(index==mateAngle) {
+                      setAngle(e.target.value);
+                    } else {
+                      setOffset(e.target.value);
+                    }
+                  }} />
             </StyledTableCell>
             {/*  <TableCell key={3*index+11} align="right">
                         <input type="number" aria-invalid="false" id={"Numb"+3*index+11}/>                        

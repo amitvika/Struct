@@ -62,13 +62,21 @@ export default function ViewerToolbar({
   selectedObjects,
   parentObjects,
   mates,
+  mateValues,
+  angle,
+  offset,
   setCtrlKey,
   toolbar,
   activeDataTable,
   setActiveDataTable,
   incrementActiveDataTable,
   saveGDTDataTable,
-  resetActiveDataTable
+  resetActiveDataTable, 
+  setCurrentDataTable,
+  setRowKeyValue,
+  setMateValues,
+  setAngle,
+  setOffset
 }) {
   const classes = useStyles();
   
@@ -240,6 +248,12 @@ export default function ViewerToolbar({
                 <SelectedMatesRelation
                   mates={mates}
                   featureList={selectedObjects}
+                  mateValues={mateValues}
+                  angleMate={angle}
+                  offsetMate={offset}
+                  setMateValues={setMateValues}
+                  setAngle={setAngle}
+                  setOffset={setOffset}
                 />
               </Paper>
               </Box>
@@ -254,6 +268,7 @@ export default function ViewerToolbar({
               <SelectedGDTMenu
                 features={(selectedOption != SELECTASSEMBLY)}
                 featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}
+                setRowKeyValue={setRowKeyValue}
               />
             </Paper >
           </Box>
@@ -263,6 +278,7 @@ export default function ViewerToolbar({
               <SelectedFeatureMenu
                 features={(selectedOption != SELECTASSEMBLY)}
                 featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}
+                setRowKeyValue={setRowKeyValue}
               />
             </Paper >
           </Box>
@@ -270,13 +286,13 @@ export default function ViewerToolbar({
           )}
           <Box>
             {renderTitle("Summary Table",true)}
-
             <Paper className={classes.paper}>
               <SelectedSummaryTable
                 features={(selectedOption != SELECTASSEMBLY)}
                 featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}
                 activeDataTable={activeDataTable}
                 setActiveDataTable={setActiveDataTable}
+                setCurrentDataTable={setCurrentDataTable}
               />
             </Paper >
           </Box>

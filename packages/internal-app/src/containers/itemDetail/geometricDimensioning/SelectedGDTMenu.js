@@ -38,7 +38,10 @@ const StyledTableCell = withStyles((theme) => ({
 
 
 
-export default function SelectedGDTMenu({ featureList = [], features = true }) {
+export default function SelectedGDTMenu(
+  { featureList = [], 
+    features = true, 
+    setRowKeyValue = (name,key,value)=>{console.log(name,key,value)} }) {
   /* const myStyle = {
     whiteSpace: "normal",
     wordWrap: "break-word",
@@ -58,11 +61,14 @@ export default function SelectedGDTMenu({ featureList = [], features = true }) {
           {index%2==0?"Hole":"Shaft"}
         </StyledTableCell>
         <StyledTableCell align="right"  >
-          <select id={"id"+index.toString()}>
-            <option value={"1"+index.toString()}>{"1"+index.toString()}</option>
-            <option value={"2"+index.toString()}>{"2"+index.toString()}</option>
-            <option value={"3"+index.toString()}>{"3"+index.toString()}</option>
-            <option value={index.toString()} selected>{(index+1).toString()}</option>
+          <select id={"id"+index.toString()}
+           value={row.option3} 
+           onChange={(e)=>setRowKeyValue(row.n,"option3",e.target.value)}
+          >
+            <option value={"1"+index.toString()} selected={row.option3=="1"+index.toString()}>{"1"+index.toString()}</option>
+            <option value={"2"+index.toString()} selected={row.option3=="2"+index.toString()}>{"2"+index.toString()}</option>
+            <option value={"3"+index.toString()} selected={row.option3=="3"+index.toString()}>{"3"+index.toString()}</option>
+            <option value={index.toString()} selected={row.option3==index.toString() }>{(index+1).toString()}</option>
           </select>
         </StyledTableCell>
       </StyledTableRow>

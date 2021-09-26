@@ -1091,7 +1091,7 @@ class StepIgesAnalyser():
                 file_extension_lower = file_extension.lower()
             else:
                 file_extension_lower = "stp"
-            self.fileextension=file_extension
+            self.fileextension=self.fname
             self.stepiges = (file_extension_lower) == "stp" or (file_extension_lower == "step")
             if animations!=None and len(animations) > 0:
                 if shapeorder!=None and len(shapeorder) > 0:
@@ -2402,11 +2402,14 @@ class StepIgesAnalyser():
             "gltf":self.mstep_dict,
             "tree":self.tstep_dict['tree'],
             "store":self.basefilename,
-            "extension":self.fileextension,
+            "load":self.fileextension,
             "gdttable":[{ "edges":[],
                           "selectedObjects":[],
                           "parentObjects":[],
                           "mates":[],
+                          "mateValues": [False,False,False,False,False,False],
+                          "angle":0,
+                          "offset":0,                          
                           "option":26 }]
         }
         if self.writethread:
@@ -3007,11 +3010,14 @@ class StepIgesAnalyser():
             "gltf":self.mstep_dict,
             "tree":self.tstep_dict['tree'],
             "store":self.basefilename,
-            "extension":self.fileextension,
+            "load":self.fileextension,
             "gdttable":[{ "edges":[],
                           "selectedObjects":[],
                           "parentObjects":[],
                           "mates":[],
+                          "mateValues": [False,False,False,False,False,False],
+                          "angle":0,
+                          "offset":0,
                           "option":26 }]
         }
         if self.writethread:
