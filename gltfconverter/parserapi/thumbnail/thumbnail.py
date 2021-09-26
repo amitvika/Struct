@@ -5748,15 +5748,20 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
             rgba.save(thumbnail_save_path, "PNG")
         except Exception as e:
             print("createThumbnailError8",e)
+            try:
+                myImage.save(thumbnail_save_path, "PNG")
+            except Exception as e:
+                print("createThumbnailError9",e)
+                return            
             return
     else:
         try:
             myImage.save(thumbnail_save_path, "PNG")
         except Exception as e:
-            print("createThumbnailError8",e)
+            print("createThumbnailError10",e)
             return
     try:
         r.delete()
     except Exception as e:
-        print("createThumbnailError9",e)
+        print("createThumbnailError11",e)
         return
