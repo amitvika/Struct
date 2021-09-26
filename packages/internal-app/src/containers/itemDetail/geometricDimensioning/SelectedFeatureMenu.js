@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState} from 'react';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -38,20 +38,25 @@ const StyledTableCell = withStyles((theme) => ({
 
 
 
-export default function SelectedFeatureMenu({ featureList = [], features = true }) {
+export default function SelectedFeatureMenu(
+  { featureList = [], 
+    features = true, 
+    setRowKeyValue = (name,key,value)=>{console.log(name,key,value)} }) {
   /* const myStyle = {
     whiteSpace: "normal",
     wordWrap: "break-word",
     wordBreak: "break-all",
     width: "100px"
   } */
+  
   const classes = useStyles();
   
-  const renderOptions = (options) => {
+  const renderOptions = (options,defaulter) => {
+    console.log(defaulter,options);
     return options.map((row,index) => (
-          <option key={index.toString()} value={row}>
-            {row}
-          </option>
+      <option key={index.toString()} value={row} selected={(row==defaulter)}>
+        {row}
+      </option>
     ) );
   }
   const Options1=['M1','M1.1','M1.2','M1.4','M1.6','M1.7','M1.8',
@@ -69,7 +74,7 @@ export default function SelectedFeatureMenu({ featureList = [], features = true 
                   '3/4"','7/8"','1"','1 1/8"','1 1/4"'                
               ]
   const renderTable = () => {
-    //console.log("FeaturList",featureList,features);
+    console.log("FeaturList",featureList,features);
     return featureList.map((row, index) => (
       <StyledTableRow key={(features ? row.n : row.parent.n) + index.toString()}>
         <StyledTableCell component="th" scope="row" >
@@ -83,15 +88,21 @@ export default function SelectedFeatureMenu({ featureList = [], features = true 
         </StyledTableCell>        
         <StyledTableCell align="right"  >
           { (row.kind=="Circle") && (
-            <select id={"i1d"+index.toString()}>
-              {renderOptions(Options1)}
+            <select id={"i1d"+index.toString()} 
+              value={row.option1} 
+              onChange={(e)=>setRowKeyValue(row.n,"option1",e.target.value)}
+            >
+              {renderOptions(Options1,row.option1)}
             </select> )
           }
         </StyledTableCell>
         <StyledTableCell align="right"  >
           { (row.kind=="Circle") && (
-            <select id={"i2d"+index.toString()}>
-              {renderOptions(Options2)}
+            <select id={"i2d"+index.toString()}
+            value={row.option2} 
+              onChange={(e)=>setRowKeyValue(row.n,"option2",e.target.value)}
+            >
+              {renderOptions(Options2,row.option2)}
             </select> )
           }
         </StyledTableCell>

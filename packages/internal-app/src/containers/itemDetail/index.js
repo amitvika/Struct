@@ -172,6 +172,7 @@ const ItemDetail = () => {
             stack: stack,
             gdt: item.fileGDT,
             multiAssmebly: multiAssmebly,
+            treeLength: repos['tree'].length           
           });
           setItemProperties((prevData) => ({
             ...prevData,
@@ -243,6 +244,7 @@ const ItemDetail = () => {
             stack: item.fileStack,
             gdt: item.fileGDT,
             multiAssmebly: multiAssmebly,
+            treeLength: repos['tree'].length
           });
           setItemProperties((prevData) => ({
             ...prevData,
@@ -320,6 +322,7 @@ const ItemDetail = () => {
                 stack: item.fileStack,
                 gdt: item.fileGDT,
                 multiAssmebly: multiAssmebly,
+                treeLength: repos['tree'].length
               });
               setItemProperties((prevData) => ({
                 ...prevData,
@@ -377,6 +380,7 @@ const ItemDetail = () => {
                 stack: item.fileStack,
                 gdt: item.fileGDT,
                 multiAssmebly: multiAssmebly,
+                treeLength: repos['tree'].length
               });
               setItemProperties((prevData) => ({
                 ...prevData,
@@ -452,6 +456,7 @@ const ItemDetail = () => {
                 stack: item.fileStack,
                 gdt: gdt,
                 store: item.fileStore,
+                treeLength: repos['tree'].length
               });
               //console.log("After getting reposi",repos, {...repos,gdt:gdt,store:item.fileStore},isLoading);
               setItemProperties((prevData) => ({
@@ -555,7 +560,8 @@ const ItemDetail = () => {
         stackable: stackRes.data,
         assemblyorder: orderRes.data,
         multiAssmebly: multiAssmebly,
-        gdttable: gdtRes.data,
+        gdttable:gdtRes.data,
+        treeLength: treeRes.data.length
       });
 
       setgltfjson({
@@ -565,7 +571,8 @@ const ItemDetail = () => {
         stackable: stackRes.data,
         assemblyorder: orderRes.data,
         multiAssmebly: multiAssmebly,
-        gdttable: gdtRes.data,
+        gdttable:gdtRes.data,
+        treeLength: treeRes.data.length
       });
       setIsLoading(false);
     } catch (error) {
@@ -667,7 +674,7 @@ const ItemDetail = () => {
             setStack={setStack}
             setOrder={setOrder}
             gltfjson={gltfjson}
-            isLoading={isLoading}
+            isLoading={isLoading}            
           />
         );
       case 7:

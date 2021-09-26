@@ -76,7 +76,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   const handleChange = (event) => {
     setValue(event.target.value);
   };
-  
+  //const [treeLength,setTreeLength]=useState(gltfjson?.tree.length);
   /*
   const renderLeafElements = () => {
 
@@ -122,14 +122,28 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         showdisect: stateprops.showdisect,
         showinfoonselect: stateprops.showinfoonselect,
         splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
-        selectedObjects: gltfjson.gdttable[activeDataTable].selectedObjects,
-        parentObjects: gltfjson.gdttable[activeDataTable].parentObjects,
-        mates: gltfjson.gdttable[activeDataTable].mates,
+        selectedObjects: gltfjson?gltfjson.gdttable?gltfjson.gdttable[activeDataTable].selectedObjects:[]:[],
+        parentObjects: gltfjson?gltfjson.gdttable?gltfjson.gdttable[activeDataTable].parentObjects:[]:[],
+        mates: gltfjson?gltfjson.gdttable?gltfjson.gdttable[activeDataTable].mates:[]:[],
+        mateValues: gltfjson?gltfjson.gdttable?gltfjson.gdttable[activeDataTable].mateValues:Array(6).fill(false):Array(6).fill(false),
+        angle: gltfjson?gltfjson.gdttable?gltfjson.gdttable[activeDataTable].angle:0:0,
+        offset: gltfjson?gltfjson.gdttable?gltfjson.gdttable[activeDataTable].offset:0:0,       
         renderdata: {},
         whatchange: 0
       });
-      setSelectedOption(gltfjson.gdttable[activeDataTable].option);
+      setSelectedOption(gltfjson?gltfjson.gdttable?gltfjson.gdttable[activeDataTable].option:SELECTFEATURE:SELECTFEATURE);
       myGlobalTree=null;
+      let event={};
+      event['ctrlKey']=false;
+      if(gltfjson && gltfjson.gdttable) {
+        gltfjson.gdttable[activeDataTable].selectedObjects.forEach(element => {
+         setSelectedShell(element,true);
+         console.log("What i got after reading",element);
+        });
+        console.log(gltfjson.gdttable);
+        //setTreeLength(gltfjson.tree.length);
+      }
+      
     }
   }, [gltfjson]);
 
@@ -155,33 +169,66 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     });
   }
   const incrementActiveDataTable = () => {
-    let myTree = { ...state.gltfjson };
+    const mystate_gltfjson = state.gltfjson || gltfjson;
+    let myTree = { ...mystate_gltfjson };
     myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects;
     myTree.gdttable[activeDataTable].parentObjects=state.parentObjects;
     myTree.gdttable[activeDataTable].mates=state.mates;
     myTree.gdttable[activeDataTable].option=selectedOption;
     let activetable = myTree.gdttable.length;
-    myTree.gdttable.push({ "edges":[],
-                          "selectedObjects":[],
-                          "parentObjects":[],
-                          "mates":[],
-                          "option":SELECTFEATURE }); 
+    myTree.gdttable.push({  "edges":[],
+                            "selectedObjects":[],
+                            "parentObjects":[],
+                            "mates":[],
+                            "mateValues": Array(6).fill(false),
+                            "angle":0,
+                            "offset":0,
+                            "option":SELECTFEATURE }); 
     setState({ gltfjson: myTree,
               selectedObjects:[],
               parentObjects:[],
-              mates:[] });  
+              mates:[],
+              mateValues: Array(6).fill(false),
+              angle:0,
+              offset:0 });  
     setActiveDataTable(activetable);
   }
+
+  const setCurrentDataTable = (activetable) => {
+    if (activetable != activeDataTable) {
+      const mystate_gltfjson = state.gltfjson || gltfjson; 
+      let myTree = { ...mystate_gltfjson };
+      myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects;
+      myTree.gdttable[activeDataTable].parentObjects=state.parentObjects;
+      myTree.gdttable[activeDataTable].mates=state.mates;
+      myTree.gdttable[activeDataTable].option=selectedOption; 
+      myTree.gdttable[activeDataTable].mateValues=state.mateValues;
+      myTree.gdttable[activeDataTable].angle=state.angle;
+      myTree.gdttable[activeDataTable].offset=state.offset;   
+      setState({ 
+                gltfjson: myTree,
+                selectedObjects: myTree.gdttable[activetable].selectedObjects,
+                parentObjects: myTree.gdttable[activetable].parentObjects,
+                mates: myTree.gdttable[activetable].selectedObjects,
+                mateValues: myTree.gdttable[activeDataTable].mateValues,
+                angle: myTree.gdttable[activeDataTable].angle,
+                offset: myTree.gdttable[activeDataTable].offset 
+              });  
+      setActiveDataTable(activetable);
+    }    
+  }
+
   const saveGDTDataTable = () => {
-    let myTree = { ...state.gltfjson };
+    const mystate_gltfjson = state.gltfjson || gltfjson;
+    let myTree = { ...mystate_gltfjson };
     myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects;
     myTree.gdttable[activeDataTable].parentObjects=state.parentObjects;
     myTree.gdttable[activeDataTable].mates=state.mates;
-    myTree.gdttable[activeDataTable].option=selectedOption;    
-    setState({ gltfjson: myTree,
-              selectedObjects:[],
-              parentObjects:[],
-              mates:[] });  
+    myTree.gdttable[activeDataTable].option=selectedOption;  
+    myTree.gdttable[activeDataTable].mateValues=state.mateValues;
+    myTree.gdttable[activeDataTable].angle=state.angle;
+    myTree.gdttable[activeDataTable].offset=state.offset;  
+    setState({ gltfjson: myTree});  
     console.log(gltfjson.gdttable,myTree.gdttable,fileGDT);
     saveGDTInfo(myTree.gdttable,fileGDT)
     .then(res => res.data)
@@ -190,23 +237,72 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     });
   }
   const resetActiveDataTable = () => {
-    let myTree = { ...state.gltfjson };
+    const mystate_gltfjson = state.gltfjson || gltfjson;
+    let myTree = { ...mystate_gltfjson };
     myTree.gdttable[activeDataTable].selectedObjects=[];
     myTree.gdttable[activeDataTable].parentObjects=[];
     myTree.gdttable[activeDataTable].mates=[];
-    myTree.gdttable[activeDataTable].option=selectedOption;     
-    setState({ gltfjson: myTree,
-              selectedObjects:[],
-              parentObjects:[],
-              mates:[] });  
-    
+    myTree.gdttable[activeDataTable].option=selectedOption; 
+    myTree.gdttable[activeDataTable].edges=[];  
+    myTree.gdttable[activeDataTable].mateValues= Array(6).fill(false);
+    myTree.gdttable[activeDataTable].angle=0;
+    myTree.gdttable[activeDataTable].offset=0;
+    state.selectedObjects.forEach(element => {          
+      element.selectedshell = false;
+      setSelectedShell(element, false);       
+    });
+    myTree.tree.length=myTree.treeLength;
+    setState({  gltfjson: myTree,
+                selectedObjects:[],
+                parentObjects:[],
+                mates:[],
+                mateValues: Array(6).fill(false),
+                angle:0,
+                offset:0 });  
+    console.log("Resetting",myTree);
   }
+
+  const setRowKeyValue = (name,key,value) => {
+   
+    let myobject = (selectedOption != SELECTASSEMBLY) ? [...state.selectedObjects] :  [...state.parentObjects];
+    for (let index = 0; index < myobject.length; index++) {
+      let element = myobject[index];
+      if(element[gltf_Dict['name']]==name) {
+        element[key]=value;
+        if(selectedOption != SELECTASSEMBLY) {
+          setState({selectedObjects:myobject});
+        } else {
+          setState({parentObjects:myobject});
+        }
+      }      
+    }
+      
+  }
+  const setMateValues = (index,value) => {
+    let myValues = [...state.mateValues]
+    myValues[index]=value;
+    setState({mateValues:myValues});
+  }
+  
+  const setAngle = (value) => {
+    setState({angle:value});
+  }
+
+  const setOffset = (value) => {
+    setState({offset:value});
+  }
+
   const setStateOfgltf=(gltfjsonobj)=> {
     console.log("setting gltf json",gltfjsonobj);
     setState({gltfjson:gltfjsonobj});
+    state.selectedObjects.forEach(element => {          
+      element.selectedshell = true;
+      setSelectedShell(element, true, gltfjsonobj);       
+    });
   }
   const setStateOfTree=(gltftree)=> {
-    let myTree = { ...state.gltfjson };
+    const mystate_gltfjson = state.gltfjson || gltfjson;
+    let myTree = { ...mystate_gltfjson };
     myTree.tree = gltftree;
     setState({ gltfjson: myTree });   
   }
@@ -314,6 +410,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     mySelectedOption = 0,
     { idKey = gltf_Dict['id'], parentKey = gltf_Dict['parentId'], childrenKey = 'children' } = {}
   ) => {
+    console.log("I am going to build tree",state.gltfjson,data)
     const tree = [];
     const childrenOf = {};
     data.forEach((item) => {
@@ -385,14 +482,14 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
             'expanded': item[gltf_Dict['id']] == "1",
             'selected': item.selectedshell
           }
-          console.log("Setting states here1",item['state']);
+          //console.log("Setting states here1",item['state']);
         } else {
           item['state'].selected = item.selectedshell;
           const currentNode = findMyTreeNode(item);
           if(currentNode) {
             item['state'].expanded = currentNode['state'].expanded;
           }
-          console.log("Setting states here2",item, item['state'],"Current Node",currentNode);
+          //console.log("Setting states here2",item, item['state'],"Current Node",currentNode);
         }
         const { [idKey]: id, [parentKey]: parentId = 0 } = item;
         childrenOf[id] = childrenOf[id] || [];
@@ -421,12 +518,12 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
 
   const findMyParentPart = (mynode) => {
     var myParentID = -1;
-
-    for (var i = 0; i < state.gltfjson.tree.length; i++) {
-      if (state.gltfjson.tree[i][gltf_Dict["name"]] == mynode[gltf_Dict["name"]]) {
-        myParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
-        if (state.gltfjson.tree[i][gltf_Dict["element"]] == "P") {
-          return state.gltfjson.tree[i];
+    const mystate_gltfjson = state.gltfjson || gltfjson;
+    for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
+      if (mystate_gltfjson.tree[i][gltf_Dict["name"]] == mynode[gltf_Dict["name"]]) {
+        myParentID = mystate_gltfjson.tree[i][gltf_Dict["parentId"]];
+        if (mystate_gltfjson.tree[i][gltf_Dict["element"]] == "P") {
+          return mystate_gltfjson.tree[i];
         } else {
           break;
         }
@@ -437,11 +534,11 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
       return null;
     } else {
       var myParentsParentID = -1;
-      for (var i = 0; i < state.gltfjson.tree.length; i++) {
-        if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
-          myParentsParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
-          if (state.gltfjson.tree[i][gltf_Dict["element"]] == "P") {
-            return state.gltfjson.tree[i];
+      for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
+        if (mystate_gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
+          myParentsParentID = mystate_gltfjson.tree[i][gltf_Dict["parentId"]];
+          if (mystate_gltfjson.tree[i][gltf_Dict["element"]] == "P") {
+            return mystate_gltfjson.tree[i];
           } else {
             break;
           }
@@ -452,10 +549,10 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
         //console.log("Pushing", myParentsParentID, myParentID, myID);
         return null;
       } else {
-        for (var i = 0; i < state.gltfjson.tree.length; i++) {
-          if ((state.gltfjson.tree[i][gltf_Dict["id"]] == myParentsParentID)) {
-            if (state.gltfjson.tree[i][gltf_Dict["element"]] == "P") {
-              return state.gltfjson.tree[i];
+        for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
+          if ((mystate_gltfjson.tree[i][gltf_Dict["id"]] == myParentsParentID)) {
+            if (mystate_gltfjson.tree[i][gltf_Dict["element"]] == "P") {
+              return mystate_gltfjson.tree[i];
             }
           }
         }
@@ -516,12 +613,12 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     var myID = -1;
     var parentNode = null;
 
-
-    for (var i = 0; i < state.gltfjson.tree.length; i++) {
-      if (state.gltfjson.tree[i][gltf_Dict["name"]] == mynode[gltf_Dict["name"]]) {
-        myParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
-        myID = state.gltfjson.tree[i][gltf_Dict["id"]];
-        parentNode = state.gltfjson.tree[i];
+    const mystate_gltfjson = state.gltfjson || gltfjson;
+    for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
+      if (mystate_gltfjson.tree[i][gltf_Dict["name"]] == mynode[gltf_Dict["name"]]) {
+        myParentID = mystate_gltfjson.tree[i][gltf_Dict["parentId"]];
+        myID = mystate_gltfjson.tree[i][gltf_Dict["id"]];
+        parentNode = mystate_gltfjson.tree[i];
         break;
       }
     }
@@ -534,10 +631,10 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     var myMaterials = [];
     if (myParentID != -1) {
       var myParentsParentID = -1;
-      for (var i = 0; i < state.gltfjson.tree.length; i++) {
-        if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
-          myParentsParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
-          parentNode = state.gltfjson.tree[i];
+      for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
+        if (mystate_gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
+          myParentsParentID = mystate_gltfjson.tree[i][gltf_Dict["parentId"]];
+          parentNode = mystate_gltfjson.tree[i];
           break;
         }
       }
@@ -546,23 +643,23 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
       if (myParentsParentID == -1) { //RootNode
         myParents.push(myID);
       } else {
-        for (var i = 0; i < state.gltfjson.tree.length; i++) {
-          if (state.gltfjson.tree[i][gltf_Dict["parentId"]] == myParentsParentID) {
-            myParents.push(state.gltfjson.tree[i][gltf_Dict["id"]]);
+        for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
+          if (mystate_gltfjson.tree[i][gltf_Dict["parentId"]] == myParentsParentID) {
+            myParents.push(mystate_gltfjson.tree[i][gltf_Dict["id"]]);
           } else {
-            if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentsParentID) {
-              parentNode = state.gltfjson.tree[i];
+            if (mystate_gltfjson.tree[i][gltf_Dict["id"]] == myParentsParentID) {
+              parentNode = mystate_gltfjson.tree[i];
             }
           }
         }
       }
       for (var j = 0; j < myParents.length; j++) {
         myParentID = myParents[j];
-        for (var i = 0; i < state.gltfjson.tree.length; i++) {
-          if (state.gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
-            var myChild = state.gltfjson.tree[i];
+        for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
+          if (mystate_gltfjson.tree[i][gltf_Dict["id"]] == myParentID) {
+            var myChild = mystate_gltfjson.tree[i];
             if (myChild) {
-              if ((state.gltfjson.tree[i][gltf_Dict["element"]] == "P") ||
+              if ((mystate_gltfjson.tree[i][gltf_Dict["element"]] == "P") ||
                 onlyparts(myChild[gltf_Dict["name"]])) {
                 myMaterials.push(myChild);
               }
@@ -610,7 +707,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   const findrecursiveTreeNode = (node,myParent) => {
     //console.log("Checking",myParent,myParent[gltf_Dict["name"]],"For Checking",node,node[gltf_Dict["name"]]);
     if(myParent[gltf_Dict["name"]]==node[gltf_Dict["name"]]) {
-      console.log("Checking",myParent,"Found Checking",node);
+      //console.log("Checking",myParent,"Found Checking",node);
       return myParent;
     }
     if ((myParent.children) && (myParent.children.length > 0)) {      
@@ -640,11 +737,12 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   const findMyMaterial = (data) => {
     //console.log(data);
     //console.log(state.gltfjson.tree);
-    if (state.gltfjson.tree) {
-      for (var i = 0; i < state.gltfjson.tree.length; i++) {
+    const mystate_gltfjson = state.gltfjson || gltfjson;
+    if (mystate_gltfjson.tree) {
+      for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
         //console.log(state.gltfjson.tree[i]);
-        if (state.gltfjson.tree[i][gltf_Dict["name"]] == data["name"]) {
-          return state.gltfjson.tree[i];
+        if (mystate_gltfjson.tree[i][gltf_Dict["name"]] == data["name"]) {
+          return mystate_gltfjson.tree[i];
         }
       }
     };
@@ -708,6 +806,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
           for (let index = 0; index < repos.length; index++) {
             structure.mates[structure.start + index] = repos[index][1];
             const element = repos[index][0];
+            console.log("Mates element",element);
             structure.objects[structure.start + index]['type'] = element[0].type;
             structure.objects[structure.start + index]['kind'] = element[0].Info['kind'];
             //console.log(structure.objects[structure.start+index]);
@@ -739,14 +838,19 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     })
   }
   let mapdata = {}
-  const setSelectedShell = (data, setoption) => {
+  const setSelectedShell = (data, setoption, insteadstate=null) => {
+    const mystate_gltfjson = insteadstate ? insteadstate : state.gltfjson; //| gltfjson;
+    if (!mystate_gltfjson) {
+      return;
+    } 
+
     data.selectedshell = setoption;
     const myID = data[gltf_Dict['id']];
     let curData = mapdata[myID];
     if (typeof (curData) === "undefined") {
-      for (let index = 0; index < state.gltfjson.tree.length; index++) {
+      for (let index = 0; index < mystate_gltfjson.tree.length; index++) {
 
-        const element = state.gltfjson.tree[index];
+        const element = mystate_gltfjson.tree[index];
         //console.log("compare",element,data);
         if (element[[gltf_Dict['id']]] == myID) {
           curData = index;
@@ -757,12 +861,12 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
       }
     }
     if (typeof (curData) !== "undefined") {
-      let myTree = { ...state.gltfjson };
+      let myTree = { ...mystate_gltfjson };
       myTree.tree[curData] = data;
       setState({ gltfjson: myTree });
       console.log("Setting", myTree, data, curData);
     } else {
-      console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
+      console.log("unable to find info", data, myID, curData, mystate_gltfjson.tree.length)
     }
   }
 
@@ -1168,7 +1272,12 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
           setActiveDataTable={setActiveDataTable}
           incrementActiveDataTable={incrementActiveDataTable}
           saveGDTDataTable={saveGDTDataTable}
-          resetActiveDataTable={resetActiveDataTable}
+          resetActiveDataTable={resetActiveDataTable}         
+          setCurrentDataTable={setCurrentDataTable}
+          setRowKeyValue={setRowKeyValue}          
+          setMateValues={setMateValues}
+          setAngle={setAngle}
+          setOffset={setOffset}
         />
       </Paper>
       )}

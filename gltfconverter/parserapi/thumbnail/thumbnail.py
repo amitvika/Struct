@@ -5657,7 +5657,7 @@ class OffscreenRenderer(object):
         except Exception:
             pass
 
-def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path, transparent=False):
+def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path, transparent=True):
     
     # Create scene
     try:
@@ -5734,25 +5734,34 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
         print("createThumbnailError7",e)
         return
     if transparent:
-        rgba = myImage.convert("RGBA")  #routine to save transparent image which might be slower and hence commented.
-        datas = rgba.getdata()  
-        newData = []
-        for item in datas:
-            if item[0] == 255 and item[1] == 255 and item[2] == 255:  # finding white colour by its RGB value
-                # storing a transparent value when we find a white colour
-                newData.append((255, 255, 255, 0))
-            else:
-                newData.append(item)  # other colours remain unchanged
-        rgba.putdata(newData) 
-        rgba.save(thumbnail_save_path, "PNG")
+        try:
+            rgba = myImage.convert("RGBA")  #routine to save transparent image which might be slower and hence commented.
+            datas = rgba.getdata()  
+            newData = []
+            for item in datas:
+                if item[0] == 255 and item[1] == 255 and item[2] == 255:  # finding white colour by its RGB value
+                    # storing a transparent value when we find a white colour
+                    newData.append((255, 255, 255, 0))
+                else:
+                    newData.append(item)  # other colours remain unchanged
+            rgba.putdata(newData) 
+            rgba.save(thumbnail_save_path, "PNG")
+        except Exception as e:
+            print("createThumbnailError8",e)
+            try:
+                myImage.save(thumbnail_save_path, "PNG")
+            except Exception as e:
+                print("createThumbnailError9",e)
+                return            
+            return
     else:
         try:
             myImage.save(thumbnail_save_path, "PNG")
         except Exception as e:
-            print("createThumbnailError8",e)
+            print("createThumbnailError10",e)
             return
     try:
         r.delete()
     except Exception as e:
-        print("createThumbnailError9",e)
+        print("createThumbnailError11",e)
         return
