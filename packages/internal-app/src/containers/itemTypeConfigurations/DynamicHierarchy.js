@@ -3,25 +3,42 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Select from '@monostruct/common/components/atoms/Select';
-import DynamicCriteria from './DynamicCriteria';
+import DynamicCriteria from './DynamicForm';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import get from 'lodash/get';
+import { useSelector } from 'react-redux';
 
-export default function DynamicHierarchy({ setShowKineticModal }) {
+export default function DynamicHierarchy({
+  setShowKineticModal,
+  handleItemUpdate,
+}) {
+
+  const currentItem = useSelector(state => state.item.currentItem);
+
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
-  const [selections, setSelections] = useState([{ key: 'Item Type', form:{fields:[]} }]);
+  const [selections, setSelections] = useState([
+    { key: 'Item Type', formFields: [] },
+  ]);
   const [stateUpdated, setStateUpdated] = useState(false);
+
+  useEffect(() => {
+    handleItemUpdate({ hierarchySelections: selections });
+  }, [stateUpdated]);
 
   useEffect(() => {
     CriteriaUploadAPI.getCadDetails()
       .then((resp) => {
         const hierarchySchemaArr = get(resp, 'data.hierarchySchema', []);
         setHierarchyDropdownList(hierarchySchemaArr);
+
+        if(get(currentItem, 'hierarchySelections[0]')){
+          setSelections(get(currentItem, 'hierarchySelections',[]));
+        }
       })
       .catch((error) => {});
   }, []);
 
-  const handleDropdownSelection = (title = 'Item Type', value, form) => {
+  const handleDropdownSelection = (title, value, form) => {
     // [{key : 'Item Type' , value: 'Actuator', form: []}]
     let indexOfCurrentSelection = selections.findIndex(
       (item) => item.key === title
@@ -30,10 +47,13 @@ export default function DynamicHierarchy({ setShowKineticModal }) {
     let tempSelections = selections;
 
     if (
-      indexOfCurrentSelection > 0 &&
+      indexOfCurrentSelection > -1 &&
       indexOfCurrentSelection < selections.length - 1
     ) {
-      tempSelections = selections.slice(0, indexOfCurrentSelection);
+      tempSelections = selections.slice(
+        indexOfCurrentSelection + 1,
+        selections.length
+      );
     } else if (selections.length > 0 && indexOfCurrentSelection < 0) {
       indexOfCurrentSelection = selections.length;
       tempSelections[indexOfCurrentSelection] = {};
@@ -44,7 +64,11 @@ export default function DynamicHierarchy({ setShowKineticModal }) {
 
     tempSelections[indexOfCurrentSelection].key = title;
     tempSelections[indexOfCurrentSelection].value = value;
-    tempSelections[indexOfCurrentSelection].form = form;
+    if (form && form.fields) {
+      tempSelections[indexOfCurrentSelection].formFields = form.fields;
+    } else {
+      tempSelections[indexOfCurrentSelection].formFields = undefined;
+    }
 
     setSelections(tempSelections);
     setStateUpdated(!stateUpdated);
@@ -52,12 +76,6 @@ export default function DynamicHierarchy({ setShowKineticModal }) {
 
   const handleOnChange = (title, value, form) => {
     handleDropdownSelection(title, value, form);
-
-    // if (value === 'Motion Control') {
-    //   setShowKineticModal(true);
-    // } else {
-    //   setShowKineticModal(false);
-    // }
   };
 
   const getSelectionValue = (title) => {
@@ -111,6 +129,18 @@ export default function DynamicHierarchy({ setShowKineticModal }) {
     });
   };
 
+  const handleDynamicFormUpdate = (key, updatedFormFields) => {
+    const findIndex = selections.findIndex((item) => item.key === key);
+    let tempSelections = selections;
+
+    if (findIndex > -1) {
+      tempSelections[findIndex].formFields = updatedFormFields;
+
+      setSelections(tempSelections);
+      setStateUpdated(!stateUpdated);
+    }
+  };
+
   const renderDropdowns = () => {
     return hierarchyDropdownList
       .filter((listItem) => {
@@ -132,7 +162,14 @@ export default function DynamicHierarchy({ setShowKineticModal }) {
       <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>
 
       {selections.map((selectionItem) => {
-        return <DynamicCriteria {...selectionItem} />;
+        return (
+          <DynamicCriteria
+            {...selectionItem}
+            handleUpdate={(updatedFormFields) =>
+              handleDynamicFormUpdate(selectionItem.key, updatedFormFields)
+            }
+          />
+        );
       })}
     </>
   );

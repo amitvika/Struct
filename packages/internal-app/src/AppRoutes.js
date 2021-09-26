@@ -33,7 +33,7 @@ import Administrative from './containers/administrative';
 import ViewMyProfile from './containers/viewMyProfile'
 
 
-import Viewer from './DynamicHierarchy'
+// import Viewer from './DynamicHierarchy'
 
 export default function AppRoutes() {
   const isUserLoading = useSelector(state => state.auth.isLoading);
@@ -48,7 +48,7 @@ export default function AppRoutes() {
       <Switch>
         <Route exact path="/" component={Login} />
         <Route path="/register" component={Register} />
-        <Route path="/viewer" component={Viewer} />
+        {/* <Route path="/viewer" component={Viewer} /> */}
         <Layout>
 
           <div style={{ marginLeft: '7%', marginRight: '7%' }}>
