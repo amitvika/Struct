@@ -68,7 +68,7 @@ const stateprops = {
   animationtime: DEFAULTANIMATIONTIME,
   maximumfaces: DEFAULTMAXIMUMFACES,
   edgesize: DEFAULTEDGESIZE,
-  vertexsize:DEFAULTVERTEXSIZE
+  vertexsize: DEFAULTVERTEXSIZE,
 };
 
 const ItemDetail = () => {
@@ -78,7 +78,6 @@ const ItemDetail = () => {
   let query = useQuery();
 
   const currentItem = useSelector((state) => state.item.currentItem);
-  const [dispensing, setDispensing] = useState({});
   const [tabIndex, setTabIndex] = useState('pdcu');
   const [itemProperties, setItemProperties] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -93,7 +92,6 @@ const ItemDetail = () => {
     }
 
     const toFetchItem = !itemProperties || !itemProperties.fileId;
-    //console.log("got", tabIndex, myTabIndex, toFetchItem, currentItem, itemProperties);
     if (toFetchItem) {
       (async () => {
         //setIsLoading(true);
@@ -544,7 +542,7 @@ const ItemDetail = () => {
       const treeRes = await getTreeForStore(whichOneToLoad);
       let stackRes = { data: null };
       let orderRes = { data: null };
-      let gdtRes = { data:null };
+      let gdtRes = { data: null };
       if (myTabIndex == 'stack') {
         stackRes = await getAFileFromStore(whichOneToLoad, 'stack');
       }
@@ -660,6 +658,7 @@ const ItemDetail = () => {
             gltfjson={gltfjson}
             setgltfjson={setgltfjson}
             isLoading={isLoading}
+            handleItemUpdate={handleItemUpdate}
           />
         );
       case 5:
@@ -721,9 +720,13 @@ const ItemDetail = () => {
     }
   };
 
+  const handleItemUpdate = (change) => {
+    let tempItemProperties = Object.assign({}, itemProperties, change);
+    setItemProperties(tempItemProperties);
+  };
+
   const handleSave = () => {
     // setIsLoading(true);
-    console.log(itemProperties);
     itemProperties.step = undefined;
     itemProperties.gltfjson = undefined;
     itemProperties.itemId = undefined;
@@ -785,7 +788,6 @@ const ItemDetail = () => {
         />
       );
     });
-    console.log(tabP);
     return tabP;
   };
 

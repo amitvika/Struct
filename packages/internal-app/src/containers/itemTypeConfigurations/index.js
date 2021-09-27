@@ -80,7 +80,8 @@ const useStyles = makeStyles((theme) => ({
 let state_selectedObjects = [];
 
 export default function ItemTypeConfiguration(props) {
-  const { fileId, gltfjson, isLoading, itemProperties } = props;
+  const { fileId, gltfjson, isLoading, itemProperties, handleItemUpdate } =
+    props;
   //const [list, setList] = useState([]);
   const [isFileLoading, setIsLoading] = useState(isLoading);
   const [firstTimeLoading, setFirstTimeLoading] = useState(false);
@@ -859,9 +860,11 @@ export default function ItemTypeConfiguration(props) {
 
     //return currentData;
   };
+
   useEffect(() => {
     setIsLoading(isLoading);
   }, [isLoading]);
+
   useEffect(() => {
     const includeParts = true;
     console.log('Reaching', gltfjson, fileId, isLoading);
@@ -938,7 +941,12 @@ export default function ItemTypeConfiguration(props) {
       itemProperties.itemGeometry.itemType ===
       'Machine - Compound/Tool/Workholding'
     ) {
-      return <DynamicHierarchy setShowKineticModal={setShowKineticModal} />;
+      return (
+        <DynamicHierarchy
+          setShowKineticModal={setShowKineticModal}
+          handleItemUpdate={handleItemUpdate}
+        />
+      );
     } else {
       return null;
     }

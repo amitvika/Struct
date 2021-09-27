@@ -122,6 +122,7 @@ exports.getAll = async (req, res) => {
         fileStack: itemDetail.fileStack,
         fileKinematic: itemDetail.fileKinematic,
         fileId: itemDetail.fileId,
+        hierarchySelections: itemDetail.hierarchySelections,
       }));
     res.json(itemDetails);
   } catch (error) {
@@ -231,6 +232,10 @@ exports.update = async (req, res) => {
     }
     if (body.storage) {
       updateData.storage = body.storage;
+    }
+
+    if (body.hierarchySelections) {
+      updateData.hierarchySelections = body.hierarchySelections;
     }
 
     const updatedItem = await ItemModel.findByIdAndUpdate(
