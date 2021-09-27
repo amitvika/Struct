@@ -26,7 +26,13 @@ const useStyles = makeStyles({
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
-    height: 30
+    height: 30,
+    '&:nth-of-type(odd)': {
+      backgroundColor: "white",
+    },
+    '&:nth-of-type(even)': {
+      backgroundColor: "#FAFAFA",
+    },
   }
 }))(TableRow);
 
@@ -71,8 +77,8 @@ export default function SelectedFeatureMenu(
                   '#6','#8','#10','#12',
                   '1/4"','5/16"','3/8"','7/16"',
                   '1/2"','9/16"','5/8"',
-                  '3/4"','7/8"','1"','1 1/8"','1 1/4"'                
-              ]
+                  '3/4"','7/8"','1"','1 1/8"','1 1/4"'               
+                ];
   const renderTable = () => {
     console.log("FeaturList",featureList,features);
     return featureList.map((row, index) => (
@@ -114,7 +120,7 @@ export default function SelectedFeatureMenu(
     <TableContainer component={Paper} style={{ minWidth: 400 }}>
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
-          <TableRow className={classes.tableRow}>
+          <TableRow className={classes.tableRow} style={{background:"grey",fontWeight:"bold"}}>
             <TableCell className={classes.tableCell} >ID</TableCell>
             <TableCell className={classes.tableCell} align="right" size="small" >Type</TableCell>
             <TableCell className={classes.tableCell} align="right" size="small">Kind</TableCell>

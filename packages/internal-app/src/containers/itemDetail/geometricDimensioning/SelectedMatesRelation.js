@@ -30,7 +30,13 @@ const useStyles = makeStyles({
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
-    height: 30
+    height: 30,
+    '&:nth-of-type(odd)': {
+      backgroundColor: "white",
+    },
+    '&:nth-of-type(even)': {
+      backgroundColor: "#FAFAFA",
+    },
   }
 }))(TableRow);
 
@@ -214,7 +220,7 @@ const SelectedMatesRelation = (props) => {
     <TableContainer component={Paper} style={{ minWidth: 400 }}>
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
-          <TableRow className={classes.tableRow}>
+          <TableRow className={classes.tableRow} style={{background:"grey",fontWeight:"bold"}} >
             <TableCell className={classes.tableCell} align="right">Mate</TableCell>
             <TableCell className={classes.tableCell} align="left">Estimated Mate</TableCell>
           </TableRow>

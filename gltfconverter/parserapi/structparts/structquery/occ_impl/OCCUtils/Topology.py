@@ -463,7 +463,7 @@ class Topo(object):
             cnt += 1
         return cnt
 
-def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[]):
+def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[], faceInfo=None):
     """
      Print the details of an object from the top down
     """
@@ -482,7 +482,7 @@ def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[]):
     elif s == TopAbs_FACE:
         dict["Info"] = recognize_face(shape)        
     elif s == TopAbs_EDGE:        
-        dict["Info"] = recognize_edge(shape)
+        dict["Info"] = recognize_edge(shape,faceInfo)
     else:
         dict["Info"] = recognize_shape(shape)
     returnStructure.append(dict)
@@ -491,7 +491,7 @@ def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[]):
     while it.More():
         shp = it.Value()
         it.Next()
-        dumpTopologyStructures(shp, level + 1,parentId=parentId, returnStructure=returnStructure)
+        dumpTopologyStructures(shp, level + 1,parentId=parentId, returnStructure=returnStructure,faceInfo=dict["Info"])
     parentId.pop()
     return len(returnStructure)
 

@@ -124,10 +124,16 @@ export const getMinimumDistance = (
   return axios.get(getURL);
 };
 
-export const getShapeInfo = (start, stepArray = []) => {
-  const getURL = `${host}/shapeinfo?start=${start}&steps=${stepArray}`;
+export const getShapeInfo = (start, stepArray = [], siblingArray=[]) => {
+ /*  const getURL = `${host}/shapeinfo?start=${start}&steps=${stepArray}&parents=${JSON.stringify({parents:parentArray})}`;
   console.log(getURL);
-  return axios.get(getURL);
+  return axios.get(getURL); */
+  console.log(start, stepArray, siblingArray);
+  var formShapeInfo = new FormData();
+  formShapeInfo.append('start', start);
+  formShapeInfo.append('steps', JSON.stringify({steps:stepArray}));
+  formShapeInfo.append('siblings', JSON.stringify({siblings:siblingArray}));
+  return axios.post(`${host}/shapeinfo/`, formShapeInfo);
 };
 
 export const getAllTextures = () => {

@@ -26,7 +26,13 @@ const useStyles = makeStyles({
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
-    height: 30
+    height: 30,
+    '&:nth-of-type(odd)': {
+      backgroundColor: "white",
+    },
+    '&:nth-of-type(even)': {
+      backgroundColor: "#FAFAFA",
+    },
   }
 }))(TableRow);
 
@@ -42,44 +48,51 @@ export default function SelectedGDTMenu(
   { featureList = [], 
     features = true, 
     setRowKeyValue = (name,key,value)=>{console.log(name,key,value)} }) {
-  /* const myStyle = {
-    whiteSpace: "normal",
-    wordWrap: "break-word",
-    wordBreak: "break-all",
-    width: "100px"
-  } */
-  const classes = useStyles();
-  const renderTable = () => {
-    //console.log("FeaturList",featureList,features);
-    return featureList.map((row, index) => (
-      row.kind=="Circle" &&
-      <StyledTableRow key={(features ? row.n : row.parent.n) + index.toString()}>
-        <StyledTableCell component="th" scope="row" >
-          {(features ? row.n : row.parent.n)}
-        </StyledTableCell>
-        <StyledTableCell align="right"  >
-          {index%2==0?"Hole":"Shaft"}
-        </StyledTableCell>
-        <StyledTableCell align="right"  >
-          <select id={"id"+index.toString()}
-           value={row.option3} 
-           onChange={(e)=>setRowKeyValue(row.n,"option3",e.target.value)}
-          >
-            <option value={"1"+index.toString()} selected={row.option3=="1"+index.toString()}>{"1"+index.toString()}</option>
-            <option value={"2"+index.toString()} selected={row.option3=="2"+index.toString()}>{"2"+index.toString()}</option>
-            <option value={"3"+index.toString()} selected={row.option3=="3"+index.toString()}>{"3"+index.toString()}</option>
-            <option value={index.toString()} selected={row.option3==index.toString() }>{(index+1).toString()}</option>
-          </select>
-        </StyledTableCell>
-      </StyledTableRow>
-    ))
+    /* const myStyle = {
+      whiteSpace: "normal",
+      wordWrap: "break-word",
+      wordBreak: "break-all",
+      width: "100px"
+    } */
+    const renderOptions = (options,defaulter) => {
+      console.log(defaulter,options);
+      return options.map((row,index) => (
+        <option key={index.toString()} value={row} selected={(row==defaulter)}>
+          {row}
+        </option>
+      ) );
+    }
+    const Options3=['!1!','!2!','!3!','!4!','!5!','!6!','!7!'];
+    const Options4=['@1@','@2@','@3@','@4@','@5@','@6@','@7@'];
+    const classes = useStyles();
+    const renderTable = () => {
+      //console.log("FeaturList",featureList,features);
+      return featureList.map((row, index) => (
+        row.kind=="Circle" &&
+        <StyledTableRow key={(features ? row.n : row.parent.n) + index.toString()}>
+          <StyledTableCell component="th" scope="row" >
+            {(features ? row.n : row.parent.n)}
+          </StyledTableCell>
+          <StyledTableCell align="right"  >
+            {row.fill=="Hole"?"Hole":"Shaft"}
+          </StyledTableCell>
+          <StyledTableCell align="right"  >
+            <select id={"id"+index.toString()}
+            value={row.fill=="Hole"?row.option3:row.option4} 
+            onChange={(e)=>setRowKeyValue(row.n,row.fill=="Hole"?"option3":"option4",e.target.value)}
+            >
+              {renderOptions(row.fill=="Hole"?Options3:Options4,row.fill=="Hole"?row.option3:row.option4)}
+            </select>
+          </StyledTableCell>
+        </StyledTableRow>
+      ))
   }
 
   return (
     <TableContainer component={Paper} style={{ minWidth: 400 }}>
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
-          <TableRow className={classes.tableRow}>
+          <TableRow className={classes.tableRow} style={{background:"grey",fontWeight:"bold"}} >
             <TableCell className={classes.tableCell} >ID</TableCell>
             <TableCell className={classes.tableCell} align="right" size="small" >Position</TableCell>
             <TableCell className={classes.tableCell} align="right" size="small">Option</TableCell>

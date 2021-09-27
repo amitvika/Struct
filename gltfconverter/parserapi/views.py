@@ -34,8 +34,8 @@ from .structparts.structquery.occ_impl import OCPStepIGESAnalyser, OCPImporters
 from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
 
 from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
-    translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance, 
-    getPartStackablePositions, get_bounding_details, scale_shape,
+    translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance,scale_shape,  
+    getPartStackablePositions, get_bounding_details, get_oriented_bounding_details, 
     recognize_direction, recognize_entity)
 from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices
 #from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
@@ -1133,6 +1133,16 @@ def IsEqualWithTollerance(first,second,tollerance):
     difference = first-second
     return (difference >= -tollerance) and (difference <=tollerance)
 
+def CompareWithTollerance(first,second,tollerance):    
+    difference = first-second
+    if (difference >= -tollerance) and (difference <=tollerance):
+        return 0
+    if difference > 0:
+        return 1
+    if difference < 0:
+        return -1
+    return 0
+
 def IsCircular(checkEntity):
     return (checkEntity["kind"]=="Sphere") or (checkEntity["kind"]=="Cylinder") or\
                 (checkEntity["kind"]=="Circle") or (checkEntity["kind"]=="Cone") 
@@ -1178,6 +1188,27 @@ def findMates(firstshell,secondshell):
         return firstEntity["kind"], secondEntity["kind"], coplaner, parallel, normal, opposite, concentric, coradial, angle
 
 
+def compareDimension(dim1, dim2):
+    x1size, y1size, z1size = dim1.XHSize(), dim1.YHSize(), dim1.ZHSize()
+    x2size, y2size, z2size = dim2.XHSize(), dim2.YHSize(), dim2.ZHSize()
+    minsize = min(x2size,y2size,z2size)
+    print(x1size,y1size,z1size)
+    print(x2size,y2size,z2size)
+    print(minsize)
+    if (minsize==z2size) and \
+        ( CompareWithTollerance(x2size,x1size,0.01)==-1 or \
+            CompareWithTollerance(y2size,y1size,0.01)==-1 ):
+        return True
+    if (minsize==y2size) and \
+        ( CompareWithTollerance(z2size,z1size,0.01)==-1 or \
+            CompareWithTollerance(x2size,x1size,0.01)==-1 ):
+        return True
+    if (minsize==x2size) and \
+        ( CompareWithTollerance(y2size,y1size,0.01)==-1 or \
+            CompareWithTollerance(z2size,z1size,0.01)==-1 ):
+        return True
+    return False
+
 @api_view(['GET', 'POST'])
 def FileGetShapeInfo(request):
     try:
@@ -1186,46 +1217,91 @@ def FileGetShapeInfo(request):
         except Exception as e:
             print("Error while logging",e)
         data = []
-        if request.method == 'GET':       
+        if request.method == 'GET':  
+            #mydict = requestparse(request.GET.urlencode())             
+            #print(mydict)    
             sname = request.GET.get('fname',"")         
             if sname=="":
-                steps = request.GET.get('steps',"")   
-                fnames=steps.split(",")
                 start = convertToInt(request.GET.get('start',"0"),0)
+                steps = request.GET.get('steps',"")   
+                fnames=steps.split(",")                
+                parents = request.GET.get('parents',"")
+                pnames=parents.split(",")  
             else:
                 fnames=[sname]
+                pnames=[sname]
                 start=0
-            structArray=[]
-            thisshell=[]
-            #mateCollection=[]
-            for index in range(len(fnames)):
-
-                fname = fnames[index]        
-                #print("Got request for",fname,index,start)
-                if fname:
-                    try:
-                        with open("Display/"+fname+".pickle", 'rb') as f:
-                            #print("storing to",index)
-                            thisshell.append(pickle.load(f))
-                            #print("stored to",index)
-                            data = []
-                            if index >=start :
-                                dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data)
-                                mateArray=[]
-                                for mateindex in range(index):
-                                    mymates = findMates(thisshell[mateindex],thisshell[index])
-                                    mateArray.append((mymates))
-                                structArray.append((data,(mateArray)))                            
-                    except Exception as e:
-                        print("Error while loading",fname,e)
         elif request.method == 'POST':
-            tree = request.data['tree']
-            #print(tree)
-            structArray = json.loads(tree)
-            mycount = 0
-            for mydata in structArray:
-                mycount = mycount + 1
-                #print(mycount, mydata)              
+            start = convertToInt(request.data['start'],0) 
+            steps = request.data['steps']   
+            fnamesteps= json.loads(steps)
+            fnames=fnamesteps['steps']
+            siblings = request.data['siblings']   
+            pnamesteps= json.loads(siblings)
+            pnames = pnamesteps['siblings']
+        print(start,fnames,pnames)
+        structArray=[]
+        thisshell=[]
+        thisparent=[]
+        #mateCollection=[]
+        for index in range(len(fnames)):
+            fname = fnames[index]        
+            #print("Got request for",fname,index,start)
+            if fname:
+                try:
+                    with open("Display/"+fname+".pickle", 'rb') as f:
+                        #print("storing to",index)
+                        thisshell.append(pickle.load(f))                        
+                        #print("stored to",index)
+                        data = []
+                        if index >=start :
+                            dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data,faceInfo=None)
+                            print(fname,data)
+                            foundHole=False
+                            if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
+                                thisdimension = get_oriented_bounding_details(thisshell[index])
+                                thissiblings = pnames[index]                                
+                                for sibling in thissiblings:
+                                    try:
+                                        with open("Display/"+sibling+".pickle", 'rb') as fs:
+                                            thissibling = pickle.load(fs)
+                                            siblingdimension =  get_oriented_bounding_details(thissibling)
+                                            bigger = compareDimension(siblingdimension,thisdimension)
+                                            if bigger:
+                                                data[0]['fill']="Hole"
+                                                foundHole=True
+                                                break
+                                    except Exception as e:
+                                        print("Error while loading",sibling)
+                            if foundHole==False:
+                                data[0]['fill']="Soild"
+                            """ elif thisparent[index]:
+                                    parentdict=recognize_entity(thisparent[index])
+                                    if 'Info' in parentdict :
+                                        if 'fill' in parentdict['Info']:
+                                            data[0]['fill']=parentdict['Info']['fill']
+                                        else:
+                                            data[0]['fill']="NoFill" 
+                                    else:
+                                        data[0]['fill']="NoInfo"                                
+                            else:
+                                if(data[0]['type']=='Face'):
+                                    if 'Info' in data[0] :
+                                        if 'fill' in data[0]['Info']:
+                                            data[0]['fill']=data[0]['Info']['fill']
+                                        else:
+                                            data[0]['fill']="NoFill" 
+                                    else:
+                                        data[0]['fill']="NoInfo"
+                                else:
+                                    data[0]['fill']="" """
+                            mateArray=[]
+                            for mateindex in range(index):
+                                mymates = findMates(thisshell[mateindex],thisshell[index])
+                                mateArray.append((mymates))
+                            structArray.append((data,(mateArray)))                            
+                except Exception as e:
+                    print("Error while loading",fname,e)
                     
         return JsonResponse(structArray, safe=False)
     except Exception as e:

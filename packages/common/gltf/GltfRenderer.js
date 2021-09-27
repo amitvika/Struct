@@ -2695,6 +2695,7 @@ class GLTFRenderer extends Component {
 
     findSingleNode = (mynode,addToGDTTable=true) => {
         let selectHere = true;
+        console.log(this.props,this.props.fileGDT,addToGDTTable);
         if(this.props.fileGDT && addToGDTTable) {
             
             var myParentID = -1;
@@ -2703,7 +2704,7 @@ class GLTFRenderer extends Component {
             const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
 
             const myStateTree = state_gltfobj.tree;
-                
+            console.log("State tree",myStateTree,this.props.gltfobj);   
             for (var i = 0; i < myStateTree.length; i++) {
                 if (myStateTree[i][gltf_Dict["name"]] == mynode.name) {
                     myParentID =  myStateTree[i][gltf_Dict["id"]];
@@ -3046,10 +3047,12 @@ class GLTFRenderer extends Component {
     };
 
     findMyParentChilds = (mynode,addToGDTTable=true) => {
-        //console.log(this.props.selectedoption,SELECTSOLID,this.props.selectedoption != SELECTSOLID,this.props.selectedoption,SELECTASSEMBLY);
+        console.log(this.props.selectedoption,SELECTSOLID,
+            this.props.selectedoption != SELECTSOLID,this.props.selectedoption,SELECTASSEMBLY,
+            this.props.splitmethod,SELECTDISECTPARTS);
         if (((this.props.selectedoption != SELECTSOLID) && ((this.props.selectedoption != SELECTASSEMBLY))) ||
             (this.props.splitmethod != SELECTDISECTPARTS)) {
-            //console.log("I am finding single node");
+            console.log("I am finding single node");
             return this.findSingleNode(mynode,addToGDTTable);
         }
         if (this.props.selectedoption == SELECTASSEMBLY) {

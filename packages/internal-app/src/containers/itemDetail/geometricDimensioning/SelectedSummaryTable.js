@@ -7,14 +7,15 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { withStyles, makeStyles } from "@material-ui/core/styles";
-
+import { Typography } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 
 const useStyles = makeStyles({
   table: {
     minWidth: 400
   },
   tableRow: {
-    height: 30
+    height: 30    
   },
   tableCell: {
     padding: "0px 8px",
@@ -26,7 +27,13 @@ const useStyles = makeStyles({
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
-    height: 30
+    height: 30,
+    '&:nth-of-type(odd)': {
+      backgroundColor: "white",
+    },
+    '&:nth-of-type(even)': {
+      backgroundColor: "#FAFAFA",
+    },
   }
 }))(TableRow);
 
@@ -38,7 +45,13 @@ const StyledTableCell = withStyles((theme) => ({
 
 
 
-export default function SelectedSummaryTable({ featureList = [], features = true }) {
+export default function SelectedSummaryTable({ featureList = [], 
+    features = true,  
+    activeDataTable=0,
+    setActiveDataTable=(data)=>{console.log(data)},
+    setCurrentDataTable=(data)=>{console.log(data)},
+    gltfjson={},
+    mateValues=[] }) {
   /* const myStyle = {
     whiteSpace: "normal",
     wordWrap: "break-word",
@@ -68,45 +81,98 @@ export default function SelectedSummaryTable({ featureList = [], features = true
                   '1/2"','9/16"','5/8"',
                   '3/4"','7/8"','1"','1 1/8"','1 1/4"'                
               ]
-  const renderTable = () => {
+  const myCheckBoxes = [" coplaner ", " parallel ", " normal ", " opposite ",
+  " concentric ", " coradial ", " angle ", " offset "];
+          
+  const renderMateValues = (myMateValues) => {
+    return myMateValues.map((row, index) => (
+      row ? myCheckBoxes[index] : ""
+      ))
+  }
+  const renderTable = (myData,groupid,myMateValues,active) => {
     //console.log("FeaturList",featureList,features);
-    return featureList.map((row, index) => (
-      <StyledTableRow key={(features ? row.n : row.parent.n) + index.toString()}>
-        <StyledTableCell component="th" scope="row" >
-          {(features ? row.n : row.parent.n)}
+    if (myData.length==0) {
+      return <StyledTableRow key={"No Row Selected"+groupid.toString()} 
+        onClick={()=>{setCurrentDataTable(groupid)}}
+      >
+        <StyledTableCell component="th" scope="row"  >
+          <Box sx={ active ? { fontWeight: 'bold' }: {fontWeight:'normal'} } >
+            {"No Features Selected"}
+          </Box>
         </StyledTableCell>
         <StyledTableCell align="right"  >
-          {row.type}
-        </StyledTableCell>
-        <StyledTableCell align="right"  >
-          {index+1}
-        </StyledTableCell>        
-        <StyledTableCell align="right"  >
-          {"XXXXX"}
-        </StyledTableCell>
-        <StyledTableCell align="right"  >
-          {"YYYYYY"}
-        </StyledTableCell>
+            <Box sx={ active ? { fontWeight: 'bold' }: {fontWeight:'normal'} } >
+              {""}
+            </Box>
+          </StyledTableCell>
+          <StyledTableCell align="right" >
+            <Box sx={ active ? { fontWeight: 'bold' }: {fontWeight:'normal'} } >
+              {groupid}
+            </Box>
+          </StyledTableCell>        
+          <StyledTableCell align="right"  >
+            {""}
+          </StyledTableCell>
+          <StyledTableCell align="right"  >
+            {""}
+          </StyledTableCell>
       </StyledTableRow>
+    } else {
+      return myData.map((row, index) => ( 
+      
+        <StyledTableRow key={(features ? row.n : row.parent.n) + index.toString()} 
+         onClick={()=>{setCurrentDataTable(groupid)}}
+       >
+          <StyledTableCell component="th" scope="row"  >
+            <Box sx={ active ? { fontWeight: 'bold' }: {fontWeight:'normal'} } >
+              {(features ? row.n : row.parent.n)}
+            </Box>
+          </StyledTableCell>
+          <StyledTableCell align="right"  >
+            <Box sx={ active ? { fontWeight: 'bold' }: {fontWeight:'normal'} } >
+              {row.type}
+            </Box>
+          </StyledTableCell>
+          <StyledTableCell align="right" >
+            <Box sx={ active ? { fontWeight: 'bold' }: {fontWeight:'normal'} } >
+              {groupid}
+            </Box>
+          </StyledTableCell>        
+          <StyledTableCell align="right"  >
+            {renderMateValues(myMateValues)}
+          </StyledTableCell>
+          <StyledTableCell align="right"  >
+            {"Assembly Mates"}
+          </StyledTableCell>
+        </StyledTableRow>
+      
     ))
+    }
+    
   }
 
   return (
+    <Typography component="div">
     <TableContainer component={Paper} style={{ minWidth: 400 }}>
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
-          <TableRow className={classes.tableRow}>
+          <TableRow className={classes.tableRow} style={{background:"grey",fontWeight:"bold"}}>
             <TableCell className={classes.tableCell} >Part</TableCell>
-            <TableCell className={classes.tableCell} align="right" size="small" >Feature<br/> Type</TableCell>
-            <TableCell className={classes.tableCell} align="right" size="small">Grouper<br/> ID</TableCell>
-            <TableCell className={classes.tableCell} align="right" size="small">Relation<br/> Type</TableCell>
+            <TableCell className={classes.tableCell} align="right" size="small" >Feature<br/>Type</TableCell>
+            <TableCell className={classes.tableCell} align="right" size="small">Grouper<br/>ID</TableCell>
+            <TableCell className={classes.tableCell} align="right" size="small">Relation<br/>Type</TableCell>
             <TableCell className={classes.tableCell} align="right" size="small">Relation</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {renderTable()}
+          { gltfjson.gdttable.map( (row, index) => (
+            index==activeDataTable ? renderTable(featureList,index,mateValues,true) :
+              renderTable(features?row.selectedObjects:row.parentObjects,index,row.mateValues,false)  
+            ) ) 
+          }
         </TableBody>
       </Table>
     </TableContainer>
+    </Typography>
   );
 }

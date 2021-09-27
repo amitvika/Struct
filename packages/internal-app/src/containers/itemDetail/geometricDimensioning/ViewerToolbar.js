@@ -65,6 +65,7 @@ export default function ViewerToolbar({
   mateValues,
   angle,
   offset,
+  gltfjson,
   setCtrlKey,
   toolbar,
   activeDataTable,
@@ -293,6 +294,8 @@ export default function ViewerToolbar({
                 activeDataTable={activeDataTable}
                 setActiveDataTable={setActiveDataTable}
                 setCurrentDataTable={setCurrentDataTable}
+                gltfjson={gltfjson}
+                mateValues={mateValues}
               />
             </Paper >
           </Box>
