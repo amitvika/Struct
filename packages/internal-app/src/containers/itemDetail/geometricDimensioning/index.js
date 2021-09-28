@@ -169,9 +169,25 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     });
     
   }
+  
+  const defaultGDTTable = {
+    "edges":[],
+    "selectedObjects":[],
+    "parentObjects":[],
+    "mates":[],
+    "mateValues": [false,false,false,false,false,false],
+    "angle":0,
+    "offset":0,                          
+    "option":SELECTFEATURE 
+  };
+  
   const incrementActiveDataTable = () => {
     const mystate_gltfjson = state.gltfjson || gltfjson;
     let myTree = { ...mystate_gltfjson };
+
+    let gdttable = myTree.gdttable || [this.defaultGDTTable];
+    myTree.gdttable = gdttable;
+
     myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects;
     myTree.gdttable[activeDataTable].parentObjects=state.parentObjects;
     myTree.gdttable[activeDataTable].mates=state.mates;
@@ -200,6 +216,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     if (activetable != activeDataTable) {
       const mystate_gltfjson = state.gltfjson || gltfjson; 
       let myTree = { ...mystate_gltfjson };
+      let gdttable = myTree.gdttable || [this.defaultGDTTable];
+      myTree.gdttable = gdttable;
+
       myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects;
       myTree.gdttable[activeDataTable].parentObjects=state.parentObjects;
       myTree.gdttable[activeDataTable].mates=state.mates;
@@ -224,6 +243,8 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   const saveGDTDataTable = () => {
     const mystate_gltfjson = state.gltfjson || gltfjson;
     let myTree = { ...mystate_gltfjson };
+    let gdttable = myTree.gdttable || [this.defaultGDTTable];
+    myTree.gdttable = gdttable;
     myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects;
     myTree.gdttable[activeDataTable].parentObjects=state.parentObjects;
     myTree.gdttable[activeDataTable].mates=state.mates;
@@ -242,6 +263,8 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   const resetActiveDataTable = () => {
     const mystate_gltfjson = state.gltfjson || gltfjson;
     let myTree = { ...mystate_gltfjson };
+    let gdttable = myTree.gdttable || [this.defaultGDTTable];
+    myTree.gdttable = gdttable;
     myTree.gdttable[activeDataTable].selectedObjects=[];
     myTree.gdttable[activeDataTable].parentObjects=[];
     myTree.gdttable[activeDataTable].mates=[];
@@ -1237,6 +1260,8 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
             copy_selectobjects[index] = await getShapeInformation(copy_selectobjects[index])
             console.log('Awaiting',copy_selectobjects[index]);          
         } */
+        console.log("Setting the state of selected objects",state.selectedObjects,
+            "Copy",copy_selectobjects,"mates",state.mates, "copy mates",copy_mateobjects);
         setState({
           selectedObjects: copy_selectobjects,
           mates: copy_mateobjects

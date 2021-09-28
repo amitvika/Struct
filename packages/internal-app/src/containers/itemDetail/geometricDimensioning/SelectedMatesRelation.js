@@ -65,7 +65,7 @@ const SelectedMatesRelation = (props) => {
   const fillCheckboxValues = () => {
     var isSelected = [];
     for (let index = 0; index < myCheckBoxes.length - 2; index++) {
-      isSelected.push(mateValues[index]);
+      isSelected.push(mateValues?mateValues[index]:false);
       var valuefound = true;
       for (let mateindex = 1; mateindex < props.mates.length; mateindex++) {
         const element = props.mates[mateindex];
@@ -220,7 +220,7 @@ const SelectedMatesRelation = (props) => {
     <TableContainer component={Paper} style={{ minWidth: 400 }}>
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
-          <TableRow className={classes.tableRow} style={{background:"grey",fontWeight:"bold"}} >
+          <TableRow className={classes.tableRow} style={{background:"#CCCCCC",fontWeight:"bold"}} >
             <TableCell className={classes.tableCell} align="right">Mate</TableCell>
             <TableCell className={classes.tableCell} align="left">Estimated Mate</TableCell>
           </TableRow>

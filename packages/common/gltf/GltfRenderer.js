@@ -236,6 +236,18 @@ class GLTFRenderer extends Component {
         }
         return null;
     } */
+    
+    defaultGDTTable = {
+        "edges":[],
+        "selectedObjects":[],
+        "parentObjects":[],
+        "mates":[],
+        "mateValues": [false,false,false,false,false,false],
+        "angle":0,
+        "offset":0,                          
+        "option":26 
+    };
+    
     findEdgeChange = (prevProps) => {
         //const state_gltfobj = state.gltfobj || this.props.gltfobj;
 
@@ -600,6 +612,7 @@ class GLTFRenderer extends Component {
             this.animate = this.animate.bind(this);
             requestAnimationFrame(this.animate);
             window.addEventListener('resize', this.onWindowResize.bind(this), false);
+            window.addEventListener('keydown',this.onKeyDown.bind(this),false);
             //window.addEventListener('mousedown', this.onMouseDown.bind(this), true); // get event first to enable the correct control
             //window.addEventListener('mouseup', this.onMouseUp.bind(this), false); // get event last, so false on capture            
             //window.addEventListener('touchstart', this.onTouchStart.bind(this), false);
@@ -612,6 +625,7 @@ class GLTFRenderer extends Component {
             this.renderer.domElement.addEventListener('touchstart', this.onTouchStart.bind(this), true);
             this.renderer.domElement.addEventListener('touchend', this.onTouchEnd.bind(this), false);
             this.renderer.domElement.addEventListener('wheel', this.onMouseWheel.bind(this), false);
+            
             //this.controls.addEventListener('start', this.controlsStart.bind(this),false);
             //this.controls.addEventListener('change', this.updateCameraSpinUI.bind(this),false);
             //this.controls.addEventListener('end', this.controlsEnd.bind(this),false);
@@ -725,6 +739,7 @@ class GLTFRenderer extends Component {
         this.initDone=false;
         this.clear();
         window.removeEventListener('resize', this.onWindowResize);
+        window.removeEventListener('keydown', this.onKeyDown);
         //window.removeEventListener('mousedown', this.onMouseDown);  
         //window.removeEventListener('mouseup', this.onMouseUp);
         //window.removeEventListener('touchstart', this.onTouchStart);
@@ -748,6 +763,7 @@ class GLTFRenderer extends Component {
             this.renderer.domElement.removeEventListener('touchstart', this.onTouchStart);
             this.renderer.domElement.removeEventListener('touchend', this.onTouchEnd);
             this.renderer.domElement.removeEventListener('wheel', this.onMouseWheel);
+            
             this.renderer.dispose();
             this.renderer = null;
         }
@@ -947,7 +963,8 @@ class GLTFRenderer extends Component {
             const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
 
             console.log("GDTTable",state_gltfobj.gdttable,this.props.activeDataTable);      
-            this.updateGDTTable(state_gltfobj.gdttable[this.props.activeDataTable]);
+            let gdttable = state_gltfobj.gdttable || [defaultGDTTable];
+            this.updateGDTTable(gdttable[this.props.activeDataTable]);
         }         
         //window.content = this.content;
         //console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
@@ -984,6 +1001,8 @@ class GLTFRenderer extends Component {
         if (this.props.setStateOfgltf) {
             const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
             let gltfobj = {...state_gltfobj}; 
+            let gdttable = gltfobj.gdttable || [defaultGDTTable];
+            gltfobj.gdttable = gdttable;
             gltfobj.gdttable[this.props.activeDataTable].edges.push(
                 {parent:parent,
                 start:start,
@@ -1956,7 +1975,15 @@ class GLTFRenderer extends Component {
         }
         this.raycast();
     };
-
+    
+    onKeyDown = (event) => {
+        //console.log(event,this.props.fileGDT,this.INTERSECTED);
+        if ( this.props.fileGDT && event.ctrlKey && event.key === 'e' && (this.INTERSECTED !== null) ) {
+            event.preventDefault();
+            //console.log("Reaching here to load edges")
+            this.findSingleNode(this.INTERSECTED);
+        }
+    }
     onMouseWheel = ( event ) => {
         /* console.log("onMouseWheel",event);
         if(this.controls) {

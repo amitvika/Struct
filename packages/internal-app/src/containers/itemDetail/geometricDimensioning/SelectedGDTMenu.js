@@ -92,7 +92,7 @@ export default function SelectedGDTMenu(
     <TableContainer component={Paper} style={{ minWidth: 400 }}>
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
-          <TableRow className={classes.tableRow} style={{background:"grey",fontWeight:"bold"}} >
+          <TableRow className={classes.tableRow} style={{background:"#CCCCCC",fontWeight:"bold"}} >
             <TableCell className={classes.tableCell} >ID</TableCell>
             <TableCell className={classes.tableCell} align="right" size="small" >Position</TableCell>
             <TableCell className={classes.tableCell} align="right" size="small">Option</TableCell>
