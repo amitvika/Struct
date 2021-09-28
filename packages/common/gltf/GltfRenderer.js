@@ -986,13 +986,13 @@ class GLTFRenderer extends Component {
             const node = element.name ? this.findMyMaterial(element) : null;
             console.log("my node",element.name,"material node",node);
             this.loadAllEdges(element.parent,element.start,element.finish,node,gdttableEdges);
-        });       
-       /*  gdttableEdges.selectedObjects.forEach(element => {
+        });     
+        let event={};
+        event['ctrlKey']=false;  
+        gdttableEdges.selectedObjects.forEach(element => {
             this.doOneSelection(element,event,false);
-        }); */
-        if(gdttableEdges.edges.length==0){
-            let event={};
-            event['ctrlKey']=false;
+        }); 
+        if(gdttableEdges.selectedObjects.length==0){            
             this.changeStateOfSelection(null, event,false);
         }
     }
