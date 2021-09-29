@@ -97,6 +97,7 @@ export default function DynamicHierarchy({
   };
 
   const renderFields = (fieldItem) => {
+    
     return (
       <Grid container spacing={2} key={fieldItem.title}>
         <Grid item xs={4}>
@@ -144,6 +145,7 @@ export default function DynamicHierarchy({
   const renderDropdowns = () => {
     return hierarchyDropdownList
       .filter((listItem) => {
+
         let index = getIndexOfFieldInSelectionArray(selections, listItem);
         if (index > -1) {
           return true;

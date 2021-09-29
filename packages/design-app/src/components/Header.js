@@ -243,7 +243,7 @@ const headersData = [
     href: '/product',
   },
   {
-    label: 'CAD Based Design',
+    label: 'CAD',
     href: '/cad',
   },
   {
@@ -267,11 +267,19 @@ const headersData = [
   //   href: "/predesigned",
   // },
   {
-    label: 'UI/UX and App Designer',
+    label: 'UI & UX and App Designer',
     href: '/appdesigner',
   },
   {
     label: 'Machines and Tools',
     // href: "/design?type=app-designer"
+  },
+  {
+    label: 'Buy From Creators',
+    // href: '/appdesigner',
+  },
+  {
+    label: 'Creators',
+    // href: '/appdesigner',
   },
 ];

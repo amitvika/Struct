@@ -15,7 +15,7 @@ export const hierarchyFileParser = async (file) => {
       let dataRow = rows[i];
       if (dataRow[0]) {
         initialDropdown.options.push({
-          title: dataRow[0],
+          label: dataRow[0],
           value: dataRow[0],
           form: criteriaSchema[dataRow[0]],
         });

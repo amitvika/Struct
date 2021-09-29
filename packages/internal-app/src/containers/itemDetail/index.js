@@ -742,7 +742,7 @@ const ItemDetail = () => {
   };
 
   const handleTabChange = (event, newTabIndex) => {
-    if (tabIndex != newTabIndex) {
+    if (tabIndex !== newTabIndex) {
       setIsLoading(true);
       setTabIndex(newTabIndex);
       //setGLTFAndTree(currentItem,newTabIndex);

@@ -1,56 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import EditIcon from '@material-ui/icons/Edit';
 // import SubHeaderWithArrow from "@monostruct/internal-app/components/SubHeaderWithArrow";
 import { useParams, useHistory } from 'react-router-dom';
 // import { useDispatch, useSelector } from 'react-redux';
-import { useQuery } from '@monostruct/internal-app/src/utils/customHooks';
+// import { useQuery } from '@monostruct/internal-app/src/utils/customHooks';
 import './style.css';
+
+import Designer from '../cadDetail/designer'
 
 const CadTab = () => {
   // const dispatch = useDispatch();
   const history = useHistory();
   let { id } = useParams();
 
-  const [tabIndex, setTabIndex] = useState('pcdu');
+  const [tabIndex, setTabIndex] = useState('designer');
   const renderPageSwitch = () => {
     switch (tabIndex) {
       case 0:
         return 'Add vendor items here';
-      case 1:
-        return 'pcdu';
+      case 'designer':
+        return <Designer />;
+      case 'mpps':
+        return 'mpps';
+      case 'classification':
+        return 'classification';
       default:
         return 'Undefined Tab Index';
     }
   };
 
   const handleTabChange = (event, newTabIndex) => {
-    if (tabIndex != newTabIndex) {
+    if (tabIndex !== newTabIndex) {
       // setIsLoading(true);
       setTabIndex(newTabIndex);
 
-      history.push({
-        pathname: `/items/${id}`,
-        search: `?tab=${newTabIndex}`,
-      });
+      // history.push({
+      //   pathname: `/items/${id}`,
+      //   search: `?tab=${newTabIndex}`,
+      // });
     }
     //console.log("IsLoading, inside",isLoading);
   };
 
   const tabList = {
-    pdcu: 'Product Design or CAD Upload',
-    gdtac: 'GD&T and Assembly Constraints',
-    sft: 'Surface Finish and Treatment',
-    fls: 'Functional Load and Simulation',
-    dm: 'Design Modifications',
-    mpps: 'Manufacture, Processing, & Process Simulation',
-    pds: 'Product Design Setup',
-    pm: 'Product Maker',
-    pcbm: 'PCB Maker',
-    sm: 'Silicon Maker',
-    cm: 'Clothes Maker',
-    ad: 'Architecture Designer',
+    designer: 'Designer',
+    mpps: 'Manufacture',
+    classification: 'Classification',
   };
 
   const renderTab = () => {
@@ -70,10 +67,10 @@ const CadTab = () => {
   return (
     <>
       <Grid container>
-        <Grid item sm sm={12}>
+        <Grid item sm={12}>
           {/* <SubHeaderWithArrow
-                        action={'/items'}
-                        title={'Items Details'}
+                        action={'/cad'}
+                        title={'CAD Details'}
                     /> */}
           <Paper style={{ padding: 10, margin: 10, display: 'flex' }}>
             <Grid>
@@ -109,7 +106,7 @@ const CadTab = () => {
             </Tabs>
           </Paper>
         </Grid>
-        <Grid item sm sm={10}>
+        <Grid item sm={10}>
           {/* <Paper style={{ margin: 10 }}> */}
           {renderPageSwitch()}
           {/* </Paper> */}
