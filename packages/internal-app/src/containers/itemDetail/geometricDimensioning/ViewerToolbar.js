@@ -65,6 +65,7 @@ export default function ViewerToolbar({
   mateValues,
   angle,
   offset,
+  gltfjson,
   setCtrlKey,
   toolbar,
   activeDataTable,
@@ -87,49 +88,50 @@ export default function ViewerToolbar({
                         'fontSize': 20
                       }} align='center'>
             {title}
-            {extras!=null && (
-              <>
-               &nbsp;
-              <Button
-                aria-describedby={'Save Controls'}
-                id={'popsave'}
-                type="button"
-                variant="contained"
-                color="primary"
-                onClick={(event) => {                 
-                  saveGDTDataTable();                 
-                }}
-                startIcon={<SaveOutlinedIcon />}
-              ></Button>
-              &nbsp;
-              <Button
-                aria-describedby={'Reset Controls'}
-                id={'popreset'}
-                type="button"
-                variant="contained"
-                color="primary"
-                onClick={(event) => {
-                  resetActiveDataTable();
-                }}
-                startIcon={<RotateLeftSharpIcon />}
-              ></Button>
-              &nbsp;
-              <Button
-                aria-describedby={'Add Controls'}
-                id={'popreset'}
-                type="button"
-                variant="contained"
-                color="primary"
-                onClick={(event) => {
-                  incrementActiveDataTable();
-                }}
-                startIcon={<AddCircleOutlineOutlinedIcon />}
-              ></Button>
-              </>
-            ) }
+            
           </div> 
   }
-  
+  const renderButtons = () => {
+   return <div>
+       &nbsp;
+      <Button
+        aria-describedby={'Save Controls'}
+        id={'popsave'}
+        type="button"
+        variant="contained"
+        color="primary"
+        onClick={(event) => {                 
+          saveGDTDataTable();                 
+        }}
+        startIcon={<SaveOutlinedIcon />}
+      > Save Selections</Button>
+      &nbsp;
+      <Button
+        aria-describedby={'Reset Controls'}
+        id={'popreset'}
+        type="button"
+        variant="contained"
+        color="primary"
+        onClick={(event) => {
+          resetActiveDataTable();
+        }}
+        startIcon={<RotateLeftSharpIcon />}
+      > Reset Selections</Button>
+      &nbsp;
+      <Button
+        aria-describedby={'Add Controls'}
+        id={'popreset'}
+        type="button"
+        variant="contained"
+        color="primary"
+        onClick={(event) => {
+          incrementActiveDataTable();
+        }}
+        startIcon={<AddCircleOutlineOutlinedIcon />}
+      > Add a Grouper ID</Button>
+      </div>    
+  }
+
   const renderToolBarButtons = () => {
     if (toolbar && splitMethod != 0) {
       return (
@@ -239,9 +241,16 @@ export default function ViewerToolbar({
     <>
       <Box style={{ flex: 1 }} >
        {/*renderToolBarButtons()*/}
-         {
-           
-            (selectedObjects?.length >= 2) && (selectedOption != SELECTSOLID) && (selectedOption != SELECTASSEMBLY) && (
+         
+          {
+            (selectedObjects) && (selectedObjects.length >= 1) && (
+              <div align={"center"}>
+              {renderButtons()}
+              </div>
+            )
+          }
+          {
+            (selectedObjects) && (selectedObjects.length >= 2) && (selectedOption != SELECTSOLID) && (selectedOption != SELECTASSEMBLY) && (
               <Box>
               {renderTitle("Assembly Mates")} 
               <Paper className={classes.paper}>
@@ -260,7 +269,7 @@ export default function ViewerToolbar({
             )
            
           }
-          {(selectedObjects?.length >= 1) && (
+          {(selectedObjects) && (selectedObjects.length >= 1) && (
             <>
           <Box>
             {renderTitle("Geometric Dimensioning and Tolerancing")}             
@@ -293,6 +302,8 @@ export default function ViewerToolbar({
                 activeDataTable={activeDataTable}
                 setActiveDataTable={setActiveDataTable}
                 setCurrentDataTable={setCurrentDataTable}
+                gltfjson={gltfjson}
+                mateValues={mateValues}
               />
             </Paper >
           </Box>

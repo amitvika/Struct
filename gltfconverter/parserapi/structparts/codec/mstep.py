@@ -594,7 +594,7 @@ class MSTEPExporter(Exporter):
         self.updateName(name, mesher_dict,0,True)
         if aShape and self.disectparts:
             returnDict = []
-            dumpTopologyStructures(aShape,level=0,parentId=[None],returnStructure=returnDict)
+            dumpTopologyStructures(aShape,level=0,parentId=[None],returnStructure=returnDict,faceInfo=None)
             mesher_dict["structures"] = returnDict  
         self.mstep_dict['tree'].append(mesher_dict)
         return mesher_dict

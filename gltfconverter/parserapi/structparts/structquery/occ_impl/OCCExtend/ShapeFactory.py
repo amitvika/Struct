@@ -2275,7 +2275,7 @@ def recognize_edge_entity(topods_edge):
     curve = BRepAdaptor_Curve(topods_edge)
     curve_type = curve.GetType()
      
-    entity['Fill'] = "Cut" if (topods_edge.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Joint"
+    entity['fill'] = "Cut" if (topods_edge.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Joint"
    #entity['dump'] = topods_face.DumpJsonToString()
     xmin, ymin, zmin, xmax, ymax, zmax = get_bounding_details(topods_edge)
     entity['bound']=xmin, ymin, zmin, xmax, ymax, zmax
@@ -2348,7 +2348,7 @@ def recognize_entity(topods_face):
         return recognize_edge_entity(topods_face)
         #entity['kind'] = "Not a face"       
         #return entity
-    entity['Fill'] = "Hole" if (topods_face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Solid"
+    entity['fill'] = "Hole" if (topods_face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Solid"
     #entity['dump'] = topods_face.DumpJsonToString()
     xmin, ymin, zmin, xmax, ymax, zmax = get_bounding_details(topods_face)
     entity['bound']=xmin, ymin, zmin, xmax, ymax, zmax
@@ -2538,7 +2538,7 @@ def recognize_face(topods_face):
         entity['kind'] = "Not a face"
         return entity
 
-    entity['Fill'] = "Hole" if (topods_face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Solid"
+    entity['fill'] = "Hole" if (topods_face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Solid"
     #entity['dump'] = topods_face.DumpJsonToString()
 
     surf = BRepAdaptor_Surface(topods_face, True)
@@ -2756,7 +2756,7 @@ def recognize_curve(topods_edge):
 ##################################
 # Recognize functions
 ##################################
-def recognize_edge(topods_edge):
+def recognize_edge(topods_edge,face_info):
     """ returns True if the TopoDS_Face is a planar surface
     """
     entity = {}   
@@ -2767,7 +2767,10 @@ def recognize_edge(topods_edge):
     curve = BRepAdaptor_Curve(topods_edge)
     curve_type = curve.GetType()
      
-    entity['Fill'] = "Cut" if (topods_edge.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Joint"
+    entity['wire'] = "Cut" if (topods_edge.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Joint"
+    if face_info:
+        if 'fill' in face_info:
+            entity['fill'] = face_info['fill']
     # nothing found
     #entity['firstU'] = curve.FirstParameter()
     #entity['lastU'] = curve.LastParameter() 

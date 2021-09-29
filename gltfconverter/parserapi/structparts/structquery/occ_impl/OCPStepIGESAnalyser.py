@@ -3085,7 +3085,7 @@ class StepIgesAnalyser():
         self.updateName(name,mesher_dict,0,True)
         if aShape and self.disectparts:
             returnDict = []
-            dumpTopologyStructures(aShape,level=0,parentId=[None],returnStructure=returnDict)
+            dumpTopologyStructures(aShape,level=0,parentId=[None],returnStructure=returnDict,faceInfo=None)
             mesher_dict[self.gltf_Dict["structures"]] = returnDict        
         self.tstep_dict['tree'].append(mesher_dict)
         return mesher_dict

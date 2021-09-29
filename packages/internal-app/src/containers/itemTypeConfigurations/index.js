@@ -935,10 +935,10 @@ export default function ItemTypeConfiguration(props) {
       state.mycounter
     );
   }
-  const [showKineticModel, setShowKineticModal] = useState(false);
+  const [showKineticModel, setShowKineticModal] = useState(true);
   const renderExcelUI = () => {
     if (
-      itemProperties.itemGeometry.itemType ===
+      itemProperties.itemGeometry?.itemType ===
       'Machine - Compound/Tool/Workholding'
     ) {
       return (
@@ -955,7 +955,7 @@ export default function ItemTypeConfiguration(props) {
   return (
     <>
       <Headding style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 20 }}>
-        {itemProperties.itemGeometry.itemType || 'Configure Item'}
+        {itemProperties.itemGeometry?.itemType || 'Configure Item'}
       </Headding>
       <LoadingModal isLoading={isLoading} />
       {renderExcelUI()}
