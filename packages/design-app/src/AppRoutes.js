@@ -15,7 +15,7 @@ import Silicon from './containers/silicon'
 import Clothes from './containers/clothes'
 import Architecture from './containers/architecture'
 import PredesignedComponents from './containers/predesigned'
-import HomePage from './pages/HomePage';
+// import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
 import OmniDesign from './pages/Omnidesign'
 import MyProfile from './pages/myProfile'
