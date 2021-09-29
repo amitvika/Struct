@@ -48,18 +48,12 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "set PORT=3002 && react-app-rewired start",
+    "start": "set PORT=3002 && react-scripts start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "proxy": "https://api.struct.services",
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",

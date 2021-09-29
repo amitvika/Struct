@@ -4,5 +4,18 @@
   "private": true,
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "start": "yarn workspace @monostruct/internal-app run start",
+    "build": "yarn workspace @monostruct/internal-app run build",
+    "start-design": "yarn workspace @monostruct/design-app run start",
+    "build-design": "yarn workspace @monostruct/design-app run build",
+    "start-public": "yarn workspace @monostruct/public-app run start",
+    "build-public": "yarn workspace @monostruct/public-app run build",
+    "server": "yarn workspace @monostruct/backend-app start",
+    "dev": "yarn start & yarn server"
+  },
+  "dependencies": {
+    "@date-io/date-fns": "^2.11.0"
+  }
 }
