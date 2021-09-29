@@ -268,6 +268,7 @@ class GLTFRenderer extends Component {
         if(toChange) {
             this_state_gltf = this.props.gltfobj;
         }
+        this.changedctrlkey = this.props.ctrlKey;
         /* 
         if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
             this.setState({gltfobj:this.props.gltfobj});
@@ -3587,7 +3588,7 @@ class GLTFRenderer extends Component {
                 } else {
    
                     let event={};
-                    event['ctrlKey']=false;
+                    event['ctrlKey']=this.changedctrlkey;
                     console.log("Reducing",event,changedata);
                     changedata.reduce(
                         (p, x) =>

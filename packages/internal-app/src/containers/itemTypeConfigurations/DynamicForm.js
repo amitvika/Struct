@@ -11,6 +11,8 @@ export default function DynamicCriteria({
   key,
   value,
   handleUpdate,
+  renderData,
+  setRenderData
 }) {
   // const [formFields, setFormFields] = useState(formFields);
   const handleOnChange = (name, value) => {
@@ -54,7 +56,12 @@ export default function DynamicCriteria({
               />
             )}
 
-            {fieldItem.fieldType === 'Custom' && <ThreejsSelection />}
+            {fieldItem.fieldType === 'Custom' && 
+              <ThreejsSelection 
+                renderData={renderData}
+                setRenderData={setRenderData}
+                value={fieldItem.value}
+              />}
           </Grid>
         </Grid>
       );

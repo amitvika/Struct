@@ -461,7 +461,7 @@ export default function TableOrderView({
   const resetMySelection = (thisdata) => {
     let mydata = [...data];
     for (let index = 0; index < mydata.length; index++) {
-      mydata[index].selectedshell = index == thisdata.index;
+      mydata[index].selectedshell = mydata[index].index == thisdata.index;
     }
     setData(mydata);
   };
