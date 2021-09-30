@@ -303,6 +303,22 @@ export default function ManufacturabilityAnalysis(props) {
     return null;
   }
 
+  const findMyMaterialIndex = (data) => {
+    //console.log(data);
+    //console.log(state.gltfjson.tree);
+    let myIndex = -1;
+    if (state.gltfjson.tree) {
+      for (var i = 0; i < state.gltfjson.tree.length; i++) {
+        //console.log(state.gltfjson.tree[i]);
+        if (state.gltfjson.tree[i][gltf_Dict["name"]] === data["name"]) {
+          return i;
+        }
+      }
+    };
+    return myIndex;
+  }
+
+
   const onlyfaces = (name) => {
 
     const first4chars = name.slice(0, 4);
@@ -321,35 +337,45 @@ export default function ManufacturabilityAnalysis(props) {
   }
   let mapdata = {}
   const setSelectedShell = (data, setoption) => {
-    if (data.selectedshell !== setoption) {
-      data.selectedshell = setoption;
-      const myID = data[gltf_Dict['id']];
-      let curData = mapdata[myID];
-      if (typeof (curData) === "undefined") {
-        for (let index = 0; index < state.gltfjson.tree.length; index++) {
-
-          const element = state.gltfjson.tree[index];
-          //console.log("compare",element,data);
-          if (element[[gltf_Dict['id']]] === myID) {
-            curData = index;
-            mapdata[myID] = index;
-            break;
-          }
-
+   
+    const myID = data[gltf_Dict['id']];
+    let curData = mapdata[myID];
+    if (typeof curData === 'undefined') {
+      for (let index = 0; index < state.gltfjson.tree.length; index++) {
+        const element = state.gltfjson.tree[index];
+        //console.log("compare",element,data);
+        if (element[[gltf_Dict['id']]] === myID) {
+          curData = index;
+          mapdata[myID] = index;
+          break;
         }
       }
-      if (typeof (curData) !== "undefined") {
-        let myTree = { ...state.gltfjson };
-        myTree.tree[curData] = data;
-        console.log("Going to Set", myTree, data, curData);
-        setState({ gltfjson: myTree });
-        console.log("Finally Setting", myTree, data, curData, state.gltfjson);
-        getTable(myTree,true);
-      } else {
-        console.log("unable to find info", data, myID, curData, state.gltfjson.tree.length)
-      }
     }
-
+    if (typeof curData !== 'undefined') {
+      let myTree = { ...state.gltfjson };
+      if(myTree.tree[curData].selectedshell!=setoption) {
+        data.selectedshell=setoption;
+        myTree.tree[curData] = data;
+        console.log('Going to Set', myTree, data, curData, data.selectedshell,myTree.tree[curData].selectedshell);
+        setState({ gltfjson: myTree });
+        console.log('Finally Setting', myTree, data, curData, state.gltfjson,myTree.tree[curData].selectedshell);
+        getTable(myTree, true);
+      } else {
+        if(data.selectedshell!=setoption){
+          data.selectedshell=setoption;
+        }
+      }
+      
+    } else {
+      console.log(
+        'unable to find info',
+        data,
+        myID,
+        curData,
+        state.gltfjson.tree.length
+      );
+    }
+   
   };
   const setSelectedShellForce = (data, setoption) => {
 
@@ -385,41 +411,183 @@ export default function ManufacturabilityAnalysis(props) {
 
 
   };
-  
   const doOneSelection = (element, event) => {
-    console.log("Starting", element);
-    if(element) {
+    if (element) {
+      console.log('Starting', element, element.selectedshell);
       const aShape = element[gltf_Dict['name']];
-      if(aShape) {
+      if (aShape) {
         const first4chars = aShape.slice(0, 4);
         const first6chars = aShape.slice(0, 6);
-        if ((first4chars === "FACE") || (first4chars === "EDGE") ||
-          (first4chars === "PART") || (first6chars === "VERTEX")) {
-          console.log("Setting..", element);
-          element.selectedshell = true;
-          setSelectedShell(element, true);
-    
-          console.log("Setting..Done", element);
-          const mymesh = element; //findMyMaterial(element);                       
-          console.log("Before", mymesh);
+        if (
+          first4chars === 'FACE' ||
+          first4chars === 'EDGE' ||
+          first4chars === 'PART' ||
+          first6chars === 'VERTEX'
+        ) {
+          console.log('Setting..', element, element.selectedshell);
+         
+          setSelectedShell(element, element.selectedshell);
+          //element.selectedshell = true;
+
+          console.log('Setting..Done', element, element.selectedshell);
+          var mymesh = element; //findMyMaterial(element);
+          console.log('Before', mymesh);
           if (mymesh) {
-            mymesh.selectedshell = true;
-            //setSelectedShellForce(mymesh,true);                
+            mymesh.selectedshell = element.selectedshell;
+            //setSelectedShellForce(mymesh,true);
             changeStateOfSelection(mymesh, event);
             if (event) {
               event['ctrlKey'] = true;
             }
           }
-          console.log("aftet", mymesh);    
-    
+          console.log('aftet', mymesh);
         }
       }
-      
     }
+  };
+  const resetSelections = () => {
     
+    state_selectedObjects.forEach(element => {    
+      setSelectedShell(element, false);
+      //element.selectedshell = false;
+    });
+    
+    /* setState({
+     
+      selectedObjects: [],
+      parentObjects: []
+      
+    }); */
+    state_selectedObjects = [];
+    console.log("I am emptying");
   }
 
-  const addSelectionFromTree = async (selectedNodes, event) => {
+  const addSelectionFromComponent = async (selectedNodes) => {
+    let renderData = selectedNodes;
+    if(!renderData) {
+      renderData = [];
+    }
+    renderData.forEach(element => {
+      element.selectedshell=true;
+    });
+    //setState({ renderdata: renderData, whatchange: SELECTDISTANCE });
+    setRenderData(renderData);
+    updateSelectionFromComponent(renderData);
+  };
+
+  const updateSelectionFromComponent = async (selectedNodes) => {
+    
+    var whatIsNotThereToAdd=[];
+    var whatIsAvailableToRemove=[];
+    selectedNodes.forEach(element => {
+      var elementFound=false;
+      for (let index = 0; index < state_selectedObjects.length; index++) {
+        const stateElement = state_selectedObjects[index];
+        if(element[gltf_Dict['name']]==stateElement[gltf_Dict['name']]){
+          elementFound=true;
+          break;
+        }
+      }
+      if(!elementFound) {
+        whatIsNotThereToAdd.push(element);
+      }
+    });
+    state_selectedObjects.forEach(stateElement => {
+      var elementFound=false;
+      for (let index = 0; index < selectedNodes.length; index++) {
+        const element = selectedNodes[index];
+        if(element[gltf_Dict['name']]==stateElement[gltf_Dict['name']]){
+          elementFound=true;
+          break;
+        }
+      }
+      if(!elementFound) {
+        whatIsAvailableToRemove.push(stateElement);
+      }
+    });
+    
+    if (selectedNodes && selectedNodes.length != 0) {
+     
+      changeStateOfSelections(whatIsAvailableToRemove,whatIsNotThereToAdd);
+    } else {
+      resetSelections();
+    }
+  };
+
+
+  const changeStateOfSelections = async (removeData, addData) => {
+    mapdata = {}
+    //console.log("Data for shapeinfo",data,selectedOption,event);
+    console.log("Reaching here after clicking",removeData, addData);
+    var copy_selectobjects = arrayCopy(state_selectedObjects);
+    //var copy_parentobjects = arrayCopy(state.parentObjects);
+    
+   
+    removeData.forEach(data => {
+      
+      if (data) {
+        
+        const myAllChildsAndParents = findMyParentChilds(data, selectedOption);
+        //console.log(myAllChildsAndParents);
+        const myAllChilds = myAllChildsAndParents[0];
+        //const myParentNode = myAllChildsAndParents[1];
+
+        //console.log("Splitted",myAllChilds,myParentNode)
+        for (let elementdata of myAllChilds) {
+          //console.log("Before",elementdata);
+         
+          setSelectedShell(elementdata, false);
+          //elementdata.selectedshell = false;
+
+          const currentIndex = arrayFindIndex(copy_selectobjects, elementdata[gltf_Dict["name"]]);
+          if (currentIndex != -1) {
+            //console.log(currentIndex,elementdata[gltf_Dict["name"]]);        
+            copy_selectobjects = arrayRemove(copy_selectobjects, elementdata[gltf_Dict["name"]]);
+            //console.log("Before Splicing",copy_mateobjects,currentIndex, copy_mateobjects.length);
+            
+          } 
+         
+          
+        };
+        //copy_parentobjects = arrayRemove(copy_parentobjects, myParentNode[gltf_Dict["name"]], true);
+      
+      } 
+    
+    });
+    //var stateLength = copy_selectobjects.length;
+    var toGetInfo = false;
+    addData.forEach(data => {
+      if (data) {
+        const myAllChildsAndParents = findMyParentChilds(data, selectedOption);
+        //console.log(myAllChildsAndParents);
+        const myAllChilds = myAllChildsAndParents[0];
+        const myParentNode = myAllChildsAndParents[1];
+        //console.log("Splitted",myAllChilds,myParentNode)
+        for (let elementdata of myAllChilds) {
+          //console.log("Before",elementdata);
+          
+          setSelectedShell(elementdata, true);
+          //elementdata.selectedshell = true;
+          copy_selectobjects.push(elementdata);        
+          toGetInfo=true;
+        };
+        /* const node = {
+          'parent': myParentNode,
+          'child': myAllChilds
+        };
+        copy_parentobjects.push(node); */       
+      }
+    });
+    
+   /*  setState({
+      selectedObjects: copy_selectobjects,
+      parentObjects:copy_parentobjects
+    }); */
+    state_selectedObjects = copy_selectobjects;
+    console.log("Setting selcted",copy_selectobjects);
+  }
+
+  const addSelectionFromTable = async (selectedNodes, event) => {
 
     console.log("Selected Node", selectedNodes, "Event", event);
     setFirstTimeLoading(true);
@@ -427,12 +595,20 @@ export default function ManufacturabilityAnalysis(props) {
       const myTree = findMyMaterial(selectedNodes);
       console.log(myTree);
       if (myTree) {
-        //myTree.selectedshell = true;
-        if (event && (event.ctrlKey !== ctrlKey)) {
+        myTree.selectedshell = selectedNodes.selectedshell;
+        if (event) {
           setCtrlKey(event.ctrlKey);
         }
-        setState({ renderdata: [myTree], whatchange: SELECTDISTANCE });
+        //const myselectedtree = {...myTree};
+        console.log("ctrl key", event.ctrlKey);
+        console.log("B Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
+        setRenderData([myTree]);
+        console.log("C Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
         doOneSelection(myTree, event);
+        console.log("A Check state",myTree,  selectedNodes, myTree.selectedshell, selectedNodes.selectedshell);
+        
+        //setState({ renderdata: [myTree], whatchange: SELECTDISTANCE });
+
         //resetSelectionFromTree();
         /*  selectedNodes=[myTree];
          selectedNodes.reduce(
@@ -446,194 +622,41 @@ export default function ManufacturabilityAnalysis(props) {
     }
 
   };
-  const resetSelectionFromTree = async () => {
+  /* const resetSelectionFromTree = async () => {
     if ((state.whatchange !== 0) || state.renderdata !== []) {
       setState({ whatchange: 0, renderdata: [] });
     }
-  };
+  }; */
 
-  const changeStateOfSelection = async (data, event) => {
-    mapdata = {}
-    //console.log("Data for shapeinfo",data,selectedOption,event);
-
-
-    //console.log("outside SELECTMEASURE",data);
-    var copy_selectobjects = [];
-
-    if (data) {
-      console.log(data);
-      var toAdd = true;
-      var toGetInfo = false;
-      if (event) {
-        toAdd = event.ctrlKey;
-      }
-      if (event && (event.ctrlKey !== ctrlKey)) {
-        console.log("my Control key", event.ctrlKey, ctrlKey);
-        setCtrlKey(event.ctrlKey);
-        console.log("Set Ctrk Key");
-      }
-
-      
-      var stateLength = 0;
-      if (!toAdd) {
-        console.log("Not to add", data, state_selectedObjects);
-        state_selectedObjects.forEach(element => {
-          if (data[gltf_Dict["name"]] != element[gltf_Dict["name"]]) {
-            console.log("before set sel", element);
-            element.selectedshell = false;
-            setSelectedShell(element, false);
-            console.log("after set sel", element);
-          }
-        });
-        stateLength = 0;
-        copy_selectobjects = [];
-      } else {
-        console.log("Add me here", state_selectedObjects);
-        copy_selectobjects = arrayCopy(state_selectedObjects);
-        stateLength = state_selectedObjects.length;
-      }
-      //console.log(data);
-      const myAllChildsAndParents = findMyParentChilds(data, selectedOption);
-      //console.log(myAllChildsAndParents);
-      const myAllChilds = myAllChildsAndParents[0];
-      const myParentNode = myAllChildsAndParents[1];
-
-      //console.log("Splitted",myAllChilds,myParentNode)
-      for (let elementdata of myAllChilds) {
-        console.log("Before", elementdata);
-        elementdata.selectedshell = data.selectedshell;
-        setSelectedShell(elementdata, data.selectedshell);
-        console.log("After", elementdata, state.gltfjson.tree);
-        if (toAdd) {
-          if (data.selectedshell) {
-            var alreadyPresent = false;
-            for (var i = 0; i < copy_selectobjects.length; i++) {
-              if (elementdata[gltf_Dict["name"]] === copy_selectobjects[i][gltf_Dict["name"]]) {
-                alreadyPresent = true;
-                break;
-              }
-            }
-            if (!alreadyPresent) {
-              // const copydata = await getShapeInformation(elementdata);
-              // console.log('awaiting',copydata);
-              copy_selectobjects.push(elementdata);
-              //copy_mateobjects.push([]);
-              //console.log("MyMate2",copy_mateobjects);
-              toGetInfo = true;
-              /* setState({
-                  selectedObjects: [...state.selectedObjects, copydata]
-              }); */
-            }
-
-          } else {//error here... 
-            const currentIndex = arrayFindIndex(copy_selectobjects, elementdata[gltf_Dict["name"]]);
-            if (currentIndex !== -1) {
-              //console.log(currentIndex,elementdata[gltf_Dict["name"]]);        
-              copy_selectobjects = arrayRemove(copy_selectobjects, elementdata[gltf_Dict["name"]]);
-              //console.log("Before Splicing",copy_mateobjects,currentIndex, copy_mateobjects.length);
-              //copy_mateobjects.splice(currentIndex, 1);
-              //console.log("After Splicing",copy_mateobjects,currentIndex, copy_mateobjects.length);
-              /* for (let mateindex = currentIndex; mateindex < copy_mateobjects.length; mateindex++) {
-                  copy_mateobjects[mateindex].splice(currentIndex, 1);
-              } */
-              //console.log('1 : ', copy_selectobjects, copy_mateobjects);
-            }
-
-            //setState({ selectedObjects: copy_selectobjects });
-          }
-        } else {
-          if (data.selectedshell) {
-            //const copydata = await getShapeInformation(elementdata);
-            console.log('awaiting', elementdata);
-            copy_selectobjects.push(elementdata);
-            setSelectedShellForce(elementdata, data.selectedshell);
-            //copy_mateobjects.push([]);
-            toGetInfo = true;
-            //setState({ selectedObjects: myAllChilds });
-          } else {
-            copy_selectobjects = [];
-            //setState({ selectedObjects: [] });
-          }
-
-        }
-      };
-      console.log("Here setting table completed", copy_selectobjects);
-      state_selectedObjects = arrayCopy(copy_selectobjects);
-      //reSetMe = true;
-      //resetSelectionFromTree();
-      /*  setState({
-           selectedObjects: copy_selectobjects,
-           //mates: copy_mateobjects
-       });  */
-
-    } else {
-      state_selectedObjects.forEach(element => {
-        
-        console.log("before set sel", element);
-        element.selectedshell = false;
-        setSelectedShellForce(element, false);
-        console.log("after set sel", element);
-       
-      });
-      state_selectedObjects = arrayCopy(copy_selectobjects);
-    }
-    //setResetMe(true);
-    //getTable(state.gltfjson);
-    console.log("Before my state tree", state.gltfjson.tree, state_selectedObjects);
-    state_selectedObjects.forEach(element => {
-      setSelectedShellForce(element, element.selectedshell);
-    });
-    console.log("Finally my state tree", state.gltfjson.tree, state_selectedObjects);
-  }
-
-  const handleModelClick = (data, what, event) => {
-    console.log(data, what, event);
-    setFirstTimeLoading(true);
-    if (what === SELECTDISTANCE) {
-      if(data) {
-        console.log(data);
-        const mymesh = findMyMaterial(data);
-        if (mymesh) {
-          mymesh.selectedshell = data.selectedshell;
-          setSelectedShell(mymesh, data.selectedshell);
-          console.log("Doing mymesh", mymesh, state_selectedObjects);
-          return changeStateOfSelection(mymesh, event);
-        } else {
-          console.log("No Mesh", mymesh, data);
-        }
-      } else {
-        console.log("Resetting",data);
-        return changeStateOfSelection(data, event);
-      }
-      if (event && (event.ctrlKey != ctrlKey)) {
-        //console.log(event.ctrlKey);
-        setCtrlKey(ctrlKey, event.ctrlKey);
-      }
-    }
-    return null;
-  }
+  
   const updateSelectionFromTable = async (rowIndex, columnIndex, dataRow, value) => {
     setFirstTimeLoading(true);
     console.log("Changed cell", rowIndex, columnIndex, dataRow, value);
     if (!state.gltfjson) {
       setState({gltfjson:this.props.gltfjson})
     }   
-    var myTree=null;
+    //var myTree=null;
     if(state.gltfjson) {
       console.log("My json",state.gltfjson);
       if(dataRow) {
         console.log(dataRow);
-        const myTree = findMyMaterial(dataRow);
-        if (myTree) {
-          myTree.selectedshell = true;
-          dataRow.selectedshell = true;
-          myTree[columns[columnIndex].dataKey]=value;
-          setSelectedShellForce(myTree, true);
-          setState({ renderdata: [myTree], whatchange: SELECTDISTANCE });
-          let event={};
-          event['ctrlKey']=false;
-          doOneSelection(myTree, event);
+        const myTreeIndex = findMyMaterialIndex(dataRow);
+        if( myTreeIndex!=-1) {
+          var myTree = {...state.gltfjson};
+          if (myTree) {
+            myTree.tree[myTreeIndex].selectedshell=true;
+            myTree.tree[myTreeIndex][columns[columnIndex].dataKey]=value;
+            setState({gltfjson:myTree});
+            setRenderData([myTree[myTreeIndex]])
+            let event={};
+            event['ctrlKey']=false;
+            doOneSelection(myTree.tree[myTreeIndex], event);
+            getTable(myTree, true);
+          }
+        } else {
+          console.log("Problem in cell selected",dataRow,rowIndex,columnIndex,value);
         }
+        
         
       } else {
         console.log("Problem in dataRow");
@@ -657,7 +680,7 @@ export default function ManufacturabilityAnalysis(props) {
       myJsonTree = this?.props?.gltfjson?.tree;
     }
     if(myJsonTree) {
-      var gltfjsonParam = state.gltfjson;
+      var gltfjsonParam = {...state.gltfjson};
       for (let index = 2; index < gltfjsonParam.tree.length; index++) {
         gltfjsonParam.tree[index]=mydata[index-2];        
       }
@@ -685,7 +708,25 @@ export default function ManufacturabilityAnalysis(props) {
               const mycounter = state.mycounter+1;
               setState({gltfjson:mygltfjson,
                         mycounter:mycounter});  
-              getTable(mygltfjson,true);     
+              let event = {};
+              event['ctrlKey'] = false;
+              let selectedRows = [];
+              curTree.forEach((element) => {
+                if (element.selectedshell) {
+                  console.log('Setting to reset', element);
+                  selectedRows.push(element);
+                  /*  setState({
+                    renderdata: [element],
+                    whatchange: SELECTDISTANCE,
+                  });
+                  console.log('After Setting to reset', curTree); */
+                  doOneSelection(element, event);
+                  event['ctrlKey'] = true;
+                  console.log('Finally Setting to reset', curTree);
+                }
+              });
+              setRenderData(selectedRows);
+              getTable(mygltfjson, true);     
             });              
           });
         });
@@ -724,7 +765,7 @@ export default function ManufacturabilityAnalysis(props) {
               .then(res => res.data)
               .then((data) => {
                 const curOrder = data;
-                var mygltfjson = state.gltfjson;
+                var mygltfjson = {...state.gltfjson};
                 mygltfjson.gltf = gltfobj;
                 mygltfjson.tree = curTree;
                 mygltfjson.assemblyorder = curOrder;
@@ -766,7 +807,7 @@ export default function ManufacturabilityAnalysis(props) {
             .then(res => res.data)
             .then((data) => {
               const curOrder = data;
-              var mygltfjson = state.gltfjson;
+              var mygltfjson = {...state.gltfjson};
               mygltfjson.gltf = gltfobj;
               mygltfjson.tree = curTree;
               mygltfjson.assemblyorder=curOrder;           
@@ -796,7 +837,7 @@ export default function ManufacturabilityAnalysis(props) {
       myJsonTree = this?.props?.gltfjson?.tree;
     }
     if(myJsonTree) {
-      var gltfjsonParam = state.gltfjson;
+      var gltfjsonParam = {...state.gltfjson};
       for (let index = 2; index < gltfjsonParam.tree.length; index++) {
         gltfjsonParam.tree[index]=mydata[index-2];
         gltfjsonParam.tree[index].selectedshell=((index-2)==newIndex);
@@ -807,6 +848,209 @@ export default function ManufacturabilityAnalysis(props) {
     }
 
   };
+
+  const setRenderData = (data) => {
+    setState({
+      renderdata: data,
+      whatchange: SELECTDISTANCE,
+    });
+  }
+
+  const changeStateOfSelection = async (data, event) => {
+    mapdata = {}
+    //console.log("Data for shapeinfo",data,selectedOption,event);
+    console.log("Reaching here after clicking",event,data,data?.selectedshell);
+    
+    //console.log("outside SELECTMEASURE",data);
+    var copy_selectobjects = [];
+    //var copy_parentobjects = [];
+     
+    if (data) {
+      console.log(data);
+      var toAdd = true;
+      var toGetInfo = false;
+      if (event) {
+        toAdd = event.ctrlKey;
+      }
+      if (event && (event.ctrlKey != ctrlKey)) {
+        setCtrlKey(event.ctrlKey);
+      }
+      
+      var stateLength = 0;
+      if (!toAdd) {
+        console.log(state_selectedObjects); 
+        state_selectedObjects.forEach(element => {
+          if (data[gltf_Dict["name"]] != element[gltf_Dict["name"]]) { 
+            console.log("B",element);        
+            setSelectedShell(element, false);
+            console.log("A",element); 
+            //element.selectedshell = false;
+          }
+        });
+        stateLength = 0;
+        copy_selectobjects = [];
+       // copy_parentobjects = [];
+       
+      } else {
+        console.log("I am adding instead of replacing");
+        copy_selectobjects = arrayCopy(state_selectedObjects);
+        //copy_parentobjects = arrayCopy(state.parentObjects);
+        
+        stateLength = state_selectedObjects.length;
+        //console.log("MyMate",copy_mateobjects);
+      }
+      //console.log(data);
+      const myAllChildsAndParents = findMyParentChilds(data, selectedOption);
+      //console.log(myAllChildsAndParents);
+      const myAllChilds = myAllChildsAndParents[0];
+      //const myParentNode = myAllChildsAndParents[1];
+
+      //console.log("Splitted",myAllChilds,myParentNode)
+      for (let elementdata of myAllChilds) {
+        //console.log("Before",elementdata);
+        
+        setSelectedShell(elementdata, data.selectedshell);
+        //elementdata.selectedshell = data.selectedshell;
+        //console.log("After",elementdata,state.gltfjson.tree);
+        if (toAdd) {
+          if (data.selectedshell) {
+            var alreadyPresent = false;
+            for (var i = 0; i < copy_selectobjects.length; i++) {
+              if (elementdata[gltf_Dict["name"]] == copy_selectobjects[i][gltf_Dict["name"]]) {
+                alreadyPresent = true;
+                break;
+              }
+            }
+            if (!alreadyPresent) {
+              // const copydata = await getShapeInformation(elementdata);
+              // console.log('awaiting',copydata);
+              copy_selectobjects.push(elementdata);
+              
+              //console.log("MyMate2",copy_mateobjects);
+              toGetInfo = true;
+              /* setState({
+                  selectedObjects: [...state.selectedObjects, copydata]
+              }); */
+            }
+
+          } else {//error here... 
+            const currentIndex = arrayFindIndex(copy_selectobjects, elementdata[gltf_Dict["name"]]);
+            if (currentIndex != -1) {
+              //console.log(currentIndex,elementdata[gltf_Dict["name"]]);        
+              copy_selectobjects = arrayRemove(copy_selectobjects, elementdata[gltf_Dict["name"]]);
+              //console.log("Before Splicing",copy_mateobjects,currentIndex, copy_mateobjects.length);
+              
+              //console.log('1 : ', copy_selectobjects, copy_mateobjects);
+            }
+
+            //setState({ selectedObjects: copy_selectobjects });
+          }
+        } else {
+          if (data.selectedshell) {
+            //const copydata = await getShapeInformation(elementdata);
+            //console.log('awaiting',elementdata);
+            copy_selectobjects.push(elementdata);
+           
+            toGetInfo = true;
+            //setState({ selectedObjects: myAllChilds });
+          } else {
+            copy_selectobjects = [];
+            //setState({ selectedObjects: [] });
+          }
+
+        }
+      };
+      
+
+      console.log("Setting the state of selected objects",state_selectedObjects,"Copy",copy_selectobjects);
+      /* setState({
+        selectedObjects: copy_selectobjects       
+      }); */
+      state_selectedObjects = copy_selectobjects;
+      /* if (toAdd) {
+        if (data.selectedshell) {
+          var alreadyPresent = false;
+          for (var i = 0; i < state.parentObjects.length; i++) {
+            if (myParentNode[gltf_Dict["name"]] == state.parentObjects[i].parent[gltf_Dict["name"]]) {
+              alreadyPresent = true;
+              break;
+            }
+          }
+          if (!alreadyPresent) {
+            const node = {
+              'parent': myParentNode,
+              'child': myAllChilds
+            };
+            setState({
+              parentObjects: [...state.parentObjects, node]
+            });
+
+          } else {
+            console.log("Not adding since already present");
+          }
+
+        } else {
+          copy_parentobjects = arrayRemove(copy_parentobjects, myParentNode[gltf_Dict["name"]], true);
+          //console.log('2 : ', copy_parentobjects);
+          setState({ parentObjects: copy_parentobjects });
+        }
+      } else {
+        //console.log("setting", "OneNode", myParentNode);
+        if (data.selectedshell) {
+          const node = {
+            'parent': myParentNode,
+            'child': myAllChilds
+          };
+          setState({ parentObjects: [node] });
+        } else {
+          setState({ parentObjects: [] });
+        }
+      } */
+
+
+    } else {
+      console.log("I am reaching here to reset selections");
+      state_selectedObjects.forEach(element => {     
+        setSelectedShell(element, false); 
+        //element.selectedshell = false;      
+      });
+      /* setState({
+        selectedObjects: copy_selectobjects
+      }); */
+      state_selectedObjects = copy_selectobjects;
+      console.log("I am reaching here to reset selections",copy_selectobjects);
+      //setState({ parentObjects: [] });
+    }
+    
+    //console.log("Finally my state tree",state.gltfjson.tree);
+  }
+  const handleModelClick = (data, what, event) => {
+    console.log(data, what, event);
+    setFirstTimeLoading(true);
+    if (what === SELECTDISTANCE) {
+      if (data) {
+        console.log(data);
+        const mymesh = findMyMaterial(data);
+        if (mymesh) {          
+          setSelectedShell(mymesh, data.selectedshell);
+          //mymesh.selectedshell = data.selectedshell;
+          console.log('Doing mymesh', mymesh, state_selectedObjects);
+          return changeStateOfSelection(mymesh, event);
+        } else {
+          console.log('No Mesh', mymesh, data);
+        }
+      } else {
+        console.log('Resetting', data);
+        return changeStateOfSelection(data, event);
+      }
+      if (event && event.ctrlKey !== ctrlKey) {
+        //console.log(event.ctrlKey);
+        setCtrlKey(ctrlKey, event.ctrlKey);
+      }
+    }
+    return null;
+  };
+
 
   const getDirection = (direction) => {
     const x=direction[0];
@@ -1044,7 +1288,7 @@ export default function ManufacturabilityAnalysis(props) {
             whatchanged={state.whatchange} dataselection={0}
             onClick={handleModelClick}
             activeDataTable={0}
-          //resetSelectionFromTree={resetSelectionFromTree}
+            //resetSelectionFromTree={resetSelectionFromTree}
           />
         }
         {
@@ -1058,7 +1302,7 @@ export default function ManufacturabilityAnalysis(props) {
         list={filteredList}
         columns={columns}
         setColumns={setColumns}
-        handleDataRowClick={addSelectionFromTree}
+        handleDataRowClick={addSelectionFromTable}
         handleDataCellChange={updateSelectionFromTable}  
         saveDataTable={saveSelectionFromTable} 
         resetDataTable={resetSelectionFromTable} 

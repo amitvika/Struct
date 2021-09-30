@@ -3289,7 +3289,7 @@ class GLTFRenderer extends Component {
                         }
                     });
                 }
-                console.log(meshmaterial.name);
+                console.log("My Mesh name",meshmaterial.name);
                 const myAllChilds = this.findMyParentChilds(meshmaterial,addToGDTTable);
                 if(myAllChilds.select==false && (this.props.selectedoption!=SELECTFEATURE) &&
                     (this.props.selectedoption!=SELECTASSEMBLY) && (this.props.selectedoption!=SELECTSOLID) ) {
@@ -3370,20 +3370,21 @@ class GLTFRenderer extends Component {
 
     doOneSelection = (element,event, addToGDTTable=true) => {
         if(element){
-            console.log("Starting",element);
+            console.log("Starting in gltfrender",element,element.selectedshell);
             const aShape = element[gltf_Dict['name']];
             if(aShape) {
                 const first4chars = aShape.slice(0, 4);
                 const first6chars = aShape.slice(0, 6);
                 if( (first4chars=="FACE") || (first4chars=="EDGE") || 
                 (first4chars=="PART") || (first6chars=="VERTEX") ) {  
-                    console.log("Setting..",element);            
-                    element.selectedshell=true;
-                    console.log("Setting..Done",element);
+                    //console.log("Setting..",element);            
+                    //element.selectedshell=true;
+                    //console.log("Setting..Done",element);
                     const mymesh = this.findMyMaterial(element);                       
-                    console.log("Before",mymesh);
+                    
                     if (mymesh) {
-                        mymesh.selectedshell=true;
+                        console.log("Before",mymesh,element,mymesh.selectedshell,element.selectedshell);
+                        mymesh.selectedshell=element.selectedshell;
                         this.changeStateOfSelection(mymesh, event,addToGDTTable);
                        /*  if (this.props.onClick) {
                             const mytask =  this.props.onClick(mymesh, SELECTDISTANCE, event);                                                                      
@@ -3392,8 +3393,11 @@ class GLTFRenderer extends Component {
                             console.log("No Click functions found",this.props.onClick,element);
                         } */
                         event['ctrlKey']=true;
+                        console.log("aftet",mymesh,element,mymesh.selectedshell,element.selectedshell);
+                    } else {
+                        console.log("No mesh...?",mymesh,element,element.selectedshell);
                     }
-                    console.log("aftet",mymesh);
+                   
                 } 
             }
              

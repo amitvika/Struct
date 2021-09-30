@@ -1008,6 +1008,9 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   }
 
   const addSelectionFromTree = async (selectedNodes) => {
+    selectedNodes.forEach(element => {
+      element.selectedshell=true;
+    });
     setState({ renderdata: selectedNodes, whatchange: SELECTDISTANCE });
     updateSelectionFromTree(selectedNodes,true);
   };
@@ -1061,11 +1064,11 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
   };
 
   
-  const resetSelectionFromTree = async () => {
+  /* const resetSelectionFromTree = async () => {
     if ((state.whatchange != 0) || state.renderdata != []) {
       setState({ whatchange: 0, renderdata: [] });
     }
-  };
+  }; */
   const changeStateOfSelection = async (data, event) => {
     mapdata = {}
     //console.log("Data for shapeinfo",data,selectedOption,event);
@@ -1487,7 +1490,7 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
           setCtrlKey={setCtrlKey}
           resetSelections={resetSelections}
           selectAllSelectedSolids={selectAllSelectedSolids}
-          resetSelectionFromTree={resetSelectionFromTree}
+          //resetSelectionFromTree={resetSelectionFromTree}
           setStateOfTree={setStateOfTree}
           setStateOfgltf={setStateOfgltf}
           activeDataTable={activeDataTable}
