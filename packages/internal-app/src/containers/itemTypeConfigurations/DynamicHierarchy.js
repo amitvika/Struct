@@ -11,6 +11,8 @@ import { useSelector } from 'react-redux';
 export default function DynamicHierarchy({
   setShowKineticModal,
   handleItemUpdate,
+  renderData,
+  setRenderData,
 }) {
 
   const currentItem = useSelector(state => state.item.currentItem);
@@ -170,6 +172,8 @@ export default function DynamicHierarchy({
             handleUpdate={(updatedFormFields) =>
               handleDynamicFormUpdate(selectionItem.key, updatedFormFields)
             }
+            renderData={renderData}
+            setRenderData={setRenderData}
           />
         );
       })}

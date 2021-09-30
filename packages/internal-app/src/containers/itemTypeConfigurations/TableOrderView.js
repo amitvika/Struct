@@ -193,6 +193,7 @@ class MuiVirtualizedTable extends React.PureComponent {
     this.setState({ key, order, sortedList });
     if (setData) {
       setData(sortedList);
+      console.log("Setting Data",sortedList);
     }
     if (setSortBy) {
       setSortBy(key);
@@ -322,7 +323,7 @@ class EditableCell extends React.PureComponent {
     };
     if (currentColumn.type == 'select') {
       const optionTags = currentColumn.options.map((aOption, aIndex) => (
-        <option value={aOption}>{aOption}</option>
+        <option value={aOption} key={aIndex.toString()+columnIndex.toString()+rowIndex.toString()}>{aOption}</option>
       ));
       return (
         <CellContainer>
@@ -362,9 +363,12 @@ export default function TableOrderView({
   const classes = useStyles();
   const resetMySelection = (thisdata) => {
     let mydata = [...data];
+    console.log("Mydata",mydata,"statedata",data, "thisdata",thisdata);
     for (let index = 0; index < mydata.length; index++) {
-      mydata[index].selectedshell = index == thisdata.index;
+      console.log(index,mydata[index],thisdata);     
+      mydata[index].selectedshell = mydata[index].index == thisdata.index;
     }
+    console.log("Mydata",mydata,"statedata",data, "thisdata",thisdata);
     setData(mydata);
   };
 
@@ -377,6 +381,7 @@ export default function TableOrderView({
     let sortedList = list;
     sortedList.sort(GetSortOrder(sortBy, sortDirection));
     setData(sortedList);
+    console.log("Sorted",sortedList);
   }, [list]);
 
   const onCellChange = (rowIndex, columnIndex, dataRow, value) => {
@@ -400,7 +405,7 @@ export default function TableOrderView({
       ? element.inititalsort
       : SortOrder.ASC;
   });
-
+  console.log("Data here",data);
   return (
     <Paper className={classes.viewerContainer}>
       <div
@@ -430,7 +435,7 @@ export default function TableOrderView({
         columns={mycolumns}
         onRowClick={(thisdata) => {
           console.log(thisdata);
-          resetMySelection(thisdata);
+          resetMySelection(thisdata.rowData);
           console.log('BeforeDataRowClock', data, sortBy, sortDirection);
           handleDataRowClick(thisdata.rowData, thisdata.event);
           console.log('AfterDataRowClock', data, sortBy, sortDirection);
