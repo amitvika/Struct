@@ -458,12 +458,30 @@ export default function TableOrderView({
   alerter,
 }) {
   const classes = useStyles();
-  const resetMySelection = (thisdata) => {
+  const resetMySelection = (thisdata,event) => {
     let mydata = [...data];
+    let selectedRows = [];
+    console.log("Mydata",mydata,"statedata",data, "thisdata",thisdata);
     for (let index = 0; index < mydata.length; index++) {
-      mydata[index].selectedshell = mydata[index].index == thisdata.index;
+      console.log(index,mydata[index],thisdata);      
+      if (mydata[index].index == thisdata.index) {   
+        if(event && event.ctrlKey) {
+          mydata[index].selectedshell = !mydata[index].selectedshell ;
+        } else {
+          mydata[index].selectedshell = true;
+        }    
+      } else {
+        if(!event || !event.ctrlKey) {
+          mydata[index].selectedshell = false;
+        }
+      }
+      if(mydata[index].selectedshell) {
+        selectedRows.push(mydata[index]);
+      }  
     }
+    console.log("Mydata",mydata,"statedata",data, "thisdata",thisdata);
     setData(mydata);
+    return selectedRows;
   };
 
   const [data, setData] = useState(list);
@@ -574,7 +592,7 @@ export default function TableOrderView({
         columns={mycolumns}
         onRowClick={(thisdata) => {
           console.log(thisdata);
-          resetMySelection(thisdata);
+          resetMySelection(thisdata.rowData,thisdata.event);
           console.log('BeforeDataRowClock', data, sortBy, sortDirection);
           handleDataRowClick(thisdata.rowData, thisdata.event);
           console.log('AfterDataRowClock', data, sortBy, sortDirection);

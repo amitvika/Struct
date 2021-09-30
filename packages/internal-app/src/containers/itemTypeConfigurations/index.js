@@ -148,7 +148,7 @@ export default function ItemTypeConfiguration(props) {
     },
   ]);
 
-  const [state, _setState] = useState({ gltfjson: gltfjson, selectedObjects:[], parentObjects:[], mycounter: 0 });
+  const [state, _setState] = useState({ gltfjson: gltfjson, mycounter: 0 });
   const [ctrlKey, setCtrlKey] = useState(false);
   const [filteredList, setFilteredList] = useState([]);
   const [alerter, setAlerter] = useState('');
@@ -383,38 +383,45 @@ export default function ItemTypeConfiguration(props) {
   };
   let mapdata = {};
   const setSelectedShell = (data, setoption) => {
-    if (data.selectedshell !== setoption) {
-      data.selectedshell = setoption;
-      const myID = data[gltf_Dict['id']];
-      let curData = mapdata[myID];
-      if (typeof curData === 'undefined') {
-        for (let index = 0; index < state.gltfjson.tree.length; index++) {
-          const element = state.gltfjson.tree[index];
-          //console.log("compare",element,data);
-          if (element[[gltf_Dict['id']]] === myID) {
-            curData = index;
-            mapdata[myID] = index;
-            break;
-          }
+   
+    const myID = data[gltf_Dict['id']];
+    let curData = mapdata[myID];
+    if (typeof curData === 'undefined') {
+      for (let index = 0; index < state.gltfjson.tree.length; index++) {
+        const element = state.gltfjson.tree[index];
+        //console.log("compare",element,data);
+        if (element[[gltf_Dict['id']]] === myID) {
+          curData = index;
+          mapdata[myID] = index;
+          break;
         }
       }
-      if (typeof curData !== 'undefined') {
-        let myTree = { ...state.gltfjson };
+    }
+    if (typeof curData !== 'undefined') {
+      let myTree = { ...state.gltfjson };
+      if(myTree.tree[curData].selectedshell!=setoption) {
+        data.selectedshell=setoption;
         myTree.tree[curData] = data;
-        console.log('Going to Set', myTree, data, curData);
+        console.log('Going to Set', myTree, data, curData, data.selectedshell,myTree.tree[curData].selectedshell);
         setState({ gltfjson: myTree });
-        console.log('Finally Setting', myTree, data, curData, state.gltfjson);
+        console.log('Finally Setting', myTree, data, curData, state.gltfjson,myTree.tree[curData].selectedshell);
         getTable(myTree, true);
       } else {
-        console.log(
-          'unable to find info',
-          data,
-          myID,
-          curData,
-          state.gltfjson.tree.length
-        );
+        if(data.selectedshell!=setoption){
+          data.selectedshell=setoption;
+        }
       }
+      
+    } else {
+      console.log(
+        'unable to find info',
+        data,
+        myID,
+        curData,
+        state.gltfjson.tree.length
+      );
     }
+   
   };
   const setSelectedShellForce = (data, setoption) => {
     data.selectedshell = setoption;
@@ -453,7 +460,7 @@ export default function ItemTypeConfiguration(props) {
   };
   const doOneSelection = (element, event) => {
     if (element) {
-      console.log('Starting', element);
+      console.log('Starting', element, element.selectedshell);
       const aShape = element[gltf_Dict['name']];
       if (aShape) {
         const first4chars = aShape.slice(0, 4);
@@ -464,16 +471,16 @@ export default function ItemTypeConfiguration(props) {
           first4chars === 'PART' ||
           first6chars === 'VERTEX'
         ) {
-          console.log('Setting..', element);
+          console.log('Setting..', element, element.selectedshell);
          
-          setSelectedShell(element, true);
-          element.selectedshell = true;
+          setSelectedShell(element, element.selectedshell);
+          //element.selectedshell = true;
 
-          console.log('Setting..Done', element);
-          const mymesh = element; //findMyMaterial(element);
+          console.log('Setting..Done', element, element.selectedshell);
+          var mymesh = element; //findMyMaterial(element);
           console.log('Before', mymesh);
           if (mymesh) {
-            mymesh.selectedshell = true;
+            mymesh.selectedshell = element.selectedshell;
             //setSelectedShellForce(mymesh,true);
             changeStateOfSelection(mymesh, event);
             if (event) {
@@ -490,7 +497,7 @@ export default function ItemTypeConfiguration(props) {
     
     state_selectedObjects.forEach(element => {    
       setSelectedShell(element, false);
-      element.selectedshell = false;
+      //element.selectedshell = false;
     });
     
     /* setState({
@@ -508,7 +515,11 @@ export default function ItemTypeConfiguration(props) {
     if(!renderData) {
       renderData = [];
     }
-    setState({ renderdata: renderData, whatchange: SELECTDISTANCE });
+    renderData.forEach(element => {
+      element.selectedshell=true;
+    });
+    //setState({ renderdata: renderData, whatchange: SELECTDISTANCE });
+    setRenderData(renderData);
     updateSelectionFromComponent(renderData);
   };
 
@@ -574,7 +585,7 @@ export default function ItemTypeConfiguration(props) {
           //console.log("Before",elementdata);
          
           setSelectedShell(elementdata, false);
-          elementdata.selectedshell = false;
+          //elementdata.selectedshell = false;
 
           const currentIndex = arrayFindIndex(copy_selectobjects, elementdata[gltf_Dict["name"]]);
           if (currentIndex != -1) {
@@ -604,7 +615,7 @@ export default function ItemTypeConfiguration(props) {
           //console.log("Before",elementdata);
           
           setSelectedShell(elementdata, true);
-          elementdata.selectedshell = true;
+          //elementdata.selectedshell = true;
           copy_selectobjects.push(elementdata);        
           toGetInfo=true;
         };
@@ -650,13 +661,23 @@ export default function ItemTypeConfiguration(props) {
       }
 
       if (myTree) {
-        //myTree.selectedshell = true;
+        myTree.selectedshell = selectedNodes.selectedshell;
         if (event) {
           setCtrlKey(event.ctrlKey);
         }
+        //const myselectedtree = {...myTree};
         console.log("ctrl key", event.ctrlKey);
-        setState({ renderdata: [myTree], whatchange: SELECTDISTANCE });
+        console.log("B Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
+        setRenderData([myTree]);
+        console.log("C Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
         doOneSelection(myTree, event);
+        console.log("A Check state",myTree,  selectedNodes, myTree.selectedshell, selectedNodes.selectedshell);
+        
+        //setState({ renderdata: [myTree], whatchange: SELECTDISTANCE });
+       
+       
+       
+       
         //resetSelectionFromTree();
         /*  selectedNodes=[myTree];
          selectedNodes.reduce(
@@ -691,8 +712,10 @@ export default function ItemTypeConfiguration(props) {
         'Columns',
         columns[columnIndex]
       );
+
       myTree.tree[dataRow.index][columns[columnIndex].dataKey] = value;
-      setState({ gltfjson: myTree });
+      myTree.tree[dataRow.index].selectedshell=true;
+      //setState({ gltfjson: myTree });
       console.log(
         'Indexofmytree',
         myTree.tree[dataRow.index][columns[columnIndex].dataKey],
@@ -701,6 +724,10 @@ export default function ItemTypeConfiguration(props) {
       console.log('About to set', myTree);
       setState({ gltfjson: myTree });
       console.log('Setting', myTree);
+      setRenderData([myTree.tree[dataRow.index]])
+      let event={};
+      event['ctrlKey']=false;
+      doOneSelection(myTree.tree[dataRow.index], event);
       getTable(myTree, true);
     } else {
       console.log('Problem in state');
@@ -737,30 +764,35 @@ export default function ItemTypeConfiguration(props) {
                 setState({ gltfjson: mygltfjson, mycounter: mycounter });
                 let event = {};
                 event['ctrlKey'] = false;
+                let selectedRows = [];
                 curTree.forEach((element) => {
                   if (element.selectedshell) {
-                    console.log('Setting to reset', curTree);
-                    setState({
+                    console.log('Setting to reset', element);
+                    selectedRows.push(element);
+                   /*  setState({
                       renderdata: [element],
                       whatchange: SELECTDISTANCE,
                     });
-                    console.log('After Setting to reset', curTree);
+                    console.log('After Setting to reset', curTree); */
                     doOneSelection(element, event);
                     event['ctrlKey'] = true;
                     console.log('Finally Setting to reset', curTree);
                   }
                 });
+                setRenderData(selectedRows);
+                getTable(mygltfjson, true);
               });
           });
       });
     }
   };
 
-  // const resetSelectionFromTree = async () => {
-  //   if (state.whatchange != 0 || state.renderdata != []) {
-  //     setState({ whatchange: 0, renderdata: [] });
-  //   }
-  // };
+  /* const resetSelectionFromTree = async () => {
+     if (state.whatchange != 0 || state.renderdata != []) {
+       setState({ whatchange: 0, renderdata: [] });
+     }
+  }; */
+
   const setRenderData = (data) => {
     setState({
       renderdata: data,
@@ -771,11 +803,11 @@ export default function ItemTypeConfiguration(props) {
   const changeStateOfSelection = async (data, event) => {
     mapdata = {}
     //console.log("Data for shapeinfo",data,selectedOption,event);
-    console.log("Reaching here after clicking",event);
+    console.log("Reaching here after clicking",event,data,data?.selectedshell);
     
     //console.log("outside SELECTMEASURE",data);
     var copy_selectobjects = [];
-    var copy_parentobjects = [];
+    //var copy_parentobjects = [];
      
     if (data) {
       console.log(data);
@@ -793,14 +825,15 @@ export default function ItemTypeConfiguration(props) {
         console.log(state_selectedObjects); 
         state_selectedObjects.forEach(element => {
           if (data[gltf_Dict["name"]] != element[gltf_Dict["name"]]) { 
-            console.log(element);        
+            console.log("B",element);        
             setSelectedShell(element, false);
-            element.selectedshell = false;
+            console.log("A",element); 
+            //element.selectedshell = false;
           }
         });
         stateLength = 0;
         copy_selectobjects = [];
-        copy_parentobjects = [];
+       // copy_parentobjects = [];
        
       } else {
         console.log("I am adding instead of replacing");
@@ -814,14 +847,14 @@ export default function ItemTypeConfiguration(props) {
       const myAllChildsAndParents = findMyParentChilds(data, selectedOption);
       //console.log(myAllChildsAndParents);
       const myAllChilds = myAllChildsAndParents[0];
-      const myParentNode = myAllChildsAndParents[1];
+      //const myParentNode = myAllChildsAndParents[1];
 
       //console.log("Splitted",myAllChilds,myParentNode)
       for (let elementdata of myAllChilds) {
         //console.log("Before",elementdata);
         
         setSelectedShell(elementdata, data.selectedshell);
-        elementdata.selectedshell = data.selectedshell;
+        //elementdata.selectedshell = data.selectedshell;
         //console.log("After",elementdata,state.gltfjson.tree);
         if (toAdd) {
           if (data.selectedshell) {
@@ -947,7 +980,7 @@ export default function ItemTypeConfiguration(props) {
         const mymesh = findMyMaterial(data);
         if (mymesh) {          
           setSelectedShell(mymesh, data.selectedshell);
-          mymesh.selectedshell = data.selectedshell;
+          //mymesh.selectedshell = data.selectedshell;
           console.log('Doing mymesh', mymesh, state_selectedObjects);
           return changeStateOfSelection(mymesh, event);
         } else {
