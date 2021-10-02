@@ -68,13 +68,61 @@ import Grid from '@material-ui/core/Grid';
 
 import Popper from '@material-ui/core/Popper';
 
-import Paper from '@material-ui/core/Paper';
+
 //import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import GroupFormBuilder from './GroupFormBuilder';
+import ModelessDialog from './ModelessDialog';
 import {myMenus} from './gltfMenus';
-import { ClickAwayListener } from "@material-ui/core";
+import { CircularProgress, ClickAwayListener } from "@material-ui/core";
 import RotateLeftSharpIcon from '@material-ui/icons/RotateLeftSharp';
+
+
+
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+import { withStyles /*, makeStyles*/ } from "@material-ui/core/styles";
+import { Typography } from '@material-ui/core';
+//import { Box } from '@material-ui/core';
+
+/* const useStyles = makeStyles({ // It throws error if i use this, i dont know///
+  table: {
+    minWidth: 400
+  },
+  tableRow: {
+    height: 30    
+  },
+  tableCell: {
+    padding: "0px 8px",
+    whiteSpace: "normal",
+    wordWrap: "break-word",
+    wordBreak: "break-all"
+  }
+});
+ */
+const StyledTableRow = withStyles((theme) => ({
+  root: {
+    height: 30,
+    '&:nth-of-type(odd)': {
+      backgroundColor: "white",
+    },
+    '&:nth-of-type(even)': {
+      backgroundColor: "#FAFAFA",
+    },
+  }
+}))(TableRow);
+
+const StyledTableCell = withStyles((theme) => ({
+  root: {
+    padding: "0px 12px"
+  }
+}))(TableCell);
+
 //import { Box } from "@material-ui/core";
 
 
@@ -139,7 +187,7 @@ class GLTFRenderer extends Component {
         },
       }); */
       
-    
+    //classes = useStyles();
       
     openEl = new Array(myMenus.length);
     idEl = new Array(myMenus.length);
@@ -178,6 +226,8 @@ class GLTFRenderer extends Component {
         anchorEls:new Array(myMenus.length),
         selectedmenu:0,
         displaytext:null,
+        isProgressOpen:false,
+        progressOpenedFiles:[],
         //gltfobj:this.props.gltfobj
     };
     state_selectedObjects = [];
@@ -213,8 +263,11 @@ class GLTFRenderer extends Component {
     changeState = false;
     activeDataTable = 0;
     constructor(props) {
+        this_state_gltf = null;
+        this_progress_data = null;
         super(props);
         this.node = React.createRef();
+       
         //this.nodeguiparent = React.createRef;
         //this.nodegui = React.createRef();       
     };
@@ -964,7 +1017,7 @@ class GLTFRenderer extends Component {
             const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
 
             console.log("GDTTable",state_gltfobj.gdttable,this.props.activeDataTable);      
-            let gdttable = state_gltfobj.gdttable || [defaultGDTTable];
+            let gdttable = state_gltfobj.gdttable || [this.defaultGDTTable];
             this.updateGDTTable(gdttable[this.props.activeDataTable]);
         }         
         //window.content = this.content;
@@ -1002,7 +1055,7 @@ class GLTFRenderer extends Component {
         if (this.props.setStateOfgltf) {
             const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
             let gltfobj = {...state_gltfobj}; 
-            let gdttable = gltfobj.gdttable || [defaultGDTTable];
+            let gdttable = gltfobj.gdttable || [this.defaultGDTTable];
             gltfobj.gdttable = gdttable;
             gltfobj.gdttable[this.props.activeDataTable].edges.push(
                 {parent:parent,
@@ -3786,7 +3839,7 @@ class GLTFRenderer extends Component {
         const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
                    
         console.log("befor load,",allEdges,featureSetStart, featureSetFinish);
-        const onload = ( gltf ) => {
+        const onload = ( gltf, url ) => {
             const myobject = gltf.scene || gltf.scenes[0];
             myobject.position.x += (this.shiftposition.x);
             myobject.position.y += (this.shiftposition.y);
@@ -3826,7 +3879,7 @@ class GLTFRenderer extends Component {
             } else {
                 console.log("Inside load edges s",this.partsMeshes);
             }
-           
+            this.onCloseProgress(url);
         }
         
         const onError = (exception) => {
@@ -3844,9 +3897,10 @@ class GLTFRenderer extends Component {
             .then(res => res.data)
             .then((data) => {
                 if(!data || data.begin!=data.end) {
-                    console.log(progressRes.data);
+                    console.log(data);
                     alert("Edges are still under construction. Please try after sometime");
                 } else {
+                    console.log("Edges are loaded",data);
                     this_progress_data = data;
                 }
                 if(data) {   
@@ -3944,6 +3998,7 @@ class GLTFRenderer extends Component {
                                     console.log("Error While Loading Tree", err);
                                 
                                 })
+                                this.onInitProgress(fileStore+".gltf");
                                 loader.load(fileStore+".gltf", onload, onProgress, onError,1 );
                             }
                         }
@@ -3952,6 +4007,7 @@ class GLTFRenderer extends Component {
             })
             
         } else {
+            console.log("Already data is got",this_progress_data);
             const data = this_progress_data;
             if(data) {            
                 let myParentID=allEdges;
@@ -4390,6 +4446,85 @@ class GLTFRenderer extends Component {
             this.selectedoption = this.props.selectedoption;
         }
     }
+
+    arrayFindIndex = (arr, value) => {
+
+        return arr.findIndex(function (ele) {            
+          return ele == value;
+        });
+    }
+    
+    arrayRemove = (arr, value) => {
+    
+        return arr.filter(function (ele) {
+         
+          return ele != value;
+        });
+    }
+    
+    onCloseProgress = (aFile) => {
+        let openFiles = [...this.state.progressOpenedFiles];
+        openFiles = this.arrayRemove(openFiles,aFile);
+        this.setState({ progressOpenedFiles: openFiles });
+        if(openFiles.length==0) {
+            this.setState({ isProgressOpen: false });
+            console.log("Setting is progress closing",this.state.isProgressOpen);
+        }  else {
+            console.log("Setting is progress Opening",this.state.isProgressOpen);
+        }         
+    }
+    
+    onInitProgress = (aFile) => {
+        let openFiles = [...this.state.progressOpenedFiles];
+        openFiles.push(aFile);
+        this.setState({ progressOpenedFiles: openFiles });
+        this.setState({isProgressOpen: true });
+        console.log("Setting is progress open",this.state.isProgressOpen);
+    }
+    
+    progressStyle = {
+        width: '30rem',
+        boxShadow: 'rgba(0,0,0,.3) 0 0.3rem 1rem',
+        background: 'red'
+    }
+
+    renderProgress=()=>{
+        const classes = {tableWow:'tableRow',tableCell:'tableCell'};
+        
+       
+        return  <Typography component="div">
+        <TableContainer component={Paper} style={{ minWidth: 400 }}>
+            <Table className={classes.table} aria-label="simple table">
+                <TableHead>
+                    <TableRow className={classes.tableRow} style={{background:"#CCCCCC",fontWeight:"bold"}}>
+                        <TableCell className={classes.tableCell} >No</TableCell>
+                        <TableCell className={classes.tableCell} align="right" size="small" >Feature</TableCell>
+                        <TableCell className={classes.tableCell} align="right" size="small">Progress</TableCell>             
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {/* {this.state.progressOpenedFiles} */}
+                    {this.state.progressOpenedFiles.map( 
+                        (row,index) => 
+                                (<StyledTableRow>
+                                    <StyledTableCell>
+                                        {index+1}
+                                    </StyledTableCell>
+                                    <StyledTableCell>
+                                        {row}
+                                    </StyledTableCell>
+                                    <StyledTableCell>
+                                        <CircularProgress/>
+                                    </StyledTableCell>
+                                </StyledTableRow> ) 
+                        ) 
+                    } 
+                </TableBody>
+            </Table>
+        </TableContainer>
+    </Typography>
+    }
+
     render() {
         const state_gltfobj = this.props.gltfobj || this_state_gltf ;
 
@@ -4460,6 +4595,7 @@ class GLTFRenderer extends Component {
             }
             return id.toString();
         }
+        
         //console.log("fileAnimation",this.props.fileAnimation);
         return (
             <> 
@@ -4489,7 +4625,24 @@ class GLTFRenderer extends Component {
                     </Popper>
                    
                 </Grid>
-
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: this.clientY + 10,
+                        left: this.clientX + 10
+                    }}
+                >
+                    <ModelessDialog
+                        isOpen={this.state.isProgressOpen}
+                        onClose={this.onCloseProgress}
+                        style={this.progressStyle}
+                        containerClassName={'container'}
+                        noBackdrop={true}
+                        clickBackdropToClose={false}>
+                        {this.renderProgress()}
+                    </ModelessDialog>
+                </div>
+                
                 <div
                     style={{ width: "100%" }}
                     ref={el => (this.node = el)}>                                               

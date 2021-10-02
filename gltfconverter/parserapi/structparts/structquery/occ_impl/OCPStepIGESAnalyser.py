@@ -1065,7 +1065,8 @@ class StepIgesAnalyser():
         maximumfacestoinclude=48, animations=None, delay=1.0, shapeorder=[], kinematicanimation=None,
         thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=True,
         writethread=False, writepickle=True, writefiles=True, logging=None,
-        includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False):
+        includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
+        defaultR=0.4,defaultG=0.42,defaultB=0.47):
         """Supply one or the other: document or STEP filename or Shapes."""
 
         self.uid = 1
@@ -1134,7 +1135,7 @@ class StepIgesAnalyser():
         self.scene_max = None
         self.validFilenameChars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         self.shapeslist = None
-        self.defaultColor = Quantity_Color(0.7529, 0.7529, 0.7529, Quantity_TOC_RGB)
+        self.defaultColor = Quantity_Color(defaultR,defaultG,defaultB, Quantity_TOC_RGB)
         self.animations = animations
         self.delay = delay
         self.shapeorder = shapeorder
@@ -1294,10 +1295,14 @@ class StepIgesAnalyser():
             return False
     
     def setColor(self, aShape, parentLabel, defaultColor=None,parentShape=None):    
-        if defaultColor is None:    # default color
-            c = self.defaultColor  
-        else:
+        if defaultColor:                # default color
             c = defaultColor
+        else:
+            if self.defaultColor:
+                c = self.defaultColor
+            else:
+                c = Quantity_Color(0.4, 0.42, 0.47, Quantity_TOC_RGB)
+            
         color_set = False
 
         if (self.color_tool.GetInstanceColor(aShape, 0, c) or
@@ -1925,7 +1930,7 @@ class StepIgesAnalyser():
                             if toAddAsAnEdge:
                                 self.fileId += 1
                                 shape_transform = BRepBuilderAPI_Transform(shape_edge, localTransformation).Shape()
-                                (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,self.defaultColor)
+                                (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,faceColor)
                                 #print("I am writing Edge",self.fileId, basename)                       
                                 shape_disp = self.createPipesFromEdge(shape_transform)  
                                 myMeshID = self.uid
@@ -1954,7 +1959,7 @@ class StepIgesAnalyser():
                             
                             self.fileId += 1
                             shape_transform = BRepBuilderAPI_Transform(shape_vertex, localTransformation).Shape()        
-                            (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,self.defaultColor)
+                            (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,faceColor)
                             #print("I am writing Vertex",self.fileId, basename)                       
                             shape_disp = self.CreateSphereFromVertex(shape_transform) 
                             myMeshID = self.uid
@@ -2003,7 +2008,7 @@ class StepIgesAnalyser():
                 mydirectory = self.validFileName(subName+subEntry)
                 mydirectorylen = len(self.direntry)
                 self.direntry += "/"+mydirectory
-                defaultSubcolor = Quantity_Color(0.5, 0.5, 0.5, Quantity_TOC_RGB)  # default color
+                defaultSubcolor = Quantity_Color(0.3, 0.3, 0.3, Quantity_TOC_RGB)  # default color
                 myshapecount = 0
                 for i in range(subShapesFromParent.Length()):
                     labelForSubShapes = subShapesFromParent.Value(i+1)
@@ -2277,7 +2282,10 @@ class StepIgesAnalyser():
         #node.update(self.transformed_matrix)
         self.updateName(name,node)
         self.mstep_dict['nodes'].append(node)
-        c = Quantity_Color(0.5, 0.5, 0.5, Quantity_TOC_RGB)
+        if self.defaultColor:
+            c = self.defaultColor
+        else:
+            c = Quantity_Color(0.4, 0.42, 0.47, Quantity_TOC_RGB) 
         # Add this node to its parent
         parent_node = self.mstep_dict['nodes'][parent_node_index]
         parent_node['children'] = parent_node.get('children', []) + [node_index]
@@ -2361,7 +2369,10 @@ class StepIgesAnalyser():
         #node.update(self.transformed_matrix)
         self.updateName(name,node)
         self.mstep_dict['nodes'].append(node)
-        c = Quantity_Color(0.5, 0.5, 0.5, Quantity_TOC_RGB)
+        if self.defaultColor:
+            c = self.defaultColor
+        else:
+            c = Quantity_Color(0.4, 0.42, 0.47, Quantity_TOC_RGB)
         # Add this node to its parent
         parent_node = self.mstep_dict['nodes'][parent_node_index]
         parent_node['children'] = parent_node.get('children', []) + [node_index]
@@ -3796,7 +3807,7 @@ class StepIgesAnalyser():
                 mesher_dict[self.gltf_Dict["bin"]]=True
 
                 self.updateParentDimensions(mesher_dict)
-               
+                
                 #print("affter update")
                 if part_color:
                     mesher_dict[self.gltf_Dict["R"]] = part_color.Red()
@@ -3804,10 +3815,16 @@ class StepIgesAnalyser():
                     mesher_dict[self.gltf_Dict["B"]] = part_color.Blue()
                     mesher_dict[self.gltf_Dict["A"]] = (0 if(myFileType=="E" or myFileType=="V") else 1)
                 else:
-                    mesher_dict[self.gltf_Dict["R"]] = 0.7529
-                    mesher_dict[self.gltf_Dict["G"]] = 0.7529
-                    mesher_dict[self.gltf_Dict["B"]] = 0.7529
-                    mesher_dict[self.gltf_Dict["A"]] = (0 if(myFileType=="E" or myFileType=="V") else 1)
+                    if self.defaultColor:
+                        mesher_dict[self.gltf_Dict["R"]] = self.defaultColor.Red()
+                        mesher_dict[self.gltf_Dict["G"]] = self.defaultColor.Green()
+                        mesher_dict[self.gltf_Dict["B"]] = self.defaultColor.Blue()
+                        mesher_dict[self.gltf_Dict["A"]] = (0 if(myFileType=="E" or myFileType=="V") else 1)                       
+                    else:
+                        mesher_dict[self.gltf_Dict["R"]] = 0.4
+                        mesher_dict[self.gltf_Dict["G"]] = 0.42
+                        mesher_dict[self.gltf_Dict["B"]] = 0.47
+                        mesher_dict[self.gltf_Dict["A"]] = (0 if(myFileType=="E" or myFileType=="V") else 1)
                 mesher_dict[self.gltf_Dict["texture"]] = ""
                 mesher_dict[self.gltf_Dict["metallicFactor"]] = 0.1
                 mesher_dict[self.gltf_Dict["roughnessFactor"]] = 0.7

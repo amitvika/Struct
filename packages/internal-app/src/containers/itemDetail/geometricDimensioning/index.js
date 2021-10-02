@@ -973,9 +973,16 @@ export default function GeometricDimensioning({ tabIndex, fileId, fileGDT, gltfj
     }
     if (typeof (curData) !== "undefined") {
       let myTree = { ...mystate_gltfjson };
-      myTree.tree[curData] = data;
-      setState({ gltfjson: myTree });
-      console.log("Setting", myTree, data, curData, setoption);
+     
+      if( (insteadstate==null) || (myTree.tree[curData].selectedshell != data.selectedshell) ) {
+        myTree.tree[curData] = data;
+        setState({ gltfjson: myTree });
+        console.log("Setting", myTree, data, curData, setoption);
+      } else {
+        console.log("Not Setting since already set", myTree, data, curData, setoption);
+      }
+      
+      
     } else {
       console.log("unable to find info", data, myID, curData, mystate_gltfjson.tree.length)
     }
