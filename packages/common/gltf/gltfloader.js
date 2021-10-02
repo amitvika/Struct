@@ -141,7 +141,7 @@ class GLTFLoader extends Loader {
 
 			if ( onError ) {
 
-				onError( e );
+				onError( e, url );
 
 			} else {
 
@@ -167,7 +167,7 @@ class GLTFLoader extends Loader {
 
 				scope.parse( data, resourcePath, function ( gltf ) {
 
-					onLoad( gltf );
+					onLoad( gltf, url );
 
 					scope.manager.itemEnd( url );
 
