@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const baseURL = `https://cadapi.struct.services`;
 
-const host = `${baseURL}/api/v0`;
+// const host = `${baseURL}/api/v0`;
 
 export const upload3DFile = async (oneFile) => {
   var formData = new FormData();
@@ -165,7 +165,7 @@ export const getThumbnailForStoreURL = (store) => {
 };
 
 export const download = (fileStore) => {
-  fetch(`${baseURL}/Media/${fileStore}`)
+  fetch(`${baseURL}/${fileStore}`)
     .then((response) => response.blob())
     .then((blob) => {
       const link = document.createElement('a');

@@ -105,10 +105,12 @@ export default function BaseItemProperties({
     getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0, 50)
       .then((res) => res.data)
       .then((data) => {
+        //console.log(data);
         setItemProperties((prevData) => ({
           ...prevData,
           fileId: fileId,
           fileStore: data.store,
+          fileName: data.load,
           fileGDT: null,
           fileMPPS: null,
           fileStack: null,
