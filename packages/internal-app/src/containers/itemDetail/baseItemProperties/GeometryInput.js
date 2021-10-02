@@ -50,7 +50,7 @@ export default function GeometryInput({
   // const [materialSelected, ]
   console.log('item Properties. file store', itemProperties.fileStore);
   const handleExportButton = () => {
-    download(itemProperties.fileStore);
+    download(itemProperties.fileName);
   };
 
   const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
@@ -135,12 +135,14 @@ export default function GeometryInput({
           </Grid>
 
           <Grid item xs={12} style={{ display: 'flex' }}>
-            <Typography variant="h5" 
-             style={{
-              fontSize: 'xxLarge',
-              fontWeight: 'bold',
-              textAlign: 'center',
-            }}>
+            <Typography
+              variant="h5"
+              style={{
+                fontSize: 'xxLarge',
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}
+            >
               Design Source
             </Typography>
           </Grid>
@@ -173,7 +175,6 @@ export default function GeometryInput({
               </div>
             )}
           </Grid>
-          {/* <FileHistory selectedFileName={fileName} link_id={fileId.id} /> */}
 
           <Grid item xs={4}>
             <Typography variant="h6">
@@ -545,7 +546,6 @@ export default function GeometryInput({
           </Grid>
         </Paper>
       )}
-    
     </div>
   );
 }

@@ -212,6 +212,7 @@ exports.update = async (req, res) => {
       updateData.fileMPPS = body.fileMPPS;
       updateData.fileStack = body.fileStack;
       updateData.fileKinematic = body.fileKinematic;
+      updateData.fileName = body.fileName;
     }
 
     if (

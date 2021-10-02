@@ -59,17 +59,17 @@ export default function BaseItemProperties({
   setItemProperties,
   gltfjson,
   setgltfjson,
+  handleItemUpdate,
 }) {
   const classes = useStyles();
   const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isStepLoaded, setIsStepLoaded] = useState(false);
-  // const [threejsObject, setThreejsObject] = useState({});
-  // const [fileName, setFileName] = useState('');
+
   const [gltfobj, setGltfObj] = useState(gltfjson);
   const [fileId, setFileId] = useState(0);
-  // const [files, setFiles] = useState([]);
+
   const [isFileLoading, setIsFileLoading] = useState(false);
 
   useEffect(() => {
@@ -81,16 +81,13 @@ export default function BaseItemProperties({
     setIsLoading(true);
     upload3DFile(data)
       .then((res) => {
-        console.log('Getting Resources', res, res.data);
-        // setFiles([res.data]);
         setFileId(res.data.id);
         getView(res.data.id);
 
-        // setItemProperties(prevData => ({
-        //     ...prevData,
-        //     fileId: res.data.id,
-        //     fileStore: res.data.store
-        // }));
+        if (res.data.id) {
+          handleItemUpdate({ fileName: res.data.filename });
+        }
+
         setIsLoading(false);
         dispatch(showSuccessAlert({ message: 'File uploaded successfully' }));
       })
@@ -105,7 +102,7 @@ export default function BaseItemProperties({
   const getView = (fileId) => {
     setIsFileLoading(true);
 
-    getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0,50)
+    getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0, 50)
       .then((res) => res.data)
       .then((data) => {
         setItemProperties((prevData) => ({
@@ -142,44 +139,37 @@ export default function BaseItemProperties({
         // setIsLoading(false);
       });
   };
-  // const handleTabChange2 = (tabName) => {
-  //   if (tabName === selectedTab) {
-  //     setselectedTab('');
-  //   } else {
-  //     setselectedTab(tabName);
-  //   }
-  // };
   let gltfjsonlen = Object.keys(gltfobj).length;
   if (gltfjsonlen > 0) {
     gltfjsonlen += gltfobj?.gltf?.accessors?.length;
   }
-  //console.log("After upload at the render",itemProperties,fileId,gltfjson);
   return (
     <div>
       {
         <Grid className={classes.container}>
           <Paper className={classes.paperContainer} variant="outlined" square>
-            {!isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading && (
-              <GLTFRenderer
-                //gltfjson={JSON.stringify(gltfjson)}
-                gltfobj={gltfobj}
-                fileGDT={null}
-                fileAnimation={false}
-                activefile={fileId + gltfjsonlen.toString()}
-                backcolor={DEFAULTBACKCOLOR}
-                selectcolor={DEFAULTSELECTCOLOR}
-                touchcolor={DEFAULTTOUCHCOLOR}
-                selectedoption={SELECTFEATURE}
-                splitmethod={SELECTHIRERACHY}
-                changedata={[]}
-                data2texture={null}
-                data3texture={null}
-                materialtype={DEFAULTMATERIALNAME}
-                whatchanged={0}
-                dataselection={0}
-                activeDataTable={0}
-              />
-            )}
+            {!isLoading &&
+              Object.keys(gltfjson).length > 0 &&
+              !isFileLoading && (
+                <GLTFRenderer
+                  gltfobj={gltfobj}
+                  fileGDT={null}
+                  fileAnimation={false}
+                  activefile={fileId + gltfjsonlen.toString()}
+                  backcolor={DEFAULTBACKCOLOR}
+                  selectcolor={DEFAULTSELECTCOLOR}
+                  touchcolor={DEFAULTTOUCHCOLOR}
+                  selectedoption={SELECTFEATURE}
+                  splitmethod={SELECTHIRERACHY}
+                  changedata={[]}
+                  data2texture={null}
+                  data3texture={null}
+                  materialtype={DEFAULTMATERIALNAME}
+                  whatchanged={0}
+                  dataselection={0}
+                  activeDataTable={0}
+                />
+              )}
             {(isLoading || isFileLoading) && <CircularProgress />}
           </Paper>
           <Grid className={classes.itemContainer}>

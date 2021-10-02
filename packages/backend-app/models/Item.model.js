@@ -60,6 +60,7 @@ const ItemSchema = new mongoose.Schema(
     },
     stl: { type: String },
     fileId: { type: Number },
+    fileName: { type: String },
     fileStore: { type: String },
     fileGDT: { type: String },
     fileMPPS: { type: String },

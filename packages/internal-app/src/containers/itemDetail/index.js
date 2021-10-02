@@ -129,6 +129,7 @@ const ItemDetail = () => {
     }
     return false;
   };
+
   const setStack = (item) => {
     if (!item.fileId) {
       return;
@@ -172,7 +173,7 @@ const ItemDetail = () => {
             stack: stack,
             gdt: item.fileGDT,
             multiAssmebly: multiAssmebly,
-            treeLength: repos['tree'].length           
+            treeLength: repos['tree'].length,
           });
           setItemProperties((prevData) => ({
             ...prevData,
@@ -196,6 +197,7 @@ const ItemDetail = () => {
       );
     }
   };
+
   const setOrder = (item) => {
     if (!item.fileId) {
       return;
@@ -244,7 +246,7 @@ const ItemDetail = () => {
             stack: item.fileStack,
             gdt: item.fileGDT,
             multiAssmebly: multiAssmebly,
-            treeLength: repos['tree'].length
+            treeLength: repos['tree'].length,
           });
           setItemProperties((prevData) => ({
             ...prevData,
@@ -322,7 +324,7 @@ const ItemDetail = () => {
                 stack: item.fileStack,
                 gdt: item.fileGDT,
                 multiAssmebly: multiAssmebly,
-                treeLength: repos['tree'].length
+                treeLength: repos['tree'].length,
               });
               setItemProperties((prevData) => ({
                 ...prevData,
@@ -380,7 +382,7 @@ const ItemDetail = () => {
                 stack: item.fileStack,
                 gdt: item.fileGDT,
                 multiAssmebly: multiAssmebly,
-                treeLength: repos['tree'].length
+                treeLength: repos['tree'].length,
               });
               setItemProperties((prevData) => ({
                 ...prevData,
@@ -456,7 +458,7 @@ const ItemDetail = () => {
                 stack: item.fileStack,
                 gdt: gdt,
                 store: item.fileStore,
-                treeLength: repos['tree'].length
+                treeLength: repos['tree'].length,
               });
               //console.log("After getting reposi",repos, {...repos,gdt:gdt,store:item.fileStore},isLoading);
               setItemProperties((prevData) => ({
@@ -523,21 +525,7 @@ const ItemDetail = () => {
       } else {
         whichOneToLoad = fileGDT;
       }
-      console.log(
-        'Checking',
-        myTabIndex,
-        whichOneToLoad,
-        'FileStore',
-        fileStore,
-        'fileMPPS',
-        fileMPPS,
-        'fileStack',
-        fileStack,
-        'fileKinematic',
-        fileKinematic,
-        'fileGDT',
-        fileGDT
-      );
+
       const gltfRes = await getGltfForStore(whichOneToLoad);
       const treeRes = await getTreeForStore(whichOneToLoad);
       let stackRes = { data: null };
@@ -560,8 +548,8 @@ const ItemDetail = () => {
         stackable: stackRes.data,
         assemblyorder: orderRes.data,
         multiAssmebly: multiAssmebly,
-        gdttable:gdtRes.data,
-        treeLength: treeRes.data.length
+        gdttable: gdtRes.data,
+        treeLength: treeRes.data.length,
       });
 
       setgltfjson({
@@ -571,46 +559,14 @@ const ItemDetail = () => {
         stackable: stackRes.data,
         assemblyorder: orderRes.data,
         multiAssmebly: multiAssmebly,
-        gdttable:gdtRes.data,
-        treeLength: treeRes.data.length
+        gdttable: gdtRes.data,
+        treeLength: treeRes.data.length,
       });
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
       console.log('Error', error);
     }
-    /* if (myTabIndex == "pdcu") {
-            //console.log("Up",myTabIndex,tabIndex,fileStore,fileGDT);
-            try {
-                let obj = { gltf: {}, tree: {}, store: fileStore, gdt: fileGDT };
-                setIsLoading(true);
-                const gltfRes = await getGltfForStore(fileStore);
-                const treeRes = await getTreeForStore(fileStore);
-                const multiAssmebly = treeRes.length > 0;
-                setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data, multiAssmebly: multiAssmebly });
-                setIsLoading(false);
-
-            } catch (error) {
-                setIsLoading(false);
-                console.log('Error', error);
-            }
-        } else {
-            //console.log("Down",myTabIndex,tabIndex,fileStore,fileGDT);
-            try {
-                let obj = { gltf: {}, tree: {}, store: fileStore, gdt: fileGDT };
-                setIsLoading(true);
-                const gltfRes = await getGltfForStore(fileGDT);
-                const treeRes = await getTreeForStore(fileGDT);
-                setgltfjson({ ...obj, gltf: gltfRes.data, tree: treeRes.data });
-                setIsLoading(false);
-                //console.log(gltfRes,treeRes);
-
-            } catch (error) {
-                setIsLoading(false);
-                console.log('Error', error);
-            }
-
-        } */
   };
 
   const renderPageSwitch = () => {
@@ -631,6 +587,7 @@ const ItemDetail = () => {
             setgltfjson={setgltfjson}
             tabIndex={tabIndex}
             setTabIndex={setTabIndex}
+            handleItemUpdate={handleItemUpdate}
           />
         );
       case 'cu':
@@ -674,7 +631,7 @@ const ItemDetail = () => {
             setStack={setStack}
             setOrder={setOrder}
             gltfjson={gltfjson}
-            isLoading={isLoading}            
+            isLoading={isLoading}
           />
         );
       case 7:

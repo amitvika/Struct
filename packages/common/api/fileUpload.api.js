@@ -170,7 +170,7 @@ export const download = (fileStore) => {
     .then((blob) => {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = fileStore+".STEP";
+      link.download = fileStore;
       link.click();
     })
     .catch(console.error);
