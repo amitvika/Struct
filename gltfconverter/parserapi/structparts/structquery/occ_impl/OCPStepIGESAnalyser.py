@@ -1066,7 +1066,7 @@ class StepIgesAnalyser():
         thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=True,
         writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
-        defaultR=0.4,defaultG=0.42,defaultB=0.47):
+        defaultR=0.3,defaultG=0.32,defaultB=0.37):
         """Supply one or the other: document or STEP filename or Shapes."""
 
         self.uid = 1
@@ -1301,7 +1301,7 @@ class StepIgesAnalyser():
             if self.defaultColor:
                 c = self.defaultColor
             else:
-                c = Quantity_Color(0.4, 0.42, 0.47, Quantity_TOC_RGB)
+                c = Quantity_Color(0.3, 0.32, 0.37, Quantity_TOC_RGB)
             
         color_set = False
 
@@ -2285,7 +2285,7 @@ class StepIgesAnalyser():
         if self.defaultColor:
             c = self.defaultColor
         else:
-            c = Quantity_Color(0.4, 0.42, 0.47, Quantity_TOC_RGB) 
+            c = Quantity_Color(0.3, 0.32, 0.37, Quantity_TOC_RGB) 
         # Add this node to its parent
         parent_node = self.mstep_dict['nodes'][parent_node_index]
         parent_node['children'] = parent_node.get('children', []) + [node_index]
@@ -2372,7 +2372,7 @@ class StepIgesAnalyser():
         if self.defaultColor:
             c = self.defaultColor
         else:
-            c = Quantity_Color(0.4, 0.42, 0.47, Quantity_TOC_RGB)
+            c = Quantity_Color(0.3, 0.32, 0.37, Quantity_TOC_RGB)
         # Add this node to its parent
         parent_node = self.mstep_dict['nodes'][parent_node_index]
         parent_node['children'] = parent_node.get('children', []) + [node_index]
@@ -3821,9 +3821,9 @@ class StepIgesAnalyser():
                         mesher_dict[self.gltf_Dict["B"]] = self.defaultColor.Blue()
                         mesher_dict[self.gltf_Dict["A"]] = (0 if(myFileType=="E" or myFileType=="V") else 1)                       
                     else:
-                        mesher_dict[self.gltf_Dict["R"]] = 0.4
-                        mesher_dict[self.gltf_Dict["G"]] = 0.42
-                        mesher_dict[self.gltf_Dict["B"]] = 0.47
+                        mesher_dict[self.gltf_Dict["R"]] = 0.3
+                        mesher_dict[self.gltf_Dict["G"]] = 0.32
+                        mesher_dict[self.gltf_Dict["B"]] = 0.37
                         mesher_dict[self.gltf_Dict["A"]] = (0 if(myFileType=="E" or myFileType=="V") else 1)
                 mesher_dict[self.gltf_Dict["texture"]] = ""
                 mesher_dict[self.gltf_Dict["metallicFactor"]] = 0.1
