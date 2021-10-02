@@ -22,7 +22,7 @@ const CadMaker = () => {
 
   return (
     <>
-      <DetailPage tabList={tabList} title={'CAD'}></DetailPage>
+      <DetailPage title={'CAD'}></DetailPage>
     </>
   );
 };

@@ -4,17 +4,16 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import AppDesignerPage from './pages/AppDesignerPage';
 import Layout from './components/Layout';
 import DesignPage from './pages/DesignPage/index';
-import Product from './containers/product';
 import CadMaker from './pages/CadMaker/CadMaker';
 import PcbTab from './containers/pcb';
-import Silicon from './containers/silicon';
-import Clothes from './containers/clothes';
-import Architecture from './containers/architecture';
 import PredesignedComponents from './containers/predesigned';
-// import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
 import OmniDesign from './pages/Omnidesign';
 import MyProfile from './pages/myProfile';
+import ProductMaker from './pages/ProductMaker/ProductMaker';
+import SiliconMaker from './pages/SiliconMaker/SiliconMaker';
+import ClothesMaker from './pages/ClothesMaker/ClothesMaker';
+import ArchitectureDesigner from './pages/ArchitectureDesigner/ArchitectureDesigner';
 
 export default function Routes() {
   return (
@@ -25,12 +24,12 @@ export default function Routes() {
           <Layout>
             <Switch>
               <Route path="/design" component={DesignPage} />
-              <Route path="/product" component={Product} />
+              <Route path="/product" component={ProductMaker} />
               <Route path="/cad" component={CadMaker} />
               <Route path="/pcb" component={PcbTab} />
-              <Route path="/silicon" component={Silicon} />
-              <Route path="/clothes" component={Clothes} />
-              <Route path="/architecture" component={Architecture} />
+              <Route path="/silicon" component={SiliconMaker} />
+              <Route path="/clothes" component={ClothesMaker} />
+              <Route path="/architecture" component={ArchitectureDesigner} />
               <Route path="/predesigned" component={PredesignedComponents} />
               <Route path="/appdesigner" component={AppDesignerPage} />
 
