@@ -3882,10 +3882,11 @@ class GLTFRenderer extends Component {
             this.onCloseProgress(url);
         }
         
-        const onError = (exception) => {
-            console.log(exception);
+        const onError = (exception,url) => {
             this.onCloseProgress(url);
+            console.log(exception);            
         }
+        
         const onProgress = (progress) => {
             //console.log(progress);
         }

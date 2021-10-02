@@ -141,7 +141,7 @@ class GLTFLoader extends Loader {
 
 			if ( onError ) {
 
-				onError( e );
+				onError( e, url );
 
 			} else {
 
