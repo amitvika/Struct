@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const baseURL = `https://cadapi.struct.services`;
 
-// const host = `${baseURL}/api/v0`;
+const host = `${baseURL}/api/v0`;
 
 export const upload3DFile = async (oneFile) => {
   var formData = new FormData();
