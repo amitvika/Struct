@@ -3840,53 +3840,59 @@ class GLTFRenderer extends Component {
                    
         console.log("befor load,",allEdges,featureSetStart, featureSetFinish);
         const onload = ( gltf, url ) => {
-            const myobject = gltf.scene || gltf.scenes[0];
-            myobject.position.x += (this.shiftposition.x);
-            myobject.position.y += (this.shiftposition.y);
-            myobject.position.z += (this.shiftposition.z);
-            this.scene.add(myobject);
-            this.content.push(myobject);
-            //console.log("MyObject",myobject);
-            let partsMeshes = myobject.children;
+            try {
+                const myobject = gltf.scene || gltf.scenes[0];
+                myobject.position.x += (this.shiftposition.x);
+                myobject.position.y += (this.shiftposition.y);
+                myobject.position.z += (this.shiftposition.z);
+                this.scene.add(myobject);
+                this.content.push(myobject);
+                //console.log("MyObject",myobject);
+                let partsMeshes = myobject.children;
 
-            if (partsMeshes[0].children.length > 0) {
-                partsMeshes = partsMeshes[0].children;
+                if (partsMeshes[0].children.length > 0) {
+                    partsMeshes = partsMeshes[0].children;
+                }
+
+                if (partsMeshes[0].children.length > 0) {
+                    partsMeshes = partsMeshes[0].children;
+                }
+                //console.log(partsMeshes);
+            /*  partsMeshes.forEach(element => {
+                    if(!element.renderOrder) {
+                        console.log("Chaning Renderingorder from",element.renderOrder,1,element.name);
+                        element.renderOrder=1;
+                    }                           
+                }); */
+                //console.log(this.partsMeshes);
+                this.partsMeshes = [...this.partsMeshes,...partsMeshes];
+                if(gdttableEdges) {
+                    console.log("Inside load edges gdts",this.partsMeshes);
+                    let event={};
+                    event['ctrlKey']=false;
+                    gdttableEdges.selectedObjects.forEach(element => {
+                        console.log("Setting inside the load all edges",element,event);
+                        this.doOneSelection(element,event,false);
+                    });
+                    if(gdttableEdges.edges.length==0){
+                        this.changeStateOfSelection(null, event,false);
+                    }               
+                } else {
+                    console.log("Inside load edges s",this.partsMeshes);
+                }
+                this.onCloseProgress(url);
+            } catch (error) {
+                this.onCloseProgress(url);
+                console.log("Got error while loading",error);
             }
 
-            if (partsMeshes[0].children.length > 0) {
-                partsMeshes = partsMeshes[0].children;
-            }
-            //console.log(partsMeshes);
-           /*  partsMeshes.forEach(element => {
-                if(!element.renderOrder) {
-                    console.log("Chaning Renderingorder from",element.renderOrder,1,element.name);
-                    element.renderOrder=1;
-                }                           
-            }); */
-            //console.log(this.partsMeshes);
-            this.partsMeshes = [...this.partsMeshes,...partsMeshes];
-            if(gdttableEdges) {
-                console.log("Inside load edges gdts",this.partsMeshes);
-                let event={};
-                event['ctrlKey']=false;
-                gdttableEdges.selectedObjects.forEach(element => {
-                    console.log("Setting inside the load all edges",element,event);
-                    this.doOneSelection(element,event,false);
-                });
-                if(gdttableEdges.edges.length==0){
-                    this.changeStateOfSelection(null, event,false);
-                }               
-            } else {
-                console.log("Inside load edges s",this.partsMeshes);
-            }
-            this.onCloseProgress(url);
         }
         
         const onError = (exception,url) => {
             this.onCloseProgress(url);
             console.log(exception);            
         }
-        
+
         const onProgress = (progress) => {
             //console.log(progress);
         }
