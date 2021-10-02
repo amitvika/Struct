@@ -4483,7 +4483,7 @@ class GLTFRenderer extends Component {
     }
     
     progressStyle = {
-        width: '30rem',
+        width: '500px',
         boxShadow: 'rgba(0,0,0,.3) 0 0.3rem 1rem',
         background: 'red'
     }
@@ -4493,13 +4493,13 @@ class GLTFRenderer extends Component {
         
        
         return  <Typography component="div">
-        <TableContainer component={Paper} style={{ minWidth: 400 }}>
+        <TableContainer component={Paper} style={{ minWidth: 500 }}>
             <Table className={classes.table} aria-label="simple table">
                 <TableHead>
                     <TableRow className={classes.tableRow} style={{background:"#CCCCCC",fontWeight:"bold"}}>
-                        <TableCell className={classes.tableCell} >No</TableCell>
-                        <TableCell className={classes.tableCell} align="right" size="small" >Feature</TableCell>
-                        <TableCell className={classes.tableCell} align="right" size="small">Progress</TableCell>             
+                        <TableCell className={classes.tableCell} align="left" size="small" >No</TableCell>
+                        <TableCell className={classes.tableCell} align="left" size="small" >Feature</TableCell>
+                        <TableCell className={classes.tableCell} align="left" size="small">Progress</TableCell>             
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -4507,14 +4507,14 @@ class GLTFRenderer extends Component {
                     {this.state.progressOpenedFiles.map( 
                         (row,index) => 
                                 (<StyledTableRow>
-                                    <StyledTableCell>
+                                    <StyledTableCell align="left" size="small">
                                         {index+1}
                                     </StyledTableCell>
-                                    <StyledTableCell>
+                                    <StyledTableCell align="left" size="small" >
                                         {row}
                                     </StyledTableCell>
-                                    <StyledTableCell>
-                                        <CircularProgress/>
+                                    <StyledTableCell align="left" size="small">
+                                        <CircularProgress />
                                     </StyledTableCell>
                                 </StyledTableRow> ) 
                         ) 
