@@ -17,9 +17,21 @@ export const useStyles = makeStyles((theme) => ({
     color: '#FFFEFE',
     textAlign: 'left',
   },
+  primaryListHeader:{
+    display:'flex',
+  },
+  primaryListItemHeader:{
+      borderRight: '1px solid #bbb',
+      '&:last-child' : {
+        borderRight: 'none'
+      },
+      '& span' : {
+        whiteSpace: 'nowrap'
+      }
+  },
   menuButton: {
     ...theme.menuButton,
-    marginRight: '0px',
+    margin: '0 10px 0 10px',
     '&::after': {
       content: '',
       borderLeft: '1px solid white',

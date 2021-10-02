@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useHistory } from 'react-router-dom';
 import Logo from '../../assets/images/omnidesignLogo.png';
 import {
   AppBar,
@@ -14,6 +14,8 @@ import { useTheme } from '@material-ui/core/styles';
 import { useStyles } from './Header.style';
 import HeaderMobileView from './HeaderMobileView';
 import HeaderDesktopView from './HeaderDesktopView';
+import { logout } from '@monostruct/internal-app/src/actions/authActions';
+import { useDispatch } from 'react-redux';
 
 function HideOnScroll(props) {
   const { children } = props;
@@ -29,14 +31,24 @@ function HideOnScroll(props) {
 export default function Header(props) {
   const classes = useStyles();
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const history = useHistory();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const handleLogout = () => {
+    history.replace('/');
+  };
 
   return (
     <HideOnScroll {...props}>
       <AppBar className={classes.header}>
         <Toolbar className={classes.toolbar}>
           <StructLogo />
-          {isMobile ? <HeaderMobileView /> : <HeaderDesktopView />}
+          {isMobile ? (
+            <HeaderMobileView {...{ handleLogout }} />
+          ) : (
+            <HeaderDesktopView {...{ handleLogout }} />
+          )}
         </Toolbar>
       </AppBar>
     </HideOnScroll>

@@ -1,6 +1,5 @@
 import React, { useRef, useState, useContext } from 'react';
 import { useHistory, useLocation, Link as RouterLink } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import Box from '@material-ui/core/Box';
 import Grow from '@material-ui/core/Grow';
 import Popper from '@material-ui/core/Popper';
@@ -8,16 +7,14 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { Button, MenuList, MenuItem, Paper } from '@material-ui/core';
 
 import { useStyles } from './Header.style';
-import { logout } from '@monostruct/internal-app/src/actions/authActions';
 import { AuthContext } from '../../context/AuthContext';
 import { headerListItem } from './Header.helper';
 
-export default function HeaderDesktopView() {
+export default function HeaderDesktopView({ handleLogout }) {
   const classes = useStyles();
   const location = useLocation();
 
   const history = useHistory();
-  const dispatch = useDispatch();
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
 
@@ -26,12 +23,13 @@ export default function HeaderDesktopView() {
   } = useContext(AuthContext);
 
   const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
+    if (isAuthenticated) {
+      setOpen((prevOpen) => !prevOpen);
+    } else {
+      handleLogout();
+    }
   };
-  const handleLogout = () => {
-    dispatch(logout());
-    history.replace('/');
-  };
+
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
@@ -54,20 +52,24 @@ export default function HeaderDesktopView() {
   const getMenuButtons = () => {
     let menuItems = headerListItem.map(({ label, href }) => {
       return (
-        <Button
+        <li
           key={`primary_button_${label}`}
-          {...{
-            key: label,
-            color: 'inherit',
-            to: href,
-            component: RouterLink,
-            className:
-              classes.menuButton +
-              ` ${location.pathname.includes(href) && classes.linkSelected}`,
-          }}
+          className={classes.primaryListItemHeader}
         >
-          {label}
-        </Button>
+          <Button
+            {...{
+              key: label,
+              color: 'inherit',
+              to: href,
+              component: RouterLink,
+              className:
+                classes.menuButton +
+                ` ${location.pathname.includes(href) && classes.linkSelected}`,
+            }}
+          >
+            {label}
+          </Button>
+        </li>
       );
     });
     return menuItems;
@@ -85,9 +87,7 @@ export default function HeaderDesktopView() {
         style={{ color: 'white' }}
         className={classes.menuButton}
       >
-        {isAuthenticated
-          ? `Welcome: ${user.name} ${user.email}`
-          : 'Not logged in'}
+        {isAuthenticated ? `Welcome: ${user.email}` : 'Not logged in'}
       </Button>
     );
 
@@ -118,10 +118,15 @@ export default function HeaderDesktopView() {
                   <MenuItem
                     key={`user_setup_link`}
                     onClick={() => handleLink('/my_profile')}
+                    className={classes.menuButton}
                   >
                     My Profile
                   </MenuItem>
-                  <MenuItem key={`logout_link`} onClick={handleLogout}>
+                  <MenuItem
+                    key={`logout_link`}
+                    onClick={handleLogout}
+                    className={classes.menuButton}
+                  >
                     Logout
                   </MenuItem>
                 </MenuList>
@@ -136,7 +141,11 @@ export default function HeaderDesktopView() {
   };
   return (
     <Box component="div" className={classes.menuContainer}>
-      <Box component="div" key={`primary_list1`} style={{ display: 'flex' }}>
+      <Box
+        component="ul"
+        key={`primary_list1`}
+        className={classes.primaryListHeader}
+      >
         {getMenuButtons()}
       </Box>
       <Box component="div" key={`secondary_list1`} style={{ display: 'flex' }}>

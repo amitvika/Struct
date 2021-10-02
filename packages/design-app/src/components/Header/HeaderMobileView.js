@@ -5,7 +5,7 @@ import { useStyles } from './Header.style';
 import MenuIcon from '@material-ui/icons/Menu';
 import { headerListItem } from './Header.helper';
 
-export default function HeaderMobileView() {
+export default function HeaderMobileView({ handleLogout }) {
   const classes = useStyles();
   const [anchor, setAnchor] = React.useState(null);
   const open = Boolean(anchor);
@@ -22,7 +22,7 @@ export default function HeaderMobileView() {
         edge="start"
         aria-label="menu"
         onClick={handleMenu}
-        style={{color: 'unset'}}
+        style={{ color: 'unset' }}
       >
         <MenuIcon />
       </IconButton>
@@ -39,6 +39,7 @@ export default function HeaderMobileView() {
           horizontal: 'right',
         }}
         open={open}
+        classes={classes.header}
       >
         {headerListItem.map((item) => (
           <MenuItem
@@ -49,6 +50,17 @@ export default function HeaderMobileView() {
             <Typography variant="h6"> {item.label}</Typography>
           </MenuItem>
         ))}
+        <MenuItem
+          key={`user_setup_link`}
+          onClick={() => setAnchor(null)}
+          component={RouterLink}
+          to={'/my_profile'}
+        >
+          <Typography variant="h6">My Profile</Typography>
+        </MenuItem>
+        <MenuItem key={`logout_link`} onClick={handleLogout}>
+          <Typography variant="h6">Logout</Typography>
+        </MenuItem>
       </Menu>
     </>
   );
