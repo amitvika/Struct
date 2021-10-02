@@ -61,7 +61,7 @@ export default function Index2(props) {
     'PCB Assembly', 'Extrusion', '3D Printing', 'Forming', ' Textile Assembly',
     'Powder Stamping and Sintering', ' Coatings', ' Temperature and Gas Treatments',
     ' Photochemical Machining', 'Storage', 'Dispensing', 'Holding', 'Separation and Refinement',
-    'Particulate/Liquid/Gas Mixing', 'Particulate Consolidation']
+    'Particulate/Liquid/Gas Mixing', 'Particulate Consolidation','Designer', 'Manufacture', 'Classification',]
 
   const subTabArray = ['Manufacturability Analysis', 'Process Configuration', 'Process Statistics and Analysis', 'Process Steps']
 

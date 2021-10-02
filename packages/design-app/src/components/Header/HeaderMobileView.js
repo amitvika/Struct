@@ -1,0 +1,67 @@
+import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import { IconButton, Typography, Menu, MenuItem } from '@material-ui/core';
+import { useStyles } from './Header.style';
+import MenuIcon from '@material-ui/icons/Menu';
+import { headerListItem } from './Header.helper';
+
+export default function HeaderMobileView({ handleLogout }) {
+  const classes = useStyles();
+  const [anchor, setAnchor] = React.useState(null);
+  const open = Boolean(anchor);
+
+  const handleMenu = (event) => {
+    setAnchor(event.currentTarget);
+  };
+
+  return (
+    <>
+      <IconButton
+        color="textPrimary"
+        className={classes.menuButton}
+        edge="start"
+        aria-label="menu"
+        onClick={handleMenu}
+        style={{ color: 'unset' }}
+      >
+        <MenuIcon />
+      </IconButton>
+      <Menu
+        id="menu-appbar"
+        anchorEl={anchor}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        KeepMounted
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        open={open}
+        classes={classes.header}
+      >
+        {headerListItem.map((item) => (
+          <MenuItem
+            onClick={() => setAnchor(null)}
+            component={RouterLink}
+            to={item.href || '/'}
+          >
+            <Typography variant="h6"> {item.label}</Typography>
+          </MenuItem>
+        ))}
+        <MenuItem
+          key={`user_setup_link`}
+          onClick={() => setAnchor(null)}
+          component={RouterLink}
+          to={'/my_profile'}
+        >
+          <Typography variant="h6">My Profile</Typography>
+        </MenuItem>
+        <MenuItem key={`logout_link`} onClick={handleLogout}>
+          <Typography variant="h6">Logout</Typography>
+        </MenuItem>
+      </Menu>
+    </>
+  );
+}

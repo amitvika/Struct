@@ -71,7 +71,7 @@ const MyProfile = ({ gltfjson, setgltfjson }) => {
             <Grid style={{ margin: 'auto' }}>
               <h2>{tabList[tabIndex]} </h2>
             </Grid>
-            <Grid style={{ marginLeft: 'auto' }}>
+            <Grid>
               <Button>
                 <EditIcon />
               </Button>

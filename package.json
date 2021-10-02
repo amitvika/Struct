@@ -1,11 +1,9 @@
 {
   "name": "struct",
   "private": true,
-  "workspaces": {
-    "packages": [
+  "workspaces": [
       "packages/*"
-    ]
-  },
+  ],
   "scripts": {
     "start": "yarn workspace @monostruct/internal-app run start",
     "build": "yarn workspace @monostruct/internal-app run build",
