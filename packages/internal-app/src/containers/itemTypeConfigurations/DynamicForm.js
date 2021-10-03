@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Headding from '@monostruct/common/components/atoms/Headding';
@@ -16,17 +16,20 @@ export default function DynamicCriteria({
 }) {
   // const [formFields, setFormFields] = useState(formFields);
   const handleOnChange = (name, value) => {
-    const findIndex = formFields.findIndex(
+    const findIndex = stateFormFields.findIndex(
       (fieldItem) => name === fieldItem.fieldName
     );
-    let tempFields = formFields;
-
+    let tempFields = [...stateFormFields];
     tempFields[findIndex].value = value;
+    setStateFormFields(tempFields);
     handleUpdate(tempFields);
   };
-
+  const [stateFormFields, setStateFormFields] = useState(formFields);
+  useEffect(() => {
+    setStateFormFields(formFields);
+  }, [formFields]);
   const renderFields = () => {
-    return formFields.map((fieldItem) => {
+    return stateFormFields.map((fieldItem) => {
       return (
         <Grid container spacing={2} key={fieldItem.fieldName}>
           <Grid item xs={4}>
@@ -61,7 +64,13 @@ export default function DynamicCriteria({
                 renderData={renderData}
                 setRenderData={setRenderData}
                 value={fieldItem.value}  
-                key={fieldItem.fieldName}              
+                key={fieldItem.fieldName} 
+                onChange={
+                  ({ key, value }) => {
+                    console.log(fieldItem, key);
+                    handleOnChange(fieldItem.fieldName, value);
+                  }
+                }           
               />}
           </Grid>
         </Grid>

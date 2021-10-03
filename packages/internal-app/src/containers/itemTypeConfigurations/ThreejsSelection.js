@@ -1,10 +1,10 @@
 import React from 'react'
 import { gltf_Dict } from '@monostruct/common/gltf/Tree/utils'
 import { NavigateBeforeSharp } from '@material-ui/icons'
-export default function ThreejsSelection(renderData,setRenderData,value,key) {
+export default function ThreejsSelection(renderData,setRenderData,value,key,OnChange) {
   const myvalue = value ? value: ["No Data Selected"];
   return (
-    <div onClick={()=>setRenderData(value,key)}>
+    <div onClick={()=>setRenderData(value,key,OnChange)}>
       {key}:
       {myvalue.map((row, index) => (
       

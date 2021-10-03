@@ -153,6 +153,7 @@ export default function ItemTypeConfiguration(props) {
   const [filteredList, setFilteredList] = useState([]);
   const [alerter, setAlerter] = useState('');
   const [fieldKey,setFieldKey] = useState('NoKey');
+  const [fieldOnChange,setFieldOnChange] = useState((value,key)=>{console.log(value,key)});
 
   const setState = (data) => {
     _setState((prevState) => {
@@ -511,7 +512,7 @@ export default function ItemTypeConfiguration(props) {
     console.log("I am emptying");
   }
 
-  const addSelectionFromComponent = async (selectedNodes,aFileKey) => {
+  const addSelectionFromComponent = async (selectedNodes,aFileKey,OnChange) => {
     let renderData = selectedNodes;
     if(!renderData) {
       renderData = [];
@@ -523,6 +524,7 @@ export default function ItemTypeConfiguration(props) {
     setRenderData(renderData);
     console.log("Calling ",renderData,aFileKey);
     setFieldKey(aFileKey);
+    setFieldOnChange(OnChange);
     updateSelectionFromComponent(renderData);
   };
 
@@ -969,10 +971,14 @@ export default function ItemTypeConfiguration(props) {
       //setState({ parentObjects: [] });
     }
     if(handleItemUpdate) {
-      console.log("I am asking the component to set",state_selectedObjects);
-      const fieldItemKey = fieldKey ? fieldKey.length==0? 'fieldKey':fieldKey : 'fieldKey';
       
+      const fieldItemKey = fieldKey ? fieldKey.length==0? 'fieldKey':fieldKey : 'fieldKey';
+      console.log("I am asking the component to set",state_selectedObjects, fieldKey,fieldItemKey);
       handleItemUpdate({[fieldItemKey]: state_selectedObjects});
+    }
+    if(fieldOnChange) {
+      console.log("I am asking the component to change field",state_selectedObjects, fieldKey, fieldOnChange);
+      fieldOnChange(fieldKey,state_selectedObjects);
     }
     //console.log("Finally my state tree",state.gltfjson.tree);
   }
