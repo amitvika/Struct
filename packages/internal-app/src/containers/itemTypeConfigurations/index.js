@@ -970,7 +970,9 @@ export default function ItemTypeConfiguration(props) {
     }
     if(handleItemUpdate) {
       console.log("I am asking the component to set",state_selectedObjects);
-      handleItemUpdate({fieldKey: state_selectedObjects});
+      const fieldItemKey = fieldKey ? fieldKey.length==0? 'fieldKey':fieldKey : 'fieldKey';
+      
+      handleItemUpdate({[fieldItemKey]: state_selectedObjects});
     }
     //console.log("Finally my state tree",state.gltfjson.tree);
   }
