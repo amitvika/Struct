@@ -3635,17 +3635,19 @@ class GLTFRenderer extends Component {
             }
             if (this.props.whatchanged == SELECTDISTANCE) {
                 console.log("Ok Here?",changedata);
+                let event={};
+                event['ctrlKey']=this.changedctrlkey;
                 if(changedata.length==0) {
+                    
+                    this.changeStateOfSelection(null, event);
                    /*  console.log("I am resetting!");
-
+                    
                     if(this.props.resetSelections){
                         console.log("I have resetted");
                         this.props.resetSelections();
                     } */
                 } else {
    
-                    let event={};
-                    event['ctrlKey']=this.changedctrlkey;
                     console.log("Reducing",event,changedata);
                     changedata.reduce(
                         (p, x) =>

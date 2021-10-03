@@ -15,7 +15,7 @@ export default function ThreejsSelection(props) {
         setRenderData(value,mykey,onChange);
         }
       }>
-      {mykey}:
+      {/* {mykey}: */}
       { myvalue.map((row, index) => (
       
         row ? row[gltf_Dict['name']] ? row[gltf_Dict['name']] +"\u2003" : row+"\u2002": "\u0020"

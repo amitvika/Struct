@@ -78,6 +78,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 let state_selectedObjects = [];
+let state_fileOnChange = null;
 
 export default function ItemTypeConfiguration(props) {
   const { fileId, gltfjson, isLoading, itemProperties, handleItemUpdate } =
@@ -153,7 +154,7 @@ export default function ItemTypeConfiguration(props) {
   const [filteredList, setFilteredList] = useState([]);
   const [alerter, setAlerter] = useState('');
   const [fieldKey,setFieldKey] = useState('NoKey');
-  const [fieldOnChange,setFieldOnChange] = useState(null);
+  //const [fieldOnChange,setFieldOnChange] = useState(null); //unable to set state for the functions..
 
   const setState = (data) => {
     _setState((prevState) => {
@@ -524,9 +525,10 @@ export default function ItemTypeConfiguration(props) {
     setRenderData(renderData);
     
     setFieldKey(aFileKey);
-    setFieldOnChange(OnChange);
+    //setFieldOnChange(OnChange);
+    state_fileOnChange = OnChange;
     updateSelectionFromComponent(renderData);
-    console.log("Calling ",renderData,aFileKey,OnChange,"Field Onchange",fieldOnChange, "Field Key",fieldKey);
+    //console.log("Calling ",renderData,aFileKey,OnChange,"Variable OnChange",state_fileOnChange,"Field Onchange",fieldOnChange, "Field Key",fieldKey);
   };
 
   const updateSelectionFromComponent = async (selectedNodes) => {
@@ -977,9 +979,13 @@ export default function ItemTypeConfiguration(props) {
       console.log("I am asking the component to set",state_selectedObjects, fieldKey,fieldItemKey);
       handleItemUpdate({[fieldItemKey]: state_selectedObjects});
     }
-    if(fieldOnChange) {
+    /* if(fieldOnChange) {
       console.log("I am asking the component to change field",state_selectedObjects, fieldKey, fieldOnChange);
       fieldOnChange(fieldKey,state_selectedObjects);
+    } */
+    if(state_fileOnChange) {
+      console.log("I am asking the component to change field via local variable",state_selectedObjects, fieldKey);
+      state_fileOnChange(fieldKey,state_selectedObjects);
     }
     //console.log("Finally my state tree",state.gltfjson.tree);
   }
