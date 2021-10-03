@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import {
-  Input,
-  Textarea,
-  Headding,
-} from '@monostruct/common/components';
+import { Input, Textarea, Headding } from '@monostruct/common/components';
 
 import Modal from '@monostruct/common/components/Modal';
 import ExcelFileUpload from '@monostruct/common/components/ExcelFileUpload';
@@ -54,17 +50,12 @@ export default function AddUpdateModal({
   const handleSaveButton = async () => {
     setLoading(true);
     if (value) {
-      await handleUpdate(value);
+      const updateCriteria = await handleUpdate(value);
+      setValue(updateCriteria);
     }
     setRefreshFileHistory(!refreshFileHistory);
     setLoading(false);
     // toggleModal();
-  };
-
-  const handleTypeChange = (data) => {
-    setIsTypeSelected(true);
-    setSelectedType(data);
-    handleOnChange('category', data);
   };
 
   const handleFileChange = async (selectedFile) => {
@@ -86,7 +77,6 @@ export default function AddUpdateModal({
       },
     };
 
-    console.log('updateObj', updateObj);
     setValue((prev) => ({ ...prev, ...updateObj }));
     setLoading(false);
   };
