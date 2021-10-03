@@ -29,7 +29,7 @@ export default function DynamicCriteria({
     setStateFormFields(formFields);
   }, [formFields]);
   const renderFields = () => {
-    console.log("SETRENDERDATA",setRenderData);
+    console.log("STATEFORMFIELDS",stateFormFields);
     return stateFormFields.map((fieldItem) => {
       return (
         <Grid container spacing={2} key={fieldItem.fieldName}>
@@ -59,17 +59,19 @@ export default function DynamicCriteria({
                 value={fieldItem.value}
               />
             )}
-
+            {/* name:{fieldItem?fieldItem.fieldName:"No Name"}
+            renderData:{renderData} */}
             {fieldItem.fieldType === 'Custom' && 
+             
               <ThreejsSelection 
                 renderData={renderData}
                 setRenderData={setRenderData}
                 value={fieldItem.value}  
-                key={fieldItem.fieldName} 
+                mykey={fieldItem.fieldName} 
                 onChange={
-                  ({ key, value }) => {
-                    console.log(fieldItem, key);
-                    handleOnChange(fieldItem.fieldName, value);
+                  ( mykeyinfo, valuefound ) => {
+                    console.log(fieldItem, mykeyinfo, valuefound);
+                    handleOnChange(fieldItem.fieldName, valuefound);
                   }
                 }           
               />}

@@ -15,7 +15,7 @@ export default function DynamicHierarchy(props) {
     renderData,
     setRenderData
   } = props;
-  console.log("Beginining", setShowKineticModal, handleItemUpdate, renderData,setRenderData);
+  //console.log("Beginining", setShowKineticModal, handleItemUpdate, renderData,setRenderData);
   const currentItem = useSelector(state => state.item.currentItem);
 
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
@@ -161,7 +161,7 @@ export default function DynamicHierarchy(props) {
   if (hierarchyDropdownList.length === 0) {
     return null;
   }
-  console.log("DINEMICHIERARCHY",setRenderData,"SHOW",setShowKineticModal,"UPDATE",handleItemUpdate,"RENDER",renderData);
+  //console.log("DINEMICHIERARCHY",setRenderData,"SHOW",setShowKineticModal,"UPDATE",handleItemUpdate,"RENDER",renderData);
 
   return (
     <>

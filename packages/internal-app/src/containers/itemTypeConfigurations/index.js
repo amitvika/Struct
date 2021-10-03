@@ -153,7 +153,7 @@ export default function ItemTypeConfiguration(props) {
   const [filteredList, setFilteredList] = useState([]);
   const [alerter, setAlerter] = useState('');
   const [fieldKey,setFieldKey] = useState('NoKey');
-  const [fieldOnChange,setFieldOnChange] = useState((value,key)=>{console.log(value,key)});
+  const [fieldOnChange,setFieldOnChange] = useState(null);
 
   const setState = (data) => {
     _setState((prevState) => {
@@ -522,10 +522,11 @@ export default function ItemTypeConfiguration(props) {
     });
     //setState({ renderdata: renderData, whatchange: SELECTDISTANCE });
     setRenderData(renderData);
-    console.log("Calling ",renderData,aFileKey);
+    
     setFieldKey(aFileKey);
     setFieldOnChange(OnChange);
     updateSelectionFromComponent(renderData);
+    console.log("Calling ",renderData,aFileKey,OnChange,"Field Onchange",fieldOnChange, "Field Key",fieldKey);
   };
 
   const updateSelectionFromComponent = async (selectedNodes) => {
@@ -671,12 +672,12 @@ export default function ItemTypeConfiguration(props) {
           setCtrlKey(event.ctrlKey);
         }
         //const myselectedtree = {...myTree};
-        console.log("ctrl key", event.ctrlKey);
-        console.log("B Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
+        //console.log("ctrl key", event.ctrlKey);
+        //console.log("B Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
         setRenderData([myTree]);
-        console.log("C Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
+        //.log("C Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
         doOneSelection(myTree, event);
-        console.log("A Check state",myTree,  selectedNodes, myTree.selectedshell, selectedNodes.selectedshell);
+        ///console.log("A Check state",myTree,  selectedNodes, myTree.selectedshell, selectedNodes.selectedshell);
         
         //setState({ renderdata: [myTree], whatchange: SELECTDISTANCE });
        
@@ -830,9 +831,9 @@ export default function ItemTypeConfiguration(props) {
         console.log(state_selectedObjects); 
         state_selectedObjects.forEach(element => {
           if (data[gltf_Dict["name"]] != element[gltf_Dict["name"]]) { 
-            console.log("B",element);        
+            //console.log("B",element);        
             setSelectedShell(element, false);
-            console.log("A",element); 
+            //console.log("A",element); 
             //element.selectedshell = false;
           }
         });
@@ -1155,7 +1156,7 @@ export default function ItemTypeConfiguration(props) {
   }
   const [showKineticModel, setShowKineticModal] = useState(true);
   const renderExcelUI = () => {
-    console.log("RENDEREXCELUI",addSelectionFromComponent,"SHOW",setShowKineticModal,"UPDATE",handleItemUpdate,"RENDER",state.renderdata);
+    //console.log("RENDEREXCELUI",addSelectionFromComponent,"SHOW",setShowKineticModal,"UPDATE",handleItemUpdate,"RENDER",state.renderdata);
     if (
       itemProperties.itemGeometry?.itemType ===
       'Machine - Compound/Tool/Workholding'
@@ -1164,8 +1165,8 @@ export default function ItemTypeConfiguration(props) {
         <DynamicHierarchy
           setShowKineticModal={setShowKineticModal}
           handleItemUpdate={handleItemUpdate}
-          renderdata={state.renderdata}
-          setRenderdata={(a,b,c)=>{addSelectionFromComponent(a,b,c)}}
+          renderData={state.renderdata}
+          setRenderData={addSelectionFromComponent}
         />
       );
     } else {
