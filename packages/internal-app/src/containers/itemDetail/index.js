@@ -678,6 +678,7 @@ const ItemDetail = () => {
   };
 
   const handleItemUpdate = (change) => {
+    console.log("Advising to change",change);
     let tempItemProperties = Object.assign({}, itemProperties, change);
     setItemProperties(tempItemProperties);
   };

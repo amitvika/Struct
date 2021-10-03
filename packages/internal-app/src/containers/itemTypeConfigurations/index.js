@@ -520,6 +520,7 @@ export default function ItemTypeConfiguration(props) {
     });
     //setState({ renderdata: renderData, whatchange: SELECTDISTANCE });
     setRenderData(renderData);
+    console.log("Calling ",renderData);
     updateSelectionFromComponent(renderData);
   };
 
@@ -966,6 +967,7 @@ export default function ItemTypeConfiguration(props) {
       //setState({ parentObjects: [] });
     }
     if(handleItemUpdate) {
+      console.log("I am asking the component to set",state_selectedObjects);
       handleItemUpdate(state_selectedObjects);
     }
     //console.log("Finally my state tree",state.gltfjson.tree);

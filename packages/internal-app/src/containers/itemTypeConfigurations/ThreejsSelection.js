@@ -7,7 +7,7 @@ export default function ThreejsSelection(renderData,setRenderData,value) {
     <div onClick={()=>setRenderData(value)}>
       {myvalue.map((row, index) => (
       
-      row ? row[gltf_Dict['name']]+"&nbsp;" : ""
+      row ? row[gltf_Dict['name']] ? row[gltf_Dict['name']] +"\u2003" : row+"\u2002": "\u0020"
       
       ))}
     </div>
