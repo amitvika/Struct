@@ -8,13 +8,14 @@ import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import get from 'lodash/get';
 import { useSelector } from 'react-redux';
 
-export default function DynamicHierarchy({
-  setShowKineticModal,
-  handleItemUpdate,
-  renderData,
-  setRenderData,
-}) {
-
+export default function DynamicHierarchy(props) {
+  const {
+    setShowKineticModal,
+    handleItemUpdate,
+    renderData,
+    setRenderData
+  } = props;
+  console.log("Beginining", setShowKineticModal, handleItemUpdate, renderData,setRenderData);
   const currentItem = useSelector(state => state.item.currentItem);
 
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
@@ -160,6 +161,7 @@ export default function DynamicHierarchy({
   if (hierarchyDropdownList.length === 0) {
     return null;
   }
+  console.log("DINEMICHIERARCHY",setRenderData,"SHOW",setShowKineticModal,"UPDATE",handleItemUpdate,"RENDER",renderData);
 
   return (
     <>

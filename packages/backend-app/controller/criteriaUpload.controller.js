@@ -122,6 +122,11 @@ exports.getLatest = async (req, res) => {
   try {
 
     let productDesigns = await CriteriaUploadModel.findById('611e82e4de777c1c549ab347');
+    console.log("GETLATEST1",productDesigns);
+    if (!productDesigns) {
+      productDesigns = await CriteriaUploadModel.findById('61596b861ea6bf29a42cee0f');
+    }
+    console.log("GETLATEST2",productDesigns);
     res.json(mapProductDesign(productDesigns));
 
   }

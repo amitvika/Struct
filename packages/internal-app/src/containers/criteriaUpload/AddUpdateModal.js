@@ -97,7 +97,7 @@ export default function AddUpdateModal({
             placeholder="Enter"
             type="text"
             onChange={(event) => handleOnChange('name', event.target.value)}
-            value={value.name}
+            value={value?.name}
           />
         </Grid>
 
@@ -141,13 +141,13 @@ export default function AddUpdateModal({
           <Textarea
             placeholder="Enter"
             onChange={(event) => handleOnChange('notes', event.target.value)}
-            value={value.notes}
+            value={value?.notes}
           />
         </Grid>
 
         <ExcelFileUpload value={value} handleOnChange={handleFileChange} />
         <FileHistory
-          link_id={value.id}
+          link_id={value?.id}
           refreshFileHistory={refreshFileHistory}
         />
 

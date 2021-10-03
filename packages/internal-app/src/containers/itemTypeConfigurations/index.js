@@ -1155,6 +1155,7 @@ export default function ItemTypeConfiguration(props) {
   }
   const [showKineticModel, setShowKineticModal] = useState(true);
   const renderExcelUI = () => {
+    console.log("RENDEREXCELUI",addSelectionFromComponent,"SHOW",setShowKineticModal,"UPDATE",handleItemUpdate,"RENDER",state.renderdata);
     if (
       itemProperties.itemGeometry?.itemType ===
       'Machine - Compound/Tool/Workholding'
@@ -1164,7 +1165,7 @@ export default function ItemTypeConfiguration(props) {
           setShowKineticModal={setShowKineticModal}
           handleItemUpdate={handleItemUpdate}
           renderdata={state.renderdata}
-          setRenderdata={addSelectionFromComponent}
+          setRenderdata={(a,b,c)=>{addSelectionFromComponent(a,b,c)}}
         />
       );
     } else {
