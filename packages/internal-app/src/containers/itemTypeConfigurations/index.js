@@ -152,6 +152,7 @@ export default function ItemTypeConfiguration(props) {
   const [ctrlKey, setCtrlKey] = useState(false);
   const [filteredList, setFilteredList] = useState([]);
   const [alerter, setAlerter] = useState('');
+  const [fieldKey,setFieldKey] = useState('NoKey');
 
   const setState = (data) => {
     _setState((prevState) => {
@@ -510,7 +511,7 @@ export default function ItemTypeConfiguration(props) {
     console.log("I am emptying");
   }
 
-  const addSelectionFromComponent = async (selectedNodes) => {
+  const addSelectionFromComponent = async (selectedNodes,aFileKey) => {
     let renderData = selectedNodes;
     if(!renderData) {
       renderData = [];
@@ -520,7 +521,8 @@ export default function ItemTypeConfiguration(props) {
     });
     //setState({ renderdata: renderData, whatchange: SELECTDISTANCE });
     setRenderData(renderData);
-    console.log("Calling ",renderData);
+    console.log("Calling ",renderData,aFileKey);
+    setFieldKey(aFileKey);
     updateSelectionFromComponent(renderData);
   };
 
@@ -968,7 +970,7 @@ export default function ItemTypeConfiguration(props) {
     }
     if(handleItemUpdate) {
       console.log("I am asking the component to set",state_selectedObjects);
-      handleItemUpdate(state_selectedObjects);
+      handleItemUpdate({fieldKey: state_selectedObjects});
     }
     //console.log("Finally my state tree",state.gltfjson.tree);
   }

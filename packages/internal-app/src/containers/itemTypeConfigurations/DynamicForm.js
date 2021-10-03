@@ -60,7 +60,8 @@ export default function DynamicCriteria({
               <ThreejsSelection 
                 renderData={renderData}
                 setRenderData={setRenderData}
-                value={fieldItem.value}
+                value={fieldItem.value}  
+                key={fieldItem.fieldName}              
               />}
           </Grid>
         </Grid>
