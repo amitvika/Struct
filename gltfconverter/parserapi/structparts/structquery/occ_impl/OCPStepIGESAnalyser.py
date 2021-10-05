@@ -3037,16 +3037,16 @@ class StepIgesAnalyser():
         else:
             self.write_in_thread(dict_return,getPNG)
         #self.mstep_dict['tree']=self.tstep_dict['tree']
-
-        try:
-            if(self.addfeaturesThread):
-                myanotherthread = threading.Thread(target=self.addFeatures)
-                myanotherthread.start()
-            else:
-                self.addFeatures()
-        except Exception as e:
-            print("Error while disecting",e)
-
+        if (self.edgesize!=0) or (self.vertexsize!=0): 
+            try:
+                if(self.addfeaturesThread):
+                    myanotherthread = threading.Thread(target=self.addFeatures)
+                    myanotherthread.start()
+                else:
+                    self.addFeatures()
+            except Exception as e:
+                print("Error while disecting",e)
+        
         return (            
             (getPNG,self.output), 
             (

@@ -26,6 +26,7 @@ import SelectedFeatureMenu from './SelectedFeatureMenu';
 import SelectedMatesRelation from './SelectedMatesRelation';
 import SelectedGDTMenu from './SelectedGDTMenu';
 import SelectedSummaryTable from './SelectedSummaryTable';
+import ShowLoadingProgressBar from './ShowLoadingProgressBar';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -77,7 +78,11 @@ export default function ViewerToolbar({
   setRowKeyValue,
   setMateValues,
   setAngle,
-  setOffset
+  setOffset,
+  isProgressOpen,
+  progressOpenedFiles,
+  setIsProgressOpen,
+  setProgressOpenedFiles
 }) {
   const classes = useStyles();
   
@@ -241,7 +246,18 @@ export default function ViewerToolbar({
     <>
       <Box style={{ flex: 1 }} >
        {/*renderToolBarButtons()*/}
-         
+          {isProgressOpen && 
+            <Box>
+              <Paper className={classes.paper}>
+                <ShowLoadingProgressBar 
+                  isProgressOpen={isProgressOpen}            
+                  progressOpenedFiles={progressOpenedFiles}
+                  setIsProgressOpen={setIsProgressOpen}
+                  setProgressOpenedFiles={setProgressOpenedFiles}
+                />
+              </Paper>
+            </Box>
+          }     
           {
             (selectedObjects) && (selectedObjects.length >= 1) && (
               <div align={"center"}>

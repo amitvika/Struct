@@ -31,6 +31,8 @@ export default function Viewer({
   setStateOfTree = () => {},
   setStateOfgltf = () => {},
   activeDataTable = 0,
+  setIsProgressOpen=(value)=>{console.log("Set Is Progress Open",value);},
+  setProgressOpenedFiles=(value)=>{console.log("Set Progres sOpened Files",value);}
 }) {
   //console.log(gltfjson);
   let gltfjsonlen = Object.keys(gltfjson).length;
@@ -73,6 +75,8 @@ export default function Viewer({
           setStateOfTree={setStateOfTree}
           setStateOfgltf={setStateOfgltf}
           activeDataTable={activeDataTable}
+          setIsProgressOpen={setIsProgressOpen}
+          setProgressOpenedFiles={setProgressOpenedFiles}
         />
       )}
       {isLoading && <CircularProgress />}

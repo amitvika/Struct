@@ -76,9 +76,6 @@ import ModelessDialog from './ModelessDialog';
 import {myMenus} from './gltfMenus';
 import { CircularProgress, ClickAwayListener } from "@material-ui/core";
 import RotateLeftSharpIcon from '@material-ui/icons/RotateLeftSharp';
-
-
-
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -3244,10 +3241,10 @@ class GLTFRenderer extends Component {
             //console.log("My color2",meshmaterial.currentHex);
         }
         /*}*/
-        console.log("before",meshmaterial,meshmaterial.material.color);
+        //console.log("before",meshmaterial,meshmaterial.material.color);
         meshmaterial.material.color = this.convertColor(this.props.touchcolor || DEFAULTTOUCHCOLOR); // this.props.distanceColor || distanceColor);						
         meshmaterial.material.opacity = 1.0;
-        console.log("after",meshmaterial,meshmaterial.material.color);
+        //console.log("after",meshmaterial,meshmaterial.material.color);
     };
 
     setSelectionColor = (meshmaterial) => {
@@ -4476,11 +4473,17 @@ class GLTFRenderer extends Component {
         let openFiles = [...this.state.progressOpenedFiles];
         openFiles = this.arrayRemove(openFiles,aFile);
         this.setState({ progressOpenedFiles: openFiles });
+        if(this.props.setProgressOpenedFiles){
+            this.props.setProgressOpenedFiles(openFiles);
+        }
         if(openFiles.length==0) {
             this.setState({ isProgressOpen: false });
-            console.log("Setting is progress closing",this.state.isProgressOpen);
+            if(this.props.setIsProgressOpen) {
+                this.props.setIsProgressOpen(false);
+            }
+            console.log("Setting is progress closing",this.state.isProgressOpen,openFiles);
         }  else {
-            console.log("Setting is progress Opening",this.state.isProgressOpen);
+            console.log("Setting is progress Opening",this.state.isProgressOpen,openFiles);
         }         
     }
     
@@ -4488,7 +4491,13 @@ class GLTFRenderer extends Component {
         let openFiles = [...this.state.progressOpenedFiles];
         openFiles.push(aFile);
         this.setState({ progressOpenedFiles: openFiles });
+        if(this.props.setProgressOpenedFiles){
+            this.props.setProgressOpenedFiles(openFiles);
+        }
         this.setState({isProgressOpen: true });
+        if(this.props.setIsProgressOpen) {
+            this.props.setIsProgressOpen(true);
+        }
         console.log("Setting is progress open",this.state.isProgressOpen);
     }
     
@@ -4500,7 +4509,7 @@ class GLTFRenderer extends Component {
 
     renderProgress=()=>{
         const classes = {tableWow:'tableRow',tableCell:'tableCell'};
-        
+        const stateProgressOpenFiles =  this.state ? this.state.progressOpenedFiles ? this.state.progressOpenedFiles : [] : [];
        
         return  <Typography component="div">
         <TableContainer component={Paper} style={{ minWidth: 500 }}>
@@ -4514,7 +4523,7 @@ class GLTFRenderer extends Component {
                 </TableHead>
                 <TableBody>
                     {/* {this.state.progressOpenedFiles} */}
-                    {this.state.progressOpenedFiles.map( 
+                    {stateProgressOpenFiles.map( 
                         (row,index) => 
                                 (<StyledTableRow>
                                     <StyledTableCell align="left" size="small">
@@ -4606,7 +4615,7 @@ class GLTFRenderer extends Component {
             return id.toString();
         }
         
-        //console.log("fileAnimation",this.props.fileAnimation);
+        //console.log("loadProgresbar",this.props.loadProgressBar);
         return (
             <> 
                 <Grid container spacing={0} direction="column" alignItems="center">
@@ -4635,23 +4644,26 @@ class GLTFRenderer extends Component {
                     </Popper>
                    
                 </Grid>
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: this.clientY + 10,
-                        left: this.clientX + 10
-                    }}
-                >
-                    <ModelessDialog
-                        isOpen={this.state.isProgressOpen}
-                        onClose={this.onCloseProgress}
-                        style={this.progressStyle}
-                        containerClassName={'container'}
-                        noBackdrop={true}
-                        clickBackdropToClose={false}>
-                        {this.renderProgress()}
-                    </ModelessDialog>
-                </div>
+                { this.props.loadProgressBar && (
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: this.clientY + 10,
+                            left: this.clientX + 10
+                        }}
+                    >
+                        <ModelessDialog
+                            isOpen={this.state.isProgressOpen}
+                            onClose={this.onCloseProgress}
+                            style={this.progressStyle}
+                            containerClassName={'container'}
+                            noBackdrop={true}
+                            clickBackdropToClose={false}>
+                            {this.renderProgress()}
+                        </ModelessDialog>
+                    </div>
+                    )
+                }
                 
                 <div
                     style={{ width: "100%" }}

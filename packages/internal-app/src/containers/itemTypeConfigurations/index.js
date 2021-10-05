@@ -192,47 +192,60 @@ export default function ItemTypeConfiguration(props) {
 
   const findMyParentPart = (mynode) => {
     var myParentID = -1;
-
-    for (var i = 0; i < state.gltfjson.tree.length; i++) {
-      if (
-        state.gltfjson.tree[i][gltf_Dict['name']] === mynode[gltf_Dict['name']]
-      ) {
-        myParentID = state.gltfjson.tree[i][gltf_Dict['parentId']];
-        if (state.gltfjson.tree[i][gltf_Dict['element']] === 'P') {
-          return state.gltfjson.tree[i];
-        } else {
-          break;
-        }
-      }
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
     }
-
-    if (myParentID === -1) {
-      return null;
-    } else {
-      var myParentsParentID = -1;
-      for (i = 0; i < state.gltfjson.tree.length; i++) {
-        if (state.gltfjson.tree[i][gltf_Dict['id']] === myParentID) {
-          myParentsParentID = state.gltfjson.tree[i][gltf_Dict['parentId']];
-          if (state.gltfjson.tree[i][gltf_Dict['element']] === 'P') {
-            return state.gltfjson.tree[i];
+    if(state_gltfjson && state_gltfjson.tree) {
+      for (var i = 0; i < state_gltfjson.tree.length; i++) {
+        if (
+          state_gltfjson.tree[i][gltf_Dict['name']] === mynode[gltf_Dict['name']]
+        ) {
+          myParentID = state_gltfjson.tree[i][gltf_Dict['parentId']];
+          if (state_gltfjson.tree[i][gltf_Dict['element']] === 'P') {
+            return state_gltfjson.tree[i];
           } else {
             break;
           }
         }
       }
+    }
+    
+
+    if (myParentID === -1) {
+      return null;
+    } else {
+      var myParentsParentID = -1;
+      if(state_gltfjson && state_gltfjson.tree) {
+        for (i = 0; i < state_gltfjson.tree.length; i++) {
+          if (state_gltfjson.tree[i][gltf_Dict['id']] === myParentID) {
+            myParentsParentID = state_gltfjson.tree[i][gltf_Dict['parentId']];
+            if (state_gltfjson.tree[i][gltf_Dict['element']] === 'P') {
+              return state_gltfjson.tree[i];
+            } else {
+              break;
+            }
+          }
+        }
+      }
+      
       //console.log("Parent", myParentsParentID, myParentID, myID);
       if (myParentsParentID === -1) {
         //RootNode
         //console.log("Pushing", myParentsParentID, myParentID, myID);
         return null;
       } else {
-        for (i = 0; i < state.gltfjson.tree.length; i++) {
-          if (state.gltfjson.tree[i][gltf_Dict['id']] === myParentsParentID) {
-            if (state.gltfjson.tree[i][gltf_Dict['element']] === 'P') {
-              return state.gltfjson.tree[i];
+        if(state_gltfjson && state_gltfjson.tree) {
+          for (i = 0; i < state_gltfjson.tree.length; i++) {
+            if (state_gltfjson.tree[i][gltf_Dict['id']] === myParentsParentID) {
+              if (state_gltfjson.tree[i][gltf_Dict['element']] === 'P') {
+                return state_gltfjson.tree[i];
+              }
             }
           }
         }
+        
       }
       return null;
     }
@@ -260,17 +273,24 @@ export default function ItemTypeConfiguration(props) {
     var myParentID = -1;
     var myID = -1;
     var parentNode = null;
-
-    for (var i = 0; i < state.gltfjson.tree.length; i++) {
-      if (
-        state.gltfjson.tree[i][gltf_Dict['name']] === mynode[gltf_Dict['name']]
-      ) {
-        myParentID = state.gltfjson.tree[i][gltf_Dict['parentId']];
-        myID = state.gltfjson.tree[i][gltf_Dict['id']];
-        parentNode = state.gltfjson.tree[i];
-        break;
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    }
+    if(state_gltfjson && state_gltfjson.tree) {
+      for (var i = 0; i < state_gltfjson.tree.length; i++) {
+        if (
+          state_gltfjson.tree[i][gltf_Dict['name']] === mynode[gltf_Dict['name']]
+        ) {
+          myParentID = state_gltfjson.tree[i][gltf_Dict['parentId']];
+          myID = state_gltfjson.tree[i][gltf_Dict['id']];
+          parentNode = state_gltfjson.tree[i];
+          break;
+        }
       }
     }
+    
     const myParentPart = findMyParentPart(mynode);
     if (myParentPart) {
       parentNode = myParentPart;
@@ -280,46 +300,55 @@ export default function ItemTypeConfiguration(props) {
     var myMaterials = [];
     if (myParentID !== -1) {
       var myParentsParentID = -1;
-      for (i = 0; i < state.gltfjson.tree.length; i++) {
-        if (state.gltfjson.tree[i][gltf_Dict['id']] === myParentID) {
-          myParentsParentID = state.gltfjson.tree[i][gltf_Dict['parentId']];
-          parentNode = state.gltfjson.tree[i];
-          break;
+      if(state_gltfjson && state_gltfjson.tree) {
+        for (i = 0; i < state_gltfjson.tree.length; i++) {
+          if (state_gltfjson.tree[i][gltf_Dict['id']] === myParentID) {
+            myParentsParentID = state_gltfjson.tree[i][gltf_Dict['parentId']];
+            parentNode = state_gltfjson.tree[i];
+            break;
+          }
         }
       }
+      
       //console.log(myParentID, myParentsParentID, parentNode);
       var myParents = [];
       if (myParentsParentID === -1) {
         //RootNode
         myParents.push(myID);
       } else {
-        for (i = 0; i < state.gltfjson.tree.length; i++) {
-          if (
-            state.gltfjson.tree[i][gltf_Dict['parentId']] === myParentsParentID
-          ) {
-            myParents.push(state.gltfjson.tree[i][gltf_Dict['id']]);
-          } else {
-            if (state.gltfjson.tree[i][gltf_Dict['id']] === myParentsParentID) {
-              parentNode = state.gltfjson.tree[i];
-            }
-          }
-        }
-      }
-      for (var j = 0; j < myParents.length; j++) {
-        myParentID = myParents[j];
-        for (i = 0; i < state.gltfjson.tree.length; i++) {
-          if (state.gltfjson.tree[i][gltf_Dict['id']] === myParentID) {
-            var myChild = state.gltfjson.tree[i];
-            if (myChild) {
-              if (
-                state.gltfjson.tree[i][gltf_Dict['element']] === 'P' ||
-                onlyparts(myChild[gltf_Dict['name']])
-              ) {
-                myMaterials.push(myChild);
+        if(state_gltfjson && state_gltfjson.tree) {
+          for (i = 0; i < state_gltfjson.tree.length; i++) {
+            if (
+              state_gltfjson.tree[i][gltf_Dict['parentId']] === myParentsParentID
+            ) {
+              myParents.push(state_gltfjson.tree[i][gltf_Dict['id']]);
+            } else {
+              if (state_gltfjson.tree[i][gltf_Dict['id']] === myParentsParentID) {
+                parentNode = state_gltfjson.tree[i];
               }
             }
           }
         }
+        
+      }
+      for (var j = 0; j < myParents.length; j++) {
+        myParentID = myParents[j];
+        if(state_gltfjson && state_gltfjson.tree){
+          for (i = 0; i < state_gltfjson.tree.length; i++) {
+            if (state_gltfjson.tree[i][gltf_Dict['id']] === myParentID) {
+              var myChild = state_gltfjson.tree[i];
+              if (myChild) {
+                if (
+                  state_gltfjson.tree[i][gltf_Dict['element']] === 'P' ||
+                  onlyparts(myChild[gltf_Dict['name']])
+                ) {
+                  myMaterials.push(myChild);
+                }
+              }
+            }
+          }
+        }
+        
       }
     }
     if (myMaterials.length !== 0) {
@@ -351,16 +380,21 @@ export default function ItemTypeConfiguration(props) {
   const findMyMaterial = (data) => {
     //console.log(data);
     //console.log(state.gltfjson.tree);
-    if (state.gltfjson.tree) {
-      for (var i = 0; i < state.gltfjson.tree.length; i++) {
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    }
+    if (state_gltfjson.tree) {
+      for (var i = 0; i < state_gltfjson.tree.length; i++) {
         console.log(
           'Checking',
-          state.gltfjson.tree[i],
-          state.gltfjson.tree[i][gltf_Dict['name']],
+          state_gltfjson.tree[i],
+          state_gltfjson.tree[i][gltf_Dict['name']],
           data['name']
         );
-        if (state.gltfjson.tree[i][gltf_Dict['name']] === data['name']) {
-          return state.gltfjson.tree[i];
+        if (state_gltfjson.tree[i][gltf_Dict['name']] === data['name']) {
+          return state_gltfjson.tree[i];
         }
       }
     }
@@ -389,44 +423,71 @@ export default function ItemTypeConfiguration(props) {
    
     const myID = data[gltf_Dict['id']];
     let curData = mapdata[myID];
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    }
     if (typeof curData === 'undefined') {
-      for (let index = 0; index < state.gltfjson.tree.length; index++) {
-        const element = state.gltfjson.tree[index];
-        //console.log("compare",element,data);
-        if (element[[gltf_Dict['id']]] === myID) {
-          curData = index;
-          mapdata[myID] = index;
-          break;
+      if(state_gltfjson && state_gltfjson.tree) {
+        for (let index = 0; index < state_gltfjson.tree.length; index++) {
+          const element = state_gltfjson.tree[index];
+          //console.log("compare",element,data);
+          if (element[[gltf_Dict['id']]] === myID) {
+            curData = index;
+            mapdata[myID] = index;
+            break;
+          }
         }
       }
+     
     }
     if (typeof curData !== 'undefined') {
-      let myTree = { ...state.gltfjson };
-      if(myTree.tree[curData].selectedshell!=setoption) {
-        data.selectedshell=setoption;
-        myTree.tree[curData] = data;
-        console.log('Going to Set', myTree, data, curData, data.selectedshell,myTree.tree[curData].selectedshell);
-        setState({ gltfjson: myTree });
-        console.log('Finally Setting', myTree, data, curData, state.gltfjson,myTree.tree[curData].selectedshell);
-        getTable(myTree, true);
+      let myTree = { ...state_gltfjson };
+      if(myTree.tree) {
+        if(myTree.tree[curData].selectedshell!=setoption) {
+          data.selectedshell=setoption;
+          myTree.tree[curData] = data;
+          console.log('Going to Set', myTree, data, curData, data.selectedshell,myTree.tree[curData].selectedshell);
+          setState({ gltfjson: myTree });
+          console.log('Finally Setting', myTree, data, curData, state.gltfjson,myTree.tree[curData].selectedshell);
+          getTable(myTree, true);
+        } else {
+          if(data.selectedshell!=setoption){
+            data.selectedshell=setoption;
+          }
+        }
       } else {
         if(data.selectedshell!=setoption){
           data.selectedshell=setoption;
         }
       }
+
+      
       
     } else {
-      console.log(
-        'unable to find info',
-        data,
-        myID,
-        curData,
-        state.gltfjson.tree.length
-      );
+      if(state_gltfjson && state_gltfjson.tree) {
+        console.log(
+          'unable to find info',
+          data,
+          myID,
+          curData,
+          state_gltfjson.tree.length
+        );
+      } else {
+        console.log(
+          'unable to find info',
+          data,
+          myID,
+          curData,
+          "No tree length"
+        );
+      }
+      
     }
    
   };
-  const setSelectedShellForce = (data, setoption) => {
+  /* const setSelectedShellForce = (data, setoption) => {
     data.selectedshell = setoption;
     const myID = data[gltf_Dict['id']];
     let curData = mapdata[myID];
@@ -460,7 +521,7 @@ export default function ItemTypeConfiguration(props) {
         state.gltfjson.tree.length
       );
     }
-  };
+  }; */
   const doOneSelection = (element, event) => {
     if (element) {
       console.log('Starting', element, element.selectedshell);
@@ -653,15 +714,17 @@ export default function ItemTypeConfiguration(props) {
       'Props',
       firstTimeLoading
     );
-    if (!state.gltfjson && this && this.props) {
-      setState({ gltfjson: this.props.gltfjson });
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
     }
     if (selectedNodes?.index) {
-      console.log('My json', state.gltfjson);
+      console.log('My json', state_gltfjson);
       var myTree = null;
-      if (state.gltfjson) {
-        myTree = { ...state.gltfjson.tree[selectedNodes.index] };
-        console.log('My tree', state.gltfjson.tree);
+      if (state_gltfjson.tree) {
+        myTree = { ...state_gltfjson.tree[selectedNodes.index] };
+        console.log('My tree', state_gltfjson.tree);
 
         console.log('Indexofmytree', myTree);
       } else {
@@ -706,37 +769,48 @@ export default function ItemTypeConfiguration(props) {
   ) => {
     setFirstTimeLoading(true);
     console.log('Changed cell', (rowIndex, columnIndex, dataRow, value));
-    if (!state.gltfjson) {
-      setState({ gltfjson: this.props.gltfjson });
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
     }
 
     var myTree = null;
-    if (state.gltfjson) {
-      console.log('My json', state.gltfjson);
-      myTree = {...state.gltfjson};
-      console.log(
-        'My tree',
-        myTree.tree[dataRow.index],
-        'Columns',
-        columns[columnIndex]
-      );
-
-      myTree.tree[dataRow.index][columns[columnIndex].dataKey] = value;
-      myTree.tree[dataRow.index].selectedshell=true;
-      //setState({ gltfjson: myTree });
-      console.log(
-        'Indexofmytree',
-        myTree.tree[dataRow.index][columns[columnIndex].dataKey],
-        myTree
-      );
+    if (state_gltfjson) {
+      console.log('My json', state_gltfjson);
+      myTree = {...state_gltfjson};
+      if(myTree.tree) {
+        console.log(
+          'My tree',
+          myTree.tree[dataRow.index],
+          'Columns',
+          columns[columnIndex]
+        );
+  
+        myTree.tree[dataRow.index][columns[columnIndex].dataKey] = value;
+        myTree.tree[dataRow.index].selectedshell=true;
+        //setState({ gltfjson: myTree });
+        console.log(
+          'Indexofmytree',
+          myTree.tree[dataRow.index][columns[columnIndex].dataKey],
+          myTree
+        );
+      }
+      
       console.log('About to set', myTree);
       setState({ gltfjson: myTree });
       console.log('Setting', myTree);
-      setRenderData([myTree.tree[dataRow.index]])
+      if(myTree.tree) {
+        setRenderData([myTree.tree[dataRow.index]]);
+      }
+     
       let event={};
       event['ctrlKey']=false;
-      doOneSelection(myTree.tree[dataRow.index], event);
-      getTable(myTree, true);
+      if(myTree.tree) {
+        doOneSelection(myTree.tree[dataRow.index], event);
+        getTable(myTree, true);
+      }
+      
     } else {
       console.log('Problem in state');
     }
@@ -745,11 +819,13 @@ export default function ItemTypeConfiguration(props) {
   const saveSelectionFromTable = async () => {
     var myJsonTree;
     setFirstTimeLoading(true);
-    if (!state.gltfjson) {
-      setState({ gltfjson: this.props.gltfjson });
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
     }
-    if (state.gltfjson) {
-      myJsonTree = state.gltfjson.tree;
+    if (state_gltfjson) {
+      myJsonTree = state_gltfjson.tree;
     } else {
       myJsonTree = this?.props?.gltfjson?.tree;
     }
@@ -765,7 +841,7 @@ export default function ItemTypeConfiguration(props) {
               .then((res) => res.data)
               .then((data) => {
                 const curTree = data;
-                var mygltfjson = {...state.gltfjson};
+                var mygltfjson = {...state_gltfjson};
                 mygltfjson.gltf = gltfobj;
                 mygltfjson.tree = curTree;
                 const mycounter = state.mycounter + 1;
@@ -1223,6 +1299,7 @@ export default function ItemTypeConfiguration(props) {
           </Paper>
           {showKineticModel && (
             <TableOrderView
+              {...state}
               title={alerter === '' ? 'Kinematic Modelling Entries' : alerter}
               list={filteredList}
               columns={columns}
