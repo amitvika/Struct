@@ -10,7 +10,7 @@ export default function DetailPageTab({ tabList }) {
   const renderTab = () => {
     return tabList.map((tab, index) => (
       <Tab
-        label={`${index + 1}. ${tab.tabName}`}
+        label={`${tab.tabName}`}
         value={tab.tabName}
         style={{ textAlign: 'left' }}
       />

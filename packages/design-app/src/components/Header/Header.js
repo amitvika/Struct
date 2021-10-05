@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Link as RouterLink, useHistory } from 'react-router-dom';
-import Logo from '../../assets/images/omnidesignLogo.png';
+import Logo from '../../assets/images/transparent_logo.png';
 import {
   AppBar,
   Toolbar,

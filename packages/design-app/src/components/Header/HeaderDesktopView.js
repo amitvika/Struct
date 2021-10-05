@@ -50,11 +50,11 @@ export default function HeaderDesktopView({ handleLogout }) {
   };
 
   const getMenuButtons = () => {
-    let menuItems = headerListItem.map(({ label, href }) => {
+    let menuItems = headerListItem.map(({ label, href, addSeparator }) => {
       return (
         <li
           key={`primary_button_${label}`}
-          className={classes.primaryListItemHeader}
+          className={classes.primaryListItemHeader+ ` ${addSeparator && classes.verticalBar}`}
         >
           <Button
             {...{
