@@ -21,8 +21,21 @@ export default function DynamicCriteria({
     );
     let tempFields = [...stateFormFields];
     tempFields[findIndex].value = value;
+    tempFields.map((fieldItem,index) => {
+      fieldItem.activeCell = index==findIndex;
+    });
+    
     setStateFormFields(tempFields);
     handleUpdate(tempFields);
+  };
+  const handleOnClick = (name) => {
+    
+    let tempFields = [...stateFormFields];
+    tempFields.map((fieldItem) => {
+      fieldItem.activeCell = (fieldItem.fieldName==name);
+    });
+    setStateFormFields(tempFields);
+  
   };
   const [stateFormFields, setStateFormFields] = useState(formFields);
   useEffect(() => {
@@ -68,12 +81,19 @@ export default function DynamicCriteria({
                 setRenderData={setRenderData}
                 value={fieldItem.value}  
                 mykey={fieldItem.fieldName} 
+                active={fieldItem.activeCell}
                 onChange={
                   ( mykeyinfo, valuefound ) => {
-                    console.log(fieldItem, mykeyinfo, valuefound);
-                    handleOnChange(fieldItem.fieldName, valuefound);
+                    if(fieldItem.activeCell) {
+                      console.log("Changing Values",fieldItem, mykeyinfo, valuefound);
+                      handleOnChange(fieldItem.fieldName, valuefound);
+                    } else {
+                      console.log("Not Changing Values",fieldItem, mykeyinfo, valuefound);
+                    }
+                   
                   }
-                }           
+                }  
+                onClick={handleOnClick}         
               />}
           </Grid>
         </Grid>

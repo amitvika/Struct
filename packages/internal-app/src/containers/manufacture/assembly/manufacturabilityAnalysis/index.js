@@ -140,29 +140,38 @@ export default function ManufacturabilityAnalysis(props) {
 
   const findMyParentPart = (mynode) => {
     var myParentID = -1;
-
-    for (var i = 0; i < state.gltfjson.tree.length; i++) {
-      if (state.gltfjson.tree[i][gltf_Dict["name"]] === mynode[gltf_Dict["name"]]) {
-        myParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
-        if (state.gltfjson.tree[i][gltf_Dict["element"]] === "P") {
-          return state.gltfjson.tree[i];
-        } else {
-          break;
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    }
+    if(state_gltfjson && state_gltfjson.tree){
+      for (var i = 0; i < state_gltfjson.tree.length; i++) {
+        if (state_gltfjson.tree[i][gltf_Dict["name"]] === mynode[gltf_Dict["name"]]) {
+          myParentID = state_gltfjson.tree[i][gltf_Dict["parentId"]];
+          if (state_gltfjson.tree[i][gltf_Dict["element"]] === "P") {
+            return state_gltfjson.tree[i];
+          } else {
+            break;
+          }
         }
       }
     }
+    
 
     if (myParentID === -1) {
       return null;
     } else {
       var myParentsParentID = -1;
-      for ( i = 0; i < state.gltfjson.tree.length; i++) {
-        if (state.gltfjson.tree[i][gltf_Dict["id"]] === myParentID) {
-          myParentsParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
-          if (state.gltfjson.tree[i][gltf_Dict["element"]] === "P") {
-            return state.gltfjson.tree[i];
-          } else {
-            break;
+      if(state_gltfjson && state_gltfjson.tree) {
+        for ( i = 0; i < state_gltfjson.tree.length; i++) {
+          if (state_gltfjson.tree[i][gltf_Dict["id"]] === myParentID) {
+            myParentsParentID = state_gltfjson.tree[i][gltf_Dict["parentId"]];
+            if (state_gltfjson.tree[i][gltf_Dict["element"]] === "P") {
+              return state_gltfjson.tree[i];
+            } else {
+              break;
+            }
           }
         }
       }
@@ -171,10 +180,12 @@ export default function ManufacturabilityAnalysis(props) {
         //console.log("Pushing", myParentsParentID, myParentID, myID);
         return null;
       } else {
-        for (i = 0; i < state.gltfjson.tree.length; i++) {
-          if ((state.gltfjson.tree[i][gltf_Dict["id"]] === myParentsParentID)) {
-            if (state.gltfjson.tree[i][gltf_Dict["element"]] === "P") {
-              return state.gltfjson.tree[i];
+        if(state_gltfjson && state_gltfjson.tree) {
+          for (i = 0; i < state_gltfjson.tree.length; i++) {
+            if ((state_gltfjson.tree[i][gltf_Dict["id"]] === myParentsParentID)) {
+              if (state_gltfjson.tree[i][gltf_Dict["element"]] === "P") {
+                return state_gltfjson.tree[i];
+              }
             }
           }
         }
@@ -207,15 +218,22 @@ export default function ManufacturabilityAnalysis(props) {
     var myID = -1;
     var parentNode = null;
 
-
-    for (var i = 0; i < state.gltfjson.tree.length; i++) {
-      if (state.gltfjson.tree[i][gltf_Dict["name"]] === mynode[gltf_Dict["name"]]) {
-        myParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
-        myID = state.gltfjson.tree[i][gltf_Dict["id"]];
-        parentNode = state.gltfjson.tree[i];
-        break;
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    }
+    if(state_gltfjson && state_gltfjson.tree){
+      for (var i = 0; i < state_gltfjson.tree.length; i++) {
+        if (state_gltfjson.tree[i][gltf_Dict["name"]] === mynode[gltf_Dict["name"]]) {
+          myParentID = state_gltfjson.tree[i][gltf_Dict["parentId"]];
+          myID = state_gltfjson.tree[i][gltf_Dict["id"]];
+          parentNode = state_gltfjson.tree[i];
+          break;
+        }
       }
     }
+    
     const myParentPart = findMyParentPart(mynode);
     if (myParentPart) {
       parentNode = myParentPart;
@@ -225,37 +243,45 @@ export default function ManufacturabilityAnalysis(props) {
     var myMaterials = [];
     if (myParentID !== -1) {
       var myParentsParentID = -1;
-      for ( i = 0; i < state.gltfjson.tree.length; i++) {
-        if (state.gltfjson.tree[i][gltf_Dict["id"]] === myParentID) {
-          myParentsParentID = state.gltfjson.tree[i][gltf_Dict["parentId"]];
-          parentNode = state.gltfjson.tree[i];
-          break;
+      if(state_gltfjson && state_gltfjson.tree) {
+        for ( i = 0; i < state_gltfjson.tree.length; i++) {
+          if (state_gltfjson.tree[i][gltf_Dict["id"]] === myParentID) {
+            myParentsParentID = state_gltfjson.tree[i][gltf_Dict["parentId"]];
+            parentNode = state_gltfjson.tree[i];
+            break;
+          }
         }
       }
+      
       //console.log(myParentID, myParentsParentID, parentNode);
       var myParents = [];
       if (myParentsParentID === -1) { //RootNode
         myParents.push(myID);
       } else {
-        for ( i = 0; i < state.gltfjson.tree.length; i++) {
-          if (state.gltfjson.tree[i][gltf_Dict["parentId"]] === myParentsParentID) {
-            myParents.push(state.gltfjson.tree[i][gltf_Dict["id"]]);
-          } else {
-            if (state.gltfjson.tree[i][gltf_Dict["id"]] === myParentsParentID) {
-              parentNode = state.gltfjson.tree[i];
+        if(state_gltfjson && state_gltfjson.tree){
+          for ( i = 0; i < state_gltfjson.tree.length; i++) {
+            if (state_gltfjson.tree[i][gltf_Dict["parentId"]] === myParentsParentID) {
+              myParents.push(state_gltfjson.tree[i][gltf_Dict["id"]]);
+            } else {
+              if (state_gltfjson.tree[i][gltf_Dict["id"]] === myParentsParentID) {
+                parentNode = state_gltfjson.tree[i];
+              }
             }
           }
         }
+        
       }
       for (var j = 0; j < myParents.length; j++) {
         myParentID = myParents[j];
-        for ( i = 0; i < state.gltfjson.tree.length; i++) {
-          if (state.gltfjson.tree[i][gltf_Dict["id"]] === myParentID) {
-            var myChild = state.gltfjson.tree[i];
-            if (myChild) {
-              if ((state.gltfjson.tree[i][gltf_Dict["element"]] === "P") ||
-                onlyparts(myChild[gltf_Dict["name"]])) {
-                myMaterials.push(myChild);
+        if(state_gltfjson && state_gltfjson.tree){
+          for ( i = 0; i < state_gltfjson.tree.length; i++) {
+            if (state_gltfjson.tree[i][gltf_Dict["id"]] === myParentID) {
+              var myChild = state_gltfjson.tree[i];
+              if (myChild) {
+                if ((state_gltfjson.tree[i][gltf_Dict["element"]] === "P") ||
+                  onlyparts(myChild[gltf_Dict["name"]])) {
+                  myMaterials.push(myChild);
+                }
               }
             }
           }
@@ -292,11 +318,16 @@ export default function ManufacturabilityAnalysis(props) {
   const findMyMaterial = (data) => {
     //console.log(data);
     //console.log(state.gltfjson.tree);
-    if (state.gltfjson.tree) {
-      for (var i = 0; i < state.gltfjson.tree.length; i++) {
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    }
+    if (state_gltfjson.tree) {
+      for (var i = 0; i < state_gltfjson.tree.length; i++) {
         //console.log(state.gltfjson.tree[i]);
-        if (state.gltfjson.tree[i][gltf_Dict["name"]] === data["name"]) {
-          return state.gltfjson.tree[i];
+        if (state_gltfjson.tree[i][gltf_Dict["name"]] === data["name"]) {
+          return state_gltfjson.tree[i];
         }
       }
     };
@@ -306,11 +337,16 @@ export default function ManufacturabilityAnalysis(props) {
   const findMyMaterialIndex = (data) => {
     //console.log(data);
     //console.log(state.gltfjson.tree);
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    }
     let myIndex = -1;
-    if (state.gltfjson.tree) {
-      for (var i = 0; i < state.gltfjson.tree.length; i++) {
+    if (state_gltfjson.tree) {
+      for (var i = 0; i < state_gltfjson.tree.length; i++) {
         //console.log(state.gltfjson.tree[i]);
-        if (state.gltfjson.tree[i][gltf_Dict["name"]] === data["name"]) {
+        if (state_gltfjson.tree[i][gltf_Dict["name"]] === data["name"]) {
           return i;
         }
       }
@@ -340,44 +376,70 @@ export default function ManufacturabilityAnalysis(props) {
    
     const myID = data[gltf_Dict['id']];
     let curData = mapdata[myID];
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    }
     if (typeof curData === 'undefined') {
-      for (let index = 0; index < state.gltfjson.tree.length; index++) {
-        const element = state.gltfjson.tree[index];
-        //console.log("compare",element,data);
-        if (element[[gltf_Dict['id']]] === myID) {
-          curData = index;
-          mapdata[myID] = index;
-          break;
+      if(state_gltfjson && state_gltfjson.tree){
+        for (let index = 0; index < state_gltfjson.tree.length; index++) {
+          const element = state_gltfjson.tree[index];
+          //console.log("compare",element,data);
+          if (element[[gltf_Dict['id']]] === myID) {
+            curData = index;
+            mapdata[myID] = index;
+            break;
+          }
         }
       }
+      
     }
     if (typeof curData !== 'undefined') {
-      let myTree = { ...state.gltfjson };
-      if(myTree.tree[curData].selectedshell!=setoption) {
-        data.selectedshell=setoption;
-        myTree.tree[curData] = data;
-        console.log('Going to Set', myTree, data, curData, data.selectedshell,myTree.tree[curData].selectedshell);
-        setState({ gltfjson: myTree });
-        console.log('Finally Setting', myTree, data, curData, state.gltfjson,myTree.tree[curData].selectedshell);
-        getTable(myTree, true);
+      let myTree = { ...state_gltfjson };
+      if(myTree.tree) {
+        if(myTree.tree[curData].selectedshell!=setoption) {
+          data.selectedshell=setoption;
+          myTree.tree[curData] = data;
+          console.log('Going to Set', myTree, data, curData, data.selectedshell,myTree.tree[curData].selectedshell);
+          setState({ gltfjson: myTree });
+          console.log('Finally Setting', myTree, data, curData, state.gltfjson,myTree.tree[curData].selectedshell);
+          getTable(myTree, true);
+        } else {
+          if(data.selectedshell!=setoption){
+            data.selectedshell=setoption;
+          }
+        }
       } else {
         if(data.selectedshell!=setoption){
           data.selectedshell=setoption;
         }
       }
       
+      
     } else {
-      console.log(
-        'unable to find info',
-        data,
-        myID,
-        curData,
-        state.gltfjson.tree.length
-      );
+      if(state_gltfjson && state_gltfjson.tree) {
+        console.log(
+          'unable to find info',
+          data,
+          myID,
+          curData,
+          state_gltfjson.tree.length
+        );
+      } else {
+        console.log(
+          'unable to find info',
+          data,
+          myID,
+          curData,
+         "NO tree length"
+        );
+      }
+      
     }
    
   };
-  const setSelectedShellForce = (data, setoption) => {
+  /* const setSelectedShellForce = (data, setoption) => {
 
     data.selectedshell = setoption;
     const myID = data[gltf_Dict['id']];
@@ -410,7 +472,7 @@ export default function ManufacturabilityAnalysis(props) {
     }
 
 
-  };
+  }; */
   const doOneSelection = (element, event) => {
     if (element) {
       console.log('Starting', element, element.selectedshell);
@@ -632,26 +694,30 @@ export default function ManufacturabilityAnalysis(props) {
   const updateSelectionFromTable = async (rowIndex, columnIndex, dataRow, value) => {
     setFirstTimeLoading(true);
     console.log("Changed cell", rowIndex, columnIndex, dataRow, value);
-    if (!state.gltfjson) {
-      setState({gltfjson:this.props.gltfjson})
-    }   
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    } 
     //var myTree=null;
-    if(state.gltfjson) {
-      console.log("My json",state.gltfjson);
+    if(state_gltfjson) {
+      console.log("My json",state_gltfjson);
       if(dataRow) {
         console.log(dataRow);
         const myTreeIndex = findMyMaterialIndex(dataRow);
         if( myTreeIndex!=-1) {
-          var myTree = {...state.gltfjson};
+          var myTree = {...state_gltfjson};
           if (myTree) {
-            myTree.tree[myTreeIndex].selectedshell=true;
-            myTree.tree[myTreeIndex][columns[columnIndex].dataKey]=value;
-            setState({gltfjson:myTree});
-            setRenderData([myTree[myTreeIndex]])
-            let event={};
-            event['ctrlKey']=false;
-            doOneSelection(myTree.tree[myTreeIndex], event);
-            getTable(myTree, true);
+            if(myTree.tree) {
+              myTree.tree[myTreeIndex].selectedshell=true;
+              myTree.tree[myTreeIndex][columns[columnIndex].dataKey]=value;
+              setState({gltfjson:myTree});
+              setRenderData([myTree[myTreeIndex]])
+              let event={};
+              event['ctrlKey']=false;
+              doOneSelection(myTree.tree[myTreeIndex], event);
+              getTable(myTree, true);
+            }
           }
         } else {
           console.log("Problem in cell selected",dataRow,rowIndex,columnIndex,value);
@@ -671,18 +737,22 @@ export default function ManufacturabilityAnalysis(props) {
     console.log(mydata);
     var myJsonTree;
     setFirstTimeLoading(true);
-    if (!state.gltfjson) {
-      setState({gltfjson:this.props.gltfjson})
-    }
-    if(state.gltfjson) {
-      myJsonTree = state.gltfjson.tree;
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    } 
+    if(state_gltfjson) {
+      myJsonTree = state_gltfjson.tree;
     } else {
       myJsonTree = this?.props?.gltfjson?.tree;
     }
     if(myJsonTree) {
-      var gltfjsonParam = {...state.gltfjson};
-      for (let index = 2; index < gltfjsonParam.tree.length; index++) {
-        gltfjsonParam.tree[index]=mydata[index-2];        
+      var gltfjsonParam = {...state_gltfjson};
+      if(gltfjsonParam && gltfjsonParam.tree) {
+        for (let index = 2; index < gltfjsonParam.tree.length; index++) {
+          gltfjsonParam.tree[index]=mydata[index-2];        
+        }
       }
       console.log("Saving", gltfjsonParam.tree,itemProperties.fileMPPS);
       saveTreeInfo( gltfjsonParam.tree,itemProperties.fileMPPS)
@@ -738,11 +808,13 @@ export default function ManufacturabilityAnalysis(props) {
   const resetSelectionFromTable = async () => {
     var myJsonTree;
     setFirstTimeLoading(true);
-    if (!state.gltfjson) {
-      setState({gltfjson:this.props.gltfjson})
-    }
-    if(state.gltfjson) {
-      myJsonTree = state.gltfjson.tree;
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    } 
+    if(state_gltfjson) {
+      myJsonTree = state_gltfjson.tree;
     } else {
       myJsonTree = this?.props?.gltfjson?.tree;
     }
@@ -765,7 +837,7 @@ export default function ManufacturabilityAnalysis(props) {
               .then(res => res.data)
               .then((data) => {
                 const curOrder = data;
-                var mygltfjson = {...state.gltfjson};
+                var mygltfjson = {...state_gltfjson};
                 mygltfjson.gltf = gltfobj;
                 mygltfjson.tree = curTree;
                 mygltfjson.assemblyorder = curOrder;
@@ -784,11 +856,13 @@ export default function ManufacturabilityAnalysis(props) {
   const fetchSelectionFromTable = async () => {
     var myJsonTree;
     setFirstTimeLoading(true);
-    if (!state.gltfjson) {
-      setState({gltfjson:this.props.gltfjson})
-    }
-    if(state.gltfjson) {
-      myJsonTree = state.gltfjson.tree;
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    } 
+    if(state_gltfjson) {
+      myJsonTree = state_gltfjson.tree;
     } else {
       myJsonTree = this?.props?.gltfjson?.tree;
     }
@@ -807,7 +881,7 @@ export default function ManufacturabilityAnalysis(props) {
             .then(res => res.data)
             .then((data) => {
               const curOrder = data;
-              var mygltfjson = {...state.gltfjson};
+              var mygltfjson = {...state_gltfjson};
               mygltfjson.gltf = gltfobj;
               mygltfjson.tree = curTree;
               mygltfjson.assemblyorder=curOrder;           
@@ -828,23 +902,25 @@ export default function ManufacturabilityAnalysis(props) {
     var myJsonTree;
     console.log("Updating order change in the tree",mydata,oldIndex,newIndex);
     setFirstTimeLoading(true);
-    if (!state.gltfjson) {
-      setState({gltfjson:this.props.gltfjson})
-    }
-    if(state.gltfjson) {
-      myJsonTree = state.gltfjson.tree;
+    let state_gltfjson = state.gltfjson || gltfjson;
+    if (!state_gltfjson || !state_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      state_gltfjson=gltfjson;
+    } 
+    if(state_gltfjson) {
+      myJsonTree = state_gltfjson.tree;
     } else {
       myJsonTree = this?.props?.gltfjson?.tree;
     }
     if(myJsonTree) {
-      var gltfjsonParam = {...state.gltfjson};
-      for (let index = 2; index < gltfjsonParam.tree.length; index++) {
-        gltfjsonParam.tree[index]=mydata[index-2];
-        gltfjsonParam.tree[index].selectedshell=((index-2)==newIndex);
+      var gltfjsonParam = {...state_gltfjson};
+      if(gltfjsonParam && gltfjsonParam.tree) {
+        for (let index = 2; index < gltfjsonParam.tree.length; index++) {
+          gltfjsonParam.tree[index]=mydata[index-2];
+          gltfjsonParam.tree[index].selectedshell=((index-2)==newIndex);
+        }
       }
       setState({gltfjson:gltfjsonParam});
-      
-      
     }
 
   };
