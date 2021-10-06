@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Grid, Paper } from '@material-ui/core';
+import React/*, { useState, useEffect }*/ from 'react';
+import { /*Grid,*/ Paper } from '@material-ui/core';
 import {
   SELECTSOLID,
   SELECTEDGE,
@@ -10,7 +10,7 @@ import {
 } from '@monostruct/common/gltf/Tree/utils';
 
 import Button from '@material-ui/core/Button';
-import { makeStyles } from '@material-ui/core/styles';
+//import { makeStyles } from '@material-ui/core/styles';
 
 import ApartmentOutlinedIcon from '@material-ui/icons/ApartmentOutlined';
 import DashboardOutlinedIcon from '@material-ui/icons/DashboardOutlined';
@@ -27,7 +27,8 @@ import SelectedMatesRelation from './SelectedMatesRelation';
 import SelectedGDTMenu from './SelectedGDTMenu';
 import SelectedSummaryTable from './SelectedSummaryTable';
 import ShowLoadingProgressBar from './ShowLoadingProgressBar';
-
+import {USESTYLES} from "@monostruct/common/gltf/Tree/utils";
+/*
 const useStyles = makeStyles((theme) => ({
   paper: {
     flex: 1,
@@ -53,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
   },
 }));
-
+*/
 export default function ViewerToolbar({
   splitMethod = 0,
   selectedOption,
@@ -84,7 +85,7 @@ export default function ViewerToolbar({
   setIsProgressOpen,
   setProgressOpenedFiles
 }) {
-  const classes = useStyles();
+  const classes = USESTYLES();
   
   const renderTitle = (title,extras) => {
     return <div style={{
@@ -140,7 +141,7 @@ export default function ViewerToolbar({
   const renderToolBarButtons = () => {
     if (toolbar && splitMethod != 0) {
       return (
-        <Paper className={`${classes.paper} ${classes.toolbarContainer}`}>
+        <Paper className={`${classes.flexpaper} ${classes.toolbarContainer}`}>
           <Button
             value={'Assembly'}
             variant="contained"
@@ -248,7 +249,7 @@ export default function ViewerToolbar({
        {/*renderToolBarButtons()*/}
           {isProgressOpen && 
             <Box>
-              <Paper className={classes.paper}>
+              <Paper className={classes.flexpaper}>
                 <ShowLoadingProgressBar 
                   isProgressOpen={isProgressOpen}            
                   progressOpenedFiles={progressOpenedFiles}
@@ -269,7 +270,7 @@ export default function ViewerToolbar({
             (selectedObjects) && (selectedObjects.length >= 2) && (selectedOption != SELECTSOLID) && (selectedOption != SELECTASSEMBLY) && (
               <Box>
               {renderTitle("Assembly Mates")} 
-              <Paper className={classes.paper}>
+              <Paper className={classes.flexpaper}>
                 <SelectedMatesRelation
                   mates={mates}
                   featureList={selectedObjects}
@@ -289,7 +290,7 @@ export default function ViewerToolbar({
             <>
           <Box>
             {renderTitle("Geometric Dimensioning and Tolerancing")}             
-            <Paper className={classes.paper}>
+            <Paper className={classes.flexpaper}>
               <SelectedGDTMenu
                 features={(selectedOption != SELECTASSEMBLY)}
                 featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}
@@ -299,7 +300,7 @@ export default function ViewerToolbar({
           </Box>
           <Box>
             {renderTitle("Feature Identification")}
-            <Paper className={classes.paper}>
+            <Paper className={classes.flexpaper}>
               <SelectedFeatureMenu
                 features={(selectedOption != SELECTASSEMBLY)}
                 featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}
@@ -311,7 +312,7 @@ export default function ViewerToolbar({
           )}
           <Box>
             {renderTitle("Summary Table",true)}
-            <Paper className={classes.paper}>
+            <Paper className={classes.flexpaper}>
               <SelectedSummaryTable
                 features={(selectedOption != SELECTASSEMBLY)}
                 featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}

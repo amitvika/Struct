@@ -2421,7 +2421,8 @@ class StepIgesAnalyser():
                           "mateValues": [False,False,False,False,False,False],
                           "angle":0,
                           "offset":0,                          
-                          "option":26 }]
+                          "option":26,
+                          "key":"" }]
         }
         if self.writethread:
             mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False))
@@ -3029,7 +3030,8 @@ class StepIgesAnalyser():
                           "mateValues": [False,False,False,False,False,False],
                           "angle":0,
                           "offset":0,
-                          "option":26 }]
+                          "option":26,
+                          "key":"" }]
         }
         if self.writethread:
             mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG))

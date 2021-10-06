@@ -19,6 +19,9 @@ import ComplianceAndCertifications from './ComplianceAndCertifications';
 
 import ItemTypeConfigurations from '../itemTypeConfigurations';
 import ItemAPI from '@monostruct/common/api/items.api';
+
+import {STATEPROPS} from "@monostruct/common/gltf/Tree/utils";
+
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions';
 import get from 'lodash/get';
@@ -39,7 +42,7 @@ import LoadingModal from '@monostruct/common/components/LoadingModal';
 import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 
-const DEFAULTDISTANCEGAP = 0.1;
+/*const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
 const DEFAULTEDGESIZE = 0.3;
 const DEFAULTVERTEXSIZE = 0.5;
@@ -70,7 +73,8 @@ const stateprops = {
   edgesize: DEFAULTEDGESIZE,
   vertexsize: DEFAULTVERTEXSIZE,
 };
-
+*/
+let state_additionalSaveFunction = null;
 const ItemDetail = () => {
   const dispatch = useDispatch();
   const history = useHistory();
@@ -130,6 +134,11 @@ const ItemDetail = () => {
     return false;
   };
 
+  /*const informSnackBar = (message) => {
+    dispatch(setCurrentItemAction(itemProperties));
+  }
+  */
+
   const setStack = (item) => {
     if (!item.fileId) {
       return;
@@ -155,9 +164,9 @@ const ItemDetail = () => {
       setIsLoading(true);
       getPartsStackableInfo(
         item.fileId,
-        stateprops.distancegap,
-        stateprops.anglegap,
-        stateprops.animationtime
+        STATEPROPS.distancegap,
+        STATEPROPS.anglegap,
+        STATEPROPS.animationtime
       )
         .then((res) => res.data)
         .then((repos) => {
@@ -224,13 +233,13 @@ const ItemDetail = () => {
       console.log('Setting here');
       getPartsAssemblyOrder(
         item.fileId,
-        stateprops.distancegap,
-        stateprops.anglegap,
-        stateprops.explodegap,
-        stateprops.fromcenter,
-        stateprops.holescale,
-        stateprops.removegap,
-        stateprops.animationtime
+        STATEPROPS.distancegap,
+        STATEPROPS.anglegap,
+        STATEPROPS.explodegap,
+        STATEPROPS.fromcenter,
+        STATEPROPS.holescale,
+        STATEPROPS.removegap,
+        STATEPROPS.animationtime
       )
         .then((res) => res.data)
         .then((repos) => {
@@ -271,12 +280,13 @@ const ItemDetail = () => {
       );
     }
   };
-  const setGLTFAndTree = (item, myTabIndex) => {
-    if (myTabIndex == tabIndex) {
-      if (!item.fileId || !parserNeeded.includes(myTabIndex)) {
+  const setGLTFAndTree = (item, myTabedIndex) => {
+    if (myTabedIndex == tabIndex) {
+      if (!item.fileId || !parserNeeded.includes(myTabedIndex)) {
         setIsLoading(false);
         return;
       }
+      let myTabIndex = myTabedIndex=='iupc' ? 'gdtac' : myTabedIndex;
       if (myTabIndex == 'iupc') {
         console.log('Checking iupc', myTabIndex, item);
         if (!item.fileKinematic || item.fileKinematic === null) {
@@ -307,9 +317,9 @@ const ItemDetail = () => {
           setIsLoading(true);
           getPartsKinematicOrder(
             item.fileId,
-            stateprops.distancegap,
-            stateprops.anglegap,
-            stateprops.animationtime
+            STATEPROPS.distancegap,
+            STATEPROPS.anglegap,
+            STATEPROPS.animationtime
           )
             .then((res) => res.data)
             .then((repos) => {
@@ -354,13 +364,13 @@ const ItemDetail = () => {
           getHierarchySplitFiles(
             item.fileId,
             true,
-            stateprops.distancegap,
-            stateprops.anglegap,
-            stateprops.disect,
+            STATEPROPS.distancegap,
+            STATEPROPS.anglegap,
+            STATEPROPS.disect,
             0,
             0,
             0,
-            stateprops.maximumfaces
+            STATEPROPS.maximumfaces
           )
             .then((res) => res.data)
             .then((repos) => {
@@ -430,13 +440,13 @@ const ItemDetail = () => {
           getHierarchySplitFiles(
             item.fileId,
             true,
-            stateprops.distancegap,
-            stateprops.anglegap,
-            stateprops.disect,
+            STATEPROPS.distancegap,
+            STATEPROPS.anglegap,
+            STATEPROPS.disect,
             0,
-            stateprops.edgesize,
-            stateprops.vertexsize,
-            stateprops.maximumfaces
+            STATEPROPS.edgesize,
+            STATEPROPS.vertexsize,
+            STATEPROPS.maximumfaces
           )
             .then((res) => res.data)
             .then((repos) => {
@@ -495,7 +505,7 @@ const ItemDetail = () => {
     event.stopPropagation();
   };
   const fetchGLTFAndTree = async (
-    myTabIndex,
+    myTabedIndex,
     fileStore,
     fileGDT,
     fileMPPS,
@@ -513,6 +523,7 @@ const ItemDetail = () => {
         kinematic: fileKinematic,
       };
       setIsLoading(true);
+      let myTabIndex = myTabedIndex=='iupc' ? 'gdtac' : myTabedIndex; 
       let whichOneToLoad = null;
       if (myTabIndex == 'pdcu') {
         whichOneToLoad = fileStore;
@@ -568,12 +579,17 @@ const ItemDetail = () => {
       console.log('Error', error);
     }
   };
-
+  const additionalSaveFunction = (saveFunction) => {
+    state_additionalSaveFunction = saveFunction;
+  }
   const renderPageSwitch = () => {
     if (!get(itemProperties, '_id')) {
       return null;
     }
     //console.log(itemProperties,itemProperties.fileId);
+    if ( (tabIndex!='gdtac') && (tabIndex!='iupc') ) {
+      additionalSaveFunction(null);
+    }
     switch (tabIndex) {
       case 0:
         return 'Add vendor items here';
@@ -602,6 +618,10 @@ const ItemDetail = () => {
             isLoading={isLoading}
             //assemblyTree={get(gltfjson, 'tree', [])}
             tabIndex={tabIndex}
+            keyName=""
+            handleChangeOfSelection={null}
+            additionalSaveFunction={additionalSaveFunction}
+            //informSnackBar={informSnackBar}
           />
         );
       case 'iupc':
@@ -616,6 +636,8 @@ const ItemDetail = () => {
             setgltfjson={setgltfjson}
             isLoading={isLoading}
             handleItemUpdate={handleItemUpdate}
+            tabIndex={tabIndex}
+            additionalSaveFunction={additionalSaveFunction}
           />
         );
       case 5:
@@ -697,6 +719,16 @@ const ItemDetail = () => {
       .catch((error) => {
         dispatch(showErrorAlert({ message: 'Unable to save info' }));
       });
+      try {
+        if(state_additionalSaveFunction) {
+          console.log("Saving additional info");
+          state_additionalSaveFunction();
+        }
+      } catch (error) {
+        console.log("Error while saving",error);
+      }
+
+     
   };
 
   const handleTabChange = (event, newTabIndex) => {

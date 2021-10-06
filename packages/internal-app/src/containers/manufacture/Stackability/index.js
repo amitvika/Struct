@@ -12,10 +12,11 @@ import {
   DEFAULTTOUCHCOLOR,
   SELECTFEATURE,
   SELECTHIRERACHY,
+  STATEPROPS
 } from '@monostruct/common/gltf/Tree/utils';
 
 import '../style.css';
-
+/*
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
 const DEFAULTEXPLODEGAP = 10;
@@ -36,6 +37,7 @@ const stateprops = {
   materialtype: DEFAULTMATERIALTYPE,
   fromcenter: DEFAULTFROMCENTER,
 };
+*/
 const useStyles = makeStyles((theme) => ({
   mainContainer: {
     margin: 10,
@@ -92,17 +94,17 @@ export default function Stackability(props) {
         activefile:
           fileId.toString() +
           includeParts.toString() +
-          stateprops.distancegap.toString() +
-          stateprops.anglegap.toString() +
+          STATEPROPS.distancegap.toString() +
+          STATEPROPS.anglegap.toString() +
           gltfjsonlen.toString(),
         gltfjson: gltfjson,
         dataselection: 0,
         firstshell: null,
         secondshell: null,
-        materialname: stateprops.materialtype[0].name,
-        disectstruct: stateprops.disect,
-        showdisect: stateprops.showdisect,
-        showinfoonselect: stateprops.showinfoonselect,
+        materialname: STATEPROPS.materialtype[0].name,
+        disectstruct: STATEPROPS.disect,
+        showdisect: STATEPROPS.showdisect,
+        showinfoonselect: STATEPROPS.showinfoonselect,
         //splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
         selectedObjects: [],
         parentObjects: [],
@@ -135,7 +137,7 @@ export default function Stackability(props) {
             changedata={[]}
             data2texture={null}
             data3texture={null}
-            materialtype={DEFAULTMATERIALNAME}
+            materialtype={STATEPROPS.materialname}
             whatchanged={0}
             dataselection={0}
             activeDataTable={0}

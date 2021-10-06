@@ -134,12 +134,11 @@ export default function DynamicHierarchy(props) {
   };
 
   const handleDynamicFormUpdate = (key, updatedFormFields) => {
-    const findIndex = selections.findIndex((item) => item.key === key);
-    let tempSelections = selections;
-
+    const findIndex = selections.findIndex((item) => item.key === key);    
+    console.log("HandleDynamicFormUpdate",selections,key,findIndex,updatedFormFields);
     if (findIndex > -1) {
+      let tempSelections = [...selections];
       tempSelections[findIndex].formFields = updatedFormFields;
-
       setSelections(tempSelections);
       setStateUpdated(!stateUpdated);
     }
@@ -171,8 +170,11 @@ export default function DynamicHierarchy(props) {
         return (
           <DynamicCriteria
             {...selectionItem}
-            handleUpdate={(updatedFormFields) =>
-              handleDynamicFormUpdate(selectionItem.key, updatedFormFields)
+            handleUpdate={(updatedFormFields) => {
+              console.log("Doing Changes in Dynaimc Hirearchy", selectionItem.key, updatedFormFields);
+              handleDynamicFormUpdate(selectionItem.key, updatedFormFields);
+            }
+              
             }
             renderData={renderData}
             setRenderData={setRenderData}

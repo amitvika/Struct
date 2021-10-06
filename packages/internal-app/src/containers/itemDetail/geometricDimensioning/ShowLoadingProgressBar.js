@@ -7,9 +7,11 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { Typography, CircularProgress } from '@material-ui/core';
-import { withStyles, makeStyles } from "@material-ui/core/styles";
+//import { withStyles, makeStyles } from "@material-ui/core/styles";
 import ModelessDialog from '@monostruct/common/gltf/ModelessDialog';
+import {USESTYLES, StyledTableRow, StyledTableCell} from "@monostruct/common/gltf/Tree/utils";
 
+/*
 const useStyles = makeStyles({
   table: {
     minWidth: 400
@@ -42,7 +44,7 @@ const StyledTableCell = withStyles((theme) => ({
     padding: "0px 12px"
   }
 }))(TableCell);
-
+*/
 
 
 export default function ShowLoadingProgressBar(
@@ -57,7 +59,7 @@ export default function ShowLoadingProgressBar(
     width: "100px"
   } */
   
-  const classes = useStyles();
+  const classes = USESTYLES();
   
   const onCloseProgress = (aFile) => {
     let openFiles = [...progressOpenedFiles];

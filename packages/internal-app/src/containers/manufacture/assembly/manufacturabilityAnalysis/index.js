@@ -8,14 +8,14 @@ import { Spinner } from "reactstrap";
 import TableOrderView from './TableOrderView';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer.js';
 import {
-  DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR,
-  SELECTDISTANCE,SELECTSOLID, SELECTHIRERACHY, SELECTDISECTPARTS,
- SELECTASSEMBLY, SELECTFEATURE, gltf_Dict
+  DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, USESTYLES,
+  SELECTDISTANCE,SELECTSOLID, SELECTHIRERACHY, SELECTDISECTPARTS, STATEPROPS,
+  SELECTASSEMBLY, SELECTFEATURE, arrayCopy, arrayFindIndex, arrayRemove, gltf_Dict
 } from "@monostruct/common/gltf/Tree/utils";
 import { getAFileFromStore,saveTreeInfo,getPartsAssemblyOrder } from '@monostruct/common/api/fileUpload.api';
 import '../../style.css';
 
-
+/*
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
 const DEFAULTEXPLODEGAP = 10;
@@ -54,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
   }
 }));
+*/
 let state_selectedObjects = [];
 //let reSetMe = true;
 //let filteredList = [];
@@ -65,7 +66,7 @@ export default function ManufacturabilityAnalysis(props) {
   //const [filteredList, setFilteredList] = useState([]);
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
   const [resetOption, setResetOption] = useState(true);
-  const classes = useStyles();
+  const classes = USESTYLES();
   /* const [columns, setColumns] = useState([
       { title: 'Mates', field: 'index', editable: "never" },
       { title: 'Mate Name', field:'name',editable:"never", width:'100px', 'word-break': 'break-all'},
@@ -111,7 +112,7 @@ export default function ManufacturabilityAnalysis(props) {
     })
   }
 
-  const arrayFindIndex = (arr, value, parent = false) => {
+  /* const arrayFindIndex = (arr, value, parent = false) => {
 
     return arr.findIndex(function (ele) {
       if (parent) return ele.parent[gltf_Dict["name"]] === value;
@@ -133,7 +134,7 @@ export default function ManufacturabilityAnalysis(props) {
       copy_selectobjects.push(element);
     });
     return copy_selectobjects;
-  }
+  } */
   const findSingleNode = (mynode) => {
     return [[mynode], mynode];
   }
@@ -820,8 +821,8 @@ export default function ManufacturabilityAnalysis(props) {
     }
     if(myJsonTree) {
       console.log("Saving",myJsonTree,itemProperties.fileMPPS);
-      getPartsAssemblyOrder(itemProperties.fileId, stateprops.distancegap, stateprops.anglegap, stateprops.explodegap, 
-        stateprops.fromcenter,stateprops.holescale,stateprops.removegap,stateprops.animationtime)
+      getPartsAssemblyOrder(itemProperties.fileId, STATEPROPS.distancegap, STATEPROPS.anglegap, STATEPROPS.explodegap, 
+        STATEPROPS.fromcenter,STATEPROPS.holescale,STATEPROPS.removegap,STATEPROPS.animationtime)
         .then(res => res.data)
         .then((data) => {      
           console.log("Getting Resources",data);
@@ -1293,15 +1294,15 @@ export default function ManufacturabilityAnalysis(props) {
       setState({
         selectedindex: 0,
         activefile: fileId.toString() + includeParts.toString() +
-          stateprops.distancegap.toString() + stateprops.anglegap.toString() + gltfjsonlen.toString(),
+        STATEPROPS.distancegap.toString() + STATEPROPS.anglegap.toString() + gltfjsonlen.toString(),
         gltfjson: gltfjson,
         dataselection: 0,
         firstshell: null,
         secondshell: null,
-        materialname: stateprops.materialtype[0].name,
-        disectstruct: stateprops.disect,
-        showdisect: stateprops.showdisect,
-        showinfoonselect: stateprops.showinfoonselect,
+        materialname: STATEPROPS.materialtype[0].name,
+        disectstruct: STATEPROPS.disect,
+        showdisect: STATEPROPS.showdisect,
+        showinfoonselect: STATEPROPS.showinfoonselect,
         //splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
 
 
@@ -1360,7 +1361,7 @@ export default function ManufacturabilityAnalysis(props) {
             changedata={state.renderdata}
             data2texture={null}
             data3texture={null}
-            materialtype={DEFAULTMATERIALNAME}
+            materialtype={STATEPROPS.materialname}
             whatchanged={state.whatchange} dataselection={0}
             onClick={handleModelClick}
             activeDataTable={0}

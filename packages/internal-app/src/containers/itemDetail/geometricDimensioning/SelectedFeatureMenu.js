@@ -6,10 +6,10 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { withStyles, makeStyles } from "@material-ui/core/styles";
+//import { withStyles, makeStyles } from "@material-ui/core/styles";
+import {USESTYLES, StyledTableRow, StyledTableCell} from "@monostruct/common/gltf/Tree/utils";
 
-
-const useStyles = makeStyles({
+/*const useStyles = makeStyles({
   table: {
     minWidth: 400
   },
@@ -42,7 +42,7 @@ const StyledTableCell = withStyles((theme) => ({
   }
 }))(TableCell);
 
-
+*/
 
 export default function SelectedFeatureMenu(
   { featureList = [], 
@@ -55,7 +55,7 @@ export default function SelectedFeatureMenu(
     width: "100px"
   } */
   
-  const classes = useStyles();
+  const classes = USESTYLES();
   
   const renderOptions = (options,defaulter) => {
     console.log(defaulter,options);
