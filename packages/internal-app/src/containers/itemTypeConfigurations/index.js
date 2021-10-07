@@ -89,8 +89,6 @@ export default function ItemTypeConfiguration(props) {
   useEffect(() => {
     setIsLoading(isLoading);
   }, [isLoading]);
-
-  
   const [showKineticModel, setShowKineticModal] = useState(true);
   const renderExcelUI = () => {
     //console.log("RENDEREXCELUI",addSelectionFromComponent,"SHOW",setShowKineticModal,"UPDATE",handleItemUpdate,"RENDER",state.renderdata);
