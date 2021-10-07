@@ -4,11 +4,15 @@ import DetailComponentTab from './DetailComponentTab';
 import DetailComponentHeader from './DetailComponentHeader';
 import AddDesign from './AddDesignForm';
 
-export default function DetailPage({ tabList, title }) {
+export default function DetailPage({
+  tabList,
+  title,
+  isAddDesignVisible = true,
+}) {
   return (
     <>
       <DetailComponentHeader {...{ title }} />
-      <AddDesign />
+      {isAddDesignVisible && <AddDesign />}
       {tabList && <DetailComponentTab {...{ tabList }} />}
     </>
   );

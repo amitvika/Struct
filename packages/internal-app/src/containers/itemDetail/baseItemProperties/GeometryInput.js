@@ -160,8 +160,15 @@ export default function GeometryInput({
             )}
 
             {itemProperties.fileStore && (
-              <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-                <Typography variant="h6" style={{ color: 'blue' }}>
+              <div style={{ display: 'flex' }}>
+                <Typography
+                  variant="h6"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: 'blue',
+                  }}
+                >
                   {itemProperties.fileStore}
                 </Typography>
                 <IconButton margin="auto" onClick={handleExportButton}>

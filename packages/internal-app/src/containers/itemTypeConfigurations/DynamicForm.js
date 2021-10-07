@@ -43,6 +43,9 @@ export default function DynamicCriteria({
   }, [formFields]);
   const renderFields = () => {
     console.log("STATEFORMFIELDS",stateFormFields);
+    if(!stateFormFields) {
+      return null
+    }
     return stateFormFields.map((fieldItem) => {
       return (
         <Grid container spacing={2} key={fieldItem.fieldName}>

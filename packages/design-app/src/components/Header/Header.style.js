@@ -17,17 +17,16 @@ export const useStyles = makeStyles((theme) => ({
     color: '#FFFEFE',
     textAlign: 'left',
   },
-  primaryListHeader:{
-    display:'flex',
+  primaryListHeader: {
+    display: 'flex',
   },
-  primaryListItemHeader:{
-      borderRight: '1px solid #bbb',
-      '&:last-child' : {
-        borderRight: 'none'
-      },
-      '& span' : {
-        whiteSpace: 'nowrap'
-      }
+  verticalBar: {
+    borderRight: '1px solid #bbb',
+  },
+  primaryListItemHeader: {
+    '& span': {
+      whiteSpace: 'nowrap',
+    },
   },
   menuButton: {
     ...theme.menuButton,
