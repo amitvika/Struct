@@ -6,10 +6,11 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { withStyles, makeStyles } from "@material-ui/core/styles";
+//import { withStyles, makeStyles } from "@material-ui/core/styles";
 import { Typography } from '@material-ui/core';
 import { Box } from '@material-ui/core';
-
+import {USESTYLES, StyledTableRow, StyledTableCell} from "@monostruct/common/gltf/Tree/utils";
+/*
 const useStyles = makeStyles({
   table: {
     minWidth: 400
@@ -42,7 +43,7 @@ const StyledTableCell = withStyles((theme) => ({
     padding: "0px 12px"
   }
 }))(TableCell);
-
+*/
 
 
 export default function SelectedSummaryTable({ featureList = [], 
@@ -58,7 +59,7 @@ export default function SelectedSummaryTable({ featureList = [],
     wordBreak: "break-all",
     width: "100px"
   } */
-  const classes = useStyles();
+  const classes = USESTYLES();
   
   const renderOptions = (options) => {
     return options.map((row,index) => (
@@ -91,7 +92,7 @@ export default function SelectedSummaryTable({ featureList = [],
   }
   const renderTable = (myData,groupid,myMateValues,active) => {
     //console.log("FeaturList",featureList,features);
-    if (myData.length==0) {
+    if (!myData || myData.length==0) {
       return <StyledTableRow key={"No Row Selected"+groupid.toString()} 
         onClick={()=>{setCurrentDataTable(groupid)}}
       >
@@ -166,8 +167,10 @@ export default function SelectedSummaryTable({ featureList = [],
         </TableHead>
         <TableBody>
           { gltfjson?.gdttable?.map( (row, index) => (
+            (!row.key || row.key=="") ?
             index==activeDataTable ? renderTable(featureList,index,mateValues,true) :
-              renderTable(features?row.selectedObjects:row.parentObjects,index,row.mateValues,false)  
+              renderTable(features?row.selectedObjects:row.parentObjects,index,row.mateValues,false)  :
+              null
             ) ) 
           }
         </TableBody>

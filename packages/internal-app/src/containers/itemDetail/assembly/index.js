@@ -69,7 +69,7 @@ class Extensions extends Component {
   };
   constructor(props) {
     super(props);
-    this.setState(this.props.nodes);
+    //this.setState(this.props.nodes);
 
   }
   componentDidMount() {

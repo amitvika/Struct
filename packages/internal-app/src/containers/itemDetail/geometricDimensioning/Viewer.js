@@ -5,9 +5,9 @@ import {
   DEFAULTBACKCOLOR,
   DEFAULTSELECTCOLOR,
   DEFAULTTOUCHCOLOR,
-  SELECTSOLID,
+  //SELECTSOLID,
   SELECTHIRERACHY,
-  SELECTDISTANCE,
+  //SELECTDISTANCE,
   SELECTFEATURE,
 } from '@monostruct/common/gltf/Tree/utils';
 const DEFAULTMATERIALNAME = 'Basic';
@@ -32,7 +32,9 @@ export default function Viewer({
   setStateOfgltf = () => {},
   activeDataTable = 0,
   setIsProgressOpen=(value)=>{console.log("Set Is Progress Open",value);},
-  setProgressOpenedFiles=(value)=>{console.log("Set Progres sOpened Files",value);}
+  setProgressOpenedFiles=(value)=>{console.log("Set Progres sOpened Files",value);},  
+  /* openSnackBar=(value)=>{console.log("Open Snack bar", value);},
+  closeSnackBar=(value)=>{console.log("Close Snack bar", value);} */
 }) {
   //console.log(gltfjson);
   let gltfjsonlen = Object.keys(gltfjson).length;
@@ -77,6 +79,8 @@ export default function Viewer({
           activeDataTable={activeDataTable}
           setIsProgressOpen={setIsProgressOpen}
           setProgressOpenedFiles={setProgressOpenedFiles}
+         /*  openSnackBar={openSnackBar}
+          closeSnackBar={closeSnackBar} */
         />
       )}
       {isLoading && <CircularProgress />}

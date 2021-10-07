@@ -1,3 +1,8 @@
+
+import { withStyles, makeStyles } from '@material-ui/core/styles';
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
+
 import { stringify } from '../BeautifyJson';
 
 export const SELECTCOLOR = 1;
@@ -122,3 +127,161 @@ export const gltf_Dict = {
     "subfeatures":"f",
     "element":"e"
   }
+
+  export const defaultGDTTable = {
+    "edges":[],
+    "selectedObjects":[],
+    "parentObjects":[],
+    "mates":[],
+    "mateValues": [false,false,false,false,false,false],
+    "angle":0,
+    "offset":0,                          
+    "option":SELECTFEATURE,
+    "key":"" 
+  };
+
+
+  export const arrayFindIndex = (arr, value, parent = false) => {
+    return arr.findIndex(function (ele) {
+      if (parent) return ele.parent[gltf_Dict['name']] === value;
+      return ele[gltf_Dict['name']] === value;
+    });
+  };
+
+  export const arrayRemove = (arr, value, parent = false) => {
+    return arr.filter(function (ele) {
+      if (parent) return ele.parent[gltf_Dict['name']] !== value;
+      return ele[gltf_Dict['name']] !== value;
+    });
+  };
+
+  export const arrayRemoveFromValue = (arr, value) => {   
+      return arr.filter(function (ele) {
+        return ele != value;
+      });    
+  };
+
+  export const arrayCopy = (arr) => {
+    var copy_selectobjects = [];
+
+    arr.forEach((element) => {
+      copy_selectobjects.push(element);
+    });
+    return copy_selectobjects;
+  };
+
+  const DEFAULTDISTANCEGAP = 0.1;
+  const DEFAULTANGLEGAP = 0.5;
+  const DEFAULTEDGESIZE = 0.3;
+  const DEFAULTVERTEXSIZE = 0.5;
+  const DEFAULTEXPLODEGAP = 10;
+  const DEFAULTFROMCENTER = true;
+  const DEFAULTHOLESCALE = 0.77;
+  const DEFAULTREMOVEGAP = 8;
+  const DEFAULTANIMATIONTIME = 1.0;
+  const DEFAULTDISECT = false;
+  const DEFAULTSHOWDISECT = false;
+  const DEFAULTSHOWINFOONSELECT = false;
+  const DEFAULTMATERIALTYPE = [{ id: 1, name: 'Basic' }];
+  const DEFAULTMAXIMUMFACES = 50;
+  const DEFAULTMATERIALNAME = "Basic";
+
+  export const STATEPROPS = {
+    distancegap: DEFAULTDISTANCEGAP,
+    anglegap: DEFAULTANGLEGAP,
+    explodegap: DEFAULTEXPLODEGAP,
+    disect: DEFAULTDISECT,
+    showdisect: DEFAULTSHOWDISECT,
+    showinfoonselect: DEFAULTSHOWINFOONSELECT,
+    materialtype: DEFAULTMATERIALTYPE,
+    fromcenter: DEFAULTFROMCENTER,
+    holescale: DEFAULTHOLESCALE,
+    removegap: DEFAULTREMOVEGAP,
+    animationtime: DEFAULTANIMATIONTIME,
+    maximumfaces: DEFAULTMAXIMUMFACES,
+    edgesize: DEFAULTEDGESIZE,
+    vertexsize: DEFAULTVERTEXSIZE,
+    materialname: DEFAULTMATERIALNAME
+  };
+
+  export const USESTYLES = makeStyles((theme) => ({
+    mainContainer: {
+      margin: 10,
+      padding: 10,
+      display: 'inline-flex',
+      minWidth: '100%',
+    },
+    viewerContainer: {
+      flex: 1,
+      padding: '20px',
+      margin: '0px 15px',
+      display: 'inline-block',
+      boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
+      minWidth: '800px',
+    },    
+    paper: {      
+      padding: '20px',
+      margin: '0px 15px',
+      boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
+    },  
+    flexpaper: {
+      flex: 1,
+      display: 'flex',
+      padding: '20px',
+      margin: '0px 15px',
+      boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
+    },  
+    container: {
+      display: 'inline-block',
+    },
+    toolbarContainer: {
+      display: 'flex',
+      justifyContent: 'space-around',
+    },
+    tableContainer: {
+      display: 'flex',
+      margin: '10px 0px 0px 0px',
+      flexDirection: 'row',
+      flex: 1,
+    },
+    button: {
+      flex: 1,
+    },
+    assemblyTreeContainer: {
+      display: 'inline-block',
+      minWidth: '300px'
+    },
+    assemblyTableContainer: {
+      display: 'inline-block',
+      minWidth: '600px'
+    },
+    table: {
+      minWidth: 400
+    },
+    tableRow: {
+      height: 30
+    },
+    tableCell: {
+      padding: "0px 8px",
+      whiteSpace: "normal",
+      wordWrap: "break-word",
+      wordBreak: "break-all"
+    }
+  }));
+  export const StyledTableRow = withStyles((theme) => ({
+    root: {
+      height: 30,
+      '&:nth-of-type(odd)': {
+        backgroundColor: "white",
+      },
+      '&:nth-of-type(even)': {
+        backgroundColor: "#FAFAFA",
+      },
+    }
+  }))(TableRow);
+  
+  export const StyledTableCell = withStyles((theme) => ({
+    root: {
+      padding: "0px 8px"
+    }
+  }))(TableCell);

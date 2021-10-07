@@ -55,12 +55,12 @@ import { TrackballControls } from "./TrackballControls.js";
 import { resourcePathURL, resourcePathBase, getAFileFromStore } from '@monostruct/common/api/fileUpload.api.js'
 import {
     SELECTCOLOR, SELECTTEXTURE, SELECTMETAL, SELECTROUGH, SELECTOPAQUE,
-    SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR,
+    SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR, 
+    SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTDISTANCE, 
+    SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTFACE, 
+    SELECTMEASURE, SELECTDISECTPARTS, SELECTASSEMBLY, SELECTFEATURE, SELECTLOADEDGES,
     DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, DEFAULTTEXTCOLOR,
-    SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTDISTANCE,
-    SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTMEASURE, SELECTDISECTPARTS,
-    SELECTORDER, SELECTASSEMBLY, SELECTFEATURE,
-    hexToRGB, gltf_Dict, SELECTLOADEDGES, SELECTFACE
+    hexToRGB, arrayCopy, arrayRemove, arrayRemoveFromValue, gltf_Dict, defaultGDTTable
 } from "./Tree/utils";
 import './styles/style.css';
 
@@ -74,7 +74,7 @@ import Button from '@material-ui/core/Button';
 import GroupFormBuilder from './GroupFormBuilder';
 import ModelessDialog from './ModelessDialog';
 import {myMenus} from './gltfMenus';
-import { CircularProgress, ClickAwayListener } from "@material-ui/core";
+import { CircularProgress, ClickAwayListener, Snackbar } from "@material-ui/core";
 import RotateLeftSharpIcon from '@material-ui/icons/RotateLeftSharp';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -85,6 +85,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { withStyles /*, makeStyles*/ } from "@material-ui/core/styles";
 import { Typography } from '@material-ui/core';
+import MuiAlert from '@material-ui/lab/Alert';
 //import { Box } from '@material-ui/core';
 
 /* const useStyles = makeStyles({ // It throws error if i use this, i dont know///
@@ -225,6 +226,10 @@ class GLTFRenderer extends Component {
         displaytext:null,
         isProgressOpen:false,
         progressOpenedFiles:[],
+        snackBarMessage:"",
+        snackBarAlertType:"",
+        snackBarState:false,
+       
         //gltfobj:this.props.gltfobj
     };
     state_selectedObjects = [];
@@ -286,7 +291,7 @@ class GLTFRenderer extends Component {
         }
         return null;
     } */
-    
+    /*
     defaultGDTTable = {
         "edges":[],
         "selectedObjects":[],
@@ -295,9 +300,23 @@ class GLTFRenderer extends Component {
         "mateValues": [false,false,false,false,false,false],
         "angle":0,
         "offset":0,                          
-        "option":26 
+        "option":SELECTFEATURE,
+        "key":"" 
     };
+    */
+   
+    openSnackBar = (alert,message) => {
+        this.setState({
+            snackBarAlertType:alert,
+            snackBarMessage:message,
+            snackBarState:true});
+        console.log("Snack Bar",alert,message);
+    }
     
+    closeSnackBar = () => {
+      this.setState({snackBarState:false});
+    }
+
     findEdgeChange = (prevProps) => {
         //const state_gltfobj = state.gltfobj || this.props.gltfobj;
 
@@ -575,6 +594,7 @@ class GLTFRenderer extends Component {
         const state_gltfobj = this_state_gltf || this.state.gltfobj || this.props.gltfobj;
 
         this.gltfJSON = state_gltfobj.gltf || state_gltfobj;
+        
         //this.gltfJSON = this.props.gltfobj.gltf||this.props.gltfobj;
         this.gltfobjLen =state_gltfobj? state_gltfobj.gdttable ? state_gltfobj.gdttable ? 
                 state_gltfobj.gdttable[this.props.activeDataTable].edges ? state_gltfobj.gdttable[this.props.activeDataTable].edges.length : 0 :0 :0 :0;
@@ -590,7 +610,7 @@ class GLTFRenderer extends Component {
             myView = myView || myMenus[0].groups[0].values.view;
         }
         //console.log("myview",myView);
-        this.setState({view:myView||"Orthographic"});
+        this.setState({view:myView||"Orthographic",progressOpenedFiles:[]});
         this.prevTime = 0;
 
         //this.stats = new Stats();
@@ -1014,7 +1034,7 @@ class GLTFRenderer extends Component {
             const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
 
             console.log("GDTTable",state_gltfobj.gdttable,this.props.activeDataTable);      
-            let gdttable = state_gltfobj.gdttable || [this.defaultGDTTable];
+            let gdttable = state_gltfobj.gdttable || [defaultGDTTable];
             this.updateGDTTable(gdttable[this.props.activeDataTable]);
         }         
         //window.content = this.content;
@@ -1041,6 +1061,7 @@ class GLTFRenderer extends Component {
         let event={};
         event['ctrlKey']=false;  
         gdttableEdges.selectedObjects.forEach(element => {
+            element.selectedshell=true;
             this.doOneSelection(element,event,false);
         }); 
         if(gdttableEdges.selectedObjects.length==0){            
@@ -1052,8 +1073,9 @@ class GLTFRenderer extends Component {
         if (this.props.setStateOfgltf) {
             const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
             let gltfobj = {...state_gltfobj}; 
-            let gdttable = gltfobj.gdttable || [this.defaultGDTTable];
+            let gdttable = gltfobj.gdttable || [defaultGDTTable];
             gltfobj.gdttable = gdttable;
+            console.log("AddGDTTABLE", gltfobj.gdttable, gdttable,this.props.activeDataTable);
             gltfobj.gdttable[this.props.activeDataTable].edges.push(
                 {parent:parent,
                 start:start,
@@ -3354,7 +3376,7 @@ class GLTFRenderer extends Component {
                         }
                     });
                 }
-                var copy_selectobjects = this.arrayCopy(this.state_selectedObjects);
+                var copy_selectobjects = arrayCopy(this.state_selectedObjects);
                 console.log(myAllChilds);
                 myAllChilds.node.forEach(element => {
                     element.selectedshell = meshmaterial.selectedshell;
@@ -3384,7 +3406,7 @@ class GLTFRenderer extends Component {
                             }
 
                         } else {
-                            copy_selectobjects = this.arrayRemove(copy_selectobjects, element.name);
+                            copy_selectobjects = arrayRemove(copy_selectobjects, element.name);
                             this.state_selectedObjects = copy_selectobjects;
                             //this.setState({selectedObjects:selectedObjects});
 
@@ -3782,7 +3804,7 @@ class GLTFRenderer extends Component {
         return name;
     };
 
-    arrayRemove = (arr, value) => {
+    /* arrayRemove = (arr, value) => {
 
         return arr.filter(function (ele) {
             return ele.name != value;
@@ -3796,10 +3818,10 @@ class GLTFRenderer extends Component {
             copy_selectobjects.push(element);
         });
         return copy_selectobjects;
-    };
+    }; */
 
     selectAllSelectedSolids = () => {
-        var copy_selectobjects = this.arrayCopy(this.state_selectedObjects);
+        var copy_selectobjects = arrayCopy(this.state_selectedObjects);
         copy_selectobjects.forEach(meshmaterial => {
             const myAllChilds = this.findMyParentChilds(meshmaterial);
             //console.log(myAllChilds);
@@ -3866,11 +3888,12 @@ class GLTFRenderer extends Component {
                 //console.log(this.partsMeshes);
                 this.partsMeshes = [...this.partsMeshes,...partsMeshes];
                 if(gdttableEdges) {
-                    console.log("Inside load edges gdts",this.partsMeshes);
+                    console.log("Inside load edges gdts",this.partsMeshes,gdttableEdges);
                     let event={};
                     event['ctrlKey']=false;
                     gdttableEdges.selectedObjects.forEach(element => {
                         console.log("Setting inside the load all edges",element,event);
+                        element.selectedshell=true;
                         this.doOneSelection(element,event,false);
                     });
                     if(gdttableEdges.edges.length==0){
@@ -3879,17 +3902,19 @@ class GLTFRenderer extends Component {
                 } else {
                     console.log("Inside load edges s",this.partsMeshes);
                 }
-                this.onCloseProgress(url);
+                
+                this.onCloseProgress(url,"success","loaded successfully");
+                
             } catch (error) {
-                this.onCloseProgress(url);
                 console.log("Got error while loading",error);
+                this.onCloseProgress(url,"error",error);
             }
 
         }
         
         const onError = (exception,url) => {
-            this.onCloseProgress(url);
-            console.log(exception);            
+            console.log("Exception from Loader",exception);           
+            this.onCloseProgress(url,"error",exception);        
         }
 
         const onProgress = (progress) => {
@@ -4454,7 +4479,7 @@ class GLTFRenderer extends Component {
         }
     }
 
-    arrayFindIndex = (arr, value) => {
+    /* arrayFindIndex = (arr, value) => {
 
         return arr.findIndex(function (ele) {            
           return ele == value;
@@ -4468,22 +4493,28 @@ class GLTFRenderer extends Component {
           return ele != value;
         });
     }
-    
-    onCloseProgress = (aFile) => {
+     */
+    onCloseProgress = (aFile,alert,message) => {
+        
         let openFiles = [...this.state.progressOpenedFiles];
-        openFiles = this.arrayRemove(openFiles,aFile);
+        openFiles = arrayRemoveFromValue(openFiles,aFile);
         this.setState({ progressOpenedFiles: openFiles });
         if(this.props.setProgressOpenedFiles){
             this.props.setProgressOpenedFiles(openFiles);
         }
         if(openFiles.length==0) {
+            try {
+                this.openSnackBar(alert,aFile+" "+message);
+            } catch (error) {
+                console.log("Error while displaying snackbar",error,aFile,alert,message);
+            }
             this.setState({ isProgressOpen: false });
             if(this.props.setIsProgressOpen) {
                 this.props.setIsProgressOpen(false);
             }
-            console.log("Setting is progress closing",this.state.isProgressOpen,openFiles);
+            console.log("Setting is progress closing",this.state.isProgressOpen,openFiles,aFile);
         }  else {
-            console.log("Setting is progress Opening",this.state.isProgressOpen,openFiles);
+            console.log("Setting is progress Opening",this.state.isProgressOpen,openFiles,aFile);
         }         
     }
     
@@ -4683,6 +4714,20 @@ class GLTFRenderer extends Component {
                     {this.state.intersectedShell ? this.getNameID(this.state.intersectedShell.name) : ""}
                     {/*this.state.displaytext*/}
                 </div>   
+                <Snackbar
+                    open={this.state.snackBarState}
+                    autoHideDuration={1000}
+                    onClose={this.closeSnackBar}
+                    >
+                    <MuiAlert
+                        severity={this.state.snackBarAlertType}
+                        color={this.state.snackBarAlertType}
+                        variant="filled"
+                        onClose={this.closeSnackBar}
+                    >
+                        {this.state.snackBarMessage}
+                    </MuiAlert>
+                </Snackbar>
                 {/* <div style={{position:"relative", top:0, left:0}}
                     ref={guip=>(this.nodeguiparent=guip)}>
                     <div 

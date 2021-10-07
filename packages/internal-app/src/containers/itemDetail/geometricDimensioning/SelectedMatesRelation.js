@@ -10,9 +10,9 @@ import LabelledCheckBox from '@monostruct/common/components/LabelledCheckBox';
 import Checkbox from '@material-ui/core/Checkbox';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import CircleChecked from '@material-ui/icons/CheckCircleOutline';
-import { withStyles, makeStyles } from "@material-ui/core/styles";
-
-
+//import { withStyles, makeStyles } from "@material-ui/core/styles";
+import {USESTYLES, StyledTableRow, StyledTableCell} from "@monostruct/common/gltf/Tree/utils";
+/*
 const useStyles = makeStyles({
   table: {
     minWidth: 400
@@ -45,9 +45,9 @@ const StyledTableCell = withStyles((theme) => ({
     padding: "0px 8px"
   }
 }))(TableCell);
-
+*/
 const SelectedMatesRelation = (props) => {
-  const classes = useStyles();
+  const classes = USESTYLES();
   const {
     mates,
     featureList,
