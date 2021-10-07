@@ -1236,7 +1236,7 @@ export default function ItemTypeConfiguration(props) {
       state.mycounter
     );
   }
-  const [showKineticModel, setShowKineticModal] = useState(true);
+  const [showKineticModel, setShowKineticModal] = useState(false);
   const renderExcelUI = () => {
     //console.log("RENDEREXCELUI",addSelectionFromComponent,"SHOW",setShowKineticModal,"UPDATE",handleItemUpdate,"RENDER",state.renderdata);
     if (

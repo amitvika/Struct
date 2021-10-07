@@ -79,6 +79,13 @@ export default function DynamicHierarchy(props) {
 
   const handleOnChange = (title, value, form) => {
     handleDropdownSelection(title, value, form);
+    console.log("value", value)
+    if(value === "Motion Control") {
+      setShowKineticModal(true)
+    }
+    else {
+      setShowKineticModal(false)
+    }
   };
 
   const getSelectionValue = (title) => {
