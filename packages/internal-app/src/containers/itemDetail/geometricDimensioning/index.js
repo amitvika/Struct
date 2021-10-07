@@ -66,7 +66,8 @@ export default function GeometricDimensioning({
   fileGDT, 
   gltfjson, 
   isLoading, 
-  keyName="", 
+  keyName={name:"",
+           option:SELECTFEATURE}, 
   handleChangeOfSelection=(selectedObjects)=>{
     console.log("handleChangeOfSelection",selectedObjects);
   },
@@ -164,11 +165,11 @@ export default function GeometricDimensioning({
   }, [gltfjson]);
 
   useEffect(() => {
-    if( (tabIndex!='gdtac') || (keyName != "") ) {
-      console.log("Setting key",keyName);
-      setCurrentDataTableFromKey(keyName);
+    if( (tabIndex!='gdtac') || (keyName.name != "") ) {
+      console.log("Setting key",keyName.name);
+      setCurrentDataTableFromKey(keyName.name,keyName.option);
     } else {
-      console.log("Not Setting key as I am from gdt",keyName);
+      console.log("Not Setting key as I am from gdt",keyName.name);
     }
   }, [keyName]);
   
@@ -208,7 +209,7 @@ export default function GeometricDimensioning({
     "key":"" 
   };
   */
-  const incrementActiveDataTable = (key="") => {
+  const incrementActiveDataTable = (key="",selectedFeature=SELECTFEATURE) => {
     let mystate_gltfjson = state.gltfjson || gltfjson;  
     if (!mystate_gltfjson || !mystate_gltfjson.tree) {
       setState({ gltfjson: gltfjson });
@@ -234,7 +235,8 @@ export default function GeometricDimensioning({
                             "offset":0,
                             "option":SELECTFEATURE }); */ 
     myTree.gdttable.push({  ...defaultGDTTable, "key":key }); 
-    updateSelectionFromTree([],false);    
+    updateSelectionFromTree([],false,selectedFeature);  
+    setSelectedOption(selectedFeature);  
     if(myTree.tree) {
       myTree.tree.length=myTree.treeLength;
     } 
@@ -248,7 +250,7 @@ export default function GeometricDimensioning({
     console.log("Setting active table",activetable,"with key",key)
     setActiveDataTable(activetable);
   }
-  const setCurrentDataTableFromKey = (key) => {
+  const setCurrentDataTableFromKey = (key,option) => {
     let mystate_gltfjson = state.gltfjson || gltfjson;  
     if (!mystate_gltfjson || !mystate_gltfjson.tree) {
       setState({ gltfjson: gltfjson });
@@ -264,7 +266,7 @@ export default function GeometricDimensioning({
       }
     }
     console.log("I am going to add from gdt",key);
-    incrementActiveDataTable(key);
+    incrementActiveDataTable(key,option);
   }
   const setCurrentDataTable = (activetable) => {
     if (activetable != activeDataTable) {
@@ -283,8 +285,9 @@ export default function GeometricDimensioning({
       myTree.gdttable[activeDataTable].option=selectedOption; 
       myTree.gdttable[activeDataTable].mateValues=state.mateValues;
       myTree.gdttable[activeDataTable].angle=state.angle;
-      myTree.gdttable[activeDataTable].offset=state.offset;   
-      updateSelectionFromTree(myTree.gdttable[activetable].selectedObjects,false);
+      myTree.gdttable[activeDataTable].offset=state.offset;         
+      updateSelectionFromTree(myTree.gdttable[activetable].selectedObjects,false,myTree.gdttable[activetable].option);
+      setSelectedOption(myTree.gdttable[activetable].option);
       setState({ 
                 gltfjson: myTree,
                 selectedObjects: myTree.gdttable[activetable].selectedObjects,
@@ -294,6 +297,7 @@ export default function GeometricDimensioning({
                 angle: myTree.gdttable[activetable].angle,
                 offset: myTree.gdttable[activetable].offset 
               });  
+      
       setActiveDataTable(activetable);
     }    
   }
@@ -339,7 +343,7 @@ export default function GeometricDimensioning({
     myTree.gdttable[activeDataTable].mateValues= Array(6).fill(false);
     myTree.gdttable[activeDataTable].angle=0;
     myTree.gdttable[activeDataTable].offset=0;
-    updateSelectionFromTree([],false);
+    updateSelectionFromTree([],false,selectedOption);
     if(myTree.tree) {
       myTree.tree.length=myTree.treeLength;
     }    
@@ -1143,10 +1147,10 @@ export default function GeometricDimensioning({
       element.selectedshell=true;
     });
     setState({ renderdata: selectedNodes, whatchange: SELECTDISTANCE });
-    updateSelectionFromTree(selectedNodes,true);
+    updateSelectionFromTree(selectedNodes,true,selectedOption);
   };
 
-  const updateSelectionFromTree = async (selectedNodes,toGetShapeInfo) => {
+  const updateSelectionFromTree = async (selectedNodes,toGetShapeInfo,selectedFeature) => {
     
     var whatIsNotThereToAdd=[];
     var whatIsAvailableToRemove=[];
@@ -1189,7 +1193,7 @@ export default function GeometricDimensioning({
 
       );
       //resetSelectionFromTree(); */
-      changeStateOfSelections(whatIsAvailableToRemove,whatIsNotThereToAdd,toGetShapeInfo);
+      changeStateOfSelections(whatIsAvailableToRemove,whatIsNotThereToAdd,toGetShapeInfo,selectedFeature);
     } else {
       resetSelections();
     }
@@ -1464,7 +1468,7 @@ export default function GeometricDimensioning({
     
     //console.log("Finally my state tree",state.gltfjson.tree);
   }
-  const changeStateOfSelections = async (removeData, addData, toAddShapeInfo) => {
+  const changeStateOfSelections = async (removeData, addData, toAddShapeInfo, selectedFeature) => {
     mapdata = {}
     //console.log("Data for shapeinfo",data,selectedOption,event);
     console.log("Reaching here after clicking",removeData, addData);
@@ -1476,7 +1480,7 @@ export default function GeometricDimensioning({
       
       if (data) {
         
-        const myAllChildsAndParents = findMyParentChilds(data, selectedOption);
+        const myAllChildsAndParents = findMyParentChilds(data, selectedFeature);
         //console.log(myAllChildsAndParents);
         const myAllChilds = myAllChildsAndParents[0];
         const myParentNode = myAllChildsAndParents[1];
@@ -1510,7 +1514,7 @@ export default function GeometricDimensioning({
     var toGetInfo = false;
     addData.forEach(data => {
       if (data) {
-        const myAllChildsAndParents = findMyParentChilds(data, selectedOption);
+        const myAllChildsAndParents = findMyParentChilds(data, selectedFeature);
         //console.log(myAllChildsAndParents);
         const myAllChilds = myAllChildsAndParents[0];
         const myParentNode = myAllChildsAndParents[1];
@@ -1549,6 +1553,12 @@ export default function GeometricDimensioning({
       parentObjects:copy_parentobjects,
       mates: copy_mateobjects
     });
+    if(handleChangeOfSelection) {
+      console.log("Call back for handlechangeofselctions",copy_selectobjects);
+      handleChangeOfSelection(copy_selectobjects);
+    } else {
+      console.log("No Call back for handlechangeofselctions since it is from gdt",copy_selectobjects);
+    }
   }
 
   const setOptionForAssemblyTreeOptions = (event) => {

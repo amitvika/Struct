@@ -42,7 +42,7 @@ import DynamicHierarchy from './DynamicHierarchy';
 
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
-let state_selectedObjects = [];
+//let state_selectedObjects = [];
 let state_fileOnChange = null;
 
 export default function ItemTypeConfiguration(props) {
@@ -57,7 +57,7 @@ export default function ItemTypeConfiguration(props) {
   const classes = USESTYLES();
 
   
-  const [fieldKey,setFieldKey] = useState("NoKey");
+  const [fieldKey,setFieldKey] = useState({name:"NoKey",option:SELECTFEATURE});
   const [renderData,setRenderData] = useState([]);
   //const [fieldOnChange,setFieldOnChange] = useState(null); //unable to set state for the functions..
 
@@ -71,7 +71,7 @@ export default function ItemTypeConfiguration(props) {
   };
 
   const handleChangeOfSelection = async (selectedObjects) => {
-    const fieldItemKey = fieldKey ? fieldKey.length==0? 'fieldKey':fieldKey : 'fieldKey';
+    const fieldItemKey = fieldKey ? fieldKey.name? fieldKey.name.length==0? 'fieldKey':fieldKey : 'fieldKey' : 'fieldKey';
     if(handleItemUpdate) {    
       console.log("I am asking the component to set",selectedObjects, fieldKey,fieldItemKey);
       handleItemUpdate({[fieldItemKey]: selectedObjects});
@@ -79,10 +79,10 @@ export default function ItemTypeConfiguration(props) {
       console.log("I am not asking the component to set because itemupdate is null ",selectedObjects, fieldKey,fieldItemKey);
     }
     if(state_fileOnChange) {
-      console.log("I am asking the component to change field via local variable",selectedObjects, fieldKey);
-      state_fileOnChange(fieldKey,selectedObjects);
+      console.log("I am asking the component to change field via local variable",selectedObjects, fieldKey,fieldItemKey);
+      state_fileOnChange(fieldItemKey,selectedObjects);
     } else {
-      console.log("I am not asking the component to change field via local variable since file on change is null",selectedObjects, fieldKey);
+      console.log("I am not asking the component to change field via local variable since file on change is null",selectedObjects, fieldKey,fieldItemKey);
     }
   }
 

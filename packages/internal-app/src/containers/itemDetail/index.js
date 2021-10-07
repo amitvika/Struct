@@ -20,7 +20,7 @@ import ComplianceAndCertifications from './ComplianceAndCertifications';
 import ItemTypeConfigurations from '../itemTypeConfigurations';
 import ItemAPI from '@monostruct/common/api/items.api';
 
-import {STATEPROPS} from "@monostruct/common/gltf/Tree/utils";
+import {SELECTFEATURE, STATEPROPS} from "@monostruct/common/gltf/Tree/utils";
 
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions';
@@ -618,7 +618,7 @@ const ItemDetail = () => {
             isLoading={isLoading}
             //assemblyTree={get(gltfjson, 'tree', [])}
             tabIndex={tabIndex}
-            keyName=""
+            keyName={{name:"",option:SELECTFEATURE}}
             handleChangeOfSelection={null}
             additionalSaveFunction={additionalSaveFunction}
             //informSnackBar={informSnackBar}
