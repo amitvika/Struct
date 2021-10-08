@@ -25,7 +25,7 @@ from OCC.Core.TopoDS import TopoDS_Face
 from OCC.Core.gp import (gp_Vec, gp_Pnt, gp_Trsf, gp_OX, gp_OY,
                          gp_OZ, gp_XYZ, gp_Ax2, gp_Dir, gp_GTrsf, gp_Mat)
 
-from OCC.Core.Extend.TopologyUtils import is_edge, is_face
+from .OCPTopologyUtils import is_edge, is_face
 
 #
 # assert utils
@@ -233,8 +233,8 @@ def midpoint(pntA, pntB):
     return gp_Pnt(veccie.XYZ())
 
 
-def center_boundingbox(shape):
-    """ compute the center point of a TopoDS_Shape, based on its bounding box
+""" def center_boundingbox(shape):
+    compute the center point of a TopoDS_Shape, based on its bounding box
 
     Parameters
     ----------
@@ -246,9 +246,9 @@ def center_boundingbox(shape):
 
     gp_Pnt
 
-    """
+   
     xmin, ymin, zmin, xmax, ymax, zmax = get_boundingbox(shape, 1e-6)
-    return midpoint(gp_Pnt(xmin, ymin, zmin), gp_Pnt(xmax, ymax, zmax))
+    return midpoint(gp_Pnt(xmin, ymin, zmin), gp_Pnt(xmax, ymax, zmax)) """
 
 
 def translate_shp(shp, vec, copy=False):

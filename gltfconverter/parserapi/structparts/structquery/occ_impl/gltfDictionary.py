@@ -19,6 +19,7 @@ def gltfdict() :
         "bin":"I",  
         "display":"D",
         "subfeatures":"f",
-        "element":"e"    
+        "element":"e",
+        "geometry":"g"    
         }
     return my_dict

@@ -82,7 +82,7 @@ from .OCPShapes import Shape
 from .OCPAssembly import Color
 
 #from ... import Assembly
-from .OCCExtend.ShapeFactory import recognize_direction, recognize_curve
+from .OCCExtend.ShapeFactory import recognize_direction, recognize_curve, recognize_face_entity
 from ....thumbnail.thumbnail import createThumbnail
 from .gltfDictionary import gltfdict
 from .Quaternion import Quaternion
@@ -1722,7 +1722,7 @@ class StepIgesAnalyser():
                     #print("    take subLocation       :", l)
                     subLocation = subLocation.Multiplied(currentLocation)
                 
-                currentColor, color_set = self.setColor(shape,subLabel)
+                currentColor, _ = self.setColor(shape,subLabel)
                 my_parent_id = self.parentIDs[-1]
                 """ if self.includeparts:
                     #print("sub include",subName)
@@ -1793,14 +1793,18 @@ class StepIgesAnalyser():
                                     if(stype==TopAbs_COMPSOLID):
                                             print("Serving TopAbs_COMPSOLID")                        
                                     print("I have written lowest node",basename,shape_disp.ShapeType() ) """
-                                        
+                                    if(disect_type=="FACE"):
+                                       _, myCurveCode = recognize_face_entity(shape_disp)
+                                    else:
+                                        myCurveCode = ""
                                     (myPartMeshID,meshname,uvPlane,solidFoundHere)=self.add_part(
                                         shape_disp,
                                         part_color=faceColor,
                                         filenameuri=filefullname,
                                         filetype= disect_type,
-                                        name=disect_type+subName+parentName,
-                                        parent_idx=parent_node_index,                        
+                                        name=disect_type+myCurveCode+subName+parentName,
+                                        parent_idx=parent_node_index, 
+                                        curvecode=myCurveCode                       
                                     ) 
                                     if solidFoundHere > 0 :
                                         self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, myPartMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
@@ -1861,7 +1865,9 @@ class StepIgesAnalyser():
                                         self.fileId += 1
                                         atleastOneItemAdded += 1
                                         (filefullname, basename) = self.write_step_file(shape_disp,subName+parentName,faceColor)
-                                        _, _, face_entity = recognize_direction(shape_disp)
+                                       
+                                        face_entity, myCurveCode = recognize_face_entity(shape_disp)                                       
+                                        #_, _, face_entity = recognize_direction(shape_disp)
                                         if(face_entity=="Cylinder"):                                 
                                             myFaceType.append(face_entity)
                                         #print("I am writing",disect_type,self.fileId, basename)
@@ -1887,15 +1893,22 @@ class StepIgesAnalyser():
                                         if (self.multiplegltf!=0) and (keep_faces==False):
                                             meshname="FACE"
                                             uvPlane=my_parent_id
-                                            myFeaturesFaces.append((shape_disp,faceColor,filefullname,"FACE"+subName+parentName,"FACE"))
+                                            myFeaturesFaces.append(
+                                                (shape_disp,
+                                                faceColor,
+                                                filefullname,
+                                                "FACE"+myCurveCode+subName+parentName,
+                                                "FACE", 
+                                                myCurveCode))
                                         else:   
                                             (myMeshID,meshname,uvPlane,solidFoundHere)=self.add_part(
                                                 shape_disp,
                                                 part_color=faceColor,
                                                 filenameuri=filefullname,
                                                 filetype="FACE",
-                                                name="FACE"+subName+parentName,
-                                                parent_idx=parent_node_index,                        
+                                                name="FACE"+myCurveCode+subName+parentName,
+                                                parent_idx=parent_node_index,
+                                                curvecode=myCurveCode                        
                                             ) 
                                         if (solidFoundHere > 0) or ((self.multiplegltf!=0) and (keep_faces==False)) :
                                             self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
@@ -1914,15 +1927,15 @@ class StepIgesAnalyser():
                     if self.edgesize > 0:
                         edgeColor = self.getDarken(faceColor,0.50)                        
                         if  (len(myFaceType)>0)  :
-                            for key, shape_edge  in shape_edges.items():
-                                myCurveType, Distance = recognize_curve(shape_edge)
+                            for _, shape_edge  in shape_edges.items():
+                                myCurveType, Distance, myCurveCode = recognize_curve(shape_edge)
                                 #print("MyCurve",myCurveType, Distance)
                                 if (myCurveType=="Circle") and (Distance<=0.0001):
                                     toAddCorners=False
                         for _, shape_edge  in shape_edges.items():
                             toAddAsAnEdge=True
+                            myCurveType, Distance, myCurveCode = recognize_curve(shape_edge)
                             if (toAddCorners==False):
-                                myCurveType, Distance = recognize_curve(shape_edge)
                                 #print("MyCurve",myCurveType)
                                 toAddAsAnEdge=(myCurveType=="Circle")
                             #else :
@@ -1937,7 +1950,13 @@ class StepIgesAnalyser():
                                 if self.multiplegltf!=0:
                                     meshname="EDGE"
                                     uvPlane=my_parent_id
-                                    myFeaturesEdges.append((shape_disp,edgeColor,filefullname,"EDGE"+subName+parentName,"EDGE"))
+                                    myFeaturesEdges.append(
+                                        (shape_disp,
+                                        edgeColor,
+                                        filefullname,
+                                        "EDGE"+myCurveCode+subName+parentName,
+                                        "EDGE",
+                                        myCurveCode))
                                     
                                 else:  
                                     (myMeshID,meshname,uvPlane,solidFoundHere)=self.add_part(
@@ -1945,8 +1964,9 @@ class StepIgesAnalyser():
                                         part_color=edgeColor,
                                         filenameuri=filefullname,
                                         filetype= "EDGE",
-                                        name="EDGE"+subName+parentName,
-                                        parent_idx=parent_node_index,                        
+                                        name="EDGE"+myCurveCode+subName+parentName,
+                                        parent_idx=parent_node_index,  
+                                        curvecode=myCurveCode                      
                                     ) 
                                 if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
                                     self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, edgeColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
@@ -1966,7 +1986,7 @@ class StepIgesAnalyser():
                             if self.multiplegltf!=0:
                                 meshname="VERTEX"
                                 uvPlane=my_parent_id
-                                myFeaturesVertices.append((shape_disp,edgeColor,filefullname,"VERTEX"+subName+parentName,"VERTEX"))
+                                myFeaturesVertices.append((shape_disp,edgeColor,filefullname,"VERTEX"+subName+parentName,"VERTEX"," "))
                                 
                             else:            
                                 (_,meshname,uvPlane,solidFoundHere)=self.add_part(
@@ -1975,7 +1995,8 @@ class StepIgesAnalyser():
                                     filenameuri=filefullname,
                                     filetype= "VERTEX",
                                     name="VERTEX"+subName+parentName,
-                                    parent_idx=parent_node_index,                        
+                                    parent_idx=parent_node_index, 
+                                    curvecode=" "                       
                                 ) 
                             if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
                                 self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, vertexColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
@@ -2060,13 +2081,18 @@ class StepIgesAnalyser():
                                     self.updateOutput(subName, subEntry, labelForSubShapesName, labelForSubShapesEntry,  False)
                                     #print("I have reached here 24")
                                     (filefullname, basename) = self.write_step_file(shape_to_disp,labelForSubShapesName+subName,faceColor)
+                                    if(disect_type=="FACE"):
+                                       _, myCurveCode = recognize_face_entity(shape_disp)
+                                    else:
+                                        myCurveCode = ""
                                     (myMeshID, meshname, uvPlane, solidFoundHere)=self.add_part(
                                         shape_to_disp,
                                         part_color=faceColor,
                                         filenameuri=filefullname,
                                         filetype= disect_type,
-                                        name=disect_type+labelForSubShapesName+subName,
+                                        name=disect_type+myCurveCode+labelForSubShapesName+subName,
                                         parent_idx=parent_node_index,
+                                        curvecode=myCurveCode
                                     )
                                     if (solidFoundHere > 0) :                                        
                                         self.outputShapes[shapeInFile] = [shape_to_disp,subName, subEntry, faceColor, myMeshID, my_parent_id, labelForSubShapesName, labelForSubShapesEntry, meshname, basename, uvPlane]
@@ -2311,6 +2337,7 @@ class StepIgesAnalyser():
                         filetype= "PART",
                         name="PART"+shape_name,
                         parent_idx=parent_node_index,
+                        curvecode=" "
                     )  
                     if(solidFoundHere>0):                  
                         self.outputShapes[hash_shape] = [shape_to_disp, subName, subEntry, c, myMeshID, self.parentIDs[-1], rootName, rootEntry, meshname, basenamehere, uvPlane]
@@ -2377,7 +2404,7 @@ class StepIgesAnalyser():
         parent_node = self.mstep_dict['nodes'][parent_node_index]
         parent_node['children'] = parent_node.get('children', []) + [node_index]
         #print("I have reached here in getshapes 4",self.output)
-        for (shape_to_disp,myColor,myfilename,myname,mytype) in outputFeature:
+        for (shape_to_disp,myColor,myfilename,myname,mytype,mycurvecode) in outputFeature:
             #print(shape_to_disp,myColor,myfilename,myname) 
             hash_shape = hash(shape_to_disp)
             try:
@@ -2396,6 +2423,7 @@ class StepIgesAnalyser():
                         filetype= mytype,
                         name=myname,
                         parent_idx=parent_node_index,
+                        curvecode=mycurvecode
                     )                    
                     #self.outputShapes[hash_shape] = [shape_to_disp, subName, subEntry, c, self.uid, self.indent, rootName, rootEntry, meshname, basenamehere, uvPlane]
  
@@ -3743,7 +3771,7 @@ class StepIgesAnalyser():
         return buff, len(indices), uvbuff, uvPlane   
     
 
-    def add_part(self, part, part_color=None, filenameuri=None, filetype="", name=None,  parent_idx=0):
+    def add_part(self, part, part_color=None, filenameuri=None, filetype="", name=None,  parent_idx=0, curvecode=""):
         """
         Adds the given ``part`` to ``self.gltf_dict``.
 
@@ -3783,6 +3811,7 @@ class StepIgesAnalyser():
             mesher_dict[self.gltf_Dict["step"]] = os.path.basename(filenameuri)
             myFileType = filetype[0:1]
             mesher_dict[self.gltf_Dict["element"]] = myFileType
+            mesher_dict[self.gltf_Dict["geometry"]] = curvecode
             #mesher_dict["fileId"] = self.fileId
             mesher_dict[self.gltf_Dict["leaf"]]=True
             if( solidfound > 0 ) :

@@ -166,7 +166,7 @@ export default function GeometricDimensioning({
 
   useEffect(() => {
     if( (tabIndex!='gdtac') || (keyName.name != "") ) {
-      console.log("Setting key",keyName.name);
+      console.log("Setting key",keyName.name,keyName.option);
       setCurrentDataTableFromKey(keyName.name,keyName.option);
     } else {
       console.log("Not Setting key as I am from gdt",keyName.name);
@@ -221,9 +221,9 @@ export default function GeometricDimensioning({
     
     myTree.gdttable = gdttable;
 
-    myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects?state.selectedObjects:[];
-    myTree.gdttable[activeDataTable].parentObjects=state.parentObjects?state.parentObjects:[];
-    myTree.gdttable[activeDataTable].mates=state.mates?state.mates:[];
+    myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects?[...state.selectedObjects]:[];
+    myTree.gdttable[activeDataTable].parentObjects=state.parentObjects?[...state.parentObjects]:[];
+    myTree.gdttable[activeDataTable].mates=state.mates?[...state.mates]:[];
     myTree.gdttable[activeDataTable].option=selectedOption;
     let activetable = myTree.gdttable.length;
     /* myTree.gdttable.push({  "edges":[],
@@ -279,11 +279,11 @@ export default function GeometricDimensioning({
       let gdttable = myTree.gdttable || [defaultGDTTable];
       myTree.gdttable = gdttable;
 
-      myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects?state.selectedObjects:[];
-      myTree.gdttable[activeDataTable].parentObjects=state.parentObjects?state.parentObjects:[];
-      myTree.gdttable[activeDataTable].mates=state.mates?state.mates:[];
+      myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects?[...state.selectedObjects]:[];
+      myTree.gdttable[activeDataTable].parentObjects=state.parentObjects?[...state.parentObjects]:[];
+      myTree.gdttable[activeDataTable].mates=state.mates?[...state.mates]:[];
       myTree.gdttable[activeDataTable].option=selectedOption; 
-      myTree.gdttable[activeDataTable].mateValues=state.mateValues;
+      myTree.gdttable[activeDataTable].mateValues=[...state.mateValues];
       myTree.gdttable[activeDataTable].angle=state.angle;
       myTree.gdttable[activeDataTable].offset=state.offset;         
       updateSelectionFromTree(myTree.gdttable[activetable].selectedObjects,false,myTree.gdttable[activetable].option);
@@ -311,11 +311,11 @@ export default function GeometricDimensioning({
     let myTree = { ...mystate_gltfjson };
     let gdttable = myTree.gdttable || [defaultGDTTable];
     myTree.gdttable = gdttable;
-    myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects?state.selectedObjects:[];
-    myTree.gdttable[activeDataTable].parentObjects=state.parentObjects?state.parentObjects:[];
-    myTree.gdttable[activeDataTable].mates=state.mates?state.mates:[];
+    myTree.gdttable[activeDataTable].selectedObjects=state.selectedObjects?[...state.selectedObjects]:[];
+    myTree.gdttable[activeDataTable].parentObjects=state.parentObjects?[...state.parentObjects]:[];
+    myTree.gdttable[activeDataTable].mates=state.mates?[...state.mates]:[];
     myTree.gdttable[activeDataTable].option=selectedOption;  
-    myTree.gdttable[activeDataTable].mateValues=state.mateValues;
+    myTree.gdttable[activeDataTable].mateValues=[...state.mateValues];
     myTree.gdttable[activeDataTable].angle=state.angle;
     myTree.gdttable[activeDataTable].offset=state.offset;  
     setState({ gltfjson: myTree});  

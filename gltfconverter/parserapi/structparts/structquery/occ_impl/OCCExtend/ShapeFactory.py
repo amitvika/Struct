@@ -2708,9 +2708,49 @@ def recognize_face(topods_face):
 ##################################
 # Recognize functions
 ##################################
+def recognize_face_entity(topods_face):
+    """ returns True if the TopoDS_Face is a planar surface
+    """
+    #entity = "check face" 
+    if not isinstance(topods_face, TopoDS_Face):
+        return "Not a Face", "A"     
+    surf = BRepAdaptor_Surface(topods_face, True)
+    surf_type = surf.GetType()
+    if  surf_type == GeomAbs_Plane:
+        return "Plane", "L"  
+    elif surf_type == GeomAbs_Cylinder:
+        return "Cylinder", "C"           
+    elif surf_type == GeomAbs_Cone:
+        return "Cone", "N"            
+    elif surf_type == GeomAbs_Sphere:            
+        return "Sphere", "S"            
+    elif surf_type == GeomAbs_Torus:            
+        return "Torus", "T" 
+    elif surf_type == GeomAbs_BezierSurface:      
+        return "Bezier", "B"         
+    elif surf_type == GeomAbs_BSplineSurface:
+        return "BSpline", "I"            
+    elif surf_type == GeomAbs_SurfaceOfRevolution:
+        return "Revolution", "R"         
+    elif surf_type == GeomAbs_SurfaceOfExtrusion:
+        return "Extrusion", "E"   
+    elif surf_type == GeomAbs_OffsetSurface:
+        return "Offset", "O"
+    elif surf_type == GeomAbs_OtherSurface:
+        return "Others", "V"
+    return "Unknown", "U"
+   
+    
+
+
+
+##################################
+# Recognize functions
+##################################
 def recognize_curve(topods_edge):
     """ returns True if the TopoDS_Face is a planar surface
     """
+     
     #entity = "Not an edge" 
     if not isinstance(topods_edge, TopoDS_Edge):
         return "Not an edge" , 0
@@ -2726,31 +2766,31 @@ def recognize_curve(topods_edge):
     #entity['firstU'] = curve.FirstParameter()
     #entity['lastU'] = curve.LastParameter() 
     if  curve_type == GeomAbs_Line:
-        return "Line", closedDistance
+        return "Line", closedDistance, "L"
         
     elif curve_type == GeomAbs_Circle:
         
-        return "Circle" , closedDistance  
+        return "Circle" , closedDistance, "C"  
        
     elif curve_type == GeomAbs_Ellipse:
-        return "Ellipse" , closedDistance   
+        return "Ellipse" , closedDistance, "E"  
       
     elif curve_type == GeomAbs_Hyperbola:
-        return "Hyperbola" , closedDistance 
+        return "Hyperbola" , closedDistance, "H" 
               
     elif curve_type == GeomAbs_Parabola:
-        return "Parabola" , closedDistance   
+        return "Parabola" , closedDistance, "P"   
        
     elif curve_type == GeomAbs_BezierCurve:
-        return "Bezier" , closedDistance   
+        return "Bezier" , closedDistance, "B"   
                    
     elif curve_type == GeomAbs_BSplineCurve:
-        return "BSpline" , closedDistance  
+        return "BSpline" , closedDistance, "I"  
         
     elif curve_type == GeomAbs_OtherCurve:
-        return "Other Curves" , closedDistance 
+        return "Other Curves" , closedDistance, "V" 
     else:
-        return "Unknown" , closedDistance   
+        return "Unknown" , closedDistance, "U"   
     #return "Not an edge" 
 
 ##################################
