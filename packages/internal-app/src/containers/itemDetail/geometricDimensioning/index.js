@@ -142,12 +142,12 @@ export default function GeometricDimensioning({
         showdisect: STATEPROPS.showdisect,
         showinfoonselect: STATEPROPS.showinfoonselect,
         splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
-        selectedObjects: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].selectedObjects:[]:[],
-        parentObjects: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].parentObjects:[]:[],
-        mates: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].mates:[]:[],
-        mateValues: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].mateValues:Array(6).fill(false):Array(6).fill(false),
-        angle: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].angle:0:0,
-        offset: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].offset:0:0,       
+        selectedObjects: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].selectedObjects:[]:[]:[],
+        parentObjects: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].parentObjects:[]:[]:[],
+        mates: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].mates:[]:[]:[],
+        mateValues: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].mateValues:Array(6).fill(false):Array(6).fill(false):Array(6).fill(false),
+        angle: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].angle:0:0:0,
+        offset: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].offset:0:0:0,       
         renderdata: {},
         whatchange: 0
       });
