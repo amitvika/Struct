@@ -70,19 +70,19 @@ export default function ItemTypeConfiguration(props) {
   
   };
 
-  const handleChangeOfSelection = async (selectedObjects) => {
+  const handleChangeOfSelection = async (mySelectedObjects) => {
     const fieldItemKey = fieldKey ? fieldKey.name? fieldKey.name.length==0? 'fieldKey':fieldKey : 'fieldKey' : 'fieldKey';
     if(handleItemUpdate) {    
-      console.log("I am asking the component to set",selectedObjects, fieldKey,fieldItemKey);
-      handleItemUpdate({[fieldItemKey]: selectedObjects});
+      console.log("I am asking the component to set",mySelectedObjects, fieldKey,fieldItemKey);
+      handleItemUpdate({[fieldItemKey]: [...mySelectedObjects]});
     } else {
-      console.log("I am not asking the component to set because itemupdate is null ",selectedObjects, fieldKey,fieldItemKey);
+      console.log("I am not asking the component to set because itemupdate is null ",mySelectedObjects, fieldKey,fieldItemKey);
     }
     if(state_fileOnChange) {
-      console.log("I am asking the component to change field via local variable",selectedObjects, fieldKey,fieldItemKey);
-      state_fileOnChange(fieldItemKey,selectedObjects);
+      console.log("I am asking the component to change field via local variable",mySelectedObjects, fieldKey,fieldItemKey);
+      state_fileOnChange(fieldItemKey,[...mySelectedObjects]);
     } else {
-      console.log("I am not asking the component to change field via local variable since file on change is null",selectedObjects, fieldKey,fieldItemKey);
+      console.log("I am not asking the component to change field via local variable since file on change is null",mySelectedObjects, fieldKey,fieldItemKey);
     }
   }
 
