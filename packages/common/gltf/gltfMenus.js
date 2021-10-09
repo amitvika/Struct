@@ -259,7 +259,7 @@ export const myMenus =  [ {
             fields: [{
               name: 'Select Features',
               type: 'radio',
-              items: ["Assemblies","Parts","Faces","Edges","Corners"],
+              items: ["Assemblies","Parts","Faces","Edges","Corners","Circular","Linear"],
               key: 'selectedOption'   
             }]
           }

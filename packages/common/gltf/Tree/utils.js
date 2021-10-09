@@ -32,6 +32,8 @@ export const SELECTASSEMBLY = 24;
 export const SELECTORDER = 25;
 export const SELECTFEATURE=26;
 export const SELECTLOADEDGES=27;
+export const SELECTCIRCULAR=28;
+export const SELECTLINEAR=29;
 
 export const DEFAULTSELECTCOLOR = "#17FF17";
 export const DEFAULTTOUCHCOLOR = "#FF1717";
@@ -125,7 +127,8 @@ export const gltf_Dict = {
     "selected" : "C",
     "display":"D",
     "subfeatures":"f",
-    "element":"e"
+    "element":"e",
+    "geometry":"g"
   }
 
   export const defaultGDTTable = {

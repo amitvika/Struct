@@ -57,7 +57,7 @@ import {
     SELECTCOLOR, SELECTTEXTURE, SELECTMETAL, SELECTROUGH, SELECTOPAQUE,
     SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR, 
     SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTDISTANCE, 
-    SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTFACE, 
+    SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTFACE, SELECTLINEAR, SELECTCIRCULAR,
     SELECTMEASURE, SELECTDISECTPARTS, SELECTASSEMBLY, SELECTFEATURE, SELECTLOADEDGES,
     DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, DEFAULTTEXTCOLOR,
     hexToRGB, arrayCopy, arrayRemove, arrayRemoveFromValue, gltf_Dict, defaultGDTTable
@@ -2050,11 +2050,11 @@ class GLTFRenderer extends Component {
     };
     
     onKeyDown = (event) => {
-        //console.log(event,this.props.fileGDT,this.INTERSECTED);
+        console.log(event,this.props.fileGDT,this.INTERSECTED);
         if ( this.props.fileGDT && event.ctrlKey && event.key === 'e' && (this.INTERSECTED !== null) ) {
             event.preventDefault();
             //console.log("Reaching here to load edges")
-            this.findSingleNode(this.INTERSECTED);
+            this.findSingleNode(this.INTERSECTED,true,false);
         }
     }
     onMouseWheel = ( event ) => {
@@ -2376,9 +2376,10 @@ class GLTFRenderer extends Component {
 
     visibllity = (mynode, display) => {
         const first4chars = mynode?.name.slice(0, 4);
+        const curvechar = mynode?.name.slice(4,5);
         const first6chars = mynode?.name.slice(0, 6);
         var visible = (this.props.selectedoption == SELECTMEASURE) || 
-            (this.props.selectedoption == SELECTFEATURE) ;
+            (this.props.selectedoption == SELECTFEATURE);
         //console.log(this.props.selectedoption);
         //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
         if (first4chars != "PART") {
@@ -2386,17 +2387,25 @@ class GLTFRenderer extends Component {
                 if(display) {
                     visible = visible || (this.props.selectedoption==SELECTFACE) || 
                         (this.props.selectedoption==SELECTEDGE) ||
-                        (this.props.selectedoption==SELECTCORNER)
+                        (this.props.selectedoption==SELECTCORNER) || 
+                        ((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) || 
+                        ((this.props.selectedoption == SELECTCIRCULAR) && ((curvechar=="C") || (curvechar=="N")));
                 } else {
-                    visible = visible || (this.props.selectedoption==SELECTFACE);
-                }
+                    visible = visible || (this.props.selectedoption==SELECTFACE) ||
+                    ((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) || 
+                    ((this.props.selectedoption == SELECTCIRCULAR) && ((curvechar=="C") || (curvechar=="N")));
+                    }
             } else if (first4chars == "EDGE") {
                 if(display) {
                     visible = visible || 
                         (this.props.selectedoption==SELECTEDGE) ||
-                        (this.props.selectedoption==SELECTCORNER)
+                        (this.props.selectedoption==SELECTCORNER) || 
+                        ((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) || 
+                        ((this.props.selectedoption == SELECTCIRCULAR) && ((curvechar=="C") || (curvechar=="E")));
                 } else {
-                    visible = visible || (this.props.selectedoption==SELECTEDGE);
+                    visible = visible || (this.props.selectedoption==SELECTEDGE)|| 
+                    ((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) || 
+                    ((this.props.selectedoption == SELECTCIRCULAR) && ((curvechar=="C") || (curvechar=="E")));
                 }
 
             } else if (first6chars == "VERTEX") {
@@ -2567,7 +2576,7 @@ class GLTFRenderer extends Component {
             this.selectedoption = this.props.selectedoption;
             this.activeDataTable = this.props.activeDataTable;
             if (this.gltfJSON != null) {
-                console.log("Getting me3!");
+                console.log("Getting me3!",this.selectedoption,this.activeFile);
                 //this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');
                 //console.log(this.props.gltfobj.gltf);
                 const parser = new GLTFParser( this.gltfJSON, {
@@ -2608,7 +2617,7 @@ class GLTFRenderer extends Component {
         const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
 
         const myStateTree = state_gltfobj.tree;
-        myTree.forEach(element => {
+        myStateTree.forEach(element => {
             if (element[gltf_Dict["parentId"]] == myId) {
                 if (element[gltf_Dict["leaf"]]) {
                     if (element[gltf_Dict["name"]]) {
@@ -2793,10 +2802,10 @@ class GLTFRenderer extends Component {
         });           
     };
 
-    findSingleNode = (mynode,addToGDTTable=true) => {
+    findSingleNode = (mynode,addToGDTTable=true,clickKey=true) => {
         let selectHere = true;
         console.log(this.props,this.props.fileGDT,addToGDTTable);
-        if(this.props.fileGDT && addToGDTTable) {
+        if(this.props.fileGDT && addToGDTTable && (clickKey==false)) {
             
             var myParentID = -1;
             var findEdges = 0;
@@ -2886,8 +2895,11 @@ class GLTFRenderer extends Component {
                         console.log("Adding here Gdt table",myParentID,featureSetStart, featureSetFinish, mynode);
                         this.addGDTTable(myParentID,featureSetStart, featureSetFinish, mynode);
                     }
-                    
-                    selectHere=false;
+                    if(mynode) {
+                        const first4chars = mynode.name.slice(0, 4);
+                        selectHere = (first4chars != "PART");
+                    }
+                    //selectHere=false;
                     /* const loader = new GLTFLoader().setPath(resourcePathURL || '').setCrossOrigin('anonymous');
                    
             
@@ -4168,7 +4180,8 @@ class GLTFRenderer extends Component {
         if(value=="Specify Assembly Mates and GD&T") return SELECTFEATURE;
         if(value=="Faces") return SELECTFACE;
         if(value=="Corners") return SELECTCORNER;
-
+        if(value=="Circular") return SELECTCIRCULAR;
+        if(value=="Linear") return SELECTLINEAR;
         return SELECTFEATURE;       
     };
 
