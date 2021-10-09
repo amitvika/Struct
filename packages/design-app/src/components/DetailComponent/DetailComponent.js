@@ -7,12 +7,13 @@ import AddDesign from './AddDesignForm';
 export default function DetailPage({
   tabList,
   title,
+  label,
   isAddDesignVisible = true,
 }) {
   return (
     <>
-      <DetailComponentHeader {...{ title }} />
-      {isAddDesignVisible && <AddDesign />}
+      <DetailComponentHeader {...{ title, isAddDesignVisible }} />
+     
       {tabList && <DetailComponentTab {...{ tabList }} />}
     </>
   );

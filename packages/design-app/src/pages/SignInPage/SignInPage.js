@@ -7,7 +7,6 @@ import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 import { AuthContext } from '../../context/AuthContext';
 import AuthService from '../../services/AuthServices';
-import { loadUserApi } from '@monostruct/common/api/auth';
 
 const SignInPage = () => {
   const { authUser, setAuthUser } = React.useContext(AuthContext);
@@ -16,10 +15,10 @@ const SignInPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (authUser.user) {
+    if (authUser.isAuthenticated) {
       history.push('/design');
     }
-  }, [authUser.user]);
+  }, [authUser,history]);
 
   const fetchUser = async () => {
     try {

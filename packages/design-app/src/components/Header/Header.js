@@ -14,8 +14,8 @@ import { useTheme } from '@material-ui/core/styles';
 import { useStyles } from './Header.style';
 import HeaderMobileView from './HeaderMobileView';
 import HeaderDesktopView from './HeaderDesktopView';
-import { logout } from '@monostruct/internal-app/src/actions/authActions';
 import { useDispatch } from 'react-redux';
+import { AuthContext } from '../../context/AuthContext';
 
 function HideOnScroll(props) {
   const { children } = props;
@@ -31,11 +31,13 @@ function HideOnScroll(props) {
 export default function Header(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const dispatch = useDispatch();
   const history = useHistory();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const { authUser, setAuthUser } = React.useContext(AuthContext);
+
   const handleLogout = () => {
+    setAuthUser({ user: {}, isAuthenticated: true });
     history.replace('/');
   };
 

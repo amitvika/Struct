@@ -21,10 +21,7 @@ const MyProfile = () => {
       tabName: 'My Sales',
       tabContent: <CadMakerDesigner />,
     },
-    {
-      tabName: 'Classification',
-      tabContent: <CadMakerDesigner />,
-    },
+  
   ];
 
   return (
