@@ -60,7 +60,7 @@ import {
     SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTFACE, SELECTLINEAR, SELECTCIRCULAR,
     SELECTMEASURE, SELECTDISECTPARTS, SELECTASSEMBLY, SELECTFEATURE, SELECTLOADEDGES,
     DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, DEFAULTTEXTCOLOR,
-    hexToRGB, arrayCopy, arrayRemove, arrayRemoveFromValue, gltf_Dict, defaultGDTTable
+    hexToRGB, arrayCopy, arrayRemoveFromValue, arrayRemoveFromMesh, gltf_Dict, defaultGDTTable
 } from "./Tree/utils";
 import './styles/style.css';
 
@@ -1872,7 +1872,7 @@ class GLTFRenderer extends Component {
         
         if (this.INTERSECTED !== null) {
             //console.log("Before",this.INTERSECTED.material.color);
-            //console.log("Before", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
+            console.log("Before", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
             if (this.props.selectedoption == SELECTMEASURE || event.ctrlKey) {
                 this.INTERSECTED.selectedshell = !this.INTERSECTED.selectedshell;
             } else {
@@ -3391,6 +3391,7 @@ class GLTFRenderer extends Component {
                 var copy_selectobjects = arrayCopy(this.state_selectedObjects);
                 console.log(myAllChilds);
                 myAllChilds.node.forEach(element => {
+                    console.log("Setting colors",meshmaterial.selectedshell,element.selectedshell);
                     element.selectedshell = meshmaterial.selectedshell;
                     if (meshmaterial.selectedshell) {
                         this.setSelectionColor(element);
@@ -3418,7 +3419,9 @@ class GLTFRenderer extends Component {
                             }
 
                         } else {
-                            copy_selectobjects = arrayRemove(copy_selectobjects, element.name);
+                            console.log("Before Removing object from",copy_selectobjects, element.name);
+                            copy_selectobjects = arrayRemoveFromMesh(copy_selectobjects, element.name);
+                            console.log("After Removing object from",copy_selectobjects, element.name);
                             this.state_selectedObjects = copy_selectobjects;
                             //this.setState({selectedObjects:selectedObjects});
 

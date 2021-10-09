@@ -158,6 +158,13 @@ export const gltf_Dict = {
     });
   };
 
+  export const arrayRemoveFromMesh = (arr, value, parent = false) => {
+    return arr.filter(function (ele) {
+      if (parent) return ele.parent['name'] !== value;
+      return ele['name'] !== value;
+    });
+  };
+
   export const arrayRemoveFromValue = (arr, value) => {   
       return arr.filter(function (ele) {
         return ele != value;
