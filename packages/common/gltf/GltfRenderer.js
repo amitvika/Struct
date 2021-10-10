@@ -1878,15 +1878,15 @@ class GLTFRenderer extends Component {
             } else {
                 this.INTERSECTED.selectedshell = true;
             }
-            //console.log("After", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
+            console.log("After", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
             this.setOriginalColor(this.INTERSECTED);
             //this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
             this.changeStateOfSelection(this.INTERSECTED, event);
-            console.log(this.INTERSECTED,"Going for inner table selection",event,this.props.onClick);
+            console.log(this.INTERSECTED,"Going for inner table selection",event,this.props.onClick,this.INTERSECTED.selectedshell);
             if (this.props.onClick) {
                 this.props.onClick(this.INTERSECTED, SELECTDISTANCE, event);
             }
-            //console.log("After",this.INTERSECTED.material.color);
+            console.log("After",this.INTERSECTED.material.color,this.INTERSECTED.selectedshell);
             //if(this.INTERSECTED.selectedshell) this.INTERSECTED = null;
         } else {
             console.log("I got to click");
@@ -3087,6 +3087,7 @@ class GLTFRenderer extends Component {
                 }
             }
         };
+        console.log("I could not Find my Material, please check",this.partsMeshes,data)
         return null;
     };
 
@@ -3401,6 +3402,7 @@ class GLTFRenderer extends Component {
                             element.material.color.setHex(element.currentHex);
                         }   */                      
                     }
+                    console.log("After Setting colors",meshmaterial.selectedshell,element.selectedshell,toAdd);
                     if (toAdd) {
                         if (meshmaterial.selectedshell) {
                             var alreadyPresent = false;
@@ -3419,9 +3421,9 @@ class GLTFRenderer extends Component {
                             }
 
                         } else {
-                            console.log("Before Removing object from",copy_selectobjects, element.name);
+                            console.log("Before Removing object from",copy_selectobjects, element.name,element,element.selectedshell);
                             copy_selectobjects = arrayRemoveFromMesh(copy_selectobjects, element.name);
-                            console.log("After Removing object from",copy_selectobjects, element.name);
+                            console.log("After Removing object from",copy_selectobjects, element.name,element,element.selectedshell);
                             this.state_selectedObjects = copy_selectobjects;
                             //this.setState({selectedObjects:selectedObjects});
 
@@ -3495,8 +3497,8 @@ class GLTFRenderer extends Component {
     changeparts = () => {
 
         const changedata = this.props.changedata;
-        
-        if ( (changedata !=this.changeddataarray) || (this.props.ctrlKey != this.changedctrlkey) ||
+        this.changedctrlkey = this.props.ctrlKey;
+        if (  ((this.props.whatchanged == SELECTDISTANCE) && (changedata !=this.changeddataarray))  ||
             (this.props.whatchanged != this.whatchanged ||
             (changedata?changedata[gltf_Dict["name"]]:"") != this.activeId ||
             ((this.props.whatchanged == SELECTCOLOR) &&
@@ -3515,12 +3517,13 @@ class GLTFRenderer extends Component {
             ((this.props.whatchanged == SELECTDISTANCE) &&
                 (this.selectedshell != changedata)) */
         ) ) {
-            console.log(changedata,this.whatchanged,this.props.whatchanged,this.changeddataarray);
+            console.log("BEFore",changedata,this.whatchanged,this.props.whatchanged,this.changeddataarray,this.changedctrlkey,this.props.ctrlKey);
             this.whatchanged = this.props.whatchanged;
             this.changeddataarray = changedata;
             this.changedctrlkey = this.props.ctrlKey;
             this.activeId = changedata ? changedata[gltf_Dict["name"]]: "";
-            console.log(changedata,this.whatchanged);
+            console.log("AFTer",changedata,this.whatchanged,this.props.whatchanged,this.changeddataarray,this.changedctrlkey,this.props.ctrlKey);
+            
            
             if (this.props.whatchanged == SELECTCOLOR) {
                 this[gltf_Dict["R"]] = changedata[gltf_Dict["R"]];
