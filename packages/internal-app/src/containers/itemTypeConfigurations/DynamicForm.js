@@ -12,45 +12,50 @@ export default function DynamicCriteria({
   value,
   handleUpdate,
   renderData,
-  setRenderData
+  setRenderData,
 }) {
-  // const [formFields, setFormFields] = useState(formFields);
   const handleOnChange = (name, value) => {
     const findIndex = stateFormFields.findIndex(
       (fieldItem) => name === fieldItem.fieldName
     );
     let tempFields = [...stateFormFields];
     tempFields[findIndex].value = value;
-    tempFields.map((fieldItem,index) => {
-      fieldItem.activeCell = index==findIndex;
+    tempFields.map((fieldItem, index) => {
+      fieldItem.activeCell = index == findIndex;
     });
-    
+
     setStateFormFields(tempFields);
     handleUpdate(tempFields);
   };
   const handleOnClick = (name) => {
-    
     let tempFields = [...stateFormFields];
     tempFields.map((fieldItem) => {
-      fieldItem.activeCell = (fieldItem.fieldName==name);
+      fieldItem.activeCell = fieldItem.fieldName == name;
     });
     setStateFormFields(tempFields);
-  
   };
   const [stateFormFields, setStateFormFields] = useState(formFields);
+
   useEffect(() => {
     setStateFormFields(formFields);
   }, [formFields]);
+
   const renderFields = () => {
-    console.log("STATEFORMFIELDS",stateFormFields);
-    if(!stateFormFields) {
-      return null
+    console.log('STATEFORMFIELDS', stateFormFields);
+    if (!stateFormFields) {
+      return null;
     }
+
     return stateFormFields.map((fieldItem) => {
       return (
         <Grid container spacing={2} key={fieldItem.fieldName}>
           <Grid item xs={4}>
-            <Headding bold title={`${fieldItem.fieldName} ${fieldItem.inputUnits ? '('+fieldItem.inputUnits+')' : ''}`} />
+            <Headding
+              bold
+              title={`${fieldItem.fieldName} ${
+                fieldItem.inputUnits ? '(' + fieldItem.inputUnits + ')' : ''
+              }`}
+            />
           </Grid>
           <Grid item xs={6}>
             {fieldItem.fieldType === 'Input' && (
@@ -75,29 +80,35 @@ export default function DynamicCriteria({
                 value={fieldItem.value}
               />
             )}
-            {/* name:{fieldItem?fieldItem.fieldName:"No Name"}
-            renderData:{renderData} */}
-            {fieldItem.fieldType === 'Custom' && 
-             
-              <ThreejsSelection 
+
+            {fieldItem.fieldType === 'Custom' && (
+              <ThreejsSelection
                 renderData={renderData}
                 setRenderData={setRenderData}
-                value={fieldItem.value}  
-                mykey={fieldItem.fieldName} 
+                value={fieldItem.value}
+                mykey={fieldItem.fieldName}
                 active={fieldItem.activeCell}
-                onChange={
-                  ( mykeyinfo, valuefound ) => {
-                    if(fieldItem.activeCell) {
-                      console.log("Changing Values",fieldItem, mykeyinfo, valuefound);
-                      handleOnChange(fieldItem.fieldName, valuefound);
-                    } else {
-                      console.log("Not Changing Values",fieldItem, mykeyinfo, valuefound);
-                    }
-                   
+                onChange={(mykeyinfo, valuefound) => {
+                  if (fieldItem.activeCell) {
+                    console.log(
+                      'Changing Values',
+                      fieldItem,
+                      mykeyinfo,
+                      valuefound
+                    );
+                    handleOnChange(fieldItem.fieldName, valuefound);
+                  } else {
+                    console.log(
+                      'Not Changing Values',
+                      fieldItem,
+                      mykeyinfo,
+                      valuefound
+                    );
                   }
-                }  
-                onClick={handleOnClick}         
-              />}
+                }}
+                onClick={handleOnClick}
+              />
+            )}
           </Grid>
         </Grid>
       );
