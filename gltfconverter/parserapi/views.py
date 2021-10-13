@@ -1255,7 +1255,7 @@ def FileGetShapeInfo(request):
                         #print("stored to",index)
                         data = []
                         if index >=start :
-                            dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data,faceInfo=None)
+                            dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data,faceInfo=None, depth=1)
                             print(fname,data)
                             foundHole=False
                             if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
@@ -1302,7 +1302,7 @@ def FileGetShapeInfo(request):
                             structArray.append((data,(mateArray)))                            
                 except Exception as e:
                     print("Error while loading",fname,e)
-                    
+        #print("Struct Array in Shape Info",structArray)           
         return JsonResponse(structArray, safe=False)
     except Exception as e:
         try:

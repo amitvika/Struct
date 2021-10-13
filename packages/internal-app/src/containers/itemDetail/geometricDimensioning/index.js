@@ -142,12 +142,12 @@ export default function GeometricDimensioning({
         showdisect: STATEPROPS.showdisect,
         showinfoonselect: STATEPROPS.showinfoonselect,
         splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
-        selectedObjects: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].selectedObjects:[]:[],
-        parentObjects: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].parentObjects:[]:[],
-        mates: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].mates:[]:[],
-        mateValues: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].mateValues:Array(6).fill(false):Array(6).fill(false),
-        angle: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].angle:0:0,
-        offset: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable].offset:0:0,       
+        selectedObjects: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].selectedObjects:[]:[]:[],
+        parentObjects: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].parentObjects:[]:[]:[],
+        mates: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].mates:[]:[]:[],
+        mateValues: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].mateValues:Array(6).fill(false):Array(6).fill(false):Array(6).fill(false),
+        angle: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].angle:0:0:0,
+        offset: gltfjson?gltfjson.gdttable?gltfjson.gdttable[myGlobalActiveDataTable]?gltfjson.gdttable[myGlobalActiveDataTable].offset:0:0:0,       
         renderdata: {},
         whatchange: 0
       });
@@ -617,6 +617,7 @@ export default function GeometricDimensioning({
           }
           //console.log("Setting states here1",item['state']);
         } else {
+          console.log("Item to be assigned",item);
           item['state'].selected = item.selectedshell;
           const currentNode = findMyTreeNode(item);
           if(currentNode) {
@@ -1020,15 +1021,20 @@ export default function GeometricDimensioning({
   }
 
   const setState = (data) => {
-    
-    _setState(prevState => {
-      //console.log(prevState,data);
-      return {
-        ...prevState,
-        ...data
-      }
-    });
     myGlobalState= { ...myGlobalState, ...data};
+    console.log("Setting global state",myGlobalState);
+    try {
+      _setState(prevState => {
+        //console.log(prevState,data);
+        return {
+          ...prevState,
+          ...data
+        }
+      });
+    } catch (error) {
+      console.log("Error while setting state,",error);
+    }
+    
   }
 
   const getShapeInformation = (structure = {}) => {
@@ -1183,9 +1189,13 @@ export default function GeometricDimensioning({
   }
 
   const addSelectionFromTree = async (selectedNodes) => {
+    console.log("Add Selection From Tree",selectedNodes);
     selectedNodes.forEach(element => {
       element.selectedshell=true;
     });
+    if(ctrlKey!=false) {
+      setCtrlKey(false);
+    }
     setState({ renderdata: selectedNodes, whatchange: SELECTDISTANCE });
     updateSelectionFromTree(selectedNodes,true,selectedOption);
   };
@@ -1194,7 +1204,9 @@ export default function GeometricDimensioning({
     
     var whatIsNotThereToAdd=[];
     var whatIsAvailableToRemove=[];
+    console.log("UpdateSelection:",myGlobalState,state);
     const mystate = isEmptyObject(state)? myGlobalState : state;
+    console.log("UpdateSelection:",myGlobalState,state,mystate);
     const state_selectedObjects = mystate.selectedObjects ? [...mystate.selectedObjects]: [];
     selectedNodes.forEach(element => {
       var elementFound=false;
@@ -1225,6 +1237,7 @@ export default function GeometricDimensioning({
     });
     
     if (selectedNodes && selectedNodes.length != 0) {
+      console.log("Update Selection From Tree",selectedNodes, selectedNodes.length,state_selectedObjects);
      /*  let event = {};
       event['ctrlKey'] = false;
       console.log("Reducing", event, selectedNodes);
@@ -1237,6 +1250,7 @@ export default function GeometricDimensioning({
       //resetSelectionFromTree(); */
       changeStateOfSelections(whatIsAvailableToRemove,whatIsNotThereToAdd,toGetShapeInfo,selectedFeature);
     } else {
+      console.log("Going to reset selections",selectedNodes, selectedNodes.length, state_selectedObjects);
       resetSelections();
     }
   };
