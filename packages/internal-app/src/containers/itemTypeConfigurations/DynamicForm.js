@@ -84,6 +84,7 @@ export default function DynamicCriteria({
                 setRenderData={setRenderData}
                 value={fieldItem.value}  
                 mykey={fieldItem.fieldName} 
+                mytype={fieldItem.dataType}
                 active={fieldItem.activeCell}
                 onChange={
                   ( mykeyinfo, valuefound ) => {

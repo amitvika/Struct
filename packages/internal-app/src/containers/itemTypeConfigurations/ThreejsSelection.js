@@ -26,6 +26,7 @@ export default function ThreejsSelection(props) {
           setRenderData,
           value,  
           mykey,
+          mytype,
           active, 
           onChange,
           onClick } = props;
@@ -34,10 +35,9 @@ export default function ThreejsSelection(props) {
 
   const getMyOption = ()=>{
 
-    if(mykey=="Rotary Output Component") return SELECTSOLID;
-    if(mykey=="Linear Output Component") return SELECTSOLID;
-    if(mykey=="Rotational Axis") return SELECTCIRCULAR;
-    if(mykey=="Linear Axis") return SELECTLINEAR;
+    if((mytype=="PartSelection") || (mytype=="PartSelection3D") || (mytype=="MotionControlKinematicModelling") ) return SELECTSOLID;
+    if(mytype=="CircularFaceOrEdgeSelection") return SELECTCIRCULAR;
+    if(mytype=="LinearFaceOrEdgeSelection3D") return SELECTLINEAR;
     return SELECTFEATURE;
   }
 
@@ -62,10 +62,11 @@ export default function ThreejsSelection(props) {
         first6chars = "SLICER";
       }
     }
-    if (((mykey=="Rotary Output Component") || (mykey=="Linear Output Component")) && (first4chars=="PART") ) {
+    if (((mytype=="PartSelection") || (mytype=="PartSelection3D") || (mytype=="MotionControlKinematicModelling") )
+       && (first4chars=="PART") ) {
       return myName+"\u2003";
-    } else if ( (mykey!="Rotary Output Component") && (mykey!="Linear Output Component") && 
-                ( (first4chars=="EDGE") || (first4chars=="FACE") ) ) {
+    } else if ( ((mytype!="PartSelection") && (mytype!="PartSelection3D") && (mytype!="MotionControlKinematicModelling") )
+           && ( (first4chars=="EDGE") || (first4chars=="FACE") ) ) {
       return myName+"\u2003";
     } else {
       return "\u0020";
@@ -78,11 +79,12 @@ export default function ThreejsSelection(props) {
         type="button"
         variant="contained"
         color={active?"primary":"default"}
-        onClick={(event) => {                 
-          console.log("THRESSJSOC",renderData,"VALUE",value,"KEY",mykey);
+        onClick={(event) => {             
+          const myoption= getMyOption();   
+          console.log("THRESSJSOC",renderData,"VALUE",value,"KEY",mykey,"TYPE",mytype,"OPTION",myoption);
           setRenderData(value,
             {name:mykey,
-              option:getMyOption()},
+              option:myoption},
             onChange);
           onClick(mykey);               
         }}

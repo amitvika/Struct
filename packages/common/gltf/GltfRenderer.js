@@ -327,6 +327,7 @@ class GLTFRenderer extends Component {
     }
     componentDidUpdate(prevProps, prevState) {
         //var toChange = ( (prevProps.gltfobj !== this.props.gltfobj)  || (prevState.gltfobj  !== this.props.gltfobj) );
+        console.log("COMPONENT",prevProps,this.props);
         var toChange = (prevProps.gltfobj !== this.props.gltfobj);
         toChange = toChange || (prevProps.activeFile !== this.props.activefile);  
         toChange = toChange || (prevProps.materialtype != this.props.materialtype);
@@ -2388,21 +2389,23 @@ class GLTFRenderer extends Component {
                     visible = visible || (this.props.selectedoption==SELECTFACE) || 
                         (this.props.selectedoption==SELECTEDGE) ||
                         (this.props.selectedoption==SELECTCORNER) || 
-                        ((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) || 
+                        //((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) || 
                         ((this.props.selectedoption == SELECTCIRCULAR) && ((curvechar=="C") || (curvechar=="N")));
                 } else {
                     visible = visible || (this.props.selectedoption==SELECTFACE) ||
-                    ((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) || 
+                    //((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) || 
                     ((this.props.selectedoption == SELECTCIRCULAR) && ((curvechar=="C") || (curvechar=="N")));
                     }
             } else if (first4chars == "EDGE") {
                 if(display) {
+                    //console.log("What i got in side display",this.props.selectedoption, SELECTLINEAR,curvechar);
                     visible = visible || 
                         (this.props.selectedoption==SELECTEDGE) ||
                         (this.props.selectedoption==SELECTCORNER) || 
                         ((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) || 
                         ((this.props.selectedoption == SELECTCIRCULAR) && ((curvechar=="C") || (curvechar=="E")));
                 } else {
+                    //console.log("What i got in side intersection",this.props.selectedoption, SELECTLINEAR,curvechar);
                     visible = visible || (this.props.selectedoption==SELECTEDGE)|| 
                     ((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) || 
                     ((this.props.selectedoption == SELECTCIRCULAR) && ((curvechar=="C") || (curvechar=="E")));
