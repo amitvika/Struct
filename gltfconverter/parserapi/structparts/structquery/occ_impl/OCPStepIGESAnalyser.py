@@ -1054,7 +1054,7 @@ class StepIgesAnalyser():
         "alphaCutoff":1.0,
         "alphaMode":"BLEND",
         "pbrMetallicRoughness":{
-            "baseColorFactor":[0.7529,0.7529,0.7529,1.0],
+            "baseColorFactor":[0.3,0.32,0.37,1.0],
             "metallicFactor":0.1,
             "roughnessFactor":0.7
             }

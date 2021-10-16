@@ -37,8 +37,8 @@ export const SELECTLINEAR=29;
 
 export const DEFAULTSELECTCOLOR = "#17FF17";
 export const DEFAULTTOUCHCOLOR = "#FF1717";
-export const DEFAULTBACKCOLOR = "#EAEAEA";
-export const DEFAULTTEXTCOLOR = "#170017";
+export const DEFAULTBACKCOLOR = "#F3F6FB";
+export const DEFAULTTEXTCOLOR = "#0C0904";
 
 export const hexToRGB = (hex) => {
     var c;
