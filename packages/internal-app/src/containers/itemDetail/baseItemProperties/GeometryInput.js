@@ -10,7 +10,6 @@ import {
   TableRow,
   Icon,
   Typography,
-  IconButton,
 } from '@material-ui/core';
 import { Tooltip } from 'reactstrap';
 import Grid from '@material-ui/core/Grid';
@@ -20,10 +19,7 @@ import Input from '@monostruct/common/components/atoms/Input';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import MaterialModal from './MaterialModal';
 import MaterialPropertiesModal from './MaterialPropertiesModal';
-import { FileUpload } from '@monostruct/common/components';
-// import FileHistory from '@monostruct/common/containers/FileHistory';
-import ExportLogo from '../../../assets/images/export.png';
-import { download } from '@monostruct/common/api/fileUpload.api';
+import FileUploadAndExport from './FileUploadAndExport';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 export default function GeometryInput({
@@ -46,12 +42,7 @@ export default function GeometryInput({
   const [selectedMaterials, setSelectedMaterials] = useState(
     itemGeometry.materials || []
   );
-  // const [materialSelected, ]
-  console.log('item Properties. file store', itemProperties.fileStore);
-  const handleExportButton = () => {
-    download(itemProperties.fileName);
-  };
-
+  
   const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
   const toggleMaterial = () => {
     setIsMaterialModalOpen((prevValue) => {
@@ -147,39 +138,15 @@ export default function GeometryInput({
           </Grid>
 
           <Grid item xs={12}>
-            {!itemProperties.fileStore && (
-              <>
-                <Typography variant="h6">Upload Cad</Typography>
-                <FileUpload
-                  fileName={fileName}
-                  setFileName={setFileName}
-                  handleFileUpload={handleFileUpload}
-                  itemId={itemId}
-                />
-              </>
-            )}
-
-            {itemProperties.fileStore && (
-              <div style={{ display: 'flex' }}>
-                <Typography
-                  variant="h6"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    color: 'blue',
-                  }}
-                >
-                  {itemProperties.fileStore}
-                </Typography>
-                <IconButton margin="auto" onClick={handleExportButton}>
-                  <img
-                    src={ExportLogo}
-                    style={{ width: '20px', paddingTop: '2px' }}
-                    alt="pictur"
-                  />
-                </IconButton>
-              </div>
-            )}
+            <FileUploadAndExport
+              {...{
+                fileName,
+                setFileName,
+                handleFileUpload,
+                itemId,
+                itemProperties,
+              }}
+            />
           </Grid>
 
           <Grid item xs={4}>

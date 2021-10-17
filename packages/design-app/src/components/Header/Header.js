@@ -37,7 +37,7 @@ export default function Header(props) {
   const { authUser, setAuthUser } = React.useContext(AuthContext);
 
   const handleLogout = () => {
-    setAuthUser({ user: {}, isAuthenticated: true });
+    setAuthUser({ user: {}, isAuthenticated: false });
     history.replace('/');
   };
 

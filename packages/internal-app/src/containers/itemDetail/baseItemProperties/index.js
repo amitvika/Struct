@@ -24,7 +24,7 @@ import {
   DEFAULTTOUCHCOLOR,
   SELECTHIRERACHY,
   SELECTFEATURE,
-  STATEPROPS, 
+  STATEPROPS,
   USESTYLES,
 } from '@monostruct/common/gltf/Tree/utils';
 
@@ -61,7 +61,8 @@ export default function BaseItemProperties({
   setItemProperties,
   gltfjson,
   setgltfjson,
-  handleItemUpdate,
+  handleItemUpdateLocallay,
+  handleItemSaveOnServer,
 }) {
   const classes = USESTYLES();
   const dispatch = useDispatch();
@@ -79,57 +80,46 @@ export default function BaseItemProperties({
     setGltfObj(gltfjson);
   }, [gltfjson]);
 
-  const handleFileUpload = (data) => {
+  const handleFileUpload = async (data) => {
     setIsLoading(true);
-    upload3DFile(data)
-      .then((res) => {
-        setFileId(res.data.id);
-        getView(res.data.id);
 
-        if (res.data.id) {
-          handleItemUpdate({ fileName: res.data.filename });
-        }
+    try {
+      const fileUploadRes = await upload3DFile(data);
 
-        setIsLoading(false);
-        dispatch(showSuccessAlert({ message: 'File uploaded successfully' }));
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        dispatch(
-          showErrorAlert({ message: 'Unable to upload file at the moment' })
-        );
+      const fileId = fileUploadRes.data.id
+      if (!fileId) {
+        // eslint-disable-next-line no-throw-literal
+        throw { message: 'File upload error' };
+      }
+
+      const getHierarchyRes = await getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0, 50)
+
+      if(!getHierarchyRes.data.store){
+        // eslint-disable-next-line no-throw-literal
+        throw { message: 'Unable to render file' };
+      }
+
+      handleItemSaveOnServer({
+        fileId: fileId,
+        fileStore: getHierarchyRes.data.store,
+        fileName: getHierarchyRes.data.load,
+        fileGDT: null,
+        fileMPPS: null,
+        fileStack: null,
+        fileKinematic: null,
       });
-  };
 
-  const getView = (fileId) => {
-    setIsFileLoading(true);
+      const multiAssmebly = get(getHierarchyRes.data, 'tree', []).length > 0;
+      setgltfjson({ ...getHierarchyRes.data, multiAssmebly: multiAssmebly, gdt: null });
+      setIsLoading(false);
+      
+      dispatch(showSuccessAlert({ message: 'File uploaded and Rendered successfully' }));
+      
+    } catch (error) {
+      setIsLoading(false);
+      dispatch(showErrorAlert({ message: error.message }));
+    }
 
-    getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0, 50)
-      .then((res) => res.data)
-      .then((data) => {
-        //console.log(data);
-        setItemProperties((prevData) => ({
-          ...prevData,
-          fileId: fileId,
-          fileStore: data.store,
-          fileName: data.load,
-          fileGDT: null,
-          fileMPPS: null,
-          fileStack: null,
-          fileKinematic: null,
-        }));
-        //console.log(itemProperties);
-        const multiAssmebly = get(data, 'tree', []).length > 0;
-        setgltfjson({ ...data, multiAssmebly: multiAssmebly, gdt: null });
-        //console.log({...data,multiAssmebly:multiAssmebly});
-        setIsFileLoading(false);
-
-        dispatch(showSuccessAlert({ message: 'File rendered successfully' }));
-      })
-      .catch((error) => {
-        setIsFileLoading(false);
-        dispatch(showErrorAlert({ message: 'Unable to render file' }));
-      });
   };
 
   const removeFile = (data) => {
@@ -147,7 +137,7 @@ export default function BaseItemProperties({
   if (gltfjsonlen > 0) {
     gltfjsonlen += gltfobj?.gltf?.accessors?.length;
   }
-  console.log("backcolor",DEFAULTBACKCOLOR(),"selectcolor",DEFAULTSELECTCOLOR(), "touchcolor",DEFAULTTOUCHCOLOR());
+  
   return (
     <div>
       {

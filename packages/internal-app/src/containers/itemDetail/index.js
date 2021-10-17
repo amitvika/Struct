@@ -603,7 +603,8 @@ const ItemDetail = () => {
             setgltfjson={setgltfjson}
             tabIndex={tabIndex}
             setTabIndex={setTabIndex}
-            handleItemUpdate={handleItemUpdate}
+            handleItemUpdateLocallay={handleItemUpdate}
+            handleItemSaveOnServer={handleSave}
           />
         );
       case 'cu':
@@ -700,21 +701,21 @@ const ItemDetail = () => {
   };
 
   const handleItemUpdate = (change) => {
-    console.log("Advising to change",change);
     let tempItemProperties = Object.assign({}, itemProperties, change);
     setItemProperties(tempItemProperties);
   };
 
-  const handleSave = () => {
-    // setIsLoading(true);
+  const handleSave = (change) => {
     itemProperties.step = undefined;
     itemProperties.gltfjson = undefined;
     itemProperties.itemId = undefined;
 
-    ItemAPI.updateItemAPI(id, { ...itemProperties })
+    let updateItemProperties = Object.assign({}, itemProperties, change);
+
+    ItemAPI.updateItemAPI(id, { ...updateItemProperties })
       .then((res) => {
         setItemProperties(res.data);
-        dispatch(showSuccessAlert({ message: 'All data is saved' }));
+        dispatch(showSuccessAlert({ message: 'Item Updated' }));
       })
       .catch((error) => {
         dispatch(showErrorAlert({ message: 'Unable to save info' }));
