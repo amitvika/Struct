@@ -4536,6 +4536,11 @@ class GLTFRenderer extends Component {
             }
             console.log("Setting is progress closing",this.state.isProgressOpen,openFiles,aFile);
         }  else {
+            try {
+                this.openSnackBar(alert,aFile+" "+message+" out of "+openFiles.length.toString());
+            } catch (error) {
+                console.log("Error while displaying snackbar",error,aFile,alert,message);
+            }
             console.log("Setting is progress Opening",this.state.isProgressOpen,openFiles,aFile);
         }         
     }
