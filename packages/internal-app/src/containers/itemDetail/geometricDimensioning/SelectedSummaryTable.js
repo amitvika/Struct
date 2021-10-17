@@ -93,7 +93,7 @@ export default function SelectedSummaryTable({ featureList = [],
   const renderTable = (myData,groupid,myMateValues,active) => {
     //console.log("FeaturList",featureList,features);
     if (!myData || myData.length==0) {
-      return <StyledTableRow key={"No Row Selected"+groupid.toString()} 
+      return <StyledTableRow /*key={"No Row Selected"+groupid.toString()} */
         onClick={()=>{setCurrentDataTable(groupid)}}
       >
         <StyledTableCell component="th" scope="row"  >

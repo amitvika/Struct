@@ -9,16 +9,22 @@ import {
 import Button from '@material-ui/core/Button';
 
 export default function ThreejsSelection(props) {
-  const { renderData, setRenderData, value, mykey, active, onChange, onClick } =
-    props;
-  const myvalue = value ? value : ['No Data Selected'];
-  console.log('THRESSJSC', renderData, value, mykey);
+  const { renderData,
+          setRenderData,
+          value,  
+          mykey,
+          mytype,
+          active, 
+          onChange,
+          onClick } = props;
+  const myvalue = value ? value: ["No Data Selected"];
+  console.log("THRESSJSC",renderData,value,mykey);
 
-  const getMyOption = () => {
-    if (mykey == 'Rotary Output Component') return SELECTSOLID;
-    if (mykey == 'Linear Output Component') return SELECTSOLID;
-    if (mykey == 'Rotational Axis') return SELECTCIRCULAR;
-    if (mykey == 'Linear Axis') return SELECTLINEAR;
+  const getMyOption = ()=>{
+
+    if((mytype=="PartSelection") || (mytype=="PartSelection3D") || (mytype=="MotionControlKinematicModelling") ) return SELECTSOLID;
+    if(mytype=="CircularFaceOrEdgeSelection") return SELECTCIRCULAR;
+    if(mytype=="LinearFaceOrEdgeSelection3D") return SELECTLINEAR;
     return SELECTFEATURE;
   };
 
@@ -43,42 +49,40 @@ export default function ThreejsSelection(props) {
         first6chars = 'SLICER';
       }
     }
-    if (
-      (mykey == 'Rotary Output Component' ||
-        mykey == 'Linear Output Component') &&
-      first4chars == 'PART'
-    ) {
-      return myName + '\u2003';
-    } else if (
-      mykey != 'Rotary Output Component' &&
-      mykey != 'Linear Output Component' &&
-      (first4chars == 'EDGE' || first4chars == 'FACE')
-    ) {
-      return myName + '\u2003';
+    if (((mytype=="PartSelection") || (mytype=="PartSelection3D") || (mytype=="MotionControlKinematicModelling") )
+       && (first4chars=="PART") ) {
+      return myName+"\u2003";
+    } else if ( ((mytype!="PartSelection") && (mytype!="PartSelection3D") && (mytype!="MotionControlKinematicModelling") )
+           && ( (first4chars=="EDGE") || (first4chars=="FACE") ) ) {
+      return myName+"\u2003";
     } else {
       return '\u0020';
     }
   };
   return (
     <Button
-      aria-describedby={'Save Controls'}
-      id={'popselect'}
-      type="button"
-      variant="contained"
-      color={active ? 'primary' : 'default'}
-      onClick={(event) => {
-        console.log('THRESSJSOC', renderData, 'VALUE', value, 'KEY', mykey);
-        setRenderData(value, { name: mykey, option: getMyOption() }, onChange);
-        onClick(mykey);
-      }}
-    >
-      {myvalue.map((row, index) =>
-        row
-          ? row[gltf_Dict['name']]
-            ? getMyName(row)
-            : row + '\u2002'
-          : '\u0020'
-      )}
+        aria-describedby={'Save Controls'}
+        id={'popselect'}
+        type="button"
+        variant="contained"
+        color={active?"primary":"default"}
+        onClick={(event) => {             
+          const myoption= getMyOption();   
+          console.log("THRESSJSOC",renderData,"VALUE",value,"KEY",mykey,"TYPE",mytype,"OPTION",myoption);
+          setRenderData(value,
+            {name:mykey,
+              option:myoption},
+            onChange);
+          onClick(mykey);               
+        }}
+      >
+      {/* <div style={{background:active?"#A0A0A0":"#D0D0D0"}}> */}
+      { myvalue.map((row, index) => (
+      
+        row ? row[gltf_Dict['name']] ? getMyName(row) : row+"\u2002": "\u0020"
+      
+      ))}
+      {/* </div> */}
     </Button>
   );
 }

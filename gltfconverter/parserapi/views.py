@@ -20,7 +20,7 @@ import json
 import pprint
 from glob import glob
 import os
-#import sys
+import sys
 import pickle
 
 from pathlib import Path
@@ -1209,6 +1209,57 @@ def compareDimension(dim1, dim2):
         return True
     return False
 
+def roundoff(point):
+        multiplier = 1
+        if(sys.maxsize/10000 > point) :
+            multiplier = 10000
+        else:
+            if(sys.maxsize/1000 > point) :
+                multiplier = 1000
+            else:
+                if(sys.maxsize/100 > point) :
+                    multiplier = 100
+                else:
+                    if(sys.maxsize/10 > point) :
+                        multiplier = 10
+                    else:
+                        multiplier = 1   
+    
+        return round(point*multiplier,2) / multiplier
+        
+def getDictionaryFromOBB(obb):
+        if obb:
+            aBaryCenter = obb.Center()
+            aXDir = obb.XDirection()
+            aYDir = obb.YDirection()
+            aZDir = obb.ZDirection()
+            axx = roundoff(aXDir.X())
+            axy = roundoff(aXDir.Y())
+            axz = roundoff(aXDir.Z())
+            ayx = roundoff(aYDir.X())
+            ayy = roundoff(aYDir.Y())
+            ayz = roundoff(aYDir.Z())
+            azx = roundoff(aZDir.X())
+            azy = roundoff(aZDir.Y())
+            azz = roundoff(aZDir.Z())
+            xsize, ysize, zsize = roundoff(obb.XHSize()), roundoff(obb.YHSize()), roundoff(obb.ZHSize())
+            xcenter,ycenter,zcenter = roundoff(aBaryCenter.X()), roundoff(aBaryCenter.Y()), roundoff(aBaryCenter.Z())
+            return {
+                "xx": axx, "xy": axy, "xz": axz,
+                "yx": ayx, "yy": ayy, "yz": ayz,
+                "zx": azx, "zy": azy, "zz": azz,
+                "cx": xcenter, "cy": ycenter, "cz": zcenter,
+                "sx": xsize, "sy": ysize, "sz": zsize
+            }
+        else:
+            return {
+                "xx": 0, "xy": 0, "xz": 0,
+                "yx": 0, "yy": 0, "yz": 0,
+                "zx": 0, "zy": 0, "zz": 0,
+                "cx": 0, "cy": 0, "cz": 0,
+                "sx": 0, "sy": 0, "sz": 0
+            }
+
 @api_view(['GET', 'POST'])
 def FileGetShapeInfo(request):
     try:
@@ -1242,7 +1293,7 @@ def FileGetShapeInfo(request):
         print(start,fnames,pnames)
         structArray=[]
         thisshell=[]
-        thisparent=[]
+        #thisparent=[]
         #mateCollection=[]
         for index in range(len(fnames)):
             fname = fnames[index]        
@@ -1257,9 +1308,12 @@ def FileGetShapeInfo(request):
                         if index >=start :
                             dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data,faceInfo=None, depth=1)
                             print(fname,data)
+                            thisdimension = get_oriented_bounding_details(thisshell[index])
+                            thisdictionary = getDictionaryFromOBB(thisdimension)
+                            data[0]['obb']=thisdictionary
                             foundHole=False
                             if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
-                                thisdimension = get_oriented_bounding_details(thisshell[index])
+                                #thisdimension = get_oriented_bounding_details(thisshell[index])
                                 thissiblings = pnames[index]                                
                                 for sibling in thissiblings:
                                     try:

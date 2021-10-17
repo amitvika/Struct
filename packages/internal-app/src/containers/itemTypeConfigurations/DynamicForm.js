@@ -85,8 +85,9 @@ export default function DynamicCriteria({
               <ThreejsSelection
                 renderData={renderData}
                 setRenderData={setRenderData}
-                value={fieldItem.value}
-                mykey={fieldItem.fieldName}
+                value={fieldItem.value}  
+                mykey={fieldItem.fieldName} 
+                mytype={fieldItem.dataType}
                 active={fieldItem.activeCell}
                 onChange={(mykeyinfo, valuefound) => {
                   if (fieldItem.activeCell) {
