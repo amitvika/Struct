@@ -2,7 +2,8 @@
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-
+//import { useSelector } from 'react-redux';
+//import { getThemeName } from '@monostruct/common/themes/base';
 import { stringify } from '../BeautifyJson';
 
 export const SELECTCOLOR = 1;
@@ -35,10 +36,13 @@ export const SELECTLOADEDGES=27;
 export const SELECTCIRCULAR=28;
 export const SELECTLINEAR=29;
 
-export const DEFAULTSELECTCOLOR = "#17FF17";
-export const DEFAULTTOUCHCOLOR = "#FF1717";
-export const DEFAULTBACKCOLOR = "#FFFFFF";
-export const DEFAULTTEXTCOLOR = "#1717FF";
+let selectedTheme = 'light';
+
+export const setSelectedTheme=(theme)=> {
+  console.log("Before Changing selected theme",selectedTheme,theme);
+  selectedTheme = theme;
+  console.log("Before Changing selected theme",selectedTheme,theme);
+}
 
 export const hexToRGB = (hex) => {
     var c;
@@ -179,6 +183,18 @@ export const gltf_Dict = {
     });
     return copy_selectobjects;
   };
+  //const themeDictionary = useSelector((state) => state.theme.curThemeName);  
+  //const themeName =getThemeName(themeDictionary);
+  //const themeName = selectedTheme;//getThemeName(themeDictionary);
+
+
+  export const DEFAULTSELECTCOLOR = () => { console.log("ThemeName",selectedTheme);return selectedTheme=='light'?"#17FF17":"#E800E8"; };
+  export const DEFAULTTOUCHCOLOR = () => { console.log("ThemeName",selectedTheme);return selectedTheme=='light'?"#FF1717":"#00E8E8"; };
+  export const DEFAULTBACKCOLOR  = () => {console.log("ThemeName",selectedTheme); return   selectedTheme=='light'?"#FFFFFF":"#424242";};
+  export const DEFAULTTEXTCOLOR = () => {console.log("ThemeName",selectedTheme); return  selectedTheme=='light'?"#1717FF":"#E8E800";};
+  export const DEFAULTBACKMENUCOLOR  = () => {console.log("ThemeName",selectedTheme); return   selectedTheme=='light'?"#FEFEFE":"#010101";};
+  export const DEFAULTTEXTMENUCOLOR = () => {console.log("ThemeName",selectedTheme); return  selectedTheme=='light'?"#010101":"#FEFEFE";};
+
 
   const DEFAULTDISTANCEGAP = 0.1;
   const DEFAULTANGLEGAP = 0.5;
@@ -228,7 +244,7 @@ export const gltf_Dict = {
       margin: 10,
       width: '75%',
       //background: "#F3F3F3",
-      backgroundColor:"#F3F3F3",
+      backgroundColor:selectedTheme=='light'?"#F3F3F3":"#0C0C0C",
       '@media screen and  (max-width:1400px)': {
         width: '100%',
       },
@@ -245,7 +261,7 @@ export const gltf_Dict = {
       display: 'inline-flex',
       minWidth: '100%',
       //background: "#F3F3F3",
-      backgroundColor:"#F3F3F3",
+      backgroundColor:selectedTheme=='light'?"#F3F3F3":"#0C0C0C",
     },
     viewerContainer: {
       flex: 1,
@@ -255,7 +271,7 @@ export const gltf_Dict = {
       boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
       minWidth: '800px',
       //background: "#F3F3F3",
-      backgroundColor:"#F3F3F3",
+      backgroundColor:selectedTheme=='light'?"#F3F3F3":"#0C0C0C",
     },    
     paper: {      
       padding: '20px',

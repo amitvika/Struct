@@ -57,9 +57,9 @@ export default function Viewer({
           fileGDT={fileGDT}
           fileAnimation={false}
           activefile={activefile + gltfjsonlen.toString()}
-          backcolor={DEFAULTBACKCOLOR}
-          selectcolor={DEFAULTSELECTCOLOR}
-          touchcolor={DEFAULTTOUCHCOLOR}
+          backcolor={DEFAULTBACKCOLOR()}
+          selectcolor={DEFAULTSELECTCOLOR()}
+          touchcolor={DEFAULTTOUCHCOLOR()}
           selectedoption={selectedOption}
           splitmethod={splitMethod}
           changedata={changedata}

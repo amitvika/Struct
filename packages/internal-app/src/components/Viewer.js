@@ -29,9 +29,9 @@ export default function Viewer({
           activefile={fileId}
           fileGDT={fileGDT}
           fileAnimation={false}
-          backcolor={DEFAULTBACKCOLOR}
-          selectcolor={DEFAULTSELECTCOLOR}
-          touchcolor={DEFAULTTOUCHCOLOR}
+          backcolor={DEFAULTBACKCOLOR()}
+          selectcolor={DEFAULTSELECTCOLOR()}
+          touchcolor={DEFAULTTOUCHCOLOR()}
           selectedoption={selectedOption}
           splitmethod={splitMethod}
           changedata={[]}

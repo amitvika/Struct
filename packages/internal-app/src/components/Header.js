@@ -14,7 +14,7 @@ import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import Switch from '@material-ui/core/Switch';
-
+import { setSelectedTheme } from "@monostruct/common/gltf/Tree/utils";
 import { logout } from "../actions/authActions";
 import { setThemeAction } from '../actions/theme.action'
 
@@ -201,9 +201,11 @@ const handleThemeChange = (event) => {
   setLightThemeSelected(event.target.checked)
   if (event.target.checked) {
     dispatch(setThemeAction({ themeName: 'darkTheme' }))
+    setSelectedTheme('dark');
   }
   else {
     dispatch(setThemeAction({ themeName: 'lightTheme' }))
+    setSelectedTheme('light');
   }
 };
 

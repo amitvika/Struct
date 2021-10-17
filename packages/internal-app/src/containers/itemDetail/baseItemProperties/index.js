@@ -147,6 +147,7 @@ export default function BaseItemProperties({
   if (gltfjsonlen > 0) {
     gltfjsonlen += gltfobj?.gltf?.accessors?.length;
   }
+  console.log("backcolor",DEFAULTBACKCOLOR(),"selectcolor",DEFAULTSELECTCOLOR(), "touchcolor",DEFAULTTOUCHCOLOR());
   return (
     <div>
       {
@@ -160,9 +161,9 @@ export default function BaseItemProperties({
                   fileGDT={null}
                   fileAnimation={false}
                   activefile={fileId + gltfjsonlen.toString()}
-                  backcolor={DEFAULTBACKCOLOR}
-                  selectcolor={DEFAULTSELECTCOLOR}
-                  touchcolor={DEFAULTTOUCHCOLOR}
+                  backcolor={DEFAULTBACKCOLOR()}
+                  selectcolor={DEFAULTSELECTCOLOR()}
+                  touchcolor={DEFAULTTOUCHCOLOR()}
                   selectedoption={SELECTFEATURE}
                   splitmethod={SELECTHIRERACHY}
                   changedata={[]}

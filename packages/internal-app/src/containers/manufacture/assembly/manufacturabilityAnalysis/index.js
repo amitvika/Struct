@@ -1353,9 +1353,9 @@ export default function ManufacturabilityAnalysis(props) {
             fileAnimation={true}
             //view="Perspective"
             activefile={fileId + gltfjsonlen.toString()}
-            backcolor={DEFAULTBACKCOLOR}
-            selectcolor={DEFAULTSELECTCOLOR}
-            touchcolor={DEFAULTTOUCHCOLOR}
+            backcolor={DEFAULTBACKCOLOR()}
+            selectcolor={DEFAULTSELECTCOLOR()}
+            touchcolor={DEFAULTTOUCHCOLOR()}
             selectedoption={SELECTFEATURE}
             splitmethod={SELECTHIRERACHY}
             changedata={state.renderdata}

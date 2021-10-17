@@ -65,9 +65,9 @@ export default function Index() {
               //gltfjson={JSON.stringify(gltfjson)}
               gltfobj={gltfjson}
               activefile={fileId}
-              backcolor={DEFAULTBACKCOLOR}
-              selectcolor={DEFAULTSELECTCOLOR}
-              touchcolor={DEFAULTTOUCHCOLOR}
+              backcolor={DEFAULTBACKCOLOR()}
+              selectcolor={DEFAULTSELECTCOLOR()}
+              touchcolor={DEFAULTTOUCHCOLOR()}
               selectedoption={SELECTFEATURE}
               splitmethod={SELECTHIRERACHY}
               changedata={[]}

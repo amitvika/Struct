@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid';
 
 import SimpleFormBuilder from '../SimpleFormBuilder';
 
-
+import { DEFAULTBACKMENUCOLOR, DEFAULTTEXTMENUCOLOR } from '../Tree/utils';
 export default class GroupFormBuilder extends React.Component {
   
   
@@ -34,7 +34,9 @@ export default class GroupFormBuilder extends React.Component {
         style={{ margin: '1px 0', ...this.props.inputContainerStyle, width:'100px' }}
       >
         <SimpleFormBuilder
-          fieldContainerStyle={{ backgroundColor: '#fefefe', padding: 1 }}
+          fieldContainerStyle={{backgroundColor: DEFAULTBACKMENUCOLOR,
+                                color: DEFAULTTEXTMENUCOLOR(), 
+                                padding: 1 }}
           inputContainerStyle={{ margin: '5px 0' }}
           onChange={this.props.onChange}                    
           fields={group.fields}
@@ -66,7 +68,8 @@ export default class GroupFormBuilder extends React.Component {
           p={1} zindex="tooltip" 
           style={{
             ...this.style,
-            backgroundColor: '#fefefe',
+            backgroundColor: DEFAULTBACKMENUCOLOR(),
+            color: DEFAULTTEXTMENUCOLOR(),
             padding: 1,            
             ...this.props.fieldContainerStyle,
           }}

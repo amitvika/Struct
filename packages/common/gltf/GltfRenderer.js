@@ -246,9 +246,9 @@ class GLTFRenderer extends Component {
     datametal = 0.1;
     datarough = 0.7;
     dataopaque = 1.0;
-    databackcolor = DEFAULTBACKCOLOR;
-    dataselectcolor = DEFAULTSELECTCOLOR;
-    datatouchcolor = DEFAULTTOUCHCOLOR;
+    databackcolor = DEFAULTBACKCOLOR();
+    dataselectcolor = DEFAULTSELECTCOLOR();
+    datatouchcolor = DEFAULTTOUCHCOLOR();
     data2texture = "None";
     data3texture = "None";
     selectedshell = false;
@@ -339,6 +339,12 @@ class GLTFRenderer extends Component {
             this_state_gltf = this.props.gltfobj;
         }
         this.changedctrlkey = this.props.ctrlKey;
+        var changeback = this.databackcolor != this.props.backcolor;
+        changeback = changeback || this.dataselectcolor != this.props.selectcolor;
+        changeback = changeback || this.datatouchcolor != this.props.touchcolor;
+        if(changeback) {
+            this.changeBackgroundWhenPropsChange();
+        }
         /* 
         if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
             this.setState({gltfobj:this.props.gltfobj});
@@ -639,7 +645,7 @@ class GLTFRenderer extends Component {
             this.renderer.physicallyCorrectLights = true;
             this.renderer.outputEncoding = sRGBEncoding;
             //console.log("back color",this.props.backcolor);
-            this.renderer.setClearColor(this.props.backcolor || DEFAULTBACKCOLOR);
+            this.renderer.setClearColor(this.props.backcolor || DEFAULTBACKCOLOR());
             this.renderer.setPixelRatio(window.devicePixelRatio);
             this.renderer.setSize(viewport.right*2, viewport.top*2);
 
@@ -3191,26 +3197,26 @@ class GLTFRenderer extends Component {
                 if (this.scene) {
                     this.scene.background = null;
                 }
-                this.renderer.setClearColor(this.databackcolor || DEFAULTBACKCOLOR);
+                this.renderer.setClearColor(this.databackcolor || DEFAULTBACKCOLOR());
             }
         }
         if (this.dataselectcolor != this.props.selectcolor && (this.props.dataselection == SELECTSELECTCOLOR)) {
             this.dataselectcolor = this.props.selectcolor;
             if (this.firstshell) {
                 if (this.firstshell.selectedshell) {
-                    this.firstshell.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR);
+                    this.firstshell.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR());
                 }
             }
             if (this.secondshell) {
                 if (this.secondshell.selectedshell) {
-                    this.secondshell.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR);
+                    this.secondshell.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR());
                 }
             }
         }
         if (this.datatouchcolor != this.props.touchcolor && (this.props.dataselection == SELECTTOUCHCOLOR)) {
             this.datatouchcolor = this.props.touchcolor;
             if (this.INTERSECTED) {
-                this.INTERSECTED.material.color = this.convertColor(this.props.touchcolor || DEFAULTTOUCHCOLOR);
+                this.INTERSECTED.material.color = this.convertColor(this.props.touchcolor || DEFAULTTOUCHCOLOR());
             }
         }
         //console.log("data2texture",this.data2texture,"prp2",this.props.data2texture,this.props.dataselection )
@@ -3229,7 +3235,7 @@ class GLTFRenderer extends Component {
                 this.scene.background = myTexture;
                 if (!myTexture) {
                     if (this.renderer) {
-                        this.renderer.setClearColor(this.databackcolor || DEFAULTBACKCOLOR);
+                        this.renderer.setClearColor(this.databackcolor || DEFAULTBACKCOLOR());
                     }
                 }
             }
@@ -3257,11 +3263,47 @@ class GLTFRenderer extends Component {
                 this.scene.background = myTexture;
                 if (!myTexture) {
                     if (this.renderer) {
-                        this.renderer.setClearColor(this.databackcolor || DEFAULTBACKCOLOR);
+                        this.renderer.setClearColor(this.databackcolor || DEFAULTBACKCOLOR());
                     }
                 }
             }
         }
+    };
+
+    changeBackgroundWhenPropsChange = () => {
+        if (this.databackcolor != this.props.backcolor) {
+            this.databackcolor = this.props.backcolor;
+            console.log("Backcolor change",this.databackcolor);
+            if (this.renderer) {
+                if (this.scene) {
+                    this.scene.background = null;
+                }
+                this.renderer.setClearColor(this.databackcolor || DEFAULTBACKCOLOR());
+            }
+        }
+        if (this.dataselectcolor != this.props.selectcolor ) {
+            
+            this.dataselectcolor = this.props.selectcolor;
+            console.log("selectcolor change",this.dataselectcolor);
+            if (this.firstshell) {
+                if (this.firstshell.selectedshell) {
+                    this.firstshell.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR());
+                }
+            }
+            if (this.secondshell) {
+                if (this.secondshell.selectedshell) {
+                    this.secondshell.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR());
+                }
+            }
+        }
+        if (this.datatouchcolor != this.props.touchcolor) {
+            this.datatouchcolor = this.props.touchcolor;
+            console.log("touchcolor change",this.datatouchcolor);
+            if (this.INTERSECTED) {
+                this.INTERSECTED.material.color = this.convertColor(this.props.touchcolor || DEFAULTTOUCHCOLOR());
+            }
+        }
+        
     };
 
     setTouchingColor = (meshmaterial) => {
@@ -3280,7 +3322,7 @@ class GLTFRenderer extends Component {
         }
         /*}*/
         //console.log("before",meshmaterial,meshmaterial.material.color);
-        meshmaterial.material.color = this.convertColor(this.props.touchcolor || DEFAULTTOUCHCOLOR); // this.props.distanceColor || distanceColor);						
+        meshmaterial.material.color = this.convertColor(this.props.touchcolor || DEFAULTTOUCHCOLOR()); // this.props.distanceColor || distanceColor);						
         meshmaterial.material.opacity = 1.0;
         //console.log("after",meshmaterial,meshmaterial.material.color);
     };
@@ -3301,7 +3343,7 @@ class GLTFRenderer extends Component {
         }
         /*}*/
         //console.log("before",meshmaterial.material.color);
-        meshmaterial.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR); // this.props.distanceColor || distanceColor);						
+        meshmaterial.material.color = this.convertColor(this.props.selectcolor || DEFAULTSELECTCOLOR()); // this.props.distanceColor || distanceColor);						
         meshmaterial.material.opacity = 1.0;
         //console.log("after",meshmaterial.material.color);
     };
@@ -4734,7 +4776,7 @@ class GLTFRenderer extends Component {
                         position: 'fixed',
                         top: this.clientY + 10,
                         left: this.clientX + 10,
-                        color: DEFAULTTEXTCOLOR,
+                        color: DEFAULTTEXTCOLOR(),
                         ...this.props.style,
                     }}
                 >
