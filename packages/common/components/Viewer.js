@@ -1,7 +1,7 @@
 import React from 'react'
 import GLTFRenderer from '../gltf/GltfRenderer'
-import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY } from "../gltf/Tree/utils";
-const DEFAULTMATERIALNAME = "Basic";
+import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, STATEPROPS } from "../gltf/Tree/utils";
+//const DEFAULTMATERIALNAME = "Basic";
 
 export default function Viewer({ gltfjson = {}, fileId = '', fileGDT = '', selectedOption = SELECTSOLID, splitMethod = SELECTHIRERACHY,
   handleModelClick = () => { } }) {
@@ -23,7 +23,7 @@ export default function Viewer({ gltfjson = {}, fileId = '', fileGDT = '', selec
           changedata={[]}
           data2texture={null}
           data3texture={null}
-          materialtype={DEFAULTMATERIALNAME}
+          materialtype={STATEPROPS.materialname}
           whatchanged={0} dataselection={0}
           onClick={handleModelClick}
           activeDataTable={0}

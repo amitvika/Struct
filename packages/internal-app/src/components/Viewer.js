@@ -7,8 +7,9 @@ import {
   DEFAULTTOUCHCOLOR,
   SELECTSOLID,
   SELECTHIRERACHY,
+  STATEPROPS
 } from '@monostruct/common/gltf/Tree/utils';
-const DEFAULTMATERIALNAME = 'Basic';
+//const DEFAULTMATERIALNAME = 'Basic';
 
 export default function Viewer({
   gltfjson = {},
@@ -36,7 +37,7 @@ export default function Viewer({
           changedata={[]}
           data2texture={null}
           data3texture={null}
-          materialtype={DEFAULTMATERIALNAME}
+          materialtype={STATEPROPS.materialname}
           whatchanged={0}
           dataselection={0}
           onClick={handleModelClick}

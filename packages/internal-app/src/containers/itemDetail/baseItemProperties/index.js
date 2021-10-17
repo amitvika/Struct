@@ -24,11 +24,13 @@ import {
   DEFAULTTOUCHCOLOR,
   SELECTHIRERACHY,
   SELECTFEATURE,
+  STATEPROPS, 
+  USESTYLES,
 } from '@monostruct/common/gltf/Tree/utils';
 
 import '../style.css';
 
-const useStyles = makeStyles((theme) => ({
+/* const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
     '@media screen and (max-width:1400px)': {
@@ -50,9 +52,9 @@ const useStyles = makeStyles((theme) => ({
       width: '100%',
     },
   },
-}));
+})); */
 
-const DEFAULTMATERIALNAME = 'Basic';
+//const DEFAULTMATERIALNAME = 'Basic';
 export default function BaseItemProperties({
   itemId,
   itemProperties,
@@ -61,7 +63,7 @@ export default function BaseItemProperties({
   setgltfjson,
   handleItemUpdate,
 }) {
-  const classes = useStyles();
+  const classes = USESTYLES();
   const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -148,7 +150,7 @@ export default function BaseItemProperties({
   return (
     <div>
       {
-        <Grid className={classes.container}>
+        <Grid className={classes.designcontainer}>
           <Paper className={classes.paperContainer} variant="outlined" square>
             {!isLoading &&
               Object.keys(gltfjson).length > 0 &&
@@ -166,7 +168,7 @@ export default function BaseItemProperties({
                   changedata={[]}
                   data2texture={null}
                   data3texture={null}
-                  materialtype={DEFAULTMATERIALNAME}
+                  materialtype={STATEPROPS.materialname}
                   whatchanged={0}
                   dataselection={0}
                   activeDataTable={0}

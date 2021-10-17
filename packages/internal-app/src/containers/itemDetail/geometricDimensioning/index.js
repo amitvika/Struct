@@ -138,6 +138,7 @@ export default function GeometricDimensioning({
         firstshell: null,
         secondshell: null,
         materialname: STATEPROPS.materialtype[0].name,
+        materialtype: STATEPROPS.materialname,
         disectstruct: STATEPROPS.disect,
         showdisect: STATEPROPS.showdisect,
         showinfoonselect: STATEPROPS.showinfoonselect,

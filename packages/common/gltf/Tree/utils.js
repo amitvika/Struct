@@ -37,8 +37,8 @@ export const SELECTLINEAR=29;
 
 export const DEFAULTSELECTCOLOR = "#17FF17";
 export const DEFAULTTOUCHCOLOR = "#FF1717";
-export const DEFAULTBACKCOLOR = "#F3F6FB";
-export const DEFAULTTEXTCOLOR = "#0C0904";
+export const DEFAULTBACKCOLOR = "#FFFFFF";
+export const DEFAULTTEXTCOLOR = "#1717FF";
 
 export const hexToRGB = (hex) => {
     var c;
@@ -215,11 +215,37 @@ export const gltf_Dict = {
   };
 
   export const USESTYLES = makeStyles((theme) => ({
+
+    designcontainer: {
+      display: 'flex',
+      '@media screen and (max-width:1400px)': {
+        width: '100%',
+        flexDirection: 'column-reverse',
+      },
+    },
+    paperContainer: {
+      padding: 20,
+      margin: 10,
+      width: '75%',
+      //background: "#F3F3F3",
+      backgroundColor:"#F3F3F3",
+      '@media screen and  (max-width:1400px)': {
+        width: '100%',
+      },
+    },
+    itemContainer: {
+      width: '25%',
+      '@media screen and (max-width:1400px)': {
+        width: '100%',
+      },
+    },
     mainContainer: {
       margin: 10,
       padding: 10,
       display: 'inline-flex',
       minWidth: '100%',
+      //background: "#F3F3F3",
+      backgroundColor:"#F3F3F3",
     },
     viewerContainer: {
       flex: 1,
@@ -228,6 +254,8 @@ export const gltf_Dict = {
       display: 'inline-block',
       boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
       minWidth: '800px',
+      //background: "#F3F3F3",
+      backgroundColor:"#F3F3F3",
     },    
     paper: {      
       padding: '20px',

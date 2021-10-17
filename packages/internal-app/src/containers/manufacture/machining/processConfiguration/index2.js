@@ -14,8 +14,9 @@ import {
   //SELECTSOLID,
   SELECTHIRERACHY,
   SELECTFEATURE,
+  STATEPROPS
 } from '@monostruct/common/gltf/Tree/utils';
-const DEFAULTMATERIALNAME = 'Basic';
+//const DEFAULTMATERIALNAME = 'Basic';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -72,7 +73,7 @@ export default function Index() {
               changedata={[]}
               data2texture={null}
               data3texture={null}
-              materialtype={DEFAULTMATERIALNAME}
+              materialtype={STATEPROPS.materialname}
               whatchanged={0}
               dataselection={0}
               activeDataTable={0}
