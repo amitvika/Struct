@@ -12,6 +12,7 @@ export default function SelectFactoryModal({
   selectedValue = {},
   setSelectedValue,
   assignFactory,
+  isItemSelectionVisible
 }) {
   const handleChange = (data) => {
     console.log('data', data);
@@ -45,6 +46,7 @@ export default function SelectFactoryModal({
         handleUpdate={handleChange}
         handleSelection={(data) => {}}
         isMultiSelection={false}
+        isItemSelectionVisible={true}
       />
     </MainModal>
   );

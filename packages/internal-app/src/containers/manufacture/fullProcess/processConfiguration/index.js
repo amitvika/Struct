@@ -26,7 +26,6 @@ export default function ProductionTable() {
   const [filteredList, setFilteredList] = useState([]);
   const [isModalOpened, setIsModalOpened] = React.useState(false);
   const [selectedValue, setSelectedValue] = useState({});
-  const [isFactoryEdit, setIsFactoryEdit] = useState(false);
 
   const [columns, setColumns] = useState([
     { title: 'ID', field: 'id', editable: 'never' },
@@ -60,7 +59,7 @@ export default function ProductionTable() {
         return (
           <span
             style={{ cursor: 'pointer' }}
-            onClick={(event) => handleFactoryClick(event, rowData)}
+            onClick={(event) => handleFactoryClick(event, rowData, rowData.factory_id)}
           >
             <Link>
               {' '}
@@ -69,11 +68,11 @@ export default function ProductionTable() {
           </span>
         );
       },
-      editComponent: (rowData) => {
+      editComponent: ({ rowData }) => {
         return (
           <span
             style={{ cursor: 'pointer' }}
-            onClick={(event) => handleFactoryClick(event, rowData)}
+            onClick={(event) => handleFactoryClick(event, rowData, true)}
           >
             <Link>
               {' '}
@@ -85,17 +84,16 @@ export default function ProductionTable() {
     },
   ]);
 
-  const handleFactoryClick = (event, rowData) => {
+  const handleFactoryClick = (event, rowData, isEdit = false) => {
     event.stopPropagation();
-    if (rowData.factory_id) {
+    if (rowData.factory_id && !isEdit) {
       history.push(`/factories/${rowData.factory_id}`);
       return;
     }
-    if (isFactoryEdit) {
-      console.log('Factory edit ');
+    else {
+      toggleModal(rowData);
     }
 
-    toggleModal(rowData);
   };
 
   const toggleModal = (data) => {
@@ -144,7 +142,7 @@ export default function ProductionTable() {
             dispatch(showSuccessAlert({ message: `Production updated` }));
 
             const availableDoc = list.find(
-              (document) => document.id == res.data.id
+              (document) => document.id === res.data.id
             );
 
             if (availableDoc) {
@@ -183,6 +181,7 @@ export default function ProductionTable() {
   };
 
   const updateItem = (newData, oldData) => {
+    console.log('new Data', newData);
     return upsertItem(newData);
   };
 
