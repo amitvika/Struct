@@ -145,7 +145,7 @@ def FileUploadView(request):
             #print(file_serializer)
             if file_serializer.is_valid():
                 file_serializer.save()
-                #print(file_serializer.data)
+                print(file_serializer.data)
                 return JsonResponse(file_serializer.data, status=status.HTTP_201_CREATED) 
             return JsonResponse(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
