@@ -138,14 +138,16 @@ def FileUploadView(request):
             request.data._mutable = True
             request.data['filename'] = f.name
             request.data._mutable = False
+            print("About to serialize",request.data['filename'])
             file_serializer = FileSerializer(data=request.data)
             #f = request.data['file']
             #file_serializer.data['file']=f
             #file_serializer.filename = f.name
-            #print(file_serializer)
+            print("Check Valid",file_serializer.data)
             if file_serializer.is_valid():
+                print("Saving",file_serializer.data)
                 file_serializer.save()
-                #print(file_serializer.data)
+                print("Saved",file_serializer.data)
                 return JsonResponse(file_serializer.data, status=status.HTTP_201_CREATED) 
             return JsonResponse(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         

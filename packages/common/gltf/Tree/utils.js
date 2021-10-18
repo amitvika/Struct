@@ -188,12 +188,30 @@ export const gltf_Dict = {
   //const themeName = selectedTheme;//getThemeName(themeDictionary);
 
 
-  export const DEFAULTSELECTCOLOR = () => { console.log("ThemeName",selectedTheme);return selectedTheme=='light'?"#17FF17":"#E800E8"; };
-  export const DEFAULTTOUCHCOLOR = () => { console.log("ThemeName",selectedTheme);return selectedTheme=='light'?"#FF1717":"#00E8E8"; };
-  export const DEFAULTBACKCOLOR  = () => {console.log("ThemeName",selectedTheme); return   selectedTheme=='light'?"#FFFFFF":"#424242";};
-  export const DEFAULTTEXTCOLOR = () => {console.log("ThemeName",selectedTheme); return  selectedTheme=='light'?"#1717FF":"#E8E800";};
-  export const DEFAULTBACKMENUCOLOR  = () => {console.log("ThemeName",selectedTheme); return   selectedTheme=='light'?"#FEFEFE":"#010101";};
-  export const DEFAULTTEXTMENUCOLOR = () => {console.log("ThemeName",selectedTheme); return  selectedTheme=='light'?"#010101":"#FEFEFE";};
+  export const DEFAULTSELECTCOLOR = () => { 
+    //console.log("ThemeName",selectedTheme);
+    return selectedTheme=='light'?"#17FF17":"#E800E8"; 
+  };
+  export const DEFAULTTOUCHCOLOR = () => { 
+    //console.log("ThemeName",selectedTheme);
+    return selectedTheme=='light'?"#FF1717":"#00E8E8"; 
+  };
+  export const DEFAULTBACKCOLOR  = () => {
+    //console.log("ThemeName",selectedTheme); 
+    return selectedTheme=='light'?"#FFFFFF":"#424242";
+  };
+  export const DEFAULTTEXTCOLOR = () => {
+    //console.log("ThemeName",selectedTheme); 
+    return selectedTheme=='light'?"#1717FF":"#E8E800";
+  };
+  export const DEFAULTBACKMENUCOLOR  = () => {
+    //console.log("ThemeName",selectedTheme); 
+    return selectedTheme=='light'?"#FEFEFE":"#010101";
+  };
+  export const DEFAULTTEXTMENUCOLOR = () => {
+    //console.log("ThemeName",selectedTheme); 
+    return selectedTheme=='light'?"#010101":"#FEFEFE";
+  };
 
 
   const DEFAULTDISTANCEGAP = 0.1;

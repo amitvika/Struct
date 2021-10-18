@@ -86,23 +86,51 @@ export default function BaseItemProperties({
     try {
       const fileUploadRes = await upload3DFile(data);
 
-      const fileId = fileUploadRes.data.id
+      const fileId = fileUploadRes.data.id;
+      console.log("After File Upload", fileUploadRes.data);
+      
+
       if (!fileId) {
         // eslint-disable-next-line no-throw-literal
+        console.log("File Upload Error",data);
         throw { message: 'File upload error' };
       }
-
+      
+      
       const getHierarchyRes = await getHierarchySplitFiles(fileId, true, 0.1, 0.5, false, 0, 0, 0, 50)
-
-      if(!getHierarchyRes.data.store){
+      let datastore = getHierarchyRes.data.store;
+      let dataload = getHierarchyRes.data.load;
+      if(!datastore){
+        if(fileUploadRes.data.file) {
+          
+          dataload = fileUploadRes.data.file;
+          let filenameWithExtension = dataload.replace(/^.*[\\\/]/, '');
+          const lastDotIndex = filenameWithExtension.lastIndexOf('.');
+          if(lastDotIndex==-1) {
+            datastore = filenameWithExtension;
+          } else {
+            datastore = filenameWithExtension.substring(0,lastDotIndex);
+          }
+          
+        }
+        handleItemSaveOnServer({
+          fileId: fileId,
+          fileStore: datastore,
+          fileName: dataload,
+          fileGDT: null,
+          fileMPPS: null,
+          fileStack: null,
+          fileKinematic: null,
+        });
         // eslint-disable-next-line no-throw-literal
+        console.log("File Render Error",datastore,dataload);
         throw { message: 'Unable to render file' };
       }
 
       handleItemSaveOnServer({
         fileId: fileId,
-        fileStore: getHierarchyRes.data.store,
-        fileName: getHierarchyRes.data.load,
+        fileStore: datastore,
+        fileName: dataload,
         fileGDT: null,
         fileMPPS: null,
         fileStack: null,
