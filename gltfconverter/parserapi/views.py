@@ -138,6 +138,7 @@ def FileUploadView(request):
             request.data._mutable = True
             request.data['filename'] = f.name
             request.data._mutable = False
+            print("About to serialize",request.data['filename'])
             file_serializer = FileSerializer(data=request.data)
             #f = request.data['file']
             #file_serializer.data['file']=f
