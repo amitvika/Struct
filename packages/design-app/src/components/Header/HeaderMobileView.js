@@ -58,6 +58,7 @@ export default function HeaderMobileView({ handleLogout }) {
         >
           <Typography variant="h6">My Profile</Typography>
         </MenuItem>
+      
         <MenuItem key={`logout_link`} onClick={handleLogout}>
           <Typography variant="h6">Logout</Typography>
         </MenuItem>

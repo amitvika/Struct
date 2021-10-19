@@ -1,19 +1,14 @@
-import ThemeProvider from './ThemeProvider';
-// import store from '../../internal-app/src/store';
-import store from '@monostruct/internal-app/src/store';
-import { Provider } from 'react-redux';
+import { ThemeContextProvider } from '@monostruct/common/themes/ThemeContextProvider';
 import AppRoutes from './AppRoutes';
 import { AuthContextProvider } from './context/AuthContext';
 
 function App() {
   return (
-    <Provider store={store}>
-      <ThemeProvider>
-        <AuthContextProvider>
-          <AppRoutes />
-        </AuthContextProvider>
-      </ThemeProvider>
-    </Provider>
+    <ThemeContextProvider>
+      <AuthContextProvider>
+        <AppRoutes />
+      </AuthContextProvider>
+    </ThemeContextProvider>
   );
 }
 

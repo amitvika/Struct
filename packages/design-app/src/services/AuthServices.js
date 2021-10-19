@@ -1,6 +1,6 @@
 import { loginApi, loadUserApi } from '@monostruct/common/api/auth';
 
-export const signIn = async (credential) => {
+const signIn = async (credential) => {
   try {
     const res = await loginApi(credential);
     const { user, token } = res.data;
@@ -10,14 +10,16 @@ export const signIn = async (credential) => {
   } catch (err) {}
 };
 
-export const fetchUser = async () => {
+const fetchUser = async () => {
   try {
     const res = await loadUserApi();
     return res.data;
   } catch (err) {}
 };
 
-export default {
+const AuthService = {
   signIn,
-  fetchUser,
-};
+  fetchUser
+}
+
+export default AuthService;
