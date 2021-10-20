@@ -818,7 +818,8 @@ export default function ManufacturabilityAnalysis(props) {
   };
   const getItemFileOrderID =(item) => {
     if(item.fileUUId) {
-      return (resourcePathURL || '') + item.fileUUId + '/' + item.fileStack;
+      const fullpath = item.fileName;
+      return fullpath.slice(6,fullpath.length);
     }
     return item.fileId;
   }

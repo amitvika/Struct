@@ -10,7 +10,7 @@ import { Button, Grid, Paper } from '@material-ui/core';
 import { getPartsStackableInfo,resourcePathURL } from '@monostruct/common/api/fileUpload.api';
 // import { useSelector, useDispatch } from 'react-redux';
 // import { setCurrentItemAction } from '../../../../actions/itemActions';
-import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
+// import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
 
 export default function NestedList({ setItemValue }) {
   // const dispatch = useDispatch();
@@ -22,7 +22,8 @@ export default function NestedList({ setItemValue }) {
   const [splitfiles, setsplitfiles] = useState({});
   const getItemFileStackID =(item) => {
     if(item.fileUUId) {
-      return (resourcePathURL || '') + item.fileUUId + '/' + item.fileStack;
+      const fullpath = item.fileName;
+      return fullpath.slice(6,fullpath.length);
     }
     return item.fileId;
   }
