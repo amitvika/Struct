@@ -14,23 +14,15 @@ export default function DetailComponentHeader({
   return (
     <Paper className={classes.paperContainer}>
 
-      <Grid xs={4}>
+      <div style={{position: 'absolute',left: '0px'}}>
       {isAddDesignVisible && <AddDesign />}
-      </Grid>
-      <Grid xs={8}>
+      </div>
+      <div style={{display: 'flex', justifyContent: 'center'}}>
         <Typography variant="h3" className={classes.title}>
           {title}
         </Typography>
       
-      </Grid>
-      {/* <Grid style={{ marginLeft: 'auto' }}>
-            <Button>
-              <AddBoxIcon />
-            </Button>
-            <Button>
-              <EditIcon />
-            </Button>
-          </Grid> */}
+      </div>
     </Paper>
   );
 }

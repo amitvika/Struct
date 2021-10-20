@@ -2,20 +2,24 @@ import React from 'react';
 import { Paper, Tab, Tabs, Grid } from '@material-ui/core';
 
 export default function DetailPageTab({ tabList }) {
-  const [selectedTab, setSelectedTab] = React.useState({});
+  const [selectedTabIndex, setSelectedTabIndex] = React.useState(0);
 
   const handleTabChange = (event, newTabIndex) => {
-    setSelectedTab(newTabIndex);
+    setSelectedTabIndex(newTabIndex);
   };
   const renderTab = () => {
     return tabList.map((tab, index) => (
       <Tab
         label={`${tab.tabName}`}
-        value={tab.tabName}
+        value={index}
         style={{ textAlign: 'left' }}
       />
     ));
   };
+
+  
+
+  const TabContent = tabList[selectedTabIndex] ? tabList[selectedTabIndex].tabContent : null; 
 
   return (
     <Grid container>
@@ -25,7 +29,7 @@ export default function DetailPageTab({ tabList }) {
             className="MuiTab-wrapper"
             orientation="vertical"
             variant="scrollable"
-            value={selectedTab.tabName}
+            value={selectedTabIndex}
             onChange={handleTabChange}
           >
             {renderTab()}
@@ -33,7 +37,7 @@ export default function DetailPageTab({ tabList }) {
         </Paper>
       </Grid>
       <Grid item sm={10}>
-        {selectedTab.tabName}
+        <TabContent/>
       </Grid>
     </Grid>
   );

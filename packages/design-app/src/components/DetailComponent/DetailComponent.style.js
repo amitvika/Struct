@@ -6,6 +6,7 @@ export const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     margin: 10,
     padding: 10,
+   
   },
   title: {
     fontWeight: 700,

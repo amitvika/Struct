@@ -5,12 +5,16 @@ import Grow from '@material-ui/core/Grow';
 import Popper from '@material-ui/core/Popper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { Button, MenuList, MenuItem, Paper } from '@material-ui/core';
+import Switch from '@material-ui/core/Switch';
 
 import { useStyles } from './Header.style';
 import { AuthContext } from '../../context/AuthContext';
 import { headerListItem } from './Header.helper';
+import { ThemeContext } from '@monostruct/common/themes/ThemeContextProvider';
 
 export default function HeaderDesktopView({ handleLogout }) {
+  const { themeName, setThemeName } = React.useContext(ThemeContext);
+
   const classes = useStyles();
   const location = useLocation();
 
@@ -21,6 +25,14 @@ export default function HeaderDesktopView({ handleLogout }) {
   const {
     authUser: { isAuthenticated, user },
   } = useContext(AuthContext);
+
+  const handleThemeChange = (event) => {
+    if (event.target.checked) {
+      setThemeName('darkTheme');
+    } else {
+      setThemeName('lightTheme');
+    }
+  };
 
   const handleToggle = () => {
     if (isAuthenticated) {
@@ -54,7 +66,10 @@ export default function HeaderDesktopView({ handleLogout }) {
       return (
         <li
           key={`primary_button_${label}`}
-          className={classes.primaryListItemHeader+ ` ${addSeparator && classes.verticalBar}`}
+          className={
+            classes.primaryListItemHeader +
+            ` ${addSeparator && classes.verticalBar}`
+          }
         >
           <Button
             {...{
@@ -122,6 +137,15 @@ export default function HeaderDesktopView({ handleLogout }) {
                   >
                     My Profile
                   </MenuItem>
+                  <MenuItem key={`theme_changer`}>
+                    <Switch
+                      checked={themeName === 'darkTheme'}
+                      onChange={handleThemeChange}
+                      name="currentTheme"
+                    />
+                    {themeName === 'darkTheme' ? 'Dark' : 'Light'}
+                  </MenuItem>
+
                   <MenuItem
                     key={`logout_link`}
                     onClick={handleLogout}

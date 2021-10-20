@@ -10,7 +10,7 @@ import BaseItemProperties from './baseItemProperties';
 import GeometricDimensioning from './geometricDimensioning';
 import CurrentUsage from './currentUsage';
 import VendorDetails from './VendorDetails';
-import ManufacturingElements from '../manufacture/manufacturingElements';
+import ManufactureProcessingProcessSimulation from '@monostruct/common/containers/ManufactureProcessingProcessSimulation';
 import ClientSetup from './clientSetup';
 import Assembly from './assembly';
 import Production from './production';
@@ -337,7 +337,7 @@ const ItemDetail = () => {
         setIsLoading(false);
         return;
       }
-      let myTabIndex = myTabedIndex=='iupc' ? 'gdtac' : myTabedIndex;
+      let myTabIndex = myTabedIndex == 'iupc' ? 'gdtac' : myTabedIndex;
       if (myTabIndex == 'iupc') {
         console.log('Checking iupc', myTabIndex, item);
         if (!item.fileKinematic || item.fileKinematic === null) {
@@ -833,7 +833,7 @@ const ItemDetail = () => {
   };
   const additionalSaveFunction = (saveFunction) => {
     state_additionalSaveFunction = saveFunction;
-  }
+  };
   const renderPageSwitch = () => {
     if (!get(itemProperties, '_id')) {
       console.log("I Could not get id in rendePageSwithc",itemProperties);
@@ -875,7 +875,7 @@ const ItemDetail = () => {
             isLoading={isLoading}
             //assemblyTree={get(gltfjson, 'tree', [])}
             tabIndex={tabIndex}
-            keyName={{name:"",option:SELECTFEATURE}}
+            keyName={{ name: '', option: SELECTFEATURE }}
             handleChangeOfSelection={null}
             additionalSaveFunction={additionalSaveFunction}
             progressBarLoad={progressBarLoad}
@@ -907,7 +907,7 @@ const ItemDetail = () => {
         return <VendorDetails />;
       case 'mpps':
         return (
-          <ManufacturingElements
+          <ManufactureProcessingProcessSimulation
             itemId={id}
             fileId={itemProperties.fileId}
             fileUUId={itemProperties.fileUUId}
@@ -986,16 +986,14 @@ const ItemDetail = () => {
       .catch((error) => {
         dispatch(showErrorAlert({ message: 'Unable to save info' }));
       });
-      try {
-        if(state_additionalSaveFunction) {
-          console.log("Saving additional info");
-          state_additionalSaveFunction();
-        }
-      } catch (error) {
-        console.log("Error while saving",error);
+    try {
+      if (state_additionalSaveFunction) {
+        console.log('Saving additional info');
+        state_additionalSaveFunction();
       }
-
-     
+    } catch (error) {
+      console.log('Error while saving', error);
+    }
   };
 
   const handleTabChange = (event, newTabIndex) => {
