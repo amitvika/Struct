@@ -10,7 +10,7 @@ import BaseItemProperties from './baseItemProperties';
 import GeometricDimensioning from './geometricDimensioning';
 import CurrentUsage from './currentUsage';
 import VendorDetails from './VendorDetails';
-import Manufacturing from '../manufacture/index2';
+import ManufactureProcessingProcessSimulation from '@monostruct/common/containers/ManufactureProcessingProcessSimulation';
 import ClientSetup from './clientSetup';
 import Assembly from './assembly';
 import Production from './production';
@@ -20,7 +20,7 @@ import ComplianceAndCertifications from './ComplianceAndCertifications';
 import ItemTypeConfigurations from '../itemTypeConfigurations';
 import ItemAPI from '@monostruct/common/api/items.api';
 
-import {SELECTFEATURE, STATEPROPS} from "@monostruct/common/gltf/Tree/utils";
+import { SELECTFEATURE, STATEPROPS } from '@monostruct/common/gltf/Tree/utils';
 
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import { setCurrentItemAction } from '../../actions/itemActions';
@@ -286,7 +286,7 @@ const ItemDetail = () => {
         setIsLoading(false);
         return;
       }
-      let myTabIndex = myTabedIndex=='iupc' ? 'gdtac' : myTabedIndex;
+      let myTabIndex = myTabedIndex == 'iupc' ? 'gdtac' : myTabedIndex;
       if (myTabIndex == 'iupc') {
         console.log('Checking iupc', myTabIndex, item);
         if (!item.fileKinematic || item.fileKinematic === null) {
@@ -523,7 +523,7 @@ const ItemDetail = () => {
         kinematic: fileKinematic,
       };
       setIsLoading(true);
-      let myTabIndex = myTabedIndex=='iupc' ? 'gdtac' : myTabedIndex; 
+      let myTabIndex = myTabedIndex == 'iupc' ? 'gdtac' : myTabedIndex;
       let whichOneToLoad = null;
       if (myTabIndex == 'pdcu') {
         whichOneToLoad = fileStore;
@@ -581,13 +581,13 @@ const ItemDetail = () => {
   };
   const additionalSaveFunction = (saveFunction) => {
     state_additionalSaveFunction = saveFunction;
-  }
+  };
   const renderPageSwitch = () => {
     if (!get(itemProperties, '_id')) {
       return null;
     }
     //console.log(itemProperties,itemProperties.fileId);
-    if ( (tabIndex!='gdtac') && (tabIndex!='iupc') ) {
+    if (tabIndex != 'gdtac' && tabIndex != 'iupc') {
       additionalSaveFunction(null);
     }
     switch (tabIndex) {
@@ -619,7 +619,7 @@ const ItemDetail = () => {
             isLoading={isLoading}
             //assemblyTree={get(gltfjson, 'tree', [])}
             tabIndex={tabIndex}
-            keyName={{name:"",option:SELECTFEATURE}}
+            keyName={{ name: '', option: SELECTFEATURE }}
             handleChangeOfSelection={null}
             additionalSaveFunction={additionalSaveFunction}
             //informSnackBar={informSnackBar}
@@ -645,7 +645,7 @@ const ItemDetail = () => {
         return <VendorDetails />;
       case 'mpps':
         return (
-          <Manufacturing
+          <ManufactureProcessingProcessSimulation
             itemId={id}
             fileId={itemProperties.fileId}
             itemProperties={itemProperties}
@@ -720,16 +720,14 @@ const ItemDetail = () => {
       .catch((error) => {
         dispatch(showErrorAlert({ message: 'Unable to save info' }));
       });
-      try {
-        if(state_additionalSaveFunction) {
-          console.log("Saving additional info");
-          state_additionalSaveFunction();
-        }
-      } catch (error) {
-        console.log("Error while saving",error);
+    try {
+      if (state_additionalSaveFunction) {
+        console.log('Saving additional info');
+        state_additionalSaveFunction();
       }
-
-     
+    } catch (error) {
+      console.log('Error while saving', error);
+    }
   };
 
   const handleTabChange = (event, newTabIndex) => {

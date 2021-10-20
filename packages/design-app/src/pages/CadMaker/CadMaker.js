@@ -3,21 +3,21 @@ import './style.css';
 
 import CadMakerDesigner from '../../containers/CadMakerDesigner/CadMakerDesigner';
 import DetailPage from '../../components/DetailComponent/DetailComponent';
-// import Manufacturing from '@monostruct/internal-app/src/containers/manufacture/index2'
+import ManufactureProcessingProcessSimulation from '@monostruct/common/containers/ManufactureProcessingProcessSimulation';
 
 const CadMaker = () => {
   const tabList = [
     {
       tabName: 'Designer',
-      tabContent: <CadMakerDesigner />,
+      tabContent: CadMakerDesigner,
     },
     {
       tabName: 'Manufacture',
-      // tabContent: <Manufacturing />,
+      tabContent: ManufactureProcessingProcessSimulation,
     },
     {
       tabName: 'Classification',
-      tabContent: <CadMakerDesigner />,
+      tabContent: CadMakerDesigner,
     },
   ];
 
