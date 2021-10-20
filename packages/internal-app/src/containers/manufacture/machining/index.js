@@ -1,5 +1,5 @@
 import React from 'react';
-import ProcessConfiguration from './processConfiguration/index2';
+import ProcessConfigurationAssembly from './processConfiguration/processConfigurationAssembly';
 import ProcessStaticsAndAnalysis from './processStatisticsAndAnalysis';
 
 export default function Machining({
@@ -9,7 +9,7 @@ export default function Machining({
     const render = () => {
 
         if (selectedSubTab === 'Process Configuration') {
-            return (<ProcessConfiguration />)
+            return (<ProcessConfigurationAssembly />)
         }
         else if (selectedSubTab === 'Process Statistics and Analysis') {
             return (<ProcessStaticsAndAnalysis />)

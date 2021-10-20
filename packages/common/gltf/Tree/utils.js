@@ -257,6 +257,12 @@ export const gltf_Dict = {
         flexDirection: 'column-reverse',
       },
     },
+    progresscontainer: {      
+      '@media screen and (max-width:1400px)': {
+        width: '100%',
+        flexDirection: 'column-reverse',
+      },
+    },
     paperContainer: {
       padding: 20,
       margin: 10,
@@ -290,7 +296,16 @@ export const gltf_Dict = {
       minWidth: '800px',
       //background: "#F3F3F3",
       backgroundColor:selectedTheme=='light'?"#F3F3F3":"#0C0C0C",
-    },    
+    },  
+    stackContainer: {     
+      padding: '20px',
+      margin: '0px 15px',
+      display: 'inline-block',
+      boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
+      minWidth: '800px',
+      //background: "#F3F3F3",
+      backgroundColor:selectedTheme=='light'?"#F3F3F3":"#0C0C0C",
+    },     
     paper: {      
       padding: '20px',
       margin: '0px 15px',
@@ -357,3 +372,25 @@ export const gltf_Dict = {
       padding: "0px 8px"
     }
   }))(TableCell);
+
+  const wait = function (ms = 20000) {
+    return new Promise(resolve => {
+      setTimeout(resolve, ms);
+    });
+  };
+
+  export const pollFunction = async (fn, fnCondition, ms, setPercentage,percentFunction) => {
+    let result = await fn();
+    console.log("Result from poll",result);
+    while (fnCondition(result)) {
+      console.log("Result of poll condition",result);
+      if(setPercentage){
+        setPercentage(percentFunction(result));
+      }
+      await wait(ms);
+      result = await fn();
+    }
+    return result;
+  };
+  
+  

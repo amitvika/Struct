@@ -118,6 +118,7 @@ exports.getAll = async (req, res) => {
         name: itemDetail.name,
         fileStore: itemDetail.fileStore,
         fileGDT: itemDetail.fileGDT,
+        fileUUId: itemDetail.fileUUId,
         fileMPPS: itemDetail.fileMPPS,
         fileStack: itemDetail.fileStack,
         fileKinematic: itemDetail.fileKinematic,
@@ -205,8 +206,9 @@ exports.update = async (req, res) => {
       updateData.assemblyType = 'Multi-Item Assembly';
     }
 
-    if (body.fileId) {
+    if (body.fileId || body.fileUUId) {
       updateData.fileId = body.fileId || null;
+      updateData.fileUUId = body.fileUUId || null;
       updateData.fileStore = body.fileStore;
       updateData.fileGDT = body.fileGDT;
       updateData.fileMPPS = body.fileMPPS;

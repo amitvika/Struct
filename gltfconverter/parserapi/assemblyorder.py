@@ -1100,7 +1100,7 @@ class FindAssemblingOrder(object):
                                             "current":currenttime.strftime("%H:%M:%S"),
                                             "complete":processed } 
             try:
-                orderfile = "Display/"+dictionary["store"]+".order"
+                orderfile = dictionary["display"]+dictionary["store"]+".order"
                 print("Writing,",orderfile)
                 with open(orderfile, 'w') as fh:
                     fh.write(json.dumps(dictionary["assemblyorder"], sort_keys=True, indent=2 ))
@@ -1119,7 +1119,7 @@ class FindAssemblingOrder(object):
                 "current":currenttime.strftime("%H:%M:%S"),
                 "complete":processed } 
             try:
-                orderfile = "Display/"+storename+".order"
+                orderfile = self.displaypath+storename+".order"
                 print("Writing,",orderfile)
                 with open(orderfile, 'w') as fh:
                     fh.write(json.dumps(mydictionary, sort_keys=True, indent=2 ))
@@ -1298,7 +1298,7 @@ class FindAssemblingOrder(object):
     def threadAssembling(self,sourceFileName,distancegap,anglegap,animationtime,starttime,storename,debugMe):
         try:
             if self.logging != None and self.byThread:
-                self.logging.info("Started thread assembling") 
+                self.logging.info("Started thread assembling"+sourceFileName) 
         except Exception as e:
             print("Error while logging",e)
         if(self.center):    
@@ -1314,7 +1314,7 @@ class FindAssemblingOrder(object):
             #Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.dimension
             
             while k < lenShape:
-                currenttime = datetime.now()
+                currenttime = datetime.utcnow()
                 timingdelta = currenttime-previoustime
                 if (timingdelta.seconds > 5) and (self.byThread):
                     self.writeToOrderFile(storename,starttime,currenttime,k)  
@@ -1584,25 +1584,36 @@ class FindAssemblingOrder(object):
                     #shapesdim.append(xmins+xmove+xt, ymins+ymove+xt, zmins+zmove+xt, xmaxs+xmove+xt, ymaxs+ymove+xt, zmaxs+zmove+xt)
                     self.shapeorder.append(currentIndex)
                     currentIndex +=1
-        currenttime=datetime.now()
+        currenttime=datetime.utcnow()
         
         dictionary = self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape)  
         print(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape)
         try:
             if self.logging != None and self.byThread:
-                self.logging.info("Completed thread assembling") 
+                self.logging.info("Completed thread assembling"+sourceFileName) 
         except Exception as e:
             print("Error while logging",e)
         return dictionary 
 
-    def ExplodeParts(self,sourceFileName,distancegap,anglegap,animationtime,bythread=True,debugMe=False):
+    def ExplodeParts(self,sourceFileName,distancegap,anglegap,animationtime,bythread=True,debugMe=False,displaypath=""):
+        self.displaypath=displaypath
+        """  head, tail = os.path.split(sourceFileName)
+        if(head[:-1]!="/"):
+            print("Head does not contain last /",head)
+            head = head + "/"
+        else:
+            print("Head contains last /",head)
+        if head[0:6]=="Media/":
+            self.displaypath = "Display/"+head[6:]
+        else:
+            self.displaypath = head """
         #print("ExploreParts",shapeTol,gapTol)
         self.byThread=bythread
-        starttime=datetime.now()
+        starttime=datetime.utcnow()
         dictionary={}
         try:
             self.InitExplodeParts(debugMe)
-            currenttime=datetime.now()             
+            currenttime=datetime.utcnow()             
             if bythread:
                 dictionary=self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,0)                
                 mythread = threading.Thread(target=self.threadAssembling,\
@@ -1632,7 +1643,7 @@ class FindAssemblingOrder(object):
     
     def reChangeOrder(self,changedshapeorder,changedshapedirection,sourceFileName,distancegap,anglegap,animationtime,debugMe=False):
         
-        starttime=datetime.now()
+        starttime=datetime.utcnow()
         dictionary={}
         self.byThread=False
         self.InitExplodeParts(debugMe)
@@ -1738,13 +1749,13 @@ class FindAssemblingOrder(object):
                         (xmins, ymins, zmins, xmaxs, ymaxs, zmaxs))  
                 self.newShapes[myIndex+1] = (finalShape,aName,aColor)    
                 
-        currenttime=datetime.now()
+        currenttime=datetime.utcnow()
         
         dictionary = self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape)  
         print(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape,self.shapeorder)
         try:
             if self.logging != None and self.byThread:
-                self.logging.info("Completed thread assembling") 
+                self.logging.info("Completed thread assembling"+sourceFileName) 
         except Exception as e:
             print("Error while logging",e)
         return dictionary 

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Paper,
   CircularProgress,
-  makeStyles
+  Box, LinearProgress,
+  /*makeStyles*/
 } from "@material-ui/core";
 import { Spinner } from "reactstrap";
 import TableOrderView from './TableOrderView';
@@ -12,7 +13,7 @@ import {
   SELECTDISTANCE,SELECTSOLID, SELECTHIRERACHY, SELECTDISECTPARTS, STATEPROPS,
   SELECTASSEMBLY, SELECTFEATURE, arrayCopy, arrayFindIndex, arrayRemove, gltf_Dict
 } from "@monostruct/common/gltf/Tree/utils";
-import { getAFileFromStore,saveTreeInfo,getPartsAssemblyOrder } from '@monostruct/common/api/fileUpload.api';
+import { getAFileFromStore,saveTreeInfo,getPartsAssemblyOrder,resourcePathURL } from '@monostruct/common/api/fileUpload.api';
 import '../../style.css';
 
 /*
@@ -59,7 +60,16 @@ let state_selectedObjects = [];
 //let reSetMe = true;
 //let filteredList = [];
 export default function ManufacturabilityAnalysis(props) {
-  const { fileId, gltfjson, isLoading, itemProperties } = props;
+  const { 
+    fileId, 
+    gltfjson, 
+    isLoading, 
+    itemProperties, 
+    additionalSaveFunction, 
+    fileUUId,
+    progressBarLoad,
+    percentage, 
+  } = props;
   //const [list, setList] = useState([]);
   const [isFileLoading, setIsLoading] = useState(isLoading);
   const [firstTimeLoading,setFirstTimeLoading]=useState(false);
@@ -756,19 +766,20 @@ export default function ManufacturabilityAnalysis(props) {
         }
       }
       console.log("Saving", gltfjsonParam.tree,itemProperties.fileMPPS);
-      saveTreeInfo( gltfjsonParam.tree,itemProperties.fileMPPS)
+      const filePath = itemProperties.fileUUId ? itemProperties.fileUUId+'/': '';
+      saveTreeInfo( gltfjsonParam.tree,itemProperties.fileMPPS, itemProperties.fileUUId)
       .then(res => res.data)
       .then((data) => { 
         console.log("Getting Resources",data);
-        getAFileFromStore(itemProperties.fileMPPS,"gltf")
+        getAFileFromStore(filePath+itemProperties.fileMPPS,"gltf")
         .then(res => res.data)
         .then((data) => {
           const gltfobj = data;
-          getAFileFromStore(itemProperties.fileMPPS,"tree")
+          getAFileFromStore(filePath+itemProperties.fileMPPS,"tree")
           .then(res => res.data)
           .then((data) => {
             const curTree = data;
-            getAFileFromStore(itemProperties.fileMPPS,"order")
+            getAFileFromStore(filePath+itemProperties.fileMPPS,"order")
             .then(res => res.data)
             .then((data) => {
               const curOrder = data;
@@ -805,7 +816,12 @@ export default function ManufacturabilityAnalysis(props) {
     }
 
   };
-
+  const getItemFileOrderID =(item) => {
+    if(item.fileUUId) {
+      return (resourcePathURL || '') + item.fileUUId + '/' + item.fileStack;
+    }
+    return item.fileId;
+  }
   const resetSelectionFromTable = async () => {
     var myJsonTree;
     setFirstTimeLoading(true);
@@ -820,21 +836,23 @@ export default function ManufacturabilityAnalysis(props) {
       myJsonTree = this?.props?.gltfjson?.tree;
     }
     if(myJsonTree) {
+      
       console.log("Saving",myJsonTree,itemProperties.fileMPPS);
-      getPartsAssemblyOrder(itemProperties.fileId, STATEPROPS.distancegap, STATEPROPS.anglegap, STATEPROPS.explodegap, 
+      const filePath = itemProperties.fileUUId ? itemProperties.fileUUId+'/': '';
+      getPartsAssemblyOrder(getItemFileOrderID(itemProperties), STATEPROPS.distancegap, STATEPROPS.anglegap, STATEPROPS.explodegap, 
         STATEPROPS.fromcenter,STATEPROPS.holescale,STATEPROPS.removegap,STATEPROPS.animationtime)
         .then(res => res.data)
         .then((data) => {      
           console.log("Getting Resources",data);
-          getAFileFromStore(itemProperties.fileMPPS,"gltf")
+          getAFileFromStore(filePath+itemProperties.fileMPPS,"gltf")
           .then(res => res.data)
           .then((data) => {
             const gltfobj = data;
-            getAFileFromStore(itemProperties.fileMPPS,"tree")
+            getAFileFromStore(filePath+itemProperties.fileMPPS,"tree")
             .then(res => res.data)
             .then((data) => {
               const curTree = data;              
-              getAFileFromStore(itemProperties.fileMPPS,"order")
+              getAFileFromStore(filePath+itemProperties.fileMPPS,"order")
               .then(res => res.data)
               .then((data) => {
                 const curOrder = data;
@@ -869,16 +887,16 @@ export default function ManufacturabilityAnalysis(props) {
     }
     if(myJsonTree) {
       console.log("Saving",myJsonTree,itemProperties.fileMPPS);
-      
-        getAFileFromStore(itemProperties.fileMPPS,"gltf")
+      const filePath = itemProperties.fileUUId ? itemProperties.fileUUId+'/': '';
+        getAFileFromStore(filePath+itemProperties.fileMPPS,"gltf")
         .then(res => res.data)
         .then((data) => {
           const gltfobj = data;
-          getAFileFromStore(itemProperties.fileMPPS,"tree")
+          getAFileFromStore(filePath+itemProperties.fileMPPS,"tree")
           .then(res => res.data)
           .then((data) => {
             const curTree = data;
-            getAFileFromStore(itemProperties.fileMPPS,"order")
+            getAFileFromStore(filePath+itemProperties.fileMPPS,"order")
             .then(res => res.data)
             .then((data) => {
               const curOrder = data;
@@ -1293,7 +1311,7 @@ export default function ManufacturabilityAnalysis(props) {
     if (gltfjsonlen > 0) {
       setState({
         selectedindex: 0,
-        activefile: fileId.toString() + includeParts.toString() +
+        activefile: (fileId || fileUUId || "").toString() + includeParts.toString() +
         STATEPROPS.distancegap.toString() + STATEPROPS.anglegap.toString() + gltfjsonlen.toString(),
         gltfjson: gltfjson,
         dataselection: 0,
@@ -1315,6 +1333,7 @@ export default function ManufacturabilityAnalysis(props) {
     } else {
       console.log("Not Setting gltflen",gltfjsonlen,gltfjson);
     }
+    
   }, [gltfjson]);
 
   /* useEffect(() => {
@@ -1344,12 +1363,18 @@ export default function ManufacturabilityAnalysis(props) {
   return (
     <Paper className={classes.mainContainer}>
       <Paper className={classes.viewerContainer} >
+        {progressBarLoad && (
+          <Box sx={{ width: '100%' }}>
+            <LinearProgress variant="determinate"  value={percentage.toFixed(3)} />
+          </Box>
+        )}
         {
           !isLoading && Object.keys(state.gltfjson).length > 0 && !isFileLoading &&
           <GLTFRenderer
             //gltfjson={JSON.stringify(gltfjson)}
             gltfobj={state.gltfjson}
             fileGDT={null}
+            fileUUId={fileUUId}
             fileAnimation={true}
             //view="Perspective"
             activefile={fileId + gltfjsonlen.toString()}
@@ -1379,6 +1404,7 @@ export default function ManufacturabilityAnalysis(props) {
         list={filteredList}
         columns={columns}
         setColumns={setColumns}
+        additionalSaveFunction={additionalSaveFunction}
         handleDataRowClick={addSelectionFromTable}
         handleDataCellChange={updateSelectionFromTable}  
         saveDataTable={saveSelectionFromTable} 

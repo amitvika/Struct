@@ -126,7 +126,7 @@ const Items = ({ handleSave }) => {
             source: item?.vendorId?.name || 'STRUCT',
             assemblyType: item.assemblyType,
             file_url: item.fileStore
-              ? resourcePathURL + item.fileStore + '.png'
+              ? ( item.fileUUId? (resourcePathURL || '')+item.fileUUId+'/': (resourcePathURL || '')) + item.fileStore + '.png'
               : undefined,
           };
         });

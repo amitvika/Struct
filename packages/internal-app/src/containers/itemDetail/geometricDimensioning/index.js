@@ -63,21 +63,26 @@ let myGlobalTree = null;
 let myGlobalState = {};
 let myGlobalActiveDataTable = 0;
 
-export default function GeometricDimensioning({ 
-  tabIndex, 
-  fileId, 
-  fileGDT, 
-  gltfjson, 
-  isLoading, 
-  keyName={name:"",
-           option:SELECTFEATURE}, 
-  handleChangeOfSelection=(selectedObjects)=>{
-    console.log("handleChangeOfSelection",selectedObjects);
-  },
-  additionalSaveFunction=(saveObjects)=>{
-    console.log("additionalSaveFunction",saveObjects);
-  }
-}) {
+export default function GeometricDimensioning(props) {
+  const { 
+    tabIndex, 
+    fileId, 
+    fileUUId,
+    fileGDT, 
+    gltfjson, 
+    isLoading, 
+    progressBarLoad,
+    percentage,
+    keyName={name:"",
+             option:SELECTFEATURE}, 
+    handleChangeOfSelection=(selectedObjects)=>{
+      console.log("handleChangeOfSelection",selectedObjects);
+    },
+    additionalSaveFunction=(saveObjects)=>{
+      console.log("additionalSaveFunction",saveObjects);
+    },
+    
+  } = props;
   const classes = USESTYLES();
 
   const [state, _setState] = useState({});
@@ -91,7 +96,26 @@ export default function GeometricDimensioning({
   const [activeDataTable,setActiveDataTable] = useState(0);
   const [isProgressOpen,setIsProgressOpen]=useState(false);
   const [progressOpenedFiles,setProgressOpenedFiles]=useState([]);
+  const [percentager, setPercentager] = useState(percentage||0);
+  const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
+  const [fileUUIder, setfileUUIder] = useState(fileUUId);
+  useEffect(() => {
+    if(fileUUId) {
+      setfileUUIder(fileUUId);
+      console.log("Changing fileUUId from Geometric Dimensioning",fileUUIder,fileUUId);
+    }
+  }, [fileUUId]);
+  useEffect(() => {
+    setProgressBarLoader(progressBarLoad);
+    console.log("Changing progress bar from Geometric Dimensioning",progressBarLoad,fileUUIder,fileUUId,fileId,fileGDT,props);
+  }, [progressBarLoad]);
   
+  useEffect(() => {
+    if(percentage) {
+      setPercentager(percentage);
+      console.log("Changing percentage from Geometric Dimensioning",percentage,fileUUIder,fileUUId,fileId,fileGDT,props);
+    }
+  }, [percentage]);
   const handleChange = (event) => {
     setValue(event.target.value);
   };
@@ -131,7 +155,7 @@ export default function GeometricDimensioning({
     if (gltfjsonlen > 0) {
       setState({
         selectedindex: 0,
-        activefile: fileId.toString() + includeParts.toString() +
+        activefile: (fileId || fileUUIder || "").toString() + includeParts.toString() +
           STATEPROPS.distancegap.toString() + STATEPROPS.anglegap.toString() + gltfjsonlen.toString(),
         gltfjson: gltfjson,
         dataselection: 0,
@@ -355,7 +379,7 @@ export default function GeometricDimensioning({
     }
     setState({ gltfjson: myTree});  
     console.log(gltfjson.gdttable,myTree.gdttable,fileGDT);
-    saveGDTInfo(myTree.gdttable,fileGDT)
+    saveGDTInfo(myTree.gdttable,fileGDT,fileUUIder)
     .then(res => res.data)
     .then((data) => { 
       console.log("Getting Resources",data);
@@ -1085,7 +1109,7 @@ export default function GeometricDimensioning({
 
     console.log("getShapeInfo",structure,stepArray,siblingArray);
     return new Promise((resolve, reject) => {
-      getShapeInfo(structure.start, stepArray, siblingArray)
+      getShapeInfo(structure.start, stepArray, siblingArray,fileUUIder)
         .then(res => res.data)
         .then((repos) => {
           //console.log("FromShapeInfo",repos);
@@ -1670,14 +1694,14 @@ export default function GeometricDimensioning({
     return null;
   }
 
-  if (isLoading) {
+  /* if (isLoading) {
     return <CircularProgress />;
-  }
+  } */
  
   return (
 
     <Paper className={classes.mainContainer}>
-      {(state.gltfjson?.tree) && (
+      {(!isLoading) && (state.gltfjson?.tree) && (
         <div className={` ${classes.assemblyTreeContainer}`}>
           {/* <RadioGroup
             row
@@ -1710,6 +1734,7 @@ export default function GeometricDimensioning({
         <Viewer
           {...state}
           fileGDT={fileGDT}
+          fileUUId={fileUUIder}
           selectedOption={selectedOption}
           handleModelClick={handleModelClick}
           isLoading={isLoading}
@@ -1723,8 +1748,10 @@ export default function GeometricDimensioning({
           setStateOfgltf={setStateOfgltf}
           activeDataTable={activeDataTable}
           setIsProgressOpen={setIsProgressOpen}
-          setProgressOpenedFiles={setProgressOpenedFiles}         
-        ></Viewer>
+          setProgressOpenedFiles={setProgressOpenedFiles}
+          progressBarLoad={progressBarLoader}
+          percentage={percentager}        
+        />
       </Paper>
       
       

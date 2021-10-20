@@ -13,6 +13,7 @@ import json
 #from collections import defaultdict
 import numpy
 from time import time
+from datetime import datetime
 from contextlib import contextmanager
 #import jinja2
 import html
@@ -1068,7 +1069,10 @@ class StepIgesAnalyser():
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
         defaultR=0.3,defaultG=0.32,defaultB=0.37):
         """Supply one or the other: document or STEP filename or Shapes."""
-
+        self.starttime = datetime.utcnow()
+        self.percentage = 0
+        self.byThread=False
+        #self.write_status()
         self.uid = 1
         self.indent = 0
         self.uniqueid = 0
@@ -1085,14 +1089,24 @@ class StepIgesAnalyser():
         self.maximumfacestoinclude=maximumfacestoinclude
         #print("I m initializing")
         if filename:
-            _, tail = os.path.split(self.fname)
+            head, tail = os.path.split(self.fname)
+            if(head[:-1]!="/"):
+                print("Head does not contain last /",head)
+                head = head + "/"
+            else:
+                print("Head contains last /",head)
+            if head[0:6]=="Media/":
+                self.displaypath = "Display/"+head[6:]
+            else:
+                self.displaypath = head
+            print("Conversion path",self.displaypath)
             pathfilename, file_extension = os.path.splitext(tail)
             if file_extension:
                 file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
                 file_extension_lower = file_extension.lower()
             else:
                 file_extension_lower = "stp"
-            self.fileextension=self.fname
+            #self.fileextension=self.fname
             self.stepiges = (file_extension_lower) == "stp" or (file_extension_lower == "step")
             if animations!=None and len(animations) > 0:
                 if shapeorder!=None and len(shapeorder) > 0:
@@ -1114,6 +1128,7 @@ class StepIgesAnalyser():
             self.fname = "NoName"
             self.stepiges=True
             self.writethread = writethread
+            self.displaypath= "Display/"
         #print(self.fname,self.basefilename)
         self.kinematicanimation=kinematicanimation
         self.includeparts = includeparts
@@ -1169,7 +1184,10 @@ class StepIgesAnalyser():
                 print("Supply one or the other: document or STEP filename or Shapes.")
         except Exception as e:
             print("Error1:", e)
-
+        finally:
+            self.endtime = datetime.utcnow()
+            print("Reading Start",self.starttime.strftime("%H-%M-%S"))  
+            print("Reading End",self.endtime.strftime("%H-%M-%S"))    
     def read_file(self, fname):
         """Read STEP file and return <TDocStd_Document>."""
 
@@ -1483,7 +1501,7 @@ class StepIgesAnalyser():
         return True
 
 
-    def getFeaturesFromShape(self, aShape, subLabel, localTransform, parentColor, subShapes, parentShape=None, disectparts=True, doCompact=True, doParts=False):
+    def getFeaturesFromShape(self, aShape, subLabel, localTransform, parentColor, subShapes, parentShape=None, disectparts=True, doCompact=True, doParts=False, percentincrement=0.1):
         if aShape.IsNull():
             print("No shape was formed when"+str(self.uid)+"\n") 
             return [],[],None, None, " ", False
@@ -1521,13 +1539,22 @@ class StepIgesAnalyser():
             list_of_compounds=[]
             only_soilds = []
             only_Colors=[(parentColor.Red(),parentColor.Green(),parentColor.Blue())]
-            print("\t"*self.indent,"No of Faces",len(faces_dict))
-            if len(faces_dict) > self.multiplegltf/3:
+            mylenFaceDict = ( len(faces_dict) if faces_dict else 0 )
+            print("\t"*self.indent,"No of Faces",mylenFaceDict)
+            if mylenFaceDict > self.multiplegltf/3:
                 doCompact = True            
             for hash_solidface, solidface in faces_dict.items(): 
                 #hash_solidface = hash(solidface)
-                #print(hash_solidface,solidface)
-                facelabel, shape_not_set = self.findFaceLabel(subLabel, solidface, subShapes, hash_solidface)                               
+                #currenttime = datetime.now()
+                #suffix = currenttime.strftime("%H-%M-%S") 
+                #print(hash_solidface,solidface,suffix)
+                #if (len(only_Colors)<=2) or (not doParts) or (len(faces_dict) < self.multiplegltf):
+                facelabel, shape_not_set = self.findFaceLabel(subLabel, solidface, subShapes, hash_solidface) 
+                self.percentage += (0.5/mylenFaceDict)*percentincrement
+                self.write_status()
+                #currenttime = datetime.now()
+                #suffix = currenttime.strftime("%H-%M-%S")   
+                #print(hash_solidface,solidface,suffix)                            
                 if facelabel:
                     faceColor, color_set = self.setColor(solidface,facelabel,parentColor,parentShape)
                     #print("faceColor",faceColor.Red(),faceColor.Green(),faceColor.Blue(),color_set,facelabel.GetLabelName())
@@ -1566,15 +1593,15 @@ class StepIgesAnalyser():
                                 print("Found",faceColor.Red(),faceColor.Green(),faceColor.Blue())   """     
                     #print(hashcode,localTransform)
             if doCompact:                
-                len_color_arr = len(only_Colors)
-                print("\t"*self.indent,"No of colors found",len_color_arr,"Faces",len(faces_dict))
-                if (len_color_arr<=2) or doParts or (len(faces_dict) > self.multiplegltf):
+                len_color_arr = ( len(only_Colors) if only_Colors else 0 )
+                print("\t"*self.indent,"No of colors found",len_color_arr,"Faces",mylenFaceDict)
+                if (len_color_arr<=2) or doParts or (mylenFaceDict > self.multiplegltf):
                     (R,G,B)=only_Colors[len_color_arr-1]
                     #print("Colors",R,G,B,len_color_arr,len(only_soilds))
                     mycompound,_ = list_of_shapes_to_compound(only_soilds)                     
                     hashcode = str(hash(mycompound))+transformationHash
                     list_of_compounds.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hashcode))
-                    return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" , (len(faces_dict) < self.maximumfacestoinclude) # (len_color_arr>2) and (len(faces_dict) < self.multiplegltf)
+                    return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" , (mylenFaceDict < self.maximumfacestoinclude) # (len_color_arr>2) and (len(faces_dict) < self.multiplegltf)
                 else:
                     return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE", False
             #else:
@@ -1609,7 +1636,7 @@ class StepIgesAnalyser():
             faceB = faceB - 0.1
         return Quantity_Color(faceR, faceG, faceB, Quantity_TOC_RGB)
 
-    def getSubShapes(self, subLabel, subLocation, subName, subEntry, parentName, parentEntry, filename, name, parent_node_index=0):
+    def getSubShapes(self, subLabel, subLocation, subName, subEntry, parentName, parentEntry, filename, name, parent_node_index=0,percentincrement=0.1):
     
         subShapesFromParent = TDF_LabelSequence()
         self.shape_tool.GetSubShapes(subLabel, subShapesFromParent)
@@ -1623,6 +1650,7 @@ class StepIgesAnalyser():
         #print("I have reached here 1")
         IsAnAssembly = self.shape_tool.IsAssembly(subLabel)
         SubLengthHere = subComponentsFromParent.Length()
+        myPercentage = self.percentage
         if IsAnAssembly or SubLengthHere > 0:
             try:
                 shape = self.shape_tool.GetShape(subLabel)
@@ -1639,7 +1667,7 @@ class StepIgesAnalyser():
             #self.output+="\nXOXO"+subName+subEntry+"\n"
             #print("I have reached here 2")
             mydirectory = self.validFileName(subName+subEntry)
-            mydirectorylen = len(self.direntry)
+            mydirectorylen = ( len(self.direntry) if self.direntry else 0 )
             self.direntry += "/"+mydirectory
             
             split = os.path.splitext(filename)
@@ -1685,9 +1713,10 @@ class StepIgesAnalyser():
                         labelReference, subLocation, refName, refEntry, subLabelName, subLabelEntry,
                         filename="%s.%s%s" % (split[0], self.validFileName(subLabelName) ,split[1]),
                         name="%s.%s" % (name, subLabelName+refName),
-                        parent_node_index=node_index,
+                        parent_node_index=node_index,percentincrement=(1/SubLengthHere)*percentincrement
                         )
-                    
+                    self.percentage = myPercentage + ((i+1)/SubLengthHere)*percentincrement
+                    self.write_status()
                     #print("I have reached here 9")
                     #lvl -= 1
                     #print("<<<<")
@@ -1739,14 +1768,19 @@ class StepIgesAnalyser():
                 toAddFaces = True 
                 keep_faces = False  
                 parentIDNotAdded = True
+                myLenShapeCompounds = 0
                 if self.multiplegltf!=0 or (self.edgesize==0 and self.vertexsize==0) :
                     shape_compounds, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces = \
-                        self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, True, (self.edgesize!=0 or self.vertexsize!=0 or self.ascompound))
+                        self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, True, (self.edgesize!=0 or self.vertexsize!=0 or self.ascompound), percentincrement)
                     #atleastOneItemAdded = 0
                     #myFaceType=[]
                     #print(shape_faces)
                     toAddFaces = (disect_type=="PART")
-                    print("\t"*self.indent,"No of subparts",len(shape_compounds))
+                    myLenShapeCompounds = ( len(shape_compounds) if shape_compounds else 0 )
+                    print("\t"*self.indent,"No of subparts",myLenShapeCompounds)
+                    myLenShapeCompounds += (len(shape_faces) if shape_faces else 0) +\
+                        (len(shape_edges) if shape_edges else 0)  + \
+                            (len(shape_vertices) if shape_vertices else 0)
                     parentIDNotAdded = True
                     for shape_disp,faceColor,shapeInFile in shape_compounds:
                         #print("I have reached here 16")
@@ -1757,7 +1791,7 @@ class StepIgesAnalyser():
                             self.parentIDs.append(my_parent_id)
                             self.indent += 1
                             mydirectory = self.validFileName(subName+subEntry)
-                            mydirectorylen = len(self.direntry)
+                            mydirectorylen = ( len(self.direntry) if self.direntry else 0)
                             self.direntry += "/"+mydirectory  
                             parentIDNotAdded = False 
                         if shape_disp.IsNull():
@@ -1819,7 +1853,7 @@ class StepIgesAnalyser():
                                         self.parentIDs.append(my_parent_id)
                                         self.indent += 1
                                         mydirectory = self.validFileName(subName+subEntry)
-                                        mydirectorylen = len(self.direntry)
+                                        mydirectorylen = ( len(self.direntry) if self.direntry else 0)
                                         self.direntry += "/"+mydirectory  
                                         parentIDNotAdded = False 
                                     #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
@@ -1828,9 +1862,14 @@ class StepIgesAnalyser():
                                 #    diffColor = self.outputShapes[shapeInFile][3]
                                 #    #print(diffColor, faceColor)
                                 #    #print("I am not writing with shape color in simpleshape",faceColor.Red(),diffColor.Red(),faceColor.Green(),diffColor.Green(),faceColor.Blue(),diffColor.Blue(),subName, subEntry)
+                        self.percentage += (0.5/myLenShapeCompounds)*percentincrement
+                        self.write_status()
                 else:
                     _, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces  = \
-                        self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, False, False)
+                        self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, False, False,percentincrement)
+                    myLenShapeCompounds += (len(shape_faces) if shape_faces else 0) +\
+                        (len(shape_edges) if shape_edges else 0)  + \
+                            (len(shape_vertices) if shape_vertices else 0)
                     if self.includeparts:
                         #print("sub include",subName)
                         mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
@@ -1838,7 +1877,7 @@ class StepIgesAnalyser():
                         self.parentIDs.append(my_parent_id)
                         self.indent += 1
                         mydirectory = self.validFileName(subName+subEntry)
-                        mydirectorylen = len(self.direntry)
+                        mydirectorylen = ( len(self.direntry) if self.direntry else 0)
                         self.direntry += "/"+mydirectory
                         parentIDNotAdded = False
                 #atleastOneItemAdded = 0
@@ -1918,7 +1957,11 @@ class StepIgesAnalyser():
                                     #    diffColor = self.outputShapes[shapeInFile][3]
                                     #    #print(diffColor, faceColor)
                                     #    #print("I am not writing with shape color in simpleshape",faceColor.Red(),diffColor.Red(),faceColor.Green(),diffColor.Green(),faceColor.Blue(),diffColor.Blue(),subName, subEntry)
-                                         
+                            self.percentage += (0.5/myLenShapeCompounds)*percentincrement  
+                            self.write_status()   
+                    else: 
+                        self.percentage += ( ( len(shape_faces) if shape_faces else 0 )/myLenShapeCompounds)*percentincrement     
+                        self.write_status()       
                 if self.includeparts and (atleastOneItemAdded>0):
                     #print(shape_edges)
                     #print(shape_vertices)  
@@ -1971,6 +2014,11 @@ class StepIgesAnalyser():
                                 if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
                                     self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, edgeColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
                                 #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
+                            self.percentage += (0.5/myLenShapeCompounds)*percentincrement
+                            self.write_status()
+                    else:
+                        self.percentage += ( (len(shape_edges) if shape_edges else 0)/myLenShapeCompounds)*percentincrement
+                        self.write_status()    
                     if (self.vertexsize > 0) and (toAddCorners==True):  
                         #print("Doing3",self.multiplegltf,self.edgesize,self.vertexsize,self.includeparts,atleastOneItemAdded)         
                     
@@ -2000,7 +2048,12 @@ class StepIgesAnalyser():
                                 ) 
                             if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
                                 self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, vertexColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
+                            self.percentage += (0.5/myLenShapeCompounds)*percentincrement
+                            self.write_status()
                             #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
+                    else:
+                        self.percentage += ( (len(shape_vertices) if shape_vertices else 0 )/myLenShapeCompounds)*percentincrement
+                        self.write_status()   
                 #print("Doing4",self.multiplegltf,self.edgesize,self.vertexsize,self.includeparts,atleastOneItemAdded, myFeatures)         
                     
                 self.outputFeatures.append(
@@ -2027,7 +2080,7 @@ class StepIgesAnalyser():
                 #self.tree+="<ul id=\"myUL\"><li><span class=\"caret\">"+html.escape(subName+" "+subEntry+" ")+str(self.uid)+"</span><ul class=\"nested\">"    
             
                 mydirectory = self.validFileName(subName+subEntry)
-                mydirectorylen = len(self.direntry)
+                mydirectorylen = ( len(self.direntry) if self.direntry else 0)
                 self.direntry += "/"+mydirectory
                 defaultSubcolor = Quantity_Color(0.3, 0.3, 0.3, Quantity_TOC_RGB)  # default color
                 myshapecount = 0
@@ -2060,7 +2113,7 @@ class StepIgesAnalyser():
                     #print("I have reached here 22")
                                        
                     _, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces = \
-                        self.getFeaturesFromShape(shapeForSubShapes,labelForSubShapes,subLocation.Transformation(),currentColor,None, shape, False, False)                    
+                        self.getFeaturesFromShape(shapeForSubShapes,labelForSubShapes,subLocation.Transformation(),currentColor,None, shape, False, False,percentincrement)                    
                     """  shape_disps = []
                     shape_to_disp = BRepBuilderAPI_Transform(shapeForSubShapes, subLocation.Transformation()).Shape()
                     shape_disps.append((shape_to_disp,currentColor)) """
@@ -2168,7 +2221,8 @@ class StepIgesAnalyser():
             self.direntry = self.direntry[:mydirectorylen]
         else:
             print("I can not do anything with this shape?") """
-
+        self.percentage = myPercentage + percentincrement
+        self.write_status()
 
     def updateName(self,name,forNodes,addOne=0,display=False):
         suffix = self.fileprefix+str(self.distancegap)+str(self.anglegap)+" "+str(self.uniqueid+addOne)         
@@ -2205,7 +2259,7 @@ class StepIgesAnalyser():
         uid = self.get_uid_from_entry(rootEntry)
         
         print("root label",rootName, topLevelItems,"items")
-        filename = "Display/"+self.basefilename+".gltf"
+        filename = self.displaypath+self.basefilename+".gltf"
         split = os.path.splitext(filename)
         name = self.basefilename #os.path.basename(filename)
         self.outputShapes = {} #dictionary
@@ -2223,7 +2277,7 @@ class StepIgesAnalyser():
         self.uid += 1
         self.indent += 1
         self.output += f"Number of labels at root = {topLevelItems}\n"
-        self.direntry = "Display/"+self.validFileName(name+rootName+rootEntry)
+        self.direntry = self.displaypath+self.validFileName(name+rootName+rootEntry)
         parent_node_index = 0
         node_index = 0
         self.parentIDs.append(None)
@@ -2263,11 +2317,15 @@ class StepIgesAnalyser():
                     topLevelItem, None, topLevelName, topLevelEntry, "root", "root",
                     filename="%s.%s%s" % (split[0], self.validFileName(topLevelName), split[1]),
                     name="%s.%s" % (name, topLevelName),
-                    parent_node_index=node_index,
+                    parent_node_index=node_index, percentincrement=(1/topLevelItems)*100
                     )
             except Exception as e:
                 print("Error",e)
-            #print("I have reached here in getshapes 10")
+            self.percentage = ((i+1) / topLevelItems) * 100
+            self.write_status()
+        #self.percentage = 100
+        self.write_status()
+        #print("I have reached here in getshapes 10")
         if isAssembly:
             print("Assembly is splitted")
         else: #manually create the assembly
@@ -2277,7 +2335,7 @@ class StepIgesAnalyser():
     def addShapes(self):        
         
        
-        filename = "Display/"+self.basefilename+".gltf"
+        filename = self.displaypath+self.basefilename+".gltf"
         #split = os.path.splitext(filename)
         name = os.path.basename(filename)
         rootEntry = filename
@@ -2296,7 +2354,7 @@ class StepIgesAnalyser():
         self.uid += 1
         self.indent += 1
         self.output += f"Number of labels at root = {filename}\n"
-        self.direntry = "Display/"+self.validFileName(name+rootName+rootEntry)
+        self.direntry = self.displaypath+self.validFileName(name+rootName+rootEntry)
         parent_node_index = 0
         node_index = 0
         self.parentIDs.append(None)
@@ -2316,6 +2374,7 @@ class StepIgesAnalyser():
         parent_node = self.mstep_dict['nodes'][parent_node_index]
         parent_node['children'] = parent_node.get('children', []) + [node_index]
         #print("I have reached here in getshapes 4",self.output)
+        myLenShapesList = len(self.shapeslist)
         for a_shape_to_disp in self.shapeslist:
             shape_to_disp, shape_name, shape_color = a_shape_to_disp
             if shape_color==None:
@@ -2344,6 +2403,8 @@ class StepIgesAnalyser():
  
             except Exception as e:
                 print("Error",e)
+            self.percentage += (1/myLenShapesList)*100
+            self.write_status()
             #print("I have reached here in getshapes 10")
         print("Part is seperated")
             #self.tree+="</ul></li></ul>" 
@@ -2356,7 +2417,7 @@ class StepIgesAnalyser():
             self.output += "Assembly structure of doc:\n\n"
         self.indent = 0
         #print("I have reached here in getshapes 1",self.output)
-        filename = "Display/"+self.basefilename+".gltf"
+        filename = self.displaypath+self.basefilename+".gltf"
         #split = os.path.splitext(filename)
         name = os.path.basename(filename)
         rootEntry = filename
@@ -2375,7 +2436,7 @@ class StepIgesAnalyser():
         self.uid += 1
         self.indent += 1
         self.output += f"Number of labels at root = {filename}\n"
-        self.direntry = "Display/"+self.validFileName(name+rootName+rootEntry)
+        self.direntry = self.displaypath+self.validFileName(name+rootName+rootEntry)
         parent_node_index = 0
         node_index = 0
         self.parentIDs.append(None)
@@ -2441,16 +2502,20 @@ class StepIgesAnalyser():
             "gltf":self.mstep_dict,
             "tree":self.tstep_dict['tree'],
             "store":self.basefilename,
-            "load":self.fileextension,
+            "load":self.fname,
             "gdttable":[{ "edges":[],
                           "selectedObjects":[],
                           "parentObjects":[],
                           "mates":[],
                           "mateValues": [False,False,False,False,False,False],
                           "angle":0,
-                          "offset":0,                          
+                          "offset":0,
                           "option":26,
-                          "key":"" }]
+                          "key":"" }],
+            "status": {"percent":self.percentage,
+                        "start":self.starttime.strftime("%H-%M-%S"),
+                        "current":datetime.utcnow().strftime("%H-%M-%S") },
+             "display":self.displaypath
         }
         if self.writethread:
             mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False))
@@ -2469,12 +2534,17 @@ class StepIgesAnalyser():
                 self.logging.info("Started addFeatures Thread") 
         except Exception as e:
             print("Error while logging",e)
-        _, tail = os.path.split(self.fname)
+        head, tail = os.path.split(self.fname) 
+        if(head[:-1]!="/"):
+            print("Head does not contain last /",head)
+            head = head + "/"
+        else:
+            print("Head contains last /",head)       
         pathfilename, _ = os.path.splitext(tail)
         myTreeLen = len(self.tstep_dict["tree"])
         lenFeatures = len(self.outputFeatures)
         lenfeature = 0
-        newfilename = "Display/"+pathfilename+".progress"
+        newfilename = self.displaypath+pathfilename+".progress"
         myParentId_Dict={}
         with open(newfilename, 'w') as fh:
             fh.write(json.dumps({"begin":lenfeature,"end":lenFeatures}, sort_keys=True, indent=2 ))
@@ -2509,7 +2579,7 @@ class StepIgesAnalyser():
                         else:
                             fname = pathfilename+"-"+str(myparentID)+"-"+myFeatureName+"."                    
                         print("Disecting", fname, iFiles+1,"/", mySplitFiles, ",", lenfeature,"/",lenFeatures)
-                        addedTrees = StepIgesAnalyser(filename=fname,shapeslist=["Dummy"]).\
+                        addedTrees = StepIgesAnalyser(filename=head+fname,shapeslist=["Dummy"]).\
                             addFeature(myshapes,myparentID,myTreeLen,myFeatureName)
                         myTreeLen+=addedTrees
         with open(newfilename, 'w') as fh:
@@ -2958,8 +3028,31 @@ class StepIgesAnalyser():
         ]
         self.mstep_dict['animations']=animationchannels
 
-        
-
+    def write_status(self,maxgap=10):
+        currenttime = datetime.utcnow()  
+        mystatusdict =  {
+                "percent":self.percentage,
+                "start":self.starttime.strftime("%H-%M-%S"),
+                "current":currenttime.strftime("%H-%M-%S") }
+        if(self.byThread):
+            try:
+                statusfilename = self.displaypath+self.basefilename+".status"            
+                timingdelta = datetime.utcnow()-self.currenttime
+            
+                if (timingdelta.seconds > maxgap): 
+                    if self.writefiles:
+                        #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
+                        print("Writing",statusfilename,"Percentage",self.percentage)                        
+                        self.currenttime = datetime.utcnow()                   
+                        with open(statusfilename, 'w') as fh:
+                            fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                    else:
+                        print("Not Writing",statusfilename)
+            except Exception as e:
+                print("While Writing",statusfilename,e)   
+        else:
+            print("Percentage",self.percentage)
+        return mystatusdict
     def write_in_thread(self,dict,imagePNG):
         try:
             if logging != None and self.writethread:
@@ -2967,7 +3060,7 @@ class StepIgesAnalyser():
         except Exception as e:
             print("Error while logging",e)
         try:
-            newfilename = "Display/"+dict["store"]+".gltf"
+            newfilename = self.displaypath+dict["store"]+".gltf"
             if self.writefiles:
                 print("Writing",newfilename)
                 with open(newfilename, 'w') as fh:
@@ -2977,7 +3070,7 @@ class StepIgesAnalyser():
         except Exception as e:
             print("While Writing",newfilename,e)
         try:
-            treefilename = "Display/"+dict["store"]+".tree"
+            treefilename = self.displaypath+dict["store"]+".tree"
             if self.writefiles:
                 print("Writing",treefilename)
                 with open(treefilename, 'w') as fh:
@@ -2986,9 +3079,27 @@ class StepIgesAnalyser():
                 print("Not Writing",treefilename)
         except Exception as e:
             print("While Writing",treefilename,e)
+        try:
+            statusfilename = self.displaypath+dict["store"]+".status"
+            if self.writefiles:
+                print("Writing",statusfilename)                
+                with open(statusfilename, 'w') as fh:
+                    fh.write(json.dumps(dict["status"], sort_keys=True, indent=2 ))
+            else:
+                print("Not Writing",statusfilename)
+        except Exception as e:
+            print("While Writing",statusfilename,e)
+        if ((self.edgesize!=0) or (self.vertexsize !=0)) and self.writefiles:
+            try:
+                gdtfile = self.displaypath+dict["store"]+".gdt"
+                print("Writing,",gdtfile)
+                with open(gdtfile, 'w') as fh:
+                    fh.write(json.dumps(dict["gdttable"], sort_keys=True, indent=2 ))
+            except Exception as e:
+                print("Error while writing gdtfile",e)
         if imagePNG and self.writefiles:           
             try:
-                imagefilename = "Display/"+dict["store"]+".png"
+                imagefilename = self.displaypath+dict["store"]+".png"
                 print("Writing",imagefilename)
                 createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            
             except Exception as e:
@@ -2999,12 +3110,21 @@ class StepIgesAnalyser():
         except Exception as e:
             print("Error while logging",e)
 
-    
-    def dump(self):
+    def dumpInThread(self,byThread):
         """Return assembly structure in indented outline form.
         Format of lines:
         Component Name [entry] => Referred Label Name [entry]
         Components are shown indented w/r/t line above."""
+        self.byThread = byThread
+        print("I am starting thread",self.byThread,self.fname,byThread)
+        if byThread:
+            self.writethread = False
+            self.addfeaturesThread = False
+            try:
+                if logging != None : 
+                    logging.info("Started thread conversion"+self.fname) 
+            except Exception as e:
+                print("Error while logging",e)
 
         if self.fname:
             self.output += f"Assembly structure of file: {self.fname}\n\n"
@@ -3017,6 +3137,9 @@ class StepIgesAnalyser():
         for i in range(1,fullshapes.Length()+1):
             refLabel = fullshapes.Value(i) 
             print(i,refLabel.GetLabelName(), refLabel.EntryDumpToString()) """
+        self.percentage = 0
+        self.currenttime=self.starttime
+        self.write_status()
         if self.shapeslist:
             self.addShapes()
         else:
@@ -3024,6 +3147,7 @@ class StepIgesAnalyser():
         if self.delay != 0:
             self.addAnimations()
             self.addKinematicAnimations()
+        
         #print("Shapes Len",len(self.animations),len(self.outputShapes))
         #self.mstep_dict['download']=self.tree
         # Write self.mstep_dict to file as JSON string       
@@ -3050,7 +3174,7 @@ class StepIgesAnalyser():
             "gltf":self.mstep_dict,
             "tree":self.tstep_dict['tree'],
             "store":self.basefilename,
-            "load":self.fileextension,
+            "load":self.fname,
             "gdttable":[{ "edges":[],
                           "selectedObjects":[],
                           "parentObjects":[],
@@ -3059,13 +3183,19 @@ class StepIgesAnalyser():
                           "angle":0,
                           "offset":0,
                           "option":26,
-                          "key":"" }]
+                          "key":"" }],
+            "status": {"percent":self.percentage,
+                        "start":self.starttime.strftime("%H-%M-%S"),
+                        "current":datetime.utcnow().strftime("%H-%M-%S") },
+             "display":self.displaypath
         }
         if self.writethread:
             mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG))
             mythread.start()
         else:
             self.write_in_thread(dict_return,getPNG)
+        self.percentage = 100
+        self.write_status()
         #self.mstep_dict['tree']=self.tstep_dict['tree']
         if (self.edgesize!=0) or (self.vertexsize!=0): 
             try:
@@ -3076,7 +3206,12 @@ class StepIgesAnalyser():
                     self.addFeatures()
             except Exception as e:
                 print("Error while disecting",e)
-        
+        if byThread:            
+            try:
+                if logging != None : 
+                    logging.info("Completed thread conversion"+self.fname) 
+            except Exception as e:
+                print("Error while logging",e)
         return (            
             (getPNG,self.output), 
             (
@@ -3085,6 +3220,51 @@ class StepIgesAnalyser():
                 self.outputShapes
                 ), 
                 dict_return )
+    
+    def dump(self):
+        """Return assembly structure in indented outline form.
+        Format of lines:
+        Component Name [entry] => Referred Label Name [entry]
+        Components are shown indented w/r/t line above."""
+        self.currenttime=self.starttime
+        timingdelta = self.endtime-self.starttime
+        if (timingdelta.seconds > 30) and (not self.shapeslist) and (self.ascompound==False):
+            statusfilename = self.displaypath+self.basefilename+".status"            
+            if self.writefiles:
+                os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
+            self.byThread=True
+            mystatus = self.write_status()
+            dict_return = { "gltf":None,
+                "tree":None,
+                "store":self.basefilename,
+                "load":self.fname,
+                "gdttable":[{ "edges":[],
+                            "selectedObjects":[],
+                            "parentObjects":[],
+                            "mates":[],
+                            "mateValues": [False,False,False,False,False,False],
+                            "angle":0,
+                            "offset":0,
+                            "option":26,
+                            "key":"" }],
+                "status": mystatus,
+                "display":self.displaypath }
+            byThread = True
+            mythread = threading.Thread(target=self.dumpInThread,args=(byThread,))
+            mythread.start()
+            return (            
+                    (False,self.output), 
+                    (
+                        (None,None,None,
+                        None,None,None),
+                        None
+                        ), 
+                    dict_return )
+        else:
+            print(self.basefilename,timingdelta.seconds,self.shapeslist,self.ascompound)
+            mydict = self.dumpInThread(False)        
+            return mydict
+        
     
     def get_uid_from_entry(self, entry):
         """Generate uid from label entry
@@ -3263,7 +3443,7 @@ class StepIgesAnalyser():
                     print("File %s was not saved to filesystem." % newfilename)
             if self.writepickle and self.writefiles:
                 try:
-                    picklefile = "Display/"+basename+".pickle"
+                    picklefile = self.displaypath+basename+".pickle"
                     with open(picklefile, 'wb') as f:
                         # Pickle the 'data' dictionary using the highest protocol available.
                         pickle.dump(a_shape, f, pickle.HIGHEST_PROTOCOL)
@@ -3272,7 +3452,7 @@ class StepIgesAnalyser():
             #Direct setting from pythonocc is not working, but from CQ same calls are working. Don't know why//
             if self.writeColorStep:
                 try:
-                    colorfile = "Display/"+basename+"_COLOR.step"               
+                    colorfile = self.displaypath+basename+"_COLOR.step"               
                     StepExportWithColor(shape=a_shape,color=colorname,name=outname).write_file(filename=colorfile)
                 except Exception as e:
                     print(e,"File, %s has error" % colorfile)  
@@ -3297,7 +3477,7 @@ class StepIgesAnalyser():
         outname: FileName to store """
         
         basename = self.getBaseFileName()
-        newfilename = "Display/"+basename+".step"
+        newfilename = self.displaypath+basename+".step"
         if self.writethread:
             mythread = threading.Thread(target=self.write_step_file_in_thread,args=(a_shape, outname, colorname, basename, newfilename))
             mythread.start()
@@ -3316,7 +3496,7 @@ class StepIgesAnalyser():
         """
         
         basename = self.getBaseFileName()
-        newfilename = "Display/"+basename+".step"
+        newfilename = self.displaypath+basename+".step"
         #basename = self.validFileName(outname)+str(self.fileId)+".step"
         #newfilename = self.direntry+"/"+ basename
         if self.createFiles :
@@ -3336,7 +3516,7 @@ class StepIgesAnalyser():
                     print("File %s was not saved to filesystem." % newfilename)
             if self.writepickle and self.writefiles:
                 try:
-                    picklefile = "Display/"+basename+".pickle"
+                    picklefile = self.displaypath+basename+".pickle"
                     with open(picklefile, 'wb') as f:
                         # Pickle the 'data' dictionary using the highest protocol available.
                         pickle.dump(a_shape, f, pickle.HIGHEST_PROTOCOL)
@@ -3345,7 +3525,7 @@ class StepIgesAnalyser():
             #Direct setting from pythonocc is not working, but from CQ same calls are working. Don't know why//
             if self.writeColorStep:
                 try:
-                    colorfile = "Display/"+basename+"_COLOR.step"               
+                    colorfile = self.displaypath+basename+"_COLOR.step"               
                     StepExportWithColor(shape=a_shape,color=colorname,name=outname).write_file(filename=colorfile)
                 except Exception as e:
                     print(e,"File, %s has error" % colorfile)  
@@ -3882,7 +4062,7 @@ class StepIgesAnalyser():
                     data=base64data,
                 ) 
                 mesher_dict["uv"] = os.path.basename(newfilename) """  
-                newfilename = "Display/"+self.getBaseFileName()+".bin"
+                newfilename = self.displaypath+self.getBaseFileName()+".bin"
                 if self.createFiles and self.writefiles:
                     fileWritten = False
                     #print("Writing File",newfilename)

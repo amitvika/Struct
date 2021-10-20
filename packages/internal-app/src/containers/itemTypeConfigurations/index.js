@@ -46,8 +46,18 @@ import LoadingModal from '@monostruct/common/components/LoadingModal';
 let state_fileOnChange = null;
 
 export default function ItemTypeConfiguration(props) {
-  const { tabIndex, fileId, gltfjson, isLoading, itemProperties, handleItemUpdate, additionalSaveFunction } =
-    props;
+  const { tabIndex, 
+    fileId, 
+    fileUUId,
+    fileGDT,
+    gltfjson, 
+    isLoading, 
+    itemProperties, 
+    handleItemUpdate, 
+    additionalSaveFunction, 
+    progressBarLoad,
+    percentage, 
+  } =  props;
   //const [list, setList] = useState([]);
   const [isFileLoading, setIsLoading] = useState(isLoading);
   const [firstTimeLoading, setFirstTimeLoading] = useState(false);
@@ -55,7 +65,29 @@ export default function ItemTypeConfiguration(props) {
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
   const [resetOption, setResetOption] = useState(true);
   const classes = USESTYLES();
+  const [percentager, setPercentager] = useState(percentage||0);
+  const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
+  const [fileUUIder, setfileUUIder] = useState(fileUUId);
+  useEffect(() => {
+    if(fileUUId) {
+      console.log("Before Changing fileUUId from IUPC",fileUUIder,fileUUId);
+      setfileUUIder(fileUUId);
+      console.log("After Changing fileUUId from IUPC",fileUUIder,fileUUId);
+    }
+  }, [fileUUId]);
+  useEffect(() => {
+    setProgressBarLoader(progressBarLoad);    
+    console.log("Changing progress bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
+  }, [progressBarLoad]);
+  
+  useEffect(() => {
+    if(percentage) {
+      setPercentager(percentage);
+      console.log("Changing percentage from IUPC",percentage,fileUUIder,fileUUId);
+    }
+  }, [percentage]);
 
+  
   
   const [fieldKey,setFieldKey] = useState({name:"NoKey",option:SELECTFEATURE});
   const [renderData,setRenderData] = useState([]);
@@ -114,23 +146,26 @@ export default function ItemTypeConfiguration(props) {
       <Headding style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 20 }}>
         {itemProperties.itemGeometry?.itemType || 'Configure Item'}
       </Headding>
-      <LoadingModal isLoading={isLoading} />
+     {/*  <LoadingModal isLoading={isLoading} /> */}
       {renderExcelUI()}
-      {!isLoading && (
+      {/*!isLoading &&*/ (
         <Paper className={classes.mainContainer}>
           <Paper className={classes.viewerContainer}>
-            {!isLoading &&
+            {/*!isLoading &&
               Object.keys(gltfjson).length > 0 &&
-              !isFileLoading && (
+              !isFileLoading &&*/ (
                 <GeometricDimensioning
-                  fileId={fileId || ''}
-                  fileGDT={itemProperties.fileGDT}
+                  fileId={fileId}
+                  fileGDT={fileGDT}
+                  fileUUId={fileUUIder}
                   gltfjson={gltfjson}
                   isLoading={isLoading}                
                   tabIndex={tabIndex}
                   keyName={fieldKey}  
                   handleChangeOfSelection={handleChangeOfSelection}   
-                  additionalSaveFunction={additionalSaveFunction}           
+                  additionalSaveFunction={additionalSaveFunction}  
+                  progressBarLoad={progressBarLoader}
+                  percentage={percentager}         
                 />
               )}
             {(isLoading || isFileLoading) && <CircularProgress />}

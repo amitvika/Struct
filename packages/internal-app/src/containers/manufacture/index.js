@@ -6,7 +6,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
-import Process from './assembly'
+import Assembly from './assembly'
 import Machining from './machining';
 import InjectionCasting from './injectionCasting';
 import './style.css';
@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-export default function Manufacturing() {
+export default function Manufacturing(props) {
 	const classes = useStyles();
 	const [value, setValue] = React.useState(0);
 
@@ -103,7 +103,7 @@ export default function Manufacturing() {
 				Manufacturability Analysis
       </TabPanel>
 			<TabPanel value={value} index={1}>
-				<Process  />
+				<Assembly  {...props}/>
 			</TabPanel>
 			<TabPanel value={value} index={2}>
 				<Machining />

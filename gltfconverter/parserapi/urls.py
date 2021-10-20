@@ -7,6 +7,7 @@ from django.conf.urls.static import static
 
 router = routers.DefaultRouter()
 router.register(r'files', views.FileUploadView, basename='Upload' )
+router.register(r'files', views.FileUploadChunk, basename='chunkupload' )
 router.register(r'files', views.FileGetView, basename='Convert' )
 router.register(r'files', views.FileSplit, basename='Split' )
 router.register(r'files', views.FileHierarchySplit, basename='hSplit' )
@@ -20,10 +21,11 @@ router.register(r'files', views.FileGetKinematicAnimation, basename='kinematicor
 router.register(r'files', views.FileSaveTree, basename='savetree' )
 router.register(r'files', views.FileSaveGDT, basename='savegdt' )
 # Wire up our API using automatic URL routing.
-# Additionally, we include login URLs for the browsable API.
+# Additionally, we include login URLs for the browsable API.FileUploadChunk
 urlpatterns = [
     re_path(r'^api/v0/upload$', views.FileUploadView),
 	re_path(r'^api/v0/upload', views.FileUploadView),
+    re_path(r'^api/v0/chunkupload', views.FileUploadChunk),
     re_path(r'^api/v0/uploads/(?P<pk>[0-9]+)$', views.FileReplaceView),
     re_path(r'^api/v0/convert$', views.FileGetView),
     re_path(r'^api/v0/split$', views.FileSplit),

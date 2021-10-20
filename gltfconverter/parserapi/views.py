@@ -179,7 +179,7 @@ def FileUploadView(request):
                 logging.exception(e)
             except Exception as e:
                 print("Error while logging",e)
- 
+
 @api_view(['GET', 'PUT', 'DELETE'])
 def FileReplaceView(request, pk):
     try:
@@ -207,6 +207,60 @@ def FileReplaceView(request, pk):
         elif request.method == 'DELETE': 
             file.delete() 
             return JsonResponse({'message': 'File was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
+
+@api_view(['POST'])
+def FileUploadChunk(request):
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        if request.method == 'POST':
+            filecontent = request.data['data']
+            #chunckcount = request.data['total']
+            counter = request.data['id']
+            uuid = request.data['uuid']
+            filename = request.data['filename']
+            newfilename = "Media/"+uuid+"/"+filename
+            try:
+                if(counter=="1") :       
+                    print("Directory", os.path.dirname(newfilename))         
+                    os.makedirs(os.path.dirname(newfilename), exist_ok=True)
+                    openflag = 'wb'
+                else:
+                    openflag = 'ab'
+                fileswritten = 0
+                with open(newfilename, openflag) as fh:
+                    fileswritten = fh.write(filecontent.read())
+                return JsonResponse({"uuid":uuid,"filename":filename,"bytes":fileswritten,"isSuccess":True}, status=status.HTTP_201_CREATED) 
+            except Exception as e:
+                print("Error while saving",e,request.data)
+                return JsonResponse({'errorMessage': e,"isSuccess":False},status=status.HTTP_400_BAD_REQUEST, safe=False)        
     except Exception as e:
         try:
             logging.error(traceback.format_exc())
@@ -312,14 +366,14 @@ def FileGetView(request):
             #print(id)        
             if is_number(id) :
                 if id==0:
-                    id = request.GET.get('file', None)
+                    #id = request.GET.get('file', None)
                     data = getFile(id,"Media/")
                 else :
                     files = File.objects.filter(id__icontains=id)
                     for eachfile in files:
                         data = getFile(eachfile.file.name,"Media/")
             else:
-                id = request.GET.get('file', None)
+                #id = request.GET.get('file', None)
                 data = getFile(id,"Media/")
         return JsonResponse(data, safe=False)
     except Exception as e:
@@ -717,7 +771,7 @@ def FileSplit(request):
                         else:
                             data = splitFileCadQuery(eachfile.file.name,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
                 else:
-                    id = request.GET.get('file', None)
+                    #id = request.GET.get('file', None)
                     if id is not None:
                         if includeparts:
                             data = splitFile(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
@@ -930,19 +984,19 @@ def FileHierarchySplit(request):
                             eachfile.file.name,"Media/",includeparts,distancegap,anglegap,
                             disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces)
                 else:
-                    id = request.GET.get('file', None)
+                    #id = request.GET.get('file', None)
                     if id is not None:
                         data = splitHierarchyFile(
                             id,"Media/",includeparts,distancegap,anglegap,
                             disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces)
-            if ((edgesize!=0) or (vertexsize !=0)):
+            """ if ((edgesize!=0) or (vertexsize !=0)):
                 try:
                     gdtfile = "Display/"+data["store"]+".gdt"
                     print("Writing,",gdtfile)
                     with open(gdtfile, 'w') as fh:
                         fh.write(json.dumps(data["gdttable"], sort_keys=True, indent=2 ))
                 except Exception as e:
-                    print("Error while writing gdtfile",e)
+                    print("Error while writing gdtfile",e) """
         return JsonResponse(data, safe=False)
     except Exception as e:
         try:
@@ -1292,6 +1346,9 @@ def FileGetShapeInfo(request):
             siblings = request.data['siblings']   
             pnamesteps= json.loads(siblings)
             pnames = pnamesteps['siblings']
+            guid = request.data['uuid'] 
+            if guid!='':
+                guid = guid+'/'
         print(start,fnames,pnames)
         structArray=[]
         thisshell=[]
@@ -1302,7 +1359,7 @@ def FileGetShapeInfo(request):
             #print("Got request for",fname,index,start)
             if fname:
                 try:
-                    with open("Display/"+fname+".pickle", 'rb') as f:
+                    with open("Display/"+guid+fname+".pickle", 'rb') as f:
                         #print("storing to",index)
                         thisshell.append(pickle.load(f))                        
                         #print("stored to",index)
@@ -1319,7 +1376,7 @@ def FileGetShapeInfo(request):
                                 thissiblings = pnames[index]                                
                                 for sibling in thissiblings:
                                     try:
-                                        with open("Display/"+sibling+".pickle", 'rb') as fs:
+                                        with open("Display/"+guid+sibling+".pickle", 'rb') as fs:
                                             thissibling = pickle.load(fs)
                                             siblingdimension =  get_oriented_bounding_details(thissibling)
                                             bigger = compareDimension(siblingdimension,thisdimension)
@@ -1828,7 +1885,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
             print("error",e)      
        
         try:
-            stackfile = "Display/"+dictionary["store"]+".stack"
+            stackfile = dictionary["display"]+dictionary["store"]+".stack"
             print("Writing,",stackfile)
             with open(stackfile, 'w') as fh:
                 fh.write(json.dumps(dictionary["stackable"], sort_keys=True, indent=2 ))
@@ -1860,7 +1917,7 @@ def FileGetStackablePositions(request):
                 for eachfile in files:               
                     data = exportToPartGLTF("Media/"+eachfile.file.name,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
             else:
-                id = request.GET.get('file', None)
+                #id = request.GET.get('file', None)
                 if id is not None:
                     data = exportToPartGLTF("Media/"+id,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False) 
@@ -4666,8 +4723,9 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             shapeArray,shape,shapePickles,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             #shape = Wholeshape
             #shapeArray = createShapeArray(shape)
+            print("Order",dictionary)
             dictionary = FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap,logging).\
-                ExplodeParts(sourceFileName,distancegap,anglegap,animationtime)
+                ExplodeParts(sourceFileName,distancegap,anglegap,animationtime,dictionary["display"])
             #whatGotHere = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap)
             #print("After calling Assembly order",dictionary)
             """ nshape, moveArrays, shapeorder, shapesdirection = dictionary
@@ -4699,7 +4757,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                             'colorshapes':shapePickles,
                             'assemblyname':aName,
                             'dimension':dimension} 
-            picklefile = "Display/"+dictionary["store"]+".pickle"
+            picklefile = dictionary["display"]+dictionary["store"]+".pickle"
             with open(picklefile, 'wb') as f:
                 # Pickle the 'data' dictionary using the highest protocol available.                               
                 pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
@@ -4739,7 +4797,7 @@ def FileGetAssemblyOrder(request):
                 for eachfile in files:               
                     data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime)#,thumbwidth,thumbheight)
             else:
-                id = request.GET.get('file', None)
+                #id = request.GET.get('file', None)
                 if id is not None:
                     data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False)    
@@ -4842,7 +4900,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5)
                             'anglegap':anglegap,
                             'animationtime':animationtime,
                             'colorshapes':shapePickles}
-            picklefile = "Display/"+dictionary["store"]+".pickle"
+            picklefile = dictionary["display"]+dictionary["store"]+".pickle"
             with open(picklefile, 'wb') as f:                                
                 pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
                 # Pickle the 'data' dictionary using the highest protocol available.
@@ -4877,7 +4935,7 @@ def FileGetKinematicAnimation(request):
                 for eachfile in files:               
                     data = exportTokinematicGLTF("Media/"+eachfile.file.name,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
             else:
-                id = request.GET.get('file', None)
+                #id = request.GET.get('file', None)
                 if id is not None:
                     data = exportTokinematicGLTF("Media/"+id,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False)    
@@ -4920,10 +4978,12 @@ def FileSaveTree(request):
             #print(tree)
             structArray = json.loads(tree)
             name = request.data['name']
-            
+            guid = request.data['uuid'] 
+            if guid!='':
+                guid = guid+'/'
             try:
                 colorShapeArray=[]
-                with open("Display/"+name+".pickle", 'rb') as f:
+                with open("Display/"+guid+name+".pickle", 'rb') as f:
                     # The protocol version used is detected automatically, so we do not
                     # have to specify it.
                     myPickle = pickle.load(f)
@@ -4963,7 +5023,7 @@ def FileSaveTree(request):
                             shapeorder.append(index)
                     print(kinematicanimation,shapeorder)  
                     (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                        filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
+                        filename="Media/"+guid+sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
                         anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,edgesize=0,vertexsize=0,
                         kinematicanimation=kinematicanimation,shapeorder=shapeorder,delay=animationtime).dump()
                 elif sourceType=='Order':
@@ -5027,12 +5087,12 @@ def FileSaveTree(request):
                                     cw=0                   
                                 shapedirection.append(((ax,ay,az),(cx,cy,cz,cw)))
                     dictionary = FindAssemblingOrder(shapeArray,shapesAlone,assemblyname,dimension,explodegap,center,holescale,removegap,logging).\
-                                    reChangeOrder(shapeorder,shapedirection,sourceFileName,distancegap,anglegap,animationtime)
+                                    reChangeOrder(shapeorder,shapedirection,"Media/"+guid+sourceFileName,distancegap,anglegap,animationtime)
             except Exception as e:
                 print("Error while loading",name,e) 
             if sourceType!='Order':  
                 try:
-                    treefile = "Display/"+name+'.tree'
+                    treefile = guid+name+'.tree'
                     print("Writing,",treefile)
                     with open(treefile, 'w') as fh:
                         fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
@@ -5075,11 +5135,14 @@ def FileSaveGDT(request):
         dictionary={}
         if request.method == 'POST':
             gdt = request.data['gdt']
+            guid = request.data['uuid'] 
+            if guid!='':
+                guid = guid+'/'
             #print(tree)
             structArray = json.loads(gdt)
             name = request.data['name']            
             try:
-                gdtfile = "Display/"+name+'.gdt'
+                gdtfile = guid+name+'.gdt'
                 print("Writing,",gdtfile)
                 with open(gdtfile, 'w') as fh:
                     fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
