@@ -2061,8 +2061,9 @@ class GLTFRenderer extends Component {
     
     onKeyDown = (event) => {
         console.log(event,this.props.fileGDT,this.INTERSECTED);
-        if ( this.props.fileGDT && event.ctrlKey && event.key === 'e' && (this.INTERSECTED !== null) ) {
+        if ( this.props.fileGDT && (event.ctrlKey || event.altKey) && event.key === 'e' && (this.INTERSECTED !== null) ) {
             event.preventDefault();
+            
             //console.log("Reaching here to load edges")
             this.findSingleNode(this.INTERSECTED,true,false);
         }

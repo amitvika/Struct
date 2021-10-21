@@ -59,6 +59,49 @@ export default function ThreejsSelection(props) {
       return '\u0020';
     }
   };
+  const getComponents=(myvalue)=> {
+    return myvalue.map((row, index) => (
+        
+      row ? row[gltf_Dict['name']] ? getMyName(row) : row+"\u2002": "\u0020"
+    
+    ));
+  }
+  const getEmpty=(myvalue)=> {
+    for (let index = 0; index < myvalye.length; index++) {
+      const item = myvalue[index];
+      if(item && item[gltf_Dict['name']]) {
+        let myelement = item[gltf_Dict['element']];
+        let myName = item[gltf_Dict['name']];
+        //let myCode = item[gltf_Dict['geometry']];
+        let first4chars = myName.slice(0, 4);
+        let first6chars = myName.slice(0, 6);
+        if (myelement) {
+          first4chars = myelement;
+          first6chars = myelement;
+          if (myelement == 'F') {
+            first4chars = 'FACE';
+          } else if (myelement == 'E') {
+            first4chars = 'EDGE';
+          } else if (myelement == 'V') {
+            first6chars = 'VERTEX';
+          } else if (myelement == 'P') {
+            first4chars = 'PART';
+          } else if (myelement == 'f' || myelement == 'e' || myelement == 'v') {
+            first6chars = 'SLICER';
+          }
+        };
+        if (((mytype=="PartSelection") || (mytype=="PartSelection3D") || (mytype=="MotionControlKinematicModelling") )
+          && (first4chars=="PART") ) {
+          return true;
+        } else if ( ((mytype!="PartSelection") && (mytype!="PartSelection3D") && (mytype!="MotionControlKinematicModelling") )
+              && ( (first4chars=="EDGE") || (first4chars=="FACE") ) ) {
+          return true;
+        };
+      }
+      
+    }
+    return false;
+  }
   return (
     <Button
         aria-describedby={'Save Controls'}
@@ -77,11 +120,8 @@ export default function ThreejsSelection(props) {
         }}
       >
       {/* <div style={{background:active?"#A0A0A0":"#D0D0D0"}}> */}
-      { myvalue.map((row, index) => (
-      
-        row ? row[gltf_Dict['name']] ? getMyName(row) : row+"\u2002": "\u0020"
-      
-      ))}
+      { getEmpty(myvalue) ? 'Please select features' :  getComponents(myvalue)  }
+     
       {/* </div> */}
     </Button>
   );
