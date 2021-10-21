@@ -67,7 +67,7 @@ export default function ThreejsSelection(props) {
     ));
   }
   const getEmpty=(myvalue)=> {
-    for (let index = 0; index < myvalye.length; index++) {
+    for (let index = 0; index < myvalue.length; index++) {
       const item = myvalue[index];
       if(item && item[gltf_Dict['name']]) {
         let myelement = item[gltf_Dict['element']];
