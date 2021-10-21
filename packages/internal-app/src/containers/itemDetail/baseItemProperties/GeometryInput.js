@@ -19,7 +19,8 @@ import Input from '@monostruct/common/components/atoms/Input';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import MaterialModal from './MaterialModal';
 import MaterialPropertiesModal from './MaterialPropertiesModal';
-import FileUploadAndExport from './FileUploadAndExport';
+//import FileUploadAndExport from './FileUploadAndExport';
+import LargeFileUpload from '@monostruct/common/gltf/LargeFileUpload'
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 export default function GeometryInput({
@@ -138,7 +139,7 @@ export default function GeometryInput({
           </Grid>
 
           <Grid item xs={12}>
-            <FileUploadAndExport
+            <LargeFileUpload
               {...{
                 fileName,
                 setFileName,
@@ -177,7 +178,10 @@ export default function GeometryInput({
                 { label: 'Building', value: 'Building' },
               ]}
               onChange={(data) => handleOnChange('itemType', data.value)}
-              value={itemGeometry.itemType && { label: itemGeometry.itemType }}
+              value={ (itemGeometry.itemType && { label: itemGeometry.itemType }) ||  {
+                label: 'Structure and/or Facade',
+                value: 'Any Other Object/Item',
+              } }
             />
           </Grid>
 
@@ -216,9 +220,9 @@ export default function GeometryInput({
                     handleOnChange('generalGeomerty', data.value)
                   }
                   value={
-                    itemGeometry.generalGeomerty && {
+                    (itemGeometry.generalGeomerty && {
                       label: itemGeometry.generalGeomerty,
-                    }
+                    }) ||  { label: ' Solid', value: ' Solid' }
                   }
                 />
               </Grid>
@@ -240,7 +244,7 @@ export default function GeometryInput({
                   ]}
                   onChange={(data) => handleOnChange('mixture', data.value)}
                   value={
-                    itemGeometry.mixture && { label: itemGeometry.mixture }
+                    (itemGeometry.mixture && { label: itemGeometry.mixture }) || { label: 'No', value: 'No' }
                   }
                 />
               </Grid>

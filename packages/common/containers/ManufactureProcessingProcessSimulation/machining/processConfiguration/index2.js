@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Index() {
+export default function ProcessConfigurationAssembly() {
   const classes = useStyles();
   const [gltfjson, setgltfjson] = useState({});
   const [fileId, setFileId] = useState(0);

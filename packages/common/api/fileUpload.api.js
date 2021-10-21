@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // const host = `https://cadapi.struct.services/api/v0`;
-// const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
+const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
 
-const baseURL = `https://cadapi.struct.services`;
+//const baseURL = `https://cadapi.struct.services`;
 
 const host = `${baseURL}/api/v0`;
 
@@ -13,25 +13,31 @@ export const upload3DFile = async (oneFile) => {
   return axios.post(`${host}/upload/`, formData);
 };
 
+export const uploadChunkData = async (formData) => {
+  console.log("Uploading",`${host}/chunkupload/`, formData);
+  return axios.post(`${host}/chunkupload/`, formData);
+};
 export const fetchShapeInfo = async (tree) => {
   var formTree = new FormData();
   formTree.append('tree', JSON.stringify(tree));
   return axios.post(`${host}/shapeinfo/`, formTree);
 };
 
-export const saveTreeInfo = async (tree, name) => {
+export const saveTreeInfo = async (tree, name, fileGuid) => {
   console.log(tree);
   var formTree = new FormData();
   formTree.append('tree', JSON.stringify(tree));
   formTree.append('name', name);
+  formTree.append('uuid',fileGUID?fileGUID:'');
   return axios.post(`${host}/savetree/`, formTree);
 };
 
-export const saveGDTInfo = async (gdt, name) => {
+export const saveGDTInfo = async (gdt, name, fileGuid) => {
   console.log(gdt);
   var formGDT = new FormData();
   formGDT.append('gdt', JSON.stringify(gdt));
   formGDT.append('name', name);
+  formGDT.append('uuid',fileGUID?fileGUID:'');
   return axios.post(`${host}/savegdt/`, formGDT);
 };
 
@@ -124,7 +130,7 @@ export const getMinimumDistance = (
   return axios.get(getURL);
 };
 
-export const getShapeInfo = (start, stepArray = [], siblingArray=[]) => {
+export const getShapeInfo = (start, stepArray = [], siblingArray=[], fileGUID) => {
  /*  const getURL = `${host}/shapeinfo?start=${start}&steps=${stepArray}&parents=${JSON.stringify({parents:parentArray})}`;
   console.log(getURL);
   return axios.get(getURL); */
@@ -133,6 +139,7 @@ export const getShapeInfo = (start, stepArray = [], siblingArray=[]) => {
   formShapeInfo.append('start', start);
   formShapeInfo.append('steps', JSON.stringify({steps:stepArray}));
   formShapeInfo.append('siblings', JSON.stringify({siblings:siblingArray}));
+  formShapeInfo.append('uuid',fileGUID?fileGUID:'');
   return axios.post(`${host}/shapeinfo/`, formShapeInfo);
 };
 

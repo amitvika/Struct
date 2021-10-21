@@ -454,6 +454,7 @@ export default function TableOrderView({
   list,
   columns,
   setColumns,
+  additionalSaveFunction=(abc) => {console.log(abc);},
   title,
   alerter,
 }) {
@@ -493,7 +494,14 @@ export default function TableOrderView({
     let sortedList = list;
     sortedList.sort(GetSortOrder(sortBy, sortDirection));
     setData(sortedList);
+    if(additionalSaveFunction) {
+      additionalSaveFunction(saveData);
+    }
   }, [list]);
+
+  const saveData =()=>{
+    saveDataTable(data);
+  }
 
   const onRowClick = (dataRow, event) => {
     console.log('BeforeDataRowClock', data, sortBy, sortDirection);

@@ -5,9 +5,12 @@ import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import { Button, Grid, Paper } from '@material-ui/core';
+//import { useSelector, useDispatch } from 'react-redux';
+//import { setCurrentItemAction } from '../../../../actions/itemActions';
+import { getPartsStackableInfo,resourcePathURL } from '@monostruct/common/api/fileUpload.api';
 // import { useSelector, useDispatch } from 'react-redux';
 // import { setCurrentItemAction } from '../../../../actions/itemActions';
-import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
+// import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
 
 export default function NestedList({ setItemValue }) {
   // const dispatch = useDispatch();
@@ -17,7 +20,13 @@ export default function NestedList({ setItemValue }) {
 
   // const currentItem = useSelector((state) => state.item.currentItem);
   const [splitfiles, setsplitfiles] = useState({});
-
+  const getItemFileStackID =(item) => {
+    if(item.fileUUId) {
+      const fullpath = item.fileName;
+      return fullpath.slice(6,fullpath.length);
+    }
+    return item.fileId;
+  }
   useEffect(() => {
     setDispensing(currentItem.dispensing);
   }, [currentItem]);
@@ -25,7 +34,7 @@ export default function NestedList({ setItemValue }) {
   useEffect(() => {
     console.log('----', currentItem);
 
-    getPartsStackableInfo(currentItem.fileId)
+    getPartsStackableInfo(getItemFileStackID(currentItem))
       .then((res) => {
         setsplitfiles(res.data);
       })

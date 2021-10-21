@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Grid, CircularProgress, makeStyles } from '@material-ui/core';
+//import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
+//import { useSelector } from 'react-redux';
+import { Paper, Grid, CircularProgress, Box, LinearProgress /*, makeStyles*/ } from '@material-ui/core';
 // import { Headding } from '../../../components';
 import Heading from '@monostruct/common/components/atoms/Headding';
 
@@ -11,6 +13,7 @@ import {
   SELECTFEATURE,
   SELECTHIRERACHY,
   STATEPROPS,
+  USESTYLES
 } from '@monostruct/common/gltf/Tree/utils';
 
 import '../style.css';
@@ -35,7 +38,25 @@ const stateprops = {
   materialtype: DEFAULTMATERIALTYPE,
   fromcenter: DEFAULTFROMCENTER,
 };
-*/
+mainContainer: {
+      margin: 10,
+      padding: 10,
+      display: 'inline-flex',
+      minWidth: '100%',
+      //background: "#F3F3F3",
+      backgroundColor:selectedTheme=='light'?"#F3F3F3":"#0C0C0C",
+    },
+    viewerContainer: {
+      flex: 1,
+      padding: '20px',
+      margin: '0px 15px',
+      display: 'inline-block',
+      boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
+      minWidth: '800px',
+      //background: "#F3F3F3",
+      backgroundColor:selectedTheme=='light'?"#F3F3F3":"#0C0C0C",
+    },    
+
 const useStyles = makeStyles((theme) => ({
   mainContainer: {
     margin: 10,
@@ -53,12 +74,12 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
   },
 }));
-
+*/
 export default function Stackability(props) {
-  const { fileId, gltfjson, isLoading } = props;
+  const { fileId, gltfjson, isLoading, fileUUId, progressBarLoad, percentage } = props;
   const [isFileLoading, setIsLoading] = useState(isLoading);
 
-  const classes = useStyles();
+  const classes = USESTYLES();
 
   const [splitfiles, setsplitfiles] = useState({ gltfjson });
 
@@ -89,7 +110,7 @@ export default function Stackability(props) {
       setState({
         selectedindex: 0,
         activefile:
-          fileId.toString() +
+        (fileId || fileUUId || "").toString() +
           includeParts.toString() +
           STATEPROPS.distancegap.toString() +
           STATEPROPS.anglegap.toString() +
@@ -117,12 +138,18 @@ export default function Stackability(props) {
   }
   return (
     <Paper className={classes.mainContainer}>
-      <Paper className={classes.viewerContainer}>
+      <Paper className={classes.stackContainer}>
+        {progressBarLoad && (
+          <Box sx={{ width: '100%' }}>
+            <LinearProgress variant="determinate"  value={percentage.toFixed(3)} />
+          </Box>
+        )}
         {!isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading && (
           <GLTFRenderer
             //gltfjson={JSON.stringify(gltfjson)}
             gltfobj={gltfjson}
             fileGDT={null}
+            fileUUId={fileUUId}
             fileAnimation={true}
             //view="Perspective"
             activefile={fileId + gltfjsonlen.toString()}

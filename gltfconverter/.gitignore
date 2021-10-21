@@ -164,6 +164,7 @@ __pycache__
 *.stack
 *.order
 *.gdt
+*.status
 
 
 
