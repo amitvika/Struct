@@ -4,7 +4,7 @@ import get from 'lodash/get';
 export const request = async (path, data, method) => {
   const token = localStorage.getItem('token');
   console.log("token before saving",token);
-  return axios({
+  return await axios({
     method,
     url: `${process.env.REACT_APP_API}${path}`,
     headers: {
@@ -14,7 +14,7 @@ export const request = async (path, data, method) => {
     },
     data,
   }).catch((error) => {
-    console.log(error);
+    console.log("Error",error);
     const status = get(error, 'response.status');    
     if (status === 401 && path !== '/api/auth/user') {
       localStorage.setItem('token', null);

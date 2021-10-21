@@ -992,12 +992,17 @@ const ItemDetail = () => {
     itemProperties.itemId = undefined;
 
     let updateItemProperties = Object.assign({}, itemProperties, change);
-
+    console.log("Going to save",updateItemProperties);
     ItemAPI.updateItemAPI(id, { ...updateItemProperties })
       .then((res) => {
         console.log("Result",res);
-        setItemProperties(res.data);
-        dispatch(showSuccessAlert({ message: 'Item Updated' }));
+        if(res && res.data) {
+          setItemProperties(res.data);
+          dispatch(showSuccessAlert({ message: 'Item Updated' }));
+        } else {
+          console.log("Error while Saving","Could not get Results");
+          dispatch(showErrorAlert({ message: 'Unable to save info' }));
+        }
       })
       .catch((error) => {
         console.log("Error while Saving",error);
