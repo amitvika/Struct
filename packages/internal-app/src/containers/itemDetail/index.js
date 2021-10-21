@@ -410,7 +410,22 @@ const ItemDetail = () => {
           );
         }
       } else if (myTabIndex == 'pdcu') {
-        if (!item.fileStore || item.fileStore === null) {
+        let okToParse = false;
+        if(item.fileStore) {
+          if (doesFileExist(getResourcePathURL(item) + item.fileStore + '.status')) {
+            console.log('Found status', item.fileStore);
+          } else { 
+              if (doesFileExist(getResourcePathURL(item) + item.fileStore + '.gltf')) {
+                 console.log('Found gltf', item.fileStore);            
+              } else {
+                  okToParse=true;
+              }
+          }
+        } else {
+          okToParse=true;
+        }
+        
+        if ( okToParse || !item.fileStore || item.fileStore === null ) {
           //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
           setIsLoading(true);
           setProgressBarLoad(true);

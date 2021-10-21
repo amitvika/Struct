@@ -111,50 +111,52 @@ export default function BaseItemProperties({
         console.log("File Upload Error",data);
         throw { message: 'File upload error' };
       }
+      let dataload = '';
+      let datastore = '';
+      if(data.file) {          
+        dataload = data.filename;
+        let filenameWithExtension = dataload.replace(/^.*[\\\/]/, '');
+        const lastDotIndex = filenameWithExtension.lastIndexOf('.');
+        if(lastDotIndex==-1) {
+          datastore = filenameWithExtension+"0";
+        } else {
+          datastore = filenameWithExtension.substring(0,lastDotIndex)+"0";
+        }        
+      }
       setfileUUId(data.uuid);
       setItemProperties((prevData) => ({
         ...prevData,
         fileUUId: data.uuid,
+        fileStore: datastore,
+        fileName: dataload,
       }));
+      handleItemSaveOnServer({
+        fileId: null,
+        fileUUId: data.uuid,
+        fileStore: datastore,
+        fileName: dataload,
+        fileGDT: null,
+        fileMPPS: null,
+        fileStack: null,
+        fileKinematic: null,
+      });
+      
       setProgressBarLoader(true);
       let percent = 0;
       const getHierarchyRes = await getHierarchySplitFiles(fileId, true, STATEPROPS.distancegap, STATEPROPS.anglegap, false, 0, 0, 0, STATEPROPS.maximumfaces);
       if(fileUUId != data.uuid) {
         setfileUUId(data.uuid);
       }
-      let datastore = getHierarchyRes.data.store;
-      let dataload = getHierarchyRes.data.load;
       const datastatus = getHierarchyRes.data.status;
-     
       if(datastatus) {
         percent = datastatus.percent;
-      } 
+        datastore = getHierarchyRes.data.store;
+        dataload = getHierarchyRes.data.load;
+      }    
       setPercentager(percent);
-      if(!datastore || (percent!=100)){
-        if(data.file) {
-          
-          dataload = data.filename;
-          let filenameWithExtension = dataload.replace(/^.*[\\\/]/, '');
-          const lastDotIndex = filenameWithExtension.lastIndexOf('.');
-          if(lastDotIndex==-1) {
-            datastore = filenameWithExtension+"0";
-          } else {
-            datastore = filenameWithExtension.substring(0,lastDotIndex)+"0";
-          }
-          
-        }
-        handleItemSaveOnServer({
-          fileId: null,
-          fileUUId: data.uuid,
-          fileStore: datastore,
-          fileName: dataload,
-          fileGDT: null,
-          fileMPPS: null,
-          fileStack: null,
-          fileKinematic: null,
-        });
+      if(!datastatus || (percent!=100)){        
         // eslint-disable-next-line no-throw-literal
-        if(!datastore) {
+        if(!datastore||!datastatus) {
           console.log("File Render Error",datastore,dataload);
           throw { message: 'Unable to render file' };
         } else {
@@ -179,16 +181,6 @@ export default function BaseItemProperties({
         }
         
       } else {
-        handleItemSaveOnServer({
-          fileId: null,
-          fileUUId: data.uuid,
-          fileStore: datastore,
-          fileName: dataload,
-          fileGDT: null,
-          fileMPPS: null,
-          fileStack: null,
-          fileKinematic: null,
-        });
         const treeLength = get(getHierarchyRes.data, 'tree', []).length;
         const multiAssmebly = treeLength > 0;
         setgltfjson({ ...getHierarchyRes.data, multiAssmebly: multiAssmebly, gdt: null, treeLength: treeLength });
@@ -201,6 +193,8 @@ export default function BaseItemProperties({
         setItemProperties((prevData) => ({
           ...prevData,
           fileUUId: data.uuid,
+          fileStore: datastore,
+          fileName: dataload,
         }));
       }
       
