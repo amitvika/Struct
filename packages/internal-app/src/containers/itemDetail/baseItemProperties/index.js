@@ -106,23 +106,23 @@ export default function BaseItemProperties({
       console.log("After File Upload", data);
       
 
-      if (!fileId) {
+      if (!data.uuid||!data.filename) {
         // eslint-disable-next-line no-throw-literal
         console.log("File Upload Error",data);
+        setIsLoading(false);
         throw { message: 'File upload error' };
       }
       let dataload = '';
-      let datastore = '';
-      if(data.file) {          
-        dataload = data.filename;
-        let filenameWithExtension = dataload.replace(/^.*[\\\/]/, '');
-        const lastDotIndex = filenameWithExtension.lastIndexOf('.');
-        if(lastDotIndex==-1) {
-          datastore = filenameWithExtension+"0";
-        } else {
-          datastore = filenameWithExtension.substring(0,lastDotIndex)+"0";
-        }        
-      }
+      let datastore = '';               
+      dataload = data.filename;
+      let filenameWithExtension = dataload.replace(/^.*[\\\/]/, '');
+      const lastDotIndex = filenameWithExtension.lastIndexOf('.');
+      if(lastDotIndex==-1) {
+        datastore = filenameWithExtension+"0";
+      } else {
+        datastore = filenameWithExtension.substring(0,lastDotIndex)+"0";
+      }        
+     
       setfileUUId(data.uuid);
       setItemProperties((prevData) => ({
         ...prevData,
@@ -150,14 +150,34 @@ export default function BaseItemProperties({
       const datastatus = getHierarchyRes.data.status;
       if(datastatus) {
         percent = datastatus.percent;
-        datastore = getHierarchyRes.data.store;
-        dataload = getHierarchyRes.data.load;
+        if((datastore!=getHierarchyRes.data.store) || (dataload != getHierarchyRes.data.load) ) {
+          datastore = getHierarchyRes.data.store;
+          dataload = getHierarchyRes.data.load;
+          setItemProperties((prevData) => ({
+            ...prevData,
+            fileUUId: data.uuid,
+            fileStore: datastore,
+            fileName: dataload,
+          }));
+          handleItemSaveOnServer({
+            fileId: null,
+            fileUUId: data.uuid,
+            fileStore: datastore,
+            fileName: dataload,
+            fileGDT: null,
+            fileMPPS: null,
+            fileStack: null,
+            fileKinematic: null,
+          });
+        }
       }    
       setPercentager(percent);
       if(!datastatus || (percent!=100)){        
         // eslint-disable-next-line no-throw-literal
         if(!datastore||!datastatus) {
           console.log("File Render Error",datastore,dataload);
+          setProgressBarLoader(false);
+          setIsLoading(false);
           throw { message: 'Unable to render file' };
         } else {
           const datafile = data.uuid+"/"+datastore;
@@ -179,7 +199,6 @@ export default function BaseItemProperties({
               gdt: null,
               treeLength: treeRes.data.length });
         }
-        
       } else {
         const treeLength = get(getHierarchyRes.data, 'tree', []).length;
         const multiAssmebly = treeLength > 0;
