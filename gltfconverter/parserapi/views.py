@@ -1366,10 +1366,10 @@ def FileGetShapeInfo(request):
                         data = []
                         if index >=start :
                             dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data,faceInfo=None, depth=1)
-                            print(fname,data)
                             thisdimension = get_oriented_bounding_details(thisshell[index])
                             thisdictionary = getDictionaryFromOBB(thisdimension)
                             data[0]['obb']=thisdictionary
+                            print(fname,data)
                             foundHole=False
                             if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
                                 #thisdimension = get_oriented_bounding_details(thisshell[index])

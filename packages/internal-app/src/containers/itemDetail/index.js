@@ -980,10 +980,12 @@ const ItemDetail = () => {
 
     ItemAPI.updateItemAPI(id, { ...updateItemProperties })
       .then((res) => {
+        console.log("Result",res);
         setItemProperties(res.data);
         dispatch(showSuccessAlert({ message: 'Item Updated' }));
       })
       .catch((error) => {
+        console.log("Error while Saving",error);
         dispatch(showErrorAlert({ message: 'Unable to save info' }));
       });
     try {
