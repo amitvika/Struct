@@ -215,10 +215,11 @@ const ItemDetail = () => {
       }
       //find deltaTime of currenttime and statusRes time., If time is too big: problem to reparse
       let currenttime = new Date().toUTCString();
-      let servertime = statusRes.data.current;
-      let currenttimearray = currenttime.split('-');
-      let utctimearray = servertime.split(' ');
-      let servertimearray = utctimearray[4].split(":");
+      let servertime = statusRes.data.current;      
+      let utctimearray = currenttime.split(' ');
+      let servertimearray = servertime.split('-');      
+      console.log("What is got from Status file",currenttime,utctimearray,servertime,servertimearray);            
+      let currenttimearray = utctimearray.split(':');
       let difference = ((currenttimearray[0]-servertimearray[0])*60*60)+
                   ((currenttimearray[1]-servertimearray[1]))*60+
                   ((currenttimearray[2]-servertimearray[2]));
