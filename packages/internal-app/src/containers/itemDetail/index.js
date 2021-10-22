@@ -206,7 +206,7 @@ const ItemDetail = () => {
       const statusRes = await getAFileFromStore(whichOneToStatus,'status');
       let percent = 0;
       if(statusRes) {
-        percent = statusRes.percent;
+        percent = statusRes.data.percent;
         if (percent == 100 ) {
           return false;
         }
@@ -215,7 +215,7 @@ const ItemDetail = () => {
       }
       //find deltaTime of currenttime and statusRes time., If time is too big: problem to reparse
       let currenttime = new Date().toUTCString("HH-mm-ss");
-      let servertime = statusRes.current;
+      let servertime = statusRes.data.current;
       let currenttimearray = currenttime.split('-');
       let servertimearray = servertime.split('-');
       let difference = ((currenttimearray[0]-servertimearray[0])*60*60)+
@@ -858,7 +858,7 @@ const ItemDetail = () => {
         const statusRes = await getAFileFromStore(whichOneToLoad,'status');
         let percent = 0;
         if(statusRes) {
-          percent = statusRes.percent;
+          percent = statusRes.data.percent;
         } 
         setPercentage(percent);
         if(percent!=100) {
