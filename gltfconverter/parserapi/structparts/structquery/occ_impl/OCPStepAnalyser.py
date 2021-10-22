@@ -699,7 +699,7 @@ class StepAnalyser():
             print("Writing",newfilename)
             with open(newfilename, 'w') as fh:
                 fh.write(json.dumps(self.mstep_dict, sort_keys=True, indent=2 ))
-        except:
+        except Exception as e:
             print("While Writing",newfilename,e)
 
         return self.output, self.outputShapes, self.mstep_dict

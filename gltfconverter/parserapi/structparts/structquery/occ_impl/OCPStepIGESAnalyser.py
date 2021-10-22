@@ -64,18 +64,22 @@ from OCC.Core.BRepCheck import (BRepCheck_Shell, BRepCheck_Status)
 from OCC.Core.XSControl import XSControl_WorkSession
 from OCC.Core.TopLoc import TopLoc_Location
 from OCC.Core.gp import gp_Pnt, gp_Vec, gp_Dir, gp_XYZ, gp_Pnt2d, gp_Ax2, gp_Circ
-from OCC.Core.GProp import GProp_GProps
-from OCC.Core.BRepGProp import brepgprop_LinearProperties
-from OCC.Core.ShapeBuild import ShapeBuild_ReShape
+#from OCC.Core.GProp import GProp_GProps
+#from OCC.Core.BRepGProp import brepgprop_LinearProperties
+#from OCC.Core.ShapeBuild import ShapeBuild_ReShape
 from OCC.Core.TopAbs import (TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE,
                         TopAbs_SHELL, TopAbs_SOLID, TopAbs_COMPOUND,
                         TopAbs_COMPSOLID, TopAbs_Orientation)
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeSphere, BRepPrimAPI_MakeBox
 from OCC.Core.GeomAbs import GeomAbs_Line 
-from OCC.Core.GCPnts import GCPnts_AbscissaPoint
+#from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 #from .OCCUtils.vertex import Vertex
 #from .OCCUtils import Topology
-from .OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices, Topo
+from .OCCUtils.Topology import (dumpTopologyStructures, 
+                                dumpTopologyFacesEdgesVertices,
+                                dumpTopologySolidsFacesEdgesVertices,
+                                shapeString, Topo )
+
 from .OCCExtend.TopologyUtils import list_of_shapes_to_compound
 from .. import assembly #,cq
  
@@ -1511,6 +1515,21 @@ class StepIgesAnalyser():
                 return [],[],None, None, " ", False
         #if self.includeparts:
         #    disectparts = True
+        myshapename = shapeString(aShape)
+        print(myshapename)
+        if myshapename=="Compound." or myshapename=="Compsolid.":
+            faces_dict = {}
+            edges_dict = {}
+            vertices_dict = {}            
+            solids_dict = {}
+            compounds_dict = {}
+            compsolids_dict = {}
+            dumpTopologySolidsFacesEdgesVertices(aShape,faces_dict,edges_dict,vertices_dict,solids_dict,compounds_dict,compsolids_dict)
+           
+            print("solids_dict",len(solids_dict),solids_dict)
+            print("compounds_dict",len(compounds_dict),compounds_dict)
+            print("compsolids_dict",len(compsolids_dict),compsolids_dict)
+
         transformationHash = self.hashCode(localTransform)
         if disectparts:  
             faces_dict = {}

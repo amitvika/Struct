@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-__all__ = ['Topo', 'WireExplorer', 'dumpTopology', 'dumpTopologyStructures', 'dumpTopologyFacesEdgesVertices']
+__all__ = ['Topo', 'WireExplorer', 'dumpTopology', 'dumpTopologyStructures', 'dumpTopologyFacesEdgesVertices', 'dumpTopologySolidsFacesEdgesVertices']
 
 from OCC.Core.BRep import BRep_Tool
 
@@ -502,6 +502,42 @@ def hashTransCode(transform):
         for j in range(1,5):
             hashcode += str(transform.Value(i,j))
     return hashcode
+
+def dumpTopologySolidsFacesEdgesVertices(shape, face_dict={}, edge_dict={}, vertex_dict={}, solid_dict={}, comp_dict={}, compsolid_dict={} ):
+    """
+     Print the details of an object from the top down
+    """
+    #brt = BRep_Tool()
+    s = shape.ShapeType()
+    if s==TopAbs_EDGE:
+        myhash = str(hash(shape))+str(shape.Orientation())+hashTransCode(shape.Location().Transformation())
+    else:
+        myhash = str(hash(shape))    
+    if s == TopAbs_VERTEX:
+        if not myhash in vertex_dict:
+            vertex_dict[myhash]=shape        
+    elif s == TopAbs_FACE:
+        if not myhash in face_dict:
+            face_dict[myhash]=shape         
+    elif s == TopAbs_EDGE:        
+        if not myhash in edge_dict:
+            edge_dict[myhash]=shape 
+    elif s == TopAbs_SOLID:
+        if not myhash in solid_dict:
+            solid_dict[myhash]=shape 
+    elif s == TopAbs_COMPOUND:
+        if not myhash in comp_dict:
+            comp_dict[myhash]=shape 
+    elif s == TopAbs_COMPSOLID:
+        if not myhash in compsolid_dict:
+            compsolid_dict[myhash]=shape 
+    it = TopoDS_Iterator(shape)    
+    while it.More():
+        shp = it.Value()
+        it.Next()
+        dumpTopologySolidsFacesEdgesVertices(shp, face_dict=face_dict, edge_dict=edge_dict, vertex_dict=vertex_dict, solid_dict=solid_dict, comp_dict=comp_dict, compsolid_dict=compsolid_dict)
+    
+    return True
 
 def dumpTopologyFacesEdgesVertices(shape, face_dict={}, edge_dict={}, vertex_dict={}):
     """

@@ -107,13 +107,13 @@ const ItemDetail = () => {
 
         dispatch(setCurrentItemAction(_currentItem));
         console.log("I am doing the conversion inner",_currentItem);
-        setGLTFAndTree(_currentItem, myTabIndex);
+        setGLTFAndTree({..._currentItem}, myTabIndex);
 
         setIsLoading(false);
       })();
     } else {
       console.log("I am doing the conversion outer",itemProperties);
-      setGLTFAndTree(itemProperties, myTabIndex);
+      setGLTFAndTree({...itemProperties}, myTabIndex);
     }
   }, [tabIndex]);
 
@@ -254,6 +254,12 @@ const ItemDetail = () => {
         item.fileKinematic,
         item.fileUUId
       );
+      if(itemProperties.fileStack != item.fileStack) {
+        setItemProperties((prevData) => ({
+          ...prevData,
+          fileStack: item.fileStack,
+        }));
+      }
     }
   };
 
@@ -329,6 +335,12 @@ const ItemDetail = () => {
         item.fileKinematic,
         item.fileUUId
       );
+      if(itemProperties.fileMPPS != item.fileMPPS) {
+        setItemProperties((prevData) => ({
+          ...prevData,
+          fileMPPS: item.fileMPPS,
+        }));
+      }
     }
   };
   const setGLTFAndTree = async (item, myTabedIndex) => {
@@ -408,6 +420,12 @@ const ItemDetail = () => {
             item.fileKinematic,
             item.fileUUId
           );
+          if(itemProperties.fileKinematic != item.fileKinematic) {
+            setItemProperties((prevData) => ({
+              ...prevData,
+              fileKinematic: item.fileKinematic,
+            }));
+          }          
         }
       } else if (myTabIndex == 'pdcu') {
         let okToParse = false;
@@ -564,6 +582,12 @@ const ItemDetail = () => {
             item.fileKinematic,
             item.fileUUId
           );
+          if(itemProperties.fileStore != item.fileStore) {
+            setItemProperties((prevData) => ({
+              ...prevData,
+              fileStore: item.fileStore,
+            }));
+          }
         }
       } else {
         if (!item.fileGDT || item.fileGDT === null) {
@@ -573,7 +597,7 @@ const ItemDetail = () => {
               item.fileStore.slice(0, item.fileStore.length - 1) + '3';
             console.log('Checking GDT', fileGDT);
             if (doesFileExist(getResourcePathURL(item) + fileGDT + '.gltf')) {
-              console.log('Found', fileGDT);
+              console.log('Found GDT', fileGDT);
               item.fileGDT = fileGDT;
             } else {
               if (doesFileExist(getResourcePathURL(item) + fileGDT + '.status')) {
@@ -734,6 +758,12 @@ const ItemDetail = () => {
             item.fileKinematic,
             item.fileUUId
           );
+          if(itemProperties.fileGDT != item.fileGDT) {
+            setItemProperties((prevData) => ({
+              ...prevData,
+              fileGDT: item.fileGDT,
+            }));
+          }
         }
       }
     } else {

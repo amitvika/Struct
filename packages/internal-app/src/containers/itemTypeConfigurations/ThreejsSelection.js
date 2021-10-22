@@ -54,7 +54,17 @@ export default function ThreejsSelection(props) {
       return myName+"\u2003";
     } else if ( ((mytype!="PartSelection") && (mytype!="PartSelection3D") && (mytype!="MotionControlKinematicModelling") )
            && ( (first4chars=="EDGE") || (first4chars=="FACE") ) ) {
-      return myName+"\u2003";
+      if(item.parentnode) {
+        const myParentName =item.parentnode[gltf_Dict['name']];
+        if(myParentName) {
+          return myParentName+"\u2003";
+        } else {
+          return myName+"\u2003";
+        }
+      } else {
+        return myName+"\u2003";
+      }
+      
     } else {
       return '\u0020';
     }
