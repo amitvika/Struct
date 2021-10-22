@@ -187,7 +187,44 @@ const ItemDetail = () => {
       return fullpath.slice(6,fullpath.length);
     }
     return item.fileId;
-  }
+  };
+
+  const checkStatusToParse = async (whichOneToLoad) => {
+          
+    if (doesFileExist(whichOneToLoad + '.gltf')) {
+      console.log('Found gltf', whichOneToLoad);  
+      return false;          
+    } 
+    if (doesFileExist(whichOneToLoad+ '.status') ) {
+      console.log('Found status', whichOneToLoad);
+      const statusRes = await getAFileFromStore(whichOneToLoad,'status');
+      let percent = 0;
+      if(statusRes) {
+        percent = statusRes.percent;
+        if (percent == 100 ) {
+          return false;
+        }
+      } else {
+        return true;
+      }
+      //find deltaTime of currenttime and statusRes time., If time is too big: problem to reparse
+      let currenttime = new Date().toUTCString("HH-mm-ss");
+      let servertime = statusRes.current;
+      let currenttimearray = currenttime.split('-');
+      let servertimearray = servertime.split('-');
+      let difference = ((currenttimearray[0]-servertimearray[0])*60*60)+
+                  ((currenttimearray[1]-servertimearray[1]))*60+
+                  ((currenttimearray[2]-servertimearray[2]));
+      if (difference < 0) {
+        difference += 24*60*60;
+      }
+      if(difference > 2*60){
+        return true;
+      }
+      return false;
+    }  
+    return true;
+  };
   const setStack = (item) => {
     if (!item.fileId && !item.fileUUId) {
       return;
@@ -345,43 +382,9 @@ const ItemDetail = () => {
       }
     }
   };
-  const checkStatusToParse = async (whichOneToLoad) => {
-    let okToParse = false;
-    const whichOneToLoad = getResourcePathURL(item) + item.fileStore;       
-    if (doesFileExist(whichOneToLoad + '.gltf')) {
-      console.log('Found gltf', whichOneToLoad);  
-      return false;          
-    } 
-    if (doesFileExist(whichOneToLoad+ '.status') ) {
-      console.log('Found status', whichOneToLoad);
-      const statusRes = await getAFileFromStore(whichOneToLoad,'status');
-      let percent = 0;
-      if(statusRes) {
-        percent = statusRes.percent;
-        if (percent == 100 ) {
-          return false;
-        }
-      } else {
-        return true;
-      }
-      //find deltaTime of currenttime and statusRes time., If time is too big: problem to reparse
-      let currenttime = new Date().toUTCString("HH-mm-ss");
-      let servertime = statusRes.current;
-      let currenttimearray = currenttime.split('-');
-      let servertimearray = servertime.split('-');
-      let difference = ((currenttimearray[0]-servertimearray[0])*60*60)+
-                  ((currenttimearray[1]-servertimearray[1]))*60+
-                  ((currenttimearray[2]-servertimearray[2]));
-      if (difference < 0) {
-        difference += 24*60*60;
-      }
-      if(difference > 2*60){
-        return true;
-      }
-      return false;
-    }  
-    return true;
-  }
+
+  
+  
   const setGLTFAndTree = async (item, myTabedIndex) => {
     if (myTabedIndex == tabIndex) {
       if ((!item.fileId && !item.fileUUId) || !parserNeeded.includes(myTabedIndex)) {
