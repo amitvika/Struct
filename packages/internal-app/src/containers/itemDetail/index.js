@@ -219,7 +219,7 @@ const ItemDetail = () => {
       let utctimearray = currenttime.split(' ');
       let servertimearray = servertime.split('-');      
       console.log("What is got from Status file",currenttime,utctimearray,servertime,servertimearray);            
-      let currenttimearray = utctimearray.split(':');
+      let currenttimearray = utctimearray[4].split(':');
       let difference = ((currenttimearray[0]-servertimearray[0])*60*60)+
                   ((currenttimearray[1]-servertimearray[1]))*60+
                   ((currenttimearray[2]-servertimearray[2]));
