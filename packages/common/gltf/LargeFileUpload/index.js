@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { LinearProgress, Box, IconButton, Typography } from '@material-ui/core'
+import { LinearProgress, Box, IconButton, Typography } from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
 
-
-import {uploadChunkData, download} from '../../api/fileUpload.api';
+import { uploadChunkData, download } from '../../api/fileUpload.api';
 import ExportLogo from '../../assets/images/export.png';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -57,79 +56,95 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const chunkSize = 1048576 * 3;//its 3MB, increase the number measure in mb
+const chunkSize = 1048576 * 3; //its 3MB, increase the number measure in mb
 
-export default function LargeFileUpload ({ handleFileUpload, itemProperties, label = "STEP, DXF, GERBER" }) {
+export default function LargeFileUpload({
+  handleFileUpload,
+  itemProperties,
+  label = 'STEP, DXF, GERBER',
+}) {
   const classes = useStyles();
   const [counter, setCounter] = useState(1);
   const [fileToBeUpload, setFileToBeUpload] = useState({});
   const [beginingOfTheChunk, setBeginingOfTheChunk] = useState(0);
   const [endOfTheChunk, setEndOfTheChunk] = useState(chunkSize);
   const [progress, setProgress] = useState(0);
-  const [fileGuid, setFileGuid] = useState("");
-  const [fileName, setFileName] = useState("");
+  const [fileGuid, setFileGuid] = useState('');
+  const [fileName, setFileName] = useState('');
   const [fileSize, setFileSize] = useState(0);
   const [chunkCount, setChunkCount] = useState(0);
 
-  
   useEffect(() => {
     if (fileSize > 0) {
       fileUpload(counter);
     }
-  }, [fileToBeUpload, progress])
+  }, [fileToBeUpload, progress]);
 
   const onChange = (e) => {
     resetChunkProperties();
     const dataload = e.target.files[0];
     setFileSize(dataload.size);
-    const totalCount = dataload.size % chunkSize == 0 ? dataload.size / chunkSize : Math.floor(dataload.size / chunkSize) + 1; // Total count of chunks will have been upload to finish the file
-    setChunkCount(totalCount);   
+    const totalCount =
+      dataload.size % chunkSize == 0
+        ? dataload.size / chunkSize
+        : Math.floor(dataload.size / chunkSize) + 1; // Total count of chunks will have been upload to finish the file
+    setChunkCount(totalCount);
     const fileID = uuidv4();
-    setFileGuid(fileID);	
-    console.log("File Loading",dataload);
+    setFileGuid(fileID);
+    console.log('File Loading', dataload);
     const filenameWithExtension = dataload.name.replace(/^.*[\\\/]/, '');
     setFileName(filenameWithExtension);
-	  setFileToBeUpload(dataload);
-  }
-
+    setFileToBeUpload(dataload);
+  };
 
   const fileUpload = () => {
     setCounter(counter + 1);
     if (counter <= chunkCount) {
       var chunk = fileToBeUpload.slice(beginingOfTheChunk, endOfTheChunk);
-      uploadChunk(chunk)
+      uploadChunk(chunk);
     }
-  }
+  };
 
   const uploadChunk = async (chunk) => {
     var formData = new FormData();
     formData.append('filename', fileName);
-    formData.append('id',counter);
+    formData.append('id', counter);
     formData.append('uuid', fileGuid);
-    formData.append('total',chunkCount);
-    formData.append('data',chunk);
+    formData.append('total', chunkCount);
+    formData.append('data', chunk);
     try {
       const response = await uploadChunkData(formData);
-      console.log("My Response from uploadchunk",response);
-      if(response) {
+      console.log('My Response from uploadchunk', response);
+      if (response) {
         const data = response.data;
         if (data.isSuccess) {
           setBeginingOfTheChunk(endOfTheChunk);
           setEndOfTheChunk(endOfTheChunk + chunkSize);
           var percentage = (counter / chunkCount) * 100;
-          setProgress(percentage);  
-          if(counter==chunkCount) {
+          setProgress(percentage);
+          if (counter == chunkCount) {
             handleFileUpload(data);
-          }	
+          }
         } else {
-          console.log('Error Occurred:', data.errorMessage,fileName,counter,chunkCount);
+          console.log(
+            'Error Occurred:',
+            data.errorMessage,
+            fileName,
+            counter,
+            chunkCount
+          );
         }
       } else {
-        console.log('Error Occurred:', "Could not get response",fileName,counter,chunkCount);
+        console.log(
+          'Error Occurred:',
+          'Could not get response',
+          fileName,
+          counter,
+          chunkCount
+        );
       }
-      
     } catch (error) {
-      console.log('error', error,fileName,counter,chunkCount);
+      console.log('error', error, fileName, counter, chunkCount);
     }
   };
 
@@ -137,8 +152,8 @@ export default function LargeFileUpload ({ handleFileUpload, itemProperties, lab
     setCounter(1);
     setBeginingOfTheChunk(0);
     setEndOfTheChunk(chunkSize);
-    setProgress(0);	
-  }
+    setProgress(0);
+  };
   const handleExportButton = () => {
     download(itemProperties.fileName);
   };
@@ -166,30 +181,30 @@ export default function LargeFileUpload ({ handleFileUpload, itemProperties, lab
     );
   }
   return (
-     
-		<div>
-     
+    <div>
       <Box sx={{ width: '100%' }}>
-        <LinearProgress variant="determinate"  value={progress.toFixed(3)} />
+        <LinearProgress variant="determinate" value={progress.toFixed(3)} />
       </Box>
       <div style={{ display: 'flex' }}>
-      <Typography variant="h6">Upload Cad</Typography>
-		  <Box component="div" className={classes.custom_file} sx={{ width: '100%' }}>        
-			<input
-			  id="btn-upload"
-			  name="btn-upload"
-			  className={classes.custom_file_input}
-			  type="file"
-			  accept=".step,.stp,.igs,.iges,.stl,.brep"
-			  onChange={onChange}
-			/>
-			<label className={classes.custom_file_label} htmlFor="file">
-			  {label}
-			</label>
-		  </Box>
+        <Typography variant="h6">Upload Cad</Typography>
+        <Box
+          component="div"
+          className={classes.custom_file}
+          sx={{ width: '100%' }}
+        >
+          <input
+            id="btn-upload"
+            name="btn-upload"
+            className={classes.custom_file_input}
+            type="file"
+            accept=".step,.stp,.igs,.iges,.stl,.brep"
+            onChange={onChange}
+          />
+          <label className={classes.custom_file_label} htmlFor="file">
+            {label}
+          </label>
+        </Box>
       </div>
-		</div>   
+    </div>
   );
-};
-
-
+}
