@@ -221,6 +221,7 @@ const ItemDetail = () => {
       let difference = ((currenttimearray[0]-servertimearray[0])*60*60)+
                   ((currenttimearray[1]-servertimearray[1]))*60+
                   ((currenttimearray[2]-servertimearray[2]));
+      console.log("What is got from Status file",currenttime,servertime,currenttimearray,servertimearray,difference);
       if (difference < 0) {
         difference += 24*60*60;
       }
