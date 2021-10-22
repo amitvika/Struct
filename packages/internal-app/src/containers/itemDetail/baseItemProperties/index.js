@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
-import { Paper, CircularProgress, Box, LinearProgress /*, makeStyles*/ } from '@material-ui/core';
+import {
+  Paper,
+  CircularProgress,
+  Box,
+  LinearProgress /*, makeStyles*/,
+} from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 
 import GeometryInput from './GeometryInput';
@@ -27,7 +32,7 @@ import {
   SELECTFEATURE,
   STATEPROPS,
   USESTYLES,
-  pollFunction
+  pollFunction,
 } from '@monostruct/common/gltf/Tree/utils';
 
 import '../style.css';
@@ -66,18 +71,18 @@ export default function BaseItemProperties({
   handleItemUpdateLocallay,
   handleItemSaveOnServer,
   progressBarLoad,
-  percentage
+  percentage,
 }) {
   const classes = USESTYLES();
   const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isStepLoaded, setIsStepLoaded] = useState(false);
-  const [percentager, setPercentager] = useState(percentage||0);
+  const [percentager, setPercentager] = useState(percentage || 0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
   const [gltfobj, setGltfObj] = useState(gltfjson);
   const [fileId, setFileId] = useState(0);
-  const [fileUUId,setfileUUId]=useState(itemProperties.fileUUId);
+  const [fileUUId, setfileUUId] = useState(itemProperties.fileUUId);
   const [isFileLoading, setIsFileLoading] = useState(false);
 
   useEffect(() => {
@@ -85,13 +90,13 @@ export default function BaseItemProperties({
     setfileUUId(itemProperties.fileUUId);
     setGltfObj(gltfjson);
   }, [gltfjson]);
-  
+
   useEffect(() => {
     setProgressBarLoader(progressBarLoad);
   }, [progressBarLoad]);
-  
+
   useEffect(() => {
-    if(percentage) {
+    if (percentage) {
       setPercentager(percentage);
     }
   }, [percentage]);
@@ -102,34 +107,33 @@ export default function BaseItemProperties({
     try {
       //const fileUploadRes = await upload3DFile(data);
       //"uuid":uuid,"filename":newfilename,"bytes":fileswritten
-      const fileId = data.uuid+"/"+data.filename;
-      console.log("After File Upload", data);
-      
+      const fileId = data.uuid + '/' + data.filename;
+      console.log('After File Upload', data);
 
-      if (!data.uuid||!data.filename) {
+      if (!data.uuid || !data.filename) {
         // eslint-disable-next-line no-throw-literal
-        console.log("File Upload Error",data);
+        console.log('File Upload Error', data);
         setIsLoading(false);
         throw { message: 'File upload error' };
       }
       let dataload = '';
-      let datastore = '';               
+      let datastore = '';
       dataload = data.filename;
       let filenameWithExtension = dataload.replace(/^.*[\\\/]/, '');
       const lastDotIndex = filenameWithExtension.lastIndexOf('.');
-      if(lastDotIndex==-1) {
-        datastore = filenameWithExtension+"0";
+      if (lastDotIndex == -1) {
+        datastore = filenameWithExtension + '0';
       } else {
-        datastore = filenameWithExtension.substring(0,lastDotIndex)+"0";
-      }        
-     
+        datastore = filenameWithExtension.substring(0, lastDotIndex) + '0';
+      }
+
       setfileUUId(data.uuid);
-      setItemProperties((prevData) => ({
-        ...prevData,
-        fileUUId: data.uuid,
-        fileStore: datastore,
-        fileName: dataload,
-      }));
+      // setItemProperties((prevData) => ({
+      //   ...prevData,
+      //   fileUUId: data.uuid,
+      //   fileStore: datastore,
+      //   fileName: dataload,
+      // }));
       handleItemSaveOnServer({
         fileId: null,
         fileUUId: data.uuid,
@@ -140,25 +144,38 @@ export default function BaseItemProperties({
         fileStack: null,
         fileKinematic: null,
       });
-      
+
       setProgressBarLoader(true);
       let percent = 0;
-      const getHierarchyRes = await getHierarchySplitFiles(fileId, true, STATEPROPS.distancegap, STATEPROPS.anglegap, false, 0, 0, 0, STATEPROPS.maximumfaces);
-      if(fileUUId != data.uuid) {
+      const getHierarchyRes = await getHierarchySplitFiles(
+        fileId,
+        true,
+        STATEPROPS.distancegap,
+        STATEPROPS.anglegap,
+        false,
+        0,
+        0,
+        0,
+        STATEPROPS.maximumfaces
+      );
+      if (fileUUId != data.uuid) {
         setfileUUId(data.uuid);
       }
       const datastatus = getHierarchyRes.data.status;
-      if(datastatus) {
+      if (datastatus) {
         percent = datastatus.percent;
-        if((datastore!=getHierarchyRes.data.store) || (dataload != getHierarchyRes.data.load) ) {
+        if (
+          datastore != getHierarchyRes.data.store ||
+          dataload != getHierarchyRes.data.load
+        ) {
           datastore = getHierarchyRes.data.store;
           dataload = getHierarchyRes.data.load;
-          setItemProperties((prevData) => ({
-            ...prevData,
-            fileUUId: data.uuid,
-            fileStore: datastore,
-            fileName: dataload,
-          }));
+          // setItemProperties((prevData) => ({
+          //   ...prevData,
+          //   fileUUId: data.uuid,
+          //   fileStore: datastore,
+          //   fileName: dataload,
+          // }));
           handleItemSaveOnServer({
             fileId: null,
             fileUUId: data.uuid,
@@ -170,42 +187,60 @@ export default function BaseItemProperties({
             fileKinematic: null,
           });
         }
-      }    
+      }
       setPercentager(percent);
-      if(!datastatus || (percent!=100)){        
+      if (!datastatus || percent != 100) {
         // eslint-disable-next-line no-throw-literal
-        if(!datastore||!datastatus) {
-          console.log("File Render Error",datastore,dataload);
+        if (!datastore || !datastatus) {
+          console.log('File Render Error', datastore, dataload);
           setProgressBarLoader(false);
           setIsLoading(false);
           throw { message: 'Unable to render file' };
         } else {
-          const datafile = data.uuid+"/"+datastore;
-          let fetchStatus = () => getAFileFromStore(datafile,"status");
-          let validateStatus = (result) => { 
-            console.log(result.data,result.data.percent,result.data.percent!=100);
-            return (result.data.percent!=100);
+          const datafile = data.uuid + '/' + datastore;
+          let fetchStatus = () => getAFileFromStore(datafile, 'status');
+          let validateStatus = (result) => {
+            console.log(
+              result.data,
+              result.data.percent,
+              result.data.percent != 100
+            );
+            return result.data.percent != 100;
           };
-          let percentFunction = (result) => result.data.percent?result.data.percent:percentager;
-          console.log("Entering poll",datastore,dataload);
-          await pollFunction(fetchStatus, validateStatus, 20000, setPercentager,percentFunction);
-          console.log("Completing poll",datastore,dataload);
-          const gltfRes = await getAFileFromStore(datafile,"gltf");
-          const treeRes = await getAFileFromStore(datafile,"tree");
+          let percentFunction = (result) =>
+            result.data.percent ? result.data.percent : percentager;
+          console.log('Entering poll', datastore, dataload);
+          await pollFunction(
+            fetchStatus,
+            validateStatus,
+            20000,
+            setPercentager,
+            percentFunction
+          );
+          console.log('Completing poll', datastore, dataload);
+          const gltfRes = await getAFileFromStore(datafile, 'gltf');
+          const treeRes = await getAFileFromStore(datafile, 'tree');
           const multiAssmebly = treeRes.data.length > 0;
-          setgltfjson({ gltf:gltfRes.data, 
-              tree:treeRes.data, 
-              multiAssmebly: multiAssmebly, 
-              gdt: null,
-              treeLength: treeRes.data.length });
+          setgltfjson({
+            gltf: gltfRes.data,
+            tree: treeRes.data,
+            multiAssmebly: multiAssmebly,
+            gdt: null,
+            treeLength: treeRes.data.length,
+          });
         }
       } else {
         const treeLength = get(getHierarchyRes.data, 'tree', []).length;
         const multiAssmebly = treeLength > 0;
-        setgltfjson({ ...getHierarchyRes.data, multiAssmebly: multiAssmebly, gdt: null, treeLength: treeLength });
+        setgltfjson({
+          ...getHierarchyRes.data,
+          multiAssmebly: multiAssmebly,
+          gdt: null,
+          treeLength: treeLength,
+        });
       }
       setProgressBarLoader(false);
-      if(fileUUId != data.uuid) {
+      if (fileUUId != data.uuid) {
         setfileUUId(data.uuid);
       }
       if(itemProperties.fileUUId != data.uuid) {
@@ -216,16 +251,16 @@ export default function BaseItemProperties({
           fileName: dataload,
         }));
       }
-      
+
       setIsLoading(false);
-      
-      dispatch(showSuccessAlert({ message: 'File uploaded and Rendered successfully' }));
-      
+
+      dispatch(
+        showSuccessAlert({ message: 'File uploaded and Rendered successfully' })
+      );
     } catch (error) {
       setIsLoading(false);
       dispatch(showErrorAlert({ message: error.message }));
     }
-
   };
 
   const removeFile = (data) => {
@@ -243,15 +278,18 @@ export default function BaseItemProperties({
   if (gltfjsonlen > 0) {
     gltfjsonlen += gltfobj?.gltf?.accessors?.length;
   }
-  
+
   return (
     <div>
       {
-        <Grid className={classes.designcontainer}>  
+        <Grid className={classes.designcontainer}>
           <Paper className={classes.paperContainer} variant="outlined" square>
             {progressBarLoader && (
               <Box sx={{ width: '100%' }}>
-                <LinearProgress variant="determinate"  value={percentager.toFixed(3)} />
+                <LinearProgress
+                  variant="determinate"
+                  value={percentager.toFixed(3)}
+                />
               </Box>
             )}
             {!isLoading &&
@@ -262,7 +300,9 @@ export default function BaseItemProperties({
                   fileGDT={null}
                   fileUUId={fileUUId}
                   fileAnimation={false}
-                  activefile={(fileId || fileUUId || '') + gltfjsonlen.toString()}
+                  activefile={
+                    (fileId || fileUUId || '') + gltfjsonlen.toString()
+                  }
                   backcolor={DEFAULTBACKCOLOR()}
                   selectcolor={DEFAULTSELECTCOLOR()}
                   touchcolor={DEFAULTTOUCHCOLOR()}

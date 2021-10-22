@@ -1152,7 +1152,7 @@ const ItemDetail = () => {
           size="large"
           variant="contained"
           color="primary"
-          onClick={handleSave}
+          onClick={() => handleSave()}
         >
           Save
         </Button>

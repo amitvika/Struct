@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useReducer } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -64,11 +64,11 @@ export default function Index2(props) {
     'Extrusion',
     '3D Printing',
     'Forming',
-    ' Textile Assembly',
+    'Textile Assembly',
     'Powder Stamping and Sintering',
-    ' Coatings',
-    ' Temperature and Gas Treatments',
-    ' Photochemical Machining',
+    'Coatings',
+    'Temperature and Gas Treatments',
+    'Photochemical Machining',
     'Storage',
     'Dispensing',
     'Holding',
