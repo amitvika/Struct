@@ -149,7 +149,7 @@ const ItemDetail = () => {
   }
   const getStatusPathURL = (item) => {
     if(item.fileUUId) {
-      item.fileUUId + '/';
+      return item.fileUUId + '/';
     }
     return '';
   }
