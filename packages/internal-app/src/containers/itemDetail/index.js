@@ -195,10 +195,11 @@ const ItemDetail = () => {
     if (!item.fileStack || item.fileStack === null) {
       console.log('Checking Store', item.fileStore);
       if (item.fileStore && item.fileStore.length > 0) {
-        const fileStack =
-          item.fileStore.slice(0, item.fileStore.length - 1) + 'S0';
+        const fileStack = item.fileStore.slice(0, item.fileStore.length - 1) + 'S0';
         console.log('Checking Stack', fileStack);
-        if (doesFileExist(getResourcePathURL(item) + fileStack + '.gltf')) {
+        const whichOneToLoad = getResourcePathURL(item) + fileStack;
+        let okToParse = checkStatusToParse(whichOneToLoad);
+        if (!okToParse) {
           console.log('Found', fileStack);
           item.fileStack = fileStack;
         } else {
@@ -270,10 +271,11 @@ const ItemDetail = () => {
     if (!item.fileMPPS || item.fileMPPS === null) {
       console.log('Checking Store', item.fileStore);
       if (item.fileStore && item.fileStore.length > 0) {
-        const fileMPPS =
-          item.fileStore.slice(0, item.fileStore.length - 1) + 'M0';
+        const fileMPPS = item.fileStore.slice(0, item.fileStore.length - 1) + 'M0';
         console.log('Checking Order', fileMPPS);
-        if (doesFileExist(getResourcePathURL(item) + fileMPPS + '.gltf')) {
+        const whichOneToLoad = getResourcePathURL(item) + fileMPPS;
+        let okToParse = checkStatusToParse(whichOneToLoad);
+        if (!okToParse) {
           console.log('Found', fileMPPS);
           item.fileMPPS = fileMPPS;
         } else {
@@ -343,6 +345,43 @@ const ItemDetail = () => {
       }
     }
   };
+  const checkStatusToParse = async (whichOneToLoad) => {
+    let okToParse = false;
+    const whichOneToLoad = getResourcePathURL(item) + item.fileStore;       
+    if (doesFileExist(whichOneToLoad + '.gltf')) {
+      console.log('Found gltf', whichOneToLoad);  
+      return false;          
+    } 
+    if (doesFileExist(whichOneToLoad+ '.status') ) {
+      console.log('Found status', whichOneToLoad);
+      const statusRes = await getAFileFromStore(whichOneToLoad,'status');
+      let percent = 0;
+      if(statusRes) {
+        percent = statusRes.percent;
+        if (percent == 100 ) {
+          return false;
+        }
+      } else {
+        return true;
+      }
+      //find deltaTime of currenttime and statusRes time., If time is too big: problem to reparse
+      let currenttime = new Date().toUTCString("HH-mm-ss");
+      let servertime = statusRes.current;
+      let currenttimearray = currenttime.split('-');
+      let servertimearray = servertime.split('-');
+      let difference = ((currenttimearray[0]-servertimearray[0])*60*60)+
+                  ((currenttimearray[1]-servertimearray[1]))*60+
+                  ((currenttimearray[2]-servertimearray[2]));
+      if (difference < 0) {
+        difference += 24*60*60;
+      }
+      if(difference > 2*60){
+        return true;
+      }
+      return false;
+    }  
+    return true;
+  }
   const setGLTFAndTree = async (item, myTabedIndex) => {
     if (myTabedIndex == tabIndex) {
       if ((!item.fileId && !item.fileUUId) || !parserNeeded.includes(myTabedIndex)) {
@@ -352,13 +391,15 @@ const ItemDetail = () => {
       let myTabIndex = myTabedIndex == 'iupc' ? 'gdtac' : myTabedIndex;
       if (myTabIndex == 'iupc') {
         console.log('Checking iupc', myTabIndex, item);
+        
         if (!item.fileKinematic || item.fileKinematic === null) {
           console.log('Checking Store', item.fileStore);
           if (item.fileStore && item.fileStore.length > 0) {
-            const fileKinematic =
-              item.fileStore.slice(0, item.fileStore.length - 1) + 'K0';
+            const fileKinematic = item.fileStore.slice(0, item.fileStore.length - 1) + 'K0';
             console.log('Checking Kinematic', fileKinematic);
-            if (doesFileExist(getResourcePathURL(item) + fileKinematic + '.gltf')) {
+            const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
+            let okToParse = checkStatusToParse(whichOneToLoad);
+            if (!okToParse) {
               console.log('Found', fileKinematic);
               item.fileKinematic = fileKinematic;
             } else {
@@ -429,16 +470,9 @@ const ItemDetail = () => {
         }
       } else if (myTabIndex == 'pdcu') {
         let okToParse = false;
-        if(item.fileStore) {
-          if (doesFileExist(getResourcePathURL(item) + item.fileStore + '.status')) {
-            console.log('Found status', item.fileStore);
-          } else { 
-              if (doesFileExist(getResourcePathURL(item) + item.fileStore + '.gltf')) {
-                 console.log('Found gltf', item.fileStore);            
-              } else {
-                  okToParse=true;
-              }
-          }
+        if(item.fileStore) {   
+          const whichOneToLoad = getResourcePathURL(item) + item.fileStore; 
+          okToParse = checkStatusToParse(whichOneToLoad); 
         } else {
           okToParse=true;
         }
@@ -593,21 +627,17 @@ const ItemDetail = () => {
         if (!item.fileGDT || item.fileGDT === null) {
           console.log('Checking Store', item.fileStore);
           if (item.fileStore && item.fileStore.length > 0) {
-            const fileGDT =
-              item.fileStore.slice(0, item.fileStore.length - 1) + '3';
+            const fileGDT = item.fileStore.slice(0, item.fileStore.length - 1) + '3';
             console.log('Checking GDT', fileGDT);
-            if (doesFileExist(getResourcePathURL(item) + fileGDT + '.gltf')) {
-              console.log('Found GDT', fileGDT);
-              item.fileGDT = fileGDT;
-            } else {
-              if (doesFileExist(getResourcePathURL(item) + fileGDT + '.status')) {
+            let whichOneToLoad = getResourcePathURL(item) + fileGDT;
+            let okToParse = checkStatusToParse(whichOneToLoad);
+            if (!okToParse) {
                 console.log('Found status', fileGDT);
                 item.fileGDT = fileGDT;
-              }else {
-                console.log('GDT Not Found', fileGDT);
-              }
-             
+            } else {
+              console.log('GDT Not Found', fileGDT);
             }
+            
           } else {
             console.log('Store Not Found', item.fileStore);
           }
