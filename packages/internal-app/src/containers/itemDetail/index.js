@@ -225,7 +225,7 @@ const ItemDetail = () => {
     }  
     return true;
   };
-  const setStack = (item) => {
+  const setStack = async (item) => {
     if (!item.fileId && !item.fileUUId) {
       return;
     }
@@ -235,7 +235,7 @@ const ItemDetail = () => {
         const fileStack = item.fileStore.slice(0, item.fileStore.length - 1) + 'S0';
         console.log('Checking Stack', fileStack);
         const whichOneToLoad = getResourcePathURL(item) + fileStack;
-        let okToParse = checkStatusToParse(whichOneToLoad);
+        let okToParse = await checkStatusToParse(whichOneToLoad);
         if (!okToParse) {
           console.log('Found', fileStack);
           item.fileStack = fileStack;
@@ -301,7 +301,7 @@ const ItemDetail = () => {
     }
   };
 
-  const setOrder = (item) => {
+  const setOrder = async (item) => {
     if (!item.fileId && !item.fileUUId) {
       return;
     }
@@ -311,7 +311,7 @@ const ItemDetail = () => {
         const fileMPPS = item.fileStore.slice(0, item.fileStore.length - 1) + 'M0';
         console.log('Checking Order', fileMPPS);
         const whichOneToLoad = getResourcePathURL(item) + fileMPPS;
-        let okToParse = checkStatusToParse(whichOneToLoad);
+        let okToParse = await checkStatusToParse(whichOneToLoad);
         if (!okToParse) {
           console.log('Found', fileMPPS);
           item.fileMPPS = fileMPPS;
@@ -401,7 +401,7 @@ const ItemDetail = () => {
             const fileKinematic = item.fileStore.slice(0, item.fileStore.length - 1) + 'K0';
             console.log('Checking Kinematic', fileKinematic);
             const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
-            let okToParse = checkStatusToParse(whichOneToLoad);
+            let okToParse = await checkStatusToParse(whichOneToLoad);
             if (!okToParse) {
               console.log('Found', fileKinematic);
               item.fileKinematic = fileKinematic;
@@ -475,7 +475,8 @@ const ItemDetail = () => {
         let okToParse = false;
         if(item.fileStore) {   
           const whichOneToLoad = getResourcePathURL(item) + item.fileStore; 
-          okToParse = checkStatusToParse(whichOneToLoad); 
+          okToParse = await checkStatusToParse(whichOneToLoad); 
+          console.log("Go ahead status in calling api from beginning",okToParse);
         } else {
           okToParse=true;
         }
@@ -633,7 +634,7 @@ const ItemDetail = () => {
             const fileGDT = item.fileStore.slice(0, item.fileStore.length - 1) + '3';
             console.log('Checking GDT', fileGDT);
             let whichOneToLoad = getResourcePathURL(item) + fileGDT;
-            let okToParse = checkStatusToParse(whichOneToLoad);
+            let okToParse =  await checkStatusToParse(whichOneToLoad);
             if (!okToParse) {
                 console.log('Found status', fileGDT);
                 item.fileGDT = fileGDT;
