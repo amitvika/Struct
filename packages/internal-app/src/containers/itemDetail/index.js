@@ -147,6 +147,12 @@ const ItemDetail = () => {
     }
     return (resourcePathURL || '');
   }
+  const getStatusPathURL = (item) => {
+    if(item.fileUUId) {
+      item.fileUUId + '/';
+    }
+    return '';
+  }
   /*
   const getItemFileStackID =(item) => {
     if(item.fileUUId) {
@@ -189,7 +195,7 @@ const ItemDetail = () => {
     return item.fileId;
   };
 
-  const checkStatusToParse = async (whichOneToLoad) => {
+  const checkStatusToParse = async (whichOneToLoad,whichOneToStatus) => {
           
     if (doesFileExist(whichOneToLoad + '.gltf')) {
       console.log('Found gltf', whichOneToLoad);  
@@ -197,7 +203,7 @@ const ItemDetail = () => {
     } 
     if (doesFileExist(whichOneToLoad+ '.status') ) {
       console.log('Found status', whichOneToLoad);
-      const statusRes = await getAFileFromStore(whichOneToLoad,'status');
+      const statusRes = await getAFileFromStore(whichOneToStatus,'status');
       let percent = 0;
       if(statusRes) {
         percent = statusRes.percent;
@@ -235,7 +241,8 @@ const ItemDetail = () => {
         const fileStack = item.fileStore.slice(0, item.fileStore.length - 1) + 'S0';
         console.log('Checking Stack', fileStack);
         const whichOneToLoad = getResourcePathURL(item) + fileStack;
-        let okToParse = await checkStatusToParse(whichOneToLoad);
+        const whichOneToStatus = getStatusPathURL(item) + fileStack;
+        let okToParse = await checkStatusToParse(whichOneToLoad,whichOneToStatus);
         if (!okToParse) {
           console.log('Found', fileStack);
           item.fileStack = fileStack;
@@ -311,7 +318,8 @@ const ItemDetail = () => {
         const fileMPPS = item.fileStore.slice(0, item.fileStore.length - 1) + 'M0';
         console.log('Checking Order', fileMPPS);
         const whichOneToLoad = getResourcePathURL(item) + fileMPPS;
-        let okToParse = await checkStatusToParse(whichOneToLoad);
+        const whichOneToStatus = getStatusPathURL(item) + fileMPPS;
+        let okToParse = await checkStatusToParse(whichOneToLoad,whichOneToStatus);
         if (!okToParse) {
           console.log('Found', fileMPPS);
           item.fileMPPS = fileMPPS;
@@ -401,7 +409,8 @@ const ItemDetail = () => {
             const fileKinematic = item.fileStore.slice(0, item.fileStore.length - 1) + 'K0';
             console.log('Checking Kinematic', fileKinematic);
             const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
-            let okToParse = await checkStatusToParse(whichOneToLoad);
+            const whichOneToStatus = getStatusPathURL(item) + fileKinematic;
+            let okToParse = await checkStatusToParse(whichOneToLoad,whichOneToStatus);
             if (!okToParse) {
               console.log('Found', fileKinematic);
               item.fileKinematic = fileKinematic;
@@ -474,8 +483,9 @@ const ItemDetail = () => {
       } else if (myTabIndex == 'pdcu') {
         let okToParse = false;
         if(item.fileStore) {   
-          const whichOneToLoad = getResourcePathURL(item) + item.fileStore; 
-          okToParse = await checkStatusToParse(whichOneToLoad); 
+          const whichOneToLoad = getResourcePathURL(item) + item.fileStore;
+          const whichOneToStatus = getStatusPathURL(item) + item.fileStore;
+          let okToParse = await checkStatusToParse(whichOneToLoad,whichOneToStatus); 
           console.log("Go ahead status in calling api from beginning",okToParse);
         } else {
           okToParse=true;
@@ -633,8 +643,9 @@ const ItemDetail = () => {
           if (item.fileStore && item.fileStore.length > 0) {
             const fileGDT = item.fileStore.slice(0, item.fileStore.length - 1) + '3';
             console.log('Checking GDT', fileGDT);
-            let whichOneToLoad = getResourcePathURL(item) + fileGDT;
-            let okToParse =  await checkStatusToParse(whichOneToLoad);
+            const whichOneToLoad = getResourcePathURL(item) + fileGDT;
+            const whichOneToStatus = getStatusPathURL(item) + fileGDT;
+            let okToParse = await checkStatusToParse(whichOneToLoad,whichOneToStatus);
             if (!okToParse) {
                 console.log('Found status', fileGDT);
                 item.fileGDT = fileGDT;
