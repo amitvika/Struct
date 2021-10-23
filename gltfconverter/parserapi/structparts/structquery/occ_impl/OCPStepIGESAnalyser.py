@@ -77,7 +77,7 @@ from OCC.Core.GeomAbs import GeomAbs_Line
 #from .OCCUtils import Topology
 from .OCCUtils.Topology import (dumpTopologyStructures, 
                                 dumpTopologyFacesEdgesVertices,
-                                dumpTopologySolidsFacesEdgesVertices,
+                                dumpTopologySolids,
                                 shapeString, Topo )
 
 from .OCCExtend.TopologyUtils import list_of_shapes_to_compound
@@ -1524,8 +1524,7 @@ class StepIgesAnalyser():
             solids_dict = {}
             compounds_dict = {}
             compsolids_dict = {}
-            dumpTopologySolidsFacesEdgesVertices(aShape,faces_dict,edges_dict,vertices_dict,solids_dict,compounds_dict,compsolids_dict)
-           
+            dumpTopologySolids(aShape,1,0,solids_dict,compounds_dict,compsolids_dict)           
             print("solids_dict",len(solids_dict),solids_dict)
             print("compounds_dict",len(compounds_dict),compounds_dict)
             print("compsolids_dict",len(compsolids_dict),compsolids_dict)

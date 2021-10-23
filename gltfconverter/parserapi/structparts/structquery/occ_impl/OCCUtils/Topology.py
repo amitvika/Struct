@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-__all__ = ['Topo', 'WireExplorer', 'dumpTopology', 'dumpTopologyStructures', 'dumpTopologyFacesEdgesVertices', 'dumpTopologySolidsFacesEdgesVertices']
+__all__ = ['Topo', 'WireExplorer', 'dumpTopology', 'dumpTopologyStructures', 'dumpTopologyFacesEdgesVertices', 'dumpTopologySolids']
 
 from OCC.Core.BRep import BRep_Tool
 
@@ -503,26 +503,13 @@ def hashTransCode(transform):
             hashcode += str(transform.Value(i,j))
     return hashcode
 
-def dumpTopologySolidsFacesEdgesVertices(shape, face_dict={}, edge_dict={}, vertex_dict={}, solid_dict={}, comp_dict={}, compsolid_dict={} ):
+def dumpTopologySolids(shape, maxlevel=1, level=0, solid_dict={}, comp_dict={}, compsolid_dict={} ):
     """
      Print the details of an object from the top down
     """
     #brt = BRep_Tool()
-    s = shape.ShapeType()
-    if s==TopAbs_EDGE:
-        myhash = str(hash(shape))+str(shape.Orientation())+hashTransCode(shape.Location().Transformation())
-    else:
-        myhash = str(hash(shape))    
-    if s == TopAbs_VERTEX:
-        if not myhash in vertex_dict:
-            vertex_dict[myhash]=shape        
-    elif s == TopAbs_FACE:
-        if not myhash in face_dict:
-            face_dict[myhash]=shape         
-    elif s == TopAbs_EDGE:        
-        if not myhash in edge_dict:
-            edge_dict[myhash]=shape 
-    elif s == TopAbs_SOLID:
+    s = shape.ShapeType()    
+    if s == TopAbs_SOLID:
         if not myhash in solid_dict:
             solid_dict[myhash]=shape 
     elif s == TopAbs_COMPOUND:
@@ -535,8 +522,10 @@ def dumpTopologySolidsFacesEdgesVertices(shape, face_dict={}, edge_dict={}, vert
     while it.More():
         shp = it.Value()
         it.Next()
-        dumpTopologySolidsFacesEdgesVertices(shp, face_dict=face_dict, edge_dict=edge_dict, vertex_dict=vertex_dict, solid_dict=solid_dict, comp_dict=comp_dict, compsolid_dict=compsolid_dict)
-    
+        level+=1
+        if(level <=maxlevel):
+            dumpTopologySolids(shp, level=level, solid_dict=solid_dict, comp_dict=comp_dict, compsolid_dict=compsolid_dict)
+        level-=1
     return True
 
 def dumpTopologyFacesEdgesVertices(shape, face_dict={}, edge_dict={}, vertex_dict={}):
