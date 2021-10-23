@@ -5,6 +5,9 @@ const { resourcePathURL } = require('@monostruct/common/api/common');
 exports.mapItems = (data) => {
   if (isArray(data)) {
     return data.map((item, index) => {
+      if (data.length === 1) {
+        return Object.assign({}, item.toObject(), this.mapItem(item));
+      }
       return this.mapItem(item);
     });
   } else {

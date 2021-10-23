@@ -7,7 +7,7 @@ export const columnsFields = [
 
 export const columnsForItemView = [
   { title: 'ID', field: 'id', editable: 'never' },
-  { title: 'Name', field: 'name' },
+  { title: 'Name', field: 'name', type: 'text' },
   {
     title: 'Source',
     field: 'source'
@@ -38,4 +38,4 @@ export const columnsForItemView = [
         </span>
       )
   }
-]
+];

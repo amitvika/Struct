@@ -5,15 +5,14 @@ const occ = {}; //nodeocc.occ;
 const path = require('path');
 const { getObjectId } = require('../utils/helper');
 const _ = require('lodash');
-const { mapItems } = require('../map/item.map');
+const { mapItems, mapItem } = require('../map/item.map');
 
 exports.get = async (req, res) => {
   try {
     const query = buildQuery(req);
-
     let items = [];
 
-    if (query.length > 0) {
+    if (query.$and.length > 0) {
       items = await ItemModel.find(query)
         .populate('created_by')
         .populate('updated_by')
@@ -78,7 +77,6 @@ const buildQuery = (req) => {
     });
   }
 
-  query.$and.push({ $sort: { date: -1 } });
   return query;
 };
 
@@ -236,24 +234,34 @@ exports.update = async (req, res) => {
       updateData.hierarchySelections = body.hierarchySelections;
     }
 
-    const updatedItem = await ItemModel.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    );
+    let prevItem = await ItemModel.findById(req.body.id);
+
+    if (prevItem) {
+      req.body.updated_by = req.user.id;
+      prevItem = await ItemModel.findByIdAndUpdate(
+        req.body.id,
+        { $set: updateData },
+        { new: true }
+      );
+    } else {
+      req.body.created_by = req.user.id;
+      req.body.updated_by = req.user.id;
+      prevItem = await ItemModel.create(req.body);
+    }
 
     const changeTracking = new ChangeTracking({
-      client: updatedItem._id,
-      update: updatedItem,
+      client: prevItem._id,
+      update: prevItem,
       model: 'Item',
-      updateType: 'Update',
-      updatedObject: updatedItem._id,
+      updateType: 'Upsert',
+      updatedObject: prevItem._id,
       updatedBy: req.user.id
     });
     await changeTracking.save();
 
-    res.json(updatedItem);
+    res.json(Object.assign({}, prevItem.toObject(), mapItem(prevItem)));
   } catch (error) {
+    console.log('Error', error);
     return res.status(500).send({ message: 'Some unexpected error occurred' });
   }
 };
