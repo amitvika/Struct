@@ -10,8 +10,7 @@ export default function DynamicHierarchy(props) {
     hierarchyDropdownList = [],
     selections = [],
     setSelections = () => {},
-    inToolbar = false,
-    clearSelections = () => {}
+    inToolbar = false
   } = props;
 
   const handleDropdownSelection = (title, value, form) => {

@@ -47,7 +47,8 @@ export default function Filter({
   filteredList = [],
   setFilteredList = () => {},
   columnsFields = [],
-  isSearchBarVisible = false
+  isSearchBarVisible = false,
+  setIsFilterResetted=() => {}
 }) {
   const classes = useStyles();
 
@@ -74,7 +75,7 @@ export default function Filter({
 
       return flag;
     });
-
+    setIsFilterResetted(false);
     setFilteredList(myArrayFiltered);
   };
 
@@ -140,6 +141,7 @@ export default function Filter({
       }
       return false;
     });
+    setIsFilterResetted(false);
     setFilteredList(filteredData);
   };
 
@@ -220,6 +222,7 @@ export default function Filter({
           type="button"
           value="Clear"
           onClick={() => {
+            setIsFilterResetted(true);
             setFilteredList(list);
             setSelectedFields({});
             setSearchTerm('');

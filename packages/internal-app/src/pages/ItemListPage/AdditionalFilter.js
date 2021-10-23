@@ -6,7 +6,8 @@ import DynamicHierarchyDropdowns from '@monostruct/common/containers/DynamicHier
 export default function AdditionalFilter({
   list = [],
   filteredList = [],
-  setFilteredList = () => {}
+  setFilteredList = () => {},
+  isFilterResetted
 }) {
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
   const [selections, setSelections] = useState([
@@ -22,6 +23,13 @@ export default function AdditionalFilter({
       })
       .catch((error) => {});
   }, []);
+
+  useEffect(() => {
+    if (isFilterResetted) {
+      setSelections([{ key: 'Item Type', formFields: [] }]);
+      setFilteredList(list);
+    }
+  }, [isFilterResetted]);
 
   const handleOnDropdownSelectionChange = () => {
     setStateUpdated(!stateUpdated);
@@ -44,11 +52,6 @@ export default function AdditionalFilter({
     setFilteredList(filteredData);
   };
 
-  const clearSelections = () => {
-    setSelections({ key: 'Item Type', formFields: [] });
-    setFilteredList(list);
-  };
-
   return (
     <DynamicHierarchyDropdowns
       {...{
@@ -56,8 +59,7 @@ export default function AdditionalFilter({
         selections,
         setSelections,
         handleOnDropdownSelectionChange,
-        inToolbar: true,
-        clearSelections
+        inToolbar: true
       }}
     />
   );

@@ -22,6 +22,7 @@ export default function Toolbar({
   AdditionalFilter = null,
   ...restProps
 }) {
+  const [isFilterResetted, setIsFilterResetted] = React.useState(false);
   return (
     <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }}>
       <Grid container>
@@ -50,8 +51,10 @@ export default function Toolbar({
           )}
         </Grid>
         <Grid item xs style={{ display: 'flex', flexDirection: 'column' }}>
-          <Filter {...restProps} />
-          {AdditionalFilter !== null && <AdditionalFilter {...restProps} />}
+          <Filter {...restProps} {...{ setIsFilterResetted }} />
+          {AdditionalFilter !== null && (
+            <AdditionalFilter {...restProps} {...{ isFilterResetted }} />
+          )}
         </Grid>
 
         {title === 'Items' && (
