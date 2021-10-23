@@ -508,16 +508,22 @@ def dumpTopologySolids(shape, maxlevel=1, level=0, solid_dict={}, comp_dict={}, 
      Print the details of an object from the top down
     """
     #brt = BRep_Tool()
-    s = shape.ShapeType()    
-    if s == TopAbs_SOLID:
-        if not myhash in solid_dict:
-            solid_dict[myhash]=shape 
-    elif s == TopAbs_COMPOUND:
-        if not myhash in comp_dict:
-            comp_dict[myhash]=shape 
-    elif s == TopAbs_COMPSOLID:
-        if not myhash in compsolid_dict:
-            compsolid_dict[myhash]=shape 
+    if(level>0):
+        myhash = str(hash(shape)) 
+        s = shape.ShapeType()   
+        #toproceed=False 
+        if s == TopAbs_SOLID:
+            if not myhash in solid_dict:
+                solid_dict[myhash]=shape 
+            #toproceed=True
+        elif s == TopAbs_COMPOUND:
+            if not myhash in comp_dict:
+                comp_dict[myhash]=shape 
+            #toproceed=True
+        elif s == TopAbs_COMPSOLID:
+            if not myhash in compsolid_dict:
+                compsolid_dict[myhash]=shape
+        #toproceed=True 
     it = TopoDS_Iterator(shape)    
     while it.More():
         shp = it.Value()

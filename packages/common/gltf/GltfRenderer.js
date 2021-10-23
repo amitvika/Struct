@@ -3994,6 +3994,7 @@ class GLTFRenderer extends Component {
         }
         //this.fetchTree(gltfFILE,progressFile,myParentID);
         const progressFile = (this.props.fileUUId ? this.props.fileUUId+'/' : '') + this.props.fileGDT.slice(0, this.props.fileGDT.length - 1); 
+        const progressGLTF = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);
         if(!this_progress_data) {
             //const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);  
             console.log("Getting",progressFile);
@@ -4056,10 +4057,12 @@ class GLTFRenderer extends Component {
                                 howManyFiles=1;
                             } */
                             let fileStore = progressFile + "-" +myParentID.toString()+element+"3";
+                            let gltfStore = progressGLTF + "-" +myParentID.toString()+element+"3";
                             console.log("For Loop",fileStore,howManyFiles);
                             for (let index = 0; index < howManyFiles; index++) {
                                 if(index > 0) {
                                     fileStore = progressFile + "-" +myParentID.toString()+element+index.toString()+"3";
+                                    gltfStore = progressGLTF + "-" +myParentID.toString()+element+index.toString()+"3";
                                 }
                                 console.log("Inside Loop",fileStore,index,howManyFiles);
                                 getAFileFromStore(fileStore,"tree")
@@ -4102,8 +4105,8 @@ class GLTFRenderer extends Component {
                                     console.log("Error While Loading Tree", err);
                                 
                                 })
-                                this.onInitProgress(fileStore+".gltf");
-                                loader.load(fileStore+".gltf", onload, onProgress, onError,1 );
+                                this.onInitProgress(gltfStore+".gltf");
+                                loader.load(gltfStore+".gltf", onload, onProgress, onError,1 );
                             }
                         }
                     }
@@ -4162,10 +4165,12 @@ class GLTFRenderer extends Component {
                             howManyFiles=1;
                         } */
                         let fileStore = progressFile + "-" +myParentID.toString()+element+"3";
+                        let gltfStore = progressGLTF + "-" +myParentID.toString()+element+"3";
                         console.log("For Loop",fileStore,howManyFiles);
                         for (let index = 0; index < howManyFiles; index++) {
                             if(index > 0) {
                                 fileStore = progressFile + "-" +myParentID.toString()+element+index.toString()+"3";
+                                gltfStore = progressGLTF + "-" +myParentID.toString()+element+index.toString()+"3";
                             }
                             console.log("Inside Loop",fileStore,index,howManyFiles);
                             getAFileFromStore(fileStore,"tree")
@@ -4206,7 +4211,8 @@ class GLTFRenderer extends Component {
                                 console.log("Error While Loading Tree", err);
                             
                             })
-                            loader.load(fileStore+".gltf", onload, onProgress, onError,1 );
+                            this.onInitProgress(gltfStore+".gltf");
+                            loader.load(gltfStore+".gltf", onload, onProgress, onError,1 );
                         }
                     }
                 }

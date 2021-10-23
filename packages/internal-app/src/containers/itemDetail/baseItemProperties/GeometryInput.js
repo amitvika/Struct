@@ -178,10 +178,11 @@ export default function GeometryInput({
                 { label: 'Building', value: 'Building' },
               ]}
               onChange={(data) => handleOnChange('itemType', data.value)}
-              value={ (itemGeometry.itemType && { label: itemGeometry.itemType }) ||  {
-                label: 'Structure and/or Facade',
-                value: 'Any Other Object/Item',
-              } }
+              value={ (itemGeometry.itemType &&  { 
+                      label: itemGeometry.itemType=='Any Other Object/Item'?'Structure and/or Facade':itemGeometry.itemType,
+                      value: itemGeometry.itemType=='Structure and/or Facade'?'Any Other Object/Item':itemGeometry.itemType }) ||  {
+                              label: 'Structure and/or Facade',
+                              value: 'Any Other Object/Item' } }
             />
           </Grid>
 
