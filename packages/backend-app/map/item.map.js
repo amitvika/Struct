@@ -21,7 +21,7 @@ exports.mapItem = (item = {}) => {
     ...item.toObject(),
     id: item._id,
     name: item.name,
-    source: item?.vendorId?.name || 'STRUCT',
+    source: get(item, 'vendorId.name', 'STRUCT'),
     file_url: item.fileStore
       ? (item.fileUUId
           ? (resourcePathURL || '') + item.fileUUId + '/'
