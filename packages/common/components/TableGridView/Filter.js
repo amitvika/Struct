@@ -204,7 +204,7 @@ export default function Filter({
   };
 
   return (
-    <Grid container spacing={3} style={{ margin: 0, justifyContent: 'center' }}>
+    <Grid container spacing={3} style={{ margin: 0, justifyContent: 'center', paddingRight: '15px' }}>
       {/* <Table className={classes.table} aria-label="simple table">
       <TableHead>
         <TableRow>

@@ -2,7 +2,6 @@ import React from 'react';
 import { Grid, Paper } from '@material-ui/core';
 import Checkbox from '../atoms/Checkbox';
 import Headding from '../atoms/Headding';
-import Space from '../atoms/Space';
 import Filter from './Filter';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/AddBox';
@@ -20,6 +19,7 @@ export default function Toolbar({
   isHistoryCheckboxVisible = true,
   isCustomAddButtonVisible = false,
   handleAddButtonPress = () => {},
+  CustomFilter =  null,
   ...restProps
 }) {
   return (
@@ -49,8 +49,9 @@ export default function Toolbar({
             />
           )}
         </Grid>
-        <Grid item xs style={{ display: 'flex' }}>
+        <Grid item xs style={{ display: 'flex', flexDirection:'column' }}>
           <Filter {...restProps} />
+          {CustomFilter !== null && <CustomFilter {...restProps} />}
         </Grid>
 
         {title === 'Items' && (

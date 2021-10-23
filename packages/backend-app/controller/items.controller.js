@@ -1,12 +1,11 @@
 const ItemModel = require('../models/Item.model');
-const FactoryModel = require('../models/factory.model');
 const ChangeTracking = require('../models/ChangeTracking.model');
 
-// const nodeocc = require("node-occ");
 const occ = {}; //nodeocc.occ;
 const path = require('path');
 const { getObjectId } = require('../utils/helper');
 const _ = require('lodash');
+const { mapItems } = require('../map/item.map');
 
 exports.get = async (req, res) => {
   try {
@@ -15,75 +14,71 @@ exports.get = async (req, res) => {
     let items = [];
 
     if (query.length > 0) {
-      items = await ItemModel.aggregate(query);
+      items = await ItemModel.find(query)
+        .populate('created_by')
+        .populate('updated_by')
+        .sort({ updatedAt: -1 });
     } else {
-      items = await ItemModel.find();
+      items = await ItemModel.find()
+        .populate('created_by')
+        .populate('updated_by')
+        .sort({ updatedAt: -1 });
     }
 
-    res.json(items);
+    res.json(mapItems(items));
   } catch (error) {
     res.status(500).send(error);
   }
 };
 
 const buildQuery = (req) => {
-  let query = [];
+  let query = { $and: [] };
 
   if (req.query.id) {
-    query.push({ $match: { _id: getObjectId(req.query.id) } });
+    query.$and.push({ _id: getObjectId(req.query.id) });
   }
 
   if (req.query.search) {
-    query.push({
-      $match: { name: { $regex: new RegExp(`${req.query.search}`, 'i') } },
+    query.$and.push({
+      name: { $regex: new RegExp(`${req.query.search}`, 'i') }
     });
   }
 
   if (req.query.itemType) {
-    query.push({
-      $match: {
-        'itemGeometry.itemType': {
-          $regex: new RegExp(`${req.query.itemType}`, 'i'),
-        },
-      },
+    query.$and.push({
+      'itemGeometry.itemType': {
+        $regex: new RegExp(`${req.query.itemType}`, 'i')
+      }
     });
   }
 
   if (req.query.itemCategory) {
-    query.push({
-      $match: {
-        'itemGeometry.generalGeomerty': {
-          $regex: new RegExp(`${req.query.itemCategory}`, 'i'),
-        },
-      },
+    query.$and.push({
+      'itemGeometry.generalGeomerty': {
+        $regex: new RegExp(`${req.query.itemCategory}`, 'i')
+      }
     });
   }
 
   if (req.query.assemblyType) {
-    query.push({
-      $match: {
-        assemblyType: req.query.assemblyType,
-      },
+    query.$and.push({
+      assemblyType: req.query.assemblyType
     });
   }
 
   if (req.query.client_id) {
-    query.push({
-      $match: {
-        selectedClientId: getObjectId(req.query.client_id),
-      },
+    query.$and.push({
+      selectedClientId: getObjectId(req.query.client_id)
     });
   }
 
   if (req.query.vendorId) {
-    query.push({
-      $match: {
-        vendorId: getObjectId(req.query.vendorId),
-      },
+    query.$and.push({
+      vendorId: getObjectId(req.query.vendorId)
     });
   }
 
-  query.push({ $sort: { date: -1 } });
+  query.$and.push({ $sort: { date: -1 } });
   return query;
 };
 
@@ -123,7 +118,7 @@ exports.getAll = async (req, res) => {
         fileStack: itemDetail.fileStack,
         fileKinematic: itemDetail.fileKinematic,
         fileId: itemDetail.fileId,
-        hierarchySelections: itemDetail.hierarchySelections,
+        hierarchySelections: itemDetail.hierarchySelections
       }));
     res.json(itemDetails);
   } catch (error) {
@@ -152,7 +147,7 @@ exports.create = async (req, res) => {
       name: req.body.name,
       vendorId: req.body.vendorId,
       author: req.user.id,
-      assemblyType: req.body.assemblyType,
+      assemblyType: req.body.assemblyType
     });
 
     const savedItem = await newItem.save();
@@ -166,7 +161,7 @@ exports.create = async (req, res) => {
       model: 'Item',
       updateType: 'Create',
       updatedObject: savedItem._id,
-      updatedBy: req.user.id,
+      updatedBy: req.user.id
     });
     await changeTracking.save();
 
@@ -253,7 +248,7 @@ exports.update = async (req, res) => {
       model: 'Item',
       updateType: 'Update',
       updatedObject: updatedItem._id,
-      updatedBy: req.user.id,
+      updatedBy: req.user.id
     });
     await changeTracking.save();
 
@@ -267,7 +262,7 @@ exports.delete = (req, res) => {
   ItemModel.findById(req.params.id, 'deletedAt', function (err, client) {
     if (client.deletedAt == null) {
       const saveObject = {
-        deletedAt: Date.now(),
+        deletedAt: Date.now()
       };
       ItemModel.findByIdAndUpdate(req.params.id, saveObject)
         .then((saveObject) => {
@@ -277,7 +272,7 @@ exports.delete = (req, res) => {
             model: 'Item',
             updateType: 'Delete',
             updatedObject: req.params.id,
-            updatedBy: req.user.id,
+            updatedBy: req.user.id
           });
           changeTracking.save().catch((error) => console.log(error));
 
@@ -286,7 +281,7 @@ exports.delete = (req, res) => {
         .catch((err) => res.status(404).json({ success: false }));
     } else {
       const saveObject = {
-        deletedAt: null,
+        deletedAt: null
       };
       ItemModel.findByIdAndUpdate(req.params.id, saveObject)
         .then(() => {
@@ -296,7 +291,7 @@ exports.delete = (req, res) => {
             model: 'Item',
             updateType: 'Un-Delete',
             updatedObject: req.params.id,
-            updatedBy: req.user.id,
+            updatedBy: req.user.id
           });
           changeTracking.save().catch((error) => console.log(error));
 
@@ -349,7 +344,7 @@ exports.load_cadfile = async function (req, res) {
       await ItemModel.findByIdAndUpdate(req.body.itemId, { $set: data });
     } else {
       const itemDetail = new ItemModel({
-        ...data,
+        ...data
       });
 
       await itemDetail.save();
@@ -359,7 +354,7 @@ exports.load_cadfile = async function (req, res) {
       ...data,
       stl: data.stl
         ? `http://localhost:3000/api/stl-file/${req.file.filename}`
-        : null,
+        : null
     });
   } catch (err) {
     res.status(500).send({ message: err.message, success: false });
@@ -393,7 +388,7 @@ exports.itemDetailThreejs = (req, res) => {
       } else if (data.stl) {
         res.send({
           itemId: data.itemId,
-          stl: `http://localhost:3000/api/stl-file/${data.stl}`,
+          stl: `http://localhost:3000/api/stl-file/${data.stl}`
         });
       } else {
         res.send(data);
@@ -420,7 +415,7 @@ exports.itemGeometry = (req, res) => {
               ? `http://localhost:3000/api/stl-file/${data.stl}`
               : null,
           itemGeometry: data.itemGeometry,
-          itemTypeConfiguration: data.itemTypeConfiguration,
+          itemTypeConfiguration: data.itemTypeConfiguration
         });
       }
     })
@@ -460,8 +455,8 @@ exports.updateItemGeometry = async (req, res) => {
             stl: itemDetailData.stl,
             itemTypeConfiguration: data.itemTypeConfiguration,
             itemGeometry: data.itemGeometry,
-            selectedClientId: data.selectedClientId,
-          },
+            selectedClientId: data.selectedClientId
+          }
         },
         { new: true }
       );

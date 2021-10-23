@@ -68,6 +68,9 @@ const ItemSchema = new mongoose.Schema(
     fileStack: { type: String },
     fileKinematic: { type: String },
     hierarchySelections: [{ type: Object }],
+    is_archived: { type: Boolean, default: false },
+    created_by: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    updated_by: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   {
     timestamps: true,

@@ -24,6 +24,7 @@ const TableGridView = ({
   handleItemClick,
   showSuccessAlert = () => {},
   showErrorAlert = () => {},
+  CustomFilter= null
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [list, setList] = useState([]);
@@ -242,10 +243,9 @@ const TableGridView = ({
           isCustomAddButtonVisible={isCustomAddButtonVisible}
           isAddEditLinkVisible={isAddEditLinkVisible}
           handleAddButtonPress={handleToggleModal}
-          // handleAddButtonPress={() => console.log("----handleAddButtonPress")}
           isSearchBarVisible={true}
+          CustomFilter={CustomFilter}
         />
-
         {renderView()}
       </DefaultContainer>
     </>
