@@ -5,7 +5,49 @@ import Headding from '@monostruct/common/components/atoms/Headding';
 import Select from '@monostruct/common/components/atoms/Select';
 
 export default function DynamicHierarchy(props) {
-  const { handleOnChange, hierarchyDropdownList, selections } = props;
+  const {
+    handleOnDropdownSelectionChange = () => {},
+    hierarchyDropdownList = [],
+    selections = [],
+    setSelections = () => {},
+    inToolbar = false,
+    clearSelections = () => {}
+  } = props;
+
+  const handleDropdownSelection = (title, value, form) => {
+    // [{key : 'Item Type' , value: 'Actuator', form: []}]
+    let indexOfCurrentSelection = selections.findIndex(
+      (item) => item.key === title
+    );
+
+    let tempSelections = selections;
+
+    if (
+      indexOfCurrentSelection > -1 &&
+      indexOfCurrentSelection < selections.length - 1
+    ) {
+      tempSelections = selections.slice(
+        indexOfCurrentSelection + 1,
+        selections.length
+      );
+    } else if (selections.length > 0 && indexOfCurrentSelection < 0) {
+      indexOfCurrentSelection = selections.length;
+      tempSelections[indexOfCurrentSelection] = {};
+    } else if (selections.length === 0) {
+      indexOfCurrentSelection = 0;
+      tempSelections[indexOfCurrentSelection] = {};
+    }
+
+    tempSelections[indexOfCurrentSelection].key = title;
+    tempSelections[indexOfCurrentSelection].value = value;
+    if (form && form.fields) {
+      tempSelections[indexOfCurrentSelection].formFields = form.fields;
+    } else {
+      tempSelections[indexOfCurrentSelection].formFields = undefined;
+    }
+
+    setSelections(tempSelections);
+  };
 
   const getSelectionValue = (title) => {
     const dataIndex = selections.findIndex((item) => item.key === title);
@@ -25,7 +67,28 @@ export default function DynamicHierarchy(props) {
     }
   };
 
+  const handleOnChange = ({ data, fieldItem }) => {
+    const form = getFormFromOptions(fieldItem.options, data.value);
+    handleDropdownSelection(`${fieldItem.title}`, data.value, form);
+    handleOnDropdownSelectionChange({ value: data.value });
+  };
+
   const renderFields = (fieldItem) => {
+    if (inToolbar) {
+      return (
+        <Grid item style={{ flex: 1, maxWidth: '15%' }}>
+          <Headding bold title={fieldItem.title} />
+          <Select
+            id={fieldItem.title}
+            placeholder={`Select ${fieldItem.title}`}
+            options={fieldItem.options}
+            onChange={(data) => handleOnChange({ fieldItem, data })}
+            value={getSelectionValue(fieldItem.title)}
+          />
+        </Grid>
+      );
+    }
+
     return (
       <Grid container spacing={2} key={fieldItem.title}>
         <Grid item xs={4}>
@@ -35,10 +98,7 @@ export default function DynamicHierarchy(props) {
           <Select
             placeholder="Select"
             options={fieldItem.options}
-            onChange={(data) => {
-              const form = getFormFromOptions(fieldItem.options, data.value);
-              handleOnChange(`${fieldItem.title}`, data.value, form);
-            }}
+            onChange={(data) => handleOnChange({ fieldItem, data })}
             value={getSelectionValue(fieldItem.title)}
           />
         </Grid>
@@ -72,6 +132,23 @@ export default function DynamicHierarchy(props) {
 
   if (hierarchyDropdownList.length === 0) {
     return null;
+  }
+
+  if (inToolbar) {
+    return (
+      <Grid
+        container
+        spacing={3}
+        style={{
+          margin: 0,
+          justifyContent: 'start',
+          paddingRight: '15px',
+          marginLeft: '142px'
+        }}
+      >
+        {renderDropdowns()}
+      </Grid>
+    );
   }
 
   return <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>;

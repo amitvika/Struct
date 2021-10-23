@@ -131,7 +131,6 @@ export default function Filter({
     const filteredData = list.filter((item) => {
       for (const key in item) {
         const currentValue = item[key];
-        console.log('current value', currentValue);
         if (
           typeof currentValue === 'string' &&
           currentValue.includes(searchText)

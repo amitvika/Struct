@@ -19,7 +19,7 @@ export default function Toolbar({
   isHistoryCheckboxVisible = true,
   isCustomAddButtonVisible = false,
   handleAddButtonPress = () => {},
-  CustomFilter =  null,
+  AdditionalFilter = null,
   ...restProps
 }) {
   return (
@@ -49,9 +49,9 @@ export default function Toolbar({
             />
           )}
         </Grid>
-        <Grid item xs style={{ display: 'flex', flexDirection:'column' }}>
+        <Grid item xs style={{ display: 'flex', flexDirection: 'column' }}>
           <Filter {...restProps} />
-          {CustomFilter !== null && <CustomFilter {...restProps} />}
+          {AdditionalFilter !== null && <AdditionalFilter {...restProps} />}
         </Grid>
 
         {title === 'Items' && (

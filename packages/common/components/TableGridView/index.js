@@ -24,7 +24,7 @@ const TableGridView = ({
   handleItemClick,
   showSuccessAlert = () => {},
   showErrorAlert = () => {},
-  CustomFilter= null
+  AdditionalFilter= null
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [list, setList] = useState([]);
@@ -244,7 +244,7 @@ const TableGridView = ({
           isAddEditLinkVisible={isAddEditLinkVisible}
           handleAddButtonPress={handleToggleModal}
           isSearchBarVisible={true}
-          CustomFilter={CustomFilter}
+          AdditionalFilter={AdditionalFilter}
         />
         {renderView()}
       </DefaultContainer>
