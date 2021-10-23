@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import { Grid, Paper } from '@material-ui/core';
 import Checkbox from '../atoms/Checkbox';
 import Headding from '../atoms/Headding';
@@ -9,93 +9,80 @@ import AddIcon from '@material-ui/icons/AddBox';
 import Box from '@material-ui/core/Box';
 
 export default function Toolbar({
-    title,
-    isGridViewSelected,
-    setIsGridViewSelected,
-    isViewArchivedChecked,
-    handleViewArchived,
-    isHistoryModalOpened,
-    handleHistoryToggle,
-    isDeleteCheckboxVisible = true,
-    isHistoryCheckboxVisible = true,
-    isCustomAddButtonVisible = false,
-    handleAddButtonPress = () => { },
-    ...restProps
+  title,
+  isGridViewSelected,
+  setIsGridViewSelected,
+  isViewArchivedChecked,
+  handleViewArchived,
+  isHistoryModalOpened,
+  handleHistoryToggle,
+  isDeleteCheckboxVisible = true,
+  isHistoryCheckboxVisible = true,
+  isCustomAddButtonVisible = false,
+  handleAddButtonPress = () => {},
+  ...restProps
 }) {
-    return (
-        <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }} >
-            <Grid container>
+  return (
+    <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }}>
+      <Grid container>
+        <Grid item xs="auto">
+          <Checkbox
+            checked={isGridViewSelected}
+            size="large"
+            label="View GridView"
+            onChange={() => setIsGridViewSelected(!isGridViewSelected)}
+          />
 
-                <Grid item sm sm={2}>
-                    <Grid item sm sm={12}>
-                        <Checkbox
-                            checked={isGridViewSelected}
-                            size="large"
-                            label="View GridView"
-                            onChange={() => setIsGridViewSelected(!isGridViewSelected)}
-                        />
-                    </Grid>
+          {isHistoryCheckboxVisible && (
+            <Checkbox
+              checked={isHistoryModalOpened}
+              label="Show History"
+              onChange={handleHistoryToggle}
+            />
+          )}
 
-                    {
-                        isHistoryCheckboxVisible &&
-                        <Grid item sm sm={12}>
-                            <Checkbox
-                                checked={isHistoryModalOpened}
-                                label="Show History"
-                                onChange={handleHistoryToggle}
-                            />
-                        </Grid>
-                    }
+          {isDeleteCheckboxVisible && (
+            <Checkbox
+              checked={isViewArchivedChecked}
+              label="View Archived"
+              onChange={handleViewArchived}
+            />
+          )}
+        </Grid>
+        <Grid item xs style={{ display: 'flex' }}>
+          <Filter {...restProps} />
+        </Grid>
 
-                    {
-                        isDeleteCheckboxVisible &&
-                        <Grid item sm sm={12}>
-                            <Checkbox
-                                checked={isViewArchivedChecked}
-                                label="View Archived"
-                                onChange={handleViewArchived}
-                            />
-                        </Grid>
-                    }
-                </Grid>
-                <Grid item sm={10}>
-                    <Grid container>
-
-                        <Grid item sm sm={title === 'Items' ? 10 : 12} style={{ display: 'flex' }}>
-                            <Filter
-                                {...restProps} />
-                        </Grid>
-                        {
-                            title === 'Items' &&
-                            <Grid item sm sm={2} style={{ display: 'flex', flexDirection: 'column' }}>
-                                <Checkbox
-                                    label="Unused by Other Items"
-                                />
-                                <Checkbox
-                                    label="Unused by Clients"
-                                />
-                            </Grid>
-                        }
-                        <Space size={30} />
-                        <Grid container spacing={3}>
-                            <Grid item xs>
-                                <Box textAlign="center" m={1}>
-                                    <Headding as={'h4'} title={title}></Headding>
-                                </Box>
-                            </Grid>
-                            {
-                                isCustomAddButtonVisible &&
-                                <Grid item xs={1}>
-                                    <IconButton color="primary" aria-label="upload picture" component="span" onClick={handleAddButtonPress}>
-                                        <AddIcon />
-                                    </IconButton>
-                                </Grid>
-                            }
-                        </Grid>
-
-                    </Grid>
-                </Grid>
-            </Grid>
-        </Paper >
-    )
+        {title === 'Items' && (
+          <Grid
+            item
+            xs="auto"
+            style={{ display: 'flex', flexDirection: 'column' }}
+          >
+            <Checkbox label="Unused by Other Items" />
+            <Checkbox label="Unused by Clients" />
+          </Grid>
+        )}
+      </Grid>
+      <Grid container spacing={3}>
+        <Grid item xs>
+          <Box textAlign="center" m={1}>
+            <Headding as={'h4'} title={title}></Headding>
+          </Box>
+        </Grid>
+        {isCustomAddButtonVisible && (
+          <Grid item xs={1}>
+            <IconButton
+              color="primary"
+              aria-label="upload picture"
+              component="span"
+              onClick={handleAddButtonPress}
+            >
+              <AddIcon />
+            </IconButton>
+          </Grid>
+        )}
+      </Grid>
+    </Paper>
+  );
 }

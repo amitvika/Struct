@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // const host = `https://cadapi.struct.services/api/v0`;
-const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
+// const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
 
-//const baseURL = `https://cadapi.struct.services`;
+const baseURL = `https://cadapi.struct.services`;
 
 const host = `${baseURL}/api/v0`;
 
@@ -32,12 +32,12 @@ export const saveTreeInfo = async (tree, name, fileGuid) => {
   return axios.post(`${host}/savetree/`, formTree);
 };
 
-export const saveGDTInfo = async (gdt, name, fileGuid) => {
+export const saveGDTInfo = async (gdt, name, fileGUID = '') => {
   console.log(gdt);
   var formGDT = new FormData();
   formGDT.append('gdt', JSON.stringify(gdt));
   formGDT.append('name', name);
-  formGDT.append('uuid',fileGUID?fileGUID:'');
+  formGDT.append('uuid',fileGUID);
   return axios.post(`${host}/savegdt/`, formGDT);
 };
 

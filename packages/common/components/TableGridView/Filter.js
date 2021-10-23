@@ -11,33 +11,33 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import Table from '@material-ui/core/Table';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow'
+import TableRow from '@material-ui/core/TableRow';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: '2px 4px',
     display: 'flex',
     alignItems: 'center',
-    width: '100%',
+    width: '100%'
   },
   input: {
     marginLeft: theme.spacing(1),
-    flex: 1,
+    flex: 1
   },
   iconButton: {
-    padding: 10,
+    padding: 10
   },
   divider: {
     height: 28,
-    margin: 4,
-  },
+    margin: 4
+  }
 }));
 
 const StyledTableCell = withStyles((theme) => ({
   root: {
     paddingLeft: '5px',
     paddingRight: '5px',
-    borderBottom: "none",
+    borderBottom: 'none',
     justifyContent: 'center'
   }
 }))(TableCell);
@@ -45,26 +45,26 @@ const StyledTableCell = withStyles((theme) => ({
 export default function Filter({
   list = [],
   filteredList = [],
-  setFilteredList = () => { },
+  setFilteredList = () => {},
   columnsFields = [],
-  isSearchBarVisible = false,
+  isSearchBarVisible = false
 }) {
   const classes = useStyles();
 
   const [selectedFieldName, setSelectedFieldName] = useState('');
   const [selectedFieldOptions, setSelectedFieldOptions] = useState([]);
   const [selectedFields, setSelectedFields] = useState({});
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     filtered();
-  }, [selectedFields])
+  }, [selectedFields]);
 
   const filtered = () => {
     const myArrayFiltered = list.filter((el) => {
       let flag = true;
 
-      Object.keys(selectedFields).forEach(key => {
+      Object.keys(selectedFields).forEach((key) => {
         const fieldValues = selectedFields[key];
 
         if (flag && fieldValues.length > 0 && fieldValues.length !== 1) {
@@ -75,23 +75,20 @@ export default function Filter({
       return flag;
     });
 
-    setFilteredList(myArrayFiltered)
-  }
+    setFilteredList(myArrayFiltered);
+  };
 
   const handleChange = (data, field) => {
+    setSelectedFieldOptions(get_unique_options(field));
 
-    setSelectedFieldOptions(get_unique_options(field))
-
-    setSelectedFields(prev => {
+    setSelectedFields((prev) => {
       return {
         ...prev,
         [field]: data
-      }
+      };
     });
-    setSelectedFieldName(field)
-  }
-
-
+    setSelectedFieldName(field);
+  };
 
   const get_unique_options = (field) => {
     if (field === selectedFieldName) {
@@ -100,7 +97,10 @@ export default function Filter({
 
     const array = filteredList;
 
-    let flags = [], output = [], l = array.length, i;
+    let flags = [],
+      output = [],
+      l = array.length,
+      i;
 
     for (i = 0; i < l; i++) {
       if (flags[array[i][field]]) {
@@ -114,34 +114,35 @@ export default function Filter({
       }
     }
     return output;
-  }
+  };
 
   const getValues = (item) => {
     if (selectedFields[item.field]) {
-      return selectedFields[item.field]
+      return selectedFields[item.field];
+    } else {
+      return [''];
     }
-    else {
-      return [""]
-    }
-  }
+  };
 
   const handleSearchInput = (event) => {
-    let searchText = event.target.value
-    setSearchTerm(searchText)
+    let searchText = event.target.value;
+    setSearchTerm(searchText);
 
     const filteredData = list.filter((item) => {
       for (const key in item) {
-        const currentValue = item[key]
-        console.log("current value", currentValue)
-        if (typeof currentValue === "string" && currentValue.includes(searchText)) {
-
+        const currentValue = item[key];
+        console.log('current value', currentValue);
+        if (
+          typeof currentValue === 'string' &&
+          currentValue.includes(searchText)
+        ) {
           return true;
         }
       }
-      return false
-    })
-    setFilteredList(filteredData)
-  }
+      return false;
+    });
+    setFilteredList(filteredData);
+  };
 
   const renderItem = () => {
     let item = [];
@@ -151,25 +152,33 @@ export default function Filter({
     }
     let sizeOfEachEl = parseInt(90 / columns);
     columnsFields
-      .filter(fieldItem => fieldItem.isFilterColumn === false ? fieldItem.isFilterColumn : true)
+      .filter((fieldItem) =>
+        fieldItem.isFilterColumn === false ? fieldItem.isFilterColumn : true
+      )
       .map((fieldItem, index) => {
         item.push(
-          <StyledTableCell width={`${sizeOfEachEl}%`} key={`${fieldItem.field}`}>
+          // <StyledTableCell
+          //   width={`${sizeOfEachEl}%`}
+          //   key={`${fieldItem.field}`}
+          // >
+          <Grid item style={{flex: 1}}>
             <Select
               isCheckbox
               isMulti
               onChange={(data) => handleChange(data, fieldItem.field)}
               options={get_unique_options(fieldItem.field)}
               placeholder={`Select ${fieldItem.title}`}
-              value={getValues(fieldItem)} />
-          </StyledTableCell>
-        )
+              value={getValues(fieldItem)}
+            />
+            {/* </StyledTableCell> */}
+          </Grid>
+        );
       });
 
     if (isSearchBarVisible) {
       item.push(
-        <StyledTableCell width={`${sizeOfEachEl}%`} key={`search_box`}>
-
+        <Grid item style={{flex: 1}}>
+          {/* <StyledTableCell width={`${sizeOfEachEl}%`} key={`search_box`}> */}
           <TextField
             className={classes.margin}
             id="input-with-icon-textfield"
@@ -184,38 +193,48 @@ export default function Filter({
                 <InputAdornment position="start">
                   <SearchIcon />
                 </InputAdornment>
-              ),
+              )
             }}
           />
-        </StyledTableCell>
-      )
+          {/* </StyledTableCell> */}
+        </Grid>
+      );
     }
     return item;
-  }
+  };
 
   return (
-    <Table className={classes.table} aria-label="simple table">
+    <Grid container spacing={3} style={{ margin: 0, justifyContent: 'center' }}>
+      {/* <Table className={classes.table} aria-label="simple table">
       <TableHead>
         <TableRow>
-          <StyledTableCell width={`5%`}>
-            <SearchIcon />
-          </StyledTableCell>
-          <StyledTableCell width={`5%`}>
-            <Button
-              variant="contained"
-              color="primary"
-              type="button"
-              value="Clear"
-              onClick={() => {
-                setFilteredList(list);
-                setSelectedFields({});
-                setSearchTerm('');
-              }} >Clear</Button>
-          </StyledTableCell>
+          <StyledTableCell width={`5%`}> */}
+      <Grid item>
+        <SearchIcon />
+      </Grid>
+      {/* </StyledTableCell>
+          <StyledTableCell width={`5%`}> */}
+      <Grid item>
+        <Button
+          variant="contained"
+          color="primary"
+          type="button"
+          value="Clear"
+          onClick={() => {
+            setFilteredList(list);
+            setSelectedFields({});
+            setSearchTerm('');
+          }}
+        >
+          Clear
+        </Button>
+      </Grid>
+      {/* </StyledTableCell> */}
 
-          {renderItem()}
-        </TableRow>
-      </TableHead>
-    </Table>
-  )
+      {renderItem()}
+      {/* </TableRow>
+      </TableHead> */}
+      {/* </Table> */}
+    </Grid>
+  );
 }

@@ -2,45 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Paper, CircularProgress } from '@material-ui/core';
 import GeometricDimensioning from '../itemDetail/geometricDimensioning';
 import {
-  // SELECTBACKCOLOR,
-  // SELECTSELECTCOLOR,
-  // SELECTTOUCHCOLOR,
-  //DEFAULTBACKCOLOR,
-  //DEFAULTSELECTCOLOR,
-  //DEFAULTTOUCHCOLOR,
-  // getTexture,
-  // SELECT2DTEXTURE,
-  // SELECT3DTEXTURE,
-  // SELECTMATERIRAL,
-  //SELECTDISTANCE,
-  // SELECTSHOWINFO,
-  //SELECTSOLID,
-  // SELECTFACE,
-  // SELECTEDGE,
-  // SELECTCORNER,
-  // SELECTMEASURE,
-  // SELECTCONTINOUS,
-  //SELECTHIRERACHY,
-  //SELECTDISECTPARTS,
-  // SELECTSTACKABLE,
-  // SELECTORDER,
-  //SELECTASSEMBLY,
   SELECTFEATURE,
-  // prettyPrintArray,
-  //arrayCopy, 
-  //arrayFindIndex, 
-  //arrayRemove, 
-  //gltf_Dict,
-  //STATEPROPS,
   USESTYLES
 } from '@monostruct/common/gltf/Tree/utils';
 
 import Headding from '@monostruct/common/components/atoms/Headding';
 
-import DynamicHierarchy from './DynamicHierarchy';
-
-
-import LoadingModal from '@monostruct/common/components/LoadingModal';
+import DynamicHierarchyForm from './DynamicHierarchyForm';
 
 //let state_selectedObjects = [];
 let state_fileOnChange = null;
@@ -58,16 +26,14 @@ export default function ItemTypeConfiguration(props) {
     progressBarLoad,
     percentage, 
   } =  props;
-  //const [list, setList] = useState([]);
   const [isFileLoading, setIsLoading] = useState(isLoading);
-  const [firstTimeLoading, setFirstTimeLoading] = useState(false);
-  //const [filteredList, setFilteredList] = useState([]);
-  const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
-  const [resetOption, setResetOption] = useState(true);
   const classes = USESTYLES();
   const [percentager, setPercentager] = useState(percentage||0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
+  
+  const [showKineticModel, setShowKineticModal] = useState(true);
+
   useEffect(() => {
     if(fileUUId) {
       console.log("Before Changing fileUUId from IUPC",fileUUIder,fileUUId);
@@ -121,15 +87,14 @@ export default function ItemTypeConfiguration(props) {
   useEffect(() => {
     setIsLoading(isLoading);
   }, [isLoading]);
-  const [showKineticModel, setShowKineticModal] = useState(true);
+
   const renderExcelUI = () => {
-    //console.log("RENDEREXCELUI",addSelectionFromComponent,"SHOW",setShowKineticModal,"UPDATE",handleItemUpdate,"RENDER",state.renderdata);
     if (
       itemProperties.itemGeometry?.itemType ===
       'Machine - Compound/Tool/Workholding'
     ) {
       return (
-        <DynamicHierarchy
+        <DynamicHierarchyForm
           setShowKineticModal={setShowKineticModal}
           handleItemUpdate={handleItemUpdate}
           renderData={renderData}
