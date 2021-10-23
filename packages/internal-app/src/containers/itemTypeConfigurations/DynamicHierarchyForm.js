@@ -7,16 +7,12 @@ import DynamicCriteria from './DynamicForm';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import get from 'lodash/get';
 import { useSelector } from 'react-redux';
+import DynamicHierarchyDropdowns from '@monostruct/common/containers/DynamicHierarchyDropdowns';
 
 export default function DynamicHierarchy(props) {
-  const {
-    setShowKineticModal,
-    handleItemUpdate,
-    renderData,
-    setRenderData
-  } = props;
-  //console.log("Beginining", setShowKineticModal, handleItemUpdate, renderData,setRenderData);
-  const currentItem = useSelector(state => state.item.currentItem);
+  const { setShowKineticModal, handleItemUpdate, renderData, setRenderData } =
+    props;
+  const currentItem = useSelector((state) => state.item.currentItem);
 
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
   const [selections, setSelections] = useState([
@@ -34,8 +30,8 @@ export default function DynamicHierarchy(props) {
         const hierarchySchemaArr = get(resp, 'data.hierarchySchema', []);
         setHierarchyDropdownList(hierarchySchemaArr);
 
-        if(get(currentItem, 'hierarchySelections[0]')){
-          setSelections(get(currentItem, 'hierarchySelections',[]));
+        if (get(currentItem, 'hierarchySelections[0]')) {
+          setSelections(get(currentItem, 'hierarchySelections', []));
         }
       })
       .catch((error) => {});
@@ -79,89 +75,22 @@ export default function DynamicHierarchy(props) {
 
   const handleOnChange = (title, value, form) => {
     handleDropdownSelection(title, value, form);
-    console.log("value", value)
-    if(value === "Motion Control") {
-      setShowKineticModal(true)
-    }
-    else {
-      setShowKineticModal(false)
-    }
-  };
-
-  const getSelectionValue = (title) => {
-    const dataIndex = selections.findIndex((item) => item.key === title);
-    if (dataIndex > -1) {
-      return selections[dataIndex].value;
-    }
-    return '';
-  };
-
-  const getFormFromOptions = (options, valueFinder) => {
-    const dataIndex = options.findIndex((item) => item.value === valueFinder);
-
-    if (dataIndex > -1) {
-      return options[dataIndex].form;
+    console.log('value', value);
+    if (value === 'Motion Control') {
+      setShowKineticModal(true);
     } else {
-      return undefined;
+      setShowKineticModal(false);
     }
-  };
-
-  const renderFields = (fieldItem) => {
-    
-    return (
-      <Grid container spacing={2} key={fieldItem.title}>
-        <Grid item xs={4}>
-          <Headding bold title={fieldItem.title} />
-        </Grid>
-        <Grid item xs={8}>
-          <Select
-            placeholder="Select"
-            options={fieldItem.options}
-            onChange={(data) => {
-              const form = getFormFromOptions(fieldItem.options, data.value);
-              handleOnChange(`${fieldItem.title}`, data.value, form);
-            }}
-            value={getSelectionValue(fieldItem.title)}
-          />
-        </Grid>
-      </Grid>
-    );
-  };
-
-  const getIndexOfFieldInSelectionArray = (selections, listItem) => {
-    return selections.findIndex((item) => {
-      if (item.key === listItem.title) {
-        return true;
-      } else if (item.value === listItem.title) {
-        return true;
-      } else {
-        return false;
-      }
-    });
   };
 
   const handleDynamicFormUpdate = (key, updatedFormFields) => {
-    const findIndex = selections.findIndex((item) => item.key === key);    
-    console.log("HandleDynamicFormUpdate",selections,key,findIndex,updatedFormFields);
+    const findIndex = selections.findIndex((item) => item.key === key);
     if (findIndex > -1) {
       let tempSelections = [...selections];
       tempSelections[findIndex].formFields = updatedFormFields;
       setSelections(tempSelections);
       setStateUpdated(!stateUpdated);
     }
-  };
-
-  const renderDropdowns = () => {
-    return hierarchyDropdownList
-      .filter((listItem) => {
-
-        let index = getIndexOfFieldInSelectionArray(selections, listItem);
-        if (index > -1) {
-          return true;
-        }
-        return false;
-      })
-      .map((listItem) => renderFields(listItem));
   };
 
   if (hierarchyDropdownList.length === 0) {
@@ -171,18 +100,26 @@ export default function DynamicHierarchy(props) {
 
   return (
     <>
-      <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>
+      <DynamicHierarchyDropdowns
+        {...{
+          handleOnChange,
+          hierarchyDropdownList,
+          selections,
+        }}
+      />
 
       {selections.map((selectionItem) => {
         return (
           <DynamicCriteria
             {...selectionItem}
             handleUpdate={(updatedFormFields) => {
-              console.log("Doing Changes in Dynaimc Hirearchy", selectionItem.key, updatedFormFields);
+              console.log(
+                'Doing Changes in Dynaimc Hirearchy',
+                selectionItem.key,
+                updatedFormFields
+              );
               handleDynamicFormUpdate(selectionItem.key, updatedFormFields);
-            }
-              
-            }
+            }}
             renderData={renderData}
             setRenderData={setRenderData}
           />
