@@ -243,7 +243,7 @@ export default function BaseItemProperties({
       if (fileUUId != data.uuid) {
         setfileUUId(data.uuid);
       }
-      if (fileUUId != itemProperties.fileUUId) {
+      if(itemProperties.fileUUId != data.uuid) {
         setItemProperties((prevData) => ({
           ...prevData,
           fileUUId: data.uuid,

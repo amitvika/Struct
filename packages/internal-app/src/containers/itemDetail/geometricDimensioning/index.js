@@ -685,7 +685,14 @@ export default function GeometricDimensioning(props) {
     myarray.push(mynode);
     //console.log("MyArray",myarray);
     return myarray; //To return Same memory! */
-    return [[mynode], mynode];
+    let myParentPart = mynode;
+    if(tabIndex=='iupc') {
+      myParentPart = findMyParentPart(mynode);
+      if(!myParentPart) {
+        myParentPart = mynode;
+      }
+    }
+    return [[mynode], myParentPart];
   }
 
   const findMyParentElement = (mynode) => {
@@ -1437,6 +1444,7 @@ export default function GeometricDimensioning(props) {
               if (!alreadyPresent) {
                 // const copydata = await getShapeInformation(elementdata);
                 // console.log('awaiting',copydata);
+                localelementdata['parentnode']={...myParentNode};
                 copy_selectobjects.push(localelementdata);
                 copy_mateobjects.push([]);
                 //console.log("MyMate2",copy_mateobjects);
@@ -1466,6 +1474,7 @@ export default function GeometricDimensioning(props) {
             if (data.selectedshell) {
               //const copydata = await getShapeInformation(elementdata);
               //console.log('awaiting',elementdata);
+              localelementdata['parentnode']={...myParentNode};
               copy_selectobjects.push(localelementdata);
               copy_mateobjects.push([]);
               toGetInfo = true;

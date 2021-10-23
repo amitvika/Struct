@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-__all__ = ['Topo', 'WireExplorer', 'dumpTopology', 'dumpTopologyStructures', 'dumpTopologyFacesEdgesVertices']
+__all__ = ['Topo', 'WireExplorer', 'dumpTopology', 'dumpTopologyStructures', 'dumpTopologyFacesEdgesVertices', 'dumpTopologySolids']
 
 from OCC.Core.BRep import BRep_Tool
 
@@ -502,6 +502,31 @@ def hashTransCode(transform):
         for j in range(1,5):
             hashcode += str(transform.Value(i,j))
     return hashcode
+
+def dumpTopologySolids(shape, maxlevel=1, level=0, solid_dict={}, comp_dict={}, compsolid_dict={} ):
+    """
+     Print the details of an object from the top down
+    """
+    #brt = BRep_Tool()
+    s = shape.ShapeType()    
+    if s == TopAbs_SOLID:
+        if not myhash in solid_dict:
+            solid_dict[myhash]=shape 
+    elif s == TopAbs_COMPOUND:
+        if not myhash in comp_dict:
+            comp_dict[myhash]=shape 
+    elif s == TopAbs_COMPSOLID:
+        if not myhash in compsolid_dict:
+            compsolid_dict[myhash]=shape 
+    it = TopoDS_Iterator(shape)    
+    while it.More():
+        shp = it.Value()
+        it.Next()
+        level+=1
+        if(level <=maxlevel):
+            dumpTopologySolids(shp, level=level, solid_dict=solid_dict, comp_dict=comp_dict, compsolid_dict=compsolid_dict)
+        level-=1
+    return True
 
 def dumpTopologyFacesEdgesVertices(shape, face_dict={}, edge_dict={}, vertex_dict={}):
     """

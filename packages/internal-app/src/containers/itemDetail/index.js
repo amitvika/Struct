@@ -107,13 +107,13 @@ const ItemDetail = () => {
 
         dispatch(setCurrentItemAction(_currentItem));
         console.log("I am doing the conversion inner",_currentItem);
-        setGLTFAndTree(_currentItem, myTabIndex);
+        setGLTFAndTree({..._currentItem}, myTabIndex);
 
         setIsLoading(false);
       })();
     } else {
       console.log("I am doing the conversion outer",itemProperties);
-      setGLTFAndTree(itemProperties, myTabIndex);
+      setGLTFAndTree({...itemProperties}, myTabIndex);
     }
   }, [tabIndex]);
 
@@ -146,6 +146,12 @@ const ItemDetail = () => {
       return (resourcePathURL || '') + item.fileUUId + '/';
     }
     return (resourcePathURL || '');
+  }
+  const getStatusPathURL = (item) => {
+    if(item.fileUUId) {
+      return item.fileUUId + '/';
+    }
+    return '';
   }
   /*
   const getItemFileStackID =(item) => {
@@ -187,18 +193,60 @@ const ItemDetail = () => {
       return fullpath.slice(6,fullpath.length);
     }
     return item.fileId;
-  }
-  const setStack = (item) => {
+  };
+
+  const checkStatusToParse = async (whichOneToLoad,whichOneToStatus) => {
+          
+    if (doesFileExist(whichOneToLoad + '.gltf')) {
+      console.log('Found gltf', whichOneToLoad);  
+      return false;          
+    } 
+    if (doesFileExist(whichOneToLoad+ '.status') ) {
+      console.log('Found status', whichOneToLoad);
+      const statusRes = await getAFileFromStore(whichOneToStatus,'status');
+      let percent = 0;
+      if(statusRes) {
+        percent = statusRes.data.percent;
+        if (percent == 100 ) {
+          return false;
+        }
+      } else {
+        return true;
+      }
+      //find deltaTime of currenttime and statusRes time., If time is too big: problem to reparse
+      let currenttime = new Date().toUTCString();
+      let servertime = statusRes.data.current;      
+      let utctimearray = currenttime.split(' ');
+      let servertimearray = servertime.split('-');      
+      console.log("What is got from Status file",currenttime,utctimearray,servertime,servertimearray);            
+      let currenttimearray = utctimearray[4].split(':');
+      let difference = ((currenttimearray[0]-servertimearray[0])*60*60)+
+                  ((currenttimearray[1]-servertimearray[1]))*60+
+                  ((currenttimearray[2]-servertimearray[2]));
+      console.log("What is got from Status file",currenttime,servertime,currenttimearray,utctimearray,servertimearray,difference);
+      if (difference < 0) {
+        difference += 24*60*60;
+      }
+      if(difference > 2*60){
+        return true;
+      }
+      return false;
+    }  
+    return true;
+  };
+  const setStack = async (item) => {
     if (!item.fileId && !item.fileUUId) {
       return;
     }
     if (!item.fileStack || item.fileStack === null) {
       console.log('Checking Store', item.fileStore);
       if (item.fileStore && item.fileStore.length > 0) {
-        const fileStack =
-          item.fileStore.slice(0, item.fileStore.length - 1) + 'S0';
+        const fileStack = item.fileStore.slice(0, item.fileStore.length - 1) + 'S0';
         console.log('Checking Stack', fileStack);
-        if (doesFileExist(getResourcePathURL(item) + fileStack + '.gltf')) {
+        const whichOneToLoad = getResourcePathURL(item) + fileStack;
+        const whichOneToStatus = getStatusPathURL(item) + fileStack;
+        let okToParse = await checkStatusToParse(whichOneToLoad,whichOneToStatus);
+        if (!okToParse) {
           console.log('Found', fileStack);
           item.fileStack = fileStack;
         } else {
@@ -254,20 +302,28 @@ const ItemDetail = () => {
         item.fileKinematic,
         item.fileUUId
       );
+      if(itemProperties.fileStack != item.fileStack) {
+        setItemProperties((prevData) => ({
+          ...prevData,
+          fileStack: item.fileStack,
+        }));
+      }
     }
   };
 
-  const setOrder = (item) => {
+  const setOrder = async (item) => {
     if (!item.fileId && !item.fileUUId) {
       return;
     }
     if (!item.fileMPPS || item.fileMPPS === null) {
       console.log('Checking Store', item.fileStore);
       if (item.fileStore && item.fileStore.length > 0) {
-        const fileMPPS =
-          item.fileStore.slice(0, item.fileStore.length - 1) + 'M0';
+        const fileMPPS = item.fileStore.slice(0, item.fileStore.length - 1) + 'M0';
         console.log('Checking Order', fileMPPS);
-        if (doesFileExist(getResourcePathURL(item) + fileMPPS + '.gltf')) {
+        const whichOneToLoad = getResourcePathURL(item) + fileMPPS;
+        const whichOneToStatus = getStatusPathURL(item) + fileMPPS;
+        let okToParse = await checkStatusToParse(whichOneToLoad,whichOneToStatus);
+        if (!okToParse) {
           console.log('Found', fileMPPS);
           item.fileMPPS = fileMPPS;
         } else {
@@ -329,8 +385,17 @@ const ItemDetail = () => {
         item.fileKinematic,
         item.fileUUId
       );
+      if(itemProperties.fileMPPS != item.fileMPPS) {
+        setItemProperties((prevData) => ({
+          ...prevData,
+          fileMPPS: item.fileMPPS,
+        }));
+      }
     }
   };
+
+  
+  
   const setGLTFAndTree = async (item, myTabedIndex) => {
     if (myTabedIndex == tabIndex) {
       if ((!item.fileId && !item.fileUUId) || !parserNeeded.includes(myTabedIndex)) {
@@ -340,13 +405,16 @@ const ItemDetail = () => {
       let myTabIndex = myTabedIndex == 'iupc' ? 'gdtac' : myTabedIndex;
       if (myTabIndex == 'iupc') {
         console.log('Checking iupc', myTabIndex, item);
+        
         if (!item.fileKinematic || item.fileKinematic === null) {
           console.log('Checking Store', item.fileStore);
           if (item.fileStore && item.fileStore.length > 0) {
-            const fileKinematic =
-              item.fileStore.slice(0, item.fileStore.length - 1) + 'K0';
+            const fileKinematic = item.fileStore.slice(0, item.fileStore.length - 1) + 'K0';
             console.log('Checking Kinematic', fileKinematic);
-            if (doesFileExist(getResourcePathURL(item) + fileKinematic + '.gltf')) {
+            const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
+            const whichOneToStatus = getStatusPathURL(item) + fileKinematic;
+            let okToParse = await checkStatusToParse(whichOneToLoad,whichOneToStatus);
+            if (!okToParse) {
               console.log('Found', fileKinematic);
               item.fileKinematic = fileKinematic;
             } else {
@@ -408,19 +476,20 @@ const ItemDetail = () => {
             item.fileKinematic,
             item.fileUUId
           );
+          if(itemProperties.fileKinematic != item.fileKinematic) {
+            setItemProperties((prevData) => ({
+              ...prevData,
+              fileKinematic: item.fileKinematic,
+            }));
+          }          
         }
       } else if (myTabIndex == 'pdcu') {
         let okToParse = false;
-        if(item.fileStore) {
-          if (doesFileExist(getResourcePathURL(item) + item.fileStore + '.status')) {
-            console.log('Found status', item.fileStore);
-          } else { 
-              if (doesFileExist(getResourcePathURL(item) + item.fileStore + '.gltf')) {
-                 console.log('Found gltf', item.fileStore);            
-              } else {
-                  okToParse=true;
-              }
-          }
+        if(item.fileStore) {   
+          const whichOneToLoad = getResourcePathURL(item) + item.fileStore;
+          const whichOneToStatus = getStatusPathURL(item) + item.fileStore;
+          let okToParse = await checkStatusToParse(whichOneToLoad,whichOneToStatus); 
+          console.log("Go ahead status in calling api from beginning",okToParse);
         } else {
           okToParse=true;
         }
@@ -564,26 +633,29 @@ const ItemDetail = () => {
             item.fileKinematic,
             item.fileUUId
           );
+          if(itemProperties.fileStore != item.fileStore) {
+            setItemProperties((prevData) => ({
+              ...prevData,
+              fileStore: item.fileStore,
+            }));
+          }
         }
       } else {
         if (!item.fileGDT || item.fileGDT === null) {
           console.log('Checking Store', item.fileStore);
           if (item.fileStore && item.fileStore.length > 0) {
-            const fileGDT =
-              item.fileStore.slice(0, item.fileStore.length - 1) + '3';
+            const fileGDT = item.fileStore.slice(0, item.fileStore.length - 1) + '3';
             console.log('Checking GDT', fileGDT);
-            if (doesFileExist(getResourcePathURL(item) + fileGDT + '.gltf')) {
-              console.log('Found', fileGDT);
-              item.fileGDT = fileGDT;
-            } else {
-              if (doesFileExist(getResourcePathURL(item) + fileGDT + '.status')) {
+            const whichOneToLoad = getResourcePathURL(item) + fileGDT;
+            const whichOneToStatus = getStatusPathURL(item) + fileGDT;
+            let okToParse = await checkStatusToParse(whichOneToLoad,whichOneToStatus);
+            if (!okToParse) {
                 console.log('Found status', fileGDT);
                 item.fileGDT = fileGDT;
-              }else {
-                console.log('GDT Not Found', fileGDT);
-              }
-             
+            } else {
+              console.log('GDT Not Found', fileGDT);
             }
+            
           } else {
             console.log('Store Not Found', item.fileStore);
           }
@@ -734,6 +806,12 @@ const ItemDetail = () => {
             item.fileKinematic,
             item.fileUUId
           );
+          if(itemProperties.fileGDT != item.fileGDT) {
+            setItemProperties((prevData) => ({
+              ...prevData,
+              fileGDT: item.fileGDT,
+            }));
+          }
         }
       }
     } else {
@@ -783,7 +861,7 @@ const ItemDetail = () => {
         const statusRes = await getAFileFromStore(whichOneToLoad,'status');
         let percent = 0;
         if(statusRes) {
-          percent = statusRes.percent;
+          percent = statusRes.data.percent;
         } 
         setPercentage(percent);
         if(percent!=100) {
