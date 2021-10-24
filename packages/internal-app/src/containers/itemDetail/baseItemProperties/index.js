@@ -118,6 +118,7 @@ export default function BaseItemProperties({
       }
       let dataload = '';
       let datastore = '';
+      let treeLength = 0;
       dataload = data.filename;
       let filenameWithExtension = dataload.replace(/^.*[\\\/]/, '');
       const lastDotIndex = filenameWithExtension.lastIndexOf('.');
@@ -220,24 +221,34 @@ export default function BaseItemProperties({
           console.log('Completing poll', datastore, dataload);
           const gltfRes = await getAFileFromStore(datafile, 'gltf');
           const treeRes = await getAFileFromStore(datafile, 'tree');
-          const multiAssmebly = treeRes.data.length > 0;
+          treeLength = treeRes.data.length;
+          
           setgltfjson({
             gltf: gltfRes.data,
             tree: treeRes.data,
-            multiAssmebly: multiAssmebly,
+            multiAssmebly: treeLength > 0,
             gdt: null,
             treeLength: treeRes.data.length,
           });
+          setItemProperties((prevData) => ({
+            ...prevData,
+            multiAssmebly: treeLength > 0,
+            stepTreeLength: treeRes.data.length
+          }));
         }
       } else {
-        const treeLength = get(getHierarchyRes.data, 'tree', []).length;
-        const multiAssmebly = treeLength > 0;
+        treeLength = get(getHierarchyRes.data, 'tree', []).length;        
         setgltfjson({
           ...getHierarchyRes.data,
-          multiAssmebly: multiAssmebly,
+          multiAssmebly: treeLength > 0,
           gdt: null,
           treeLength: treeLength,
         });
+        setItemProperties((prevData) => ({
+          ...prevData,
+          multiAssmebly: treeLength > 0,
+          stepTreeLength: treeLength
+        }));
       }
       setProgressBarLoader(false);
       if (fileUUId != data.uuid) {
@@ -249,9 +260,22 @@ export default function BaseItemProperties({
           fileUUId: data.uuid,
           fileStore: datastore,
           fileName: dataload,
+          multiAssmebly: treeLength > 0,
+          stepTreeLength: treeLength
         }));
       }
-
+      handleItemSaveOnServer({
+        fileId: null,
+        fileUUId: data.uuid,
+        fileStore: datastore,
+        fileName: dataload,
+        fileGDT: null,
+        fileMPPS: null,
+        fileStack: null,
+        fileKinematic: null,
+        multiAssmebly: treeLength > 0,
+        stepTreeLength: treeLength
+      });
       setIsLoading(false);
 
       dispatch(

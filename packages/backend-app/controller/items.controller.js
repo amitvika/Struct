@@ -116,7 +116,8 @@ exports.getAll = async (req, res) => {
         fileStack: itemDetail.fileStack,
         fileKinematic: itemDetail.fileKinematic,
         fileId: itemDetail.fileId,
-        hierarchySelections: itemDetail.hierarchySelections
+        hierarchySelections: itemDetail.hierarchySelections,
+        stepTreeLength: itemDetail.stepTreeLength
       }));
     res.json(itemDetails);
   } catch (error) {
@@ -208,6 +209,7 @@ exports.update = async (req, res) => {
       updateData.fileStack = body.fileStack;
       updateData.fileKinematic = body.fileKinematic;
       updateData.fileName = body.fileName;
+      updateData.stepTreeLength = body.stepTreeLength;
     }
 
     if (

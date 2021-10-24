@@ -934,7 +934,8 @@ class DropZone extends Component {
       0,
       edgesize,
       vertexsize,
-	  50
+      50,
+      false
     )
       .then((res) => res.data)
       .then((repos) => {
