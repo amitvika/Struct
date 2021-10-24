@@ -2622,10 +2622,10 @@ class StepIgesAnalyser():
              "display":self.displaypath
         }
         if self.writethread:
-            mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False))
+            mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False,False))
             mythread.start()
         else:
-            self.write_in_thread(dict_return,False)
+            self.write_in_thread(dict_return,False,False)
         """ mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False))
         mythread.start() """
         print(self.basefilename,"Features are seperated")
@@ -2640,10 +2640,10 @@ class StepIgesAnalyser():
             print("Error while logging",e)
         head, tail = os.path.split(self.fname) 
         if(head[:-1]!="/"):
-            print("Head does not contain last /",head)
+            #print("Head does not contain last /",head)
             head = head + "/"
-        else:
-            print("Head contains last /",head)       
+        #else:
+            #print("Head contains last /",head)       
         pathfilename, _ = os.path.splitext(tail)
         myTreeLen = len(self.tstep_dict["tree"])
         lenFeatures = len(self.outputFeatures)
@@ -2683,7 +2683,7 @@ class StepIgesAnalyser():
                         else:
                             fname = pathfilename+"-"+str(myparentID)+"-"+myFeatureName+"."                    
                         print("Disecting", fname, iFiles+1,"/", mySplitFiles, ",", lenfeature,"/",lenFeatures)
-                        addedTrees = StepIgesAnalyser(filename=head+fname,shapeslist=["Dummy"]).\
+                        addedTrees = StepIgesAnalyser(filename=head+fname,shapeslist=["Dummy"],thumbheight=0,thumbwidth=0,addfeaturesThread=False).\
                             addFeature(myshapes,myparentID,myTreeLen,myFeatureName)
                         myTreeLen+=addedTrees
         with open(newfilename, 'w') as fh:
@@ -3157,7 +3157,7 @@ class StepIgesAnalyser():
         else:
             print("Percentage",self.percentage)
         return mystatusdict
-    def write_in_thread(self,dict,imagePNG):
+    def write_in_thread(self,dict,imagePNG,notFromFeature):
         try:
             if logging != None and self.writethread:
                 logging.info("Started writing gltf files in Thread ")
@@ -3183,31 +3183,32 @@ class StepIgesAnalyser():
                 print("Not Writing",treefilename)
         except Exception as e:
             print("While Writing",treefilename,e)
-        try:
-            statusfilename = self.displaypath+dict["store"]+".status"
-            if self.writefiles:
-                print("Writing",statusfilename)                
-                with open(statusfilename, 'w') as fh:
-                    fh.write(json.dumps(dict["status"], sort_keys=True, indent=2 ))
-            else:
-                print("Not Writing",statusfilename)
-        except Exception as e:
-            print("While Writing",statusfilename,e)
-        if ((self.edgesize!=0) or (self.vertexsize !=0)) and self.writefiles:
+        if notFromFeature:
             try:
-                gdtfile = self.displaypath+dict["store"]+".gdt"
-                print("Writing,",gdtfile)
-                with open(gdtfile, 'w') as fh:
-                    fh.write(json.dumps(dict["gdttable"], sort_keys=True, indent=2 ))
+                statusfilename = self.displaypath+dict["store"]+".status"
+                if self.writefiles:
+                    print("Writing",statusfilename)                
+                    with open(statusfilename, 'w') as fh:
+                        fh.write(json.dumps(dict["status"], sort_keys=True, indent=2 ))
+                else:
+                    print("Not Writing",statusfilename)
             except Exception as e:
-                print("Error while writing gdtfile",e)
-        if imagePNG and self.writefiles:           
-            try:
-                imagefilename = self.displaypath+dict["store"]+".png"
-                print("Writing",imagefilename)
-                createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            
-            except Exception as e:
-                print("While Writing",imagefilename,e)
+                print("While Writing",statusfilename,e)
+            if ((self.edgesize!=0) or (self.vertexsize !=0)) and self.writefiles:
+                try:
+                    gdtfile = self.displaypath+dict["store"]+".gdt"
+                    print("Writing,",gdtfile)
+                    with open(gdtfile, 'w') as fh:
+                        fh.write(json.dumps(dict["gdttable"], sort_keys=True, indent=2 ))
+                except Exception as e:
+                    print("Error while writing gdtfile",e)
+            if imagePNG and self.writefiles:           
+                try:
+                    imagefilename = self.displaypath+dict["store"]+".png"
+                    print("Writing",imagefilename)
+                    createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            
+                except Exception as e:
+                    print("While Writing",imagefilename,e)
         try:
             if logging != None and self.writethread:
                 logging.info("Completed writing gltf files in Thread ")
@@ -3294,10 +3295,10 @@ class StepIgesAnalyser():
              "display":self.displaypath
         }
         if self.writethread:
-            mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG))
+            mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG,True))
             mythread.start()
         else:
-            self.write_in_thread(dict_return,getPNG)
+            self.write_in_thread(dict_return,getPNG,True)
         self.percentage = 100
         self.write_status()
         #self.mstep_dict['tree']=self.tstep_dict['tree']
