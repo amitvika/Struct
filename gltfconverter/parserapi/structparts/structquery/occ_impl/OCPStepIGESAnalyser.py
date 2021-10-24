@@ -3338,7 +3338,7 @@ class StepIgesAnalyser():
             if self.writefiles:
                 os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
             self.byThread=True
-            mystatus = self.write_status()
+            mystatus = self.write_status(0)
             dict_return = { "gltf":None,
                 "tree":None,
                 "store":self.basefilename,
