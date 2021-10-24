@@ -24,6 +24,7 @@ export const columnsForItemView = [
     title: 'History',
     field: 'id',
     editable: 'never',
+    isFilterColumn: false,
     render: (rowData) =>
       rowData && (
         <span

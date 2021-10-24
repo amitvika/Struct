@@ -17,7 +17,7 @@ export default function AddUpdateModal({
   toggleModal,
   handleUpdate,
   isEditing,
-  selectedValue,
+  selectedValue
 }) {
   const [value, setValue] = useState({});
   const [isTypeSelected, setIsTypeSelected] = useState(false);
@@ -25,6 +25,7 @@ export default function AddUpdateModal({
   const { user } = useSelector((state) => state.auth);
   const [isLoading, setLoading] = useState(false);
   const [refreshFileHistory, setRefreshFileHistory] = useState(false);
+  const [isRecordUpdated, setIsRecordUpdated] = useState(false);
 
   useEffect(() => {
     if (selectedValue) {
@@ -43,11 +44,15 @@ export default function AddUpdateModal({
     setValue((preValue) => ({
       ...preValue,
       [name]: data,
-      file_history,
+      file_history
     }));
+    setIsRecordUpdated(true)
   };
 
-  const handleSaveButton = async () => {
+  const handleSave = async () => {
+    if(!isRecordUpdated){
+      return;
+    }
     setLoading(true);
     if (value) {
       const updateCriteria = await handleUpdate(value);
@@ -73,19 +78,25 @@ export default function AddUpdateModal({
         file_name: selectedFile.name,
         file_url,
         loaded_by_name: user.name,
-        loaded_by: user.id,
-      },
+        loaded_by: user.id
+      }
     };
 
     setValue((prev) => ({ ...prev, ...updateObj }));
     setLoading(false);
+    setIsRecordUpdated(true)
+  };
+
+  const handleModalToggle = () => {
+    handleSave()
+    toggleModal();
   };
 
   return (
     <Modal
       title={`${isEditing ? `Update ${selectedValue.name}` : 'Add'} ${title}`}
       open={open}
-      toggleModal={toggleModal}
+      toggleModal={handleModalToggle}
     >
       {isLoading && <LoadingModal isLoading={isLoading} />}
       <Grid className="section-padding-left" container spacing={4}>
@@ -100,21 +111,6 @@ export default function AddUpdateModal({
             value={value?.name}
           />
         </Grid>
-
-        {/* <Grid item xs={4}>
-          <Headding bold title={'Category'} />
-        </Grid>
-        <Grid item xs={8}>
-          <Select
-            options={[
-              { label: 'Criteria', value: 'criteria' },
-              { label: 'Hierarchy', value: 'hierarchy' },
-            ]}
-            onChange={(data) => handleTypeChange(data.value)}
-            value={value.category && { label: value.category }}
-          />
-        </Grid> */}
-
         {isTypeSelected && (
           <>
             <Grid item xs={4}></Grid>
@@ -151,15 +147,6 @@ export default function AddUpdateModal({
           refreshFileHistory={refreshFileHistory}
         />
 
-        <Grid item xs={6}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSaveButton}
-          >
-            {isEditing ? 'Update' : 'Save'}
-          </Button>
-        </Grid>
       </Grid>
     </Modal>
   );

@@ -3,7 +3,6 @@ import get from 'lodash/get';
 
 export const request = async (path, data, method) => {
   const token = localStorage.getItem('token');
-  console.log("token before saving",token);
   return await axios({
     method,
     url: `${process.env.REACT_APP_API}${path}`,

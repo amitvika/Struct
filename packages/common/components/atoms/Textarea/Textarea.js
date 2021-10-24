@@ -12,7 +12,6 @@ const Textarea = ({
         id="outlined-multiline-static"
         multiline
         rows={4}
-        defaultValue=""
         variant="outlined"
         {...props}
         style={{ width: '100%' }}>{text}</TextField>

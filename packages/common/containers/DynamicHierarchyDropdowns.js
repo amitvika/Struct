@@ -75,11 +75,10 @@ export default function DynamicHierarchy(props) {
   const renderFields = (fieldItem) => {
     if (inToolbar) {
       return (
-        <Grid item style={{ flex: 1, maxWidth: '15%' }}>
-          <Headding bold title={fieldItem.title} />
+        <Grid item style={{ flex: 1, maxWidth: '25%' }} key={`dditem_${fieldItem.headerName}`}>
           <Select
             id={fieldItem.title}
-            placeholder={`Select ${fieldItem.title}`}
+            placeholder={`${fieldItem.headerName}`}
             options={fieldItem.options}
             onChange={(data) => handleOnChange({ fieldItem, data })}
             value={getSelectionValue(fieldItem.title)}
@@ -89,16 +88,16 @@ export default function DynamicHierarchy(props) {
     }
 
     return (
-      <Grid container spacing={2} key={fieldItem.title}>
+      <Grid container spacing={2} key={fieldItem.headerName}>
         <Grid item xs={4}>
-          <Headding bold title={fieldItem.title} />
+          <Headding bold title={fieldItem.headerName} />
         </Grid>
         <Grid item xs={8}>
           <Select
             placeholder="Select"
             options={fieldItem.options}
             onChange={(data) => handleOnChange({ fieldItem, data })}
-            value={getSelectionValue(fieldItem.title)}
+            value={getSelectionValue(fieldItem  .title)}
           />
         </Grid>
       </Grid>

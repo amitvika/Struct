@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
 import Select from '@material-ui/core/Select';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputBase from '@material-ui/core/InputBase';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
+import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -87,17 +87,21 @@ const SelectExample = ({
           value={value}
           input={<BootstrapInput />}
           renderValue={(selected) => {
-            return <span>{placeholder}</span>;
+            if(value && value.length > 0){
+              return <span>{`${value.length} ${label} selected`}</span>;  
+            }
+            return <Typography style={{ fontWeight: 600 }}>{placeholder}</Typography>;
           }}
           MenuProps={MenuProps}
+          displayEmpty
         >
           <MenuItem disabled value="">
-            <em>{placeholder}</em>
+            <Typography style={{ fontWeight: 600 }}>{placeholder}</Typography>
           </MenuItem>
           {options.map((option) => {
             return (
               <MenuItem key={option} value={option}>
-                <Checkbox checked={value.indexOf(option) > -1} />
+                <Checkbox checked={value && value.indexOf(option) > -1} />
                 <ListItemText primary={option} />
               </MenuItem>
             );
@@ -116,7 +120,7 @@ const SelectExample = ({
           MenuProps={MenuProps}
         >
           <MenuItem disabled value="">
-            <em>{placeholder}</em>
+            <span>{placeholder}</span>
           </MenuItem>
           {options.map((option) => {
             return (
@@ -132,13 +136,14 @@ const SelectExample = ({
         <Select
           labelId={`${id}-label`}
           id={id}
-          value={value && value.label ? value.label : `${value}`}
+          value={value ? value : ``}
           onChange={handleChange}
           input={<BootstrapInput />}
           MenuProps={MenuProps}
+          displayEmpty
         >
           <MenuItem disabled value="">
-            <em>{placeholder}</em>
+            <Typography style={{ fontWeight: 600 }}>{placeholder}</Typography>
           </MenuItem>
           {options.map((option) => {
             return (

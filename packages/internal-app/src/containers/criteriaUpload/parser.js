@@ -9,9 +9,9 @@ export const hierarchyFileParser = async (file) => {
     const numOfRows = rows.length;
 
     let dropList = [];
-    let initialDropdown = { title: 'Item Type', options: [] };
+    let initialDropdown = { title: 'Item Type', options: [], headerName : rows[1][0] };
 
-    for (let i = 1; i < numOfRows; i++) {
+    for (let i = 2; i < numOfRows; i++) {
       let dataRow = rows[i];
       if (dataRow[0]) {
         initialDropdown.options.push({
@@ -52,7 +52,7 @@ export const hierarchyFileParser = async (file) => {
       }
 
       if (options.length > 0) {
-        dropList.push({ title: parentValue, options });
+        dropList.push({ title: parentValue, options, headerName : dataRow[valueIndex+1] });
       }
     }
 
