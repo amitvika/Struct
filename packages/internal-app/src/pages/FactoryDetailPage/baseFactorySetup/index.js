@@ -46,14 +46,7 @@ export default function BaseFactorySetup({
 
       const itemRes = await ItemAPI.getItemsAPI(`itemType=Structure`);
 
-      const items = get(itemRes, 'data', []).map((item, index) => {
-        return {
-          id: item._id,
-          name: item.name,
-          source: item?.vendorId?.name || 'STRUCT',
-          assemblyType: item.assemblyType,
-        };
-      });
+      const items = get(itemRes, 'data', [])
       setItemList(items);
       setFilteredItemList(items);
 

@@ -46,7 +46,7 @@ const VendorListPage = () => {
 
   const [columnsFields, setColumns] = useState([
     { title: 'ID', field: 'id', editable: 'never', align: 'center' },
-    { title: 'Name', field: 'name', type: 'text' },
+    { title: 'Name', field: 'name', type: 'text' }
     // { title: "Source", field: "source" },
     // {
     //     title: 'History',
@@ -109,7 +109,7 @@ const VendorListPage = () => {
             id: x._id,
             name: x.name,
             source: x.source,
-            logoUrl: x.logoUrl,
+            logoUrl: x.logoUrl
           };
         });
 
@@ -134,7 +134,7 @@ const VendorListPage = () => {
           return {
             id: item._id,
             name: item.name,
-            source: item.source,
+            source: item.source
           };
         });
       })
@@ -147,7 +147,7 @@ const VendorListPage = () => {
         {
           const newClient = {
             name: newData.name,
-            source: newData.source,
+            source: newData.source
           }; //
 
           API.addVendorApi(newClient)
@@ -170,7 +170,7 @@ const VendorListPage = () => {
           console.log(newData.client);
           const data = {
             name: newData.name,
-            source: newData.source,
+            source: newData.source
           };
 
           API.updateVendorApi(newData.id, data)
@@ -229,7 +229,7 @@ const VendorListPage = () => {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
         <Spinner animation="border" />

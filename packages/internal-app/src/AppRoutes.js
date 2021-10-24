@@ -17,7 +17,7 @@ import VendorDetailPage from "./pages/VendorDetailPage";
 
 import Dashboard from './pages/Dashboard';
 import ProcessGroups from './containers/processGroups/ProcessGroups';
-import Items from './containers/item/Items';
+import ItemListPage from './pages/ItemListPage';
 import AccessSetup from './pages/AccessSetup';
 import ConfigurationHistory from './pages/ConfigurationHistory';
 import AccessConfiguration from './pages/AccessConfiguration';
@@ -57,7 +57,7 @@ export default function AppRoutes() {
               <AppRoute authenticate exact path='/vendors' component={VendorListPage} />
               <AppRoute authenticate exact path='/clients' component={ClientListPage} />
               <AppRoute authenticate exact path='/process-groups' component={ProcessGroups} />
-              <AppRoute authenticate exact path='/items' component={Items} />
+              <AppRoute authenticate exact path='/items' component={ItemListPage} />
               <AppRoute authenticate exact path='/factories' component={FactoryListPage} />
               <AppRoute authenticate path='/access-setup' component={AccessSetup} />
               <AppRoute authenticate path='/view-access' component={ViewAccess} />

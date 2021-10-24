@@ -2,7 +2,6 @@ import React from 'react';
 import { Grid, Paper } from '@material-ui/core';
 import Checkbox from '../atoms/Checkbox';
 import Headding from '../atoms/Headding';
-import Space from '../atoms/Space';
 import Filter from './Filter';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/AddBox';
@@ -20,8 +19,10 @@ export default function Toolbar({
   isHistoryCheckboxVisible = true,
   isCustomAddButtonVisible = false,
   handleAddButtonPress = () => {},
+  AdditionalFilter = null,
   ...restProps
 }) {
+  const [isFilterResetted, setIsFilterResetted] = React.useState(false);
   return (
     <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }}>
       <Grid container>
@@ -49,8 +50,11 @@ export default function Toolbar({
             />
           )}
         </Grid>
-        <Grid item xs style={{ display: 'flex' }}>
-          <Filter {...restProps} />
+        <Grid item xs style={{ display: 'flex', flexDirection: 'column' }}>
+          <Filter {...restProps} {...{ setIsFilterResetted }} />
+          {AdditionalFilter !== null && (
+            <AdditionalFilter {...restProps} {...{ isFilterResetted }} />
+          )}
         </Grid>
 
         {title === 'Items' && (

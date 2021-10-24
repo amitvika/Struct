@@ -25,8 +25,8 @@ class Items extends Component {
         field: 'assemblyType',
         lookup: {
           'Single Item Part': 'Single Item Part',
-          'Multi-Item Assembly': 'Multi-Item Assembly',
-        },
+          'Multi-Item Assembly': 'Multi-Item Assembly'
+        }
       },
       {
         title: 'History',
@@ -44,14 +44,14 @@ class Items extends Component {
               {' '}
               Show History{' '}
             </span>
-          ),
-      },
+          )
+      }
     ],
     isHistoryModalOpened: false,
     selectedItemId: '',
     isThreejsModalOpened: false,
     selectedId: '',
-    itemList: [],
+    itemList: []
   };
 
   componentDidMount() {
@@ -61,13 +61,13 @@ class Items extends Component {
   handleHistoryToggle = ({ rowId }) => {
     this.setState({
       isHistoryModalOpened: !this.state.isHistoryModalOpened,
-      selectedItemId: rowId,
+      selectedItemId: rowId
     });
   };
 
   handleClose = (event, reason) => {
     this.setState({
-      snackBar: !this.state.snackBar,
+      snackBar: !this.state.snackBar
     });
   };
 
@@ -79,7 +79,7 @@ class Items extends Component {
       columns.pop();
     }
     this.setState((state) => ({
-      isDeletedItemVisible: !state.isDeletedItemVisible,
+      isDeletedItemVisible: !state.isDeletedItemVisible
     }));
   };
 
@@ -88,14 +88,7 @@ class Items extends Component {
       .then((result) => result.data)
       .then((items) => {
         this.setState({
-          itemList: items.map((item, index) => {
-            return {
-              id: item._id,
-              name: item.name,
-              source: item.source,
-              assemblyType: item.assemblyType,
-            };
-          }),
+          itemList: items
         });
       })
       .catch((err) => console.log(err));
@@ -134,7 +127,7 @@ class Items extends Component {
             actionsColumnIndex: 5,
             addRowPosition: 'first',
             exportButton: true,
-            exportFileName: 'Items',
+            exportFileName: 'Items'
           }}
           detailPanel={(rowData) => {
             return <div>{JSON.stringify(rowData)}</div>;
@@ -148,8 +141,8 @@ class Items extends Component {
               icon: 'settings-outline',
               tooltip: 'View detail',
               onClick: (event, rowData) =>
-                this.props.history.push(`/items/${rowData.id}`),
-            },
+                this.props.history.push(`/items/${rowData.id}`)
+            }
           ]}
           editable={{
             onRowAdd: (newData) => {
@@ -158,7 +151,7 @@ class Items extends Component {
                 name: newData.name,
                 source: newData.source,
                 vendorId: this.props.vendorId,
-                assemblyType: newData.assemblyType,
+                assemblyType: newData.assemblyType
               })
                 .then((res) => {
                   if (get(res, 'data')) {
@@ -166,10 +159,10 @@ class Items extends Component {
                       itemList: [
                         {
                           id: get(res, 'data._id'),
-                          ...get(res, 'data'),
+                          ...get(res, 'data')
                         },
-                        ...itemList,
-                      ],
+                        ...itemList
+                      ]
                     });
                   }
                 })
@@ -181,7 +174,7 @@ class Items extends Component {
               return ItemsAPI.updateItemAPI(newData.id, {
                 name: newData.name,
                 source: newData.source,
-                assemblyType: newData.assemblyType,
+                assemblyType: newData.assemblyType
               })
                 .then((res) => {
                   // this.retrieveFromDb();
@@ -190,13 +183,13 @@ class Items extends Component {
                       if (newData.id === item.id) {
                         return {
                           id: get(res, 'data._id'),
-                          ...get(res, 'data'),
+                          ...get(res, 'data')
                         };
                       }
                       return item;
                     });
                     this.setState({
-                      itemList: updatedItems,
+                      itemList: updatedItems
                     });
                   }
                 })
@@ -211,12 +204,12 @@ class Items extends Component {
                     );
 
                     this.setState({
-                      itemList: updatedItems,
+                      itemList: updatedItems
                     });
                   }
                 })
                 .catch((err) => console.log(err.data));
-            },
+            }
           }}
         />
       </>

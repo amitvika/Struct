@@ -134,16 +134,16 @@ export default function BaseItemProperties({
       //   fileStore: datastore,
       //   fileName: dataload,
       // }));
-      handleItemSaveOnServer({
-        fileId: null,
-        fileUUId: data.uuid,
-        fileStore: datastore,
-        fileName: dataload,
-        fileGDT: null,
-        fileMPPS: null,
-        fileStack: null,
-        fileKinematic: null,
-      });
+      // handleItemSaveOnServer({
+      //   fileId: null,
+      //   fileUUId: data.uuid,
+      //   fileStore: datastore,
+      //   fileName: dataload,
+      //   fileGDT: null,
+      //   fileMPPS: null,
+      //   fileStack: null,
+      //   fileKinematic: null,
+      // });
 
       setProgressBarLoader(true);
       let percent = 0;

@@ -10,19 +10,19 @@ import ListItemText from '@material-ui/core/ListItemText';
 const useStyles = makeStyles((theme) => ({
   formControl: {
     margin: theme.spacing(1),
-    minWidth: 120,
+    minWidth: 120
   },
   selectEmpty: {
-    marginTop: theme.spacing(2),
-  },
+    marginTop: theme.spacing(2)
+  }
 }));
 
 const BootstrapInput = withStyles((theme) => ({
   root: {
     width: '100%',
     'label + &': {
-      marginTop: theme.spacing(3),
-    },
+      marginTop: theme.spacing(3)
+    }
   },
   input: {
     borderRadius: 4,
@@ -35,21 +35,21 @@ const BootstrapInput = withStyles((theme) => ({
     '&:focus': {
       borderRadius: 4,
       borderColor: '#80bdff',
-      boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
-    },
-  },
+      boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)'
+    }
+  }
 }))(InputBase);
 
 const MenuProps = {
   anchorOrigin: {
     vertical: 'bottom',
-    horizontal: 'left',
+    horizontal: 'left'
   },
   transformOrigin: {
     vertical: 'top',
-    horizontal: 'left',
+    horizontal: 'left'
   },
-  getContentAnchorEl: null,
+  getContentAnchorEl: null
 };
 
 const SelectExample = ({
@@ -67,6 +67,7 @@ const SelectExample = ({
   value,
   onCustomOnChange,
   isCheckbox,
+  id,
   ...props
 }) => {
   const classes = useStyles();
@@ -106,8 +107,8 @@ const SelectExample = ({
     } else if (isMulti) {
       return (
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
+          labelId={`${id}-label`}
+          id={id}
           multiple
           value={value}
           onChange={onChange}
@@ -129,8 +130,8 @@ const SelectExample = ({
     } else {
       return (
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
+          labelId={`${id}-label`}
+          id={id}
           value={value && value.label ? value.label : `${value}`}
           onChange={handleChange}
           input={<BootstrapInput />}
@@ -157,7 +158,7 @@ const SelectExample = ({
 SelectExample.defaultProps = {
   htmlFor: 'unnamed',
   onChange: () => {},
-  onInputChange: () => {},
+  onInputChange: () => {}
 };
 
 export default SelectExample;

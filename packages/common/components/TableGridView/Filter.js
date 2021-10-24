@@ -47,7 +47,8 @@ export default function Filter({
   filteredList = [],
   setFilteredList = () => {},
   columnsFields = [],
-  isSearchBarVisible = false
+  isSearchBarVisible = false,
+  setIsFilterResetted=() => {}
 }) {
   const classes = useStyles();
 
@@ -74,7 +75,7 @@ export default function Filter({
 
       return flag;
     });
-
+    setIsFilterResetted(false);
     setFilteredList(myArrayFiltered);
   };
 
@@ -131,7 +132,6 @@ export default function Filter({
     const filteredData = list.filter((item) => {
       for (const key in item) {
         const currentValue = item[key];
-        console.log('current value', currentValue);
         if (
           typeof currentValue === 'string' &&
           currentValue.includes(searchText)
@@ -141,6 +141,7 @@ export default function Filter({
       }
       return false;
     });
+    setIsFilterResetted(false);
     setFilteredList(filteredData);
   };
 
@@ -204,7 +205,7 @@ export default function Filter({
   };
 
   return (
-    <Grid container spacing={3} style={{ margin: 0, justifyContent: 'center' }}>
+    <Grid container spacing={3} style={{ margin: 0, justifyContent: 'center', paddingRight: '15px' }}>
       {/* <Table className={classes.table} aria-label="simple table">
       <TableHead>
         <TableRow>
@@ -221,6 +222,7 @@ export default function Filter({
           type="button"
           value="Clear"
           onClick={() => {
+            setIsFilterResetted(true);
             setFilteredList(list);
             setSelectedFields({});
             setSearchTerm('');
