@@ -3332,7 +3332,8 @@ class StepIgesAnalyser():
         Components are shown indented w/r/t line above."""
         self.currenttime=self.starttime
         timingdelta = self.endtime-self.starttime
-        if (timingdelta.seconds > 30) and (not self.shapeslist) and (self.ascompound==False):
+        print("Initial Loading took",timingdelta)
+        if (not self.shapeslist) and (self.ascompound==False):
             statusfilename = self.displaypath+self.basefilename+".status"            
             if self.writefiles:
                 os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
