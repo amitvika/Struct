@@ -555,7 +555,8 @@ const ItemDetail = () => {
             0,
             0,
             0,
-            STATEPROPS.maximumfaces
+            STATEPROPS.maximumfaces,
+            item.stepTreeLength > STATEPROPS.maximumparts
           );
 
           let datastore = getHierarchyRes.data.store;
@@ -738,7 +739,8 @@ const ItemDetail = () => {
             0,
             STATEPROPS.edgesize,
             STATEPROPS.vertexsize,
-            STATEPROPS.maximumfaces
+            STATEPROPS.maximumfaces,
+            item.stepTreeLength > STATEPROPS.maximumparts
           );
 
           let datastore = getHierarchyRes.data.store;

@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // const host = `https://cadapi.struct.services/api/v0`;
-// const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
+const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
 
-const baseURL = `https://cadapi.struct.services`;
+// const baseURL = `https://cadapi.struct.services`;
 
 const host = `${baseURL}/api/v0`;
 
@@ -68,9 +68,10 @@ export const getHierarchySplitFiles = (
   moverotate,
   edgesize,
   vertexsize,
-  maximumfaces
+  maximumfaces,
+  seperateparts
 ) => {
-  const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}&edgesize=${edgesize}&vertexsize=${vertexsize}&moverotate=${moverotate}&maximumfaces=${maximumfaces}`;
+  const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}&edgesize=${edgesize}&vertexsize=${vertexsize}&moverotate=${moverotate}&maximumfaces=${maximumfaces}&seperateparts=${seperateparts}`;
   console.log(splitURL);
   return axios.get(splitURL);
 };

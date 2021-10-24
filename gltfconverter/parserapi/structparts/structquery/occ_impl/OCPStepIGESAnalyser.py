@@ -1072,7 +1072,7 @@ class StepIgesAnalyser():
         thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=True,
         writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
-        defaultR=0.3,defaultG=0.32,defaultB=0.37):
+        defaultR=0.3,defaultG=0.32,defaultB=0.37,seperateparts=False):
         """Supply one or the other: document or STEP filename or Shapes."""
         self.starttime = datetime.utcnow()
         self.percentage = 0
@@ -1092,6 +1092,7 @@ class StepIgesAnalyser():
         self.logging = logging
         self.addfeaturesThread = addfeaturesThread
         self.maximumfacestoinclude=maximumfacestoinclude
+        self.seperateparts = seperateparts
         #print("I m initializing")
         if filename:
             head, tail = os.path.split(self.fname)
@@ -1548,7 +1549,7 @@ class StepIgesAnalyser():
             only_Colors=[(parentColor.Red(),parentColor.Green(),parentColor.Blue())]
             mylenFaceDict = ( len(faces_dict) if faces_dict else 0 )
             print("\t"*self.indent,"No of Faces",mylenFaceDict)
-            if (mylenFaceDict > self.maximumfacestoinclude) or (fromCompound):
+            if (mylenFaceDict > self.maximumfacestoinclude) or (fromCompound) or (self.seperateparts):
                 doCompact = True            
             for hash_solidface, solidface in faces_dict.items(): 
                 #hash_solidface = hash(solidface)
@@ -1602,13 +1603,13 @@ class StepIgesAnalyser():
             if doCompact:                
                 len_color_arr = ( len(only_Colors) if only_Colors else 0 )
                 print("\t"*self.indent,"No of colors found",len_color_arr,"Faces",mylenFaceDict)
-                if (len_color_arr<=2) or doParts or (mylenFaceDict > self.multiplegltf) or (fromCompound):
+                if (len_color_arr<=2) or doParts or (mylenFaceDict > self.multiplegltf) or (fromCompound) or (self.seperateparts):
                     (R,G,B)=only_Colors[len_color_arr-1]
                     #print("Colors",R,G,B,len_color_arr,len(only_soilds))
                     mycompound,_ = list_of_shapes_to_compound(only_soilds)                     
                     hashcode = str(hash(mycompound))+transformationHash
                     list_of_compounds.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hashcode))
-                    return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" , ((mylenFaceDict < self.maximumfacestoinclude) and (not fromCompound)) # (len_color_arr>2) and (len(faces_dict) < self.multiplegltf)
+                    return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" , ((mylenFaceDict < self.maximumfacestoinclude) and (not fromCompound) and (not self.seperateparts)) # (len_color_arr>2) and (len(faces_dict) < self.multiplegltf)
                 else:
                     return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE", False
             #else:
@@ -1643,7 +1644,7 @@ class StepIgesAnalyser():
             faceB = faceB - 0.1
         return Quantity_Color(faceR, faceG, faceB, Quantity_TOC_RGB)
     
-    def addAllFearures(self,shape,subLabel,localTransformation,subShapesFromParent,subName,subEntry,parentName,parentEntry,parent_node_index,percentincrement):
+    def addAllFeatures(self,shape,subLabel,localTransformation,subShapesFromParent,subName,subEntry,parentName,parentEntry,parent_node_index,percentincrement,fromCompound):
         transformationHash = self.hashCode(localTransformation)
         myshapename = shapeString(shape)
         print(myshapename)
@@ -1670,10 +1671,10 @@ class StepIgesAnalyser():
                 mydirectory = self.validFileName(subName+subEntry)
                 mydirectorylen = ( len(self.direntry) if self.direntry else 0)
                 self.direntry += "/"+mydirectory                
-                self.addAllFearures(
+                self.addAllFeatures(
                     reduced_compounds,subLabel,localTransformation,subShapesFromParent,
                     subName,subEntry,parentName,parentEntry,parent_node_index,
-                    percentincrement=percentincrement/(solidstotalcount+1))        
+                    percentincrement/(solidstotalcount+1),True)        
                 self.indent -= 1 
                 self.parentIDs.pop()          
                 self.direntry = self.direntry[:mydirectorylen]  
@@ -1691,10 +1692,10 @@ class StepIgesAnalyser():
                 mydirectory = self.validFileName(subName+subEntry)
                 mydirectorylen = ( len(self.direntry) if self.direntry else 0)
                 self.direntry += "/"+mydirectory  
-                self.addAllFearures(
+                self.addAllFeatures(
                     reduced_compsolids,subLabel,localTransformation,subShapesFromParent,
                     subName,subEntry,parentName,parentEntry,parent_node_index,
-                    percentincrement=percentincrement/(solidstotalcount+1))  
+                    percentincrement/(solidstotalcount+1),True)  
                 self.indent -= 1 
                 self.parentIDs.pop()          
                 self.direntry = self.direntry[:mydirectorylen]                 
@@ -1723,7 +1724,7 @@ class StepIgesAnalyser():
             self.addOneFeature(
                     shape,subLabel,localTransformation,subShapesFromParent,
                     subName,subEntry,parentName,parentEntry,parent_node_index,
-                    percentincrement,False)
+                    percentincrement,fromCompound)
 
     def addOneFeature(self,shape,subLabel,localTransformation,subShapesFromParent,subName,subEntry,parentName,parentEntry,parent_node_index,percentincrement,fromCompound):
         currentColor, _ = self.setColor(shape,subLabel)
@@ -2164,10 +2165,10 @@ class StepIgesAnalyser():
                     self.direntry += "/"+mydirectory  """  
                                    
                 localTransformation = subLocation.Transformation()  
-                self.addAllFearures(
+                self.addAllFeatures(
                     shape,subLabel,localTransformation,subShapesFromParent,
                     subName,subEntry,parentName,parentEntry,parent_node_index,
-                    percentincrement)
+                    percentincrement,False)
             #if(len(self.outputShapes)<=1):       
             #print("I have reached here 18")
             

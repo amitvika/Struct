@@ -229,6 +229,7 @@ export const gltf_Dict = {
   const DEFAULTMATERIALTYPE = [{ id: 1, name: 'Basic' }];
   const DEFAULTMAXIMUMFACES = 50;
   const DEFAULTMATERIALNAME = "Basic";
+  const DEFAULTMAXPARTS = 150;
 
   export const STATEPROPS = {
     distancegap: DEFAULTDISTANCEGAP,
@@ -243,6 +244,7 @@ export const gltf_Dict = {
     removegap: DEFAULTREMOVEGAP,
     animationtime: DEFAULTANIMATIONTIME,
     maximumfaces: DEFAULTMAXIMUMFACES,
+    maximumparts: DEFAULTMAXPARTS,
     edgesize: DEFAULTEDGESIZE,
     vertexsize: DEFAULTVERTEXSIZE,
     materialname: DEFAULTMATERIALNAME
@@ -336,7 +338,8 @@ export const gltf_Dict = {
     },
     assemblyTreeContainer: {
       display: 'inline-block',
-      minWidth: '300px'
+      minWidth: '300px',
+      minHeight: '100%'
     },
     assemblyTableContainer: {
       display: 'inline-block',
