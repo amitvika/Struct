@@ -182,7 +182,7 @@ class Extensions extends Component {
         style={{ border: 'unset' }}
         nodes={this.state.nodes} >
         {({ nodes }) => (
-          <div style={{ height: 500 }}>
+          <div style={{ height: 800 }}>
             <Tree
               nodes={nodes}
               onChange={this.handleExpandChange}

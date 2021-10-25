@@ -141,14 +141,14 @@ export default function GeometryInput({
 
           <Grid item xs={12}>
             <LargeFileUpload
-              {...{
-                handleFileUpload,
-                itemId,
-                itemProperties,
-                setIsFileLoading,
-                removeFile,
-                Label
-              }}
+              itemId={itemId}
+              handleFileUpload={handleFileUpload}
+              removeFile={removeFile}              
+              itemProperties={itemProperties}
+              setItemProperties={setItemProperties}
+              isFileLoading={isFileLoading}
+              setIsFileLoading={setIsFileLoading}
+              Label={Label}              
             />
           </Grid>
 
