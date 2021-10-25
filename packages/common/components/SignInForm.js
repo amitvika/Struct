@@ -15,30 +15,30 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   card_container: {
     maxWidth: '800px',
-    width: '45%',
+    width: '45%'
   },
   logo_container: {
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   logo: {
-    height: 40,
+    height: 40
   },
   form_root: {
     display: 'flex',
     flexDirection: 'column',
     '& .MuiTextField-root': {
-      margin: theme.spacing(1),
-    },
+      margin: theme.spacing(1)
+    }
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
-  },
+    color: '#fff'
+  }
 }));
 
 const SignInForm = ({ handleLoginSubmit, msg, isLoginStarted }) => {
@@ -89,7 +89,7 @@ const SignInForm = ({ handleLoginSubmit, msg, isLoginStarted }) => {
                 style={{
                   marginBottom: '2rem',
                   width: '100%',
-                  background: '#2b2b2b',
+                  background: '#2b2b2b'
                 }}
                 color="primary"
               >

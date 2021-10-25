@@ -4,10 +4,10 @@ const fetchCriteriaUpload = (query) => getRequest(`/api/criteriaUpload?${query}`
 
 const upsertCriteriaUpload = (data) => postRequest('/api/criteriaUpload', data);
 
-const getHierarchyStructure = () => getRequest(`/api/criteriaUpload/latest`);
+const getInternaUseProductConfiguration = () => getRequest(`/api/criteriaUpload/internaUseProductConfiguration`);
 
 export default {
   fetchCriteriaUpload,
   upsertCriteriaUpload,
-  getHierarchyStructure
+  getInternaUseProductConfiguration
 }

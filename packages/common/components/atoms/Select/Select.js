@@ -6,11 +6,12 @@ import InputBase from '@material-ui/core/InputBase';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
+import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120
+    width: '100%'
   },
   selectEmpty: {
     marginTop: theme.spacing(2)
@@ -68,6 +69,8 @@ const SelectExample = ({
   onCustomOnChange,
   isCheckbox,
   id,
+  isRequired = false,
+  hasError = null,
   ...props
 }) => {
   const classes = useStyles();
@@ -87,10 +90,12 @@ const SelectExample = ({
           value={value}
           input={<BootstrapInput />}
           renderValue={(selected) => {
-            if(value && value.length > 0){
-              return <span>{`${value.length} ${label} selected`}</span>;  
+            if (value && value.length > 0) {
+              return <span>{`${value.length} ${label} selected`}</span>;
             }
-            return <Typography style={{ fontWeight: 600 }}>{placeholder}</Typography>;
+            return (
+              <Typography style={{ fontWeight: 600 }}>{placeholder}</Typography>
+            );
           }}
           MenuProps={MenuProps}
           displayEmpty
@@ -157,7 +162,12 @@ const SelectExample = ({
     }
   };
 
-  return <>{render()}</>;
+  return (
+    <FormControl className={classes.formControl} error={hasError}>
+      {render()}
+      {hasError && <FormHelperText>This is required!</FormHelperText>}
+    </FormControl>
+  );
 };
 
 SelectExample.defaultProps = {

@@ -32,6 +32,7 @@ exports.mapProductDesign = (item = {}) => {
         // updated_by: get(item, 'updated_by._id', ''),
         hierarchySchema: get(item, 'hierarchySchema', []),
         criteriaSchema: get(item, 'criteriaSchema', {}),
+        lookUpTableSchema: get(item, 'lookUpTableSchema', {}),
         is_archived: item.is_archived
     }
 }

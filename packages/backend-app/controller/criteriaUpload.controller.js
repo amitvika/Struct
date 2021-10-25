@@ -1,42 +1,34 @@
-const CriteriaUploadModel = require("../models/criteriaUpload.modal");
-const ChangeTracking = require("../models/ChangeTracking.model");
-const FileHistoryModel = require("../models/fileHistory.modal");
-const { getObjectId } = require('../utils/helper')
+const CriteriaUploadModel = require('../models/criteriaUpload.modal');
+const ChangeTracking = require('../models/ChangeTracking.model');
+const FileHistoryModel = require('../models/fileHistory.modal');
+const { getObjectId } = require('../utils/helper');
 const { mapProductDesign, mapProductDesigns } = require('../map/productDesign');
 const _ = require('lodash');
 
 exports.get = async (req, res) => {
   try {
-
-    const query = buildQuery(req)
+    const query = buildQuery(req);
 
     let productDesigns = [];
 
     if (query.$and.length > 0) {
-      productDesigns = await CriteriaUploadModel
-        .find(query)
+      productDesigns = await CriteriaUploadModel.find(query)
         // .populate('file_history.loaded_by')
         // .populate('file_history.cleared_by')
-        .sort({ updatedAt: -1 })
-
-    }
-    else {
-      productDesigns = await CriteriaUploadModel
-        .find()
+        .sort({ updatedAt: -1 });
+    } else {
+      productDesigns = await CriteriaUploadModel.find()
         // .populate('file_history.loaded_by')
         // .populate('file_history.cleared_by')
-        .sort({ updatedAt: -1 })
-
+        .sort({ updatedAt: -1 });
     }
 
     res.json(mapProductDesigns(productDesigns));
-
+  } catch (error) {
+    console.log('get', error);
+    res.status(500).send(error);
   }
-  catch (error) {
-    console.log('get', error)
-    res.status(500).send(error)
-  };
-}
+};
 
 const buildQuery = (req) => {
   let query = { $and: [] };
@@ -50,13 +42,13 @@ const buildQuery = (req) => {
   }
 
   if (req.query.name) {
-    query.$and.push({ name: { '$regex': new RegExp(`${req.query.name}`, "i") } })
+    query.$and.push({ name: { $regex: new RegExp(`${req.query.name}`, 'i') } });
   }
 
   query.$and.push({ is_archived: false });
 
-  return query
-}
+  return query;
+};
 
 exports.upsert = async (req, res) => {
   try {
@@ -64,26 +56,21 @@ exports.upsert = async (req, res) => {
     let productDesign = await CriteriaUploadModel.findById(req.body.id);
 
     if (productDesign) {
-      actionType = "Update";
+      actionType = 'Update';
       req.body.updated_by = req.user.id;
       let data = req.body;
 
-      // data.file_history = fileHistoryPayload(req, productDesign);
       productDesign = await CriteriaUploadModel.findByIdAndUpdate(
         req.body.id,
         { $set: data },
-        { new: true });
-    }
-    else {
-      actionType = "Add";
+        { new: true }
+      );
+    } else {
+      actionType = 'Add';
       req.body.created_by = req.user.id;
       req.body.updated_by = req.user.id;
 
-      //check file uploaded
-      // req.body.file_history = fileHistoryPayload(req);
-
-      productDesign = await CriteriaUploadModel
-        .create(req.body)
+      productDesign = await CriteriaUploadModel.create(req.body);
     }
 
     if (req.body.new_file) {
@@ -93,13 +80,13 @@ exports.upsert = async (req, res) => {
         loaded_by: req.user.id,
         link_id: productDesign._id
       });
-      console.log('FileHistory', fileHistory)
+      console.log('FileHistory', fileHistory);
     }
 
     const changeTracking = new ChangeTracking({
       client: productDesign._id,
       update: productDesign,
-      model: "ProductDesign",
+      model: 'ProductDesign',
       updateType: actionType,
       updatedObject: req.body.id,
       updatedBy: req.user.id
@@ -110,27 +97,22 @@ exports.upsert = async (req, res) => {
       .populate('file_history.loaded_by')
       .populate('file_history.cleared_by');
 
-    res.json(mapProductDesign(productDesign))
+    res.json(mapProductDesign(productDesign));
+  } catch (error) {
+    console.log('upsert', error);
+    res.status(500).send(error);
   }
-  catch (error) {
-    console.log('upsert', error)
-    res.status(500).send(error)
-  };
-}
+};
 
-exports.getLatest = async (req, res) => {
+exports.getInternaUseProductConfiguration = async (req, res) => {
   try {
+    let productDesigns = await CriteriaUploadModel.findOne({
+      type: 'Internal Use Product Configuration'
+    });
 
-    let productDesigns = await CriteriaUploadModel.findById('611e82e4de777c1c549ab347');
-    
-    if (!productDesigns) {
-      productDesigns = await CriteriaUploadModel.findById('61596b861ea6bf29a42cee0f');
-    }
     res.json(mapProductDesign(productDesigns));
-
+  } catch (error) {
+    console.log('get', error);
+    res.status(500).send(error);
   }
-  catch (error) {
-    console.log('get', error)
-    res.status(500).send(error)
-  };
-}
+};

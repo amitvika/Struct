@@ -16,7 +16,7 @@ export default function AdditionalFilter({
   const [stateUpdated, setStateUpdated] = useState(false);
 
   useEffect(() => {
-    CriteriaUploadAPI.getHierarchyStructure()
+    CriteriaUploadAPI.getInternaUseProductConfiguration()
       .then((resp) => {
         const hierarchySchemaArr = get(resp, 'data.hierarchySchema', []);
         setHierarchyDropdownList(hierarchySchemaArr);

@@ -8,8 +8,13 @@ import ExcelFileUpload from '@monostruct/common/components/ExcelFileUpload';
 import FileHistory from './FileHistory';
 import { useSelector } from 'react-redux';
 import { uploadFileS3Bucket } from '@monostruct/common/api/aws';
-import { hierarchyFileParser, criteriaFileParser } from './parser';
+import {
+  hierarchyFileParser,
+  criteriaFileParser,
+  LookUpTableParser
+} from './parser';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
+import Select from '@monostruct/common/components/atoms/Select';
 
 export default function AddUpdateModal({
   title,
@@ -17,7 +22,8 @@ export default function AddUpdateModal({
   toggleModal,
   handleUpdate,
   isEditing,
-  selectedValue
+  selectedValue,
+  dataList=[]
 }) {
   const [value, setValue] = useState({});
   const [isTypeSelected, setIsTypeSelected] = useState(false);
@@ -26,6 +32,7 @@ export default function AddUpdateModal({
   const [isLoading, setLoading] = useState(false);
   const [refreshFileHistory, setRefreshFileHistory] = useState(false);
   const [isRecordUpdated, setIsRecordUpdated] = useState(false);
+  const [error, setError] = useState({});
 
   useEffect(() => {
     if (selectedValue) {
@@ -46,11 +53,24 @@ export default function AddUpdateModal({
       [name]: data,
       file_history
     }));
-    setIsRecordUpdated(true)
+    setIsRecordUpdated(true);
+  };
+
+  const isValidationError = () => {
+    if (!value.name) {
+      setError({ name: true });
+      return true;
+    } else if (!value.type) {
+      setError({ type: true });
+      return true;
+    } else {
+      setError({});
+      return false;
+    }
   };
 
   const handleSave = async () => {
-    if(!isRecordUpdated){
+    if (isValidationError() || !isRecordUpdated) {
       return;
     }
     setLoading(true);
@@ -68,12 +88,13 @@ export default function AddUpdateModal({
 
     let criteriaSchema = await criteriaFileParser(selectedFile);
     let hierarchySchema = await hierarchyFileParser(selectedFile);
-
+    let lookUpTableSchema = await LookUpTableParser(selectedFile);
     const file_url = await uploadFileS3Bucket(selectedFile);
 
     let updateObj = {
       criteriaSchema,
       hierarchySchema,
+      lookUpTableSchema,
       new_file: {
         file_name: selectedFile.name,
         file_url,
@@ -84,13 +105,30 @@ export default function AddUpdateModal({
 
     setValue((prev) => ({ ...prev, ...updateObj }));
     setLoading(false);
-    setIsRecordUpdated(true)
+    setIsRecordUpdated(true);
   };
 
   const handleModalToggle = () => {
-    handleSave()
     toggleModal();
   };
+
+  const getOptions = () =>{ 
+    const optionsList = [
+      {
+        label: 'Internal Use Product Configuration',
+        value: 'Internal Use Product Configuration'
+      },
+      {
+        label: 'Classification Configuration',
+        value: 'Classification Configuration'
+      }
+    ];
+
+    if(!dataList || dataList.length === 0){
+      return optionsList;
+    }
+    return optionsList.filter(option => dataList.find(dataItem => dataItem.type !== option.value ));
+  }
 
   return (
     <Modal
@@ -101,7 +139,7 @@ export default function AddUpdateModal({
       {isLoading && <LoadingModal isLoading={isLoading} />}
       <Grid className="section-padding-left" container spacing={4}>
         <Grid item xs={4}>
-          <Headding bold title={'Name'} />
+          <Headding bold title={'Name *'} />
         </Grid>
         <Grid item xs={8}>
           <Input
@@ -109,8 +147,22 @@ export default function AddUpdateModal({
             type="text"
             onChange={(event) => handleOnChange('name', event.target.value)}
             value={value?.name}
+            hasError={error['name']}
           />
         </Grid>
+
+        <Grid item xs={4}>
+          <Headding bold title={'Type *'} />
+        </Grid>
+        <Grid item xs={8}>
+          <Select
+            options={getOptions()}
+            onChange={(data) => handleOnChange('type', data.value)}
+            value={value.type}
+            hasError={error['type']}
+          />
+        </Grid>
+
         {isTypeSelected && (
           <>
             <Grid item xs={4}></Grid>
@@ -147,6 +199,18 @@ export default function AddUpdateModal({
           refreshFileHistory={refreshFileHistory}
         />
 
+        <Grid
+          item
+          xs={12}
+          style={{ display: 'flex', justifyContent: 'space-around' }}
+        >
+          <Button variant="contained" color="secondary" onClick={toggleModal}>
+            Cancel
+          </Button>
+          <Button variant="contained" color="primary" onClick={handleSave}>
+            {isEditing ? 'Update' : 'Save'}
+          </Button>
+        </Grid>
       </Grid>
     </Modal>
   );

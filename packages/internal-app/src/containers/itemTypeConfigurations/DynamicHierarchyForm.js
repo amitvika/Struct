@@ -21,7 +21,7 @@ export default function DynamicHierarchy(props) {
   }, [stateUpdated]);
 
   useEffect(() => {
-    CriteriaUploadAPI.getHierarchyStructure()
+    CriteriaUploadAPI.getInternaUseProductConfiguration()
       .then((resp) => {
         const hierarchySchemaArr = get(resp, 'data.hierarchySchema', []);
         setHierarchyDropdownList(hierarchySchemaArr);
