@@ -26,11 +26,12 @@ import LoadingModal from '@monostruct/common/components/LoadingModal';
 export default function GeometryInput({
   itemProperties = {},
   setItemProperties,
-  setFileName,
-  fileName,
+  removeFile,
   handleFileUpload,
   itemId,
-  isLoading,
+  isFileLoading,
+  setIsFileLoading,
+  Label
 }) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   // const [fileId, setFileId] = useState(0);
@@ -89,7 +90,7 @@ export default function GeometryInput({
 
   return (
     <div style={{ margin: 10 }}>
-      <LoadingModal isLoading={isLoading} />
+      {<LoadingModal isLoading={isFileLoading} />}
       {isMaterialModalOpen && (
         <MaterialModal
           toggleMaterial={toggleMaterial}
@@ -141,11 +142,12 @@ export default function GeometryInput({
           <Grid item xs={12}>
             <LargeFileUpload
               {...{
-                fileName,
-                setFileName,
                 handleFileUpload,
                 itemId,
                 itemProperties,
+                setIsFileLoading,
+                removeFile,
+                Label
               }}
             />
           </Grid>

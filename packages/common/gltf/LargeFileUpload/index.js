@@ -61,7 +61,9 @@ const chunkSize = 1048576 * 3; //its 3MB, increase the number measure in mb
 export default function LargeFileUpload({
   handleFileUpload,
   itemProperties,
+  itemId,
   label = 'STEP, DXF, GERBER',
+  setIsFileLoading
 }) {
   const classes = useStyles();
   const [counter, setCounter] = useState(1);
@@ -70,30 +72,36 @@ export default function LargeFileUpload({
   const [endOfTheChunk, setEndOfTheChunk] = useState(chunkSize);
   const [progress, setProgress] = useState(0);
   const [fileGuid, setFileGuid] = useState('');
-  const [fileName, setFileName] = useState('');
+  const [fileNameHere, setFileNameHere] = useState('');
   const [fileSize, setFileSize] = useState(0);
   const [chunkCount, setChunkCount] = useState(0);
 
   useEffect(() => {
     if (fileSize > 0) {
       fileUpload(counter);
+    } else {
+      setIsFileLoading(false);
     }
   }, [fileToBeUpload, progress]);
-
   const onChange = (e) => {
     resetChunkProperties();
     const dataload = e.target.files[0];
-    setFileSize(dataload.size);
-    const totalCount =
-      dataload.size % chunkSize == 0
-        ? dataload.size / chunkSize
-        : Math.floor(dataload.size / chunkSize) + 1; // Total count of chunks will have been upload to finish the file
-    setChunkCount(totalCount);
-    const fileID = uuidv4();
-    setFileGuid(fileID);
-    console.log('File Loading', dataload);
-    const filenameWithExtension = dataload.name.replace(/^.*[\\\/]/, '');
-    setFileName(filenameWithExtension);
+    if(dataload && dataload.size) {      
+      setFileSize(dataload.size);
+      const totalCount =
+        dataload.size % chunkSize == 0
+          ? dataload.size / chunkSize
+          : Math.floor(dataload.size / chunkSize) + 1; // Total count of chunks will have been upload to finish the file
+      setChunkCount(totalCount);
+      const fileID = uuidv4();
+      setFileGuid(fileID);
+      console.log('File Loading', dataload);
+      const filenameWithExtension = dataload.name.replace(/^.*[\\\/]/, '');
+      setFileNameHere(filenameWithExtension);
+      setIsFileLoading(true);
+    } else {
+      setFileSize(0);
+    }
     setFileToBeUpload(dataload);
   };
 
@@ -107,7 +115,7 @@ export default function LargeFileUpload({
 
   const uploadChunk = async (chunk) => {
     var formData = new FormData();
-    formData.append('filename', fileName);
+    formData.append('filename', fileNameHere);
     formData.append('id', counter);
     formData.append('uuid', fileGuid);
     formData.append('total', chunkCount);
@@ -123,28 +131,32 @@ export default function LargeFileUpload({
           var percentage = (counter / chunkCount) * 100;
           setProgress(percentage);
           if (counter == chunkCount) {
+            setIsFileLoading(false);
             handleFileUpload(data);
           }
         } else {
+          setIsFileLoading(false);
           console.log(
             'Error Occurred:',
             data.errorMessage,
-            fileName,
+            fileNameHere,
             counter,
             chunkCount
           );
         }
       } else {
+        setIsFileLoading(false);
         console.log(
           'Error Occurred:',
           'Could not get response',
-          fileName,
+          fileNameHere,
           counter,
           chunkCount
         );
       }
     } catch (error) {
-      console.log('error', error, fileName, counter, chunkCount);
+      setIsFileLoading(false);
+      console.log('error', error, fileNameHere, counter, chunkCount);
     }
   };
 
@@ -174,7 +186,7 @@ export default function LargeFileUpload({
           <img
             src={ExportLogo}
             style={{ width: '20px', paddingTop: '2px' }}
-            alt="pictur"
+            alt={"pictur"+(itemId||'').toString()}
           />
         </IconButton>
       </div>

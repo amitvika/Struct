@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Paper, CircularProgress } from '@material-ui/core';
+import { Paper/*, CircularProgress*/ } from '@material-ui/core';
 import GeometricDimensioning from '../itemDetail/geometricDimensioning';
 import {
   SELECTFEATURE,
@@ -26,7 +26,7 @@ export default function ItemTypeConfiguration(props) {
     progressBarLoad,
     percentage, 
   } =  props;
-  const [isFileLoading, setIsLoading] = useState(isLoading);
+  const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
   const [percentager, setPercentager] = useState(percentage||0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
@@ -85,7 +85,7 @@ export default function ItemTypeConfiguration(props) {
   }
 
   useEffect(() => {
-    setIsLoading(isLoading);
+    setIsFileLoading(isLoading);
   }, [isLoading]);
 
   const renderExcelUI = () => {
@@ -124,7 +124,7 @@ export default function ItemTypeConfiguration(props) {
                   fileGDT={fileGDT}
                   fileUUId={fileUUIder}
                   gltfjson={gltfjson}
-                  isLoading={isLoading}                
+                  isLoading={isFileLoading}                
                   tabIndex={tabIndex}
                   keyName={fieldKey}  
                   handleChangeOfSelection={handleChangeOfSelection}   
@@ -133,7 +133,7 @@ export default function ItemTypeConfiguration(props) {
                   percentage={percentager}         
                 />
               )}
-            {(isLoading || isFileLoading) && <CircularProgress />}
+            {/* {(isLoading || isFileLoading) && <CircularProgress />} */}
           </Paper>
          
         </Paper>

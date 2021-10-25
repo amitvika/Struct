@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 //import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
 //import { useSelector } from 'react-redux';
-import { Paper, Grid, CircularProgress, Box, LinearProgress /*, makeStyles*/ } from '@material-ui/core';
+import { Paper, Grid, /*CircularProgress,*/ Box, LinearProgress /*, makeStyles*/ } from '@material-ui/core';
 // import { Headding } from '../../../components';
 import Heading from '@monostruct/common/components/atoms/Headding';
 
@@ -77,7 +77,7 @@ const useStyles = makeStyles((theme) => ({
 */
 export default function Stackability(props) {
   const { fileId, gltfjson, isLoading, fileUUId, progressBarLoad, percentage } = props;
-  const [isFileLoading, setIsLoading] = useState(isLoading);
+  const [isFileLoading, setIsFileLoading] = useState(isLoading);
 
   const classes = USESTYLES();
 
@@ -97,7 +97,7 @@ export default function Stackability(props) {
     });
   };
   useEffect(() => {
-    setIsLoading(isLoading);
+    setIsFileLoading(isLoading);
   }, [isLoading]);
   useEffect(() => {
     const includeParts = true;
@@ -167,7 +167,7 @@ export default function Stackability(props) {
             activeDataTable={0}
           />
         )}
-        {(isLoading || isFileLoading) && <CircularProgress />}
+        {/* {(isLoading || isFileLoading) && <CircularProgress />} */}
       </Paper>
       {splitfiles.stackable && splitfiles.stackable.length > 0 && (
         <Paper style={{ padding: 10, width: '200px', flexWrap: 'wrap' }}>

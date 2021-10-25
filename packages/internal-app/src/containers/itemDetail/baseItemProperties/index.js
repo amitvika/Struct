@@ -148,6 +148,7 @@ export default function BaseItemProperties({
 
       setProgressBarLoader(true);
       let percent = 0;
+      setIsFileLoading(true);
       const getHierarchyRes = await getHierarchySplitFiles(
         fileId,
         true,
@@ -159,6 +160,7 @@ export default function BaseItemProperties({
         0,
         STATEPROPS.maximumfaces
       );
+      setIsFileLoading(false);
       if (fileUUId != data.uuid) {
         setfileUUId(data.uuid);
       }
@@ -283,6 +285,7 @@ export default function BaseItemProperties({
       );
     } catch (error) {
       setIsLoading(false);
+      setIsFileLoading(false);
       dispatch(showErrorAlert({ message: error.message }));
     }
   };
@@ -341,16 +344,18 @@ export default function BaseItemProperties({
                   activeDataTable={0}
                 />
               )}
-            {(isLoading || isFileLoading) && <CircularProgress />}
+            {(isFileLoading) && <CircularProgress />}
           </Paper>
           <Grid className={classes.itemContainer}>
             <GeometryInput
-              isLoading={isLoading}
               itemId={itemId}
               handleFileUpload={handleFileUpload}
               removeFile={removeFile}
               setItemProperties={setItemProperties}
               itemProperties={itemProperties}
+              isFileLoading={isFileLoading}
+              setIsFileLoading={setIsFileLoading}
+              Label={"STEP, IGES, BREP, STL"}
             />
           </Grid>
         </Grid>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';
-import { CircularProgress,Box, LinearProgress } from '@material-ui/core';
+import { /*CircularProgress,*/ Box, LinearProgress } from '@material-ui/core';
 import {
   DEFAULTBACKCOLOR,
   DEFAULTSELECTCOLOR,
@@ -112,7 +112,7 @@ export default function Viewer({
             closeSnackBar={closeSnackBar} */
           />
         )}
-        {isLoading && <CircularProgress />}
+        {/* {isLoading && <CircularProgress />} */}
       </>
     );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Paper,
-  CircularProgress,
+  /*CircularProgress,*/
   Box, LinearProgress,
   /*makeStyles*/
 } from "@material-ui/core";
@@ -71,7 +71,7 @@ export default function ManufacturabilityAnalysis(props) {
     percentage, 
   } = props;
   //const [list, setList] = useState([]);
-  const [isFileLoading, setIsLoading] = useState(isLoading);
+  const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const [firstTimeLoading,setFirstTimeLoading]=useState(false);
   //const [filteredList, setFilteredList] = useState([]);
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
@@ -1296,7 +1296,7 @@ export default function ManufacturabilityAnalysis(props) {
     //return currentData;
   }
   useEffect(() => {
-    setIsLoading(isLoading);
+    setIsFileLoading(isLoading);
   }, [isLoading]);
   useEffect(() => {
     const includeParts = true;
@@ -1394,9 +1394,9 @@ export default function ManufacturabilityAnalysis(props) {
             //resetSelectionFromTree={resetSelectionFromTree}
           />
         }
-        {
+        {/* {
           (isLoading || isFileLoading) && <CircularProgress />
-        }
+        } */}
 
       </Paper>
       <TableOrderView

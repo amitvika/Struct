@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   //Grid,
-  CircularProgress,
+  //CircularProgress,
   Paper
 } from "@material-ui/core"
 import Viewer from './Viewer';

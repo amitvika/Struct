@@ -1236,7 +1236,7 @@ const ItemDetail = () => {
 
   return (
     <>
-      <LoadingModal isLoading={isLoading} />
+      {/* <LoadingModal isLoading={isLoading} /> */}
       <Grid container>
         <Grid item sm={12}>
           <SubHeaderWithArrow action={'/items'} title={'Items Details'} />
