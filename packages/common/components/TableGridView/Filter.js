@@ -2,16 +2,10 @@ import React, { useState, useEffect } from 'react';
 
 import { Grid, Paper, Icon, Button } from '@material-ui/core';
 import Select from '../atoms/Select';
-import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
-
-import Table from '@material-ui/core/Table';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,22 +27,13 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const StyledTableCell = withStyles((theme) => ({
-  root: {
-    paddingLeft: '5px',
-    paddingRight: '5px',
-    borderBottom: 'none',
-    justifyContent: 'center'
-  }
-}))(TableCell);
-
 export default function Filter({
   list = [],
   filteredList = [],
   setFilteredList = () => {},
   columnsFields = [],
   isSearchBarVisible = false,
-  setIsFilterResetted=() => {}
+  setIsFilterResetted = () => {}
 }) {
   const classes = useStyles();
 
@@ -57,18 +42,14 @@ export default function Filter({
   const [selectedFields, setSelectedFields] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    filtered();
-  }, [selectedFields]);
-
-  const filtered = () => {
+  const filtered = (updatedSelectedFields) => {
     const myArrayFiltered = list.filter((el) => {
       let flag = true;
 
-      Object.keys(selectedFields).forEach((key) => {
-        const fieldValues = selectedFields[key];
+      Object.keys(updatedSelectedFields).forEach((key) => {
+        const fieldValues = updatedSelectedFields[key];
 
-        if (flag && fieldValues.length > 0 && fieldValues.length !== 1) {
+        if (flag && fieldValues.length > 0) {
           flag = fieldValues.some((f) => f === el[key]);
         }
       });
@@ -82,13 +63,11 @@ export default function Filter({
   const handleChange = (data, field) => {
     setSelectedFieldOptions(get_unique_options(field));
 
-    setSelectedFields((prev) => {
-      return {
-        ...prev,
-        [field]: data
-      };
-    });
+    const updatedSelectedFields = { ...selectedFields, [field]: data };
+    setSelectedFields(updatedSelectedFields);
     setSelectedFieldName(field);
+
+    filtered(updatedSelectedFields);
   };
 
   const get_unique_options = (field) => {
@@ -121,7 +100,7 @@ export default function Filter({
     if (selectedFields[item.field]) {
       return selectedFields[item.field];
     } else {
-      return [''];
+      return [];
     }
   };
 
@@ -147,22 +126,14 @@ export default function Filter({
 
   const renderItem = () => {
     let item = [];
-    let columns = Object.keys(columnsFields).length;
-    if (isSearchBarVisible) {
-      columns += 1;
-    }
-    let sizeOfEachEl = parseInt(90 / columns);
+
     columnsFields
       .filter((fieldItem) =>
         fieldItem.isFilterColumn === false ? fieldItem.isFilterColumn : true
       )
       .map((fieldItem, index) => {
         item.push(
-          // <StyledTableCell
-          //   width={`${sizeOfEachEl}%`}
-          //   key={`${fieldItem.field}`}
-          // >
-          <Grid item style={{flex: 1}}>
+          <Grid item style={{ flex: 1 }} key={`filteritem_${fieldItem.title}`}>
             <Select
               isCheckbox
               isMulti
@@ -170,16 +141,15 @@ export default function Filter({
               options={get_unique_options(fieldItem.field)}
               placeholder={`Select ${fieldItem.title}`}
               value={getValues(fieldItem)}
+              label={fieldItem.title}
             />
-            {/* </StyledTableCell> */}
           </Grid>
         );
       });
 
     if (isSearchBarVisible) {
       item.push(
-        <Grid item style={{flex: 1}}>
-          {/* <StyledTableCell width={`${sizeOfEachEl}%`} key={`search_box`}> */}
+        <Grid item style={{ flex: 1 }} key={`filter_search_text`}>
           <TextField
             className={classes.margin}
             id="input-with-icon-textfield"
@@ -197,7 +167,6 @@ export default function Filter({
               )
             }}
           />
-          {/* </StyledTableCell> */}
         </Grid>
       );
     }
@@ -205,16 +174,15 @@ export default function Filter({
   };
 
   return (
-    <Grid container spacing={3} style={{ margin: 0, justifyContent: 'center', paddingRight: '15px' }}>
-      {/* <Table className={classes.table} aria-label="simple table">
-      <TableHead>
-        <TableRow>
-          <StyledTableCell width={`5%`}> */}
+    <Grid
+      container
+      spacing={3}
+      style={{ margin: 0, justifyContent: 'center', paddingRight: '15px' }}
+    >
       <Grid item>
         <SearchIcon />
       </Grid>
-      {/* </StyledTableCell>
-          <StyledTableCell width={`5%`}> */}
+
       <Grid item>
         <Button
           variant="contained"
@@ -231,12 +199,7 @@ export default function Filter({
           Clear
         </Button>
       </Grid>
-      {/* </StyledTableCell> */}
-
       {renderItem()}
-      {/* </TableRow>
-      </TableHead> */}
-      {/* </Table> */}
     </Grid>
   );
 }
