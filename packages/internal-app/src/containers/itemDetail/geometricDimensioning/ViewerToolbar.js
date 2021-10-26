@@ -1,4 +1,4 @@
-import React/*, { useState, useEffect }*/ from 'react';
+import React /*, { useState, useEffect }*/ from 'react';
 import { /*Grid,*/ Paper } from '@material-ui/core';
 import {
   SELECTSOLID,
@@ -6,7 +6,7 @@ import {
   SELECTMEASURE,
   SELECTDISECTPARTS,
   SELECTASSEMBLY,
-  SELECTFEATURE,
+  SELECTFEATURE
 } from '@monostruct/common/gltf/Tree/utils';
 
 import Button from '@material-ui/core/Button';
@@ -27,34 +27,8 @@ import SelectedMatesRelation from './SelectedMatesRelation';
 import SelectedGDTMenu from './SelectedGDTMenu';
 import SelectedSummaryTable from './SelectedSummaryTable';
 import ShowLoadingProgressBar from './ShowLoadingProgressBar';
-import {USESTYLES} from "@monostruct/common/gltf/Tree/utils";
-/*
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    flex: 1,
-    display: 'flex',
-    padding: '20px',
-    margin: '0px 15px',
-    boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
-  },
-  container: {
-    display: 'inline-block',
-  },
-  toolbarContainer: {
-    display: 'flex',
-    justifyContent: 'space-around',
-  },
-  tableContainer: {
-    display: 'flex',
-    margin: '10px 0px 0px 0px',
-    flexDirection: 'row',
-    flex: 1,
-  },
-  button: {
-    flex: 1,
-  },
-}));
-*/
+import { USESTYLES } from '@monostruct/common/gltf/Tree/utils';
+
 export default function ViewerToolbar({
   splitMethod = 0,
   selectedOption,
@@ -74,7 +48,7 @@ export default function ViewerToolbar({
   setActiveDataTable,
   incrementActiveDataTable,
   saveGDTDataTable,
-  resetActiveDataTable, 
+  resetActiveDataTable,
   setCurrentDataTable,
   setRowKeyValue,
   setMateValues,
@@ -86,57 +60,72 @@ export default function ViewerToolbar({
   setProgressOpenedFiles
 }) {
   const classes = USESTYLES();
-  
-  const renderTitle = (title,extras) => {
-    return <div style={{
-                        'fontWeight': 'bold',
-                        'textAlign': 'center',
-                        'fontSize': 20
-                      }} align='center'>
-            {title}
-            
-          </div> 
-  }
+
+  const renderTitle = (title, extras) => {
+    return (
+      <div
+        style={{
+          fontWeight: 'bold',
+          textAlign: 'center',
+          fontSize: 20
+        }}
+        align="center"
+      >
+        {title}
+      </div>
+    );
+  };
   const renderButtons = () => {
-   return <div>
-       &nbsp;
-      <Button
-        aria-describedby={'Save Controls'}
-        id={'popsave'}
-        type="button"
-        variant="contained"
-        color="primary"
-        onClick={(event) => {                 
-          saveGDTDataTable();                 
-        }}
-        startIcon={<SaveOutlinedIcon />}
-      > Save Selections</Button>
-      &nbsp;
-      <Button
-        aria-describedby={'Reset Controls'}
-        id={'popreset'}
-        type="button"
-        variant="contained"
-        color="primary"
-        onClick={(event) => {
-          resetActiveDataTable();
-        }}
-        startIcon={<RotateLeftSharpIcon />}
-      > Reset Selections</Button>
-      &nbsp;
-      <Button
-        aria-describedby={'Add Controls'}
-        id={'popreset'}
-        type="button"
-        variant="contained"
-        color="primary"
-        onClick={(event) => {
-          incrementActiveDataTable();
-        }}
-        startIcon={<AddCircleOutlineOutlinedIcon />}
-      > Add a Grouper ID</Button>
-      </div>    
-  }
+    return (
+      <div>
+        &nbsp;
+        <Button
+          aria-describedby={'Save Controls'}
+          id={'popsave'}
+          type="button"
+          variant="contained"
+          color="primary"
+          onClick={(event) => {
+            saveGDTDataTable();
+          }}
+          startIcon={<SaveOutlinedIcon />}
+        >
+          {' '}
+          Save Selections
+        </Button>
+        &nbsp;
+        <Button
+          aria-describedby={'Reset Controls'}
+          id={'popreset'}
+          type="button"
+          variant="contained"
+          color="primary"
+          onClick={(event) => {
+            resetActiveDataTable();
+          }}
+          startIcon={<RotateLeftSharpIcon />}
+        >
+          {' '}
+          Reset Selections
+        </Button>
+        &nbsp;
+        <Button
+          aria-describedby={'Add Controls'}
+          id={'popreset'}
+          type="button"
+          variant="contained"
+          color="primary"
+          onClick={(event) => {
+            incrementActiveDataTable();
+          }}
+          startIcon={<AddCircleOutlineOutlinedIcon />}
+        >
+          {' '}
+          Add a Grouper ID
+        </Button>
+      </div>
+    );
+  };
 
   const renderToolBarButtons = () => {
     if (toolbar && splitMethod != 0) {
@@ -245,31 +234,29 @@ export default function ViewerToolbar({
 
   return (
     <>
-      <Box style={{ flex: 1 }} >
-       {/*renderToolBarButtons()*/}
-          {isProgressOpen && 
+      <Box style={{ flex: 1 }}>
+        {/*renderToolBarButtons()*/}
+        {isProgressOpen && (
+          <Box>
+            <Paper className={classes.flexpaper}>
+              <ShowLoadingProgressBar
+                isProgressOpen={isProgressOpen}
+                progressOpenedFiles={progressOpenedFiles}
+                setIsProgressOpen={setIsProgressOpen}
+                setProgressOpenedFiles={setProgressOpenedFiles}
+              />
+            </Paper>
+          </Box>
+        )}
+        {selectedObjects && selectedObjects.length >= 1 && (
+          <div align={'center'}>{renderButtons()}</div>
+        )}
+        {selectedObjects &&
+          selectedObjects.length >= 2 &&
+          selectedOption != SELECTSOLID &&
+          selectedOption != SELECTASSEMBLY && (
             <Box>
-              <Paper className={classes.flexpaper}>
-                <ShowLoadingProgressBar 
-                  isProgressOpen={isProgressOpen}            
-                  progressOpenedFiles={progressOpenedFiles}
-                  setIsProgressOpen={setIsProgressOpen}
-                  setProgressOpenedFiles={setProgressOpenedFiles}
-                />
-              </Paper>
-            </Box>
-          }     
-          {
-            (selectedObjects) && (selectedObjects.length >= 1) && (
-              <div align={"center"}>
-              {renderButtons()}
-              </div>
-            )
-          }
-          {
-            (selectedObjects) && (selectedObjects.length >= 2) && (selectedOption != SELECTSOLID) && (selectedOption != SELECTASSEMBLY) && (
-              <Box>
-              {renderTitle("Assembly Mates")} 
+              {renderTitle('Assembly Mates')}
               <Paper className={classes.flexpaper}>
                 <SelectedMatesRelation
                   mates={mates}
@@ -282,48 +269,58 @@ export default function ViewerToolbar({
                   setOffset={setOffset}
                 />
               </Paper>
-              </Box>
-            )
-           
-          }
-          {(selectedObjects) && (selectedObjects.length >= 1) && (
-            <>
-          <Box>
-            {renderTitle("Geometric Dimensioning and Tolerancing")}             
-            <Paper className={classes.flexpaper}>
-              <SelectedGDTMenu
-                features={(selectedOption != SELECTASSEMBLY)}
-                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}
-                setRowKeyValue={setRowKeyValue}
-              />
-            </Paper >
-          </Box>
-          <Box>
-            {renderTitle("Feature Identification")}
-            <Paper className={classes.flexpaper}>
-              <SelectedFeatureMenu
-                features={(selectedOption != SELECTASSEMBLY)}
-                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}
-                setRowKeyValue={setRowKeyValue}
-              />
-            </Paper >
-          </Box>
-          </>
+            </Box>
           )}
-          <Box>
-            {renderTitle("Summary Table",true)}
-            <Paper className={classes.flexpaper}>
-              <SelectedSummaryTable
-                features={(selectedOption != SELECTASSEMBLY)}
-                featureList={(selectedOption != SELECTASSEMBLY) ? selectedObjects : parentObjects}
-                activeDataTable={activeDataTable}
-                setActiveDataTable={setActiveDataTable}
-                setCurrentDataTable={setCurrentDataTable}
-                gltfjson={gltfjson}
-                mateValues={mateValues}
-              />
-            </Paper >
-          </Box>
+        {selectedObjects && selectedObjects.length >= 1 && (
+          <>
+            <Box>
+              {renderTitle('Geometric Dimensioning and Tolerancing')}
+              <Paper className={classes.flexpaper}>
+                <SelectedGDTMenu
+                  features={selectedOption != SELECTASSEMBLY}
+                  featureList={
+                    selectedOption != SELECTASSEMBLY
+                      ? selectedObjects
+                      : parentObjects
+                  }
+                  setRowKeyValue={setRowKeyValue}
+                />
+              </Paper>
+            </Box>
+            <Box>
+              {renderTitle('Feature Identification')}
+              <Paper className={classes.flexpaper}>
+                <SelectedFeatureMenu
+                  features={selectedOption != SELECTASSEMBLY}
+                  featureList={
+                    selectedOption != SELECTASSEMBLY
+                      ? selectedObjects
+                      : parentObjects
+                  }
+                  setRowKeyValue={setRowKeyValue}
+                />
+              </Paper>
+            </Box>
+          </>
+        )}
+        <Box>
+          {renderTitle('Summary Table', true)}
+          <Paper className={classes.flexpaper}>
+            <SelectedSummaryTable
+              features={selectedOption != SELECTASSEMBLY}
+              featureList={
+                selectedOption != SELECTASSEMBLY
+                  ? selectedObjects
+                  : parentObjects
+              }
+              activeDataTable={activeDataTable}
+              setActiveDataTable={setActiveDataTable}
+              setCurrentDataTable={setCurrentDataTable}
+              gltfjson={gltfjson}
+              mateValues={mateValues}
+            />
+          </Paper>
+        </Box>
       </Box>
     </>
   );

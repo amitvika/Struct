@@ -218,6 +218,7 @@ const TableGridView = ({
             isEditing={isEditing}
             selectedValue={selectedListItem}
             isDesignModalOpened={isDesignModalOpened}
+            dataList={list}
           />
         )}
         {isManageTeamVisible && (

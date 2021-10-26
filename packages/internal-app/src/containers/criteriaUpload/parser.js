@@ -9,7 +9,11 @@ export const hierarchyFileParser = async (file) => {
     const numOfRows = rows.length;
 
     let dropList = [];
-    let initialDropdown = { title: 'Item Type', options: [], headerName : rows[1][0] };
+    let initialDropdown = {
+      title: 'Item Type',
+      options: [],
+      headerName: rows[1][0]
+    };
 
     for (let i = 2; i < numOfRows; i++) {
       let dataRow = rows[i];
@@ -17,7 +21,7 @@ export const hierarchyFileParser = async (file) => {
         initialDropdown.options.push({
           label: dataRow[0],
           value: dataRow[0],
-          form: criteriaSchema[dataRow[0]],
+          form: criteriaSchema[dataRow[0]]
         });
       }
     }
@@ -43,7 +47,7 @@ export const hierarchyFileParser = async (file) => {
           options.push({
             value: key,
             label: nextDataRow[nextValueIndex],
-            form: criteriaSchema[key],
+            form: criteriaSchema[key]
           });
         } else if (valueIndex < nextValueIndex) {
         } else if (valueIndex === nextValueIndex) {
@@ -52,7 +56,11 @@ export const hierarchyFileParser = async (file) => {
       }
 
       if (options.length > 0) {
-        dropList.push({ title: parentValue, options, headerName : dataRow[valueIndex+1] });
+        dropList.push({
+          title: parentValue,
+          options,
+          headerName: dataRow[valueIndex + 1]
+        });
       }
     }
 
@@ -79,9 +87,9 @@ export const criteriaFileParser = async (file) => {
           'Numerical Input Max': '',
           'Select Options': 'options',
           'Exclusion criteria': 'exclusionCriteria',
-          'Inclusion Criteria': 'inclusionCriteria',
-        },
-      },
+          'Inclusion Criteria': 'inclusionCriteria'
+        }
+      }
     };
 
     let obj = {};
@@ -89,14 +97,14 @@ export const criteriaFileParser = async (file) => {
 
     const { rows } = await readXlsxFile(file, { sheet: 'Item_Type_C', map });
 
-    rows.map(rowItem => {
+    rows.map((rowItem) => {
       if (rowItem.hierarchyLevel) {
         currentHierarachy = rowItem.hierarchyLevel;
 
         obj[rowItem.hierarchyLevel] = {
           hierarchyLevel: rowItem.hierarchyLevel,
           criteriaTitle: rowItem.criteriaTitle,
-          fields: [rowItem.field],
+          fields: [rowItem.field]
         };
       } else if (!rowItem.hierarchyLevel && currentHierarachy) {
         let { fields } = obj[currentHierarachy];
@@ -110,6 +118,46 @@ export const criteriaFileParser = async (file) => {
     });
 
     return obj;
+  } catch (error) {
+    console.log('Error in parsing criteria file', error);
+    return {};
+  }
+};
+
+export const LookUpTableParser = async (file) => {
+  try {
+    const rows = await readXlsxFile(file, { sheet: 'Look_Up_Table' });
+    const holeSize = rows[1];
+
+    const numOfRows = rows.length;
+
+    let lookUpTableObj = {};
+
+    let holeValue = null;
+    let prevHoleSizeValueKey = '';
+
+    for (let i = 2; i < numOfRows; i++) {
+      let holeSizeRow = rows[i];
+      if (holeSizeRow[0]) {
+        holeValue = holeSizeRow[0];
+      }
+
+      for (let j = 2; j < holeSizeRow.length; j++) {
+        let keyName = `${holeValue}_${holeSize[j]}`;
+
+        if (holeSizeRow[j] === null && prevHoleSizeValueKey) {
+          lookUpTableObj[keyName] = lookUpTableObj[prevHoleSizeValueKey];
+        } else {
+          prevHoleSizeValueKey = keyName;
+          lookUpTableObj[keyName] = {
+            ...lookUpTableObj[keyName],
+            [holeSizeRow[1]]: holeSizeRow[j]
+          };
+        }
+      }
+    }
+
+    return lookUpTableObj
   } catch (error) {
     console.log('Error in parsing criteria file', error);
     return {};
