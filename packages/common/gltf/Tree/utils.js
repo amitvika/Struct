@@ -396,4 +396,15 @@ export const gltf_Dict = {
     return result;
   };
   
-  
+  export const isFileExistingInServer = (urlAsFile) => {
+    var xhr = new XMLHttpRequest();
+    try {
+      xhr.open('HEAD', urlAsFile, false);
+      xhr.send();
+      return xhr.status !== 404;
+    } catch (exception) {
+      console.log(exception);
+      return false;
+    }
+    return false;
+  };

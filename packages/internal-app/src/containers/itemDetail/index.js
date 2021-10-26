@@ -32,7 +32,8 @@ import ItemAPI from '@monostruct/common/api/items.api';
 import {
   SELECTFEATURE,
   STATEPROPS,
-  pollFunction
+  pollFunction,
+  isFileExistingInServer
 } from '@monostruct/common/gltf/Tree/utils';
 
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
@@ -138,7 +139,7 @@ const ItemDetail = () => {
     }
   }, [currentItem]);
 
-  const doesFileExist = (urlAsFile) => {
+  /*const doesFileExist = (urlAsFile) => {
     var xhr = new XMLHttpRequest();
     try {
       xhr.open('HEAD', urlAsFile, false);
@@ -151,7 +152,7 @@ const ItemDetail = () => {
     }
     return false;
   };
-
+  */
   /*const informSnackBar = (message) => {
     dispatch(setCurrentItemAction(itemProperties));
   }
@@ -211,11 +212,11 @@ const ItemDetail = () => {
   };
 
   const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
-    if (doesFileExist(whichOneToLoad + '.gltf')) {
+    if (isFileExistingInServer(whichOneToLoad + '.gltf')) {
       console.log('Found gltf', whichOneToLoad);
       return false;
     }
-    if (doesFileExist(whichOneToLoad + '.status')) {
+    if (isFileExistingInServer(whichOneToLoad + '.status')) {
       console.log('Found status', whichOneToLoad);
       const statusRes = await getAFileFromStore(whichOneToStatus, 'status');
       let percent = 0;
@@ -261,6 +262,7 @@ const ItemDetail = () => {
       }
       return false;
     }
+    console.log("NO gltf and status files Existing",whichOneToLoad);
     return true;
   };
   const setStack = async (item) => {
@@ -560,7 +562,7 @@ const ItemDetail = () => {
           if (item.fileStore) {
             const whichOneToLoad = getResourcePathURL(item) + item.fileStore;
             const whichOneToStatus = getStatusPathURL(item) + item.fileStore;
-            let okToParse = await checkStatusToParse(
+            okToParse = await checkStatusToParse(
               whichOneToLoad,
               whichOneToStatus
             );
@@ -571,7 +573,7 @@ const ItemDetail = () => {
           } else {
             okToParse = true;
           }
-
+          //console.log("After checking GLTF and Status",okToParse,item.fileStore,(okToParse || !item.fileStore || item.fileStore === null));
           if (okToParse || !item.fileStore || item.fileStore === null) {
             //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
             setIsLoading(true);
@@ -939,7 +941,7 @@ const ItemDetail = () => {
       }
     }
     else {
-      //console.log("Else",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+      console.log("Else",myTabedIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId,item.fileUUId);
     }
       
   };

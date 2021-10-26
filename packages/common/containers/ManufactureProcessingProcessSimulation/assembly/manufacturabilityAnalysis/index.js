@@ -1366,7 +1366,7 @@ export default function ManufacturabilityAnalysis(props) {
       <Paper className={classes.viewerContainer} >
         {progressBarLoad && (
           <Box sx={{ width: '100%' }}>
-            <LinearProgress variant="determinate"  value={percentage.toFixed(3)} />
+            <LinearProgress variant="determinate"  value={percentage?percentage.toFixed(3):0} />
           </Box>
         )}
         {

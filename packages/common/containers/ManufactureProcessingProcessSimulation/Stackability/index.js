@@ -141,7 +141,7 @@ export default function Stackability(props) {
       <Paper className={classes.stackContainer}>
         {progressBarLoad && (
           <Box sx={{ width: '100%' }}>
-            <LinearProgress variant="determinate"  value={percentage.toFixed(3)} />
+            <LinearProgress variant="determinate"  value={percentage?percentage.toFixed(3):0} />
           </Box>
         )}
         {!isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading && (

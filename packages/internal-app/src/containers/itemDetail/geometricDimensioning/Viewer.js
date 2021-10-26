@@ -74,7 +74,7 @@ export default function Viewer({
       <>
         {progressBarLoader && (
           <Box sx={{ width: '100%' }}>
-            <LinearProgress variant="determinate"  value={percentager.toFixed(3)} />
+            <LinearProgress variant="determinate"  value={percentager?percentager.toFixed(3):0} />
           </Box>
         )}
         {!isLoading && gltfjsonlen > 0 && (

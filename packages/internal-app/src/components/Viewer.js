@@ -27,7 +27,7 @@ export default function Viewer({
     <div>
       {progressBarLoad && (
         <Box sx={{ width: '100%' }}>
-          <LinearProgress variant="determinate"  value={percentage.toFixed(3)} />
+          <LinearProgress variant="determinate"  value={percentage?percentage.toFixed(3):0} />
         </Box>
       )}
       {

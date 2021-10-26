@@ -92,6 +92,11 @@ export default function BaseItemProperties({
   }, [gltfjson]);
 
   useEffect(() => {
+    console.log('Setting itemProperties', itemProperties);
+    setfileUUId(itemProperties.fileUUId);   
+  }, [itemProperties]);
+
+  useEffect(() => {
     setProgressBarLoader(progressBarLoad);
   }, [progressBarLoad]);
 
@@ -145,10 +150,31 @@ export default function BaseItemProperties({
       //   fileStack: null,
       //   fileKinematic: null,
       // });
-
       setProgressBarLoader(true);
-      let percent = 0;
       setIsFileLoading(true);
+      if (
+        datastore != itemProperties.fileStore ||
+        dataload != itemProperties.filename ||
+        data.uuid != itemProperties.fileUUId  
+      ) {
+          setItemProperties((prevData) => ({
+            ...prevData,
+            fileUUId: data.uuid,
+            fileStore: datastore,
+            fileName: dataload
+          }));
+          handleItemSaveOnServer({
+            fileId: null,
+            fileUUId: data.uuid,
+            fileStore: datastore,
+            fileName: dataload,
+            fileGDT: null,
+            fileMPPS: null,
+            fileStack: null,
+            fileKinematic: null,
+          });
+      } 
+      let percent = 0;
       const getHierarchyRes = await getHierarchySplitFiles(
         fileId,
         true,
@@ -169,7 +195,8 @@ export default function BaseItemProperties({
         percent = datastatus.percent;
         if (
           datastore != getHierarchyRes.data.store ||
-          dataload != getHierarchyRes.data.load
+          dataload != getHierarchyRes.data.load ||
+          itemProperties.fileUUId != data.uuid
         ) {
           datastore = getHierarchyRes.data.store;
           dataload = getHierarchyRes.data.load;
@@ -179,6 +206,14 @@ export default function BaseItemProperties({
           //   fileStore: datastore,
           //   fileName: dataload,
           // }));
+          if(itemProperties.fileUUId != data.uuid) {
+            setItemProperties((prevData) => ({
+              ...prevData,
+              fileUUId: data.uuid,
+              fileStore: datastore,
+              fileName: dataload
+            }));
+          }
           handleItemSaveOnServer({
             fileId: null,
             fileUUId: data.uuid,
@@ -279,7 +314,6 @@ export default function BaseItemProperties({
         stepTreeLength: treeLength
       });
       setIsLoading(false);
-
       dispatch(
         showSuccessAlert({ message: 'File uploaded and Rendered successfully' })
       );
@@ -315,7 +349,7 @@ export default function BaseItemProperties({
               <Box sx={{ width: '100%' }}>
                 <LinearProgress
                   variant="determinate"
-                  value={percentager.toFixed(3)}
+                  value={percentager?percentager.toFixed(3):0}
                 />
               </Box>
             )}
