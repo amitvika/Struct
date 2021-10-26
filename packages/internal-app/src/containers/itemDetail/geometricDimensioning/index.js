@@ -1712,26 +1712,6 @@ export default function GeometricDimensioning(props) {
     <Paper className={classes.mainContainer}>
       {(!isLoading) && (state.gltfjson?.tree) && (
         <div className={` ${classes.assemblyTreeContainer}`}>
-          {/* <RadioGroup
-            row
-            aria-label="Option To Show"
-            defaultValue="Assembly Tree"
-            name="row-radio-buttons-group"
-            onChange={setOptionForAssemblyTreeOptions} value={optionForAssemblyTree}
-          >
-            <FormControlLabel 
-              value="Assembly Tree" 
-              control={<Radio />} 
-              label="Assembly Tree" 
-              checked={optionForAssemblyTree=="Assembly Tree"}
-            />
-            <FormControlLabel 
-              value="Configuration" 
-              control={<Radio />} 
-              label="Configuration"
-              checked={optionForAssemblyTree=="Configuration"}
-            />           
-          </RadioGroup> */}
           <Assembly
             assemblyTree={buildParentChildTree(state.gltfjson.tree, selectedOption)}
             OnAddition={addSelectionFromTree}

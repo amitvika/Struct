@@ -11,7 +11,11 @@ import Checkbox from '@material-ui/core/Checkbox';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import CircleChecked from '@material-ui/icons/CheckCircleOutline';
 //import { withStyles, makeStyles } from "@material-ui/core/styles";
-import {USESTYLES, StyledTableRow, StyledTableCell} from "@monostruct/common/gltf/Tree/utils";
+import {
+  USESTYLES,
+  StyledTableRow,
+  StyledTableCell
+} from '@monostruct/common/gltf/Tree/utils';
 /*
 const useStyles = makeStyles({
   table: {
@@ -57,15 +61,25 @@ const SelectedMatesRelation = (props) => {
     setMateValues,
     setAngle,
     setOffset,
-    onSelect = (a, b) => { console.log(a, b); }
-  } = props
-  const myCheckBoxes = ["coplaner", "parallel", "normal", "opposite",
-    "concentric", "coradial", "angle", "offset"];
+    onSelect = (a, b) => {
+      console.log(a, b);
+    }
+  } = props;
+  const myCheckBoxes = [
+    'coplaner',
+    'parallel',
+    'normal',
+    'opposite',
+    'concentric',
+    'coradial',
+    'angle',
+    'offset'
+  ];
 
   const fillCheckboxValues = () => {
     var isSelected = [];
     for (let index = 0; index < myCheckBoxes.length - 2; index++) {
-      isSelected.push(mateValues?mateValues[index]:false);
+      isSelected.push(mateValues ? mateValues[index] : false);
       var valuefound = true;
       for (let mateindex = 1; mateindex < props.mates.length; mateindex++) {
         const element = props.mates[mateindex];
@@ -79,12 +93,11 @@ const SelectedMatesRelation = (props) => {
             }
           }
         }
-
       }
       isSelected.push(valuefound);
-    };
+    }
     return isSelected;
-  }
+  };
 
   const [_isSelected, _setIsSelected] = useState(() => {
     return fillCheckboxValues();
@@ -95,7 +108,7 @@ const SelectedMatesRelation = (props) => {
   }, [props.mates]);
 
   const renderTable = () => {
-    const myStyle = { width: "10px" }
+    const myStyle = { width: '10px' };
     var coplaner = true;
     var concentric = true;
     var coradial = true;
@@ -106,26 +119,28 @@ const SelectedMatesRelation = (props) => {
     const mateAngle = myCheckBoxes.length - 2;
     for (let index = 0; index < featureList.length; index++) {
       const element = featureList[index];
-      if ((element['kind'] == "Plane") || (element['kind'] == "Line")) {
+      if (element['kind'] == 'Plane' || element['kind'] == 'Line') {
         concentric = false;
         coradial = false;
         break;
       }
-
     }
     for (let index = 0; index < featureList.length; index++) {
       const element = featureList[index];
-      if ((element['kind'] == "Circle") || (element['kind'] == "Cylinder") ||
-        (element['kind'] == "Sphere") || (element['kind'] == "Cone")) {
+      if (
+        element['kind'] == 'Circle' ||
+        element['kind'] == 'Cylinder' ||
+        element['kind'] == 'Sphere' ||
+        element['kind'] == 'Cone'
+      ) {
         coplaner = false;
         break;
       }
-
     }
     if (mates.length > 1) {
       if (mates[1].length >= 1) {
         if (mates[1][0].length > 8) {
-          angle = mates[1][0][AngleIndex];          
+          angle = mates[1][0][AngleIndex];
           for (let mateindex = 1; mateindex < mates.length; mateindex++) {
             const element = mates[mateindex];
             if (anglefound) {
@@ -151,59 +166,80 @@ const SelectedMatesRelation = (props) => {
     return myCheckBoxes.map((row, index) => (
       <React.Fragment>
         <StyledTableRow key={index * 3}>
-          <StyledTableCell key={3 * index + 1} align="right" style={myStyle} ><LabelledCheckBox
-            checked={_isSelected[2 * index]}
-            disabled={myCheckBoxes[index] == "coplaner" ? !coplaner :
-              myCheckBoxes[index] == "concentric" ? !concentric :
-                myCheckBoxes[index] == "coradial" ? !coradial : false
-            }
-            label={row}
-            onChange={(label, e) => {
-              console.log(e);
-              _setIsSelected(o => {
-                const _o = o.slice()
-                _o[2 * index] = !_o[2 * index]
-                return _o
-              })
-              setMateValues(index,!mateValues[index]);
-              onSelect(label, e);
+          <StyledTableCell key={3 * index + 1} align="right" style={myStyle}>
+            <LabelledCheckBox
+              checked={_isSelected[2 * index]}
+              disabled={
+                myCheckBoxes[index] == 'coplaner'
+                  ? !coplaner
+                  : myCheckBoxes[index] == 'concentric'
+                  ? !concentric
+                  : myCheckBoxes[index] == 'coradial'
+                  ? !coradial
+                  : false
+              }
+              label={row}
+              onChange={(label, e) => {
+                console.log(e);
+                _setIsSelected((o) => {
+                  const _o = o.slice();
+                  _o[2 * index] = !_o[2 * index];
+                  return _o;
+                });
+                setMateValues(index, !mateValues[index]);
+                onSelect(label, e);
+              }}
+            />
+          </StyledTableCell>
+          <StyledTableCell key={3 * index + 2} align="left">
+            <Checkbox
+              checked={_isSelected[2 * index + 1]}
+              checkedIcon={<CircleChecked />}
+              icon={<CancelOutlinedIcon />}
+              label={row}
+              disabled={true}
+              onChange={(label, e) => {
+                console.log(e);
+                const dataselect = e;
+                _setIsSelected((o) => {
+                  const _o = o.slice();
+                  _o[2 * index + 1] = !_o[2 * index + 1];
+                  return _o;
+                });
 
-            }} /> 
-            </StyledTableCell>
-          <StyledTableCell key={3 * index + 2} align="left" ><Checkbox
-            checked={_isSelected[2 * index + 1]}
-            checkedIcon={<CircleChecked />}
-            icon={<CancelOutlinedIcon />}
-            label={row}
-            disabled={true}
-            onChange={(label, e) => {
-              console.log(e);
-              const dataselect = e;
-              _setIsSelected(o => {
-                const _o = o.slice()
-                _o[2 * index + 1] = !_o[2 * index + 1]
-                return _o
-              })
-
-              onSelect(label, e);
-
-            }} /> 
-            </StyledTableCell>
+                onSelect(label, e);
+              }}
+            />
+          </StyledTableCell>
         </StyledTableRow>
-        {(index >= mateAngle) && (
+        {index >= mateAngle && (
           <StyledTableRow key={3 * index + 9} style={myStyle}>
-            <StyledTableCell key={3 * index + 10} align="right" size="small" style={myStyle}>
-              <input 
-                type="number" aria-invalid="false" id={"Numb" + 3 * index + 10} 
-                value={(anglefound && index == mateAngle) ? angle||angleMate : (index == mateAngle) ? angleMate : offsetMate } 
-                onChange={(e) => { 
-                    console.log(e); 
-                    if(index==mateAngle) {
-                      setAngle(e.target.value);
-                    } else {
-                      setOffset(e.target.value);
-                    }
-                  }} />
+            <StyledTableCell
+              key={3 * index + 10}
+              align="right"
+              size="small"
+              style={myStyle}
+            >
+              <input
+                type="number"
+                aria-invalid="false"
+                id={'Numb' + 3 * index + 10}
+                value={
+                  anglefound && index == mateAngle
+                    ? angle || angleMate
+                    : index == mateAngle
+                    ? angleMate
+                    : offsetMate
+                }
+                onChange={(e) => {
+                  console.log(e);
+                  if (index == mateAngle) {
+                    setAngle(e.target.value);
+                  } else {
+                    setOffset(e.target.value);
+                  }
+                }}
+              />
             </StyledTableCell>
             {/*  <TableCell key={3*index+11} align="right">
                         <input type="number" aria-invalid="false" id={"Numb"+3*index+11}/>                        
@@ -211,25 +247,28 @@ const SelectedMatesRelation = (props) => {
           </StyledTableRow>
         )}
       </React.Fragment>
-
-
-    ))
-  }
+    ));
+  };
 
   return (
     <TableContainer component={Paper} style={{ minWidth: 400 }}>
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
-          <TableRow className={classes.tableRow} style={{background:"#CCCCCC",fontWeight:"bold"}} >
-            <TableCell className={classes.tableCell} align="right">Mate</TableCell>
-            <TableCell className={classes.tableCell} align="left">Estimated Mate</TableCell>
+          <TableRow
+            className={classes.tableRow}
+            style={{ background: '#CCCCCC', fontWeight: 'bold' }}
+          >
+            <TableCell className={classes.tableCell} align="right">
+              Mate
+            </TableCell>
+            <TableCell className={classes.tableCell} align="left">
+              Estimated Mate
+            </TableCell>
           </TableRow>
         </TableHead>
-        <TableBody>
-          {renderTable()}
-        </TableBody>
+        <TableBody>{renderTable()}</TableBody>
       </Table>
     </TableContainer>
   );
-}
-export default SelectedMatesRelation
+};
+export default SelectedMatesRelation;
