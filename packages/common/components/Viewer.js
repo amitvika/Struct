@@ -1,8 +1,9 @@
 import React from 'react'
-import { Box, LinearProgress } from '@material-ui/core';
+import { Box/*, LinearProgress*/ } from '@material-ui/core';
 
 import GLTFRenderer from '../gltf/GltfRenderer'
 import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, STATEPROPS } from "../gltf/Tree/utils";
+import LinearProgressBarTiming from '../gltf/LinearProgressBarTiming';
 //const DEFAULTMATERIALNAME = "Basic";
 
 export default function Viewer({ gltfjson = {}, 
@@ -14,12 +15,18 @@ export default function Viewer({ gltfjson = {},
   handleModelClick = () => { },
   progressBarLoad=false,
   percentage=0,
+  currentProgressText=null,
+  completionProgressText=null
   }) {
   return (
     <div>
       {progressBarLoad && (
         <Box sx={{ width: '100%' }}>
-          <LinearProgress variant="determinate"  value={percentage.toFixed(3)} />
+          <LinearProgressBarTiming 
+            value={percentage}
+            currentProgressText={currentProgressText}
+            completionProgressText={completionProgressText}
+           />
         </Box>
       )}
       {       

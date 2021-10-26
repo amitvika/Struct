@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';
-import { /*CircularProgress,*/ Box, LinearProgress } from '@material-ui/core';
+import { /*CircularProgress,*/ Box /*, LinearProgress*/ } from '@material-ui/core';
 import {
   DEFAULTBACKCOLOR,
   DEFAULTSELECTCOLOR,
@@ -12,6 +12,7 @@ import {
   STATEPROPS
 } from '@monostruct/common/gltf/Tree/utils';
 //const DEFAULTMATERIALNAME = 'Basic';
+import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
 
 export default function Viewer({
   gltfjson = {},
@@ -37,9 +38,13 @@ export default function Viewer({
   setProgressOpenedFiles=(value)=>{console.log("Set Progres sOpened Files",value);},
   progressBarLoad=false,
   percentage=0,
+  currentProgressText=null,
+  completionProgressText=null
   }) {  
     const [percentager, setPercentager] = useState(percentage||0);
     const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
+    const [currentProgressTexter, setCurrentProgressTexter] = useState(currentProgressText);
+    const [completionProgressTexter, setCompletionProgressTexter] = useState(completionProgressText);
     const [fileUUIder, setfileUUIder] = useState(fileUUId);
     useEffect(() => {
       if(fileUUId) {
@@ -52,7 +57,16 @@ export default function Viewer({
       setProgressBarLoader(progressBarLoad);
       console.log("AFter Changing progress bar from viewer",progressBarLoad,progressBarLoader,fileUUIder,fileUUId);
     }, [progressBarLoad]);
-    
+    useEffect(() => {
+      console.log("BEfore Changing currentProgressText bar from viewer",progressBarLoad,progressBarLoader,fileUUIder,fileUUId);
+      setCurrentProgressTexter(currentProgressText);
+      console.log("AFter Changing currentProgressText bar from viewer",progressBarLoad,progressBarLoader,fileUUIder,fileUUId);
+    }, [currentProgressText]);
+    useEffect(() => {
+      console.log("BEfore Changing completionProgressText bar from viewer",progressBarLoad,progressBarLoader,fileUUIder,fileUUId);
+      setCompletionProgressTexter(completionProgressText);
+      console.log("AFter Changing completionProgressText bar from viewer",progressBarLoad,progressBarLoader,fileUUIder,fileUUId);
+    }, [completionProgressText]);
     useEffect(() => {
       if(percentage) {
         console.log("Before Changing percentage from viewer",percentage,percentager,fileUUIder,fileUUId);
@@ -74,7 +88,11 @@ export default function Viewer({
       <>
         {progressBarLoader && (
           <Box sx={{ width: '100%' }}>
-            <LinearProgress variant="determinate"  value={percentager?percentager.toFixed(3):0} />
+            <LinearProgressBarTiming
+              value={percentager} 
+              currentProgressText={currentProgressTexter}
+              completionProgressText={completionProgressTexter}
+            />
           </Box>
         )}
         {!isLoading && gltfjsonlen > 0 && (

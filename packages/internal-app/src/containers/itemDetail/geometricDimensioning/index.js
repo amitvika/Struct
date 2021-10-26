@@ -73,6 +73,8 @@ export default function GeometricDimensioning(props) {
     isLoading, 
     progressBarLoad,
     percentage,
+    currentProgressText,
+    completionProgressText,
     keyName={name:"",
              option:SELECTFEATURE}, 
     handleChangeOfSelection=(selectedObjects)=>{
@@ -98,6 +100,8 @@ export default function GeometricDimensioning(props) {
   const [progressOpenedFiles,setProgressOpenedFiles]=useState([]);
   const [percentager, setPercentager] = useState(percentage||0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
+  const [currentProgressTexter, setCurrentProgressTexter] = useState(currentProgressText);
+  const [completionProgressTexter, setCompletionProgressTexter] = useState(completionProgressText);
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
   useEffect(() => {
     if(fileUUId) {
@@ -109,7 +113,14 @@ export default function GeometricDimensioning(props) {
     setProgressBarLoader(progressBarLoad);
     console.log("Changing progress bar from Geometric Dimensioning",progressBarLoad,fileUUIder,fileUUId,fileId,fileGDT,props);
   }, [progressBarLoad]);
-  
+  useEffect(() => {
+    setCurrentProgressTexter(currentProgressText);
+    console.log("Changing currentProgressText bar from Geometric Dimensioning",progressBarLoad,fileUUIder,fileUUId,fileId,fileGDT,props);
+  }, [currentProgressText]);
+  useEffect(() => {
+    setCompletionProgressTexter(completionProgressText)
+    console.log("Changing completionProgressText bar from Geometric Dimensioning",progressBarLoad,fileUUIder,fileUUId,fileId,fileGDT,props);
+  }, [completionProgressText]);
   useEffect(() => {
     if(percentage) {
       setPercentager(percentage);
@@ -1739,7 +1750,9 @@ export default function GeometricDimensioning(props) {
           setIsProgressOpen={setIsProgressOpen}
           setProgressOpenedFiles={setProgressOpenedFiles}
           progressBarLoad={progressBarLoader}
-          percentage={percentager}        
+          percentage={percentager}   
+          currentProgressText={currentProgressTexter}
+          completionProgressText={completionProgressTexter}     
         />
       </Paper>
       

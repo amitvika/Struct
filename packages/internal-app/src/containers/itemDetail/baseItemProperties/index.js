@@ -4,7 +4,8 @@ import {
   Paper,
   CircularProgress,
   Box,
-  LinearProgress /*, makeStyles*/,
+  /*LinearProgress,
+  makeStyles*/
 } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 
@@ -34,6 +35,8 @@ import {
   USESTYLES,
   pollFunction,
 } from '@monostruct/common/gltf/Tree/utils';
+
+import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming'
 
 import '../style.css';
 
@@ -72,6 +75,8 @@ export default function BaseItemProperties({
   handleItemSaveOnServer,
   progressBarLoad,
   percentage,
+  currentProgressText,
+  completionProgressText
 }) {
   const classes = USESTYLES();
   const dispatch = useDispatch();
@@ -80,6 +85,8 @@ export default function BaseItemProperties({
   const [isStepLoaded, setIsStepLoaded] = useState(false);
   const [percentager, setPercentager] = useState(percentage || 0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
+  const [currentProgressTexter,setCurrentProgressTexter]=useState(currentProgressText);
+  const [completionProgressTexter,setCompletionProgressTexter]=useState(completionProgressText);
   const [gltfobj, setGltfObj] = useState(gltfjson);
   const [fileId, setFileId] = useState(0);
   const [fileUUId, setfileUUId] = useState(itemProperties.fileUUId);
@@ -99,6 +106,14 @@ export default function BaseItemProperties({
   useEffect(() => {
     setProgressBarLoader(progressBarLoad);
   }, [progressBarLoad]);
+
+  useEffect(() => {
+    setCurrentProgressTexter(currentProgressText);
+  }, [currentProgressText]);
+
+  useEffect(() => {
+    setCompletionProgressTexter(completionProgressText);
+  }, [completionProgressText]);
 
   useEffect(() => {
     if (percentage) {
@@ -253,7 +268,9 @@ export default function BaseItemProperties({
             validateStatus,
             20000,
             setPercentager,
-            percentFunction
+            percentFunction,
+            setCurrentProgressTexter,
+            setCompletionProgressTexter
           );
           console.log('Completing poll', datastore, dataload);
           const gltfRes = await getAFileFromStore(datafile, 'gltf');
@@ -347,9 +364,10 @@ export default function BaseItemProperties({
           <Paper className={classes.paperContainer} variant="outlined" square>
             {progressBarLoader && (
               <Box sx={{ width: '100%' }}>
-                <LinearProgress
-                  variant="determinate"
-                  value={percentager?percentager.toFixed(3):0}
+                <LinearProgressBarTiming 
+                  value={percentager} 
+                  currentProgressText={currentProgressTexter} 
+                  completionProgressText={completionProgressTexter} 
                 />
               </Box>
             )}

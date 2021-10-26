@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Paper,
   /*CircularProgress,*/
-  Box, LinearProgress,
+  Box, 
+  /*LinearProgress,
   /*makeStyles*/
 } from "@material-ui/core";
 import { Spinner } from "reactstrap";
@@ -14,6 +15,7 @@ import {
   SELECTASSEMBLY, SELECTFEATURE, arrayCopy, arrayFindIndex, arrayRemove, gltf_Dict
 } from "@monostruct/common/gltf/Tree/utils";
 import { getAFileFromStore,saveTreeInfo,getPartsAssemblyOrder,resourcePathURL } from '@monostruct/common/api/fileUpload.api';
+import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
 import '../../style.css';
 
 /*
@@ -69,6 +71,8 @@ export default function ManufacturabilityAnalysis(props) {
     fileUUId,
     progressBarLoad,
     percentage, 
+    currentProgressText,
+    completionProgressText
   } = props;
   //const [list, setList] = useState([]);
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
@@ -1366,7 +1370,11 @@ export default function ManufacturabilityAnalysis(props) {
       <Paper className={classes.viewerContainer} >
         {progressBarLoad && (
           <Box sx={{ width: '100%' }}>
-            <LinearProgress variant="determinate"  value={percentage?percentage.toFixed(3):0} />
+            <LinearProgressBarTiming 
+              value={percentage}
+              currentProgressText={currentProgressText}
+              completionProgressText={completionProgressText}
+             />
           </Box>
         )}
         {

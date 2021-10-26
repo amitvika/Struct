@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 //import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
 //import { useSelector } from 'react-redux';
-import { Paper, Grid, /*CircularProgress,*/ Box, LinearProgress /*, makeStyles*/ } from '@material-ui/core';
+import { Paper, Grid, /*CircularProgress,*/ Box /*, LinearProgress, makeStyles*/ } from '@material-ui/core';
 // import { Headding } from '../../../components';
 import Heading from '@monostruct/common/components/atoms/Headding';
 
@@ -15,7 +15,7 @@ import {
   STATEPROPS,
   USESTYLES
 } from '@monostruct/common/gltf/Tree/utils';
-
+import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
 import '../style.css';
 /*
 const DEFAULTDISTANCEGAP = 0.1;
@@ -76,7 +76,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 */
 export default function Stackability(props) {
-  const { fileId, gltfjson, isLoading, fileUUId, progressBarLoad, percentage } = props;
+  const { fileId, gltfjson, isLoading, fileUUId, progressBarLoad, percentage, currentProgressText, completionProgressText } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
 
   const classes = USESTYLES();
@@ -141,7 +141,11 @@ export default function Stackability(props) {
       <Paper className={classes.stackContainer}>
         {progressBarLoad && (
           <Box sx={{ width: '100%' }}>
-            <LinearProgress variant="determinate"  value={percentage?percentage.toFixed(3):0} />
+            <LinearProgressBarTiming 
+              value={percentage}
+              currentProgressText={currentProgressText}
+              completionProgressText={completionProgressText}
+            />
           </Box>
         )}
         {!isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading && (

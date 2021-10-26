@@ -103,6 +103,8 @@ const ItemDetail = () => {
   const [gltfjson, setgltfjson] = useState({});
   const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
   const [percentage, setPercentage] = useState(0);
+  const [currentProgressText,setCurrentProgressText]=useState(null);
+  const [completionProgressText,setCompletionProgressText]=useState(null);
   const [progressBarLoad, setProgressBarLoad] = useState(false);
 
   useEffect(() => {
@@ -621,7 +623,9 @@ const ItemDetail = () => {
                   validateStatus,
                   20000,
                   setPercentage,
-                  percentFunction
+                  percentFunction,
+                  setCurrentProgressText,
+                  setCompletionProgressText
                 );
                 console.log('Completing poll', datastore, dataload);
                 const gltfRes = await getAFileFromStore(datafile, 'gltf');
@@ -808,7 +812,9 @@ const ItemDetail = () => {
                   validateStatus,
                   20000,
                   setPercentage,
-                  percentFunction
+                  percentFunction,
+                  setCurrentProgressText,
+                  setCompletionProgressText
                 );
                 console.log('Completing poll', datastore, dataload);
                 const gltfRes = await getAFileFromStore(datafile, 'gltf');
@@ -1006,7 +1012,9 @@ const ItemDetail = () => {
             validateStatus,
             20000,
             setPercentage,
-            percentFunction
+            percentFunction,
+            setCurrentProgressText,
+            setCompletionProgressText
           );
           console.log('Completing poll', datafile);
         }
@@ -1084,6 +1092,8 @@ const ItemDetail = () => {
             handleItemSaveOnServer={handleSave}
             progressBarLoad={progressBarLoad}
             percentage={percentage}
+            currentProgressText={currentProgressText}
+            completionProgressText={completionProgressText}
           />
         );
       case 'cu':
@@ -1108,6 +1118,8 @@ const ItemDetail = () => {
             additionalSaveFunction={additionalSaveFunction}
             progressBarLoad={progressBarLoad}
             percentage={percentage}
+            currentProgressText={currentProgressText}
+            completionProgressText={completionProgressText}
             //informSnackBar={informSnackBar}
           />
         );
@@ -1129,6 +1141,8 @@ const ItemDetail = () => {
             additionalSaveFunction={additionalSaveFunction}
             progressBarLoad={progressBarLoad}
             percentage={percentage}
+            currentProgressText={currentProgressText}
+            completionProgressText={completionProgressText}
           />
         );
       case 5:
@@ -1149,6 +1163,8 @@ const ItemDetail = () => {
             additionalSaveFunction={additionalSaveFunction}
             progressBarLoad={progressBarLoad}
             percentage={percentage}
+            currentProgressText={currentProgressText}
+            completionProgressText={completionProgressText}
           />
         );
       case 7:

@@ -376,35 +376,106 @@ export const gltf_Dict = {
     }
   }))(TableCell);
 
-  const wait = function (ms = 20000) {
+  export const waitFunction = function (ms = 20000) {
     return new Promise(resolve => {
       setTimeout(resolve, ms);
     });
   };
 
-  export const pollFunction = async (fn, fnCondition, ms, setPercentage,percentFunction) => {
-    let result = await fn();
+  export const convertToHourMinuteSeconds=(value)=> {
+    let iseconds = Math.floor(value);
+    let hours = Math.floor(iseconds / 3600); // get hours
+    let minutes = Math.floor((iseconds - (hours * 3600)) / 60); // get minutes
+    let seconds = iseconds - (hours * 3600) - (minutes * 60); //  get seconds
+    // add 0 if value < 10; Example: 2 => 02
+    if (hours < 10) {hours = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    let retString = hours+':'+minutes+':'+seconds;
+    console.log("Timings",retString,value);
+    return retString; // Return is HH : MM : SS
+  }
+
+  export const pollFunction = async (fnFunction, fnCondition, ms, setPercentage, percentFunction, setCurrentProgress, setCompletionProgress) => {
+    
+    const getTimingStrings=(resultdata)=>{
+      if(resultdata && resultdata.data) {
+        if(setCurrentProgress || setCompletionProgress) {
+          const currenttime = resultdata.data.current||'';
+          const currenttimearray = currenttime.split('-');
+          const starttime = resultdata.data.start||'';
+          const starttimearray = starttime.split('-');
+          let difference = 0;
+          
+          try {
+            difference=  (currenttimearray[0] - starttimearray[0]) * 60 * 60 +
+            (currenttimearray[1] - starttimearray[1]) * 60 +
+            (currenttimearray[2] - starttimearray[2]);
+          } catch (error) {
+            console.log("Error while getting time",error,currenttimearray,starttimearray);
+          }
+  
+          if (difference < 0) {
+            difference += 24 * 60 * 60;
+          }
+          if(difference >=0) {
+            setCurrentProgress(convertToHourMinuteSeconds(difference));
+          } else {
+            console.log("Problem getting current progress",difference);
+          }         
+          const currentvalue=percentFunction(resultdata)||0;
+          if(currentvalue>0) {
+            const predictDifference = (100*difference/currentvalue)-difference;
+            if(predictDifference >=0) {
+              setCompletionProgress(convertToHourMinuteSeconds(predictDifference));
+            } else {
+              console.log("Problem getting completion progress",predictDifference,difference,currentvalue,(100*difference/currentvalue));
+            }
+          } else {
+            console.log("Percentage is zero");
+          }
+          setPercentage(currentvalue);
+        } else {
+          setPercentage(percentFunction(resultdata));
+        }
+      }
+    };
+    let result = {data:{}}
+    try {
+      result = await fnFunction();
+    } catch (error) {
+      console.log("Error while doing fnFunction",error);
+    }
     console.log("Result from poll",result);
     while (fnCondition(result)) {
       console.log("Result of poll condition",result);
       if(setPercentage){
-        setPercentage(percentFunction(result));
+        getTimingStrings(result);        
       }
-      await wait(ms);
-      result = await fn();
+      await waitFunction(ms);
+      result = {data:{}}
+      try {        
+        result = await fnFunction();
+      } catch (error) {
+        console.log("Error while doing fnFunction",error);
+      }
     }
     return result;
   };
   
   export const isFileExistingInServer = (urlAsFile) => {
-    var xhr = new XMLHttpRequest();
     try {
-      xhr.open('HEAD', urlAsFile, false);
-      xhr.send();
-      return xhr.status !== 404;
-    } catch (exception) {
-      console.log(exception);
+      var xhr = new XMLHttpRequest();
+      try {
+        xhr.open('HEAD', urlAsFile, false);
+        xhr.send();
+        return xhr.status !== 404;
+      } catch (exception) {
+        console.log(exception);
+        return false;
+      }      
+    } catch (error) {
+      console.log(error);
       return false;
-    }
-    return false;
+    }   
   };
