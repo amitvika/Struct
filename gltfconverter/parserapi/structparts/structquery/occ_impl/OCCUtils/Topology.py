@@ -553,12 +553,14 @@ def dumpTopologyFacesEdgesVertices(shape, face_dict={}, edge_dict={}, vertex_dic
     elif s == TopAbs_EDGE:        
         if not myhash in edge_dict:
             edge_dict[myhash]=shape     
-    it = TopoDS_Iterator(shape)    
+    it = TopoDS_Iterator(shape) 
+    #isMoreThere=True   
     while it.More():
-        shp = it.Value()
+        shp = it.Value() 
         it.Next()
         dumpTopologyFacesEdgesVertices(shp, face_dict=face_dict, edge_dict=edge_dict, vertex_dict=vertex_dict)
-    
+        
+
     return True
 
 def dumpTopology(shape, level=0):

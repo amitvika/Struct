@@ -1,9 +1,10 @@
-import { LinearProgress, Typography } from '@material-ui/core';
+import { LinearProgress, CircularProgress, Typography } from '@material-ui/core';
 export default function LinearProgressBarTiming (props) {
     const {  
         value,
         currentProgressText,
         completionProgressText,
+        progressBarRender
     } = props;
     //console.log("currentProgressText",currentProgressText,"CompletionProgressText",completionProgressText);
     return (
@@ -14,7 +15,7 @@ export default function LinearProgressBarTiming (props) {
                 {...props}
                 style={{height:"15px"}}
             />
-            {currentProgressText && (
+            {(currentProgressText || progressBarRender) && (
                 <Typography
                     style={{
                         position: "absolute",
@@ -24,10 +25,10 @@ export default function LinearProgressBarTiming (props) {
                         transform: "translateX(-50%)",
                     }}
                 >
-                    {currentProgressText}
+                    {progressBarRender ? "Rendering" : currentProgressText}
                 </Typography>
             )}
-            {completionProgressText && (
+            {(completionProgressText || progressBarRender) && (
                 <Typography
                     style={{
                         position: "absolute",
@@ -37,7 +38,7 @@ export default function LinearProgressBarTiming (props) {
                         transform: "translateX(-50%)",
                     }}
                 >
-                    {completionProgressText}
+                    {progressBarRender ? <CircularProgress/> : completionProgressText}
                 </Typography>
             )}                
         </div>

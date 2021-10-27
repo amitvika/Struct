@@ -37,7 +37,7 @@ export const saveGDTInfo = async (gdt, name, fileGUID = '') => {
   var formGDT = new FormData();
   formGDT.append('gdt', JSON.stringify(gdt));
   formGDT.append('name', name);
-  formGDT.append('uuid',fileGUID);
+  formGDT.append('uuid',fileGUID?fileGUID:'');
   return axios.post(`${host}/savegdt/`, formGDT);
 };
 

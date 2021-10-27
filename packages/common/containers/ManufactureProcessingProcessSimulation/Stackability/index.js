@@ -78,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Stackability(props) {
   const { fileId, gltfjson, isLoading, fileUUId, progressBarLoad, percentage, currentProgressText, completionProgressText } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
-
+  const [progressBarRender, setProgressBarRender] = useState(false); 
   const classes = USESTYLES();
 
   const [splitfiles, setsplitfiles] = useState({ gltfjson });
@@ -139,12 +139,13 @@ export default function Stackability(props) {
   return (
     <Paper className={classes.mainContainer}>
       <Paper className={classes.stackContainer}>
-        {progressBarLoad && (
+        {(progressBarLoad || progressBarRender) && (
           <Box sx={{ width: '100%' }}>
             <LinearProgressBarTiming 
               value={percentage}
               currentProgressText={currentProgressText}
               completionProgressText={completionProgressText}
+              progressBarRender={progressBarRender}
             />
           </Box>
         )}
@@ -169,6 +170,7 @@ export default function Stackability(props) {
             whatchanged={0}
             dataselection={0}
             activeDataTable={0}
+            setProgressBarRender={setProgressBarRender}
           />
         )}
         {/* {(isLoading || isFileLoading) && <CircularProgress />} */}

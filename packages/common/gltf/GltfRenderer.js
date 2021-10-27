@@ -229,6 +229,9 @@ class GLTFRenderer extends Component {
         snackBarMessage:"",
         snackBarAlertType:"",
         snackBarState:false,
+        progressBarRender:false,
+        lastClickedNode:null,
+        autoHideDuration:1000,
        
         //gltfobj:this.props.gltfobj
     };
@@ -309,6 +312,7 @@ class GLTFRenderer extends Component {
         this.setState({
             snackBarAlertType:alert,
             snackBarMessage:message,
+            autoHideDuration:(alert=='success'?1000:5000),
             snackBarState:true});
         console.log("Snack Bar",alert,message);
     }
@@ -327,7 +331,7 @@ class GLTFRenderer extends Component {
     }
     componentDidUpdate(prevProps, prevState) {
         //var toChange = ( (prevProps.gltfobj !== this.props.gltfobj)  || (prevState.gltfobj  !== this.props.gltfobj) );
-        console.log("COMPONENT",prevProps,this.props);
+        //console.log("COMPONENT",prevProps,this.props);
         var toChange = (prevProps.gltfobj !== this.props.gltfobj);
         toChange = toChange || (prevProps.activeFile !== this.props.activefile);  
         toChange = toChange || (prevProps.materialtype != this.props.materialtype);
@@ -1882,6 +1886,7 @@ class GLTFRenderer extends Component {
         
         if (this.INTERSECTED !== null) {
             //console.log("Before",this.INTERSECTED.material.color);
+            this.setState({lastClickedNode:{...this.INTERSECTED}});
             console.log("Before", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
             if (this.props.selectedoption == SELECTMEASURE || event.ctrlKey) {
                 this.INTERSECTED.selectedshell = !this.INTERSECTED.selectedshell;
@@ -2060,12 +2065,13 @@ class GLTFRenderer extends Component {
     };
     
     onKeyDown = (event) => {
-        console.log(event,this.props.fileGDT,this.INTERSECTED);
-        if ( this.props.fileGDT && (event.ctrlKey || event.altKey) && event.key === 'e' && (this.INTERSECTED !== null) ) {
+        console.log("Onkey down",event,this.props.fileGDT,this.INTERSECTED,this.state.lastClickedNode);
+        if ( this.props.fileGDT && (event.ctrlKey || event.altKey) && event.key === 'b' && 
+            ((this.INTERSECTED !== null) || (this.state.lastClickedNode !== null)) ) {
             event.preventDefault();
             
-            //console.log("Reaching here to load edges")
-            this.findSingleNode(this.INTERSECTED,true,false);
+            console.log("Reaching here to load edges","Node",this.state.lastClickedNode, "intersect",this.INTERSECTED);
+            this.findSingleNode(this.state.lastClickedNode ? this.state.lastClickedNode : this.INTERSECTED, true, false);
         }
     }
     onMouseWheel = ( event ) => {
@@ -2610,13 +2616,41 @@ class GLTFRenderer extends Component {
                     this.clips = gltf.animations || [];
                     //console.log("gltf", gltf, "Objects",this.object);
                     this.setContent(this.object, this.clips); 
+                    this.setState({progressBarRender:false});
+                    if(this.props.setProgressBarRender) {
+                        this.props.setProgressBarRender(false);
+                    }
+                    try {
+                        this.openSnackBar('success','Rendered Succesfully');
+                    } catch (error) {
+                        console.log("Error while displaying snackbar in success message",error);
+                    }
                 }
                 
                 const onError = (exception) => {
                     console.log(exception, this.props, myParserParams, this.props.fileUUId);
+                    this.setState({progressBarRender:false});
+                    if(this.props.setProgressBarRender) {
+                        this.props.setProgressBarRender(false);
+                    };
+                    try {
+                        let errorMessage = 'Did not Render Properly ';
+                        try{
+                            errorMessage +=exception.toString();                            
+                        } catch(exc) {
+
+                        };
+                        this.openSnackBar('error',errorMessage);
+                    } catch (error) {
+                        console.log("Error while displaying snackbar in error message",error);
+                    };
                 }
                 const onProgress = (progress) => {
                     //console.log(progress);
+                }
+                this.setState({progressBarRender:true});
+                if(this.props.setProgressBarRender) {
+                    this.props.setProgressBarRender(true);
                 }
                 parser.parse( onload, onError, onProgress );
                 //console.log("Parsing started",this.props.gltfobj.gltf);
@@ -3985,7 +4019,8 @@ class GLTFRenderer extends Component {
         }
         
         const onError = (exception,url) => {
-            console.log("Exception from Loader",exception);           
+            console.log("Exception from Loader",exception); 
+
             this.onCloseProgress(url,"error",exception);        
         }
 
@@ -4573,8 +4608,13 @@ class GLTFRenderer extends Component {
         });
     }
      */
-    onCloseProgress = (aFile,alert,message) => {
-        
+    onCloseProgress = (aFile,alert,messages) => {
+        let message = '';
+        try{
+            message +=messages.toString();                            
+        } catch(exc) {
+
+        };
         let openFiles = [...this.state.progressOpenedFiles];
         openFiles = arrayRemoveFromValue(openFiles,aFile);
         this.setState({ progressOpenedFiles: openFiles });
@@ -4800,7 +4840,7 @@ class GLTFRenderer extends Component {
                 </div>   
                 <Snackbar
                     open={this.state.snackBarState}
-                    autoHideDuration={1000}
+                    autoHideDuration={this.state.autoHideDuration}
                     onClose={this.closeSnackBar}
                     >
                     <MuiAlert

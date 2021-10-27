@@ -216,7 +216,7 @@ export default function LargeFileUpload({
             onChange={onChange}
           />
           <label className={classes.custom_file_label} htmlFor="file">
-            {label}
+            {itemProperties.fileStore ? itemProperties.fileStore : label}
           </label>
         </Box>
       </div>

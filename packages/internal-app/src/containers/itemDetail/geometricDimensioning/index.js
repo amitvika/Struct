@@ -389,7 +389,7 @@ export default function GeometricDimensioning(props) {
       myTree.gdttable[myGlobalActiveDataTable].offset=mystate.offset;  
     }
     setState({ gltfjson: myTree});  
-    console.log(gltfjson.gdttable,myTree.gdttable,fileGDT);
+    console.log("saving gdt info","tableg",gltfjson.gdttable,"tablet",myTree.gdttable,"filegdt",fileGDT);
     saveGDTInfo(myTree.gdttable,fileGDT,fileUUIder)
     .then(res => res.data)
     .then((data) => { 
@@ -666,7 +666,7 @@ export default function GeometricDimensioning(props) {
           }
           //console.log("Setting states here1",item['state']);
         } else {
-          console.log("Item to be assigned",item);
+          //console.log("Item to be assigned",item);
           item['state'].selected = item.selectedshell;
           const currentNode = findMyTreeNode(item);
           if(currentNode) {

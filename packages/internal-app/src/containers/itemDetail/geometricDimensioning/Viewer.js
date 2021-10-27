@@ -46,6 +46,7 @@ export default function Viewer({
     const [currentProgressTexter, setCurrentProgressTexter] = useState(currentProgressText);
     const [completionProgressTexter, setCompletionProgressTexter] = useState(completionProgressText);
     const [fileUUIder, setfileUUIder] = useState(fileUUId);
+    const [progressBarRender, setProgressBarRender] = useState(false); 
     useEffect(() => {
       if(fileUUId) {
         setfileUUIder(fileUUId);
@@ -86,12 +87,13 @@ export default function Viewer({
     
     return (
       <>
-        {progressBarLoader && (
+        {(progressBarLoader||progressBarRender) && (
           <Box sx={{ width: '100%' }}>
             <LinearProgressBarTiming
               value={percentager} 
               currentProgressText={currentProgressTexter}
               completionProgressText={completionProgressTexter}
+              progressBarRender={progressBarRender}
             />
           </Box>
         )}
@@ -126,6 +128,7 @@ export default function Viewer({
             activeDataTable={activeDataTable}
             setIsProgressOpen={setIsProgressOpen}
             setProgressOpenedFiles={setProgressOpenedFiles}
+            setProgressBarRender={setProgressBarRender}
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */
           />

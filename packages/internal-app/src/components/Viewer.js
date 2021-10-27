@@ -26,14 +26,16 @@ export default function Viewer({
   currentProgressText=null,
   completionProgressText=null
   }) {
+  const [progressBarRender, setProgressBarRender] = useState(false); 
   return (
     <div>
-      {progressBarLoad && (
+      {(progressBarLoad||progressBarRender) && (
         <Box sx={{ width: '100%' }}>
           <LinearProgressBarTiming 
              value={percentage}
              currentProgressText={currentProgressText}
              completionProgressText={completionProgressText}
+             progressBarRender={progressBarRender}
           />
         </Box>
       )}
@@ -59,6 +61,7 @@ export default function Viewer({
           dataselection={0}
           onClick={handleModelClick}
           activeDataTable={0}
+          setProgressBarRender={setProgressBarRender}
         />
       }
     </div>
