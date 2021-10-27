@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, LinearProgress } from '@material-ui/core';
+import { Box /*, LinearProgress*/ } from '@material-ui/core';
 // import GLTFRenderer from '../../../gltf/GltfRenderer';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';
 import {
@@ -11,6 +11,7 @@ import {
   STATEPROPS
 } from '@monostruct/common/gltf/Tree/utils';
 //const DEFAULTMATERIALNAME = 'Basic';
+import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
 
 export default function Viewer({
   gltfjson = {},
@@ -22,12 +23,18 @@ export default function Viewer({
   handleModelClick = () => {},
   progressBarLoad=false,
   percentage=0,
+  currentProgressText=null,
+  completionProgressText=null
   }) {
   return (
     <div>
       {progressBarLoad && (
         <Box sx={{ width: '100%' }}>
-          <LinearProgress variant="determinate"  value={percentage.toFixed(3)} />
+          <LinearProgressBarTiming 
+             value={percentage}
+             currentProgressText={currentProgressText}
+             completionProgressText={completionProgressText}
+          />
         </Box>
       )}
       {

@@ -32,7 +32,8 @@ import ItemAPI from '@monostruct/common/api/items.api';
 import {
   SELECTFEATURE,
   STATEPROPS,
-  pollFunction
+  pollFunction,
+  isFileExistingInServer
 } from '@monostruct/common/gltf/Tree/utils';
 
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
@@ -74,6 +75,8 @@ const ItemDetail = () => {
   const [gltfjson, setgltfjson] = useState({});
   const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
   const [percentage, setPercentage] = useState(0);
+  const [currentProgressText,setCurrentProgressText]=useState(null);
+  const [completionProgressText,setCompletionProgressText]=useState(null);
   const [progressBarLoad, setProgressBarLoad] = useState(false);
 
   useEffect(() => {
@@ -110,7 +113,7 @@ const ItemDetail = () => {
     }
   }, [currentItem]);
 
-  const doesFileExist = (urlAsFile) => {
+  /*const doesFileExist = (urlAsFile) => {
     var xhr = new XMLHttpRequest();
     try {
       xhr.open('HEAD', urlAsFile, false);
@@ -123,7 +126,11 @@ const ItemDetail = () => {
     }
     return false;
   };
-
+  */
+  /*const informSnackBar = (message) => {
+    dispatch(setCurrentItemAction(itemProperties));
+  }
+  */
   const getResourcePathURL = (item) => {
     if (item.fileUUId) {
       return (resourcePathURL || '') + item.fileUUId + '/';
@@ -146,11 +153,11 @@ const ItemDetail = () => {
   };
 
   const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
-    if (doesFileExist(whichOneToLoad + '.gltf')) {
+    if (isFileExistingInServer(whichOneToLoad + '.gltf')) {
       console.log('Found gltf', whichOneToLoad);
       return false;
     }
-    if (doesFileExist(whichOneToLoad + '.status')) {
+    if (isFileExistingInServer(whichOneToLoad + '.status')) {
       console.log('Found status', whichOneToLoad);
       const statusRes = await getAFileFromStore(whichOneToStatus, 'status');
       let percent = 0;
@@ -196,6 +203,7 @@ const ItemDetail = () => {
       }
       return false;
     }
+    console.log("NO gltf and status files Existing",whichOneToLoad);
     return true;
   };
   const setStack = async (item) => {
@@ -489,7 +497,7 @@ const ItemDetail = () => {
           if (item.fileStore) {
             const whichOneToLoad = getResourcePathURL(item) + item.fileStore;
             const whichOneToStatus = getStatusPathURL(item) + item.fileStore;
-            let okToParse = await checkStatusToParse(
+            okToParse = await checkStatusToParse(
               whichOneToLoad,
               whichOneToStatus
             );
@@ -500,7 +508,7 @@ const ItemDetail = () => {
           } else {
             okToParse = true;
           }
-
+          //console.log("After checking GLTF and Status",okToParse,item.fileStore,(okToParse || !item.fileStore || item.fileStore === null));
           if (okToParse || !item.fileStore || item.fileStore === null) {
             //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
             setIsLoading(true);
@@ -548,7 +556,9 @@ const ItemDetail = () => {
                   validateStatus,
                   20000,
                   setPercentage,
-                  percentFunction
+                  percentFunction,
+                  setCurrentProgressText,
+                  setCompletionProgressText
                 );
                 console.log('Completing poll', datastore, dataload);
                 const gltfRes = await getAFileFromStore(datafile, 'gltf');
@@ -735,7 +745,9 @@ const ItemDetail = () => {
                   validateStatus,
                   20000,
                   setPercentage,
-                  percentFunction
+                  percentFunction,
+                  setCurrentProgressText,
+                  setCompletionProgressText
                 );
                 console.log('Completing poll', datastore, dataload);
                 const gltfRes = await getAFileFromStore(datafile, 'gltf');
@@ -865,8 +877,9 @@ const ItemDetail = () => {
         setIsFileLoading(false);
         console.log('Error in SetGLTFAndTree', error);
       }
-    } else {
-      //console.log("Else",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+    }
+    else {
+      console.log("Else",myTabedIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId,item.fileUUId);
     }
   };
   const handleCopyId = (event) => {
@@ -930,7 +943,9 @@ const ItemDetail = () => {
             validateStatus,
             20000,
             setPercentage,
-            percentFunction
+            percentFunction,
+            setCurrentProgressText,
+            setCompletionProgressText
           );
           console.log('Completing poll', datafile);
         }
@@ -1008,6 +1023,8 @@ const ItemDetail = () => {
             handleItemSaveOnServer={handleSave}
             progressBarLoad={progressBarLoad}
             percentage={percentage}
+            currentProgressText={currentProgressText}
+            completionProgressText={completionProgressText}
           />
         );
       case 'cu':
@@ -1032,6 +1049,8 @@ const ItemDetail = () => {
             additionalSaveFunction={additionalSaveFunction}
             progressBarLoad={progressBarLoad}
             percentage={percentage}
+            currentProgressText={currentProgressText}
+            completionProgressText={completionProgressText}
             //informSnackBar={informSnackBar}
           />
         );
@@ -1053,6 +1072,8 @@ const ItemDetail = () => {
             additionalSaveFunction={additionalSaveFunction}
             progressBarLoad={progressBarLoad}
             percentage={percentage}
+            currentProgressText={currentProgressText}
+            completionProgressText={completionProgressText}
           />
         );
       case 5:
@@ -1073,6 +1094,8 @@ const ItemDetail = () => {
             additionalSaveFunction={additionalSaveFunction}
             progressBarLoad={progressBarLoad}
             percentage={percentage}
+            currentProgressText={currentProgressText}
+            completionProgressText={completionProgressText}
           />
         );
       case 7:

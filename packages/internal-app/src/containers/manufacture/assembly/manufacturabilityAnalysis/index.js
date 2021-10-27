@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Paper,
   /*CircularProgress,*/
-  Box, LinearProgress,
+  Box, 
+  /*LinearProgress,
   /*makeStyles*/
 } from "@material-ui/core";
 import { Spinner } from "reactstrap";
@@ -14,6 +15,7 @@ import {
   SELECTASSEMBLY, SELECTFEATURE, arrayCopy, arrayFindIndex, arrayRemove, gltf_Dict
 } from "@monostruct/common/gltf/Tree/utils";
 import { getAFileFromStore,saveTreeInfo,getPartsAssemblyOrder,resourcePathURL } from '@monostruct/common/api/fileUpload.api';
+import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
 import '../../style.css';
 
 /*
@@ -69,6 +71,8 @@ export default function ManufacturabilityAnalysis(props) {
     fileUUId,
     progressBarLoad,
     percentage, 
+    currentProgressText,
+    completionProgressText
   } = props;
   //const [list, setList] = useState([]);
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
@@ -76,6 +80,10 @@ export default function ManufacturabilityAnalysis(props) {
   //const [filteredList, setFilteredList] = useState([]);
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
   const [resetOption, setResetOption] = useState(true);
+  const [percentager, setPercentager] = useState(percentage||0);
+  const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
+  const [currentProgressTexter, setCurrentProgressTexter] = useState(currentProgressText);
+  const [completionProgressTexter, setCompletionProgressTexter] = useState(completionProgressText);
   const classes = USESTYLES();
   /* const [columns, setColumns] = useState([
       { title: 'Mates', field: 'index', editable: "never" },
@@ -121,7 +129,18 @@ export default function ManufacturabilityAnalysis(props) {
 
     })
   }
-
+  useEffect(() => {
+    setProgressBarLoader(progressBarLoad);    
+    console.log("Changing progress bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
+  }, [progressBarLoad]);
+  useEffect(() => {
+    setCurrentProgressTexter(currentProgressText);    
+    console.log("Changing currentProgressText bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
+  }, [currentProgressText]);
+  useEffect(() => {
+    setCompletionProgressTexter(completionProgressText);    
+    console.log("Changing completionProgressText bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
+  }, [completionProgressText]);
   /* const arrayFindIndex = (arr, value, parent = false) => {
 
     return arr.findIndex(function (ele) {
@@ -1364,9 +1383,13 @@ export default function ManufacturabilityAnalysis(props) {
   return (
     <Paper className={classes.mainContainer}>
       <Paper className={classes.viewerContainer} >
-        {progressBarLoad && (
+        {progressBarLoader && (
           <Box sx={{ width: '100%' }}>
-            <LinearProgress variant="determinate"  value={percentage.toFixed(3)} />
+            <LinearProgressBarTiming
+              value={percentager} 
+              currentProgressText={currentProgressTexter}
+              completionProgressText={completionProgressTexter}
+            />
           </Box>
         )}
         {

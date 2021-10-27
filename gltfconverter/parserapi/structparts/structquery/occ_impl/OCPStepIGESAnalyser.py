@@ -3144,7 +3144,7 @@ class StepIgesAnalyser():
                 statusfilename = self.displaypath+self.basefilename+".status"            
                 timingdelta = datetime.utcnow()-self.currenttime
             
-                if (timingdelta.seconds > maxgap): 
+                if (timingdelta.seconds >= maxgap): 
                     if self.writefiles:
                         #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
                         print("Writing",statusfilename,"Percentage",self.percentage)                        
@@ -3245,7 +3245,7 @@ class StepIgesAnalyser():
             print(i,refLabel.GetLabelName(), refLabel.EntryDumpToString()) """
         self.percentage = 0
         self.currenttime=self.starttime
-        self.write_status()
+        self.write_status(0)
         if self.shapeslist:
             self.addShapes()
         else:
@@ -3301,7 +3301,7 @@ class StepIgesAnalyser():
         else:
             self.write_in_thread(dict_return,getPNG,True)
         self.percentage = 100
-        self.write_status()
+        self.write_status(0)
         #self.mstep_dict['tree']=self.tstep_dict['tree']
         if (self.edgesize!=0) or (self.vertexsize!=0): 
             try:

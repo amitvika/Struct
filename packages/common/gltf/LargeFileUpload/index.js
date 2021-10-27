@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { LinearProgress, Box, IconButton, Typography } from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
 
-import { uploadChunkData, download } from '../../api/fileUpload.api';
+import { uploadChunkData, download, resourcePathURL } from '../../api/fileUpload.api';
+import { isFileExistingInServer } from '../Tree/utils';
 import ExportLogo from '../../assets/images/export.png';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -169,7 +170,9 @@ export default function LargeFileUpload({
   const handleExportButton = () => {
     download(itemProperties.fileName);
   };
-  if (itemProperties.fileStore) {
+  if (itemProperties.fileStore && 
+    isFileExistingInServer(resourcePathURL+
+      (itemProperties.fileUUId?itemProperties.fileUUId+'/':'')+itemProperties.fileStore+".gltf")) {
     return (
       <div style={{ display: 'flex' }}>
         <Typography
@@ -195,7 +198,7 @@ export default function LargeFileUpload({
   return (
     <div>
       <Box sx={{ width: '100%' }}>
-        <LinearProgress variant="determinate" value={progress.toFixed(3)} />
+        <LinearProgress variant="determinate" value={progress?progress.toFixed(3):0} />
       </Box>
       <div style={{ display: 'flex' }}>
         <Typography variant="h6">Upload Cad</Typography>

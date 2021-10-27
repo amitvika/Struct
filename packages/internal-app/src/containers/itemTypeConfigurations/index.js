@@ -25,11 +25,15 @@ export default function ItemTypeConfiguration(props) {
     additionalSaveFunction, 
     progressBarLoad,
     percentage, 
+    currentProgressText,
+    completionProgressText
   } =  props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
   const [percentager, setPercentager] = useState(percentage||0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
+  const [currentProgressTexter, setCurrentProgressTexter] = useState(currentProgressText);
+  const [completionProgressTexter, setCompletionProgressTexter] = useState(completionProgressText);
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
   
   const [showKineticModel, setShowKineticModal] = useState(true);
@@ -45,7 +49,14 @@ export default function ItemTypeConfiguration(props) {
     setProgressBarLoader(progressBarLoad);    
     console.log("Changing progress bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
   }, [progressBarLoad]);
-  
+  useEffect(() => {
+    setCurrentProgressTexter(currentProgressText);    
+    console.log("Changing currentProgressText bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
+  }, [currentProgressText]);
+  useEffect(() => {
+    setCompletionProgressTexter(completionProgressText);    
+    console.log("Changing completionProgressText bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
+  }, [completionProgressText]);
   useEffect(() => {
     if(percentage) {
       setPercentager(percentage);
@@ -130,7 +141,9 @@ export default function ItemTypeConfiguration(props) {
                   handleChangeOfSelection={handleChangeOfSelection}   
                   additionalSaveFunction={additionalSaveFunction}  
                   progressBarLoad={progressBarLoader}
-                  percentage={percentager}         
+                  percentage={percentager}  
+                  currentProgressText={currentProgressTexter}
+                  completionProgressText={completionProgressTexter}       
                 />
               )}
             {/* {(isLoading || isFileLoading) && <CircularProgress />} */}
