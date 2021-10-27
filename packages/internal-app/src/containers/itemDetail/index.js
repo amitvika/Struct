@@ -55,7 +55,7 @@ import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
-
+import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 // import { reducer, initialState } from './ItemDetail.helper';
 
 let state_additionalSaveFunction = null;
@@ -75,9 +75,10 @@ const ItemDetail = () => {
   const [gltfjson, setgltfjson] = useState({});
   const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
   const [percentage, setPercentage] = useState(0);
-  const [currentProgressText,setCurrentProgressText]=useState(null);
-  const [completionProgressText,setCompletionProgressText]=useState(null);
+  const [currentProgressText, setCurrentProgressText] = useState(null);
+  const [completionProgressText, setCompletionProgressText] = useState(null);
   const [progressBarLoad, setProgressBarLoad] = useState(false);
+  const [internalProductConfig, setInternalProductConfig] = useState(null);
 
   useEffect(() => {
     let myTabIndex = 'pdcu';
@@ -113,24 +114,16 @@ const ItemDetail = () => {
     }
   }, [currentItem]);
 
-  /*const doesFileExist = (urlAsFile) => {
-    var xhr = new XMLHttpRequest();
-    try {
-      xhr.open('HEAD', urlAsFile, false);
-      xhr.send();
+  useEffect(() => {
+    CriteriaUploadAPI.getInternaUseProductConfiguration()
+      .then((resp) => {
+        if (resp.data) {
+          setInternalProductConfig(resp.data);
+        }
+      })
+      .catch((error) => {});
+  }, []);
 
-      return xhr.status !== 404;
-    } catch (exception) {
-      console.log(exception);
-      return false;
-    }
-    return false;
-  };
-  */
-  /*const informSnackBar = (message) => {
-    dispatch(setCurrentItemAction(itemProperties));
-  }
-  */
   const getResourcePathURL = (item) => {
     if (item.fileUUId) {
       return (resourcePathURL || '') + item.fileUUId + '/';
@@ -203,7 +196,7 @@ const ItemDetail = () => {
       }
       return false;
     }
-    console.log("NO gltf and status files Existing",whichOneToLoad);
+    console.log('NO gltf and status files Existing', whichOneToLoad);
     return true;
   };
   const setStack = async (item) => {
@@ -877,9 +870,16 @@ const ItemDetail = () => {
         setIsFileLoading(false);
         console.log('Error in SetGLTFAndTree', error);
       }
-    }
-    else {
-      console.log("Else",myTabedIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId,item.fileUUId);
+    } else {
+      console.log(
+        'Else',
+        myTabedIndex,
+        tabIndex,
+        item.fileStore,
+        item.fileGDT,
+        item.fileId,
+        item.fileUUId
+      );
     }
   };
   const handleCopyId = (event) => {
@@ -1051,7 +1051,7 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
-            //informSnackBar={informSnackBar}
+            {...{ internalProductConfig }}
           />
         );
       case 'iupc':
@@ -1074,6 +1074,7 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
+            internalProductConfig={internalProductConfig}
           />
         );
       case 5:

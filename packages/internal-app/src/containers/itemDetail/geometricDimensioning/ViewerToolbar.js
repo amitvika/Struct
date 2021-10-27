@@ -25,7 +25,7 @@ import SelectedMatesRelation from './SelectedMatesRelation';
 import SelectedGDTMenu from './SelectedGDTMenu';
 import SelectedSummaryTable from './SelectedSummaryTable';
 import ShowLoadingProgressBar from './ShowLoadingProgressBar';
-import LookUpTableSelection from './LookUpTableSelection'
+import LookUpTableSelection from './LookUpTableSelection';
 
 import { USESTYLES } from '@monostruct/common/gltf/Tree/utils';
 
@@ -57,7 +57,8 @@ export default function ViewerToolbar({
   isProgressOpen,
   progressOpenedFiles,
   setIsProgressOpen,
-  setProgressOpenedFiles
+  setProgressOpenedFiles,
+  internalProductConfig
 }) {
   const classes = USESTYLES();
 
@@ -254,9 +255,9 @@ export default function ViewerToolbar({
           )}
         {selectedObjects && selectedObjects.length >= 1 && (
           <>
-          <SectionContainer title={'Look Up Table'}>
-            <LookUpTableSelection/>
-          </SectionContainer>
+            <SectionContainer title={'Look Up Table'}>
+              <LookUpTableSelection {...{ internalProductConfig }} />
+            </SectionContainer>
             <SectionContainer title={'Geometric Dimensioning and Tolerancing'}>
               <SelectedGDTMenu
                 features={selectedOption != SELECTASSEMBLY}
