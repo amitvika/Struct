@@ -64,10 +64,7 @@ export default function LookUpTableSelection({ internalProductConfig }) {
             <TableCell className={classes.tableCell}>Hole Value</TableCell>
             <TableCell className={classes.tableCell}>Hole Size</TableCell>
             <TableCell className={classes.tableCell} size="small">
-              Upper Bound
-            </TableCell>
-            <TableCell className={classes.tableCell} size="small">
-              Lower Bound
+              Tolerance range
             </TableCell>
           </TableRow>
         </TableHead>
@@ -99,12 +96,11 @@ export default function LookUpTableSelection({ internalProductConfig }) {
             </StyledTableCell>
             <StyledTableCell>
               {selectedParsedObj && (
-                <Headding title={` ${selectedParsedObj[`Upper Bound`]}`} />
-              )}
-            </StyledTableCell>
-            <StyledTableCell>
-              {selectedParsedObj && (
-                <Headding title={`${selectedParsedObj[`Lower Bound`]}`} />
+                <Headding
+                  title={` ${selectedParsedObj[`Upper Bound`]} to ${
+                    selectedParsedObj[`Lower Bound`]
+                  }`}
+                />
               )}
             </StyledTableCell>
           </StyledTableRow>

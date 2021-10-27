@@ -255,7 +255,7 @@ export default function ViewerToolbar({
           )}
         {selectedObjects && selectedObjects.length >= 1 && (
           <>
-            <SectionContainer title={'Look Up Table'}>
+            <SectionContainer title={'Hole Tolerancing'}>
               <LookUpTableSelection {...{ internalProductConfig }} />
             </SectionContainer>
             <SectionContainer title={'Geometric Dimensioning and Tolerancing'}>

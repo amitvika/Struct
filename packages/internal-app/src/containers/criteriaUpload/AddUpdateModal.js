@@ -23,7 +23,7 @@ export default function AddUpdateModal({
   handleUpdate,
   isEditing,
   selectedValue,
-  dataList=[]
+  dataList = []
 }) {
   const [value, setValue] = useState({});
   const [isTypeSelected, setIsTypeSelected] = useState(false);
@@ -112,7 +112,7 @@ export default function AddUpdateModal({
     toggleModal();
   };
 
-  const getOptions = () =>{ 
+  const getOptions = () => {
     const optionsList = [
       {
         label: 'Internal Use Product Configuration',
@@ -121,14 +121,36 @@ export default function AddUpdateModal({
       {
         label: 'Classification Configuration',
         value: 'Classification Configuration'
+      },
+      {
+        label: 'Internal Circular faces',
+        value: 'Internal Circular faces'
+      },
+      {
+        label: 'External Circular faces',
+        value: 'External Circular faces'
+      },
+      {
+        label: 'Hole Tolerancing',
+        value: 'Hole Tolerancing'
+      },
+      {
+        label: 'External Circular faces',
+        value: 'External Circular faces'
+      },
+      {
+        label: 'Shaft Tolerancing',
+        value: 'Shaft Tolerancing'
       }
     ];
 
-    if(!dataList || dataList.length === 0){
+    if (!dataList || dataList.length === 0) {
       return optionsList;
     }
-    return optionsList.filter(option => dataList.find(dataItem => dataItem.type !== option.value ));
-  }
+    return optionsList.filter((option) =>
+      dataList.find((dataItem) => dataItem.type !== option.value)
+    );
+  };
 
   return (
     <Modal

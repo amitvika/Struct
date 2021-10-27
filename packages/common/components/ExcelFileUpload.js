@@ -8,19 +8,19 @@ import DocViewer, { DocViewerRenderers } from 'react-doc-viewer';
 
 const useStyles = makeStyles((theme) => ({
   button: {
-    margin: theme.spacing(1),
+    margin: theme.spacing(1)
   },
   fileLoadContainer: {
     display: 'flex',
-    alignItems: 'center',
-  },
+    alignItems: 'center'
+  }
 }));
 
 export default function ExcelFileUpload({
   value,
   handleOnChange,
   isDesignModalOpened = true,
-  fileType = '.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel',
+  fileType = '.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel'
 }) {
   const classes = useStyles();
 
@@ -46,8 +46,14 @@ export default function ExcelFileUpload({
     if (selectedFile === null) {
       return (
         <Grid item xs={8} className={classes.fileLoadContainer}>
+          {value.new_file && value.new_file.file_name && (
+            <Headding title={value.new_file.file_name} />
+          )}
+
           <Button variant="contained" component="label">
-            Select File
+            {value.new_file && value.new_file.file_name
+              ? 'Updated File'
+              : 'Select File'}
             <input
               onChange={handleOnFileChange}
               type="file"
@@ -89,11 +95,11 @@ export default function ExcelFileUpload({
         <Headding bold title={'File Load'} />
       </Grid>
       {renderButtonsView()}
-      {value.file_url && (
+      {value.new_file && value.new_file.file_url && (
         <Grid item xs={12}>
           <DocViewer
             pluginRenderers={DocViewerRenderers}
-            documents={[{ uri: value.file_url }]}
+            documents={[{ uri: value.new_file.file_url }]}
           />
         </Grid>
       )}
