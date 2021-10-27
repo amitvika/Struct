@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  //Grid,
-  //CircularProgress,
   Paper
 } from "@material-ui/core"
 import Viewer from './Viewer';
@@ -13,52 +11,8 @@ import {
   SELECTDISECTPARTS, STATEPROPS, USESTYLES, defaultGDTTable, 
   arrayCopy, arrayFindIndex, arrayRemove, gltf_Dict
 } from "@monostruct/common/gltf/Tree/utils";
-//import FormControlLabel from '@material-ui/core/FormControlLabel';
-//import Radio from '@material-ui/core/Radio';
-//import RadioGroup  from '@material-ui/core/RadioGroup';
-//import { makeStyles } from '@material-ui/core/styles';
 import Assembly from '../assembly';
 
-/*
-const DEFAULTDISTANCEGAP = 0.1;
-const DEFAULTANGLEGAP = 0.5;
-const DEFAULTDISECT = false;
-const DEFAULTSHOWDISECT = false;
-const DEFAULTSHOWINFOONSELECT = false;
-const DEFAULTMATERIALTYPE = [{ "id": 1, "name": "Basic" }];
-
-const stateprops = {
-  distancegap: DEFAULTDISTANCEGAP,
-  anglegap: DEFAULTANGLEGAP,
-  disect: DEFAULTDISECT,
-  showdisect: DEFAULTSHOWDISECT,
-  showinfoonselect: DEFAULTSHOWINFOONSELECT,
-  materialtype: DEFAULTMATERIALTYPE
-}
-*/
-
-
-/*const useStyles = makeStyles((theme) => ({
-  mainContainer: { margin: 10, padding: 10, display: 'inline-flex', minWidth: '100%' },
-  paper: {
-    padding: '20px',
-    margin: '0px 15px',
-    boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
-  },
-  viewerContainer: {
-    minWidth: '800px',
-    display: 'inline-block',
-  },
-  assemblyTreeContainer: {
-    display: 'inline-block',
-    minWidth: '300px'
-  },
-  assemblyTableContainer: {
-    display: 'inline-block',
-    minWidth: '600px'
-  }
-}));
-*/
 let myGlobalTree = null;
 let myGlobalState = {};
 let myGlobalActiveDataTable = 0;
@@ -116,37 +70,6 @@ export default function GeometricDimensioning(props) {
       console.log("Changing percentage from Geometric Dimensioning",percentage,fileUUIder,fileUUId,fileId,fileGDT,props);
     }
   }, [percentage]);
-  const handleChange = (event) => {
-    setValue(event.target.value);
-  };
-
-  //const [treeLength,setTreeLength]=useState(gltfjson?.tree.length);
-  /*
-  const renderLeafElements = () => {
-
-      //console.log(assemblyTree)
-      return assemblyTree
-          // .filter(item => !item.leaf)
-          .map(item => {
-              const noOfChildren = renderChildElements({ parentId: item.i });
-              return (
-                  { ...item, name: item.n, item: '', assembly: noOfChildren.length > 0 ? 'Multi-Item Assembly' : 'Single-Item Assembly', children: noOfChildren }
-              )
-          })
-  }
-
-  const renderChildElements = ({ parentId }) => {
-      return assemblyTree
-          .filter(item => item.d === parentId)
-          .map(item => {
-              return (
-                  <div>
-                      {item.name}
-                  </div>
-              )
-          })
-  }
-  */
 
   useEffect(() => {
     const includeParts = true;

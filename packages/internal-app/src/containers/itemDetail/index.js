@@ -5,7 +5,7 @@ import {
   Paper,
   Tab,
   Tabs,
-  Grid,
+  Grid
   //Box,
   //LinearProgress
 } from '@material-ui/core';
@@ -55,44 +55,16 @@ import LoadingModal from '@monostruct/common/components/LoadingModal';
 import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 
-/*const DEFAULTDISTANCEGAP = 0.1;
-const DEFAULTANGLEGAP = 0.5;
-const DEFAULTEDGESIZE = 0.3;
-const DEFAULTVERTEXSIZE = 0.5;
-const DEFAULTEXPLODEGAP = 10;
-const DEFAULTFROMCENTER = true;
-const DEFAULTHOLESCALE = 0.77;
-const DEFAULTREMOVEGAP = 8;
-const DEFAULTANIMATIONTIME = 1.0;
-const DEFAULTDISECT = false;
-const DEFAULTSHOWDISECT = false;
-const DEFAULTSHOWINFOONSELECT = false;
-const DEFAULTMATERIALTYPE = [{ id: 1, name: 'Basic' }];
-const DEFAULTMAXIMUMFACES = 50;
+// import { reducer, initialState } from './ItemDetail.helper';
 
-const stateprops = {
-  distancegap: DEFAULTDISTANCEGAP,
-  anglegap: DEFAULTANGLEGAP,
-  explodegap: DEFAULTEXPLODEGAP,
-  disect: DEFAULTDISECT,
-  showdisect: DEFAULTSHOWDISECT,
-  showinfoonselect: DEFAULTSHOWINFOONSELECT,
-  materialtype: DEFAULTMATERIALTYPE,
-  fromcenter: DEFAULTFROMCENTER,
-  holescale: DEFAULTHOLESCALE,
-  removegap: DEFAULTREMOVEGAP,
-  animationtime: DEFAULTANIMATIONTIME,
-  maximumfaces: DEFAULTMAXIMUMFACES,
-  edgesize: DEFAULTEDGESIZE,
-  vertexsize: DEFAULTVERTEXSIZE,
-};
-*/
 let state_additionalSaveFunction = null;
 const ItemDetail = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   let { id } = useParams();
   let query = useQuery();
+
+  // const [state, dispatch] = useReducer(reducer, initialState);
 
   const currentItem = useSelector((state) => state.item.currentItem);
   const [tabIndex, setTabIndex] = useState('pdcu');
@@ -152,10 +124,6 @@ const ItemDetail = () => {
     return false;
   };
 
-  /*const informSnackBar = (message) => {
-    dispatch(setCurrentItemAction(itemProperties));
-  }
-  */
   const getResourcePathURL = (item) => {
     if (item.fileUUId) {
       return (resourcePathURL || '') + item.fileUUId + '/';
@@ -168,39 +136,6 @@ const ItemDetail = () => {
     }
     return '';
   };
-  /*
-  const getItemFileStackID =(item) => {
-    if(item.fileUUId) {
-      return (resourcePathURL || '') + item.fileUUId + '/' + item.fileStack;
-    }
-    return item.fileId;
-  }
-  const getItemFileOrderID =(item) => {
-    if(item.fileUUId) {
-      return (resourcePathURL || '') + item.fileUUId + '/' + item.fileMPPS;
-    }
-    return item.fileId;
-  }
-  const getItemFileKinematicID =(item) => {
-    if(item.fileUUId) {
-      return (resourcePathURL || '') + item.fileUUId + '/' + item.fileKinematic;
-    }
-    return item.fileId;
-  }
-  
-  const getItemFileID =(item) => {
-    if(item.fileUUId) {
-      return (resourcePathURL || '') + item.fileUUId + '/' + item.fileStore;
-    }
-    return item.fileId;
-  }
-  const getItemFileGDTID =(item) => {
-    if(item.fileUUId) {
-      return (resourcePathURL || '') + item.fileUUId + '/' + item.fileGDT;
-    }
-    return item.fileId;
-  }
-  */
 
   const getStepFile = (item) => {
     if (item.fileUUId) {
@@ -267,7 +202,7 @@ const ItemDetail = () => {
     if (!item.fileId && !item.fileUUId) {
       return;
     }
-    
+
     try {
       if (!item.fileStack || item.fileStack === null) {
         console.log('Checking Store', item.fileStore);
@@ -347,14 +282,11 @@ const ItemDetail = () => {
           }));
         }
       }
-      
     } catch (error) {
       setIsLoading(false);
       setIsFileLoading(false);
       console.log('Error in SetStack', error);
     }
-
-    
   };
 
   const setOrder = async (item) => {
@@ -446,14 +378,11 @@ const ItemDetail = () => {
           }));
         }
       }
-      
     } catch (error) {
       setIsLoading(false);
       setIsFileLoading(false);
       console.log('Error in SetOrder', error);
     }
-
-    
   };
 
   const setGLTFAndTree = async (item, myTabedIndex) => {
@@ -465,7 +394,7 @@ const ItemDetail = () => {
         setIsLoading(false);
         return;
       }
-      
+
       try {
         let myTabIndex = myTabedIndex == 'iupc' ? 'gdtac' : myTabedIndex;
         if (myTabIndex == 'iupc') {
@@ -931,17 +860,14 @@ const ItemDetail = () => {
             }
           }
         }
-       
       } catch (error) {
         setIsLoading(false);
         setIsFileLoading(false);
         console.log('Error in SetGLTFAndTree', error);
       }
-    }
-    else {
+    } else {
       //console.log("Else",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
     }
-      
   };
   const handleCopyId = (event) => {
     navigator.clipboard.writeText(id);
