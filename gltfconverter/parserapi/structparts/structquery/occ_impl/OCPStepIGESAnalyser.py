@@ -1273,7 +1273,10 @@ class StepIgesAnalyser():
         lastU = curve.LastParameter()
        
         ranges = lastU-firstU
-        
+        if ranges < 0:
+            firstU = curve.LastParameter()
+            lastU = curve.FirstParameter()
+            ranges = -ranges
         if curve.GetType() == GeomAbs_Line:
             length = 1
         else:
@@ -1290,8 +1293,11 @@ class StepIgesAnalyser():
                 length = 1
         pipes=[]
         currentP = curve.Value(firstU)
-        for eachP in range(length):            
-            nextP = curve.Value(firstU+(ranges*(eachP+1)/(length)))
+        for eachP in range(length): 
+            if eachP==length-1:
+                nextP = curve.Value(lastU)
+            else:            
+                nextP = curve.Value(firstU+(ranges*(eachP+1)/(length)))
             if (currentP.SquareDistance(nextP) >= self.distancegap): # or (length==1):
                 aPipe = self.createPipeFromPoints(currentP, nextP)
                 if aPipe:
@@ -1299,14 +1305,16 @@ class StepIgesAnalyser():
                     currentP = nextP
         if(len(pipes)>0):
             compound, _ = list_of_shapes_to_compound(pipes)
-            if (anEdge.Orientation() == TopAbs_Orientation.TopAbs_REVERSED):
-                if compound:
-                    return compound.Reverse()
-                else:
-                    return None
-            else:
-                return compound
+            #if (anEdge.Orientation() == TopAbs_Orientation.TopAbs_REVERSED):
+            #    if compound:
+            #        return compound.Reverse()
+            #    else:
+            #        return None
+            #else:
+            #    return compound
+            return compound
         else:
+            print("NO edges found",firstU,lastU)
             return None
         
 

@@ -77,6 +77,7 @@ export default function ManufacturabilityAnalysis(props) {
   //const [list, setList] = useState([]);
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const [firstTimeLoading,setFirstTimeLoading]=useState(false);
+  const [progressBarRender, setProgressBarRender] = useState(false);
   //const [filteredList, setFilteredList] = useState([]);
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
   const [resetOption, setResetOption] = useState(true);
@@ -1368,12 +1369,13 @@ export default function ManufacturabilityAnalysis(props) {
   return (
     <Paper className={classes.mainContainer}>
       <Paper className={classes.viewerContainer} >
-        {progressBarLoad && (
+        {(progressBarLoad || progressBarRender) && (
           <Box sx={{ width: '100%' }}>
             <LinearProgressBarTiming 
               value={percentage}
               currentProgressText={currentProgressText}
               completionProgressText={completionProgressText}
+              progressBarRender={progressBarRender}
              />
           </Box>
         )}
@@ -1399,6 +1401,7 @@ export default function ManufacturabilityAnalysis(props) {
             whatchanged={state.whatchange} dataselection={0}
             onClick={handleModelClick}
             activeDataTable={0}
+            setProgressBarRender={setProgressBarRender}
             //resetSelectionFromTree={resetSelectionFromTree}
           />
         }

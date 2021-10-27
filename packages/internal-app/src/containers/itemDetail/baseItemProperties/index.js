@@ -91,6 +91,7 @@ export default function BaseItemProperties({
   const [fileId, setFileId] = useState(0);
   const [fileUUId, setfileUUId] = useState(itemProperties.fileUUId);
   const [isFileLoading, setIsFileLoading] = useState(false);
+  const [progressBarRender, setProgressBarRender] = useState(false); 
 
   useEffect(() => {
     console.log('Setting gltf', gltfjson);
@@ -332,7 +333,7 @@ export default function BaseItemProperties({
       });
       setIsLoading(false);
       dispatch(
-        showSuccessAlert({ message: 'File uploaded and Rendered successfully' })
+        showSuccessAlert({ message: 'File Parsed successfully' })
       );
     } catch (error) {
       setIsLoading(false);
@@ -362,12 +363,13 @@ export default function BaseItemProperties({
       {
         <Grid className={classes.designcontainer}>
           <Paper className={classes.paperContainer} variant="outlined" square>
-            {progressBarLoader && (
+            {(progressBarLoader||progressBarRender) && (
               <Box sx={{ width: '100%' }}>
                 <LinearProgressBarTiming 
                   value={percentager} 
                   currentProgressText={currentProgressTexter} 
                   completionProgressText={completionProgressTexter} 
+                  progressBarRender={progressBarRender}
                 />
               </Box>
             )}
@@ -394,6 +396,7 @@ export default function BaseItemProperties({
                   whatchanged={0}
                   dataselection={0}
                   activeDataTable={0}
+                  setProgressBarRender={setProgressBarRender}
                 />
               )}
             {(isFileLoading) && <CircularProgress />}
