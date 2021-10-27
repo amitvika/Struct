@@ -782,11 +782,7 @@ export default function GeometricDimensioning(props) {
           };
           //console.log("Setting states here1",item['state']);
         } else {
-<<<<<<< HEAD
-          console.log('Item to be assigned', item);
-=======
           //console.log("Item to be assigned",item);
->>>>>>> 9b27874e148479ee459265f21f92b89df755e8f2
           item['state'].selected = item.selectedshell;
           const currentNode = findMyTreeNode(item);
           if (currentNode) {
