@@ -1514,7 +1514,12 @@ class StepIgesAnalyser():
                 return False
         return True
 
-    
+    def hashTransCode(self,transform):
+        hashcode = ''
+        for i in range(1,4):
+            for j in range(1,5):
+                hashcode += str(transform.Value(i,j))
+        return hashcode
 
     def getFeaturesFromShape(self, aShape, subLabel, localTransform, parentColor, subShapes, parentShape=None, disectparts=True, doCompact=True, doParts=False, percentincrement=0.1, fromCompound=False):
         if aShape.IsNull():
@@ -1537,13 +1542,39 @@ class StepIgesAnalyser():
             reduced_corners_dict = None
             if self.edgesize > 0:
                 reduced_edges_dict = {}
+                print("Reach here faces",len(faces_dict))
+                findEdgesAgain=False
+                if findEdgesAgain:
+                    for _, face in faces_dict.items():
+                        topologyExplorer = Topo(face,ignore_orientation=False)
+                        print("Reach here list",topologyExplorer)
+                        mygotedges = list( topologyExplorer.edges() )
+                        print("Reach here mygotedges",len(mygotedges))
+                        for edge in mygotedges:
+                            hashcode = str(hash(edge))+str(edge.Orientation())+self.hashTransCode(edge.Location().Transformation())
+                            if (not hashcode in self.outputEdges):
+                                self.outputEdges[hashcode] = (edge)
+                                reduced_edges_dict[hashcode]=edge
+                print("Reach here list1",len(reduced_edges_dict))
                 for hash_edge, edge in edges_dict.items():
                     hashcode = hash_edge+transformationHash
                     if (not hashcode in self.outputEdges):
                         self.outputEdges[hashcode] = (edge)
                         reduced_edges_dict[hashcode]=edge
+                print("Reach here list2",len(reduced_edges_dict))
             if self.vertexsize > 0: 
-                reduced_corners_dict = {}            
+                reduced_corners_dict = {}  
+                findCornersAgain=False
+                if findCornersAgain:
+                    for _, face in faces_dict.items():
+                        topologyExplorer = Topo(face,ignore_orientation=False)
+                        mygotcorners = list( topologyExplorer.vertices() )
+                        #print("Reach here mygotcorners",mygotcorners)
+                        for corner in mygotcorners:
+                            hashcode = str(hash(corner))+self.hashTransCode(corner.Location().Transformation())
+                            if (not hashcode in self.outputCorners):
+                                self.outputCorners[hashcode] = (corner)
+                                reduced_corners_dict[hashcode]=corner           
                 for hash_corner, corner in vertices_dict.items():
                     hashcode = hash_corner+transformationHash
                     if (not hashcode in self.outputCorners):
@@ -1724,6 +1755,7 @@ class StepIgesAnalyser():
                 self.parentIDs.pop()          
                 self.direntry = self.direntry[:mydirectorylen]
             if(solidstotalcount==0):
+                print("I am doing the compound as solid since solidstotalcount is zero")
                 self.addOneFeature(
                     shape,subLabel,localTransformation,subShapesFromParent,
                     subName,subEntry,parentName,parentEntry,parent_node_index,
@@ -1735,8 +1767,11 @@ class StepIgesAnalyser():
                     percentincrement,fromCompound)
 
     def addOneFeature(self,shape,subLabel,localTransformation,subShapesFromParent,subName,subEntry,parentName,parentEntry,parent_node_index,percentincrement,fromCompound):
+        print("Reaching here 1")
         currentColor, _ = self.setColor(shape,subLabel)
+        print("Reaching here 2")
         my_parent_id = self.parentIDs[-1]
+        print("Reaching here 3")
         myPartMeshID = None
         atleastOneItemAdded = 0  
         toAddFaces = True 
@@ -1744,13 +1779,15 @@ class StepIgesAnalyser():
         parentIDNotAdded = True
         myLenShapeCompounds = 0
         
-        
+        print("Reaching here 4")
+        myFaceType=[]
         if self.multiplegltf!=0 or (self.edgesize==0 and self.vertexsize==0) :
             shape_compounds, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces = \
                 self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, True, (self.edgesize!=0 or self.vertexsize!=0 or self.ascompound), percentincrement,fromCompound)
             #atleastOneItemAdded = 0
             #myFaceType=[]
             #print(shape_faces)
+            print("Reaching here 5")
             toAddFaces = (disect_type=="PART")
             myLenShapeCompounds = ( len(shape_compounds) if shape_compounds else 0 )
             print("\t"*self.indent,"No of subparts",myLenShapeCompounds)
@@ -1804,7 +1841,10 @@ class StepIgesAnalyser():
                                     print("Serving TopAbs_COMPSOLID")                        
                             print("I have written lowest node",basename,shape_disp.ShapeType() ) """
                             if(disect_type=="FACE"):
-                                _, myCurveCode = recognize_face_entity(shape_disp)
+                                face_entity, myCurveCode = recognize_face_entity(shape_disp)
+                                if((face_entity=="Cylinder") and (len(shape_faces)==3)):  #PURE CYLINDER
+                                    print("NO of faced faces in the cylinder",len(shape_faces))                               
+                                    myFaceType.append(face_entity)
                             else:
                                 myCurveCode = ""
                             (myPartMeshID,meshname,uvPlane,solidFoundHere)=self.add_part(
@@ -1841,6 +1881,7 @@ class StepIgesAnalyser():
                 self.percentage += (0.5/myLenShapeCompounds)*percentincrement
                 self.write_status()
         else:
+            print("Reaching here 6")
             _, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces  = \
                 self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, False, False,percentincrement,fromCompound)
             myLenShapeCompounds += (len(shape_faces) if shape_faces else 0) +\
@@ -1857,7 +1898,7 @@ class StepIgesAnalyser():
                 self.direntry += "/"+mydirectory
                 parentIDNotAdded = False
         #atleastOneItemAdded = 0
-        myFaceType=[]
+        
         myFeaturesFaces=[]
         myFeaturesEdges=[]
         myFeaturesVertices=[]
@@ -1883,7 +1924,8 @@ class StepIgesAnalyser():
                                 
                                 face_entity, myCurveCode = recognize_face_entity(shape_disp)                                       
                                 #_, _, face_entity = recognize_direction(shape_disp)
-                                if(face_entity=="Cylinder"):                                 
+                                if((face_entity=="Cylinder") and (len(shape_faces)==3)):  #PURE CYLINDER 
+                                    print("NO of edged faces in the cylinder",len(shape_faces))                               
                                     myFaceType.append(face_entity)
                                 #print("I am writing",disect_type,self.fileId, basename)
                                 """ stype = shape_disp.ShapeType()
@@ -1945,20 +1987,23 @@ class StepIgesAnalyser():
             toAddCorners = True
             if self.edgesize > 0:
                 edgeColor = self.getDarken(faceColor,0.50)                        
-                if  (len(myFaceType)>0)  :
+                if  (len(myFaceType)==1)  :
                     for _, shape_edge  in shape_edges.items():
                         myCurveType, Distance, myCurveCode = recognize_curve(shape_edge)
                         #print("MyCurve",myCurveType, Distance)
                         if (myCurveType=="Circle") and (Distance<=0.0001):
                             toAddCorners=False
-                for _, shape_edge  in shape_edges.items():
+                print("Got edges for",len(shape_edges),"To add Corners",toAddCorners)
+                edgenumber=0
+                for shape_hash_edge, shape_edge  in shape_edges.items():
                     toAddAsAnEdge=True
+                    edgenumber+=1
                     myCurveType, Distance, myCurveCode = recognize_curve(shape_edge)
                     if (toAddCorners==False):
                         #print("MyCurve",myCurveType)
                         toAddAsAnEdge=(myCurveType=="Circle")
                     #else :
-                    #    print("I have nothing todo with",len(myFaceType),myFaceType)
+                    print("Got edges for",edgenumber,"To add edge",toAddAsAnEdge)
                     if toAddAsAnEdge:
                         self.fileId += 1
                         shape_transform = BRepBuilderAPI_Transform(shape_edge, localTransformation).Shape()
@@ -1988,7 +2033,7 @@ class StepIgesAnalyser():
                                 curvecode=myCurveCode                      
                             ) 
                         if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
-                            self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, edgeColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
+                            self.outputShapes[shape_hash_edge] = [shape_disp, parentName, parentEntry, edgeColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
                         #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
                     self.percentage += (0.5/myLenShapeCompounds)*percentincrement
                     self.write_status()
@@ -1999,7 +2044,7 @@ class StepIgesAnalyser():
                 #print("Doing3",self.multiplegltf,self.edgesize,self.vertexsize,self.includeparts,atleastOneItemAdded)         
             
                 vertexColor = self.getDarken(faceColor,0.75)  
-                for key, shape_vertex  in shape_vertices.items():
+                for shape_hash_vertex, shape_vertex  in shape_vertices.items():
                     
                     self.fileId += 1
                     shape_transform = BRepBuilderAPI_Transform(shape_vertex, localTransformation).Shape()        
@@ -2023,7 +2068,7 @@ class StepIgesAnalyser():
                             curvecode=" "                       
                         ) 
                     if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
-                        self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, vertexColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
+                        self.outputShapes[shape_hash_vertex] = [shape_disp, parentName, parentEntry, vertexColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
                     self.percentage += (0.5/myLenShapeCompounds)*percentincrement
                     self.write_status()
                     #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())

@@ -216,7 +216,7 @@ const ItemDetail = () => {
   const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
     if (isFileExistingInServer(whichOneToLoad + '.gltf')) {
       console.log('Found gltf', whichOneToLoad);
-      return false;
+      return 0;
     }
     if (isFileExistingInServer(whichOneToLoad + '.status')) {
       console.log('Found status', whichOneToLoad);
@@ -225,10 +225,10 @@ const ItemDetail = () => {
       if (statusRes) {
         percent = statusRes.data.percent;
         if (percent == 100) {
-          return false;
+          return 0;
         }
       } else {
-        return true;
+        return 2;
       }
       //find deltaTime of currenttime and statusRes time., If time is too big: problem to reparse
       let currenttime = new Date().toUTCString();
@@ -260,12 +260,12 @@ const ItemDetail = () => {
         difference += 24 * 60 * 60;
       }
       if (difference > 2 * 60) {
-        return true;
+        return 2;
       }
-      return false;
+      return 1;
     }
     console.log("NO gltf and status files Existing",whichOneToLoad);
-    return true;
+    return 3;
   };
   const setStack = async (item) => {
     if (!item.fileId && !item.fileUUId) {
@@ -273,6 +273,7 @@ const ItemDetail = () => {
     }
     
     try {
+      let okToParse = 0;
       if (!item.fileStack || item.fileStack === null) {
         console.log('Checking Store', item.fileStore);
         if (item.fileStore && item.fileStore.length > 0) {
@@ -281,11 +282,11 @@ const ItemDetail = () => {
           console.log('Checking Stack', fileStack);
           const whichOneToLoad = getResourcePathURL(item) + fileStack;
           const whichOneToStatus = getStatusPathURL(item) + fileStack;
-          let okToParse = await checkStatusToParse(
+          okToParse = await checkStatusToParse(
             whichOneToLoad,
             whichOneToStatus
           );
-          if (!okToParse) {
+          if (okToParse<=1) {
             console.log('Found', fileStack);
             item.fileStack = fileStack;
           } else {
@@ -294,6 +295,13 @@ const ItemDetail = () => {
         } else {
           console.log('Store Not Found', item.fileStore);
         }
+      } else {
+          const whichOneToLoad = getResourcePathURL(item) + item.fileStack;
+          const whichOneToStatus = getStatusPathURL(item) + item.fileStack;
+          okToParse = await checkStatusToParse(
+            whichOneToLoad,
+            whichOneToStatus
+          );
       }
       if (!item.fileStack || item.fileStack === null) {
         //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
@@ -342,7 +350,8 @@ const ItemDetail = () => {
           item.fileMPPS,
           item.fileStack,
           item.fileKinematic,
-          item.fileUUId
+          item.fileUUId,
+          okToParse
         );
         if (itemProperties.fileStack != item.fileStack) {
           setItemProperties((prevData) => ({
@@ -367,6 +376,7 @@ const ItemDetail = () => {
     }
 
     try {
+      let okToParse = 0;
       if (!item.fileMPPS || item.fileMPPS === null) {
         console.log('Checking Store', item.fileStore);
         if (item.fileStore && item.fileStore.length > 0) {
@@ -375,7 +385,7 @@ const ItemDetail = () => {
           console.log('Checking Order', fileMPPS);
           const whichOneToLoad = getResourcePathURL(item) + fileMPPS;
           const whichOneToStatus = getStatusPathURL(item) + fileMPPS;
-          let okToParse = await checkStatusToParse(
+          okToParse = await checkStatusToParse(
             whichOneToLoad,
             whichOneToStatus
           );
@@ -388,6 +398,13 @@ const ItemDetail = () => {
         } else {
           console.log('Store Not Found', item.fileStore);
         }
+      } else {
+          const whichOneToLoad = getResourcePathURL(item) + item.fileMPPS;
+          const whichOneToStatus = getStatusPathURL(item) + item.fileMPPS;
+          okToParse = await checkStatusToParse(
+            whichOneToLoad,
+            whichOneToStatus
+          );
       }
       if (!item.fileMPPS || item.fileMPPS === null) {
         //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
@@ -441,7 +458,8 @@ const ItemDetail = () => {
           item.fileMPPS,
           item.fileStack,
           item.fileKinematic,
-          item.fileUUId
+          item.fileUUId,
+          okToParse
         );
         if (itemProperties.fileMPPS != item.fileMPPS) {
           setItemProperties((prevData) => ({
@@ -474,7 +492,7 @@ const ItemDetail = () => {
         let myTabIndex = myTabedIndex == 'iupc' ? 'gdtac' : myTabedIndex;
         if (myTabIndex == 'iupc') {
           console.log('Checking iupc', myTabIndex, item);
-
+          let okToParse = 0;
           if (!item.fileKinematic || item.fileKinematic === null) {
             console.log('Checking Store', item.fileStore);
             if (item.fileStore && item.fileStore.length > 0) {
@@ -483,7 +501,7 @@ const ItemDetail = () => {
               console.log('Checking Kinematic', fileKinematic);
               const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
               const whichOneToStatus = getStatusPathURL(item) + fileKinematic;
-              let okToParse = await checkStatusToParse(
+              okToParse = await checkStatusToParse(
                 whichOneToLoad,
                 whichOneToStatus
               );
@@ -496,6 +514,13 @@ const ItemDetail = () => {
             } else {
               console.log('Store Not Found', item.fileStore);
             }
+          } else {
+            const whichOneToLoad = getResourcePathURL(item) + item.fileKinematic;
+              const whichOneToStatus = getStatusPathURL(item) + item.fileKinematic;
+              okToParse = await checkStatusToParse(
+                whichOneToLoad,
+                whichOneToStatus
+              );
           }
           if (!item.fileKinematic || item.fileKinematic === null) {
             console.log(
@@ -550,7 +575,8 @@ const ItemDetail = () => {
               item.fileMPPS,
               item.fileStack,
               item.fileKinematic,
-              item.fileUUId
+              item.fileUUId,
+              okToParse
             );
             if (itemProperties.fileKinematic != item.fileKinematic) {
               setItemProperties((prevData) => ({
@@ -560,7 +586,7 @@ const ItemDetail = () => {
             }
           }
         } else if (myTabIndex == 'pdcu') {
-          let okToParse = false;
+          let okToParse = 0;
           if (item.fileStore) {
             const whichOneToLoad = getResourcePathURL(item) + item.fileStore;
             const whichOneToStatus = getStatusPathURL(item) + item.fileStore;
@@ -573,10 +599,10 @@ const ItemDetail = () => {
               okToParse
             );
           } else {
-            okToParse = true;
+            okToParse = 2;
           }
           //console.log("After checking GLTF and Status",okToParse,item.fileStore,(okToParse || !item.fileStore || item.fileStore === null));
-          if (okToParse || !item.fileStore || item.fileStore === null) {
+          if ((okToParse>1) || !item.fileStore || item.fileStore === null) {
             //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
             setIsLoading(true);
             setIsFileLoading(true);
@@ -732,7 +758,8 @@ const ItemDetail = () => {
               item.fileMPPS,
               item.fileStack,
               item.fileKinematic,
-              item.fileUUId
+              item.fileUUId,
+              okToParse
             );
             if (itemProperties.fileStore != item.fileStore) {
               setItemProperties((prevData) => ({
@@ -742,6 +769,7 @@ const ItemDetail = () => {
             }
           }
         } else {
+          let okToParse=0;
           if (!item.fileGDT || item.fileGDT === null) {
             console.log('Checking Store', item.fileStore);
             if (item.fileStore && item.fileStore.length > 0) {
@@ -750,7 +778,7 @@ const ItemDetail = () => {
               console.log('Checking GDT', fileGDT);
               const whichOneToLoad = getResourcePathURL(item) + fileGDT;
               const whichOneToStatus = getStatusPathURL(item) + fileGDT;
-              let okToParse = await checkStatusToParse(
+              okToParse = await checkStatusToParse(
                 whichOneToLoad,
                 whichOneToStatus
               );
@@ -763,6 +791,13 @@ const ItemDetail = () => {
             } else {
               console.log('Store Not Found', item.fileStore);
             }
+          } else {
+              const whichOneToLoad = getResourcePathURL(item) + item.fileGDT;
+              const whichOneToStatus = getStatusPathURL(item) + item.fileGDT;
+              okToParse = await checkStatusToParse(
+                whichOneToLoad,
+                whichOneToStatus
+              );
           }
           if (!item.fileGDT || item.fileGDT === null) {
             //console.log("Down0f",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId,isLoading);
@@ -929,7 +964,8 @@ const ItemDetail = () => {
               item.fileMPPS,
               item.fileStack,
               item.fileKinematic,
-              item.fileUUId
+              item.fileUUId,
+              okToParse
             );
             if (itemProperties.fileGDT != item.fileGDT) {
               setItemProperties((prevData) => ({
@@ -963,7 +999,8 @@ const ItemDetail = () => {
     fileMPPS,
     fileStack,
     fileKinematic,
-    fileUUId
+    fileUUId,
+    okToParse
   ) => {
     try {
       let obj = {
@@ -990,7 +1027,7 @@ const ItemDetail = () => {
         whichOneToLoad += fileGDT;
       }
       setProgressBarLoad(true);
-      if (fileUUId) {
+      if (fileUUId && okToParse==1) {
         const statusRes = await getAFileFromStore(whichOneToLoad, 'status');
         let percent = 0;
         if (statusRes) {

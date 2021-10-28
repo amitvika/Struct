@@ -6,7 +6,7 @@ import {
 } from "@material-ui/core"
 import Viewer from './Viewer';
 import ViewerToolbar from './ViewerToolbar';
-import {  getShapeInfo,saveGDTInfo } from '@monostruct/common/api/fileUpload.api'
+import { getShapeInfo, saveGDTInfo } from '@monostruct/common/api/fileUpload.api'
 import {
   SELECTDISTANCE, SELECTSOLID, SELECTFACE, SELECTEDGE, SELECTCORNER, 
   SELECTMEASURE, SELECTASSEMBLY, SELECTFEATURE, SELECTHIRERACHY, 
@@ -1145,6 +1145,8 @@ export default function GeometricDimensioning(props) {
             structure.objects[structure.start + index]['kind'] = element[0].Info['kind'];
             structure.objects[structure.start + index]['fill'] = element[0].fill;
             structure.objects[structure.start + index]['obb'] = element[0].obb;
+            structure.objects[structure.start + index]['diameter'] = 2.0 * (element[0].Info['kind']['radius'] ? element[0].Info['kind']['radius']:0) ;
+
             //console.log(structure.objects[structure.start+index]);
             /*console.log(element);
              if (element[0].type === 'Edge') {
