@@ -25,9 +25,9 @@ import SelectedMatesRelation from './SelectedMatesRelation';
 import SelectedGDTMenu from './SelectedGDTMenu';
 import SelectedSummaryTable from './SelectedSummaryTable';
 import ShowLoadingProgressBar from './ShowLoadingProgressBar';
-import LookUpTableSelection from './LookUpTableSelection';
-
 import { USESTYLES } from '@monostruct/common/gltf/Tree/utils';
+
+import DynamicFeature from './DynamicFeature';
 
 export default function ViewerToolbar({
   splitMethod = 0,
@@ -255,11 +255,11 @@ export default function ViewerToolbar({
           )}
         {selectedObjects && selectedObjects.length >= 1 && (
           <>
-            <SectionContainer title={'Hole Tolerancing'}>
-              <LookUpTableSelection {...{ internalProductConfig }} />
-            </SectionContainer>
-            <SectionContainer title={'Geometric Dimensioning and Tolerancing'}>
-              <SelectedGDTMenu
+            <SectionContainer
+              title={'GD&T and Features'}
+              paperStyle={{ display: 'flex', flexDiraction: 'column' }}
+            >
+              {/* <SelectedGDTMenu
                 features={selectedOption != SELECTASSEMBLY}
                 featureList={
                   selectedOption != SELECTASSEMBLY
@@ -267,9 +267,11 @@ export default function ViewerToolbar({
                     : parentObjects
                 }
                 setRowKeyValue={setRowKeyValue}
-              />
+              /> */}
+              {/* <HoleTolerancing {...{ internalProductConfig }} /> */}
+              <DynamicFeature />
             </SectionContainer>
-            <SectionContainer title={'Feature Identification'}>
+            {/* <SectionContainer title={'Feature Identification'}>
               <SelectedFeatureMenu
                 features={selectedOption != SELECTASSEMBLY}
                 featureList={
@@ -279,7 +281,7 @@ export default function ViewerToolbar({
                 }
                 setRowKeyValue={setRowKeyValue}
               />
-            </SectionContainer>
+            </SectionContainer> */}
           </>
         )}
         <SectionContainer title={'Summary Table'}>
@@ -305,7 +307,9 @@ const SectionContainer = (props) => {
   return (
     <Box>
       {props.title && <SubSectionTitle>{props.title}</SubSectionTitle>}
-      <Paper className={classes.flexpaper}>{props.children}</Paper>
+      <Paper className={classes.flexpaper} style={props.paperStyle}>
+        {props.children}
+      </Paper>
     </Box>
   );
 };

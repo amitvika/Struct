@@ -6,11 +6,12 @@ import Select from '@monostruct/common/components/atoms/Select';
 
 export default function DynamicHierarchy(props) {
   const {
-    handleOnDropdownSelectionChange = () => {},
+    handleOnDropdownSelection = () => {},
     hierarchyDropdownList = [],
     selections = [],
     setSelections = () => {},
-    inToolbar = false
+    inToolbar = false,
+    isPaperContainer = true,
   } = props;
 
   const handleDropdownSelection = (title, value, form) => {
@@ -69,7 +70,7 @@ export default function DynamicHierarchy(props) {
   const handleOnChange = ({ data, fieldItem }) => {
     const form = getFormFromOptions(fieldItem.options, data.value);
     handleDropdownSelection(`${fieldItem.title}`, data.value, form);
-    handleOnDropdownSelectionChange({ value: data.value });
+    handleOnDropdownSelection({ value: data.value });
   };
 
   const renderFields = (fieldItem) => {
@@ -149,5 +150,10 @@ export default function DynamicHierarchy(props) {
     );
   }
 
-  return <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>;
+  if(isPaperContainer){
+    return <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>;
+  }
+
+  return renderDropdowns();
+
 }

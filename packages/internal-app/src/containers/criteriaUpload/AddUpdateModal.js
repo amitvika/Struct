@@ -147,9 +147,13 @@ export default function AddUpdateModal({
     if (!dataList || dataList.length === 0) {
       return optionsList;
     }
-    return optionsList.filter((option) =>
-      dataList.find((dataItem) => dataItem.type !== option.value)
-    );
+    return optionsList.filter((option) => {
+      const isAvailable = dataList.find((dataItem) => dataItem.type === option.value)
+      if (isAvailable) {
+        return false;
+      }
+      return true;
+    });
   };
 
   return (

@@ -37,8 +37,8 @@ const buildQuery = (req) => {
     query.$and.push({ _id: getObjectId(req.query.id) });
   }
 
-  if (req.query.design_type) {
-    query.$and.push({ design_type: design_type });
+  if (req.query.type) {
+    query.$and.push({ type: req.query.type });
   }
 
   if (req.query.name) {
@@ -100,19 +100,6 @@ exports.upsert = async (req, res) => {
     res.json(mapProductDesign(productDesign));
   } catch (error) {
     console.log('upsert', error);
-    res.status(500).send(error);
-  }
-};
-
-exports.getInternaUseProductConfiguration = async (req, res) => {
-  try {
-    let productDesigns = await CriteriaUploadModel.findOne({
-      type: 'Internal Use Product Configuration'
-    });
-
-    res.json(mapProductDesign(productDesigns));
-  } catch (error) {
-    console.log('get', error);
     res.status(500).send(error);
   }
 };

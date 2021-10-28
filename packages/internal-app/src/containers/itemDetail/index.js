@@ -115,10 +115,10 @@ const ItemDetail = () => {
   }, [currentItem]);
 
   useEffect(() => {
-    CriteriaUploadAPI.getInternaUseProductConfiguration()
+    CriteriaUploadAPI.fetchCriteriaUpload(`type=Internal Use Product Configuration`)
       .then((resp) => {
-        if (resp.data) {
-          setInternalProductConfig(resp.data);
+        if (get(resp,'data[0]')) {
+          setInternalProductConfig(get(resp,'data[0]'));
         }
       })
       .catch((error) => {});

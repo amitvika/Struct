@@ -39,7 +39,7 @@ export default function DynamicHierarchy(props) {
     
   }, []);
 
-  const handleOnDropdownSelectionChange = ({ value }) => {
+  const handleOnDropdownSelection = ({ value }) => {
     if (value === 'Motion Control') {
       setShowKineticModal(true);
     } else {
@@ -67,7 +67,7 @@ export default function DynamicHierarchy(props) {
     <>
       <DynamicHierarchyDropdowns
         {...{
-          handleOnDropdownSelectionChange,
+          handleOnDropdownSelection,
           hierarchyDropdownList,
           selections,
           setSelections
