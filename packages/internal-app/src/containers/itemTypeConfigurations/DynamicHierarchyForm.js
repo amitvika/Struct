@@ -6,8 +6,13 @@ import { useSelector } from 'react-redux';
 import DynamicHierarchyDropdowns from '@monostruct/common/containers/DynamicHierarchyDropdowns';
 
 export default function DynamicHierarchy(props) {
-  const { setShowKineticModal, handleItemUpdate, renderData, setRenderData } =
-    props;
+  const {
+    setShowKineticModal,
+    handleItemUpdate,
+    renderData,
+    setRenderData,
+    internalProductConfig
+  } = props;
   const currentItem = useSelector((state) => state.item.currentItem);
 
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
@@ -21,19 +26,20 @@ export default function DynamicHierarchy(props) {
   }, [stateUpdated]);
 
   useEffect(() => {
-    CriteriaUploadAPI.getInternaUseProductConfiguration()
-      .then((resp) => {
-        const hierarchySchemaArr = get(resp, 'data.hierarchySchema', []);
-        setHierarchyDropdownList(hierarchySchemaArr);
+    const hierarchySchemaArr = get(
+      internalProductConfig,
+      'hierarchySchema',
+      []
+    );
+    setHierarchyDropdownList(hierarchySchemaArr);
 
-        if (get(currentItem, 'hierarchySelections[0]')) {
-          setSelections(get(currentItem, 'hierarchySelections', []));
-        }
-      })
-      .catch((error) => {});
+    if (get(currentItem, 'hierarchySelections[0]')) {
+      setSelections(get(currentItem, 'hierarchySelections', []));
+    }
+    
   }, []);
 
-  const handleOnDropdownSelectionChange = ({ value }) => {
+  const handleOnDropdownSelection = ({ value }) => {
     if (value === 'Motion Control') {
       setShowKineticModal(true);
     } else {
@@ -61,7 +67,7 @@ export default function DynamicHierarchy(props) {
     <>
       <DynamicHierarchyDropdowns
         {...{
-          handleOnDropdownSelectionChange,
+          handleOnDropdownSelection,
           hierarchyDropdownList,
           selections,
           setSelections

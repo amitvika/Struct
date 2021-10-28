@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Paper/*, CircularProgress*/ } from '@material-ui/core';
+import { Paper /*, CircularProgress*/ } from '@material-ui/core';
 import GeometricDimensioning from '../itemDetail/geometricDimensioning';
-import {
-  SELECTFEATURE,
-  USESTYLES
-} from '@monostruct/common/gltf/Tree/utils';
+import { SELECTFEATURE, USESTYLES } from '@monostruct/common/gltf/Tree/utils';
 
 import Headding from '@monostruct/common/components/atoms/Headding';
 
@@ -14,86 +11,151 @@ import DynamicHierarchyForm from './DynamicHierarchyForm';
 let state_fileOnChange = null;
 
 export default function ItemTypeConfiguration(props) {
-  const { tabIndex, 
-    fileId, 
+  const {
+    tabIndex,
+    fileId,
     fileUUId,
     fileGDT,
-    gltfjson, 
-    isLoading, 
-    itemProperties, 
-    handleItemUpdate, 
-    additionalSaveFunction, 
+    gltfjson,
+    isLoading,
+    itemProperties,
+    handleItemUpdate,
+    additionalSaveFunction,
     progressBarLoad,
-    percentage, 
+    percentage,
     currentProgressText,
-    completionProgressText
-  } =  props;
+    completionProgressText,
+    internalProductConfig
+  } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
-  const [percentager, setPercentager] = useState(percentage||0);
+  const [percentager, setPercentager] = useState(percentage || 0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
-  const [currentProgressTexter, setCurrentProgressTexter] = useState(currentProgressText);
-  const [completionProgressTexter, setCompletionProgressTexter] = useState(completionProgressText);
+  const [currentProgressTexter, setCurrentProgressTexter] =
+    useState(currentProgressText);
+  const [completionProgressTexter, setCompletionProgressTexter] = useState(
+    completionProgressText
+  );
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
-  
+
   const [showKineticModel, setShowKineticModal] = useState(true);
 
   useEffect(() => {
-    if(fileUUId) {
-      console.log("Before Changing fileUUId from IUPC",fileUUIder,fileUUId);
+    if (fileUUId) {
+      console.log('Before Changing fileUUId from IUPC', fileUUIder, fileUUId);
       setfileUUIder(fileUUId);
-      console.log("After Changing fileUUId from IUPC",fileUUIder,fileUUId);
+      console.log('After Changing fileUUId from IUPC', fileUUIder, fileUUId);
     }
   }, [fileUUId]);
   useEffect(() => {
-    setProgressBarLoader(progressBarLoad);    
-    console.log("Changing progress bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
+    setProgressBarLoader(progressBarLoad);
+    console.log(
+      'Changing progress bar from IUPC',
+      progressBarLoad,
+      fileUUIder,
+      fileUUId
+    );
   }, [progressBarLoad]);
   useEffect(() => {
-    setCurrentProgressTexter(currentProgressText);    
-    console.log("Changing currentProgressText bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
+    setCurrentProgressTexter(currentProgressText);
+    console.log(
+      'Changing currentProgressText bar from IUPC',
+      progressBarLoad,
+      fileUUIder,
+      fileUUId
+    );
   }, [currentProgressText]);
   useEffect(() => {
-    setCompletionProgressTexter(completionProgressText);    
-    console.log("Changing completionProgressText bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
+    setCompletionProgressTexter(completionProgressText);
+    console.log(
+      'Changing completionProgressText bar from IUPC',
+      progressBarLoad,
+      fileUUIder,
+      fileUUId
+    );
   }, [completionProgressText]);
   useEffect(() => {
-    if(percentage) {
+    if (percentage) {
       setPercentager(percentage);
-      console.log("Changing percentage from IUPC",percentage,fileUUIder,fileUUId);
+      console.log(
+        'Changing percentage from IUPC',
+        percentage,
+        fileUUIder,
+        fileUUId
+      );
     }
   }, [percentage]);
 
-  
-  
-  const [fieldKey,setFieldKey] = useState({name:"NoKey",option:SELECTFEATURE});
-  const [renderData,setRenderData] = useState([]);
+  const [fieldKey, setFieldKey] = useState({
+    name: 'NoKey',
+    option: SELECTFEATURE
+  });
+  const [renderData, setRenderData] = useState([]);
   //const [fieldOnChange,setFieldOnChange] = useState(null); //unable to set state for the functions..
 
-  const addSelectionFromComponent = async (selectedNodes,aFileKey,OnChange) => {
-    console.log("Add Selection from Components",selectedNodes,aFileKey,fieldKey);
+  const addSelectionFromComponent = async (
+    selectedNodes,
+    aFileKey,
+    OnChange
+  ) => {
+    console.log(
+      'Add Selection from Components',
+      selectedNodes,
+      aFileKey,
+      fieldKey
+    );
     setRenderData(selectedNodes);
-    setFieldKey(aFileKey);   
+    setFieldKey(aFileKey);
     state_fileOnChange = OnChange;
-    console.log("Add Selection from Components",selectedNodes,aFileKey,fieldKey);
-  
+    console.log(
+      'Add Selection from Components',
+      selectedNodes,
+      aFileKey,
+      fieldKey
+    );
   };
 
   const handleChangeOfSelection = async (mySelectedObjects) => {
-    const fieldItemKey = fieldKey ? fieldKey.name? fieldKey.name.length==0? 'fieldKey':fieldKey : 'fieldKey' : 'fieldKey';
-    if(handleItemUpdate) {    
-      console.log("I am asking the component to set",mySelectedObjects, fieldKey,fieldItemKey);
-      handleItemUpdate({[fieldItemKey]: [...mySelectedObjects]});
+    const fieldItemKey = fieldKey
+      ? fieldKey.name
+        ? fieldKey.name.length == 0
+          ? 'fieldKey'
+          : fieldKey
+        : 'fieldKey'
+      : 'fieldKey';
+    if (handleItemUpdate) {
+      console.log(
+        'I am asking the component to set',
+        mySelectedObjects,
+        fieldKey,
+        fieldItemKey
+      );
+      handleItemUpdate({ [fieldItemKey]: [...mySelectedObjects] });
     } else {
-      console.log("I am not asking the component to set because itemupdate is null ",mySelectedObjects, fieldKey,fieldItemKey);
+      console.log(
+        'I am not asking the component to set because itemupdate is null ',
+        mySelectedObjects,
+        fieldKey,
+        fieldItemKey
+      );
     }
-    if(state_fileOnChange) {
-      console.log("I am asking the component to change field via local variable",mySelectedObjects, fieldKey,fieldItemKey);
-      state_fileOnChange(fieldItemKey,[...mySelectedObjects]);
+    if (state_fileOnChange) {
+      console.log(
+        'I am asking the component to change field via local variable',
+        mySelectedObjects,
+        fieldKey,
+        fieldItemKey
+      );
+      state_fileOnChange(fieldItemKey, [...mySelectedObjects]);
     } else {
-      console.log("I am not asking the component to change field via local variable since file on change is null",mySelectedObjects, fieldKey,fieldItemKey);
+      console.log(
+        'I am not asking the component to change field via local variable since file on change is null',
+        mySelectedObjects,
+        fieldKey,
+        fieldItemKey
+      );
     }
-  }
+  };
 
   useEffect(() => {
     setIsFileLoading(isLoading);
@@ -110,6 +172,7 @@ export default function ItemTypeConfiguration(props) {
           handleItemUpdate={handleItemUpdate}
           renderData={renderData}
           setRenderData={addSelectionFromComponent}
+          internalProductConfig={internalProductConfig}
         />
       );
     } else {
@@ -122,35 +185,34 @@ export default function ItemTypeConfiguration(props) {
       <Headding style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 20 }}>
         {itemProperties.itemGeometry?.itemType || 'Configure Item'}
       </Headding>
-     {/*  <LoadingModal isLoading={isLoading} /> */}
+      {/*  <LoadingModal isLoading={isLoading} /> */}
       {renderExcelUI()}
-      {/*!isLoading &&*/ (
-        <Paper className={classes.mainContainer}>
+      {
+        /*!isLoading &&*/ <Paper className={classes.mainContainer}>
           <Paper className={classes.viewerContainer}>
-            {/*!isLoading &&
+            {
+              /*!isLoading &&
               Object.keys(gltfjson).length > 0 &&
-              !isFileLoading &&*/ (
-                <GeometricDimensioning
-                  fileId={fileId}
-                  fileGDT={fileGDT}
-                  fileUUId={fileUUIder}
-                  gltfjson={gltfjson}
-                  isLoading={isFileLoading}                
-                  tabIndex={tabIndex}
-                  keyName={fieldKey}  
-                  handleChangeOfSelection={handleChangeOfSelection}   
-                  additionalSaveFunction={additionalSaveFunction}  
-                  progressBarLoad={progressBarLoader}
-                  percentage={percentager}  
-                  currentProgressText={currentProgressTexter}
-                  completionProgressText={completionProgressTexter}       
-                />
-              )}
+              !isFileLoading &&*/ <GeometricDimensioning
+                fileId={fileId}
+                fileGDT={fileGDT}
+                fileUUId={fileUUIder}
+                gltfjson={gltfjson}
+                isLoading={isFileLoading}
+                tabIndex={tabIndex}
+                keyName={fieldKey}
+                handleChangeOfSelection={handleChangeOfSelection}
+                additionalSaveFunction={additionalSaveFunction}
+                progressBarLoad={progressBarLoader}
+                percentage={percentager}
+                currentProgressText={currentProgressTexter}
+                completionProgressText={completionProgressTexter}
+              />
+            }
             {/* {(isLoading || isFileLoading) && <CircularProgress />} */}
           </Paper>
-         
         </Paper>
-      )}
+      }
     </>
   );
 }

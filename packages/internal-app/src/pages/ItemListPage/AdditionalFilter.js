@@ -16,9 +16,9 @@ export default function AdditionalFilter({
   const [stateUpdated, setStateUpdated] = useState(false);
 
   useEffect(() => {
-    CriteriaUploadAPI.getInternaUseProductConfiguration()
+    CriteriaUploadAPI.fetchCriteriaUpload(`type=Internal Use Product Configuration`)
       .then((resp) => {
-        const hierarchySchemaArr = get(resp, 'data.hierarchySchema', []);
+        const hierarchySchemaArr = get(resp, 'data[0].hierarchySchema', []);
         setHierarchyDropdownList(hierarchySchemaArr);
       })
       .catch((error) => {});
@@ -31,7 +31,7 @@ export default function AdditionalFilter({
     }
   }, [isFilterResetted]);
 
-  const handleOnDropdownSelectionChange = () => {
+  const handleOnDropdownSelection = () => {
     setStateUpdated(!stateUpdated);
 
     const filteredData = list.filter(({ hierarchySelections }) => {
@@ -58,7 +58,7 @@ export default function AdditionalFilter({
         hierarchyDropdownList,
         selections,
         setSelections,
-        handleOnDropdownSelectionChange,
+        handleOnDropdownSelection,
         inToolbar: true
       }}
     />

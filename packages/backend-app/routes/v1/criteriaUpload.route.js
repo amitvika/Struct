@@ -12,6 +12,4 @@ router.get("/", Controller.get);
 
 router.post("/", Controller.upsert);
 
-router.get("/internaUseProductConfiguration", Controller.getInternaUseProductConfiguration);
-
 module.exports = router;

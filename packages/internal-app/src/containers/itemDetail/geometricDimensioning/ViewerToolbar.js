@@ -10,8 +10,6 @@ import {
 } from '@monostruct/common/gltf/Tree/utils';
 
 import Button from '@material-ui/core/Button';
-//import { makeStyles } from '@material-ui/core/styles';
-
 import ApartmentOutlinedIcon from '@material-ui/icons/ApartmentOutlined';
 import DashboardOutlinedIcon from '@material-ui/icons/DashboardOutlined';
 import ExtensionOutlinedIcon from '@material-ui/icons/ExtensionOutlined';
@@ -28,6 +26,8 @@ import SelectedGDTMenu from './SelectedGDTMenu';
 import SelectedSummaryTable from './SelectedSummaryTable';
 import ShowLoadingProgressBar from './ShowLoadingProgressBar';
 import { USESTYLES } from '@monostruct/common/gltf/Tree/utils';
+
+import DynamicFeature from './DynamicFeature';
 
 export default function ViewerToolbar({
   splitMethod = 0,
@@ -57,24 +57,11 @@ export default function ViewerToolbar({
   isProgressOpen,
   progressOpenedFiles,
   setIsProgressOpen,
-  setProgressOpenedFiles
+  setProgressOpenedFiles,
+  internalProductConfig
 }) {
   const classes = USESTYLES();
 
-  const renderTitle = (title, extras) => {
-    return (
-      <div
-        style={{
-          fontWeight: 'bold',
-          textAlign: 'center',
-          fontSize: 20
-        }}
-        align="center"
-      >
-        {title}
-      </div>
-    );
-  };
   const renderButtons = () => {
     return (
       <div>
@@ -237,16 +224,14 @@ export default function ViewerToolbar({
       <Box style={{ flex: 1 }}>
         {/*renderToolBarButtons()*/}
         {isProgressOpen && (
-          <Box>
-            <Paper className={classes.flexpaper}>
-              <ShowLoadingProgressBar
-                isProgressOpen={isProgressOpen}
-                progressOpenedFiles={progressOpenedFiles}
-                setIsProgressOpen={setIsProgressOpen}
-                setProgressOpenedFiles={setProgressOpenedFiles}
-              />
-            </Paper>
-          </Box>
+          <SectionContainer>
+            <ShowLoadingProgressBar
+              isProgressOpen={isProgressOpen}
+              progressOpenedFiles={progressOpenedFiles}
+              setIsProgressOpen={setIsProgressOpen}
+              setProgressOpenedFiles={setProgressOpenedFiles}
+            />
+          </SectionContainer>
         )}
         {selectedObjects && selectedObjects.length >= 1 && (
           <div align={'center'}>{renderButtons()}</div>
@@ -255,73 +240,91 @@ export default function ViewerToolbar({
           selectedObjects.length >= 2 &&
           selectedOption != SELECTSOLID &&
           selectedOption != SELECTASSEMBLY && (
-            <Box>
-              {renderTitle('Assembly Mates')}
-              <Paper className={classes.flexpaper}>
-                <SelectedMatesRelation
-                  mates={mates}
-                  featureList={selectedObjects}
-                  mateValues={mateValues}
-                  angleMate={angle}
-                  offsetMate={offset}
-                  setMateValues={setMateValues}
-                  setAngle={setAngle}
-                  setOffset={setOffset}
-                />
-              </Paper>
-            </Box>
+            <SectionContainer title={'Assembly Mates'}>
+              <SelectedMatesRelation
+                mates={mates}
+                featureList={selectedObjects}
+                mateValues={mateValues}
+                angleMate={angle}
+                offsetMate={offset}
+                setMateValues={setMateValues}
+                setAngle={setAngle}
+                setOffset={setOffset}
+              />
+            </SectionContainer>
           )}
         {selectedObjects && selectedObjects.length >= 1 && (
           <>
-            <Box>
-              {renderTitle('Geometric Dimensioning and Tolerancing')}
-              <Paper className={classes.flexpaper}>
-                <SelectedGDTMenu
-                  features={selectedOption != SELECTASSEMBLY}
-                  featureList={
-                    selectedOption != SELECTASSEMBLY
-                      ? selectedObjects
-                      : parentObjects
-                  }
-                  setRowKeyValue={setRowKeyValue}
-                />
-              </Paper>
-            </Box>
-            <Box>
-              {renderTitle('Feature Identification')}
-              <Paper className={classes.flexpaper}>
-                <SelectedFeatureMenu
-                  features={selectedOption != SELECTASSEMBLY}
-                  featureList={
-                    selectedOption != SELECTASSEMBLY
-                      ? selectedObjects
-                      : parentObjects
-                  }
-                  setRowKeyValue={setRowKeyValue}
-                />
-              </Paper>
-            </Box>
+            <SectionContainer
+              title={'GD&T and Features'}
+              paperStyle={{ display: 'flex', flexDiraction: 'column' }}
+            >
+              {/* <SelectedGDTMenu
+                features={selectedOption != SELECTASSEMBLY}
+                featureList={
+                  selectedOption != SELECTASSEMBLY
+                    ? selectedObjects
+                    : parentObjects
+                }
+                setRowKeyValue={setRowKeyValue}
+              /> */}
+              {/* <HoleTolerancing {...{ internalProductConfig }} /> */}
+              <DynamicFeature />
+            </SectionContainer>
+            {/* <SectionContainer title={'Feature Identification'}>
+              <SelectedFeatureMenu
+                features={selectedOption != SELECTASSEMBLY}
+                featureList={
+                  selectedOption != SELECTASSEMBLY
+                    ? selectedObjects
+                    : parentObjects
+                }
+                setRowKeyValue={setRowKeyValue}
+              />
+            </SectionContainer> */}
           </>
         )}
-        <Box>
-          {renderTitle('Summary Table', true)}
-          <Paper className={classes.flexpaper}>
-            <SelectedSummaryTable
-              features={selectedOption != SELECTASSEMBLY}
-              featureList={
-                selectedOption != SELECTASSEMBLY
-                  ? selectedObjects
-                  : parentObjects
-              }
-              activeDataTable={activeDataTable}
-              setActiveDataTable={setActiveDataTable}
-              setCurrentDataTable={setCurrentDataTable}
-              gltfjson={gltfjson}
-              mateValues={mateValues}
-            />
-          </Paper>
-        </Box>
+        <SectionContainer title={'Summary Table'}>
+          <SelectedSummaryTable
+            features={selectedOption != SELECTASSEMBLY}
+            featureList={
+              selectedOption != SELECTASSEMBLY ? selectedObjects : parentObjects
+            }
+            activeDataTable={activeDataTable}
+            setActiveDataTable={setActiveDataTable}
+            setCurrentDataTable={setCurrentDataTable}
+            gltfjson={gltfjson}
+            mateValues={mateValues}
+          />
+        </SectionContainer>
       </Box>
     </>
   );
 }
+
+const SectionContainer = (props) => {
+  const classes = USESTYLES();
+  return (
+    <Box>
+      {props.title && <SubSectionTitle>{props.title}</SubSectionTitle>}
+      <Paper className={classes.flexpaper} style={props.paperStyle}>
+        {props.children}
+      </Paper>
+    </Box>
+  );
+};
+
+const SubSectionTitle = ({ children }) => {
+  return (
+    <div
+      style={{
+        fontWeight: 'bold',
+        textAlign: 'center',
+        fontSize: 20
+      }}
+      align="center"
+    >
+      {children}
+    </div>
+  );
+};
