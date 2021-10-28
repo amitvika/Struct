@@ -1239,6 +1239,7 @@ export default function GeometricDimensioning(props) {
   const getShapeInformation = (structure = {}) => {
     var stepArray = [];
     var siblingArray = [];
+    var partArray=[];
     //var firstOne = null;
 
     structure.objects.forEach((element) => {
@@ -1264,12 +1265,19 @@ export default function GeometricDimensioning(props) {
         }
         console.log('Added in the loop', siblings);
         siblingArray.push(siblings);
+        const myparentpart = findMyParentPart(element);
+        if(myparentpart) {
+          const partfile = myparentpart[gltf_Dict['step']].slice(0, -5);
+          partArray.push(partfile);
+        } else {
+          partArray.push(null);
+        }
       }
     });
 
     console.log('getShapeInfo', structure, stepArray, siblingArray);
     return new Promise((resolve, reject) => {
-      getShapeInfo(structure.start, stepArray, siblingArray, fileUUIder)
+      getShapeInfo(structure.start, stepArray, siblingArray, partArray, fileUUIder)
         .then((res) => res.data)
         .then((repos) => {
           //console.log("FromShapeInfo",repos);

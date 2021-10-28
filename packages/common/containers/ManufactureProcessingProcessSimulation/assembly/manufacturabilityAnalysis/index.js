@@ -417,9 +417,9 @@ export default function ManufacturabilityAnalysis(props) {
         if(myTree.tree[curData].selectedshell!=setoption) {
           data.selectedshell=setoption;
           myTree.tree[curData] = data;
-          console.log('Going to Set', myTree, data, curData, data.selectedshell,myTree.tree[curData].selectedshell);
+          //console.log('Going to Set', myTree, data, curData, data.selectedshell,myTree.tree[curData].selectedshell);
           setState({ gltfjson: myTree });
-          console.log('Finally Setting', myTree, data, curData, state.gltfjson,myTree.tree[curData].selectedshell);
+          //console.log('Finally Setting', myTree, data, curData, state.gltfjson,myTree.tree[curData].selectedshell);
           getTable(myTree, true);
         } else {
           if(data.selectedshell!=setoption){
@@ -491,7 +491,7 @@ export default function ManufacturabilityAnalysis(props) {
   }; */
   const doOneSelection = (element, event) => {
     if (element) {
-      console.log('Starting', element, element.selectedshell);
+      //console.log('Starting', element, element.selectedshell);
       const aShape = element[gltf_Dict['name']];
       if (aShape) {
         const first4chars = aShape.slice(0, 4);
@@ -502,14 +502,14 @@ export default function ManufacturabilityAnalysis(props) {
           first4chars === 'PART' ||
           first6chars === 'VERTEX'
         ) {
-          console.log('Setting..', element, element.selectedshell);
+          //console.log('Setting..', element, element.selectedshell);
          
           setSelectedShell(element, element.selectedshell);
           //element.selectedshell = true;
 
-          console.log('Setting..Done', element, element.selectedshell);
+          //console.log('Setting..Done', element, element.selectedshell);
           var mymesh = element; //findMyMaterial(element);
-          console.log('Before', mymesh);
+          //console.log('Before', mymesh);
           if (mymesh) {
             mymesh.selectedshell = element.selectedshell;
             //setSelectedShellForce(mymesh,true);
@@ -518,7 +518,7 @@ export default function ManufacturabilityAnalysis(props) {
               event['ctrlKey'] = true;
             }
           }
-          console.log('aftet', mymesh);
+          //console.log('aftet', mymesh);
         }
       }
     }
@@ -537,7 +537,7 @@ export default function ManufacturabilityAnalysis(props) {
       
     }); */
     state_selectedObjects = [];
-    console.log("I am emptying");
+    //console.log("I am emptying");
   }
 
   const addSelectionFromComponent = async (selectedNodes) => {
@@ -596,7 +596,7 @@ export default function ManufacturabilityAnalysis(props) {
   const changeStateOfSelections = async (removeData, addData) => {
     mapdata = {}
     //console.log("Data for shapeinfo",data,selectedOption,event);
-    console.log("Reaching here after clicking",removeData, addData);
+    //console.log("Reaching here after clicking",removeData, addData);
     var copy_selectobjects = arrayCopy(state_selectedObjects);
     //var copy_parentobjects = arrayCopy(state.parentObjects);
     
@@ -662,28 +662,28 @@ export default function ManufacturabilityAnalysis(props) {
       parentObjects:copy_parentobjects
     }); */
     state_selectedObjects = copy_selectobjects;
-    console.log("Setting selcted",copy_selectobjects);
+    //console.log("Setting selcted",copy_selectobjects);
   }
 
   const addSelectionFromTable = async (selectedNodes, event) => {
 
-    console.log("Selected Node", selectedNodes, "Event", event);
+    //console.log("Selected Node", selectedNodes, "Event", event);
     setFirstTimeLoading(true);
     if (selectedNodes?.index) {
       const myTree = findMyMaterial(selectedNodes);
-      console.log(myTree);
+      //console.log(myTree);
       if (myTree) {
         myTree.selectedshell = selectedNodes.selectedshell;
         if (event) {
           setCtrlKey(event.ctrlKey);
         }
         //const myselectedtree = {...myTree};
-        console.log("ctrl key", event.ctrlKey);
-        console.log("B Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
+        //console.log("ctrl key", event.ctrlKey);
+        //console.log("B Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
         setRenderData([myTree]);
-        console.log("C Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
+        //console.log("C Check state",myTree, selectedNodes, myTree.selectedshell,  selectedNodes.selectedshell);
         doOneSelection(myTree, event);
-        console.log("A Check state",myTree,  selectedNodes, myTree.selectedshell, selectedNodes.selectedshell);
+        //console.log("A Check state",myTree,  selectedNodes, myTree.selectedshell, selectedNodes.selectedshell);
         
         //setState({ renderdata: [myTree], whatchange: SELECTDISTANCE });
 
@@ -709,7 +709,7 @@ export default function ManufacturabilityAnalysis(props) {
   
   const updateSelectionFromTable = async (rowIndex, columnIndex, dataRow, value) => {
     setFirstTimeLoading(true);
-    console.log("Changed cell", rowIndex, columnIndex, dataRow, value);
+    //console.log("Changed cell", rowIndex, columnIndex, dataRow, value);
     let state_gltfjson = state.gltfjson || gltfjson;
     if (!state_gltfjson || !state_gltfjson.tree) {
       setState({ gltfjson: gltfjson });
@@ -717,9 +717,9 @@ export default function ManufacturabilityAnalysis(props) {
     } 
     //var myTree=null;
     if(state_gltfjson) {
-      console.log("My json",state_gltfjson);
+      //console.log("My json",state_gltfjson);
       if(dataRow) {
-        console.log(dataRow);
+        //console.log(dataRow);
         const myTreeIndex = findMyMaterialIndex(dataRow);
         if( myTreeIndex!=-1) {
           var myTree = {...state_gltfjson};
@@ -750,7 +750,7 @@ export default function ManufacturabilityAnalysis(props) {
   };
 
   const saveSelectionFromTable = async (mydata) => {
-    console.log(mydata);
+    //console.log(mydata);
     var myJsonTree;
     setFirstTimeLoading(true);
     let state_gltfjson = state.gltfjson || gltfjson;
@@ -770,12 +770,12 @@ export default function ManufacturabilityAnalysis(props) {
           gltfjsonParam.tree[index]=mydata[index-2];        
         }
       }
-      console.log("Saving", gltfjsonParam.tree,itemProperties.fileMPPS);
+      //console.log("Saving", gltfjsonParam.tree,itemProperties.fileMPPS);
       const filePath = itemProperties.fileUUId ? itemProperties.fileUUId+'/': '';
       saveTreeInfo( gltfjsonParam.tree,itemProperties.fileMPPS, itemProperties.fileUUId)
       .then(res => res.data)
       .then((data) => { 
-        console.log("Getting Resources",data);
+        //console.log("Getting Resources",data);
         getAFileFromStore(filePath+itemProperties.fileMPPS,"gltf")
         .then(res => res.data)
         .then((data) => {
@@ -800,7 +800,7 @@ export default function ManufacturabilityAnalysis(props) {
               let selectedRows = [];
               curTree.forEach((element) => {
                 if (element.selectedshell) {
-                  console.log('Setting to reset', element);
+                  //console.log('Setting to reset', element);
                   selectedRows.push(element);
                   /*  setState({
                     renderdata: [element],
@@ -809,7 +809,7 @@ export default function ManufacturabilityAnalysis(props) {
                   console.log('After Setting to reset', curTree); */
                   doOneSelection(element, event);
                   event['ctrlKey'] = true;
-                  console.log('Finally Setting to reset', curTree);
+                  //console.log('Finally Setting to reset', curTree);
                 }
               });
               setRenderData(selectedRows);
@@ -843,13 +843,13 @@ export default function ManufacturabilityAnalysis(props) {
     }
     if(myJsonTree) {
       
-      console.log("Saving",myJsonTree,itemProperties.fileMPPS);
+      //console.log("Saving",myJsonTree,itemProperties.fileMPPS);
       const filePath = itemProperties.fileUUId ? itemProperties.fileUUId+'/': '';
       getPartsAssemblyOrder(getItemFileOrderID(itemProperties), STATEPROPS.distancegap, STATEPROPS.anglegap, STATEPROPS.explodegap, 
         STATEPROPS.fromcenter,STATEPROPS.holescale,STATEPROPS.removegap,STATEPROPS.animationtime)
         .then(res => res.data)
         .then((data) => {      
-          console.log("Getting Resources",data);
+          //console.log("Getting Resources",data);
           getAFileFromStore(filePath+itemProperties.fileMPPS,"gltf")
           .then(res => res.data)
           .then((data) => {
@@ -892,7 +892,7 @@ export default function ManufacturabilityAnalysis(props) {
       myJsonTree = this?.props?.gltfjson?.tree;
     }
     if(myJsonTree) {
-      console.log("Saving",myJsonTree,itemProperties.fileMPPS);
+      //console.log("Saving",myJsonTree,itemProperties.fileMPPS);
       const filePath = itemProperties.fileUUId ? itemProperties.fileUUId+'/': '';
         getAFileFromStore(filePath+itemProperties.fileMPPS,"gltf")
         .then(res => res.data)
@@ -925,7 +925,7 @@ export default function ManufacturabilityAnalysis(props) {
 
   const updateOrderFromTable = async (mydata,oldIndex,newIndex) => {
     var myJsonTree;
-    console.log("Updating order change in the tree",mydata,oldIndex,newIndex);
+    //console.log("Updating order change in the tree",mydata,oldIndex,newIndex);
     setFirstTimeLoading(true);
     let state_gltfjson = state.gltfjson || gltfjson;
     if (!state_gltfjson || !state_gltfjson.tree) {
@@ -960,14 +960,14 @@ export default function ManufacturabilityAnalysis(props) {
   const changeStateOfSelection = async (data, event) => {
     mapdata = {}
     //console.log("Data for shapeinfo",data,selectedOption,event);
-    console.log("Reaching here after clicking",event,data,data?.selectedshell);
+    //console.log("Reaching here after clicking",event,data,data?.selectedshell);
     
     //console.log("outside SELECTMEASURE",data);
     var copy_selectobjects = [];
     //var copy_parentobjects = [];
      
     if (data) {
-      console.log(data);
+      //console.log(data);
       var toAdd = true;
       var toGetInfo = false;
       if (event) {
@@ -979,12 +979,12 @@ export default function ManufacturabilityAnalysis(props) {
       
       var stateLength = 0;
       if (!toAdd) {
-        console.log(state_selectedObjects); 
+        //console.log(state_selectedObjects); 
         state_selectedObjects.forEach(element => {
           if (data[gltf_Dict["name"]] != element[gltf_Dict["name"]]) { 
-            console.log("B",element);        
+            //console.log("B",element);        
             setSelectedShell(element, false);
-            console.log("A",element); 
+            //console.log("A",element); 
             //element.selectedshell = false;
           }
         });
@@ -993,7 +993,7 @@ export default function ManufacturabilityAnalysis(props) {
        // copy_parentobjects = [];
        
       } else {
-        console.log("I am adding instead of replacing");
+        //console.log("I am adding instead of replacing");
         copy_selectobjects = arrayCopy(state_selectedObjects);
         //copy_parentobjects = arrayCopy(state.parentObjects);
         
@@ -1063,7 +1063,7 @@ export default function ManufacturabilityAnalysis(props) {
       };
       
 
-      console.log("Setting the state of selected objects",state_selectedObjects,"Copy",copy_selectobjects);
+      //console.log("Setting the state of selected objects",state_selectedObjects,"Copy",copy_selectobjects);
       /* setState({
         selectedObjects: copy_selectobjects       
       }); */
@@ -1110,7 +1110,7 @@ export default function ManufacturabilityAnalysis(props) {
 
 
     } else {
-      console.log("I am reaching here to reset selections");
+      //console.log("I am reaching here to reset selections");
       state_selectedObjects.forEach(element => {     
         setSelectedShell(element, false); 
         //element.selectedshell = false;      
@@ -1119,29 +1119,29 @@ export default function ManufacturabilityAnalysis(props) {
         selectedObjects: copy_selectobjects
       }); */
       state_selectedObjects = copy_selectobjects;
-      console.log("I am reaching here to reset selections",copy_selectobjects);
+      //console.log("I am reaching here to reset selections",copy_selectobjects);
       //setState({ parentObjects: [] });
     }
     
     //console.log("Finally my state tree",state.gltfjson.tree);
   }
   const handleModelClick = (data, what, event) => {
-    console.log(data, what, event);
+    //console.log(data, what, event);
     setFirstTimeLoading(true);
     if (what === SELECTDISTANCE) {
       if (data) {
-        console.log(data);
+        //console.log(data);
         const mymesh = findMyMaterial(data);
         if (mymesh) {          
           setSelectedShell(mymesh, data.selectedshell);
           //mymesh.selectedshell = data.selectedshell;
-          console.log('Doing mymesh', mymesh, state_selectedObjects);
+          //console.log('Doing mymesh', mymesh, state_selectedObjects);
           return changeStateOfSelection(mymesh, event);
         } else {
-          console.log('No Mesh', mymesh, data);
+          //console.log('No Mesh', mymesh, data);
         }
       } else {
-        console.log('Resetting', data);
+        //console.log('Resetting', data);
         return changeStateOfSelection(data, event);
       }
       if (event && event.ctrlKey !== ctrlKey) {
@@ -1175,15 +1175,15 @@ export default function ManufacturabilityAnalysis(props) {
     if(x===-1) {
       return "Front";
     }
-    console.log("Direction",direction);
+    //console.log("Direction",direction);
     return "Any";
   }
   const getTable = (gltfjsonParam,doupdate) => {
-    console.log(gltfjsonParam,gltfjson);
+    //console.log(gltfjsonParam,gltfjson);
     let currentData = [];
     if (gltfjsonParam && gltfjsonParam.tree && gltfjsonParam.assemblyorder) {
       if (gltfjsonParam.assemblyorder.order && gltfjsonParam.assemblyorder.direction && gltfjsonParam.assemblyorder.direction[0].length==2 ) {
-        console.log("Setting table", gltfjsonParam.tree, gltfjsonParam.assemblyorder);
+        //console.log("Setting table", gltfjsonParam.tree, gltfjsonParam.assemblyorder);
       } else {
         alert("Assembly order structure changed. Please reload the step file once again ");
         return;
@@ -1249,10 +1249,10 @@ export default function ManufacturabilityAnalysis(props) {
         }
       }
       
-      console.log("About to set Featured List", currentData);
+      //console.log("About to set Featured List", currentData);
       setFilteredList(currentData);
-      console.log("Setting Featured List", currentData, filteredList);
-      console.log(gltfjsonParam.assemblyorder);
+      //console.log("Setting Featured List", currentData, filteredList);
+      //console.log(gltfjsonParam.assemblyorder);
       if (gltfjsonParam.assemblyorder.current) {
         if (gltfjsonParam.assemblyorder.complete!==gltfjsonParam.assemblyorder.order.length) {
           const progressString="Completed "+gltfjsonParam.assemblyorder.complete.toString()+
@@ -1285,7 +1285,7 @@ export default function ManufacturabilityAnalysis(props) {
         }
       }
     } else {
-      console.log("Going to set Featured List", currentData);
+      //console.log("Going to set Featured List", currentData);
       setFilteredList(currentData);
       if(alerter!=="") {
         setAlerter("");
@@ -1295,7 +1295,7 @@ export default function ManufacturabilityAnalysis(props) {
         mycolumns[4].type="number";
         setColumns(mycolumns);
       }
-      console.log("Final Setting Featured List", currentData, filteredList);
+      //console.log("Final Setting Featured List", currentData, filteredList);
     }
     
     //return currentData;
@@ -1305,14 +1305,14 @@ export default function ManufacturabilityAnalysis(props) {
   }, [isLoading]);
   useEffect(() => {
     const includeParts = true;
-    console.log("Reaching in useeffect", gltfjson, fileId, isLoading, state.mycounter?state.mycounter:0);
+    //console.log("Reaching in useeffect", gltfjson, fileId, isLoading, state.mycounter?state.mycounter:0);
     let gltfjsonlen = Object.keys(gltfjson).length +  (state.mycounter?state.mycounter:0);
     if (gltfjsonlen > 0) {
       gltfjsonlen += gltfjson?.gltf?.accessors?.length;
       if (gltfjson && gltfjson.assemblyorder && gltfjson.assemblyorder.complete) {
         gltfjsonlen += gltfjson.assemblyorder.complete;
       }     
-      console.log("Setting gltflen",gltfjsonlen,gltfjson);
+      //console.log("Setting gltflen",gltfjsonlen,gltfjson);
     }
     if (gltfjsonlen > 0) {
       setState({
@@ -1333,11 +1333,11 @@ export default function ManufacturabilityAnalysis(props) {
         renderdata: [],
         whatchange: 0,
       });
-      console.log("Reaching useEffect1");
+      //console.log("Reaching useEffect1");
       getTable(gltfjson,false);
       //setResetMe(true);
     } else {
-      console.log("Not Setting gltflen",gltfjsonlen,gltfjson);
+      //console.log("Not Setting gltflen",gltfjsonlen,gltfjson);
     }
     
   }, [gltfjson]);
@@ -1363,7 +1363,7 @@ export default function ManufacturabilityAnalysis(props) {
     if (gltfjson && gltfjson.assemblyorder && gltfjson.assemblyorder.complete) {
       gltfjsonlen += gltfjson.assemblyorder.complete+1;
     }     
-    console.log("Setting outside gltflen",gltfjsonlen,gltfjson);
+    //console.log("Setting outside gltflen",gltfjsonlen,gltfjson);
   }
 
   return (

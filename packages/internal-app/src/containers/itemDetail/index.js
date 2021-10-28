@@ -97,13 +97,13 @@ const ItemDetail = () => {
         const _currentItem = get(itemDetailResponse, 'data[0]', {});
 
         dispatch(setCurrentItemAction(_currentItem));
-        console.log('I am doing the conversion inner', _currentItem);
+        //console.log('I am doing the conversion inner', _currentItem);
         setGLTFAndTree({ ..._currentItem }, myTabIndex);
 
         setIsLoading(false);
       })();
     } else {
-      console.log('I am doing the conversion outer', itemProperties);
+      //console.log('I am doing the conversion outer', itemProperties);
       setGLTFAndTree({ ...itemProperties }, myTabIndex);
     }
   }, [tabIndex]);
@@ -147,11 +147,11 @@ const ItemDetail = () => {
 
   const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
     if (isFileExistingInServer(whichOneToLoad + '.gltf')) {
-      console.log('Found gltf', whichOneToLoad);
+      //console.log('Found gltf', whichOneToLoad);
       return 0;
     }
     if (isFileExistingInServer(whichOneToLoad + '.status')) {
-      console.log('Found status', whichOneToLoad);
+      //console.log('Found status', whichOneToLoad);
       const statusRes = await getAFileFromStore(whichOneToStatus, 'status');
       let percent = 0;
       if (statusRes) {
@@ -207,11 +207,11 @@ const ItemDetail = () => {
     try {
       let okToParse = 0;
       if (!item.fileStack || item.fileStack === null) {
-        console.log('Checking Store', item.fileStore);
+        //console.log('Checking Store', item.fileStore);
         if (item.fileStore && item.fileStore.length > 0) {
           const fileStack =
             item.fileStore.slice(0, item.fileStore.length - 1) + 'S0';
-          console.log('Checking Stack', fileStack);
+          //console.log('Checking Stack', fileStack);
           const whichOneToLoad = getResourcePathURL(item) + fileStack;
           const whichOneToStatus = getStatusPathURL(item) + fileStack;
           okToParse = await checkStatusToParse(
@@ -219,7 +219,7 @@ const ItemDetail = () => {
             whichOneToStatus
           );
           if (okToParse<=1) {
-            console.log('Found', fileStack);
+            //console.log('Found', fileStack);
             item.fileStack = fileStack;
           } else {
             console.log('Stack Not Found', fileStack);
@@ -247,7 +247,7 @@ const ItemDetail = () => {
         )
           .then((res) => res.data)
           .then((repos) => {
-            console.log(repos);
+            //console.log(repos);
             const multiAssmebly = get(repos, 'tree', []).length > 0;
             const stack = repos['store'];
             item.fileStack = stack;
@@ -307,11 +307,11 @@ const ItemDetail = () => {
     try {
       let okToParse = 0;
       if (!item.fileMPPS || item.fileMPPS === null) {
-        console.log('Checking Store', item.fileStore);
+        //console.log('Checking Store', item.fileStore);
         if (item.fileStore && item.fileStore.length > 0) {
           const fileMPPS =
             item.fileStore.slice(0, item.fileStore.length - 1) + 'M0';
-          console.log('Checking Order', fileMPPS);
+          //console.log('Checking Order', fileMPPS);
           const whichOneToLoad = getResourcePathURL(item) + fileMPPS;
           const whichOneToStatus = getStatusPathURL(item) + fileMPPS;
           okToParse = await checkStatusToParse(
@@ -319,7 +319,7 @@ const ItemDetail = () => {
             whichOneToStatus
           );
           if (!okToParse) {
-            console.log('Found', fileMPPS);
+            //console.log('Found', fileMPPS);
             item.fileMPPS = fileMPPS;
           } else {
             console.log('Order Not Found', fileMPPS);
@@ -372,7 +372,7 @@ const ItemDetail = () => {
             }));
             setIsLoading(false);
             setIsFileLoading(false);
-            console.log('Done');
+            //console.log('Done');
           })
           .catch((err) => {
             setIsLoading(false);
@@ -417,14 +417,14 @@ const ItemDetail = () => {
       try {
         let myTabIndex = myTabedIndex == 'iupc' ? 'gdtac' : myTabedIndex;
         if (myTabIndex == 'iupc') {
-          console.log('Checking iupc', myTabIndex, item);
+          //console.log('Checking iupc', myTabIndex, item);
           let okToParse = 0;
           if (!item.fileKinematic || item.fileKinematic === null) {
-            console.log('Checking Store', item.fileStore);
+            //console.log('Checking Store', item.fileStore);
             if (item.fileStore && item.fileStore.length > 0) {
               const fileKinematic =
                 item.fileStore.slice(0, item.fileStore.length - 1) + 'K0';
-              console.log('Checking Kinematic', fileKinematic);
+              //console.log('Checking Kinematic', fileKinematic);
               const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
               const whichOneToStatus = getStatusPathURL(item) + fileKinematic;
               okToParse = await checkStatusToParse(
@@ -432,7 +432,7 @@ const ItemDetail = () => {
                 whichOneToStatus
               );
               if (!okToParse) {
-                console.log('Found', fileKinematic);
+                //console.log('Found', fileKinematic);
                 item.fileKinematic = fileKinematic;
               } else {
                 console.log('Kinematic Not Found', fileKinematic);
@@ -709,7 +709,7 @@ const ItemDetail = () => {
                 whichOneToStatus
               );
               if (!okToParse) {
-                console.log('Found status', fileGDT);
+                //console.log('Found status', fileGDT);
                 item.fileGDT = fileGDT;
               } else {
                 console.log('GDT Not Found', fileGDT);
@@ -875,14 +875,14 @@ const ItemDetail = () => {
 
             */
           } else {
-            console.log(
+            /* console.log(
               'Down1',
               myTabIndex,
               tabIndex,
               item.fileStore,
               item.fileGDT,
               item.fileId
-            );
+            ); */
             fetchGLTFAndTree(
               myTabIndex,
               item.fileStore,
@@ -1003,7 +1003,7 @@ const ItemDetail = () => {
         gdtRes = await getAFileFromStore(whichOneToLoad, 'gdt');
       }
       const multiAssmebly = treeRes.length > 0;
-      console.log('Fetched Data', {
+      /* console.log('Fetched Data', {
         ...obj,
         gltf: gltfRes.data,
         tree: treeRes.data,
@@ -1012,7 +1012,7 @@ const ItemDetail = () => {
         multiAssmebly: multiAssmebly,
         gdttable: gdtRes.data,
         treeLength: treeRes.data.length
-      });
+      }); */
 
       setgltfjson({
         ...obj,
@@ -1190,10 +1190,10 @@ const ItemDetail = () => {
     itemProperties.itemId = undefined;
 
     let updateItemProperties = Object.assign({}, itemProperties, change);
-    console.log('Going to save', updateItemProperties);
+    //console.log('Going to save', updateItemProperties);
     ItemAPI.updateItemAPI(id, { ...updateItemProperties })
       .then((res) => {
-        console.log('Result', res);
+        //console.log('Result', res);
         if (res && res.data) {
           setItemProperties(res.data);
           dispatch(showSuccessAlert({ message: 'Item Updated' }));
@@ -1208,7 +1208,7 @@ const ItemDetail = () => {
       });
     try {
       if (state_additionalSaveFunction) {
-        console.log('Saving additional info');
+        //console.log('Saving additional info');
         state_additionalSaveFunction();
       }
     } catch (error) {

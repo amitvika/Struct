@@ -5,7 +5,7 @@ class DisplaySpinner extends Component {
         super(props)
     }
     render() {
-        console.log(process.env.PUBLIC_URL);
+        //console.log(process.env.PUBLIC_URL);
         return (this.props.loadingContent && (
             <div style={{ position: 'absolute', top: '40%', left: '50%' }}>
                 <img style={{

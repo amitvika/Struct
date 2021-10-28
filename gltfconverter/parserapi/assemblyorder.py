@@ -287,7 +287,7 @@ class FindAssemblingOrder(object):
             retValue = checkingOuterBox.IsOut(aBox)
             if retValue==False:
                 return 0
-        print("I have got True here! when there are",len(self.mySeperateBoxes),"seperate boxes")
+        #print("I have got True here! when there are",len(self.mySeperateBoxes),"seperate boxes")
         return 2
     
     def checkInsideOuter(self,checkingOuterBox):
@@ -295,7 +295,7 @@ class FindAssemblingOrder(object):
             retValue = checkingOuterBox.IsOut(aBox)
             if retValue==False:
                 return 0
-        print("I have got True here! while checking inside outer when there are",len(self.mySeperateBoxes),"seperate boxes")
+        #print("I have got True here! while checking inside outer when there are",len(self.mySeperateBoxes),"seperate boxes")
         return 2
     
     def checkOutsideOuter(self,checkingOuterBox,fullBox):

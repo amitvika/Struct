@@ -1542,26 +1542,26 @@ class StepIgesAnalyser():
             reduced_corners_dict = None
             if self.edgesize > 0:
                 reduced_edges_dict = {}
-                print("Reach here faces",len(faces_dict))
+                #print("Reach here faces",len(faces_dict))
                 findEdgesAgain=False
                 if findEdgesAgain:
                     for _, face in faces_dict.items():
                         topologyExplorer = Topo(face,ignore_orientation=False)
-                        print("Reach here list",topologyExplorer)
+                        #print("Reach here list",topologyExplorer)
                         mygotedges = list( topologyExplorer.edges() )
-                        print("Reach here mygotedges",len(mygotedges))
+                        #print("Reach here mygotedges",len(mygotedges))
                         for edge in mygotedges:
                             hashcode = str(hash(edge))+str(edge.Orientation())+self.hashTransCode(edge.Location().Transformation())
                             if (not hashcode in self.outputEdges):
                                 self.outputEdges[hashcode] = (edge)
                                 reduced_edges_dict[hashcode]=edge
-                print("Reach here list1",len(reduced_edges_dict))
+                #print("Reach here list1",len(reduced_edges_dict))
                 for hash_edge, edge in edges_dict.items():
                     hashcode = hash_edge+transformationHash
                     if (not hashcode in self.outputEdges):
                         self.outputEdges[hashcode] = (edge)
                         reduced_edges_dict[hashcode]=edge
-                print("Reach here list2",len(reduced_edges_dict))
+                #print("Reach here list2",len(reduced_edges_dict))
             if self.vertexsize > 0: 
                 reduced_corners_dict = {}  
                 findCornersAgain=False
@@ -1767,11 +1767,11 @@ class StepIgesAnalyser():
                     percentincrement,fromCompound)
 
     def addOneFeature(self,shape,subLabel,localTransformation,subShapesFromParent,subName,subEntry,parentName,parentEntry,parent_node_index,percentincrement,fromCompound):
-        print("Reaching here 1")
+        #print("Reaching here 1")
         currentColor, _ = self.setColor(shape,subLabel)
-        print("Reaching here 2")
+        #print("Reaching here 2")
         my_parent_id = self.parentIDs[-1]
-        print("Reaching here 3")
+        #print("Reaching here 3")
         myPartMeshID = None
         atleastOneItemAdded = 0  
         toAddFaces = True 
@@ -1779,7 +1779,7 @@ class StepIgesAnalyser():
         parentIDNotAdded = True
         myLenShapeCompounds = 0
         
-        print("Reaching here 4")
+        #print("Reaching here 4")
         myFaceType=[]
         if self.multiplegltf!=0 or (self.edgesize==0 and self.vertexsize==0) :
             shape_compounds, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces = \
@@ -1787,7 +1787,7 @@ class StepIgesAnalyser():
             #atleastOneItemAdded = 0
             #myFaceType=[]
             #print(shape_faces)
-            print("Reaching here 5")
+            #print("Reaching here 5")
             toAddFaces = (disect_type=="PART")
             myLenShapeCompounds = ( len(shape_compounds) if shape_compounds else 0 )
             print("\t"*self.indent,"No of subparts",myLenShapeCompounds)
@@ -1881,7 +1881,7 @@ class StepIgesAnalyser():
                 self.percentage += (0.5/myLenShapeCompounds)*percentincrement
                 self.write_status()
         else:
-            print("Reaching here 6")
+            #print("Reaching here 6")
             _, shape_faces, shape_edges, shape_vertices, disect_type, keep_faces  = \
                 self.getFeaturesFromShape(shape, subLabel,localTransformation , currentColor, subShapesFromParent, None, self.includeparts, False, False,percentincrement,fromCompound)
             myLenShapeCompounds += (len(shape_faces) if shape_faces else 0) +\

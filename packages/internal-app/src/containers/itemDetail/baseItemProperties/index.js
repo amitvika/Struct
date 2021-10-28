@@ -94,13 +94,13 @@ export default function BaseItemProperties({
   const [progressBarRender, setProgressBarRender] = useState(false); 
 
   useEffect(() => {
-    console.log('Setting gltf', gltfjson);
+    //console.log('Setting gltf', gltfjson);
     setfileUUId(itemProperties.fileUUId);
     setGltfObj(gltfjson);
   }, [gltfjson]);
 
   useEffect(() => {
-    console.log('Setting itemProperties', itemProperties);
+    //console.log('Setting itemProperties', itemProperties);
     setfileUUId(itemProperties.fileUUId);   
   }, [itemProperties]);
 
@@ -129,7 +129,7 @@ export default function BaseItemProperties({
       //const fileUploadRes = await upload3DFile(data);
       //"uuid":uuid,"filename":newfilename,"bytes":fileswritten
       const fileId = data.uuid + '/' + data.filename;
-      console.log('After File Upload', data);
+      //console.log('After File Upload', data);
 
       if (!data.uuid || !data.filename) {
         // eslint-disable-next-line no-throw-literal

@@ -2114,6 +2114,20 @@ def minimum_distance(shp1, shp2):
         min_dist_shp2.append(bdss.PointOnShape2(i).Coord())
     return min_dist, min_dist_shp1, min_dist_shp2
 
+def minimum_distance_only(shp1, shp2):
+    '''
+    compute minimum distance between 2 BREP's
+    @param shp1:    any TopoDS_*
+    @param shp2:    any TopoDS_*
+    @return: minimum distance
+    '''    
+    bdss = BRepExtrema_DistShapeShape(shp1, shp2)
+    bdss.Perform()
+    assert_isdone(bdss, 'failed computing minimum distances')
+    min_dist = bdss.Value()
+    return min_dist
+
+
 def minimum_z_distance(shp1, shp2):
     '''
     compute minimum distance between 2 BREP's

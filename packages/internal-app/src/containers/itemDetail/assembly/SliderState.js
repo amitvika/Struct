@@ -12,11 +12,11 @@ const SliderState = (props) => {
       valueLabelDisplay={'auto'}
       value={sliderState}      
       onChange={(event,slider) => { 
-        console.log("Changing slider",slider,prevslider);
+        //console.log("Changing slider",slider,prevslider);
         prevslider = slider;
         setSliderState(prevslider);
         onChange(prevslider);
-        console.log("Last slider",sliderState,prevslider,slider);
+        //console.log("Last slider",sliderState,prevslider,slider);
       //currentColor=prevcolor;
         } 
       }

@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // const host = `https://cadapi.struct.services/api/v0`;
-// const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
+const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
 
-const baseURL = `https://cadapi.struct.services`;
+//const baseURL = `https://cadapi.struct.services`;
  
 const host = `${baseURL}/api/v0`;
 
@@ -131,7 +131,7 @@ export const getMinimumDistance = (
   return axios.get(getURL);
 };
 
-export const getShapeInfo = (start, stepArray = [], siblingArray=[], fileGUID) => {
+export const getShapeInfo = (start, stepArray = [], siblingArray=[], partArray=[], fileGUID) => {
  /*  const getURL = `${host}/shapeinfo?start=${start}&steps=${stepArray}&parents=${JSON.stringify({parents:parentArray})}`;
   console.log(getURL);
   return axios.get(getURL); */
@@ -140,6 +140,7 @@ export const getShapeInfo = (start, stepArray = [], siblingArray=[], fileGUID) =
   formShapeInfo.append('start', start);
   formShapeInfo.append('steps', JSON.stringify({steps:stepArray}));
   formShapeInfo.append('siblings', JSON.stringify({siblings:siblingArray}));
+  formShapeInfo.append('parts', JSON.stringify({parts:partArray}));
   formShapeInfo.append('uuid',fileGUID?fileGUID:'');
   return axios.post(`${host}/shapeinfo/`, formShapeInfo);
 };

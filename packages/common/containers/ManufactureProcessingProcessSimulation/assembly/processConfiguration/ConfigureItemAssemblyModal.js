@@ -33,7 +33,7 @@ export default function ConfigureItemAssembly({
 	const [value, setValue] = useState(' ');
 
 	const handleChange = (event) => {
-		console.log(event.target.value, value)
+		//console.log(event.target.value, value)
 		if (event.target.value === value) {
 			setValue('');
 		} else {

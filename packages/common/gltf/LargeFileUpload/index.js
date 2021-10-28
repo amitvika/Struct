@@ -96,7 +96,7 @@ export default function LargeFileUpload({
       setChunkCount(totalCount);
       const fileID = uuidv4();
       setFileGuid(fileID);
-      console.log('File Loading', dataload);
+      //console.log('File Loading', dataload);
       const filenameWithExtension = dataload.name.replace(/^.*[\\\/]/, '');
       setFileNameHere(filenameWithExtension);
       setIsFileLoading(true);
@@ -123,7 +123,7 @@ export default function LargeFileUpload({
     formData.append('data', chunk);
     try {
       const response = await uploadChunkData(formData);
-      console.log('My Response from uploadchunk', response);
+      //console.log('My Response from uploadchunk', response);
       if (response) {
         const data = response.data;
         if (data.isSuccess) {

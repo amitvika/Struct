@@ -212,7 +212,7 @@ class MuiVirtualizedTable extends React.PureComponent {
   sortTableColumn = (whatIsGot) => {
     const { column, key, order } = whatIsGot;
     const { list, setData, setSortBy, setSortDirection } = this.props;
-    console.log(whatIsGot, list, this.props, key, order);
+    //console.log(whatIsGot, list, this.props, key, order);
     let sortedlist = list;
     sortedlist.sort(GetSortOrder(key, order));
 
@@ -387,7 +387,7 @@ class EditableCell extends React.PureComponent {
     const currentColumn = columns[columnIndex];
     const onChange = (event) => {
       //console.log(event);
-      console.log('GOt here', event, rowIndex, columnIndex, rowData);
+      //console.log('GOt here', event, rowIndex, columnIndex, rowData);
       this.setState({
         value: event.target.value,
       });
@@ -399,7 +399,7 @@ class EditableCell extends React.PureComponent {
       );
     };
     const onClick = (event) => {
-      console.log('GOT here', event, rowIndex, columnIndex, rowData);
+      //console.log('GOT here', event, rowIndex, columnIndex, rowData);
       columns[columnIndex].onRowClick(rowData, event);
     };
     //console.log(currentColumn);
@@ -462,9 +462,9 @@ export default function TableOrderView({
   const resetMySelection = (thisdata,event) => {
     let mydata = [...data];
     let selectedRows = [];
-    console.log("Mydata",mydata,"statedata",data, "thisdata",thisdata);
+    //console.log("Mydata",mydata,"statedata",data, "thisdata",thisdata);
     for (let index = 0; index < mydata.length; index++) {
-      console.log(index,mydata[index],thisdata);      
+      //console.log(index,mydata[index],thisdata);      
       if (mydata[index].index == thisdata.index) {   
         if(event && event.ctrlKey) {
           mydata[index].selectedshell = !mydata[index].selectedshell ;
@@ -480,7 +480,7 @@ export default function TableOrderView({
         selectedRows.push(mydata[index]);
       }  
     }
-    console.log("Mydata",mydata,"statedata",data, "thisdata",thisdata);
+    //console.log("Mydata",mydata,"statedata",data, "thisdata",thisdata);
     setData(mydata);
     return selectedRows;
   };
@@ -490,7 +490,7 @@ export default function TableOrderView({
   const [sortDirection, setSortDirection] = useState(SortOrder.ASC);
 
   useEffect(() => {
-    console.log('UseEffect', list, sortBy, sortDirection);
+    //console.log('UseEffect', list, sortBy, sortDirection);
     let sortedList = list;
     sortedList.sort(GetSortOrder(sortBy, sortDirection));
     setData(sortedList);
@@ -504,16 +504,16 @@ export default function TableOrderView({
   }
 
   const onRowClick = (dataRow, event) => {
-    console.log('BeforeDataRowClock', data, sortBy, sortDirection);
+    //console.log('BeforeDataRowClock', data, sortBy, sortDirection);
     handleDataRowClick(dataRow, event);
-    console.log('AfterDataRowClock', data, sortBy, sortDirection);
+    //console.log('AfterDataRowClock', data, sortBy, sortDirection);
   };
 
   const onCellChange = (rowIndex, columnIndex, dataRow, value) => {
-    console.log(rowIndex, columnIndex, dataRow, value);
-    console.log('BeforeCellChange', data, sortBy, sortDirection);
+    //console.log(rowIndex, columnIndex, dataRow, value);
+    //console.log('BeforeCellChange', data, sortBy, sortDirection);
     handleDataCellChange(rowIndex, columnIndex, dataRow, value);
-    console.log('AfterCellChange', data, sortBy, sortDirection);
+    //console.log('AfterCellChange', data, sortBy, sortDirection);
   };
 
   const getAlerter = () => {
@@ -528,7 +528,7 @@ export default function TableOrderView({
       editable.onCellChange = onCellChange;
       editable.onRowClick = onRowClick;
     } else {
-      console.log('Setting', element);
+      //console.log('Setting', element);
       editable.cellRenderer = EditableCell;
       editable.onRowClick = onRowClick;
       editable.onCellChange = onCellChange;
@@ -599,17 +599,17 @@ export default function TableOrderView({
         rowGetter={({ index }) => data[index]}
         columns={mycolumns}
         onRowClick={(thisdata) => {
-          console.log(thisdata);
+          //console.log(thisdata);
           resetMySelection(thisdata.rowData,thisdata.event);
-          console.log('BeforeDataRowClock', data, sortBy, sortDirection);
+          //console.log('BeforeDataRowClock', data, sortBy, sortDirection);
           handleDataRowClick(thisdata.rowData, thisdata.event);
-          console.log('AfterDataRowClock', data, sortBy, sortDirection);
+          //console.log('AfterDataRowClock', data, sortBy, sortDirection);
         }}
         updateOrderChange={(mydata, oldIndex, newIndex) => {
-          console.log('Before order change', mydata, data, oldIndex, newIndex);
+          //console.log('Before order change', mydata, data, oldIndex, newIndex);
           resetMySelection(mydata);
           updateOrderChange(mydata, oldIndex, newIndex);
-          console.log('After order change', mydata, data, oldIndex, newIndex);
+          //console.log('After order change', mydata, data, oldIndex, newIndex);
         }}
         //headerHeight={50}
         //rowHeight={50}

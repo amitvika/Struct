@@ -136,7 +136,7 @@ class MuiVirtualizedTable extends React.PureComponent {
   
   sort=({ sortBy, sortDirection }) =>{
     const {list,setData,setSortBy,setSortDirection} = this.props;
-    console.log(list);
+    //console.log(list);
     let sortedList  = list;
     sortedList.sort(GetSortOrder(sortBy,sortDirection));  
     
@@ -267,7 +267,7 @@ export default function TableOrderView({
   }
 
   useEffect(() => {
-    console.log("UseEffect",list,sortBy,sortDirection);
+    //console.log("UseEffect",list,sortBy,sortDirection);
     let sortedList  = list;
     sortedList.sort(GetSortOrder(sortBy,sortDirection));  
     setData(sortedList);
@@ -289,11 +289,11 @@ export default function TableOrderView({
         rowGetter={({ index }) => data[index]}
         columns={columns}
         onRowClick={(thisdata) => {
-          console.log(thisdata);
+          //console.log(thisdata);
           resetMySelection(thisdata);
-          console.log("BeforeDataRowClock",data,sortBy,sortDirection);
+          //console.log("BeforeDataRowClock",data,sortBy,sortDirection);
           handleDataRowClick(thisdata.rowData, thisdata.event);
-          console.log("AfterDataRowClock",data,sortBy,sortDirection);
+          //console.log("AfterDataRowClock",data,sortBy,sortDirection);
         }}
         headerHeight={50}
         rowHeight={50}

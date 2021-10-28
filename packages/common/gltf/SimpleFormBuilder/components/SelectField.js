@@ -13,7 +13,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 const getName = (name) => _.replace(name, /\./g, ' ');
 
 const getRenderValue = (selected, items, multiple) => {
-  console.log(selected);
+  //console.log(selected);
   let myvalue = selected? selected.target ? selected.target.value : selected : '';
   if (!multiple)  {
     let myItem = items.find((item) => item.value === myvalue );
@@ -52,7 +52,7 @@ const CustomSelect = ({ field, selectedValues, errors, onChange, labelwidth, ...
   let myvalues = selectedValues? selectedValues.target ? selectedValues.target.value : selectedValues : '';
  
  
-  console.log("Selected Values",selectedValues,"Common Baby");
+  //console.log("Selected Values",selectedValues,"Common Baby");
   return (
     <FormControl style={{ width: '100%' }} error={!!errorText}>
        {/* <Grid style={{display:"flex"}}> */}

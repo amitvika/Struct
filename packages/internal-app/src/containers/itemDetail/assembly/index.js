@@ -76,14 +76,14 @@ class Extensions extends Component {
     this.setState(this.props.nodes);
   }
   componentDidUpdate(prevProps, prevState) {
-    console.log("Updating Props",prevProps,prevState,this.props);
+    //console.log("Updating Props",prevProps,prevState,this.props);
     if(prevProps.nodes !== this.props.nodes){
       this.setState({nodes:this.props.nodes});
     }     
   }
   handleExpandChange = (nodes) => {
     this.setState({ nodes: nodes });
-    console.log("On Expand", nodes);
+    //console.log("On Expand", nodes);
     if(this.props.onExpanisonChange) {
       this.props.onExpanisonChange(nodes);
     }
@@ -92,15 +92,15 @@ class Extensions extends Component {
   handleSelectChange = (nodes, updatedNode) => {
     this.setState({ nodes: nodes });
     const mySelectedNodes = this.nodeFindHandler(nodes, updatedNode);
-    console.log(updatedNode);
+    //console.log(updatedNode);
     if (updatedNode.selectedshell) {
       mySelectedNodes.push(updatedNode); // If this is not in the last promise overacts to select nothing..
     }
     if (this.props.onSelectionChange) {
-      console.log("On Select", mySelectedNodes, nodes);
+      //console.log("On Select", mySelectedNodes, nodes);
       this.props.onSelectionChange(mySelectedNodes);
     } else {
-      console.log("No On Select", nodes, mySelectedNodes);
+      //console.log("No On Select", nodes, mySelectedNodes);
     }
 
   };
@@ -170,7 +170,7 @@ class Extensions extends Component {
   nodeSelectionHandler = (nodes, updatedNode) => {
     updatedNode.selectedshell = updatedNode.state.selected;
     const myNodes = this.nodeInnerSelectionHandler(nodes, updatedNode);
-    console.log("SelectChangeHandler", myNodes);
+    //console.log("SelectChangeHandler", myNodes);
     this.handleSelectChange(myNodes, updatedNode);
     return myNodes;
   }
@@ -256,16 +256,16 @@ export default function Assembly(props) {
   let toBuildTree = true;
 
   useEffect(() => {
-    console.log("Changing Props",props);
+    //console.log("Changing Props",props);
     setMyChecked(props.assemblyTree);
   }, [props.assemblyTree]);
 
   useEffect(() => {
     if (toBuildTree) {
-      console.log("Empty Props",props);
+      //console.log("Empty Props",props);
       setMyChecked(props.assemblyTree);
     } else {
-      console.log("Already Built",props);
+      //console.log("Already Built",props);
     }
 
   }, []);

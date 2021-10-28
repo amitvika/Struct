@@ -61,7 +61,7 @@ class CameraSpinControls extends EventDispatcher {
 		// "target" sets the location of focus, where the object orbits around
 		this.targetObj = new Object3D();
 		this.target = this.targetObj.position;
-		console.log(this.target);
+		//console.log(this.target);
 
 		if ( camera.position.length() < EPS ) {
 			camera.position.set(0, 0, 1);
@@ -205,8 +205,8 @@ class CameraSpinControls extends EventDispatcher {
 	};
 
 	setTargetPosition = ( positionVector ) =>{
-		console.log("Target",this.target,positionVector);
-		console.log(this.target.x,this.target.y, this.target.z, positionVector.x, positionVector.y, positionVector.z);
+		//console.log("Target",this.target,positionVector);
+		//console.log(this.target.x,this.target.y, this.target.z, positionVector.x, positionVector.y, positionVector.z);
 		this.target.copy( positionVector );
 		this.movedTarget();
 
@@ -292,12 +292,12 @@ class CameraSpinControls extends EventDispatcher {
 			transformTo( cameraToTrackball, this.object.matrix, this.targetObj.matrixWorld );
 			v.setFromMatrixPosition( cameraToTrackball );
 			this.spinControl.trackballRadius = 1;// TRACKBALL_PERCENT_OF_SCREEN * v.length() * distanceToScreenSize;
-			console.log("radis", this.spinControl.trackballRadius);
+			//console.log("radis", this.spinControl.trackballRadius);
 		} else { // assume orthographic camera
 
 			let limitingDimension = Math.min( this.object.right - this.object.left, this.object.top - this.object.bottom ) / this.object.zoom;
 			this.spinControl.trackballRadius =1;// TRACKBALL_PERCENT_OF_SCREEN / 2  * limitingDimension;
-			console.log("radius",this.spinControl.trackballRadius);
+			//console.log("radius",this.spinControl.trackballRadius);
 		}
 		
 	};

@@ -70,7 +70,7 @@ class DraggableTable extends React.PureComponent {
   } */
 
   componentDidUpdate(prevProps, prevState) {
-    console.log("current state",prevProps,prevState);  
+    //console.log("current state",prevProps,prevState);  
     if(prevProps.data != this.props.data) {
       this.setState({data:this.props.data});
     } 
@@ -100,21 +100,21 @@ class DraggableTable extends React.PureComponent {
     data.splice(newIndex, 0, removed);   
    
     if(this.props.setSortBy){
-      console.log("befor calling setting sorting to null");
+      //console.log("befor calling setting sorting to null");
       this.props.setSortBy(null);
     }
     if(this.props.updateOrderChange) {
-      console.log("befor calling updateorderchange",data,oldIndex,newIndex);
+      //console.log("befor calling updateorderchange",data,oldIndex,newIndex);
       this.props.updateOrderChange(data,oldIndex,newIndex);
     }
-    console.log("befor calling",data,this.props);
+    //console.log("befor calling",data,this.props);
     this.setState({ 
       changedata:true,
       data:data })
   }
   
   render() {
-    console.log("Draggable Table",this.props);
+    //console.log("Draggable Table",this.props);
     return (
       <DraggableContainer
         useDragHandle

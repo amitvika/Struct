@@ -15,7 +15,7 @@ export default function Assembly(props) {
       .then((res) => {
         if (res.data) {
           setassemblyManufactureValues(res.data);
-          console.log(res.data);
+          //console.log(res.data);
         }
       })
       .catch((error) => {
@@ -33,7 +33,7 @@ export default function Assembly(props) {
   };
 
   const syncAssemblyManufactureWithServer = (values) => {
-    console.log(values);
+    //console.log(values);
 
     if (!values) {
       return;
@@ -50,7 +50,7 @@ export default function Assembly(props) {
         console.log('error', error);
       });
   };
-  console.log(assemblyManufactureValues);
+  //console.log(assemblyManufactureValues);
   return (
     <div>
       {selectedSubTab === 'Process Configuration' ? (

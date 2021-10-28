@@ -34,15 +34,26 @@ from .structparts.structquery.occ_impl import OCPStepIGESAnalyser, OCPImporters
 from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
 
 from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
-    translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance,scale_shape,  
+    translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance, minimum_distance_only, scale_shape,  
     getPartStackablePositions, get_bounding_details, get_oriented_bounding_details, 
     recognize_direction, recognize_entity)
 from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices
 #from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
-from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeSphere
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
+
+
+#from OCC.Core.Tesselator import ShapeTesselator
+from OCC.Core.BRep import  BRep_Tool
+
+from OCC.Core.TopoDS import (topods_Vertex)
+
+
 from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound #, excluded_list_of_shapes_to_compound
+
+
+
 from .assemblyorder import FindAssemblingOrder
 
 from decimal import Decimal 
@@ -138,16 +149,16 @@ def FileUploadView(request):
             request.data._mutable = True
             request.data['filename'] = f.name
             request.data._mutable = False
-            print("About to serialize",request.data['filename'])
+            #print("About to serialize",request.data['filename'])
             file_serializer = FileSerializer(data=request.data)
             #f = request.data['file']
             #file_serializer.data['file']=f
             #file_serializer.filename = f.name
-            print("Check Valid",file_serializer.data)
+            #print("Check Valid",file_serializer.data)
             if file_serializer.is_valid():
-                print("Saving",file_serializer.data)
+                #print("Saving",file_serializer.data)
                 file_serializer.save()
-                print("Saved",file_serializer.data)
+                #print("Saved",file_serializer.data)
                 return JsonResponse(file_serializer.data, status=status.HTTP_201_CREATED) 
             return JsonResponse(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
@@ -329,7 +340,7 @@ def getFile(id,key):
         newfilename = newfilenamewithoutext + ".gltf"
         file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
         file_extension = file_extension.lower()
-        print(file_extension, filename, id, key, newfilename)
+        #print(file_extension, filename, id, key, newfilename)
         print("starting converting", sourcefilename, newfilename)
         file_type = ""
         if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" or file_extension=="brp" or file_extension=="brep" :
@@ -654,7 +665,7 @@ def convertToBool(value,default):
         return default
 
 def convertToFloat(value,default):
-    print("Value=",value)
+    #print("Value=",value)
     if value is not None:
         try:
             floatValue = float(value)
@@ -1317,6 +1328,15 @@ def getDictionaryFromOBB(obb):
                 "sx": 0, "sy": 0, "sz": 0
             }
 
+def CreateSphereFromOBB(obb,vertexsize=0.3,circular=False):
+        
+        center = obb.Center()
+        if circular:
+            return BRepPrimAPI_MakeSphere(center, vertexsize).Shape()
+        else:
+            corner = gp_Pnt(center.X()-vertexsize, center.Y()-vertexsize, center.Z()-vertexsize)
+            return BRepPrimAPI_MakeBox(corner,vertexsize*2,vertexsize*2,vertexsize*2).Shape()
+
 @api_view(['GET', 'POST'])
 def FileGetShapeInfo(request):
     try:
@@ -1344,13 +1364,16 @@ def FileGetShapeInfo(request):
             steps = request.data['steps']   
             fnamesteps= json.loads(steps)
             fnames=fnamesteps['steps']
-            siblings = request.data['siblings']   
-            pnamesteps= json.loads(siblings)
-            pnames = pnamesteps['siblings']
+            #siblings = request.data['siblings']   
+            #pnamesteps= json.loads(siblings)
+            #pnames = pnamesteps['siblings']
+            parts = request.data['parts']
+            partsteps=json.loads(parts)
+            partnames=partsteps['parts']            
             guid = request.data['uuid'] 
             if guid!='':
                 guid = guid+'/'
-        print(start,fnames,pnames)
+        print(start,fnames,partnames)
         structArray=[]
         thisshell=[]
         #thisparent=[]
@@ -1370,11 +1393,11 @@ def FileGetShapeInfo(request):
                             thisdimension = get_oriented_bounding_details(thisshell[index])
                             thisdictionary = getDictionaryFromOBB(thisdimension)
                             data[0]['obb']=thisdictionary
-                            print(fname,data)
+                            
                             foundHole=False
                             if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
                                 #thisdimension = get_oriented_bounding_details(thisshell[index])
-                                thissiblings = pnames[index]                                
+                                """ thissiblings = pnames[index]                                
                                 for sibling in thissiblings:
                                     try:
                                         with open("Display/"+guid+sibling+".pickle", 'rb') as fs:
@@ -1386,9 +1409,25 @@ def FileGetShapeInfo(request):
                                                 foundHole=True
                                                 break
                                     except Exception as e:
-                                        print("Error while loading",sibling)
+                                        print("Error while loading",sibling) """
+                                thisparentpartname = partnames[index]
+                                try:
+                                    with open("Display/"+guid+thisparentpartname+".pickle", 'rb') as fs:
+                                        thisparentpart = pickle.load(fs)
+                                        smallcube = CreateSphereFromOBB(thisdimension)
+                                        whatwegot = minimum_distance_only(smallcube,thisparentpart)
+                                        if whatwegot <= 0.001:
+                                            data[0]['fill']="Soild"
+                                        else:
+                                            data[0]['fill']="Hole"
+                                        foundHole=True
+                                except Exception as e:
+                                    print("Error while loading",thisparentpartname,e)
+
                             if foundHole==False:
                                 data[0]['fill']="Soild"
+                            
+                            print(fname,data)
                             """ elif thisparent[index]:
                                     parentdict=recognize_entity(thisparent[index])
                                     if 'Info' in parentdict :
