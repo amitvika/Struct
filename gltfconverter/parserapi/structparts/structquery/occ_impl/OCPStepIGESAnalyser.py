@@ -3396,8 +3396,8 @@ class StepIgesAnalyser():
                 os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
             self.byThread=True
             mystatus = self.write_status(0)
-            dict_return = { "gltf":None,
-                "tree":None,
+            dict_return = { "gltf":{},
+                "tree":[],
                 "store":self.basefilename,
                 "load":self.fname,
                 "gdttable":[{ "edges":[],

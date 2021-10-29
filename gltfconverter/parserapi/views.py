@@ -4699,8 +4699,8 @@ def getEmptyDictionary(filename,basefilename,displaypath,percentage,starttime,cr
         print("Error while wrting",statusfilename,e)
     
     dict_return = {
-        "gltf":None,
-        "tree":None,
+        "gltf":{},
+        "tree":[],
         "store":basefilename,
         "load":filename,
         "gdttable":[{ "edges":[],
@@ -4926,6 +4926,7 @@ def FileGetAssemblyOrder(request):
                 for eachfile in files:
                     basefilename,displaypath = getBasefileNameAndDisplayPath("Media/"+eachfile.file.name,0,"M")
                     data = getEmptyDictionary("Media/"+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
+                    print("From assembly",data)
                     mythread = threading.Thread(target=exportToAssemblyGLTF,\
                         args=("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime))
                     mythread.start()      
