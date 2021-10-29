@@ -219,6 +219,19 @@ export default function ViewerToolbar({
     return null;
   };
 
+  const getFeatureListForGDT = () => {
+    return selectedOption != SELECTASSEMBLY ? selectedObjects : parentObjects;
+  };
+
+  const getSelectedFeaturePosition = () => {
+    const list = getFeatureListForGDT();
+
+    const feature = list.find((row) => row.kind === 'Circle');
+    return feature ? feature.fill : feature;
+  };
+
+  console.log('-----------selectedObjects------', selectedObjects);
+
   return (
     <>
       <Box style={{ flex: 1 }}>
@@ -236,6 +249,20 @@ export default function ViewerToolbar({
         {selectedObjects && selectedObjects.length >= 1 && (
           <div align={'center'}>{renderButtons()}</div>
         )}
+        <SectionContainer title={'Current Selection'}>
+          <SelectedSummaryTable
+            features={selectedOption != SELECTASSEMBLY}
+            featureList={
+              selectedOption != SELECTASSEMBLY ? selectedObjects : parentObjects
+            }
+            activeDataTable={activeDataTable}
+            setActiveDataTable={setActiveDataTable}
+            setCurrentDataTable={setCurrentDataTable}
+            gltfjson={gltfjson}
+            mateValues={mateValues}
+          />
+        </SectionContainer>
+
         {selectedObjects &&
           selectedObjects.length >= 2 &&
           selectedOption != SELECTSOLID &&
@@ -259,44 +286,28 @@ export default function ViewerToolbar({
               title={'GD&T and Features'}
               paperStyle={{ display: 'flex', flexDiraction: 'column' }}
             >
-              {/* <SelectedGDTMenu
-                features={selectedOption != SELECTASSEMBLY}
-                featureList={
-                  selectedOption != SELECTASSEMBLY
-                    ? selectedObjects
-                    : parentObjects
-                }
-                setRowKeyValue={setRowKeyValue}
-              /> */}
-              {/* <HoleTolerancing {...{ internalProductConfig }} /> */}
-              <DynamicFeature />
+              <DynamicFeature selectedPosition={getSelectedFeaturePosition()} />
             </SectionContainer>
-            {/* <SectionContainer title={'Feature Identification'}>
+            {/* <SectionContainer
+              title={'Geometric Dimensioning and Tolerance'}
+              paperStyle={{ display: 'flex', flexDiraction: 'column' }}
+            >
+              <SelectedGDTMenu
+                features={selectedOption != SELECTASSEMBLY}
+                featureList={getFeatureListForGDT()}
+                setRowKeyValue={setRowKeyValue}
+              />
+            </SectionContainer>
+
+            <SectionContainer title={'Feature Identification'}>
               <SelectedFeatureMenu
                 features={selectedOption != SELECTASSEMBLY}
-                featureList={
-                  selectedOption != SELECTASSEMBLY
-                    ? selectedObjects
-                    : parentObjects
-                }
+                featureList={getFeatureListForGDT()}
                 setRowKeyValue={setRowKeyValue}
               />
             </SectionContainer> */}
           </>
         )}
-        <SectionContainer title={'Summary Table'}>
-          <SelectedSummaryTable
-            features={selectedOption != SELECTASSEMBLY}
-            featureList={
-              selectedOption != SELECTASSEMBLY ? selectedObjects : parentObjects
-            }
-            activeDataTable={activeDataTable}
-            setActiveDataTable={setActiveDataTable}
-            setCurrentDataTable={setCurrentDataTable}
-            gltfjson={gltfjson}
-            mateValues={mateValues}
-          />
-        </SectionContainer>
       </Box>
     </>
   );
@@ -305,9 +316,12 @@ export default function ViewerToolbar({
 const SectionContainer = (props) => {
   const classes = USESTYLES();
   return (
-    <Box>
-      {props.title && <SubSectionTitle>{props.title}</SubSectionTitle>}
-      <Paper className={classes.flexpaper} style={props.paperStyle}>
+    <Box style={{ marginTop: 20 }}>
+      <Paper
+        className={classes.flexpaper}
+        style={{ ...props.paperStyle, flexDirection: 'column' }}
+      >
+        {props.title && <SubSectionTitle>{props.title}</SubSectionTitle>}
         {props.children}
       </Paper>
     </Box>
@@ -320,7 +334,8 @@ const SubSectionTitle = ({ children }) => {
       style={{
         fontWeight: 'bold',
         textAlign: 'center',
-        fontSize: 20
+        fontSize: 20,
+        display: 'flex'
       }}
       align="center"
     >
