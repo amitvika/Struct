@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LinearProgress, Box, IconButton, Typography } from '@material-ui/core';
+import { LinearProgress, Box, IconButton, Typography, TextField } from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
 
 import { uploadChunkData, download, resourcePathURL } from '../../api/fileUpload.api';
@@ -64,7 +64,11 @@ export default function LargeFileUpload({
   itemProperties,
   itemId,
   label = 'STEP, DXF, GERBER',
-  setIsFileLoading
+  setIsFileLoading,
+  distanceGap,
+  setDistanceGap,
+  angleGap,
+  setAngleGap
 }) {
   const classes = useStyles();
   const [counter, setCounter] = useState(1);
@@ -170,6 +174,15 @@ export default function LargeFileUpload({
   const handleExportButton = () => {
     download(itemProperties.fileName);
   };
+
+  const onDistanceChange = (e) => {
+    setDistanceGap(e.target.value);
+  }
+
+  const onAngleChange = (e) => {
+    setAngleGap(e.target.value);
+  }
+
   if (itemProperties.fileStore && 
     isFileExistingInServer(resourcePathURL+
       (itemProperties.fileUUId?itemProperties.fileUUId+'/':'')+itemProperties.fileStore+".gltf")) {
@@ -198,9 +211,35 @@ export default function LargeFileUpload({
   return (
     <div>
       <Box sx={{ width: '100%' }}>
+        <TextField 
+            type="number"
+            InputProps={{
+                inputProps: { 
+                    max: 10, min: 0.01 
+                }
+            }}
+            label="Distance Tollerance"
+            onChange={onDistanceChange}
+            value={distanceGap}
+          />
+          <TextField 
+            type="number"
+            InputProps={{
+                inputProps: { 
+                    max: 10, min: 0.01 
+                }
+            }}
+            label="Angle Tollerance"
+            onChange={onAngleChange}
+            value={angleGap}
+          />
+        </Box>
+      <Box sx={{ width: '100%' }}>
         <LinearProgress variant="determinate" value={progress?progress.toFixed(3):0} />
       </Box>
+      
       <div style={{ display: 'flex' }}>
+        
         <Typography variant="h6">Upload Cad</Typography>
         <Box
           component="div"

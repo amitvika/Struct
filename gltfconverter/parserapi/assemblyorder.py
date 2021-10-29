@@ -1121,13 +1121,28 @@ class FindAssemblingOrder(object):
             try:
                 orderfile = self.displaypath+storename+".order"
                 print("Writing,",orderfile)
-                with open(orderfile, 'w') as fh:
+                with open(orderfile,'w') as fh:
                     fh.write(json.dumps(mydictionary, sort_keys=True, indent=2 ))
             except Exception as e:
                 print("Error while writing orderfile",e) 
         except Exception as e:
                 print("Error while writing orderfile",e) 
         return mydictionary
+    
+    def write_status(self,storename,percentage,starttime,currenttime):
+        mystatusdict =  {
+                "percent":percentage,
+                "start":starttime.strftime("%H-%M-%S"),
+                "current":currenttime.strftime("%H-%M-%S") } 
+        statusfilename = self.displaypath+storename+".status"
+        try:
+            print("Writing",statusfilename,"Percentage",percentage)  
+            with open(statusfilename, 'w') as fh:
+                fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+        except Exception as e:
+            print("While Writing",statusfilename,e) 
+        return mystatusdict
+
 
     def getLastPoint(self,axisc,minp,maxp):
         if(axisc > 0):
@@ -1290,10 +1305,22 @@ class FindAssemblingOrder(object):
         obb = self.directiondata[aShapeIndex]
         print(obb)
 
-    def getMoveXYZ(self,aShapeIndex, direction,displacement):
+    def getMoveXYZ(self,aShapeIndex,direction,displacement):
         (myDirections, _,_,_,_) = self.directiondata[aShapeIndex]
         directionX,directionY,directionZ = myDirections[direction]
-        return directionX*displacement, directionY*displacement, directionZ*displacement       
+        return directionX*displacement, directionY*displacement, directionZ*displacement   
+
+    def writeStatusElapsed(self,storename,starttime,previoustime,previousk,k,lenShape):
+        currenttime = datetime.utcnow()
+        timingdelta = currenttime-previoustime
+        if (timingdelta.seconds > 5):
+            self.write_status(storename,30+(k*70/lenShape),starttime,currenttime)
+            if(previousk != k):
+                self.writeToOrderFile(storename,starttime,currenttime,k)
+                previousk = k
+            return currenttime,True
+        return previoustime,False
+
     
     def threadAssembling(self,sourceFileName,distancegap,anglegap,animationtime,starttime,storename,debugMe):
         try:
@@ -1312,24 +1339,36 @@ class FindAssemblingOrder(object):
             k=1
             commonObjects=[]
             #Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax = self.dimension
-            
+            previousk=0
             while k < lenShape:
                 currenttime = datetime.utcnow()
                 timingdelta = currenttime-previoustime
                 if (timingdelta.seconds > 5) and (self.byThread):
-                    self.writeToOrderFile(storename,starttime,currenttime,k)  
+                    if(previousk != k):
+                        self.writeToOrderFile(storename,starttime,currenttime,k)
+                        previousk = k 
+                    self.write_status(storename,30+(k*70/lenShape),starttime,currenttime)
                     previoustime=currenttime
                   
                 enclosed = False
                 myDirectionAtZero=(0,0,0)
                 
                 for holesize in range(0,2):
+                    previoustime,changestatus = self.writeStatusElapsed(storename,starttime, previoustime,previousk,k,lenShape)
+                    if changestatus:
+                        previoustime=datetime.utcnow()
+                        previousk=k
+
                     if holesize == 0:
                         toBeScaled = self.holescale
                     else:
                         toBeScaled = self.holescale / 1.1
                     lastIPos=0
-                    for i in range(0,lenShape-k+1):                
+                    for i in range(0,lenShape-k+1):    
+                        previoustime,changestatus = self.writeStatusElapsed(storename,starttime, previoustime,previousk,k,lenShape)
+                        if changestatus:
+                            previoustime=datetime.utcnow()
+                            previousk=k            
                         j=lenShape-k-i
                         debugMe = True # k==1 and i==0 #True #k==1 and i==4 #True #(k==3) and (i==0) #True #shapeorder[j]==2 or shapeorder[j]==3
                         if debugMe:
@@ -1393,6 +1432,10 @@ class FindAssemblingOrder(object):
                                 else:
                                     print("Going for special checking!!")
                                 for  (iAdjustPos,iOrderPos) in self.myAdjustantBoxes:
+                                    previoustime,changestatus = self.writeStatusElapsed(storename,starttime, previoustime,previousk,k,lenShape)
+                                    if changestatus:
+                                        previoustime=datetime.utcnow()
+                                        previousk=k 
                                     mySecondGuessDirections = self.guessDirectionArrays[iOrderPos],self.directiondata[self.shapeorder[j]], self.OuterOBBBox  #self.guessDirections(self.directiondata[self.shapeorder[j]], (Xxmin, Yymin, Zzmin, Xxmax, Yymax, Zzmax),debugMe)
                                     print("Special Checking",iAdjustPos,iOrderPos,j,k)
                                     whatIgot = self.checkCommonHole(j,k,toBeScaled,mySecondGuessDirections,debugMe) 
@@ -1595,7 +1638,7 @@ class FindAssemblingOrder(object):
             print("Error while logging",e)
         return dictionary 
 
-    def ExplodeParts(self,sourceFileName,distancegap,anglegap,animationtime,bythread=True,debugMe=False,displaypath=""):
+    def ExplodeParts(self,sourceFileName,distancegap,anglegap,animationtime,displaypath="",bythread=True,starttime=None,debugMe=False):
         self.displaypath=displaypath
         """  head, tail = os.path.split(sourceFileName)
         if(head[:-1]!="/"):
@@ -1609,7 +1652,8 @@ class FindAssemblingOrder(object):
             self.displaypath = head """
         #print("ExploreParts",shapeTol,gapTol)
         self.byThread=bythread
-        starttime=datetime.utcnow()
+        if starttime==None:
+            starttime=datetime.utcnow()
         dictionary={}
         try:
             self.InitExplodeParts(debugMe)

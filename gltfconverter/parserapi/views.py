@@ -21,8 +21,10 @@ import pprint
 from glob import glob
 import os
 import sys
+import math
 import pickle
-
+import threading
+from datetime import datetime
 from pathlib import Path
 #from .structparts import Part
 from .structparts import Assembly
@@ -1328,9 +1330,9 @@ def getDictionaryFromOBB(obb):
                 "sx": 0, "sy": 0, "sz": 0
             }
 
-def CreateSphereFromOBB(obb,vertexsize=0.3,circular=False):
+def CreateSphereFromCenter(center,vertexsize=0.1,circular=False):
         
-        center = obb.Center()
+        #center = obb.Center()
         if circular:
             return BRepPrimAPI_MakeSphere(center, vertexsize).Shape()
         else:
@@ -1391,11 +1393,15 @@ def FileGetShapeInfo(request):
                         if index >=start :
                             dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data,faceInfo=None, depth=1)
                             thisdimension = get_oriented_bounding_details(thisshell[index])
+                           
                             thisdictionary = getDictionaryFromOBB(thisdimension)
                             data[0]['obb']=thisdictionary
                             
                             foundHole=False
                             if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
+                                thiscenterpoint = thisdimension.Center()
+                                if 'center' in data[0]['Info']:  
+                                    thiscenterpoint = data[0]['Info']['center'] 
                                 #thisdimension = get_oriented_bounding_details(thisshell[index])
                                 """ thissiblings = pnames[index]                                
                                 for sibling in thissiblings:
@@ -1414,7 +1420,8 @@ def FileGetShapeInfo(request):
                                 try:
                                     with open("Display/"+guid+thisparentpartname+".pickle", 'rb') as fs:
                                         thisparentpart = pickle.load(fs)
-                                        smallcube = CreateSphereFromOBB(thisdimension)
+
+                                        smallcube = CreateSphereFromCenter(thiscenterpoint)
                                         whatwegot = minimum_distance_only(smallcube,thisparentpart)
                                         if whatwegot <= 0.001:
                                             data[0]['fill']="Soild"
@@ -1567,7 +1574,9 @@ def movingParameters(dimension, fullstack, tol = 0.1):
     
     return xmove,ymove,zmax-zmin                 
 
-def duplicateShapes(shape,dimension,depthable,stackable):  
+def duplicateShapes(shape,dimension,depthable,stackable,filename,basefilename,displaypath,starttime=None):  
+    if starttime==None:
+        starttime=datetime.utcnow()
     xmin, ymin, zmin, xmax, ymax, zmax = dimension 
     HalfDepth = (zmax-zmin)*0.5
     noOfDuplicates=0
@@ -1596,10 +1605,17 @@ def duplicateShapes(shape,dimension,depthable,stackable):
                 if (bottomdepth < (zmove+depth)):
                     zmove += (depth-bottomdepth)
             
-            
+        getEmptyDictionary(filename,basefilename,displaypath,45,starttime,False)    
         distance = 1e10
         prevdistance = 0
+        currenttime=datetime.utcnow()
+        previoustime=currenttime
         while distance > 1e-2:
+            currenttime = datetime.utcnow()
+            timingdelta = currenttime-previoustime
+            if (timingdelta.seconds > 5):
+                getEmptyDictionary(filename,basefilename,displaypath,55,starttime,False)
+                previoustime=currenttime
             AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)
             (wdistance, distance, points1, points2) = minimum_z_distance(shape[0],AnotherShape)
             AnotherShape=translate_shp(shape[0],xmove, ymove, zmove-wdistance, True)
@@ -1689,7 +1705,7 @@ def duplicateShapes(shape,dimension,depthable,stackable):
     
     return shapeList, noOfDuplicates, moveArrays
 
-def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,thumbwidth,thumbheight):
+def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,starttime=None):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -1697,6 +1713,8 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
    
     try:
         
+        if starttime==None:
+            starttime=datetime.utcnow()
         
         dictionary={}
         _, file_extension = os.path.splitext(sourceFileName)
@@ -1712,7 +1730,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump()
+                    thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0, suffixname="S").dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
@@ -1758,7 +1776,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S").dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
@@ -1794,7 +1812,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S").dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
@@ -1830,7 +1848,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0).dump()
+                    thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0, suffixname="S").dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
@@ -1865,7 +1883,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),ascompound=True, logging=logging, 
-                    distancegap=distancegap,anglegap=anglegap).dump() 
+                    distancegap=distancegap,anglegap=anglegap, suffixname="S").dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
@@ -1898,27 +1916,32 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
         try:
             dimension, _ = outputShapes
             xmin, ymin, zmin, xmax, ymax, zmax = dimension 
+            getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
             if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
                 shape = [rotate_shp_3_axis(shape[0],0,90,0, unity="deg", copy=True)] 
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump() 
+                thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S").dump() 
             else:
                 if( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                     shape = [rotate_shp_3_axis(shape[0],90,0,0, unity="deg", copy=True)] 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()  
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S").dump()
+            getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)  
             #print(outputShapes)
-            dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
-            shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable)
+            dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1) 
+            getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],40,starttime,False)             
+            shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable,sourceFileName,dictionary["store"],dictionary["display"])
+            getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],60,starttime,False)
             #print("Reached here1",shapeList)                         
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0, logging=logging, 
                 edgesize=0, vertexsize=0, animations=moveArrays, delay=animationtime).dump()
+            
             #print("Reached here2")
             dictionary["stackable"] = [{"count":replications,"stack":stackable}]
         except Exception as e:
@@ -1930,7 +1953,8 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0):#,th
             with open(stackfile, 'w') as fh:
                 fh.write(json.dumps(dictionary["stackable"], sort_keys=True, indent=2 ))
         except Exception as e:
-            print("Error while writing stackfile",e)      
+            print("Error while writing stackfile",e) 
+        getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],100,starttime,False)     
         return dictionary
        
     except:
@@ -1950,16 +1974,21 @@ def FileGetStackablePositions(request):
             distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
             anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
             animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
+            starttime = datetime.utcnow() 
             #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
             #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
             if is_number(id) :            
                 files = File.objects.filter(id__icontains=id)
-                for eachfile in files:               
-                    data = exportToPartGLTF("Media/"+eachfile.file.name,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
+                for eachfile in files: 
+                    basefilename,displaypath = getBasefileNameAndDisplayPath("Media/"+eachfile.file.name,0,"M")
+                    data = getEmptyDictionary("Media/"+eachfile.file.name,basefilename,displaypath,0,starttime,True)               
+                    data = exportToPartGLTF("Media/"+eachfile.file.name,distancegap,anglegap,animationtime,starttime)#,thumbwidth,thumbheight)
             else:
                 #id = request.GET.get('file', None)
                 if id is not None:
-                    data = exportToPartGLTF("Media/"+id,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
+                    basefilename,displaypath = getBasefileNameAndDisplayPath("Media/"+id,0,"M")
+                    data = getEmptyDictionary("Media/"+id,basefilename,displaypath,0,starttime,True) 
+                    data = exportToPartGLTF("Media/"+id,distancegap,anglegap,animationtime,starttime)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False) 
     except Exception as e:
         try:
@@ -4634,7 +4663,61 @@ def getShapesFromOutPutShapes(shapes,mytree):
     #print(retshapes,onlyshapes)
     return (retshapes,onlyshapes,retcoloredshapes,findAssemblyShapeName(1,mytree))
 
-def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,holescale = 0.8,removegap=1.0,animationtime=1.5):#,thumbwidth,thumbheight):
+def getBasefileNameAndDisplayPath(filename,edgesize,suffixname):
+    edgeGapStr = str(math.trunc(edgesize*10))
+    if filename:
+        head, tail = os.path.split(filename)
+        if(head[:-1]!="/"):            
+            head = head + "/"
+        if head[0:6]=="Media/":
+            displaypath = "Display/"+head[6:]
+        else:
+            displaypath = head        
+        pathfilename, _ = os.path.splitext(tail)
+        basefilename = pathfilename+suffixname+edgeGapStr
+    else:
+        basefilename = "./"
+        displaypath= "Display/"
+    return basefilename,displaypath
+
+
+def getEmptyDictionary(filename,basefilename,displaypath,percentage,starttime,createdirectory):
+    
+    currenttime = datetime.utcnow()  
+    mystatusdict =  {
+            "percent":(percentage),
+            "start":starttime.strftime("%H-%M-%S"),
+            "current":currenttime.strftime("%H-%M-%S") }
+    statusfilename = displaypath+basefilename+".status" 
+    try:   
+        if(createdirectory):
+            os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
+        print("Writing",statusfilename,"Percentage",percentage) 
+        with open(statusfilename, 'w') as fh:
+            fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))            
+    except Exception as e:
+        print("Error while wrting",statusfilename,e)
+    
+    dict_return = {
+        "gltf":None,
+        "tree":None,
+        "store":basefilename,
+        "load":filename,
+        "gdttable":[{ "edges":[],
+                    "selectedObjects":[],
+                    "parentObjects":[],
+                    "mates":[],
+                    "mateValues": [False,False,False,False,False,False],
+                    "angle":0,
+                    "offset":0,
+                    "option":26,
+                    "key":"" }],
+        "status": mystatusdict,
+        "display":displaypath }	                
+    return dict_return
+
+
+def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,holescale = 0.8,removegap=1.0,animationtime=1.5,byThread=True,starttime=None):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -4642,7 +4725,10 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
    
     try:
         
-        
+        #starttimeinexport = datetime.utcnow()
+        if starttime==None:
+            starttime=datetime.utcnow()
+
         dictionary={}
         _, file_extension = os.path.splitext(sourceFileName)
         file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
@@ -4661,7 +4747,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,includeparts=False,distancegap=distancegap, logging=logging, 
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
-                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
+                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M").dump()
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
                 #shape = Wholeshape
@@ -4688,7 +4774,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,suffixname="M").dump()
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
                 nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,tolerance)
@@ -4725,7 +4811,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,suffixname="M").dump()
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
                 nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,tolerance)
@@ -4744,7 +4830,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
                     anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0).dump() 
+                    thumbwidth=0,thumbheight=0,suffixname="M").dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
@@ -4761,11 +4847,13 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
         try:
             dimension, myShapes = outputShapes
             shapeArray,shape,shapePickles,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
             #shape = Wholeshape
             #shapeArray = createShapeArray(shape)
             print("Order",dictionary)
             dictionary = FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap,logging).\
-                ExplodeParts(sourceFileName,distancegap,anglegap,animationtime,dictionary["display"])
+                ExplodeParts(sourceFileName,distancegap,anglegap,animationtime,dictionary["display"],byThread,starttime)
+            getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],100,starttime,False)
             #whatGotHere = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap)
             #print("After calling Assembly order",dictionary)
             """ nshape, moveArrays, shapeorder, shapesdirection = dictionary
@@ -4832,14 +4920,25 @@ def FileGetAssemblyOrder(request):
             #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
             #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
             print(id,distancegap,anglegap,explodegap,center)
+            starttime = datetime.utcnow() 
             if is_number(id) :            
                 files = File.objects.filter(id__icontains=id)
-                for eachfile in files:               
-                    data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime)#,thumbwidth,thumbheight)
+                for eachfile in files:
+                    basefilename,displaypath = getBasefileNameAndDisplayPath("Media/"+eachfile.file.name,0,"M")
+                    data = getEmptyDictionary("Media/"+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
+                    mythread = threading.Thread(target=exportToAssemblyGLTF,\
+                        args=("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime))
+                    mythread.start()      
+                    #data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False)#,thumbwidth,thumbheight)
             else:
                 #id = request.GET.get('file', None)
                 if id is not None:
-                    data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime)#,thumbwidth,thumbheight)
+                    basefilename,displaypath = getBasefileNameAndDisplayPath("Media/"+id,0,"M")
+                    data = getEmptyDictionary("Media/"+id,basefilename,displaypath,0,starttime,True)
+                    mythread = threading.Thread(target=exportToAssemblyGLTF,\
+                        args=("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime))
+                    mythread.start() 
+                    #data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False)    
     except Exception as e:
         try:

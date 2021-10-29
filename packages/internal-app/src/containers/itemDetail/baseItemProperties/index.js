@@ -92,6 +92,8 @@ export default function BaseItemProperties({
   const [fileUUId, setfileUUId] = useState(itemProperties.fileUUId);
   const [isFileLoading, setIsFileLoading] = useState(false);
   const [progressBarRender, setProgressBarRender] = useState(false); 
+  const [distanceGap,setDistanceGap]=useState(STATEPROPS.distancegap);
+  const [angleGap,setAngleGap]=useState(STATEPROPS.anglegap);
 
   useEffect(() => {
     //console.log('Setting gltf', gltfjson);
@@ -194,8 +196,8 @@ export default function BaseItemProperties({
       const getHierarchyRes = await getHierarchySplitFiles(
         fileId,
         true,
-        STATEPROPS.distancegap,
-        STATEPROPS.anglegap,
+        distanceGap,
+        angleGap,
         false,
         0,
         0,
@@ -411,6 +413,10 @@ export default function BaseItemProperties({
               isFileLoading={isFileLoading}
               setIsFileLoading={setIsFileLoading}
               Label={"STEP, IGES, BREP, STL"}
+              distanceGap={distanceGap}
+              setDistanceGap={setDistanceGap}
+              angleGap={angleGap}
+              setAngleGap={setAngleGap}
             />
           </Grid>
         </Grid>

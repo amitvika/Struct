@@ -31,7 +31,11 @@ export default function GeometryInput({
   itemId,
   isFileLoading,
   setIsFileLoading,
-  Label
+  Label,
+  distanceGap,
+  setDistanceGap,
+  angleGap,
+  setAngleGap
 }) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   // const [fileId, setFileId] = useState(0);
@@ -148,7 +152,11 @@ export default function GeometryInput({
               setItemProperties={setItemProperties}
               isFileLoading={isFileLoading}
               setIsFileLoading={setIsFileLoading}
-              Label={Label}              
+              Label={Label}
+              distanceGap={distanceGap}
+              setDistanceGap={setDistanceGap}
+              angleGap={angleGap}
+              setAngleGap={setAngleGap}              
             />
           </Grid>
 

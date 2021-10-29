@@ -1069,10 +1069,10 @@ class StepIgesAnalyser():
         self, document=None, filename=None, shapeslist=None, includeparts=False, ascompound=False, 
         distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
         maximumfacestoinclude=48, animations=None, delay=1.0, shapeorder=[], kinematicanimation=None,
-        thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=True,
+        thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=True, suffixname='',
         writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
-        defaultR=0.3,defaultG=0.32,defaultB=0.37,seperateparts=False):
+        defaultR=0.3,defaultG=0.32,defaultB=0.37,seperateparts=False,seperatecompounds=True):
         """Supply one or the other: document or STEP filename or Shapes."""
         self.starttime = datetime.utcnow()
         self.percentage = 0
@@ -1093,14 +1093,17 @@ class StepIgesAnalyser():
         self.addfeaturesThread = addfeaturesThread
         self.maximumfacestoinclude=maximumfacestoinclude
         self.seperateparts = seperateparts
+        self.seperatecompounds = seperatecompounds
         #print("I m initializing")
         if filename:
             head, tail = os.path.split(self.fname)
             if(head[:-1]!="/"):
-                print("Head does not contain last /",head)
+                #print("Head does not contain last /",head)
                 head = head + "/"
-            else:
-                print("Head contains last /",head)
+            #else:
+            #    #print("Head contains last /",head)
+            #    #pass
+
             if head[0:6]=="Media/":
                 self.displaypath = "Display/"+head[6:]
             else:
@@ -1114,19 +1117,19 @@ class StepIgesAnalyser():
                 file_extension_lower = "stp"
             #self.fileextension=self.fname
             self.stepiges = (file_extension_lower) == "stp" or (file_extension_lower == "step")
-            if animations!=None and len(animations) > 0:
-                if shapeorder!=None and len(shapeorder) > 0:
+            if (animations!=None and len(animations) > 0) or ((suffixname=="M") or (suffixname=="S")):
+                if (shapeorder!=None and len(shapeorder) > 0) or (suffixname=="M"):
                     self.basefilename = pathfilename+"M"+self.edgeGapStr
                 else:    
                     self.basefilename = pathfilename+"S"+self.edgeGapStr
                 self.writethread = False
-            elif kinematicanimation!=None:
+            elif (kinematicanimation!=None) or (suffixname=="K"):
                 self.basefilename = pathfilename+"K"+self.edgeGapStr
                 self.writethread = False
             else:
                 self.basefilename = pathfilename+self.edgeGapStr
                 self.writethread = writethread
-            if ascompound:
+            if (ascompound) and (suffixname==''):
                 self.basefilename = self.basefilename + "A" 
                 self.writethread = False
         else:
@@ -1687,7 +1690,7 @@ class StepIgesAnalyser():
         transformationHash = self.hashCode(localTransformation)
         myshapename = shapeString(shape)
         print(myshapename)
-        if (((myshapename=="Compound.") or (myshapename=="Compsolid.")) and (self.includeparts)):
+        if ( ( (((myshapename=="Compound.") or (myshapename=="Compsolid.")) and (self.includeparts))) and (self.seperatecompounds) ):
             solids_dict = {}
             compounds_dict = {}
             compsolids_dict = {}
@@ -3189,16 +3192,15 @@ class StepIgesAnalyser():
     def write_status(self,maxgap=10):
         currenttime = datetime.utcnow()  
         mystatusdict =  {
-                "percent":self.percentage,
+                "percent":(self.percentage if self.ascompound==False else self.percentage/4.0),
                 "start":self.starttime.strftime("%H-%M-%S"),
                 "current":currenttime.strftime("%H-%M-%S") }
-        if(self.byThread):
+        if(self.byThread)or(self.ascompound):
             try:
                 statusfilename = self.displaypath+self.basefilename+".status"            
-                timingdelta = datetime.utcnow()-self.currenttime
-            
+                timingdelta = datetime.utcnow()-self.currenttime            
                 if (timingdelta.seconds >= maxgap): 
-                    if self.writefiles:
+                    if (self.writefiles) or (self.ascompound):
                         #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
                         print("Writing",statusfilename,"Percentage",self.percentage)                        
                         self.currenttime = datetime.utcnow()                   
@@ -3240,7 +3242,7 @@ class StepIgesAnalyser():
         if notFromFeature:
             try:
                 statusfilename = self.displaypath+dict["store"]+".status"
-                if self.writefiles:
+                if (self.writefiles) or (self.ascompound):
                     print("Writing",statusfilename)                
                     with open(statusfilename, 'w') as fh:
                         fh.write(json.dumps(dict["status"], sort_keys=True, indent=2 ))
@@ -3390,7 +3392,7 @@ class StepIgesAnalyser():
         print("Initial Loading took",timingdelta)
         if (not self.shapeslist) and (self.ascompound==False):
             statusfilename = self.displaypath+self.basefilename+".status"            
-            if self.writefiles:
+            if (self.writefiles) or (self.ascompound):
                 os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
             self.byThread=True
             mystatus = self.write_status(0)
@@ -3422,6 +3424,10 @@ class StepIgesAnalyser():
                     dict_return )
         else:
             print(self.basefilename,timingdelta.seconds,self.shapeslist,self.ascompound)
+            statusfilename = self.displaypath+self.basefilename+".status"            
+            if (self.writefiles) or (self.ascompound):
+                os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
+            self.write_status(0)
             mydict = self.dumpInThread(False)        
             return mydict
         
