@@ -6,12 +6,17 @@ export default function LinearProgressBarTiming (props) {
         completionProgressText,
         progressBarRender
     } = props;
+    let getTrimmedValue = 0;
+    getTrimmedValue =  value?parseFloat(value.toFixed(3)):0;
+    if(isNaN(getTrimmedValue)) {
+        getTrimmedValue=0;
+    }
     //console.log("currentProgressText",currentProgressText,"CompletionProgressText",completionProgressText);
     return (
         <div style={{ position: "relative" }}>
             <LinearProgress
                 variant="determinate"
-                value={value?value:value.toFixed(3)}
+                value={getTrimmedValue}
                 {...props}
                 style={{height:"15px"}}
             />
@@ -28,7 +33,7 @@ export default function LinearProgressBarTiming (props) {
                     {progressBarRender ? "Rendering" : currentProgressText}
                 </Typography>
             )}
-            {(completionProgressText || progressBarRender) && (
+            {(completionProgressText) && (
                 <Typography
                     style={{
                         position: "absolute",
@@ -38,9 +43,10 @@ export default function LinearProgressBarTiming (props) {
                         transform: "translateX(-50%)",
                     }}
                 >
-                    {progressBarRender ? <CircularProgress/> : completionProgressText}
+                    {completionProgressText}
                 </Typography>
-            )}                
+            )}  
+            { progressBarRender && ( <CircularProgress/> ) }               
         </div>
     );
 }

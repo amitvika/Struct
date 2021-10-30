@@ -72,7 +72,8 @@ export default function ManufacturabilityAnalysis(props) {
     progressBarLoad,
     percentage, 
     currentProgressText,
-    completionProgressText
+    completionProgressText,
+    drawLine
   } = props;
   //const [list, setList] = useState([]);
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
@@ -1402,6 +1403,7 @@ export default function ManufacturabilityAnalysis(props) {
             onClick={handleModelClick}
             activeDataTable={0}
             setProgressBarRender={setProgressBarRender}
+            drawLine={drawLine}
             //resetSelectionFromTree={resetSelectionFromTree}
           />
         }

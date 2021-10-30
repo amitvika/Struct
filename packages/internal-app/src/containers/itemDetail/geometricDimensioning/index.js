@@ -43,6 +43,7 @@ export default function GeometricDimensioning(props) {
     percentage,
     currentProgressText,
     completionProgressText,
+    drawLine,
     internalProductConfig,
     keyName = { name: '', option: SELECTFEATURE },
     handleChangeOfSelection = (selectedObjects) => {
@@ -73,6 +74,7 @@ export default function GeometricDimensioning(props) {
   const [completionProgressTexter, setCompletionProgressTexter] = useState(
     completionProgressText
   );
+  const [drawLiner, setDrawLiner] = useState(drawLine);
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
   useEffect(() => {
     if (fileUUId) {
@@ -134,7 +136,9 @@ export default function GeometricDimensioning(props) {
       );
     }
   }, [percentage]);
-
+  useEffect(() => {
+    setDrawLiner(drawLine);
+  }, [drawLine]);
   useEffect(() => {
     const includeParts = true;
     //console.log("Reaching",gltfjson,fileId,isLoading);
@@ -1990,6 +1994,7 @@ export default function GeometricDimensioning(props) {
           percentage={percentager}
           currentProgressText={currentProgressTexter}
           completionProgressText={completionProgressTexter}
+          drawLine={drawLiner}          
         />
       </Paper>
 

@@ -16,7 +16,8 @@ export default function Viewer({ gltfjson = {},
   progressBarLoad=false,
   percentage=0,
   currentProgressText=null,
-  completionProgressText=null
+  completionProgressText=null,
+  drawLine=false,
   }) {
   const [progressBarRender, setProgressBarRender] = useState(false);
   return (
@@ -27,7 +28,7 @@ export default function Viewer({ gltfjson = {},
             value={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
-            progressBarRender={progressBarRender}
+            progressBarRender={progressBarRender}            
            />
         </Box>
       )}
@@ -53,6 +54,7 @@ export default function Viewer({ gltfjson = {},
           onClick={handleModelClick}
           activeDataTable={0}
           setProgressBarRender={setProgressBarRender}
+          drawLine={drawLine}
         />
       }
     </div>

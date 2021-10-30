@@ -6,6 +6,7 @@ import { SELECTFEATURE, USESTYLES } from '@monostruct/common/gltf/Tree/utils';
 import Headding from '@monostruct/common/components/atoms/Headding';
 
 import DynamicHierarchyForm from './DynamicHierarchyForm';
+import { drop } from 'lodash';
 
 //let state_selectedObjects = [];
 let state_fileOnChange = null;
@@ -25,7 +26,8 @@ export default function ItemTypeConfiguration(props) {
     percentage,
     currentProgressText,
     completionProgressText,
-    internalProductConfig
+    drawLine,
+    internalProductConfig,    
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
@@ -36,6 +38,7 @@ export default function ItemTypeConfiguration(props) {
   const [completionProgressTexter, setCompletionProgressTexter] = useState(
     completionProgressText
   );
+  const [drawLiner, setDrawLiner]=useState(drawLine);
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
 
   const [showKineticModel, setShowKineticModal] = useState(true);
@@ -85,7 +88,9 @@ export default function ItemTypeConfiguration(props) {
       );
     }
   }, [percentage]);
-
+  useEffect(() => {
+    setDrawLiner(drawLine);
+  }, [drawLine]);
   const [fieldKey, setFieldKey] = useState({
     name: 'NoKey',
     option: SELECTFEATURE
@@ -207,6 +212,7 @@ export default function ItemTypeConfiguration(props) {
                 percentage={percentager}
                 currentProgressText={currentProgressTexter}
                 completionProgressText={completionProgressTexter}
+                drawLine={drawLiner}
               />
             }
             {/* {(isLoading || isFileLoading) && <CircularProgress />} */}

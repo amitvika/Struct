@@ -39,7 +39,8 @@ export default function Viewer({
   progressBarLoad=false,
   percentage=0,
   currentProgressText=null,
-  completionProgressText=null
+  completionProgressText=null,
+  drawLine=false,
   }) {  
     const [percentager, setPercentager] = useState(percentage||0);
     const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
@@ -47,6 +48,7 @@ export default function Viewer({
     const [completionProgressTexter, setCompletionProgressTexter] = useState(completionProgressText);
     const [fileUUIder, setfileUUIder] = useState(fileUUId);
     const [progressBarRender, setProgressBarRender] = useState(false); 
+    const [drawLiner, setDrawLiner]=useState(drawLine);
     useEffect(() => {
       if(fileUUId) {
         setfileUUIder(fileUUId);
@@ -75,6 +77,9 @@ export default function Viewer({
         console.log("After Changing percentage from viewer",percentage,percentager,fileUUIder,fileUUId);
       }
     }, [percentage]);
+    useEffect(() => {
+      setDrawLiner(drawLine);
+    }, [drawLine]);
     let gltfjsonlen = Object.keys(gltfjson).length;
     if (gltfjsonlen > 0) {
       gltfjsonlen += gltfjson?.gltf?.accessors?.length;
@@ -129,6 +134,7 @@ export default function Viewer({
             setIsProgressOpen={setIsProgressOpen}
             setProgressOpenedFiles={setProgressOpenedFiles}
             setProgressBarRender={setProgressBarRender}
+            drawLine={drawLiner}
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */
           />

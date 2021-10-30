@@ -76,7 +76,8 @@ export default function BaseItemProperties({
   progressBarLoad,
   percentage,
   currentProgressText,
-  completionProgressText
+  completionProgressText,
+  drawLine
 }) {
   const classes = USESTYLES();
   const dispatch = useDispatch();
@@ -94,7 +95,7 @@ export default function BaseItemProperties({
   const [progressBarRender, setProgressBarRender] = useState(false); 
   const [distanceGap,setDistanceGap]=useState(STATEPROPS.distancegap);
   const [angleGap,setAngleGap]=useState(STATEPROPS.anglegap);
-
+  const [drawLiner,setDrawLiner]=useState(false);
   useEffect(() => {
     //console.log('Setting gltf', gltfjson);
     setfileUUId(itemProperties.fileUUId);
@@ -179,7 +180,10 @@ export default function BaseItemProperties({
             ...prevData,
             fileUUId: data.uuid,
             fileStore: datastore,
-            fileName: dataload
+            fileName: dataload,
+            distanceGap: distanceGap,
+            angleGap: angleGap,
+            drawLine: drawLiner,
           }));
           handleItemSaveOnServer({
             fileId: null,
@@ -190,6 +194,9 @@ export default function BaseItemProperties({
             fileMPPS: null,
             fileStack: null,
             fileKinematic: null,
+            distanceGap: distanceGap,
+            angleGap: angleGap,
+            drawLine: drawLiner,
           });
       } 
       let percent = 0;
@@ -229,7 +236,10 @@ export default function BaseItemProperties({
               ...prevData,
               fileUUId: data.uuid,
               fileStore: datastore,
-              fileName: dataload
+              fileName: dataload,
+              distanceGap: distanceGap,
+              angleGap: angleGap,
+              drawLine: drawLiner
             }));
           }
           handleItemSaveOnServer({
@@ -241,6 +251,9 @@ export default function BaseItemProperties({
             fileMPPS: null,
             fileStack: null,
             fileKinematic: null,
+            distanceGap: distanceGap,
+            angleGap: angleGap,
+            drawLine: drawLiner,
           });
         }
       }
@@ -318,7 +331,10 @@ export default function BaseItemProperties({
           fileStore: datastore,
           fileName: dataload,
           multiAssmebly: treeLength > 0,
-          stepTreeLength: treeLength
+          stepTreeLength: treeLength,
+          distanceGap: distanceGap,
+          angleGap: angleGap,
+          drawLine: drawLiner
         }));
       }
       handleItemSaveOnServer({
@@ -331,7 +347,10 @@ export default function BaseItemProperties({
         fileStack: null,
         fileKinematic: null,
         multiAssmebly: treeLength > 0,
-        stepTreeLength: treeLength
+        stepTreeLength: treeLength,
+        distanceGap: distanceGap,
+        angleGap: angleGap,
+        drawLine: drawLiner
       });
       setIsLoading(false);
       dispatch(
@@ -399,6 +418,7 @@ export default function BaseItemProperties({
                   dataselection={0}
                   activeDataTable={0}
                   setProgressBarRender={setProgressBarRender}
+                  drawLine={drawLiner}
                 />
               )}
             {(isFileLoading) && <CircularProgress />}
@@ -412,11 +432,13 @@ export default function BaseItemProperties({
               itemProperties={itemProperties}
               isFileLoading={isFileLoading}
               setIsFileLoading={setIsFileLoading}
-              Label={"STEP, IGES, BREP, STL"}
+              label={"STEP, IGES, BREP, STL"}
               distanceGap={distanceGap}
               setDistanceGap={setDistanceGap}
               angleGap={angleGap}
               setAngleGap={setAngleGap}
+              drawLine={drawLiner}
+              setDrawLine={setDrawLiner}
             />
           </Grid>
         </Grid>

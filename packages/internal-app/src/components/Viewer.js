@@ -24,7 +24,8 @@ export default function Viewer({
   progressBarLoad=false,
   percentage=0,
   currentProgressText=null,
-  completionProgressText=null
+  completionProgressText=null,
+  drawLine=false,
   }) {
   const [progressBarRender, setProgressBarRender] = useState(false); 
   return (
@@ -62,6 +63,7 @@ export default function Viewer({
           onClick={handleModelClick}
           activeDataTable={0}
           setProgressBarRender={setProgressBarRender}
+          drawLine={drawLine}
         />
       }
     </div>

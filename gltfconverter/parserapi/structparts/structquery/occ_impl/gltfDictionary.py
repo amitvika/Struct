@@ -20,6 +20,7 @@ def gltfdict() :
         "display":"D",
         "subfeatures":"f",
         "element":"e",
-        "geometry":"g"    
+        "geometry":"g",
+        "points":"P"    
         }
     return my_dict

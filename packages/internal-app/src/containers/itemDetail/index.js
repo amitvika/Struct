@@ -241,8 +241,8 @@ const ItemDetail = () => {
         setIsFileLoading(true);
         getPartsStackableInfo(
           getStepFile(item),
-          STATEPROPS.distancegap,
-          STATEPROPS.anglegap,
+          item.distanceGap?item.distanceGap:STATEPROPS.distancegap,
+          item.angleGap?item.angleGap:STATEPROPS.anglegap,
           STATEPROPS.animationtime
         )
           .then((res) => res.data)
@@ -342,8 +342,8 @@ const ItemDetail = () => {
         console.log('Setting here');
         getPartsAssemblyOrder(
           getStepFile(item),
-          STATEPROPS.distancegap,
-          STATEPROPS.anglegap,
+          item.distanceGap?item.distanceGap:STATEPROPS.distancegap,
+          item.angleGap?item.angleGap:STATEPROPS.anglegap,
           STATEPROPS.explodegap,
           STATEPROPS.fromcenter,
           STATEPROPS.holescale,
@@ -461,8 +461,8 @@ const ItemDetail = () => {
             setIsFileLoading(true);
             getPartsKinematicOrder(
               getStepFile(item),
-              STATEPROPS.distancegap,
-              STATEPROPS.anglegap,
+              item.distanceGap?item.distanceGap:STATEPROPS.distancegap,
+              item.angleGap?item.angleGap:STATEPROPS.anglegap,
               STATEPROPS.animationtime
             )
               .then((res) => res.data)
@@ -537,8 +537,8 @@ const ItemDetail = () => {
             const getHierarchyRes = await getHierarchySplitFiles(
               getStepFile(item),
               true,
-              STATEPROPS.distancegap,
-              STATEPROPS.anglegap,
+              item.distanceGap?item.distanceGap:STATEPROPS.distancegap,
+              item.angleGap?item.angleGap:STATEPROPS.anglegap,
               STATEPROPS.disect,
               0,
               0,
@@ -735,8 +735,8 @@ const ItemDetail = () => {
             const getHierarchyRes = await getHierarchySplitFiles(
               getStepFile(item),
               true,
-              STATEPROPS.distancegap,
-              STATEPROPS.anglegap,
+              item.distanceGap?item.distanceGap:STATEPROPS.distancegap,
+              item.angleGap?item.angleGap:STATEPROPS.anglegap,
               STATEPROPS.disect,
               0,
               STATEPROPS.edgesize,
@@ -1062,6 +1062,7 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
+            drawLine={itemProperties.drawLine}
           />
         );
       case 'cu':
@@ -1088,6 +1089,7 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
+            drawLine={itemProperties.drawLine}
             {...{ internalProductConfig }}
           />
         );
@@ -1112,6 +1114,7 @@ const ItemDetail = () => {
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
             internalProductConfig={internalProductConfig}
+            drawLine={itemProperties.drawLine}
           />
         );
       case 5:
@@ -1134,6 +1137,7 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
+            drawLine={itemProperties.drawLine}
           />
         );
       case 7:

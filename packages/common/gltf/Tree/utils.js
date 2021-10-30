@@ -132,7 +132,8 @@ export const gltf_Dict = {
     "display":"D",
     "subfeatures":"f",
     "element":"e",
-    "geometry":"g"
+    "geometry":"g",
+    "points":"P",
   }
 
   export const defaultGDTTable = {

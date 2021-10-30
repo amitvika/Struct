@@ -8,7 +8,7 @@ const ProgressBar = ({ percentage }) => {
       <LinearProgress
         className="mb-3"
         variant="determinate"
-        value={percentage}
+        value={percentage?pecentage:0}
       />
     </div>
   );

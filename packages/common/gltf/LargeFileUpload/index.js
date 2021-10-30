@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LinearProgress, Box, IconButton, Typography, TextField } from '@material-ui/core';
+import { LinearProgress, Box, IconButton, Typography, TextField, Checkbox, FormControlLabel } from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
 
 import { uploadChunkData, download, resourcePathURL } from '../../api/fileUpload.api';
@@ -68,7 +68,9 @@ export default function LargeFileUpload({
   distanceGap,
   setDistanceGap,
   angleGap,
-  setAngleGap
+  setAngleGap,
+  drawLine,
+  setDrawLine
 }) {
   const classes = useStyles();
   const [counter, setCounter] = useState(1);
@@ -183,6 +185,11 @@ export default function LargeFileUpload({
     setAngleGap(e.target.value);
   }
 
+  const onDrawLineChange = (e) => {
+    setDrawLine(e.target.checked);
+  }
+
+
   if (itemProperties.fileStore && 
     isFileExistingInServer(resourcePathURL+
       (itemProperties.fileUUId?itemProperties.fileUUId+'/':'')+itemProperties.fileStore+".gltf")) {
@@ -208,9 +215,14 @@ export default function LargeFileUpload({
       </div>
     );
   }
+  let getTrimmedValue = 0;
+  getTrimmedValue =  progress?parseFloat(progress.toFixed(3)):0;
+  if(isNaN(getTrimmedValue)) {
+      getTrimmedValue=0;
+  }
   return (
     <div>
-      <Box sx={{ width: '100%' }}>
+      <Box sx={{ width: '100%'}}>
         <TextField 
             type="number"
             InputProps={{
@@ -233,9 +245,14 @@ export default function LargeFileUpload({
             onChange={onAngleChange}
             value={angleGap}
           />
+          <FormControlLabel
+            control={<Checkbox checked={drawLine} label="Draw 3JS Line" onChange={onDrawLineChange}  />}
+            label="Draw 3JS Line"
+          />
+          
         </Box>
       <Box sx={{ width: '100%' }}>
-        <LinearProgress variant="determinate" value={progress?progress.toFixed(3):0} />
+        <LinearProgress variant="determinate" value={getTrimmedValue} />
       </Box>
       
       <div style={{ display: 'flex' }}>

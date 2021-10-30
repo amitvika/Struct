@@ -76,7 +76,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 */
 export default function Stackability(props) {
-  const { fileId, gltfjson, isLoading, fileUUId, progressBarLoad, percentage, currentProgressText, completionProgressText } = props;
+  const { 
+    fileId, 
+    gltfjson, 
+    isLoading, 
+    fileUUId, 
+    progressBarLoad, 
+    percentage, 
+    currentProgressText, 
+    completionProgressText, 
+    drawLine 
+  } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const [progressBarRender, setProgressBarRender] = useState(false); 
   const classes = USESTYLES();
@@ -171,6 +181,7 @@ export default function Stackability(props) {
             dataselection={0}
             activeDataTable={0}
             setProgressBarRender={setProgressBarRender}
+            drawLine={drawLine}
           />
         )}
         {/* {(isLoading || isFileLoading) && <CircularProgress />} */}

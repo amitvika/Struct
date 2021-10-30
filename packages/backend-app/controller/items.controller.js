@@ -115,6 +115,9 @@ exports.getAll = async (req, res) => {
         fileMPPS: itemDetail.fileMPPS,
         fileStack: itemDetail.fileStack,
         fileKinematic: itemDetail.fileKinematic,
+        distanceGap: itemDetail.distanceGap,
+        angleGap: itemDetail.angleGap,
+        drawLine: itemDetail.drawLine,
         fileId: itemDetail.fileId,
         hierarchySelections: itemDetail.hierarchySelections,
         stepTreeLength: itemDetail.stepTreeLength
@@ -208,6 +211,9 @@ exports.update = async (req, res) => {
       updateData.fileMPPS = body.fileMPPS;
       updateData.fileStack = body.fileStack;
       updateData.fileKinematic = body.fileKinematic;
+      updateData.distanceGap = body.distanceGap;
+      updateData.angleGap = body.angleGap;
+      updateData.drawLine = body.drawLine;
       updateData.fileName = body.fileName;
       updateData.stepTreeLength = body.stepTreeLength;
     }
