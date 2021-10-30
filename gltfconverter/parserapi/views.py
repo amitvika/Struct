@@ -1333,10 +1333,11 @@ def getDictionaryFromOBB(obb):
 def CreateSphereFromCenter(center,vertexsize=0.1,circular=False):
         
         #center = obb.Center()
+        centerX, centerY, centerZ = center
         if circular:
-            return BRepPrimAPI_MakeSphere(center, vertexsize).Shape()
+            return BRepPrimAPI_MakeSphere(gp_Pnt(centerX,centerY,centerZ), vertexsize).Shape()
         else:
-            corner = gp_Pnt(center.X()-vertexsize, center.Y()-vertexsize, center.Z()-vertexsize)
+            corner = gp_Pnt(centerX-vertexsize, centerY-vertexsize, centerZ-vertexsize)
             return BRepPrimAPI_MakeBox(corner,vertexsize*2,vertexsize*2,vertexsize*2).Shape()
 
 @api_view(['GET', 'POST'])
@@ -1399,7 +1400,8 @@ def FileGetShapeInfo(request):
                             
                             foundHole=False
                             if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
-                                thiscenterpoint = thisdimension.Center()
+                                thiscenterpointXYZ = thisdimension.Center()
+                                thiscenterpoint=(thiscenterpointXYZ.X(),thiscenterpointXYZ.Y(),thiscenterpointXYZ.Z())
                                 if 'center' in data[0]['Info']:  
                                     thiscenterpoint = data[0]['Info']['center'] 
                                 #thisdimension = get_oriented_bounding_details(thisshell[index])
