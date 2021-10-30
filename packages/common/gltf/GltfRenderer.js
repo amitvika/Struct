@@ -219,9 +219,9 @@ class GLTFRenderer extends Component {
         addLights: true,
         exposure: 1.0,
         textureEncoding: 'sRGB',
-        ambientIntensity: 0.3,
+        ambientIntensity: 1.4,
         ambientColor: 0xFFFFFF,
-        directIntensity: 0.8 * Math.PI, // TODO(#116)
+        directIntensity: 0.2, // TODO(#116)
         directColor: 0xFFFFFF,
         partsSelection: [],
         intersectedShell: null,

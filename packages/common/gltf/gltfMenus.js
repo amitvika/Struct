@@ -206,7 +206,7 @@ export const myMenus =  [ {
           }, {
             name:'ambient',
             values: {
-              ambientIntensity: 1.0,
+              ambientIntensity: 1.4,
               ambientColor: 0xFFFFFF,
               ctrlKey:false
             },
@@ -227,7 +227,7 @@ export const myMenus =  [ {
           }, {
             name:'direct',
             values: {
-              directIntensity: 0.8 * Math.PI,  
+              directIntensity: 0.2,  
               directColor: 0xFFFFFF,
               ctrlKey:false
             },
