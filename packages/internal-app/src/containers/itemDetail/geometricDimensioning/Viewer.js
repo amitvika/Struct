@@ -135,6 +135,7 @@ export default function Viewer({
             setProgressOpenedFiles={setProgressOpenedFiles}
             setProgressBarRender={setProgressBarRender}
             drawLine={drawLiner}
+            edgecolor={STATEPROPS.edgecolor}
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */
           />

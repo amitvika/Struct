@@ -1404,6 +1404,7 @@ export default function ManufacturabilityAnalysis(props) {
             activeDataTable={0}
             setProgressBarRender={setProgressBarRender}
             drawLine={drawLine}
+            edgecolor={STATEPROPS.edgecolor}
             //resetSelectionFromTree={resetSelectionFromTree}
           />
         }

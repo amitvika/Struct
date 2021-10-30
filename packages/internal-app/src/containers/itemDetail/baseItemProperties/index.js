@@ -419,6 +419,7 @@ export default function BaseItemProperties({
                   activeDataTable={0}
                   setProgressBarRender={setProgressBarRender}
                   drawLine={drawLiner}
+                  edgecolor={STATEPROPS.edgecolor}
                 />
               )}
             {(isFileLoading) && <CircularProgress />}

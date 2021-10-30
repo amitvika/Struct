@@ -677,6 +677,7 @@ class DropZone extends Component {
             changedata={this.state.changedata}
             data2texture={this.state.data2values[0].name}
             data3texture={this.state.data3values[0].name}
+            edgecolor={STATEPROPS.edgecolor}
             materialtype={
               this.state.selectedindex == -1
                 ? DEFAULTMATERIALNAME

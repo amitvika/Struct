@@ -231,6 +231,7 @@ export const gltf_Dict = {
   const DEFAULTMAXIMUMFACES = 50;
   const DEFAULTMATERIALNAME = "Basic";
   const DEFAULTMAXPARTS = 150;
+  export const DEFAULTEDGECOLOR = 0x000000;
 
   export const STATEPROPS = {
     distancegap: DEFAULTDISTANCEGAP,
@@ -248,7 +249,8 @@ export const gltf_Dict = {
     maximumparts: DEFAULTMAXPARTS,
     edgesize: DEFAULTEDGESIZE,
     vertexsize: DEFAULTVERTEXSIZE,
-    materialname: DEFAULTMATERIALNAME
+    materialname: DEFAULTMATERIALNAME,
+    edgecolor:DEFAULTEDGECOLOR,
   };
 
   export const USESTYLES = makeStyles((theme) => ({

@@ -60,7 +60,7 @@ import { resourcePathURL, resourcePathBase, getAFileFromStore } from '@monostruc
 import {
     SELECTCOLOR, SELECTTEXTURE, SELECTMETAL, SELECTROUGH, SELECTOPAQUE,
     SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR, 
-    SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTDISTANCE, 
+    SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTDISTANCE, DEFAULTEDGECOLOR,
     SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTFACE, SELECTLINEAR, SELECTCIRCULAR,
     SELECTMEASURE, SELECTDISECTPARTS, SELECTASSEMBLY, SELECTFEATURE, SELECTLOADEDGES,
     DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, DEFAULTTEXTCOLOR,
@@ -4093,7 +4093,7 @@ class GLTFRenderer extends Component {
                                             data.forEach(element => {
                                                 if(element[gltf_Dict["points"]]) {
                                                     let material = new LineBasicMaterial({
-                                                        color: 0x0077ff,
+                                                        color: this.props.edgecolor?this.props.edgecolor:DEFAULTEDGECOLOR,
                                                         name:element[gltf_Dict["name"]],
                                                         linewidth:1,
                                                     });

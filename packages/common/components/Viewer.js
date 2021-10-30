@@ -55,6 +55,7 @@ export default function Viewer({ gltfjson = {},
           activeDataTable={0}
           setProgressBarRender={setProgressBarRender}
           drawLine={drawLine}
+          edgecolor={STATEPROPS.edgecolor}
         />
       }
     </div>

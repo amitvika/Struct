@@ -182,6 +182,7 @@ export default function Stackability(props) {
             activeDataTable={0}
             setProgressBarRender={setProgressBarRender}
             drawLine={drawLine}
+            edgecolor={STATEPROPS.edgecolor}
           />
         )}
         {/* {(isLoading || isFileLoading) && <CircularProgress />} */}

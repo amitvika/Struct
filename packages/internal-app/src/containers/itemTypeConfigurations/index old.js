@@ -1298,6 +1298,7 @@ export default function ItemTypeConfiguration(props) {
                   activeDataTable={0}
                   ctrlKey={ctrlKey}                  
                   setCtrlKey={setCtrlKey}
+                  edgecolor={STATEPROPS.edgecolor}
                   //resetSelectionFromTree={resetSelectionFromTree}
                 />
               )}

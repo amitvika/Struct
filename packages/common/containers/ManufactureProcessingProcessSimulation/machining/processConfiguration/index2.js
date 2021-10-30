@@ -77,6 +77,7 @@ export default function ProcessConfigurationAssembly() {
               whatchanged={0}
               dataselection={0}
               activeDataTable={0}
+              edgecolor={STATEPROPS.edgecolor}
             />
           )}
           {/* <CppTest /> */}
