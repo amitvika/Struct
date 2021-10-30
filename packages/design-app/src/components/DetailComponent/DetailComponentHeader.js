@@ -8,20 +8,18 @@ import AddDesign from './AddDesignForm';
 
 export default function DetailComponentHeader({
   title,
-  isAddDesignVisible = true,
+  isAddDesignVisible = true
 }) {
   const classes = useStyles();
   return (
     <Paper className={classes.paperContainer}>
-
-      <div style={{position: 'absolute',left: '0px'}}>
-      {isAddDesignVisible && <AddDesign />}
+      <div style={{ position: 'absolute', left: '0px' }}>
+        {isAddDesignVisible && <AddDesign />}
       </div>
-      <div style={{display: 'flex', justifyContent: 'center'}}>
-        <Typography variant="h3" className={classes.title}>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Typography variant="h4" className={classes.title}>
           {title}
         </Typography>
-      
       </div>
     </Paper>
   );

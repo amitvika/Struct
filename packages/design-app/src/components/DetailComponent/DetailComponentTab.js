@@ -17,9 +17,9 @@ export default function DetailPageTab({ tabList }) {
     ));
   };
 
-  
-
-  const TabContent = tabList[selectedTabIndex] ? tabList[selectedTabIndex].tabContent : null; 
+  const TabContent = tabList[selectedTabIndex]
+    ? tabList[selectedTabIndex].tabContent
+    : null;
 
   return (
     <Grid container>
@@ -37,7 +37,7 @@ export default function DetailPageTab({ tabList }) {
         </Paper>
       </Grid>
       <Grid item sm={10}>
-        <TabContent/>
+        {TabContent && <TabContent />}
       </Grid>
     </Grid>
   );

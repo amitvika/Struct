@@ -1302,7 +1302,9 @@ export default function GeometricDimensioning(props) {
             structure.objects[structure.start + index]['fill'] =
               element[0].fill;
             structure.objects[structure.start + index]['obb'] = element[0].obb;
-            structure.objects[structure.start + index]['diameter'] = 2.0 * (element[0].Info['kind']['radius'] ? element[0].Info['kind']['radius']:0) ;
+            if(element[0].Info['kind'] ==='Circle'){
+              structure.objects[structure.start + index]['diameter'] = 2.0 * (element[0].Info['radius'] ? element[0].Info['radius']:0) ;
+            }
 
             //console.log(structure.objects[structure.start+index]);
             /*console.log(element);
@@ -1323,6 +1325,7 @@ export default function GeometricDimensioning(props) {
                 structure.objects[structure.start+index]['edgeList'] = edgeList;
             } */
           }
+          console.log('-------latest------',structure )
           resolve(structure);
         })
         .catch((error) => {
