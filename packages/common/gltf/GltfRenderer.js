@@ -37,7 +37,8 @@ import {
     LineBasicMaterial,
     BufferGeometry,
     Line,
-
+    LineSegments,
+    Object3D,
    /* Group,
     SphereBufferGeometry,
     LineBasicMaterial,
@@ -63,7 +64,7 @@ import {
     SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTDISTANCE, DEFAULTEDGECOLOR,
     SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTFACE, SELECTLINEAR, SELECTCIRCULAR,
     SELECTMEASURE, SELECTDISECTPARTS, SELECTASSEMBLY, SELECTFEATURE, SELECTLOADEDGES,
-    DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, DEFAULTTEXTCOLOR,
+    DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, DEFAULTTEXTCOLOR, pollFunction, 
     hexToRGB, arrayCopy, arrayRemoveFromValue, arrayRemoveFromMesh, gltf_Dict, defaultGDTTable
 } from "./Tree/utils";
 import './styles/style.css';
@@ -2404,9 +2405,9 @@ class GLTFRenderer extends Component {
             //console.log("Returning true");
             return true;
         } 
-        const first4chars = mynode?.name.slice(0, 4);
-        const curvechar = mynode?.name.slice(4,5);
-        const first6chars = mynode?.name.slice(0, 6);
+        const first4chars = mynode?.name?.slice(0, 4);
+        const curvechar = mynode?.name?.slice(4,5);
+        const first6chars = mynode?.name?.slice(0, 6);
         var visible = (this.props.selectedoption == SELECTMEASURE) || 
             (this.props.selectedoption == SELECTFEATURE);
         //console.log(this.props.selectedoption);
@@ -2514,9 +2515,9 @@ class GLTFRenderer extends Component {
             var myObject = intersects.length;
             for (var i = 0; i < intersects.length; i++) {
                 //console.log("First",intersects[ i ].object);
-                if (intersects[i].object.type == "Line") {
-                    //console.log("Intersect Line",intersects[i]);
-                }
+                /* if (intersects[i].object.type == "Line" && i<=2) {
+                    console.log("Intersect Line",i, intersects[i]);
+                } */
                 
                 if (intersects[i].object.type == "Mesh" ) {
                     //console.log("name found",intersects[ i ].object.name);
@@ -2527,7 +2528,25 @@ class GLTFRenderer extends Component {
                     }
                    
                 }
-            }
+            };
+            if (myObject == intersects.length) {
+                for (var i = 0; i < intersects.length; i++) {
+                    //console.log("First",intersects[ i ].object);
+                    /* if (intersects[i].object.type == "Line" && i<=2) {
+                        console.log("Intersect Line",i, intersects[i]);
+                    } */
+                    
+                    if (intersects[i].object.type == "Mesh" ) {
+                        //console.log("name found",intersects[ i ].object.name);
+                        
+                            myObject = i;
+                            //console.log("I found a face",intersects[i].object.name);
+                            break;
+                        
+                       
+                    }
+                }
+            };
             //console.log("Got",myObject);
             if (myObject == intersects.length) {
                 //console.log("Entered here");
@@ -2540,7 +2559,7 @@ class GLTFRenderer extends Component {
                     
                     }
                 }
-            }
+            };
             if (myObject != intersects.length) {
 
                 if (this.INTERSECTED != intersects[myObject].object) {
@@ -2757,6 +2776,36 @@ class GLTFRenderer extends Component {
         });
 
     };
+
+    getFloatArray = (data64) => {
+        //console.log(data64);
+        var blob=null;
+        try {
+            blob = atob(data64);
+        } catch (error) {
+            console.log("not a base64");
+        }
+        if(blob) {
+            var    fLen = blob.length / Float32Array.BYTES_PER_ELEMENT,						// How many floats can be made, but be even
+            dView = new DataView(new ArrayBuffer(Float32Array.BYTES_PER_ELEMENT)),	// ArrayBuffer/DataView to convert 4 bytes into 1 float.
+            fAry = new Float32Array(fLen),											// Final Output at the correct size
+            p = 0;																// Position
+
+            for (var j = 0; j < fLen; j++) {
+                p = j * 4;
+                dView.setUint8(0, blob.charCodeAt(p));
+                dView.setUint8(1, blob.charCodeAt(p + 1));
+                dView.setUint8(2, blob.charCodeAt(p + 2));
+                dView.setUint8(3, blob.charCodeAt(p + 3));
+                fAry[j] = dView.getFloat32(0, true);
+                console.log(fAry[j]);
+            }
+            return fAry;
+        } else {
+            return null;
+        }
+    };
+
 
     readUV = (data64) => {
 
@@ -3980,7 +4029,7 @@ class GLTFRenderer extends Component {
     }
     */
 
-    drawAllEdges = (allEdges=0, featureSetStart=0, featureSetFinish=3, mynode=null) => {
+    drawAllEdges = async (allEdges=0, featureSetStart=0, featureSetFinish=3, mynode=null) => {
         
         //this.fetchTree(gltfFILE,progressFile,myParentID);
         const progressFile = (this.props.fileUUId ? this.props.fileUUId+'/' : '') + this.props.fileGDT.slice(0, this.props.fileGDT.length - 1); 
@@ -3988,303 +4037,178 @@ class GLTFRenderer extends Component {
         if(!this_progress_data) {
             //const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);  
             //console.log("Getting",progressFile);
-            getAFileFromStore(progressFile,"progress")
-            .then(res => res.data)
-            .then((data) => {
-                if(!data || data.begin!=data.end) {
-                    //console.log(data);
-                    alert("Edges are still under construction. Please try after sometime");
-                } else {
-                    //console.log("Edges are loaded",data);
-                    this_progress_data = data;
-                }
-                if(data) {   
-                    let myParentID=allEdges;
-                    let myParentDic = {};
-                    //console.log("Data got in the progress file",myParentID,data);
-                    if(data.files) {
-                        alert("Please reload and regenerate because structure is changed to minimize parent nodes of parts");
-                        return;
-                    }
-                    myParentDic[myParentID.toString()]=data.children?data.children[myParentID]:data.files?data.files[myParentID]:1;
-                    if(allEdges==0 && data.children){
-                       myParentDic = data.children;
-                    }
-                    if(allEdges==0 && data.files){
-                        myParentDic = data.files;
-                    }
-                    //console.log("ParentDict",myParentDic);
-                    for (let [myParentID, howManyFilesJson] of Object.entries(myParentDic)) {                  
-                        //myParentID = allEdges;
-                        //let howManyFiles = data.files?data.files[myParentID]:1;
-                        //console.log("Getting Files of", myParentID, "Items", howManyFilesJson);
-                        const featureSet = ["f","e","v"];                    
-                        for (let indexFiles = featureSetStart; indexFiles < featureSetFinish; indexFiles++) {
-                            let element = featureSet[indexFiles];
-                            let howManyFiles = 0;
-                            const myType = typeof howManyFilesJson;
-                            if ( ( myType === "number") || (myType === "string") ){
-                                howManyFiles = howManyFilesJson;
-                                element="";
-                                featureSetFinish = featureSetStart+1;
-                            } else {
-                                if(howManyFilesJson) {
-                                    howManyFiles = howManyFilesJson[element];
-                                } else {
-                                    howManyFiles = 0;
-                                }                            
-                                if(element=="f" && mynode) {
-                                    mynode.facesLoaded = true;
-                                } else if(element=="e" && mynode) {
-                                    mynode.edgesLoaded = true;                                
-                                } else if(element=="v" && mynode) {
-                                    mynode.verticesLoaded = true;                                
-                                } 
-                                element = "-"+element;
-                            }
-                                                   
-                            /* if(howManyFiles==0) {
-                                howManyFiles=1;
-                            } */
-                            let fileStore = progressFile + "-" +myParentID.toString()+element+"3";
-                            let gltfStore = progressGLTF + "-" +myParentID.toString()+element+"3";
-                            //console.log("For Loop",fileStore,howManyFiles);
-                            for (let index = 0; index < howManyFiles; index++) {
-                                if(index > 0) {
-                                    fileStore = progressFile + "-" +myParentID.toString()+element+index.toString()+"3";
-                                    gltfStore = progressGLTF + "-" +myParentID.toString()+element+index.toString()+"3";
-                                }
-                                //console.log("Inside Loop",fileStore,index,howManyFiles);
-                                getAFileFromStore(fileStore,"tree")
-                                .then(res => res.data)
-                                .then((data) => {
-                                        //console.log(data);
-                                        //console.log(this.props.gltfobj.tree);
-                                        //var myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
-                                        const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
-                                        //console.log("Inside upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj)
-                                        var myStateTree = state_gltfobj.tree;
-                                        myStateTree = [...myStateTree,...data];
-                                        //var gltfobj = { ...state.gltfobj } || { ...this.props.gltfobj }
-                                        var gltfobj = { ...state_gltfobj }
-                                        gltfobj.tree = myStateTree; 
-                                        //this.changeState = true;
-                                        //this.setState({gltfobj:gltfobj});
-                                        this_state_gltf = gltfobj;
-                                        //console.log("About to set upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj,gltfobj)
-                                       
-                                        if(this.props.setStateOfgltf) {
-                                            this.props.setStateOfgltf(gltfobj);
-                                        }
-                                        //this.props.gltfobj.tree = [...this.props.gltfobj.tree,...data];
-                                        //console.log("After setting upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj,gltfobj,"GDT TABLES",gdttableEdges)
-                                        /* if(gdttableEdges) {
-                                            let event={};
-                                            event['ctrlKey']=false;
-                                            gdttableEdges.selectedObjects.forEach(element => {
-                                                console.log("Setting inside the load all edges",element,event);
-                                                this.doOneSelection(element,event,false);
-                                            });
-                                            if(gdttableEdges.edges.length==0){
-                                                this.changeStateOfSelection(null, event,false);
-                                            }
-                                        } */
-                                        if(indexFiles==1) {
-                                            data.forEach(element => {
-                                                if(element[gltf_Dict["points"]]) {
-                                                    let material = new LineBasicMaterial({
-                                                        color: this.props.edgecolor?this.props.edgecolor:DEFAULTEDGECOLOR,
-                                                        name:element[gltf_Dict["name"]],
-                                                        linewidth:1,
-                                                    });
-                                                    const myPoints = element[gltf_Dict["points"]];
-                                                    let points=[];
-                                                    myPoints.forEach(mypoint => {
-                                                        points.push(
-                                                            new Vector3((mypoint[0])*0.001, 
-                                                                (mypoint[2])*0.001, 
-                                                                (mypoint[1])*-0.001)
-                                                        );
-                                                    });
-                                                    const geometry = new BufferGeometry({name:element[gltf_Dict["name"]]}).setFromPoints( points );                                                    
-                                                    let line = new Line(geometry, material);
-                                                    line.position.x += (this.shiftposition.x);
-                                                    line.position.y += (this.shiftposition.y);
-                                                    line.position.z += (this.shiftposition.z);  
-                                                    line.name=element[gltf_Dict["name"]];
-                                                    this.scene.add(line);
-                                                    console.log(line,element,material);
-                                                    this.partsMeshes=[...this.partsMeshes,line]
-                                                }
-                                                
-                                            });
-                                            
-                                        }
-
-                                }).catch(err => {           
-                                    console.log("Error While Loading Tree", err);
-                                
-                                })
-                                
-                            }
-                        }
-                    }
-                }
-            })
             
+            let fetchStatus = () => getAFileFromStore(progressFile,'progress');
+            let validateStatus = (result) => {
+                //console.log(result.data,result.data.percent,result.data.percent!=100);
+                return (!result.data || (result.data.begin!=result.data.end));
+            };
+            let percentFunction = (result) => result;
+            console.log('Entering poll', progressFile);
+            let progressRes = await pollFunction(
+                fetchStatus,
+                validateStatus,
+                20000,
+                null,
+                percentFunction,
+                null,
+                null
+            );
+            if(progressRes && progressRes.data && (progressRes.data.begin==progressRes.data.end)) {
+                this_progress_data = progressRes.data;
+            }        
+        }
+        const data = this_progress_data;
+        if(!data || data.begin!=data.end) {
+            //console.log(data);
+            alert("Edges are still under construction. Please try after sometime");
         } else {
-            console.log("Already data is got",this_progress_data);
-            const data = this_progress_data;
-            if(data) {   
-                let myParentID=allEdges;
-                let myParentDic = {};
-                //console.log("Data got in the progress file",myParentID,data);
-                if(data.files) {
-                    alert("Please reload and regenerate because structure is changed to minimize parent nodes of parts");
-                    return;
-                }
-                myParentDic[myParentID.toString()]=data.children?data.children[myParentID]:data.files?data.files[myParentID]:1;
-                if(allEdges==0 && data.children){
-                   myParentDic = data.children;
-                }
-                if(allEdges==0 && data.files){
-                    myParentDic = data.files;
-                }
-                //console.log("ParentDict",myParentDic);
-                for (let [myParentID, howManyFilesJson] of Object.entries(myParentDic)) {                  
-                    //myParentID = allEdges;
-                    //let howManyFiles = data.files?data.files[myParentID]:1;
-                    //console.log("Getting Files of", myParentID, "Items", howManyFilesJson);
-                    const featureSet = ["f","e","v"];                    
-                    for (let indexFiles = featureSetStart; indexFiles < featureSetFinish; indexFiles++) {
-                        let element = featureSet[indexFiles];
-                        let howManyFiles = 0;
-                        const myType = typeof howManyFilesJson;
-                        if ( ( myType === "number") || (myType === "string") ){
-                            howManyFiles = howManyFilesJson;
-                            element="";
-                            featureSetFinish = featureSetStart+1;
+            //console.log("Edges are loaded",data);
+            this_progress_data = data;
+        }
+        if(data) {   
+            let myParentID=allEdges;
+            let myParentDic = {};
+            //console.log("Data got in the progress file",myParentID,data);
+            if(data.files) {
+                alert("Please reload and regenerate because structure is changed to minimize parent nodes of parts");
+                return;
+            }
+            myParentDic[myParentID.toString()]=data.children?data.children[myParentID]:data.files?data.files[myParentID]:1;
+            if(allEdges==0 && data.children){
+                myParentDic = data.children;
+            }
+            if(allEdges==0 && data.files){
+                myParentDic = data.files;
+            }
+            //console.log("ParentDict",myParentDic);
+            let parentLineNodes = new Object3D();
+            for (let [myParentID, howManyFilesJson] of Object.entries(myParentDic)) {                  
+                //myParentID = allEdges;
+                //let howManyFiles = data.files?data.files[myParentID]:1;
+                //console.log("Getting Files of", myParentID, "Items", howManyFilesJson);
+                const featureSet = ["f","e","v"];                    
+                for (let indexFiles = featureSetStart; indexFiles < featureSetFinish; indexFiles++) {
+                    let element = featureSet[indexFiles];
+                    let howManyFiles = 0;
+                    const myType = typeof howManyFilesJson;
+                    if ( ( myType === "number") || (myType === "string") ){
+                        howManyFiles = howManyFilesJson;
+                        element="";
+                        featureSetFinish = featureSetStart+1;
+                    } else {
+                        if(howManyFilesJson) {
+                            howManyFiles = howManyFilesJson[element];
                         } else {
-                            if(howManyFilesJson) {
-                                howManyFiles = howManyFilesJson[element];
-                            } else {
-                                howManyFiles = 0;
-                            }                            
-                            if(element=="f" && mynode) {
-                                mynode.facesLoaded = true;
-                            } else if(element=="e" && mynode) {
-                                mynode.edgesLoaded = true;                                
-                            } else if(element=="v" && mynode) {
-                                mynode.verticesLoaded = true;                                
-                            } 
-                            element = "-"+element;
-                        }
-                                               
-                        /* if(howManyFiles==0) {
-                            howManyFiles=1;
-                        } */
-                        let fileStore = progressFile + "-" +myParentID.toString()+element+"3";
-                        let gltfStore = progressGLTF + "-" +myParentID.toString()+element+"3";
-                        //console.log("For Loop",fileStore,howManyFiles);
-                        for (let index = 0; index < howManyFiles; index++) {
-                            if(index > 0) {
-                                fileStore = progressFile + "-" +myParentID.toString()+element+index.toString()+"3";
-                                gltfStore = progressGLTF + "-" +myParentID.toString()+element+index.toString()+"3";
-                            }
-                            //console.log("Inside Loop",fileStore,index,howManyFiles);
-                            getAFileFromStore(fileStore,"tree")
-                            .then(res => res.data)
-                            .then((data) => {
-                                    //console.log(data);
-                                    //console.log(this.props.gltfobj.tree);
-                                    //var myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
-                                    const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
-                                    //console.log("Inside upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj)
-                                    var myStateTree = state_gltfobj.tree;
-                                    myStateTree = [...myStateTree,...data];
-                                    //var gltfobj = { ...state.gltfobj } || { ...this.props.gltfobj }
-                                    var gltfobj = { ...state_gltfobj }
-                                    gltfobj.tree = myStateTree; 
-                                    //this.changeState = true;
-                                    //this.setState({gltfobj:gltfobj});
-                                    this_state_gltf = gltfobj;
-                                    //console.log("About to set upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj,gltfobj)
-                                   
-                                    if(this.props.setStateOfgltf) {
-                                        this.props.setStateOfgltf(gltfobj);
-                                    }
-                                    //this.props.gltfobj.tree = [...this.props.gltfobj.tree,...data];
-                                    //console.log("After setting upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj,gltfobj,"GDT TABLES",gdttableEdges)
-                                    /* if(gdttableEdges) {
-                                        let event={};
-                                        event['ctrlKey']=false;
-                                        gdttableEdges.selectedObjects.forEach(element => {
-                                            console.log("Setting inside the load all edges",element,event);
-                                            this.doOneSelection(element,event,false);
-                                        });
-                                        if(gdttableEdges.edges.length==0){
-                                            this.changeStateOfSelection(null, event,false);
-                                        }
-                                    } */
-                                    if(indexFiles==1) {
-                                        data.forEach(element => {
-                                            if(element[gltf_Dict["points"]]) {
-                                                let material = new LineBasicMaterial({
-                                                    color: 0x0077ff,
-                                                    name:element[gltf_Dict["name"]],
-                                                    linewidth:1,
-                                                });
-
-                                               
-                                                const myPoints = element[gltf_Dict["points"]];
-                                                let points=[];
-                                                myPoints.forEach(mypoint => {
-                                                    points.push(
-                                                        new Vector3(mypoint[2]*0.001, mypoint[1]*0.001, mypoint[0]*0.001)
-                                                    );
-                                                });
-                                                const geometry = new BufferGeometry().setFromPoints( points );                                                    
-                                                let line = new Line(geometry, material);
-                                                line.position.x += (this.shiftposition.x);
-                                                line.position.y += (this.shiftposition.y);
-                                                line.position.z += (this.shiftposition.z);
-                                                this.scene.add(line);
-                                                console.log(line,element,material);
-                                            }
+                            howManyFiles = 0;
+                        }                            
+                        if(element=="f" && mynode) {
+                            mynode.facesLoaded = true;
+                        } else if(element=="e" && mynode) {
+                            mynode.edgesLoaded = true;                                
+                        } else if(element=="v" && mynode) {
+                            mynode.verticesLoaded = true;                                
+                        } 
+                        element = "-"+element;
+                    }
                                             
-                                        });
-                                        
-                                    }
-
-                            }).catch(err => {           
-                                console.log("Error While Loading Tree", err);
-                            
-                            })
-                            
+                    /* if(howManyFiles==0) {
+                        howManyFiles=1;
+                    } */
+                    let fileStore = progressFile + "-" +myParentID.toString()+element+"3";
+                    //let gltfStore = progressGLTF + "-" +myParentID.toString()+element+"3";
+                    //console.log("For Loop",fileStore,howManyFiles);
+                   
+                    for (let index = 0; index < howManyFiles; index++) {
+                        if(index > 0) {
+                            fileStore = progressFile + "-" +myParentID.toString()+element+index.toString()+"3";
+                            //gltfStore = progressGLTF + "-" +myParentID.toString()+element+index.toString()+"3";
                         }
+                        //console.log("Inside Loop",fileStore,index,howManyFiles);
+                        let treeRes = await getAFileFromStore(fileStore,"tree");
+                        if(treeRes && treeRes.data) {
+                            const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
+                            //console.log("Inside upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj)
+                            var myStateTree = state_gltfobj.tree;
+                            myStateTree = [...myStateTree,...treeRes.data];
+                            //var gltfobj = { ...state.gltfobj } || { ...this.props.gltfobj }
+                            var gltfobj = { ...state_gltfobj }
+                            gltfobj.tree = myStateTree; 
+                            //this.changeState = true;
+                            //this.setState({gltfobj:gltfobj});
+                            this_state_gltf = gltfobj;
+                            //console.log("About to set upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj,gltfobj)
+                            
+                            if(this.props.setStateOfgltf) {
+                                this.props.setStateOfgltf(gltfobj);
+                            }
+                            
+                            if(indexFiles==1) {
+                                treeRes.data.forEach(element => {
+                                    if(element[gltf_Dict["points"]]) {
+                                        let material = new LineBasicMaterial({
+                                            color: this.props.edgecolor?this.props.edgecolor:DEFAULTEDGECOLOR,
+                                            name:element[gltf_Dict["name"]],
+                                            linewidth:1,
+                                        });
+                                        /*  */
+                                        let points=[];
+                                        //let xyzpoints=[];
+                                        const myBase64Points = this.getFloatArray(element[gltf_Dict["points"]]);
+                                        if(myBase64Points) {
+                                            for (let points_index = 0; points_index < myBase64Points.length; points_index+=3) {
+                                                const thisPoint = new Vector3((myBase64Points[points_index])*0.001, 
+                                                                            (myBase64Points[points_index+2])*0.001, 
+                                                                            (myBase64Points[points_index+1])*-0.001);
+                                                points.push(thisPoint);
+                                                //xyzpoints.push(thisPoint.x,thisPoint.y,thisPoint.z);
+                                                //console.log("x,y,z",myBase64Points[points_index], myBase64Points[points_index+1],myBase64Points[points_index+2]);
+                                            }
+                                        } else {
+                                            const myPoints = element[gltf_Dict["points"]];
+                                            if(myPoints) {
+                                                myPoints.forEach(mypoint => {
+                                                    const thisPoint = new Vector3((mypoint[0])*0.001, 
+                                                                                (mypoint[2])*0.001, 
+                                                                                (mypoint[1])*-0.001);
+                                                    points.push(thisPoint);
+                                                    //xyzpoints.push(thisPoint.x,thisPoint.y,thisPoint.z);
+                                                });
+                                            }  
+                                        }     
+                                        let geometry = new BufferGeometry({name:element[gltf_Dict["name"]]});                                                                                          
+                                        geometry.name=element[gltf_Dict["name"]];   
+                                        geometry.setFromPoints( points );   
+                                        //geometry.setAttribute( 'position', new Float32BufferAttribute( xyzpoints, 3 ) );
+                                   
+                                        //let geometry = new BufferGeometry({name:element[gltf_Dict["name"]]}).setFromPoints( points );                                                    
+                                        //geometry.name=element[gltf_Dict["name"]];
+                                        let line = new Line(geometry, material);
+                                        /* line.position.x += (this.shiftposition.x);
+                                        line.position.y += (this.shiftposition.y);
+                                        line.position.z += (this.shiftposition.z);  */ 
+                                        line.name=element[gltf_Dict["name"]];
+                                        //this.scene.add(line);
+                                        parentLineNodes.add(line);
+                                        //console.log(line,element,material);
+                                        //this.partsMeshes=[...this.partsMeshes,line]
+                                    }
+                                        
+                                });
+                                    
+                            }                        
+                        }
+                        
                     }
                 }
             }
+            console.log(parentLineNodes);
+            parentLineNodes.position.x += (this.shiftposition.x);
+            parentLineNodes.position.y += (this.shiftposition.y);
+            parentLineNodes.position.z += (this.shiftposition.z); 
+            this.scene.add(parentLineNodes);
+            this.partsMeshes=[...this.partsMeshes,...parentLineNodes.children];
         }
-        //const data = this.getProgressData(progressFile);
-        
-        /* const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);  
-        console.log("Getting",progressFile);                 
-        getAFileFromStore(progressFile,"progress")
-        .then(res => res.data)
-        .then((data) => {
-            if(!data || data.begin!=data.end) {
-                console.log(data);
-                alert("Edges are still under construction. Please try after sometime");
-            } else {
-                
-            }
-            //loader.dispose();
-        })
-        .catch(err => {           
-            console.log("Error While Loading Progress", err);
-        });  */
-        
     };
 
 

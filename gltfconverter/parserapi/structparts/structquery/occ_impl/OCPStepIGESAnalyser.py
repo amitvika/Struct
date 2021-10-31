@@ -415,6 +415,7 @@ class UVBuffer(object):
         buffer.seek(0)
         return buffer.read()
 
+
 class TimeBuffer(object):
     
     def __init__(self, max_index=0xff):
@@ -1230,10 +1231,10 @@ class StepIgesAnalyser():
         brt = BRep_Tool()
         center = brt.Pnt(topods_Vertex(vertex))
         if circular:
-            return BRepPrimAPI_MakeSphere(center, self.vertexsize).Shape(), (center.X(), center.Y(), center.Z())
+            return BRepPrimAPI_MakeSphere(center, self.vertexsize).Shape(), [(center.X(), center.Y(), center.Z())]
         else:
             corner = gp_Pnt(center.X()-self.vertexsize, center.Y()-self.vertexsize, center.Z()-self.vertexsize)
-            return BRepPrimAPI_MakeBox(corner,self.vertexsize*2,self.vertexsize*2,self.vertexsize*2).Shape(), (center.X(), center.Y(), center.Z())
+            return BRepPrimAPI_MakeBox(corner,self.vertexsize*2,self.vertexsize*2,self.vertexsize*2).Shape(), [(center.X(), center.Y(), center.Z())]
    
 
     def createPipeFromPoints(self, point1, point2,circular=False):
@@ -2710,6 +2711,27 @@ class StepIgesAnalyser():
         return len(self.tstep_dict['tree'])
             #self.tree+="</ul></li></ul>" 
     
+    def convertToBase64(self,points):
+        if points:
+            lenPoints = len(points)
+            if lenPoints>0:
+                floatBuff = TimeBuffer(
+                    max_index=lenPoints
+                )            
+            for steps in range(lenPoints):
+                x,y,z=points[steps]
+                floatBuff.add_time(x)
+                floatBuff.add_time(y)
+                floatBuff.add_time(z)
+                #print(x,y,z)  
+            base64data = base64.b64encode(floatBuff.read()).decode('ascii')
+            retString = "{data}".format(
+                data=base64data,
+            )  
+            return retString
+        else:
+            return points
+
     def addFeatures(self):  
         try:
             if self.logging != None and self.addfeaturesThread:
@@ -4180,7 +4202,7 @@ class StepIgesAnalyser():
             myFileType = filetype[0:1]
             mesher_dict[self.gltf_Dict["element"]] = myFileType
             mesher_dict[self.gltf_Dict["geometry"]] = curvecode
-            mesher_dict[self.gltf_Dict["points"]] = curvepoints
+            mesher_dict[self.gltf_Dict["points"]] = self.convertToBase64(curvepoints)
             #mesher_dict["fileId"] = self.fileId
             mesher_dict[self.gltf_Dict["leaf"]]=True
             if( solidfound > 0 ) :
