@@ -226,11 +226,9 @@ export default function ViewerToolbar({
   const getSelectedFeaturePosition = () => {
     const list = getFeatureListForGDT();
 
-    const feature = list.find((row) => row.kind === 'Circle');
-    return feature ? feature.fill : feature;
+    const feature = list.find((row) => row.kind === 'Circle' || row.kind === 'Cylinder');
+    return feature;
   };
-
-  console.log('-----------selectedObjects------', selectedObjects);
 
   return (
     <>
@@ -286,9 +284,9 @@ export default function ViewerToolbar({
               title={'GD&T and Features'}
               paperStyle={{ display: 'flex', flexDiraction: 'column' }}
             >
-              <DynamicFeature selectedPosition={getSelectedFeaturePosition()} />
+              <DynamicFeature selectedFeature={getSelectedFeaturePosition()} />
             </SectionContainer>
-            {/* <SectionContainer
+            <SectionContainer
               title={'Geometric Dimensioning and Tolerance'}
               paperStyle={{ display: 'flex', flexDiraction: 'column' }}
             >
@@ -305,7 +303,7 @@ export default function ViewerToolbar({
                 featureList={getFeatureListForGDT()}
                 setRowKeyValue={setRowKeyValue}
               />
-            </SectionContainer> */}
+            </SectionContainer>
           </>
         )}
       </Box>

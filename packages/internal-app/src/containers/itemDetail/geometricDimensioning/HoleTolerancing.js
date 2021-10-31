@@ -72,15 +72,6 @@ export default function HoleTolerancing({ selectedHoleValue }) {
             <Headding bold title={'Hole Size'} />
           </Grid>
           <Grid item xs={8}>
-            <Select
-              placeholder="Select Hole Size"
-              options={holeSizeList.map((item) => ({
-                label: item,
-                value: item
-              }))}
-              onChange={(data) => setSelectedHoleSize(data.value)}
-              value={selectedHoleSize}
-            />
           </Grid>
         </Grid>
       )}

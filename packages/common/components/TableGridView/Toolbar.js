@@ -32,6 +32,7 @@ export default function Toolbar({
             size="large"
             label="View GridView"
             onChange={() => setIsGridViewSelected(!isGridViewSelected)}
+            sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
           />
 
           {isHistoryCheckboxVisible && (
@@ -49,25 +50,23 @@ export default function Toolbar({
               onChange={handleViewArchived}
             />
           )}
+
+          {title === 'Items' && (
+            <>
+              <Checkbox label="Unused by Other Items" />
+              <Checkbox label="Unused by Clients" />
+            </>
+          )}
         </Grid>
+
         <Grid item xs style={{ display: 'flex', flexDirection: 'column' }}>
           <Filter {...restProps} {...{ setIsFilterResetted }} />
           {AdditionalFilter !== null && (
             <AdditionalFilter {...restProps} {...{ isFilterResetted }} />
           )}
         </Grid>
-
-        {title === 'Items' && (
-          <Grid
-            item
-            xs="auto"
-            style={{ display: 'flex', flexDirection: 'column' }}
-          >
-            <Checkbox label="Unused by Other Items" />
-            <Checkbox label="Unused by Clients" />
-          </Grid>
-        )}
       </Grid>
+
       <Grid container spacing={3}>
         <Grid item xs>
           <Box textAlign="center" m={1}>
