@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import InternalCircularFaces from './InternalCircularFaces';
-import HoleTolerancing from './HoleTolerancing';
 
 export default function DynamicFeature({ selectedFeature = {} }) {
-  const [state, setState] = useState({ selectedHoleValue: '', });
+  const [state, setState] = useState({ selectedHoleValue: '' });
 
   useEffect(() => {}, [selectedFeature]);
 
@@ -21,7 +20,6 @@ export default function DynamicFeature({ selectedFeature = {} }) {
         {...state}
         {...{ holeSize: selectedFeature.diameter, handleStateUpdate }}
       />
-      {/* <HoleTolerancing {...state} {...{ handleStateUpdate }} /> */}
     </div>
   );
 }
