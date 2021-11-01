@@ -52,31 +52,27 @@ export default function Viewer({
     useEffect(() => {
       if(fileUUId) {
         setfileUUIder(fileUUId);
-        console.log("Changing fileUUId from viewer",fileUUIder,fileUUId);
       }
     }, [fileUUId]);
+    
     useEffect(() => {
-      console.log("BEfore Changing progress bar from viewer",progressBarLoad,progressBarLoader,fileUUIder,fileUUId);
       setProgressBarLoader(progressBarLoad);
-      console.log("AFter Changing progress bar from viewer",progressBarLoad,progressBarLoader,fileUUIder,fileUUId);
     }, [progressBarLoad]);
+
     useEffect(() => {
-      console.log("BEfore Changing currentProgressText bar from viewer",progressBarLoad,progressBarLoader,fileUUIder,fileUUId);
       setCurrentProgressTexter(currentProgressText);
-      console.log("AFter Changing currentProgressText bar from viewer",progressBarLoad,progressBarLoader,fileUUIder,fileUUId);
     }, [currentProgressText]);
+    
     useEffect(() => {
-      console.log("BEfore Changing completionProgressText bar from viewer",progressBarLoad,progressBarLoader,fileUUIder,fileUUId);
       setCompletionProgressTexter(completionProgressText);
-      console.log("AFter Changing completionProgressText bar from viewer",progressBarLoad,progressBarLoader,fileUUIder,fileUUId);
     }, [completionProgressText]);
+    
     useEffect(() => {
       if(percentage) {
-        console.log("Before Changing percentage from viewer",percentage,percentager,fileUUIder,fileUUId);
         setPercentager(percentage);
-        console.log("After Changing percentage from viewer",percentage,percentager,fileUUIder,fileUUId);
       }
     }, [percentage]);
+
     useEffect(() => {
       setDrawLiner(drawLine);
     }, [drawLine]);
@@ -86,7 +82,6 @@ export default function Viewer({
     }
     let changedata = {};
     if (renderdata) {
-      console.log(renderdata);
       changedata = renderdata;
     }
     
