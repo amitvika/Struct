@@ -33,7 +33,8 @@ import {
   SELECTFEATURE,
   STATEPROPS,
   pollFunction,
-  isFileExistingInServer
+  isFileExistingInServer,
+  checkDBNull
 } from '@monostruct/common/gltf/Tree/utils';
 
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
@@ -1062,7 +1063,7 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
-            drawLine={itemProperties.drawLine}
+            drawLine={checkDBNull(itemProperties.drawLine)?true:itemProperties.drawLine}
           />
         );
       case 'cu':
@@ -1089,7 +1090,7 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
-            drawLine={itemProperties.drawLine}
+            drawLine={checkDBNull(itemProperties.drawLine)?true:itemProperties.drawLine}
             {...{ internalProductConfig }}
           />
         );
@@ -1114,7 +1115,7 @@ const ItemDetail = () => {
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
             internalProductConfig={internalProductConfig}
-            drawLine={itemProperties.drawLine}
+            drawLine={checkDBNull(itemProperties.drawLine)?true:itemProperties.drawLine}
           />
         );
       case 5:
@@ -1137,7 +1138,7 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
-            drawLine={itemProperties.drawLine}
+            drawLine={checkDBNull(itemProperties.drawLine)?true:itemProperties.drawLine}
           />
         );
       case 7:
