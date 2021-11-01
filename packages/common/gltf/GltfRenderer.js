@@ -2515,10 +2515,11 @@ class GLTFRenderer extends Component {
             var myObject = intersects.length;
             for (var i = 0; i < intersects.length; i++) {
                 //console.log("First",intersects[ i ].object);
-                /* if (intersects[i].object.type == "Line" && i<=2) {
-                    console.log("Intersect Line",i, intersects[i]);
+                /* if (intersects[i].object.type == "Line" ) {
+                    myObject = i;
+                    //console.log("I found a face",intersects[i].object.name);
+                    break;
                 } */
-                
                 if (intersects[i].object.type == "Mesh" ) {
                     //console.log("name found",intersects[ i ].object.name);
                     if(!this.onlyparts(intersects[i].object.name)){
@@ -2529,13 +2530,11 @@ class GLTFRenderer extends Component {
                    
                 }
             };
+            /*
             if (myObject == intersects.length) {
                 for (var i = 0; i < intersects.length; i++) {
                     //console.log("First",intersects[ i ].object);
-                    /* if (intersects[i].object.type == "Line" && i<=2) {
-                        console.log("Intersect Line",i, intersects[i]);
-                    } */
-                    
+                   
                     if (intersects[i].object.type == "Mesh" ) {
                         //console.log("name found",intersects[ i ].object.name);
                         
@@ -2546,7 +2545,7 @@ class GLTFRenderer extends Component {
                        
                     }
                 }
-            };
+            }; */
             //console.log("Got",myObject);
             if (myObject == intersects.length) {
                 //console.log("Entered here");
@@ -4207,6 +4206,7 @@ class GLTFRenderer extends Component {
             parentLineNodes.position.y += (this.shiftposition.y);
             parentLineNodes.position.z += (this.shiftposition.z); 
             this.scene.add(parentLineNodes);
+            this.content.push(parentLineNodes);
             this.partsMeshes=[...this.partsMeshes,...parentLineNodes.children];
         }
     };

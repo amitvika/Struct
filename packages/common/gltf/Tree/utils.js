@@ -482,3 +482,10 @@ export const gltf_Dict = {
       return false;
     }   
   };
+
+  export const checkDBNull = (some_variable) => {
+    if ( typeof(some_variable) !== "undefined" && some_variable !== null ) {
+      return false;
+    }
+    return true;
+  }
