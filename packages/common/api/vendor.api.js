@@ -10,10 +10,14 @@ const updateVendorApi = (id, data) => putRequest(`/api/vendor/${id}`, data);
 
 const deleteVendorApi = (id) => deleteRequest(`/api/vendor/${id}`);
 
+const upsertVendorApi = (data) => putRequest('/api/vendor', data);
+
+
 export default {
   getVendorsApi,
   getVendorApi,
   addVendorApi,
   updateVendorApi,
-  deleteVendorApi
+  deleteVendorApi,
+  upsertVendorApi
 }

@@ -41,7 +41,7 @@ const TableGridView = ({
   useEffect(() => {
     fetchResult();
   }, []);
- 
+
   const fetchResult = () => {
     (async () => {
       try {
@@ -59,7 +59,7 @@ const TableGridView = ({
         showErrorAlert({ message: `Unable to fetch ${title}` });
       }
     })();
-  }
+  };
   const handleViewArchived = () => {
     if (isViewArchivedChecked) {
       setFilteredList(list.filter((item) => !item.is_archived));
@@ -94,11 +94,16 @@ const TableGridView = ({
               return document;
             });
 
-            updatedList = updatedList.filter((item) => !item.is_archived);
+            // updatedList = updatedList.filter((item) => !item.is_archived);
 
+            if (isViewArchivedChecked) {
+              setFilteredList(updatedList.filter((item) => item.is_archived));
+            } else {
+              setFilteredList(updatedList.filter((item) => !item.is_archived));
+            }
             setList(updatedList);
 
-            setFilteredList(updatedList);
+            // setFilteredList(updatedList);
           } else {
             const updatedList = [{ ...res.data, id: res.data.id }, ...list];
             setList(updatedList);
@@ -131,8 +136,13 @@ const TableGridView = ({
   };
 
   const handleDelete = (oldData) => {
-    console.log('---->>handleDelete');
     let updateValue = { ...oldData, is_archived: true };
+    return upsertItem(updateValue);
+  };
+
+  const handleUndeleteButton = (oldData) => {
+    console.log('---->>handleUndeleteButton');
+    let updateValue = { ...oldData, is_archived: false };
     return upsertItem(updateValue);
   };
 
@@ -181,6 +191,8 @@ const TableGridView = ({
           handleEditButtonPress={handleEditModal}
           isAddEditLinkVisible={true}
           handleDelete={handleDelete}
+          handleUndeleteButton={handleUndeleteButton}
+          isViewArchivedChecked={isViewArchivedChecked}
         />
       );
     } else {

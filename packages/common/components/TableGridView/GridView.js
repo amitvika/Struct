@@ -14,6 +14,8 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import ClipboardText from '../ClipboardText'
 import HistoryIcon from '@material-ui/icons/History';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+// import DeleteForeverIcon from '@material-ui/icons/DeleteForeverIcon';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import StructLogo from '../../assets/images/new_logo.png';
@@ -79,9 +81,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function GridView({
   list,
+  handleUndeleteButton = () => { },
   handleDelete = () => { },
   handleHistoryToggle = () => { },
   handleEditButtonPress = () => { },
+  isViewArchivedChecked = true,
   columnsFields,
   handleTableRowClick,
   isHistoryLinkVisible = true,
@@ -200,14 +204,26 @@ export default function GridView({
                       <HistoryIcon />
                     </CustomIconButton>
                   }
+                  { !isViewArchivedChecked &&
+                   <CustomIconButton
+                   title={'Delete'}
+                   onClick={(event) => {
+                     handleDelete({ id: product.id })
+                   }}>
+                    <DeleteOutlineIcon />
+                 </CustomIconButton>
+
+                  }
+                    { isViewArchivedChecked &&
+                     <CustomIconButton
+                     title={'Undelete'}
+                     onClick={(event) => {
+                       handleUndeleteButton({ id: product.id })
+                     }}>
+                         <DeleteForeverIcon />
+                   </CustomIconButton>
                  
-                  <CustomIconButton
-                      title={'Delete'}
-                      onClick={(event) => {
-                        handleDelete({ id: product.id })
-                      }}>
-                       <DeleteOutlineIcon />
-                    </CustomIconButton>
+                    }
                 </Grid>
               </Grid>
             </Paper>
