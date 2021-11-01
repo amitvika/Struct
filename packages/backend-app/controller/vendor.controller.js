@@ -97,11 +97,11 @@ exports.update = async (req, res) => {
     const updatedItem = await VendorModel.findByIdAndUpdate(req.params.id, saveObject, { new: true })
 
     const changeTracking = new ChangeTracking({
-      client: updatedItem._id,
+      client: updatedItem.id,
       update: updatedItem,
       model: "Vendor",
       updateType: "Update",
-      updatedObject: updatedItem._id,
+      updatedObject: updatedItem.id,
       updatedBy: req.user.id
     });
     await changeTracking.save();

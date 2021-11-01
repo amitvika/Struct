@@ -13,6 +13,7 @@ import PictureAsPdf from '@material-ui/icons/PictureAsPdf';
 import DescriptionIcon from '@material-ui/icons/Description';
 import ClipboardText from '../ClipboardText'
 import HistoryIcon from '@material-ui/icons/History';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import StructLogo from '../../assets/images/new_logo.png';
@@ -78,6 +79,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function GridView({
   list,
+  handleDelete = () => { },
   handleHistoryToggle = () => { },
   handleEditButtonPress = () => { },
   columnsFields,
@@ -145,12 +147,14 @@ export default function GridView({
         <IconButton onClick={(event) => {
           event.stopPropagation();
           onClick()
-        }}>
+        }} style={{padding: '7px'}}>
           {children}
         </IconButton>
       </Tooltip>
     )
   }
+
+
 
   return (
     <Grid container spacing={2}>
@@ -196,6 +200,14 @@ export default function GridView({
                       <HistoryIcon />
                     </CustomIconButton>
                   }
+                 
+                  <CustomIconButton
+                      title={'Delete'}
+                      onClick={(event) => {
+                        handleDelete({ id: product.id })
+                      }}>
+                       <DeleteOutlineIcon />
+                    </CustomIconButton>
                 </Grid>
               </Grid>
             </Paper>

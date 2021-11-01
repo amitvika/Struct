@@ -8,7 +8,6 @@ import Select from '@monostruct/common/components/atoms/Select';
 export default function InternalCircularFaces({ holeSize }) {
   const [hierarchySchema, setHierarchySchema] = useState(null);
   const [lookUpTableSchema, setLookUpTableSchema] = useState(null);
-  const [holeTypeObj, setHoleTypeObj] = useState(null);
   const [holeToleranceObj, setHoleToleranceObj] = useState(null);
   const [localState, setLocalState] = useState({});
 
@@ -26,7 +25,14 @@ export default function InternalCircularFaces({ holeSize }) {
       );
 
       setHierarchySchema(get(respHierarchy, 'data[0].hierarchySchema', {}));
-      setLookUpTableSchema(get(respLookUpTable, 'data[0].lookUpTableSchema'));
+
+      const lookUp = setLookUpTableSchema(
+        get(respLookUpTable, 'data[0].lookUpTableSchema')
+      );
+
+      if (lookUp) {
+        // setLocalState((prev) => ({ ...prev, ...getHoleSizeAndValue(lookUp) }));
+      }
     } catch (error) {
       console.log('Error:', error);
     }
@@ -47,6 +53,19 @@ export default function InternalCircularFaces({ holeSize }) {
       ...data,
       options
     };
+  };
+
+  const getHoleSize = (lookUp) => {
+    let holeSizeArr = [];
+
+    for (let key in lookUp) {
+      if (lookUp.hasOwnProperty(key)) {
+        // console.log(`${key} : ${obj[key]}`)
+        let holeSizeValue = key.split('_');
+        holeSizeArr = [...holeSizeArr, holeSizeValue[1]];
+      }
+    }
+    
   };
 
   useEffect(() => {
