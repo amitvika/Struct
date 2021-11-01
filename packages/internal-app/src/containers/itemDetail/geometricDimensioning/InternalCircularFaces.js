@@ -26,12 +26,14 @@ export default function InternalCircularFaces({ holeSize }) {
 
       setHierarchySchema(get(respHierarchy, 'data[0].hierarchySchema', {}));
 
-      const lookUp = setLookUpTableSchema(
-        get(respLookUpTable, 'data[0].lookUpTableSchema')
-      );
+      const lookUp = get(respLookUpTable, 'data[0].lookUpTableSchema');
 
+      setLookUpTableSchema(lookUp);
       if (lookUp) {
-        // setLocalState((prev) => ({ ...prev, ...getHoleSizeAndValue(lookUp) }));
+        setLocalState((prev) => ({
+          ...prev,
+          computedHoleSize: getHoleSize(lookUp)
+        }));
       }
     } catch (error) {
       console.log('Error:', error);
@@ -40,9 +42,10 @@ export default function InternalCircularFaces({ holeSize }) {
 
   const parseValue = (data) => {
     let options = data.options.map((item) => {
-      const selectedParsedObj = lookUpTableSchema[`${item.label}_${holeSize}`];
+      const selectedParsedObj =
+        lookUpTableSchema[`${item.label}_${localState.computedHoleSize}`];
       return {
-        ...item,
+        value: item.label,
         label: `${item.label} - ${selectedParsedObj[`Lower Bound`]} to ${
           selectedParsedObj[`Upper Bound`]
         }`
@@ -56,6 +59,7 @@ export default function InternalCircularFaces({ holeSize }) {
   };
 
   const getHoleSize = (lookUp) => {
+    let holeSize = 1;
     let holeSizeArr = [];
 
     for (let key in lookUp) {
@@ -65,11 +69,39 @@ export default function InternalCircularFaces({ holeSize }) {
         holeSizeArr = [...holeSizeArr, holeSizeValue[1]];
       }
     }
-    
+    holeSizeArr = [...new Set(holeSizeArr)];
+
+    holeSizeArr.sort(function (a, b) {
+      return a - b;
+    });
+
+    let computedHoleSize = holeSize;
+
+    for (let i = 0; i < holeSizeArr.length; i++) {
+      let currentHoleSize = holeSizeArr[i];
+      let nextHoleSize = holeSizeArr[i + 1];
+
+      if (
+        (currentHoleSize == holeSize || currentHoleSize < holeSize) &&
+        nextHoleSize > holeSize
+      ) {
+        computedHoleSize = nextHoleSize;
+        break;
+      } else if (
+        currentHoleSize > holeSize ||
+        ((currentHoleSize < holeSize || currentHoleSize == holeSize) &&
+          !nextHoleSize)
+      ) {
+        computedHoleSize = currentHoleSize;
+        break;
+      }
+    }
+
+    return computedHoleSize;
   };
 
   useEffect(() => {
-    if (localState.holeType === 'Hole') {
+    if (localState.holeType === 'Hole' && localState.computedHoleSize) {
       setHoleToleranceObj(parseValue(get(hierarchySchema, '[1]', {})));
     }
   }, [localState.holeType, hierarchySchema]);
@@ -79,6 +111,12 @@ export default function InternalCircularFaces({ holeSize }) {
   if (!holeSize || !holeType) {
     return null;
   }
+
+  const holeToleranceRange = lookUpTableSchema
+    ? lookUpTableSchema[
+        `${localState.holeTolerance}_${localState.computedHoleSize}`
+      ]
+    : {};
 
   const handleOnChange = (name, value) =>
     setLocalState((prev) => ({ ...prev, [name]: value }));
@@ -105,6 +143,15 @@ export default function InternalCircularFaces({ holeSize }) {
               value: localState.holeTolerance
             }}
           />
+          {holeToleranceRange && (
+            <ItemContainer title={'Tolerance range:'}>
+              <Headding
+                title={` ${holeToleranceRange[`Lower Bound`]} to ${
+                  holeToleranceRange[`Upper Bound`]
+                }`}
+              />
+            </ItemContainer>
+          )}
         </>
       )}
     </>
