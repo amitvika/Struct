@@ -8,7 +8,7 @@ import {
     AnimationMixer,
     AxesHelper,
     Box3,
-    //Box2,
+    Points,
     Matrix4,
     Cache,
     CubeTextureLoader,
@@ -35,17 +35,18 @@ import {
     PlaneGeometry,
     Mesh,
     LineBasicMaterial,
+    PointsMaterial,
     BufferGeometry,
     Line,
-    LineSegments,
     Object3D,
-   /* Group,
-    SphereBufferGeometry,
-    LineBasicMaterial,
-    LineSegments,
+    /*
+    LineSegments,    
     Mesh,
-    BoxBufferGeometry */
-    //ObjectSpaceNormalMap,
+    Group,
+    SphereBufferGeometry,
+    BoxBufferGeometry, 
+    ObjectSpaceNormalMap
+    */
 } from "three";
 
 //import * as THREE from 'three';
@@ -60,12 +61,12 @@ import { TrackballControls } from "./TrackballControls.js";
 import { resourcePathURL, resourcePathBase, getAFileFromStore } from '@monostruct/common/api/fileUpload.api.js'
 import {
     SELECTCOLOR, SELECTTEXTURE, SELECTMETAL, SELECTROUGH, SELECTOPAQUE,
-    SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR, 
+    SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR, gltf_Dict, defaultGDTTable,
     SELECT2DTEXTURE, SELECT3DTEXTURE, SELECTDISTANCE, DEFAULTEDGECOLOR,
     SELECTSOLID, SELECTEDGE, SELECTCORNER, SELECTFACE, SELECTLINEAR, SELECTCIRCULAR,
     SELECTMEASURE, SELECTDISECTPARTS, SELECTASSEMBLY, SELECTFEATURE, SELECTLOADEDGES,
-    DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, DEFAULTTEXTCOLOR, pollFunction, 
-    hexToRGB, arrayCopy, arrayRemoveFromValue, arrayRemoveFromMesh, gltf_Dict, defaultGDTTable
+    DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, DEFAULTTEXTCOLOR, waitFunction,
+    hexToRGB, arrayCopy, arrayRemoveFromValue, arrayRemoveFromMesh,  pollFunction
 } from "./Tree/utils";
 import './styles/style.css';
 
@@ -2797,7 +2798,7 @@ class GLTFRenderer extends Component {
                 dView.setUint8(2, blob.charCodeAt(p + 2));
                 dView.setUint8(3, blob.charCodeAt(p + 3));
                 fAry[j] = dView.getFloat32(0, true);
-                console.log(fAry[j]);
+                //console.log(fAry[j]);
             }
             return fAry;
         } else {
@@ -4028,7 +4029,7 @@ class GLTFRenderer extends Component {
     }
     */
 
-    drawAllEdges = async (allEdges=0, featureSetStart=0, featureSetFinish=3, mynode=null) => {
+    drawAllEdges = async (allEdges=0, featureSetStart=0, featureSetFinish=3, mynode=null,gdttableEdges=null) => {
         
         //this.fetchTree(gltfFILE,progressFile,myParentID);
         const progressFile = (this.props.fileUUId ? this.props.fileUUId+'/' : '') + this.props.fileGDT.slice(0, this.props.fileGDT.length - 1); 
@@ -4044,6 +4045,7 @@ class GLTFRenderer extends Component {
             };
             let percentFunction = (result) => result;
             console.log('Entering poll', progressFile);
+            this.onInitProgress("Loading Edges"+progressFile);
             let progressRes = await pollFunction(
                 fetchStatus,
                 validateStatus,
@@ -4055,7 +4057,10 @@ class GLTFRenderer extends Component {
             );
             if(progressRes && progressRes.data && (progressRes.data.begin==progressRes.data.end)) {
                 this_progress_data = progressRes.data;
-            }        
+                this.onCloseProgress("Loading Edges"+progressFile,"success","Loaded succesfully");
+            }  else {
+                this.onCloseProgress("Loading Edges"+progressFile,"error","not loaded properly");
+            }      
         }
         const data = this_progress_data;
         if(!data || data.begin!=data.end) {
@@ -4065,7 +4070,72 @@ class GLTFRenderer extends Component {
             //console.log("Edges are loaded",data);
             this_progress_data = data;
         }
-        if(data) {   
+        if(data) { 
+            const loader = new GLTFLoader().setPath( this.props.fileUUId? (resourcePathURL || '') + this.props.fileUUId+'/' 
+            : resourcePathURL || '').setCrossOrigin('anonymous');
+          
+            const onload = ( gltf, url ) => {
+                try {
+                    const myobject = gltf.scene || gltf.scenes[0];
+                    myobject.position.x += (this.shiftposition.x);
+                    myobject.position.y += (this.shiftposition.y);
+                    myobject.position.z += (this.shiftposition.z);
+                    this.scene.add(myobject);
+                    this.content.push(myobject);
+                    //console.log("MyObject",myobject);
+                    let partsMeshes = myobject.children;
+    
+                    if (partsMeshes[0].children.length > 0) {
+                        partsMeshes = partsMeshes[0].children;
+                    }
+    
+                    if (partsMeshes[0].children.length > 0) {
+                        partsMeshes = partsMeshes[0].children;
+                    }
+                    //console.log(partsMeshes);
+                /*  partsMeshes.forEach(element => {
+                        if(!element.renderOrder) {
+                            console.log("Chaning Renderingorder from",element.renderOrder,1,element.name);
+                            element.renderOrder=1;
+                        }                           
+                    }); */
+                    //console.log(this.partsMeshes);
+                    this.partsMeshes = [...this.partsMeshes,...partsMeshes];
+                    if(gdttableEdges) {
+                        //console.log("Inside load edges gdts",this.partsMeshes,gdttableEdges);
+                        let event={};
+                        event['ctrlKey']=false;
+                        gdttableEdges.selectedObjects.forEach(element => {
+                            //console.log("Setting inside the load all edges",element,event);
+                            element.selectedshell=true;
+                            this.doOneSelection(element,event,false);
+                        });
+                        if(gdttableEdges.edges.length==0){
+                            this.changeStateOfSelection(null, event,false);
+                        }               
+                    } else {
+                        //console.log("Inside load edges s",this.partsMeshes);
+                    }
+                    
+                    this.onCloseProgress(url,"success","loaded successfully");
+                    
+                } catch (error) {
+                    console.log("Got error while loading",error);
+                    this.onCloseProgress(url,"error",error);
+                }
+    
+            }
+            
+            const onError = (exception,url) => {
+                console.log("Exception from Loader",exception); 
+    
+                this.onCloseProgress(url,"error",exception);        
+            }
+    
+            const onProgress = (progress) => {
+                //console.log(progress);
+            }
+
             let myParentID=allEdges;
             let myParentDic = {};
             //console.log("Data got in the progress file",myParentID,data);
@@ -4081,7 +4151,7 @@ class GLTFRenderer extends Component {
                 myParentDic = data.files;
             }
             //console.log("ParentDict",myParentDic);
-            let parentLineNodes = new Object3D();
+            let parentLineNodes = null;
             for (let [myParentID, howManyFilesJson] of Object.entries(myParentDic)) {                  
                 //myParentID = allEdges;
                 //let howManyFiles = data.files?data.files[myParentID]:1;
@@ -4115,17 +4185,23 @@ class GLTFRenderer extends Component {
                         howManyFiles=1;
                     } */
                     let fileStore = progressFile + "-" +myParentID.toString()+element+"3";
-                    //let gltfStore = progressGLTF + "-" +myParentID.toString()+element+"3";
+                    let gltfStore = progressGLTF + "-" +myParentID.toString()+element+"3";
                     //console.log("For Loop",fileStore,howManyFiles);
-                   
+                    if(howManyFiles>0 && indexFiles >0){
+                        parentLineNodes = new Object3D();
+                    }
                     for (let index = 0; index < howManyFiles; index++) {
                         if(index > 0) {
+                            if(indexFiles==0) {
+                                //await waitFunction(1000);
+                            }
                             fileStore = progressFile + "-" +myParentID.toString()+element+index.toString()+"3";
-                            //gltfStore = progressGLTF + "-" +myParentID.toString()+element+index.toString()+"3";
-                        }
+                            gltfStore = progressGLTF + "-" +myParentID.toString()+element+index.toString()+"3";
+                        } 
                         //console.log("Inside Loop",fileStore,index,howManyFiles);
                         let treeRes = await getAFileFromStore(fileStore,"tree");
                         if(treeRes && treeRes.data) {
+                            
                             const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
                             //console.log("Inside upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj)
                             var myStateTree = state_gltfobj.tree;
@@ -4142,14 +4218,11 @@ class GLTFRenderer extends Component {
                                 this.props.setStateOfgltf(gltfobj);
                             }
                             
-                            if(indexFiles==1) {
+                            if(indexFiles>=1) {
+                                this.onInitProgress(fileStore+".tree");
                                 treeRes.data.forEach(element => {
                                     if(element[gltf_Dict["points"]]) {
-                                        let material = new LineBasicMaterial({
-                                            color: this.props.edgecolor?this.props.edgecolor:DEFAULTEDGECOLOR,
-                                            name:element[gltf_Dict["name"]],
-                                            linewidth:1,
-                                        });
+                                        
                                         /*  */
                                         let points=[];
                                         //let xyzpoints=[];
@@ -4182,32 +4255,50 @@ class GLTFRenderer extends Component {
                                    
                                         //let geometry = new BufferGeometry({name:element[gltf_Dict["name"]]}).setFromPoints( points );                                                    
                                         //geometry.name=element[gltf_Dict["name"]];
-                                        let line = new Line(geometry, material);
-                                        /* line.position.x += (this.shiftposition.x);
-                                        line.position.y += (this.shiftposition.y);
-                                        line.position.z += (this.shiftposition.z);  */ 
-                                        line.name=element[gltf_Dict["name"]];
-                                        //this.scene.add(line);
-                                        parentLineNodes.add(line);
-                                        //console.log(line,element,material);
-                                        //this.partsMeshes=[...this.partsMeshes,line]
+                                        if(indexFiles==1) {
+                                            let material = new LineBasicMaterial({
+                                                color: this.props.edgecolor?this.props.edgecolor:DEFAULTEDGECOLOR,
+                                                name:element[gltf_Dict["name"]],
+                                                linewidth:1,
+                                            });
+                                            let line = new Line(geometry, material);                                            
+                                            line.name=element[gltf_Dict["name"]];                                            
+                                            parentLineNodes.add(line);
+                                        } else {
+                                            let material = new PointsMaterial({ 
+                                                color: this.props.edgecolor?this.props.edgecolor:DEFAULTEDGECOLOR,
+                                                name:element[gltf_Dict["name"]],
+                                                size:10});
+                                            let point = new Points(geometry, material);                                           
+                                            point.name=element[gltf_Dict["name"]];                                           
+                                            parentLineNodes.add(point);    
+                                        }
                                     }
                                         
                                 });
-                                    
-                            }                        
+                                this.onCloseProgress(fileStore+".tree","success","loaded successfully");    
+                            } else {
+                                this.onInitProgress(gltfStore+".gltf");
+                                loader.load(gltfStore+".gltf", onload, onProgress, onError,1 );
+                            } 
+                                            
                         }
                         
                     }
+                    if(howManyFiles>0 && indexFiles >0){
+                        console.log(parentLineNodes);
+                        if(parentLineNodes.children.length>0) {
+                            parentLineNodes.position.x += (this.shiftposition.x);
+                            parentLineNodes.position.y += (this.shiftposition.y);
+                            parentLineNodes.position.z += (this.shiftposition.z); 
+                            this.scene.add(parentLineNodes);
+                            this.content.push(parentLineNodes);
+                            this.partsMeshes=[...this.partsMeshes,...parentLineNodes.children];
+                        }
+                    }
                 }
             }
-            console.log(parentLineNodes);
-            parentLineNodes.position.x += (this.shiftposition.x);
-            parentLineNodes.position.y += (this.shiftposition.y);
-            parentLineNodes.position.z += (this.shiftposition.z); 
-            this.scene.add(parentLineNodes);
-            this.content.push(parentLineNodes);
-            this.partsMeshes=[...this.partsMeshes,...parentLineNodes.children];
+            
         }
     };
 

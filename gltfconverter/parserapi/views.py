@@ -1402,8 +1402,8 @@ def FileGetShapeInfo(request):
                             if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
                                 thiscenterpointXYZ = thisdimension.Center()
                                 thiscenterpoint=(thiscenterpointXYZ.X(),thiscenterpointXYZ.Y(),thiscenterpointXYZ.Z())
-                                if 'center' in data[0]['Info']:  
-                                    thiscenterpoint = data[0]['Info']['center'] 
+                                #if 'center' in data[0]['Info']:  
+                                #    thiscenterpoint = data[0]['Info']['center'] 
                                 #thisdimension = get_oriented_bounding_details(thisshell[index])
                                 """ thissiblings = pnames[index]                                
                                 for sibling in thissiblings:
@@ -1428,6 +1428,7 @@ def FileGetShapeInfo(request):
                                         if whatwegot <= 0.001:
                                             data[0]['fill']="Soild"
                                         else:
+                                            print("Distance",whatwegot)
                                             data[0]['fill']="Hole"
                                         foundHole=True
                                 except Exception as e:
@@ -5165,7 +5166,7 @@ def FileSaveTree(request):
                             shapeorder.append(index)
                     print(kinematicanimation,shapeorder)  
                     (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                        filename="Media/"+guid+sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
+                        filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
                         anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,edgesize=0,vertexsize=0,
                         kinematicanimation=kinematicanimation,shapeorder=shapeorder,delay=animationtime).dump()
                 elif sourceType=='Order':
@@ -5229,12 +5230,12 @@ def FileSaveTree(request):
                                     cw=0                   
                                 shapedirection.append(((ax,ay,az),(cx,cy,cz,cw)))
                     dictionary = FindAssemblingOrder(shapeArray,shapesAlone,assemblyname,dimension,explodegap,center,holescale,removegap,logging).\
-                                    reChangeOrder(shapeorder,shapedirection,"Media/"+guid+sourceFileName,distancegap,anglegap,animationtime)
+                                    reChangeOrder(shapeorder,shapedirection,sourceFileName,distancegap,anglegap,animationtime)
             except Exception as e:
                 print("Error while loading",name,e) 
             if sourceType!='Order':  
                 try:
-                    treefile = guid+name+'.tree'
+                    treefile = "Display/"+guid+name+'.tree'
                     print("Writing,",treefile)
                     with open(treefile, 'w') as fh:
                         fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
@@ -5284,10 +5285,11 @@ def FileSaveGDT(request):
             structArray = json.loads(gdt)
             name = request.data['name']            
             try:
-                gdtfile = guid+name+'.gdt'
+                gdtfile = "Display/"+guid+name+'.gdt'
                 print("Writing,",gdtfile)
                 with open(gdtfile, 'w') as fh:
                     fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
+                dictionary=request.data
             except Exception as e:
                 print("Error while writing gdtfile",e)     
         return JsonResponse(dictionary, safe=False)
