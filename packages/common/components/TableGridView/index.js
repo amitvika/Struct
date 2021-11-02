@@ -24,7 +24,7 @@ const TableGridView = ({
   handleItemClick,
   showSuccessAlert = () => {},
   showErrorAlert = () => {},
-  AdditionalFilter= null
+  AdditionalFilter = null
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [list, setList] = useState([]);
@@ -39,6 +39,10 @@ const TableGridView = ({
   const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
 
   useEffect(() => {
+    fetchResult();
+  }, []);
+
+  const fetchResult = () => {
     (async () => {
       try {
         setIsLoading(true);
@@ -55,8 +59,7 @@ const TableGridView = ({
         showErrorAlert({ message: `Unable to fetch ${title}` });
       }
     })();
-  }, []);
-
+  };
   const handleViewArchived = () => {
     if (isViewArchivedChecked) {
       setFilteredList(list.filter((item) => !item.is_archived));
@@ -84,16 +87,23 @@ const TableGridView = ({
           );
 
           if (availableDoc) {
-            const updatedList = list.map((document) => {
+            let updatedList = list.map((document) => {
               if (document.id === res.data.id) {
                 return { ...res.data, id: res.data.id };
               }
               return document;
             });
 
+            // updatedList = updatedList.filter((item) => !item.is_archived);
+
+            if (isViewArchivedChecked) {
+              setFilteredList(updatedList.filter((item) => item.is_archived));
+            } else {
+              setFilteredList(updatedList.filter((item) => !item.is_archived));
+            }
             setList(updatedList);
 
-            setFilteredList(updatedList);
+            // setFilteredList(updatedList);
           } else {
             const updatedList = [{ ...res.data, id: res.data.id }, ...list];
             setList(updatedList);
@@ -127,6 +137,12 @@ const TableGridView = ({
 
   const handleDelete = (oldData) => {
     let updateValue = { ...oldData, is_archived: true };
+    return upsertItem(updateValue);
+  };
+
+  const handleUndeleteButton = (oldData) => {
+    console.log('---->>handleUndeleteButton');
+    let updateValue = { ...oldData, is_archived: false };
     return upsertItem(updateValue);
   };
 
@@ -174,6 +190,9 @@ const TableGridView = ({
           // toggleModal={handleEditModal}
           handleEditButtonPress={handleEditModal}
           isAddEditLinkVisible={true}
+          handleDelete={handleDelete}
+          handleUndeleteButton={handleUndeleteButton}
+          isViewArchivedChecked={isViewArchivedChecked}
         />
       );
     } else {

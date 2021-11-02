@@ -1,55 +1,54 @@
-const VendorModel = require("../models/Vendor.model");
-const ChangeTracking = require("../models/ChangeTracking.model");
+const VendorModel = require('../models/Vendor.model');
+const ChangeTracking = require('../models/ChangeTracking.model');
+const { mapVendor, mapVendors } = require('../map/vendor.map');
 
 exports.get = async (req, res) => {
   try {
-
     let query = { deletedAt: null };
     if (req.query.search) {
-      query = { $and: [{ deletedAt: null }, { name: { '$regex': new RegExp(`${req.query.search}`, "i") } }] };
+      query = {
+        $and: [
+          { deletedAt: null },
+          { name: { $regex: new RegExp(`${req.query.search}`, 'i') } }
+        ]
+      };
     }
-
-    const options = {
-      page: req.query.page,
-      limit: req.query.limit,
-      sort: { date: -1 },
-    };
 
     const item = await VendorModel.find(query)
       .sort({ date: -1 })
-      .map(data => {
+      .map((data) => {
         data.logoName = data.logoName;
-        data.logoUrl = data.logoUrl ? `http://${req.headers.host}/logo/${data.logoName}` : '';
+        data.logoUrl = data.logoUrl
+          ? `http://${req.headers.host}/logo/${data.logoName}`
+          : '';
         return data;
-      })
+      });
 
-    res.json(item);
-
+    res.json(mapVendors(item));
+  } catch (error) {
+    console.log('====', error);
+    res.status(500).send(error);
   }
-  catch (error) {
-    console.log('====', error)
-    res.status(500).send(error)
-  };
-}
+};
 
 exports.getOne = (req, res) => {
   const vendorId = req.params.id;
 
   VendorModel.findById(vendorId)
-    .then(data => {
+    .then((data) => {
       data.logoName = data.logoName;
-      data.logoUrl = data.logoUrl ? `http://${req.headers.host}/logo/${data.logoName}` : ''
+      data.logoUrl = data.logoUrl
+        ? `http://${req.headers.host}/logo/${data.logoName}`
+        : '';
       res.send(data);
     })
-    .catch(error => {
-      res.status(400).send(error)
-    })
-}
+    .catch((error) => {
+      res.status(400).send(error);
+    });
+};
 
 exports.create = async (req, res) => {
-
   try {
-
     const newItem = new VendorModel({
       name: req.body.name,
       source: req.body.source,
@@ -58,34 +57,29 @@ exports.create = async (req, res) => {
 
     const savedItem = await newItem.save();
     if (!savedItem) {
-      throw { message: 'Unable to save' }
+      throw { message: 'Unable to save' };
     }
 
     const changeTracking = new ChangeTracking({
       client: savedItem._id,
       update: savedItem,
-      model: "Vendor",
-      updateType: "Create",
+      model: 'Vendor',
+      updateType: 'Create',
       updatedObject: savedItem._id,
       updatedBy: req.user.id
     });
     await changeTracking.save();
 
     res.json(savedItem);
+  } catch (error) {
+    console.log(error);
 
+    return res.status(500).send({ message: 'Some unexpected error occurred' });
   }
-  catch (error) {
-    console.log(error)
-
-    return res
-      .status(500)
-      .send({ message: 'Some unexpected error occurred' })
-  }
-}
+};
 
 exports.update = async (req, res) => {
   try {
-
     const saveObject = {
       name: req.body.name,
       source: req.body.source,
@@ -94,31 +88,32 @@ exports.update = async (req, res) => {
       suppliedItems: req.body.suppliedItems
     };
 
-    const updatedItem = await VendorModel.findByIdAndUpdate(req.params.id, saveObject, { new: true })
+    const updatedItem = await VendorModel.findByIdAndUpdate(
+      req.params.id,
+      saveObject,
+      { new: true }
+    );
 
     const changeTracking = new ChangeTracking({
-      client: updatedItem._id,
+      client: updatedItem.id,
       update: updatedItem,
-      model: "Vendor",
-      updateType: "Update",
-      updatedObject: updatedItem._id,
+      model: 'Vendor',
+      updateType: 'Update',
+      updatedObject: updatedItem.id,
       updatedBy: req.user.id
     });
     await changeTracking.save();
 
     res.json(updatedItem);
-  }
-  catch (error) {
-    console.log(error)
+  } catch (error) {
+    console.log(error);
 
-    return res
-      .status(500)
-      .send({ message: 'Some unexpected error occurred' })
+    return res.status(500).send({ message: 'Some unexpected error occurred' });
   }
-}
+};
 
 exports.delete = (req, res) => {
-  VendorModel.findById(req.params.id, "deletedAt", function (err, client) {
+  VendorModel.findById(req.params.id, 'deletedAt', function (err, client) {
     console.log(client);
     if (client.deletedAt == null) {
       const saveObject = {
@@ -129,16 +124,16 @@ exports.delete = (req, res) => {
           const changeTracking = new ChangeTracking({
             client: saveObject._id,
             update: saveObject,
-            model: "Vendor",
-            updateType: "Delete",
+            model: 'Vendor',
+            updateType: 'Delete',
             updatedObject: req.params.id,
             updatedBy: req.user.id
           });
-          changeTracking.save().catch(error => console.log(error));
+          changeTracking.save().catch((error) => console.log(error));
 
           res.json({ success: true });
         })
-        .catch(err => res.status(404).json({ success: false }));
+        .catch((err) => res.status(404).json({ success: false }));
     } else {
       const saveObject = {
         deletedAt: null
@@ -149,16 +144,55 @@ exports.delete = (req, res) => {
           const changeTracking = new ChangeTracking({
             client: saveObject.client,
             update: saveObject,
-            model: "Vendor",
-            updateType: "Un-Delete",
+            model: 'Vendor',
+            updateType: 'Un-Delete',
             updatedObject: req.params.id,
             updatedBy: req.user.id
           });
-          changeTracking.save().catch(error => console.log(error));
+          changeTracking.save().catch((error) => console.log(error));
 
           res.json({ success: true });
         })
-        .catch(err => res.status(404).json({ success: false }));
+        .catch((err) => res.status(404).json({ success: false }));
     }
   });
-}
+};
+
+exports.upsert = async (req, res) => {
+  try {
+    let vendor = await VendorModel.findById(req.body.id);
+
+    if (vendor) {
+      req.body.updated_by = req.user.id;
+
+      if(!req.body.created_by){
+        req.body.created_by = req.user.id;
+      }
+      
+      vendor = await VendorModel.findByIdAndUpdate(
+        req.body.id,
+        { $set: req.body },
+        { new: true }
+      );
+    } else {
+      req.body.created_by = req.user.id;
+      req.body.updated_by = req.user.id;
+      vendor = await VendorModel.create(req.body);
+    }
+
+    const changeTracking = new ChangeTracking({
+      client: req.body.id,
+      update: vendor,
+      model: 'Vendor',
+      updateType: 'Upsert',
+      updatedObject: req.body.id,
+      updatedBy: req.user.id
+    });
+    await changeTracking.save();
+
+    res.json(mapVendor(vendor));
+  } catch (error) {
+    console.log('upsert', error);
+    res.status(500).send(error);
+  }
+};
