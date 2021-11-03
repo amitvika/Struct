@@ -16,7 +16,7 @@ exports.mapItem = (item = {}) => {
   if (item === null) {
     return {};
   }
-
+  //console.log(resourcePathURL,"Resource path",item.fileStore);
   return {
     ...item.toObject(),
     id: item._id,

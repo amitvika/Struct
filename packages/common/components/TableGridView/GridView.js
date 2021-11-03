@@ -127,8 +127,9 @@ export default function GridView({
     if (!file_url) {
       return (<img className={classes.img} alt="complex" src={StructLogo} />);
     }
-    //console.log(file_url);
+    //console.log("Png file",file_url);
     file_url = file_url.toString();
+    file_url.replace('undefined/','');
     if (file_url.indexOf(".pdf") != -1 || file_url.indexOf(".PDF") != -1) {
       return (<PictureAsPdf className={classes.img} fontSize="large" />)
     }

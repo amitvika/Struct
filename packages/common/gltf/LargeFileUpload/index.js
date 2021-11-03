@@ -190,9 +190,10 @@ export default function LargeFileUpload({
   }
 
 
-  if (itemProperties.fileStore && 
+  if (itemProperties.fileStore && itemProperties.fileGDT &&
     isFileExistingInServer(resourcePathURL+
-      (itemProperties.fileUUId?itemProperties.fileUUId+'/':'')+itemProperties.fileStore+".gltf")) {
+      (itemProperties.fileUUId?itemProperties.fileUUId+'/':'')+itemProperties.fileGDT+".gltf")) {
+    console.log(itemProperties.fileStore,distanceGap,angleGap);
     return (
       <div style={{ display: 'flex' }}>
         <Typography
@@ -220,6 +221,7 @@ export default function LargeFileUpload({
   if(isNaN(getTrimmedValue)) {
       getTrimmedValue=0;
   }
+  
   return (
     <div>
       <Box sx={{ width: '100%'}}>
@@ -238,7 +240,7 @@ export default function LargeFileUpload({
             type="number"
             InputProps={{
                 inputProps: { 
-                    max: 10, min: 0.01 
+                    max: 3.15, min: 0.01 
                 }
             }}
             label="Angle Tollerance"
@@ -246,8 +248,8 @@ export default function LargeFileUpload({
             value={angleGap}
           />
           <FormControlLabel
-            control={<Checkbox checked={drawLine} label="Draw 3JS Line" onChange={onDrawLineChange}  />}
-            label="Draw 3JS Line"
+            control={<Checkbox checked={drawLine} label="Draw Edges" onChange={onDrawLineChange}  />}
+            label="Draw Edges"
           />
           
         </Box>

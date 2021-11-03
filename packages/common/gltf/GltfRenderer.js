@@ -1047,17 +1047,20 @@ class GLTFRenderer extends Component {
         this.updateTextureEncoding(this.state.textureEncoding);
         this.updateDisplay(this.state.side,this.state.opaque,
             this.state.wiremesh,this.state.castshadow,this.state.skeleton,this.state.grid); 
+        //console.log("File props",this.props.fileGDT,this.props.drawLine,this.props.activeId);
+        if(this.props.drawLine && this.props.fileGDT) {
+            this.loadAllEdges(0);
+        }
         if(this.props.fileGDT) {
             const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
 
             //console.log("GDTTable",state_gltfobj.gdttable,this.props.activeDataTable);      
             let gdttable = state_gltfobj.gdttable || [defaultGDTTable];
             this.updateGDTTable(gdttable[this.props.activeDataTable]);
-            //console.log(this.props);
-            if(this.props.drawLine) {
-                this.drawAllEdges(0);
-            }
-        }         
+                        //console.log(this.props);
+            
+        } 
+                
         //window.content = this.content;
         //console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
         //this.printGraph(this.content[0]);
@@ -2081,7 +2084,7 @@ class GLTFRenderer extends Component {
             event.preventDefault();
             
             console.log("Reaching here to load edges","Node",this.state.lastClickedNode, "intersect",this.INTERSECTED);
-            this.findSingleNode(this.state.lastClickedNode ? this.state.lastClickedNode : this.INTERSECTED, true, false);
+            this.findSingleNode(this.state.lastClickedNode ? this.state.lastClickedNode : this.INTERSECTED, true, event);
         }
     }
     onMouseWheel = ( event ) => {
@@ -2505,7 +2508,7 @@ class GLTFRenderer extends Component {
         this.activeCamera.updateMatrixWorld();
 
         this.raycaster.setFromCamera(this.mouse, this.activeCamera);
-        this.raycaster.params.Line.threshold = 3;
+        this.raycaster.params.Line.threshold = 0.001;
         //2. compute intersections (note the 2nd parameter)
         var intersects = this.raycaster.intersectObjects(this.objectFilters(), true);
 
@@ -2516,11 +2519,11 @@ class GLTFRenderer extends Component {
             var myObject = intersects.length;
             for (var i = 0; i < intersects.length; i++) {
                 //console.log("First",intersects[ i ].object);
-                /* if (intersects[i].object.type == "Line" ) {
+                if (intersects[i].object.type == "Line" ) {
                     myObject = i;
                     //console.log("I found a face",intersects[i].object.name);
                     break;
-                } */
+                }
                 if (intersects[i].object.type == "Mesh" ) {
                     //console.log("name found",intersects[ i ].object.name);
                     if(!this.onlyparts(intersects[i].object.name)){
@@ -2918,10 +2921,10 @@ class GLTFRenderer extends Component {
     };
     */
 
-    findSingleNode = (mynode,addToGDTTable=true,clickKey=true) => {
+    findSingleNode = (mynode,addToGDTTable=true,clickKey=null) => {
         let selectHere = true;
         //console.log(this.props,this.props.fileGDT,addToGDTTable);
-        if(this.props.fileGDT && addToGDTTable && (clickKey==false)) {
+        if(this.props.fileGDT && addToGDTTable && (clickKey!==null)) {
             
             var myParentID = -1;
             var findEdges = 0;
@@ -2997,9 +3000,9 @@ class GLTFRenderer extends Component {
                 }
                
                 let featureSetFinish = 3;
-                if(this.props.selectedoption==SELECTFACE) {
+                if( (this.props.selectedoption==SELECTFACE) || clickKey.ctrlKey) {
                     featureSetFinish = 1;
-                } else if(this.props.selectedoption==SELECTEDGE) {
+                } else if((this.props.selectedoption==SELECTEDGE) || clickKey.altKey) {
                     featureSetFinish = 2;
                 } else if( (this.props.selectedoption==SELECTASSEMBLY) || (this.props.selectedoption==SELECTSOLID) ) {
                     featureSetFinish = 0;
@@ -4029,7 +4032,8 @@ class GLTFRenderer extends Component {
     }
     */
 
-    drawAllEdges = async (allEdges=0, featureSetStart=0, featureSetFinish=3, mynode=null,gdttableEdges=null) => {
+    
+    loadAllEdges = async (allEdges=0, featureSetStart=0, featureSetFinish=3, mynode=null,gdttableEdges=null) => {
         
         //this.fetchTree(gltfFILE,progressFile,myParentID);
         const progressFile = (this.props.fileUUId ? this.props.fileUUId+'/' : '') + this.props.fileGDT.slice(0, this.props.fileGDT.length - 1); 
@@ -4303,7 +4307,7 @@ class GLTFRenderer extends Component {
     };
 
 
-    loadAllEdges = (allEdges,featureSetStart=0, featureSetFinish=3, mynode=null, gdttableEdges=null) => {
+    loadAllEdgesOld = (allEdges,featureSetStart=0, featureSetFinish=3, mynode=null, gdttableEdges=null) => {
         const loader = new GLTFLoader().setPath( this.props.fileUUId? (resourcePathURL || '') + this.props.fileUUId+'/' 
             : resourcePathURL || '').setCrossOrigin('anonymous');
                    
