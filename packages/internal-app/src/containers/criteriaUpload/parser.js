@@ -1,6 +1,6 @@
 import readXlsxFile from 'read-excel-file';
 
-export const hierarchyFileParser = async (file) => {
+export const hierarchyFileParser = async (file, title) => {
   try {
     const rows = await readXlsxFile(file, { sheet: 'Item_Type_H' });
 
@@ -8,14 +8,19 @@ export const hierarchyFileParser = async (file) => {
 
     const numOfRows = rows.length;
 
+    let initialIndex = 1;
+    if (rows[1][0] !== null && rows[1][1] === null && rows[2][0] !== null) {
+      initialIndex = 2;
+    }
+
     let dropList = [];
     let initialDropdown = {
-      title: 'Item Type',
+      title: title || 'Item Type',
       options: [],
-      headerName: rows[1][0]
+      headerName: initialIndex === 2 ? rows[1][0] : title
     };
 
-    for (let i = 2; i < numOfRows; i++) {
+    for (let i = initialIndex; i < numOfRows; i++) {
       let dataRow = rows[i];
       if (dataRow[0]) {
         initialDropdown.options.push({
@@ -157,7 +162,7 @@ export const LookUpTableParser = async (file) => {
       }
     }
 
-    return lookUpTableObj
+    return lookUpTableObj;
   } catch (error) {
     console.log('Error in parsing criteria file', error);
     return {};
