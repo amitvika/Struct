@@ -2755,8 +2755,15 @@ def recognize_face_entity(topods_face):
     return "Unknown", "U"
    
     
-
-
+def get_circle_info(curve):
+    curve_type = curve.GetType()
+    entity={}
+    entity['kind'] = curve_type
+    if curve_type == GeomAbs_Circle:
+        gp_circle = curve.Circle()
+        entity['radius'] = gp_circle.Radius()
+        entity['center'] = getXYZ(gp_circle.Location())
+    return entity
 
 ##################################
 # Recognize functions

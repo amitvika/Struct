@@ -72,7 +72,7 @@ from OCC.Core.TopAbs import (TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIR
                         TopAbs_SHELL, TopAbs_SOLID, TopAbs_COMPOUND,
                         TopAbs_COMPSOLID, TopAbs_Orientation)
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeSphere, BRepPrimAPI_MakeBox
-from OCC.Core.GeomAbs import GeomAbs_Line 
+from OCC.Core.GeomAbs import GeomAbs_Line, GeomAbs_Circle
 #from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 #from .OCCUtils.vertex import Vertex
 #from .OCCUtils import Topology
@@ -88,7 +88,7 @@ from .OCPShapes import Shape
 from .OCPAssembly import Color
 
 #from ... import Assembly
-from .OCCExtend.ShapeFactory import recognize_direction, recognize_curve, recognize_face_entity
+from .OCCExtend.ShapeFactory import recognize_direction, recognize_curve, recognize_face_entity, get_circle_info
 from ....thumbnail.thumbnail import createThumbnail
 from .gltfDictionary import gltfdict
 from .Quaternion import Quaternion
@@ -576,6 +576,11 @@ class TranslationBuffer(object):
     def __len__(self):
         return self.translation_len 
 
+    def return_boundary(self):
+        return ( (self.translation_umin, self.translation_vmin, self.translation_wmin), 
+            (self.translation_umax, self.translation_vmax, self.translation_wmax)
+        )
+
     def add_translation(self, u, v, w):
         """
         Add a ``VEC3` of ``floats`` to the ``translation_data`` buffer
@@ -934,7 +939,8 @@ class StepExportWithColor(object):
             
             for face in list_of_faces:  
                 facecount+=1
-                fill, _, _ = recognize_direction(face)  
+                #fill, _, _ = recognize_direction(face)  
+                fill = "Hole" if (face.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Solid"
                
                 #print(facecount, face)     
                 
@@ -1271,11 +1277,11 @@ class StepIgesAnalyser():
             profile_face = BRepBuilderAPI_MakeFace(poly).Face()            
         return BRepOffsetAPI_MakePipe(wire, profile_face).Shape()
     
-    def createPipesFromEdge(self,anEdge):
+    def createPipesFromEdge(self,anEdge,circular=False):
         curve = BRepAdaptor_Curve(anEdge)
         firstU = curve.FirstParameter()
         lastU = curve.LastParameter()
-       
+        
         ranges = lastU-firstU
         if ranges < 0:
             firstU = curve.LastParameter()
@@ -1292,7 +1298,16 @@ class StepIgesAnalyser():
                 length = GCPnts_AbscissaPoint().Length(curve, firstU, lastU, self.distancegap)
             except Exception as e:
                 print("Unable to find length of the curve",e) """
-            length = round(length/self.distancegap)
+            if curve.GetType() == GeomAbs_Circle:
+                entity_circle = get_circle_info(curve)   
+                radius = entity_circle["radius"] 
+                if radius > 12:
+                    radius = 12                          
+                length = length * radius * 0.08 / self.distancegap 
+                #print(entity_circle,length)
+            else:
+                length = (length/self.distancegap)
+            length = round(length)
             if length<=0:
                 length = 1
         pipes=[]
@@ -1306,10 +1321,10 @@ class StepIgesAnalyser():
                 nextP = curve.Value(firstU+(ranges*(eachP+1)/(length)))
             if (currentP.SquareDistance(nextP) >= self.distancegap): # or (length==1):
                 edgePoints.append((nextP.X(),nextP.Y(),nextP.Z()))
-                aPipe = self.createPipeFromPoints(currentP, nextP)
+                """ aPipe = self.createPipeFromPoints(currentP, nextP, circular)
                 if aPipe:
                     pipes.append(aPipe)
-                    currentP = nextP
+                    currentP = nextP """
             else:
                 if eachP==length-1:
                     edgePoints.append((nextP.X(),nextP.Y(),nextP.Z()))
@@ -1324,8 +1339,13 @@ class StepIgesAnalyser():
             #    return compound
             return compound, edgePoints
         else:
-            print("NO edges found",firstU,lastU)
-            return None, edgePoints
+            #print("NO edges found",firstU,lastU)
+            if circular:
+                pipes =  [BRepPrimAPI_MakeSphere(currentP, 0.1).Shape()]
+            else:
+                pipes = [BRepPrimAPI_MakeBox(currentP,0.1,0.1,0.1).Shape()]
+            compound, _ = list_of_shapes_to_compound(pipes)
+            return compound, edgePoints
         
 
 
@@ -1548,6 +1568,7 @@ class StepIgesAnalyser():
             edges_dict = {}
             vertices_dict = {}
             dumpTopologyFacesEdgesVertices(aShape,faces_dict,edges_dict,vertices_dict)
+            print("No of faces, edges, vertices",len(faces_dict),len(edges_dict),len(vertices_dict))
             reduced_edges_dict = None
             reduced_corners_dict = None
             if self.edgesize > 0:
@@ -1571,7 +1592,7 @@ class StepIgesAnalyser():
                     if (not hashcode in self.outputEdges):
                         self.outputEdges[hashcode] = (edge)
                         reduced_edges_dict[hashcode]=edge
-                #print("Reach here list2",len(reduced_edges_dict))
+                
             if self.vertexsize > 0: 
                 reduced_corners_dict = {}  
                 findCornersAgain=False
@@ -1590,6 +1611,7 @@ class StepIgesAnalyser():
                     if (not hashcode in self.outputCorners):
                         self.outputCorners[hashcode] = (corner)
                         reduced_corners_dict[hashcode]=corner 
+            #print("After reduction, No of faces, edges, vertices",len(faces_dict),len(reduced_edges_dict),len(reduced_corners_dict))
             #list_of_faces, edges_dict, vertices_dict = self.getFacesEdgesVertices(aShape,localTransform,transformationHash)            
             #print(len(list_of_faces),aShape)
             list_of_solids = []
@@ -2006,7 +2028,7 @@ class StepIgesAnalyser():
                         #print("MyCurve",myCurveType, Distance)
                         if (myCurveType=="Circle") and (Distance<=0.0001):
                             toAddCorners=False
-                print("Got edges for",len(shape_edges),"To add Corners",toAddCorners)
+                #print("Got edges for",len(shape_edges),"To add Corners",toAddCorners)
                 edgenumber=0
                 for shape_hash_edge, shape_edge  in shape_edges.items():
                     toAddAsAnEdge=True
@@ -2016,8 +2038,8 @@ class StepIgesAnalyser():
                         #print("MyCurve",myCurveType)
                         toAddAsAnEdge=(myCurveType=="Circle")
                     #else :
-                    print("Got edges for",edgenumber,"To add edge",toAddAsAnEdge)
-                    if toAddAsAnEdge:
+                    #print("Got edges for",edgenumber,"To add edge",toAddAsAnEdge)
+                    if (toAddAsAnEdge) and (not shape_hash_edge in self.outputShapes):
                         self.fileId += 1
                         shape_transform = BRepBuilderAPI_Transform(shape_edge, localTransformation).Shape()
                         (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,faceColor)
@@ -2059,40 +2081,40 @@ class StepIgesAnalyser():
             
                 vertexColor = self.getDarken(faceColor,0.75)  
                 for shape_hash_vertex, shape_vertex  in shape_vertices.items():
-                    
-                    self.fileId += 1
-                    shape_transform = BRepBuilderAPI_Transform(shape_vertex, localTransformation).Shape()        
-                    (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,faceColor)
-                    #print("I am writing Vertex",self.fileId, basename)                       
-                    shape_disp,vertex_point = self.CreateSphereFromVertex(shape_transform) 
-                    myMeshID = self.uid
-                    if self.multiplegltf!=0:
-                        meshname="VERTEX"
-                        uvPlane=my_parent_id
-                        myFeaturesVertices.append((
-                            shape_disp,
-                            edgeColor,
-                            filefullname,
-                            "VERTEX"+subName+parentName,
-                            "VERTEX",
-                            " ",
-                            vertex_point))
-                        
-                    else:            
-                        (_,meshname,uvPlane,solidFoundHere)=self.add_part(
-                            shape_disp,
-                            part_color=vertexColor,
-                            filenameuri=filefullname,
-                            filetype= "VERTEX",
-                            name="VERTEX"+subName+parentName,
-                            parent_idx=parent_node_index, 
-                            curvecode=" ",
-                            curvepoints=edge_points                       
-                        ) 
-                    if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
-                        self.outputShapes[shape_hash_vertex] = [shape_disp, parentName, parentEntry, vertexColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
-                    self.percentage += (0.5/myLenShapeCompounds)*percentincrement
-                    self.write_status()
+                    if  (not shape_hash_vertex in self.outputShapes):
+                        self.fileId += 1
+                        shape_transform = BRepBuilderAPI_Transform(shape_vertex, localTransformation).Shape()        
+                        (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,faceColor)
+                        #print("I am writing Vertex",self.fileId, basename)                       
+                        shape_disp,vertex_point = self.CreateSphereFromVertex(shape_transform) 
+                        myMeshID = self.uid
+                        if self.multiplegltf!=0:
+                            meshname="VERTEX"
+                            uvPlane=my_parent_id
+                            myFeaturesVertices.append((
+                                shape_disp,
+                                edgeColor,
+                                filefullname,
+                                "VERTEX"+subName+parentName,
+                                "VERTEX",
+                                " ",
+                                vertex_point))
+                            
+                        else:            
+                            (_,meshname,uvPlane,solidFoundHere)=self.add_part(
+                                shape_disp,
+                                part_color=vertexColor,
+                                filenameuri=filefullname,
+                                filetype= "VERTEX",
+                                name="VERTEX"+subName+parentName,
+                                parent_idx=parent_node_index, 
+                                curvecode=" ",
+                                curvepoints=edge_points                       
+                            ) 
+                        if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
+                            self.outputShapes[shape_hash_vertex] = [shape_disp, parentName, parentEntry, vertexColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
+                        self.percentage += (0.5/myLenShapeCompounds)*percentincrement
+                        self.write_status()
                     #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
             else:
                 self.percentage += ( (len(shape_vertices) if shape_vertices else 0 )/myLenShapeCompounds)*percentincrement
@@ -2715,22 +2737,22 @@ class StepIgesAnalyser():
         if points:
             lenPoints = len(points)
             if lenPoints>0:
-                floatBuff = TimeBuffer(
+                floatBuff = TranslationBuffer(
                     max_index=lenPoints
                 )            
-            for steps in range(lenPoints):
-                x,y,z=points[steps]
-                floatBuff.add_time(x)
-                floatBuff.add_time(y)
-                floatBuff.add_time(z)
-                #print(x,y,z)  
-            base64data = base64.b64encode(floatBuff.read()).decode('ascii')
-            retString = "{data}".format(
-                data=base64data,
-            )  
-            return retString
+                for steps in range(lenPoints):
+                    x,y,z=points[steps]
+                    floatBuff.add_translation(x,y,z)
+                    #print(x,y,z)  
+                base64data = base64.b64encode(floatBuff.read()).decode('ascii')
+                retString = "{data}".format(
+                    data=base64data,
+                )  
+                return retString, floatBuff.return_boundary()
+            else:
+                return "", ((0,0,0),(0,0,0))
         else:
-            return points
+            return points, ((0,0,0),(0,0,0))
 
     def addFeatures(self):  
         try:
@@ -2750,9 +2772,32 @@ class StepIgesAnalyser():
         lenfeature = 0
         newfilename = self.displaypath+pathfilename+".progress"
         myParentId_Dict={}
+        startttime = datetime.utcnow() 
+        currenttime = startttime
         with open(newfilename, 'w') as fh:
-            fh.write(json.dumps({"begin":lenfeature,"end":lenFeatures}, sort_keys=True, indent=2 ))
+            fh.write(
+                json.dumps({
+                    "begin":lenfeature,
+                    "end":lenFeatures,
+                    "start":self.starttime.strftime("%H-%M-%S"),
+                    "current":currenttime.strftime("%H-%M-%S"),
+                    "children":myParentId_Dict},
+                    sort_keys=True, 
+                    indent=2 ))
         for outputFeature in self.outputFeatures:
+            timingdelta = datetime.utcnow()-currenttime            
+            if (timingdelta.seconds >= 10): 
+                with open(newfilename, 'w') as fh:
+                    fh.write(
+                        json.dumps({
+                            "begin":lenfeature,
+                            "end":lenFeatures,
+                            "start":self.starttime.strftime("%H-%M-%S"),
+                            "current":currenttime.strftime("%H-%M-%S"),
+                            "children":myParentId_Dict},
+                            sort_keys=True, 
+                            indent=2 ))
+                currenttime=datetime.utcnow()
             #print(outputFeature)
             lenfeature+=1
             myparentID =  outputFeature["Id"]             
@@ -2787,8 +2832,15 @@ class StepIgesAnalyser():
                             addFeature(myshapes,myparentID,myTreeLen,myFeatureName)
                         myTreeLen+=addedTrees
         with open(newfilename, 'w') as fh:
-            fh.write(json.dumps({"begin":lenfeature,"end":lenFeatures,"children":myParentId_Dict}, sort_keys=True, indent=2 ))
-        
+            fh.write(
+                json.dumps({
+                    "begin":lenfeature,
+                    "end":lenFeatures,
+                    "start":self.starttime.strftime("%H-%M-%S"),
+                    "current":currenttime.strftime("%H-%M-%S"),
+                    "children":myParentId_Dict},
+                    sort_keys=True, 
+                    indent=2 ))
         try:
             if self.logging != None and self.addfeaturesThread:
                 self.logging.info("Completed addFeatures Thread ")
@@ -3303,7 +3355,8 @@ class StepIgesAnalyser():
                     print("Error while writing gdtfile",e)
             if imagePNG and self.writefiles:           
                 try:
-                    imagefilename = self.displaypath+dict["store"]+".png"
+                    filestore = dict["store"][:-1]+"0"
+                    imagefilename = self.displaypath+filestore+".png"
                     print("Writing",imagefilename)
                     createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            
                 except Exception as e:
@@ -3358,7 +3411,8 @@ class StepIgesAnalyser():
         getPNG = False
         #newfilename = "Display/"+self.basefilename+".gltf"
                
-        if (self.thumbheight!=0) and (self.thumbwidth!=0) and (self.edgesize==0) and (self.vertexsize==0) and (self.ascompound==False):
+        #if (self.thumbheight!=0) and (self.thumbwidth!=0) and (self.edgesize==0) and (self.vertexsize==0) and (self.ascompound==False):
+        if (self.thumbheight!=0) and (self.thumbwidth!=0) and (self.vertexsize==0) and (self.ascompound==False):
             getPNG = True
         
         """  try:
@@ -4191,8 +4245,11 @@ class StepIgesAnalyser():
         solidfound = 0
         # ----- Adding to: buffers
         with measure_time(log, 'buffers'):
-             
-            buff, solidfound, uvbuff, uvPlane = self.part_buffer(part)
+            if (filetype=="EDGE") or (filetype=="Vertex"):               
+               solidfound = 0
+               uvPlane=[]
+            else:
+                buff, solidfound, uvbuff, uvPlane = self.part_buffer(part)
             
             mesherDict = self.updateParentChild(name,part)
             #print("add_part", mesherDict)
@@ -4202,7 +4259,8 @@ class StepIgesAnalyser():
             myFileType = filetype[0:1]
             mesher_dict[self.gltf_Dict["element"]] = myFileType
             mesher_dict[self.gltf_Dict["geometry"]] = curvecode
-            mesher_dict[self.gltf_Dict["points"]] = self.convertToBase64(curvepoints)
+            base64BufferString, (lowerboundmin,upperboundmax) = self.convertToBase64(curvepoints)
+            mesher_dict[self.gltf_Dict["points"]] = base64BufferString
             #mesher_dict["fileId"] = self.fileId
             mesher_dict[self.gltf_Dict["leaf"]]=True
             if( solidfound > 0 ) :
@@ -4415,7 +4473,35 @@ class StepIgesAnalyser():
                     # Appending child index to its parent's children list
                     parent_node = self.mstep_dict['nodes'][parent_idx]
                     parent_node['children'] = parent_node.get('children', []) + [node_index]
-            #else:
+            else:
+                if (filetype=="EDGE") or (filetype=="Vertex"):
+                    
+                    mesher_dict[self.gltf_Dict["topLeft"]] = lowerboundmin
+                    mesher_dict[self.gltf_Dict["bottomRight"]] = upperboundmax
+                    mesher_dict[self.gltf_Dict["bin"]]=True
+
+                    self.updateParentDimensions(mesher_dict)
+                    
+                    #print("affter update")
+                    if part_color:
+                        mesher_dict[self.gltf_Dict["R"]] = part_color.Red()
+                        mesher_dict[self.gltf_Dict["G"]] = part_color.Green()
+                        mesher_dict[self.gltf_Dict["B"]] = part_color.Blue()
+                        mesher_dict[self.gltf_Dict["A"]] = (0 if(myFileType=="E" or myFileType=="V") else 1)
+                    else:
+                        if self.defaultColor:
+                            mesher_dict[self.gltf_Dict["R"]] = self.defaultColor.Red()
+                            mesher_dict[self.gltf_Dict["G"]] = self.defaultColor.Green()
+                            mesher_dict[self.gltf_Dict["B"]] = self.defaultColor.Blue()
+                            mesher_dict[self.gltf_Dict["A"]] = (0 if(myFileType=="E" or myFileType=="V") else 1)                       
+                        else:
+                            mesher_dict[self.gltf_Dict["R"]] = 0.3
+                            mesher_dict[self.gltf_Dict["G"]] = 0.32
+                            mesher_dict[self.gltf_Dict["B"]] = 0.37
+                            mesher_dict[self.gltf_Dict["A"]] = (0 if(myFileType=="E" or myFileType=="V") else 1)
+                    mesher_dict[self.gltf_Dict["texture"]] = ""
+                    mesher_dict[self.gltf_Dict["metallicFactor"]] = 0.1
+                    mesher_dict[self.gltf_Dict["roughnessFactor"]] = 0.7
                 #print(" I have reache here without adding")
         #buffer_length_current = len(self.mstep_dict['buffers'])
         return mesher_dict[self.gltf_Dict["id"]], mesher_dict[self.gltf_Dict["name"]], uvPlane, solidfound

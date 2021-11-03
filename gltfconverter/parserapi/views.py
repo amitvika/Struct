@@ -976,10 +976,19 @@ def FileHierarchySplit(request):
             moverotate = convertToInt(request.GET.get('moverotate',"0"),0)  
             edgesize = convertToFloat(request.GET.get('edgesize',"0.3"),0.3) 
             vertexsize = convertToFloat(request.GET.get('vertexsize',"0.3"),1.0)
-            thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
-            thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
-            maximumfaces = convertToInt(request.GET.get('maximumfaces',"50"),50)
+            createthumb = convertToBool(request.GET.get('createthumb',"false"),False)
+            if createthumb==True:
+                defthumb=96
+                defthumbstr="96"
+            else:
+                defthumb=0
+                defthumbstr="0"
+            thumbwidth = convertToFloat(request.GET.get('thumbwidth',defthumbstr),defthumb)
+            thumbheight = convertToFloat(request.GET.get('thumbheight',defthumbstr),defthumb)
+            maximumfaces = convertToInt(request.GET.get('maximumfaces',"50"),defthumb)
             seperateparts = convertToBool(request.GET.get('seperateparts',"false"),False)
+            
+            
             #print(includeparts)
             if includeparts:           
                 print("I am including minorparts")
@@ -1402,9 +1411,13 @@ def FileGetShapeInfo(request):
                             if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
                                 thiscenterpointXYZ = thisdimension.Center()
                                 thiscenterpoint=(thiscenterpointXYZ.X(),thiscenterpointXYZ.Y(),thiscenterpointXYZ.Z())
-                                #if 'center' in data[0]['Info']:  
-                                #    thiscenterpoint = data[0]['Info']['center'] 
-                                #thisdimension = get_oriented_bounding_details(thisshell[index])
+                                thisradius=0.1
+                                if 'center' in data[0]['Info']:  
+                                    thiscenterpoint = data[0]['Info']['center'] 
+                                if 'radius' in data[0]['Info']:  
+                                    thisradius = convertToFloat(data[0]['Info']['radius'],0.1) / 1.6
+
+                                thisdimension = get_oriented_bounding_details(thisshell[index])
                                 """ thissiblings = pnames[index]                                
                                 for sibling in thissiblings:
                                     try:
@@ -1423,7 +1436,7 @@ def FileGetShapeInfo(request):
                                     with open("Display/"+guid+thisparentpartname+".pickle", 'rb') as fs:
                                         thisparentpart = pickle.load(fs)
 
-                                        smallcube = CreateSphereFromCenter(thiscenterpoint)
+                                        smallcube = CreateSphereFromCenter(thiscenterpoint,vertexsize=thisradius)
                                         whatwegot = minimum_distance_only(smallcube,thisparentpart)
                                         if whatwegot <= 0.001:
                                             data[0]['fill']="Soild"

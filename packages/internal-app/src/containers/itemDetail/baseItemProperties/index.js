@@ -77,7 +77,9 @@ export default function BaseItemProperties({
   percentage,
   currentProgressText,
   completionProgressText,
-  drawLine
+  drawLine,
+  distanceGap,
+  angleGap
 }) {
   const classes = USESTYLES();
   const dispatch = useDispatch();
@@ -93,9 +95,9 @@ export default function BaseItemProperties({
   const [fileUUId, setfileUUId] = useState(itemProperties.fileUUId);
   const [isFileLoading, setIsFileLoading] = useState(false);
   const [progressBarRender, setProgressBarRender] = useState(false); 
-  const [distanceGap,setDistanceGap]=useState(STATEPROPS.distancegap);
-  const [angleGap,setAngleGap]=useState(STATEPROPS.anglegap);
-  const [drawLiner,setDrawLiner]=useState(false);
+  const [distanceGaper,setDistanceGaper]=useState(distanceGap?distanceGap:STATEPROPS.distancegap);
+  const [angleGaper,setAngleGaper]=useState(angleGap?angleGap:STATEPROPS.anglegap);
+  const [drawLiner,setDrawLiner]=useState(drawLine);
   useEffect(() => {
     //console.log('Setting gltf', gltfjson);
     setfileUUId(itemProperties.fileUUId);
@@ -125,6 +127,23 @@ export default function BaseItemProperties({
     }
   }, [percentage]);
 
+  useEffect(() => {
+    //console.log('Setting itemProperties', itemProperties);
+    setDrawLiner(drawLine);   
+  }, [drawLine]);
+  useEffect(() => {
+    //console.log('Setting itemProperties', itemProperties);
+    setDistanceGaper(distanceGap);   
+  }, [distanceGap]);
+  useEffect(() => {
+    //console.log('Setting itemProperties', itemProperties);
+    setAngleGaper(angleGap);   
+  }, [angleGap]);
+
+
+
+
+
   const handleFileUpload = async (data) => {
     setIsLoading(true);
 
@@ -142,16 +161,17 @@ export default function BaseItemProperties({
       }
       let dataload = '';
       let datastore = '';
+      let datagdt = '';
       let treeLength = 0;
       dataload = data.filename;
       let filenameWithExtension = dataload.replace(/^.*[\\\/]/, '');
       const lastDotIndex = filenameWithExtension.lastIndexOf('.');
-      if (lastDotIndex == -1) {
-        datastore = filenameWithExtension + '0';
-      } else {
-        datastore = filenameWithExtension.substring(0, lastDotIndex) + '0';
+      if (lastDotIndex != -1) {
+        filenameWithExtension = filenameWithExtension.substring(0, lastDotIndex);
       }
-
+      datastore = filenameWithExtension + '0';
+      datagdt = filenameWithExtension + '3';
+      
       setfileUUId(data.uuid);
       // setItemProperties((prevData) => ({
       //   ...prevData,
@@ -181,8 +201,8 @@ export default function BaseItemProperties({
             fileUUId: data.uuid,
             fileStore: datastore,
             fileName: dataload,
-            distanceGap: distanceGap,
-            angleGap: angleGap,
+            distanceGap: distanceGaper,
+            angleGap: angleGaper,
             drawLine: drawLiner,
           }));
           handleItemSaveOnServer({
@@ -194,8 +214,8 @@ export default function BaseItemProperties({
             fileMPPS: null,
             fileStack: null,
             fileKinematic: null,
-            distanceGap: distanceGap,
-            angleGap: angleGap,
+            distanceGap: distanceGaper,
+            angleGap: angleGaper,
             drawLine: drawLiner,
           });
       } 
@@ -203,13 +223,15 @@ export default function BaseItemProperties({
       const getHierarchyRes = await getHierarchySplitFiles(
         fileId,
         true,
-        distanceGap,
-        angleGap,
+        distanceGaper,
+        angleGaper,
         false,
         0,
+        STATEPROPS.edgesize,
         0,
-        0,
-        STATEPROPS.maximumfaces
+        STATEPROPS.maximumfaces,
+        true,
+        true
       );
       setIsFileLoading(false);
       if (fileUUId != data.uuid) {
@@ -219,11 +241,12 @@ export default function BaseItemProperties({
       if (datastatus) {
         percent = datastatus.percent;
         if (
-          datastore != getHierarchyRes.data.store ||
+          datagdt != getHierarchyRes.data.store ||
           dataload != getHierarchyRes.data.load ||
-          itemProperties.fileUUId != data.uuid
+          itemProperties.fileUUId != data.uuid ||
+          itemProperties.fileGDT != datagdt
         ) {
-          datastore = getHierarchyRes.data.store;
+          datagdt = getHierarchyRes.data.store;
           dataload = getHierarchyRes.data.load;
           // setItemProperties((prevData) => ({
           //   ...prevData,
@@ -236,9 +259,10 @@ export default function BaseItemProperties({
               ...prevData,
               fileUUId: data.uuid,
               fileStore: datastore,
+              fileGDT: datagdt,
               fileName: dataload,
-              distanceGap: distanceGap,
-              angleGap: angleGap,
+              distanceGap: distanceGaper,
+              angleGap: angleGaper,
               drawLine: drawLiner
             }));
           }
@@ -247,12 +271,12 @@ export default function BaseItemProperties({
             fileUUId: data.uuid,
             fileStore: datastore,
             fileName: dataload,
-            fileGDT: null,
+            fileGDT: datagdt,
             fileMPPS: null,
             fileStack: null,
             fileKinematic: null,
-            distanceGap: distanceGap,
-            angleGap: angleGap,
+            distanceGap: distanceGaper,
+            angleGap: angleGaper,
             drawLine: drawLiner,
           });
         }
@@ -260,13 +284,13 @@ export default function BaseItemProperties({
       setPercentager(percent);
       if (!datastatus || percent != 100) {
         // eslint-disable-next-line no-throw-literal
-        if (!datastore || !datastatus) {
-          console.log('File Render Error', datastore, dataload);
+        if (!datagdt || !datastatus) {
+          console.log('File Render Error', datagdt, dataload);
           setProgressBarLoader(false);
           setIsLoading(false);
           throw { message: 'Unable to render file' };
         } else {
-          const datafile = data.uuid + '/' + datastore;
+          const datafile = data.uuid + '/' + datagdt;
           let fetchStatus = () => getAFileFromStore(datafile, 'status');
           let validateStatus = (result) => {
             console.log(
@@ -278,7 +302,7 @@ export default function BaseItemProperties({
           };
           let percentFunction = (result) =>
             result.data.percent ? result.data.percent : percentager;
-          console.log('Entering poll', datastore, dataload);
+          console.log('Entering poll', datagdt, dataload);
           await pollFunction(
             fetchStatus,
             validateStatus,
@@ -288,7 +312,7 @@ export default function BaseItemProperties({
             setCurrentProgressTexter,
             setCompletionProgressTexter
           );
-          console.log('Completing poll', datastore, dataload);
+          console.log('Completing poll', datagdt, dataload);
           const gltfRes = await getAFileFromStore(datafile, 'gltf');
           const treeRes = await getAFileFromStore(datafile, 'tree');
           treeLength = treeRes.data.length;
@@ -297,7 +321,7 @@ export default function BaseItemProperties({
             gltf: gltfRes.data,
             tree: treeRes.data,
             multiAssmebly: treeLength > 0,
-            gdt: null,
+            gdt: datagdt,
             treeLength: treeRes.data.length,
           });
           setItemProperties((prevData) => ({
@@ -311,7 +335,7 @@ export default function BaseItemProperties({
         setgltfjson({
           ...getHierarchyRes.data,
           multiAssmebly: treeLength > 0,
-          gdt: null,
+          gdt: datagdt,
           treeLength: treeLength,
         });
         setItemProperties((prevData) => ({
@@ -329,11 +353,12 @@ export default function BaseItemProperties({
           ...prevData,
           fileUUId: data.uuid,
           fileStore: datastore,
+          fileGDT: datagdt,
           fileName: dataload,
           multiAssmebly: treeLength > 0,
           stepTreeLength: treeLength,
-          distanceGap: distanceGap,
-          angleGap: angleGap,
+          distanceGap: distanceGaper,
+          angleGap: angleGaper,
           drawLine: drawLiner
         }));
       }
@@ -342,14 +367,14 @@ export default function BaseItemProperties({
         fileUUId: data.uuid,
         fileStore: datastore,
         fileName: dataload,
-        fileGDT: null,
+        fileGDT: datagdt,
         fileMPPS: null,
         fileStack: null,
         fileKinematic: null,
         multiAssmebly: treeLength > 0,
         stepTreeLength: treeLength,
-        distanceGap: distanceGap,
-        angleGap: angleGap,
+        distanceGap: distanceGaper,
+        angleGap: angleGaper,
         drawLine: drawLiner
       });
       setIsLoading(false);
@@ -399,7 +424,7 @@ export default function BaseItemProperties({
               !isFileLoading && (
                 <GLTFRenderer
                   gltfobj={gltfobj}
-                  fileGDT={null}
+                  fileGDT={itemProperties.fileGDT}
                   fileUUId={fileUUId}
                   fileAnimation={false}
                   activefile={
@@ -434,10 +459,10 @@ export default function BaseItemProperties({
               isFileLoading={isFileLoading}
               setIsFileLoading={setIsFileLoading}
               label={"STEP, IGES, BREP, STL"}
-              distanceGap={distanceGap}
-              setDistanceGap={setDistanceGap}
-              angleGap={angleGap}
-              setAngleGap={setAngleGap}
+              distanceGap={distanceGaper}
+              setDistanceGap={setDistanceGaper}
+              angleGap={angleGaper}
+              setAngleGap={setAngleGaper}
               drawLine={drawLiner}
               setDrawLine={setDrawLiner}
             />

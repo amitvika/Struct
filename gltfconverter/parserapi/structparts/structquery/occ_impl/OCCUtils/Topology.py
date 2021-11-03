@@ -541,7 +541,10 @@ def dumpTopologyFacesEdgesVertices(shape, face_dict={}, edge_dict={}, vertex_dic
     #brt = BRep_Tool()
     s = shape.ShapeType()
     if s==TopAbs_EDGE:
-        myhash = str(hash(shape))+str(shape.Orientation())+hashTransCode(shape.Location().Transformation())
+        hashedge = hashTransCode(shape.Location().Transformation())
+        #myhash = str(hash(shape))+str(shape.Orientation())+hashedge
+        myhash = str(hash(shape))+hashedge
+        #print(str(hash(shape)),str(shape.Orientation()),hashedge)
     else:
         myhash = str(hash(shape))    
     if s == TopAbs_VERTEX:

@@ -413,7 +413,7 @@ const ItemDetail = () => {
       }
 
       try {
-        let myTabIndex = myTabedIndex == 'iupc' ? 'gdtac' : myTabedIndex;
+        let myTabIndex = ((myTabedIndex == 'iupc')||(myTabedIndex=='pdcu')) ? 'gdtac' : myTabedIndex;
         if (myTabIndex == 'iupc') {
           //console.log('Checking iupc', myTabIndex, item);
           let okToParse = 0;
@@ -544,7 +544,9 @@ const ItemDetail = () => {
               0,
               0,
               STATEPROPS.maximumfaces,
-              item.stepTreeLength > STATEPROPS.maximumparts
+              //item.stepTreeLength > STATEPROPS.maximumparts,
+              true,
+              myTabedIndex=='pdcu'
             );
             setIsFileLoading(false);
             let datastore = getHierarchyRes.data.store;
@@ -683,7 +685,9 @@ const ItemDetail = () => {
               STATEPROPS.edgesize,
               STATEPROPS.vertexsize,
               STATEPROPS.maximumfaces,
-              item.stepTreeLength > STATEPROPS.maximumparts
+              //item.stepTreeLength > STATEPROPS.maximumparts,
+              true,
+              myTabedIndex=='pdcu'
             );
             setIsFileLoading(false);
             let datastore = getHierarchyRes.data.store;
@@ -811,7 +815,7 @@ const ItemDetail = () => {
         kinematic: fileKinematic
       };
       setIsLoading(true);
-      let myTabIndex = myTabedIndex == 'iupc' ? 'gdtac' : myTabedIndex;
+      let myTabIndex = ((myTabedIndex == 'iupc')||(myTabedIndex=='pdcu')) ? 'gdtac' : myTabedIndex;
       let whichOneToLoad = fileUUId ? fileUUId + '/' : '';
       if (myTabIndex == 'pdcu') {
         whichOneToLoad += fileStore;
@@ -900,6 +904,7 @@ const ItemDetail = () => {
       case 'cf':
         return <Classification handleItemUpdateLocallay={handleItemUpdate}/>;
       case 'pdcu':
+        console.log(itemProperties);
         return (
           <BaseItemProperties
             itemId={id}
@@ -915,11 +920,9 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
-            drawLine={
-              checkDBNull(itemProperties.drawLine)
-                ? true
-                : itemProperties.drawLine
-            }
+            drawLine={checkDBNull(itemProperties.drawLine)?true:itemProperties.drawLine}
+            distanceGap={checkDBNull(itemProperties.drawLine)? STATEPROPS.distancegap : itemProperties.distanceGap}
+            angleGap={checkDBNull(itemProperties.drawLine)? STATEPROPS.anglegap: itemProperties.angleGap}
           />
         );
       case 'cu':

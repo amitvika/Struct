@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 
 import Slider from "./Slider/components/Slider";
-import { getFloat } from "./Tree/utils";
+import { getFloat, STATEPROPS } from "./Tree/utils";
 import Select from "./DropDown";
 import Icon from './Tree/Icon'
 
 
-const DEFAULTDISTANCEGAP = 0.1;
+/*const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.5;
 const DEFAULTDISECT = false;
 const DEFAULTSHOWDISECT = false;
@@ -20,19 +20,19 @@ const DefaultMaterials = [
     { "id": 5, "name": "Physical" }
 ]
 const DEFAULTMATERIALTYPE = [{ "id": 1, "name": "Basic" }];
-
+*/
 
 class Downloader extends Component {
     constructor(props) {
         super(props);
         const mylength = this.props.files.length;
         this.state = {
-            distancegap: new Array(mylength).fill(DEFAULTDISTANCEGAP),
-            anglegap: new Array(mylength).fill(DEFAULTANGLEGAP),
-            disect: new Array(mylength).fill(DEFAULTDISECT),
-            showdisect: new Array(mylength).fill(DEFAULTSHOWDISECT),
-            showinfoonselect: new Array(mylength).fill(DEFAULTSHOWINFOONSELECT),
-            materialtype: new Array(mylength).fill(DEFAULTMATERIALTYPE),
+            distancegap: new Array(mylength).fill(STATEPROPS.distancegap),
+            anglegap: new Array(mylength).fill(STATEPROPS.anglegap),
+            disect: new Array(mylength).fill(STATEPROPS.disect),
+            showdisect: new Array(mylength).fill(STATEPROPS.showdisect),
+            showinfoonselect: new Array(mylength).fill(STATEPROPS.showinfoonselect),
+            materialtype: new Array(mylength).fill(STATEPROPS.materialname),
             files: this.props.files
         }
         //console.log("Constructor",this.props.files, this.state.materialtype);	
