@@ -5657,7 +5657,7 @@ class OffscreenRenderer(object):
         except Exception:
             pass
 
-def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path, transparent=True):
+def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path, transparent=True, perspective=False):
     
     # Create scene
     try:
@@ -5698,13 +5698,21 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
         except Exception as e:
             print("createThumbnailError4",e)
             return False
-
-    # Create render camera using scene centroid information
-    cam = PerspectiveCamera(yfov=(np.pi / 4.0)) #3.0
+    # Calculate Size and Centre
     centroid = scene.centroid
     scale = scene.scale
-    if scale == 0.0:
+    if scale <= 0.0:
         scale = 2
+    print("Centroid and Scale",centroid,scale)
+    # Create render camera using scene centroid information
+    
+    if perspective:
+        cam = PerspectiveCamera(yfov=(np.pi / 4.0)) #3.0
+    else:
+        cam = OrthographicCamera(xmag=scale,ymag=scale,zfar=scale*100)
+    
+    
+    
     s2 = 1.0 / np.sqrt(2.0)
     cam_pose = np.eye(4)
     cam_pose[:3,:3] = np.array([

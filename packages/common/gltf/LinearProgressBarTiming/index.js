@@ -4,6 +4,7 @@ export default function LinearProgressBarTiming (props) {
         value,
         currentProgressText,
         completionProgressText,
+        centerActionText,
         progressBarRender
     } = props;
     let getTrimmedValue = 0;
@@ -33,6 +34,19 @@ export default function LinearProgressBarTiming (props) {
                     {progressBarRender ? "Rendering" : currentProgressText}
                 </Typography>
             )}
+            
+            <Typography
+                style={{
+                    position: "absolute",
+                    color: "white",
+                    top: 0,
+                    left: "45%",
+                    transform: "translateX(-50%)",
+                }}
+            >
+                {centerActionText?centerActionText:progressBarRender?"Parsing Edges":"Parsing File"}
+            </Typography>
+            
             {(completionProgressText) && (
                 <Typography
                     style={{

@@ -26,6 +26,7 @@ export default function ItemTypeConfiguration(props) {
     percentage,
     currentProgressText,
     completionProgressText,
+    centerActionText,
     drawLine,
     internalProductConfig,    
   } = props;
@@ -38,6 +39,8 @@ export default function ItemTypeConfiguration(props) {
   const [completionProgressTexter, setCompletionProgressTexter] = useState(
     completionProgressText
   );
+  const [centerActionTexter, setCenterActionTexter] =
+    useState(centerActionText);
   const [drawLiner, setDrawLiner]=useState(drawLine);
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
 
@@ -77,6 +80,15 @@ export default function ItemTypeConfiguration(props) {
       fileUUId
     );
   }, [completionProgressText]);
+  useEffect(() => {
+    setCenterActionTexter(centerActionText);
+    console.log(
+      'Changing centerActionText bar from IUPC',
+      progressBarLoad,
+      fileUUIder,
+      fileUUId
+    );
+  }, [centerActionText]);
   useEffect(() => {
     if (percentage) {
       setPercentager(percentage);
@@ -212,6 +224,13 @@ export default function ItemTypeConfiguration(props) {
                 percentage={percentager}
                 currentProgressText={currentProgressTexter}
                 completionProgressText={completionProgressTexter}
+                centerActionText={centerActionTexter}
+                //setProgressBarRender={setProgressBarRender}
+                setPercentage={setPercentager}
+                setProgressBarLoad={setProgressBarLoader}
+                setCurrentProgressText={setCurrentProgressTexter}
+                setCompletionProgressText={setCompletionProgressTexter}
+                setCenterActionText={setCenterActionTexter}
                 drawLine={drawLiner}
               />
             }

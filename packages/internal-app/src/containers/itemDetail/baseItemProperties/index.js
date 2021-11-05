@@ -77,6 +77,7 @@ export default function BaseItemProperties({
   percentage,
   currentProgressText,
   completionProgressText,
+  centerActionText,
   drawLine,
   distanceGap,
   angleGap
@@ -85,15 +86,16 @@ export default function BaseItemProperties({
   const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isStepLoaded, setIsStepLoaded] = useState(false);
-  const [percentager, setPercentager] = useState(percentage || 0);
-  const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
-  const [currentProgressTexter,setCurrentProgressTexter]=useState(currentProgressText);
-  const [completionProgressTexter,setCompletionProgressTexter]=useState(completionProgressText);
+  const [isStepLoaded, setIsStepLoaded] = useState(false);  
   const [gltfobj, setGltfObj] = useState(gltfjson);
   const [fileId, setFileId] = useState(0);
   const [fileUUId, setfileUUId] = useState(itemProperties.fileUUId);
   const [isFileLoading, setIsFileLoading] = useState(false);
+  const [percentager, setPercentager] = useState(percentage || 0);
+  const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);  
+  const [currentProgressTexter,setCurrentProgressTexter]=useState(currentProgressText);
+  const [completionProgressTexter,setCompletionProgressTexter]=useState(completionProgressText);
+  const [centerActionTexter, setCenterActionTexter] = useState(centerActionText);
   const [progressBarRender, setProgressBarRender] = useState(false); 
   const [distanceGaper,setDistanceGaper]=useState(distanceGap?distanceGap:STATEPROPS.distancegap);
   const [angleGaper,setAngleGaper]=useState(angleGap?angleGap:STATEPROPS.anglegap);
@@ -117,9 +119,15 @@ export default function BaseItemProperties({
     setCurrentProgressTexter(currentProgressText);
   }, [currentProgressText]);
 
+
   useEffect(() => {
     setCompletionProgressTexter(completionProgressText);
   }, [completionProgressText]);
+
+  useEffect(() => {
+    setCenterActionTexter(centerActionText);
+  }, [centerActionText]);
+
 
   useEffect(() => {
     if (percentage) {
@@ -415,6 +423,7 @@ export default function BaseItemProperties({
                   value={percentager} 
                   currentProgressText={currentProgressTexter} 
                   completionProgressText={completionProgressTexter} 
+                  centerActionText={centerActionTexter}
                   progressBarRender={progressBarRender}
                 />
               </Box>
@@ -443,6 +452,11 @@ export default function BaseItemProperties({
                   dataselection={0}
                   activeDataTable={0}
                   setProgressBarRender={setProgressBarRender}
+                  setPercentage={setPercentager}
+                  setProgressBarLoad={setProgressBarLoader}
+                  setCurrentProgressText={setCurrentProgressTexter}
+                  setCompletionProgressText={setCompletionProgressTexter}
+                  setCenterActionText={setCenterActionTexter}
                   drawLine={drawLiner}
                   edgecolor={STATEPROPS.edgecolor}
                 />
@@ -465,6 +479,12 @@ export default function BaseItemProperties({
               setAngleGap={setAngleGaper}
               drawLine={drawLiner}
               setDrawLine={setDrawLiner}
+              setProgressBarRender={setProgressBarRender}
+              setPercentage={setPercentager}
+              setProgressBarLoad={setProgressBarLoader}
+              setCurrentProgressText={setCurrentProgressTexter}
+              setCompletionProgressText={setCompletionProgressTexter}
+              setCenterActionText={setCenterActionTexter}
             />
           </Grid>
         </Grid>

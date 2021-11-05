@@ -4045,25 +4045,41 @@ class GLTFRenderer extends Component {
             let fetchStatus = () => getAFileFromStore(progressFile,'progress');
             let validateStatus = (result) => {
                 //console.log(result.data,result.data.percent,result.data.percent!=100);
-                return (!result.data || (result.data.begin!=result.data.end));
+                return (!result || !result.data || (result.data.begin!=result.data.end));
             };
-            let percentFunction = (result) => result;
+            let percentFunction = (result) => 
+                (result.data.end?(100*result.data.begin)/result.data.end:0);
             console.log('Entering poll', progressFile);
-            this.onInitProgress("Loading Edges"+progressFile);
+            //this.onInitProgress("Loading Edges"+progressFile);
+            if(this.props.setProgressBarLoad) {
+                console.log("Setting progress bar to load",progressFile);
+                this.props.setProgressBarLoad(true);
+            }  else {
+                console.log("Setting progress bar to load",progressFile);
+            }          
+            if(this.props.setCenterActionText) {
+                console.log("Setting center text",progressFile);
+                this.props.setCenterActionText("Parsing Edges");
+            } else {
+                console.log("Not Setting center text",progressFile);
+            }
             let progressRes = await pollFunction(
                 fetchStatus,
                 validateStatus,
                 20000,
-                null,
+                this.props.setPercentage,
                 percentFunction,
-                null,
-                null
+                this.props.setCurrentProgressText,
+                this.props.setCompletionProgressText               
             );
+            if(this.props.setProgressBarLoad) {
+                this.props.setProgressBarLoad(false);
+            }  
             if(progressRes && progressRes.data && (progressRes.data.begin==progressRes.data.end)) {
                 this_progress_data = progressRes.data;
-                this.onCloseProgress("Loading Edges"+progressFile,"success","Loaded succesfully");
+                //this.onCloseProgress("Loading Edges"+progressFile,"success","Loaded succesfully");
             }  else {
-                this.onCloseProgress("Loading Edges"+progressFile,"error","not loaded properly");
+                //this.onCloseProgress("Loading Edges"+progressFile,"error","not loaded properly");
             }      
         }
         const data = this_progress_data;
@@ -4077,7 +4093,9 @@ class GLTFRenderer extends Component {
         if(data) { 
             const loader = new GLTFLoader().setPath( this.props.fileUUId? (resourcePathURL || '') + this.props.fileUUId+'/' 
             : resourcePathURL || '').setCrossOrigin('anonymous');
-          
+            if(this.props.setCenterActionText) {
+                this.props.setCenterActionText("Generating Edges"+progressFile);
+            }
             const onload = ( gltf, url ) => {
                 try {
                     const myobject = gltf.scene || gltf.scenes[0];
