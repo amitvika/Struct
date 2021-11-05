@@ -172,13 +172,14 @@ const Preset = { ASSET_GENERATOR: 'assetgenerator' };
 Cache.enabled = false; //If it is true, sometime crashes..
 
 const traverseMaterials = (object, callback) => {
+    object ? 
     object.traverse((node) => {
         if (!node.isMesh) return;
         const materials = Array.isArray(node.material)
             ? node.material
             : [node.material];
         materials.forEach(callback);
-    });
+    }) : '';
 };
 let this_state_gltf = null;
 let this_progress_data = null;
@@ -867,6 +868,7 @@ class GLTFRenderer extends Component {
     changeVisibility = () => {
         if(this.content) {
             this.content.forEach(element => {
+                element?
                 element.traverse((node) => {
                     if (node.isLight) {
                         this.setState({addLights:false});
@@ -927,7 +929,7 @@ class GLTFRenderer extends Component {
                         }    
                         this.changeMaterialStats(node.material,this.state.side,this.state.opaque,this.state.wiremesh,this.state.castshadow);
                     }
-                });
+                }):'';
             });
         }       
         
@@ -1199,11 +1201,12 @@ class GLTFRenderer extends Component {
                 this.controls.enabled = false;
             }
             if(this.content){
+                this.content[0]?
                 this.content[0].traverse((node) => {
                     if (node.isCamera && node.name === name) {
                         this.activeCamera = node;
                     }
-                });
+                }):'';
             }
         }
     };
@@ -1214,11 +1217,12 @@ class GLTFRenderer extends Component {
             ? sRGBEncoding
             : LinearEncoding;
             this.content.forEach(element => {
+                element ?
                 traverseMaterials(element, (material) => {
                     if (material.map) material.map.encoding = encoding;
                     if (material.emissiveMap) material.emissiveMap.encoding = encoding;
                     if (material.map || material.emissiveMap) material.needsUpdate = true;
-                });
+                }):'';
             });
         }      
         
@@ -1300,11 +1304,13 @@ class GLTFRenderer extends Component {
                 this.shadowmesh=mesh;
             }
             this.content.forEach(element => {
+                element?
                 traverseMaterials(element, (material) => {
                     this.changeMaterialStats(material,mySide,myOpaque,myWiremesh,myCastShadow);
-                });
+                }):'';
             });
             this.content.forEach(element => {
+                element ?
                 element.traverse((node) => {
     
                     if (node.isMesh && node.skeleton && mySkeleton) {
@@ -1313,7 +1319,7 @@ class GLTFRenderer extends Component {
                         this.scene.add(helper);
                         this.skeletonHelpers.push(helper);
                     }
-                });
+                }):'';
             });
         }
         
@@ -1507,9 +1513,10 @@ class GLTFRenderer extends Component {
                     this.renderer.outputEncoding = Number(lightFolder.object.outputEncoding); // Number(this.renderer.outputEncoding);
                 }
                 this.content.forEach(element => {
+                    element?
                     traverseMaterials(element, (material) => {
                         material.needsUpdate = true;
-                    });
+                    }):'';
                 });
             });
 
@@ -1593,6 +1600,7 @@ class GLTFRenderer extends Component {
         const cameraNames = [];
         const morphMeshes = [];
         this.content.forEach(element => {
+            element?
             element.traverse((node) => {
                 if (node.isMesh && node.morphTargetInfluences) {
                     morphMeshes.push(node);
@@ -1601,7 +1609,7 @@ class GLTFRenderer extends Component {
                     node.name = node.name || `VIEWER__camera_${cameraNames.length + 1}`;
                     cameraNames.push(node.name);
                 }
-            });
+            }):'';
         });
 
         if (cameraNames.length) {
@@ -1727,6 +1735,7 @@ class GLTFRenderer extends Component {
 
         if (!this.content) return;
         this.content.forEach(element => {
+            if (element) {
             this.scene.remove(element);
 
             // dispose geometry
@@ -1739,19 +1748,21 @@ class GLTFRenderer extends Component {
                 }
                
 
-            });
+            }) };
 
             // dispose textures
             traverseMaterials(element, (material) => {
+                if(material) {
+                    MAP_NAMES.forEach((map) => {
 
-                MAP_NAMES.forEach((map) => {
-
-                    if (material[map]){
-                        material[map].dispose();
-                        material[map]=null;
-                    } 
-
-                });
+                        if (material[map]){
+                            material[map].dispose();
+                            material[map]=null;
+                        } 
+    
+                    });
+                }
+               
 
             });
         });
