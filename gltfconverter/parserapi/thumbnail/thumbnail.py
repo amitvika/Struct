@@ -5776,26 +5776,28 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
     return True
 
 def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path, transparent=True):
-    retValue = createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path, transparent)
-    if retValue==False:
-        try:
-            _, tail = os.path.split(model_path)        
-            pathfilename, _ = os.path.splitext(tail)       
-            grey = (127,127,127)
-            #white = (255,255,255)
-            transparent = (0,0,0,0)        
-            wm = Image.Image.new('RGBA',(thumbnail_width,thumbnail_height),transparent)            
-            font = Image.ImageFont.load_default() #Image.ImageFont.truetype('verdana.ttf',8)
-            draw = Image.ImageDraw.Draw(wm)
-            w,h = draw.textsize(pathfilename, font)
-            draw.text(((thumbnail_width-w)/2,(thumbnail_height-h)/2),pathfilename,grey,font)
-            wm.save(thumbnail_save_path)
-        except Exception as e:
-            print("createThumbnailTextError1",e)
+    try:
+        retValue = createThumbnailAndReturn(model_path, int(thumbnail_width), int(thumbnail_height), thumbnail_save_path, transparent)
+        if retValue==False:
             try:
-                wm = Image.Image.new('RGBA',(thumbnail_width,thumbnail_height),transparent)
+                _, tail = os.path.split(model_path)        
+                pathfilename, _ = os.path.splitext(tail)       
+                grey = (127,127,127)
+                #white = (255,255,255)
+                transparent = (0,0,0,0)        
+                wm = Image.Image.new('RGBA',(int(thumbnail_width),int(thumbnail_height)),transparent)            
+                font = Image.ImageFont.load_default() #Image.ImageFont.truetype('verdana.ttf',8)
+                draw = Image.ImageDraw.Draw(wm)
+                w,h = draw.textsize(pathfilename, font)
+                draw.text((int((thumbnail_width-w)/2),int((thumbnail_height-h)/2)),pathfilename,grey,font)
                 wm.save(thumbnail_save_path)
             except Exception as e:
-                print("createThumbnailTextError2",e)
-
+                print("createThumbnailTextError1",e)
+                try:
+                    wm = Image.Image.new('RGBA',(int(thumbnail_width),int(thumbnail_height)),transparent)
+                    wm.save(thumbnail_save_path)
+                except Exception as e:
+                    print("createThumbnailTextError2",e)
+    except Exception as e:
+        print("createThumbnailTextError3",e)
     
