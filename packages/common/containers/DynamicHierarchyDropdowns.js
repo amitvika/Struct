@@ -12,6 +12,7 @@ export default function DynamicHierarchy(props) {
     setSelections = () => {},
     inToolbar = false,
     isPaperContainer = true,
+    filterTitle
   } = props;
 
   const handleDropdownSelection = (title, value, form) => {
@@ -26,10 +27,7 @@ export default function DynamicHierarchy(props) {
       indexOfCurrentSelection > -1 &&
       indexOfCurrentSelection < selections.length - 1
     ) {
-      tempSelections = selections.slice(
-        indexOfCurrentSelection + 1,
-        selections.length
-      );
+      tempSelections = selections.slice(0, indexOfCurrentSelection + 1);
     } else if (selections.length > 0 && indexOfCurrentSelection < 0) {
       indexOfCurrentSelection = selections.length;
       tempSelections[indexOfCurrentSelection] = {};
@@ -73,13 +71,20 @@ export default function DynamicHierarchy(props) {
     handleOnDropdownSelection({ value: data.value });
   };
 
-  const renderFields = (fieldItem) => {
+  const renderFields = (fieldItem, index) => {
+    let title =
+      fieldItem.headerName === null ? fieldItem.title : fieldItem.headerName;
+
     if (inToolbar) {
       return (
-        <Grid item style={{ flex: 1, maxWidth: '25%' }} key={`dditem_${fieldItem.headerName}`}>
+        <Grid
+          item
+          style={{ flex: 1, maxWidth: '25%' }}
+          key={`dditem_${title + index}`}
+        >
           <Select
             id={fieldItem.title}
-            placeholder={`${fieldItem.headerName}`}
+            placeholder={`${title}`}
             options={fieldItem.options}
             onChange={(data) => handleOnChange({ fieldItem, data })}
             value={getSelectionValue(fieldItem.title)}
@@ -89,16 +94,16 @@ export default function DynamicHierarchy(props) {
     }
 
     return (
-      <Grid container spacing={2} key={fieldItem.headerName}>
+      <Grid container spacing={2} key={`dditem_${title + index}`}>
         <Grid item xs={4}>
-          <Headding bold title={fieldItem.headerName} />
+          <Headding bold title={title} />
         </Grid>
         <Grid item xs={8}>
           <Select
             placeholder="Select"
             options={fieldItem.options}
             onChange={(data) => handleOnChange({ fieldItem, data })}
-            value={getSelectionValue(fieldItem  .title)}
+            value={getSelectionValue(fieldItem.title)}
           />
         </Grid>
       </Grid>
@@ -107,9 +112,10 @@ export default function DynamicHierarchy(props) {
 
   const getIndexOfFieldInSelectionArray = (selections, listItem) => {
     return selections.findIndex((item) => {
-      if (item.key === listItem.title) {
-        return true;
-      } else if (item.value === listItem.title) {
+      if (
+        item.key === listItem.title ||
+        (item.value && item.value.includes(listItem.title))
+      ) {
         return true;
       } else {
         return false;
@@ -126,7 +132,7 @@ export default function DynamicHierarchy(props) {
         }
         return false;
       })
-      .map((listItem) => renderFields(listItem));
+      .map((listItem, index) => renderFields(listItem, index));
   };
 
   if (hierarchyDropdownList.length === 0) {
@@ -145,15 +151,25 @@ export default function DynamicHierarchy(props) {
           marginLeft: '142px'
         }}
       >
+        {filterTitle && (
+          <Grid
+            item
+            style={{ flex: 1, maxWidth: '25%' }}
+            key={`dditem_${filterTitle}`}
+          >
+            <Headding bold title={filterTitle} />
+          </Grid>
+        )}
         {renderDropdowns()}
       </Grid>
     );
   }
 
-  if(isPaperContainer){
-    return <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>;
+  if (isPaperContainer) {
+    return (
+      <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>
+    );
   }
 
   return renderDropdowns();
-
 }

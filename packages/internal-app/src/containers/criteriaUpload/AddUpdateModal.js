@@ -25,7 +25,7 @@ export default function AddUpdateModal({
   selectedValue,
   dataList = []
 }) {
-  const [value, setValue] = useState({});
+  const [value, setValue] = useState(selectedValue || {});
   const [isTypeSelected, setIsTypeSelected] = useState(false);
   const [selectedType, setSelectedType] = useState('');
   const { user } = useSelector((state) => state.auth);
@@ -87,7 +87,7 @@ export default function AddUpdateModal({
     setLoading(true);
 
     let criteriaSchema = await criteriaFileParser(selectedFile);
-    let hierarchySchema = await hierarchyFileParser(selectedFile);
+    let hierarchySchema = await hierarchyFileParser(selectedFile, value.type);
     let lookUpTableSchema = await LookUpTableParser(selectedFile);
     const file_url = await uploadFileS3Bucket(selectedFile);
 
@@ -148,7 +148,10 @@ export default function AddUpdateModal({
       return optionsList;
     }
     return optionsList.filter((option) => {
-      const isAvailable = dataList.find((dataItem) => dataItem.type === option.value)
+      const isAvailable = dataList.find(
+        (dataItem) =>
+          dataItem.type === option.value && selectedValue.id !== dataItem.id
+      );
       if (isAvailable) {
         return false;
       }

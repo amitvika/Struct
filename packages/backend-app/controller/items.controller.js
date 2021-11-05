@@ -241,6 +241,10 @@ exports.update = async (req, res) => {
     if (body.hierarchySelections) {
       updateData.hierarchySelections = body.hierarchySelections;
     }
+    
+    if (body.classificationConfig) {
+      updateData.classificationConfig = body.classificationConfig;
+    }
 
     let prevItem = await ItemModel.findById(req.body.id);
 

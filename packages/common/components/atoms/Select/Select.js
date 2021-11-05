@@ -137,11 +137,15 @@ const SelectExample = ({
         </Select>
       );
     } else {
+      let initialValue = '';
+      if (value) {
+        initialValue = value.value ? value.value : value;
+      }
       return (
         <Select
           labelId={`${id}-label`}
           id={id}
-          value={value ? value : ``}
+          value={initialValue}
           onChange={handleChange}
           input={<BootstrapInput />}
           MenuProps={MenuProps}

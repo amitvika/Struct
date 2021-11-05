@@ -7,27 +7,27 @@ const ItemSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: true
     },
     date: {
       type: Date,
-      default: Date.now,
+      default: Date.now
     },
     vendorId: {
       type: Schema.Types.ObjectId,
-      ref: 'Vendor',
+      ref: 'Vendor'
     },
     author: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'User'
     },
     isDeleted: { type: Boolean, default: false },
     deletedAt: {
-      type: Date,
+      type: Date
     },
     selectedClientId: {
       type: Schema.Types.ObjectId,
-      ref: 'Client',
+      ref: 'Client'
     },
     assemblyType: { type: String },
     itemGeometry: { type: Object },
@@ -37,7 +37,7 @@ const ItemSchema = new mongoose.Schema(
       RoHS: { type: Boolean, default: false },
       ISO: { type: Boolean, default: false },
       CE: { type: Boolean, default: false },
-      FCC: { type: Boolean, default: false },
+      FCC: { type: Boolean, default: false }
     },
     fullProcess: {
       spoolBased: { type: Boolean, default: false },
@@ -46,7 +46,7 @@ const ItemSchema = new mongoose.Schema(
       gridStacked: { type: Boolean, default: false },
       bulkContainer: { type: Boolean, default: false },
       liquidVat: { type: Boolean, default: false },
-      pressure: { type: Boolean, default: false },
+      pressure: { type: Boolean, default: false }
     },
     storage: {
       spoolBased: { type: Boolean, default: false },
@@ -55,7 +55,7 @@ const ItemSchema = new mongoose.Schema(
       gridStacked: { type: Boolean, default: false },
       bulkContainer: { type: Boolean, default: false },
       liquidVat: { type: Boolean, default: false },
-      pressure: { type: Boolean, default: false },
+      pressure: { type: Boolean, default: false }
     },
     stl: { type: String },
     fileId: { type: Number },
@@ -66,17 +66,18 @@ const ItemSchema = new mongoose.Schema(
     fileMPPS: { type: String },
     fileStack: { type: String },
     fileKinematic: { type: String },
-    distanceGap: { type: Number, default:0.1 },
-    angleGap: { type: Number, default:0.5 },
-    drawLine: { type: Boolean, default:false },
+    distanceGap: { type: Number, default: 0.1 },
+    angleGap: { type: Number, default: 0.5 },
+    drawLine: { type: Boolean, default: false },
     stepTreeLength: { type: Number },
     hierarchySelections: [{ type: Object }],
+    classificationConfig: [{ type: Object }],
     is_archived: { type: Boolean, default: false },
-    created_by: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    updated_by: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    created_by: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    updated_by: { type: Schema.Types.ObjectId, ref: 'User', required: true }
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 );
 
