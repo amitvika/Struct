@@ -43,6 +43,7 @@ export default function GeometricDimensioning(props) {
     percentage,
     currentProgressText,
     completionProgressText,
+    centerActionText,
     drawLine,
     internalProductConfig,
     keyName = { name: '', option: SELECTFEATURE },
@@ -71,6 +72,8 @@ export default function GeometricDimensioning(props) {
   const [completionProgressTexter, setCompletionProgressTexter] = useState(
     completionProgressText
   );
+  const [centerActionTexter,setCenterActionTexter]=
+    useState(centerActionText);
   const [drawLiner, setDrawLiner] = useState(drawLine);
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
   useEffect(() => {
@@ -91,6 +94,10 @@ export default function GeometricDimensioning(props) {
     setCompletionProgressTexter(completionProgressText);
     
   }, [completionProgressText]);
+  useEffect(() => {
+    setCenterActionTexter(centerActionText);
+  }, [centerActionText]);
+
   useEffect(() => {
     if (percentage) {
       setPercentager(percentage);
@@ -1645,7 +1652,14 @@ export default function GeometricDimensioning(props) {
           progressBarLoad={progressBarLoader}
           percentage={percentager}
           currentProgressText={currentProgressTexter}
-          completionProgressText={completionProgressTexter}
+          centerActionText={centerActionTexter}
+          completionProgressText={completionProgressTexter}          
+          //setProgressBarRender={setProgressBarRender}
+          setPercentage={setPercentager}
+          setProgressBarLoad={setProgressBarLoader}
+          setCurrentProgressText={setCurrentProgressTexter}
+          setCompletionProgressText={setCompletionProgressTexter}
+          setCenterActionText={setCenterActionTexter}
           drawLine={drawLiner}          
         />
       </Paper>

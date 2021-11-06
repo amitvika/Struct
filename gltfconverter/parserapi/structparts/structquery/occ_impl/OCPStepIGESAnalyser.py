@@ -1101,6 +1101,12 @@ class StepIgesAnalyser():
         self.maximumfacestoinclude=maximumfacestoinclude
         self.seperateparts = seperateparts
         self.seperatecompounds = seperatecompounds
+        try:
+            self.commonpipe = BRepPrimAPI_MakeBox(gp_Pnt(0,0,0),0.1,0.1,0.1).Shape()
+            self.commoncompound, _ = list_of_shapes_to_compound(self.commonpipe)
+        except Exception as e:
+            self.commonpipe = None
+            self.commoncompound = None
         #print("I m initializing")
         if filename:
             head, tail = os.path.split(self.fname)
@@ -1342,9 +1348,13 @@ class StepIgesAnalyser():
             #print("NO edges found",firstU,lastU)
             if circular:
                 pipes =  [BRepPrimAPI_MakeSphere(currentP, 0.1).Shape()]
+                compound, _ = list_of_shapes_to_compound(pipes)
             else:
-                pipes = [BRepPrimAPI_MakeBox(currentP,0.1,0.1,0.1).Shape()]
-            compound, _ = list_of_shapes_to_compound(pipes)
+                if self.commoncompound:
+                    compound = self.commoncompound 
+                else: 
+                    pipes = [self.commonpipe] if self.commonpipe else [BRepPrimAPI_MakeBox(currentP,0.1,0.1,0.1).Shape()]
+                    compound, _ = list_of_shapes_to_compound(pipes)
             return compound, edgePoints
         
 
@@ -2772,14 +2782,14 @@ class StepIgesAnalyser():
         lenfeature = 0
         newfilename = self.displaypath+pathfilename+".progress"
         myParentId_Dict={}
-        startttime = datetime.utcnow() 
-        currenttime = startttime
+        starttime = datetime.utcnow() 
+        currenttime = starttime
         with open(newfilename, 'w') as fh:
             fh.write(
                 json.dumps({
                     "begin":lenfeature,
                     "end":lenFeatures,
-                    "start":self.starttime.strftime("%H-%M-%S"),
+                    "start":starttime.strftime("%H-%M-%S"),
                     "current":currenttime.strftime("%H-%M-%S"),
                     "children":myParentId_Dict},
                     sort_keys=True, 
@@ -2792,7 +2802,7 @@ class StepIgesAnalyser():
                         json.dumps({
                             "begin":lenfeature,
                             "end":lenFeatures,
-                            "start":self.starttime.strftime("%H-%M-%S"),
+                            "start":starttime.strftime("%H-%M-%S"),
                             "current":currenttime.strftime("%H-%M-%S"),
                             "children":myParentId_Dict},
                             sort_keys=True, 
@@ -2836,7 +2846,7 @@ class StepIgesAnalyser():
                 json.dumps({
                     "begin":lenfeature,
                     "end":lenFeatures,
-                    "start":self.starttime.strftime("%H-%M-%S"),
+                    "start":starttime.strftime("%H-%M-%S"),
                     "current":currenttime.strftime("%H-%M-%S"),
                     "children":myParentId_Dict},
                     sort_keys=True, 

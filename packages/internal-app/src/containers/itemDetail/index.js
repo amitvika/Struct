@@ -79,6 +79,7 @@ const ItemDetail = () => {
   const [percentage, setPercentage] = useState(0);
   const [currentProgressText, setCurrentProgressText] = useState(null);
   const [completionProgressText, setCompletionProgressText] = useState(null);
+  const [centerActionText,setCenterActionText]=useState(null);
   const [progressBarLoad, setProgressBarLoad] = useState(false);
   const [internalProductConfig, setInternalProductConfig] = useState(null);
 
@@ -918,8 +919,15 @@ const ItemDetail = () => {
             handleItemSaveOnServer={handleSave}
             progressBarLoad={progressBarLoad}
             percentage={percentage}
-            currentProgressText={currentProgressText}
+            currentProgressText={currentProgressText}           
             completionProgressText={completionProgressText}
+            centerActionText={centerActionText}
+            //setProgressBarRender={setProgressBarRender}
+            setPercentage={setPercentage}
+            setProgressBarLoad={setProgressBarLoad}
+            setCurrentProgressText={setCurrentProgressText}
+            setCompletionProgressText={setCompletionProgressText}
+            setCenterActionText={setCenterActionText}
             drawLine={checkDBNull(itemProperties.drawLine)?true:itemProperties.drawLine}
             distanceGap={checkDBNull(itemProperties.drawLine)? STATEPROPS.distancegap : itemProperties.distanceGap}
             angleGap={checkDBNull(itemProperties.drawLine)? STATEPROPS.anglegap: itemProperties.angleGap}
@@ -949,6 +957,13 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
+            centerActionText={centerActionText}
+            //setProgressBarRender={setProgressBarRender}
+            setPercentage={setPercentage}
+            setProgressBarLoad={setProgressBarLoad}
+            setCurrentProgressText={setCurrentProgressText}
+            setCompletionProgressText={setCompletionProgressText}
+            setCenterActionText={setCenterActionText}
             drawLine={
               checkDBNull(itemProperties.drawLine)
                 ? true
@@ -976,6 +991,13 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
+            centerActionText={centerActionText}
+            //setProgressBarRender={setProgressBarRender}
+            setPercentage={setPercentage}
+            setProgressBarLoad={setProgressBarLoad}
+            setCurrentProgressText={setCurrentProgressText}
+            setCompletionProgressText={setCompletionProgressText}
+            setCenterActionText={setCenterActionText}
             internalProductConfig={internalProductConfig}
             drawLine={
               checkDBNull(itemProperties.drawLine)
@@ -1004,6 +1026,13 @@ const ItemDetail = () => {
             percentage={percentage}
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
+            centerActionText={centerActionText}
+            //setProgressBarRender={setProgressBarRender}
+            setPercentage={setPercentage}
+            setProgressBarLoad={setProgressBarLoad}
+            setCurrentProgressText={setCurrentProgressText}
+            setCompletionProgressText={setCompletionProgressText}
+            setCenterActionText={setCenterActionText}
             drawLine={
               checkDBNull(itemProperties.drawLine)
                 ? true

@@ -763,8 +763,8 @@ def FileSplit(request):
             anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
             disectparts = convertToBool(request.GET.get('disectparts',"false"),False)
             moverotate = convertToInt(request.GET.get('moverotate',"0"),0)   
-            thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
-            thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)   
+            thumbwidth = convertToInt(request.GET.get('thumbwidth',"96"),96)
+            thumbheight = convertToInt(request.GET.get('thumbheight',"96"),96)   
             #print(includeparts)
             if includeparts:           
                 print("I am including minorparts")
@@ -983,8 +983,8 @@ def FileHierarchySplit(request):
             else:
                 defthumb=0
                 defthumbstr="0"
-            thumbwidth = convertToFloat(request.GET.get('thumbwidth',defthumbstr),defthumb)
-            thumbheight = convertToFloat(request.GET.get('thumbheight',defthumbstr),defthumb)
+            thumbwidth = convertToInt(request.GET.get('thumbwidth',defthumbstr),defthumb)
+            thumbheight = convertToInt(request.GET.get('thumbheight',defthumbstr),defthumb)
             maximumfaces = convertToInt(request.GET.get('maximumfaces',"50"),defthumb)
             seperateparts = convertToBool(request.GET.get('seperateparts',"false"),False)
             

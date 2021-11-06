@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { Box /*, LinearProgress*/ } from '@material-ui/core';
 // import GLTFRenderer from '../../../gltf/GltfRenderer';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';
@@ -25,17 +25,47 @@ export default function Viewer({
   percentage=0,
   currentProgressText=null,
   completionProgressText=null,
+  centerActionText=null,
   drawLine=false,
   }) {
-  const [progressBarRender, setProgressBarRender] = useState(false); 
+    const [percentager, setPercentager] = useState(percentage || 0);
+    const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);  
+    const [currentProgressTexter,setCurrentProgressTexter]=useState(currentProgressText);
+    const [completionProgressTexter,setCompletionProgressTexter]=useState(completionProgressText);
+    const [centerActionTexter,setCenterActionTexter]=useState(centerActionText);
+    const [progressBarRender, setProgressBarRender] = useState(false); 
+    const [drawLiner,setDrawLiner]=useState(drawLine);
+
+    useEffect(() => {
+      setProgressBarLoader(progressBarLoad);
+    }, [progressBarLoad]);  
+    useEffect(() => {
+      setCurrentProgressTexter(currentProgressText);
+    }, [currentProgressText]);   
+    useEffect(() => {
+      setCompletionProgressTexter(completionProgressText);
+    }, [completionProgressText]);  
+    useEffect(() => {
+      setCenterActionTexter(centerActionText);
+    }, [centerActionText]);  
+    useEffect(() => {
+      if (percentage) {
+        setPercentager(percentage);
+      }
+    }, [percentage]);  
+    useEffect(() => {
+      //console.log('Setting itemProperties', itemProperties);
+      setDrawLiner(drawLine);   
+    }, [drawLine]);
   return (
     <div>
-      {(progressBarLoad||progressBarRender) && (
+      {(progressBarLoader||progressBarRender) && (
         <Box sx={{ width: '100%' }}>
           <LinearProgressBarTiming 
-             value={percentage}
-             currentProgressText={currentProgressText}
-             completionProgressText={completionProgressText}
+             value={percentager}
+             currentProgressText={currentProgressTexter}
+             completionProgressText={completionProgressTexter}
+             centerActionText={centerActionTexter}
              progressBarRender={progressBarRender}
           />
         </Box>
@@ -63,7 +93,12 @@ export default function Viewer({
           onClick={handleModelClick}
           activeDataTable={0}
           setProgressBarRender={setProgressBarRender}
-          drawLine={drawLine}
+          setPercentage={setPercentager}
+          setProgressBarLoad={setProgressBarLoader}
+          setCurrentProgressText={setCurrentProgressTexter}
+          setCompletionProgressText={setCompletionProgressTexter}
+          setCenterActionText={setCenterActionTexter}
+          drawLine={drawLiner}
           edgecolor={STATEPROPS.edgecolor}
         />
       }

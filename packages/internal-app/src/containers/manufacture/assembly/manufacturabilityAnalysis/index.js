@@ -73,6 +73,7 @@ export default function ManufacturabilityAnalysis(props) {
     percentage, 
     currentProgressText,
     completionProgressText,
+    centerActionText,
     drawLine
   } = props;
   //const [list, setList] = useState([]);
@@ -85,6 +86,7 @@ export default function ManufacturabilityAnalysis(props) {
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
   const [currentProgressTexter, setCurrentProgressTexter] = useState(currentProgressText);
   const [completionProgressTexter, setCompletionProgressTexter] = useState(completionProgressText);
+  const [centerActionTexter, setCenterActionTexter] = useState(centerActionText);
   const [progressBarRender, setProgressBarRender] = useState(false); 
   const classes = USESTYLES();
   /* const [columns, setColumns] = useState([
@@ -143,6 +145,10 @@ export default function ManufacturabilityAnalysis(props) {
     setCompletionProgressTexter(completionProgressText);    
     console.log("Changing completionProgressText bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
   }, [completionProgressText]);
+  useEffect(() => {
+    setCenterActionTexter(centerActionText);    
+    console.log("Changing centerActionText bar from IUPC",progressBarLoad,fileUUIder,fileUUId);
+  }, [centerActionText]);
   /* const arrayFindIndex = (arr, value, parent = false) => {
 
     return arr.findIndex(function (ele) {
@@ -1391,6 +1397,7 @@ export default function ManufacturabilityAnalysis(props) {
               value={percentager} 
               currentProgressText={currentProgressTexter}
               completionProgressText={completionProgressTexter}
+              centerActionText={centerActionTexter}
               progressBarRender={progressBarRender}
             />
           </Box>
@@ -1418,6 +1425,11 @@ export default function ManufacturabilityAnalysis(props) {
             onClick={handleModelClick}
             activeDataTable={0}
             setProgressBarRender={setProgressBarRender}
+            setPercentage={setPercentager}
+            setProgressBarLoad={setProgressBarLoader}
+            setCurrentProgressText={setCurrentProgressTexter}
+            setCompletionProgressText={setCompletionProgressTexter}
+            setCenterActionText={setCenterActionTexter}
             drawLine={drawLine}
             edgecolor={STATEPROPS.edgecolor}
             //resetSelectionFromTree={resetSelectionFromTree}

@@ -40,12 +40,14 @@ export default function Viewer({
   percentage=0,
   currentProgressText=null,
   completionProgressText=null,
+  centerActionText=null,
   drawLine=false,
   }) {  
     const [percentager, setPercentager] = useState(percentage||0);
     const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
     const [currentProgressTexter, setCurrentProgressTexter] = useState(currentProgressText);
     const [completionProgressTexter, setCompletionProgressTexter] = useState(completionProgressText);
+    const [centerActionTexter, setCenterActionTexter] = useState(centerActionText);
     const [fileUUIder, setfileUUIder] = useState(fileUUId);
     const [progressBarRender, setProgressBarRender] = useState(false); 
     const [drawLiner, setDrawLiner]=useState(drawLine);
@@ -67,6 +69,10 @@ export default function Viewer({
       setCompletionProgressTexter(completionProgressText);
     }, [completionProgressText]);
     
+    useEffect(() => {
+      setCenterActionTexter(centerActionText);
+    }, [centerActionText]);
+
     useEffect(() => {
       if(percentage) {
         setPercentager(percentage);
@@ -93,6 +99,7 @@ export default function Viewer({
               value={percentager} 
               currentProgressText={currentProgressTexter}
               completionProgressText={completionProgressTexter}
+              centerActionText={centerActionTexter}
               progressBarRender={progressBarRender}
             />
           </Box>
@@ -129,6 +136,11 @@ export default function Viewer({
             setIsProgressOpen={setIsProgressOpen}
             setProgressOpenedFiles={setProgressOpenedFiles}
             setProgressBarRender={setProgressBarRender}
+            setPercentage={setPercentager}
+            setProgressBarLoad={setProgressBarLoader}
+            setCurrentProgressText={setCurrentProgressTexter}
+            setCompletionProgressText={setCompletionProgressTexter}
+            setCenterActionText={setCenterActionTexter}
             drawLine={drawLiner}
             edgecolor={STATEPROPS.edgecolor}
           /*  openSnackBar={openSnackBar}

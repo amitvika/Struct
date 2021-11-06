@@ -85,10 +85,39 @@ export default function Stackability(props) {
     percentage, 
     currentProgressText, 
     completionProgressText, 
+    centerActionText,
     drawLine 
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
+  const [percentager, setPercentager] = useState(percentage || 0);
+  const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);  
+  const [currentProgressTexter,setCurrentProgressTexter]=useState(currentProgressText);
+  const [completionProgressTexter,setCompletionProgressTexter]=useState(completionProgressText);
+  const [centerActionTexter,setCenterActionTexter]=useState(centerActionText);
   const [progressBarRender, setProgressBarRender] = useState(false); 
+  const [drawLiner,setDrawLiner]=useState(drawLine);
+  
+  useEffect(() => {
+    setProgressBarLoader(progressBarLoad);
+  }, [progressBarLoad]);  
+  useEffect(() => {
+    setCurrentProgressTexter(currentProgressText);
+  }, [currentProgressText]);   
+  useEffect(() => {
+    setCompletionProgressTexter(completionProgressText);
+  }, [completionProgressText]);  
+  useEffect(() => {
+    setCenterActionTexter(centerActionText);
+  }, [centerActionText]);  
+  useEffect(() => {
+    if (percentage) {
+      setPercentager(percentage);
+    }
+  }, [percentage]);  
+  useEffect(() => {
+    //console.log('Setting itemProperties', itemProperties);
+    setDrawLiner(drawLine);   
+  }, [drawLine]);
   const classes = USESTYLES();
 
   const [splitfiles, setsplitfiles] = useState({ gltfjson });
@@ -149,12 +178,13 @@ export default function Stackability(props) {
   return (
     <Paper className={classes.mainContainer}>
       <Paper className={classes.stackContainer}>
-        {(progressBarLoad || progressBarRender) && (
+        {(progressBarLoader || progressBarRender) && (
           <Box sx={{ width: '100%' }}>
             <LinearProgressBarTiming 
-              value={percentage}
-              currentProgressText={currentProgressText}
-              completionProgressText={completionProgressText}
+              value={percentager}
+              currentProgressText={currentProgressTexter}
+              completionProgressText={completionProgressTexter}
+              centerActionText={centerActionTexter}
               progressBarRender={progressBarRender}
             />
           </Box>
@@ -181,7 +211,12 @@ export default function Stackability(props) {
             dataselection={0}
             activeDataTable={0}
             setProgressBarRender={setProgressBarRender}
-            drawLine={drawLine}
+            setPercentage={setPercentager}
+            setProgressBarLoad={setProgressBarLoader}
+            setCurrentProgressText={setCurrentProgressTexter}
+            setCompletionProgressText={setCompletionProgressTexter}
+            setCenterActionText={setCenterActionTexter}
+            drawLine={drawLiner}
             edgecolor={STATEPROPS.edgecolor}
           />
         )}
