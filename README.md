@@ -40,6 +40,7 @@ yarn install
 - run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy nptyping trimesh pyopengl pillow networkx pyglet`
 - run `conda activate structquery`
 - CD to `gltfconverter` directory
+- run `pip install -r requirements.txt`
 
 ### Following is needed for Headless AWS and For windows, it is not needed.
 - Install Open GL as per https://en.wikibooks.org/wiki/OpenGL_Programming/Installation/Linux
@@ -102,6 +103,8 @@ npm start-public
 conda activate structquery
 ```
 - For headless AWS to start opengl, following 2 commands needed and they are not needed for windows environment
+# Export your S3
+export DONOTUSES3=False
 # Start xvfb
 Xvfb :1 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &> xvfb.log &
 
