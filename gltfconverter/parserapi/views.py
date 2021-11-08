@@ -10,7 +10,7 @@ from rest_framework.parsers import JSONParser
 
 from .models import File
 from .serializers import FileSerializer
- 
+#from .settingscopy import (DISPLAY_URL,MEDIA_URL)
 
 from inspect import getmembers
 from types import FunctionType
@@ -44,6 +44,7 @@ from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStru
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeSphere
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
+from .settingscopy import (DISPLAY_URL,MEDIA_URL)
 
 
 #from OCC.Core.Tesselator import ShapeTesselator
@@ -259,7 +260,7 @@ def FileUploadChunk(request):
             counter = request.data['id']
             uuid = request.data['uuid']
             filename = request.data['filename']
-            newfilename = "Media/"+uuid+"/"+filename
+            newfilename = MEDIA_URL+uuid+"/"+filename
             try:
                 if(counter=="1") :       
                     print("Directory", os.path.dirname(newfilename))         
@@ -338,7 +339,7 @@ def getFile(id,key):
     if id or is_number(id) :
         filename, file_extension = os.path.splitext(id)
         sourcefilename = key+id			
-        newfilenamewithoutext = newfilename = "Display/"+Path(id).resolve().stem		
+        newfilenamewithoutext = newfilename = DISPLAY_URL+Path(id).resolve().stem		
         newfilename = newfilenamewithoutext + ".gltf"
         file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
         file_extension = file_extension.lower()
@@ -380,14 +381,14 @@ def FileGetView(request):
             if is_number(id) :
                 if id==0:
                     #id = request.GET.get('file', None)
-                    data = getFile(id,"Media/")
+                    data = getFile(id,MEDIA_URL)
                 else :
                     files = File.objects.filter(id__icontains=id)
                     for eachfile in files:
-                        data = getFile(eachfile.file.name,"Media/")
+                        data = getFile(eachfile.file.name,MEDIA_URL)
             else:
                 #id = request.GET.get('file', None)
-                data = getFile(id,"Media/")
+                data = getFile(id,MEDIA_URL)
         return JsonResponse(data, safe=False)
     except Exception as e:
         try:
@@ -433,7 +434,7 @@ def exportToStepCadQuery(sourceFileName):
         _, file_extension = os.path.splitext(sourceFileName)
         file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
         file_extension = file_extension.lower()
-        newfilenamewithoutext = "Display/"+Path(sourceFileName).resolve().stem
+        newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
         newfilename = newfilenamewithoutext + ".step"
         if file_extension=="stp" or file_extension=="step" :           
             return (sourceFileName, True)         
@@ -471,7 +472,7 @@ def exportToGLTF(sourceFileName,distancegap,anglegap,disectparts,moverotate,thum
         _, file_extension = os.path.splitext(sourceFileName)
         file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
         file_extension = file_extension.lower()
-        newfilenamewithoutext = "Display/"+Path(sourceFileName).resolve().stem
+        newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
         newfilename = newfilenamewithoutext + ".step"
         if file_extension=="stp" or file_extension=="step" :           
             
@@ -608,7 +609,7 @@ def splitFileCadQuery(id,key,distancegap,anglegap,disectparts,moverotate,thumbwi
             if converted :
                 _, tail = os.path.split(destFileName)
                 filename, file_extension = os.path.splitext(tail)
-                newfilename = "Display/"+filename+".gltf"
+                newfilename = DISPLAY_URL+filename+".gltf"
                 try:
                     myassemblies = Assembly.importer('step')(destFileName)
                     data = myassemblies.exporter('mstep')(
@@ -697,11 +698,11 @@ def findMinimumDistance(xmove,ymove,zmove,xrotate,yrotate,zrotate,moverotate,fna
     secondshell = None
     try:
 
-        with open("Display/"+fname+".pickle", 'rb') as f:
+        with open(DISPLAY_URL+fname+".pickle", 'rb') as f:
             # The protocol version used is detected automatically, so we do not
             # have to specify it.
             firstshell = pickle.load(f)
-        with open("Display/"+sname+".pickle", 'rb') as f:
+        with open(DISPLAY_URL+sname+".pickle", 'rb') as f:
             # The protocol version used is detected automatically, so we do not
             # have to specify it.
             secondshell = pickle.load(f) 
@@ -780,16 +781,16 @@ def FileSplit(request):
                     files = File.objects.filter(id__icontains=id)
                     for eachfile in files:
                         if includeparts:
-                            data = splitFile(eachfile.file.name,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+                            data = splitFile(eachfile.file.name,MEDIA_URL,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
                         else:
-                            data = splitFileCadQuery(eachfile.file.name,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+                            data = splitFileCadQuery(eachfile.file.name,MEDIA_URL,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
                 else:
                     #id = request.GET.get('file', None)
                     if id is not None:
                         if includeparts:
-                            data = splitFile(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+                            data = splitFile(id,MEDIA_URL,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
                         else:
-                            data = splitFileCadQuery(id,"Media/",distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
+                            data = splitFileCadQuery(id,MEDIA_URL,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False)
     except Exception as e:
         try:
@@ -845,7 +846,7 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
         _, file_extension = os.path.splitext(sourceFileName)
         file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
         file_extension = file_extension.lower()
-        newfilenamewithoutext = "Display/"+Path(sourceFileName).resolve().stem
+        newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
         newfilename = newfilenamewithoutext + ".step"
         
         if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :           
@@ -1004,13 +1005,13 @@ def FileHierarchySplit(request):
                     files = File.objects.filter(id__icontains=id)
                     for eachfile in files:
                         data = splitHierarchyFile(
-                            eachfile.file.name,"Media/",includeparts,distancegap,anglegap,disectparts,
+                            eachfile.file.name,MEDIA_URL,includeparts,distancegap,anglegap,disectparts,
                             moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts)
                 else:
                     #id = request.GET.get('file', None)
                     if id is not None:
                         data = splitHierarchyFile(
-                            id,"Media/",includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,
+                            id,MEDIA_URL,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,
                             vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts)
             """ if ((edgesize!=0) or (vertexsize !=0)):
                 try:
@@ -1395,7 +1396,7 @@ def FileGetShapeInfo(request):
             #print("Got request for",fname,index,start)
             if fname:
                 try:
-                    with open("Display/"+guid+fname+".pickle", 'rb') as f:
+                    with open(DISPLAY_URL+guid+fname+".pickle", 'rb') as f:
                         #print("storing to",index)
                         thisshell.append(pickle.load(f))                        
                         #print("stored to",index)
@@ -1433,7 +1434,7 @@ def FileGetShapeInfo(request):
                                         print("Error while loading",sibling) """
                                 thisparentpartname = partnames[index]
                                 try:
-                                    with open("Display/"+guid+thisparentpartname+".pickle", 'rb') as fs:
+                                    with open(DISPLAY_URL+guid+thisparentpartname+".pickle", 'rb') as fs:
                                         thisparentpart = pickle.load(fs)
 
                                         smallcube = CreateSphereFromCenter(thiscenterpoint,vertexsize=thisradius)
@@ -1736,7 +1737,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
         _, file_extension = os.path.splitext(sourceFileName)
         file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
         file_extension = file_extension.lower()
-        newfilenamewithoutext = "Display/"+Path(sourceFileName).resolve().stem
+        newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
         newfilename = newfilenamewithoutext + ".step"
         outputShapes={}
         if file_extension=="stp" or file_extension=="step" :          
@@ -1996,15 +1997,15 @@ def FileGetStackablePositions(request):
             if is_number(id) :            
                 files = File.objects.filter(id__icontains=id)
                 for eachfile in files: 
-                    basefilename,displaypath = getBasefileNameAndDisplayPath("Media/"+eachfile.file.name,0,"M")
-                    data = getEmptyDictionary("Media/"+eachfile.file.name,basefilename,displaypath,0,starttime,True)               
-                    data = exportToPartGLTF("Media/"+eachfile.file.name,distancegap,anglegap,animationtime,starttime)#,thumbwidth,thumbheight)
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,0,"M")
+                    data = getEmptyDictionary(MEDIA_URL+eachfile.file.name,basefilename,displaypath,0,starttime,True)               
+                    data = exportToPartGLTF(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime)#,thumbwidth,thumbheight)
             else:
                 #id = request.GET.get('file', None)
                 if id is not None:
-                    basefilename,displaypath = getBasefileNameAndDisplayPath("Media/"+id,0,"M")
-                    data = getEmptyDictionary("Media/"+id,basefilename,displaypath,0,starttime,True) 
-                    data = exportToPartGLTF("Media/"+id,distancegap,anglegap,animationtime,starttime)#,thumbwidth,thumbheight)
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"M")
+                    data = getEmptyDictionary(MEDIA_URL+id,basefilename,displaypath,0,starttime,True) 
+                    data = exportToPartGLTF(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False) 
     except Exception as e:
         try:
@@ -2468,15 +2469,16 @@ def checkAnyHole(myShapeOuter,myShapeInner,holescale=0.8,debugMe=False):
     
 def writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,xDist,yDist,zDist,suffix, debugMe=False):
     if debugMe:
+        displayfile = DISPLAY_URL
         try:
             aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
-            colorfile = "Display/"+"MyShapeCommon"+suffix+"_COLOR.step"                             
+            colorfile = displayfile+"MyShapeCommon"+suffix+"_COLOR.step"                             
             OCPStepIGESAnalyser.StepExportWithColor(shape=commonHoleShape,color=aColor,name="MyShapeCommon").write_file(filename=colorfile)
-            colorfile = "Display/"+"MyShapeCompound"+suffix+"_COLOR.step"                             
+            colorfile = displayfile+"MyShapeCompound"+suffix+"_COLOR.step"                             
             OCPStepIGESAnalyser.StepExportWithColor(shape=myShapeInner,color=aColor,name="MyShapeCompound").write_file(filename=colorfile)
-            colorfile = "Display/"+"MyShapeOuter"+suffix+"_COLOR.step"                             
+            colorfile = displayfile+"MyShapeOuter"+suffix+"_COLOR.step"                             
             OCPStepIGESAnalyser.StepExportWithColor(shape=tranShape,color=aColor,name="MyShapeOuter").write_file(filename=colorfile)
-            colorfile = "Display/"+"MyShapeInner"+suffix+"_COLOR.step"                             
+            colorfile = displayfile+"MyShapeInner"+suffix+"_COLOR.step"                             
             OCPStepIGESAnalyser.StepExportWithColor(shape=myCommonShape,color=aColor,name="MyShapeInner").write_file(filename=colorfile)
             mycommonholeshape = translate_shp(commonHoleShape,xDist,yDist,zDist,True)       
             myCommonShapez = translate_shp(myCommonShape,xDist*2,yDist*2,zDist*2,True)
@@ -2484,19 +2486,19 @@ def writeForDebugging(commonHoleShape,tranShape,myCommonShape,myShapeOuter,mySha
             tranShapez = translate_shp(tranShape,xDist*4,yDist*4,zDist*4,True)
             shapex=[myCommonShapez,tranShapez,myShapeOuter,myCommonCompundz,mycommonholeshape]
             fullShapex,_ = list_of_shapes_to_compound(shapex)
-            colorfile = "Display/"+"MyShapeMergedX"+suffix+"_COLOR.step"                             
+            colorfile = displayfile+"MyShapeMergedX"+suffix+"_COLOR.step"                             
             OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapex,color=aColor,name="MyShapeMergedX").write_file(filename=colorfile)
             shapey=[myCommonShape,myShapeOuter]
             fullShapey,_ = list_of_shapes_to_compound(shapey)
-            colorfile = "Display/"+"MyShapeOriginal"+suffix+"_COLOR.step"                             
+            colorfile = displayfile+"MyShapeOriginal"+suffix+"_COLOR.step"                             
             OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapey,color=aColor,name="MyShapeOriginal").write_file(filename=colorfile)
             shapez=[commonHoleShape,myCommonShapez,tranShapez]
             fullShapez,_ = list_of_shapes_to_compound(shapez)
-            colorfile = "Display/"+"MyShapeMergedZ"+suffix+"_COLOR.step"                             
+            colorfile = displayfile+"MyShapeMergedZ"+suffix+"_COLOR.step"                             
             OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapez,color=aColor,name="MyShapeMergedZ").write_file(filename=colorfile)
             shapeyz=[myCommonShape,tranShape]
             fullShapeyz,_ = list_of_shapes_to_compound(shapeyz)
-            colorfile = "Display/"+"MyShapeTrans"+suffix+"_COLOR.step"                             
+            colorfile = displayfile+"MyShapeTrans"+suffix+"_COLOR.step"                             
             OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapeyz,color=aColor,name="MyShapeTransT").write_file(filename=colorfile)
                                         
         except Exception as e:
@@ -4685,15 +4687,16 @@ def getBasefileNameAndDisplayPath(filename,edgesize,suffixname):
         head, tail = os.path.split(filename)
         if(head[:-1]!="/"):            
             head = head + "/"
-        if head[0:6]=="Media/":
-            displaypath = "Display/"+head[6:]
+        MediaUrlLength = len(MEDIA_URL)
+        if head[0:MediaUrlLength]== MEDIA_URL:
+            displaypath = DISPLAY_URL+head[MediaUrlLength:]
         else:
             displaypath = head        
         pathfilename, _ = os.path.splitext(tail)
         basefilename = pathfilename+suffixname+edgeGapStr
     else:
         basefilename = "./"
-        displaypath= "Display/"
+        displaypath= DISPLAY_URL
     return basefilename,displaypath
 
 
@@ -4749,7 +4752,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
         _, file_extension = os.path.splitext(sourceFileName)
         file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
         file_extension = file_extension.lower()
-        newfilenamewithoutext = "Display/"+Path(sourceFileName).resolve().stem
+        newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
         newfilename = newfilenamewithoutext + ".step"
         outputShapes={}
         if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :          
@@ -4940,20 +4943,20 @@ def FileGetAssemblyOrder(request):
             if is_number(id) :            
                 files = File.objects.filter(id__icontains=id)
                 for eachfile in files:
-                    basefilename,displaypath = getBasefileNameAndDisplayPath("Media/"+eachfile.file.name,0,"M")
-                    data = getEmptyDictionary("Media/"+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,0,"M")
+                    data = getEmptyDictionary(MEDIA_URL+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
                     print("From assembly",data)
                     mythread = threading.Thread(target=exportToAssemblyGLTF,\
-                        args=("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime))
+                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime))
                     mythread.start()      
                     #data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False)#,thumbwidth,thumbheight)
             else:
                 #id = request.GET.get('file', None)
                 if id is not None:
-                    basefilename,displaypath = getBasefileNameAndDisplayPath("Media/"+id,0,"M")
-                    data = getEmptyDictionary("Media/"+id,basefilename,displaypath,0,starttime,True)
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"M")
+                    data = getEmptyDictionary(MEDIA_URL+id,basefilename,displaypath,0,starttime,True)
                     mythread = threading.Thread(target=exportToAssemblyGLTF,\
-                        args=("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime))
+                        args=(MEDIA_URL+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime))
                     mythread.start() 
                     #data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False)    
@@ -4997,7 +5000,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5)
         _, file_extension = os.path.splitext(sourceFileName)
         file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
         file_extension = file_extension.lower()
-        newfilenamewithoutext = "Display/"+Path(sourceFileName).resolve().stem
+        newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
         newfilename = newfilenamewithoutext + ".step"
         outputShapes={}
         if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :          
@@ -5089,11 +5092,11 @@ def FileGetKinematicAnimation(request):
             if is_number(id) :            
                 files = File.objects.filter(id__icontains=id)
                 for eachfile in files:               
-                    data = exportTokinematicGLTF("Media/"+eachfile.file.name,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
+                    data = exportTokinematicGLTF(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
             else:
                 #id = request.GET.get('file', None)
                 if id is not None:
-                    data = exportTokinematicGLTF("Media/"+id,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
+                    data = exportTokinematicGLTF(MEDIA_URL+id,distancegap,anglegap,animationtime)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False)    
     except Exception as e:
         try:
@@ -5139,7 +5142,7 @@ def FileSaveTree(request):
                 guid = guid+'/'
             try:
                 colorShapeArray=[]
-                with open("Display/"+guid+name+".pickle", 'rb') as f:
+                with open(DISPLAY_URL+guid+name+".pickle", 'rb') as f:
                     # The protocol version used is detected automatically, so we do not
                     # have to specify it.
                     myPickle = pickle.load(f)
@@ -5248,7 +5251,7 @@ def FileSaveTree(request):
                 print("Error while loading",name,e) 
             if sourceType!='Order':  
                 try:
-                    treefile = "Display/"+guid+name+'.tree'
+                    treefile = DISPLAY_URL+guid+name+'.tree'
                     print("Writing,",treefile)
                     with open(treefile, 'w') as fh:
                         fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
@@ -5298,7 +5301,7 @@ def FileSaveGDT(request):
             structArray = json.loads(gdt)
             name = request.data['name']            
             try:
-                gdtfile = "Display/"+guid+name+'.gdt'
+                gdtfile = DISPLAY_URL+guid+name+'.gdt'
                 print("Writing,",gdtfile)
                 with open(gdtfile, 'w') as fh:
                     fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))

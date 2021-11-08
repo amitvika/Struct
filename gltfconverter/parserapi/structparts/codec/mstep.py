@@ -20,6 +20,8 @@ from ..structquery import assembly
 from ..utils import CoordSystem, measure_time
 #from ..structquery.occ_impl.OCPTopologyUtils import dumpTopologyStructures
 from ..structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures
+from ...settingscopy import (DISPLAY_URL,MEDIA_URL)
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -878,7 +880,7 @@ class MSTEPExporter(Exporter):
                     self.fileId +=1
                     self.binId +=1
                     base_name = self.getBaseFileName()
-                    newfilename = "Display/"+base_name+".bin"
+                    newfilename = DISPLAY_URL+base_name+".bin"
                     if self.createFile :
                         with open(newfilename, 'wb') as fh:
                             for chunk in buff.buffer_iter():
@@ -886,13 +888,13 @@ class MSTEPExporter(Exporter):
                     buffer_dict['uri'] = os.path.basename(newfilename)
                     
                     #split = os.path.splitext(newfilename)
-                    stepname = "Display/"+base_name+".step"
+                    stepname = DISPLAY_URL+base_name+".step"
                     # write step file
                     if self.createFile :
                         part.exporter('step')(stepname)
-                        assembly.Assembly(myshape,name=None).save("Display/"+base_name+"c.step")
+                        assembly.Assembly(myshape,name=None).save(DISPLAY_URL+base_name+"c.step")
                     try:
-                        picklefile = "Display/"+base_name+".pickle"
+                        picklefile = DISPLAY_URL+base_name+".pickle"
                         with open(picklefile, 'wb') as f:
                             # Pickle the 'data' dictionary using the highest protocol available.
                             pickle.dump(myshape.wrapped, f, pickle.HIGHEST_PROTOCOL)

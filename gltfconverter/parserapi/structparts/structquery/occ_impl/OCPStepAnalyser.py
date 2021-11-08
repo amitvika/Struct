@@ -42,9 +42,7 @@ from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import TopoDS_Compound, topods_Face
 from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
-from OCP.TopAbs import (TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE,
-                             TopAbs_SHELL, TopAbs_SOLID, TopAbs_COMPOUND,
-                             TopAbs_COMPSOLID, TopAbs_ShapeEnum)
+
 from OCC.Core.TopLoc import TopLoc_Location
 from OCC.Core.gp import gp_Pnt, gp_Vec, gp_Dir, gp_XYZ, gp_Pnt2d
 from OCC.Core.TopoDS import TopoDS_Vertex
@@ -52,7 +50,7 @@ from OCC.Core.ShapeBuild import ShapeBuild_ReShape
 
 from .OCCUtils.vertex import Vertex
 from .OCCUtils import Topology
-
+from ....settingscopy import (DISPLAY_URL,MEDIA_URL)
 
 @contextmanager
 def measure_time(log, name):
@@ -619,7 +617,7 @@ class StepAnalyser():
         uid = self.get_uid_from_entry(rootEntry)
         
         print("root label",rootName, topLevelItems,"items")
-        filename = "Display/"+self.basefilename+".gltf"
+        filename = DISPLAY_URL+self.basefilename+".gltf"
         split = os.path.splitext(filename)
         name = os.path.basename(filename)
         self.outputShapes = {} #dictionary
@@ -630,7 +628,7 @@ class StepAnalyser():
         self.uid += 1
         self.indent += 1
         self.output += f"Number of labels at root = {topLevelItems}\n"
-        self.direntry = "Display/"+self.validFileName(name+rootName+rootEntry)
+        self.direntry = DISPLAY_URL+self.validFileName(name+rootName+rootEntry)
         parent_node_index = 0
         node_index = 0
         if isAssembly:
@@ -694,7 +692,7 @@ class StepAnalyser():
         self.mstep_dict['download']=self.tree
         # Write self.mstep_dict to file as JSON string
         
-        newfilename = "Display/"+self.basefilename+".gltf"
+        newfilename = DISPLAY_URL+self.basefilename+".gltf"
         try:
             print("Writing",newfilename)
             with open(newfilename, 'w') as fh:
@@ -754,7 +752,7 @@ class StepAnalyser():
         """
         
         basename = self.basefilename+self.fileprefix+str(self.fileId)+".step"
-        newfilename = "Display/"+basename
+        newfilename = DISPLAY_URL+basename
         #basename = self.validFileName(outname)+str(self.fileId)+".step"
         #newfilename = self.direntry+"/"+ basename
         os.makedirs(os.path.dirname(newfilename), exist_ok=True)
@@ -1058,7 +1056,7 @@ class StepAnalyser():
                 self.updateName(name, buffer_dict)
                 # write mesh file
                 
-                newfilename = "Display/"+self.basefilename+self.fileprefix+str(self.fileId)+".bin"
+                newfilename = DISPLAY_URL+self.basefilename+self.fileprefix+str(self.fileId)+".bin"
                 #print("Writing File",newfilename)
                 try:
 

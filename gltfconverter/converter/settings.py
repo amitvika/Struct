@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -74,6 +76,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'converter.wsgi.application'
 
+AWS_S3_OBJECT_PARAMETERS = {
+    'Expires': 'Wed, 31 Dec 2121 23:59:59 GMT',
+    'CacheControl': 'max-age=94608000',
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -121,8 +127,48 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
+DONOTUSES3 = os.getenv('DONOTUSES3') == 'TRUE'
+if DONOTUSES3:
+    STATIC_URL = '/static/'
+    STATIC_ROOT = BASE_DIR
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'Media')
+    MEDIA_URL = '/Media/'
+    DISPLAY_ROOT = os.path.join(BASE_DIR, 'Display')
+    DISPLAY_URL = '/Display/'
+else:
+    STATIC_URL = '/static/'
+    STATIC_ROOT = BASE_DIR
+    MEDIA_ROOT = os.path.join(BASE_DIR, 's3bucket', 'Media')
+    MEDIA_URL = '/Media/'
+    DISPLAY_ROOT = os.path.join(BASE_DIR, 's3bucket', 'Display')
+    DISPLAY_URL = '/Display/'
+    #from storages.backends.s3boto3 import S3Boto3Storage
+    #AWS_STATIC_LOCATION = 'static'
+    #AWS_PUBLIC_MEDIA_LOCATION = 'Media'
+    #AWS_PRIVATE_MEDIA_LOCATION = 'Display'
 
-STATIC_URL = '/static/'
+    #AWS_STORAGE_BUCKET_NAME = 'gltf-media'
+    #AWS_S3_REGION_NAME = 'us-east-1'  
+    #AWS_ACCESS_KEY_ID = 'AKIAUGAS44POH5Z3OJTG'
+    #AWS_SECRET_ACCESS_KEY = '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'
+
+    # Tell django-storages the domain to use to refer to static files.
+    #AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME 
+
+    # Tell the staticfiles app to use S3Boto3 storage when writing the collected static files (when
+    # you run `collectstatic`).
+    
+    #STATICFILES_STORAGE = 'storage_backends.StaticStorage'
+    #STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
+
+    #DEFAULT_FILE_STORAGE = 'storage_backends.PublicMediaStorage'
+    #MEDIA_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_PUBLIC_MEDIA_LOCATION)
+    #MEDIA_ROOT = MEDIA_URL
+
+    #PRIVATE_FILE_STORAGE = 'storage_backends.PrivateMediaStorage'
+    #DISPLAY_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_PRIVATE_MEDIA_LOCATION)
+    #DISPLAY_ROOT = DISPLAY_URL
+
 CORS_ORIGIN_ALLOW_ALL = True # If this is used then `CORS_ORIGIN_WHITELIST` will not have any effect
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [
@@ -133,7 +179,7 @@ CORS_ORIGIN_REGEX_WHITELIST = [
     'http://localhost:4200',
     'https://internal.struct.services'
 ]
-MEDIA_ROOT = os.path.join(BASE_DIR, 'Media')
-MEDIA_URL = '/Media/'
-DISPLAY_ROOT = os.path.join(BASE_DIR, 'Display')
-DISPLAY_URL = '/Display/'
+
+print("S3", STATIC_URL, MEDIA_URL, MEDIA_ROOT, DISPLAY_URL, DISPLAY_ROOT )
+
+ 
