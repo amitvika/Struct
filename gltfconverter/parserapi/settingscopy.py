@@ -1,7 +1,5 @@
 from django.conf import settings
 
-from gltfconverter.converter.settings import DISPLAY_ROOT
-
 DISPLAY_URL=''
 MEDIA_URL=''
 if settings.DONOTUSES3:
