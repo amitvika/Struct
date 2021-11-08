@@ -11,6 +11,7 @@ from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound
+from django.conf import settings
 from datetime import datetime
 import threading
 import json
@@ -205,29 +206,30 @@ class FindAssemblingOrder(object):
 
     def writeForDebugging(self,commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,xDist,yDist,zDist,suffix, debugMe, doDebug=False):
         if debugMe and doDebug:
+            displaypath = settings.DISPLAY_URL
             try:
                 aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
                 if commonHoleShape:
-                    colorfile = "Display/"+"MyShapeCommon"+suffix+"_COLOR.step"  
+                    colorfile = displaypath+"MyShapeCommon"+suffix+"_COLOR.step"  
                     try:                           
                         OCPStepIGESAnalyser.StepExportWithColor(shape=commonHoleShape,color=aColor,name="MyShapeCommon").write_file(filename=colorfile)
                     except Exception as e:
                         print(e,"File, %s has error" % colorfile)     
-                colorfile = "Display/"+"MyShapeCompound"+suffix+"_COLOR.step"  
+                colorfile = displaypath+"MyShapeCompound"+suffix+"_COLOR.step"  
                 if myShapeInner:                           
                     try:
 
                         OCPStepIGESAnalyser.StepExportWithColor(shape=myShapeInner,color=aColor,name="MyShapeCompound").write_file(filename=colorfile)
                     except Exception as e:
                         print(e,"File, %s has error" % colorfile) 
-                colorfile = "Display/"+"MyShapeOuter"+suffix+"_COLOR.step"  
+                colorfile = displaypath+"MyShapeOuter"+suffix+"_COLOR.step"  
                 if tranShape:                           
                     try:
 
                         OCPStepIGESAnalyser.StepExportWithColor(shape=tranShape,color=aColor,name="MyShapeOuter").write_file(filename=colorfile)
                     except Exception as e:
                         print(e,"File, %s has error" % colorfile) 
-                colorfile = "Display/"+"MyShapeInner"+suffix+"_COLOR.step"                             
+                colorfile = displaypath+"MyShapeInner"+suffix+"_COLOR.step"                             
                 if myCommonShape:
                     try:
                         OCPStepIGESAnalyser.StepExportWithColor(shape=myCommonShape,color=aColor,name="MyShapeInner").write_file(filename=colorfile)
@@ -251,25 +253,25 @@ class FindAssemblingOrder(object):
                     tranShapez=None
                 shapex=[myCommonShapez,tranShapez,myShapeOuter,mycommonholeshape,myCommonCompundz]
                 fullShapex,_ = list_of_shapes_to_compound(shapex)
-                colorfile = "Display/"+"MyShapeMergedX"+suffix+"_COLOR.step"                             
+                colorfile = displaypath+"MyShapeMergedX"+suffix+"_COLOR.step"                             
                 try:
                     OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapex,color=aColor,name="MyShapeMergedX").write_file(filename=colorfile)
                 except Exception as e:
                     print(e,"File, %s has error" % colorfile) 
                 shapey=[myCommonShape,myShapeOuter]
                 fullShapey,_ = list_of_shapes_to_compound(shapey)
-                colorfile = "Display/"+"MyShapeOriginal"+suffix+"_COLOR.step"                             
+                colorfile = displaypath+"MyShapeOriginal"+suffix+"_COLOR.step"                             
                 OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapey,color=aColor,name="MyShapeOriginal").write_file(filename=colorfile)
                 shapez=[commonHoleShape,myCommonShapez,tranShapez]
                 fullShapez,_ = list_of_shapes_to_compound(shapez)
-                colorfile = "Display/"+"MyShapeMergedZ"+suffix+"_COLOR.step"                             
+                colorfile = displaypath+"MyShapeMergedZ"+suffix+"_COLOR.step"                             
                 try:
                     OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapez,color=aColor,name="MyShapeMergedZ").write_file(filename=colorfile)
                 except Exception as e:
                     print(e,"File, %s has error" % colorfile) 
                 shapeyz=[myCommonShape,tranShape]
                 fullShapeyz,_ = list_of_shapes_to_compound(shapeyz)
-                colorfile = "Display/"+"MyShapeTrans"+suffix+"_COLOR.step"                             
+                colorfile = displaypath+"MyShapeTrans"+suffix+"_COLOR.step"                             
                 try:
                     OCPStepIGESAnalyser.StepExportWithColor(shape=fullShapeyz,color=aColor,name="MyShapeTransT").write_file(filename=colorfile)
                 except Exception as e:

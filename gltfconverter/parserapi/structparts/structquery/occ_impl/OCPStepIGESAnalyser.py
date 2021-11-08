@@ -93,6 +93,8 @@ from ....thumbnail.thumbnail import createThumbnail
 from .gltfDictionary import gltfdict
 from .Quaternion import Quaternion
 
+from ....settingscopy import (DISPLAY_URL,MEDIA_URL)
+
 @contextmanager
 def measure_time(log, name):
     start_time = time()
@@ -1116,11 +1118,12 @@ class StepIgesAnalyser():
             #else:
             #    #print("Head contains last /",head)
             #    #pass
-
-            if head[0:6]=="Media/":
-                self.displaypath = "Display/"+head[6:]
+            MediaURLLength = len(MEDIA_URL)
+            if head[0:MediaURLLength]==MEDIA_URL:
+                self.displaypath = DISPLAY_URL+head[MediaURLLength:]
             else:
                 self.displaypath = head
+
             print("Conversion path",self.displaypath)
             pathfilename, file_extension = os.path.splitext(tail)
             if file_extension:
@@ -1150,7 +1153,7 @@ class StepIgesAnalyser():
             self.fname = "NoName"
             self.stepiges=True
             self.writethread = writethread
-            self.displaypath= "Display/"
+            self.displaypath= DISPLAY_URL
         #print(self.fname,self.basefilename)
         self.kinematicanimation=kinematicanimation
         self.includeparts = includeparts

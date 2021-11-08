@@ -16,6 +16,7 @@ from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound #, excluded_list_of_shapes_to_compound
+from .settingscopy import (DISPLAY_URL,MEDIA_URL)
 
 
 
@@ -38,7 +39,7 @@ class FindStackability(object):
                 print("error",e)      
         
             try:
-                stackfile = "Display/"+dictionary["store"]+".stack"
+                stackfile = DISPLAY_URL+dictionary["store"]+".stack"
                 print("Writing,",stackfile)
                 with open(stackfile, 'w') as fh:
                     fh.write(json.dumps(dictionary["stackable"], sort_keys=True, indent=2 ))
