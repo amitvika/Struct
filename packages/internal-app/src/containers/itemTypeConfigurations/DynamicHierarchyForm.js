@@ -17,7 +17,7 @@ export default function DynamicHierarchy(props) {
 
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
   const [selections, setSelections] = useState([
-    { key: 'Item Type', formFields: [] }
+    { key: 'Internal Use Product Configuration', formFields: [] }
   ]);
   const [stateUpdated, setStateUpdated] = useState(false);
 

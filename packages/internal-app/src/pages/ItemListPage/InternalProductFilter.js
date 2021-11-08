@@ -11,7 +11,7 @@ export default function InternalProductFilter({
 }) {
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
   const [selections, setSelections] = useState([
-    { key: 'Item Type', formFields: [] }
+    { key: 'Internal Use Product Configuration', formFields: [] }
   ]);
   const [stateUpdated, setStateUpdated] = useState(false);
 
@@ -28,7 +28,7 @@ export default function InternalProductFilter({
 
   useEffect(() => {
     if (isFilterResetted) {
-      setSelections([{ key: 'Item Type', formFields: [] }]);
+      setSelections([{ key: 'Internal Use Product Configuration', formFields: [] }]);
       setFilteredList(list);
     }
   }, [isFilterResetted]);
