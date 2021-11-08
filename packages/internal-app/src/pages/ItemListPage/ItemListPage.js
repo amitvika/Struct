@@ -9,6 +9,7 @@ import AdditionalFilter from './AdditionalFilter';
 const ItemsView = () => {
   let history = useHistory();
   const handleItemClick = (id) => history.push(`/items/${id}`);
+  const handleAddButtonPress = () => history.push({ pathname: `/items/124`, state: { status: 'new_item' } });
 
   return (
     <TableGridView
@@ -21,6 +22,7 @@ const ItemsView = () => {
       upsertListItem={(data) => ItemApi.updateItemAPI(null, data)}
       isDesignModalOpened={true}
       AdditionalFilter={AdditionalFilter}
+      handleAddButtonPress={handleAddButtonPress}
     />
   );
 };

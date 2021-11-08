@@ -24,7 +24,8 @@ const TableGridView = ({
   handleItemClick,
   showSuccessAlert = () => {},
   showErrorAlert = () => {},
-  AdditionalFilter = null
+  AdditionalFilter = null,
+  handleAddButtonPress
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [list, setList] = useState([]);
@@ -162,12 +163,16 @@ const TableGridView = ({
   };
 
   const handleToggleModal = () => {
+    if (handleAddButtonPress) {
+      return handleAddButtonPress();
+    }
     if (isModalOpened) {
       setSelectedListItem(null);
       setIsEditing(false);
     }
     setIsModalOpened(!isModalOpened);
   };
+
   const handleEditModal = (item) => {
     if (isModalOpened) {
       setSelectedListItem(null);
@@ -227,7 +232,7 @@ const TableGridView = ({
         selectedId={selectedListItem}
         handleHistoryToggle={handleHistoryToggle}
       >
-        {isModalOpened && (
+        {isModalOpened && !handleAddButtonPress && (
           <AddUpdateModal
             title={isEditing ? '' : title}
             fields={fields}
