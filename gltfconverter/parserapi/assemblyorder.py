@@ -11,12 +11,13 @@ from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound
-from django.conf import settings
+#from django.conf import settings
 from datetime import datetime
 import threading
 import json
 import math
 import sys
+from .settingscopy import (DISPLAY_URL,MEDIA_URL,COPY_PATH)
 
 def swap(a, b):
     return b, a
@@ -206,7 +207,7 @@ class FindAssemblingOrder(object):
 
     def writeForDebugging(self,commonHoleShape,tranShape,myCommonShape,myShapeOuter,myShapeInner,xDist,yDist,zDist,suffix, debugMe, doDebug=False):
         if debugMe and doDebug:
-            displaypath = settings.DISPLAY_URL
+            displaypath = DISPLAY_URL
             try:
                 aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
                 if commonHoleShape:
