@@ -157,7 +157,7 @@ export const getAllFiles = () => {
 };
 
 export const getAFileFromStore = (store, ext) => {
-  const fetchURL = `${resourcePathURL}${store}.${ext}`;
+  const fetchURL = `${ ((ext=="status") || (ext=="progress")) ? resourceStatusURL : resourcePathURL}${store}.${ext}`;
   console.log(fetchURL);
   return axios.get(fetchURL);
 };
@@ -187,3 +187,4 @@ export const download = (fileStore) => {
 };
 export const resourcePathBase = `${baseURL}/`; //"./gltfconverter/";//
 export const resourcePathURL = `${baseURL}/Display/`; //http://localhost:8000/Media/`;
+export const resourceStatusURL = `${baseURL}/Status/`;

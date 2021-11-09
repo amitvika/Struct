@@ -127,21 +127,52 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-DONOTUSES3 = os.getenv('DONOTUSES3') == 'TRUE'
-if DONOTUSES3:
-    STATIC_URL = '/static/'
-    STATIC_ROOT = BASE_DIR
+try:
+    donotuses3 = os.getenv('DONOTUSES3')
+    if donotuses3:
+        donotuses3 = donotuses3.strip().upper()
+    else:
+        donotuses3=''
+    if(len(donotuses3)>4):
+        donotuses3=donotuses3[0:4]
+    #print('DONOTUSES3',os.getenv('DONOTUSES3'),donotuses3, len(os.getenv('DONOTUSES3')), len(donotuses3))
+except Exception as e:
+    print("Error while reading environment variable",e)
+    donotuses3=''
+
+DONOTUSES3 = donotuses3 == 'TRUE'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR
+STATUS_ROOT = os.path.join(BASE_DIR, 'Display')
+STATUS_URL = '/Status/'
+MEDIA_URL = '/Media/'
+DISPLAY_URL = '/Display/'
+if DONOTUSES3:    
     MEDIA_ROOT = os.path.join(BASE_DIR, 'Media')
-    MEDIA_URL = '/Media/'
     DISPLAY_ROOT = os.path.join(BASE_DIR, 'Display')
-    DISPLAY_URL = '/Display/'
+    S3_PATH = ''
 else:
-    STATIC_URL = '/static/'
-    STATIC_ROOT = BASE_DIR
-    MEDIA_ROOT = os.path.join(BASE_DIR, 's3bucket', 'Media')
-    MEDIA_URL = '/Media/'
-    DISPLAY_ROOT = os.path.join(BASE_DIR, 's3bucket', 'Display')
-    DISPLAY_URL = '/Display/'
+    try:
+        s3path = os.getenv('S3PATH')
+        if s3path:
+            s3path = s3path.strip()
+        else:
+            s3path=''
+        s3length = s3path.rfind("/")
+        if s3length > 0:
+            S3_PATH = s3path[0:s3length]
+        else:
+            S3_PATH = ''
+        #print('S3Path',os.getenv('S3PATH'),S3_PATH, len(os.getenv('S3PATH')), len(s3path))
+    except Exception as e:
+        print("Error while reading s3 environment variable",e)
+        S3_PATH=''
+    if S3_PATH=='':
+        MEDIA_ROOT = os.path.join(BASE_DIR, 's3bucket', 'Media')        
+        DISPLAY_ROOT = os.path.join(BASE_DIR, 's3bucket', 'Display')       
+    else:
+        MEDIA_ROOT = os.path.join(BASE_DIR, S3_PATH, 'Media')       
+        DISPLAY_ROOT = os.path.join(BASE_DIR, S3_PATH, 'Display')
     #from storages.backends.s3boto3 import S3Boto3Storage
     #AWS_STATIC_LOCATION = 'static'
     #AWS_PUBLIC_MEDIA_LOCATION = 'Media'
@@ -180,6 +211,6 @@ CORS_ORIGIN_REGEX_WHITELIST = [
     'https://internal.struct.services'
 ]
 
-print("S3", STATIC_URL, MEDIA_URL, MEDIA_ROOT, DISPLAY_URL, DISPLAY_ROOT )
+print("S3", S3_PATH, STATIC_URL, MEDIA_URL, MEDIA_ROOT, DISPLAY_URL, DISPLAY_ROOT, STATUS_URL, STATUS_ROOT )
 
  

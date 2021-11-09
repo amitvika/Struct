@@ -2,7 +2,7 @@ import os
 #import sys
 #import unicodedata
 #from pathlib import Path
-import os
+import shutil
 import re
 import struct
 import base64
@@ -93,7 +93,7 @@ from ....thumbnail.thumbnail import createThumbnail
 from .gltfDictionary import gltfdict
 from .Quaternion import Quaternion
 
-from ....settingscopy import (DISPLAY_URL,MEDIA_URL)
+from ....settingscopy import (DISPLAY_URL,MEDIA_URL,COPY_PATH)
 
 @contextmanager
 def measure_time(log, name):
@@ -2533,11 +2533,11 @@ class StepIgesAnalyser():
                     topLevelItem, None, topLevelName, topLevelEntry, "root", "root",
                     filename="%s.%s%s" % (split[0], self.validFileName(topLevelName), split[1]),
                     name="%s.%s" % (name, topLevelName),
-                    parent_node_index=node_index, percentincrement=(1/topLevelItems)*100
+                    parent_node_index=node_index, percentincrement=(1/topLevelItems)*80
                     )
             except Exception as e:
                 print("Error",e)
-            self.percentage = ((i+1) / topLevelItems) * 100
+            self.percentage = ((i+1) / topLevelItems) * 80
             self.write_status()
         #self.percentage = 100
         self.write_status()
@@ -2620,7 +2620,7 @@ class StepIgesAnalyser():
  
             except Exception as e:
                 print("Error",e)
-            self.percentage += (1/myLenShapesList)*100
+            self.percentage += (1/myLenShapesList)*80
             self.write_status()
             #print("I have reached here in getshapes 10")
         print("Part is seperated")
@@ -2733,7 +2733,7 @@ class StepIgesAnalyser():
             "status": {"percent":self.percentage,
                         "start":self.starttime.strftime("%H-%M-%S"),
                         "current":datetime.utcnow().strftime("%H-%M-%S") },
-             "display":self.displaypath
+             "display":COPY_PATH+self.displaypath
         }
         if self.writethread:
             mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False,False))
@@ -3297,12 +3297,13 @@ class StepIgesAnalyser():
         ]
         self.mstep_dict['animations']=animationchannels
 
-    def write_status(self,maxgap=10):
+    def write_status(self,maxgap=10,action=''):
         currenttime = datetime.utcnow()  
         mystatusdict =  {
                 "percent":(self.percentage if self.ascompound==False else self.percentage/4.0),
                 "start":self.starttime.strftime("%H-%M-%S"),
-                "current":currenttime.strftime("%H-%M-%S") }
+                "current":currenttime.strftime("%H-%M-%S"),
+                "action":action }
         if(self.byThread)or(self.ascompound):
             try:
                 statusfilename = self.displaypath+self.basefilename+".status"            
@@ -3321,6 +3322,50 @@ class StepIgesAnalyser():
         else:
             print("Percentage",self.percentage)
         return mystatusdict
+
+
+
+    def copytree(self, src, dst, symlinks=False, ignored_names=['.','..']):
+        names = os.listdir(src)
+        if not os.path.isdir(dst): 
+            os.makedirs(dst)
+        errors = []
+        dircount = len(names)
+        percentIncrement = 20 / (dircount if (dircount > 0) else 1 )
+        for name in names:
+            self.percentage += percentIncrement
+            if self.percentage > 99:
+                self.percentage = 99
+            self.write_status(action='Copying')    
+            if name in ignored_names:
+                continue
+            srcname = os.path.join(src, name)
+            dstname = os.path.join(dst, name)
+            try:
+                if symlinks and os.path.islink(srcname):
+                    linkto = os.readlink(srcname)
+                    os.symlink(linkto, dstname)
+                elif os.path.isdir(srcname):
+                    self.copytree(srcname, dstname, symlinks, ignored_names)
+                else:
+                    shutil.copy2(srcname, dstname)
+                    if (not srcname.endswith(".status")) and (not srcname.endswith(".progress")):
+                        os.remove(srcname)
+            except shutil.Error as err:
+                errors.extend(err.args[0])
+            except EnvironmentError as why:
+                errors.append((srcname, dstname, str(why)))
+        try:
+            shutil.copystat(src, dst)
+        except OSError as why:
+            if WindowsError is not None and isinstance(why, WindowsError):
+                # Copying file access times may fail on Windows
+                pass
+            else:
+                errors.extend((src, dst, str(why)))
+        if errors:
+            print(errors)
+
     def write_in_thread(self,dict,imagePNG,notFromFeature):
         try:
             if logging != None and self.writethread:
@@ -3328,7 +3373,13 @@ class StepIgesAnalyser():
         except Exception as e:
             print("Error while logging",e)
         try:
-            newfilename = self.displaypath+dict["store"]+".gltf"
+            if (COPY_PATH!='') and notFromFeature:
+                self.copytree(self.displaypath,COPY_PATH+self.displaypath)
+                shutil.copy2(self.fname,COPY_PATH+self.fname)
+        except Exception as e:
+            print("Error while copying to s3",e)
+        try:
+            newfilename = COPY_PATH+self.displaypath+dict["store"]+".gltf"
             if self.writefiles:
                 print("Writing",newfilename)
                 with open(newfilename, 'w') as fh:
@@ -3338,7 +3389,7 @@ class StepIgesAnalyser():
         except Exception as e:
             print("While Writing",newfilename,e)
         try:
-            treefilename = self.displaypath+dict["store"]+".tree"
+            treefilename = COPY_PATH+self.displaypath+dict["store"]+".tree"
             if self.writefiles:
                 print("Writing",treefilename)
                 with open(treefilename, 'w') as fh:
@@ -3349,7 +3400,7 @@ class StepIgesAnalyser():
             print("While Writing",treefilename,e)
         if notFromFeature:
             try:
-                statusfilename = self.displaypath+dict["store"]+".status"
+                statusfilename = COPY_PATH+self.displaypath+dict["store"]+".status"
                 if (self.writefiles) or (self.ascompound):
                     print("Writing",statusfilename)                
                     with open(statusfilename, 'w') as fh:
@@ -3360,7 +3411,7 @@ class StepIgesAnalyser():
                 print("While Writing",statusfilename,e)
             if ((self.edgesize!=0) or (self.vertexsize !=0)) and self.writefiles:
                 try:
-                    gdtfile = self.displaypath+dict["store"]+".gdt"
+                    gdtfile = COPY_PATH+self.displaypath+dict["store"]+".gdt"
                     print("Writing,",gdtfile)
                     with open(gdtfile, 'w') as fh:
                         fh.write(json.dumps(dict["gdttable"], sort_keys=True, indent=2 ))
@@ -3369,11 +3420,12 @@ class StepIgesAnalyser():
             if imagePNG and self.writefiles:           
                 try:
                     filestore = dict["store"][:-1]+"0"
-                    imagefilename = self.displaypath+filestore+".png"
+                    imagefilename = COPY_PATH+self.displaypath+filestore+".png"
                     print("Writing",imagefilename)
                     createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            
                 except Exception as e:
                     print("While Writing",imagefilename,e)
+        
         try:
             if logging != None and self.writethread:
                 logging.info("Completed writing gltf files in Thread ")
@@ -3458,7 +3510,7 @@ class StepIgesAnalyser():
             "status": {"percent":self.percentage,
                         "start":self.starttime.strftime("%H-%M-%S"),
                         "current":datetime.utcnow().strftime("%H-%M-%S") },
-             "display":self.displaypath
+             "display":COPY_PATH+self.displaypath
         }
         if self.writethread:
             mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG,True))
@@ -3477,6 +3529,11 @@ class StepIgesAnalyser():
                     self.addFeatures()
             except Exception as e:
                 print("Error while disecting",e)
+            try:
+                if (COPY_PATH!=''):
+                    self.copytree(self.displaypath,COPY_PATH+self.displaypath)
+            except Exception as e:
+                print("Error while copying Edges to s3",e)
         if byThread:            
             try:
                 if logging != None : 
@@ -3520,7 +3577,7 @@ class StepIgesAnalyser():
                             "option":26,
                             "key":"" }],
                 "status": mystatus,
-                "display":self.displaypath }
+                "display":COPY_PATH+self.displaypath }
             byThread = True
             mythread = threading.Thread(target=self.dumpInThread,args=(byThread,)) #extra comma is needed,python bug in thread!
             mythread.start()
