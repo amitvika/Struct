@@ -3297,12 +3297,13 @@ class StepIgesAnalyser():
         ]
         self.mstep_dict['animations']=animationchannels
 
-    def write_status(self,maxgap=10):
+    def write_status(self,maxgap=10,action=''):
         currenttime = datetime.utcnow()  
         mystatusdict =  {
                 "percent":(self.percentage if self.ascompound==False else self.percentage/4.0),
                 "start":self.starttime.strftime("%H-%M-%S"),
-                "current":currenttime.strftime("%H-%M-%S") }
+                "current":currenttime.strftime("%H-%M-%S"),
+                "action":action }
         if(self.byThread)or(self.ascompound):
             try:
                 statusfilename = self.displaypath+self.basefilename+".status"            
@@ -3335,7 +3336,7 @@ class StepIgesAnalyser():
             self.percentage += percentIncrement
             if self.percentage > 99:
                 self.percentage = 99
-            self.write_status()    
+            self.write_status(action='Copying')    
             if name in ignored_names:
                 continue
             srcname = os.path.join(src, name)
