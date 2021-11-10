@@ -430,12 +430,15 @@ export const gltf_Dict = {
           if(currentvalue>0) {
             const predictDifference = (100*difference/currentvalue)-difference;
             if(predictDifference >=0) {
-              setCompletionProgress( ((currentvalue > 80) ? "Copying" : '')+
-                convertToHourMinuteSeconds(predictDifference));
+              setCompletionProgress( (result.data.action ? result.data.action : "")+
+                convertToHourMinuteSeconds(predictDifference) );
             } else {
               console.log("Problem getting completion progress",predictDifference,difference,currentvalue,(100*difference/currentvalue));
             }
           } else {
+            if(result.data.action) {
+              setCompletionProgress(result.data.action);
+            }
             console.log("Percentage is zero");
           }
           setPercentage(currentvalue);
