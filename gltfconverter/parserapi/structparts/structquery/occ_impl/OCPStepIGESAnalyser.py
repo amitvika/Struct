@@ -2863,6 +2863,19 @@ class StepIgesAnalyser():
         
         try:
             if (COPY_PATH!=''):
+                currenttime=datetime.utcnow()
+                with open(newfilename, 'w') as fh:
+                    fh.write(
+                        json.dumps({
+                            "begin":(lenfeature-1 if (lenfeature > 0) else lenfeature),
+                            "end":lenFeatures,
+                            "start":starttime.strftime("%H-%M-%S"),
+                            "current":currenttime.strftime("%H-%M-%S"),
+                            "children":myParentId_Dict,
+                            "action":"Copying"},
+                            sort_keys=True, 
+                            indent=2 ))
+                self.percentage = (lenfeature-1 if (lenfeature > 0) else lenfeature) * 100 / (lenFeatures if lenFeatures > 0 else 1)
                 self.copytree(self.displaypath,COPY_PATH+self.displaypath)
                 self.percentage = 100
                 self.write_status(0)
@@ -2870,6 +2883,7 @@ class StepIgesAnalyser():
             print("Error while copying Edges to s3",e)    
 
         with open(newfilename, 'w') as fh:
+            currenttime=datetime.utcnow()
             fh.write(
                 json.dumps({
                     "begin":lenfeature,
