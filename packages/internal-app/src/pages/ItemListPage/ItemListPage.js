@@ -6,20 +6,20 @@ import { columnsForItemView } from '@monostruct/common/constants/item';
 import { useHistory } from 'react-router-dom';
 import AdditionalFilter from './AdditionalFilter';
 import { NEW_ITEM, saveToSessionStorage } from '../../utils/usefulHelpers';
-import { ObjectID } from 'bson/lib/bson/objectid';
+import ObjectID  from 'bson-objectid';
 
 const ItemsView = () => {
   let history = useHistory();
   const handleItemClick = (id) => history.push(`/items/${id}`);
   const handleAddButtonPress = () => {
-    // const newItemId = new ObjectID().toString();
+    const newItemId = ObjectID().toString();
 
-    // const item = {
-    //   id: newItemId,
-    //   name: 'Untitled-1'
-    // };
-    // saveToSessionStorage(NEW_ITEM, item);
-    // handleItemClick(newItemId);
+    const item = {
+      id: newItemId,
+      name: 'Untitled-1'
+    };
+    saveToSessionStorage(NEW_ITEM, item);
+    handleItemClick(newItemId);
     
   };
 

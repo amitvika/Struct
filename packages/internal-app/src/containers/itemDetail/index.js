@@ -1,7 +1,29 @@
-import React from 'react';
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import ItemAPI from '@monostruct/common/api/items.api';
+import get from 'lodash/get';
+import ItemDetail from './ItemDetail';
+import LoadingModal from '@monostruct/common/components/LoadingModal';
+import { NEW_ITEM, getFromSessionStorage } from '../../utils/usefulHelpers';
 
-export default function ItemDetail() {
-  const location = useLocation();
-  return <div></div>;
+export default function ItemDetailMain() {
+  let { id } = useParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const [itemValue, setItemValue] = useState(null);
+
+  useEffect(() => {
+    ItemAPI.getItemsAPI(`id=${id}`)
+      .then((itemDetailResponse) => {
+        setItemValue(get(itemDetailResponse, 'data[0]'));
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+      });
+  }, []);
+
+  if (isLoading) {
+    return <LoadingModal isLoading={true} />;
+  }
+  return <ItemDetail itemValue={itemValue} />;
 }

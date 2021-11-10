@@ -50,7 +50,8 @@ import {
   getAFileFromStore,
   getGltfForStore,
   getTreeForStore,
-  resourcePathURL
+  resourcePathURL,
+  resourceStatusURL
 } from '@monostruct/common/api/fileUpload.api';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
@@ -58,10 +59,11 @@ import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Classification from '../classification';
+
 // import { reducer, initialState } from './ItemDetail.helper';
 
 let state_additionalSaveFunction = null;
-const ItemDetail = () => {
+const ItemDetail = ({ itemValue }) => {
   const dispatch = useDispatch();
   const history = useHistory();
   let { id } = useParams();
@@ -79,7 +81,7 @@ const ItemDetail = () => {
   const [percentage, setPercentage] = useState(0);
   const [currentProgressText, setCurrentProgressText] = useState(null);
   const [completionProgressText, setCompletionProgressText] = useState(null);
-  const [centerActionText,setCenterActionText]=useState(null);
+  const [centerActionText, setCenterActionText] = useState(null);
   const [progressBarLoad, setProgressBarLoad] = useState(false);
   const [internalProductConfig, setInternalProductConfig] = useState(null);
 
@@ -94,19 +96,10 @@ const ItemDetail = () => {
       !itemProperties || (!itemProperties.fileId && !itemProperties.fileUUId);
     if (toFetchItem) {
       (async () => {
-        //setIsLoading(true);
-        const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`);
-
-        const _currentItem = get(itemDetailResponse, 'data[0]', {});
-
-        dispatch(setCurrentItemAction(_currentItem));
-        //console.log('I am doing the conversion inner', _currentItem);
-        setGLTFAndTree({ ..._currentItem }, myTabIndex);
-
-        setIsLoading(false);
+        dispatch(setCurrentItemAction(itemValue));
+        setGLTFAndTree({ ...itemValue }, myTabIndex);
       })();
     } else {
-      //console.log('I am doing the conversion outer', itemProperties);
       setGLTFAndTree({ ...itemProperties }, myTabIndex);
     }
   }, [tabIndex]);
@@ -155,7 +148,8 @@ const ItemDetail = () => {
       //console.log('Found gltf', whichOneToLoad);
       return 0;
     }
-    if (isFileExistingInServer(whichOneToLoad + '.status')) {
+    const statusURL = `${resourceStatusURL}${whichOneToStatus}.status`;
+    if (isFileExistingInServer(statusURL)) {
       //console.log('Found status', whichOneToLoad);
       const statusRes = await getAFileFromStore(whichOneToStatus, 'status');
       let percent = 0;
@@ -236,6 +230,9 @@ const ItemDetail = () => {
         const whichOneToLoad = getResourcePathURL(item) + item.fileStack;
         const whichOneToStatus = getStatusPathURL(item) + item.fileStack;
         okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+        if (okToParse > 1) {
+          item.fileStack = null;
+        }
       }
       if (!item.fileStack || item.fileStack === null) {
         //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
@@ -320,7 +317,7 @@ const ItemDetail = () => {
             whichOneToLoad,
             whichOneToStatus
           );
-          if (!okToParse) {
+          if (okToParse <= 1) {
             //console.log('Found', fileMPPS);
             item.fileMPPS = fileMPPS;
           } else {
@@ -333,6 +330,9 @@ const ItemDetail = () => {
         const whichOneToLoad = getResourcePathURL(item) + item.fileMPPS;
         const whichOneToStatus = getStatusPathURL(item) + item.fileMPPS;
         okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+        if (okToParse > 1) {
+          item.fileMPPS = null;
+        }
       }
       if (!item.fileMPPS || item.fileMPPS === null) {
         //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
@@ -414,7 +414,10 @@ const ItemDetail = () => {
       }
 
       try {
-        let myTabIndex = ((myTabedIndex == 'iupc')||(myTabedIndex=='pdcu')) ? 'gdtac' : myTabedIndex;
+        let myTabIndex =
+          myTabedIndex == 'iupc' || myTabedIndex == 'pdcu'
+            ? 'gdtac'
+            : myTabedIndex;
         if (myTabIndex == 'iupc') {
           //console.log('Checking iupc', myTabIndex, item);
           let okToParse = 0;
@@ -430,7 +433,7 @@ const ItemDetail = () => {
                 whichOneToLoad,
                 whichOneToStatus
               );
-              if (!okToParse) {
+              if (okToParse <= 1) {
                 //console.log('Found', fileKinematic);
                 item.fileKinematic = fileKinematic;
               } else {
@@ -448,6 +451,9 @@ const ItemDetail = () => {
               whichOneToLoad,
               whichOneToStatus
             );
+            if (okToParse > 1) {
+              item.fileKinematic = null;
+            }
           }
           if (!item.fileKinematic || item.fileKinematic === null) {
             console.log(
@@ -547,7 +553,7 @@ const ItemDetail = () => {
               STATEPROPS.maximumfaces,
               //item.stepTreeLength > STATEPROPS.maximumparts,
               true,
-              myTabedIndex=='pdcu'
+              myTabedIndex == 'pdcu'
             );
             setIsFileLoading(false);
             let datastore = getHierarchyRes.data.store;
@@ -655,7 +661,7 @@ const ItemDetail = () => {
                 whichOneToLoad,
                 whichOneToStatus
               );
-              if (!okToParse) {
+              if (okToParse <= 1) {
                 item.fileGDT = fileGDT;
               } else {
                 console.log('GDT Not Found', fileGDT);
@@ -670,6 +676,9 @@ const ItemDetail = () => {
               whichOneToLoad,
               whichOneToStatus
             );
+            if (okToParse > 1) {
+              item.fileGDT = null;
+            }
           }
           if (!item.fileGDT || item.fileGDT === null) {
             setIsLoading(true);
@@ -688,7 +697,7 @@ const ItemDetail = () => {
               STATEPROPS.maximumfaces,
               //item.stepTreeLength > STATEPROPS.maximumparts,
               true,
-              myTabedIndex=='pdcu'
+              myTabedIndex == 'pdcu'
             );
             setIsFileLoading(false);
             let datastore = getHierarchyRes.data.store;
@@ -816,7 +825,10 @@ const ItemDetail = () => {
         kinematic: fileKinematic
       };
       setIsLoading(true);
-      let myTabIndex = ((myTabedIndex == 'iupc')||(myTabedIndex=='pdcu')) ? 'gdtac' : myTabedIndex;
+      let myTabIndex =
+        myTabedIndex == 'iupc' || myTabedIndex == 'pdcu'
+          ? 'gdtac'
+          : myTabedIndex;
       let whichOneToLoad = fileUUId ? fileUUId + '/' : '';
       if (myTabIndex == 'pdcu') {
         whichOneToLoad += fileStore;
@@ -903,7 +915,7 @@ const ItemDetail = () => {
       case 0:
         return 'Add vendor items here';
       case 'cf':
-        return <Classification handleItemUpdateLocallay={handleItemUpdate}/>;
+        return <Classification handleItemUpdateLocallay={handleItemUpdate} />;
       case 'pdcu':
         console.log(itemProperties);
         return (
@@ -919,7 +931,7 @@ const ItemDetail = () => {
             handleItemSaveOnServer={handleSave}
             progressBarLoad={progressBarLoad}
             percentage={percentage}
-            currentProgressText={currentProgressText}           
+            currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
             centerActionText={centerActionText}
             //setProgressBarRender={setProgressBarRender}
@@ -928,9 +940,21 @@ const ItemDetail = () => {
             setCurrentProgressText={setCurrentProgressText}
             setCompletionProgressText={setCompletionProgressText}
             setCenterActionText={setCenterActionText}
-            drawLine={checkDBNull(itemProperties.drawLine)?true:itemProperties.drawLine}
-            distanceGap={checkDBNull(itemProperties.drawLine)? STATEPROPS.distancegap : itemProperties.distanceGap}
-            angleGap={checkDBNull(itemProperties.drawLine)? STATEPROPS.anglegap: itemProperties.angleGap}
+            drawLine={
+              checkDBNull(itemProperties.drawLine)
+                ? true
+                : itemProperties.drawLine
+            }
+            distanceGap={
+              checkDBNull(itemProperties.drawLine)
+                ? STATEPROPS.distancegap
+                : itemProperties.distanceGap
+            }
+            angleGap={
+              checkDBNull(itemProperties.drawLine)
+                ? STATEPROPS.anglegap
+                : itemProperties.angleGap
+            }
           />
         );
       case 'cu':
