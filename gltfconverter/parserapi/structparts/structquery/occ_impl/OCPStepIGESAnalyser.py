@@ -2863,6 +2863,8 @@ class StepIgesAnalyser():
         try:
             if (COPY_PATH!=''):
                 self.copytree(self.displaypath,COPY_PATH+self.displaypath)
+                self.percentage = 100
+                self.write_status(0)
         except Exception as e:
             print("Error while copying Edges to s3",e)    
 
@@ -3570,19 +3572,30 @@ class StepIgesAnalyser():
                     myanotherthread.start()
                 else:
                     self.addFeatures()
+                    try:
+                        if (COPY_PATH!=''):
+                            self.copytree(self.displaypath,COPY_PATH+self.displaypath)
+                            self.percentage = 100
+                            self.write_status(0)
+                    except Exception as e:
+                        print("Error while copying Edges to s3",e)
             except Exception as e:
                 print("Error while disecting",e)
+            
+        if byThread:   
             try:
                 if (COPY_PATH!=''):
                     self.copytree(self.displaypath,COPY_PATH+self.displaypath)
+                    self.percentage = 100
+                    self.write_status(0)
             except Exception as e:
-                print("Error while copying Edges to s3",e)
-        if byThread:            
+                print("Error while copying Edges to s3",e)         
             try:
                 if logging != None : 
                     logging.info("Completed thread conversion"+self.fname) 
             except Exception as e:
                 print("Error while logging",e)
+       
         return (            
             (getPNG,self.output), 
             (
