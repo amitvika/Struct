@@ -2782,6 +2782,23 @@ class StepIgesAnalyser():
                 return "", ((0,0,0),(0,0,0))
         else:
             return points, ((0,0,0),(0,0,0))
+    
+    def write_progress(self,maxgap=10,action=''):
+        currenttime = datetime.utcnow()
+        timingdelta = currenttime-self.currenttime            
+        if (timingdelta.seconds >= maxgap): 
+            with open(self.progressfile, 'w') as fh:
+                fh.write(
+                    json.dumps({
+                        "begin":self.lenfeature,
+                        "end":self.lenFeatures,
+                        "start":self.edgestarttime.strftime("%H-%M-%S"),
+                        "current":currenttime.strftime("%H-%M-%S"),
+                        "children":self.myParentId_Dict,
+                        "action":action},
+                        sort_keys=True, 
+                        indent=2 ))
+            self.currenttime=currenttime
 
     def addFeatures(self):  
         try:
@@ -2797,13 +2814,16 @@ class StepIgesAnalyser():
             #print("Head contains last /",head)       
         pathfilename, _ = os.path.splitext(tail)
         myTreeLen = len(self.tstep_dict["tree"])
-        lenFeatures = len(self.outputFeatures)
-        lenfeature = 0
+        self.lenFeatures = len(self.outputFeatures)
+        self.lenfeature = 0
         newfilename = self.displaypath+pathfilename+".progress"
-        myParentId_Dict={}
-        starttime = datetime.utcnow() 
-        currenttime = starttime
-        with open(newfilename, 'w') as fh:
+        self.myParentId_Dict={}
+        self.edgestarttime = datetime.utcnow() 
+        self.currenttime = self.edgestarttime
+        self.progressfile = newfilename
+        self.lenfeature = 0
+        self.write_progress(0)
+        """ with open(newfilename, 'w') as fh:
             fh.write(
                 json.dumps({
                     "begin":lenfeature,
@@ -2812,9 +2832,9 @@ class StepIgesAnalyser():
                     "current":currenttime.strftime("%H-%M-%S"),
                     "children":myParentId_Dict},
                     sort_keys=True, 
-                    indent=2 ))
+                    indent=2 )) """
         for outputFeature in self.outputFeatures:
-            timingdelta = datetime.utcnow()-currenttime            
+            """ timingdelta = datetime.utcnow()-currenttime            
             if (timingdelta.seconds >= 10): 
                 with open(newfilename, 'w') as fh:
                     fh.write(
@@ -2826,14 +2846,16 @@ class StepIgesAnalyser():
                             "children":myParentId_Dict},
                             sort_keys=True, 
                             indent=2 ))
-                currenttime=datetime.utcnow()
+                currenttime=datetime.utcnow() """
             #print(outputFeature)
-            lenfeature+=1
+            self.write_progress()
+            
             myparentID =  outputFeature["Id"]             
-            myParentId_Dict[myparentID]={}
+            self.myParentId_Dict[myparentID]={}
             for myFeatureName in ["f","e","v"]:
+                self.write_progress()
                 myTotalshapes = outputFeature[myFeatureName]                 
-                myParentId_Dict[myparentID][myFeatureName]=0
+                self.myParentId_Dict[myparentID][myFeatureName]=0
                 if(myTotalshapes):
                     myTotalLenShapes = len(myTotalshapes)
                     if self.multiplegltf > 0:
@@ -2841,8 +2863,9 @@ class StepIgesAnalyser():
                     else:
                         mySplitFiles = 1
                     start=0            
-                    myParentId_Dict[myparentID][myFeatureName]=mySplitFiles                    
+                    self.myParentId_Dict[myparentID][myFeatureName]=mySplitFiles                    
                     for iFiles in range(mySplitFiles):
+                        self.write_progress()
                         if(mySplitFiles==1):
                             myshapes = myTotalshapes
                         else:
@@ -2856,33 +2879,24 @@ class StepIgesAnalyser():
                             fname = pathfilename+"-"+str(myparentID)+"-"+myFeatureName+str(iFiles)+"."
                         else:
                             fname = pathfilename+"-"+str(myparentID)+"-"+myFeatureName+"."                    
-                        print("Disecting", fname, iFiles+1,"/", mySplitFiles, ",", lenfeature,"/",lenFeatures)
+                        print("Disecting", fname, iFiles+1,"/", mySplitFiles, ",", self.lenfeature,"/",self.lenFeatures)
                         addedTrees = StepIgesAnalyser(filename=head+fname,shapeslist=["Dummy"],thumbheight=0,thumbwidth=0,addfeaturesThread=False).\
                             addFeature(myshapes,myparentID,myTreeLen,myFeatureName)
                         myTreeLen+=addedTrees
+            self.lenfeature+=1
         
         try:
             if (COPY_PATH!=''):
-                currenttime=datetime.utcnow()
-                with open(newfilename, 'w') as fh:
-                    fh.write(
-                        json.dumps({
-                            "begin":(lenfeature-1 if (lenfeature > 0) else lenfeature),
-                            "end":lenFeatures,
-                            "start":starttime.strftime("%H-%M-%S"),
-                            "current":currenttime.strftime("%H-%M-%S"),
-                            "children":myParentId_Dict,
-                            "action":"Copying"},
-                            sort_keys=True, 
-                            indent=2 ))
-                self.percentage = (lenfeature-1 if (lenfeature > 0) else lenfeature) * 100 / (lenFeatures if lenFeatures > 0 else 1)
-                self.copytree(self.displaypath,COPY_PATH+self.displaypath)
-                self.percentage = 100
-                self.write_status(0)
+                self.lenfeature -= 1
+                if self.lenfeature < 0:
+                    self.lenfeature = 0
+                self.copytree(self.displaypath,COPY_PATH+self.displaypath,"Progress")
+                self.lenfeature += 1
         except Exception as e:
             print("Error while copying Edges to s3",e)    
-
-        with open(newfilename, 'w') as fh:
+        self.lenfeature = self.lenFeatures
+        self.write_progress(0)
+        """ with open(newfilename, 'w') as fh:
             currenttime=datetime.utcnow()
             fh.write(
                 json.dumps({
@@ -2892,7 +2906,7 @@ class StepIgesAnalyser():
                     "current":currenttime.strftime("%H-%M-%S"),
                     "children":myParentId_Dict},
                     sort_keys=True, 
-                    indent=2 ))
+                    indent=2 )) """
         try:
             if self.logging != None and self.addfeaturesThread:
                 self.logging.info("Completed addFeatures Thread ")
@@ -3380,20 +3394,25 @@ class StepIgesAnalyser():
         if errors:
             print(errors)
 
-    def copytree(self, src, dst, symlinks=False, ignored_names=['.','..']):
+    def copytree(self, src, dst, WRITESTATUS="Progress", symlinks=False, ignored_names=['.','..']):
         names = os.listdir(src)
         if not os.path.isdir(dst): 
             os.makedirs(dst)
         errors = []
         dircount = len(names)
-        if self.percentage > 99.99:
-            self.percentage = 99.99
-        percentIncrement = (100-self.percentage)*0.75 / (dircount if (dircount > 0) else 1 )
-        for name in names:
-            self.percentage += percentIncrement
+        if WRITESTATUS!="Progress":
             if self.percentage > 99.99:
                 self.percentage = 99.99
-            self.write_status(action='Copying:')    
+            percentIncrement = (100-self.percentage)*0.75 / (dircount if (dircount > 0) else 1 )
+        for name in names:            
+            if WRITESTATUS=="Progress":
+                self.write_progress(action='Copying:')  
+            else:
+                self.percentage += percentIncrement
+                if self.percentage > 99.99:
+                    self.percentage = 99.99
+                self.write_status(action='Copying:')   
+            
             if name in ignored_names:
                 continue
             srcname = os.path.join(src, name)
@@ -3403,7 +3422,7 @@ class StepIgesAnalyser():
                     linkto = os.readlink(srcname)
                     os.symlink(linkto, dstname)
                 elif os.path.isdir(srcname):
-                    self.copytree(srcname, dstname, symlinks, ignored_names)
+                    self.copytree(srcname, dstname, WRITESTATUS, symlinks, ignored_names)
                 else:
                     copiedname = shutil.copy2(srcname, dstname)
                     if copiedname == dstname: #if file is copied, then delete the source, else do not.
@@ -3435,10 +3454,10 @@ class StepIgesAnalyser():
         try:
             if (COPY_PATH!='') and notFromFeature:
                 print("Copying Display File",self.displaypath,COPY_PATH+self.displaypath)
-                self.copytree(self.displaypath,COPY_PATH+self.displaypath)
+                self.copytree(self.displaypath,COPY_PATH+self.displaypath,"Status")
                 print("Copying Media File",self.fname,COPY_PATH+self.fname)
                 self.copyonefile(self.fname,COPY_PATH+self.fname)
-                self.copytree(self.displaypath,COPY_PATH+self.displaypath)
+                self.copytree(self.displaypath,COPY_PATH+self.displaypath,"Status")
         except Exception as e:
             print("Error while copying to s3",e)
         try:
@@ -3592,9 +3611,12 @@ class StepIgesAnalyser():
                     self.addFeatures()
                     try:
                         if (COPY_PATH!=''):
-                            self.copytree(self.displaypath,COPY_PATH+self.displaypath)
-                            self.percentage = 100
-                            self.write_status(0)
+                            self.lenfeature  = self.lenFeatures-1
+                            if self.lenfeature < 0:
+                                self.lenfeature = 0
+                            self.copytree(self.displaypath,COPY_PATH+self.displaypath,"Progress")
+                            self.lenfeature = self.lenFeatures
+                            self.write_progress(0)
                     except Exception as e:
                         print("Error while copying Edges to s3",e)
             except Exception as e:
@@ -3603,7 +3625,7 @@ class StepIgesAnalyser():
         if byThread:   
             try:
                 if (COPY_PATH!=''):
-                    self.copytree(self.displaypath,COPY_PATH+self.displaypath)
+                    self.copytree(self.displaypath,COPY_PATH+self.displaypath,"Status")
                     self.percentage = 100
                     self.write_status(0)
             except Exception as e:
