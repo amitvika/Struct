@@ -53,7 +53,7 @@ export default function LinearProgressBarTiming (props) {
                         position: "absolute",
                         color: "white",
                         top: 0,
-                        left: "92%",
+                        left: (getTrimmedValue>80 && !progressBarRender)?"93":"95",
                         transform: "translateX(-50%)",
                     }}
                 >
