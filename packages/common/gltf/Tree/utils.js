@@ -430,7 +430,7 @@ export const gltf_Dict = {
           if(currentvalue>0) {
             const predictDifference = (100*difference/currentvalue)-difference;
             if(predictDifference >=0) {
-              setCompletionProgress( ((currentvalue > 80) ? "Copying" : '')+
+              setCompletionProgress( ((currentvalue > 80) ? "Copying " : '')+
                 convertToHourMinuteSeconds(predictDifference));
             } else {
               console.log("Problem getting completion progress",predictDifference,difference,currentvalue,(100*difference/currentvalue));
