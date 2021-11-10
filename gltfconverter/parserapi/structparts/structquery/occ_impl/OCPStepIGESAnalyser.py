@@ -2461,18 +2461,33 @@ class StepIgesAnalyser():
         #self.shape_tool.GetShapes(labels)
         #print("I have reached here in getshapes 2")
         topLevelItems = labels.Length()
-        rootlabel = labels.Value(1) # First label at root
-        #print("I have reached here in getshapes 3")
-        # Get information from root label
-        rootName = rootlabel.GetLabelName()
-        rootEntry = rootlabel.EntryDumpToString()
-        isAssembly = self.shape_tool.IsAssembly(rootlabel)
-        subComponentsFromParent = TDF_LabelSequence()
-        self.shape_tool.GetComponents(rootlabel, subComponentsFromParent)
-        isAssembly = isAssembly or subComponentsFromParent.Length() > 0
-        uid = self.get_uid_from_entry(rootEntry)
+        if topLevelItems<1 :            
+            print("No Labels, going further",self.fname)
+            self.shape_tool.GetShapes(labels)
+            topLevelItems = labels.Length()
+        if topLevelItems<1 :
+            print("Not supported, ",self.fname)   
+            rootlabel = '' # First label at root
+            #print("I have reached here in getshapes 3")
+            # Get information from root label
+            rootName = ''
+            rootEntry = ''
+            isAssembly = False
+            subComponentsFromParent = None
+            uid = ''
+        else: 
+            rootlabel = labels.Value(1) # First label at root
+            #print("I have reached here in getshapes 3")
+            # Get information from root label
+            rootName = rootlabel.GetLabelName()
+            rootEntry = rootlabel.EntryDumpToString()
+            isAssembly = self.shape_tool.IsAssembly(rootlabel)
+            subComponentsFromParent = TDF_LabelSequence()
+            self.shape_tool.GetComponents(rootlabel, subComponentsFromParent)
+            isAssembly = isAssembly or subComponentsFromParent.Length() > 0
+            uid = self.get_uid_from_entry(rootEntry)
         
-        print("root label",rootName, topLevelItems,"items")
+            print("root label",rootName, topLevelItems,"items")
         filename = self.displaypath+self.basefilename+".gltf"
         split = os.path.splitext(filename)
         name = self.basefilename #os.path.basename(filename)
@@ -3334,9 +3349,9 @@ class StepIgesAnalyser():
         percentIncrement = 20 / (dircount if (dircount > 0) else 1 )
         for name in names:
             self.percentage += percentIncrement
-            if self.percentage > 99:
-                self.percentage = 99
-            self.write_status(action='Copying')    
+            if self.percentage > 99.99:
+                self.percentage = 99.99
+            self.write_status(action='Copying ')    
             if name in ignored_names:
                 continue
             srcname = os.path.join(src, name)
