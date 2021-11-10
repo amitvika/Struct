@@ -50,7 +50,8 @@ import {
   getAFileFromStore,
   getGltfForStore,
   getTreeForStore,
-  resourcePathURL
+  resourcePathURL,
+  resourceStatusURL
 } from '@monostruct/common/api/fileUpload.api';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
@@ -155,7 +156,8 @@ const ItemDetail = () => {
       //console.log('Found gltf', whichOneToLoad);
       return 0;
     }
-    if (isFileExistingInServer(whichOneToLoad + '.status')) {
+    const statusURL = `${resourceStatusURL}${whichOneToStatus}.status`;  
+    if (isFileExistingInServer(statusURL)) {
       //console.log('Found status', whichOneToLoad);
       const statusRes = await getAFileFromStore(whichOneToStatus, 'status');
       let percent = 0;
