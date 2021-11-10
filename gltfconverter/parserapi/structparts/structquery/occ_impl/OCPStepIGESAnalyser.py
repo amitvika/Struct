@@ -3389,7 +3389,9 @@ class StepIgesAnalyser():
             print("Error while logging",e)
         try:
             if (COPY_PATH!='') and notFromFeature:
+                print("Copying Display File",self.displaypath,COPY_PATH+self.displaypath)
                 self.copytree(self.displaypath,COPY_PATH+self.displaypath)
+                print("Copying Media File",self.fname,COPY_PATH+self.fname)
                 shutil.copy2(self.fname,COPY_PATH+self.fname)
         except Exception as e:
             print("Error while copying to s3",e)
