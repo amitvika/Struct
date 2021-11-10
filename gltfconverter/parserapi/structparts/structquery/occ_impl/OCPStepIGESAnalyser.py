@@ -3374,12 +3374,12 @@ class StepIgesAnalyser():
         dircount = len(names)
         if self.percentage > 99.99:
             self.percentage = 99.99
-        percentIncrement = (100-self.percentage) / (dircount if (dircount > 0) else 1 )
+        percentIncrement = (100-self.percentage)*0.75 / (dircount if (dircount > 0) else 1 )
         for name in names:
             self.percentage += percentIncrement
             if self.percentage > 99.99:
                 self.percentage = 99.99
-            self.write_status(action='Copying ')    
+            self.write_status(action='Copying:')    
             if name in ignored_names:
                 continue
             srcname = os.path.join(src, name)
