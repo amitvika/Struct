@@ -436,6 +436,9 @@ export const gltf_Dict = {
               console.log("Problem getting completion progress",predictDifference,difference,currentvalue,(100*difference/currentvalue));
             }
           } else {
+            if(result.data.action) {
+              setCompletionProgress(result.data.action);
+            }
             console.log("Percentage is zero");
           }
           setPercentage(currentvalue);
