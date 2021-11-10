@@ -4870,7 +4870,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             #shape = Wholeshape
             #shapeArray = createShapeArray(shape)
             print("Order",dictionary)
-            dictionary = FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap,logging).\
+            FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap,logging).\
                 ExplodeParts(sourceFileName,distancegap,anglegap,animationtime,dictionary["display"],byThread,starttime)
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],100,starttime,False)
             #whatGotHere = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap)
@@ -4909,12 +4909,14 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 # Pickle the 'data' dictionary using the highest protocol available.                               
                 pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
         except Exception as e:
-            print(e,"File, %s has error" % picklefile)      
-        return dictionary
+            print(e,"File, %s has error" % picklefile)  
+        if byThread:    
+            return dictionary
        
        
     except:
-        return {}
+        if byThread:
+            return {}
         #raise ValueError("File Could not be loaded") 
 
 

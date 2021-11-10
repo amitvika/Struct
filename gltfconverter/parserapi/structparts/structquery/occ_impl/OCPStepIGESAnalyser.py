@@ -2758,6 +2758,7 @@ class StepIgesAnalyser():
         """ mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False))
         mythread.start() """
         print(self.basefilename,"Features are seperated")
+        
         return len(self.tstep_dict['tree'])
             #self.tree+="</ul></li></ul>" 
     
@@ -3598,15 +3599,15 @@ class StepIgesAnalyser():
                     logging.info("Completed thread conversion"+self.fname) 
             except Exception as e:
                 print("Error while logging",e)
-       
-        return (            
-            (getPNG,self.output), 
-            (
-                (self.scene_min[0],self.scene_min[1],self.scene_min[2],
-                self.scene_max[0],self.scene_max[1],self.scene_max[2]),
-                self.outputShapes
-                ), 
-                dict_return )
+        else:
+            return (            
+                (getPNG,self.output), 
+                (
+                    (self.scene_min[0],self.scene_min[1],self.scene_min[2],
+                    self.scene_max[0],self.scene_max[1],self.scene_max[2]),
+                    self.outputShapes
+                    ), 
+                    dict_return )
     
     def dump(self):
         """Return assembly structure in indented outline form.

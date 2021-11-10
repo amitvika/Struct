@@ -1637,9 +1637,11 @@ class FindAssemblingOrder(object):
         try:
             if self.logging != None and self.byThread:
                 self.logging.info("Completed thread assembling"+sourceFileName) 
+            else:
+                return dictionary
         except Exception as e:
             print("Error while logging",e)
-        return dictionary 
+         
 
     def ExplodeParts(self,sourceFileName,distancegap,anglegap,animationtime,displaypath="",bythread=True,starttime=None,debugMe=False):
         self.displaypath=displaypath
@@ -1669,8 +1671,9 @@ class FindAssemblingOrder(object):
             else:
                 dictionary = self.threadAssembling(sourceFileName,distancegap,anglegap,animationtime,starttime,None,debugMe)       
         except Exception as e:
-            print("Error in Exploding Parts",e)   
-        return dictionary
+            print("Error in Exploding Parts",e)  
+        #if not bythread: 
+        #    return dictionary
 
     def getDirection(self,direction):
         if direction=="Top":
