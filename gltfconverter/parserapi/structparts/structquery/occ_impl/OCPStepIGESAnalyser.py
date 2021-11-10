@@ -3338,7 +3338,23 @@ class StepIgesAnalyser():
             print("Percentage",self.percentage)
         return mystatusdict
 
-
+    def copyonefile(self, srcname, dstname, symlinks=False):
+        errors = []
+        dstpath = os.path.dirname(dstname)
+        if not os.path.isdir(dstpath): 
+            os.makedirs(dstpath)
+        try:
+            if symlinks and os.path.islink(srcname):
+                linkto = os.readlink(srcname)
+                os.symlink(linkto, dstname)
+            else:
+                shutil.copy2(srcname, dstname)
+        except shutil.Error as err:
+            errors.extend(err.args[0])
+        except EnvironmentError as why:
+            errors.append((srcname, dstname, str(why)))
+        if errors:
+            print(errors)
 
     def copytree(self, src, dst, symlinks=False, ignored_names=['.','..']):
         names = os.listdir(src)
@@ -3392,7 +3408,7 @@ class StepIgesAnalyser():
                 print("Copying Display File",self.displaypath,COPY_PATH+self.displaypath)
                 self.copytree(self.displaypath,COPY_PATH+self.displaypath)
                 print("Copying Media File",self.fname,COPY_PATH+self.fname)
-                shutil.copy2(self.fname,COPY_PATH+self.fname)
+                self.copyonefile(self.fname,COPY_PATH+self.fname)
         except Exception as e:
             print("Error while copying to s3",e)
         try:
