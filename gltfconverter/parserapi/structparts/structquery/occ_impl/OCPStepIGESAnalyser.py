@@ -2859,6 +2859,13 @@ class StepIgesAnalyser():
                         addedTrees = StepIgesAnalyser(filename=head+fname,shapeslist=["Dummy"],thumbheight=0,thumbwidth=0,addfeaturesThread=False).\
                             addFeature(myshapes,myparentID,myTreeLen,myFeatureName)
                         myTreeLen+=addedTrees
+        
+        try:
+            if (COPY_PATH!=''):
+                self.copytree(self.displaypath,COPY_PATH+self.displaypath)
+        except Exception as e:
+            print("Error while copying Edges to s3",e)    
+
         with open(newfilename, 'w') as fh:
             fh.write(
                 json.dumps({
@@ -3362,7 +3369,9 @@ class StepIgesAnalyser():
             os.makedirs(dst)
         errors = []
         dircount = len(names)
-        percentIncrement = 20 / (dircount if (dircount > 0) else 1 )
+        if self.percentage > 99.99:
+            self.percentage = 99.99
+        percentIncrement = (100-self.percentage) / (dircount if (dircount > 0) else 1 )
         for name in names:
             self.percentage += percentIncrement
             if self.percentage > 99.99:
@@ -3409,6 +3418,7 @@ class StepIgesAnalyser():
                 self.copytree(self.displaypath,COPY_PATH+self.displaypath)
                 print("Copying Media File",self.fname,COPY_PATH+self.fname)
                 self.copyonefile(self.fname,COPY_PATH+self.fname)
+                self.copytree(self.displaypath,COPY_PATH+self.displaypath)
         except Exception as e:
             print("Error while copying to s3",e)
         try:
