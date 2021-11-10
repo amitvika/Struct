@@ -236,6 +236,9 @@ const ItemDetail = () => {
         const whichOneToLoad = getResourcePathURL(item) + item.fileStack;
         const whichOneToStatus = getStatusPathURL(item) + item.fileStack;
         okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+        if(okToParse>1) {
+          item.fileStack = null;
+        }
       }
       if (!item.fileStack || item.fileStack === null) {
         //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
@@ -320,7 +323,7 @@ const ItemDetail = () => {
             whichOneToLoad,
             whichOneToStatus
           );
-          if (!okToParse) {
+          if (okToParse<=1) {
             //console.log('Found', fileMPPS);
             item.fileMPPS = fileMPPS;
           } else {
@@ -333,6 +336,9 @@ const ItemDetail = () => {
         const whichOneToLoad = getResourcePathURL(item) + item.fileMPPS;
         const whichOneToStatus = getStatusPathURL(item) + item.fileMPPS;
         okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+        if(okToParse>1) {
+          item.fileMPPS = null;
+        }
       }
       if (!item.fileMPPS || item.fileMPPS === null) {
         //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
@@ -430,7 +436,7 @@ const ItemDetail = () => {
                 whichOneToLoad,
                 whichOneToStatus
               );
-              if (!okToParse) {
+              if (okToParse<=1) {
                 //console.log('Found', fileKinematic);
                 item.fileKinematic = fileKinematic;
               } else {
@@ -448,6 +454,9 @@ const ItemDetail = () => {
               whichOneToLoad,
               whichOneToStatus
             );
+            if(okToParse>1) {
+              item.fileKinematic = null;
+            }
           }
           if (!item.fileKinematic || item.fileKinematic === null) {
             console.log(
@@ -655,7 +664,7 @@ const ItemDetail = () => {
                 whichOneToLoad,
                 whichOneToStatus
               );
-              if (!okToParse) {
+              if (okToParse<=1) {
                 item.fileGDT = fileGDT;
               } else {
                 console.log('GDT Not Found', fileGDT);
@@ -670,6 +679,9 @@ const ItemDetail = () => {
               whichOneToLoad,
               whichOneToStatus
             );
+            if(okToParse>1) {
+              item.fileGDT = null;
+            }
           }
           if (!item.fileGDT || item.fileGDT === null) {
             setIsLoading(true);
