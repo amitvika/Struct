@@ -3390,9 +3390,12 @@ class StepIgesAnalyser():
                 elif os.path.isdir(srcname):
                     self.copytree(srcname, dstname, symlinks, ignored_names)
                 else:
-                    shutil.copy2(srcname, dstname)
-                    if (not srcname.endswith(".status")) and (not srcname.endswith(".progress")):
-                        os.remove(srcname)
+                    copiedname = shutil.copy2(srcname, dstname)
+                    if copiedname == dstname: #if file is copied, then delete the source, else do not.
+                        if (not srcname.endswith(".status")) and (not srcname.endswith(".progress")):
+                            os.remove(srcname)
+                    else:
+                        print("Error while copying",srcname,dstname,copiedname)
             except shutil.Error as err:
                 errors.extend(err.args[0])
             except EnvironmentError as why:
