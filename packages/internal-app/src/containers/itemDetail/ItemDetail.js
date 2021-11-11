@@ -9,8 +9,6 @@ import {
   //Box,
   //LinearProgress
 } from '@material-ui/core';
-import AddBoxIcon from '@material-ui/icons/AddBox';
-import EditIcon from '@material-ui/icons/Edit';
 import SubHeaderWithArrow from '../../components/SubHeaderWithArrow';
 import { useParams, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -59,8 +57,7 @@ import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Classification from '../classification';
-
-// import { reducer, initialState } from './ItemDetail.helper';
+import EditItemTitle from './EditItemTitle';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -1192,25 +1189,39 @@ const ItemDetail = ({ itemValue }) => {
       <Grid container>
         <Grid item sm={12}>
           <SubHeaderWithArrow action={'/items'} title={'Items Details'} />
-          <Paper style={{ padding: 10, margin: 10, display: 'flex' }}>
-            <Grid>
-              <h4>Item Name: {itemProperties.name}</h4>
-              <Grid style={{ display: 'flex' }}>
+          <Paper
+            style={{
+              padding: 10,
+              margin: 10,
+              display: 'flex',
+              position: 'relative'
+            }}
+          >
+            <Grid style={{ zIndex: 999 }}>
+              <EditItemTitle
+                {...{
+                  itemProperties,
+                  updateItemOnServer: handleSave
+                }}
+              />
+              <div style={{ display: 'flex' }}>
                 <p>Item ID:{id} </p>
                 {/* <ClipboardText handleCopyId={handleCopyId} /> */}
-              </Grid>
+              </div>
             </Grid>
-            <Grid style={{ margin: 'auto' }}>
+            <Grid
+              style={{
+                margin: 'auto',
+                position: 'absolute',
+                display: 'flex',
+                justifyContent: 'center',
+                width: '100%',
+                alignItems: 'center',
+                textAlign: 'center',
+                height: '100%'
+              }}
+            >
               <h4>{tabList[tabIndex]}</h4>
-            </Grid>
-
-            <Grid style={{ marginLeft: 'auto' }}>
-              <Button>
-                <AddBoxIcon />
-              </Button>
-              <Button>
-                <EditIcon />
-              </Button>
             </Grid>
           </Paper>
         </Grid>

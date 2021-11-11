@@ -20,7 +20,6 @@ const ItemsView = () => {
     };
     saveToSessionStorage(NEW_ITEM, item);
     handleItemClick(newItemId);
-    
   };
 
   return (

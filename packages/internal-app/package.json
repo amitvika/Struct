@@ -16,7 +16,6 @@
     "@testing-library/user-event": "^12.1.10",
     "axios": "^0.21.1",
     "bootstrap": "^5.0.1",
-    "bson": "^4.5.4",
     "bson-objectid": "^2.0.1",
     "framer-motion": "^4.1.17",
     "lodash": "^4.17.21",
