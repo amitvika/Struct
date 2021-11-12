@@ -2786,7 +2786,7 @@ class StepIgesAnalyser():
     def write_progress(self,maxgap=10,action=''):
         currenttime = datetime.utcnow()
         timingdelta = currenttime-self.currenttime            
-        if (timingdelta.seconds >= maxgap): 
+        if (timingdelta.total_seconds() >= maxgap): 
             with open(self.progressfile, 'w') as fh:
                 fh.write(
                     json.dumps({
@@ -3361,7 +3361,7 @@ class StepIgesAnalyser():
             try:
                 statusfilename = self.displaypath+self.basefilename+".status"            
                 timingdelta = datetime.utcnow()-self.currenttime            
-                if (timingdelta.seconds >= maxgap): 
+                if (timingdelta.total_seconds() >= maxgap): 
                     if (self.writefiles) or (self.ascompound):
                         #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
                         print("Writing",statusfilename,"Percentage",self.percentage)                        
@@ -3686,7 +3686,7 @@ class StepIgesAnalyser():
                         ), 
                     dict_return )
         else:
-            print(self.basefilename,timingdelta.seconds,self.shapeslist,self.ascompound)
+            print(self.basefilename,timingdelta.total_seconds(),self.shapeslist,self.ascompound)
             statusfilename = self.displaypath+self.basefilename+".status"            
             if (self.writefiles) or (self.ascompound):
                 os.makedirs(os.path.dirname(statusfilename), exist_ok=True)

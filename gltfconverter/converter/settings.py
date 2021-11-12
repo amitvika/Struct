@@ -142,14 +142,18 @@ except Exception as e:
 
 DONOTUSES3 = donotuses3 == 'TRUE'
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR
-STATUS_ROOT = os.path.join(BASE_DIR, 'Display')
 STATUS_URL = '/Status/'
 MEDIA_URL = '/Media/'
 DISPLAY_URL = '/Display/'
-if DONOTUSES3:    
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'Media')
-    DISPLAY_ROOT = os.path.join(BASE_DIR, 'Display')
+S3MEDIA_URL = '/S3Media/'
+S3DISPLAY_URL = '/S3Display/'
+STATIC_ROOT = BASE_DIR
+STATUS_ROOT = os.path.join(BASE_DIR, 'Display')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'Media')
+DISPLAY_ROOT = os.path.join(BASE_DIR, 'Display')
+if DONOTUSES3: 
+    S3MEDIA_ROOT = MEDIA_ROOT
+    S3DISPLAY_ROOT = DISPLAY_ROOT
     S3_PATH = ''
 else:
     try:
@@ -168,8 +172,8 @@ else:
         print("Error while reading s3 environment variable",e)
         S3_PATH=''
     if S3_PATH=='':
-        MEDIA_ROOT = os.path.join(BASE_DIR, 's3bucket', 'Media')        
-        DISPLAY_ROOT = os.path.join(BASE_DIR, 's3bucket', 'Display')       
+        S3MEDIA_ROOT = os.path.join(BASE_DIR, 's3bucket', 'Media')        
+        S3DISPLAY_ROOT = os.path.join(BASE_DIR, 's3bucket', 'Display')       
     else:
         MEDIA_ROOT = os.path.join(BASE_DIR, S3_PATH, 'Media')       
         DISPLAY_ROOT = os.path.join(BASE_DIR, S3_PATH, 'Display')

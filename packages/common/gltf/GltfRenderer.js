@@ -37,8 +37,10 @@ import {
     LineBasicMaterial,
     PointsMaterial,
     BufferGeometry,
+    PlaneBufferGeometry,
     Line,
     Object3D,
+    Group,
     /*
     LineSegments,    
     Mesh,
@@ -49,6 +51,9 @@ import {
     */
 } from "three";
 
+//import {Line2, LineMaterial} from '@three/examples/js/lines';
+
+
 //import * as THREE from 'three';
 import { Float32BufferAttribute } from './BufferAttribute.js';
 //import Stats from 'three/examples/jsm/libs/stats.module.js';
@@ -58,7 +63,18 @@ import { GUI } from './GUI.js';
 //import CameraSpinControls from './CameraSpinControls.js';
 import { TrackballControls } from "./TrackballControls.js";
 
-import { resourcePathURL, resourcePathBase, getAFileFromStore } from '@monostruct/common/api/fileUpload.api.js'
+import  LineGeometry  from "./lines/LineGeometry.js";
+import  MeshLine  from "./lines/MeshLine.js";
+import LineMaterial  from "./lines/LineMaterial.js";
+
+/*
+import MeshLine from "./MeshLine/MeshLine.js";
+import { MeshLineMaterial } from "./MeshLine/MeshLineMaterial.js";
+import { MeshLineGeometry } from "./MeshLine/MeshLineGeometry";
+*/
+
+import { resourcePathURL, resourcePathBase, getAFileFromStore, getAFileFromURLStore, checkExistingPathFromStore
+} from '@monostruct/common/api/fileUpload.api.js'
 import {
     SELECTCOLOR, SELECTTEXTURE, SELECTMETAL, SELECTROUGH, SELECTOPAQUE,
     SELECTBACKCOLOR, SELECTSELECTCOLOR, SELECTTOUCHCOLOR, gltf_Dict, defaultGDTTable,
@@ -419,6 +435,7 @@ class GLTFRenderer extends Component {
         if(this.defaultCamera) {
             if(this.scene) {
                 this.scene.remove(this.defaultCamera);
+                //this.lineScene.remove(this.defaultCamera);
             }  
             this.defaultCamera = null;          
             //this.defaultCamera.dispose();
@@ -451,6 +468,7 @@ class GLTFRenderer extends Component {
         }
         if(this.scene) {
             this.scene.add(this.defaultCamera);
+            //this.lineScene.add(this.defaultCamera);
         }
         if(this.light1) {
             this.defaultCamera.add(this.light1);
@@ -636,6 +654,7 @@ class GLTFRenderer extends Component {
         //[].forEach.call(this.stats.dom.children, (child) => (child.style.display = ''));
         if(this.renderer==null) {
             this.scene = new Scene();
+            //this.lineScene = new Scene();
             const viewport = this.setSameSize();
             //const fov = this.props.preset === Preset.ASSET_GENERATOR
             //    ? 0.8 * 180 / Math.PI
@@ -659,6 +678,7 @@ class GLTFRenderer extends Component {
             this.renderer.setClearColor(this.props.backcolor || DEFAULTBACKCOLOR());
             this.renderer.setPixelRatio(window.devicePixelRatio);
             this.renderer.setSize(viewport.right*2, viewport.top*2);
+            //this.renderer.autoClear = false;
 
             //this.controls = new CameraSpinControls(this.defaultCamera, this.renderer.domElement);
             //this.controls = new OrbitControls(this.defaultCamera, this.renderer.domElement);
@@ -1299,9 +1319,10 @@ class GLTFRenderer extends Component {
             if(myCastShadow && !this.shadowmesh) {
                 const mesh = new Mesh( new PlaneGeometry( 100, 100 ), new MeshPhongMaterial( { color: 0xFFFFFF, depthWrite: false } ) );
 			    mesh.rotation.x = - Math.PI / 2;
-				mesh.receiveShadow = true;
+				mesh.receiveShadow = false;
 				this.scene.add( mesh );
                 this.shadowmesh=mesh;
+                //console.log("I am adding shadow");
             }
             this.content.forEach(element => {
                 element?
@@ -1736,19 +1757,24 @@ class GLTFRenderer extends Component {
         if (!this.content) return;
         this.content.forEach(element => {
             if (element) {
-            this.scene.remove(element);
+                //if ((element instanceof Group)||(element instanceof OrthographicCamera)||(element instanceof PerspectiveCamera)) {
+                    this.scene.remove(element);
+                //} else {
+                //    this.lineScene.remove(element);
+                //}
 
-            // dispose geometry
-            element.traverse((node) => {
+                // dispose geometry
+                element.traverse((node) => {
 
-                if (!node.isMesh) return;
-                if(node.geometry) {
-                    node.geometry.dispose();
-                    //node.geometry=null;
-                }
-               
+                    if (!node.isMesh) return;
+                    if(node.geometry) {
+                        node.geometry.dispose();
+                        //node.geometry=null;
+                    }
+                
 
-            }) };
+                }) 
+            };
 
             // dispose textures
             traverseMaterials(element, (material) => {
@@ -2416,7 +2442,7 @@ class GLTFRenderer extends Component {
     };
 
     visibllity = (mynode, display) => {
-        if(mynode?.type=="Line"){
+        if((mynode?.type=="Line") || (mynode?.type=="MeshLine") ){
             //console.log("Returning true");
             return true;
         } 
@@ -2530,7 +2556,7 @@ class GLTFRenderer extends Component {
             var myObject = intersects.length;
             for (var i = 0; i < intersects.length; i++) {
                 //console.log("First",intersects[ i ].object);
-                if (intersects[i].object.type == "Line" ) {
+                if ((intersects[i].object.type == "Line" ) || (intersects[i].object.type == "MeshLine" )) {
                     myObject = i;
                     //console.log("I found a face",intersects[i].object.name);
                     break;
@@ -2566,7 +2592,7 @@ class GLTFRenderer extends Component {
                 //console.log("Entered here");
                 for (var i = 0; i < intersects.length; i++) {
                     //console.log("Second",intersects[ i ].object);
-                    if (intersects[i].object.type == "Mesh" || intersects[i].object.type == "Line") {
+                    if (intersects[i].object.type == "Mesh" || intersects[i].object.type == "Line" || intersects[i].object.type == "MeshLine") {
                         //console.log(intersects[ i ].object);                        
                         myObject = i;
                         break;                      
@@ -2644,13 +2670,14 @@ class GLTFRenderer extends Component {
             this.materialtype = this.props.materialtype;
             this.selectedoption = this.props.selectedoption;
             this.activeDataTable = this.props.activeDataTable;
+            const myResourcePath = state_gltfobj.resourcepath ? state_gltfobj.resourcepath : resourcePathURL;
             if (this.gltfJSON != null) {
                 console.log("Getting me3!",this.selectedoption,this.activeFile);
                 //this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');
                 //console.log(this.props.gltfobj.gltf);
                 let myParserParams = {
 
-                    path: this.props.fileUUId? (resourcePathURL || '') + this.props.fileUUId+'/' : resourcePathURL || '',
+                    path: this.props.fileUUId? (myResourcePath || '') + this.props.fileUUId+'/' : myResourcePath || '',
                     crossOrigin: 'anonymous',
                     requestHeader: null,
                     manager: DefaultLoadingManager,
@@ -4042,10 +4069,28 @@ class GLTFRenderer extends Component {
         return this_progress_data;       
     }
     */
-
+    extrudePath = ( points, depth ) => {
+        var geometry = new PlaneBufferGeometry(0, 0, points.length - 1, 1);
+        var vertices = geometry.vertices; 
+        
+        for (var i = 0, l = points.length, p; i < l; i++) {
+          p = points[i];
+          console.log("point",p,"Points",points,"vertices",vertices);
+          vertices[i].x = vertices[i + l].x = p[0];
+          vertices[i].y = vertices[i + l].y = p[1];
+      
+          vertices[i].z = p[2];
+          vertices[i + l].z = p[2] + depth;
+        }
+      
+        geometry.computeFaceNormals();
+      
+        return geometry;
+    }
     
     loadAllEdges = async (allEdges=0, featureSetStart=0, featureSetFinish=3, mynode=null,gdttableEdges=null) => {
-        
+        const local_state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
+                            
         //this.fetchTree(gltfFILE,progressFile,myParentID);
         const progressFile = (this.props.fileUUId ? this.props.fileUUId+'/' : '') + this.props.fileGDT.slice(0, this.props.fileGDT.length - 1); 
         const progressGLTF = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);
@@ -4102,8 +4147,9 @@ class GLTFRenderer extends Component {
             this_progress_data = data;
         }
         if(data) { 
-            const loader = new GLTFLoader().setPath( this.props.fileUUId? (resourcePathURL || '') + this.props.fileUUId+'/' 
-            : resourcePathURL || '').setCrossOrigin('anonymous');
+            let myResourcePath = local_state_gltfobj.resourcepath ? local_state_gltfobj.resourcepath: resourcePathURL;
+            const loader = new GLTFLoader().setPath( this.props.fileUUId? (myResourcePath || '') + this.props.fileUUId+'/' 
+            : myResourcePath || '').setCrossOrigin('anonymous');
             if(this.props.setCenterActionText) {
                 this.props.setCenterActionText("Generating Edges"+progressFile);
             }
@@ -4113,6 +4159,7 @@ class GLTFRenderer extends Component {
                     myobject.position.x += (this.shiftposition.x);
                     myobject.position.y += (this.shiftposition.y);
                     myobject.position.z += (this.shiftposition.z);
+                    myobject.renderOrder += 1;
                     this.scene.add(myobject);
                     this.content.push(myobject);
                     //console.log("MyObject",myobject);
@@ -4221,7 +4268,8 @@ class GLTFRenderer extends Component {
                     let gltfStore = progressGLTF + "-" +myParentID.toString()+element+"3";
                     //console.log("For Loop",fileStore,howManyFiles);
                     if(howManyFiles>0 && indexFiles >0){
-                        parentLineNodes = new Object3D();
+                        parentLineNodes = new Group();//new Object3D();
+                        parentLineNodes.linetype = indexFiles;
                     }
                     for (let index = 0; index < howManyFiles; index++) {
                         if(index > 0) {
@@ -4232,7 +4280,9 @@ class GLTFRenderer extends Component {
                             gltfStore = progressGLTF + "-" +myParentID.toString()+element+index.toString()+"3";
                         } 
                         //console.log("Inside Loop",fileStore,index,howManyFiles);
-                        let treeRes = await getAFileFromStore(fileStore,"tree");
+                        myResourcePath = checkExistingPathFromStore(fileStore,"tree",false,myResourcePath);
+                                
+                        let treeRes = await getAFileFromURLStore(fileStore,"tree",myResourcePath);
                         if(treeRes && treeRes.data) {
                             
                             const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
@@ -4258,17 +4308,80 @@ class GLTFRenderer extends Component {
                                         
                                         /*  */
                                         let points=[];
+                                        //let extrudepoints=[];
                                         //let xyzpoints=[];
                                         const myBase64Points = this.getFloatArray(element[gltf_Dict["points"]]);
                                         if(myBase64Points) {
+                                            
                                             for (let points_index = 0; points_index < myBase64Points.length; points_index+=3) {
-                                                const thisPoint = new Vector3((myBase64Points[points_index])*0.001, 
+                                                let thisPoint = new Vector3((myBase64Points[points_index])*0.001, 
                                                                             (myBase64Points[points_index+2])*0.001, 
-                                                                            (myBase64Points[points_index+1])*-0.001);
+                                                                            (myBase64Points[points_index+1])*-0.001);                                                    
                                                 points.push(thisPoint);
+                                                //points.push(thisPoint);
+                                                 /*extrudepoints.push([(myBase64Points[points_index])*0.001,
+                                                                    (myBase64Points[points_index+2])*0.001,
+                                                                    (myBase64Points[points_index+1])*-0.001]);
+                                               
+                                                thisPoint = new Vector3((myBase64Points[points_index]+0.01)*0.001, 
+                                                                            (myBase64Points[points_index+2])*0.001, 
+                                                                            (myBase64Points[points_index+1])*-0.001);                                                    
+                                                points.push(thisPoint);
+                                                thisPoint = new Vector3((myBase64Points[points_index]+0.01)*0.001, 
+                                                                            (myBase64Points[points_index+2]+0.01)*0.001, 
+                                                                            (myBase64Points[points_index+1])*-0.001);                                                    
+                                                points.push(thisPoint);
+                                                thisPoint = new Vector3((myBase64Points[points_index]+0.01)*0.001, 
+                                                                            (myBase64Points[points_index+2]+0.01)*0.001, 
+                                                                            (myBase64Points[points_index+1]+0.01)*-0.001);                                                    
+                                                points.push(thisPoint);                                                
+                                                thisPoint = new Vector3((myBase64Points[points_index])*0.001, 
+                                                                            (myBase64Points[points_index+2]+0.01)*0.001, 
+                                                                            (myBase64Points[points_index+1]+0.01)*-0.001);                                                    
+                                                points.push(thisPoint);
+                                                thisPoint = new Vector3((myBase64Points[points_index])*0.001, 
+                                                                            (myBase64Points[points_index+2])*0.001, 
+                                                                            (myBase64Points[points_index+1]+0.01)*-0.001);                                                    
+                                                points.push(thisPoint);
+                                                thisPoint = new Vector3((myBase64Points[points_index])*0.001, 
+                                                                            (myBase64Points[points_index+2])*0.001, 
+                                                                            (myBase64Points[points_index+1])*-0.001);                                                    
+                                                points.push(thisPoint);
+                                                thisPoint = new Vector3((myBase64Points[points_index]-0.01)*0.001, 
+                                                                            (myBase64Points[points_index+2])*0.001, 
+                                                                            (myBase64Points[points_index+1])*-0.001);                                                    
+                                                points.push(thisPoint);
+                                                thisPoint = new Vector3((myBase64Points[points_index]-0.01)*0.001, 
+                                                                            (myBase64Points[points_index+2]-0.01)*0.001, 
+                                                                            (myBase64Points[points_index+1])*-0.001);                                                    
+                                                points.push(thisPoint);
+                                                thisPoint = new Vector3((myBase64Points[points_index]-0.01)*0.001, 
+                                                                            (myBase64Points[points_index+2]-0.01)*0.001, 
+                                                                            (myBase64Points[points_index+1]-0.01)*-0.001);                                                    
+                                                points.push(thisPoint);                                                
+                                                thisPoint = new Vector3((myBase64Points[points_index])*0.001, 
+                                                                            (myBase64Points[points_index+2]-0.01)*0.001, 
+                                                                            (myBase64Points[points_index+1]-0.01)*-0.001);                                                    
+                                                points.push(thisPoint);
+                                                thisPoint = new Vector3((myBase64Points[points_index])*0.001, 
+                                                                            (myBase64Points[points_index+2])*0.001, 
+                                                                            (myBase64Points[points_index+1]-0.01)*-0.001);                                                    
+                                                points.push(thisPoint);
+                                                thisPoint = new Vector3((myBase64Points[points_index])*0.001, 
+                                                                            (myBase64Points[points_index+2])*0.001, 
+                                                                            (myBase64Points[points_index+1])*-0.001);                                                    
+                                                points.push(thisPoint);
+                                                */
+                                                /* if(element[gltf_Dict["name"]].includes("jaula1H01052")) {
+                                                    const anotherPoint = new Vector3((myBase64Points[points_index]+1)*0.001, 
+                                                                            (myBase64Points[points_index+2]+1)*0.001, 
+                                                                            (myBase64Points[points_index+1]+1)*-0.001);                                                    
+                                                    points.push(anotherPoint);
+                                                } */
                                                 //xyzpoints.push(thisPoint.x,thisPoint.y,thisPoint.z);
                                                 //console.log("x,y,z",myBase64Points[points_index], myBase64Points[points_index+1],myBase64Points[points_index+2]);
                                             }
+                                            
                                         } else {
                                             const myPoints = element[gltf_Dict["points"]];
                                             if(myPoints) {
@@ -4282,8 +4395,12 @@ class GLTFRenderer extends Component {
                                             }  
                                         }     
                                         let geometry = new BufferGeometry({name:element[gltf_Dict["name"]]});                                                                                          
-                                        geometry.name=element[gltf_Dict["name"]];   
-                                        geometry.setFromPoints( points );   
+                                        geometry.name=element[gltf_Dict["name"]];  
+                                        //geometry.setPositions(myBase64Points);
+                                        geometry.setFromPoints( points ); 
+                                         
+                                        //let geometry = this.extrudePath(extrudepoints,0.1); 
+                                        
                                         //geometry.setAttribute( 'position', new Float32BufferAttribute( xyzpoints, 3 ) );
                                    
                                         //let geometry = new BufferGeometry({name:element[gltf_Dict["name"]]}).setFromPoints( points );                                                    
@@ -4292,11 +4409,45 @@ class GLTFRenderer extends Component {
                                             let material = new LineBasicMaterial({
                                                 color: this.props.edgecolor?this.props.edgecolor:DEFAULTEDGECOLOR,
                                                 name:element[gltf_Dict["name"]],
-                                                linewidth:1,
+                                                linewidth:5,
                                             });
-                                            let line = new Line(geometry, material);                                            
-                                            line.name=element[gltf_Dict["name"]];                                            
+                                            /* material.depthTest = true;
+                                            material.depthWrite = true;
+                                            material.side = DoubleSide;
+                                            material.precision = 'highp';
+                                            material.polygonOffset= true;
+                                            material.polygonOffsetFactor= -200;
+                                            material.receiveShadow = false; */
+                                            /*material.depthWrite = true;
+                                            material.polygonOffset= true;
+                                            material.polygonOffsetFactor= -200;*/
+                                            let line = new Line(geometry, material);   
+                                                                                  
+                                            line.name=element[gltf_Dict["name"]];  
+                                            line.renderOrder+=20;  
+                                           /*  if(geometry.name.includes("1H01052")||geometry.name.includes("1H01054") ) {
+                                                console.log(geometry.name,myBase64Points);
+                                                line.renderOrder+=20;  
+                                            } 
+                                            if(geometry.name.includes("1H01054") ||geometry.name.includes("1H01056") ) {
+                                                console.log(geometry.name,myBase64Points);
+                                                line.renderOrder+=20;  
+                                                line.opacity = 0.8;
+                                            } 
+                                            if(geometry.name.includes("1H01056") ) {
+                                                console.log(geometry.name,myBase64Points);
+                                                line.renderOrder+=20;  
+                                            }  */
+                                            //line.onBeforeRender = function( renderer ) { renderer.clearDepth(); };
+                                                                   
                                             parentLineNodes.add(line);
+                                           /*  material = new PointsMaterial({ 
+                                                color: 0xff00ff,//this.props.edgecolor?this.props.edgecolor:DEFAULTEDGECOLOR,
+                                                name:element[gltf_Dict["name"]],
+                                                size:5});
+                                            let point = new Points(geometry, material);                                           
+                                            point.name=element[gltf_Dict["name"]];                                           
+                                            parentLineNodes.add(point);  */
                                         } else {
                                             let material = new PointsMaterial({ 
                                                 color: this.props.edgecolor?this.props.edgecolor:DEFAULTEDGECOLOR,
@@ -4312,6 +4463,9 @@ class GLTFRenderer extends Component {
                                 this.onCloseProgress(fileStore+".tree","success","loaded successfully");    
                             } else {
                                 this.onInitProgress(gltfStore+".gltf");
+                                myResourcePath = checkExistingPathFromStore(fileStore,"gltf",false,myResourcePath);
+                                loader.setPath( this.props.fileUUId? (myResourcePath || '') + this.props.fileUUId+'/' 
+                                : myResourcePath || '').setCrossOrigin('anonymous');
                                 loader.load(gltfStore+".gltf", onload, onProgress, onError,1 );
                             } 
                                             
@@ -4324,6 +4478,8 @@ class GLTFRenderer extends Component {
                             parentLineNodes.position.x += (this.shiftposition.x);
                             parentLineNodes.position.y += (this.shiftposition.y);
                             parentLineNodes.position.z += (this.shiftposition.z); 
+                            parentLineNodes.renderOrder += 20;
+                            //parentLineNodes.onBeforeRender = function( renderer ) { renderer.clearDepth(); };
                             this.scene.add(parentLineNodes);
                             this.content.push(parentLineNodes);
                             this.partsMeshes=[...this.partsMeshes,...parentLineNodes.children];
@@ -5129,7 +5285,47 @@ class GLTFRenderer extends Component {
         }
         if (this.renderer) {
             this.changeBackground();
-            this.renderer.render(this.scene, this.activeCamera);
+            /* const scenechildren = this.scene.children;
+            let object3ds = [];
+            let notobject3ds = [];
+            scenechildren.forEach(element => {
+                if ((element instanceof Group)||(element instanceof OrthographicCamera)||(element instanceof PerspectiveCamera)) {
+                   object3ds.push(element);
+                }  else {
+                    notobject3ds.push(element);
+                }
+            });
+            notobject3ds.forEach(element => {
+                object3ds.push(element);
+            });
+            this.scene.children = object3ds;   */         
+            
+                       //console.log(notobject3ds);
+            
+           
+            //this.scene.renderOrder = 0;         
+            //this.lineScene.renderOrder = 20;
+           
+           
+            //let localscene = new Scene();
+            //localscene.add(this.scene);
+            //localscene.add(this.lineScene); 
+            //this.renderer.sortObjects=false;
+            //this.renderer.autoClearDepth = true;
+            
+            //this.renderer.render(localscene,this.activeCamera); 
+            this.renderer.render(this.scene, this.activeCamera);            
+            //this.renderer.clearDepth();
+            //this.renderer.render(this.lineScene, this.activeCamera); 
+            
+            
+            
+            /* scenechildren.forEach(element => {
+                if ((element instanceof Object3D)) {
+                    this.renderer.render(element, this.activeCamera);
+                }  
+            }); */
+            //this.renderer.render(this.scene, this.activeCamera);
             if (this.state.grid && this.axesRenderer) {
                 this.axesCamera.position.copy(this.defaultCamera.position)
                 this.axesCamera.lookAt(this.axesScene.position)

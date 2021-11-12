@@ -14,7 +14,9 @@ import {
   SELECTDISTANCE,SELECTSOLID, SELECTHIRERACHY, SELECTDISECTPARTS, STATEPROPS,
   SELECTASSEMBLY, SELECTFEATURE, arrayCopy, arrayFindIndex, arrayRemove, gltf_Dict
 } from "@monostruct/common/gltf/Tree/utils";
-import { getAFileFromStore,saveTreeInfo,getPartsAssemblyOrder,resourcePathURL } from '@monostruct/common/api/fileUpload.api';
+import {
+  saveTreeInfo, getPartsAssemblyOrder, getAFileFromURLStore, checkExistingPathFromStore 
+} from '@monostruct/common/api/fileUpload.api';
 import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
 import '../../style.css';
 
@@ -798,19 +800,21 @@ export default function ManufacturabilityAnalysis(props) {
       .then(res => res.data)
       .then((data) => { 
         console.log("Getting Resources",data);
-        getAFileFromStore(filePath+itemProperties.fileMPPS,"gltf")
+        const myResourcePath = checkExistingPathFromStore(filePath+itemProperties.fileMPPS,"gltf", false, gltfjsonParam.resourcepath);
+        getAFileFromURLStore(filePath+itemProperties.fileMPPS,"gltf",myResourcePath)
         .then(res => res.data)
         .then((data) => {
           const gltfobj = data;
-          getAFileFromStore(filePath+itemProperties.fileMPPS,"tree")
+          getAFileFromURLStore(filePath+itemProperties.fileMPPS,"tree",myResourcePath)
           .then(res => res.data)
           .then((data) => {
             const curTree = data;
-            getAFileFromStore(filePath+itemProperties.fileMPPS,"order")
+            getAFileFromURLStore(filePath+itemProperties.fileMPPS,"order",myResourcePath)
             .then(res => res.data)
             .then((data) => {
               const curOrder = data;
               var mygltfjson = gltfjsonParam;
+              mygltfjson.resourcepath = myResourcePath;
               mygltfjson.gltf = gltfobj;
               mygltfjson.tree = curTree;
               mygltfjson.assemblyorder = curOrder;
@@ -872,19 +876,21 @@ export default function ManufacturabilityAnalysis(props) {
         .then(res => res.data)
         .then((data) => {      
           console.log("Getting Resources",data);
-          getAFileFromStore(filePath+itemProperties.fileMPPS,"gltf")
+          const myResourcePath = checkExistingPathFromStore(filePath+itemProperties.fileMPPS,"gltf", false, state_gltfjson.resourcepath);
+          getAFileFromURLStore(filePath+itemProperties.fileMPPS,"gltf",myResourcePath)
           .then(res => res.data)
           .then((data) => {
             const gltfobj = data;
-            getAFileFromStore(filePath+itemProperties.fileMPPS,"tree")
+            getAFileFromURLStore(filePath+itemProperties.fileMPPS,"tree",myResourcePath)
             .then(res => res.data)
             .then((data) => {
               const curTree = data;              
-              getAFileFromStore(filePath+itemProperties.fileMPPS,"order")
+              getAFileFromURLStore(filePath+itemProperties.fileMPPS,"order".myResourcePath)
               .then(res => res.data)
               .then((data) => {
                 const curOrder = data;
                 var mygltfjson = {...state_gltfjson};
+                mygltfjson.resourcepath = myResourcePath;
                 mygltfjson.gltf = gltfobj;
                 mygltfjson.tree = curTree;
                 mygltfjson.assemblyorder = curOrder;
@@ -916,19 +922,21 @@ export default function ManufacturabilityAnalysis(props) {
     if(myJsonTree) {
       console.log("Saving",myJsonTree,itemProperties.fileMPPS);
       const filePath = itemProperties.fileUUId ? itemProperties.fileUUId+'/': '';
-        getAFileFromStore(filePath+itemProperties.fileMPPS,"gltf")
+      const myResourcePath = checkExistingPathFromStore(filePath+itemProperties.fileMPPS,"gltf", false, state_gltfjson.resourcepath);
+        getAFileFromURLStore(filePath+itemProperties.fileMPPS,"gltf",myResourcePath)
         .then(res => res.data)
         .then((data) => {
           const gltfobj = data;
-          getAFileFromStore(filePath+itemProperties.fileMPPS,"tree")
+          getAFileFromURLStore(filePath+itemProperties.fileMPPS,"tree",myResourcePath)
           .then(res => res.data)
           .then((data) => {
             const curTree = data;
-            getAFileFromStore(filePath+itemProperties.fileMPPS,"order")
+            getAFileFromURLStore(filePath+itemProperties.fileMPPS,"order",myResourcePath)
             .then(res => res.data)
             .then((data) => {
               const curOrder = data;
               var mygltfjson = {...state_gltfjson};
+              mygltfjson.resourcepath = myResourcePath;
               mygltfjson.gltf = gltfobj;
               mygltfjson.tree = curTree;
               mygltfjson.assemblyorder=curOrder;           

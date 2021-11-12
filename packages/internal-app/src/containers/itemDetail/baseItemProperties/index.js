@@ -16,6 +16,7 @@ import {
   //upload3DFile,
   getHierarchySplitFiles,
   getAFileFromStore,
+  resourcePathURL,
 } from '@monostruct/common/api/fileUpload.api';
 
 import ItemAPI from '@monostruct/common/api/items.api';
@@ -331,6 +332,7 @@ export default function BaseItemProperties({
             multiAssmebly: treeLength > 0,
             gdt: datagdt,
             treeLength: treeRes.data.length,
+            resourcepath: resourcePathURL
           });
           setItemProperties((prevData) => ({
             ...prevData,

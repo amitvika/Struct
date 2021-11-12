@@ -24,6 +24,8 @@ import sys
 import math
 import pickle
 import threading
+
+
 from datetime import datetime
 from pathlib import Path
 #from .structparts import Part
@@ -62,7 +64,8 @@ from .assemblyorder import FindAssemblingOrder
 from decimal import Decimal 
 import traceback
 import logging
-import textwrap
+from .dirSync import checkIdle, copyTree
+#import textwrap
 
 from logging.handlers import TimedRotatingFileHandler
 
@@ -95,7 +98,34 @@ class HttpFormatter(logging.Formatter):
 
         return result """
 
-    
+class RecursiveCopier():
+
+    def __init__(self,interval,hFunction):
+        self.t=interval
+        self.hFunction = hFunction
+
+    def handle_function(self):
+        self.hFunction()
+        self.start()
+
+    def start(self):
+        self.thread = threading.Timer(self.t,self.handle_function)
+        self.thread.start()
+
+    def cancel(self):
+        self.thread.cancel()
+        
+
+def copyFiles():
+    try:
+        if checkIdle() > 300:
+            print("I am Idle to move files from Linux box to S3Box")
+            copyTree("Media/", "s3bucket/Media/",False,0,100)
+            copyTree("Display/", "s3bucket/Display/",True,0,100)
+        else:
+            print("I am not Idle to move files from Linux box to S3Box")
+    except Exception as e:
+        print("Error while moving",e)
 
 logHandler = TimedRotatingFileHandler("Media/Log/APIWatcher.Log",when="midnight")
 #logFormatter = logging.Formatter('%(asctime)s %(message)s')
@@ -105,7 +135,8 @@ logger = logging.getLogger()
 logger.addHandler( logHandler )
 logger.setLevel( logging.INFO )
 
-
+recursiveCopier = RecursiveCopier(10,copyFiles)
+recursiveCopier.start()
 
 def logRoundtrip(response, *args, **kwargs): 
         extra = {
@@ -1630,7 +1661,7 @@ def duplicateShapes(shape,dimension,depthable,stackable,filename,basefilename,di
         while distance > 1e-2:
             currenttime = datetime.utcnow()
             timingdelta = currenttime-previoustime
-            if (timingdelta.seconds > 5):
+            if (timingdelta.total_seconds() > 5):
                 getEmptyDictionary(filename,basefilename,displaypath,55,starttime,False)
                 previoustime=currenttime
             AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)

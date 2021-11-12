@@ -14,9 +14,9 @@ if settings.DONOTUSES3:
 else:
     DISPLAY_URL = COPY_PATH+'Display/'
     MEDIA_URL = COPY_PATH+'Media/'
-    if COPY_PATH=='':
-        COPY_PATH = 's3bucket/'
-    else:
-        COPY_PATH = ''
+    #if COPY_PATH=='':
+    #    COPY_PATH = 's3bucket/'
+    #else:
+    #    COPY_PATH = ''
 
  

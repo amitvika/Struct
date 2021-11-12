@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { LinearProgress, Box, IconButton, Typography, TextField, Checkbox, FormControlLabel } from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
 
-import { uploadChunkData, download, resourcePathURL } from '../../api/fileUpload.api';
-import { isFileExistingInServer } from '../Tree/utils';
+import { uploadChunkData, download, checkExistingPathFromStore } from '../../api/fileUpload.api';
+
 import ExportLogo from '../../assets/images/export.png';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -188,11 +188,9 @@ export default function LargeFileUpload({
   const onDrawLineChange = (e) => {
     setDrawLine(e.target.checked);
   }
-
-
-  if (itemProperties.fileStore && itemProperties.fileGDT &&
-    isFileExistingInServer(resourcePathURL+
-      (itemProperties.fileUUId?itemProperties.fileUUId+'/':'')+itemProperties.fileGDT+".gltf")) {
+  const fileGDTPath = (itemProperties.fileUUId?itemProperties.fileUUId+'/':'')+itemProperties.fileGDT;
+  
+  if (itemProperties.fileStore && itemProperties.fileGDT && checkExistingPathFromStore(fileGDTPath,"gltf",true)) {
     console.log(itemProperties.fileStore,distanceGap,angleGap);
     return (
       <div style={{ display: 'flex' }}>

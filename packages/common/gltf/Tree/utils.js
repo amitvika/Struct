@@ -470,7 +470,9 @@ export const gltf_Dict = {
     return result;
   };
   
-  export const isFileExistingInServer = (urlAsFile) => {
+  /*
+    Moved to fileuploadapi.. 
+    export const isFileExistingInServer = (urlAsFile) => {
     try {
       var xhr = new XMLHttpRequest();
       try {
@@ -485,7 +487,7 @@ export const gltf_Dict = {
       console.log(error);
       return false;
     }   
-  };
+  }; */
 
   export const checkDBNull = (some_variable) => {
     if ( typeof(some_variable) !== "undefined" && some_variable !== null ) {

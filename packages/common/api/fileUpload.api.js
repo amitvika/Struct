@@ -155,11 +155,63 @@ export const getAllFiles = () => {
   const fetchURL = `${host}/files`;
   return axios.get(fetchURL);
 };
-
+export const getAFileFromURLStore = (store, ext, fromURL) => {
+  if ((ext=="status") || (ext=="progress")) {
+    const fetchURL = `${resourceStatusURL}${store}.${ext}`;
+    console.log(fetchURL);
+    return axios.get(fetchURL);
+  } else {
+    const linuxURL = `${fromURL}${store}.${ext}`;
+    console.log(linuxURL);
+    return axios.get(linuxURL);    
+  }
+};
 export const getAFileFromStore = (store, ext) => {
-  const fetchURL = `${ ((ext=="status") || (ext=="progress")) ? resourceStatusURL : resourcePathURL}${store}.${ext}`;
-  console.log(fetchURL);
-  return axios.get(fetchURL);
+  if ((ext=="status") || (ext=="progress")) {
+    const fetchURL = `${resourceStatusURL}${store}.${ext}`;
+    console.log(fetchURL);
+    return axios.get(fetchURL);
+  } else {
+    const linuxURL = `${resourcePathURL}${store}.${ext}`;
+    if(isFileExistingInServer(linuxURL)){
+      console.log(linuxURL);
+      return axios.get(linuxURL);
+    } else {
+      const s3URL = `${resourcePathS3URL}${store}.${ext}`;
+      console.log(s3URL);
+      return axios.get(s3URL);
+    }
+  }
+};
+
+export const checkExistingPathFromStore = (store, ext, checkPresence=false, checkURL=null) => {
+  if ((ext=="status") || (ext=="progress")) {
+    return resourceStatusURL;
+  } else {
+    if(checkURL) {
+      const checkingURL = `${checkURL}${store}.${ext}`;
+      if(isFileExistingInServer(checkingURL)){
+        return checkURL;
+      } 
+    } 
+    if(checkURL != resourcePathURL) {
+      const linuxURL = `${resourcePathURL}${store}.${ext}`;
+      if(isFileExistingInServer(linuxURL)){
+        return resourcePathURL;
+      } 
+    }
+    if(checkURL != resourcePathS3URL) {
+      const s3URL = `${resourcePathS3URL}${store}.${ext}`;
+      if(isFileExistingInServer(s3URL)){
+        return resourcePathS3URL;
+      }
+    }
+    if (checkPresence) {
+      return null;
+    } else {
+      return resourcePathS3URL;
+    }
+  }
 };
 
 export const getGltfForStore = (store) => {
@@ -185,6 +237,29 @@ export const download = (fileStore) => {
     })
     .catch(console.error);
 };
+
+export const isFileExistingInServer = (urlAsFile) => {
+  try{
+    try {
+      var xhr = new XMLHttpRequest();
+      try {
+        xhr.open('HEAD', urlAsFile, false);
+        xhr.send();
+        return xhr.status !== 404;
+      } catch (exception) {
+        console.log(exception);
+        return false;
+      }      
+    } catch (error) {
+      console.log(error);
+      return false;
+    }  
+  } catch (error) {
+    return false;
+  }
+};
+
 export const resourcePathBase = `${baseURL}/`; //"./gltfconverter/";//
-export const resourcePathURL = `${baseURL}/Display/`; //http://localhost:8000/Media/`;
+export const resourcePathURL = `${baseURL}/Display/`; "//http://localhost:8000/Media/";
 export const resourceStatusURL = `${baseURL}/Status/`;
+export const resourcePathS3URL = `${baseURL}/S3Display/`; //"./gltfconverter/";//

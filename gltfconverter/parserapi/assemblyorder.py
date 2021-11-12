@@ -1313,10 +1313,10 @@ class FindAssemblingOrder(object):
         directionX,directionY,directionZ = myDirections[direction]
         return directionX*displacement, directionY*displacement, directionZ*displacement   
 
-    def writeStatusElapsed(self,storename,starttime,previoustime,previousk,k,lenShape):
+    def writeStatusElapsed(self,storename,starttime,previoustime,previousk,k,lenShape,maxgap=5):
         currenttime = datetime.utcnow()
         timingdelta = currenttime-previoustime
-        if (timingdelta.seconds > 5):
+        if (timingdelta.total_seconds() >= maxgap):
             self.write_status(storename,30+(k*70/lenShape),starttime,currenttime)
             if(previousk != k):
                 self.writeToOrderFile(storename,starttime,currenttime,k)
@@ -1325,7 +1325,7 @@ class FindAssemblingOrder(object):
         return previoustime,False
 
     
-    def threadAssembling(self,sourceFileName,distancegap,anglegap,animationtime,starttime,storename,debugMe):
+    def threadAssembling(self,sourceFileName,distancegap,anglegap,animationtime,starttime,storename,debugMe,maxgap=5):
         try:
             if self.logging != None and self.byThread:
                 self.logging.info("Started thread assembling"+sourceFileName) 
@@ -1346,7 +1346,7 @@ class FindAssemblingOrder(object):
             while k < lenShape:
                 currenttime = datetime.utcnow()
                 timingdelta = currenttime-previoustime
-                if (timingdelta.seconds > 5) and (self.byThread):
+                if (timingdelta.total_seconds() >= maxgap) and (self.byThread):
                     if(previousk != k):
                         self.writeToOrderFile(storename,starttime,currenttime,k)
                         previousk = k 
@@ -1357,7 +1357,7 @@ class FindAssemblingOrder(object):
                 myDirectionAtZero=(0,0,0)
                 
                 for holesize in range(0,2):
-                    previoustime,changestatus = self.writeStatusElapsed(storename,starttime, previoustime,previousk,k,lenShape)
+                    previoustime,changestatus = self.writeStatusElapsed(storename,starttime, previoustime,previousk,k,lenShape,maxgap)
                     if changestatus:
                         previoustime=datetime.utcnow()
                         previousk=k
@@ -1368,7 +1368,7 @@ class FindAssemblingOrder(object):
                         toBeScaled = self.holescale / 1.1
                     lastIPos=0
                     for i in range(0,lenShape-k+1):    
-                        previoustime,changestatus = self.writeStatusElapsed(storename,starttime, previoustime,previousk,k,lenShape)
+                        previoustime,changestatus = self.writeStatusElapsed(storename,starttime, previoustime,previousk,k,lenShape,maxgap)
                         if changestatus:
                             previoustime=datetime.utcnow()
                             previousk=k            
@@ -1643,7 +1643,7 @@ class FindAssemblingOrder(object):
             print("Error while logging",e)
          
 
-    def ExplodeParts(self,sourceFileName,distancegap,anglegap,animationtime,displaypath="",bythread=True,starttime=None,debugMe=False):
+    def ExplodeParts(self,sourceFileName,distancegap,anglegap,animationtime,displaypath="",bythread=True,starttime=None,debugMe=False,maxgap=5):
         self.displaypath=displaypath
         """  head, tail = os.path.split(sourceFileName)
         if(head[:-1]!="/"):
@@ -1666,10 +1666,10 @@ class FindAssemblingOrder(object):
             if bythread:
                 dictionary=self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,0)                
                 mythread = threading.Thread(target=self.threadAssembling,\
-                    args=(sourceFileName,distancegap,anglegap,animationtime,starttime,dictionary["store"],debugMe))
+                    args=(sourceFileName,distancegap,anglegap,animationtime,starttime,dictionary["store"],debugMe,maxgap))
                 mythread.start()
             else:
-                dictionary = self.threadAssembling(sourceFileName,distancegap,anglegap,animationtime,starttime,None,debugMe)       
+                dictionary = self.threadAssembling(sourceFileName,distancegap,anglegap,animationtime,starttime,None,debugMe,maxgap)       
         except Exception as e:
             print("Error in Exploding Parts",e)  
         #if not bythread: 

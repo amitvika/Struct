@@ -7,7 +7,7 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import { Button, Grid, Paper } from '@material-ui/core';
 //import { useSelector, useDispatch } from 'react-redux';
 //import { setCurrentItemAction } from '../../../../actions/itemActions';
-import { getPartsStackableInfo,resourcePathURL } from '@monostruct/common/api/fileUpload.api';
+import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
 // import { useSelector, useDispatch } from 'react-redux';
 // import { setCurrentItemAction } from '../../../../actions/itemActions';
 // import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
