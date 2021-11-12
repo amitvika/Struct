@@ -1,32 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Snackbar,
-  Button,
-  Paper,
-  Tab,
-  Tabs,
-  Grid
-  //Box,
-  //LinearProgress
-} from '@material-ui/core';
-import AddBoxIcon from '@material-ui/icons/AddBox';
-import EditIcon from '@material-ui/icons/Edit';
-import SubHeaderWithArrow from '../../components/SubHeaderWithArrow';
-import { useParams, useHistory } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-
-import BaseItemProperties from './baseItemProperties';
-import GeometricDimensioning from './geometricDimensioning';
-import CurrentUsage from './currentUsage';
-import VendorDetails from './VendorDetails';
-import ManufactureProcessingProcessSimulation from '@monostruct/common/containers/ManufactureProcessingProcessSimulation';
-import ClientSetup from './clientSetup';
-import Assembly from './assembly';
-import Production from './production';
-import SurfaceFinishAndTreatment from './SurfaceFinishAndTreatment';
-import ComplianceAndCertifications from './ComplianceAndCertifications';
-
-import ItemTypeConfigurations from '../itemTypeConfigurations';
+import { useParams } from 'react-router-dom';
 import ItemAPI from '@monostruct/common/api/items.api';
 
 import {
@@ -56,64 +29,15 @@ import {
   checkExistingPathFromStore,
   getAFileFromURLStore
 } from '@monostruct/common/api/fileUpload.api';
+import get from 'lodash/get';
+import ItemDetail from './ItemDetail';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
+import { NEW_ITEM, getFromSessionStorage } from '../../utils/usefulHelpers';
 
-import TabContainer from '@monostruct/common/components/TabContainer';
-import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
-import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
-import Classification from '../classification';
-// import { reducer, initialState } from './ItemDetail.helper';
-
-let state_additionalSaveFunction = null;
-const ItemDetail = () => {
-  const dispatch = useDispatch();
-  const history = useHistory();
+export default function ItemDetailMain() {
   let { id } = useParams();
-  let query = useQuery();
-
-  // const [state, dispatch] = useReducer(reducer, initialState);
-
-  const currentItem = useSelector((state) => state.item.currentItem);
-  const [tabIndex, setTabIndex] = useState('pdcu');
-  const [itemProperties, setItemProperties] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFileLoading, setIsFileLoading] = useState(false);
-  const [gltfjson, setgltfjson] = useState({});
-  const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
-  const [percentage, setPercentage] = useState(0);
-  const [currentProgressText, setCurrentProgressText] = useState(null);
-  const [completionProgressText, setCompletionProgressText] = useState(null);
-  const [centerActionText,setCenterActionText]=useState(null);
-  const [progressBarLoad, setProgressBarLoad] = useState(false);
-  const [internalProductConfig, setInternalProductConfig] = useState(null);
-
-  useEffect(() => {
-    let myTabIndex = 'pdcu';
-    if (query.get('tab')) {
-      myTabIndex = query.get('tab');
-      setTabIndex(myTabIndex);
-    }
-
-    const toFetchItem =
-      !itemProperties || (!itemProperties.fileId && !itemProperties.fileUUId);
-    if (toFetchItem) {
-      (async () => {
-        //setIsLoading(true);
-        const itemDetailResponse = await ItemAPI.getItemsAPI(`id=${id}`);
-
-        const _currentItem = get(itemDetailResponse, 'data[0]', {});
-
-        dispatch(setCurrentItemAction(_currentItem));
-        //console.log('I am doing the conversion inner', _currentItem);
-        setGLTFAndTree({ ..._currentItem }, myTabIndex);
-
-        setIsLoading(false);
-      })();
-    } else {
-      //console.log('I am doing the conversion outer', itemProperties);
-      setGLTFAndTree({ ...itemProperties }, myTabIndex);
-    }
-  }, [tabIndex]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [itemValue, setItemValue] = useState(null);
 
   useEffect(() => {
     if (currentItem) {
@@ -808,7 +732,14 @@ const ItemDetail = () => {
               }));
             }
           }
-        }
+    ItemAPI.getItemsAPI(`id=${id}`)
+      .then((itemDetailResponse) => {
+        if (get(itemDetailResponse, 'data[0]')) {
+          setItemValue(get(itemDetailResponse, 'data[0]'));
+        } else {
+          setValueFromStore();
+        }});
+      }
       } catch (error) {
         setIsLoading(false);
         setIsFileLoading(false);
@@ -1129,126 +1060,29 @@ const ItemDetail = () => {
         } else {
           dispatch(showErrorAlert({ message: 'Unable to save info' }));
         }
+
       })
       .catch((error) => {
-        dispatch(showErrorAlert({ message: 'Unable to save info' }));
+        setIsLoading(false);
+        setValueFromStore();
       });
-    try {
-      if (state_additionalSaveFunction) {
-        state_additionalSaveFunction();
+      try {
+        if (state_additionalSaveFunction) {
+          state_additionalSaveFunction();
+        }
+      } catch (error) {
+        console.log('Error while saving', error);
       }
-    } catch (error) {
-      console.log('Error while saving', error);
+    };
+
+  const setValueFromStore = () => {
+    if (getFromSessionStorage(NEW_ITEM)) {
+      setItemValue(getFromSessionStorage(NEW_ITEM));
     }
   };
 
-  const handleTabChange = (event, newTabIndex) => {
-    if (tabIndex !== newTabIndex) {
-      setIsLoading(true);
-      setTabIndex(newTabIndex);
-      history.push({
-        pathname: `/items/${id}`,
-        search: `?tab=${newTabIndex}`
-      });
-    }
-  };
-
-  const tabList = {
-    pdcu: 'Product Design or CAD Upload',
-    cf: 'Classification',
-    cc: 'Compliance and Certifications',
-    gdtac: 'GD&T and Assembly Constraints',
-    sft: 'Surface Finish and Treatment',
-    fls: 'Functional Load and Simulation',
-    dm: 'Design Modifications',
-    slfpi: 'Software Loading for PCBs, ICs',
-    cu: 'Current Usage',
-    mpps: 'Manufacture, Processing, & Process Simulation',
-    pv: 'Production Validations',
-    ps: 'Process Sharing',
-    wmm: 'Warranty & Maintenance Management',
-    pd: 'Product Documentation',
-    rs: 'Recycling & Sustainability',
-    pds: 'Product Design Setup',
-    iupc: 'Internal Use Product Configurations',
-    production: 'Production'
-  };
-
-  const renderTab = () => {
-    let tabP = [];
-    Object.keys(tabList).forEach((key, index) => {
-      tabP.push(
-        <Tab
-          label={`${index + 1}. ${tabList[key]}`}
-          value={key}
-          key={key}
-          style={{ textAlign: 'left', minHeight: '30px' }}
-        />
-      );
-    });
-    return tabP;
-  };
-
-  return (
-    <>
-      {<LoadingModal isLoading={isFileLoading} />}
-      <Grid container>
-        <Grid item sm={12}>
-          <SubHeaderWithArrow action={'/items'} title={'Items Details'} />
-          <Paper style={{ padding: 10, margin: 10, display: 'flex' }}>
-            <Grid>
-              <h4>Item Name: {itemProperties.name}</h4>
-              <Grid style={{ display: 'flex' }}>
-                <p>Item ID:{id} </p>
-                {/* <ClipboardText handleCopyId={handleCopyId} /> */}
-              </Grid>
-            </Grid>
-            <Grid style={{ margin: 'auto' }}>
-              <h4>{tabList[tabIndex]}</h4>
-            </Grid>
-
-            <Grid style={{ marginLeft: 'auto' }}>
-              <Button>
-                <AddBoxIcon />
-              </Button>
-              <Button>
-                <EditIcon />
-              </Button>
-            </Grid>
-          </Paper>
-        </Grid>
-      </Grid>
-      <Grid container style={{ flexWrap: 'unset' }}>
-        <TabContainer>
-          <Tabs
-            className="MuiTab-wrapper"
-            orientation="vertical"
-            variant="scrollable"
-            value={tabIndex}
-            onChange={handleTabChange}
-          >
-            {renderTab()}
-          </Tabs>
-        </TabContainer>
-        <TabPanelContainer>{renderPageSwitch()}</TabPanelContainer>
-      </Grid>
-      <Snackbar
-        style={{
-          left: '10%'
-        }}
-        open={true}
-      >
-        <Button
-          size="large"
-          variant="contained"
-          color="primary"
-          onClick={() => handleSave()}
-        >
-          Save
-        </Button>
-      </Snackbar>
-    </>
-  );
-};
-
-export default ItemDetail;
+  if (isLoading) {
+    return <LoadingModal isLoading={true} />;
+  }
+  return <ItemDetail itemValue={itemValue} />;
+}

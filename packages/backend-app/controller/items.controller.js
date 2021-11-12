@@ -16,12 +16,14 @@ exports.get = async (req, res) => {
       items = await ItemModel.find(query)
         .populate('created_by')
         .populate('updated_by')
-        .sort({ updatedAt: -1 });
+        .sort({ updatedAt: -1 })
+        .limit(20);
     } else {
       items = await ItemModel.find()
         .populate('created_by')
         .populate('updated_by')
-        .sort({ updatedAt: -1 });
+        .sort({ updatedAt: -1 })
+        .limit(20);
     }
 
     res.json(mapItems(items));
@@ -241,7 +243,7 @@ exports.update = async (req, res) => {
     if (body.hierarchySelections) {
       updateData.hierarchySelections = body.hierarchySelections;
     }
-    
+
     if (body.classificationConfig) {
       updateData.classificationConfig = body.classificationConfig;
     }
@@ -258,7 +260,12 @@ exports.update = async (req, res) => {
     } else {
       req.body.created_by = req.user.id;
       req.body.updated_by = req.user.id;
-      prevItem = await ItemModel.create(req.body);
+      // prevItem = await ItemModel.create(req.body);
+      await ItemModel.updateOne({ _id: req.body.id }, req.body, {
+        upsert: true,
+        new: true
+      });
+      prevItem = await ItemModel.findById(req.body.id);
     }
 
     const changeTracking = new ChangeTracking({
