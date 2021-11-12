@@ -31,7 +31,7 @@ import {
   SELECTFEATURE,
   STATEPROPS,
   pollFunction,
-  isFileExistingInServer,
+  //isFileExistingInServer,
   checkDBNull
 } from '@monostruct/common/gltf/Tree/utils';
 
