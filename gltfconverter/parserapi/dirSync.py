@@ -112,8 +112,8 @@ def copyOnefile(srcname, dstname, symlinks=False):
 
 def checkIdle(logName="Media/Log/APIWatcher.Log"): 
     try:
-        filetime = os.stat(logName).st_mtime
-        currenttime=datetime.utcnow()
+        filetime = datetime.fromtimestamp(os.stat(logName).st_mtime)
+        currenttime=datetime.now()
         print("Check Idle",filetime,currenttime,logName)
         return(filetime-currenttime).total_seconds() 
     except Exception as e:
