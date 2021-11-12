@@ -46,10 +46,14 @@ import {
   getPartsKinematicOrder,
   getHierarchySplitFiles,
   getAFileFromStore,
-  getGltfForStore,
-  getTreeForStore,
+  //getGltfForStore,
+  //getTreeForStore,
   resourcePathURL,
-  resourceStatusURL
+  resourceStatusURL,
+  isFileExistingInServer,
+  //resourcePathS3URL,
+  checkExistingPathFromStore,
+  getAFileFromURLStore
 } from '@monostruct/common/api/fileUpload.api';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
@@ -141,7 +145,8 @@ const ItemDetail = ({ itemValue }) => {
   };
 
   const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
-    if (isFileExistingInServer(whichOneToLoad + '.gltf')) {
+    const myResourcePath = checkExistingPathFromStore(whichOneToStatus,'gltf',true);
+    if (myResourcePath) {
       //console.log('Found gltf', whichOneToLoad);
       return 0;
     }
@@ -255,7 +260,8 @@ const ItemDetail = ({ itemValue }) => {
               stack: stack,
               gdt: item.fileGDT,
               multiAssmebly: multiAssmebly,
-              treeLength: repos['tree'].length
+              treeLength: repos['tree'].length,
+              resourcepath: resourcePathURL
             });
             setItemProperties((prevData) => ({
               ...prevData,
@@ -360,7 +366,8 @@ const ItemDetail = ({ itemValue }) => {
               stack: item.fileStack,
               gdt: item.fileGDT,
               multiAssmebly: multiAssmebly,
-              treeLength: repos['tree'].length
+              treeLength: repos['tree'].length,
+              resourcepath: resourcePathURL
             });
             setItemProperties((prevData) => ({
               ...prevData,
@@ -482,7 +489,8 @@ const ItemDetail = ({ itemValue }) => {
                   stack: item.fileStack,
                   gdt: item.fileGDT,
                   multiAssmebly: multiAssmebly,
-                  treeLength: repos['tree'].length
+                  treeLength: repos['tree'].length,
+                  resourcepath: resourcePathURL
                 });
                 setItemProperties((prevData) => ({
                   ...prevData,
@@ -597,7 +605,8 @@ const ItemDetail = ({ itemValue }) => {
                   mpps: item.fileMPPS,
                   stack: item.fileStack,
                   gdt: item.fileGDT,
-                  treeLength: treeRes.data.length
+                  treeLength: treeRes.data.length,
+                  resourcepath: resourcePathURL
                 });
                 setItemProperties((prevData) => ({
                   ...prevData,
@@ -619,7 +628,8 @@ const ItemDetail = ({ itemValue }) => {
                   mpps: item.fileMPPS,
                   stack: item.fileStack,
                   gdt: item.fileGDT,
-                  treeLength: treeLength
+                  treeLength: treeLength,
+                  resourcepath: resourcePathURL
                 });
                 setItemProperties((prevData) => ({
                   ...prevData,
@@ -738,7 +748,8 @@ const ItemDetail = ({ itemValue }) => {
                   stack: item.fileStack,
                   gdt: datastore,
                   store: item.fileStore,
-                  treeLength: treeRes.data.length
+                  treeLength: treeRes.data.length,
+                  resourcepath: resourcePathURL
                 });
                 setItemProperties((prevData) => ({
                   ...prevData,
@@ -760,7 +771,8 @@ const ItemDetail = ({ itemValue }) => {
                   stack: item.fileStack,
                   gdt: datastore,
                   store: item.fileStore,
-                  treeLength: treeLength
+                  treeLength: treeLength,
+                  resourcepath: resourcePathURL
                 });
                 setItemProperties((prevData) => ({
                   ...prevData,
@@ -866,19 +878,21 @@ const ItemDetail = ({ itemValue }) => {
         }
       }
       //
-      const gltfRes = await getGltfForStore(whichOneToLoad);
-      const treeRes = await getTreeForStore(whichOneToLoad);
+      const myResourcePath = checkExistingPathFromStore(whichOneToLoad,'gltf');
+      //
+      const gltfRes = await getAFileFromURLStore(whichOneToLoad,'gltf',myResourcePath);
+      const treeRes = await getAFileFromURLStore(whichOneToLoad,'tree',myResourcePath);
       let stackRes = { data: null };
       let orderRes = { data: null };
       let gdtRes = { data: null };
       if (myTabIndex == 'stack') {
-        stackRes = await getAFileFromStore(whichOneToLoad, 'stack');
+        stackRes = await getAFileFromURLStore(whichOneToLoad, 'stack',myResourcePath);
       }
       if (myTabIndex == 'mpps') {
-        orderRes = await getAFileFromStore(whichOneToLoad, 'order');
+        orderRes = await getAFileFromURLStore(whichOneToLoad, 'order',myResourcePath);
       }
       if (myTabIndex == 'gdtac') {
-        gdtRes = await getAFileFromStore(whichOneToLoad, 'gdt');
+        gdtRes = await getAFileFromURLStore(whichOneToLoad, 'gdt',myResourcePath);
       }
       const multiAssmebly = treeRes.length > 0;
 
@@ -890,7 +904,8 @@ const ItemDetail = ({ itemValue }) => {
         assemblyorder: orderRes.data,
         multiAssmebly: multiAssmebly,
         gdttable: gdtRes.data,
-        treeLength: treeRes.data.length
+        treeLength: treeRes.data.length,
+        resourcepath: myResourcePath
       });
       setIsLoading(false);
       setProgressBarLoad(false);
