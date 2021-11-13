@@ -188,8 +188,8 @@ export default function LargeFileUpload({
   const onDrawLineChange = (e) => {
     setDrawLine(e.target.checked);
   }
-  const fileGDTPath = (itemProperties.fileUUId?itemProperties.fileUUId+'/':'')+itemProperties.fileGDT;
-  
+  const fileGDTPath = (itemProperties.fileUUId?itemProperties.fileUUId+'/':'')+(itemProperties.fileGDT?itemProperties.fileGDT:'');
+  //console.log(fileGDTPath);
   if (itemProperties.fileStore && itemProperties.fileGDT && checkExistingPathFromStore(fileGDTPath,"gltf",true)) {
     console.log(itemProperties.fileStore,distanceGap,angleGap);
     return (

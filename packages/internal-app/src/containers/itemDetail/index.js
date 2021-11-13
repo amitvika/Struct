@@ -21,7 +21,7 @@ export default function ItemDetailMain() {
         setIsLoading(false);
       });
   }, []);
-
+  //console.log(isLoading);
   if (isLoading) {
     return <LoadingModal isLoading={true} />;
   }

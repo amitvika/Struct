@@ -99,9 +99,11 @@ const ItemDetail = ({ itemValue }) => {
       (async () => {
         dispatch(setCurrentItemAction(itemValue));
         setGLTFAndTree({ ...itemValue }, myTabIndex);
+        //console.log("coiming",itemValue);
       })();
     } else {
       setGLTFAndTree({ ...itemProperties }, myTabIndex);
+      //console.log("goiming",itemProperties);
     }
   }, [tabIndex]);
 
@@ -917,7 +919,8 @@ const ItemDetail = ({ itemValue }) => {
     state_additionalSaveFunction = saveFunction;
   };
   const renderPageSwitch = () => {
-    if (!get(itemProperties, 'id')) {
+    //console.log(itemProperties);
+    if (!get(itemProperties, 'id') && !id) {
       return null;
     }
     if (tabIndex != 'gdtac' && tabIndex != 'iupc' && tabIndex != 'mpps') {
@@ -1153,6 +1156,7 @@ const ItemDetail = ({ itemValue }) => {
 
   const handleTabChange = (event, newTabIndex) => {
     if (tabIndex !== newTabIndex) {
+      console.log(tabIndex,newTabIndex);
       setIsLoading(true);
       setTabIndex(newTabIndex);
       history.push({
