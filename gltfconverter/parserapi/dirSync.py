@@ -110,12 +110,12 @@ def copyOnefile(srcname, dstname, symlinks=False):
     if errors:
         print(errors)
 
-def checkIdle(logName="Media/Log/APIWatcher.Log"): 
+def checkIdle(timelag=0,logName="Media/Log/APIWatcher.Log"): 
     try:
-        filetime = datetime.fromtimestamp(os.stat(logName).st_mtime)
+        filetime = datetime.fromtimestamp(os.stat(logName).st_mtime)+timelag
         currenttime=datetime.now()
-        print("Check Idle",filetime,currenttime,logName)
-        return(filetime-currenttime).total_seconds() 
+        print("Check Idle",filetime,currenttime,logName,timelag)
+        return(currenttime-filetime).total_seconds() 
     except Exception as e:
         print("Error while accessing", logName)
         return 0

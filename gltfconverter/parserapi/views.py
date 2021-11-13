@@ -97,15 +97,27 @@ class HttpFormatter(logging.Formatter):
             )
 
         return result """
-
+fileLogger = "Media/Log/APIWatcher.Log"
 class RecursiveCopier():
 
     def __init__(self,interval,hFunction):
         self.t=interval
         self.hFunction = hFunction
-
+        self.timelag = 0
+        try:
+            logging.info("Recursive Copier"+datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+        except Exception as e:
+            print("Error while logging",e)
+        try:
+            filetime = datetime.fromtimestamp(os.stat(fileLogger).st_mtime)
+            currenttime=datetime.now()
+            self.timelag=(filetime-currenttime).total_seconds()            
+        except Exception as e:
+            print("Error while accessing", fileLogger)
+            return 0
+    
     def handle_function(self):
-        self.hFunction()
+        self.hFunction(self.timelag)
         self.start()
 
     def start(self):
@@ -114,11 +126,13 @@ class RecursiveCopier():
 
     def cancel(self):
         self.thread.cancel()
-        
 
-def copyFiles():
+    def timeLagFromServer(self):
+        return self.timelag    
+
+def copyFiles(timelag):
     try:
-        if checkIdle() > 300:
+        if checkIdle(timelag) > 300:
             print("I am Idle to move files from Linux box to S3Box")
             copyTree("Media/", "s3bucket/Media/",False,0,100)
             copyTree("Display/", "s3bucket/Display/",True,0,100)
@@ -135,7 +149,7 @@ logger = logging.getLogger()
 logger.addHandler( logHandler )
 logger.setLevel( logging.INFO )
 
-recursiveCopier = RecursiveCopier(10,copyFiles)
+recursiveCopier = RecursiveCopier(600,copyFiles)
 recursiveCopier.start()
 
 def logRoundtrip(response, *args, **kwargs): 
