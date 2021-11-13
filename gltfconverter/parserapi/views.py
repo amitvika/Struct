@@ -132,7 +132,7 @@ class RecursiveCopier():
 
 def copyFiles(timelag):
     try:
-        if checkIdle(timelag) > 300:
+        if checkIdle(timelag,fileLogger) > 300:
             print("I am Idle to move files from Linux box to S3Box")
             copyTree("Media/", "s3bucket/Media/",False,0,100)
             copyTree("Display/", "s3bucket/Display/",True,0,100)
