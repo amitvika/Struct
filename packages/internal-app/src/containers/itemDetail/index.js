@@ -14,14 +14,25 @@ export default function ItemDetailMain() {
   useEffect(() => {
     ItemAPI.getItemsAPI(`id=${id}`)
       .then((itemDetailResponse) => {
-        setItemValue(get(itemDetailResponse, 'data[0]'));
+        if (get(itemDetailResponse, 'data[0]')) {
+          setItemValue(get(itemDetailResponse, 'data[0]'));
+        } else {
+          setValueFromStore();
+        }
         setIsLoading(false);
       })
       .catch((error) => {
         setIsLoading(false);
+        setValueFromStore();
       });
   }, []);
-  //console.log(isLoading);
+
+  const setValueFromStore = () => {
+    if (getFromSessionStorage(NEW_ITEM)) {
+      setItemValue(getFromSessionStorage(NEW_ITEM));
+    }
+  };
+  
   if (isLoading) {
     return <LoadingModal isLoading={true} />;
   }
