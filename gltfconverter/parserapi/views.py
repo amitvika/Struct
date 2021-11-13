@@ -141,7 +141,7 @@ def copyFiles(timelag):
     except Exception as e:
         print("Error while moving",e)
 
-logHandler = TimedRotatingFileHandler("Media/Log/APIWatcher.Log",when="midnight")
+logHandler = TimedRotatingFileHandler(fileLogger,when="midnight")
 #logFormatter = logging.Formatter('%(asctime)s %(message)s')
 logFormatter = HttpFormatter('{asctime} {levelname} {name} {message}', style='{')
 logHandler.setFormatter( logFormatter )
