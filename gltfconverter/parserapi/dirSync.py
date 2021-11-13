@@ -114,8 +114,9 @@ def checkIdle(timelag=0.0,logName="Media/Log/APIWatcher.Log"):
     try:
         filetime = datetime.fromtimestamp(os.stat(logName).st_mtime)
         currenttime=datetime.utcnow()
-        print("Check Idle",filetime,currenttime,logName,timelag)
-        return(currenttime-filetime).total_seconds()+timelag
+        idletime = (currenttime-filetime).total_seconds()+timelag
+        print("Check Idle",filetime,currenttime,logName,timelag, idletime)
+        return idletime
     except Exception as e:
         print("Error while accessing", logName, e)
         return 0
