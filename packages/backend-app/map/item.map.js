@@ -1,6 +1,10 @@
 const isArray = require('lodash/isArray');
 const get = require('lodash/get');
-const { resourcePathURL, resourcePathS3URL, isFileExistingInServer } = require('@monostruct/common/api/common');
+const {
+  resourcePathURL,
+  resourcePathS3URL,
+  isFileExistingInServer
+} = require('@monostruct/common/api/common');
 
 exports.mapItems = (data) => {
   if (isArray(data)) {
@@ -17,25 +21,25 @@ exports.mapItem = (item = {}) => {
     return {};
   }
   //console.log(resourcePathURL,"Resource path",item.fileStore);
-   let file_url = item.fileStore
-                    ? (item.fileUUId
-                        ? (resourcePathURL || '') + item.fileUUId + '/'
-                        : resourcePathURL || '') +
-                      item.fileStore +
-                      '.png'
-                    : undefined;
+  let file_url = item.fileStore
+    ? (item.fileUUId
+        ? (resourcePathURL || '') + item.fileUUId + '/'
+        : resourcePathURL || '') +
+      item.fileStore +
+      '.png'
+    : undefined;
   if (file_url) {
     if (!isFileExistingInServer(file_url)) {
       file_url = item.fileStore
-                    ? (item.fileUUId
-                        ? (resourcePathS3URL || '') + item.fileUUId + '/'
-                        : resourcePathS3URL || '') +
-                      item.fileStore +
-                      '.png'
-                    : undefined;
+        ? (item.fileUUId
+            ? (resourcePathS3URL || '') + item.fileUUId + '/'
+            : resourcePathS3URL || '') +
+          item.fileStore +
+          '.png'
+        : undefined;
     }
   }
-  console.log("png path",file_url,item.name);
+  console.log('png path', file_url, item.name);
   return {
     ...item.toObject(),
     id: item._id,
