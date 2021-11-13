@@ -35,6 +35,7 @@ exports.mapItem = (item = {}) => {
                     : undefined;
     }
   }
+  console.log("png path",file_url,item.name);
   return {
     ...item.toObject(),
     id: item._id,
