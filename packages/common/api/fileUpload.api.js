@@ -1,10 +1,10 @@
+var XMLHttpRequest = require('xhr2');
 import axios from 'axios';
-
 // const host = `https://cadapi.struct.services/api/v0`;
 // const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
 
 const baseURL = `https://cadapi.struct.services`;
- 
+
 const host = `${baseURL}/api/v0`;
 
 export const upload3DFile = async (oneFile) => {
@@ -14,7 +14,7 @@ export const upload3DFile = async (oneFile) => {
 };
 
 export const uploadChunkData = async (formData) => {
-  console.log("Uploading",`${host}/chunkupload/`, formData);
+  console.log('Uploading', `${host}/chunkupload/`, formData);
   return axios.post(`${host}/chunkupload/`, formData);
 };
 export const fetchShapeInfo = async (tree) => {
@@ -28,7 +28,7 @@ export const saveTreeInfo = async (tree, name, fileGuid) => {
   var formTree = new FormData();
   formTree.append('tree', JSON.stringify(tree));
   formTree.append('name', name);
-  formTree.append('uuid',fileGUID?fileGUID:'');
+  formTree.append('uuid', fileGUID ? fileGUID : '');
   return axios.post(`${host}/savetree/`, formTree);
 };
 
@@ -37,7 +37,7 @@ export const saveGDTInfo = async (gdt, name, fileGUID = '') => {
   var formGDT = new FormData();
   formGDT.append('gdt', JSON.stringify(gdt));
   formGDT.append('name', name);
-  formGDT.append('uuid',fileGUID?fileGUID:'');
+  formGDT.append('uuid', fileGUID ? fileGUID : '');
   return axios.post(`${host}/savegdt/`, formGDT);
 };
 
@@ -132,17 +132,23 @@ export const getMinimumDistance = (
   return axios.get(getURL);
 };
 
-export const getShapeInfo = (start, stepArray = [], siblingArray=[], partArray=[], fileGUID) => {
- /*  const getURL = `${host}/shapeinfo?start=${start}&steps=${stepArray}&parents=${JSON.stringify({parents:parentArray})}`;
+export const getShapeInfo = (
+  start,
+  stepArray = [],
+  siblingArray = [],
+  partArray = [],
+  fileGUID
+) => {
+  /*  const getURL = `${host}/shapeinfo?start=${start}&steps=${stepArray}&parents=${JSON.stringify({parents:parentArray})}`;
   console.log(getURL);
   return axios.get(getURL); */
   console.log(start, stepArray, siblingArray);
   var formShapeInfo = new FormData();
   formShapeInfo.append('start', start);
-  formShapeInfo.append('steps', JSON.stringify({steps:stepArray}));
-  formShapeInfo.append('siblings', JSON.stringify({siblings:siblingArray}));
-  formShapeInfo.append('parts', JSON.stringify({parts:partArray}));
-  formShapeInfo.append('uuid',fileGUID?fileGUID:'');
+  formShapeInfo.append('steps', JSON.stringify({ steps: stepArray }));
+  formShapeInfo.append('siblings', JSON.stringify({ siblings: siblingArray }));
+  formShapeInfo.append('parts', JSON.stringify({ parts: partArray }));
+  formShapeInfo.append('uuid', fileGUID ? fileGUID : '');
   return axios.post(`${host}/shapeinfo/`, formShapeInfo);
 };
 
@@ -156,24 +162,24 @@ export const getAllFiles = () => {
   return axios.get(fetchURL);
 };
 export const getAFileFromURLStore = (store, ext, fromURL) => {
-  if ((ext=="status") || (ext=="progress")) {
+  if (ext == 'status' || ext == 'progress') {
     const fetchURL = `${resourceStatusURL}${store}.${ext}`;
     console.log(fetchURL);
     return axios.get(fetchURL);
   } else {
     const linuxURL = `${fromURL}${store}.${ext}`;
     console.log(linuxURL);
-    return axios.get(linuxURL);    
+    return axios.get(linuxURL);
   }
 };
 export const getAFileFromStore = (store, ext) => {
-  if ((ext=="status") || (ext=="progress")) {
+  if (ext == 'status' || ext == 'progress') {
     const fetchURL = `${resourceStatusURL}${store}.${ext}`;
     console.log(fetchURL);
     return axios.get(fetchURL);
   } else {
     const linuxURL = `${resourcePathURL}${store}.${ext}`;
-    if(isFileExistingInServer(linuxURL)){
+    if (isFileExistingInServer(linuxURL)) {
       console.log(linuxURL);
       return axios.get(linuxURL);
     } else {
@@ -184,25 +190,30 @@ export const getAFileFromStore = (store, ext) => {
   }
 };
 
-export const checkExistingPathFromStore = (store, ext, checkPresence=false, checkURL=null) => {
-  if ((ext=="status") || (ext=="progress")) {
+export const checkExistingPathFromStore = (
+  store,
+  ext,
+  checkPresence = false,
+  checkURL = null
+) => {
+  if (ext == 'status' || ext == 'progress') {
     return resourceStatusURL;
   } else {
-    if(checkURL) {
+    if (checkURL) {
       const checkingURL = `${checkURL}${store}.${ext}`;
-      if(isFileExistingInServer(checkingURL)){
+      if (isFileExistingInServer(checkingURL)) {
         return checkURL;
-      } 
-    } 
-    if(checkURL != resourcePathURL) {
-      const linuxURL = `${resourcePathURL}${store}.${ext}`;
-      if(isFileExistingInServer(linuxURL)){
-        return resourcePathURL;
-      } 
+      }
     }
-    if(checkURL != resourcePathS3URL) {
+    if (checkURL != resourcePathURL) {
+      const linuxURL = `${resourcePathURL}${store}.${ext}`;
+      if (isFileExistingInServer(linuxURL)) {
+        return resourcePathURL;
+      }
+    }
+    if (checkURL != resourcePathS3URL) {
       const s3URL = `${resourcePathS3URL}${store}.${ext}`;
-      if(isFileExistingInServer(s3URL)){
+      if (isFileExistingInServer(s3URL)) {
         return resourcePathS3URL;
       }
     }
@@ -239,7 +250,7 @@ export const download = (fileStore) => {
 };
 
 export const isFileExistingInServer = (urlAsFile) => {
-  try{
+  try {
     try {
       var xhr = new XMLHttpRequest();
       try {
@@ -249,17 +260,18 @@ export const isFileExistingInServer = (urlAsFile) => {
       } catch (exception) {
         console.log(exception);
         return false;
-      }      
+      }
     } catch (error) {
       console.log(error);
       return false;
-    }  
+    }
   } catch (error) {
     return false;
   }
 };
 
 export const resourcePathBase = `${baseURL}/`; //"./gltfconverter/";//
-export const resourcePathURL = `${baseURL}/Display/`; "//http://localhost:8000/Media/";
+export const resourcePathURL = `${baseURL}/Display/`;
+('//http://localhost:8000/Media/');
 export const resourceStatusURL = `${baseURL}/Status/`;
 export const resourcePathS3URL = `${baseURL}/S3Display/`; //"./gltfconverter/";//

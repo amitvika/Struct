@@ -65,7 +65,7 @@ def copyTree(sourceDir, destDir, removeAfterCopy, percentage=0, percentIncrement
 				# The file is old, copy over the new version.
                 copiedname = shutil.copy2(srcname, dstname)
                 if copiedname == dstname: #if file is copied, then delete the source, else do not.
-                    if (not srcname.endswith(".status")) and (not srcname.endswith(".progress")):
+                    if (not srcname.endswith(".status")) and (not srcname.endswith(".progress")) and (removeAfterCopy):
                         os.remove(srcname)
                 else:
                     print("Error while copying",srcname,dstname,copiedname)
