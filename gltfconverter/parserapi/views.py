@@ -113,7 +113,7 @@ class RecursiveCopier():
             with open(timeLogger, 'w') as fh:
                 fh.write("Recursive Copier"+datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
             filetime = datetime.fromtimestamp(os.stat(timeLogger).st_mtime)
-            currenttime=datetime.now()
+            currenttime=datetime.utcnow()
             self.timelag=(filetime-currenttime).total_seconds()            
         except Exception as e:
             print("Error while accessing", fileLogger, timeLogger, e)
