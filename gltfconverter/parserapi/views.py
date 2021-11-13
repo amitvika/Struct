@@ -98,6 +98,7 @@ class HttpFormatter(logging.Formatter):
 
         return result """
 fileLogger = "Media/Log/APIWatcher.Log"
+timeLogger = "Media/TimeWatcher.txt"
 class RecursiveCopier():
 
     def __init__(self,interval,hFunction):
@@ -109,12 +110,14 @@ class RecursiveCopier():
         except Exception as e:
             print("Error while logging",e)
         try:
-            filetime = datetime.fromtimestamp(os.stat(fileLogger).st_mtime)
+            with open(timeLogger, 'w') as fh:
+                fh.write("Recursive Copier"+datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+            filetime = datetime.fromtimestamp(os.stat(timeLogger).st_mtime)
             currenttime=datetime.now()
             self.timelag=(filetime-currenttime).total_seconds()            
         except Exception as e:
-            print("Error while accessing", fileLogger)
-            return 0
+            print("Error while accessing", fileLogger, timeLogger, e)
+            
     
     def handle_function(self):
         self.hFunction(self.timelag)
