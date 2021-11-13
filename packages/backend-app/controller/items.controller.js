@@ -25,8 +25,9 @@ exports.get = async (req, res) => {
         .sort({ updatedAt: -1 })
         .limit(20);
     }
-
-    res.json(mapItems(items));
+    let myitems = await mapItems(items);
+    //console.log('From itemcontroller', myitems);
+    res.json(myitems);
   } catch (error) {
     res.status(500).send(error);
   }
@@ -277,8 +278,9 @@ exports.update = async (req, res) => {
       updatedBy: req.user.id
     });
     await changeTracking.save();
-
-    res.json(Object.assign({}, prevItem.toObject(), mapItem(prevItem)));
+    let mymapitem = await mapItem(prevItem);
+    //console.log('From single item controller', mymapitem);
+    res.json(Object.assign({}, prevItem.toObject(), mymapitem));
   } catch (error) {
     console.log('Error', error);
     return res.status(500).send({ message: 'Some unexpected error occurred' });

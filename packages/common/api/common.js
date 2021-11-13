@@ -9,8 +9,8 @@ const resourcePathBase = `${baseURL}/`; //"./gltfconverter/";//
 
 const resourcePathURL = `${baseURL}/Display/`; //http://localhost:8000/Media/`;
 const resourcePathS3URL = `${baseURL}/S3Display/`;
-const isFileExistingInServer = (urlAsFile) => {
-  try {
+const isFileExistingInServer = async (urlAsFile) => {
+  /* try {
     try {
       var xhr = new XMLHttpRequest();
       try {
@@ -27,7 +27,31 @@ const isFileExistingInServer = (urlAsFile) => {
     }
   } catch (error) {
     return false;
-  }
+  } */
+  resData = await checkURLExists(urlAsFile);
+  // console.log('Result', resData.status, urlAsFile);
+  return resData && resData.status != 404;
+};
+
+const checkURLExists = (url) => {
+  // Create the XHR request
+  var request = new XMLHttpRequest();
+
+  // Return it as a Promise
+  return new Promise(function (resolve, reject) {
+    // Setup our listener to process compeleted requests
+    request.onreadystatechange = function () {
+      // Only run if the request is complete
+      if (request.readyState !== 4) return;
+      resolve(request);
+    };
+
+    // Setup our HTTP request
+    request.open('HEAD', url, true);
+
+    // Send the request
+    request.send();
+  });
 };
 
 module.exports = {
