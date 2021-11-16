@@ -15,7 +15,7 @@ const imageLabelStyle = {
   transition: 'height 200ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
   cursor: 'text',
   marginTop: 14,
-  color: 'rgba(0, 0, 0, 0.3)',
+  color: 'rgba(0, 0, 0, 0.3)'
 };
 
 const getName = (name) => {
@@ -31,7 +31,7 @@ const ImageComponent = ({ field, handleChange, srcValue, defaultImg }) => {
     display: 'block',
     marginBottom: 10,
     width: 50,
-    height: 50,
+    height: 50
   };
 
   if (_.get(field, 'position') === 'flex') {
@@ -45,7 +45,7 @@ const ImageComponent = ({ field, handleChange, srcValue, defaultImg }) => {
       request: {
         multiple: false,
         inputName: 'file',
-        endpoint,
+        endpoint
       },
       callbacks: {
         onComplete: (id, name, response) => {
@@ -54,9 +54,9 @@ const ImageComponent = ({ field, handleChange, srcValue, defaultImg }) => {
             return _.get(field, 'onSuccess', () => {})(name, true);
           }
           return _.get(field, 'onError', () => {})(name, response);
-        },
-      },
-    },
+        }
+      }
+    }
   });
 
   return (
@@ -87,7 +87,7 @@ const ImageComponent = ({ field, handleChange, srcValue, defaultImg }) => {
 };
 
 ImageComponent.defaultProps = {
-  errors: {},
+  errors: {}
 };
 
 ImageComponent.propTypes = {
@@ -97,10 +97,10 @@ ImageComponent.propTypes = {
     key: string,
     resource: string,
     position: oneOf(['flex']),
-    prefix: string,
+    prefix: string
   }).isRequired,
   srcValue: string.isRequired,
-  defaultImg: string.isRequired,
+  defaultImg: string.isRequired
 };
 
 export default ImageComponent;

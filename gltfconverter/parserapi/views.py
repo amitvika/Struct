@@ -106,12 +106,12 @@ class RecursiveCopier():
         self.hFunction = hFunction
         self.timelag = 0
         try:
-            logging.info("Recursive Copier"+datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+            logging.info("Syncer "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S"))
         except Exception as e:
             print("Error while logging",e)
         try:
             with open(timeLogger, 'w') as fh:
-                fh.write("Recursive Copier"+datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+                fh.write("Syncer "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S"))
             filetime = datetime.fromtimestamp(os.stat(timeLogger).st_mtime)
             currenttime=datetime.utcnow()
             self.timelag=(filetime-currenttime).total_seconds()            
@@ -130,15 +130,23 @@ class RecursiveCopier():
     def cancel(self):
         self.thread.cancel()
 
-    def timeLagFromServer(self):
+    def timeUTCLagFromServer(self):
         return self.timelag    
 
 def copyFiles(timelag):
     try:
-        if checkIdle(timelag,fileLogger) > 300:
-            print("I am Idle to move files from Linux box to S3Box")
+        if checkIdle(timelag,fileLogger) > 500:            
+            logprintinfo="Syncer Started "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
+            logging.info(logprintinfo)
+            print(logprintinfo)
             copyTree("Media/", "s3bucket/Media/",False,0,100)
+            logprintinfo="Media Syncer Completed "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
+            logging.info(logprintinfo)
+            print(logprintinfo)
             copyTree("Display/", "s3bucket/Display/",True,0,100)
+            logprintinfo="Display Syncer Completed "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
+            logging.info(logprintinfo)
+            print(logprintinfo)
         else:
             print("I am not Idle to move files from Linux box to S3Box")
     except Exception as e:

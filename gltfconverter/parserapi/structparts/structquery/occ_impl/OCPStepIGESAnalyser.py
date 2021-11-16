@@ -8,9 +8,9 @@ import struct
 import base64
 from io import BytesIO
 #from itertools import chain
-from copy import copy, deepcopy
+from copy import  deepcopy
 import json
-from OCC.Core.Plate import Plate_SequenceOfLinearScalarConstraint
+#from OCC.Core.Plate import Plate_SequenceOfLinearScalarConstraint
 #from collections import defaultdict
 import numpy
 from time import time
@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 
 from OCC.Core.STEPControl import  STEPControl_Writer, STEPControl_AsIs
 from OCC.Core.Interface import Interface_Static_SetCVal
-from OCC.Core.IFSelect import IFSelect_RetDone, IFSelect_ItemsByEntity
+from OCC.Core.IFSelect import IFSelect_RetDone
 from OCC.Core.TDF import TDF_Label, TDF_LabelSequence
 from OCC.Core.TCollection import TCollection_ExtendedString
 from OCC.Core.TDocStd import TDocStd_Document
@@ -53,7 +53,7 @@ from OCC.Core.BRepBuilderAPI import (
     BRepBuilderAPI_Transform, BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire, 
     BRepBuilderAPI_MakeFace, BRepBuilderAPI_MakePolygon )
 #from OCC.Core.Tesselator import ShapeTesselator
-from OCC.Core.BRep import BRep_Builder, BRep_Tool
+from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepOffsetAPI import BRepOffsetAPI_MakePipe
 #from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Fuse
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
@@ -79,7 +79,12 @@ from OCC.Core.GeomAbs import GeomAbs_Line, GeomAbs_Circle
 from .OCCUtils.Topology import (dumpTopologyStructures, 
                                 dumpTopologyFacesEdgesVertices,
                                 dumpTopologySolids,
-                                shapeString, Topo )
+                                shapeString, 
+                                recognize_edge_entity_info,
+                                recognize_face_entity_info,
+                                recognize_vertex_entity_info,
+                                recognize_by_threejs,
+                                Topo )
 
 from .OCCExtend.TopologyUtils import list_of_shapes_to_compound
 from .. import assembly #,cq
@@ -1296,7 +1301,8 @@ class StepIgesAnalyser():
             firstU = curve.LastParameter()
             lastU = curve.FirstParameter()
             ranges = -ranges
-        if curve.GetType() == GeomAbs_Line:
+       
+        if recognize_by_threejs(curve):
             length = 1
         else:
             length = ranges+1
@@ -1900,7 +1906,8 @@ class StepIgesAnalyser():
                                 name=disect_type+myCurveCode+subName+parentName,
                                 parent_idx=parent_node_index, 
                                 curvecode=myCurveCode,
-                                curvepoints=None                       
+                                curvepoints=None,
+                                entity=recognize_face_entity_info(shape_disp)                     
                             ) 
                             if solidFoundHere > 0 :
                                 self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, myPartMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
@@ -1993,6 +2000,8 @@ class StepIgesAnalyser():
                                         print("Serving TopAbs_COMPSOLID")                        
                                 print("I have written lowest node",basename,shape_disp.ShapeType() ) """
                                 myMeshID=self.uid
+                                entity=recognize_face_entity_info(shape_disp)
+                                #print("My Entity Face",entity)
                                 if (self.multiplegltf!=0) and (keep_faces==False):
                                     meshname="FACE"
                                     uvPlane=my_parent_id
@@ -2003,7 +2012,8 @@ class StepIgesAnalyser():
                                         "FACE"+myCurveCode+subName+parentName,
                                         "FACE", 
                                         myCurveCode,
-                                        None))
+                                        None,
+                                        entity))
                                 else:   
                                     (myMeshID,meshname,uvPlane,solidFoundHere)=self.add_part(
                                         shape_disp,
@@ -2013,7 +2023,8 @@ class StepIgesAnalyser():
                                         name="FACE"+myCurveCode+subName+parentName,
                                         parent_idx=parent_node_index,
                                         curvecode=myCurveCode,
-                                        curvepoints=None                        
+                                        curvepoints=None,
+                                        entity=entity                        
                                     ) 
                                 if (solidFoundHere > 0) or ((self.multiplegltf!=0) and (keep_faces==False)) :
                                     self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
@@ -2058,7 +2069,10 @@ class StepIgesAnalyser():
                         (filefullname, basename) = self.write_step_file(shape_transform,subName+parentName,faceColor)
                         #print("I am writing Edge",self.fileId, basename)                       
                         shape_disp, edge_points = self.createPipesFromEdge(shape_transform)  
+
                         myMeshID = self.uid
+                        entity=recognize_edge_entity_info(shape_transform)
+                        #print("My Entity Edge",entity)
                         if self.multiplegltf!=0:
                             meshname="EDGE"
                             uvPlane=my_parent_id
@@ -2069,7 +2083,8 @@ class StepIgesAnalyser():
                                 "EDGE"+myCurveCode+subName+parentName,
                                 "EDGE",
                                 myCurveCode,
-                                edge_points))                            
+                                edge_points,
+                                entity))                            
                         else:  
                             (myMeshID,meshname,uvPlane,solidFoundHere)=self.add_part(
                                 shape_disp,
@@ -2079,7 +2094,8 @@ class StepIgesAnalyser():
                                 name="EDGE"+myCurveCode+subName+parentName,
                                 parent_idx=parent_node_index,  
                                 curvecode=myCurveCode,
-                                curvepoints=edge_points                      
+                                curvepoints=edge_points,
+                                entity=entity                      
                             ) 
                         if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
                             self.outputShapes[shape_hash_edge] = [shape_disp, parentName, parentEntry, edgeColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
@@ -2101,6 +2117,8 @@ class StepIgesAnalyser():
                         #print("I am writing Vertex",self.fileId, basename)                       
                         shape_disp,vertex_point = self.CreateSphereFromVertex(shape_transform) 
                         myMeshID = self.uid
+                        entity=recognize_vertex_entity_info(shape_transform)
+                        #print("My Entity Vertex",entity)
                         if self.multiplegltf!=0:
                             meshname="VERTEX"
                             uvPlane=my_parent_id
@@ -2111,7 +2129,8 @@ class StepIgesAnalyser():
                                 "VERTEX"+subName+parentName,
                                 "VERTEX",
                                 " ",
-                                vertex_point))
+                                vertex_point,
+                                entity))
                             
                         else:            
                             (_,meshname,uvPlane,solidFoundHere)=self.add_part(
@@ -2122,7 +2141,8 @@ class StepIgesAnalyser():
                                 name="VERTEX"+subName+parentName,
                                 parent_idx=parent_node_index, 
                                 curvecode=" ",
-                                curvepoints=edge_points                       
+                                curvepoints=edge_points,
+                                entity=entity                     
                             ) 
                         if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
                             self.outputShapes[shape_hash_vertex] = [shape_disp, parentName, parentEntry, vertexColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
@@ -2349,8 +2369,11 @@ class StepIgesAnalyser():
                                     (filefullname, basename) = self.write_step_file(shape_to_disp,labelForSubShapesName+subName,faceColor)
                                     if(disect_type=="FACE"):
                                        _, myCurveCode = recognize_face_entity(shape_to_disp)
+                                       entity = recognize_face_entity_info(shape_to_disp)
                                     else:
                                         myCurveCode = ""
+                                        entity={}
+                                    #print("My Entity sub Face",entity)
                                     (myMeshID, meshname, uvPlane, solidFoundHere)=self.add_part(
                                         shape_to_disp,
                                         part_color=faceColor,
@@ -2359,7 +2382,8 @@ class StepIgesAnalyser():
                                         name=disect_type+myCurveCode+labelForSubShapesName+subName,
                                         parent_idx=parent_node_index,
                                         curvecode=myCurveCode,
-                                        curvepoints=None
+                                        curvepoints=None,
+                                        entity=entity
                                     )
                                     if (solidFoundHere > 0) :                                        
                                         self.outputShapes[shapeInFile] = [shape_to_disp,subName, subEntry, faceColor, myMeshID, my_parent_id, labelForSubShapesName, labelForSubShapesEntry, meshname, basename, uvPlane]
@@ -2628,7 +2652,8 @@ class StepIgesAnalyser():
                         name="PART"+shape_name,
                         parent_idx=parent_node_index,
                         curvecode=" ",
-                        curvepoints=None
+                        curvepoints=None,
+                        entity={}
                     )  
                     if(solidFoundHere>0):                  
                         self.outputShapes[hash_shape] = [shape_to_disp, subName, subEntry, c, myMeshID, self.parentIDs[-1], rootName, rootEntry, meshname, basenamehere, uvPlane]
@@ -2697,9 +2722,10 @@ class StepIgesAnalyser():
         parent_node = self.mstep_dict['nodes'][parent_node_index]
         parent_node['children'] = parent_node.get('children', []) + [node_index]
         #print("I have reached here in getshapes 4",self.output)
-        for (shape_to_disp,myColor,myfilename,myname,mytype,mycurvecode,mycurvepoints) in outputFeature:
+        for (shape_to_disp,myColor,myfilename,myname,mytype,mycurvecode,mycurvepoints,entities) in outputFeature:
             #print(shape_to_disp,myColor,myfilename,myname) 
             hash_shape = hash(shape_to_disp)
+            #print("My Entity features",entities)
             try:
                if not hash_shape in self.outputShapes:
                     self.fileId += 1
@@ -2717,7 +2743,8 @@ class StepIgesAnalyser():
                         name=myname,
                         parent_idx=parent_node_index,
                         curvecode=mycurvecode,
-                        curvepoints=mycurvepoints
+                        curvepoints=mycurvepoints,
+                        entity=entities
                     )                    
                     #self.outputShapes[hash_shape] = [shape_to_disp, subName, subEntry, c, self.uid, self.indent, rootName, rootEntry, meshname, basenamehere, uvPlane]
  
@@ -2783,6 +2810,117 @@ class StepIgesAnalyser():
         else:
             return points, ((0,0,0),(0,0,0))
     
+    def convertEntityToBase64(self,entity):        
+        #print("outside", (self.gltf_Dict['xdir']), entity, ((self.gltf_Dict['xdir']) in entity) )
+        if  self.gltf_Dict['xdir'] in entity:
+            #print("inside",entity)
+            floatBuff = TimeBuffer(15)
+            xdir = entity[self.gltf_Dict['xdir']]
+            floatBuff.add_time(xdir[0])
+            floatBuff.add_time(xdir[1])
+            floatBuff.add_time(xdir[2])
+            ydir = entity[self.gltf_Dict['ydir']]
+            floatBuff.add_time(ydir[0])
+            floatBuff.add_time(ydir[1])
+            floatBuff.add_time(ydir[2])
+            center = entity[self.gltf_Dict['center']]
+            floatBuff.add_time(center[0])
+            floatBuff.add_time(center[1])
+            floatBuff.add_time(center[2])
+            floatBuff.add_time(entity[self.gltf_Dict['firstU']])
+            floatBuff.add_time(entity[self.gltf_Dict['lastU']])
+            floatBuff.add_time(entity[self.gltf_Dict[ ('radius') if entity[self.gltf_Dict['code']]=='C' else\
+                 ('focal' if entity[self.gltf_Dict['code']]=='P' else 'major')]] )
+            if (entity[self.gltf_Dict['code']]!='C') and (entity[self.gltf_Dict['code']]!='P') :
+                floatBuff.add_time(entity[self.gltf_Dict[ ('minor')]])            
+            base64data = base64.b64encode(floatBuff.read()).decode('ascii')
+            retString = "{data}".format(
+                    data=base64data,
+            )  
+            return {
+                self.gltf_Dict['code']:entity[self.gltf_Dict['code']],
+                self.gltf_Dict['basic']:retString           
+            }
+        elif self.gltf_Dict['degree'] in entity:
+            floatBuff = TimeBuffer(255)
+            floater = 0
+            len_knot = 0
+            if entity[self.gltf_Dict['code']]=='I':
+                knots = entity[self.gltf_Dict['knots']]
+                len_knot = len(knots)
+                len_knot = max(len_knot,entity[self.gltf_Dict['knot']])
+                poles = entity[self.gltf_Dict['poles']]
+                len_pole = len(poles)
+                len_pole = max(len_pole,entity[self.gltf_Dict['pole']],len(entity[self.gltf_Dict['weights']]))
+                floater = entity[self.gltf_Dict['periodic']]+\
+                    entity[self.gltf_Dict['rational']]*2.0+\
+                        entity[self.gltf_Dict['degree']]*4.0+\
+                            len_knot*256.0+\
+                                len_pole*256.0*256.0 #packing 4 bytes..
+                #print("What I got Spline",floater,len_pole,len_knot,entity[self.gltf_Dict['degree']])
+            else:
+                poles = entity[self.gltf_Dict['poles']]
+                len_pole = len(poles)
+                len_pole = max(len_pole,entity[self.gltf_Dict['pole']],len(entity[self.gltf_Dict['weights']]))
+                floater = entity[self.gltf_Dict['degree']]*4.0+\
+                    len_pole*256.0*256.0 #packing 4 bytes..
+                #print("What I got Bezier",floater,len_pole,entity[self.gltf_Dict['degree']])
+            floatBuff.add_time(floater)
+            if entity[self.gltf_Dict['code']]=='I':
+                floatBuff.add_time(entity[self.gltf_Dict['start']])
+                floatBuff.add_time(entity[self.gltf_Dict['end']])
+            #print("What I got Outside",floater,len_pole,entity[self.gltf_Dict['degree']],entity)
+            pole_copied = 0
+            lastpole = 0.0
+            for pole in poles:
+                pole_copied+=1
+                floatBuff.add_time(pole[0])
+                floatBuff.add_time(pole[1])
+                floatBuff.add_time(pole[2])
+                lastpole = pole
+            if pole_copied != len_pole:
+                print("Issue in number of poles, adjusting")
+                for _ in range(len_pole-pole_copied):
+                    floatBuff.add_time(lastpole[0])
+                    floatBuff.add_time(lastpole[1])
+                    floatBuff.add_time(lastpole[2]) 
+            weights = entity[self.gltf_Dict['weights']]
+            pole_copied = 0
+            lastweight = 0.0
+            for weight in weights:
+                pole_copied+=1
+                floatBuff.add_time(weight)
+                lastweight = weight
+            if pole_copied != len_pole:
+                print("Issue in number of weights, adjusting")
+                for _ in range(len_pole-pole_copied):
+                    floatBuff.add_time(lastweight) 
+            if entity[self.gltf_Dict['code']]=='I':
+                knots = entity[self.gltf_Dict['knots']]
+                knots_copied = 0
+                lastknot=0
+                for knot in knots:
+                    knots_copied+=1
+                    floatBuff.add_time(knot)
+                    lastknot = knot
+                if knots_copied != len_knot:
+                    print("Issue in number of knots, adjusting")
+                    for _ in range(len_knot-knots_copied):
+                        floatBuff.add_time(lastknot)
+                multiplicities=entity[self.gltf_Dict['multiplicities']]  
+                for multiplicity in multiplicities:
+                    floatBuff.add_time(multiplicity)
+            base64data = base64.b64encode(floatBuff.read()).decode('ascii')
+            retString = "{data}".format(
+                    data=base64data,
+            )  
+            return {
+                self.gltf_Dict['code']:entity[self.gltf_Dict['code']],
+                self.gltf_Dict['basic']:retString           
+            }
+        else:            
+            return {}
+
     def write_progress(self,maxgap=10,action=''):
         currenttime = datetime.utcnow()
         timingdelta = currenttime-self.currenttime            
@@ -3732,6 +3870,7 @@ class StepIgesAnalyser():
             self.gltf_Dict["bin"]:None,   
             self.gltf_Dict["element"]:" ",  
             self.gltf_Dict["points"]:None,
+            self.gltf_Dict["entity"]:{}
             }
         self.updateName(name,mesher_dict,0,True)
         if aShape and self.disectparts:
@@ -4381,7 +4520,7 @@ class StepIgesAnalyser():
         return buff, len(indices), uvbuff, uvPlane   
     
 
-    def add_part(self, part, part_color=None, filenameuri=None, filetype="", name=None,  parent_idx=0, curvecode="", curvepoints=None):
+    def add_part(self, part, part_color=None, filenameuri=None, filetype="", name=None,  parent_idx=0, curvecode="", curvepoints=None, entity={}):
         """
         Adds the given ``part`` to ``self.gltf_dict``.
 
@@ -4425,10 +4564,19 @@ class StepIgesAnalyser():
             myFileType = filetype[0:1]
             mesher_dict[self.gltf_Dict["element"]] = myFileType
             mesher_dict[self.gltf_Dict["geometry"]] = curvecode
-            base64BufferString, (lowerboundmin,upperboundmax) = self.convertToBase64(curvepoints)
-            mesher_dict[self.gltf_Dict["points"]] = base64BufferString
+            
+            myconvertedentity = self.convertEntityToBase64(entity)
+            mesher_dict[self.gltf_Dict["entity"]] = myconvertedentity
+            lowerboundmin=(0,0,0)
+            upperboundmax=(1,1,1)
+            if self.gltf_Dict['basic'] in myconvertedentity:
+                mesher_dict[self.gltf_Dict["points"]] = None
+            else:
+                base64BufferString, (lowerboundmin,upperboundmax) = self.convertToBase64(curvepoints)
+                mesher_dict[self.gltf_Dict["points"]] = base64BufferString
             #mesher_dict["fileId"] = self.fileId
             mesher_dict[self.gltf_Dict["leaf"]]=True
+        
             if( solidfound > 0 ) :
                 #print("before compare")
                 self.scene_min = _list3_min(
@@ -4672,6 +4820,4 @@ class StepIgesAnalyser():
         #buffer_length_current = len(self.mstep_dict['buffers'])
         return mesher_dict[self.gltf_Dict["id"]], mesher_dict[self.gltf_Dict["name"]], uvPlane, solidfound
 
-    
-    
     

@@ -6,7 +6,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-function AlertDialog({userChoice, handleOpen, content, title}) {
+function AlertDialog({ userChoice, handleOpen, content, title }) {
   const defaultMessage = 'There is no provided message, please add one! ';
   return (
     <div>
@@ -15,10 +15,12 @@ function AlertDialog({userChoice, handleOpen, content, title}) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{ title ? title : null }</DialogTitle>
+        <DialogTitle id="alert-dialog-title">
+          {title ? title : null}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            { content ? content : defaultMessage}
+            {content ? content : defaultMessage}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

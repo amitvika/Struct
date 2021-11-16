@@ -10,10 +10,10 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControl from '@material-ui/core/FormControl';
 import Checkbox from '@material-ui/core/Checkbox';
 import Radio from '@material-ui/core/Radio';
-import RadioGroup  from '@material-ui/core/RadioGroup';
+import RadioGroup from '@material-ui/core/RadioGroup';
 import InputLabel from '@material-ui/core/InputLabel';
 import Grid from '@material-ui/core/Grid';
-import {ColorPicker} from 'material-ui-color';
+import { ColorPicker } from 'material-ui-color';
 
 //import IconButton from '@material-ui/core/IconButton';
 //import Smile from '@material-ui/icons/Mood';
@@ -33,7 +33,7 @@ export default class SimpleFormBuilder extends React.Component {
     padding: '20px',
     margin: '0px 15px',
     display: 'inline-block',
-    'border-width':0    
+    'border-width': 0
   };
 
   constructor(props) {
@@ -67,10 +67,12 @@ export default class SimpleFormBuilder extends React.Component {
         transformedValue = this.handleEmojiText(value);
       }
     } */
-   
+
     if (this.state.timeout) {
       clearTimeout(this.state.timeout);
-      this.setState({ timeout: null }, () => this.setChanges(field, value, ctrlKey));
+      this.setState({ timeout: null }, () =>
+        this.setChanges(field, value, ctrlKey)
+      );
     } else {
       this.setChanges(field, value, ctrlKey);
     }
@@ -96,9 +98,14 @@ export default class SimpleFormBuilder extends React.Component {
     if (this.props.handleChange) {
       this.props.handleChange(field, value, ctrlKey);
     }
-    const values = { ...this.props.values, ...this.state.values, [field]: value, ctrlKey:ctrlKey };
+    const values = {
+      ...this.props.values,
+      ...this.state.values,
+      [field]: value,
+      ctrlKey: ctrlKey
+    };
     this.setState({ values }, () => {
-     /*  if (!this.props.delayTime || !this.props.onDelayedChange) {
+      /*  if (!this.props.delayTime || !this.props.onDelayedChange) {
         return false;
       }
       let time = 0;
@@ -113,14 +120,18 @@ export default class SimpleFormBuilder extends React.Component {
         this.props.onChange(values, this.props.keyindex);
       }
     });
-   /*  if (this.props.onChange) {
+    /*  if (this.props.onChange) {
       this.props.onChange(values);
     } */
   };
 
   getProperty = (key, defaultValue, formDefault) => {
     const componentDefault = _.get(this.props.values, key);
-    return _.get(this.state.values, key, componentDefault || defaultValue || formDefault);
+    return _.get(
+      this.state.values,
+      key,
+      componentDefault || defaultValue || formDefault
+    );
   };
 
   getName = (name) => {
@@ -138,35 +149,38 @@ export default class SimpleFormBuilder extends React.Component {
     //const emoji = field.emoji || false;
     const dialogActive = field.dialogActive || false;
     const dialogContent = field.dialogContent || null;
-    const dialogTitle = field.dialogTitle || null; 
+    const dialogTitle = field.dialogTitle || null;
     let currentlabelwidth = labelwidth || 0;
-    currentlabelwidth=0;
-    const textwidth = 100-currentlabelwidth;
+    currentlabelwidth = 0;
+    const textwidth = 100 - currentlabelwidth;
     currentlabelwidth = textwidth;
     const arrayitems = field.items || [];
-    let items=[];
-    if(arrayitems.length > 0) {
-      if(arrayitems[0].title) {
-        items=arrayitems;
+    let items = [];
+    if (arrayitems.length > 0) {
+      if (arrayitems[0].title) {
+        items = arrayitems;
       } else {
         for (let index = 0; index < arrayitems.length; index++) {
           const element = arrayitems[index];
-          items.push({value:index,title:element});          
+          items.push({ value: index, title: element });
         }
       }
       field.items = items;
-    } 
+    }
 
     switch (type) {
       case 'text':
       case 'password':
       case 'number':
         return (
-          <CustomTextField zindex="tooltip"
+          <CustomTextField
+            zindex="tooltip"
             field={field}
             errors={this.props.errors}
             value={this.getProperty(key, defaultValue, '')}
-            onChange={(event) => this.handleChange(key, event.target.value, event.ctrlKey)}
+            onChange={(event) =>
+              this.handleChange(key, event.target.value, event.ctrlKey)
+            }
             labelwidth={this.props.labelwidth}
           />
         );
@@ -177,14 +191,17 @@ export default class SimpleFormBuilder extends React.Component {
             <div
               style={{
                 display: 'flex',
-                alignItems: 'flex-end',
+                alignItems: 'flex-end'
               }}
             >
-              <CustomTextField zindex="tooltip"
+              <CustomTextField
+                zindex="tooltip"
                 field={field}
                 errors={this.props.errors}
                 value={this.getProperty(key, defaultValue, '')}
-                onChange={(event) => this.handleChange(key, event.target.value, event.ctrlKey)}
+                onChange={(event) =>
+                  this.handleChange(key, event.target.value, event.ctrlKey)
+                }
                 multiline
                 rows={field.rows || 1}
                 rowsMax={field.rowsMax || 3}
@@ -208,37 +225,50 @@ export default class SimpleFormBuilder extends React.Component {
       }
       case 'slider':
         return (
-          <CustomSliderField zindex="tooltip"
+          <CustomSliderField
+            zindex="tooltip"
             field={field}
             errors={this.props.errors}
             value={this.getProperty(key, defaultValue, '')}
-            onChange={(event,newvalue) => this.handleChange(key, newvalue, event.ctrlKey)}
+            onChange={(event, newvalue) =>
+              this.handleChange(key, newvalue, event.ctrlKey)
+            }
             labelwidth={this.props.labelwidth}
           />
         );
       case 'select':
         return (
-          <CustomSelect zindex="tooltip"
+          <CustomSelect
+            zindex="tooltip"
             field={field}
             errors={this.props.errors}
-            selectedValues={this.getProperty(key, defaultValue, field.multiple ? [] : '')}
-            onChange={(event) => this.handleChange(key, event.target.value, event.ctrlKey)}
+            selectedValues={this.getProperty(
+              key,
+              defaultValue,
+              field.multiple ? [] : ''
+            )}
+            onChange={(event) =>
+              this.handleChange(key, event.target.value, event.ctrlKey)
+            }
             dialogActive={dialogActive}
             dialogContent={dialogContent}
             dialogTitle={dialogTitle}
             labelwidth={this.props.labelwidth}
           />
         );
-      
-        case 'color':
-        
+
+      case 'color':
         return (
           // <Grid style={{display:"flex"}}>
-          <span >
-          {currentlabelwidth!=0 && (
-            <InputLabel style={{width:currentlabelwidth.toString()+'%'}}>{this.getName(name)}</InputLabel>
-          )}  
-            <ColorPicker zindex="tooltip" style={{zIndex: 2000}}
+          <span>
+            {currentlabelwidth != 0 && (
+              <InputLabel style={{ width: currentlabelwidth.toString() + '%' }}>
+                {this.getName(name)}
+              </InputLabel>
+            )}
+            <ColorPicker
+              zindex="tooltip"
+              style={{ zIndex: 2000 }}
               field={field}
               name={this.getName(name)}
               errors={this.props.errors}
@@ -247,9 +277,9 @@ export default class SimpleFormBuilder extends React.Component {
               onChange={(color) => this.handleChange(key, color.value, false)}
               //style={{width:textwidth.toString()+"%",height:"600"}}
             />
-            </span>
-            // </Grid>
-          );
+          </span>
+          // </Grid>
+        );
       /* case 'asyncSelect':
         return (
           <AsyncSelect
@@ -270,7 +300,11 @@ export default class SimpleFormBuilder extends React.Component {
                     checked={this.getProperty(key, defaultValue, false)}
                     value={`${this.getProperty(key, defaultValue, false)}`}
                     onClick={(event) => {
-                      this.handleChange(key, event.target.checked, event.ctrlKey);
+                      this.handleChange(
+                        key,
+                        event.target.checked,
+                        event.ctrlKey
+                      );
                     }}
                     disabled={disabled}
                   />
@@ -281,73 +315,77 @@ export default class SimpleFormBuilder extends React.Component {
           </FormControl>
         );
       }
-      
+
       case 'lradio': {
         const items = field.items || [];
         return (
-          <Grid style={{display:"flex"}}>
-          <FormControl zindex="tooltip" component="fieldset">
-            <RadioGroup value={`${this.getProperty(key, defaultValue, false)}`} onChange={(event) => {
-                      this.handleChange(key, event.target.value, event.ctrlKey);
-                    }}>
-              { items.map( (item) => (
-               
-              <FormControlLabel
-                value = {item.title}
-                control={
-                  <Radio />
-                }
-                label={this.getName(item.title)}               
-              />
-              
-               ))}
-            </RadioGroup>
-          </FormControl>
+          <Grid style={{ display: 'flex' }}>
+            <FormControl zindex="tooltip" component="fieldset">
+              <RadioGroup
+                value={`${this.getProperty(key, defaultValue, false)}`}
+                onChange={(event) => {
+                  this.handleChange(key, event.target.value, event.ctrlKey);
+                }}
+              >
+                {items.map((item) => (
+                  <FormControlLabel
+                    value={item.title}
+                    control={<Radio />}
+                    label={this.getName(item.title)}
+                  />
+                ))}
+              </RadioGroup>
+            </FormControl>
           </Grid>
         );
       }
       case 'radio': {
-       
         const items = field.items || [];
         return (
           // <Grid style={{display:"flex"}}>
-          <span >
-          {currentlabelwidth!=0 && (
-            <InputLabel style={{width:currentlabelwidth.toString()+'%'}}>{this.getName(name)}</InputLabel>
-          )}  
-          <FormControl component="fieldset" zindex="tooltip" style={{width:textwidth.toString()+"%"}}>
-            <RadioGroup value={`${this.getProperty(key, defaultValue, false)}`} onChange={(event) => {
-                      this.handleChange(key, event.target.value, event.ctrlKey);                     
-                    }}>
-              { items.map( (item) => (
-               
-              <FormControlLabel
-                value = {item.title}
-                control={
-                  <Radio />
-                }
-                label={this.getName(item.title)}               
-              />
-              
-               ))}
-            </RadioGroup>
-          </FormControl>
+          <span>
+            {currentlabelwidth != 0 && (
+              <InputLabel style={{ width: currentlabelwidth.toString() + '%' }}>
+                {this.getName(name)}
+              </InputLabel>
+            )}
+            <FormControl
+              component="fieldset"
+              zindex="tooltip"
+              style={{ width: textwidth.toString() + '%' }}
+            >
+              <RadioGroup
+                value={`${this.getProperty(key, defaultValue, false)}`}
+                onChange={(event) => {
+                  this.handleChange(key, event.target.value, event.ctrlKey);
+                }}
+              >
+                {items.map((item) => (
+                  <FormControlLabel
+                    value={item.title}
+                    control={<Radio />}
+                    label={this.getName(item.title)}
+                  />
+                ))}
+              </RadioGroup>
+            </FormControl>
           </span>
         );
-      };
+      }
       case 'chip': {
         const value = this.getProperty(key, defaultValue, []);
         return (
-          <ChipInput zindex="tooltip"
+          <ChipInput
+            zindex="tooltip"
             field={field}
             value={value}
-            onChange={(value) => this.handleChange(key, value,false)}
+            onChange={(value) => this.handleChange(key, value, false)}
             errors={errors}
           />
         );
       }
 
-     /*  case 'image':
+      /*  case 'image':
       case 'image2': {
         const defaultImg = defaultValue || this.DEFAULT_IMG;
         return (
@@ -363,46 +401,56 @@ export default class SimpleFormBuilder extends React.Component {
   };
 
   getFields = () => {
-    const key= this.props.key || 'form-field-container';
+    const key = this.props.key || 'form-field-container';
     return this.props.fields.map((field, index) => (
-      <div p={1}
+      <div
+        p={1}
         key={`${key}-${index}`}
-        style={{ margin: '1px 0', ...this.props.inputContainerStyle, width:'100px' }}
+        style={{
+          margin: '1px 0',
+          ...this.props.inputContainerStyle,
+          width: '100px'
+        }}
       >
-      {this.getField(field)}          
+        {this.getField(field)}
       </div>
     ));
   };
 
-  closeForm = () =>{
-    this.setState({opened:false});
-  }
-  
+  closeForm = () => {
+    this.setState({ opened: false });
+  };
+
   render() {
     /* let FieldContainer = Box;
     if (this.props.orientation === 'horizontal') {
       FieldContainer = Box;
     } */
     return (
-      this.state.opened &&
-      (<Box
-          p={1} zindex="tooltip" 
+      this.state.opened && (
+        <Box
+          p={1}
+          zindex="tooltip"
           style={{
             ...this.style,
             backgroundColor: '#fefefe',
-            padding: 1,            
-            ...this.props.fieldContainerStyle,
+            padding: 1,
+            ...this.props.fieldContainerStyle
           }}
           flex={1}
           wrap={this.props.wrap}
         >
-          <Grid p={1} container spacing={10} direction="column" style={{display:"flex", margin: '1px 0'}}>
-          {this.getFields()}
-         
+          <Grid
+            p={1}
+            container
+            spacing={10}
+            direction="column"
+            style={{ display: 'flex', margin: '1px 0' }}
+          >
+            {this.getFields()}
           </Grid>
-        </Box>          
+        </Box>
       )
-    )
-    
+    );
   }
 }

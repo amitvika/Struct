@@ -1,3 +1,3 @@
-import ModelessDialog from './components/ModelessDialog'
+import ModelessDialog from './components/ModelessDialog';
 
-export default ModelessDialog
+export default ModelessDialog;

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React, { useState, useEffect } from 'react';
 //import RelativePortal from 'react-relative-portal';
-import Portal from '@material-ui/core/Portal'
+import Portal from '@material-ui/core/Portal';
 import { shape, string, func, number, oneOfType, arrayOf } from 'prop-types';
 import classNames from 'classnames';
 import Select from 'react-select';
@@ -17,22 +17,22 @@ import AlertDialog from './AlertDialog';
 
 const style = (theme) => ({
   root: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   input: {
     display: 'flex',
     padding: 0,
-    height: 'auto',
+    height: 'auto'
   },
   valueContainer: {
     display: 'flex',
     flexWrap: 'wrap',
     flex: 1,
     alignItems: 'center',
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   chip: {
-    margin: `2px 4px 2px 0`,
+    margin: `2px 4px 2px 0`
   },
   chipFocused: {
     backgroundColor: emphasize(
@@ -40,18 +40,18 @@ const style = (theme) => ({
       // theme.palette.grey[300],
       '#DCDCDC',
       0.08
-    ),
+    )
   },
   noOptionsMessage: {
     // padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
   },
   singleValue: {
-    fontSize: 14,
+    fontSize: 14
   },
   placeholder: {
     position: 'absolute',
     left: 2,
-    fontSize: 14,
+    fontSize: 14
   },
   paper: {
     position: 'absolute',
@@ -60,11 +60,11 @@ const style = (theme) => ({
     left: 0,
     right: 0,
     maxHeight: '200px',
-    overflowY: 'scroll',
+    overflowY: 'scroll'
   },
   divider: {
     // height: theme.spacing.unit * 2,
-  },
+  }
 });
 
 function NoOptionsMessage(props) {
@@ -93,8 +93,8 @@ function Control(props) {
           className: props.selectProps.classes.input,
           inputRef: props.innerRef,
           children: props.children,
-          ...props.innerProps,
-        },
+          ...props.innerProps
+        }
       }}
       {...props.selectProps.textFieldProps}
     />
@@ -108,7 +108,7 @@ function Option(props) {
       selected={props.isFocused}
       component="div"
       style={{
-        fontWeight: props.isSelected ? 500 : 400,
+        fontWeight: props.isSelected ? 500 : 400
       }}
       {...props.innerProps}
     >
@@ -131,14 +131,21 @@ function Placeholder(props) {
 
 function SingleValue(props) {
   return (
-    <Typography className={props.selectProps.classes.singleValue} {...props.innerProps}>
+    <Typography
+      className={props.selectProps.classes.singleValue}
+      {...props.innerProps}
+    >
       {props.children}
     </Typography>
   );
 }
 
 function ValueContainer(props) {
-  return <div className={props.selectProps.classes.valueContainer}>{props.children}</div>;
+  return (
+    <div className={props.selectProps.classes.valueContainer}>
+      {props.children}
+    </div>
+  );
 }
 
 function MultiValue(props) {
@@ -147,7 +154,7 @@ function MultiValue(props) {
       tabIndex={-1}
       label={props.children}
       className={classNames(props.selectProps.classes.chip, {
-        [props.selectProps.classes.chipFocused]: props.isFocused,
+        [props.selectProps.classes.chipFocused]: props.isFocused
       })}
       onDelete={props.removeProps.onClick}
       deleteIcon={<CancelIcon {...props.removeProps} />}
@@ -178,14 +185,16 @@ const components = {
   Option,
   Placeholder,
   SingleValue,
-  ValueContainer,
+  ValueContainer
 };
 
 const getName = (name) => _.replace(name, /\./g, ' ');
 
 const formatSelectedValue = (selectedValue, options) => {
   if (_.isArray(selectedValue)) {
-    return selectedValue.map((value) => options.find((option) => option.value === value));
+    return selectedValue.map((value) =>
+      options.find((option) => option.value === value)
+    );
   }
 
   return options.find((option) => option.value === selectedValue);
@@ -208,31 +217,25 @@ function IntegrationReactSelect({
   const [answerState, setAnswerState] = useState('');
   const [handleModalOpen, setHandleModalOpen] = useState(false);
 
-  useEffect(
-    () => {
-      setValue(selectedValue);
-    },
-    [selectedValue]
-  );
+  useEffect(() => {
+    setValue(selectedValue);
+  }, [selectedValue]);
 
-  useEffect(
-    () => {
-      switch (answerState) {
-        case 'cancel':
-          setValue(prevSelected);
-          break;
-        case 'ok':
-          setPrevSelected(localValue);
-          setValue(localValue);
-          break;
-        default:
-          break;
-      }
-      setHandleModalOpen(false);
-      setAnswerState('');
-    },
-    [answerState]
-  );
+  useEffect(() => {
+    switch (answerState) {
+      case 'cancel':
+        setValue(prevSelected);
+        break;
+      case 'ok':
+        setPrevSelected(localValue);
+        setValue(localValue);
+        break;
+      default:
+        break;
+    }
+    setHandleModalOpen(false);
+    setAnswerState('');
+  }, [answerState]);
 
   const ConditionalModalHandler = (value, isActive) => {
     if (prevSelected !== value && isActive) {
@@ -248,17 +251,22 @@ function IntegrationReactSelect({
   const errorText = _.get(errors, key, false);
 
   const items =
-    field.empty && !field.multiple ? [{ value: '', title: '' }, ...field.items] : field.items;
-  const options = items.map((item) => ({ value: item.value, label: item.title }));
+    field.empty && !field.multiple
+      ? [{ value: '', title: '' }, ...field.items]
+      : field.items;
+  const options = items.map((item) => ({
+    value: item.value,
+    label: item.title
+  }));
 
   const selectStyles = {
     input: (base) => ({
       ...base,
       // color: theme.palette.text.primary,
       '& input': {
-        font: 'inherit',
-      },
-    }),
+        font: 'inherit'
+      }
+    })
   };
 
   return (
@@ -275,15 +283,18 @@ function IntegrationReactSelect({
         textFieldProps={{
           label: getName(name),
           InputLabelProps: {
-            shrink: true,
-          },
+            shrink: true
+          }
         }}
         options={options}
         components={components}
         value={formatSelectedValue(valueState, options)}
         onChange={(value) => {
           if (field.multiple) {
-            ConditionalModalHandler(value.map((item) => item.value), false);
+            ConditionalModalHandler(
+              value.map((item) => item.value),
+              false
+            );
             onChange(value.map((item) => item.value));
           } else {
             ConditionalModalHandler(value.value, dialogActive);
@@ -300,7 +311,7 @@ function IntegrationReactSelect({
           style={{
             fontSize: '10px',
             color: 'red',
-            fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+            fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
           }}
         >
           {errorText}
@@ -311,15 +322,17 @@ function IntegrationReactSelect({
 }
 
 IntegrationReactSelect.defaultProps = {
-  errors: {},
+  errors: {}
 };
 
 IntegrationReactSelect.propTypes = {
   field: shape({ name: string, type: string, key: string }).isRequired,
-  selectedValue: oneOfType([oneOfType([string, number]), arrayOf(oneOfType([string, number]))])
-    .isRequired,
+  selectedValue: oneOfType([
+    oneOfType([string, number]),
+    arrayOf(oneOfType([string, number]))
+  ]).isRequired,
   onChange: func.isRequired,
-  errors: shape({}),
+  errors: shape({})
 };
 
 export default withStyles(style)(IntegrationReactSelect);

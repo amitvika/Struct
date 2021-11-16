@@ -202,41 +202,38 @@ export default function LargeFileUpload({
   const onDrawLineChange = (e) => {
     setDrawLine(e.target.checked);
   };
-
   const fileGDTPath =
     (itemProperties.fileUUId ? itemProperties.fileUUId + '/' : '') +
     (itemProperties.fileGDT ? itemProperties.fileGDT : '');
   //console.log(fileGDTPath);
-
-  // if (
-  //   itemProperties.fileStore &&
-  //   itemProperties.fileGDT &&
-  //   checkExistingPathFromStore(fileGDTPath, 'gltf', true)
-  // ) {
-  //   console.log(itemProperties.fileStore, distanceGap, angleGap);
-  //   return (
-  //     <div style={{ display: 'flex' }}>
-  //       <Typography
-  //         variant="h6"
-  //         style={{
-  //           display: 'flex',
-  //           alignItems: 'center',
-  //           color: 'blue'
-  //         }}
-  //       >
-  //         {itemProperties.fileStore}
-  //       </Typography>
-  //       <IconButton margin="auto" onClick={handleExportButton}>
-  //         <img
-  //           src={ExportLogo}
-  //           style={{ width: '20px', paddingTop: '2px' }}
-  //           alt={'pictur' + (itemId || '').toString()}
-  //         />
-  //       </IconButton>
-  //     </div>
-  //   );
-  // }
-
+  if (
+    itemProperties.fileStore &&
+    itemProperties.fileGDT &&
+    checkExistingPathFromStore(fileGDTPath, 'gltf', true)
+  ) {
+    console.log(itemProperties.fileStore, distanceGap, angleGap);
+    return (
+      <div style={{ display: 'flex' }}>
+        <Typography
+          variant="h6"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            color: 'blue'
+          }}
+        >
+          {itemProperties.fileStore}
+        </Typography>
+        <IconButton margin="auto" onClick={handleExportButton}>
+          <img
+            src={ExportLogo}
+            style={{ width: '20px', paddingTop: '2px' }}
+            alt={'pictur' + (itemId || '').toString()}
+          />
+        </IconButton>
+      </div>
+    );
+  }
   let getTrimmedValue = 0;
   getTrimmedValue = progress ? parseFloat(progress.toFixed(3)) : 0;
   if (isNaN(getTrimmedValue)) {
@@ -274,11 +271,11 @@ export default function LargeFileUpload({
           control={
             <Checkbox
               checked={drawLine}
-              label="Draw Edges"
+              label="Load All Edges"
               onChange={onDrawLineChange}
             />
           }
-          label="Draw Edges"
+          label="Load All Edges"
         />
         <FormControlLabel
           control={
