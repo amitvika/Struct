@@ -14,7 +14,7 @@ export const upload3DFile = async (oneFile) => {
 };
 
 export const uploadChunkData = async (formData) => {
-  console.log('Uploading', `${host}/chunkupload/`, formData);
+  // console.log('Uploading', `${host}/chunkupload/`, formData);
   return axios.post(`${host}/chunkupload/`, formData);
 };
 export const fetchShapeInfo = async (tree) => {
@@ -24,7 +24,7 @@ export const fetchShapeInfo = async (tree) => {
 };
 
 export const saveTreeInfo = async (tree, name, fileGuid) => {
-  console.log(tree);
+  // console.log(tree);
   var formTree = new FormData();
   formTree.append('tree', JSON.stringify(tree));
   formTree.append('name', name);
@@ -33,7 +33,7 @@ export const saveTreeInfo = async (tree, name, fileGuid) => {
 };
 
 export const saveGDTInfo = async (gdt, name, fileGUID = '') => {
-  console.log(gdt);
+  // console.log(gdt);
   var formGDT = new FormData();
   formGDT.append('gdt', JSON.stringify(gdt));
   formGDT.append('name', name);
@@ -55,7 +55,7 @@ export const getSplitFiles = (
   moverotate
 ) => {
   const splitURL = `${host}/split?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}`;
-  console.log(splitURL);
+  // console.log(splitURL);
   return axios.get(splitURL);
 };
 
@@ -73,7 +73,7 @@ export const getHierarchySplitFiles = (
   createthumb
 ) => {
   const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}&edgesize=${edgesize}&vertexsize=${vertexsize}&moverotate=${moverotate}&maximumfaces=${maximumfaces}&seperateparts=${seperateparts}&createthumb=${createthumb}`;
-  console.log(splitURL);
+  // console.log(splitURL);
   return axios.get(splitURL);
 };
 
@@ -84,7 +84,7 @@ export const getPartsStackableInfo = (
   animationtime
 ) => {
   const stackURL = `${host}/stackable?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}`;
-  console.log(stackURL);
+  // console.log(stackURL);
   return axios.get(stackURL);
 };
 
@@ -99,7 +99,7 @@ export const getPartsAssemblyOrder = (
   animationtime
 ) => {
   const orderURL = `${host}/assemblyorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&explodegap=${explodegap}&center=${center}&holescale=${holescale}&removegap=${removegap}&animationtime=${animationtime}`;
-  console.log(orderURL);
+  // console.log(orderURL);
   return axios.get(orderURL);
 };
 
@@ -110,7 +110,7 @@ export const getPartsKinematicOrder = (
   animationtime
 ) => {
   const kinematicURL = `${host}/kinematicorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}`;
-  console.log(kinematicURL);
+  // console.log(kinematicURL);
   return axios.get(kinematicURL);
 };
 
@@ -128,7 +128,7 @@ export const getMinimumDistance = (
   const getURL = `${host}/mindistance?moverotate=${moverotate}&xmove=${xmove}&ymove=${ymove}&zmove=${zmove}&xrotate=${xrotate}&yrotate=${yrotate}&zrotate=${zrotate}&fname=${
     fname ? fname : ''
   }&sname=${sname ? sname : ''}`;
-  console.log(getURL);
+  // console.log(getURL);
   return axios.get(getURL);
 };
 
@@ -142,7 +142,7 @@ export const getShapeInfo = (
   /*  const getURL = `${host}/shapeinfo?start=${start}&steps=${stepArray}&parents=${JSON.stringify({parents:parentArray})}`;
   console.log(getURL);
   return axios.get(getURL); */
-  console.log(start, stepArray, siblingArray);
+  // console.log(start, stepArray, siblingArray);
   var formShapeInfo = new FormData();
   formShapeInfo.append('start', start);
   formShapeInfo.append('steps', JSON.stringify({ steps: stepArray }));
@@ -164,27 +164,27 @@ export const getAllFiles = () => {
 export const getAFileFromURLStore = (store, ext, fromURL) => {
   if (ext == 'status' || ext == 'progress') {
     const fetchURL = `${resourceStatusURL}${store}.${ext}`;
-    console.log(fetchURL);
+    // console.log(fetchURL);
     return axios.get(fetchURL);
   } else {
     const linuxURL = `${fromURL}${store}.${ext}`;
-    console.log(linuxURL);
+    // console.log(linuxURL);
     return axios.get(linuxURL);
   }
 };
 export const getAFileFromStore = (store, ext) => {
   if (ext == 'status' || ext == 'progress') {
     const fetchURL = `${resourceStatusURL}${store}.${ext}`;
-    console.log(fetchURL);
+    // console.log(fetchURL);
     return axios.get(fetchURL);
   } else {
     const linuxURL = `${resourcePathURL}${store}.${ext}`;
     if (isFileExistingInServer(linuxURL)) {
-      console.log(linuxURL);
+      // console.log(linuxURL);
       return axios.get(linuxURL);
     } else {
       const s3URL = `${resourcePathS3URL}${store}.${ext}`;
-      console.log(s3URL);
+      // console.log(s3URL);
       return axios.get(s3URL);
     }
   }
@@ -258,11 +258,11 @@ export const isFileExistingInServer = (urlAsFile) => {
         xhr.send();
         return xhr.status !== 404;
       } catch (exception) {
-        console.log(exception);
+        // console.log(exception);
         return false;
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return false;
     }
   } catch (error) {

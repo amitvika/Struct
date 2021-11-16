@@ -147,7 +147,11 @@ const ItemDetail = ({ itemValue }) => {
   };
 
   const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
-    const myResourcePath = checkExistingPathFromStore(whichOneToStatus,'gltf',true);
+    const myResourcePath = checkExistingPathFromStore(
+      whichOneToStatus,
+      'gltf',
+      true
+    );
     if (myResourcePath) {
       //console.log('Found gltf', whichOneToLoad);
       return 0;
@@ -170,27 +174,13 @@ const ItemDetail = ({ itemValue }) => {
       let servertime = statusRes.data.current;
       let utctimearray = currenttime.split(' ');
       let servertimearray = servertime.split('-');
-      console.log(
-        'What is got from Status file',
-        currenttime,
-        utctimearray,
-        servertime,
-        servertimearray
-      );
+
       let currenttimearray = utctimearray[4].split(':');
       let difference =
         (currenttimearray[0] - servertimearray[0]) * 60 * 60 +
         (currenttimearray[1] - servertimearray[1]) * 60 +
         (currenttimearray[2] - servertimearray[2]);
-      console.log(
-        'What is got from Status file',
-        currenttime,
-        servertime,
-        currenttimearray,
-        utctimearray,
-        servertimearray,
-        difference
-      );
+
       if (difference < 0) {
         difference += 24 * 60 * 60;
       }
@@ -199,7 +189,6 @@ const ItemDetail = ({ itemValue }) => {
       }
       return 1;
     }
-    console.log('NO gltf and status files Existing', whichOneToLoad);
     return 3;
   };
   const setStack = async (item) => {
@@ -462,14 +451,6 @@ const ItemDetail = ({ itemValue }) => {
             }
           }
           if (!item.fileKinematic || item.fileKinematic === null) {
-            console.log(
-              'Up0',
-              myTabIndex,
-              tabIndex,
-              item.fileStore,
-              item.fileKinematic,
-              item.fileId
-            );
             setIsLoading(true);
             setIsFileLoading(true);
             getPartsKinematicOrder(
@@ -504,10 +485,8 @@ const ItemDetail = ({ itemValue }) => {
               .catch((err) => {
                 setIsLoading(false);
                 setIsFileLoading(false);
-                console.log('Error While Parsing', err);
               });
           } else {
-            //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
             fetchGLTFAndTree(
               myTabIndex,
               item.fileStore,
@@ -534,16 +513,10 @@ const ItemDetail = ({ itemValue }) => {
               whichOneToLoad,
               whichOneToStatus
             );
-            console.log(
-              'Go ahead status in calling api from beginning',
-              okToParse
-            );
           } else {
             okToParse = 2;
           }
-          //console.log("After checking GLTF and Status",okToParse,item.fileStore,(okToParse || !item.fileStore || item.fileStore === null));
           if (okToParse > 1 || !item.fileStore || item.fileStore === null) {
-            //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
             setIsLoading(true);
             setIsFileLoading(true);
             setProgressBarLoad(true);
@@ -575,7 +548,6 @@ const ItemDetail = ({ itemValue }) => {
               if (!datastore) {
                 setIsLoading(false);
                 setIsFileLoading(false);
-                console.log('Error While Parsing', item);
               } else {
                 const datafile = item.fileUUId + '/' + datastore;
                 let fetchStatus = () => getAFileFromStore(datafile, 'status');
@@ -585,7 +557,6 @@ const ItemDetail = ({ itemValue }) => {
                 };
                 let percentFunction = (result) =>
                   result.data.percent ? result.data.percent : percentage;
-                console.log('Entering poll', datastore, dataload);
                 await pollFunction(
                   fetchStatus,
                   validateStatus,
@@ -595,7 +566,6 @@ const ItemDetail = ({ itemValue }) => {
                   setCurrentProgressText,
                   setCompletionProgressText
                 );
-                console.log('Completing poll', datastore, dataload);
                 const gltfRes = await getAFileFromStore(datafile, 'gltf');
                 const treeRes = await getAFileFromStore(datafile, 'tree');
                 const multiAssmebly = get(treeRes.data, 'tree', []).length > 0;
@@ -619,7 +589,6 @@ const ItemDetail = ({ itemValue }) => {
               if (!datastore) {
                 setIsLoading(false);
                 setIsLoading(false);
-                console.log('Error While Parsing', item);
               } else {
                 const treeLength = get(getHierarchyRes.data, 'tree', []).length;
                 const multiAssmebly = treeLength > 0;
@@ -880,21 +849,41 @@ const ItemDetail = ({ itemValue }) => {
         }
       }
       //
-      const myResourcePath = checkExistingPathFromStore(whichOneToLoad,'gltf');
+      const myResourcePath = checkExistingPathFromStore(whichOneToLoad, 'gltf');
       //
-      const gltfRes = await getAFileFromURLStore(whichOneToLoad,'gltf',myResourcePath);
-      const treeRes = await getAFileFromURLStore(whichOneToLoad,'tree',myResourcePath);
+      const gltfRes = await getAFileFromURLStore(
+        whichOneToLoad,
+        'gltf',
+        myResourcePath
+      );
+      const treeRes = await getAFileFromURLStore(
+        whichOneToLoad,
+        'tree',
+        myResourcePath
+      );
       let stackRes = { data: null };
       let orderRes = { data: null };
       let gdtRes = { data: null };
       if (myTabIndex == 'stack') {
-        stackRes = await getAFileFromURLStore(whichOneToLoad, 'stack',myResourcePath);
+        stackRes = await getAFileFromURLStore(
+          whichOneToLoad,
+          'stack',
+          myResourcePath
+        );
       }
       if (myTabIndex == 'mpps') {
-        orderRes = await getAFileFromURLStore(whichOneToLoad, 'order',myResourcePath);
+        orderRes = await getAFileFromURLStore(
+          whichOneToLoad,
+          'order',
+          myResourcePath
+        );
       }
       if (myTabIndex == 'gdtac') {
-        gdtRes = await getAFileFromURLStore(whichOneToLoad, 'gdt',myResourcePath);
+        gdtRes = await getAFileFromURLStore(
+          whichOneToLoad,
+          'gdt',
+          myResourcePath
+        );
       }
       const multiAssmebly = treeRes.length > 0;
 
@@ -919,7 +908,6 @@ const ItemDetail = ({ itemValue }) => {
     state_additionalSaveFunction = saveFunction;
   };
   const renderPageSwitch = () => {
-    //console.log(itemProperties);
     if (!get(itemProperties, 'id') && !id) {
       return null;
     }
@@ -932,7 +920,6 @@ const ItemDetail = ({ itemValue }) => {
       case 'cf':
         return <Classification handleItemUpdateLocallay={handleItemUpdate} />;
       case 'pdcu':
-        console.log(itemProperties);
         return (
           <BaseItemProperties
             itemId={id}
@@ -975,11 +962,6 @@ const ItemDetail = ({ itemValue }) => {
       case 'cu':
         return <CurrentUsage itemId={id} />;
       case 'gdtac':
-        console.log(
-          itemProperties,
-          itemProperties.fileGDT,
-          itemProperties.fileUUId
-        );
         return (
           <GeometricDimensioning
             fileId={itemProperties.fileId}
@@ -1156,7 +1138,7 @@ const ItemDetail = ({ itemValue }) => {
 
   const handleTabChange = (event, newTabIndex) => {
     if (tabIndex !== newTabIndex) {
-      console.log(tabIndex,newTabIndex);
+      console.log(tabIndex, newTabIndex);
       setIsLoading(true);
       setTabIndex(newTabIndex);
       history.push({

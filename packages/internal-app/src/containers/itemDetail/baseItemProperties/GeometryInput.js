@@ -9,7 +9,7 @@ import {
   TableHead,
   TableRow,
   Icon,
-  Typography,
+  Typography
 } from '@material-ui/core';
 import { Tooltip } from 'reactstrap';
 import Grid from '@material-ui/core/Grid';
@@ -20,7 +20,7 @@ import Headding from '@monostruct/common/components/atoms/Headding';
 import MaterialModal from './MaterialModal';
 import MaterialPropertiesModal from './MaterialPropertiesModal';
 //import FileUploadAndExport from './FileUploadAndExport';
-import LargeFileUpload from '@monostruct/common/gltf/LargeFileUpload'
+import LargeFileUpload from '@monostruct/common/gltf/LargeFileUpload';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 export default function GeometryInput({
@@ -38,6 +38,8 @@ export default function GeometryInput({
   setAngleGap,
   drawLine,
   setDrawLine,
+  allowFirstLevelItems,
+  setAllowFirstLevelItems
 }) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   // const [fileId, setFileId] = useState(0);
@@ -50,7 +52,7 @@ export default function GeometryInput({
   const [selectedMaterials, setSelectedMaterials] = useState(
     itemGeometry.materials || []
   );
-  
+
   const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
   const toggleMaterial = () => {
     setIsMaterialModalOpen((prevValue) => {
@@ -76,8 +78,8 @@ export default function GeometryInput({
       ...prevData,
       itemGeometry: {
         ...itemGeometry,
-        [name]: value,
-      },
+        [name]: value
+      }
     }));
   };
 
@@ -87,8 +89,8 @@ export default function GeometryInput({
         ...prevProps,
         itemGeometry: {
           ...itemGeometry,
-          materials: selectedMaterials,
-        },
+          materials: selectedMaterials
+        }
       };
     });
     return () => {};
@@ -125,7 +127,7 @@ export default function GeometryInput({
               style={{
                 fontSize: 'xxLarge',
                 fontWeight: 'bold',
-                textAlign: 'center',
+                textAlign: 'center'
               }}
             >
               Item Properties
@@ -138,7 +140,7 @@ export default function GeometryInput({
               style={{
                 fontSize: 'xxLarge',
                 fontWeight: 'bold',
-                textAlign: 'center',
+                textAlign: 'center'
               }}
             >
               Design Source
@@ -149,7 +151,7 @@ export default function GeometryInput({
             <LargeFileUpload
               itemId={itemId}
               handleFileUpload={handleFileUpload}
-              removeFile={removeFile}              
+              removeFile={removeFile}
               itemProperties={itemProperties}
               setItemProperties={setItemProperties}
               isFileLoading={isFileLoading}
@@ -158,9 +160,13 @@ export default function GeometryInput({
               distanceGap={distanceGap}
               setDistanceGap={setDistanceGap}
               angleGap={angleGap}
-              setAngleGap={setAngleGap}  
+              setAngleGap={setAngleGap}
               drawLine={drawLine}
-              setDrawLine={setDrawLine}            
+              setDrawLine={setDrawLine}
+              {...{
+                allowFirstLevelItems,
+                setAllowFirstLevelItems
+              }}
             />
           </Grid>
 
@@ -182,21 +188,31 @@ export default function GeometryInput({
               options={[
                 {
                   label: 'Machine - Compound/Tool/Workholding',
-                  value: 'Machine - Compound/Tool/Workholding',
+                  value: 'Machine - Compound/Tool/Workholding'
                 },
                 { label: 'Unassembled Kit', value: 'Unassembled Kit' },
                 {
                   label: 'Structure and/or Facade',
-                  value: 'Any Other Object/Item',
+                  value: 'Any Other Object/Item'
                 },
-                { label: 'Building', value: 'Building' },
+                { label: 'Building', value: 'Building' }
               ]}
               onChange={(data) => handleOnChange('itemType', data.value)}
-              value={ (itemGeometry.itemType &&  { 
-                      label: itemGeometry.itemType=='Any Other Object/Item'?'Structure and/or Facade':itemGeometry.itemType,
-                      value: itemGeometry.itemType=='Structure and/or Facade'?'Any Other Object/Item':itemGeometry.itemType }) ||  {
-                              label: 'Structure and/or Facade',
-                              value: 'Any Other Object/Item' } }
+              value={
+                (itemGeometry.itemType && {
+                  label:
+                    itemGeometry.itemType == 'Any Other Object/Item'
+                      ? 'Structure and/or Facade'
+                      : itemGeometry.itemType,
+                  value:
+                    itemGeometry.itemType == 'Structure and/or Facade'
+                      ? 'Any Other Object/Item'
+                      : itemGeometry.itemType
+                }) || {
+                  label: 'Structure and/or Facade',
+                  value: 'Any Other Object/Item'
+                }
+              }
             />
           </Grid>
 
@@ -226,18 +242,18 @@ export default function GeometryInput({
                     { label: ' Solid', value: ' Solid' },
                     {
                       label: 'Bulk Powder/Particles/Grains',
-                      value: 'Bulk Powder/Particles/Grains',
+                      value: 'Bulk Powder/Particles/Grains'
                     },
                     { label: 'Liquid', value: 'Liquid' },
-                    { label: 'Gas', value: 'Gas' },
+                    { label: 'Gas', value: 'Gas' }
                   ]}
                   onChange={(data) =>
                     handleOnChange('generalGeomerty', data.value)
                   }
                   value={
                     (itemGeometry.generalGeomerty && {
-                      label: itemGeometry.generalGeomerty,
-                    }) ||  { label: ' Solid', value: ' Solid' }
+                      label: itemGeometry.generalGeomerty
+                    }) || { label: ' Solid', value: ' Solid' }
                   }
                 />
               </Grid>
@@ -255,11 +271,13 @@ export default function GeometryInput({
                   placeholder="Select"
                   options={[
                     { label: 'Yes', value: 'Yes' },
-                    { label: 'No', value: 'No' },
+                    { label: 'No', value: 'No' }
                   ]}
                   onChange={(data) => handleOnChange('mixture', data.value)}
                   value={
-                    (itemGeometry.mixture && { label: itemGeometry.mixture }) || { label: 'No', value: 'No' }
+                    (itemGeometry.mixture && {
+                      label: itemGeometry.mixture
+                    }) || { label: 'No', value: 'No' }
                   }
                 />
               </Grid>

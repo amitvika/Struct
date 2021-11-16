@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import CheckboxUI from '@material-ui/core/Checkbox';
 
 const Checkbox = ({
@@ -20,7 +19,6 @@ const Checkbox = ({
   id,
   ...props
 }) => {
-
   return (
     <div
     //   style={containerStyle}
