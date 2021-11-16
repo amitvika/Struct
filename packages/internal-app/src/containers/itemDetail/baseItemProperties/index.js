@@ -359,11 +359,13 @@ export default function BaseItemProperties({
         drawLine: drawLiner
       });
 
-      getGDTParentItems({
-        fileGDT: datagdt,
-        fileUUId: data.uuid,
-        parentId: itemProperties.id
-      });
+      if (allowFirstLevelItems) {
+        getGDTParentItems({
+          fileGDT: datagdt,
+          fileUUId: data.uuid,
+          parentId: itemProperties.id
+        });
+      }
 
       setIsLoading(false);
       dispatch(showSuccessAlert({ message: 'File Parsed successfully' }));

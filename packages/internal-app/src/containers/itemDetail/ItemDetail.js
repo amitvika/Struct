@@ -62,6 +62,7 @@ import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Classification from '../classification';
 import EditItemTitle from './EditItemTitle';
+import ProductDesignSetup from '../productDesignSetup';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -1098,7 +1099,7 @@ const ItemDetail = ({ itemValue }) => {
       case 'rs':
         return 'Recycling & Sustainability';
       case 'pds':
-        return 'Design Product Design';
+        return <ProductDesignSetup />;
       default:
         return 'Undefined Tab Index';
     }
