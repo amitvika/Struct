@@ -1,8 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { LinearProgress, Box, IconButton, Typography, TextField, Checkbox, FormControlLabel } from '@material-ui/core';
+import {
+  LinearProgress,
+  Box,
+  IconButton,
+  Typography,
+  TextField,
+  Checkbox,
+  FormControlLabel
+} from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
 
-import { uploadChunkData, download, checkExistingPathFromStore } from '../../api/fileUpload.api';
+import {
+  uploadChunkData,
+  download,
+  checkExistingPathFromStore
+} from '../../api/fileUpload.api';
 
 import ExportLogo from '../../assets/images/export.png';
 
@@ -12,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   custom_file: {
     position: 'relative',
     width: '100%',
-    height: 'calc(1.5em + .75rem + 2px)',
+    height: 'calc(1.5em + .75rem + 2px)'
   },
   custom_file_input: {
     zIndex: 2,
@@ -21,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     opacity: 0,
     position: 'relative',
     width: '100%',
-    height: 'calc(1.5em + .75rem + 2px)',
+    height: 'calc(1.5em + .75rem + 2px)'
   },
   custom_file_label: {
     position: 'absolute',
@@ -52,9 +64,9 @@ const useStyles = makeStyles((theme) => ({
       right: 0,
       padding: '.375rem .75rem',
       lineHeight: 1.5,
-      color: '#495057',
-    },
-  },
+      color: '#495057'
+    }
+  }
 }));
 
 const chunkSize = 1048576 * 3; //its 3MB, increase the number measure in mb
@@ -93,7 +105,7 @@ export default function LargeFileUpload({
   const onChange = (e) => {
     resetChunkProperties();
     const dataload = e.target.files[0];
-    if(dataload && dataload.size) {      
+    if (dataload && dataload.size) {
       setFileSize(dataload.size);
       const totalCount =
         dataload.size % chunkSize == 0
@@ -179,19 +191,25 @@ export default function LargeFileUpload({
 
   const onDistanceChange = (e) => {
     setDistanceGap(e.target.value);
-  }
+  };
 
   const onAngleChange = (e) => {
     setAngleGap(e.target.value);
-  }
+  };
 
   const onDrawLineChange = (e) => {
     setDrawLine(e.target.checked);
-  }
-  const fileGDTPath = (itemProperties.fileUUId?itemProperties.fileUUId+'/':'')+(itemProperties.fileGDT?itemProperties.fileGDT:'');
+  };
+  const fileGDTPath =
+    (itemProperties.fileUUId ? itemProperties.fileUUId + '/' : '') +
+    (itemProperties.fileGDT ? itemProperties.fileGDT : '');
   //console.log(fileGDTPath);
-  if (itemProperties.fileStore && itemProperties.fileGDT && checkExistingPathFromStore(fileGDTPath,"gltf",true)) {
-    console.log(itemProperties.fileStore,distanceGap,angleGap);
+  if (
+    itemProperties.fileStore &&
+    itemProperties.fileGDT &&
+    checkExistingPathFromStore(fileGDTPath, 'gltf', true)
+  ) {
+    console.log(itemProperties.fileStore, distanceGap, angleGap);
     return (
       <div style={{ display: 'flex' }}>
         <Typography
@@ -199,7 +217,7 @@ export default function LargeFileUpload({
           style={{
             display: 'flex',
             alignItems: 'center',
-            color: 'blue',
+            color: 'blue'
           }}
         >
           {itemProperties.fileStore}
@@ -208,55 +226,61 @@ export default function LargeFileUpload({
           <img
             src={ExportLogo}
             style={{ width: '20px', paddingTop: '2px' }}
-            alt={"pictur"+(itemId||'').toString()}
+            alt={'pictur' + (itemId || '').toString()}
           />
         </IconButton>
       </div>
     );
   }
   let getTrimmedValue = 0;
-  getTrimmedValue =  progress?parseFloat(progress.toFixed(3)):0;
-  if(isNaN(getTrimmedValue)) {
-      getTrimmedValue=0;
+  getTrimmedValue = progress ? parseFloat(progress.toFixed(3)) : 0;
+  if (isNaN(getTrimmedValue)) {
+    getTrimmedValue = 0;
   }
-  
+
   return (
     <div>
-      <Box sx={{ width: '100%'}}>
-        <TextField 
-            type="number"
-            InputProps={{
-                inputProps: { 
-                    max: 10, min: 0.01 
-                }
-            }}
-            label="Distance Tollerance"
-            onChange={onDistanceChange}
-            value={distanceGap}
-          />
-          <TextField 
-            type="number"
-            InputProps={{
-                inputProps: { 
-                    max: 3.15, min: 0.01 
-                }
-            }}
-            label="Angle Tollerance"
-            onChange={onAngleChange}
-            value={angleGap}
-          />
-          <FormControlLabel
-            control={<Checkbox checked={drawLine} label="Draw Edges" onChange={onDrawLineChange}  />}
-            label="Draw Edges"
-          />
-          
-        </Box>
+      <Box sx={{ width: '100%' }}>
+        <TextField
+          type="number"
+          InputProps={{
+            inputProps: {
+              max: 10,
+              min: 0.01
+            }
+          }}
+          label="Distance Tollerance"
+          onChange={onDistanceChange}
+          value={distanceGap}
+        />
+        <TextField
+          type="number"
+          InputProps={{
+            inputProps: {
+              max: 3.15,
+              min: 0.01
+            }
+          }}
+          label="Angle Tollerance"
+          onChange={onAngleChange}
+          value={angleGap}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={drawLine}
+              label="Load All Edges"
+              onChange={onDrawLineChange}
+            />
+          }
+          label="Load All Edges"
+        />
+      </Box>
       <Box sx={{ width: '100%' }}>
         <LinearProgress variant="determinate" value={getTrimmedValue} />
       </Box>
-      
+
       <div style={{ display: 'flex' }}>
-        
         <Typography variant="h6">Upload Cad</Typography>
         <Box
           component="div"

@@ -3,59 +3,62 @@ import React from 'react';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 
-
 import SimpleFormBuilder from '../SimpleFormBuilder';
 
 import { DEFAULTBACKMENUCOLOR, DEFAULTTEXTMENUCOLOR } from '../Tree/utils';
 export default class GroupFormBuilder extends React.Component {
-  
-  
   style = {
-      width: '100%',
-      padding: '20px',
-      margin: '0px 15px',
-      display: 'inline-block',
-      border: '1px solid rgba(0, 0, 0, 0.3)',
-      boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
+    width: '100%',
+    padding: '20px',
+    margin: '0px 15px',
+    display: 'inline-block',
+    border: '1px solid rgba(0, 0, 0, 0.3)',
+    boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
   };
-  
+
   constructor(props) {
     super(props);
-    this.state = {     
+    this.state = {
       opened: true
     };
   }
 
   getGroups = () => {
-    const key= this.props.key || 'form-group';
+    const key = this.props.key || 'form-group';
     return this.props.groups.map((group, index) => (
-      <div p={1}
+      <div
+        p={1}
         key={`${key}-${index}`}
-        style={{ margin: '1px 0', ...this.props.inputContainerStyle, width:'100px' }}
+        style={{
+          margin: '1px 0',
+          ...this.props.inputContainerStyle,
+          width: '100px'
+        }}
       >
         <SimpleFormBuilder
-          fieldContainerStyle={{backgroundColor: DEFAULTBACKMENUCOLOR,
-                                color: DEFAULTTEXTMENUCOLOR(), 
-                                padding: 1 }}
+          fieldContainerStyle={{
+            backgroundColor: DEFAULTBACKMENUCOLOR,
+            color: DEFAULTTEXTMENUCOLOR(),
+            padding: 1
+          }}
           inputContainerStyle={{ margin: '5px 0' }}
-          onChange={this.props.onChange}                    
+          onChange={this.props.onChange}
           fields={group.fields}
-          values={group.values}                            
+          values={group.values}
           errors={{ simpleTextFieldWithError: 'This is an error message.' }}
           labelwidth={20}
           closeForm={this.props.closeForm}
           key={`${key}-${index}-field-`}
-          keyindex = {index}          
-        />      
+          keyindex={index}
+        />
       </div>
     ));
+  };
 
-    };
+  closeForm = () => {
+    this.setState({ opened: false });
+  };
 
-  closeForm = () =>{
-    this.setState({opened:false});
-  }
-  
   render() {
     /* let FieldContainer = Box;
     if (this.props.orientation === 'horizontal') {
@@ -63,26 +66,31 @@ export default class GroupFormBuilder extends React.Component {
     } */
     //console.log("MyGroups",this.getGroups());
     return (
-      this.state.opened &&
-      ( <Box
-          p={1} zindex="tooltip" 
+      this.state.opened && (
+        <Box
+          p={1}
+          zindex="tooltip"
           style={{
             ...this.style,
             backgroundColor: DEFAULTBACKMENUCOLOR(),
             color: DEFAULTTEXTMENUCOLOR(),
-            padding: 1,            
-            ...this.props.fieldContainerStyle,
+            padding: 1,
+            ...this.props.fieldContainerStyle
           }}
           flex={1}
           wrap={this.props.wrap}
         >
-          <Grid p={1} container spacing={10} direction="row" style={{display:"flex", margin: '1px 0'}}>
-          {this.getGroups()}         
+          <Grid
+            p={1}
+            container
+            spacing={10}
+            direction="row"
+            style={{ display: 'flex', margin: '1px 0' }}
+          >
+            {this.getGroups()}
           </Grid>
-        </Box>          
-          
+        </Box>
       )
-    )
-    
+    );
   }
 }

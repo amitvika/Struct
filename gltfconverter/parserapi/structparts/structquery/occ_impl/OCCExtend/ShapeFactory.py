@@ -26,7 +26,7 @@ from OCC.Core.GProp import GProp_GProps
 from OCC.Core.BRepGProp import (brepgprop_LinearProperties,
                                 brepgprop_SurfaceProperties,
                                 brepgprop_VolumeProperties)
-from OCC.Core.TColgp import TColgp_Array1OfPnt
+#from OCC.Core.TColgp import TColgp_Array1OfPnt
 from OCC.Core.TopoDS import (TopoDS_Face, TopoDS_Edge, TopoDS_Shape)
 
 from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
@@ -35,7 +35,7 @@ from OCC.Core.gp import (gp_Vec, gp_Pnt, gp_Trsf, gp_OX, gp_OY,
 
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.TColStd import (TColStd_Array1OfInteger, TColStd_Array1OfReal, TColStd_Array2OfReal)
-from OCC.Core.TColgp import TColgp_Array1OfPnt, TColgp_Array2OfPnt
+from OCC.Core.TColgp import (TColgp_Array1OfPnt, TColgp_Array2OfPnt)
 
 from .TopologyUtils import is_edge, is_face, TopologyExplorer
 import pickle
@@ -2846,12 +2846,14 @@ def recognize_edge(topods_edge,face_info):
         gp_circle = curve.Circle()
         entity['radius'] = gp_circle.Radius()
         entity['center'] = getXYZ(gp_circle.Location())
+        entity['direction'] = getXYZ(gp_circle.Position().Direction())
     elif curve_type == GeomAbs_Ellipse:
         entity['kind'] = "Ellipse"   
         gp_ellipse = curve.Ellipse()
         entity['majorradius'] = gp_ellipse.MajorRadius()
         entity['minorradius'] = gp_ellipse.MinorRadius()
-        entity['center'] = getXYZ(gp_ellipse.Location())     
+        entity['center'] = getXYZ(gp_ellipse.Location())  
+        entity['direction'] = getXYZ(gp_ellipse.Position().Direction())   
     elif curve_type == GeomAbs_Hyperbola:
         entity['kind'] = "Hyperbola" 
         gp_hyperbola = curve.Hyperbola()
@@ -2943,6 +2945,7 @@ def recognize_shape(topods_shape):
         entity['kind'] = "Not a Shape"
         return entity
     transform = topods_shape.Location().Transformation()
+    entity["kind"]="Shape"
     entity['transformation'] = []
     for i in range(1,4):
         for j in range(1,5):

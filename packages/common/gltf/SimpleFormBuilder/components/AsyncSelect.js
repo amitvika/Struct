@@ -16,22 +16,22 @@ import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
 const styles = (theme) => ({
   root: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   input: {
     display: 'flex',
     padding: 0,
-    height: 'auto',
+    height: 'auto'
   },
   valueContainer: {
     display: 'flex',
     flexWrap: 'wrap',
     flex: 1,
     alignItems: 'center',
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   chip: {
-    margin: `2px 4px 2px 0`,
+    margin: `2px 4px 2px 0`
   },
   chipFocused: {
     backgroundColor: emphasize(
@@ -39,18 +39,18 @@ const styles = (theme) => ({
       // theme.palette.grey[300],
       '#DCDCDC',
       0.08
-    ),
+    )
   },
   noOptionsMessage: {
     // padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
   },
   singleValue: {
-    fontSize: 14,
+    fontSize: 14
   },
   placeholder: {
     position: 'absolute',
     left: 2,
-    fontSize: 14,
+    fontSize: 14
   },
   paper: {
     position: 'absolute',
@@ -59,11 +59,11 @@ const styles = (theme) => ({
     left: 0,
     right: 0,
     maxHeight: '200px',
-    overflowY: 'scroll',
+    overflowY: 'scroll'
   },
   divider: {
     // height: theme.spacing.unit * 2,
-  },
+  }
 });
 
 function NoOptionsMessage(props) {
@@ -92,8 +92,8 @@ function Control(props) {
           className: props.selectProps.classes.input,
           inputRef: props.innerRef,
           children: props.children,
-          ...props.innerProps,
-        },
+          ...props.innerProps
+        }
       }}
       {...props.selectProps.textFieldProps}
     />
@@ -107,7 +107,7 @@ function Option(props) {
       selected={props.isFocused}
       component="div"
       style={{
-        fontWeight: props.isSelected ? 500 : 400,
+        fontWeight: props.isSelected ? 500 : 400
       }}
       {...props.innerProps}
     >
@@ -130,14 +130,21 @@ function Placeholder(props) {
 
 function SingleValue(props) {
   return (
-    <Typography className={props.selectProps.classes.singleValue} {...props.innerProps}>
+    <Typography
+      className={props.selectProps.classes.singleValue}
+      {...props.innerProps}
+    >
       {props.children}
     </Typography>
   );
 }
 
 function ValueContainer(props) {
-  return <div className={props.selectProps.classes.valueContainer}>{props.children}</div>;
+  return (
+    <div className={props.selectProps.classes.valueContainer}>
+      {props.children}
+    </div>
+  );
 }
 
 function MultiValue(props) {
@@ -146,7 +153,7 @@ function MultiValue(props) {
       tabIndex={-1}
       label={props.children}
       className={classNames(props.selectProps.classes.chip, {
-        [props.selectProps.classes.chipFocused]: props.isFocused,
+        [props.selectProps.classes.chipFocused]: props.isFocused
       })}
       onDelete={props.removeProps.onClick}
       deleteIcon={<CancelIcon {...props.removeProps} />}
@@ -177,12 +184,19 @@ const components = {
   Option,
   Placeholder,
   SingleValue,
-  ValueContainer,
+  ValueContainer
 };
 
 const getName = (name) => _.replace(name, /\./g, ' ');
 
-function IntegrationReactSelect({ field, errors, selectedValue, onChange, classes, ...others }) {
+function IntegrationReactSelect({
+  field,
+  errors,
+  selectedValue,
+  onChange,
+  classes,
+  ...others
+}) {
   const name = field.name || 'field';
   const promiseOptions = field.promiseOptions || null;
 
@@ -199,9 +213,9 @@ function IntegrationReactSelect({ field, errors, selectedValue, onChange, classe
       ...base,
       // color: theme.palette.text.primary,
       '& input': {
-        font: 'inherit',
-      },
-    }),
+        font: 'inherit'
+      }
+    })
   };
 
   return (
@@ -212,8 +226,8 @@ function IntegrationReactSelect({ field, errors, selectedValue, onChange, classe
         textFieldProps={{
           label: getName(name),
           InputLabelProps: {
-            shrink: true,
-          },
+            shrink: true
+          }
         }}
         loadOptions={promiseOptions}
         value={selectedValue}
@@ -228,7 +242,7 @@ function IntegrationReactSelect({ field, errors, selectedValue, onChange, classe
           style={{
             fontSize: '10px',
             color: 'red',
-            fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+            fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
           }}
         >
           {errorText}
@@ -239,7 +253,7 @@ function IntegrationReactSelect({ field, errors, selectedValue, onChange, classe
 }
 
 IntegrationReactSelect.defaultProps = {
-  errors: {},
+  errors: {}
 };
 
 IntegrationReactSelect.propTypes = {
@@ -248,16 +262,16 @@ IntegrationReactSelect.propTypes = {
     arrayOf(
       shape({
         value: oneOfType([string, number]),
-        label: string,
+        label: string
       })
     ),
     shape({
       value: oneOfType([string, number]),
-      label: string,
-    }),
+      label: string
+    })
   ]).isRequired,
   onChange: func.isRequired,
-  errors: shape({}),
+  errors: shape({})
 };
 
 export default withStyles(styles)(IntegrationReactSelect);

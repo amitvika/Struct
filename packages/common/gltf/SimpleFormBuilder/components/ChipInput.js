@@ -12,22 +12,22 @@ import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
 const styles = (theme) => ({
   root: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   input: {
     display: 'flex',
     padding: 0,
-    height: 'auto',
+    height: 'auto'
   },
   valueContainer: {
     display: 'flex',
     flexWrap: 'wrap',
     flex: 1,
     alignItems: 'center',
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   chip: {
-    margin: `2px 4px 2px 0`,
+    margin: `2px 4px 2px 0`
   },
   chipFocused: {
     backgroundColor: emphasize(
@@ -35,13 +35,13 @@ const styles = (theme) => ({
       // theme.palette.grey[300],
       '#DCDCDC',
       0.08
-    ),
+    )
   },
   placeholder: {
     position: 'absolute',
     left: 2,
-    fontSize: 14,
-  },
+    fontSize: 14
+  }
 });
 
 function inputComponent({ inputRef, ...props }) {
@@ -58,8 +58,8 @@ function Control(props) {
           className: props.selectProps.classes.input,
           inputRef: props.innerRef,
           children: props.children,
-          ...props.innerProps,
-        },
+          ...props.innerProps
+        }
       }}
       {...props.selectProps.textFieldProps}
     />
@@ -79,7 +79,11 @@ function Placeholder(props) {
 }
 
 function ValueContainer(props) {
-  return <div className={props.selectProps.classes.valueContainer}>{props.children}</div>;
+  return (
+    <div className={props.selectProps.classes.valueContainer}>
+      {props.children}
+    </div>
+  );
 }
 
 function MultiValue(props) {
@@ -88,7 +92,7 @@ function MultiValue(props) {
       tabIndex={-1}
       label={props.children}
       className={classNames(props.selectProps.classes.chip, {
-        [props.selectProps.classes.chipFocused]: props.isFocused,
+        [props.selectProps.classes.chipFocused]: props.isFocused
       })}
       onDelete={props.removeProps.onClick}
       deleteIcon={<CancelIcon {...props.removeProps} />}
@@ -103,7 +107,7 @@ const components = {
   MultiValue,
   Placeholder,
   ValueContainer,
-  DropdownIndicator: null,
+  DropdownIndicator: null
 };
 
 const ChipInput = ({ field, value, onChange, errors, classes }) => {
@@ -141,8 +145,8 @@ const ChipInput = ({ field, value, onChange, errors, classes }) => {
         textFieldProps={{
           label: getName(name),
           InputLabelProps: {
-            shrink: true,
-          },
+            shrink: true
+          }
         }}
         onInputChange={handleInputChange}
         onKeyDown={handleKeyDown}
@@ -155,7 +159,7 @@ const ChipInput = ({ field, value, onChange, errors, classes }) => {
           style={{
             fontSize: '10px',
             color: 'red',
-            fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+            fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
           }}
         >
           {errorText}
@@ -166,14 +170,14 @@ const ChipInput = ({ field, value, onChange, errors, classes }) => {
 };
 
 ChipInput.defaultProps = {
-  errors: {},
+  errors: {}
 };
 
 ChipInput.propTypes = {
   field: shape({ name: string, type: string, key: string }).isRequired,
   value: arrayOf(oneOfType([string, number])).isRequired,
   onChange: func.isRequired,
-  errors: shape({}),
+  errors: shape({})
 };
 
 export default withStyles(styles)(ChipInput);
