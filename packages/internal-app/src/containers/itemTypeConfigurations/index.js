@@ -28,7 +28,9 @@ export default function ItemTypeConfiguration(props) {
     completionProgressText,
     centerActionText,
     drawLine,
-    internalProductConfig,    
+    internalProductConfig,
+    selectedOption,
+    setSelectedOption
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
@@ -41,7 +43,7 @@ export default function ItemTypeConfiguration(props) {
   );
   const [centerActionTexter, setCenterActionTexter] =
     useState(centerActionText);
-  const [drawLiner, setDrawLiner]=useState(drawLine);
+  const [drawLiner, setDrawLiner] = useState(drawLine);
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
 
   const [showKineticModel, setShowKineticModal] = useState(true);
@@ -232,6 +234,8 @@ export default function ItemTypeConfiguration(props) {
                 setCompletionProgressText={setCompletionProgressTexter}
                 setCenterActionText={setCenterActionTexter}
                 drawLine={drawLiner}
+                selectedOption={selectedOption}
+                setSelectedOption={setSelectedOption}
               />
             }
             {/* {(isLoading || isFileLoading) && <CircularProgress />} */}

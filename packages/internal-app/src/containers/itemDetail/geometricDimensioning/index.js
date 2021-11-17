@@ -46,17 +46,17 @@ export default function GeometricDimensioning(props) {
     centerActionText,
     drawLine,
     internalProductConfig,
+    selectedOption,
+    setSelectedOption,
     keyName = { name: '', option: SELECTFEATURE },
-    handleChangeOfSelection = (selectedObjects) => {
-    },
-    additionalSaveFunction = (saveObjects) => {
-    }
+    handleChangeOfSelection = (selectedObjects) => {},
+    additionalSaveFunction = (saveObjects) => {}
   } = props;
   const classes = USESTYLES();
 
   const [state, _setState] = useState({});
   // const [isLoading, setIsLoading] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
+  //const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
   //const [splitFiles, setSplitfiles] = useState({});
   const [resetOption, setResetOption] = useState(true);
   const [ctrlKey, setCtrlKey] = useState(false);
@@ -72,27 +72,23 @@ export default function GeometricDimensioning(props) {
   const [completionProgressTexter, setCompletionProgressTexter] = useState(
     completionProgressText
   );
-  const [centerActionTexter,setCenterActionTexter]=
+  const [centerActionTexter, setCenterActionTexter] =
     useState(centerActionText);
   const [drawLiner, setDrawLiner] = useState(drawLine);
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
   useEffect(() => {
     if (fileUUId) {
       setfileUUIder(fileUUId);
-      
     }
   }, [fileUUId]);
   useEffect(() => {
     setProgressBarLoader(progressBarLoad);
-   
   }, [progressBarLoad]);
   useEffect(() => {
     setCurrentProgressTexter(currentProgressText);
-    
   }, [currentProgressText]);
   useEffect(() => {
     setCompletionProgressTexter(completionProgressText);
-    
   }, [completionProgressText]);
   useEffect(() => {
     setCenterActionTexter(centerActionText);
@@ -101,7 +97,6 @@ export default function GeometricDimensioning(props) {
   useEffect(() => {
     if (percentage) {
       setPercentager(percentage);
-      
     }
   }, [percentage]);
   useEffect(() => {
@@ -269,7 +264,7 @@ export default function GeometricDimensioning(props) {
     }
 
     let activetable = myTree.gdttable.length;
-   
+
     myTree.gdttable.push({
       ...defaultGDTTable,
       key: key,
@@ -372,7 +367,6 @@ export default function GeometricDimensioning(props) {
   };
 
   const saveGDTDataTable = () => {
-   
     const mystate = isEmptyObject(state) ? myGlobalState : state;
     let mystate_gltfjson = mystate.gltfjson || gltfjson;
     if (!mystate_gltfjson || !mystate_gltfjson.tree) {
@@ -382,22 +376,28 @@ export default function GeometricDimensioning(props) {
     let myTree = { ...mystate_gltfjson };
     let gdttable = myTree.gdttable || [defaultGDTTable];
     myTree.gdttable = gdttable;
-    if(myTree.gdttable[myGlobalActiveDataTable]) {
-      myTree.gdttable[myGlobalActiveDataTable].selectedObjects=mystate.selectedObjects?[...mystate.selectedObjects]:[];
-      myTree.gdttable[myGlobalActiveDataTable].parentObjects=mystate.parentObjects?[...mystate.parentObjects]:[];
-      myTree.gdttable[myGlobalActiveDataTable].mates=mystate.mates?[...mystate.mates]:[];
-      myTree.gdttable[myGlobalActiveDataTable].option=selectedOption;  
-      myTree.gdttable[myGlobalActiveDataTable].mateValues=mystate.mateValues?[...mystate.mateValues]:Array(6).fill(false);;
-      myTree.gdttable[myGlobalActiveDataTable].angle=mystate.angle;
-      myTree.gdttable[myGlobalActiveDataTable].offset=mystate.offset;  
+    if (myTree.gdttable[myGlobalActiveDataTable]) {
+      myTree.gdttable[myGlobalActiveDataTable].selectedObjects =
+        mystate.selectedObjects ? [...mystate.selectedObjects] : [];
+      myTree.gdttable[myGlobalActiveDataTable].parentObjects =
+        mystate.parentObjects ? [...mystate.parentObjects] : [];
+      myTree.gdttable[myGlobalActiveDataTable].mates = mystate.mates
+        ? [...mystate.mates]
+        : [];
+      myTree.gdttable[myGlobalActiveDataTable].option = selectedOption;
+      myTree.gdttable[myGlobalActiveDataTable].mateValues = mystate.mateValues
+        ? [...mystate.mateValues]
+        : Array(6).fill(false);
+      myTree.gdttable[myGlobalActiveDataTable].angle = mystate.angle;
+      myTree.gdttable[myGlobalActiveDataTable].offset = mystate.offset;
     }
-    setState({ gltfjson: myTree});  
-    saveGDTInfo(myTree.gdttable,fileGDT,fileUUIder)
-    .then(res => res.data)
-    .then((data) => { 
-      console.log("Getting Resources",data);
-    });
-  }
+    setState({ gltfjson: myTree });
+    saveGDTInfo(myTree.gdttable, fileGDT, fileUUIder)
+      .then((res) => res.data)
+      .then((data) => {
+        console.log('Getting Resources', data);
+      });
+  };
   const resetActiveDataTable = () => {
     const mystate = isEmptyObject(state) ? myGlobalState : state;
     let mystate_gltfjson = mystate.gltfjson || gltfjson;
@@ -497,7 +497,7 @@ export default function GeometricDimensioning(props) {
     myTree.tree = gltftree;
     setState({ gltfjson: myTree });
   };
-  
+
   const selectAllSelectedSolids = async (whichoption) => {
     const mystate = isEmptyObject(state) ? myGlobalState : state;
     var copy_selectobjects = arrayCopy(mystate.selectedObjects);
@@ -559,7 +559,6 @@ export default function GeometricDimensioning(props) {
     };
     structure = await getShapeInformation(structure);
     tempSelectedObjects = structure.objects;
-    
 
     setState({
       selectedObjects: tempSelectedObjects,
@@ -630,16 +629,13 @@ export default function GeometricDimensioning(props) {
             } else if (first6chars == 'VERTEX') {
               visible = visible || mySelectedOption == SELECTCORNER;
             } else if (first6chars == 'SLICER') {
-              
               visible =
                 mySelectedOption != SELECTSOLID &&
                 mySelectedOption != SELECTASSEMBLY;
             } else {
-             
               visible = true;
             }
           }
-         
         }
       }
       if (visible) {
@@ -674,7 +670,6 @@ export default function GeometricDimensioning(props) {
   };
 
   const findSingleNode = (mynode) => {
-    
     let myParentPart = mynode;
     if (tabIndex == 'iupc') {
       myParentPart = findMyParentPart(mynode);
@@ -708,7 +703,6 @@ export default function GeometricDimensioning(props) {
       }
     }
     if (myParentID == -1) {
-     
       return null;
     } else {
       if (mystate_gltfjson && mystate_gltfjson.tree) {
@@ -718,7 +712,7 @@ export default function GeometricDimensioning(props) {
           }
         }
       }
-     
+
       return null;
     }
   };
@@ -726,7 +720,6 @@ export default function GeometricDimensioning(props) {
   const findMySiblingElements = (mynode) => {
     var myParentID = mynode[gltf_Dict['parentId']];
     if (myParentID == -1) {
-     
       return null;
     }
     var myID = mynode[gltf_Dict['id']];
@@ -752,7 +745,6 @@ export default function GeometricDimensioning(props) {
       }
     }
     if (myParentID == -1) {
-     
       return null;
     } else {
       var mySiblingNodes = [];
@@ -845,7 +837,7 @@ export default function GeometricDimensioning(props) {
         myMaterials.push(myChild);
       }
     }
-    
+
     if (myMaterials.length != 0) {
       return [myMaterials, myParentNode];
     }
@@ -936,7 +928,6 @@ export default function GeometricDimensioning(props) {
       }
     }
     if (myMaterials.length != 0) {
-      
       return [myMaterials, parentNode];
     }
     return [[mynode], mynode];
@@ -1033,7 +1024,7 @@ export default function GeometricDimensioning(props) {
   const getShapeInformation = (structure = {}) => {
     var stepArray = [];
     var siblingArray = [];
-    var partArray=[];
+    var partArray = [];
     //var firstOne = null;
 
     structure.objects.forEach((element) => {
@@ -1057,7 +1048,7 @@ export default function GeometricDimensioning(props) {
         }
         siblingArray.push(siblings);
         const myparentpart = findMyParentPart(element);
-        if(myparentpart) {
+        if (myparentpart) {
           const partfile = myparentpart[gltf_Dict['step']].slice(0, -5);
           partArray.push(partfile);
         } else {
@@ -1067,7 +1058,13 @@ export default function GeometricDimensioning(props) {
     });
 
     return new Promise((resolve, reject) => {
-      getShapeInfo(structure.start, stepArray, siblingArray, partArray, fileUUIder)
+      getShapeInfo(
+        structure.start,
+        stepArray,
+        siblingArray,
+        partArray,
+        fileUUIder
+      )
         .then((res) => res.data)
         .then((repos) => {
           if (!repos || repos.length == 0) {
@@ -1084,8 +1081,13 @@ export default function GeometricDimensioning(props) {
             structure.objects[structure.start + index]['fill'] =
               element[0].fill;
             structure.objects[structure.start + index]['obb'] = element[0].obb;
-            if(element[0].Info['kind'] ==='Circle' || element[0].Info['kind'] ==='Cylinder'){
-              structure.objects[structure.start + index]['diameter'] = 2.0 * (element[0].Info['radius'] ? element[0].Info['radius']:0) ;
+            if (
+              element[0].Info['kind'] === 'Circle' ||
+              element[0].Info['kind'] === 'Cylinder'
+            ) {
+              structure.objects[structure.start + index]['diameter'] =
+                2.0 *
+                (element[0].Info['radius'] ? element[0].Info['radius'] : 0);
             }
           }
           resolve(structure);
@@ -1231,7 +1233,6 @@ export default function GeometricDimensioning(props) {
         selectedFeature
       );
     } else {
-     
       resetSelections();
     }
   };
@@ -1373,7 +1374,6 @@ export default function GeometricDimensioning(props) {
                 copy_selectobjects.push(localelementdata);
                 copy_mateobjects.push([]);
                 toGetInfo = true;
-                
               }
             } else {
               //error here...
@@ -1489,7 +1489,6 @@ export default function GeometricDimensioning(props) {
         copy_selectobjects
       );
     }
-
   };
   const changeStateOfSelections = async (
     removeData,
@@ -1653,14 +1652,14 @@ export default function GeometricDimensioning(props) {
           percentage={percentager}
           currentProgressText={currentProgressTexter}
           centerActionText={centerActionTexter}
-          completionProgressText={completionProgressTexter}          
+          completionProgressText={completionProgressTexter}
           //setProgressBarRender={setProgressBarRender}
           setPercentage={setPercentager}
           setProgressBarLoad={setProgressBarLoader}
           setCurrentProgressText={setCurrentProgressTexter}
           setCompletionProgressText={setCompletionProgressTexter}
           setCenterActionText={setCenterActionTexter}
-          drawLine={drawLiner}          
+          drawLine={drawLiner}
         />
       </Paper>
 

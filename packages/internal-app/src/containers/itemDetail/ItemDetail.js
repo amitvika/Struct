@@ -85,6 +85,7 @@ const ItemDetail = ({ itemValue }) => {
   const [centerActionText, setCenterActionText] = useState(null);
   const [progressBarLoad, setProgressBarLoad] = useState(false);
   const [internalProductConfig, setInternalProductConfig] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
 
   useEffect(() => {
     let myTabIndex = 'pdcu';
@@ -147,7 +148,11 @@ const ItemDetail = ({ itemValue }) => {
   };
 
   const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
-    const myResourcePath = checkExistingPathFromStore(whichOneToStatus,'gltf',true);
+    const myResourcePath = checkExistingPathFromStore(
+      whichOneToStatus,
+      'gltf',
+      true
+    );
     if (myResourcePath) {
       //console.log('Found gltf', whichOneToLoad);
       return 0;
@@ -880,21 +885,41 @@ const ItemDetail = ({ itemValue }) => {
         }
       }
       //
-      const myResourcePath = checkExistingPathFromStore(whichOneToLoad,'gltf');
+      const myResourcePath = checkExistingPathFromStore(whichOneToLoad, 'gltf');
       //
-      const gltfRes = await getAFileFromURLStore(whichOneToLoad,'gltf',myResourcePath);
-      const treeRes = await getAFileFromURLStore(whichOneToLoad,'tree',myResourcePath);
+      const gltfRes = await getAFileFromURLStore(
+        whichOneToLoad,
+        'gltf',
+        myResourcePath
+      );
+      const treeRes = await getAFileFromURLStore(
+        whichOneToLoad,
+        'tree',
+        myResourcePath
+      );
       let stackRes = { data: null };
       let orderRes = { data: null };
       let gdtRes = { data: null };
       if (myTabIndex == 'stack') {
-        stackRes = await getAFileFromURLStore(whichOneToLoad, 'stack',myResourcePath);
+        stackRes = await getAFileFromURLStore(
+          whichOneToLoad,
+          'stack',
+          myResourcePath
+        );
       }
       if (myTabIndex == 'mpps') {
-        orderRes = await getAFileFromURLStore(whichOneToLoad, 'order',myResourcePath);
+        orderRes = await getAFileFromURLStore(
+          whichOneToLoad,
+          'order',
+          myResourcePath
+        );
       }
       if (myTabIndex == 'gdtac') {
-        gdtRes = await getAFileFromURLStore(whichOneToLoad, 'gdt',myResourcePath);
+        gdtRes = await getAFileFromURLStore(
+          whichOneToLoad,
+          'gdt',
+          myResourcePath
+        );
       }
       const multiAssmebly = treeRes.length > 0;
 
@@ -950,6 +975,8 @@ const ItemDetail = ({ itemValue }) => {
             completionProgressText={completionProgressText}
             centerActionText={centerActionText}
             //setProgressBarRender={setProgressBarRender}
+            selectedOption={selectedOption}
+            setSelectedOption={setSelectedOption}
             setPercentage={setPercentage}
             setProgressBarLoad={setProgressBarLoad}
             setCurrentProgressText={setCurrentProgressText}
@@ -997,6 +1024,8 @@ const ItemDetail = ({ itemValue }) => {
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
             centerActionText={centerActionText}
+            selectedOption={selectedOption}
+            setSelectedOption={setSelectedOption}
             //setProgressBarRender={setProgressBarRender}
             setPercentage={setPercentage}
             setProgressBarLoad={setProgressBarLoad}
@@ -1031,6 +1060,8 @@ const ItemDetail = ({ itemValue }) => {
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
             centerActionText={centerActionText}
+            selectedOption={selectedOption}
+            setSelectedOption={setSelectedOption}
             //setProgressBarRender={setProgressBarRender}
             setPercentage={setPercentage}
             setProgressBarLoad={setProgressBarLoad}
@@ -1066,6 +1097,8 @@ const ItemDetail = ({ itemValue }) => {
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
             centerActionText={centerActionText}
+            selectedOption={selectedOption}
+            setSelectedOption={setSelectedOption}
             //setProgressBarRender={setProgressBarRender}
             setPercentage={setPercentage}
             setProgressBarLoad={setProgressBarLoad}
@@ -1156,7 +1189,7 @@ const ItemDetail = ({ itemValue }) => {
 
   const handleTabChange = (event, newTabIndex) => {
     if (tabIndex !== newTabIndex) {
-      console.log(tabIndex,newTabIndex);
+      console.log(tabIndex, newTabIndex);
       setIsLoading(true);
       setTabIndex(newTabIndex);
       history.push({

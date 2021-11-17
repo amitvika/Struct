@@ -67,6 +67,7 @@ import LineGeometry from './lines/LineGeometry.js';
 import MeshLine from './lines/MeshLine.js';
 import LineMaterial from './lines/LineMaterial.js';
 import { NURBSCurve } from './curves/NURBSCurve.js';
+
 /*
 import MeshLine from "./MeshLine/MeshLine.js";
 import { MeshLineMaterial } from "./MeshLine/MeshLineMaterial.js";
@@ -418,6 +419,7 @@ class GLTFRenderer extends Component {
     toChange = toChange || edgeChange;
     if (toChange) {
       this_state_gltf = this.props.gltfobj;
+      this.raycastObjects = this.rayCastObjectFilters(this.partsMeshes);
     }
     this.changedctrlkey = this.props.ctrlKey;
     var changeback = this.databackcolor != this.props.backcolor;
@@ -1953,14 +1955,26 @@ class GLTFRenderer extends Component {
       });
     }
   };
-
+  rayCastObjectFilters = (meshes) => {
+    console.log(this.props.selectedoption, SELECTFACE);
+    var objects = [];
+    if (meshes) {
+      meshes.forEach((element) => {
+        //console.log(element);
+        if (this.visibllity(element, false)) {
+          objects.push(element);
+        }
+      });
+    }
+    return objects;
+  };
   updateParts = (meshes) => {
     /*  if (this.partsFolder) {
             this.gui.removeFolder(this.partsFolder);
         }
         this.partsFolder = this.gui.addFolder("Parts"); */
     this.partsMeshes = meshes.children;
-
+    this.raycastObjects = this.rayCastObjectFilters(this.partsMeshes);
     if (this.partsMeshes[0].children.length > 0) {
       this.partsMeshes = this.partsMeshes[0].children;
     }
@@ -2754,7 +2768,7 @@ class GLTFRenderer extends Component {
     var visible =
       this.props.selectedoption == SELECTMEASURE ||
       this.props.selectedoption == SELECTFEATURE;
-    //console.log(this.props.selectedoption);
+
     //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
     if (first4chars != 'PART') {
       if (first4chars == 'FACE') {
@@ -2836,18 +2850,24 @@ class GLTFRenderer extends Component {
   };
 
   objectFilters = () => {
-    if (this.partsMeshes) {
-      var objects = [];
-      this.partsMeshes.forEach((element) => {
-        //console.log(element);
-        if (this.visibllity(element, false)) {
-          objects.push(element);
-        }
-      });
-      return objects;
+    if (this.raycastObjects) {
+      return this.raycastObjects;
     } else {
       return this.scene.children;
     }
+    // if (this.partsMeshes) {
+    //   var objects = [];
+    //   this.partsMeshes.forEach((element) => {
+    //     //console.log(element);
+    //     if (this.visibllity(element, false)) {
+    //       objects.push(element);
+    //     }
+    //   });
+    //   //console.log('h');
+    //   return objects;
+    // } else {
+    //   return this.scene.children;
+    // }
   };
 
   changeEdgeVisibility = (value) => {
@@ -2858,6 +2878,7 @@ class GLTFRenderer extends Component {
           element.visible = value;
           //console.log('Changing', element);
         } else {
+          //element.visible = !value;
           //console.log('Not changing', element);
         }
       });
@@ -3169,14 +3190,19 @@ class GLTFRenderer extends Component {
     });
   };
 
-  getFloatArray = (data64) => {
+  getFloatArray = (data64, data = null) => {
     //console.log(data64);
     var blob = null;
-    try {
-      blob = atob(data64);
-    } catch (error) {
-      console.log('not a base64');
+    if (data) {
+      blob = data;
+    } else {
+      try {
+        blob = atob(data64);
+      } catch (error) {
+        console.log('not a base64');
+      }
     }
+
     if (blob) {
       var fLen = blob.length / Float32Array.BYTES_PER_ELEMENT, // How many floats can be made, but be even
         dView = new DataView(new ArrayBuffer(Float32Array.BYTES_PER_ELEMENT)), // ArrayBuffer/DataView to convert 4 bytes into 1 float.
@@ -4673,6 +4699,10 @@ class GLTFRenderer extends Component {
                     }); */
           //console.log(this.partsMeshes);
           this.partsMeshes = [...this.partsMeshes, ...partsMeshes];
+          this.raycastObjects = [
+            ...this.raycastObjects,
+            ...this.rayCastObjectFilters(partsMeshes)
+          ];
           if (gdttableEdges) {
             //console.log("Inside load edges gdts",this.partsMeshes,gdttableEdges);
             let event = {};
@@ -4957,53 +4987,97 @@ class GLTFRenderer extends Component {
                         const myBase64Floats = this.getFloatArray(
                           thisentity[gltf_Dict['basic']]
                         );
-                        const myBase64Length = myBase64Floats.length;
-                        if (myBase64Floats && myBase64Length) {
+                        if (myBase64Floats && myBase64Floats.length) {
+                          const myBase64Length = myBase64Floats.length;
                           //   console.log(
                           //     'My Floats',
                           //     myBase64Length,
                           //     myBase64Floats
                           //   );
-                          const floater = myBase64Floats[0];
-                          const len_pole = Math.trunc(
-                            floater / (256.0 * 256.0)
-                          );
-                          const len_knot = Math.trunc(
-                            (floater - len_pole * 256.0 * 256.0) / 256.0
-                          );
-                          const degree = Math.trunc(
-                            (floater -
-                              len_pole * 256.0 * 256.0 -
-                              len_knot * 256.0) /
-                              4.0
-                          );
-                          const rational = Math.trunc(
-                            (floater -
-                              len_pole * 256.0 * 256.0 -
-                              len_knot * 256.0 -
-                              degree * 4.0) /
-                              2.0
-                          );
-                          const periodic = Math.trunc(
-                            floater -
-                              len_pole * 256.0 * 256.0 -
-                              len_knot * 256.0 -
-                              degree * 4.0 -
-                              rational * 2.0
-                          );
+                          let buffer_index = 0;
+                          let floater = myBase64Floats[buffer_index];
+                          let degree = 1;
+                          let rational = 0;
+                          let periodic = 0;
+                          let len_knot = 0;
+                          let len_pole = 0;
                           let poles = [];
-                          let buffer_index = 1;
+
                           let start_index = 0;
                           let end_index = 0;
-                          if (curveCode == 'I') {
-                            start_index = Math.trunc(
-                              myBase64Floats[buffer_index]
+
+                          if (floater > 255) {
+                            len_pole = Math.trunc(floater / (256.0 * 256.0));
+                            len_knot = Math.trunc(
+                              (floater - len_pole * 256.0 * 256.0) / 256.0
                             );
-                            end_index = Math.trunc(
-                              myBase64Floats[buffer_index + 1]
+                            degree = Math.trunc(
+                              (floater -
+                                len_pole * 256.0 * 256.0 -
+                                len_knot * 256.0) /
+                                4.0
                             );
-                            buffer_index += 2;
+                            rational = Math.trunc(
+                              (floater -
+                                len_pole * 256.0 * 256.0 -
+                                len_knot * 256.0 -
+                                degree * 4.0) /
+                                2.0
+                            );
+                            periodic = Math.round(
+                              floater -
+                                len_pole * 256.0 * 256.0 -
+                                len_knot * 256.0 -
+                                degree * 4.0 -
+                                rational * 2.0
+                            );
+                            buffer_index += 1;
+                            if (curveCode == 'I') {
+                              start_index = Math.round(
+                                myBase64Floats[buffer_index]
+                              );
+                              buffer_index += 1;
+                              end_index = Math.round(
+                                myBase64Floats[buffer_index]
+                              );
+                              buffer_index += 1;
+                            }
+                          } else {
+                            degree = Math.trunc(floater / 4.0);
+                            rational = Math.trunc(
+                              (floater - degree * 4.0) / 2.0
+                            );
+                            periodic = Math.round(
+                              floater - degree * 4.0 - rational * 2.0
+                            );
+                            buffer_index += 1;
+
+                            len_pole = Math.round(myBase64Floats[buffer_index]);
+                            buffer_index += 1;
+
+                            if (curveCode == 'I') {
+                              len_knot = Math.round(
+                                myBase64Floats[buffer_index]
+                              );
+                              buffer_index += 1;
+                              start_index = Math.round(
+                                myBase64Floats[buffer_index]
+                              );
+                              buffer_index += 1;
+                              end_index = Math.round(
+                                myBase64Floats[buffer_index]
+                              );
+                              buffer_index += 1;
+                            }
                           }
+
+                          /* console.log(
+                            'Floater',
+                            floater,
+                            len_pole,
+                            len_knot,
+                            len_knot + len_pole * 256.0 * 256.0
+                          ); */
                           for (
                             let pole_index = 0;
                             pole_index < len_pole &&
@@ -5052,21 +5126,22 @@ class GLTFRenderer extends Component {
                               buffer_index += 1;
                             }
                           }
-                          //   console.log(
-                          //     'What we got',
-                          //     len_pole,
-                          //     len_knot,
-                          //     degree,
-                          //     periodic,
-                          //     rational,
-                          //     poles,
-                          //     weights,
-                          //     knots,
-                          //     multiplicities,
-                          //     start_index,
-                          //     end_index
-                          //   );
+                          // console.log(
+                          //   'What we got',
+                          //   len_pole,
+                          //   len_knot,
+                          //   degree,
+                          //   periodic,
+                          //   rational,
+                          //   poles,
+                          //   weights,
+                          //   knots,
+                          //   multiplicities,
+                          //   start_index,
+                          //   end_index
+                          // );
                           let knotswithmultiples = [];
+                          let lastKnot = 0;
                           if (curveCode == 'I') {
                             for (
                               var knot_index = 0;
@@ -5075,18 +5150,47 @@ class GLTFRenderer extends Component {
                             ) {
                               for (
                                 var multi_index = 0;
-                                multi_index < multiplicities[knot_index];
+                                multi_index <
+                                Math.round(multiplicities[knot_index]);
                                 multi_index++
                               ) {
-                                knotswithmultiples.push(knots[knot_index]);
+                                lastKnot = knots[knot_index];
+                                knotswithmultiples.push(lastKnot);
                               }
                             }
+                            // if (end_index >= knotswithmultiples.length) {
+                            //   const toPush =
+                            //     end_index - knotswithmultiples.length + 1;
+                            //   for (
+                            //     var multi_index = 0;
+                            //     multi_index < toPush;
+                            //     multi_index++
+                            //   ) {
+                            //     knotswithmultiples.push(lastKnot);
+                            //   }
+                            // }
                           } else {
                             knotswithmultiples = [0, 1];
                           }
-                          //console.log('Multiple Knots', knotswithmultiples);
+                          /*  console.log(
+                            'Multiple Knots',
+                            knotswithmultiples,
+                            multiplicities,
+                            start_index,
+                            end_index,
+                            periodic,
+                            rational,
+                            len_knot,
+                            len_pole
+                          ); */
                           let nurbsCurve = null;
                           if (curveCode == 'I') {
+                            if (start_index < 0) {
+                              start_index = 0;
+                            }
+                            if (end_index >= knotswithmultiples.length) {
+                              end_index = knotswithmultiples.length - 1;
+                            }
                             nurbsCurve = new NURBSCurve(
                               degree,
                               knotswithmultiples,
@@ -5106,7 +5210,7 @@ class GLTFRenderer extends Component {
 
                           points = nurbsCurve.getPoints(200);
                         } else {
-                          console.log('Length', myBase64Floats, myBase64Length);
+                          console.log('No Length found', myBase64Floats);
                         }
                       }
                     }
@@ -5254,6 +5358,10 @@ class GLTFRenderer extends Component {
               this.partsMeshes = [
                 ...this.partsMeshes,
                 ...parentLineNodes.children
+              ];
+              this.raycastObjects = [
+                ...this.raycastObjects,
+                ...this.rayCastObjectFilters(parentLineNodes.children)
               ];
             }
           }

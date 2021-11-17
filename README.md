@@ -1,7 +1,9 @@
 # Struct
+
 All the code, in one place
 
 ### Directory structure
+
 ```
 .
 └── monorepo/
@@ -37,47 +39,56 @@ yarn install
 
 - Install miniconda
 - start miniconda terminal
-- run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy nptyping s3fs trimesh pyopengl pillow networkx pyglet`
+- run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib`
 - run `conda activate structquery`
 - CD to `gltfconverter` directory
 - run `pip install -r requirements.txt`
 - sudo apt install s3fs
 
 ### Following is needed for Headless AWS and For windows, it is not needed.
+
 - sudo apt install s3fs
+
 ### echo Access key ID:Secret access key > filename
+
 - echo AKIAUGAS44POH5Z3OJTG:l7loXGKujNI3BLbhUY7I4yPnyhezqBrMFhS2auI/> ~/.passwd-s3fs
 - chmod 600 ~/.passwd-s3fs
 - s3fs gltf-media /home/ubuntu/Struct/gltfconverter/s3bucket -o passwd_file=~/.passwd-s3fs
 
-
 ### Install Open GL as per https://en.wikibooks.org/wiki/OpenGL_Programming/Installation/Linux
 
-- sudo apt-get install build-essential libgl1-mesa-dev  # Debian, Ubuntu
-- sudo dnf install make gcc-c++  # Fedora
-- sudo apt-get install libglew-dev libsdl2-dev libsdl2-image-dev libglm-dev libfreetype6-dev  # Debian, Ubuntu
-- sudo dnf install glew-devel SDL2-devel SDL2_image-devel glm-devel freetype-devel   # Fedora
+- sudo apt-get install build-essential libgl1-mesa-dev # Debian, Ubuntu
+- sudo dnf install make gcc-c++ # Fedora
+- sudo apt-get install libglew-dev libsdl2-dev libsdl2-image-dev libglm-dev libfreetype6-dev # Debian, Ubuntu
+- sudo dnf install glew-devel SDL2-devel SDL2_image-devel glm-devel freetype-devel # Fedora
 - sudo pacman -S glew sdl2 sdl2_image glm freetype2 # Arch
 
 # Install xvfb
+
 - sudo apt-get install xvfb mesa-utils -y
 
 # Remove the nvidia display drivers (this doesn't remove the CUDA drivers)
+
 # This is necessary as nvidia display doesn't play well with xvfb
+
 - sudo nvidia-uninstall -y
 
 # Sanity check to make sure you still have CUDA driver and its version
+
 - nvcc --version
 
-
 # Start xvfb
+
 - Xvfb :1 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &> xvfb.log &
 
 # Export your display id
+
 - export DISPLAY=:1
 
 # Check if your display settings are valid
+
 - glxinfo
+
 ### Above is needed for Headless AWS and For windows, it is not needed.
 
 - run `python manage.py makemigrations`
@@ -85,57 +96,76 @@ yarn install
 
 - run `conda deactivate`
 
-
 ## Usage
 
 ### Internal App (Node)
-```bash 
+
+```bash
 npm run server
 ```
+
 ### Internal App (React)
-```bash 
+
+```bash
 npm start
 ```
+
 ### Design App (React)
-```bash 
+
+```bash
 npm start-design
 ```
+
 ### Public App (React)
-```bash 
+
+```bash
 npm start-public
 ```
 
 ### GLTFConverter
+
 - cd `gltfconverter` folder
 - Initialize environment in [Conda](https://docs.anaconda.com/anaconda/install/windows/) terminal
-``` bash
+
+```bash
 conda activate structquery
 ```
+
 - For headless AWS to start opengl, following 2 commands needed and they are not needed for windows environment
+
 # Export your S3
+
 export DONOTUSES3=False
 
 # Start s3fs system
+
 - s3fs gltf-media /home/ubuntu/Struct/gltfconverter/s3bucket -o passwd_file=~/.passwd-s3fs
 
 # Start xvfb
+
 Xvfb :1 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &> xvfb.log &
 
 # Export your display id
+
 export DISPLAY=:1
+
 - For headless AWS to start opengl, above 2 commands needed and they are not needed for windows environment
 
 - Run the following command
+
 ```python
 python manage.py runserver localhost:8000
 ```
 
 - cd `gltfconverter` folder
 - Initialize environment in [Conda](https://docs.anaconda.com/anaconda/install/windows/) terminal
-``` bash
+
+```bash
 conda activate structquery
 ```
+
 - Run the following command
+
 ```python
 python manage.py runserver localhost:8000
 ```

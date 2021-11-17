@@ -6,6 +6,7 @@ import shutil
 import re
 import struct
 import base64
+import zlib
 from io import BytesIO
 #from itertools import chain
 from copy import  deepcopy
@@ -2844,29 +2845,25 @@ class StepIgesAnalyser():
         elif self.gltf_Dict['degree'] in entity:
             floatBuff = TimeBuffer(255)
             floater = 0
-            len_knot = 0
+            if entity[self.gltf_Dict['code']]=='I':                
+                floater = entity[self.gltf_Dict['periodic']]+\
+                    (entity[self.gltf_Dict['rational']]*2.0)+\
+                        (entity[self.gltf_Dict['degree']]*4.0) #packing 4 bytes..
+                floatBuff.add_time(floater)
+                #print("What I got Spline",floater,len_pole,len_knot,entity[self.gltf_Dict['degree']])
+            else:
+                floater = entity[self.gltf_Dict['degree']]*4.0
+                floatBuff.add_time(floater)
+                #print("What I got Bezier",floater,len_pole,entity[self.gltf_Dict['degree']])
+            poles = entity[self.gltf_Dict['poles']]
+            len_pole = len(poles)
+            len_pole = max(len_pole,entity[self.gltf_Dict['pole']],len(entity[self.gltf_Dict['weights']]))
+            floatBuff.add_time(len_pole)  
             if entity[self.gltf_Dict['code']]=='I':
                 knots = entity[self.gltf_Dict['knots']]
                 len_knot = len(knots)
                 len_knot = max(len_knot,entity[self.gltf_Dict['knot']])
-                poles = entity[self.gltf_Dict['poles']]
-                len_pole = len(poles)
-                len_pole = max(len_pole,entity[self.gltf_Dict['pole']],len(entity[self.gltf_Dict['weights']]))
-                floater = entity[self.gltf_Dict['periodic']]+\
-                    entity[self.gltf_Dict['rational']]*2.0+\
-                        entity[self.gltf_Dict['degree']]*4.0+\
-                            len_knot*256.0+\
-                                len_pole*256.0*256.0 #packing 4 bytes..
-                #print("What I got Spline",floater,len_pole,len_knot,entity[self.gltf_Dict['degree']])
-            else:
-                poles = entity[self.gltf_Dict['poles']]
-                len_pole = len(poles)
-                len_pole = max(len_pole,entity[self.gltf_Dict['pole']],len(entity[self.gltf_Dict['weights']]))
-                floater = entity[self.gltf_Dict['degree']]*4.0+\
-                    len_pole*256.0*256.0 #packing 4 bytes..
-                #print("What I got Bezier",floater,len_pole,entity[self.gltf_Dict['degree']])
-            floatBuff.add_time(floater)
-            if entity[self.gltf_Dict['code']]=='I':
+                floatBuff.add_time(len_knot)
                 floatBuff.add_time(entity[self.gltf_Dict['start']])
                 floatBuff.add_time(entity[self.gltf_Dict['end']])
             #print("What I got Outside",floater,len_pole,entity[self.gltf_Dict['degree']],entity)
@@ -2910,6 +2907,8 @@ class StepIgesAnalyser():
                 multiplicities=entity[self.gltf_Dict['multiplicities']]  
                 for multiplicity in multiplicities:
                     floatBuff.add_time(multiplicity)
+            #zippeddata = zlib.compress(floatBuff.read())
+            #base64data = base64.b64encode(zippeddata).decode('ascii')
             base64data = base64.b64encode(floatBuff.read()).decode('ascii')
             retString = "{data}".format(
                     data=base64data,
@@ -4569,6 +4568,10 @@ class StepIgesAnalyser():
             mesher_dict[self.gltf_Dict["entity"]] = myconvertedentity
             lowerboundmin=(0,0,0)
             upperboundmax=(1,1,1)
+            """ if self.gltf_Dict['multiplicities'] in entity:
+                print("Entity Multiplicities",entity[self.gltf_Dict['multiplicities']],\
+                    len(entity[self.gltf_Dict['multiplicities']]),entity[self.gltf_Dict['knot']],\
+                        entity[self.gltf_Dict['pole']]) """
             if self.gltf_Dict['basic'] in myconvertedentity:
                 mesher_dict[self.gltf_Dict["points"]] = None
             else:
