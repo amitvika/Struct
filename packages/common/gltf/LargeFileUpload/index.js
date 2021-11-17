@@ -82,7 +82,9 @@ export default function LargeFileUpload({
   angleGap,
   setAngleGap,
   drawLine,
-  setDrawLine
+  setDrawLine,
+  allowFirstLevelItems,
+  setAllowFirstLevelItems
 }) {
   const classes = useStyles();
   const [counter, setCounter] = useState(1);
@@ -274,6 +276,18 @@ export default function LargeFileUpload({
             />
           }
           label="Load All Edges"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={allowFirstLevelItems}
+              label="Create First Level Items"
+              onChange={(event) =>
+                setAllowFirstLevelItems(event.target.checked)
+              }
+            />
+          }
+          label="Create First Level Items"
         />
       </Box>
       <Box sx={{ width: '100%' }}>

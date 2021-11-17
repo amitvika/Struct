@@ -8,6 +8,7 @@ import DefaultContainer from '../../components/DefaultContainer';
 import CommonAddUpdateModal from './AddUpdateModal';
 import LoadingModal from '../LoadingModal';
 import get from 'lodash/get';
+import Pagination from '@material-ui/lab/Pagination';
 
 const TableGridView = ({
   title,
@@ -38,6 +39,7 @@ const TableGridView = ({
   const [selectedListItem, setSelectedListItem] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
+  const [page, setPage] = React.useState(1);
 
   useEffect(() => {
     fetchResult();
@@ -223,6 +225,11 @@ const TableGridView = ({
     setIsManageTeamModalOpened(!isManageTeamModalOpened);
   };
 
+  const handlePaginationChange = (event, value) => {
+    console.log('--value--', value);
+    // setPage(value);
+  };
+
   return (
     <>
       <LoadingModal isLoading={isLoading} />
@@ -273,6 +280,7 @@ const TableGridView = ({
         />
         {renderView()}
       </DefaultContainer>
+      <Pagination count={10} page={page} onChange={handlePaginationChange} />
     </>
   );
 };

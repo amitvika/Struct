@@ -40,32 +40,8 @@ import {
 import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
 
 import '../style.css';
+import { getGDTParentItems } from './helper';
 
-/* const useStyles = makeStyles((theme) => ({
-  container: {
-    display: 'flex',
-    '@media screen and (max-width:1400px)': {
-      width: '100%',
-      flexDirection: 'column-reverse',
-    },
-  },
-  paperContainer: {
-    padding: 20,
-    margin: 10,
-    width: '75%',
-    '@media screen and  (max-width:1400px)': {
-      width: '100%',
-    },
-  },
-  itemContainer: {
-    width: '25%',
-    '@media screen and (max-width:1400px)': {
-      width: '100%',
-    },
-  },
-})); */
-
-//const DEFAULTMATERIALNAME = 'Basic';
 export default function BaseItemProperties({
   itemId,
   itemProperties,
@@ -111,6 +87,8 @@ export default function BaseItemProperties({
     angleGap ? angleGap : STATEPROPS.anglegap
   );
   const [drawLiner, setDrawLiner] = useState(drawLine);
+  const [allowFirstLevelItems, setAllowFirstLevelItems] = useState(false);
+
   useEffect(() => {
     //console.log('Setting gltf', gltfjson);
     setfileUUId(itemProperties.fileUUId);
@@ -148,10 +126,12 @@ export default function BaseItemProperties({
     //console.log('Setting itemProperties', itemProperties);
     setDrawLiner(drawLine);
   }, [drawLine]);
+
   useEffect(() => {
     //console.log('Setting itemProperties', itemProperties);
     setDistanceGaper(distanceGap);
   }, [distanceGap]);
+
   useEffect(() => {
     //console.log('Setting itemProperties', itemProperties);
     setAngleGaper(angleGap);
@@ -168,7 +148,7 @@ export default function BaseItemProperties({
 
       if (!data.uuid || !data.filename) {
         // eslint-disable-next-line no-throw-literal
-        console.log('File Upload Error', data);
+        // console.log('File Upload Error', data);
         setIsLoading(false);
         throw { message: 'File upload error' };
       }
@@ -189,22 +169,7 @@ export default function BaseItemProperties({
       datagdt = filenameWithExtension + '3';
 
       setfileUUId(data.uuid);
-      // setItemProperties((prevData) => ({
-      //   ...prevData,
-      //   fileUUId: data.uuid,
-      //   fileStore: datastore,
-      //   fileName: dataload,
-      // }));
-      // handleItemSaveOnServer({
-      //   fileId: null,
-      //   fileUUId: data.uuid,
-      //   fileStore: datastore,
-      //   fileName: dataload,
-      //   fileGDT: null,
-      //   fileMPPS: null,
-      //   fileStack: null,
-      //   fileKinematic: null,
-      // });
+
       setProgressBarLoader(true);
       setIsFileLoading(true);
       if (
@@ -264,12 +229,6 @@ export default function BaseItemProperties({
         ) {
           datagdt = getHierarchyRes.data.store;
           dataload = getHierarchyRes.data.load;
-          // setItemProperties((prevData) => ({
-          //   ...prevData,
-          //   fileUUId: data.uuid,
-          //   fileStore: datastore,
-          //   fileName: dataload,
-          // }));
           if (itemProperties.fileUUId != data.uuid) {
             setItemProperties((prevData) => ({
               ...prevData,
@@ -297,11 +256,13 @@ export default function BaseItemProperties({
           });
         }
       }
+
       setPercentager(percent);
+
       if (!datastatus || percent != 100) {
         // eslint-disable-next-line no-throw-literal
         if (!datagdt || !datastatus) {
-          console.log('File Render Error', datagdt, dataload);
+          // console.log('File Render Error', datagdt, dataload);
           setProgressBarLoader(false);
           setIsLoading(false);
           throw { message: 'Unable to render file' };
@@ -309,16 +270,16 @@ export default function BaseItemProperties({
           const datafile = data.uuid + '/' + datagdt;
           let fetchStatus = () => getAFileFromStore(datafile, 'status');
           let validateStatus = (result) => {
-            console.log(
-              result.data,
-              result.data.percent,
-              result.data.percent != 100
-            );
+            // console.log(
+            //   result.data,
+            //   result.data.percent,
+            //   result.data.percent != 100
+            // );
             return result.data.percent != 100;
           };
           let percentFunction = (result) =>
             result.data.percent ? result.data.percent : percentager;
-          console.log('Entering poll', datagdt, dataload);
+          // console.log('Entering poll', datagdt, dataload);
           await pollFunction(
             fetchStatus,
             validateStatus,
@@ -328,9 +289,10 @@ export default function BaseItemProperties({
             setCurrentProgressTexter,
             setCompletionProgressTexter
           );
-          console.log('Completing poll', datagdt, dataload);
+          // console.log('Completing poll', datagdt, dataload);
           const gltfRes = await getAFileFromStore(datafile, 'gltf');
           const treeRes = await getAFileFromStore(datafile, 'tree');
+
           treeLength = treeRes.data.length;
 
           setgltfjson({
@@ -361,6 +323,7 @@ export default function BaseItemProperties({
           stepTreeLength: treeLength
         }));
       }
+
       setProgressBarLoader(false);
       if (fileUUId != data.uuid) {
         setfileUUId(data.uuid);
@@ -379,6 +342,7 @@ export default function BaseItemProperties({
           drawLine: drawLiner
         }));
       }
+
       handleItemSaveOnServer({
         fileId: null,
         fileUUId: data.uuid,
@@ -394,6 +358,15 @@ export default function BaseItemProperties({
         angleGap: angleGaper,
         drawLine: drawLiner
       });
+
+      if (allowFirstLevelItems) {
+        getGDTParentItems({
+          fileGDT: datagdt,
+          fileUUId: data.uuid,
+          parentId: itemProperties.id
+        });
+      }
+
       setIsLoading(false);
       dispatch(showSuccessAlert({ message: 'File Parsed successfully' }));
     } catch (error) {
@@ -414,6 +387,7 @@ export default function BaseItemProperties({
         // setIsLoading(false);
       });
   };
+
   let gltfjsonlen = Object.keys(gltfobj).length;
   if (gltfjsonlen > 0) {
     gltfjsonlen += gltfobj?.gltf?.accessors?.length;
@@ -493,6 +467,7 @@ export default function BaseItemProperties({
               setCurrentProgressText={setCurrentProgressTexter}
               setCompletionProgressText={setCompletionProgressTexter}
               setCenterActionText={setCenterActionTexter}
+              {...{ allowFirstLevelItems, setAllowFirstLevelItems }}
             />
           </Grid>
         </Grid>

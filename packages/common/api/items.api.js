@@ -1,4 +1,9 @@
-import { postRequest, getRequest, putRequest, deleteRequest } from '../utils/apiHandler';
+import {
+  postRequest,
+  getRequest,
+  putRequest,
+  deleteRequest
+} from '../utils/apiHandler';
 
 const getItemsAPI = (query) => getRequest(`/api/items?${query}`);
 
@@ -12,13 +17,16 @@ const deleteItemAPI = (id) => deleteRequest(`/api/items/${id}`);
 
 const getItemsAllAPI = (query) => getRequest(`/api/items/all?${query}`);
 
-const deleteItemGeomtery = (id) => deleteRequest(`/api/items/${id}/three-model`);
+const deleteItemGeomtery = (id) =>
+  deleteRequest(`/api/items/${id}/three-model`);
 
 const getItemThreejsData = (id) => getRequest(`/api/items/${id}/three-model`);
 
 const getItemOrders = (query) => getRequest(`/api/itemOrder?${query}`);
 
 const upsertItemOrder = (data) => postRequest(`/api/itemOrder`, data);
+
+const upsertItems = (data) => putRequest(`/api/new-item`, data);
 
 export default {
   getItemsAPI,
@@ -30,5 +38,6 @@ export default {
   deleteItemGeomtery,
   getItemThreejsData,
   getItemOrders,
-  upsertItemOrder
-}
+  upsertItemOrder,
+  upsertItems
+};

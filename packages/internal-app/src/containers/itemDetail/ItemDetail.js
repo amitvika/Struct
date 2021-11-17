@@ -62,6 +62,7 @@ import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Classification from '../classification';
 import EditItemTitle from './EditItemTitle';
+import ProductDesignSetup from '../productDesignSetup';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -175,27 +176,13 @@ const ItemDetail = ({ itemValue }) => {
       let servertime = statusRes.data.current;
       let utctimearray = currenttime.split(' ');
       let servertimearray = servertime.split('-');
-      console.log(
-        'What is got from Status file',
-        currenttime,
-        utctimearray,
-        servertime,
-        servertimearray
-      );
+
       let currenttimearray = utctimearray[4].split(':');
       let difference =
         (currenttimearray[0] - servertimearray[0]) * 60 * 60 +
         (currenttimearray[1] - servertimearray[1]) * 60 +
         (currenttimearray[2] - servertimearray[2]);
-      console.log(
-        'What is got from Status file',
-        currenttime,
-        servertime,
-        currenttimearray,
-        utctimearray,
-        servertimearray,
-        difference
-      );
+
       if (difference < 0) {
         difference += 24 * 60 * 60;
       }
@@ -204,7 +191,6 @@ const ItemDetail = ({ itemValue }) => {
       }
       return 1;
     }
-    console.log('NO gltf and status files Existing', whichOneToLoad);
     return 3;
   };
   const setStack = async (item) => {
@@ -467,14 +453,6 @@ const ItemDetail = ({ itemValue }) => {
             }
           }
           if (!item.fileKinematic || item.fileKinematic === null) {
-            console.log(
-              'Up0',
-              myTabIndex,
-              tabIndex,
-              item.fileStore,
-              item.fileKinematic,
-              item.fileId
-            );
             setIsLoading(true);
             setIsFileLoading(true);
             getPartsKinematicOrder(
@@ -509,10 +487,8 @@ const ItemDetail = ({ itemValue }) => {
               .catch((err) => {
                 setIsLoading(false);
                 setIsFileLoading(false);
-                console.log('Error While Parsing', err);
               });
           } else {
-            //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
             fetchGLTFAndTree(
               myTabIndex,
               item.fileStore,
@@ -539,16 +515,10 @@ const ItemDetail = ({ itemValue }) => {
               whichOneToLoad,
               whichOneToStatus
             );
-            console.log(
-              'Go ahead status in calling api from beginning',
-              okToParse
-            );
           } else {
             okToParse = 2;
           }
-          //console.log("After checking GLTF and Status",okToParse,item.fileStore,(okToParse || !item.fileStore || item.fileStore === null));
           if (okToParse > 1 || !item.fileStore || item.fileStore === null) {
-            //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
             setIsLoading(true);
             setIsFileLoading(true);
             setProgressBarLoad(true);
@@ -580,7 +550,6 @@ const ItemDetail = ({ itemValue }) => {
               if (!datastore) {
                 setIsLoading(false);
                 setIsFileLoading(false);
-                console.log('Error While Parsing', item);
               } else {
                 const datafile = item.fileUUId + '/' + datastore;
                 let fetchStatus = () => getAFileFromStore(datafile, 'status');
@@ -590,7 +559,6 @@ const ItemDetail = ({ itemValue }) => {
                 };
                 let percentFunction = (result) =>
                   result.data.percent ? result.data.percent : percentage;
-                console.log('Entering poll', datastore, dataload);
                 await pollFunction(
                   fetchStatus,
                   validateStatus,
@@ -600,7 +568,6 @@ const ItemDetail = ({ itemValue }) => {
                   setCurrentProgressText,
                   setCompletionProgressText
                 );
-                console.log('Completing poll', datastore, dataload);
                 const gltfRes = await getAFileFromStore(datafile, 'gltf');
                 const treeRes = await getAFileFromStore(datafile, 'tree');
                 const multiAssmebly = get(treeRes.data, 'tree', []).length > 0;
@@ -624,7 +591,6 @@ const ItemDetail = ({ itemValue }) => {
               if (!datastore) {
                 setIsLoading(false);
                 setIsLoading(false);
-                console.log('Error While Parsing', item);
               } else {
                 const treeLength = get(getHierarchyRes.data, 'tree', []).length;
                 const multiAssmebly = treeLength > 0;
@@ -944,7 +910,6 @@ const ItemDetail = ({ itemValue }) => {
     state_additionalSaveFunction = saveFunction;
   };
   const renderPageSwitch = () => {
-    //console.log(itemProperties);
     if (!get(itemProperties, 'id') && !id) {
       return null;
     }
@@ -957,7 +922,6 @@ const ItemDetail = ({ itemValue }) => {
       case 'cf':
         return <Classification handleItemUpdateLocallay={handleItemUpdate} />;
       case 'pdcu':
-        console.log(itemProperties);
         return (
           <BaseItemProperties
             itemId={id}
@@ -1002,11 +966,6 @@ const ItemDetail = ({ itemValue }) => {
       case 'cu':
         return <CurrentUsage itemId={id} />;
       case 'gdtac':
-        console.log(
-          itemProperties,
-          itemProperties.fileGDT,
-          itemProperties.fileUUId
-        );
         return (
           <GeometricDimensioning
             fileId={itemProperties.fileId}
@@ -1149,7 +1108,7 @@ const ItemDetail = ({ itemValue }) => {
       case 'rs':
         return 'Recycling & Sustainability';
       case 'pds':
-        return 'Design Product Design';
+        return <ProductDesignSetup />;
       default:
         return 'Undefined Tab Index';
     }
