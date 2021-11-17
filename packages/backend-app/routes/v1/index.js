@@ -40,7 +40,6 @@ router.use('/autoscaling', require('./autoscaling.route'));
 router.use('/productDesign', require('./productDesign.route'));
 router.use('/fileHistory', require('./fileHistory.route'));
 router.use('/criteriaUpload', require('./criteriaUpload.route'));
-router.use('/new-item', require('./newItem.route'));
 
 router.post('/upload-logo', Upload.uploadLogo(), (req, res) => {
   res.send({

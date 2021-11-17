@@ -80,6 +80,20 @@ const buildQuery = (req) => {
     });
   }
 
+  if (req.query.call_type !== 'detail') {
+    if (req.query.is_child_item) {
+      query.$and.push({ is_child_item: { $in: true } });
+    } else {
+      query.$and.push({ is_child_item: { $in: [null, false] } });
+    }
+  }
+
+  if (req.query.parent_id) {
+    query.$and.push({
+      parent_id: getObjectId(req.query.parent_id)
+    });
+  }
+
   return query;
 };
 
@@ -498,5 +512,22 @@ exports.updateItemGeometry = async (req, res) => {
   } catch (error) {
     console.log('Error', error);
     res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+exports.upsert = async (req, res) => {
+  try {
+    let items = req.body || [];
+    items = items.map((item) => ({
+      ...item,
+      created_by: item.created_by || req.user.id,
+      updated_by: req.user.id
+    }));
+
+    const itemUpdated = await ItemModel.bulkInsertItems(items);
+
+    res.json({ success: true, itemUpdated });
+  } catch (error) {
+    return res.status(500).send({ message: 'Some unexpected error occurred' });
   }
 };

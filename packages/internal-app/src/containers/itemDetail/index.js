@@ -12,7 +12,8 @@ export default function ItemDetailMain() {
   const [itemValue, setItemValue] = useState(null);
 
   useEffect(() => {
-    ItemAPI.getItemsAPI(`id=${id}`)
+    setIsLoading(true);
+    ItemAPI.getItemsAPI(`id=${id}&call_type=detail`)
       .then((itemDetailResponse) => {
         if (get(itemDetailResponse, 'data[0]')) {
           setItemValue(get(itemDetailResponse, 'data[0]'));
@@ -25,14 +26,14 @@ export default function ItemDetailMain() {
         setIsLoading(false);
         setValueFromStore();
       });
-  }, []);
+  }, [id]);
 
   const setValueFromStore = () => {
     if (getFromSessionStorage(NEW_ITEM)) {
       setItemValue(getFromSessionStorage(NEW_ITEM));
     }
   };
-  
+
   if (isLoading) {
     return <LoadingModal isLoading={true} />;
   }

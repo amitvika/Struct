@@ -26,7 +26,7 @@ const getItemOrders = (query) => getRequest(`/api/itemOrder?${query}`);
 
 const upsertItemOrder = (data) => postRequest(`/api/itemOrder`, data);
 
-const upsertItems = (data) => putRequest(`/api/new-item`, data);
+const upsertItems = (data) => postRequest(`/api/items/upsert`, data);
 
 export default {
   getItemsAPI,
