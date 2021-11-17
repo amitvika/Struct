@@ -137,7 +137,9 @@ function MeshLineRaycast(raycaster, intersects) {
     return;
   }
 
-  inverseMatrix.getInverse(this.matrixWorld);
+  //inverseMatrix.getInverse(this.matrixWorld);
+  inverseMatrix.copy(this.matrixWorld).invert();
+
   ray.copy(raycaster.ray).applyMatrix4(inverseMatrix);
 
   var vStart = new Vector3();

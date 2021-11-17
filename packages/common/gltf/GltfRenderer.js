@@ -1957,7 +1957,7 @@ class GLTFRenderer extends Component {
     }
   };
   rayCastObjectFilters = (meshes) => {
-    console.log(this.props.selectedoption, SELECTFACE);
+    //console.log(this.props.selectedoption, SELECTFACE);
     var objects = [];
     if (meshes) {
       meshes.forEach((element) => {
