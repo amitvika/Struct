@@ -61,7 +61,6 @@ export const myMenus = [
         values: {
           wiremesh: false,
           castshadow: false,
-          showedges: true,
           skeleton: false,
           grid: false,
           ctrlKey: false
@@ -77,11 +76,6 @@ export const myMenus = [
                   key: 'castshadow'   
                 } */,
           {
-            name: 'Show Edges',
-            type: 'checkbox',
-            key: 'showedges'
-          },
-          {
             name: 'Skeleton',
             type: 'checkbox',
             key: 'skeleton'
@@ -90,6 +84,30 @@ export const myMenus = [
             name: 'Grid',
             type: 'checkbox',
             key: 'grid'
+          }
+        ]
+      },
+      {
+        name: 'edge',
+        values: {
+          showedges: true,
+          linewidth: 1.0,
+          ctrlKey: false
+        },
+        fields: [
+          {
+            name: 'Show Edges',
+            type: 'checkbox',
+            key: 'showedges'
+          },
+          {
+            name: 'Edge Width',
+            type: 'slider',
+            auto: 'auto',
+            step: 1,
+            min: 1,
+            max: 20,
+            key: 'linewidth'
           }
         ]
       },

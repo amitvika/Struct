@@ -63,16 +63,16 @@ import { GUI } from './GUI.js';
 //import CameraSpinControls from './CameraSpinControls.js';
 import { TrackballControls } from './TrackballControls.js';
 
+/*
 import LineGeometry from './lines/LineGeometry.js';
-import MeshLine from './lines/MeshLine.js';
+import LineMesh from './lines/LineMesh.js';
 import LineMaterial from './lines/LineMaterial.js';
+*/
 import { NURBSCurve } from './curves/NURBSCurve.js';
 
-/*
-import MeshLine from "./MeshLine/MeshLine.js";
-import { MeshLineMaterial } from "./MeshLine/MeshLineMaterial.js";
-import { MeshLineGeometry } from "./MeshLine/MeshLineGeometry";
-*/
+import MeshLine from './MeshLine/MeshLine.js';
+import { MeshLineMaterial } from './MeshLine/MeshLineMaterial.js';
+import { MeshLineGeometry } from './MeshLine/MeshLineGeometry';
 
 import {
   resourcePathURL,
@@ -288,7 +288,8 @@ class GLTFRenderer extends Component {
     snackBarState: false,
     progressBarRender: false,
     lastClickedNode: null,
-    autoHideDuration: 1000
+    autoHideDuration: 1000,
+    edgelinewidth: 1.0
 
     //gltfobj:this.props.gltfobj
   };
@@ -2874,7 +2875,7 @@ class GLTFRenderer extends Component {
     if (this.partsMeshes) {
       var objects = [];
       this.partsMeshes.forEach((element) => {
-        if (element instanceof Line) {
+        if (element instanceof Line || element instanceof MeshLine) {
           element.visible = value;
           //console.log('Changing', element);
         } else {
@@ -2884,7 +2885,26 @@ class GLTFRenderer extends Component {
       });
     }
   };
-
+  changeEdgeLineWidth = (value) => {
+    if (this.partsMeshes) {
+      var objects = [];
+      this.partsMeshes.forEach((element) => {
+        if (element instanceof MeshLine) {
+          element.material.lineWidth = value; /* = new MeshLineMaterial({
+            color: this.props.edgecolor
+              ? this.props.edgecolor
+              : DEFAULTEDGECOLOR,
+            resolution: new Vector2(400, 400),
+            sizeAttenuation: 0,
+            lineWidth: value,
+            side: DoubleSide
+          }); */
+          //element.visible = !value;
+          //console.log('Not changing', element);
+        }
+      });
+    }
+  };
   raycast = () => {
     //1. set the picking ray from the camera position and mouse coordinates
     this.activeCamera.updateMatrixWorld();
@@ -5258,6 +5278,7 @@ class GLTFRenderer extends Component {
                   //let geometry = new BufferGeometry({name:element[gltf_Dict["name"]]}).setFromPoints( points );
                   //geometry.name=element[gltf_Dict["name"]];
                   if (indexFiles == 1) {
+                    /*
                     let material = new LineBasicMaterial({
                       color: this.props.edgecolor
                         ? this.props.edgecolor
@@ -5265,43 +5286,40 @@ class GLTFRenderer extends Component {
                       name: element[gltf_Dict['name']],
                       linewidth: 5
                     });
-                    /* material.depthTest = true;
-                                            material.depthWrite = true;
-                                            material.side = DoubleSide;
-                                            material.precision = 'highp';
-                                            material.polygonOffset= true;
-                                            material.polygonOffsetFactor= -200;
-                                            material.receiveShadow = false; */
-                    /*material.depthWrite = true;
-                                            material.polygonOffset= true;
-                                            material.polygonOffsetFactor= -200;*/
+
                     let line = new Line(geometry, material);
 
                     line.name = element[gltf_Dict['name']];
                     line.renderOrder += 20;
-                    /*  if(geometry.name.includes("1H01052")||geometry.name.includes("1H01054") ) {
-                                                console.log(geometry.name,myBase64Points);
-                                                line.renderOrder+=20;  
-                                            } 
-                                            if(geometry.name.includes("1H01054") ||geometry.name.includes("1H01056") ) {
-                                                console.log(geometry.name,myBase64Points);
-                                                line.renderOrder+=20;  
-                                                line.opacity = 0.8;
-                                            } 
-                                            if(geometry.name.includes("1H01056") ) {
-                                                console.log(geometry.name,myBase64Points);
-                                                line.renderOrder+=20;  
-                                            }  */
-                    //line.onBeforeRender = function( renderer ) { renderer.clearDepth(); };
-
                     parentLineNodes.add(line);
-                    /*  material = new PointsMaterial({ 
+                    */
+                    /*material = new PointsMaterial({ 
                                                 color: 0xff00ff,//this.props.edgecolor?this.props.edgecolor:DEFAULTEDGECOLOR,
                                                 name:element[gltf_Dict["name"]],
                                                 size:5});
-                                            let point = new Points(geometry, material);                                           
-                                            point.name=element[gltf_Dict["name"]];                                           
-                                            parentLineNodes.add(point);  */
+                      let point = new Points(geometry, material);                                           
+                      point.name=element[gltf_Dict["name"]];                                           
+                      parentLineNodes.add(point);  
+                    */
+                    let sketchLineGeometry = new MeshLineGeometry();
+                    sketchLineGeometry.setGeometry(geometry);
+                    let sketchMatrial = new MeshLineMaterial({
+                      color: this.props.edgecolor
+                        ? this.props.edgecolor
+                        : DEFAULTEDGECOLOR,
+                      resolution: new Vector2(400, 400),
+                      sizeAttenuation: 0,
+                      lineWidth: this.state.edgelinewidth,
+                      side: DoubleSide
+                    });
+                    //Note: resolution is *required*!
+                    let ourMesh = new MeshLine(
+                      sketchLineGeometry,
+                      sketchMatrial
+                    );
+                    ourMesh.name = element[gltf_Dict['name']];
+                    ourMesh.renderOrder += 20;
+                    parentLineNodes.add(ourMesh);
                   } else {
                     let material = new PointsMaterial({
                       color: this.props.edgecolor
@@ -5842,19 +5860,32 @@ class GLTFRenderer extends Component {
                 values.grid
               );
             }
+            break;
+          case 4:
             if (values.showedges != this.state.showedges) {
               //console.log('changing', values.showedges, this.state.showedges);
               this.setState({ showedges: values.showedges });
               this.changeEdgeVisibility(values.showedges);
             } else {
               console.log(
-                'Not changing',
+                'Not changing edge visibility',
                 values.showedges,
                 this.state.showedges
               );
             }
+            if (values.linewidth != this.state.edgelinewidth) {
+              //console.log('changing', values.showedges, this.state.showedges);
+              this.setState({ edgelinewidth: values.linewidth });
+              this.changeEdgeLineWidth(values.linewidth);
+            } else {
+              console.log(
+                'Not changing edge line width',
+                values.linewidth,
+                this.state.edgelinewidth
+              );
+            }
             break;
-          case 4:
+          case 5:
             if (values.autoRotate != this.controls.autoRotate) {
               //console.log(values.autoRotate);
               this.controls.autoRotate = values.autoRotate;
