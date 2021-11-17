@@ -6,7 +6,7 @@ import { columnsForItemView } from '@monostruct/common/constants/item';
 import { useHistory } from 'react-router-dom';
 import AdditionalFilter from './AdditionalFilter';
 import { NEW_ITEM, saveToSessionStorage } from '../../utils/usefulHelpers';
-import ObjectID  from 'bson-objectid';
+import ObjectID from 'bson-objectid';
 
 const ItemsView = () => {
   let history = useHistory();
@@ -34,6 +34,7 @@ const ItemsView = () => {
       isDesignModalOpened={true}
       AdditionalFilter={AdditionalFilter}
       handleAddButtonPress={handleAddButtonPress}
+      isPaginationEnabled={true}
     />
   );
 };

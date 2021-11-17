@@ -10,24 +10,28 @@ const { mapItems, mapItem } = require('../map/item.map');
 exports.get = async (req, res) => {
   try {
     const query = buildQuery(req);
-    let items = [];
+    let result = {};
+
+    const options = {
+      page: req.query.page || 1,
+      limit: req.query.limit || 10,
+      sort: { updatedAt: -1 },
+      populate: ['created_by', 'updated_by']
+    };
 
     if (query.$and.length > 0) {
-      items = await ItemModel.find(query)
-        .populate('created_by')
-        .populate('updated_by')
-        .sort({ updatedAt: -1 })
-        .limit(20);
+      result = await ItemModel.paginate(query, options);
     } else {
-      items = await ItemModel.find()
-        .populate('created_by')
-        .populate('updated_by')
-        .sort({ updatedAt: -1 })
-        .limit(20);
+      result = await ItemModel.paginate({}, options);
     }
-    let myitems = await mapItems(items);
-    //console.log('From itemcontroller', myitems);
-    res.json(myitems);
+
+    result.docs = await mapItems(result.docs);
+
+    if (req.query.page || req.query.limit) {
+      return res.json(result);
+    }
+
+    res.json(result.docs);
   } catch (error) {
     res.status(500).send(error);
   }
