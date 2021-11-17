@@ -86,6 +86,7 @@ const ItemDetail = ({ itemValue }) => {
   const [centerActionText, setCenterActionText] = useState(null);
   const [progressBarLoad, setProgressBarLoad] = useState(false);
   const [internalProductConfig, setInternalProductConfig] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
 
   useEffect(() => {
     let myTabIndex = 'pdcu';
@@ -938,6 +939,8 @@ const ItemDetail = ({ itemValue }) => {
             completionProgressText={completionProgressText}
             centerActionText={centerActionText}
             //setProgressBarRender={setProgressBarRender}
+            selectedOption={selectedOption}
+            setSelectedOption={setSelectedOption}
             setPercentage={setPercentage}
             setProgressBarLoad={setProgressBarLoad}
             setCurrentProgressText={setCurrentProgressText}
@@ -980,6 +983,8 @@ const ItemDetail = ({ itemValue }) => {
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
             centerActionText={centerActionText}
+            selectedOption={selectedOption}
+            setSelectedOption={setSelectedOption}
             //setProgressBarRender={setProgressBarRender}
             setPercentage={setPercentage}
             setProgressBarLoad={setProgressBarLoad}
@@ -1014,6 +1019,8 @@ const ItemDetail = ({ itemValue }) => {
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
             centerActionText={centerActionText}
+            selectedOption={selectedOption}
+            setSelectedOption={setSelectedOption}
             //setProgressBarRender={setProgressBarRender}
             setPercentage={setPercentage}
             setProgressBarLoad={setProgressBarLoad}
@@ -1049,6 +1056,8 @@ const ItemDetail = ({ itemValue }) => {
             currentProgressText={currentProgressText}
             completionProgressText={completionProgressText}
             centerActionText={centerActionText}
+            selectedOption={selectedOption}
+            setSelectedOption={setSelectedOption}
             //setProgressBarRender={setProgressBarRender}
             setPercentage={setPercentage}
             setProgressBarLoad={setProgressBarLoad}

@@ -57,7 +57,9 @@ export default function BaseItemProperties({
   centerActionText,
   drawLine,
   distanceGap,
-  angleGap
+  angleGap,
+  selectedOption,
+  setSelectedOption
 }) {
   const classes = USESTYLES();
   const dispatch = useDispatch();
@@ -227,7 +229,6 @@ export default function BaseItemProperties({
         ) {
           datagdt = getHierarchyRes.data.store;
           dataload = getHierarchyRes.data.load;
-
           if (itemProperties.fileUUId != data.uuid) {
             setItemProperties((prevData) => ({
               ...prevData,
@@ -327,7 +328,6 @@ export default function BaseItemProperties({
       if (fileUUId != data.uuid) {
         setfileUUId(data.uuid);
       }
-
       if (itemProperties.fileUUId != data.uuid) {
         setItemProperties((prevData) => ({
           ...prevData,
@@ -423,7 +423,8 @@ export default function BaseItemProperties({
                   backcolor={DEFAULTBACKCOLOR()}
                   selectcolor={DEFAULTSELECTCOLOR()}
                   touchcolor={DEFAULTTOUCHCOLOR()}
-                  selectedoption={SELECTFEATURE}
+                  selectedoption={selectedOption}
+                  setSelectedOption={setSelectedOption}
                   splitmethod={SELECTHIRERACHY}
                   changedata={[]}
                   data2texture={null}
