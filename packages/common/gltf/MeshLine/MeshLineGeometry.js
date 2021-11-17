@@ -5,7 +5,8 @@ import {
   Sphere,
   Ray,
   BufferAttribute,
-  ShaderChunk
+  ShaderChunk,
+  LineSegments
 } from 'three';
 class MeshLineGeometry extends BufferGeometry {
   constructor(parameters) {
@@ -22,7 +23,7 @@ class MeshLineGeometry extends BufferGeometry {
       _points: [],
       _geom: null,
       widthCallback: null,
-      matrixWorld: Matrix4()
+      matrixWorld: new Matrix4()
     });
     Object.defineProperties(this, {
       // this is now a bufferGeometry
