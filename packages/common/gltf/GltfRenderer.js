@@ -71,8 +71,8 @@ import LineMaterial from './lines/LineMaterial.js';
 import { NURBSCurve } from './curves/NURBSCurve.js';
 
 import MeshLine from './MeshLine/MeshLine.js';
-import { MeshLineMaterial } from './MeshLine/MeshLineMaterial.js';
-import { MeshLineGeometry } from './MeshLine/MeshLineGeometry';
+import MeshLineMaterial from './MeshLine/MeshLineMaterial.js';
+import MeshLineGeometry from './MeshLine/MeshLineGeometry.js';
 
 import {
   resourcePathURL,
