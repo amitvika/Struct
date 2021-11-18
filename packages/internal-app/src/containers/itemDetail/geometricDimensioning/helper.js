@@ -16,7 +16,8 @@ export const buildParentChildTree = (
     idKey = gltf_Dict['id'],
     parentKey = gltf_Dict['parentId'],
     childrenKey = 'children'
-  } = {}
+  } = {},
+  myGlobalTree
 ) => {
   const tree = [];
   const childrenOf = {};
@@ -89,7 +90,7 @@ export const buildParentChildTree = (
         };
       } else {
         item['state'].selected = item.selectedshell;
-        const currentNode = findMyTreeNode(item);
+        const currentNode = findMyTreeNode(item, myGlobalTree);
         if (currentNode) {
           item['state'].expanded = currentNode['state'].expanded;
         }
@@ -102,11 +103,11 @@ export const buildParentChildTree = (
         : tree.push(item);
     }
   });
-   = tree;
+  myGlobalTree = tree;
   return tree;
 };
 
-const findMyTreeNode = (node) => {
+const findMyTreeNode = (node, myGlobalTree) => {
   if (myGlobalTree) {
     return findrecursiveTreeNode(node, myGlobalTree[0]);
   } else {

@@ -8,7 +8,7 @@ import DefaultContainer from '../../components/DefaultContainer';
 import CommonAddUpdateModal from './AddUpdateModal';
 import LoadingModal from '../LoadingModal';
 import get from 'lodash/get';
-import Pagination from '@material-ui/lab/Pagination';
+import TablePagination from '@material-ui/core/TablePagination';
 
 const TableGridView = ({
   title,
@@ -26,7 +26,8 @@ const TableGridView = ({
   showSuccessAlert = () => {},
   showErrorAlert = () => {},
   AdditionalFilter = null,
-  handleAddButtonPress
+  handleAddButtonPress,
+  isPaginationEnabled = false
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [list, setList] = useState([]);
@@ -39,23 +40,29 @@ const TableGridView = ({
   const [selectedListItem, setSelectedListItem] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
+
   const [page, setPage] = React.useState(1);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [totalDocs, setTotalDocs] = React.useState(0);
 
   useEffect(() => {
     fetchResult();
-  }, []);
+  }, [page, rowsPerPage]);
 
   const fetchResult = () => {
+    let queryString = '';
+
+    if (isPaginationEnabled) {
+      queryString = `page=${page}&limit=${rowsPerPage}`;
+    }
+
     (async () => {
       try {
         setIsLoading(true);
 
-        const res = await fetchList();
+        const res = await fetchList(queryString);
 
-        const mappedList = get(res, 'data', []);
-
-        setList(mappedList);
-        setFilteredList(mappedList.filter((item) => !item.is_archived));
+        populateData(res);
 
         setIsLoading(false);
       } catch (error) {
@@ -63,6 +70,19 @@ const TableGridView = ({
       }
     })();
   };
+
+  const populateData = (res) => {
+    let mappedList = get(res, 'data', []);
+
+    if (isPaginationEnabled) {
+      mappedList = get(res, 'data.docs', []);
+      setTotalDocs(get(res, 'data.totalDocs', 0));
+    }
+
+    setList(mappedList);
+    setFilteredList(mappedList.filter((item) => !item.is_archived));
+  };
+
   const handleViewArchived = () => {
     if (isViewArchivedChecked) {
       setFilteredList(list.filter((item) => !item.is_archived));
@@ -225,9 +245,13 @@ const TableGridView = ({
     setIsManageTeamModalOpened(!isManageTeamModalOpened);
   };
 
-  const handlePaginationChange = (event, value) => {
-    console.log('--value--', value);
-    // setPage(value);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   return (
@@ -278,9 +302,18 @@ const TableGridView = ({
           isSearchBarVisible={true}
           AdditionalFilter={AdditionalFilter}
         />
+        {isPaginationEnabled && (
+          <TablePagination
+            component="div"
+            count={totalDocs}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        )}
         {renderView()}
       </DefaultContainer>
-      <Pagination count={10} page={page} onChange={handlePaginationChange} />
     </>
   );
 };

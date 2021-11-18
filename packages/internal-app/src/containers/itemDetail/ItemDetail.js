@@ -786,6 +786,7 @@ const ItemDetail = ({ itemValue }) => {
     navigator.clipboard.writeText(id);
     event.stopPropagation();
   };
+
   const fetchGLTFAndTree = async (
     myTabedIndex,
     fileStore,
@@ -906,6 +907,7 @@ const ItemDetail = ({ itemValue }) => {
       setIsLoading(false);
     }
   };
+
   const additionalSaveFunction = (saveFunction) => {
     state_additionalSaveFunction = saveFunction;
   };
@@ -1108,7 +1110,7 @@ const ItemDetail = ({ itemValue }) => {
       case 'rs':
         return 'Recycling & Sustainability';
       case 'pds':
-        return <ProductDesignSetup />;
+        return <ProductDesignSetup {...{ itemId: id, gltfjson }} />;
       default:
         return 'Undefined Tab Index';
     }

@@ -1,31 +1,32 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const auth = require("../../middleware/auth");
+const auth = require('../../middleware/auth');
 const ItemsController = require('../../controller/items.controller');
 const ItemOrderController = require('../../controller/itemOrder.controller');
 
 router.use(auth);
-router.get("/", ItemsController.get);
+router.get('/', ItemsController.get);
 
-router.get("/all", ItemsController.getAll);
+router.get('/all', ItemsController.getAll);
 
-router.post("/", ItemsController.create);
+router.post('/', ItemsController.create);
 
-router.put("/:id", ItemsController.update);
+router.post('/upsert', ItemsController.upsert);
 
-router.get("/:id", ItemsController.getOne);
+router.put('/:id', ItemsController.update);
 
-router.delete("/:id", ItemsController.delete);
+router.get('/:id', ItemsController.getOne);
 
-router.get("/:id/geomtery", ItemsController.itemGeometry);
+router.delete('/:id', ItemsController.delete);
 
-router.get("/:id/three-model", ItemsController.itemDetailThreejs);
+router.get('/:id/geomtery', ItemsController.itemGeometry);
 
-router.delete("/:id/three-model", ItemsController.removeItemDetailThreejs);
+router.get('/:id/three-model', ItemsController.itemDetailThreejs);
 
-router.get("/order", ItemOrderController.get);
+router.delete('/:id/three-model', ItemsController.removeItemDetailThreejs);
 
-router.post("/order", ItemOrderController.upsert);
+router.get('/order', ItemOrderController.get);
 
+router.post('/order', ItemOrderController.upsert);
 
 module.exports = router;

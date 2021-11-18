@@ -72,6 +72,8 @@ const ItemSchema = new mongoose.Schema(
     stepTreeLength: { type: Number },
     hierarchySelections: [{ type: Object }],
     classificationConfig: [{ type: Object }],
+    parent_id: { type: Schema.Types.ObjectId, ref: 'Item' },
+    is_child_item: { type: Boolean, default: false },
     is_archived: { type: Boolean, default: false },
     created_by: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     updated_by: { type: Schema.Types.ObjectId, ref: 'User', required: true }
@@ -80,6 +82,10 @@ const ItemSchema = new mongoose.Schema(
     timestamps: true
   }
 );
+
+ItemSchema.statics.bulkInsertItems = function (items) {
+  return this.insertMany(items);
+};
 
 ItemSchema.plugin(mongoosePaginate);
 //this converts the schema into a model
