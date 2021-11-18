@@ -289,7 +289,7 @@ class GLTFRenderer extends Component {
     progressBarRender: false,
     lastClickedNode: null,
     autoHideDuration: 1000,
-    edgelinewidth: 1.0
+    edgelinewidth: 2.0
 
     //gltfobj:this.props.gltfobj
   };
@@ -1012,7 +1012,7 @@ class GLTFRenderer extends Component {
     //this.controls=null;
   };
 
-  changeVisibility = () => {
+  changeVisibility = (option) => {
     if (this.content) {
       this.content.forEach((element) => {
         element
@@ -1042,7 +1042,7 @@ class GLTFRenderer extends Component {
                     this.secondshell = node;
                   }
                 }
-                const visibility = this.visibllity(node, true);
+                const visibility = this.visibllity(node, true, option);
                 if (this.props.materialtype != 'Basic') {
                   const materials = Array.isArray(node.material)
                     ? node.material
@@ -1185,7 +1185,7 @@ class GLTFRenderer extends Component {
 
     //this.state.addLights = true;
     this.setState({ addLights: true });
-    this.changeVisibility();
+    this.changeVisibility(this.selectedoption);
 
     /*  this.trackballWidget = new Group();
         this.trackballWidget.position.set(0, 0, 0);
@@ -1962,7 +1962,7 @@ class GLTFRenderer extends Component {
     if (meshes) {
       meshes.forEach((element) => {
         //console.log(element);
-        if (this.visibllity(element, false)) {
+        if (this.visibllity(element, false, this.selectedoption)) {
           objects.push(element);
         }
       });
@@ -2216,7 +2216,7 @@ class GLTFRenderer extends Component {
       //console.log("Before",this.INTERSECTED.material.color);
       this.setState({ lastClickedNode: { ...this.INTERSECTED } });
       //console.log("Before", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
-      if (this.props.selectedoption == SELECTMEASURE || event.ctrlKey) {
+      if (this.selectedoption == SELECTMEASURE || event.ctrlKey) {
         this.INTERSECTED.selectedshell = !this.INTERSECTED.selectedshell;
       } else {
         this.INTERSECTED.selectedshell = true;
@@ -2758,17 +2758,18 @@ class GLTFRenderer extends Component {
     return valToRet;
   };
 
-  visibllity = (mynode, display) => {
+  visibllity = (mynode, display, option) => {
     if (mynode?.type == 'Line' || mynode?.type == 'MeshLine') {
       //console.log("Returning true");
-      return true;
+      if (display) {
+        return this.state.showedges;
+      }
     }
+
     const first4chars = mynode?.name?.slice(0, 4);
     const curvechar = mynode?.name?.slice(4, 5);
     const first6chars = mynode?.name?.slice(0, 6);
-    var visible =
-      this.props.selectedoption == SELECTMEASURE ||
-      this.props.selectedoption == SELECTFEATURE;
+    var visible = option == SELECTMEASURE || option == SELECTFEATURE;
 
     //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
     if (first4chars != 'PART') {
@@ -2776,55 +2777,53 @@ class GLTFRenderer extends Component {
         if (display) {
           visible =
             visible ||
-            this.props.selectedoption == SELECTFACE ||
-            this.props.selectedoption == SELECTEDGE ||
-            this.props.selectedoption == SELECTCORNER ||
-            //((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) ||
-            (this.props.selectedoption == SELECTCIRCULAR &&
+            option == SELECTFACE ||
+            option == SELECTEDGE ||
+            option == SELECTCORNER ||
+            (option == SELECTLINEAR && curvechar == 'L') ||
+            (option == SELECTCIRCULAR &&
               (curvechar == 'C' || curvechar == 'N'));
         } else {
-          visible =
-            visible ||
-            this.props.selectedoption == SELECTFACE ||
-            //((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) ||
-            (this.props.selectedoption == SELECTCIRCULAR &&
-              (curvechar == 'C' || curvechar == 'N'));
+          visible = visible || option == SELECTFACE; //||
+          //((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) ||
+          //(this.props.selectedoption == SELECTCIRCULAR &&
+          //(curvechar == 'C' || curvechar == 'N'));
         }
       } else if (first4chars == 'EDGE') {
         if (display) {
           //console.log("What i got in side display",this.props.selectedoption, SELECTLINEAR,curvechar);
           visible =
             visible ||
-            this.props.selectedoption == SELECTEDGE ||
-            this.props.selectedoption == SELECTCORNER ||
-            (this.props.selectedoption == SELECTLINEAR && curvechar == 'L') ||
-            (this.props.selectedoption == SELECTCIRCULAR &&
+            option == SELECTEDGE ||
+            option == SELECTCORNER ||
+            (option == SELECTLINEAR && curvechar == 'L') ||
+            (option == SELECTCIRCULAR &&
               (curvechar == 'C' || curvechar == 'E'));
         } else {
           //console.log("What i got in side intersection",this.props.selectedoption, SELECTLINEAR,curvechar);
           visible =
             visible ||
-            this.props.selectedoption == SELECTEDGE ||
-            (this.props.selectedoption == SELECTLINEAR && curvechar == 'L') ||
-            (this.props.selectedoption == SELECTCIRCULAR &&
+            option == SELECTEDGE ||
+            (option == SELECTLINEAR && curvechar == 'L') ||
+            (option == SELECTCIRCULAR &&
               (curvechar == 'C' || curvechar == 'E'));
         }
       } else if (first6chars == 'VERTEX') {
         if (display) {
-          visible = visible || this.props.selectedoption == SELECTCORNER;
+          visible = visible || option == SELECTCORNER;
         } else {
-          visible = visible || this.props.selectedoption == SELECTCORNER;
+          visible = visible || option == SELECTCORNER;
         }
       }
     } else {
       if (display) {
         visible = true;
       } else {
-        if (this.props.selectedoption == SELECTFACE) {
+        if (option == SELECTFACE) {
           visible = !mynode.facesLoaded;
-        } else if (this.props.selectedoption == SELECTEDGE) {
+        } else if (option == SELECTEDGE) {
           visible = !mynode.edgesLoaded;
-        } else if (this.props.selectedoption == SELECTCORNER) {
+        } else if (option == SELECTCORNER) {
           visible = !mynode.verticesLoaded;
         } else {
           visible = true;
@@ -2873,16 +2872,30 @@ class GLTFRenderer extends Component {
 
   changeEdgeVisibility = (value) => {
     if (this.partsMeshes) {
+      //var objects = [];
       var objects = [];
       this.partsMeshes.forEach((element) => {
         if (element instanceof Line || element instanceof MeshLine) {
-          element.visible = value;
+          //
+          const materials = Array.isArray(element.material)
+            ? element.material
+            : [element.material];
+          materials.forEach((material) => {
+            material.visible = value;
+            if (value) {
+              objects.push(element);
+            }
+          });
           //console.log('Changing', element);
         } else {
+          if (this.visibllity(element, false, this.selectedoption)) {
+            objects.push(element);
+          }
           //element.visible = !value;
           //console.log('Not changing', element);
         }
       });
+      this.raycastObjects = objects;
     }
   };
   changeEdgeLineWidth = (value) => {
@@ -3433,13 +3446,13 @@ class GLTFRenderer extends Component {
         }
 
         let featureSetFinish = 3;
-        if (this.props.selectedoption == SELECTFACE || clickKey.ctrlKey) {
+        if (this.selectedoption == SELECTFACE || clickKey.ctrlKey) {
           featureSetFinish = 1;
-        } else if (this.props.selectedoption == SELECTEDGE || clickKey.altKey) {
+        } else if (this.selectedoption == SELECTEDGE || clickKey.altKey) {
           featureSetFinish = 2;
         } else if (
-          this.props.selectedoption == SELECTASSEMBLY ||
-          this.props.selectedoption == SELECTSOLID
+          this.selectedoption == SELECTASSEMBLY ||
+          this.selectedoption == SELECTSOLID
         ) {
           featureSetFinish = 0;
         }
@@ -3732,14 +3745,14 @@ class GLTFRenderer extends Component {
             this.props.splitmethod,SELECTDISECTPARTS); 
         */
     if (
-      (this.props.selectedoption != SELECTSOLID &&
-        this.props.selectedoption != SELECTASSEMBLY) ||
+      (this.selectedoption != SELECTSOLID &&
+        this.selectedoption != SELECTASSEMBLY) ||
       this.props.splitmethod != SELECTDISECTPARTS
     ) {
       //console.log("I am finding single node");
       return this.findSingleNode(mynode, addToGDTTable);
     }
-    if (this.props.selectedoption == SELECTASSEMBLY) {
+    if (this.selectedoption == SELECTASSEMBLY) {
       //console.log("I am finding family node");
       return {
         node: this.findFamilyNodes(mynode, addToGDTTable),
@@ -3962,7 +3975,7 @@ class GLTFRenderer extends Component {
   };
 
   changeStateOfSelection = (meshmaterial, event, addToGDTTable = true) => {
-    if (meshmaterial && this.props.selectedoption == SELECTMEASURE) {
+    if (meshmaterial && this.selectedoption == SELECTMEASURE) {
       if (meshmaterial.selectedshell) {
         if (!this.firstshell) {
           this.setSelectionColor(meshmaterial);
@@ -4030,9 +4043,9 @@ class GLTFRenderer extends Component {
         );
         if (
           myAllChilds.select == false &&
-          this.props.selectedoption != SELECTFEATURE &&
-          this.props.selectedoption != SELECTASSEMBLY &&
-          this.props.selectedoption != SELECTSOLID
+          this.selectedoption != SELECTFEATURE &&
+          this.selectedoption != SELECTASSEMBLY &&
+          this.selectedoption != SELECTSOLID
         ) {
           meshmaterial.selectedshell = myAllChilds.select;
           this.setOriginalColor(meshmaterial);
@@ -4499,7 +4512,7 @@ class GLTFRenderer extends Component {
 
   getNameID = (name) => {
     if (
-      this.props.selectedoption != SELECTASSEMBLY ||
+      this.selectedoption != SELECTASSEMBLY ||
       this.props.splitmethod != SELECTDISECTPARTS
     ) {
       return name;
@@ -6038,17 +6051,14 @@ class GLTFRenderer extends Component {
         const mySelectedoption = this.getOptionValueFromString(
           values.selectedOption
         );
-        if (mySelectedoption != this.props.selectedoption) {
-          if (this.props.setSelectedOption) {
-            this.props.setSelectedOption(mySelectedoption);
-          }
+        if (mySelectedoption != this.selectedoption) {
           if (values.ctrlKey != this.props.ctrlKey) {
             if (this.props.setCtrlKey) {
               this.props.setCtrlKey(values.ctrlKey);
             }
           }
           if (
-            this.props.selectedoption == SELECTMEASURE ||
+            this.selectedoption == SELECTMEASURE ||
             mySelectedoption == SELECTMEASURE
           ) {
             if (this.props.resetSelections) {
@@ -6062,6 +6072,11 @@ class GLTFRenderer extends Component {
             if (this.props.selectAllSelectedSolids) {
               this.props.selectAllSelectedSolids(mySelectedoption);
             }
+          }
+          this.changeVisibility(mySelectedoption);
+          this.selectedoption = mySelectedoption;
+          if (this.props.setSelectedOption) {
+            this.props.setSelectedOption(mySelectedoption);
           }
         }
         break;
@@ -6151,11 +6166,8 @@ class GLTFRenderer extends Component {
     }
   };
 
-  changeSelectedOption = () => {
-    if (
-      this.selectedoption == SELECTMEASURE ||
-      this.props.selectedoption == SELECTMEASURE
-    ) {
+  changeSelectedOption = (option) => {
+    if (this.selectedoption == SELECTMEASURE || option == SELECTMEASURE) {
       if (this.secondshell) {
         this.setOriginalColor(this.secondshell);
         //this.secondshell.material.color.setHex(this.secondshell.currentHex);
@@ -6177,22 +6189,21 @@ class GLTFRenderer extends Component {
       //this.setState({selectedObjects:[]});
     }
     if (
-      (this.props.selectedoption == SELECTSOLID &&
-        this.selectedoption != SELECTASSEMBLY) ||
-      this.props.selectedoption == SELECTASSEMBLY
+      (option == SELECTSOLID && this.selectedoption != SELECTASSEMBLY) ||
+      option == SELECTASSEMBLY
     ) {
       //console.log("Got Here", this.props.selectedoption);
       this.selectAllSelectedSolids();
     }
-    if (this.selectedoption != this.props.selectedoption) {
+    if (this.selectedoption != option) {
       if (
-        this.props.selectedoption == SELECTLOADEDGES ||
-        (this.props.selectedoption == SELECTEDGE && this.props.ctrlKey)
+        option == SELECTLOADEDGES ||
+        (option == SELECTEDGE && this.props.ctrlKey)
       ) {
         this.loadAllEdges(0);
       }
-      this.changeVisibility();
-      this.selectedoption = this.props.selectedoption;
+      this.changeVisibility(option);
+      this.selectedoption = option;
     }
   };
 
@@ -6390,7 +6401,7 @@ class GLTFRenderer extends Component {
                 this.changeVisibility();
                 this.selectedoption = this.props.selectedoption;
             } */
-      this.changeSelectedOption();
+      this.changeSelectedOption(this.props.selectedoption);
       if (
         this.activeFile != this.props.activefile ||
         this.materialtype != this.props.materialtype ||

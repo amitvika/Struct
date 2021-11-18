@@ -91,7 +91,7 @@ export const myMenus = [
         name: 'edge',
         values: {
           showedges: true,
-          linewidth: 1.0,
+          linewidth: 2.0,
           ctrlKey: false
         },
         fields: [

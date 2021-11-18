@@ -211,7 +211,7 @@ export default function LargeFileUpload({
     itemProperties.fileGDT &&
     checkExistingPathFromStore(fileGDTPath, 'gltf', true)
   ) {
-    console.log(itemProperties.fileStore, distanceGap, angleGap);
+    console.log(itemProperties.fileStore, distanceGap, angleGap, fileGDTPath);
     return (
       <div style={{ display: 'flex' }}>
         <Typography
