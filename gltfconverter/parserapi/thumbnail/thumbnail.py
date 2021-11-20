@@ -5703,17 +5703,14 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
     scale = scene.scale
     if scale <= 0.0:
         scale = 2
+    s2 = 1.0 / np.sqrt(2.0)
     print("Centroid and Scale",centroid,scale)
     # Create render camera using scene centroid information
     
     if perspective:
         cam = PerspectiveCamera(yfov=(np.pi / 4.0)) #3.0
     else:
-        cam = OrthographicCamera(xmag=scale,ymag=scale,zfar=scale*100)
-    
-    
-    
-    s2 = 1.0 / np.sqrt(2.0)
+        cam = OrthographicCamera(xmag=scale*s2,ymag=scale*s2,zfar=scale*100)
     cam_pose = np.eye(4)
     cam_pose[:3,:3] = np.array([
         [0.0, -s2, s2],
@@ -5722,6 +5719,7 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
     ])
     hfov = np.pi / 6.0
     dist = scale / (2.0 * np.tan(hfov))
+   
     cam_pose[:3,3] = dist * np.array([1.0, 0.0, 1.0]) + centroid
     
     # Add camera to scene

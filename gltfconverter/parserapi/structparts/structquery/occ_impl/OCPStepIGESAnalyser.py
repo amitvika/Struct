@@ -22,6 +22,7 @@ import html
 import math
 import pickle
 import threading
+import uuid
 
 #from glob import glob
 
@@ -860,41 +861,43 @@ class StepExportWithColor(object):
     '''
     STEP export that support layers & colors
     '''
-    def __init__(self, shape, color=None, name=None):      
-       
-               
-        # Create the application
-        self.app = XCAFApp_Application_GetApplication()
-        self.doc = TDocStd_Document(TCollection_ExtendedString("XmlOcaf"))
-        self.app.InitDocument(self.doc)
-        self.shapetool =  XCAFDoc_DocumentTool_ShapeTool(self.doc.Main())  
-        self.shapetool.SetAutoNaming(False)              
-        self.colortool = XCAFDoc_DocumentTool_ColorTool(self.doc.Main())
-        # add root    
-        if name is None:
-            name =  "Struct Assembly"  
-        self.assembly = self.shapetool.NewShape()
-        TDataStd_Name.Set(self.assembly, TCollection_ExtendedString(name))        
-        self.part = self.shapetool.NewShape()
-        comp = TopoDS_Compound()
-        comp_builder = TopoDS_Builder()
-        comp_builder.MakeCompound(comp)        
-        comp_builder.Add(comp, shape)
-        self.shapetool.SetShape(self.part,comp) 
-        TDataStd_Name.Set(self.part, TCollection_ExtendedString(f"{name}_part"))
-        if color:
-            self.colortool.SetColor(self.part,color,XCAFDoc_ColorType.XCAFDoc_ColorSurf) 
-        #self.subassembly = self.shapetool.NewShape()
-        #TDataStd_Name.Set(self.subassembly, TCollection_ExtendedString(name))        
-        #self.shapetool.AddComponent( self.subassembly,self.part,TopLoc_Location())
-        #self.shapetool.AddComponent( self.assembly, self.subassembly,TopLoc_Location())  
-        self.shapetool.AddComponent( self.assembly, self.part,TopLoc_Location())  
-        self.shapetool.UpdateAssemblies()
+    gltf_dict = gltfdict()
+    
+    def __init__(self, shape=None, color=None, name=None): 
+        if(shape):
+            # Create the application
+            self.app = XCAFApp_Application_GetApplication()
+            self.doc = TDocStd_Document(TCollection_ExtendedString("XmlOcaf"))
+            self.app.InitDocument(self.doc)
+            self.shapetool =  XCAFDoc_DocumentTool_ShapeTool(self.doc.Main())  
+            self.shapetool.SetAutoNaming(False)              
+            self.colortool = XCAFDoc_DocumentTool_ColorTool(self.doc.Main())
+            # add root    
+            if name is None:
+                name =  "Struct Assembly"  
+            self.assembly = self.shapetool.NewShape()
+            TDataStd_Name.Set(self.assembly, TCollection_ExtendedString(name))        
+            self.part = self.shapetool.NewShape()
+            comp = TopoDS_Compound()
+            comp_builder = TopoDS_Builder()
+            comp_builder.MakeCompound(comp)        
+            comp_builder.Add(comp, shape)
+            self.shapetool.SetShape(self.part,comp) 
+            TDataStd_Name.Set(self.part, TCollection_ExtendedString(f"{name}_part"))
+            if color:
+                self.colortool.SetColor(self.part,color,XCAFDoc_ColorType.XCAFDoc_ColorSurf) 
+            #self.subassembly = self.shapetool.NewShape()
+            #TDataStd_Name.Set(self.subassembly, TCollection_ExtendedString(name))        
+            #self.shapetool.AddComponent( self.subassembly,self.part,TopLoc_Location())
+            #self.shapetool.AddComponent( self.assembly, self.subassembly,TopLoc_Location())  
+            self.shapetool.AddComponent( self.assembly, self.part,TopLoc_Location())  
+            self.shapetool.UpdateAssemblies()
         
     def write_file(self, filename):
-        folder, fname = os.path.split(filename)
+        """ folder, fname = os.path.split(filename)
         name, ext = os.path.splitext(fname)
-        ext = ext[1:] if ext[0] == "." else ext
+        ext = ext[1:] if ext[0] == "." else ext """
+
         session = XSControl_WorkSession()
         writer = STEPCAFControl_Writer(session, False)
         writer.SetColorMode(True)
@@ -999,8 +1002,215 @@ class StepExportWithColor(object):
             print("No faces for the shape",shape)
         
         
-        return (vertices, triangles)    
-       
+        return (vertices, triangles) 
+
+    def findSubShapeName(self,myParent,myTree):
+        for aTree in myTree:
+            if aTree[self.gltf_dict['id']]==myParent :
+                thisParent  = aTree[self.gltf_dict['parentId']]
+                if thisParent == 1:
+                    return aTree[self.gltf_dict['name']]
+                if thisParent:
+                    return self.findSubShapeName(thisParent,myTree)
+                else:
+                    return "NoParent"
+        return "NoParent"
+
+    def findAssemblyShapeName(self,myParent,myTree):
+        for aTree in myTree:
+            if aTree[self.gltf_dict['id']]==myParent :             
+                return self.aTree[self.gltf_dict['name']]      
+        return "NoParent"
+
+    def findMyShapeByTreeID(self,shapes,treeID):
+        #print ("outside loop",shapes,len(shapes.items()))
+        for hash_shape, item in shapes.items():
+            #print("Inside loop",item)
+            [shape_to_disp, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, uvPlane] = item
+            if myId == treeID:
+                return item
+        return None
+    
+        
+    def getShapesFromOutPutShapes(self,shapes,mytree):
+        retshapes=[]
+        subshapes=[]
+        onlyshapes=[]
+        retcoloredshapes=[]
+        subshapesStarted = False
+        subShapeName = ''
+        subShapeColor=None
+        for aTree in mytree:
+            myTreeID = aTree[self.gltf_dict['id']]
+            item = self.findMyShapeByTreeID(shapes,myTreeID) 
+            myTreeParent = aTree[self.gltf_dict['parentId']]
+            if(myTreeParent==1):
+                if(len(subshapes)>0):
+                    mergedshape,_ =  list_of_shapes_to_compound(subshapes)
+                    retshapes.append((mergedshape,subShapeName,subShapeColor))
+                    onlyshapes.append(mergedshape)
+                    red = 0
+                    green = 0
+                    blue = 0
+                    if subShapeColor:
+                        red = subShapeColor.Red()
+                        green = subShapeColor.Green()
+                        blue = subShapeColor.Blue()
+                    retcoloredshapes.append((mergedshape,subShapeName,red,green,blue))
+                    subshapes=[]
+                    subshapesStarted=False
+                    subShapeName=''
+                    subShapeColor=None 
+            if item != None:
+                [shape_to_disp, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, uvPlane] = item
+                #print(shape_to_disp, subName, subEntry, c, myId, myParent )
+                if (subshapesStarted == False) :
+                    if myTreeParent == 1:
+                        myParentName = subName
+                    else:
+                        myParentName = self.findSubShapeName(myParent,mytree)
+                    if ((subShapeName == '') and (myParentName != '')) :
+                        subShapeName=myParentName 
+                        subshapesStarted=True
+                subShapeColor=c
+                subshapes.append(shape_to_disp)
+        if(len(subshapes)>0):
+            mergedshape,_ =  list_of_shapes_to_compound(subshapes)
+            retshapes.append((mergedshape,subShapeName,subShapeColor))   
+            onlyshapes.append(mergedshape) 
+            red = 0
+            green = 0
+            blue = 0
+            if subShapeColor:
+                red = subShapeColor.Red()
+                green = subShapeColor.Green()
+                blue = subShapeColor.Blue()
+            retcoloredshapes.append((mergedshape,subShapeName,red,green,blue))
+        #print(retshapes,onlyshapes)
+        return (retshapes,onlyshapes,retcoloredshapes,self.findAssemblyShapeName(1,mytree))
+    
+    def GetSelfAndTreeFromOutputShapes(self,assembly,aTree,shapes,myTree,treeLength):
+        treeID = aTree[self.gltf_dict['id']]
+        treeName = aTree[self.gltf_dict['name']]
+        if treeName is None:
+            treeName =  "Struct Part " + str(treeID)
+        if  aTree[self.gltf_dict['leaf']]==True:
+            #print("Finding a shape",treeName,aTree)
+            item = self.findMyShapeByTreeID(shapes,treeID)
+            if item != None:
+                [shape, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, uvPlane] = item
+            else:
+                shape=None
+            if(shape):
+                R=aTree[self.gltf_dict['R']]
+                G=aTree[self.gltf_dict['G']]
+                B=aTree[self.gltf_dict['B']]
+                c=Quantity_Color(R,G,B,Quantity_TOC_RGB)
+                part = self.shapetool.NewShape()
+                comp = TopoDS_Compound()
+                comp_builder = TopoDS_Builder()
+                comp_builder.MakeCompound(comp)        
+                comp_builder.Add(comp, shape)
+                self.shapetool.SetShape(part,comp) 
+                TDataStd_Name.Set(part, TCollection_ExtendedString(treeName))
+                #print("Adding a shape",treeName,aTree)
+                self.colortool.SetColor(part,c,XCAFDoc_ColorType.XCAFDoc_ColorSurf) 
+                self.shapetool.AddComponent(assembly, part,TopLoc_Location())  
+                self.shapetool.UpdateAssemblies()
+        else:     
+            #print("Recursing a shape",treeName,aTree)      
+            subassembly=self.GetAssemblyOutPutShapes(treeID,myTree,shapes,treeName,treeLength)
+            self.shapetool.AddComponent(assembly, subassembly,TopLoc_Location())  
+            self.shapetool.UpdateAssemblies()
+
+    def GetAssemblyOutPutShapes(self,myParent,myTree,shapes,name,treeLength):        
+        assembly = self.shapetool.NewShape()
+        if name is None:
+            name =  "Struct Assembly "+str(myParent)
+        TDataStd_Name.Set(assembly, TCollection_ExtendedString(name))      
+        lengthCheck=0
+        for aTree in myTree:
+            if aTree[self.gltf_dict['parentId']]==myParent : 
+                self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength)
+            lengthCheck+=1
+            if lengthCheck >=treeLength:
+                break
+        return assembly
+
+    def WriteAssemblyOutPutShapes(self,shapes,filename,myParent,myTree,treeLength):
+        name = None
+        lengthCheck = 0
+        print("Passed",myTree)
+        for aTree in myTree:
+            #print("My aTree",aTree)
+            if aTree[self.gltf_dict['id']]==myParent :
+                name=aTree[self.gltf_dict['name']]
+                if name is None:
+                    name =  "Struct Assembly "+str(myParent)
+                break
+            lengthCheck+=1
+            if lengthCheck >=treeLength:
+                break
+        addedAssembly = 0
+        assemblyCount=0
+        if name:
+            lengthCheck = 0
+            myParentId=myParent
+            for aTree in myTree:
+                if aTree[self.gltf_dict['parentId']]==myParent : 
+                    myParentId = aTree[self.gltf_dict['id']]
+                    assemblyCount +=1
+                    if assemblyCount > 1:
+                        break
+                lengthCheck+=1
+                if lengthCheck >=treeLength:
+                    break
+            if assemblyCount>1:
+                myParentId=myParent
+            elif assemblyCount==1:
+                assemblyCount=0
+                lengthCheck = 0
+                for aTree in myTree:
+                    if aTree[self.gltf_dict['parentId']]==myParentId : 
+                        assemblyCount +=1
+                        break
+                    lengthCheck+=1
+                    if lengthCheck >=treeLength:
+                        break
+                if assemblyCount == 0:
+                    myParentId = myParent
+                    assemblyCount=1
+
+        if (name) and (assemblyCount>=1):
+            assemblyNames = []
+            lengthCheck = 0
+            for aTree in myTree:
+                if aTree[self.gltf_dict['parentId']]==myParentId :                     
+                    self.app = XCAFApp_Application_GetApplication()
+                    self.doc = TDocStd_Document(TCollection_ExtendedString("XmlOcaf"))
+                    self.app.InitDocument(self.doc)
+                    self.shapetool =  XCAFDoc_DocumentTool_ShapeTool(self.doc.Main())  
+                    self.shapetool.SetAutoNaming(False)              
+                    self.colortool = XCAFDoc_DocumentTool_ColorTool(self.doc.Main())
+                    assembly = self.shapetool.NewShape()
+                    TDataStd_Name.Set(assembly, TCollection_ExtendedString(name))
+                    treeID = aTree[self.gltf_dict['id']]
+                    treeName = aTree[self.gltf_dict['name']]
+                    #print("Getting a shape",treeName,aTree)
+                    self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength)
+                    uuidname = str(uuid.uuid4())
+                    uniquename=filename+" "+str(treeID)
+                    addedAssembly+=1
+                    fullpath = 'Media/'+uuidname+'/'+uniquename+".step"
+                    os.makedirs(os.path.dirname(fullpath), exist_ok=True)
+                    if(self.write_file(fullpath)):  
+                        #print("Assigning a shape",uuidname,uniquename,treeName,aTree)                    
+                        assemblyNames.append((uuidname,uniquename,treeName))
+                lengthCheck+=1
+                if lengthCheck >=treeLength:
+                    break
+            return  (addedAssembly,assemblyNames) 
+        return (addedAssembly,None)
 
 
 class StepIgesAnalyser():
@@ -1097,6 +1307,7 @@ class StepIgesAnalyser():
         self.indent = 0
         self.uniqueid = 0
         self.parentIDs=[]
+        self.childfiles=[]
         self.output = ""
         #self.tree = ""
         self._share_dict = {'0:1:1': 0} 
@@ -1367,7 +1578,7 @@ class StepIgesAnalyser():
                     compound, _ = list_of_shapes_to_compound(pipes)
             return compound, edgePoints
         
-
+    
 
     def checkOpenShell(self, aShape):
         if aShape.ShapeType()==TopAbs_SHELL:
@@ -2932,7 +3143,8 @@ class StepIgesAnalyser():
                         "start":self.edgestarttime.strftime("%H-%M-%S"),
                         "current":currenttime.strftime("%H-%M-%S"),
                         "children":self.myParentId_Dict,
-                        "action":action},
+                        "action":action,
+                        "childfiles":self.childfiles},
                         sort_keys=True, 
                         indent=2 ))
             self.currenttime=currenttime
@@ -3494,11 +3706,11 @@ class StepIgesAnalyser():
                 "start":self.starttime.strftime("%H-%M-%S"),
                 "current":currenttime.strftime("%H-%M-%S"),
                 "action":action }
-        if(self.byThread)or(self.ascompound):
+        if(self.byThread)or(self.ascompound)or(maxgap==0):
             try:
                 statusfilename = self.displaypath+self.basefilename+".status"            
                 timingdelta = datetime.utcnow()-self.currenttime            
-                if (timingdelta.total_seconds() >= maxgap): 
+                if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
                     if (self.writefiles) or (self.ascompound):
                         #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
                         print("Writing",statusfilename,"Percentage",self.percentage)                        
@@ -3738,6 +3950,7 @@ class StepIgesAnalyser():
             self.write_in_thread(dict_return,getPNG,True)
         self.percentage = 100
         self.write_status(0)
+        myTreeLenBeforeAddingEdgesAndVertices = len(self.tstep_dict["tree"])
         #self.mstep_dict['tree']=self.tstep_dict['tree']
         if (self.edgesize!=0) or (self.vertexsize!=0): 
             try:
@@ -3758,7 +3971,9 @@ class StepIgesAnalyser():
                         print("Error while copying Edges to s3",e)
             except Exception as e:
                 print("Error while disecting",e)
-            
+        (_,self.childfiles)=StepExportWithColor().WriteAssemblyOutPutShapes(\
+            self.outputShapes,self.basefilename,1,self.tstep_dict["tree"],myTreeLenBeforeAddingEdgesAndVertices) 
+        self.write_progress(0)
         if byThread:   
             try:
                 if (COPY_PATH!=''):
