@@ -84,13 +84,13 @@ const buildQuery = (req) => {
     });
   }
 
-  if (req.query.call_type !== 'detail') {
-    if (req.query.is_child_item) {
-      query.$and.push({ is_child_item: { $in: true } });
-    } else {
-      query.$and.push({ is_child_item: { $in: [null, false] } });
-    }
-  }
+  // if (req.query.call_type !== 'detail') {
+  //   if (req.query.is_child_item) {
+  //     query.$and.push({ is_child_item: { $in: true } });
+  //   } else {
+  //     query.$and.push({ is_child_item: { $in: [null, false] } });
+  //   }
+  // }
 
   if (req.query.parent_id) {
     query.$and.push({
@@ -265,6 +265,14 @@ exports.update = async (req, res) => {
 
     if (body.classificationConfig) {
       updateData.classificationConfig = body.classificationConfig;
+    }
+
+    if (body.is_child_created) {
+      updateData.is_child_created = body.is_child_created;
+    }
+
+    if (body.filePartName) {
+      updateData.filePartName = body.filePartName;
     }
 
     let prevItem = await ItemModel.findById(req.body.id);

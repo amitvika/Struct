@@ -22,7 +22,7 @@ export default function ProductDesignSetup({ gltfjson, itemId }) {
 
   const handleItemSelect = (data) => {
     const itemFind = firstLevelItems.find((item) =>
-      data.name.includes(item.name)
+      data.name.includes(item.filePartName)
     );
 
     if (itemFind) {
