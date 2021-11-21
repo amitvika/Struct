@@ -259,7 +259,7 @@ export default function LargeFileUpload({
           type="number"
           InputProps={{
             inputProps: {
-              max: 3.15,
+              max: 3.13,
               min: 0.01
             }
           }}

@@ -88,7 +88,14 @@ export default function BaseItemProperties({
   );
   const [drawLiner, setDrawLiner] = useState(drawLine);
   const [allowFirstLevelItems, setAllowFirstLevelItems] = useState(false);
-
+  console.log(
+    'ANgle Gap',
+    angleGap,
+    angleGaper,
+    'Distance Gap',
+    distanceGap,
+    distanceGaper
+  );
   useEffect(() => {
     //console.log('Setting gltf', gltfjson);
     setfileUUId(itemProperties.fileUUId);
@@ -128,13 +135,17 @@ export default function BaseItemProperties({
   }, [drawLine]);
 
   useEffect(() => {
-    //console.log('Setting itemProperties', itemProperties);
-    setDistanceGaper(distanceGap);
+    console.log('Setting distanceGap', distanceGap, distanceGaper);
+    if (distanceGap && distanceGap > 0) {
+      setDistanceGaper(distanceGap);
+    }
   }, [distanceGap]);
 
   useEffect(() => {
-    //console.log('Setting itemProperties', itemProperties);
-    setAngleGaper(angleGap);
+    console.log('Setting angleGap', angleGap, angleGaper);
+    if (angleGap && angleGap > 0) {
+      setAngleGaper(angleGap);
+    }
   }, [angleGap]);
 
   const handleFileUpload = async (data) => {
@@ -201,6 +212,7 @@ export default function BaseItemProperties({
         });
       }
       let percent = 0;
+      console.log('---------3', STATEPROPS, distanceGaper, angleGaper);
       const getHierarchyRes = await getHierarchySplitFiles(
         fileId,
         true,

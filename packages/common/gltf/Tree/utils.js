@@ -248,7 +248,7 @@ export const DEFAULTTEXTMENUCOLOR = () => {
 };
 
 const DEFAULTDISTANCEGAP = 0.1;
-const DEFAULTANGLEGAP = 0.5;
+const DEFAULTANGLEGAP = 0.1;
 const DEFAULTEDGESIZE = 0.3;
 const DEFAULTVERTEXSIZE = 0; //Make it to 0.5, if vertices are needed.
 const DEFAULTEXPLODEGAP = 10;

@@ -272,9 +272,9 @@ class GLTFRenderer extends Component {
     addLights: true,
     exposure: 1.0,
     textureEncoding: 'sRGB',
-    ambientIntensity: 1.4,
+    ambientIntensity: 0.0,
     ambientColor: 0xffffff,
-    directIntensity: 0.2, // TODO(#116)
+    directIntensity: 2.0,
     directColor: 0xffffff,
     partsSelection: [],
     intersectedShell: null,
@@ -611,7 +611,7 @@ class GLTFRenderer extends Component {
         size = size3D.length() || 1;
       }
       size = size3D.length() || 1;
-      const multipler = 2.2 / 1.8;
+      const multipler = 2.36 / 1.64;
       //console.log(size,size3D.length());
       const center = box.getCenter(new Vector3());
       if (this.controls) {

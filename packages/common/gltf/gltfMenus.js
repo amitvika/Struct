@@ -272,7 +272,7 @@ export const myMenus = [
       {
         name: 'ambient',
         values: {
-          ambientIntensity: 1.4,
+          ambientIntensity: 0,
           ambientColor: 0xffffff,
           ctrlKey: false
         },
@@ -283,7 +283,7 @@ export const myMenus = [
             auto: 'auto',
             step: 0.1,
             min: 0.0,
-            max: 2.0,
+            max: 4.0,
             key: 'ambientIntensity'
           },
           {
@@ -297,7 +297,7 @@ export const myMenus = [
       {
         name: 'direct',
         values: {
-          directIntensity: 0.2,
+          directIntensity: 2,
           directColor: 0xffffff,
           ctrlKey: false
         },
@@ -308,7 +308,7 @@ export const myMenus = [
             auto: 'auto',
             step: 0.1,
             min: 0.0,
-            max: 2.0,
+            max: 4.0,
             key: 'directIntensity'
           },
           {

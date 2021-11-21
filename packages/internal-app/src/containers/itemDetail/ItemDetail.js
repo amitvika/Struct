@@ -30,9 +30,9 @@ import ItemAPI from '@monostruct/common/api/items.api';
 import {
   SELECTFEATURE,
   STATEPROPS,
-  pollFunction,
+  pollFunction
   //isFileExistingInServer,
-  checkDBNull
+  //checkDBNull
 } from '@monostruct/common/gltf/Tree/utils';
 
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
@@ -412,7 +412,7 @@ const ItemDetail = ({ itemValue }) => {
     }
 
     if (okToParse > 1 || !item.fileStore || item.fileStore === null) {
-      console.log('---------2');
+      console.log('---------2', item, STATEPROPS);
       setIsLoading(true);
       setIsFileLoading(true);
       setProgressBarLoad(true);
@@ -642,8 +642,7 @@ const ItemDetail = ({ itemValue }) => {
         item.fileGDT = null;
       }
     }
-    console.log('Hello World 2', item);
-
+    console.log('Hello world 2', item, STATEPROPS);
     if (!item.fileGDT || item.fileGDT === null) {
       setIsLoading(true);
       setIsFileLoading(true);
@@ -960,19 +959,19 @@ const ItemDetail = ({ itemValue }) => {
             setCompletionProgressText={setCompletionProgressText}
             setCenterActionText={setCenterActionText}
             drawLine={
-              checkDBNull(itemProperties.drawLine)
+              /* checkDBNull(itemProperties.drawLine)
                 ? true
-                : itemProperties.drawLine
+                : */ itemProperties.drawLine
             }
             distanceGap={
-              checkDBNull(itemProperties.drawLine)
+              /* checkDBNull(itemProperties.drawLine)
                 ? STATEPROPS.distancegap
-                : itemProperties.distanceGap
+                :  */ itemProperties.distanceGap
             }
             angleGap={
-              checkDBNull(itemProperties.drawLine)
+              /* checkDBNull(itemProperties.drawLine)
                 ? STATEPROPS.anglegap
-                : itemProperties.angleGap
+                : */ itemProperties.angleGap
             }
           />
         );
@@ -1005,9 +1004,9 @@ const ItemDetail = ({ itemValue }) => {
             setCompletionProgressText={setCompletionProgressText}
             setCenterActionText={setCenterActionText}
             drawLine={
-              checkDBNull(itemProperties.drawLine)
+              /* checkDBNull(itemProperties.drawLine)
                 ? true
-                : itemProperties.drawLine
+                :  */ itemProperties.drawLine
             }
             {...{ internalProductConfig }}
           />
@@ -1042,9 +1041,9 @@ const ItemDetail = ({ itemValue }) => {
             setCenterActionText={setCenterActionText}
             internalProductConfig={internalProductConfig}
             drawLine={
-              checkDBNull(itemProperties.drawLine)
+              /* checkDBNull(itemProperties.drawLine)
                 ? true
-                : itemProperties.drawLine
+                : */ itemProperties.drawLine
             }
           />
         );
@@ -1078,9 +1077,9 @@ const ItemDetail = ({ itemValue }) => {
             setCompletionProgressText={setCompletionProgressText}
             setCenterActionText={setCenterActionText}
             drawLine={
-              checkDBNull(itemProperties.drawLine)
+              /* checkDBNull(itemProperties.drawLine)
                 ? true
-                : itemProperties.drawLine
+                :  */ itemProperties.drawLine
             }
           />
         );

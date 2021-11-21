@@ -5710,7 +5710,7 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
     if perspective:
         cam = PerspectiveCamera(yfov=(np.pi / 4.0)) #3.0
     else:
-        cam = OrthographicCamera(xmag=scale/2.2,ymag=scale/2.2,zfar=scale*100)
+        cam = OrthographicCamera(xmag=scale/2.36,ymag=scale/2.36,zfar=scale*100)
     cam_pose = np.eye(4)
     cam_pose[:3,:3] = np.array([
         [0.0, -s2, s2],

@@ -67,7 +67,7 @@ const ItemSchema = new mongoose.Schema(
     fileStack: { type: String },
     fileKinematic: { type: String },
     distanceGap: { type: Number, default: 0.1 },
-    angleGap: { type: Number, default: 0.5 },
+    angleGap: { type: Number, default: 0.1 },
     drawLine: { type: Boolean, default: false },
     stepTreeLength: { type: Number },
     hierarchySelections: [{ type: Object }],
