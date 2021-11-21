@@ -696,6 +696,7 @@ const ItemDetail = ({ itemValue }) => {
           const gltfRes = await getAFileFromStore(datafile, 'gltf');
           const treeRes = await getAFileFromStore(datafile, 'tree');
           const multiAssmebly = treeRes.data.length > 0;
+          const fileStore = datastore.slice(0, datastore.length - 1) + '0';
           setgltfjson({
             gltf: gltfRes.data,
             tree: treeRes.data,
@@ -704,11 +705,10 @@ const ItemDetail = ({ itemValue }) => {
             mpps: item.fileMPPS,
             stack: item.fileStack,
             gdt: datastore,
-            store: item.fileStore,
+            store: fileStore,
             treeLength: treeRes.data.length,
             resourcepath: resourcePathURL
           });
-          const fileStore = datastore.slice(0, datastore.length - 1) + '0';
           setItemProperties((prevData) => ({
             ...prevData,
             fileGDT: datastore,
@@ -722,6 +722,7 @@ const ItemDetail = ({ itemValue }) => {
         } else {
           const treeLength = get(getHierarchyRes.data, 'tree', []).length;
           const multiAssmebly = treeLength > 0;
+          const fileStore = datastore.slice(0, datastore.length - 1) + '0';
           setgltfjson({
             ...getHierarchyRes.data,
             multiAssmebly: multiAssmebly,
@@ -729,11 +730,10 @@ const ItemDetail = ({ itemValue }) => {
             mpps: item.fileMPPS,
             stack: item.fileStack,
             gdt: datastore,
-            store: item.fileStore,
+            store: fileStore,
             treeLength: treeLength,
             resourcepath: resourcePathURL
           });
-          const fileStore = datastore.slice(0, datastore.length - 1) + '0';
           setItemProperties((prevData) => ({
             ...prevData,
             fileGDT: datastore,
