@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core';
 import { Tooltip } from 'reactstrap';
 import Grid from '@material-ui/core/Grid';
+import Switch from '@material-ui/core/Switch';
 
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
@@ -22,6 +23,7 @@ import MaterialPropertiesModal from './MaterialPropertiesModal';
 //import FileUploadAndExport from './FileUploadAndExport';
 import LargeFileUpload from '@monostruct/common/gltf/LargeFileUpload';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
+import { createChildItems } from './helper';
 
 export default function GeometryInput({
   itemProperties = {},
@@ -39,14 +41,37 @@ export default function GeometryInput({
   drawLine,
   setDrawLine,
   allowFirstLevelItems,
-  setAllowFirstLevelItems
+  setAllowFirstLevelItems,
+  handleItemSaveOnServer
 }) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   // const [fileId, setFileId] = useState(0);
+  const itemGeometry = itemProperties.itemGeometry || {};
+  const [isCreateChildItemChecked, setIsCreateChildItemChecked] =
+    useState(false);
+
+  useEffect(() => {
+    setIsCreateChildItemChecked(itemGeometry.is_child_created);
+  }, [itemGeometry.is_child_created]);
+
+  const handleSwitchChange = (event) => {
+    setIsCreateChildItemChecked(event.target.checked);
+    if (event.target.checked) {
+      handleItemSaveOnServer({
+        itemGeometry: {
+          ...itemGeometry,
+          is_child_created: true
+        }
+      });
+      createChildItems({
+        pathFileName: itemProperties.fileName,
+        fileUUId: itemProperties.fileUUId,
+        parentId: itemProperties.id
+      });
+    }
+  };
 
   const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
-
-  const itemGeometry = itemProperties.itemGeometry || {};
 
   const [materialProperties, setMaterialProperties] = useState({});
   const [selectedMaterials, setSelectedMaterials] = useState(
@@ -167,6 +192,18 @@ export default function GeometryInput({
                 allowFirstLevelItems,
                 setAllowFirstLevelItems
               }}
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <Typography variant="h6">{'Create child items'}</Typography>
+          </Grid>
+          <Grid item xs={8}>
+            <Switch
+              checked={isCreateChildItemChecked}
+              onChange={handleSwitchChange}
+              inputProps={{ 'aria-label': 'controlled' }}
+              disabled={itemGeometry.is_child_created}
             />
           </Grid>
 

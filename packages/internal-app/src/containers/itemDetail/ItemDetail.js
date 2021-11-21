@@ -400,6 +400,370 @@ const ItemDetail = ({ itemValue }) => {
     }
   };
 
+  const handleProductDesignTab = async ({ item, myTabedIndex, myTabIndex }) => {
+    let okToParse = 0;
+    if (item.fileStore) {
+      console.log('---------1');
+      const whichOneToLoad = getResourcePathURL(item) + item.fileStore;
+      const whichOneToStatus = getStatusPathURL(item) + item.fileStore;
+      okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+    } else {
+      okToParse = 2;
+    }
+
+    if (okToParse > 1 || !item.fileStore || item.fileStore === null) {
+      console.log('---------2');
+      setIsLoading(true);
+      setIsFileLoading(true);
+      setProgressBarLoad(true);
+      let percent = 0;
+      const getHierarchyRes = await getHierarchySplitFiles(
+        getStepFile(item),
+        true,
+        item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
+        item.angleGap ? item.angleGap : STATEPROPS.anglegap,
+        STATEPROPS.disect,
+        0,
+        0,
+        0,
+        STATEPROPS.maximumfaces,
+        //item.stepTreeLength > STATEPROPS.maximumparts,
+        true,
+        myTabedIndex == 'pdcu'
+      );
+
+      setIsFileLoading(false);
+      let datastore = getHierarchyRes.data.store;
+      let dataload = getHierarchyRes.data.load;
+      const datastatus = getHierarchyRes.data.status;
+
+      if (datastatus) {
+        percent = datastatus.percent;
+      }
+      setPercentage(percent);
+      if ((!datastore || percent != 100) && item.fileUUId) {
+        if (!datastore) {
+          setIsLoading(false);
+          setIsFileLoading(false);
+        } else {
+          const datafile = item.fileUUId + '/' + datastore;
+          let fetchStatus = () => getAFileFromStore(datafile, 'status');
+          let validateStatus = (result) => {
+            //console.log(result.data,result.data.percent,result.data.percent!=100);
+            return result.data.percent != 100;
+          };
+          let percentFunction = (result) =>
+            result.data.percent ? result.data.percent : percentage;
+          await pollFunction(
+            fetchStatus,
+            validateStatus,
+            20000,
+            setPercentage,
+            percentFunction,
+            setCurrentProgressText,
+            setCompletionProgressText
+          );
+          const gltfRes = await getAFileFromStore(datafile, 'gltf');
+          const treeRes = await getAFileFromStore(datafile, 'tree');
+          const multiAssmebly = get(treeRes.data, 'tree', []).length > 0;
+          setgltfjson({
+            gltf: gltfRes.data,
+            tree: treeRes.data,
+            multiAssmebly: multiAssmebly,
+            kinematic: item.fileKinematic,
+            mpps: item.fileMPPS,
+            stack: item.fileStack,
+            gdt: item.fileGDT,
+            treeLength: treeRes.data.length,
+            resourcepath: resourcePathURL
+          });
+          setItemProperties((prevData) => ({
+            ...prevData,
+            fileStore: datastore
+          }));
+        }
+      } else {
+        if (!datastore) {
+          setIsLoading(false);
+          setIsLoading(false);
+        } else {
+          const treeLength = get(getHierarchyRes.data, 'tree', []).length;
+          const multiAssmebly = treeLength > 0;
+          setgltfjson({
+            ...getHierarchyRes.data,
+            multiAssmebly: multiAssmebly,
+            kinematic: item.fileKinematic,
+            mpps: item.fileMPPS,
+            stack: item.fileStack,
+            gdt: item.fileGDT,
+            treeLength: treeLength,
+            resourcepath: resourcePathURL
+          });
+          setItemProperties((prevData) => ({
+            ...prevData,
+            fileStore: datastore
+          }));
+        }
+      }
+      setProgressBarLoad(false);
+    } else {
+      console.log('---------3');
+      fetchGLTFAndTree(
+        myTabIndex,
+        item.fileStore,
+        item.fileGDT,
+        item.fileMPPS,
+        item.fileStack,
+        item.fileKinematic,
+        item.fileUUId,
+        okToParse
+      );
+      if (itemProperties.fileStore != item.fileStore) {
+        setItemProperties((prevData) => ({
+          ...prevData,
+          fileStore: item.fileStore
+        }));
+      }
+    }
+  };
+
+  const handleInternalUseProduct = async ({
+    item,
+    myTabedIndex,
+    myTabIndex
+  }) => {
+    // console.log('Checking iupc', myTabIndex, item);
+    let okToParse = 0;
+    if (!item.fileKinematic || item.fileKinematic === null) {
+      //console.log('Checking Store', item.fileStore);
+      if (item.fileStore && item.fileStore.length > 0) {
+        const fileKinematic =
+          item.fileStore.slice(0, item.fileStore.length - 1) + 'K0';
+        //console.log('Checking Kinematic', fileKinematic);
+        const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
+        const whichOneToStatus = getStatusPathURL(item) + fileKinematic;
+        okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+        if (okToParse <= 1) {
+          //console.log('Found', fileKinematic);
+          item.fileKinematic = fileKinematic;
+        } else {
+          console.log('Kinematic Not Found', fileKinematic);
+        }
+      } else {
+        console.log('Store Not Found', item.fileStore);
+      }
+    } else {
+      const whichOneToLoad = getResourcePathURL(item) + item.fileKinematic;
+      const whichOneToStatus = getStatusPathURL(item) + item.fileKinematic;
+      okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+      if (okToParse > 1) {
+        item.fileKinematic = null;
+      }
+    }
+    if (!item.fileKinematic || item.fileKinematic === null) {
+      setIsLoading(true);
+      setIsFileLoading(true);
+      getPartsKinematicOrder(
+        getStepFile(item),
+        item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
+        item.angleGap ? item.angleGap : STATEPROPS.anglegap,
+        STATEPROPS.animationtime
+      )
+        .then((res) => res.data)
+        .then((repos) => {
+          const multiAssmebly = get(repos, 'tree', []).length > 0;
+          const kinematic = repos['store'];
+          item.fileKinematic = kinematic;
+
+          setgltfjson({
+            ...repos,
+            kinematic: kinematic,
+            mpps: item.fileMPPS,
+            store: item.fileStore,
+            stack: item.fileStack,
+            gdt: item.fileGDT,
+            multiAssmebly: multiAssmebly,
+            treeLength: repos['tree'].length,
+            resourcepath: resourcePathURL
+          });
+          setItemProperties((prevData) => ({
+            ...prevData,
+            fileKinematic: kinematic
+          }));
+          setIsLoading(false);
+          setIsFileLoading(false);
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          setIsFileLoading(false);
+        });
+    } else {
+      fetchGLTFAndTree(
+        myTabIndex,
+        item.fileStore,
+        item.fileGDT,
+        item.fileMPPS,
+        item.fileStack,
+        item.fileKinematic,
+        item.fileUUId,
+        okToParse
+      );
+      if (itemProperties.fileKinematic != item.fileKinematic) {
+        setItemProperties((prevData) => ({
+          ...prevData,
+          fileKinematic: item.fileKinematic
+        }));
+      }
+    }
+  };
+
+  const handleOtherTabCase = async ({ item, myTabedIndex, myTabIndex }) => {
+    let okToParse = 0;
+    if (!item.fileGDT || item.fileGDT === null) {
+      if (item.fileStore && item.fileStore.length > 0) {
+        const fileGDT =
+          item.fileStore.slice(0, item.fileStore.length - 1) + '3';
+        const whichOneToLoad = getResourcePathURL(item) + fileGDT;
+        const whichOneToStatus = getStatusPathURL(item) + fileGDT;
+        okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+        if (okToParse <= 1) {
+          item.fileGDT = fileGDT;
+        } else {
+          console.log('GDT Not Found', fileGDT);
+        }
+      } else {
+        console.log('Store Not Found', item.fileStore);
+      }
+    } else {
+      const whichOneToLoad = getResourcePathURL(item) + item.fileGDT;
+      const whichOneToStatus = getStatusPathURL(item) + item.fileGDT;
+      okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+      if (okToParse > 1) {
+        item.fileGDT = null;
+      }
+    }
+    console.log('Hello World 2', item);
+
+    if (!item.fileGDT || item.fileGDT === null) {
+      setIsLoading(true);
+      setIsFileLoading(true);
+      setProgressBarLoad(true);
+      let percent = 0;
+      const getHierarchyRes = await getHierarchySplitFiles(
+        getStepFile(item),
+        true,
+        item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
+        item.angleGap ? item.angleGap : STATEPROPS.anglegap,
+        STATEPROPS.disect,
+        0,
+        STATEPROPS.edgesize,
+        STATEPROPS.vertexsize,
+        STATEPROPS.maximumfaces,
+        //item.stepTreeLength > STATEPROPS.maximumparts,
+        true,
+        myTabedIndex == 'pdcu'
+      );
+      setIsFileLoading(false);
+      let datastore = getHierarchyRes.data.store;
+      let dataload = getHierarchyRes.data.load;
+      const datastatus = getHierarchyRes.data.status;
+
+      if (datastatus) {
+        percent = datastatus.percent;
+      }
+      setPercentage(percent);
+      if ((!datastore || percent != 100) && item.fileUUId) {
+        if (!datastore) {
+          setIsLoading(false);
+          setIsFileLoading(false);
+        } else {
+          const datafile = item.fileUUId + '/' + datastore;
+          let fetchStatus = () => getAFileFromStore(datafile, 'status');
+          let validateStatus = (result) => {
+            return result.data.percent != 100;
+          };
+          let percentFunction = (result) =>
+            result.data.percent ? result.data.percent : percentage;
+          await pollFunction(
+            fetchStatus,
+            validateStatus,
+            20000,
+            setPercentage,
+            percentFunction,
+            setCurrentProgressText,
+            setCompletionProgressText
+          );
+          const gltfRes = await getAFileFromStore(datafile, 'gltf');
+          const treeRes = await getAFileFromStore(datafile, 'tree');
+          const multiAssmebly = treeRes.data.length > 0;
+          setgltfjson({
+            gltf: gltfRes.data,
+            tree: treeRes.data,
+            multiAssmebly: multiAssmebly,
+            kinematic: item.fileKinematic,
+            mpps: item.fileMPPS,
+            stack: item.fileStack,
+            gdt: datastore,
+            store: item.fileStore,
+            treeLength: treeRes.data.length,
+            resourcepath: resourcePathURL
+          });
+          const fileStore = datastore.slice(0, datastore.length - 1) + '0';
+          setItemProperties((prevData) => ({
+            ...prevData,
+            fileGDT: datastore,
+            fileStore: fileStore
+          }));
+        }
+      } else {
+        if (!datastore) {
+          setIsLoading(false);
+          setIsFileLoading(false);
+        } else {
+          const treeLength = get(getHierarchyRes.data, 'tree', []).length;
+          const multiAssmebly = treeLength > 0;
+          setgltfjson({
+            ...getHierarchyRes.data,
+            multiAssmebly: multiAssmebly,
+            kinematic: item.fileKinematic,
+            mpps: item.fileMPPS,
+            stack: item.fileStack,
+            gdt: datastore,
+            store: item.fileStore,
+            treeLength: treeLength,
+            resourcepath: resourcePathURL
+          });
+          const fileStore = datastore.slice(0, datastore.length - 1) + '0';
+          setItemProperties((prevData) => ({
+            ...prevData,
+            fileGDT: datastore,
+            fileStore: fileStore
+          }));
+        }
+      }
+      setProgressBarLoad(false);
+      setIsLoading(false);
+      setIsFileLoading(false);
+    } else {
+      fetchGLTFAndTree(
+        myTabIndex,
+        item.fileStore,
+        item.fileGDT,
+        item.fileMPPS,
+        item.fileStack,
+        item.fileKinematic,
+        item.fileUUId,
+        okToParse
+      );
+      if (itemProperties.fileGDT != item.fileGDT) {
+        setItemProperties((prevData) => ({
+          ...prevData,
+          fileGDT: item.fileGDT
+        }));
+      }
+    }
+  };
+
   const setGLTFAndTree = async (item, myTabedIndex) => {
     if (myTabedIndex == tabIndex) {
       if (
@@ -416,370 +780,11 @@ const ItemDetail = ({ itemValue }) => {
             ? 'gdtac'
             : myTabedIndex;
         if (myTabIndex == 'iupc') {
-          //console.log('Checking iupc', myTabIndex, item);
-          let okToParse = 0;
-          if (!item.fileKinematic || item.fileKinematic === null) {
-            //console.log('Checking Store', item.fileStore);
-            if (item.fileStore && item.fileStore.length > 0) {
-              const fileKinematic =
-                item.fileStore.slice(0, item.fileStore.length - 1) + 'K0';
-              //console.log('Checking Kinematic', fileKinematic);
-              const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
-              const whichOneToStatus = getStatusPathURL(item) + fileKinematic;
-              okToParse = await checkStatusToParse(
-                whichOneToLoad,
-                whichOneToStatus
-              );
-              if (okToParse <= 1) {
-                //console.log('Found', fileKinematic);
-                item.fileKinematic = fileKinematic;
-              } else {
-                console.log('Kinematic Not Found', fileKinematic);
-              }
-            } else {
-              console.log('Store Not Found', item.fileStore);
-            }
-          } else {
-            const whichOneToLoad =
-              getResourcePathURL(item) + item.fileKinematic;
-            const whichOneToStatus =
-              getStatusPathURL(item) + item.fileKinematic;
-            okToParse = await checkStatusToParse(
-              whichOneToLoad,
-              whichOneToStatus
-            );
-            if (okToParse > 1) {
-              item.fileKinematic = null;
-            }
-          }
-          if (!item.fileKinematic || item.fileKinematic === null) {
-            setIsLoading(true);
-            setIsFileLoading(true);
-            getPartsKinematicOrder(
-              getStepFile(item),
-              item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
-              item.angleGap ? item.angleGap : STATEPROPS.anglegap,
-              STATEPROPS.animationtime
-            )
-              .then((res) => res.data)
-              .then((repos) => {
-                const multiAssmebly = get(repos, 'tree', []).length > 0;
-                const kinematic = repos['store'];
-                item.fileKinematic = kinematic;
-                setgltfjson({
-                  ...repos,
-                  kinematic: kinematic,
-                  mpps: item.fileMPPS,
-                  store: item.fileStore,
-                  stack: item.fileStack,
-                  gdt: item.fileGDT,
-                  multiAssmebly: multiAssmebly,
-                  treeLength: repos['tree'].length,
-                  resourcepath: resourcePathURL
-                });
-                setItemProperties((prevData) => ({
-                  ...prevData,
-                  fileKinematic: kinematic
-                }));
-                setIsLoading(false);
-                setIsFileLoading(false);
-              })
-              .catch((err) => {
-                setIsLoading(false);
-                setIsFileLoading(false);
-              });
-          } else {
-            fetchGLTFAndTree(
-              myTabIndex,
-              item.fileStore,
-              item.fileGDT,
-              item.fileMPPS,
-              item.fileStack,
-              item.fileKinematic,
-              item.fileUUId,
-              okToParse
-            );
-            if (itemProperties.fileKinematic != item.fileKinematic) {
-              setItemProperties((prevData) => ({
-                ...prevData,
-                fileKinematic: item.fileKinematic
-              }));
-            }
-          }
+          handleInternalUseProduct({ item, myTabedIndex, myTabIndex });
         } else if (myTabIndex == 'pdcu') {
-          let okToParse = 0;
-          if (item.fileStore) {
-            const whichOneToLoad = getResourcePathURL(item) + item.fileStore;
-            const whichOneToStatus = getStatusPathURL(item) + item.fileStore;
-            okToParse = await checkStatusToParse(
-              whichOneToLoad,
-              whichOneToStatus
-            );
-          } else {
-            okToParse = 2;
-          }
-          if (okToParse > 1 || !item.fileStore || item.fileStore === null) {
-            setIsLoading(true);
-            setIsFileLoading(true);
-            setProgressBarLoad(true);
-            let percent = 0;
-            const getHierarchyRes = await getHierarchySplitFiles(
-              getStepFile(item),
-              true,
-              item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
-              item.angleGap ? item.angleGap : STATEPROPS.anglegap,
-              STATEPROPS.disect,
-              0,
-              0,
-              0,
-              STATEPROPS.maximumfaces,
-              //item.stepTreeLength > STATEPROPS.maximumparts,
-              true,
-              myTabedIndex == 'pdcu'
-            );
-            setIsFileLoading(false);
-            let datastore = getHierarchyRes.data.store;
-            let dataload = getHierarchyRes.data.load;
-            const datastatus = getHierarchyRes.data.status;
-
-            if (datastatus) {
-              percent = datastatus.percent;
-            }
-            setPercentage(percent);
-            if ((!datastore || percent != 100) && item.fileUUId) {
-              if (!datastore) {
-                setIsLoading(false);
-                setIsFileLoading(false);
-              } else {
-                const datafile = item.fileUUId + '/' + datastore;
-                let fetchStatus = () => getAFileFromStore(datafile, 'status');
-                let validateStatus = (result) => {
-                  //console.log(result.data,result.data.percent,result.data.percent!=100);
-                  return result.data.percent != 100;
-                };
-                let percentFunction = (result) =>
-                  result.data.percent ? result.data.percent : percentage;
-                await pollFunction(
-                  fetchStatus,
-                  validateStatus,
-                  20000,
-                  setPercentage,
-                  percentFunction,
-                  setCurrentProgressText,
-                  setCompletionProgressText
-                );
-                const gltfRes = await getAFileFromStore(datafile, 'gltf');
-                const treeRes = await getAFileFromStore(datafile, 'tree');
-                const multiAssmebly = get(treeRes.data, 'tree', []).length > 0;
-                setgltfjson({
-                  gltf: gltfRes.data,
-                  tree: treeRes.data,
-                  multiAssmebly: multiAssmebly,
-                  kinematic: item.fileKinematic,
-                  mpps: item.fileMPPS,
-                  stack: item.fileStack,
-                  gdt: item.fileGDT,
-                  treeLength: treeRes.data.length,
-                  resourcepath: resourcePathURL
-                });
-                setItemProperties((prevData) => ({
-                  ...prevData,
-                  fileStore: datastore
-                }));
-              }
-            } else {
-              if (!datastore) {
-                setIsLoading(false);
-                setIsLoading(false);
-              } else {
-                const treeLength = get(getHierarchyRes.data, 'tree', []).length;
-                const multiAssmebly = treeLength > 0;
-                setgltfjson({
-                  ...getHierarchyRes.data,
-                  multiAssmebly: multiAssmebly,
-                  kinematic: item.fileKinematic,
-                  mpps: item.fileMPPS,
-                  stack: item.fileStack,
-                  gdt: item.fileGDT,
-                  treeLength: treeLength,
-                  resourcepath: resourcePathURL
-                });
-                setItemProperties((prevData) => ({
-                  ...prevData,
-                  fileStore: datastore
-                }));
-              }
-            }
-            setProgressBarLoad(false);
-          } else {
-            fetchGLTFAndTree(
-              myTabIndex,
-              item.fileStore,
-              item.fileGDT,
-              item.fileMPPS,
-              item.fileStack,
-              item.fileKinematic,
-              item.fileUUId,
-              okToParse
-            );
-            if (itemProperties.fileStore != item.fileStore) {
-              setItemProperties((prevData) => ({
-                ...prevData,
-                fileStore: item.fileStore
-              }));
-            }
-          }
+          await handleProductDesignTab({ item, myTabedIndex, myTabIndex });
         } else {
-          let okToParse = 0;
-          if (!item.fileGDT || item.fileGDT === null) {
-            if (item.fileStore && item.fileStore.length > 0) {
-              const fileGDT =
-                item.fileStore.slice(0, item.fileStore.length - 1) + '3';
-              const whichOneToLoad = getResourcePathURL(item) + fileGDT;
-              const whichOneToStatus = getStatusPathURL(item) + fileGDT;
-              okToParse = await checkStatusToParse(
-                whichOneToLoad,
-                whichOneToStatus
-              );
-              if (okToParse <= 1) {
-                item.fileGDT = fileGDT;
-              } else {
-                console.log('GDT Not Found', fileGDT);
-              }
-            } else {
-              console.log('Store Not Found', item.fileStore);
-            }
-          } else {
-            const whichOneToLoad = getResourcePathURL(item) + item.fileGDT;
-            const whichOneToStatus = getStatusPathURL(item) + item.fileGDT;
-            okToParse = await checkStatusToParse(
-              whichOneToLoad,
-              whichOneToStatus
-            );
-            if (okToParse > 1) {
-              item.fileGDT = null;
-            }
-          }
-          if (!item.fileGDT || item.fileGDT === null) {
-            setIsLoading(true);
-            setIsFileLoading(true);
-            setProgressBarLoad(true);
-            let percent = 0;
-            const getHierarchyRes = await getHierarchySplitFiles(
-              getStepFile(item),
-              true,
-              item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
-              item.angleGap ? item.angleGap : STATEPROPS.anglegap,
-              STATEPROPS.disect,
-              0,
-              STATEPROPS.edgesize,
-              STATEPROPS.vertexsize,
-              STATEPROPS.maximumfaces,
-              //item.stepTreeLength > STATEPROPS.maximumparts,
-              true,
-              myTabedIndex == 'pdcu'
-            );
-            setIsFileLoading(false);
-            let datastore = getHierarchyRes.data.store;
-            let dataload = getHierarchyRes.data.load;
-            const datastatus = getHierarchyRes.data.status;
-
-            if (datastatus) {
-              percent = datastatus.percent;
-            }
-            setPercentage(percent);
-            if ((!datastore || percent != 100) && item.fileUUId) {
-              if (!datastore) {
-                setIsLoading(false);
-                setIsFileLoading(false);
-              } else {
-                const datafile = item.fileUUId + '/' + datastore;
-                let fetchStatus = () => getAFileFromStore(datafile, 'status');
-                let validateStatus = (result) => {
-                  return result.data.percent != 100;
-                };
-                let percentFunction = (result) =>
-                  result.data.percent ? result.data.percent : percentage;
-                await pollFunction(
-                  fetchStatus,
-                  validateStatus,
-                  20000,
-                  setPercentage,
-                  percentFunction,
-                  setCurrentProgressText,
-                  setCompletionProgressText
-                );
-                const gltfRes = await getAFileFromStore(datafile, 'gltf');
-                const treeRes = await getAFileFromStore(datafile, 'tree');
-                const multiAssmebly = treeRes.data.length > 0;
-                setgltfjson({
-                  gltf: gltfRes.data,
-                  tree: treeRes.data,
-                  multiAssmebly: multiAssmebly,
-                  kinematic: item.fileKinematic,
-                  mpps: item.fileMPPS,
-                  stack: item.fileStack,
-                  gdt: datastore,
-                  store: item.fileStore,
-                  treeLength: treeRes.data.length,
-                  resourcepath: resourcePathURL
-                });
-                const fileStore =
-                  datastore.slice(0, datastore.length - 1) + '0';
-                setItemProperties((prevData) => ({
-                  ...prevData,
-                  fileGDT: datastore,
-                  fileStore: fileStore
-                }));
-              }
-            } else {
-              if (!datastore) {
-                setIsLoading(false);
-                setIsFileLoading(false);
-              } else {
-                const treeLength = get(getHierarchyRes.data, 'tree', []).length;
-                const multiAssmebly = treeLength > 0;
-                setgltfjson({
-                  ...getHierarchyRes.data,
-                  multiAssmebly: multiAssmebly,
-                  kinematic: item.fileKinematic,
-                  mpps: item.fileMPPS,
-                  stack: item.fileStack,
-                  gdt: datastore,
-                  store: item.fileStore,
-                  treeLength: treeLength,
-                  resourcepath: resourcePathURL
-                });
-                const fileStore =
-                  datastore.slice(0, datastore.length - 1) + '0';
-                setItemProperties((prevData) => ({
-                  ...prevData,
-                  fileGDT: datastore,
-                  fileStore: fileStore
-                }));
-              }
-            }
-            setProgressBarLoad(false);
-            setIsLoading(false);
-            setIsFileLoading(false);
-          } else {
-            fetchGLTFAndTree(
-              myTabIndex,
-              item.fileStore,
-              item.fileGDT,
-              item.fileMPPS,
-              item.fileStack,
-              item.fileKinematic,
-              item.fileUUId,
-              okToParse
-            );
-            if (itemProperties.fileGDT != item.fileGDT) {
-              setItemProperties((prevData) => ({
-                ...prevData,
-                fileGDT: item.fileGDT
-              }));
-            }
-          }
+          await handleOtherTabCase({ item, myTabedIndex, myTabIndex });
         }
       } catch (error) {
         setIsLoading(false);

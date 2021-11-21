@@ -40,7 +40,7 @@ import {
 import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
 
 import '../style.css';
-import { getGDTParentItems } from './helper';
+import { createChildItems } from './helper';
 
 export default function BaseItemProperties({
   itemId,
@@ -360,9 +360,9 @@ export default function BaseItemProperties({
       });
 
       if (allowFirstLevelItems) {
-        getGDTParentItems({
-          fileGDT: datagdt,
-          fileUUId: data.uuid,
+        createChildItems({
+          pathFileName: itemProperties.fileName,
+          fileUUId: itemProperties.fileUUId,
           parentId: itemProperties.id
         });
       }
@@ -467,7 +467,11 @@ export default function BaseItemProperties({
               setCurrentProgressText={setCurrentProgressTexter}
               setCompletionProgressText={setCompletionProgressTexter}
               setCenterActionText={setCenterActionTexter}
-              {...{ allowFirstLevelItems, setAllowFirstLevelItems }}
+              {...{
+                allowFirstLevelItems,
+                setAllowFirstLevelItems,
+                handleItemSaveOnServer
+              }}
             />
           </Grid>
         </Grid>
