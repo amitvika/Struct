@@ -611,7 +611,7 @@ class GLTFRenderer extends Component {
         size = size3D.length() || 1;
       }
       size = size3D.length() || 1;
-      const multipler = 1;
+      const multipler = 2.2 / 1.8;
       //console.log(size,size3D.length());
       const center = box.getCenter(new Vector3());
       if (this.controls) {

@@ -724,9 +724,12 @@ const ItemDetail = ({ itemValue }) => {
                   treeLength: treeRes.data.length,
                   resourcepath: resourcePathURL
                 });
+                const fileStore =
+                  datastore.slice(0, datastore.length - 1) + '0';
                 setItemProperties((prevData) => ({
                   ...prevData,
-                  fileGDT: datastore
+                  fileGDT: datastore,
+                  fileStore: fileStore
                 }));
               }
             } else {
@@ -747,9 +750,12 @@ const ItemDetail = ({ itemValue }) => {
                   treeLength: treeLength,
                   resourcepath: resourcePathURL
                 });
+                const fileStore =
+                  datastore.slice(0, datastore.length - 1) + '0';
                 setItemProperties((prevData) => ({
                   ...prevData,
-                  fileGDT: datastore
+                  fileGDT: datastore,
+                  fileStore: fileStore
                 }));
               }
             }
