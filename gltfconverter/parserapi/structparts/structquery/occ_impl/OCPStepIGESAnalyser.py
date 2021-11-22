@@ -3134,7 +3134,7 @@ class StepIgesAnalyser():
     def write_progress(self,maxgap=10,action=''):
         currenttime = datetime.utcnow()
         timingdelta = currenttime-self.currenttime            
-        if (timingdelta.total_seconds() >= maxgap): 
+        if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
             with open(self.progressfile, 'w') as fh:
                 fh.write(
                     json.dumps({
@@ -3144,6 +3144,7 @@ class StepIgesAnalyser():
                         "current":currenttime.strftime("%H-%M-%S"),
                         "children":self.myParentId_Dict,
                         "action":action,
+                        "finish":currenttime.strftime("%H-%M-%S") if (maxgap==0) and (self.lenfeature>0) else '',
                         "childfiles":self.childfiles},
                         sort_keys=True, 
                         indent=2 ))
@@ -3706,6 +3707,8 @@ class StepIgesAnalyser():
                 "start":self.starttime.strftime("%H-%M-%S"),
                 "current":currenttime.strftime("%H-%M-%S"),
                 "action":action }
+        if(maxgap==0 and self.percentage>0):
+            mystatusdict["finish"]=currenttime.strftime("%H-%M-%S")
         if(self.byThread)or(self.ascompound)or(maxgap==0):
             try:
                 statusfilename = self.displaypath+self.basefilename+".status"            

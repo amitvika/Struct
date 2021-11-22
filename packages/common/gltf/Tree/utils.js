@@ -526,6 +526,7 @@ export const pollFunction = async (
       console.log('Error while doing fnFunction', error);
     }
   }
+  console.log('Result of final poll condition', result);
   return result;
 };
 
