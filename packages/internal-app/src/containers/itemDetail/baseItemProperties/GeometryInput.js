@@ -51,17 +51,14 @@ export default function GeometryInput({
     useState(false);
 
   useEffect(() => {
-    setIsCreateChildItemChecked(itemGeometry.is_child_created);
-  }, [itemGeometry.is_child_created]);
+    setIsCreateChildItemChecked(itemProperties.is_child_created);
+  }, [itemProperties.is_child_created]);
 
   const handleSwitchChange = (event) => {
     setIsCreateChildItemChecked(event.target.checked);
     if (event.target.checked) {
       handleItemSaveOnServer({
-        itemGeometry: {
-          ...itemGeometry,
-          is_child_created: true
-        }
+        is_child_created: true
       });
       createChildItems({
         pathFileName: getFileNameWithoutExtension(itemProperties.fileName),
@@ -203,7 +200,7 @@ export default function GeometryInput({
               checked={isCreateChildItemChecked}
               onChange={handleSwitchChange}
               inputProps={{ 'aria-label': 'controlled' }}
-              disabled={itemGeometry.is_child_created}
+              disabled={itemProperties.is_child_created}
             />
           </Grid>
 

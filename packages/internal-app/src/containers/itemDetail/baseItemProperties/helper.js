@@ -1,14 +1,11 @@
 import { get } from 'lodash';
-import { getAFileFromStore } from '@monostruct/common/api/fileUpload.api';
-import NewItemAPI from '@monostruct/common/api/items.api';
+import {
+  getAFileFromStore,
+  getHierarchySplitFiles
+} from '@monostruct/common/api/fileUpload.api';
+import { STATEPROPS } from '@monostruct/common/gltf/Tree/utils';
 
-const getFilenameAndExtension = (path) => {
-  var filename = path.split('/').pop();
-  return {
-    fileName: filename.substr(0, filename.lastIndexOf('.')),
-    extension: filename.substr(filename.lastIndexOf('.') + 1)
-  };
-};
+import NewItemAPI from '@monostruct/common/api/items.api';
 
 export const createChildItems = async ({
   fileUUId,
@@ -16,8 +13,6 @@ export const createChildItems = async ({
   parentId
 }) => {
   try {
-    //const { fileName, extension } = getFilenameAndExtension(pathFileName);
-
     const treeRes = await getAFileFromStore(
       `${fileUUId}/${pathFileName}`,
       'progress'
@@ -35,8 +30,5 @@ export const createChildItems = async ({
     }));
 
     await NewItemAPI.upsertItems(newItem);
-    console.log('=====>>>saved', newItem);
-  } catch (error) {
-    console.log('=====>>>>error', error);
-  }
+  } catch (error) {}
 };
