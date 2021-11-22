@@ -378,7 +378,7 @@ export default function BaseItemProperties({
       if (allowFirstLevelItems) {
         createChildItems({
           pathFileName: filenameWithOutExtension,
-          fileUUId: itemProperties.fileUUId,
+          fileUUId: data.uuid,
           parentId: itemProperties.id
         });
       }

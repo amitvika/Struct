@@ -35,6 +35,7 @@ export const createChildItems = async ({
     }));
 
     await NewItemAPI.upsertItems(newItem);
+    console.log('=====>>>saved', newItem);
   } catch (error) {
     console.log('=====>>>>error', error);
   }

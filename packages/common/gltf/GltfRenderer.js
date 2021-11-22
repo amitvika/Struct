@@ -4636,7 +4636,12 @@ class GLTFRenderer extends Component {
     const progressGLTF = filenameWithOutExtension;
     if (!this_progress_data) {
       //const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);
-      //console.log("Getting",progressFile);
+      console.log(
+        'Getting',
+        progressFile,
+        this.props.fileGDT,
+        this.props.fileUUId
+      );
 
       let fetchStatus = () => getAFileFromStore(progressFile, 'progress');
       let validateStatus = (result) => {
