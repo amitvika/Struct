@@ -4627,13 +4627,13 @@ class GLTFRenderer extends Component {
       this_state_gltf || this.state.gltfobj || this.props.gltfobj;
 
     //this.fetchTree(gltfFILE,progressFile,myParentID);
+    const filenameWithOutExtension = this.props.fileGDT
+      ? this.props.fileGDT.slice(0, this.props.fileGDT.length - 1)
+      : '';
     const progressFile =
       (this.props.fileUUId ? this.props.fileUUId + '/' : '') +
-      this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);
-    const progressGLTF = this.props.fileGDT.slice(
-      0,
-      this.props.fileGDT.length - 1
-    );
+      filenameWithOutExtension;
+    const progressGLTF = filenameWithOutExtension;
     if (!this_progress_data) {
       //const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);
       //console.log("Getting",progressFile);

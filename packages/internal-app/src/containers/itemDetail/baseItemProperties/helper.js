@@ -16,10 +16,10 @@ export const createChildItems = async ({
   parentId
 }) => {
   try {
-    const { fileName, extension } = getFilenameAndExtension(pathFileName);
+    //const { fileName, extension } = getFilenameAndExtension(pathFileName);
 
     const treeRes = await getAFileFromStore(
-      `${fileUUId}/${fileName}`,
+      `${fileUUId}/${pathFileName}`,
       'progress'
     );
 
@@ -27,7 +27,8 @@ export const createChildItems = async ({
     const newItem = childFiles.map((item) => ({
       fileUUId: item[0],
       name: item[1],
-      fileName: `Media/${item[0]}/${item[1]}.${extension}`,
+      fileName: `Media/${item[0]}/${item[1]}.step`,
+      fileStore: `${item[1]}0`,
       parent_id: parentId,
       is_child_item: true,
       filePartName: item[2]

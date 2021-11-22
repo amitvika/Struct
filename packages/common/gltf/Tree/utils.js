@@ -554,3 +554,12 @@ export const checkDBNull = (some_variable) => {
   }
   return true;
 };
+
+export const getFileNameWithoutExtension = (filename) => {
+  let filenameWithExtension = filename.replace(/^.*[\\\/]/, '');
+  const lastDotIndex = filenameWithExtension.lastIndexOf('.');
+  if (lastDotIndex != -1) {
+    filenameWithExtension = filenameWithExtension.substring(0, lastDotIndex);
+  }
+  return filenameWithExtension;
+};

@@ -37,11 +37,11 @@ def copyTree(sourceDir, destDir, removeAfterCopy, percentage=0, percentIncrement
                 copyTree(srcname, dstname, removeAfterCopy, currentPercentage, curPercentIncrement, symlinks, ignored_names)
             else:
                 print("Copy Started", srcname, dstname, currentPercentage)
-                copiedname = shutil.copy2(srcname, dstname)
-                print("Copy Completed", srcname, dstname,currentPercentage+curPercentIncrement)
+                copiedname = shutil.copy2(srcname, dstname)                
                 if copiedname == dstname: #if file is copied, then delete the source, else do not.
                     if (not srcname.endswith(".status")) and (not srcname.endswith(".progress")) and (removeAfterCopy):
                         os.remove(srcname)
+                    print("Copy Completed", srcname, dstname,currentPercentage+curPercentIncrement)
                 else:
                     print("Error while copying",srcname,dstname,copiedname)
         except shutil.Error as err:
@@ -63,12 +63,15 @@ def copyTree(sourceDir, destDir, removeAfterCopy, percentage=0, percentIncrement
             dir2stat = os.stat(dstname)
             if dir1stat.st_mtime > dir2stat.st_mtime:
 				# The file is old, copy over the new version.
+                print("Copy Started", srcname, dstname, currentPercentage)
                 copiedname = shutil.copy2(srcname, dstname)
                 if copiedname == dstname: #if file is copied, then delete the source, else do not.
                     if (not srcname.endswith(".status")) and (not srcname.endswith(".progress")) and (removeAfterCopy):
                         os.remove(srcname)
+                    print("Copy Completed", srcname, dstname,currentPercentage+curPercentIncrement)
                 else:
                     print("Error while copying",srcname,dstname,copiedname)
+                
         currentPercentage+=curPercentIncrement
 
 	# Recurse through the directories to make sure they are up to date.

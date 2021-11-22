@@ -14,6 +14,7 @@ import { useParams, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import BaseItemProperties from './baseItemProperties';
+import { createChildItems } from './baseItemProperties/helper';
 import GeometricDimensioning from './geometricDimensioning';
 import CurrentUsage from './currentUsage';
 import VendorDetails from './VendorDetails';
@@ -87,6 +88,7 @@ const ItemDetail = ({ itemValue }) => {
   const [progressBarLoad, setProgressBarLoad] = useState(false);
   const [internalProductConfig, setInternalProductConfig] = useState(null);
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
+  const [allowFirstLevelItems, setAllowFirstLevelItems] = useState(false);
 
   useEffect(() => {
     let myTabIndex = 'pdcu';
@@ -648,6 +650,7 @@ const ItemDetail = ({ itemValue }) => {
       setIsFileLoading(true);
       setProgressBarLoad(true);
       let percent = 0;
+
       const getHierarchyRes = await getHierarchySplitFiles(
         getStepFile(item),
         true,
@@ -664,6 +667,9 @@ const ItemDetail = ({ itemValue }) => {
       );
       setIsFileLoading(false);
       let datastore = getHierarchyRes.data.store;
+      let filenameWithOutExtension = datastore
+        ? datastore.slice(0, datastore.length - 1)
+        : '';
       let dataload = getHierarchyRes.data.load;
       const datastatus = getHierarchyRes.data.status;
 
@@ -695,7 +701,7 @@ const ItemDetail = ({ itemValue }) => {
           const gltfRes = await getAFileFromStore(datafile, 'gltf');
           const treeRes = await getAFileFromStore(datafile, 'tree');
           const multiAssmebly = treeRes.data.length > 0;
-          const fileStore = datastore.slice(0, datastore.length - 1) + '0';
+          const fileStore = filenameWithOutExtension + '0';
           setgltfjson({
             gltf: gltfRes.data,
             tree: treeRes.data,
@@ -721,7 +727,7 @@ const ItemDetail = ({ itemValue }) => {
         } else {
           const treeLength = get(getHierarchyRes.data, 'tree', []).length;
           const multiAssmebly = treeLength > 0;
-          const fileStore = datastore.slice(0, datastore.length - 1) + '0';
+          const fileStore = filenameWithOutExtension + '0';
           setgltfjson({
             ...getHierarchyRes.data,
             multiAssmebly: multiAssmebly,
@@ -739,6 +745,13 @@ const ItemDetail = ({ itemValue }) => {
             fileStore: fileStore
           }));
         }
+      }
+      if (allowFirstLevelItems && datastore) {
+        createChildItems({
+          pathFileName: filenameWithOutExtension,
+          fileUUId: item.fileUUId,
+          parentId: item.id
+        });
       }
       setProgressBarLoad(false);
       setIsLoading(false);
@@ -973,6 +986,8 @@ const ItemDetail = ({ itemValue }) => {
                 ? STATEPROPS.anglegap
                 : */ itemProperties.angleGap
             }
+            allowFirstLevelItems={allowFirstLevelItems}
+            setAllowFirstLevelItems={setAllowFirstLevelItems}
           />
         );
       case 'cu':

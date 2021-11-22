@@ -34,7 +34,8 @@ import {
   SELECTFEATURE,
   STATEPROPS,
   USESTYLES,
-  pollFunction
+  pollFunction,
+  getFileNameWithoutExtension
 } from '@monostruct/common/gltf/Tree/utils';
 
 import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
@@ -59,7 +60,9 @@ export default function BaseItemProperties({
   distanceGap,
   angleGap,
   selectedOption,
-  setSelectedOption
+  setSelectedOption,
+  allowFirstLevelItems,
+  setAllowFirstLevelItems
 }) {
   const classes = USESTYLES();
   const dispatch = useDispatch();
@@ -87,15 +90,15 @@ export default function BaseItemProperties({
     angleGap ? angleGap : STATEPROPS.anglegap
   );
   const [drawLiner, setDrawLiner] = useState(drawLine);
-  const [allowFirstLevelItems, setAllowFirstLevelItems] = useState(false);
-  console.log(
-    'ANgle Gap',
-    angleGap,
-    angleGaper,
-    'Distance Gap',
-    distanceGap,
-    distanceGaper
-  );
+  //const [allowFirstLevelItems, setAllowFirstLevelItems] = useState(false);
+  // console.log(
+  //   'ANgle Gap',
+  //   angleGap,
+  //   angleGaper,
+  //   'Distance Gap',
+  //   distanceGap,
+  //   distanceGaper
+  // );
   useEffect(() => {
     //console.log('Setting gltf', gltfjson);
     setfileUUId(itemProperties.fileUUId);
@@ -135,14 +138,14 @@ export default function BaseItemProperties({
   }, [drawLine]);
 
   useEffect(() => {
-    console.log('Setting distanceGap', distanceGap, distanceGaper);
+    //console.log('Setting distanceGap', distanceGap, distanceGaper);
     if (distanceGap && distanceGap > 0) {
       setDistanceGaper(distanceGap);
     }
   }, [distanceGap]);
 
   useEffect(() => {
-    console.log('Setting angleGap', angleGap, angleGaper);
+    //console.log('Setting angleGap', angleGap, angleGaper);
     if (angleGap && angleGap > 0) {
       setAngleGaper(angleGap);
     }
@@ -168,16 +171,17 @@ export default function BaseItemProperties({
       let datagdt = '';
       let treeLength = 0;
       dataload = data.filename;
-      let filenameWithExtension = dataload.replace(/^.*[\\\/]/, '');
-      const lastDotIndex = filenameWithExtension.lastIndexOf('.');
+      /*let filenameWithOutExtension = dataload.replace(/^.*[\\\/]/, '');
+      const lastDotIndex = filenameWithOutExtension.lastIndexOf('.');
       if (lastDotIndex != -1) {
-        filenameWithExtension = filenameWithExtension.substring(
+        filenameWithOutExtension = filenameWithOutExtension.substring(
           0,
           lastDotIndex
         );
-      }
-      datastore = filenameWithExtension + '0';
-      datagdt = filenameWithExtension + '3';
+      }*/
+      let filenameWithOutExtension = getFileNameWithoutExtension(dataload);
+      datastore = filenameWithOutExtension + '0';
+      datagdt = filenameWithOutExtension + '3';
 
       setfileUUId(data.uuid);
 
@@ -373,7 +377,7 @@ export default function BaseItemProperties({
 
       if (allowFirstLevelItems) {
         createChildItems({
-          pathFileName: itemProperties.fileName,
+          pathFileName: filenameWithOutExtension,
           fileUUId: itemProperties.fileUUId,
           parentId: itemProperties.id
         });
