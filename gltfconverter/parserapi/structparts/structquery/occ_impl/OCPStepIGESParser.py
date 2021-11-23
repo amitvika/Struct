@@ -1893,7 +1893,7 @@ class StepIgesAnalyser():
                                     myFaceType.append(face_entity)
                             else:
                                 myCurveCode = ""
-                            (myPartMeshID,meshname,uvPlane,solidFoundHere)=self.add_part(
+                            (myPartMeshID,meshname,uvPlane,solidFoundHere,buffHere,uvbuffHere)=self.add_part(
                                 shape_disp,
                                 part_color=faceColor,
                                 filenameuri=filefullname,
@@ -1904,7 +1904,7 @@ class StepIgesAnalyser():
                                 curvepoints=None                       
                             ) 
                             if solidFoundHere > 0 :
-                                self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, myPartMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
+                                self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, myPartMeshID, my_parent_id, subName, subEntry, meshname, basename, (uvPlane,solidFoundHere,buffHere,uvbuffHere)]
                                 #print("ShapeInFile",self.outputShapes[shapeInFile])
                             if self.includeparts and parentIDNotAdded:
                                 if myPartMeshID:
@@ -1997,6 +1997,9 @@ class StepIgesAnalyser():
                                 if (self.multiplegltf!=0) and (keep_faces==False):
                                     meshname="FACE"
                                     uvPlane=my_parent_id
+                                    solidFoundHere=0
+                                    buffHere=None
+                                    uvbuffHere=None
                                     myFeaturesFaces.append(
                                         (shape_disp,
                                         faceColor,
@@ -2006,7 +2009,7 @@ class StepIgesAnalyser():
                                         myCurveCode,
                                         None))
                                 else:   
-                                    (myMeshID,meshname,uvPlane,solidFoundHere)=self.add_part(
+                                    (myMeshID,meshname,uvPlane,solidFoundHere,buffHere,uvbuffHere)=self.add_part(
                                         shape_disp,
                                         part_color=faceColor,
                                         filenameuri=filefullname,
@@ -2017,7 +2020,7 @@ class StepIgesAnalyser():
                                         curvepoints=None                        
                                     ) 
                                 if (solidFoundHere > 0) or ((self.multiplegltf!=0) and (keep_faces==False)) :
-                                    self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
+                                    self.outputShapes[shapeInFile] = [shape_disp, parentName, parentEntry, faceColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, (uvPlane,solidFoundHere,buffHere,uvbuffHere)]
                                 #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
                             #else:
@@ -2063,6 +2066,9 @@ class StepIgesAnalyser():
                         if self.multiplegltf!=0:
                             meshname="EDGE"
                             uvPlane=my_parent_id
+                            solidFoundHere=0
+                            buffHere=None
+                            uvbuffHere=None
                             myFeaturesEdges.append(
                                 (shape_disp,
                                 edgeColor,
@@ -2072,7 +2078,7 @@ class StepIgesAnalyser():
                                 myCurveCode,
                                 edge_points))                            
                         else:  
-                            (myMeshID,meshname,uvPlane,solidFoundHere)=self.add_part(
+                            (myMeshID,meshname,uvPlane,solidFoundHere,buffHere,uvbuffHere)=self.add_part(
                                 shape_disp,
                                 part_color=edgeColor,
                                 filenameuri=filefullname,
@@ -2083,7 +2089,7 @@ class StepIgesAnalyser():
                                 curvepoints=edge_points                      
                             ) 
                         if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
-                            self.outputShapes[shape_hash_edge] = [shape_disp, parentName, parentEntry, edgeColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
+                            self.outputShapes[shape_hash_edge] = [shape_disp, parentName, parentEntry, edgeColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, (uvPlane,solidFoundHere,buffHere,uvbuffHere)]
                         #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
                     self.percentage += (0.5/myLenShapeCompounds)*percentincrement
                     self.write_status()
@@ -2105,6 +2111,9 @@ class StepIgesAnalyser():
                         if self.multiplegltf!=0:
                             meshname="VERTEX"
                             uvPlane=my_parent_id
+                            solidFoundHere=0
+                            buffHere=None
+                            uvbuffHere=None
                             myFeaturesVertices.append((
                                 shape_disp,
                                 edgeColor,
@@ -2115,7 +2124,7 @@ class StepIgesAnalyser():
                                 vertex_point))
                             
                         else:            
-                            (_,meshname,uvPlane,solidFoundHere)=self.add_part(
+                            (_,meshname,uvPlane,solidFoundHere,buffHere,uvbuffHere)=self.add_part(
                                 shape_disp,
                                 part_color=vertexColor,
                                 filenameuri=filefullname,
@@ -2126,7 +2135,7 @@ class StepIgesAnalyser():
                                 curvepoints=edge_points                       
                             ) 
                         if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
-                            self.outputShapes[shape_hash_vertex] = [shape_disp, parentName, parentEntry, vertexColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, uvPlane]
+                            self.outputShapes[shape_hash_vertex] = [shape_disp, parentName, parentEntry, vertexColor, myMeshID, my_parent_id, subName, subEntry, meshname, basename, (uvPlane,solidFoundHere,buffHere,uvbuffHere)]
                         self.percentage += (0.5/myLenShapeCompounds)*percentincrement
                         self.write_status()
                     #print("I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
@@ -2352,7 +2361,7 @@ class StepIgesAnalyser():
                                        _, myCurveCode = recognize_face_entity(shape_to_disp)
                                     else:
                                         myCurveCode = ""
-                                    (myMeshID, meshname, uvPlane, solidFoundHere)=self.add_part(
+                                    (myMeshID, meshname, uvPlane,solidFoundHere,buffHere,uvbuffHere)=self.add_part(
                                         shape_to_disp,
                                         part_color=faceColor,
                                         filenameuri=filefullname,
@@ -2363,7 +2372,7 @@ class StepIgesAnalyser():
                                         curvepoints=None
                                     )
                                     if (solidFoundHere > 0) :                                        
-                                        self.outputShapes[shapeInFile] = [shape_to_disp,subName, subEntry, faceColor, myMeshID, my_parent_id, labelForSubShapesName, labelForSubShapesEntry, meshname, basename, uvPlane]
+                                        self.outputShapes[shapeInFile] = [shape_to_disp,subName, subEntry, faceColor, myMeshID, my_parent_id, labelForSubShapesName, labelForSubShapesEntry, meshname, basename, (uvPlane,solidFoundHere,buffHere,uvbuffHere)]
                                     #print(myshapecount,"I am setting with shape color in simple parts",faceColor.Red(),faceColor.Green(),faceColor.Blue())
 
                                 #else:
@@ -2621,7 +2630,7 @@ class StepIgesAnalyser():
                     self.updateOutput(subName, subEntry, rootName, rootEntry,  False)
                     #print("I have reached here 24")
                     (filefullname, basenamehere) = self.write_step_file(shape_to_disp,shape_name,shape_color)
-                    (myMeshID,meshname, uvPlane, solidFoundHere)=self.add_part(
+                    (myMeshID,meshname, uvPlane,solidFoundHere,buffHere,uvbuffHere)=self.add_part(
                         shape_to_disp,
                         part_color=shape_color,
                         filenameuri=filefullname,
@@ -2632,7 +2641,7 @@ class StepIgesAnalyser():
                         curvepoints=None
                     )  
                     if(solidFoundHere>0):                  
-                        self.outputShapes[hash_shape] = [shape_to_disp, subName, subEntry, c, myMeshID, self.parentIDs[-1], rootName, rootEntry, meshname, basenamehere, uvPlane]
+                        self.outputShapes[hash_shape] = [shape_to_disp, subName, subEntry, c, myMeshID, self.parentIDs[-1], rootName, rootEntry, meshname, basenamehere, (uvPlane,solidFoundHere,buffHere,uvbuffHere)]
  
             except Exception as e:
                 print("Error",e)
@@ -2752,7 +2761,7 @@ class StepIgesAnalyser():
              "display":COPY_PATH+self.displaypath
         }
         if self.writethread:
-            mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,False,False))
+            mythread = threading.Thread(target=self.write_in_thread, daemon=True, args=(dict_return,False,False))
             mythread.start()
         else:
             self.write_in_thread(dict_return,False,False)
@@ -3596,7 +3605,7 @@ class StepIgesAnalyser():
              "display":COPY_PATH+self.displaypath
         }
         if self.writethread:
-            mythread = threading.Thread(target=self.write_in_thread,args=(dict_return,getPNG,True))
+            mythread = threading.Thread(target=self.write_in_thread, daemon=True, args=(dict_return,getPNG,True))
             mythread.start()
         else:
             self.write_in_thread(dict_return,getPNG,True)
@@ -3606,7 +3615,7 @@ class StepIgesAnalyser():
         if (self.edgesize!=0) or (self.vertexsize!=0): 
             try:
                 if(self.addfeaturesThread):
-                    myanotherthread = threading.Thread(target=self.addFeatures)
+                    myanotherthread = threading.Thread(target=self.addFeatures, daemon=True)
                     myanotherthread.start()
                 else:
                     self.addFeatures()
@@ -3676,7 +3685,7 @@ class StepIgesAnalyser():
                 "status": mystatus,
                 "display":COPY_PATH+self.displaypath }
             byThread = True
-            mythread = threading.Thread(target=self.dumpInThread,args=(byThread,)) #extra comma is needed,python bug in thread!
+            mythread = threading.Thread(target=self.dumpInThread, daemon=True, args=(byThread,)) #extra comma is needed,python bug in thread!
             mythread.start()
             return (            
                     (False,self.output), 
@@ -3910,7 +3919,7 @@ class StepIgesAnalyser():
         basename = self.getBaseFileName()
         newfilename = self.displaypath+basename+".step"
         if self.writethread:
-            mythread = threading.Thread(target=self.write_step_file_in_thread,args=(a_shape, outname, colorname, basename, newfilename))
+            mythread = threading.Thread(target=self.write_step_file_in_thread, daemon=True, args=(a_shape, outname, colorname, basename, newfilename))
             mythread.start()
         else:
             self.write_step_file_in_thread(a_shape, outname, colorname, basename, newfilename)        
@@ -4415,6 +4424,8 @@ class StepIgesAnalyser():
             if (filetype=="EDGE") or (filetype=="Vertex"):               
                solidfound = 0
                uvPlane=[]
+               buff = None
+               uvbuff = None
             else:
                 buff, solidfound, uvbuff, uvPlane = self.part_buffer(part)
             
@@ -4671,7 +4682,7 @@ class StepIgesAnalyser():
                     mesher_dict[self.gltf_Dict["roughnessFactor"]] = 0.7
                 #print(" I have reache here without adding")
         #buffer_length_current = len(self.mstep_dict['buffers'])
-        return mesher_dict[self.gltf_Dict["id"]], mesher_dict[self.gltf_Dict["name"]], uvPlane, solidfound
+        return mesher_dict[self.gltf_Dict["id"]], mesher_dict[self.gltf_Dict["name"]], uvPlane, solidfound, buff, uvbuff
 
     
     

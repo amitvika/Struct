@@ -105,6 +105,7 @@ class RecursiveCopier():
         self.t=interval
         self.hFunction = hFunction
         self.timelag = 0
+        self.thread=None
         try:
             logging.info("Syncer "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S"))
         except Exception as e:
@@ -120,15 +121,33 @@ class RecursiveCopier():
             
     
     def handle_function(self):
-        self.hFunction(self.timelag)
-        self.start()
+        try:
+            self.hFunction(self.timelag)
+        except Exception as e:
+            print("Error while copying in handle_function", e)
+        try:
+            self.start()
+        except Exception as e:
+            print("Error while starting thread for copying", e)
 
     def start(self):
+        self.cancel()
         self.thread = threading.Timer(self.t,self.handle_function)
-        self.thread.start()
+        if(self.thread):
+            try:
+                self.thread.daemon=True
+            except Exception as e:
+                print("There is an error while setting daemon in copying function",e)
+            self.thread.start()
+        else:
+            print("I am unable to create a thread for copy routine")
 
     def cancel(self):
-        self.thread.cancel()
+        if(self.thread):
+            try:
+                self.thread.cancel()
+            except Exception as e:
+                print("There is an error while cancelling thread",e)
 
     def timeUTCLagFromServer(self):
         return self.timelag    
@@ -4675,7 +4694,7 @@ def findAssemblyShapeName(myParent,myTree):
 
 def findMyShapeByTreeID(shapes,treeID):
     for hash_shape, item in shapes.items():
-        [shape_to_disp, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, uvPlane] = item
+        [shape_to_disp, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, (uvPlane, solidfound, buff, uvbuff) ] = item
         if myId == treeID:
             return item
     return None
@@ -4710,7 +4729,7 @@ def getShapesFromOutPutShapes(shapes,mytree):
                 subShapeName=''
                 subShapeColor=None 
         if item != None:
-            [shape_to_disp, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, uvPlane] = item
+            [shape_to_disp, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, (uvPlane, solidfound, buff, uvbuff)] = item
             #print(shape_to_disp, subName, subEntry, c, myId, myParent )
             if (subshapesStarted == False) :
                 if myTreeParent == 1:
@@ -5004,7 +5023,7 @@ def FileGetAssemblyOrder(request):
                     basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,0,"M")
                     data = getEmptyDictionary(MEDIA_URL+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
                     print("From assembly",data)
-                    mythread = threading.Thread(target=exportToAssemblyGLTF,\
+                    mythread = threading.Thread(target=exportToAssemblyGLTF, daemon=True,\
                         args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime))
                     mythread.start()      
                     #data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False)#,thumbwidth,thumbheight)
@@ -5013,7 +5032,7 @@ def FileGetAssemblyOrder(request):
                 if id is not None:
                     basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"M")
                     data = getEmptyDictionary(MEDIA_URL+id,basefilename,displaypath,0,starttime,True)
-                    mythread = threading.Thread(target=exportToAssemblyGLTF,\
+                    mythread = threading.Thread(target=exportToAssemblyGLTF, daemon=True,\
                         args=(MEDIA_URL+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime))
                     mythread.start() 
                     #data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False)#,thumbwidth,thumbheight)

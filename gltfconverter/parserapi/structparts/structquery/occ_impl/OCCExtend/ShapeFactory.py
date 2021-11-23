@@ -1497,7 +1497,7 @@ def getPartStackableRight(face_dict, tol=0.1, anggap=0.1):
     ytol = abs(ymax-ymin)*anggap
     ztol = abs(zmax-zmin)*anggap
     faces = []
-    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+    for _, (_,_, _, _, _, _, _, _, _,_, (uvPlane, solidfound, buff, uvbuff))  in outputShapes.items():
         depth, myFaces = getDepthRight(uvPlane,xmax,ytol,ztol)
         for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
             if(hash_solidface != "No Face"):
@@ -1530,7 +1530,7 @@ def getPartStackableLeft(face_dict, tol=0.1, anggap=0.1):
     ytol = abs(ymax-ymin)*anggap
     ztol = abs(zmax-zmin)*anggap
     faces = []
-    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+    for _, (_,_, _, _, _, _, _, _, _,_, (uvPlane, solidfound, buff, uvbuff))  in outputShapes.items():
         depth, myFaces = getDepthLeft(uvPlane,xmin,ytol,ztol)
         for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
             if(hash_solidface != "No Face"):
@@ -1563,7 +1563,7 @@ def getPartStackableBack(face_dict, tol=0.1, anggap=0.1):
     xtol = abs(xmax-xmin)*anggap
     ztol = abs(zmax-zmin)*anggap
     faces = []
-    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+    for _, (_,_, _, _, _, _, _, _, _,_, (uvPlane, solidfound, buff, uvbuff))  in outputShapes.items():
         depth, myFaces = getDepthBack(uvPlane,ymax,ztol,xtol)
         for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
             if(hash_solidface != "No Face"):
@@ -1597,7 +1597,7 @@ def getPartStackableFront(face_dict, tol=0.1, anggap=0.1):
     xtol = abs(xmax-xmin)*anggap
     ztol = abs(zmax-zmin)*anggap
     faces = []
-    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+    for _, (_,_, _, _, _, _, _, _, _,_, (uvPlane, solidfound, buff, uvbuff))  in outputShapes.items():
         depth, myFaces = getDepthFront(uvPlane,ymin,ztol,xtol)
         for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
             if(hash_solidface != "No Face"):
@@ -1630,7 +1630,7 @@ def getPartStackableBottom(face_dict, tol=0.1, anggap=0.1):
     ytol = abs(ymax-ymin)*anggap
     xtol = abs(xmax-xmin)*anggap
     faces = []
-    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+    for _, (_,_, _, _, _, _, _, _, _,_, (uvPlane, solidfound, buff, uvbuff))  in outputShapes.items():
         depth, myFaces = getDepthBottom(uvPlane,zmin,xtol,ytol)
         for (faces_max, faces_min, hash_solidface, face, direction, facetype) in myFaces:
             if(hash_solidface != "No Face"):
@@ -1673,7 +1673,7 @@ def getPartStackableTop(face_dict, tol=0.1, anggap=0.1):
     xtol = abs(xmax-xmin)*anggap
     faces = []
     #print("Before for loooooooooooooooooop")
-    for _, (_,_, _, _, _, _, _, _, _,basename, uvPlane) in outputShapes.items():  
+    for _, (_,_, _, _, _, _, _, _, _,basename, (uvPlane, solidfound, buff, uvbuff)) in outputShapes.items():  
 
         """ try:
 
@@ -1790,7 +1790,7 @@ def getPartStackableDirections(face_dict, tol=0.1, anggap=0.1):
     BackNotFound = True
     RightNotFound = True
     LeftNotFound = True
-    for _, (_,_, _, _, _, _, _, _, _,_, uvPlane)  in outputShapes.items():
+    for _, (_,_, _, _, _, _, _, _, _,_, (uvPlane, solidfound, buff, uvbuff))  in outputShapes.items():
         for (position,_, faces_max, faces_min, hash_solidface, face, direction, facetype) in uvPlane:
             xmins, ymins, zmins = faces_min
             xmaxs, ymaxs, zmaxs = faces_max
