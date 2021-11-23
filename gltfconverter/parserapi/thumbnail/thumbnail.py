@@ -5,7 +5,7 @@ import trimesh
 from OpenGL.GL import *
 from OpenGL.GL import shaders
 
-import PIL as Image
+from PIL import Image, ImageFont, ImageDraw
 import numpy as np
 import networkx as nx
 import pyglet
@@ -282,7 +282,7 @@ def format_texture_source(texture, target_channels='RGB'):
         return None
 
     # Convert PIL images into numpy arrays
-    if isinstance(texture, Image.Image):
+    if isinstance(texture, Image):
         if texture.mode == 'P' and target_channels in ('RGB', 'RGBA'):
             texture = np.array(texture.convert(target_channels))
         else:
@@ -5035,10 +5035,10 @@ class Renderer(object):
 
     def _resize_image(self, value, antialias=False):
         """If needed, rescale the render for MacOS."""
-        img = Image.Image.fromarray(value)
-        resample = Image.Image.NEAREST
+        img = Image.fromarray(value)
+        resample = Image.NEAREST
         if antialias:
-            resample = Image.Image.BILINEAR
+            resample = Image.BILINEAR
         size = (self.viewport_width // self.dpscale,
                 self.viewport_height // self.dpscale)
         img = img.resize(size, resample=resample)
@@ -5674,7 +5674,7 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
         return False
     object_meshes = []
     for key in list(object_gltf.geometry.keys()):
-        object_trimesh = object_gltf.geometry[key]
+        object_trimesh = object_gltf.geometry[key]        
         try:
             object_meshes.append(Mesh.from_trimesh(object_trimesh))
         except Exception as e:
@@ -5700,17 +5700,18 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
             return False
     # Calculate Size and Centre
     centroid = scene.centroid
+    #centroid = (0,0,0)
     scale = scene.scale
     if scale <= 0.0:
         scale = 2
     s2 = 1.0 / np.sqrt(2.0)
-    print("Centroid and Scale",centroid,scale)
+    print("Centroid and Scale",centroid,scale/2.36)
     # Create render camera using scene centroid information
     
     if perspective:
         cam = PerspectiveCamera(yfov=(np.pi / 4.0)) #3.0
     else:
-        cam = OrthographicCamera(xmag=scale/2.36,ymag=scale/2.36,zfar=scale*100)
+        cam = OrthographicCamera(xmag=scale/2.36,ymag=scale/2.36, zfar=scale*50)
     cam_pose = np.eye(4)
     cam_pose[:3,:3] = np.array([
         [0.0, -s2, s2],
@@ -5727,10 +5728,15 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
     
     # Add camera to scene
     scene.add(cam,  pose=cam_pose)
+    
     try:
         r = OffscreenRenderer(viewport_width=thumbnail_width, viewport_height=thumbnail_height)
     except Exception as e:
         print("createThumbnailError5",e)
+        try:
+            r = OffscreenRenderer(viewport_width=thumbnail_width*2, viewport_height=thumbnail_height*2)
+        except Exception as e:
+            print("createThumbnailError5.1",e)
         return False
     try:
         color, _ = r.render(scene)
@@ -5738,7 +5744,7 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
         print("createThumbnailError6",e)
         return False
     try:
-        myImage = Image.Image.fromarray(color)
+        myImage = Image.fromarray(color)
     except Exception as e:
         print("createThumbnailError7",e)
         return False
@@ -5770,6 +5776,11 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
             print("createThumbnailError10",e)
             return False
     try:
+        scene=None
+        cam=None
+        light=None
+        myImage=None
+        color=None
         r.delete()
     except Exception as e:
         print("createThumbnailError11",e)
@@ -5777,6 +5788,8 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
     return True
 
 def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_save_path, transparent=True):
+    #print(GL_VERSION,Image)
+    #print(glGetString(GL_VENDOR)) 
     try:
         retValue = createThumbnailAndReturn(model_path, int(thumbnail_width), int(thumbnail_height), thumbnail_save_path, transparent)
         if retValue==False:
@@ -5786,16 +5799,16 @@ def createThumbnail(model_path, thumbnail_width, thumbnail_height, thumbnail_sav
                 grey = (127,127,127)
                 #white = (255,255,255)
                 transparent = (0,0,0,0)        
-                wm = Image.Image.new('RGBA',(int(thumbnail_width),int(thumbnail_height)),transparent)            
-                font = Image.ImageFont.load_default() #Image.ImageFont.truetype('verdana.ttf',8)
-                draw = Image.ImageDraw.Draw(wm)
+                wm = Image.new('RGBA',(int(thumbnail_width),int(thumbnail_height)),transparent)            
+                font = ImageFont.load_default() #Image.ImageFont.truetype('verdana.ttf',8)
+                draw = ImageDraw.Draw(wm)
                 w,h = draw.textsize(pathfilename, font)
                 draw.text((int((thumbnail_width-w)/2),int((thumbnail_height-h)/2)),pathfilename,grey,font)
                 wm.save(thumbnail_save_path)
             except Exception as e:
                 print("createThumbnailTextError1",e)
                 try:
-                    wm = Image.Image.new('RGBA',(int(thumbnail_width),int(thumbnail_height)),transparent)
+                    wm = Image.new('RGBA',(int(thumbnail_width),int(thumbnail_height)),transparent)
                     wm.save(thumbnail_save_path)
                 except Exception as e:
                     print("createThumbnailTextError2",e)
