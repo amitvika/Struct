@@ -216,7 +216,6 @@ export default function BaseItemProperties({
         });
       }
       let percent = 0;
-      console.log('---------3', STATEPROPS, distanceGaper, angleGaper);
       const getHierarchyRes = await getHierarchySplitFiles(
         fileId,
         true,
@@ -372,7 +371,8 @@ export default function BaseItemProperties({
         stepTreeLength: treeLength,
         distanceGap: distanceGaper,
         angleGap: angleGaper,
-        drawLine: drawLiner
+        drawLine: drawLiner,
+        is_child_created: allowFirstLevelItems
       });
 
       if (allowFirstLevelItems) {

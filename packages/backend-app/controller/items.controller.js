@@ -540,6 +540,7 @@ exports.upsert = async (req, res) => {
 
     res.json({ success: true, itemUpdated });
   } catch (error) {
+    console.log('------>>', error);
     return res.status(500).send({ message: 'Some unexpected error occurred' });
   }
 };
