@@ -1094,8 +1094,13 @@ class StepExportWithColor(object):
     def GetSelfAndTreeFromOutputShapes(self,assembly,aTree,shapes,myTree,treeLength):
         treeID = aTree[self.gltf_dict['id']]
         treeName = aTree[self.gltf_dict['name']]
-        if treeName is None:
+        treeDisplay =  aTree[self.gltf_dict['display']]
+        treeName = '' if (treeName is None) else treeName.strip()
+        treeDisplay = '' if (treeDisplay is None) else treeDisplay.strip()
+        if treeName == '':
             treeName =  "Struct Part " + str(treeID)
+        if treeDisplay=='':
+            treeDisplay=treeName
         if  aTree[self.gltf_dict['leaf']]==True:
             #print("Finding a shape",treeName,aTree)
             item = self.findMyShapeByTreeID(shapes,treeID)
@@ -1114,7 +1119,7 @@ class StepExportWithColor(object):
                 comp_builder.MakeCompound(comp)        
                 comp_builder.Add(comp, shape)
                 self.shapetool.SetShape(part,comp) 
-                TDataStd_Name.Set(part, TCollection_ExtendedString(treeName))
+                TDataStd_Name.Set(part, TCollection_ExtendedString(treeDisplay))
                 #print("Adding a shape",treeName,aTree)
                 self.colortool.SetColor(part,c,XCAFDoc_ColorType.XCAFDoc_ColorSurf) 
                 self.shapetool.AddComponent(assembly, part,TopLoc_Location())  
@@ -1144,7 +1149,7 @@ class StepExportWithColor(object):
             logging, seperateparts,edgesize, vertexsize, maximumfacestoinclude):
         name = None
         lengthCheck = 0
-        print("Passed",myTree)
+        #print("Passed",myTree)
         for aTree in myTree:
             #print("My aTree",aTree)
             if aTree[self.gltf_dict['id']]==myParent :
@@ -3775,23 +3780,29 @@ class StepIgesAnalyser():
         if(maxgap==0 and self.percentage>0):
             mystatusdict["finish"]=currenttime.strftime("%H-%M-%S")
             mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
-        if(self.byThread)or(self.ascompound)or(maxgap==0):
-            try:
-                statusfilename = self.displaypath+self.basefilename+".status"            
-                timingdelta = datetime.utcnow()-self.currenttime            
-                if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
-                    if (self.writefiles) or (self.ascompound):
+        elif(maxgap==0):
+            mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
+        try:            
+            timingdelta = datetime.utcnow()-self.currenttime            
+            if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
+                if(self.byThread)or(self.ascompound)or(maxgap==0):
+                    if (self.writefiles) or (self.ascompound)or(maxgap==0):
                         #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
+                        statusfilename = self.displaypath+self.basefilename+".status"
                         print("Writing",statusfilename,"Percentage",self.percentage)                        
-                        self.currenttime = datetime.utcnow()                   
-                        with open(statusfilename, 'w') as fh:
-                            fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                        self.currenttime = datetime.utcnow() 
+                        try:
+                            with open(statusfilename, 'w') as fh:
+                                fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                        except Exception as e:
+                            print("While Writing",statusfilename,e,self.percentage) 
                     else:
-                        print("Not Writing",statusfilename)
-            except Exception as e:
-                print("While Writing",statusfilename,e)   
-        else:
-            print("Percentage",self.percentage)
+                        print("Not Writing status",self.percentage)
+                else:
+                    print("Percentage",self.percentage)
+        except Exception as e:
+            print("While Writing",statusfilename,e)   
+        
         return mystatusdict
 
     def copyonefile(self, srcname, dstname, symlinks=False):

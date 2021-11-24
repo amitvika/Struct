@@ -1,6 +1,8 @@
 var XMLHttpRequest = require('xhr2');
 import axios from 'axios';
+
 // const host = `https://cadapi.struct.services/api/v0`;
+
 // const baseURL = process.env.REACT_APP_GLTF_CONVERTER;
 
 const baseURL = `https://cadapi.struct.services`;
@@ -23,7 +25,7 @@ export const fetchShapeInfo = async (tree) => {
   return axios.post(`${host}/shapeinfo/`, formTree);
 };
 
-export const saveTreeInfo = async (tree, name, fileGuid) => {
+export const saveTreeInfo = async (tree, name, fileGUID) => {
   // console.log(tree);
   var formTree = new FormData();
   formTree.append('tree', JSON.stringify(tree));
@@ -41,12 +43,12 @@ export const saveGDTInfo = async (gdt, name, fileGUID = '') => {
   return axios.post(`${host}/savegdt/`, formGDT);
 };
 
-export const getGLTFJson = (id) => {
+export const getGLTFJson = async (id) => {
   const convertURL = `${host}/convert?id=${id}`;
   return axios.get(convertURL);
 };
 
-export const getSplitFiles = (
+export const getSplitFiles = async (
   id,
   includeParts,
   distancegap,
@@ -59,7 +61,7 @@ export const getSplitFiles = (
   return axios.get(splitURL);
 };
 
-export const getHierarchySplitFiles = (
+export const getHierarchySplitFiles = async (
   id,
   includeParts,
   distancegap,
@@ -77,7 +79,7 @@ export const getHierarchySplitFiles = (
   return axios.get(splitURL);
 };
 
-export const getPartsStackableInfo = (
+export const getPartsStackableInfo = async (
   id,
   distancegap,
   anglegap,
@@ -88,7 +90,7 @@ export const getPartsStackableInfo = (
   return axios.get(stackURL);
 };
 
-export const getPartsAssemblyOrder = (
+export const getPartsAssemblyOrder = async (
   id,
   distancegap,
   anglegap,
@@ -103,7 +105,7 @@ export const getPartsAssemblyOrder = (
   return axios.get(orderURL);
 };
 
-export const getPartsKinematicOrder = (
+export const getPartsKinematicOrder = async (
   id,
   distancegap,
   anglegap,
@@ -114,7 +116,7 @@ export const getPartsKinematicOrder = (
   return axios.get(kinematicURL);
 };
 
-export const getMinimumDistance = (
+export const getMinimumDistance = async (
   xmove,
   ymove,
   zmove,
@@ -132,7 +134,7 @@ export const getMinimumDistance = (
   return axios.get(getURL);
 };
 
-export const getShapeInfo = (
+export const getShapeInfo = async (
   start,
   stepArray = [],
   siblingArray = [],
@@ -152,45 +154,84 @@ export const getShapeInfo = (
   return axios.post(`${host}/shapeinfo/`, formShapeInfo);
 };
 
-export const getAllTextures = () => {
+export const getAllTextures = async () => {
   const fetchURL = `${host}/textures`;
   return axios.get(fetchURL);
 };
 
-export const getAllFiles = () => {
+export const getAllFiles = async () => {
   const fetchURL = `${host}/files`;
   return axios.get(fetchURL);
 };
-export const getAFileFromURLStore = (store, ext, fromURL) => {
+export const getAFile = async (file) => {
+  const fetchURL = `${host}/getcontent?file=${file}`;
+  // console.log(fetchURL);
+  return axios.get(fetchURL);
+};
+export const getAFileFromURLStore = async (store, ext, fromURL) => {
   if (ext == 'status' || ext == 'progress') {
-    const fetchURL = `${resourceStatusURL}${store}.${ext}`;
+    const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
     // console.log(fetchURL);
-    return axios.get(fetchURL);
+    return getAFile(fetchURL);
   } else {
     const linuxURL = `${fromURL}${store}.${ext}`;
-    // console.log(linuxURL);
-    return axios.get(linuxURL);
+    let isFileExists = await isFileExistingInServer(linuxURL);
+    if (isFileExists) {
+      try {
+        const resData = await axios.get(linuxURL);
+        if (resData) return resData;
+      } catch (error) {
+        console.log('Error while fetching', error, linuxURL);
+      }
+      const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
+      return getAFile(fetchURL);
+    } else {
+      const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
+      return getAFile(fetchURL);
+    }
   }
 };
-export const getAFileFromStore = (store, ext) => {
+export const getAFileFromStore = async (store, ext) => {
   if (ext == 'status' || ext == 'progress') {
-    const fetchURL = `${resourceStatusURL}${store}.${ext}`;
+    // const fetchURL = `${resourceStatusURL}${store}.${ext}`;
+    const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
     // console.log(fetchURL);
-    return axios.get(fetchURL);
+    return getAFile(fetchURL);
+    // console.log(fetchURL);
+    //return axios.get(fetchURL);
   } else {
     const linuxURL = `${resourcePathURL}${store}.${ext}`;
-    if (isFileExistingInServer(linuxURL)) {
-      // console.log(linuxURL);
-      return axios.get(linuxURL);
+    let isFileExists = await isFileExistingInServer(linuxURL);
+    if (isFileExists) {
+      try {
+        const resData = await axios.get(linuxURL);
+        if (resData) return resData;
+      } catch (error) {
+        console.log('Error while fetching', error, linuxURL);
+      }
+      const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
+      return getAFile(fetchURL);
     } else {
       const s3URL = `${resourcePathS3URL}${store}.${ext}`;
       // console.log(s3URL);
-      return axios.get(s3URL);
+      isFileExists = await isFileExistingInServer(s3URL);
+      if (isFileExists) {
+        try {
+          const resData = await axios.get(s3URL);
+          if (resData) return resData;
+        } catch (error) {
+          console.log('Error while fetching', error, s3URL);
+        }
+        const fetchURL = `${resourcePathS3}${store}.${ext}`;
+        return getAFile(fetchURL);
+      }
+      const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
+      return getAFile(fetchURL);
     }
   }
 };
 
-export const checkExistingPathFromStore = (
+export const checkExistingPathFromStore = async (
   store,
   ext,
   checkPresence = false,
@@ -201,19 +242,22 @@ export const checkExistingPathFromStore = (
   } else {
     if (checkURL) {
       const checkingURL = `${checkURL}${store}.${ext}`;
-      if (isFileExistingInServer(checkingURL)) {
+      let isFileExists = await isFileExistingInServer(checkingURL);
+      if (isFileExists) {
         return checkURL;
       }
     }
     if (checkURL != resourcePathURL) {
       const linuxURL = `${resourcePathURL}${store}.${ext}`;
-      if (isFileExistingInServer(linuxURL)) {
+      let isFileExists = await isFileExistingInServer(linuxURL);
+      if (isFileExists) {
         return resourcePathURL;
       }
     }
     if (checkURL != resourcePathS3URL) {
       const s3URL = `${resourcePathS3URL}${store}.${ext}`;
-      if (isFileExistingInServer(s3URL)) {
+      let isFileExists = await isFileExistingInServer(s3URL);
+      if (isFileExists) {
         return resourcePathS3URL;
       }
     }
@@ -225,15 +269,15 @@ export const checkExistingPathFromStore = (
   }
 };
 
-export const getGltfForStore = (store) => {
+export const getGltfForStore = async (store) => {
   return getAFileFromStore(store, 'gltf');
 };
 
-export const getTreeForStore = (store) => {
+export const getTreeForStore = async (store) => {
   return getAFileFromStore(store, 'tree');
 };
 
-export const getThumbnailForStoreURL = (store) => {
+export const getThumbnailForStoreURL = async (store) => {
   return getAFileFromStore(store, 'png');
 };
 
@@ -249,8 +293,29 @@ export const download = (fileStore) => {
     .catch(console.error);
 };
 
-export const isFileExistingInServer = (urlAsFile) => {
-  try {
+const checkURLExists = async (url) => {
+  // Create the XHR request
+  var request = new XMLHttpRequest();
+
+  // Return it as a Promise
+  return new Promise(function (resolve, reject) {
+    // Setup our listener to process compeleted requests
+    request.onreadystatechange = function () {
+      // Only run if the request is complete
+      if (request.readyState !== 4) return;
+      resolve(request);
+    };
+
+    // Setup our HTTP request
+    request.open('HEAD', url, true);
+
+    // Send the request
+    request.send();
+  });
+};
+
+export const isFileExistingInServer = async (urlAsFile) => {
+  /* try {
     try {
       var xhr = new XMLHttpRequest();
       try {
@@ -258,20 +323,31 @@ export const isFileExistingInServer = (urlAsFile) => {
         xhr.send();
         return xhr.status !== 404;
       } catch (exception) {
-        // console.log(exception);
+        console.log(exception);
         return false;
       }
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       return false;
     }
   } catch (error) {
     return false;
+  } */
+  try {
+    const resData = await checkURLExists(urlAsFile);
+    // console.log('Result', resData.status, urlAsFile);
+    return resData && resData.status != 404;
+  } catch (error) {
+    console.log('CheckURLExists', error, urlAsFile);
+    return false;
   }
 };
 
+export const resourcePathStatus = 'Status/';
+export const resourcePathDisplay = 'Display/';
+export const resourcePathS3 = `S3${resourcePathDisplay}`;
 export const resourcePathBase = `${baseURL}/`; //"./gltfconverter/";//
-export const resourcePathURL = `${baseURL}/Display/`;
+export const resourcePathURL = `${resourcePathBase}${resourcePathDisplay}`;
 ('//http://localhost:8000/Media/');
-export const resourceStatusURL = `${baseURL}/Status/`;
-export const resourcePathS3URL = `${baseURL}/S3Display/`; //"./gltfconverter/";//
+export const resourceStatusURL = `${resourcePathBase}${resourcePathStatus}`;
+export const resourcePathS3URL = `${resourcePathBase}${resourcePathS3}`; //"./gltfconverter/";//

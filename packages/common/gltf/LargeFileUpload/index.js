@@ -12,8 +12,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
   uploadChunkData,
-  download,
-  checkExistingPathFromStore
+  download /*,
+  checkExistingPathFromStore*/
 } from '../../api/fileUpload.api';
 
 import ExportLogo from '../../assets/images/export.png';
@@ -209,7 +209,7 @@ export default function LargeFileUpload({
   if (
     itemProperties.fileStore &&
     itemProperties.fileGDT &&
-    checkExistingPathFromStore(fileGDTPath, 'gltf', true)
+    itemProperties.stepTreeLength // && checkExistingPathFromStore(fileGDTPath, 'gltf', true)
   ) {
     console.log(itemProperties.fileStore, distanceGap, angleGap, fileGDTPath);
     return (

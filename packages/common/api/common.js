@@ -1,8 +1,12 @@
 var XMLHttpRequest = require('xhr2');
-// const baseURL = process.env.REACT_APP_GLTF_CONVERTER ? process.env.REACT_APP_GLTF_CONVERTER : 'https://cadapi.struct.services' ;
 // const baseURL = process.env.REACT_APP_GLTF_CONVERTER
-//  ? process.env.REACT_APP_GLTF_CONVERTER
-//  : 'http://localhost:8000';
+//   ? process.env.REACT_APP_GLTF_CONVERTER
+//   : 'https://cadapi.struct.services';
+
+// const baseURL = process.env.REACT_APP_GLTF_CONVERTER
+//   ? process.env.REACT_APP_GLTF_CONVERTER
+//   : 'http://localhost:8000';
+
 const baseURL = 'https://cadapi.struct.services';
 
 const resourcePathBase = `${baseURL}/`; //"./gltfconverter/";//
@@ -29,7 +33,7 @@ const isFileExistingInServer = async (urlAsFile) => {
     return false;
   } */
   try {
-    resData = await checkURLExists(urlAsFile);
+    const resData = await checkURLExists(urlAsFile);
     // console.log('Result', resData.status, urlAsFile);
     return resData && resData.status != 404;
   } catch (error) {

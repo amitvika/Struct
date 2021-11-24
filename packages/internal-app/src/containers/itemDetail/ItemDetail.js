@@ -151,7 +151,7 @@ const ItemDetail = ({ itemValue }) => {
   };
 
   const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
-    const myResourcePath = checkExistingPathFromStore(
+    const myResourcePath = await checkExistingPathFromStore(
       whichOneToStatus,
       'gltf',
       true
@@ -875,7 +875,10 @@ const ItemDetail = ({ itemValue }) => {
         }
       }
       //
-      const myResourcePath = checkExistingPathFromStore(whichOneToLoad, 'gltf');
+      const myResourcePath = await checkExistingPathFromStore(
+        whichOneToLoad,
+        'gltf'
+      );
       //
       const gltfRes = await getAFileFromURLStore(
         whichOneToLoad,

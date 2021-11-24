@@ -3,7 +3,7 @@ import {
   getAFileFromStore,
   getHierarchySplitFiles
 } from '@monostruct/common/api/fileUpload.api';
-import { STATEPROPS } from '@monostruct/common/gltf/Tree/utils';
+import { pollFunction } from '@monostruct/common/gltf/Tree/utils';
 
 import NewItemAPI from '@monostruct/common/api/items.api';
 
@@ -13,12 +13,24 @@ export const createChildItems = async ({
   parentId
 }) => {
   try {
-    const treeRes = await getAFileFromStore(
-      `${fileUUId}/${pathFileName}`,
-      'progress'
+    const datafile = `${fileUUId}/${pathFileName}`;
+    let fetchStatus = () => getAFileFromStore(datafile, 'progress');
+    let validateStatus = (result) => {
+      return !result.data.childwritten;
+    };
+    let percentFunction = (result) => result.data.childwritten;
+    // console.log('Entering poll', datagdt, dataload);
+    await pollFunction(
+      fetchStatus,
+      validateStatus,
+      30000,
+      null,
+      percentFunction,
+      null,
+      null
     );
-
-    const childFiles = get(treeRes, 'data.childfiles', []);
+    const childRes = await getAFileFromStore(datafile, 'progress');
+    const childFiles = get(childRes, 'data.childfiles', []);
     const newItem = childFiles.map((item) => ({
       fileUUId: item[0],
       name: item[1],

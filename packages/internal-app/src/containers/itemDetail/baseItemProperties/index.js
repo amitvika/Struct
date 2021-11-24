@@ -315,13 +315,13 @@ export default function BaseItemProperties({
             tree: treeRes.data,
             multiAssmebly: treeLength > 0,
             gdt: datagdt,
-            treeLength: treeRes.data.length,
+            treeLength: treeLength,
             resourcepath: resourcePathURL
           });
           setItemProperties((prevData) => ({
             ...prevData,
             multiAssmebly: treeLength > 0,
-            stepTreeLength: treeRes.data.length
+            stepTreeLength: treeLength
           }));
         }
       } else {

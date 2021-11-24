@@ -4862,7 +4862,7 @@ class GLTFRenderer extends Component {
                 '3';
             }
             //console.log("Inside Loop",fileStore,index,howManyFiles);
-            myResourcePath = checkExistingPathFromStore(
+            myResourcePath = await checkExistingPathFromStore(
               fileStore,
               'tree',
               false,
@@ -5358,7 +5358,7 @@ class GLTFRenderer extends Component {
                 );
               } else {
                 this.onInitProgress(gltfStore + '.gltf');
-                myResourcePath = checkExistingPathFromStore(
+                myResourcePath = await checkExistingPathFromStore(
                   fileStore,
                   'gltf',
                   false,

@@ -5411,3 +5411,45 @@ def FileSaveGDT(request):
                 logging.exception(e)
             except Exception as e:
                 print("Error while logging",e)
+
+@api_view(['GET'])
+def GetFileContent(request):
+    try:
+        """ try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e) """
+        dictionary = {}
+        if request.method == 'GET':
+            file = request.GET.get('file', None)
+            try:
+                data = read_content(file)
+                dictionary = json.loads(data)
+                print("Got file content for",file)
+            except Exception as e:
+                print("Error while reading file",e,file) 
+        return JsonResponse(dictionary, safe=False)
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    """ finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e) """
