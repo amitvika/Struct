@@ -1665,7 +1665,7 @@ class FindAssemblingOrder(object):
             currenttime=datetime.utcnow()             
             if bythread:
                 dictionary=self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,0)                
-                mythread = threading.Thread(target=self.threadAssembling,\
+                mythread = threading.Thread(target=self.threadAssembling, daemon=True, \
                     args=(sourceFileName,distancegap,anglegap,animationtime,starttime,dictionary["store"],debugMe,maxgap))
                 mythread.start()
             else:
