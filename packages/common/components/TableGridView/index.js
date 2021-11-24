@@ -9,6 +9,10 @@ import CommonAddUpdateModal from './AddUpdateModal';
 import LoadingModal from '../LoadingModal';
 import get from 'lodash/get';
 import TablePagination from '@material-ui/core/TablePagination';
+import {
+  getFromLocalStorage,
+  saveToLocalStorage
+} from '../../utils/usefulHelpers';
 
 const TableGridView = ({
   title,
@@ -41,12 +45,16 @@ const TableGridView = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
 
-  const [page, setPage] = React.useState(1);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const paginationValues = getFromLocalStorage(`${title}-pagination`) || {};
+  const [page, setPage] = React.useState(paginationValues.page || 1);
+  const [rowsPerPage, setRowsPerPage] = React.useState(
+    paginationValues.rowsPerPage || 100
+  );
   const [totalDocs, setTotalDocs] = React.useState(0);
 
   useEffect(() => {
     fetchResult();
+    saveToLocalStorage(`${title}-pagination`, { page, rowsPerPage });
   }, [page, rowsPerPage]);
 
   const fetchResult = () => {
