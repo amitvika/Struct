@@ -1214,7 +1214,8 @@ class StepExportWithColor(object):
                             distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,\
                                 moverotate=moverotate,thumbwidth=thumbwidth,thumbheight=thumbheight,\
                                     logging=logging,seperateparts=seperateparts, edgesize=edgesize,\
-                                        vertexsize=vertexsize,maximumfacestoinclude=maximumfacestoinclude).dump()
+                                        vertexsize=vertexsize,maximumfacestoinclude=maximumfacestoinclude).dump(False) 
+                                        #in thread background thumbnail creation is not working Hence forcing dump to be thread free.
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break

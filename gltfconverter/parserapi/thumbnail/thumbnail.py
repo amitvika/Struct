@@ -5781,7 +5781,15 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
         light=None
         myImage=None
         color=None
+        object_trimesh=None
+        object_meshes=None
+        object_gltf=None
+        rgba=None
+        newData=None
         r.delete()
+        r=None
+        cam_pose=None
+        light_pose=None
     except Exception as e:
         print("createThumbnailError11",e)
         return True
