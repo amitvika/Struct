@@ -1,16 +1,16 @@
 import React from 'react';
-import { Grid, Paper } from '@material-ui/core';
-import Checkbox from '../atoms/Checkbox';
+import { Grid, Paper, Button } from '@material-ui/core';
 import Headding from '../atoms/Headding';
 import Filter from './Filter';
 import IconButton from '@material-ui/core/IconButton';
-import AddIcon from '@material-ui/icons/AddBox';
+import AddIcon from '@mui/icons-material//AddBox';
 import Box from '@material-ui/core/Box';
+import HistoryIcon from '@mui/icons-material//History';
+import FolderDeleteIcon from '@mui/icons-material//DeleteSweepOutlined';
+import Tooltip from '@mui/material/Tooltip';
 
 export default function Toolbar({
   title,
-  isGridViewSelected,
-  setIsGridViewSelected,
   isViewArchivedChecked,
   handleViewArchived,
   isHistoryModalOpened,
@@ -24,41 +24,16 @@ export default function Toolbar({
 }) {
   const [isFilterResetted, setIsFilterResetted] = React.useState(false);
   return (
-    <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px' }}>
+    <Paper
+      style={{
+        padding: '10px',
+        marginTop: '10px',
+        marginBottom: '10px',
+        position: 'relative'
+      }}
+      elevation={8}
+    >
       <Grid container>
-        <Grid item xs="auto">
-          <Checkbox
-            checked={isGridViewSelected}
-            size="large"
-            label="View GridView"
-            onChange={() => setIsGridViewSelected(!isGridViewSelected)}
-            sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
-          />
-
-          {isHistoryCheckboxVisible && (
-            <Checkbox
-              checked={isHistoryModalOpened}
-              label="Show History"
-              onChange={handleHistoryToggle}
-            />
-          )}
-
-          {isDeleteCheckboxVisible && (
-            <Checkbox
-              checked={isViewArchivedChecked}
-              label="View Archived"
-              onChange={handleViewArchived}
-            />
-          )}
-
-          {title === 'Items' && (
-            <>
-              <Checkbox label="Unused by Other Items" />
-              <Checkbox label="Unused by Clients" />
-            </>
-          )}
-        </Grid>
-
         <Grid item xs style={{ display: 'flex', flexDirection: 'column' }}>
           <Filter {...restProps} {...{ setIsFilterResetted }} />
           {AdditionalFilter !== null && (
@@ -66,26 +41,49 @@ export default function Toolbar({
           )}
         </Grid>
       </Grid>
+      <Box
+        style={{
+          position: 'absolute',
+          display: 'flex',
+          width: '100%',
+          justifyContent: 'center'
+        }}
+      >
+        <Headding as={'h4'} title={title}></Headding>
+      </Box>
 
-      <Grid container spacing={3}>
-        <Grid item xs>
-          <Box textAlign="center" m={1}>
-            <Headding as={'h4'} title={title}></Headding>
-          </Box>
-        </Grid>
-        {isCustomAddButtonVisible && (
-          <Grid item xs={1}>
-            <IconButton
-              color="primary"
-              aria-label="upload picture"
-              component="span"
-              onClick={handleAddButtonPress}
-            >
-              <AddIcon />
+      <Box style={{ display: 'flex', justifyContent: 'center' }}>
+        <Box style={{ marginLeft: 'auto' }}>
+          <Tooltip title="View History">
+            <IconButton onClick={handleHistoryToggle}>
+              <HistoryIcon
+                sx={{
+                  fontSize: 30,
+                  color: `${isHistoryCheckboxVisible ? '#000000' : 'disabled'}`
+                }}
+              />
             </IconButton>
-          </Grid>
-        )}
-      </Grid>
+          </Tooltip>
+          <Tooltip title="View Archived Items">
+            <IconButton onClick={handleViewArchived}>
+              <FolderDeleteIcon
+                sx={{
+                  fontSize: 30,
+                  color: `${isViewArchivedChecked ? '#000000' : 'disabled'}`
+                }}
+              />
+            </IconButton>
+          </Tooltip>
+
+          {isCustomAddButtonVisible && (
+            <Tooltip title="Create New Item">
+              <IconButton onClick={handleAddButtonPress}>
+                <AddIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
+      </Box>
     </Paper>
   );
 }
