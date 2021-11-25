@@ -4221,9 +4221,10 @@ class StepIgesAnalyser():
                     filename=self.fname,includeparts=False,distancegap=self.distancegap, logging=logging, 
                     anglegap=self.anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
                     edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M").dump()
+            dictionaryOrderTree = dictionaryOrder["tree"]
             shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder = StepExportWithColor().\
-                getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrder["tree"],\
-                    myTreeLenBeforeAddingEdgesAndVertices)
+                getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,\
+                    len(dictionaryOrderTree))
             orderStatusName = self.basefilename[:-1]+'M'
             StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
                 30,self.starttime,False)
