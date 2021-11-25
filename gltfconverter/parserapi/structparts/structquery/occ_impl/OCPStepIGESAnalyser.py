@@ -1035,7 +1035,7 @@ class StepExportWithColor(object):
         return None
     
     def getShapesFromOutPutShapes(self,shapes,myParent,mytree,treeLength):
-        assemblyCount, myAssemblies, myAssemblyName  = self.GetFirstLevelAssemblyOutPutShapes(shapes,myParent,mytree,treeLength)
+        assemblyCount, myAssemblies, myAssemblyName  = self.GetFirstLevelAssemblyOutPutShapesForOrder(shapes,myParent,mytree,treeLength)
         retshapes=[]
         onlyshapes=[]
         if (myAssemblies is None) or (assemblyCount==0):
@@ -1310,7 +1310,7 @@ class StepExportWithColor(object):
         else:
             return (None, treeDisplay, R, G, B)
 
-    def GetFirstLevelAssemblyOutPutShapes(self,shapes,myParent,myTree,treeLength):
+    def GetFirstLevelAssemblyOutPutShapesForOrder(self,shapes,myParent,myTree,treeLength):
         name = None
         lengthCheck = 0
         #print("Passed",myTree)
