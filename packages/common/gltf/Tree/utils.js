@@ -564,3 +564,10 @@ export const getFileNameWithoutExtension = (filename) => {
   }
   return filenameWithExtension;
 };
+
+export const isEmptyObjectDictionary = (obj) => {
+  for (var x in obj) {
+    if (obj.hasOwnProperty(x)) return false;
+  }
+  return true;
+};

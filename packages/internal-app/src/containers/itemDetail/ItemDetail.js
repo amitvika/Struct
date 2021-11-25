@@ -31,7 +31,8 @@ import ItemAPI from '@monostruct/common/api/items.api';
 import {
   SELECTFEATURE,
   STATEPROPS,
-  pollFunction
+  pollFunction,
+  isEmptyObjectDictionary
   //isFileExistingInServer,
   //checkDBNull
 } from '@monostruct/common/gltf/Tree/utils';
@@ -161,11 +162,17 @@ const ItemDetail = ({ itemValue }) => {
       return 0;
     }
     const statusURL = `${resourceStatusURL}${whichOneToStatus}.status`;
+    //console.log('Checking Existing', statusURL);
     if (isFileExistingInServer(statusURL)) {
       //console.log('Found status', whichOneToLoad);
       const statusRes = await getAFileFromStore(whichOneToStatus, 'status');
       let percent = 0;
-      if (statusRes) {
+      if (
+        statusRes &&
+        statusRes.data &&
+        !isEmptyObjectDictionary(statusRes.data)
+      ) {
+        //console.log('Status Result', statusRes, statusRes.data);
         percent = statusRes.data.percent;
         if (percent == 100) {
           return 0;
@@ -332,12 +339,15 @@ const ItemDetail = ({ itemValue }) => {
           item.fileMPPS = null;
         }
       }
+      //console.log('Ok to Parse', okToParse, 'File MPPS', item.fileMPPS);
       if (!item.fileMPPS || item.fileMPPS === null) {
         //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+        //console.log('Setting here', okToParse);
         setIsLoading(true);
         setIsFileLoading(true);
-        console.log('Setting here');
-        getPartsAssemblyOrder(
+        setProgressBarLoad(true);
+        let percent = 0;
+        const getHierarchyRes = await getPartsAssemblyOrder(
           getStepFile(item),
           item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
           item.angleGap ? item.angleGap : STATEPROPS.anglegap,
@@ -346,24 +356,58 @@ const ItemDetail = ({ itemValue }) => {
           STATEPROPS.holescale,
           STATEPROPS.removegap,
           STATEPROPS.animationtime
-        )
-          .then((res) => res.data)
-          .then((repos) => {
-            console.log('Coming Here');
-            const multiAssmebly = get(repos, 'tree', []).length > 0;
-            const mpps = repos['store'];
+        );
+        setIsFileLoading(false);
+        let datastore = getHierarchyRes.data.store;
+        let dataload = getHierarchyRes.data.load;
+        const datastatus = getHierarchyRes.data.status;
+        if (datastatus) {
+          percent = datastatus.percent;
+        }
+        setPercentage(percent);
+        if ((!datastore || percent != 100) && item.fileUUId) {
+          if (!datastore) {
+            setIsLoading(false);
+            setIsFileLoading(false);
+          } else {
+            const datafile = item.fileUUId + '/' + datastore;
+            let fetchStatus = () => getAFileFromStore(datafile, 'status');
+            let validateStatus = (result) => {
+              //console.log(result.data,result.data.percent,result.data.percent!=100);
+              return result.data.percent != 100;
+            };
+            let percentFunction = (result) =>
+              result.data.percent ? result.data.percent : percentage;
+            await pollFunction(
+              fetchStatus,
+              validateStatus,
+              20000,
+              setPercentage,
+              percentFunction,
+              setCurrentProgressText,
+              setCompletionProgressText
+            );
+            const gltfRes = await getAFileFromStore(datafile, 'gltf');
+            const treeRes = await getAFileFromStore(datafile, 'tree');
+            const orderRes = await getAFileFromStore(datafile, 'order');
+
+            const multiAssmebly = treeRes.length > 0;
+            const mpps = gltfRes.data['store'];
             item.fileMPPS = mpps;
             setgltfjson({
-              ...repos,
+              gltf: gltfRes.data,
+              tree: treeRes.data,
+              assemblyorder: orderRes.data,
+              multiAssmebly: multiAssmebly,
+              treeLength: treeRes.data.length,
               kinematic: item.fileKinematic,
               mpps: mpps,
               store: item.fileStore,
               stack: item.fileStack,
               gdt: item.fileGDT,
-              multiAssmebly: multiAssmebly,
-              treeLength: repos['tree'].length,
               resourcepath: resourcePathURL
             });
+
             setItemProperties((prevData) => ({
               ...prevData,
               fileMPPS: mpps
@@ -371,11 +415,25 @@ const ItemDetail = ({ itemValue }) => {
             setIsLoading(false);
             setIsFileLoading(false);
             //console.log('Done');
-          })
-          .catch((err) => {
+          }
+        } else {
+          if (!datastore) {
             setIsLoading(false);
-            console.log('Error While Parsing', err);
+            setIsFileLoading(false);
+          }
+          setgltfjson({
+            ...getHierarchyRes.data,
+            kinematic: item.fileKinematic,
+            mpps: item.fileMPPS,
+            store: item.fileStore,
+            stack: item.fileStack,
+            gdt: item.fileGDT,
+            resourcepath: resourcePathURL
           });
+          setIsLoading(false);
+          setIsFileLoading(false);
+        }
+        setProgressBarLoad(false);
       } else {
         //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
         fetchGLTFAndTree(
@@ -398,6 +456,7 @@ const ItemDetail = ({ itemValue }) => {
     } catch (error) {
       setIsLoading(false);
       setIsFileLoading(false);
+      setProgressBarLoad(false);
       console.log('Error in SetOrder', error);
     }
   };
@@ -851,7 +910,11 @@ const ItemDetail = ({ itemValue }) => {
       if (fileUUId && okToParse == 1) {
         const statusRes = await getAFileFromStore(whichOneToLoad, 'status');
         let percent = 0;
-        if (statusRes) {
+        if (
+          statusRes &&
+          statusRes.data &&
+          !isEmptyObjectDictionary(statusRes.data)
+        ) {
           percent = statusRes.data.percent;
         }
         setPercentage(percent);
@@ -874,6 +937,7 @@ const ItemDetail = ({ itemValue }) => {
           );
         }
       }
+      // console.log('Fetching files, ', whichOneToLoad);
       //
       const myResourcePath = await checkExistingPathFromStore(
         whichOneToLoad,

@@ -34,7 +34,7 @@ from .structparts import Assembly
 #from .structparts.codec.mstep import Exporter
 from .structparts import conversion
 #from .structparts.structquery.occ_impl import OCPDataExchange
-from .structparts.structquery.occ_impl import OCPStepIGESAnalyser, OCPImporters
+from .structparts.structquery.occ_impl import (OCPStepIGESAnalyser, OCPImporters)
 from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
 
 from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
@@ -4700,6 +4700,10 @@ def findMyShapeByTreeID(shapes,treeID):
     return None
 
 def getShapesFromOutPutShapes(shapes,mytree):
+    return  OCPStepIGESAnalyser.StepExportWithColor().\
+        getShapesFromOutPutShapes(shapes,1,mytree,len(mytree))
+
+def getShapesFromOutPutShapes_old(shapes,mytree):
     retshapes=[]
     subshapes=[]
     onlyshapes=[]
@@ -4816,7 +4820,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
     #Now read and return the shape
-   
+    print("Export",sourceFileName,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,byThread,starttime)
     try:
         
         #starttimeinexport = datetime.utcnow()
@@ -4944,7 +4948,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
             #shape = Wholeshape
             #shapeArray = createShapeArray(shape)
-            print("Order",dictionary)
+            #print("Order",dictionary)
             FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap,logging).\
                 ExplodeParts(sourceFileName,distancegap,anglegap,animationtime,dictionary["display"],byThread,starttime)
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],100,starttime,False)
@@ -5015,7 +5019,7 @@ def FileGetAssemblyOrder(request):
             animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
             #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
             #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
-            print(id,distancegap,anglegap,explodegap,center)
+            print("Before Export",id,distancegap,anglegap,explodegap,center,holescale,removegap)
             starttime = datetime.utcnow() 
             if is_number(id) :            
                 files = File.objects.filter(id__icontains=id)

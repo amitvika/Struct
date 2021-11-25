@@ -1346,7 +1346,7 @@ class FindAssemblingOrder(object):
             while k < lenShape:
                 currenttime = datetime.utcnow()
                 timingdelta = currenttime-previoustime
-                if (timingdelta.total_seconds() >= maxgap) and (self.byThread):
+                if (timingdelta.total_seconds() >= maxgap): # and (self.byThread):
                     if(previousk != k):
                         self.writeToOrderFile(storename,starttime,currenttime,k)
                         previousk = k 
@@ -1662,14 +1662,14 @@ class FindAssemblingOrder(object):
         dictionary={}
         try:
             self.InitExplodeParts(debugMe)
-            currenttime=datetime.utcnow()             
+            currenttime=datetime.utcnow()   
+            dictionary=self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,0)
             if bythread:
-                dictionary=self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,0)                
                 mythread = threading.Thread(target=self.threadAssembling, daemon=True, \
                     args=(sourceFileName,distancegap,anglegap,animationtime,starttime,dictionary["store"],debugMe,maxgap))
                 mythread.start()
             else:
-                dictionary = self.threadAssembling(sourceFileName,distancegap,anglegap,animationtime,starttime,None,debugMe,maxgap)       
+                dictionary = self.threadAssembling(sourceFileName,distancegap,anglegap,animationtime,starttime,dictionary["store"],debugMe,maxgap)       
         except Exception as e:
             print("Error in Exploding Parts",e)  
         #if not bythread: 
