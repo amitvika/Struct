@@ -20,6 +20,7 @@ router.register(r'files', views.FileGetAssemblyOrder, basename='assemblyorder' )
 router.register(r'files', views.FileGetKinematicAnimation, basename='kinematicorder' )
 router.register(r'files', views.FileSaveTree, basename='savetree' )
 router.register(r'files', views.FileSaveGDT, basename='savegdt' )
+router.register(r'files', views.GetFileContent, basename='getcontent' )
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.FileUploadChunk
 urlpatterns = [
@@ -39,7 +40,8 @@ urlpatterns = [
     re_path(r'^api/v0/assemblyorder$', views.FileGetAssemblyOrder),
     re_path(r'^api/v0/kinematicorder$', views.FileGetKinematicAnimation),
     re_path(r'^api/v0/savetree', views.FileSaveTree),
-    re_path(r'^api/v0/savegdt', views.FileSaveGDT)
+    re_path(r'^api/v0/savegdt', views.FileSaveGDT),
+    re_path(r'^api/v0/getcontent$', views.GetFileContent),
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + \
     static(settings.DISPLAY_URL, document_root=settings.DISPLAY_ROOT) + \
         static(settings.S3MEDIA_URL, document_root=settings.S3MEDIA_ROOT) + \

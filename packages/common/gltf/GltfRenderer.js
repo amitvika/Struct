@@ -116,7 +116,8 @@ import {
   arrayCopy,
   arrayRemoveFromValue,
   arrayRemoveFromMesh,
-  pollFunction
+  pollFunction,
+  isEmptyObjectDictionary
 } from './Tree/utils';
 import './styles/style.css';
 
@@ -570,10 +571,13 @@ class GLTFRenderer extends Component {
     );
     this.controls.addEventListener('end', this.controlsEnd.bind(this), false);
     this.addAxesHelper(myView);
-    if (this.content) {
+    if (this.content && this.content.length > 0) {
       const object = this.content[0];
       //console.log(object);
-      this.updateCameraControls(object, false);
+      if (object) {
+        this.updateCameraControls(object, false);
+      }
+
       //this.updateLights();
     } else {
       if (this.initDone) {
@@ -1299,9 +1303,14 @@ class GLTFRenderer extends Component {
 
     this.clips = clips;
     //console.log(this.clips);
-    if (!clips.length) return;
+    if (!clips.length) {
+      return;
+    }
     //console.log(this.content[0]);
-    this.mixer = new AnimationMixer(this.content[0]);
+    if (this.content && this.content.length > 0) {
+      this.mixer = new AnimationMixer(this.content[0]);
+    }
+
     this.playAllClips(this.state.pauseAnimation, true);
   };
 
@@ -1372,7 +1381,7 @@ class GLTFRenderer extends Component {
       if (this.controls) {
         this.controls.enabled = false;
       }
-      if (this.content) {
+      if (this.content && this.content.length > 0) {
         this.content[0]
           ? this.content[0].traverse((node) => {
               if (node.isCamera && node.name === name) {
@@ -1974,6 +1983,9 @@ class GLTFRenderer extends Component {
             this.gui.removeFolder(this.partsFolder);
         }
         this.partsFolder = this.gui.addFolder("Parts"); */
+    if (!meshes) {
+      return;
+    }
     this.partsMeshes = meshes.children;
     this.raycastObjects = this.rayCastObjectFilters(this.partsMeshes);
     if (this.partsMeshes[0].children.length > 0) {
@@ -4862,7 +4874,7 @@ class GLTFRenderer extends Component {
                 '3';
             }
             //console.log("Inside Loop",fileStore,index,howManyFiles);
-            myResourcePath = checkExistingPathFromStore(
+            myResourcePath = await checkExistingPathFromStore(
               fileStore,
               'tree',
               false,
@@ -4874,7 +4886,11 @@ class GLTFRenderer extends Component {
               'tree',
               myResourcePath
             );
-            if (treeRes && treeRes.data) {
+            if (
+              treeRes &&
+              treeRes.data &&
+              !isEmptyObjectDictionary(treeRes.data)
+            ) {
               const state_gltfobj =
                 this_state_gltf || this.state.gltfobj || this.props.gltfobj;
               //console.log("Inside upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj)
@@ -5358,7 +5374,7 @@ class GLTFRenderer extends Component {
                 );
               } else {
                 this.onInitProgress(gltfStore + '.gltf');
-                myResourcePath = checkExistingPathFromStore(
+                myResourcePath = await checkExistingPathFromStore(
                   fileStore,
                   'gltf',
                   false,
