@@ -170,7 +170,7 @@ export const getAFile = async (file) => {
 };
 export const getAFileFromURLStore = async (store, ext, fromURL) => {
   if (ext == 'status' || ext == 'progress') {
-    const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
+    const fetchURL = `${resourcePathStatus}${store}.${ext}`;
     // console.log(fetchURL);
     return getAFile(fetchURL);
   } else {
@@ -194,7 +194,7 @@ export const getAFileFromURLStore = async (store, ext, fromURL) => {
 export const getAFileFromStore = async (store, ext) => {
   if (ext == 'status' || ext == 'progress') {
     // const fetchURL = `${resourceStatusURL}${store}.${ext}`;
-    const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
+    const fetchURL = `${resourcePathStatus}${store}.${ext}`;
     // console.log(fetchURL);
     return getAFile(fetchURL);
     // console.log(fetchURL);
@@ -343,11 +343,10 @@ export const isFileExistingInServer = async (urlAsFile) => {
   }
 };
 
-export const resourcePathStatus = 'Status/';
+export const resourcePathStatus = 'Display/';
 export const resourcePathDisplay = 'Display/';
-export const resourcePathS3 = `S3${resourcePathDisplay}`;
+export const resourcePathS3 = `s3bucket/${resourcePathDisplay}`;
 export const resourcePathBase = `${baseURL}/`; //"./gltfconverter/";//
-export const resourcePathURL = `${resourcePathBase}${resourcePathDisplay}`;
-('//http://localhost:8000/Media/');
-export const resourceStatusURL = `${resourcePathBase}${resourcePathStatus}`;
-export const resourcePathS3URL = `${resourcePathBase}${resourcePathS3}`; //"./gltfconverter/";//
+export const resourcePathURL = `${resourcePathBase}Display/`; //('//http://localhost:8000/Media/');
+export const resourceStatusURL = `${resourcePathBase}Status/`;
+export const resourcePathS3URL = `${resourcePathBase}S3Display/`; //"./gltfconverter/";//
