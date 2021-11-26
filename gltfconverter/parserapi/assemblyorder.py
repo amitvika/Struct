@@ -24,11 +24,13 @@ def swap(a, b):
 
 class FindAssemblingOrder(object):
     
-    def __init__(self, shapeColorArray,shapeArray,name,dimension,explodegap=10.0,center=True,holescale=0.8,removegap=1.0,logging=None):
+    def __init__(self, shapeColorArray,shapeArray,name,aColorAssemblyOrder,dimension,explodegap=10.0,center=True,holescale=0.8,removegap=1.0,logging=None):
         
         self.shapeArray = shapeArray 
         self.shapeColorArray = shapeColorArray 
         self.name = name  
+        R,G,B = aColorAssemblyOrder
+        self.aColorAssemblyOrder = Quantity_Color(R,G,B,Quantity_TOC_RGB)
         self.dimension = dimension 
         self.explodegap = explodegap 
         self.center = center 
@@ -965,7 +967,7 @@ class FindAssemblingOrder(object):
         
         fullShape,converted = list_of_shapes_to_compound(self.shapesArray)
         if(converted):
-            self.newShapes.append((fullShape,self.name,None))
+            self.newShapes.append((fullShape,self.name,self.aColorAssemblyOrder))
         else:
             firstTime = True
             for (aShape,aName,aColor) in self.shapesColorArray:

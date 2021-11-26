@@ -1,8 +1,8 @@
 
 from math import ceil
-
+import os
 import json
-
+from datetime import datetime
 
 from .structparts.structquery.occ_impl import OCPStepIGESAnalyser
 
@@ -60,21 +60,6 @@ def createShapeArray(shapes):
         shapeArray.append((aShape,"ID"+str(myID),None))
     return shapeArray
 
-
-def getFacesDimensions(aShape):
-    faces_dict = {}
-    edges_dict = {}
-    vertices_dict = {}
-    dumpTopologyFacesEdgesVertices(aShape,faces_dict,edges_dict,vertices_dict)
-    face_dimensions_dict = {}
-    for hash_solidface, solidface in faces_dict.items():
-        fill, dir, facetype = recognize_direction(solidface)        
-        face_dimensions_dict[hash_solidface] = (solidface,get_bounding_details(solidface),fill,dir,facetype)
-            
-    #for hash_solidface, (solidface, boundingitems, face) in face_dimensions_dict.items():
-    #    print(hash_solidface, solidface, boundingitems, face )
-    #print(faces_dict, edges_dict, vertices_dict )
-    return face_dimensions_dict, edges_dict, vertices_dict
 
 def stackableDictonary(outputShapes, distancegap, tol = 0.1):
     dimension, _ = outputShapes
@@ -146,7 +131,9 @@ def movingParameters(dimension, fullstack, tol = 0.1):
     
     return xmove,ymove,zmax-zmin                 
 
-def duplicateShapes(shape,dimension,depthable,stackable):  
+def duplicateShapes(shape,dimension,depthable,stackable,filename,basefilename,displaypath,starttime=None):  
+    if starttime==None:
+        starttime=datetime.utcnow()
     xmin, ymin, zmin, xmax, ymax, zmax = dimension 
     HalfDepth = (zmax-zmin)*0.5
     noOfDuplicates=0
@@ -175,22 +162,42 @@ def duplicateShapes(shape,dimension,depthable,stackable):
                 if (bottomdepth < (zmove+depth)):
                     zmove += (depth-bottomdepth)
             
-            
+        getEmptyDictionary(filename,basefilename,displaypath,45,starttime,False)    
         distance = 1e10
         prevdistance = 0
+        currenttime=datetime.utcnow()
+        previoustime=currenttime
         while distance > 1e-2:
+            currenttime = datetime.utcnow()
+            timingdelta = currenttime-previoustime
+            if (timingdelta.total_seconds() > 5):
+                getEmptyDictionary(filename,basefilename,displaypath,55,starttime,False)
+                previoustime=currenttime
             AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)
             (wdistance, distance, points1, points2) = minimum_z_distance(shape[0],AnotherShape)
-            
-            if ( (prevdistance-distance) >= (0.4*distance/1.4)):
-                zmove -= distance
-                prevdistance = distance * 1.4
-                print("Dmove1", zmove, distance, wdistance, points1, points2, prevdistance)
-            else:
-                #print("Zmove", zmove, distance, points1, points2)
-                zmove -= distance/1.4        
-                prevdistance = distance
-                print("Dmove2", zmove, distance, points1, points2, prevdistance)
+            AnotherShape=translate_shp(shape[0],xmove, ymove, zmove-wdistance, True)
+            myshapecommon = BRepAlgoAPI_Common(AnotherShape,shape[0]).Shape()
+            if myshapecommon==None:
+                distance = wdistance  
+                zmove -= wdistance
+            _,_,zmins,_,_,zmaxs= get_bounding_details(myshapecommon)             
+            if (zmaxs-zmins) < wdistance:
+                distance = wdistance-zmaxs+zmins 
+                zmove = zmove-wdistance+zmaxs-zmins 
+                print("Dmove0", zmove, distance, wdistance, points1, points2, prevdistance) 
+                AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)
+                (wdistance, distance, points1, points2) = minimum_z_distance(shape[0],AnotherShape)
+            else:        
+                print(get_bounding_details(myshapecommon))    
+                if ( (prevdistance-distance) >= (0.4*distance/1.4)):
+                    zmove -= distance
+                    prevdistance = distance * 1.4
+                    print("Dmove1", zmove, distance, wdistance, points1, points2, prevdistance)
+                else:
+                    #print("Zmove", zmove, distance, points1, points2)
+                    zmove -= distance/1.4        
+                    prevdistance = distance
+                    print("Dmove2", zmove, distance, points1, points2, prevdistance)
         
         stackability = (len(points1) >2) and (len(points2) >2)       
         print("Stackability",len(points1),len(points2),(len(points1) >2) and (len(points2) >2),stackability)
@@ -252,8 +259,42 @@ def duplicateShapes(shape,dimension,depthable,stackable):
         AnotherShape=translate_shp(shape[0],xmove*i, ymove*i, zmove*i, True)
         shapeList.append(AnotherShape)
         moveArrays.append((xmove*i, ymove*i, zmove*i))
+    
     return shapeList, noOfDuplicates, moveArrays
-     
 
+def getEmptyDictionary(filename,basefilename,displaypath,percentage,starttime,createdirectory):
+    
+    currenttime = datetime.utcnow()  
+    mystatusdict =  {
+            "percent":(percentage),
+            "start":starttime.strftime("%H-%M-%S"),
+            "current":currenttime.strftime("%H-%M-%S") }
+    statusfilename = displaypath+basefilename+".status" 
+    try:   
+        if(createdirectory):
+            os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
+        print("Writing",statusfilename,"Percentage",percentage) 
+        with open(statusfilename, 'w') as fh:
+            fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))            
+    except Exception as e:
+        print("Error while wrting",statusfilename,e)
+    
+    dict_return = {
+        "gltf":{},
+        "tree":[],
+        "store":basefilename,
+        "load":filename,
+        "gdttable":[{ "edges":[],
+                    "selectedObjects":[],
+                    "parentObjects":[],
+                    "mates":[],
+                    "mateValues": [False,False,False,False,False,False],
+                    "angle":0,
+                    "offset":0,
+                    "option":26,
+                    "key":"" }],
+        "status": mystatusdict,
+        "display":displaypath }	                
+    return dict_return
 
     

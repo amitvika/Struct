@@ -1040,11 +1040,13 @@ class StepExportWithColor(object):
         onlyshapes=[]
         if (myAssemblies is None) or (assemblyCount==0):
             myAssemblies = []
+        R,G,B=0.3,0.32,0.37
         for (aShape, aName, aR, aG, aB) in myAssemblies:
             if aShape:
                 onlyshapes.append(aShape)
                 retshapes.append((aShape,aName,Quantity_Color(aR,aG,aB,Quantity_TOC_RGB)))
-        return (retshapes,onlyshapes,myAssemblies,myAssemblyName)
+                R,G,B=aR,aG,aB
+        return (retshapes,onlyshapes,myAssemblies,myAssemblyName,(R,G,B))
 
     def writeStatus(self,basefilename,displaypath,percentage,starttime,createdirectory):
         currenttime = datetime.utcnow()  
@@ -1078,7 +1080,10 @@ class StepExportWithColor(object):
             myTreeParent = aTree[self.gltf_dict['parentId']]
             if(myTreeParent==myParent):
                 if(len(subshapes)>0):
-                    mergedshape,_ =  list_of_shapes_to_compound(subshapes)
+                    if(len(subshapes)>1):
+                        mergedshape,_ =  list_of_shapes_to_compound(subshapes)
+                    else:
+                        mergedshape = subshapes[0]
                     retshapes.append((mergedshape,subShapeName,subShapeColor))
                     onlyshapes.append(mergedshape)
                     red = 0
@@ -1107,7 +1112,11 @@ class StepExportWithColor(object):
                 subShapeColor=c
                 subshapes.append(shape_to_disp)
         if(len(subshapes)>0):
-            mergedshape,_ =  list_of_shapes_to_compound(subshapes)
+            #mergedshape,_ =  list_of_shapes_to_compound(subshapes)
+            if(len(subshapes)>1):
+                mergedshape,_ =  list_of_shapes_to_compound(subshapes)
+            else:
+                mergedshape = subshapes[0]
             retshapes.append((mergedshape,subShapeName,subShapeColor))   
             onlyshapes.append(mergedshape) 
             red = 0
@@ -1290,9 +1299,7 @@ class StepExportWithColor(object):
         comp_builder.MakeCompound(comp)        
         if name is None:
             name =  "Struct Assembly "+str(myParent)
-        R=0.1
-        G=0.1
-        B=0.1
+        R,G,B=0.3,0.32,0.37
         lengthCheck=0
         oneItemAdded = 0
         for aTree in myTree:
@@ -1454,7 +1461,7 @@ class StepIgesAnalyser():
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
         defaultR=0.3,defaultG=0.32,defaultB=0.37,seperateparts=False,seperatecompounds=True,
         recursiveShapes=None,recursiveTree=None,recursiveID=1,
-        explodegap=10.0,center=True,holescale=0.77,removegap=8.0):
+        explodegap=10.0,center=True,holescale=0.77,removegap=8.0,recreatefororder=False):
         """Supply one or the other: document or STEP filename or Shapes."""
         self.starttime = datetime.utcnow()
         self.percentage = 0
@@ -1489,6 +1496,7 @@ class StepIgesAnalyser():
         else:
             self.onebyholescale = self.holescale
         self.removegap = removegap
+        self.recreatefororder = recreatefororder
         try:
             self.commonpipe = BRepPrimAPI_MakeBox(gp_Pnt(0,0,0),0.1,0.1,0.1).Shape()
             self.commoncompound, _ = list_of_shapes_to_compound(self.commonpipe)
@@ -1969,8 +1977,7 @@ class StepIgesAnalyser():
                 print("There is no need to add outer infinity shell to the shapes",aShape.Infinite(), aShape.ShapeType())
                 return [],[],None, None, " ", False
         #if self.includeparts:
-        #    disectparts = True
-        
+        #    disectparts = True        
         transformationHash = self.hashCode(localTransform)
         if disectparts:  
             faces_dict = {}
@@ -2086,16 +2093,26 @@ class StepIgesAnalyser():
                 if (len_color_arr<=2) or doParts or (mylenFaceDict > self.multiplegltf) or (fromCompound) or (self.seperateparts):
                     (R,G,B)=only_Colors[len_color_arr-1]
                     #print("Colors",R,G,B,len_color_arr,len(only_soilds))
-                    mycompound,_ = list_of_shapes_to_compound(only_soilds)                     
-                    hashcode = str(hash(mycompound))+transformationHash
-                    list_of_compounds.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hashcode))
+                    mycompound = BRepBuilderAPI_Transform(aShape, localTransform).Shape()
+                    if mycompound.IsNull(): 
+                        if(len(only_soilds)!=1):
+                            print("I am coming here","PARTS",self.fname)
+                            mycompound,_ = list_of_shapes_to_compound(only_soilds)
+                        else:
+                            print("I am coming here","PART1",self.fname)
+                            mycompound = only_soilds[0] 
+                        hashcode = str(hash(mycompound))+transformationHash
+                    else:
+                        print("I am doing direct","PART",self.fname)
+                        hashcode = str(hash(aShape))+transformationHash
+                    list_of_compounds.append((mycompound,Quantity_Color(R*0.98,G*0.98,B*0.98, Quantity_TOC_RGB),hashcode))                 
                     return list_of_compounds, list_of_solids, reduced_edges_dict, reduced_corners_dict, "PART" , ((mylenFaceDict < self.maximumfacestoinclude) and (not fromCompound) and (not self.seperateparts)) # (len_color_arr>2) and (len(faces_dict) < self.multiplegltf)
                 else:
+                    print("I am coming here","FACE",self.fname)
                     return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE", False
             #else:
             #    #print("Colors",len(only_Colors),len(only_soilds))                    
-            #    #return list_of_solids, edges_dict, vertices_dict
-            
+            #    #return list_of_solids, edges_dict, vertices_dict            
             return list_of_solids, list_of_solids, reduced_edges_dict, reduced_corners_dict, "FACE", False
         else:
             list_of_solids = []
@@ -2106,6 +2123,7 @@ class StepIgesAnalyser():
                 hashcode = str(hash(aShape))+transformationHash
                 list_of_solids.append((shape_disp,Quantity_Color(parentColor.Red(),parentColor.Green(),parentColor.Blue(), Quantity_TOC_RGB),hashcode))
                 #print(hashcode,localTransform) 
+            print("I am doing direct","PART",self.fname)
             return list_of_solids,list_of_solids, None, None, "PART", False
                 
     def getDarken(self, faceColor, factor):
@@ -4217,23 +4235,32 @@ class StepIgesAnalyser():
                             self.logging, self.seperateparts, self.edgesize, self.vertexsize,\
                                  self.maximumfacestoinclude)            
             self.write_progress(maxgap=0,action='Child Items Written',written=True)
-            (_, (orderDimension, outputShapesOrder), dictionaryOrder) = StepIgesAnalyser(
-                    filename=self.fname,includeparts=False,distancegap=self.distancegap, logging=logging, 
-                    anglegap=self.anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
-                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M").dump()
-            dictionaryOrderTree = dictionaryOrder["tree"]
-            shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder = StepExportWithColor().\
-                getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,\
-                    len(dictionaryOrderTree))
+            print("Starting Assembly order",self.fname)
+            if self.recreatefororder:
+                (_, (orderDimension, outputShapesOrder), dictionaryOrder) = StepIgesAnalyser(
+                        filename=self.fname,includeparts=False,distancegap=self.distancegap, logging=logging, 
+                        anglegap=self.anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
+                        edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M").dump(False)
+                dictionaryOrderTree = dictionaryOrder["tree"]
+                lenDictionaryOrderTree = len(dictionaryOrderTree)
+            else:
+                orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
+                    self.scene_max[0],self.scene_max[1],self.scene_max[2])
+                outputShapesOrder = self.outputShapes
+                dictionaryOrderTree=self.tstep_dict["tree"]
+                lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
+            shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
+                getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,lenDictionaryOrderTree)
             orderStatusName = self.basefilename[:-1]+'M'
             StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
                 30,self.starttime,False)
-            FindAssemblingOrder(shapeArrayOrder,shapeOrder,aNameOrder,orderDimension,self.explodegap,\
+            FindAssemblingOrder(shapeArrayOrder,shapeOrder,aNameOrder,aColorAssemblyOrder,orderDimension,self.explodegap,\
                 self.center,self.holescale,self.removegap,logging).ExplodeParts(\
                     self.fname,self.distancegap,self.anglegap,self.delay,COPY_PATH+self.displaypath,\
                         False,self.starttime)
             StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
                 100,self.starttime,False)
+            print("Completing Assembly order",self.fname)
             try:
                 myPickle = {'sourceType':'Order',
                                 'sourceFileName':self.fname,

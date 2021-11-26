@@ -179,7 +179,7 @@ logger = logging.getLogger()
 logger.addHandler( logHandler )
 logger.setLevel( logging.INFO )
 
-recursiveCopier = RecursiveCopier(600,copyFiles)
+recursiveCopier = RecursiveCopier(16000,copyFiles)
 recursiveCopier.start()
 
 def logRoundtrip(response, *args, **kwargs): 
@@ -2022,7 +2022,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S").dump()
-            getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)  
+            getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],35,starttime,False)  
             #print(outputShapes)
             dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1) 
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],40,starttime,False)             
@@ -4944,12 +4944,12 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             #return dictionary 
         try:
             dimension, myShapes = outputShapes
-            shapeArray,shape,shapePickles,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            shapeArray,shape,shapePickles,aName, aColorAssemblyOrder = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
             #shape = Wholeshape
             #shapeArray = createShapeArray(shape)
             #print("Order",dictionary)
-            FindAssemblingOrder(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap,logging).\
+            FindAssemblingOrder(shapeArray,shape,aName,aColorAssemblyOrder,dimension,explodegap,center,holescale,removegap,logging).\
                 ExplodeParts(sourceFileName,distancegap,anglegap,animationtime,dictionary["display"],byThread,starttime)
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],100,starttime,False)
             #whatGotHere = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap)
@@ -5126,7 +5126,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5)
         
         try:
             _, myShapes = outputShapes
-            shapeArray,_,shapePickles,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            shapeArray,_,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
