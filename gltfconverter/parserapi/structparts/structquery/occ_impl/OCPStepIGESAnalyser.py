@@ -1460,7 +1460,7 @@ class StepIgesAnalyser():
         writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
         defaultR=0.3,defaultG=0.32,defaultB=0.37,seperateparts=False,seperatecompounds=True,
-        recursiveShapes=None,recursiveTree=None,recursiveID=1,
+        recursiveShapes=None,recursiveTree=None,recursiveID=1,AutoAssemblyOrder=False,
         explodegap=10.0,center=True,holescale=0.77,removegap=8.0,recreatefororder=False):
         """Supply one or the other: document or STEP filename or Shapes."""
         self.starttime = datetime.utcnow()
@@ -1497,6 +1497,7 @@ class StepIgesAnalyser():
             self.onebyholescale = self.holescale
         self.removegap = removegap
         self.recreatefororder = recreatefororder
+        self.AutoAssemblyOrder = AutoAssemblyOrder
         try:
             self.commonpipe = BRepPrimAPI_MakeBox(gp_Pnt(0,0,0),0.1,0.1,0.1).Shape()
             self.commoncompound, _ = list_of_shapes_to_compound(self.commonpipe)
@@ -4235,51 +4236,52 @@ class StepIgesAnalyser():
                             self.logging, self.seperateparts, self.edgesize, self.vertexsize,\
                                  self.maximumfacestoinclude)            
             self.write_progress(maxgap=0,action='Child Items Written',written=True)
-            print("Starting Assembly order",self.fname)
-            if self.recreatefororder:
-                (_, (orderDimension, outputShapesOrder), dictionaryOrder) = StepIgesAnalyser(
-                        filename=self.fname,includeparts=False,distancegap=self.distancegap, logging=logging, 
-                        anglegap=self.anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
-                        edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M").dump(False)
-                dictionaryOrderTree = dictionaryOrder["tree"]
-                lenDictionaryOrderTree = len(dictionaryOrderTree)
-            else:
-                orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
-                    self.scene_max[0],self.scene_max[1],self.scene_max[2])
-                outputShapesOrder = self.outputShapes
-                dictionaryOrderTree=self.tstep_dict["tree"]
-                lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
-            shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
-                getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,lenDictionaryOrderTree)
-            orderStatusName = self.basefilename[:-1]+'M'
-            StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
-                30,self.starttime,False)
-            FindAssemblingOrder(shapeArrayOrder,shapeOrder,aNameOrder,aColorAssemblyOrder,orderDimension,self.explodegap,\
-                self.center,self.holescale,self.removegap,logging).ExplodeParts(\
-                    self.fname,self.distancegap,self.anglegap,self.delay,COPY_PATH+self.displaypath,\
-                        False,self.starttime)
-            StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
-                100,self.starttime,False)
-            print("Completing Assembly order",self.fname)
-            try:
-                myPickle = {'sourceType':'Order',
-                                'sourceFileName':self.fname,
-                                'distancegap':self.distancegap,
-                                'anglegap':self.anglegap,
-                                'explodegap':self.explodegap,
-                                'center':self.center,
-                                'holescale':self.holescale,
-                                'removegap':self.removegap,
-                                'animationtime':self.delay,
-                                'colorshapes':shapePicklesOrder,
-                                'assemblyname':aNameOrder,
-                                'dimension':orderDimension} 
-                picklefile = COPY_PATH+self.displaypath+orderStatusName+".pickle"
-                with open(picklefile, 'wb') as f:
-                    # Pickle the 'data' dictionary using the highest protocol available.                               
-                    pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
-            except Exception as e:
-                print(e,"File, %s has error" % picklefile)
+            if self.AutoAssemblyOrder:
+                print("Starting Assembly order",self.fname)
+                if self.recreatefororder:
+                    (_, (orderDimension, outputShapesOrder), dictionaryOrder) = StepIgesAnalyser(
+                            filename=self.fname,includeparts=False,distancegap=self.distancegap, logging=logging, 
+                            anglegap=self.anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
+                            edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M").dump(False)
+                    dictionaryOrderTree = dictionaryOrder["tree"]
+                    lenDictionaryOrderTree = len(dictionaryOrderTree)
+                else:
+                    orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
+                        self.scene_max[0],self.scene_max[1],self.scene_max[2])
+                    outputShapesOrder = self.outputShapes
+                    dictionaryOrderTree=self.tstep_dict["tree"]
+                    lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
+                shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
+                    getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,lenDictionaryOrderTree)
+                orderStatusName = self.basefilename[:-1]+'M'
+                StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
+                    30,self.starttime,False)
+                FindAssemblingOrder(shapeArrayOrder,shapeOrder,aNameOrder,aColorAssemblyOrder,orderDimension,self.explodegap,\
+                    self.center,self.holescale,self.removegap,logging).ExplodeParts(\
+                        self.fname,self.distancegap,self.anglegap,self.delay,COPY_PATH+self.displaypath,\
+                            False,self.starttime)
+                StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
+                    100,self.starttime,False)
+                print("Completing Assembly order",self.fname)
+                try:
+                    myPickle = {'sourceType':'Order',
+                                    'sourceFileName':self.fname,
+                                    'distancegap':self.distancegap,
+                                    'anglegap':self.anglegap,
+                                    'explodegap':self.explodegap,
+                                    'center':self.center,
+                                    'holescale':self.holescale,
+                                    'removegap':self.removegap,
+                                    'animationtime':self.delay,
+                                    'colorshapes':shapePicklesOrder,
+                                    'assemblyname':aNameOrder,
+                                    'dimension':orderDimension} 
+                    picklefile = COPY_PATH+self.displaypath+orderStatusName+".pickle"
+                    with open(picklefile, 'wb') as f:
+                        # Pickle the 'data' dictionary using the highest protocol available.                               
+                        pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
+                except Exception as e:
+                    print(e,"File, %s has error" % picklefile)
             
         if byThread:   
             try:
