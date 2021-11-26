@@ -5419,10 +5419,10 @@ def FileSaveGDT(request):
 @api_view(['GET'])
 def GetFileContent(request):
     try:
-        """ try:
+        try:
             logging.info(request)
         except Exception as e:
-            print("Error while logging",e) """
+            print("Error while logging",e)
         dictionary = {}
         if request.method == 'GET':
             file = request.GET.get('file', None)
