@@ -154,7 +154,7 @@ class RecursiveCopier():
 
 def copyFiles(timelag):
     try:
-        if checkIdle(timelag,fileLogger) > 500:            
+        if checkIdle(timelag,fileLogger) > 1600:            
             logprintinfo="Syncer Started "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
             logging.info(logprintinfo)
             print(logprintinfo)
@@ -179,7 +179,7 @@ logger = logging.getLogger()
 logger.addHandler( logHandler )
 logger.setLevel( logging.INFO )
 
-recursiveCopier = RecursiveCopier(16000,copyFiles)
+recursiveCopier = RecursiveCopier(1500,copyFiles)
 recursiveCopier.start()
 
 def logRoundtrip(response, *args, **kwargs): 

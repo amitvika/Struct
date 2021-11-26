@@ -137,9 +137,9 @@ conda activate structquery
 
 export DONOTUSES3=False
 
-# Start s3fs system
+# Start s3fs system # not needed
 
-- s3fs gltf-media /home/ubuntu/Struct/gltfconverter/s3bucket -o passwd_file=~/.passwd-s3fs
+#- s3fs gltf-media /home/ubuntu/Struct/gltfconverter/s3bucket -o passwd_file=~/.passwd-s3fs
 
 # Start xvfb
 
