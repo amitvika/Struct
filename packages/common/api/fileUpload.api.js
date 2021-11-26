@@ -192,8 +192,8 @@ export const getAFileFromURLStore = async (store, ext, fromURL) => {
   }
 };
 
-export const checkExistenceInLinux = async (store, ext) => {
-  const fetchURL = `${host}/checkexists?file=${resourcePathDisplay}${store}.${ext}`;
+export const getExistingURLPath = async (store, ext) => {
+  const fetchURL = `${host}/checkexists?file=${store}.${ext}`;
   return axios.get(fetchURL);
 };
 

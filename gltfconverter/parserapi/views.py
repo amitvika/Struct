@@ -99,6 +99,11 @@ class HttpFormatter(logging.Formatter):
         return result """
 fileLogger = "Media/Log/APIWatcher.Log"
 timeLogger = "Media/TimeWatcher.txt"
+try:
+    os.makedirs(os.path.dirname(fileLogger), exist_ok=True)
+    os.makedirs(os.path.dirname(timeLogger), exist_ok=True)
+except Exception as e:
+    print("Exception in creating files",e)
 class RecursiveCopier():
 
     def __init__(self,interval,hFunction):
@@ -5464,30 +5469,35 @@ def CheckFileExistence(request):
         if request.method == 'GET':
             file = request.GET.get('file', None)
             try:
-                dictionary['exists'] = os.path.isfile(file)
+                if os.path.isfile('Display/'+file):
+                    dictionary['path']="Linux"
+                elif os.path.isfile('s3bucket/Display/'+file):
+                    dictionary['path']="S3"
+                else:
+                     dictionary['path']=""
                 dictionary['status'] = 'success'
             except Exception as e:
                 print("Error while reading file",e,file) 
-                dictionary['exists'] = False
+                dictionary['exists'] = ""
                 dictionary['status'] = str(e)
         return JsonResponse(dictionary, safe=False)
     except Exception as e:
         try:
-            dictionary['exists'] = False
+            dictionary['exists'] = ""
             logging.error(traceback.format_exc())
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-            dictionary['exists'] = False
+            dictionary['exists'] = ""
             dictionary['status'] = str(e)
         return JsonResponse(dictionary, safe=False)
     except:
         try:
-            dictionary['exists'] = False
+            dictionary['exists'] = ""
             logging.error(traceback.format_exc())
         except Exception as e:
             print("Error while logging",e)
-            dictionary['exists'] = False
+            dictionary['exists'] = ""
             dictionary['status'] = str(e)
         return JsonResponse(dictionary, safe=False)
     
