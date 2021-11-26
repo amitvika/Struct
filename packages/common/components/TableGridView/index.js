@@ -51,7 +51,9 @@ const TableGridView = ({
 
   const paginationValues = getFromLocalStorage(`${title}-pagination`) || {};
   const [page, setPage] = React.useState(paginationValues.page || 1);
-  const [rowsPerPage, setRowsPerPage] = React.useState(1);
+  const [rowsPerPage, setRowsPerPage] = React.useState(
+    paginationValues.rowsPerPage || 100
+  );
   const [totalDocs, setTotalDocs] = React.useState(0);
 
   const [isHistoryCheckboxVisible, setIsHistoryCheckboxVisible] =
@@ -177,7 +179,6 @@ const TableGridView = ({
   };
 
   const handleUndeleteButton = (oldData) => {
-    console.log('---->>handleUndeleteButton');
     let updateValue = { ...oldData, is_archived: false };
     return upsertItem(updateValue);
   };
@@ -254,6 +255,7 @@ const TableGridView = ({
   const handleTeamModalToggle = () => {
     if (isManageTeamModalOpened) {
       setSelectedListItem(null);
+
       setIsEditing(false);
     }
     setIsManageTeamModalOpened(!isManageTeamModalOpened);
