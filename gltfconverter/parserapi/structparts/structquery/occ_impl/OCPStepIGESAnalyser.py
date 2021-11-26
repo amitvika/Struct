@@ -1480,8 +1480,8 @@ class StepIgesAnalyser():
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
         defaultR=0.3, defaultG=0.32, defaultB=0.37, seperateparts=False, seperatecompounds=True,
         recursiveShapes=None, recursiveTree=None, recursiveID=1, CreateChildSteps=False,
-        CreateAssemblyOrder=True, explodegap=10.0, center=True, holescale=0.77, removegap=8.0,
-        recreatefororder=False, CreateStackability=True
+        CreateAssemblyOrder=False, explodegap=10.0, center=True, holescale=0.77, removegap=8.0,
+        recreatefororder=False, CreateStackability=False
         ):
         """Supply one or the other: document or STEP filename or Shapes."""
         self.starttime = datetime.utcnow()

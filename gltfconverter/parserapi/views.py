@@ -160,7 +160,7 @@ class RecursiveCopier():
 
 def copyFiles(timelag):
     try:
-        if checkIdle(timelag,fileLogger) > 16000:            
+        if checkIdle(timelag,fileLogger) > 1600:            
             logprintinfo="Syncer Started "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
             logging.info(logprintinfo)
             print(logprintinfo)
@@ -185,7 +185,7 @@ logger = logging.getLogger()
 logger.addHandler( logHandler )
 logger.setLevel( logging.INFO )
 
-recursiveCopier = RecursiveCopier(15000,copyFiles)
+recursiveCopier = RecursiveCopier(1500,copyFiles)
 recursiveCopier.start()
 
 def logRoundtrip(response, *args, **kwargs): 
@@ -1099,7 +1099,7 @@ def FileHierarchySplit(request):
             maximumfaces = convertToInt(request.GET.get('maximumfaces',"50"),defthumb)
             seperateparts = convertToBool(request.GET.get('seperateparts',"false"),False)
             
-            CreateChildSteps=convertToBool(request.GET.get('CreateChildSteps',"true"),True)
+            CreateChildSteps=convertToBool(request.GET.get('CreateChildSteps',"false"),False)
             CreateAssemblyOrder=convertToBool(request.GET.get('CreateAssemblyOrder',"false"),False)
             CreateStackability=convertToBool(request.GET.get('CreateStackability',"false"),False)           
             explodegap = convertToFloat(request.GET.get('explodegap',"10"),10)
