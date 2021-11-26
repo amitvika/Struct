@@ -1,11 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
+import { useMediaQuery } from '@material-ui/core';
+import { useTheme } from '@material-ui/core/styles';
 
 const Headding = ({ as, children, className, onClick, title, style }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
-    <Typography variant={as} gutterBottom onClick={onClick} style={style}>
+    <Typography
+      variant={as}
+      gutterBottom
+      onClick={onClick}
+      style={{ ...style, fontSize: `${isMobile ? '20px' : ''}` }}
+    >
       {title || children}
     </Typography>
   );
@@ -21,11 +30,11 @@ Headding.propTypes = {
   title: PropTypes.string,
   color: PropTypes.string,
   bold: PropTypes.bool,
-  fontSize: PropTypes.number,
+  fontSize: PropTypes.number
 };
 
 Headding.defaultProps = {
-  as: 'h6',
+  as: 'h6'
 };
 
 export default Headding;

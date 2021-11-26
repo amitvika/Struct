@@ -8,8 +8,13 @@ import FormControl from '@material-ui/core/FormControl';
 import Check from '@material-ui/icons/Check';
 import Cancel from '@material-ui/icons/Cancel';
 import Headding from '@monostruct/common/components/atoms/Headding';
+import { useMediaQuery } from '@material-ui/core';
+import { useTheme } from '@material-ui/core/styles';
 
 export default function EditItemTitle({ itemProperties, updateItemOnServer }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const wrapperRef = useRef(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [itemTitle, setItemTitle] = useState(itemProperties.name);
@@ -47,16 +52,18 @@ export default function EditItemTitle({ itemProperties, updateItemOnServer }) {
 
   return (
     <div style={{ display: 'flex' }}>
-      <Headding as={'h4'}> Item Name:</Headding>
+      <Headding as={'h5'}> Item Name:</Headding>
       <div style={{ marginLeft: 20 }}>
         {!isEditMode ? (
           <div style={{ display: 'flex' }}>
-            <Headding as={'h4'} style={{ fontWeight: 'bold' }}>
+            <Headding as={'h5'} style={{ fontWeight: 'bold' }}>
               {itemTitle}
             </Headding>
-            <Button onClick={() => setIsEditMode(true)}>
-              <EditIcon />
-            </Button>
+            {!isMobile && (
+              <Button onClick={() => setIsEditMode(true)}>
+                <EditIcon />
+              </Button>
+            )}
           </div>
         ) : (
           <FormControl

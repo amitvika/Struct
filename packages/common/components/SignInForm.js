@@ -19,7 +19,10 @@ const useStyles = makeStyles((theme) => ({
   },
   card_container: {
     maxWidth: '800px',
-    width: '45%'
+    width: '45%',
+    [theme.breakpoints.up('xs')]: {
+      width: '100%'
+    }
   },
   logo_container: {
     display: 'flex',
