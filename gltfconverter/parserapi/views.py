@@ -5457,3 +5457,37 @@ def GetFileContent(request):
                 logging.exception(e)
             except Exception as e:
                 print("Error while logging",e) """
+@api_view(['GET'])
+def CheckFileExistence(request):
+    try:
+        dictionary = {}
+        if request.method == 'GET':
+            file = request.GET.get('file', None)
+            try:
+                dictionary['exists'] = os.path.isfile(file)
+                dictionary['status'] = 'success'
+            except Exception as e:
+                print("Error while reading file",e,file) 
+                dictionary['exists'] = False
+                dictionary['status'] = str(e)
+        return JsonResponse(dictionary, safe=False)
+    except Exception as e:
+        try:
+            dictionary['exists'] = False
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+            dictionary['exists'] = False
+            dictionary['status'] = str(e)
+        return JsonResponse(dictionary, safe=False)
+    except:
+        try:
+            dictionary['exists'] = False
+            logging.error(traceback.format_exc())
+        except Exception as e:
+            print("Error while logging",e)
+            dictionary['exists'] = False
+            dictionary['status'] = str(e)
+        return JsonResponse(dictionary, safe=False)
+    
