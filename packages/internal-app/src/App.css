@@ -98,7 +98,7 @@
   /* z-index: 1 !important; */
 }
 
-.MuiToolbar-root>div {
+.MuiToolbar-root > div {
   z-index: 1 !important;
 }
 
@@ -106,7 +106,9 @@
   border-bottom: none !important;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   width: 100%;
   margin: 0;
@@ -117,4 +119,8 @@ html, body, #root {
 .tree-filter-container {
   border: unset !important;
   height: 100%;
+}
+
+.MuiPaper-rounded {
+  border-radius: 15px !important;
 }

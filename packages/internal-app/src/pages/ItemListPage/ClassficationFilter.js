@@ -59,8 +59,8 @@ export default function ClassficationFilter({
         selections,
         setSelections,
         handleOnDropdownSelection,
-        inToolbar: true,
-        filterTitle: 'Product Type Configuration'
+        inToolbar: true
+        // filterTitle: 'Product Type Configuration'
       }}
     />
   );

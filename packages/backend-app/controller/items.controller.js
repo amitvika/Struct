@@ -222,6 +222,8 @@ exports.update = async (req, res) => {
 
     if (body.multiAssmebly) {
       updateData.assemblyType = 'Multi-Item Assembly';
+    } else {
+      updateData.assemblyType = 'Single Item Part';
     }
 
     if (body.fileId || body.fileUUId) {

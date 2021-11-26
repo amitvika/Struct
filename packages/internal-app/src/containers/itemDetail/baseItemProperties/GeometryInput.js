@@ -210,7 +210,7 @@ export default function GeometryInput({
             </Typography>
           </Grid>
           <Grid item xs={8}>
-            <span>{itemProperties.assemblyType}</span>
+            <span>{itemProperties.assemblyType || 'Single Item Part'}</span>
           </Grid>
 
           <Grid item xs={4}>

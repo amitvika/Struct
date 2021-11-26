@@ -13,6 +13,10 @@ import {
   getFromLocalStorage,
   saveToLocalStorage
 } from '../../utils/usefulHelpers';
+import GridViewIcon from '@mui/icons-material/GridView';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 
 const TableGridView = ({
   title,
@@ -47,10 +51,11 @@ const TableGridView = ({
 
   const paginationValues = getFromLocalStorage(`${title}-pagination`) || {};
   const [page, setPage] = React.useState(paginationValues.page || 1);
-  const [rowsPerPage, setRowsPerPage] = React.useState(
-    paginationValues.rowsPerPage || 100
-  );
+  const [rowsPerPage, setRowsPerPage] = React.useState(1);
   const [totalDocs, setTotalDocs] = React.useState(0);
+
+  const [isHistoryCheckboxVisible, setIsHistoryCheckboxVisible] =
+    useState(false);
 
   useEffect(() => {
     fetchResult();
@@ -240,6 +245,7 @@ const TableGridView = ({
           handleAdd={handleAdd}
           handleDelete={handleDelete}
           handleUpdate={handleUpdate}
+          {...{ handleHistoryToggle }}
         />
       );
     }
@@ -294,12 +300,13 @@ const TableGridView = ({
         )}
         <Toolbar
           title={title}
-          isGridViewSelected={isGridViewSelected}
-          setIsGridViewSelected={setIsGridViewSelected}
           isViewArchivedChecked={isViewArchivedChecked}
           handleViewArchived={handleViewArchived}
           isHistoryModalOpened={isHistoryModalOpened}
-          handleHistoryToggle={handleHistoryToggle}
+          handleHistoryToggle={(data) => {
+            setIsHistoryCheckboxVisible((prev) => !prev);
+            handleHistoryToggle(data);
+          }}
           list={list}
           filteredList={filteredList}
           setFilteredList={setFilteredList}
@@ -309,20 +316,62 @@ const TableGridView = ({
           handleAddButtonPress={handleToggleModal}
           isSearchBarVisible={true}
           AdditionalFilter={AdditionalFilter}
+          {...{ isHistoryCheckboxVisible }}
         />
-        {isPaginationEnabled && (
-          <TablePagination
-            component="div"
-            count={totalDocs}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center'
+          }}
+        >
+          <GridAndListSelector
+            {...{
+              isGridViewSelected,
+              setIsGridViewSelected
+            }}
           />
-        )}
+          {isPaginationEnabled && (
+            <TablePagination
+              component="div"
+              count={totalDocs}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
+        </div>
         {renderView()}
       </DefaultContainer>
     </>
+  );
+};
+
+const GridAndListSelector = ({ isGridViewSelected, setIsGridViewSelected }) => {
+  return (
+    <div style={{ display: 'inline-flex', padding: 10 }}>
+      <Tooltip title="View Result in Grid View">
+        <IconButton onClick={() => setIsGridViewSelected(true)}>
+          <GridViewIcon
+            sx={{
+              fontSize: 30,
+              color: `${isGridViewSelected ? '#000000' : 'disabled'}`
+            }}
+          />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="View Result in Table View">
+        <IconButton onClick={() => setIsGridViewSelected(false)}>
+          <ViewListIcon
+            sx={{
+              fontSize: 30,
+              color: `${isGridViewSelected ? 'disabled' : '#000000'}`
+            }}
+          />
+        </IconButton>
+      </Tooltip>
+    </div>
   );
 };
 

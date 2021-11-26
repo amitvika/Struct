@@ -19,24 +19,5 @@ export const columnsForItemView = [
       'Single Item Part': 'Single Item Part',
       'Multi-Item Assembly': 'Multi-Item Assembly'
     }
-  },
-  {
-    title: 'History',
-    field: 'id',
-    editable: 'never',
-    isFilterColumn: false,
-    render: (rowData) =>
-      rowData && (
-        <span
-          style={{ cursor: 'pointer' }}
-          onClick={(event) => {
-            event.stopPropagation();
-            handleHistoryToggle({ rowId: rowData.id });
-          }}
-        >
-          {' '}
-          Show History{' '}
-        </span>
-      )
   }
 ];

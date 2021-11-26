@@ -28,7 +28,9 @@ export default function InternalProductFilter({
 
   useEffect(() => {
     if (isFilterResetted) {
-      setSelections([{ key: 'Internal Use Product Configuration', formFields: [] }]);
+      setSelections([
+        { key: 'Internal Use Product Configuration', formFields: [] }
+      ]);
       setFilteredList(list);
     }
   }, [isFilterResetted]);
@@ -61,8 +63,8 @@ export default function InternalProductFilter({
         selections,
         setSelections,
         handleOnDropdownSelection,
-        inToolbar: true,
-        filterTitle: 'Internal Product Configuration'
+        inToolbar: true
+        // filterTitle: 'Internal Product Configuration'
       }}
     />
   );

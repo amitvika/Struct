@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CheckboxUI from '@material-ui/core/Checkbox';
+import HistoryIcon from '@mui/icons-material/History';
 
 const Checkbox = ({
   greyDesign,
@@ -17,6 +18,7 @@ const Checkbox = ({
   checked,
   readonly,
   id,
+  Icon,
   ...props
 }) => {
   return (
