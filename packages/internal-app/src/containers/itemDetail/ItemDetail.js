@@ -90,6 +90,8 @@ const ItemDetail = ({ itemValue }) => {
   const [internalProductConfig, setInternalProductConfig] = useState(null);
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
   const [allowFirstLevelItems, setAllowFirstLevelItems] = useState(false);
+  const [createAutoAssemblyOrder, setCreateAutoAssemblyOrder] = useState(false);
+  const [createAutoStackability, setCreateAutoStackability] = useState(false);
 
   useEffect(() => {
     let myTabIndex = 'pdcu';
@@ -490,7 +492,15 @@ const ItemDetail = ({ itemValue }) => {
         STATEPROPS.maximumfaces,
         //item.stepTreeLength > STATEPROPS.maximumparts,
         true,
-        myTabedIndex == 'pdcu'
+        myTabedIndex == 'pdcu',
+        allowFirstLevelItems,
+        createAutoAssemblyOrder,
+        createAutoStackability,
+        STATEPROPS.explodegap,
+        STATEPROPS.holescale,
+        STATEPROPS.removegap,
+        STATEPROPS.fromcenter,
+        STATEPROPS.animationtime
       );
 
       setIsFileLoading(false);
@@ -722,7 +732,15 @@ const ItemDetail = ({ itemValue }) => {
         STATEPROPS.maximumfaces,
         //item.stepTreeLength > STATEPROPS.maximumparts,
         true,
-        myTabedIndex == 'pdcu'
+        myTabedIndex == 'pdcu',
+        allowFirstLevelItems,
+        createAutoAssemblyOrder,
+        createAutoStackability,
+        STATEPROPS.explodegap,
+        STATEPROPS.holescale,
+        STATEPROPS.removegap,
+        STATEPROPS.fromcenter,
+        STATEPROPS.animationtime
       );
       setIsFileLoading(false);
       let datastore = getHierarchyRes.data.store;
@@ -1055,6 +1073,10 @@ const ItemDetail = ({ itemValue }) => {
             }
             allowFirstLevelItems={allowFirstLevelItems}
             setAllowFirstLevelItems={setAllowFirstLevelItems}
+            createAutoAssemblyOrder={createAutoAssemblyOrder}
+            setCreateAutoAssemblyOrder={setCreateAutoAssemblyOrder}
+            createAutoStackability={createAutoStackability}
+            setCreateAutoStackability={setCreateAutoStackability}
           />
         );
       case 'cu':

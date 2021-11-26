@@ -7,7 +7,7 @@ from datetime import datetime
 from .structparts.structquery.occ_impl import OCPStepIGESAnalyser
 
 from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
-    translate_shp, minimum_z_distance, 
+    translate_shp, minimum_z_distance, rotate_shp_3_axis, 
     getPartStackablePositions, get_bounding_details,
     recognize_direction)
 from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyFacesEdgesVertices
@@ -15,49 +15,78 @@ from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyFace
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
-from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound #, excluded_list_of_shapes_to_compound
-from .settingscopy import (DISPLAY_URL,MEDIA_URL)
+from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound
+
+#from .settingscopy import (DISPLAY_URL,MEDIA_URL)
 
 
 
 class FindStackability(object):
-    
-    def __init__(self, outputShapes,shapeArray,dimension,sourceFileName,distancegap=0.3,anglegap=0.5,meshgap=0.1,animationtime=1.5):
-        
-        self.shapeArray = shapeArray 
+    def __init__(self,sourceFileName,shapeArray,dimension,distancegap=0.3,anglegap=0.5,\
+        animationtime=1.5,starttime=None,logging=None):        
         try:
             try:
+                xmin, ymin, zmin, xmax, ymax, zmax = dimension 
+                print(shapeArray)   
+                fullShape, fullName, fullColor = shapeArray[0]  
+                print(fullShape)           
+                if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
+                    print("Before rotate 1")
+                    shape = rotate_shp_3_axis(fullShape,0,90,0, unity="deg", copy=True) 
+                    (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=[(shape,fullName,fullColor)],includeparts=True,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S").dump(False) 
+                elif( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
+                    print("Before rotate 2")
+                    shape = rotate_shp_3_axis(fullShape,90,0,0, unity="deg", copy=True) 
+                    (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=[(shape,fullName,fullColor)],includeparts=True,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S").dump(False)
+                else:
+                    print("Before Analyser")
+                    shape=fullShape
+                    (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=shapeArray,includeparts=True,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S").dump(False)
+                getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],35,starttime,False)  
                 #print(outputShapes)
-                dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1)              
-                shapeList, replications, moveArrays = duplicateShapes(shapeArray,dimension,depthable,stackable)                         
+                dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1) 
+                getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],40,starttime,False)             
+                shapeList, replications, moveArrays = duplicateShapes(shape,dimension,depthable,stackable,\
+                    sourceFileName,dictionary["store"],dictionary["display"])
+                getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],60,starttime,False)
+                #print("Reached here1",shapeList)                         
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shapeList),includeparts=False,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
+                    filename=sourceFileName,shapeslist=createShapeArray(shapeList,fullName,fullColor),includeparts=False,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0, logging=logging, 
                     edgesize=0, vertexsize=0, animations=moveArrays, delay=animationtime).dump()
                 dictionary["stackable"] = [{"count":replications,"stack":stackable}]
             except Exception as e:
-                print("error",e)      
-        
+                print("error while forming stackable",e)   
             try:
-                stackfile = DISPLAY_URL+dictionary["store"]+".stack"
+                stackfile = dictionary["display"]+dictionary["store"]+".stack"
                 print("Writing,",stackfile)
                 with open(stackfile, 'w') as fh:
                     fh.write(json.dumps(dictionary["stackable"], sort_keys=True, indent=2 ))
             except Exception as e:
-                print("Error while writing stackfile",e)      
-            return dictionary
-        
-        except:
-            return {}
+                print("Error while writing stackfile",e)  
+            self.dictionary=dictionary    
+        except Exception as e:
+            print("Error global from stack",e)
+            self.dictionary={}
             #raise ValueError("File Could not be loaded")  
+    def dump(self):
+        return self.dictionary
 
-
-def createShapeArray(shapes):
+def createShapeArray(shapes,fullName,fullColor):
     shapeArray=[]
     myID=0
     for aShape in shapes:
         myID += 1
-        shapeArray.append((aShape,"ID"+str(myID),None))
+        shapeArray.append((aShape,fullName+str(myID),fullColor))
     return shapeArray
 
 
@@ -131,7 +160,7 @@ def movingParameters(dimension, fullstack, tol = 0.1):
     
     return xmove,ymove,zmax-zmin                 
 
-def duplicateShapes(shape,dimension,depthable,stackable,filename,basefilename,displaypath,starttime=None):  
+def duplicateShapes(shape0,dimension,depthable,stackable,filename,basefilename,displaypath,starttime=None):  
     if starttime==None:
         starttime=datetime.utcnow()
     xmin, ymin, zmin, xmax, ymax, zmax = dimension 
@@ -173,10 +202,10 @@ def duplicateShapes(shape,dimension,depthable,stackable,filename,basefilename,di
             if (timingdelta.total_seconds() > 5):
                 getEmptyDictionary(filename,basefilename,displaypath,55,starttime,False)
                 previoustime=currenttime
-            AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)
-            (wdistance, distance, points1, points2) = minimum_z_distance(shape[0],AnotherShape)
-            AnotherShape=translate_shp(shape[0],xmove, ymove, zmove-wdistance, True)
-            myshapecommon = BRepAlgoAPI_Common(AnotherShape,shape[0]).Shape()
+            AnotherShape=translate_shp(shape0,xmove, ymove, zmove, True)
+            (wdistance, distance, points1, points2) = minimum_z_distance(shape0,AnotherShape)
+            AnotherShape=translate_shp(shape0,xmove, ymove, zmove-wdistance, True)
+            myshapecommon = BRepAlgoAPI_Common(AnotherShape,shape0).Shape()
             if myshapecommon==None:
                 distance = wdistance  
                 zmove -= wdistance
@@ -185,8 +214,8 @@ def duplicateShapes(shape,dimension,depthable,stackable,filename,basefilename,di
                 distance = wdistance-zmaxs+zmins 
                 zmove = zmove-wdistance+zmaxs-zmins 
                 print("Dmove0", zmove, distance, wdistance, points1, points2, prevdistance) 
-                AnotherShape=translate_shp(shape[0],xmove, ymove, zmove, True)
-                (wdistance, distance, points1, points2) = minimum_z_distance(shape[0],AnotherShape)
+                AnotherShape=translate_shp(shape0,xmove, ymove, zmove, True)
+                (wdistance, distance, points1, points2) = minimum_z_distance(shape0,AnotherShape)
             else:        
                 print(get_bounding_details(myshapecommon))    
                 if ( (prevdistance-distance) >= (0.4*distance/1.4)):
@@ -253,10 +282,10 @@ def duplicateShapes(shape,dimension,depthable,stackable,filename,basefilename,di
        
     moveArrays=[]
     shapeList =[]
-    shapeList.append(shape[0])
+    shapeList.append(shape0)
     for i in range(1,noOfDuplicates):
         print(i,noOfDuplicates, xmove*i, ymove*i, zmove*i )
-        AnotherShape=translate_shp(shape[0],xmove*i, ymove*i, zmove*i, True)
+        AnotherShape=translate_shp(shape0,xmove*i, ymove*i, zmove*i, True)
         shapeList.append(AnotherShape)
         moveArrays.append((xmove*i, ymove*i, zmove*i))
     

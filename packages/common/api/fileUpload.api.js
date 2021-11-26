@@ -72,9 +72,18 @@ export const getHierarchySplitFiles = async (
   vertexsize,
   maximumfaces,
   seperateparts,
-  createthumb
+  createthumb,
+  CreateChildSteps = true,
+  CreateAssemblyOrder = false,
+  CreateStackability = false,
+  explodegap = 10.0,
+  holescale = 0.77,
+  removegap = 8.0,
+  center = true,
+  animationtime = 1.0
 ) => {
-  const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}&edgesize=${edgesize}&vertexsize=${vertexsize}&moverotate=${moverotate}&maximumfaces=${maximumfaces}&seperateparts=${seperateparts}&createthumb=${createthumb}`;
+  const additionalparams = `&CreateChildSteps=${CreateChildSteps}&CreateAssemblyOrder=${CreateAssemblyOrder}&CreateStackability=${CreateStackability}&explodegap=${explodegap}&holescale=${holescale}&removegap=${removegap}&center=${center}&animationtime=${animationtime}`;
+  const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}&edgesize=${edgesize}&vertexsize=${vertexsize}&moverotate=${moverotate}&maximumfaces=${maximumfaces}&seperateparts=${seperateparts}&createthumb=${createthumb}${additionalparams}`;
   // console.log(splitURL);
   return axios.get(splitURL);
 };
