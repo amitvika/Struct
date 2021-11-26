@@ -88,7 +88,8 @@ export default function GridView({
   handleTableRowClick,
   isHistoryLinkVisible = true,
   isAddEditLinkVisible = false,
-  isInsideDetailPanel = false
+  isInsideDetailPanel = false,
+  showDeleteActionButton = true
 }) {
   const classes = useStyles();
   const [text, setText] = useState('');
@@ -243,7 +244,8 @@ export default function GridView({
                       <HistoryIcon />
                     </CustomIconButton>
                   )}
-                  {!isViewArchivedChecked && (
+
+                  {showDeleteActionButton && !isViewArchivedChecked && (
                     <CustomIconButton
                       title={'Delete'}
                       onClick={(event) => {
@@ -253,7 +255,7 @@ export default function GridView({
                       <DeleteOutlineIcon />
                     </CustomIconButton>
                   )}
-                  {isViewArchivedChecked && (
+                  {showDeleteActionButton && isViewArchivedChecked && (
                     <CustomIconButton
                       title={'Undelete'}
                       onClick={(event) => {

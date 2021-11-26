@@ -281,13 +281,13 @@ export const getThumbnailForStoreURL = async (store) => {
   return getAFileFromStore(store, 'png');
 };
 
-export const download = (fileStore) => {
-  fetch(`${baseURL}/${fileStore}`)
+export const download = ({ downloadURL, fileName }) => {
+  fetch(`${baseURL}/${downloadURL}`)
     .then((response) => response.blob())
     .then((blob) => {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = fileStore;
+      link.download = fileName;
       link.click();
     })
     .catch(console.error);

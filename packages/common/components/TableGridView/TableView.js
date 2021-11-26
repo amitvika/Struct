@@ -17,7 +17,8 @@ export default function TableView({
   title,
   isSelectionEnabled = false,
   isSearchEnabled = false,
-  handleHistoryToggle = () => null
+  handleHistoryToggle = () => null,
+  showToolbar = false
 }) {
   useEffect(() => {
     if (clientList.length == 0) {
@@ -50,13 +51,19 @@ export default function TableView({
           <Paper {...props} elevation={8} style={{ padding: 10 }} />
         ),
         Toolbar: (props) => (
-          <div
-            style={{
-              height: '0px'
-            }}
-          >
-            <MTableToolbar {...props} />
-          </div>
+          <>
+            {showToolbar ? (
+              <MTableToolbar {...props} />
+            ) : (
+              <div
+                style={{
+                  height: '0px'
+                }}
+              >
+                <MTableToolbar {...props} />
+              </div>
+            )}
+          </>
         )
       }}
       options={{
@@ -73,7 +80,7 @@ export default function TableView({
         },
         selection: isSelectionEnabled,
         search: isSearchEnabled,
-        showTitle: false,
+        // showTitle: false,
         paging: false
       }}
       actions={[
@@ -98,7 +105,7 @@ export default function TableView({
       editable={
         isAddEditActionsEnabled
           ? {
-              // onRowAdd: (newData, oldData) => handleAdd(newData, oldData),
+              onRowAdd: (newData, oldData) => handleAdd(newData, oldData),
               // onRowUpdate: (newData, oldData) => handleUpdate(newData, oldData),
               onRowDelete: (oldData) => handleDelete(oldData)
             }

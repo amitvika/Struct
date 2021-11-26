@@ -37,7 +37,7 @@ export default function ProductionTable() {
       type: 'date',
       // value="2013-01-08",
       render: (rowData) => moment(rowData.start_date).format('DD/MM/YYYY'),
-      editComponent: (props) => <DatePickerForMT {...props} />,
+      editComponent: (props) => <DatePickerForMT {...props} />
     },
     {
       title: 'Production End Date',
@@ -49,7 +49,7 @@ export default function ProductionTable() {
           {...props}
           value={props.value ? props.value : new Date('12/31/2099')}
         />
-      ),
+      )
     },
     {
       title: 'Select Factory',
@@ -82,8 +82,8 @@ export default function ProductionTable() {
             </Link>
           </span>
         );
-      },
-    },
+      }
+    }
   ]);
 
   const handleFactoryClick = (event, rowData, isEdit = false) => {
@@ -202,7 +202,7 @@ export default function ProductionTable() {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
         <Spinner animation="border" />
@@ -234,6 +234,7 @@ export default function ProductionTable() {
         columns={columns}
         setColumns={setColumns}
         isAddEditActionsEnabled={true}
+        showToolbar={true}
       ></TableView>
     </Paper>
   );
