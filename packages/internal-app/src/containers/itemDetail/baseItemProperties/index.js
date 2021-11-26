@@ -62,7 +62,11 @@ export default function BaseItemProperties({
   selectedOption,
   setSelectedOption,
   allowFirstLevelItems,
-  setAllowFirstLevelItems
+  setAllowFirstLevelItems,
+  createAutoAssemblyOrder,
+  setCreateAutoAssemblyOrder,
+  createAutoStackability,
+  setCreateAutoStackability
 }) {
   const classes = USESTYLES();
   const dispatch = useDispatch();
@@ -227,7 +231,15 @@ export default function BaseItemProperties({
         0,
         STATEPROPS.maximumfaces,
         true,
-        true
+        true,
+        allowFirstLevelItems,
+        createAutoAssemblyOrder,
+        createAutoStackability,
+        STATEPROPS.explodegap,
+        STATEPROPS.holescale,
+        STATEPROPS.removegap,
+        STATEPROPS.fromcenter,
+        STATEPROPS.animationtime
       );
       setIsFileLoading(false);
       if (fileUUId != data.uuid) {
@@ -486,6 +498,10 @@ export default function BaseItemProperties({
               {...{
                 allowFirstLevelItems,
                 setAllowFirstLevelItems,
+                createAutoAssemblyOrder,
+                setCreateAutoAssemblyOrder,
+                createAutoStackability,
+                setCreateAutoStackability,
                 handleItemSaveOnServer
               }}
             />

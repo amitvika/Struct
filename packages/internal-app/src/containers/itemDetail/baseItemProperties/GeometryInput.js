@@ -42,6 +42,10 @@ export default function GeometryInput({
   setDrawLine,
   allowFirstLevelItems,
   setAllowFirstLevelItems,
+  createAutoAssemblyOrder,
+  setCreateAutoAssemblyOrder,
+  createAutoStackability,
+  setCreateAutoStackability,
   handleItemSaveOnServer
 }) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -187,7 +191,11 @@ export default function GeometryInput({
               setDrawLine={setDrawLine}
               {...{
                 allowFirstLevelItems,
-                setAllowFirstLevelItems
+                setAllowFirstLevelItems,
+                createAutoAssemblyOrder,
+                setCreateAutoAssemblyOrder,
+                createAutoStackability,
+                setCreateAutoStackability
               }}
             />
           </Grid>

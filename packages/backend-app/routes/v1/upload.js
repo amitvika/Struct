@@ -1,38 +1,38 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const mongoose = require("mongoose");
-const multer = require("multer");
-const GridFsStorage = require("multer-gridfs-storage");
-const Grid = require("gridfs-stream");
-const config = require("config");
-const DBuri = config.get("mongoURI");
-const path = require("path");
-const crypto = require("crypto");
+const mongoose = require('mongoose');
+const multer = require('multer');
+const GridFsStorage = require('multer-gridfs-storage');
+const Grid = require('gridfs-stream');
+const config = require('config');
+const DBuri = config.get('mongoURI');
+const path = require('path');
+const crypto = require('crypto');
 
 var conn = mongoose.createConnection(
-  "mongodb+srv://amit_ika:dividivi@cluster0-ne7uw.mongodb.net/test?retryWrites=true&w=majority",
+  //"mongodb+srv://amit_ika:dividivi@cluster0-ne7uw.mongodb.net/test?retryWrites=true&w=majority",
+  DBuri,
   { useUnifiedTopology: true }
 );
 
 let gfs;
-conn.once("open", () => {
+conn.once('open', () => {
   gfs = Grid(conn.db, mongoose.mongo);
-  gfs.collection("uploads");
+  gfs.collection('uploads');
 });
 
 const storage = new GridFsStorage({
-  url:
-    "mongodb+srv://amit_ika:dividivi@cluster0-ne7uw.mongodb.net/test?retryWrites=true&w=majority",
+  url: DBuri, //'mongodb+srv://amit_ika:dividivi@cluster0-ne7uw.mongodb.net/test?retryWrites=true&w=majority',
   file: (req, file) => {
     return new Promise((resolve, reject) => {
       crypto.randomBytes(16, (err, buf) => {
         if (err) {
           return reject(err);
         }
-        const filename = buf.toString("hex") + path.extname(file.originalname);
+        const filename = buf.toString('hex') + path.extname(file.originalname);
         const fileInfo = {
           filename: filename,
-          bucketName: "uploads"
+          bucketName: 'uploads'
         };
         resolve(fileInfo);
       });
@@ -44,28 +44,28 @@ const storage = new GridFsStorage({
 const upload = multer({ storage });
 
 // Upload your files as usual
-router.post("/", upload.single("file"), (req, res, next) => {
-  console.log("hit");
+router.post('/', upload.single('file'), (req, res, next) => {
+  console.log('hit');
   res.json({ file: req.file });
 });
 
-router.get("/", (req, res) => {
+router.get('/', (req, res) => {
   gfs.files.find().toArray((err, files) => {
     if (!files || files.length === 0) {
       return res.status(404).json({
-        err: "No files exist"
+        err: 'No files exist'
       });
     }
     return res.json(files);
   });
 });
 
-router.get("/:filename", (req, res) => {
-  console.log("hitsff");
+router.get('/:filename', (req, res) => {
+  console.log('hitsff');
   gfs.files.findOne(
     // { filename: "4f6451ba26f358ffef61bfd4dc85f627.STEP" }, //pinion gear
     //  { filename: "2e537c1c57a0a0dc91c28f879e69f8fa.STEP" }, //cube with lofted face
-    { filename: "f2fc88075bd632908708eb1461f0b81b.STEP" }, //spline face only shape
+    { filename: 'f2fc88075bd632908708eb1461f0b81b.STEP' }, //spline face only shape
     // { filename: "8002c9f8a6263b5ea0e416dc738e5845.STEP" }, //ellipse extrsuion with flat cut
     //   { filename: "656a63915e3da8151b3752a502cebf08.STEP" }, //flat plate
     //  { filename: "4d07b6db8d836c1fd10b8b9104cf7f29.STEP" }, //sept extrusion
@@ -103,7 +103,7 @@ router.get("/:filename", (req, res) => {
     (err, file) => {
       if (!file || file.length === 0) {
         return res.status(404).json({
-          err: "No file exist"
+          err: 'No file exist'
         });
       }
       const readstream = gfs.createReadStream(file.filename);

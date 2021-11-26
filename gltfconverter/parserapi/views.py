@@ -60,6 +60,7 @@ from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_sh
 
 
 from .assemblyorder import FindAssemblingOrder
+from .assemblystack import FindStackability
 
 from decimal import Decimal 
 import traceback
@@ -99,6 +100,11 @@ class HttpFormatter(logging.Formatter):
         return result """
 fileLogger = "Media/Log/APIWatcher.Log"
 timeLogger = "Media/TimeWatcher.txt"
+try:
+    os.makedirs(os.path.dirname(fileLogger), exist_ok=True)
+    os.makedirs(os.path.dirname(timeLogger), exist_ok=True)
+except Exception as e:
+    print("Exception in creating files",e)
 class RecursiveCopier():
 
     def __init__(self,interval,hFunction):
@@ -901,7 +907,12 @@ def createShapeArray(shapes):
         shapeArray.append((aShape,"ID"+str(myID),None))
     return shapeArray
 
-def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts):
+def exportToHierarchyGLTF(
+    sourceFileName,includeparts,distancegap,anglegap,
+    disectparts,moverotate,edgesize,vertexsize,
+    thumbwidth,thumbheight,maximumfaces,seperateparts,
+    CreateChildSteps,CreateAssemblyOrder,CreateStackability,
+    explodegap,holescale,removegap,center,animationtime):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -930,8 +941,12 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                 ( _,  _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,includeparts=includeparts,distancegap=distancegap,
                     anglegap=anglegap,disectparts=disectparts,moverotate=moverotate,
-                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, seperateparts=seperateparts,
-                    edgesize=edgesize, vertexsize=vertexsize, maximumfacestoinclude=maximumfaces).dump()
+                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
+                    seperateparts=seperateparts, edgesize=edgesize, vertexsize=vertexsize,
+                    maximumfacestoinclude=maximumfaces,CreateChildSteps=CreateChildSteps,
+                    CreateAssemblyOrder=CreateAssemblyOrder,CreateStackability=CreateStackability,
+                    explodegap=explodegap,holescale=holescale,removegap=removegap,center=center,
+                    delay=animationtime).dump()
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)
@@ -959,8 +974,12 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                 (_,_, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
-                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, seperateparts=seperateparts, 
-                    moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize, maximumfacestoinclude=maximumfaces).dump() 
+                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
+                    seperateparts=seperateparts,moverotate=moverotate,edgesize=edgesize,
+                    vertexsize=vertexsize, maximumfacestoinclude=maximumfaces,
+                    CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,
+                    CreateStackability=CreateStackability,explodegap=explodegap,holescale=holescale,
+                    removegap=removegap,center=center,delay=animationtime).dump() 
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)
@@ -978,8 +997,12 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                 (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
-                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, seperateparts=seperateparts, 
-                    moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize, maximumfacestoinclude=maximumfaces).dump()  
+                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
+                    seperateparts=seperateparts,moverotate=moverotate,edgesize=edgesize,
+                    vertexsize=vertexsize, maximumfacestoinclude=maximumfaces,
+                    CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,
+                    CreateStackability=CreateStackability,explodegap=explodegap,holescale=holescale,
+                    removegap=removegap,center=center,delay=animationtime).dump()  
                 #dictionary['thumbnail']=thumbnail                             
             except Exception as e:
                 print("error",e)
@@ -996,8 +1019,12 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
                 (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
-                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, seperateparts=seperateparts, 
-                    moverotate=moverotate,edgesize=edgesize, vertexsize=vertexsize, maximumfacestoinclude=maximumfaces).dump() 
+                    thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
+                    seperateparts=seperateparts, moverotate=moverotate,edgesize=edgesize, 
+                    vertexsize=vertexsize, maximumfacestoinclude=maximumfaces,
+                    CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,
+                    CreateStackability=CreateStackability,explodegap=explodegap,holescale=holescale,
+                    removegap=removegap,center=center,delay=animationtime).dump() 
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)                
@@ -1008,7 +1035,11 @@ def exportToHierarchyGLTF(sourceFileName,includeparts,distancegap,anglegap,disec
         return ({},True)
         #raise ValueError("File Could not be loaded")  
 
-def splitHierarchyFile(id,key,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts):
+def splitHierarchyFile(
+    id,key,includeparts,distancegap,anglegap,disectparts,moverotate,
+    edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
+    CreateChildSteps,CreateAssemblyOrder,CreateStackability,
+    explodegap,holescale,removegap,center,animationtime):
     data =[]
     if id or is_number(id) :
         _, file_extension = os.path.splitext(id)
@@ -1017,14 +1048,18 @@ def splitHierarchyFile(id,key,includeparts,distancegap,anglegap,disectparts,move
         try:
             (data, converted) = exportToHierarchyGLTF(
                 sourcefilename,includeparts,distancegap,anglegap,disectparts,moverotate,
-                edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts)
+                edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
+                CreateChildSteps,CreateAssemblyOrder,CreateStackability,
+                explodegap,holescale,removegap,center,animationtime)
             if converted:
                 return data
             else:   
                 if data :         
                     (data, converted) = exportToHierarchyGLTF(
                         data,includeparts,distancegap,anglegap,disectparts,moverotate,
-                        edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts)
+                        edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
+                        CreateChildSteps,CreateAssemblyOrder,CreateStackability,
+                        explodegap,holescale,removegap,center,animationtime)
                     return data                        
                 else:
                     print(" Unable to split", sourcefilename, "since not supported type", file_extension)               
@@ -1064,6 +1099,14 @@ def FileHierarchySplit(request):
             maximumfaces = convertToInt(request.GET.get('maximumfaces',"50"),defthumb)
             seperateparts = convertToBool(request.GET.get('seperateparts',"false"),False)
             
+            CreateChildSteps=convertToBool(request.GET.get('CreateChildSteps',"false"),False)
+            CreateAssemblyOrder=convertToBool(request.GET.get('CreateAssemblyOrder',"false"),False)
+            CreateStackability=convertToBool(request.GET.get('CreateStackability',"false"),False)           
+            explodegap = convertToFloat(request.GET.get('explodegap',"10"),10)
+            holescale = convertToFloat(request.GET.get('holescale',"0.77"),0.77)
+            removegap = convertToFloat(request.GET.get('removegap',"8.0"),8.0)
+            center = convertToBool(request.GET.get('center',"true"),True)
+            animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
             
             #print(includeparts)
             if includeparts:           
@@ -1081,13 +1124,17 @@ def FileHierarchySplit(request):
                     for eachfile in files:
                         data = splitHierarchyFile(
                             eachfile.file.name,MEDIA_URL,includeparts,distancegap,anglegap,disectparts,
-                            moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts)
+                            moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
+                            CreateChildSteps,CreateAssemblyOrder,CreateStackability,
+                            explodegap,holescale,removegap,center,animationtime)
                 else:
                     #id = request.GET.get('file', None)
                     if id is not None:
                         data = splitHierarchyFile(
                             id,MEDIA_URL,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,
-                            vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts)
+                            vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
+                            CreateChildSteps,CreateAssemblyOrder,CreateStackability,
+                            explodegap,holescale,removegap,center,animationtime)
             """ if ((edgesize!=0) or (vertexsize !=0)):
                 try:
                     gdtfile = "Display/"+data["store"]+".gdt"
@@ -2006,6 +2053,14 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
                 
             #return dictionary 
         try:
+            dimension, myShapes = outputShapes
+            shapeArray,shape,_,_, _ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
+            dictionary = FindStackability(sourceFileName,shapeArray,dimension,distancegap=distancegap,\
+                anglegap=anglegap,animationtime=animationtime,starttime=starttime,logging=logging,).dump()
+        except Exception as e:
+            print("error calling stackablity from view",e)
+        """ try:
             dimension, _ = outputShapes
             xmin, ymin, zmin, xmax, ymax, zmax = dimension 
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
@@ -2045,7 +2100,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             with open(stackfile, 'w') as fh:
                 fh.write(json.dumps(dictionary["stackable"], sort_keys=True, indent=2 ))
         except Exception as e:
-            print("Error while writing stackfile",e) 
+            print("Error while writing stackfile",e)  """
         getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],100,starttime,False)     
         return dictionary
        
@@ -5009,12 +5064,13 @@ def FileGetAssemblyOrder(request):
             print("Error while logging",e)
         data = []
         if request.method == 'GET':
+            
             id = request.GET.get('id', None)
             distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
             anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-            explodegap = convertToFloat(request.GET.get('explodegap',"0.3"),0.3)
-            holescale = convertToFloat(request.GET.get('holescale',"0.8"),0.8)
-            removegap = convertToFloat(request.GET.get('removegap',"1.0"),1.0)
+            explodegap = convertToFloat(request.GET.get('explodegap',"10"),10)
+            holescale = convertToFloat(request.GET.get('holescale',"0.77"),0.77)
+            removegap = convertToFloat(request.GET.get('removegap',"8.0"),8.0)
             center = convertToBool(request.GET.get('center',"true"),True)
             animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
             #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
@@ -5457,3 +5513,44 @@ def GetFileContent(request):
                 logging.exception(e)
             except Exception as e:
                 print("Error while logging",e) """
+@api_view(['GET'])
+def CheckFileExistence(request):
+    try:
+        dictionary = {}
+        if request.method == 'GET':
+            file = request.GET.get('file', None)
+            try:
+                if os.path.isfile('Display/'+file):
+                    dictionary['path']="Linux"
+                elif os.path.isfile('s3bucket/Display/'+file):
+                    dictionary['path']="S3"
+                elif os.path.isfile(file):  
+                    dictionary['path']="Self" 
+                else:
+                     dictionary['path']=""
+                dictionary['status'] = 'success'
+            except Exception as e:
+                print("Error while checking file",e,file) 
+                dictionary['path'] = ""
+                dictionary['status'] = str(e)
+        return JsonResponse(dictionary, safe=False)
+    except Exception as e:
+        try:
+            dictionary['path'] = ""
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+            dictionary['path'] = ""
+            dictionary['status'] = str(e)
+        return JsonResponse(dictionary, safe=False)
+    except:
+        try:
+            dictionary['path'] = ""
+            logging.error(traceback.format_exc())
+        except Exception as e:
+            print("Error while logging",e)
+            dictionary['path'] = ""
+            dictionary['status'] = str(e)
+        return JsonResponse(dictionary, safe=False)
+    

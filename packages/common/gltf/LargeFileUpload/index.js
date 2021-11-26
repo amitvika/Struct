@@ -84,7 +84,11 @@ export default function LargeFileUpload({
   drawLine,
   setDrawLine,
   allowFirstLevelItems,
-  setAllowFirstLevelItems
+  setAllowFirstLevelItems,
+  createAutoAssemblyOrder,
+  setCreateAutoAssemblyOrder,
+  createAutoStackability,
+  setCreateAutoStackability
 }) {
   const classes = useStyles();
   const [counter, setCounter] = useState(1);
@@ -294,6 +298,30 @@ export default function LargeFileUpload({
             />
           }
           label="Create First Level Items"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={createAutoAssemblyOrder}
+              label="Obtain Assembly Order"
+              onChange={(event) =>
+                setCreateAutoAssemblyOrder(event.target.checked)
+              }
+            />
+          }
+          label="Obtain Assembly Order"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={createAutoStackability}
+              label="Obtain Stackability"
+              onChange={(event) =>
+                setCreateAutoStackability(event.target.checked)
+              }
+            />
+          }
+          label="Obtain Stackability"
         />
       </Box>
       <Box sx={{ width: '100%' }}>

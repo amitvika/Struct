@@ -104,6 +104,7 @@ from .Quaternion import Quaternion
 
 from ....settingscopy import (DISPLAY_URL,MEDIA_URL,COPY_PATH)
 from ....assemblyorder import FindAssemblingOrder
+from ....assemblystack import FindStackability
 
 @contextmanager
 def measure_time(log, name):
@@ -1185,7 +1186,9 @@ class StepExportWithColor(object):
 
     def WriteAssemblyOutPutShapes(self,shapes,filename,myParent,myTree,treeLength,\
         includeparts,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight, \
-            logging, seperateparts,edgesize, vertexsize, maximumfacestoinclude):
+            logging, seperateparts,edgesize, vertexsize, maximumfacestoinclude,\
+                CreateChildSteps,CreateAssemblyOrder,explodegap,center,holescale,removegap,\
+                    recreatefororder,CreateStackability):
         name = None
         lengthCheck = 0
         #print("Passed",myTree)
@@ -1258,7 +1261,11 @@ class StepExportWithColor(object):
                             distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,\
                                 moverotate=moverotate,thumbwidth=thumbwidth,thumbheight=thumbheight,\
                                     logging=logging,seperateparts=seperateparts, edgesize=edgesize,\
-                                        vertexsize=vertexsize,maximumfacestoinclude=maximumfacestoinclude).dump(False) 
+                                        vertexsize=vertexsize,maximumfacestoinclude=maximumfacestoinclude,\
+                                            CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,\
+                                                explodegap=explodegap, center=center, holescale=holescale,\
+                                                     removegap=removegap,recreatefororder=recreatefororder,\
+                                                         CreateStackability=CreateStackability).dump(False) 
                                         #in thread background thumbnail creation is not working Hence forcing dump to be thread free.
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
@@ -1306,8 +1313,11 @@ class StepExportWithColor(object):
             if aTree[self.gltf_dict['parentId']]==myParent : 
                 (shape, treeDisplay, R_, G_, B_) =  self.GetFirstLevelSelfAndTreeFromOutputShapes(aTree,shapes,myTree,treeLength)
                 if shape:
-                    comp_builder.Add(comp, shape)
-                    oneItemAdded+=1
+                    try:
+                        comp_builder.Add(comp, shape)
+                        oneItemAdded+=1
+                    except Exception as e:
+                        print("Exception while adding compound",e)
                     R,G,B=R_,G_,B_
             lengthCheck+=1
             if lengthCheck >=treeLength:
@@ -1320,13 +1330,17 @@ class StepExportWithColor(object):
     def GetFirstLevelAssemblyOutPutShapesForOrder(self,shapes,myParent,myTree,treeLength):
         name = None
         lengthCheck = 0
+        if myParent:
+            myParentCheck = myParent
+        else:
+            myParentCheck = 1
         #print("Passed",myTree)
         for aTree in myTree:
             #print("My aTree",aTree)
-            if aTree[self.gltf_dict['id']]==myParent :
+            if aTree[self.gltf_dict['id']]==myParentCheck :
                 name=aTree[self.gltf_dict['name']]
                 if name is None:
-                    name =  "Struct Assembly "+str(myParent)
+                    name =  "Struct Assembly "+str(myParentCheck)
                 break
             lengthCheck+=1
             if lengthCheck >=treeLength:
@@ -1334,32 +1348,36 @@ class StepExportWithColor(object):
         addedAssembly = 0
         assemblyCount=0
         if name:
-            lengthCheck = 0
-            myParentId=myParent
-            for aTree in myTree:
-                if aTree[self.gltf_dict['parentId']]==myParent : 
-                    myParentId = aTree[self.gltf_dict['id']]
-                    assemblyCount +=1
-                    if assemblyCount > 1:
-                        break
-                lengthCheck+=1
-                if lengthCheck >=treeLength:
-                    break
-            if assemblyCount>1:
-                myParentId=myParent
-            elif assemblyCount==1:
-                assemblyCount=0
+            if myParent:
                 lengthCheck = 0
+                myParentId=myParent
                 for aTree in myTree:
-                    if aTree[self.gltf_dict['parentId']]==myParentId : 
+                    if aTree[self.gltf_dict['parentId']]==myParent : 
+                        myParentId = aTree[self.gltf_dict['id']]
                         assemblyCount +=1
-                        break
+                        if assemblyCount > 1:
+                            break
                     lengthCheck+=1
                     if lengthCheck >=treeLength:
                         break
-                if assemblyCount == 0:
-                    myParentId = myParent
-                    assemblyCount=1
+                if assemblyCount>1:
+                    myParentId=myParent
+                elif assemblyCount==1:
+                    assemblyCount=0
+                    lengthCheck = 0
+                    for aTree in myTree:
+                        if aTree[self.gltf_dict['parentId']]==myParentId : 
+                            assemblyCount +=1
+                            break
+                        lengthCheck+=1
+                        if lengthCheck >=treeLength:
+                            break
+                    if assemblyCount == 0:
+                        myParentId = myParent
+                        assemblyCount=1
+            else:
+                myParentId = None
+                assemblyCount=1
         if (name) and (assemblyCount>=1):
             firstLevelAssemblies = []
             lengthCheck = 0
@@ -1452,6 +1470,7 @@ class StepIgesAnalyser():
             "roughnessFactor":0.7
             }
         }
+
     def __init__(
         self, document=None, filename=None, shapeslist=None, includeparts=False, ascompound=False, 
         distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
@@ -1459,9 +1478,11 @@ class StepIgesAnalyser():
         thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=False, suffixname='',
         writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
-        defaultR=0.3,defaultG=0.32,defaultB=0.37,seperateparts=False,seperatecompounds=True,
-        recursiveShapes=None,recursiveTree=None,recursiveID=1,
-        explodegap=10.0,center=True,holescale=0.77,removegap=8.0,recreatefororder=False):
+        defaultR=0.3, defaultG=0.32, defaultB=0.37, seperateparts=False, seperatecompounds=True,
+        recursiveShapes=None, recursiveTree=None, recursiveID=1, CreateChildSteps=False,
+        CreateAssemblyOrder=False, explodegap=10.0, center=True, holescale=0.77, removegap=8.0,
+        recreatefororder=False, CreateStackability=False
+        ):
         """Supply one or the other: document or STEP filename or Shapes."""
         self.starttime = datetime.utcnow()
         self.percentage = 0
@@ -1497,6 +1518,9 @@ class StepIgesAnalyser():
             self.onebyholescale = self.holescale
         self.removegap = removegap
         self.recreatefororder = recreatefororder
+        self.CreateAssemblyOrder = CreateAssemblyOrder
+        self.CreateChildSteps = CreateChildSteps
+        self.CreateStackability = CreateStackability
         try:
             self.commonpipe = BRepPrimAPI_MakeBox(gp_Pnt(0,0,0),0.1,0.1,0.1).Shape()
             self.commoncompound, _ = list_of_shapes_to_compound(self.commonpipe)
@@ -3083,7 +3107,9 @@ class StepIgesAnalyser():
         parent_node['children'] = parent_node.get('children', []) + [node_index]
         #print("I have reached here in getshapes 4",self.output)
         myLenShapesList = len(self.shapeslist)
+        #print("outsideloop",self.shapeslist)
         for a_shape_to_disp in self.shapeslist:
+            #print("Inside loop",a_shape_to_disp)
             shape_to_disp, shape_name, shape_color = a_shape_to_disp
             if shape_color==None:
                 shape_color = c
@@ -4228,58 +4254,101 @@ class StepIgesAnalyser():
         if ( (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "K") and (self.suffixname != "A") ):
             #orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
             #    self.scene_max[0],self.scene_max[1],self.scene_max[2])
-            (_,self.childfiles)=StepExportWithColor().WriteAssemblyOutPutShapes(\
-                self.outputShapes,self.basefilename,1,self.tstep_dict["tree"],\
-                    myTreeLenBeforeAddingEdgesAndVertices,self.includeparts,self.distancegap,\
-                        self.anglegap,self.disectparts,self.moverotate,self.thumbwidth,self.thumbheight,\
-                            self.logging, self.seperateparts, self.edgesize, self.vertexsize,\
-                                 self.maximumfacestoinclude)            
-            self.write_progress(maxgap=0,action='Child Items Written',written=True)
-            print("Starting Assembly order",self.fname)
-            if self.recreatefororder:
-                (_, (orderDimension, outputShapesOrder), dictionaryOrder) = StepIgesAnalyser(
-                        filename=self.fname,includeparts=False,distancegap=self.distancegap, logging=logging, 
-                        anglegap=self.anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
-                        edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M").dump(False)
-                dictionaryOrderTree = dictionaryOrder["tree"]
-                lenDictionaryOrderTree = len(dictionaryOrderTree)
-            else:
+            if self.CreateChildSteps:
+                print("Starting Child Steps",self.fname)
+                (_,self.childfiles)=StepExportWithColor().WriteAssemblyOutPutShapes(\
+                    self.outputShapes,self.basefilename,1,self.tstep_dict["tree"],\
+                        myTreeLenBeforeAddingEdgesAndVertices,self.includeparts,self.distancegap,\
+                            self.anglegap,self.disectparts,self.moverotate,self.thumbwidth,self.thumbheight,\
+                                self.logging, self.seperateparts, self.edgesize, self.vertexsize,\
+                                    self.maximumfacestoinclude,self.CreateChildSteps,\
+                                        self.CreateAssemblyOrder,self.explodegap,self.center,\
+                                            self.holescale,self.removegap,self.recreatefororder,\
+                                                self.CreateStackability)           
+                self.write_progress(maxgap=0,action='Child Items Written',written=True)
+                print("Completing Child Steps",self.fname)
+            if self.CreateAssemblyOrder:
+                print("Starting Assembly order",self.fname)
+                if self.recreatefororder:
+                    (_, (orderDimension, outputShapesOrder), dictionaryOrder) = StepIgesAnalyser(
+                            filename=self.fname,includeparts=False,distancegap=self.distancegap, logging=logging, 
+                            anglegap=self.anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
+                            edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M").dump(False)
+                    dictionaryOrderTree = dictionaryOrder["tree"]
+                    lenDictionaryOrderTree = len(dictionaryOrderTree)
+                else:
+                    orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
+                        self.scene_max[0],self.scene_max[1],self.scene_max[2])
+                    outputShapesOrder = self.outputShapes
+                    dictionaryOrderTree=self.tstep_dict["tree"]
+                    lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
+                shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
+                    getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,lenDictionaryOrderTree)
+                orderStatusName = self.basefilename[:-1]+'M'
+                StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
+                    30,self.starttime,False)
+                FindAssemblingOrder(shapeArrayOrder,shapeOrder,aNameOrder,aColorAssemblyOrder,orderDimension,self.explodegap,\
+                    self.center,self.holescale,self.removegap,self.logging).ExplodeParts(\
+                        self.fname,self.distancegap,self.anglegap,self.delay,COPY_PATH+self.displaypath,\
+                            False,self.starttime)
+                StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
+                    100,self.starttime,False)
+                print("Completing Assembly order",self.fname)
+                try:
+                    myPickle = {'sourceType':'Order',
+                                    'sourceFileName':self.fname,
+                                    'distancegap':self.distancegap,
+                                    'anglegap':self.anglegap,
+                                    'explodegap':self.explodegap,
+                                    'center':self.center,
+                                    'holescale':self.holescale,
+                                    'removegap':self.removegap,
+                                    'animationtime':self.delay,
+                                    'colorshapes':shapePicklesOrder,
+                                    'assemblyname':aNameOrder,
+                                    'dimension':orderDimension} 
+                    picklefile = COPY_PATH+self.displaypath+orderStatusName+".pickle"
+                    with open(picklefile, 'wb') as f:
+                        # Pickle the 'data' dictionary using the highest protocol available.                               
+                        pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
+                except Exception as e:
+                    print(e,"File, %s has error" % picklefile)
+            if self.CreateStackability:
+                print("Starting Stackability",self.fname)
                 orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
                     self.scene_max[0],self.scene_max[1],self.scene_max[2])
                 outputShapesOrder = self.outputShapes
                 dictionaryOrderTree=self.tstep_dict["tree"]
                 lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
-            shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
-                getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,lenDictionaryOrderTree)
-            orderStatusName = self.basefilename[:-1]+'M'
-            StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
-                30,self.starttime,False)
-            FindAssemblingOrder(shapeArrayOrder,shapeOrder,aNameOrder,aColorAssemblyOrder,orderDimension,self.explodegap,\
-                self.center,self.holescale,self.removegap,logging).ExplodeParts(\
-                    self.fname,self.distancegap,self.anglegap,self.delay,COPY_PATH+self.displaypath,\
-                        False,self.starttime)
-            StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
-                100,self.starttime,False)
-            print("Completing Assembly order",self.fname)
-            try:
-                myPickle = {'sourceType':'Order',
-                                'sourceFileName':self.fname,
-                                'distancegap':self.distancegap,
-                                'anglegap':self.anglegap,
-                                'explodegap':self.explodegap,
-                                'center':self.center,
-                                'holescale':self.holescale,
-                                'removegap':self.removegap,
-                                'animationtime':self.delay,
-                                'colorshapes':shapePicklesOrder,
-                                'assemblyname':aNameOrder,
-                                'dimension':orderDimension} 
-                picklefile = COPY_PATH+self.displaypath+orderStatusName+".pickle"
-                with open(picklefile, 'wb') as f:
-                    # Pickle the 'data' dictionary using the highest protocol available.                               
-                    pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
-            except Exception as e:
-                print(e,"File, %s has error" % picklefile)
+                shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
+                    getShapesFromOutPutShapes(outputShapesOrder,None,dictionaryOrderTree,lenDictionaryOrderTree)
+                orderStatusName = self.basefilename[:-1]+'S'
+                StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
+                    30,self.starttime,False)
+                FindStackability(self.fname,shapeArrayOrder,orderDimension,\
+                    self.distancegap,self.anglegap,self.delay,self.starttime,self.logging).dump()
+                StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
+                    100,self.starttime,False)
+                print("Completing Stackability",self.fname)
+                try:
+                    myPickle = {'sourceType':'Order',
+                                    'sourceFileName':self.fname,
+                                    'distancegap':self.distancegap,
+                                    'anglegap':self.anglegap,
+                                    'explodegap':self.explodegap,
+                                    'center':self.center,
+                                    'holescale':self.holescale,
+                                    'removegap':self.removegap,
+                                    'animationtime':self.delay,
+                                    'colorshapes':shapePicklesOrder,
+                                    'assemblyname':aNameOrder,
+                                    'dimension':orderDimension} 
+                    picklefile = COPY_PATH+self.displaypath+orderStatusName+".pickle"
+                    with open(picklefile, 'wb') as f:
+                        # Pickle the 'data' dictionary using the highest protocol available.                               
+                        pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
+                except Exception as e:
+                    print(e,"File, %s has error" % picklefile)
             
         if byThread:   
             try:
