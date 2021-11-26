@@ -5473,31 +5473,33 @@ def CheckFileExistence(request):
                     dictionary['path']="Linux"
                 elif os.path.isfile('s3bucket/Display/'+file):
                     dictionary['path']="S3"
+                elif os.path.isfile(file):  
+                    dictionary['path']="Self" 
                 else:
                      dictionary['path']=""
                 dictionary['status'] = 'success'
             except Exception as e:
-                print("Error while reading file",e,file) 
-                dictionary['exists'] = ""
+                print("Error while checking file",e,file) 
+                dictionary['path'] = ""
                 dictionary['status'] = str(e)
         return JsonResponse(dictionary, safe=False)
     except Exception as e:
         try:
-            dictionary['exists'] = ""
+            dictionary['path'] = ""
             logging.error(traceback.format_exc())
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-            dictionary['exists'] = ""
+            dictionary['path'] = ""
             dictionary['status'] = str(e)
         return JsonResponse(dictionary, safe=False)
     except:
         try:
-            dictionary['exists'] = ""
+            dictionary['path'] = ""
             logging.error(traceback.format_exc())
         except Exception as e:
             print("Error while logging",e)
-            dictionary['exists'] = ""
+            dictionary['path'] = ""
             dictionary['status'] = str(e)
         return JsonResponse(dictionary, safe=False)
     
