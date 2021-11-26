@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   card_container: {
     maxWidth: '800px',
     width: '45%',
-    [theme.breakpoints.up('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       width: '100%'
     }
   },
