@@ -29,7 +29,7 @@ const ItemSchema = new mongoose.Schema(
       type: Schema.Types.ObjectId,
       ref: 'Client'
     },
-    assemblyType: { type: String, default: 'Single Item Part' },
+    assemblyType: { type: String },
     itemGeometry: { type: Object },
     itemTypeConfiguration: { type: Object },
     vendorDetails: { type: Object },
