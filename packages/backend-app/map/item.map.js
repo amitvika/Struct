@@ -47,23 +47,19 @@ exports.mapItem = async (item = {}) => {
       item.fileStore +
       '.png'
     : undefined;
-  if (file_url) {
-    // console.log('Checking URL', file_url, item.name);
-    let isFileExists = await isFileExistingInServer(file_url);
-    if (!isFileExists) {
-      // console.log('Changing URL', file_url, item.name);
-      file_url = item.fileStore
-        ? (item.fileUUId
-            ? (resourcePathS3URL || '') + item.fileUUId + '/'
-            : resourcePathS3URL || '') +
-          item.fileStore +
-          '.png'
-        : undefined;
-      // console.log('Changed URL', file_url, item.name);
-    } else {
-      // console.log('Not changed png path', file_url, item.name);
-    }
-  }
+  // if (file_url) {
+  //   let isFileExists = await isFileExistingInServer(file_url);
+  //   if (!isFileExists) {
+  //     file_url = item.fileStore
+  //       ? (item.fileUUId
+  //           ? (resourcePathS3URL || '') + item.fileUUId + '/'
+  //           : resourcePathS3URL || '') +
+  //         item.fileStore +
+  //         '.png'
+  //       : undefined;
+  //   } else {
+  //   }
+  // }
   let myobject = {
     ...item.toObject(),
     id: item._id,
