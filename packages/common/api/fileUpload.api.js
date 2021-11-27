@@ -30,7 +30,7 @@ export const saveTreeInfo = async (tree, name, fileGUID) => {
   var formTree = new FormData();
   formTree.append('tree', JSON.stringify(tree));
   formTree.append('name', name);
-  formTree.append('uuid', fileGUID ? fileGUID : '');
+  formTree.append('uuid', fileGUID || '');
   return axios.post(`${host}/savetree/`, formTree);
 };
 
@@ -39,7 +39,7 @@ export const saveGDTInfo = async (gdt, name, fileGUID = '') => {
   var formGDT = new FormData();
   formGDT.append('gdt', JSON.stringify(gdt));
   formGDT.append('name', name);
-  formGDT.append('uuid', fileGUID ? fileGUID : '');
+  formGDT.append('uuid', fileGUID || '');
   return axios.post(`${host}/savegdt/`, formGDT);
 };
 
@@ -137,8 +137,8 @@ export const getMinimumDistance = async (
   sname
 ) => {
   const getURL = `${host}/mindistance?moverotate=${moverotate}&xmove=${xmove}&ymove=${ymove}&zmove=${zmove}&xrotate=${xrotate}&yrotate=${yrotate}&zrotate=${zrotate}&fname=${
-    fname ? fname : ''
-  }&sname=${sname ? sname : ''}`;
+    fname || ''
+  }&sname=${sname || ''}`;
   // console.log(getURL);
   return axios.get(getURL);
 };
@@ -159,7 +159,7 @@ export const getShapeInfo = async (
   formShapeInfo.append('steps', JSON.stringify({ steps: stepArray }));
   formShapeInfo.append('siblings', JSON.stringify({ siblings: siblingArray }));
   formShapeInfo.append('parts', JSON.stringify({ parts: partArray }));
-  formShapeInfo.append('uuid', fileGUID ? fileGUID : '');
+  formShapeInfo.append('uuid', fileGUID || '');
   return axios.post(`${host}/shapeinfo/`, formShapeInfo);
 };
 
@@ -174,6 +174,11 @@ export const getAllFiles = async () => {
 };
 export const getAFile = async (file) => {
   const fetchURL = `${host}/getcontent?file=${file}`;
+  // console.log(fetchURL);
+  return axios.get(fetchURL);
+};
+export const fetchAFile = async (file, path) => {
+  const fetchURL = `${host}/fetchcontent?file=${file}&path=${path || ''}`;
   // console.log(fetchURL);
   return axios.get(fetchURL);
 };
@@ -200,10 +205,40 @@ export const getAFileFromURLStore = async (store, ext, fromURL) => {
     }
   }
 };
+export const getAFileFromPathStore = async (store, ext, fromPath) => {
+  if (ext == 'status' || ext == 'progress') {
+    const fetchURL = `${resourcePathStatus}${store}.${ext}`;
+    // console.log(fetchURL);
+    return getAFile(fetchURL);
+  } else {
+    const fetchURL = `${fromPath}${store}.${ext}`;
+    return getAFile(fetchURL);
+  }
+};
 
 export const getExistingURLPath = async (store, ext) => {
   const fetchURL = `${host}/checkexists?file=${store}.${ext}`;
   return axios.get(fetchURL);
+};
+
+export const getExistingPathFromServer = async (store, ext) => {
+  const fetchURL = `${host}/checkexists?file=${store}.${ext}`;
+  try {
+    const resdata = await axios.get(fetchURL);
+    if (resdata && resdata.data) {
+      if (resdata.data.path == 'Linux') {
+        return resourcePathDisplay;
+      }
+      if (resdata.data.path == 'S3') {
+        return resourcePathS3;
+      }
+      return '';
+    }
+    return null;
+  } catch (error) {
+    console.log('Error while fetching', error, fetchURL);
+    return null;
+  }
 };
 
 export const getAFileFromStore = async (store, ext) => {

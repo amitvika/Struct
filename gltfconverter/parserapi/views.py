@@ -2,7 +2,7 @@
 from math import ceil
 
 from OCC.Core.gp import gp_Pnt 
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, FileResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 #from rest_framework.parsers import FileUploadParser
@@ -5481,11 +5481,11 @@ def GetFileContent(request):
             print("Error while logging",e)
         dictionary = {}
         if request.method == 'GET':
-            file = request.GET.get('file', None)
+            file = request.GET.get('file', None)    
             try:
-                data = read_content(file)
-                dictionary = json.loads(data)
-                print("Got file content for",file)
+               response = FileResponse(open(file, 'rb'))
+               print("Got file content for",file)
+               return response
             except Exception as e:
                 print("Error while reading file",e,file) 
         return JsonResponse(dictionary, safe=False)
@@ -5514,6 +5514,66 @@ def GetFileContent(request):
             except Exception as e:
                 print("Error while logging",e) """
 @api_view(['GET'])
+def FetchFileContent(request):
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        if request.method == 'GET':
+            file = request.GET.get('file', None)
+            path = request.GET.get('path', None)
+            if path:
+                checkfilefrom = path+file
+                if not os.path.isfile(checkfilefrom):
+                    checkfilefrom = 'Display/'+file
+                    toCheck = True
+                else:
+                    toCheck = False
+            else:
+                checkfilefrom = 'Display/'+file
+                toCheck = True
+            if toCheck:
+                if not os.path.isfile(checkfilefrom):
+                    checkfilefrom = 's3bucket/'+checkfilefrom
+                    if not os.path.isfile(checkfilefrom):
+                        checkfilefrom = file
+                        if not os.path.isfile(checkfilefrom):
+                            checkfilefrom = ''
+            if checkfilefrom != '':
+                try:
+                    response = FileResponse(open(checkfilefrom, 'rb'))
+                    print("Got file content for",checkfilefrom)
+                    return response
+                except Exception as e:
+                    print("Error while reading file",e,file,checkfilefrom) 
+                    return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+                except:
+                    try:
+                        logging.error(traceback.format_exc())
+                    except Exception as e:
+                        print("Error while logging",e)
+                        return JsonResponse({'message': "System Error", 'exception':e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+                    return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+            else:
+                return JsonResponse({},status=status.HTTP_400_BAD_REQUEST, safe=False)                
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as err:
+            print("Error while logging",err)
+            return JsonResponse({'message': e, 'exception':err},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+        except Exception as e:
+            print("Error while logging",e)
+            return JsonResponse({'message': "System Error", 'exception':e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+
+@api_view(['GET'])
 def CheckFileExistence(request):
     try:
         dictionary = {}
@@ -5537,12 +5597,13 @@ def CheckFileExistence(request):
     except Exception as e:
         try:
             dictionary['path'] = ""
+            dictionary['status'] = str(e)
             logging.error(traceback.format_exc())
             logging.exception(e)
-        except Exception as e:
-            print("Error while logging",e)
-            dictionary['path'] = ""
-            dictionary['status'] = str(e)
+        except Exception as err:
+            print("Error while logging",err) 
+            dictionary['path'] = "" 
+            dictionary['status'] = str(e)+" "+str(err)         
         return JsonResponse(dictionary, safe=False)
     except:
         try:

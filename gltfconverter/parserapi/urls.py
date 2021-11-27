@@ -21,6 +21,7 @@ router.register(r'files', views.FileGetKinematicAnimation, basename='kinematicor
 router.register(r'files', views.FileSaveTree, basename='savetree' )
 router.register(r'files', views.FileSaveGDT, basename='savegdt' )
 router.register(r'files', views.GetFileContent, basename='getcontent' )
+router.register(r'files', views.FetchFileContent, basename='fetchcontent' )
 router.register(r'files', views.CheckFileExistence, basename='checkexists' )
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.FileUploadChunk
@@ -42,7 +43,8 @@ urlpatterns = [
     re_path(r'^api/v0/kinematicorder$', views.FileGetKinematicAnimation),
     re_path(r'^api/v0/savetree', views.FileSaveTree),
     re_path(r'^api/v0/savegdt', views.FileSaveGDT),
-    re_path(r'^api/v0/getcontent$', views.GetFileContent),
+    re_path(r'^api/v0/getcontent$', views.GetFileContent), 
+    re_path(r'^api/v0/fetchcontent$', views.FetchFileContent),
     re_path(r'^api/v0/checkexists$', views.CheckFileExistence),
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + \
     static(settings.DISPLAY_URL, document_root=settings.DISPLAY_ROOT) + \
