@@ -2243,7 +2243,7 @@ class StepIgesAnalyser():
                     self.outputCompounds[hashcode] = (compound)
                     reduced_compounds_dict[hashcode]=compound
             for reduced_hash_code, reduced_compounds in reduced_compounds_dict.items(): 
-                mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
+                mesherDict=self.updateParentChild(subName+" "+subEntry,shape,subName+subEntry)
                 my_parent_id = mesherDict[self.gltf_Dict["id"]]                            
                 self.parentIDs.append(my_parent_id)
                 self.indent += 1
@@ -2264,7 +2264,7 @@ class StepIgesAnalyser():
                     self.outputCompSolids[hashcode] = (compound)
                     reduced_compsolids_dict[hashcode]=compound
             for reduced_hash_code, reduced_compsolids in reduced_compsolids_dict.items():
-                mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
+                mesherDict=self.updateParentChild(subName+" "+subEntry,shape,subName+subEntry)
                 my_parent_id = mesherDict[self.gltf_Dict["id"]]                            
                 self.parentIDs.append(my_parent_id)
                 self.indent += 1
@@ -2279,7 +2279,7 @@ class StepIgesAnalyser():
                 self.parentIDs.pop()          
                 self.direntry = self.direntry[:mydirectorylen]                 
             if(len(solids_dict)>0):
-                mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
+                mesherDict=self.updateParentChild(subName+" "+subEntry,shape,subName+subEntry)
                 my_parent_id = mesherDict[self.gltf_Dict["id"]]                            
                 self.parentIDs.append(my_parent_id)
                 self.indent += 1
@@ -2339,7 +2339,7 @@ class StepIgesAnalyser():
                 #print("I have reached here 16")
                 #shape_disp = BRepBuilderAPI_Transform(shape, subLocation.Transformation()).Shape()
                 if self.includeparts and parentIDNotAdded and (disect_type=="FACE"):                            
-                    mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
+                    mesherDict=self.updateParentChild(subName+" "+subEntry,shape,subName+subEntry)
                     my_parent_id = mesherDict[self.gltf_Dict["id"]]                            
                     self.parentIDs.append(my_parent_id)
                     self.indent += 1
@@ -2398,7 +2398,8 @@ class StepIgesAnalyser():
                                 parent_idx=parent_node_index, 
                                 curvecode=myCurveCode,
                                 curvepoints=mycurvepoints,
-                                entity= myentity                  
+                                entity= myentity,
+                                nameroot=subName+parentName                  
                             ) 
                             if solidFoundHere > 0 :
                                 self.outputShapes[shapeInFile] = [shape_disp, myCurveCode, mycurvepoints,\
@@ -2409,7 +2410,7 @@ class StepIgesAnalyser():
                                 if myPartMeshID:
                                     my_parent_id = myPartMeshID 
                                 else:
-                                    mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
+                                    mesherDict=self.updateParentChild(subName+" "+subEntry,shape,subName+subEntry)
                                     my_parent_id = mesherDict[self.gltf_Dict["id"]]
                                 
                                 self.parentIDs.append(my_parent_id)
@@ -2435,7 +2436,7 @@ class StepIgesAnalyser():
                     (len(shape_vertices) if shape_vertices else 0)
             if self.includeparts:
                 #print("sub include",subName)
-                mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
+                mesherDict=self.updateParentChild(subName+" "+subEntry,shape,subName+subEntry)
                 my_parent_id = mesherDict[self.gltf_Dict["id"]]
                 self.parentIDs.append(my_parent_id)
                 self.indent += 1
@@ -2522,7 +2523,8 @@ class StepIgesAnalyser():
                                         parent_idx=parent_node_index,
                                         curvecode=myCurveCode,
                                         curvepoints=mycurvepoints,
-                                        entity=entity                        
+                                        entity=entity,
+                                        nameroot=subName+parentName                       
                                     ) 
                                 if (solidFoundHere > 0) or ((self.multiplegltf!=0) and (keep_faces==False)) :
                                     self.outputShapes[shapeInFile] = [shape_disp, myCurveCode, mycurvepoints,\
@@ -2598,7 +2600,8 @@ class StepIgesAnalyser():
                                 parent_idx=parent_node_index,  
                                 curvecode=myCurveCode,
                                 curvepoints=edge_points,
-                                entity=entity                      
+                                entity=entity,
+                                nameroot=subName+parentName                      
                             ) 
                         if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
                             self.outputShapes[shape_hash_edge] = [shape_disp, myCurveCode, edge_points, edgeColor,\
@@ -2650,7 +2653,8 @@ class StepIgesAnalyser():
                                 parent_idx=parent_node_index, 
                                 curvecode=" ",
                                 curvepoints=vertex_point,
-                                entity=entity                     
+                                entity=entity,
+                                nameroot=subName+parentName                     
                             ) 
                         if (solidFoundHere > 0) or ((self.multiplegltf!=0)) :                                        
                             self.outputShapes[shape_hash_vertex] = [shape_disp, " ", vertex_point,\
@@ -2699,7 +2703,7 @@ class StepIgesAnalyser():
                 print("Error while extracting shape",e)
                 shape = None
 
-            mesherDict=self.updateParentChild(subName+" "+subEntry, shape)
+            mesherDict=self.updateParentChild(subName+" "+subEntry, shape, subName+subEntry)
             #print("In Assembly",subName)
             self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
             self.indent += 1
@@ -2816,7 +2820,7 @@ class StepIgesAnalyser():
                 #print("I have toIncludeSubShapes gltf for lowest node",basename ) 
                 #print("Inside inculdeparts",subName)
                 my_parent_id = mesherDict[self.gltf_Dict["id"]]
-                mesherDict=self.updateParentChild(subName+" "+subEntry,shape)
+                mesherDict=self.updateParentChild(subName+" "+subEntry,shape,subName+subEntry)
                 self.parentIDs.append(my_parent_id)
                 self.indent += 1
                 #self.parentIDs.append(len(self.mstep_dict['tree'])-1)
@@ -2894,7 +2898,8 @@ class StepIgesAnalyser():
                                         parent_idx=parent_node_index,
                                         curvecode=myCurveCode,
                                         curvepoints=mycurvepoints,
-                                        entity=entity
+                                        entity=entity,
+                                        nameroot= labelForSubShapesName+subName
                                     )
                                     if (solidFoundHere > 0) :                                        
                                         self.outputShapes[shapeInFile] = [shape_to_disp,myCurveCode, mycurvepoints,\
@@ -2976,17 +2981,16 @@ class StepIgesAnalyser():
         self.percentage = myPercentage + percentincrement
         self.write_status()
     
-    def updateName(self,name,forNodes,addOne=0,display=False):
+    def updateName(self,name,forNodes,addOne=0,display=False,displayName=None):
         suffix = self.fileprefix+str(self.distancegap)+str(self.anglegap)+" "+str(self.uniqueid+addOne)         
         if name:
             nameForNode = html.escape(self.validFileName(name+" "+suffix))            
         else:
-            nameForNode = html.escape(self.validFileName("No Name"+" "+suffix))             
-        
+            nameForNode = html.escape(self.validFileName("No Name"+" "+suffix))    
         if display:
             forNodes[self.gltf_Dict["name"]] = nameForNode
-            if name:
-                forNodes[self.gltf_Dict["display"]] = html.escape(name+" "+suffix)
+            if ((name) or (displayName)):
+                forNodes[self.gltf_Dict["display"]] = html.escape(displayName if (displayName) else name)
             else:
                 forNodes[self.gltf_Dict["display"]] = html.escape("No Name"+" "+suffix)
         else:
@@ -3054,7 +3058,7 @@ class StepIgesAnalyser():
             print("Is Assembly", isAssembly, "Components", subComponentsFromParent.Length() )
         else: #manually create the assembly
             #print("Outside",rootName)
-            mesherDict = self.updateParentChild(name+" "+rootName+" "+rootEntry,None)
+            mesherDict = self.updateParentChild(name+" "+rootName+" "+rootEntry,None,rootName+rootEntry)
             self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
             #self.tree+="<ul id=\"myUL\"><li><span class=\"caret\">"+html.escape(name+" "+rootName+" "+rootEntry+" ")+str(self.uid)+"</span><ul class=\"nested\">"    
 
@@ -3147,7 +3151,7 @@ class StepIgesAnalyser():
         parent_node_index = 0
         node_index = 0
         self.parentIDs.append(None)
-        mesherDict = self.updateParentChild(name+" "+rootName,None)
+        mesherDict = self.updateParentChild(name+" "+rootName,None,rootName)
         self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
         
         node_index = len(self.mstep_dict['nodes'])
@@ -3189,7 +3193,8 @@ class StepIgesAnalyser():
                         parent_idx=parent_node_index,
                         curvecode=" ",
                         curvepoints=None,
-                        entity={}
+                        entity={},
+                        nameroot=shape_name
                     )  
                     if(solidFoundHere>0):                  
                         self.outputShapes[hash_shape] = [shape_to_disp, " ", None, c, myMeshID,\
@@ -3243,7 +3248,7 @@ class StepIgesAnalyser():
         elif myFeatureName=="v":
             myFeatureDisplay="VERTEX"
 
-        mesherDict = self.updateParentChild(name+" "+myFeatureDisplay,None)
+        mesherDict = self.updateParentChild(name+" "+myFeatureDisplay,None,name)
         mesherDict[self.gltf_Dict["element"]]=myFeatureName
         self.parentIDs.append(mesherDict[self.gltf_Dict["id"]])
         #print("I have reached here in getshapes 3",self.output)
@@ -3282,7 +3287,8 @@ class StepIgesAnalyser():
                         parent_idx=parent_node_index,
                         curvecode=mycurvecode,
                         curvepoints=mycurvepoints,
-                        entity=entities
+                        entity=entities,
+                        nameroot=myname
                     )                    
                     #self.outputShapes[hash_shape] = [shape_to_disp, subName, subEntry, c, self.uid, self.indent, rootName, rootEntry, meshname, basenamehere, uvPlane]
  
@@ -4500,7 +4506,7 @@ class StepIgesAnalyser():
         self._share_dict[entry] = value
         return entry + '.' + str(value)   
     
-    def updateParentChild(self,name,aShape):
+    def updateParentChild(self,name,aShape,displayname):
         dictionaryLen = len(self.tstep_dict['tree'])
         self.uniqueid = dictionaryLen+1
         mesher_dict = {
@@ -4525,7 +4531,7 @@ class StepIgesAnalyser():
             self.gltf_Dict["points"]:None,
             self.gltf_Dict["entity"]:{}
             }
-        self.updateName(name,mesher_dict,0,True)
+        self.updateName(name,mesher_dict,0,True,displayname)
         if aShape and self.disectparts:
             returnDict = []
             dumpTopologyStructures(aShape,level=0,parentId=[None],returnStructure=returnDict,faceInfo=None)
@@ -5173,7 +5179,10 @@ class StepIgesAnalyser():
         return buff, len(indices), uvbuff, uvPlane   
     
 
-    def add_part(self, part, part_color=None, filenameuri=None, filetype="", name=None,  parent_idx=0, curvecode="", curvepoints=None, entity={}, fromRecursion=False, buff=None, solidfound=0, uvbuff=None, uvPlane=[] ):
+    def add_part(
+        self, part, part_color=None, filenameuri=None, filetype="", name=None,  
+        parent_idx=0, curvecode="", curvepoints=None, entity={}, fromRecursion=False, 
+        buff=None, solidfound=0, uvbuff=None, uvPlane=[], nameroot=None ):
         """
         Adds the given ``part`` to ``self.gltf_dict``.
 
@@ -5212,7 +5221,7 @@ class StepIgesAnalyser():
                 if(fromRecursion==False):
                     buff, solidfound, uvbuff, uvPlane = self.part_buffer(part)
             
-            mesherDict = self.updateParentChild(name,part)
+            mesherDict = self.updateParentChild(name,part,nameroot)
             #print("add_part", mesherDict)
             mesher_dict = self.findDictionary(mesherDict)
             #print("mesh",mesher_dict)
