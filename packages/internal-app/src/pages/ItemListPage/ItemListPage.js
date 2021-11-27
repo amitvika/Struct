@@ -29,7 +29,7 @@ const ItemsView = () => {
       fetchList={ItemApi.getItemsAPI}
       isAddEditActionsEnabled={true}
       handleItemClick={handleItemClick}
-      isAddEditLinkVisible={true}
+      isEditLinkVisible={false}
       upsertListItem={(data) => ItemApi.updateItemAPI(null, data)}
       isDesignModalOpened={true}
       AdditionalFilter={AdditionalFilter}

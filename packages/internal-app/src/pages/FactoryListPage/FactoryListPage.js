@@ -21,6 +21,7 @@ const FactoryListPage = () => {
         FactoriesAPI.upsertFactoryApi({ ...value, factory_id })
       }
       handleItemClick={handleItemClick}
+      isEditLinkVisible={false}
     />
   );
 };

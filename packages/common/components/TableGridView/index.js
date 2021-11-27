@@ -28,14 +28,15 @@ const TableGridView = ({
   AddUpdateModal = CommonAddUpdateModal,
   isManageTeamVisible = false,
   isCustomAddButtonVisible = true,
-  isAddEditLinkVisible = true,
   isAddEditActionsEnabled = false,
   handleItemClick,
   showSuccessAlert = () => {},
   showErrorAlert = () => {},
   AdditionalFilter = null,
   handleAddButtonPress,
-  isPaginationEnabled = false
+  isPaginationEnabled = false,
+  isEditLinkVisible = true,
+  isHistoryLinkVisible = true
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [list, setList] = useState([]);
@@ -228,12 +229,14 @@ const TableGridView = ({
           handleHistoryToggle={handleHistoryToggle}
           columnsFields={fields}
           handleTableRowClick={handleTableRowClick}
-          // toggleModal={handleEditModal}
           handleEditButtonPress={handleEditModal}
-          isAddEditLinkVisible={true}
           handleDelete={handleDelete}
           handleUndeleteButton={handleUndeleteButton}
           isViewArchivedChecked={isViewArchivedChecked}
+          {...{
+            isHistoryLinkVisible,
+            isEditLinkVisible
+          }}
         />
       );
     } else {
@@ -314,11 +317,10 @@ const TableGridView = ({
           setFilteredList={setFilteredList}
           columnsFields={fields}
           isCustomAddButtonVisible={isCustomAddButtonVisible}
-          isAddEditLinkVisible={isAddEditLinkVisible}
           handleAddButtonPress={handleToggleModal}
           isSearchBarVisible={true}
           AdditionalFilter={AdditionalFilter}
-          {...{ isHistoryCheckboxVisible }}
+          {...{ isHistoryCheckboxVisible, isEditLinkVisible }}
         />
         <div
           style={{

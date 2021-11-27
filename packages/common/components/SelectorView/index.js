@@ -213,7 +213,7 @@ export default function SelectorView({
             columnsFields={fields}
             handleTableRowClick={handleItemRemove}
             isHistoryLinkVisible={false}
-            isAddEditLinkVisible={false}
+            isEditLinkVisible={false}
             isInsideDetailPanel={true}
             showDeleteActionButton={false}
           />
@@ -256,7 +256,7 @@ export default function SelectorView({
             columnsFields={fields}
             handleTableRowClick={handleItemClick}
             isHistoryLinkVisible={false}
-            isAddEditLinkVisible={false}
+            isEditLinkVisible={false}
             isInsideDetailPanel={true}
             showDeleteActionButton={false}
           />

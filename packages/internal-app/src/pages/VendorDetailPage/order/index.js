@@ -26,19 +26,19 @@ const Orders = () => {
       field: 'estimated_delivery_date',
       type: 'date',
       render: (rowData) => moment(rowData.start_date).format('DD/MM/YYYY'),
-      editComponent: (props) => <DatePickerForMT {...props} />,
+      editComponent: (props) => <DatePickerForMT {...props} />
     },
     {
       title: 'Item Quantity',
       field: 'item_quantity',
       type: 'numeric',
-      isFilterColumn: false,
+      isFilterColumn: false
     },
     {
       title: 'Unit Cost',
       field: 'unit_cost',
       type: 'numeric',
-      isFilterColumn: false,
+      isFilterColumn: false
     },
     {
       title: 'Identification',
@@ -61,8 +61,8 @@ const Orders = () => {
           >
             <Link style={{ fontWeight: 'bold' }}> Identification </Link>
           </span>
-        ),
-    },
+        )
+    }
   ];
 
   const handleIdentificationClick = (event, rowData) => {
@@ -102,7 +102,7 @@ const Orders = () => {
         }
         isAddEditActionsEnabled={true}
         handleItemClick={handleItemClick}
-        isAddEditLinkVisible={true}
+        isEditLinkVisible={true}
         toggleModal={handleIdentificationClick}
       />
     </>
