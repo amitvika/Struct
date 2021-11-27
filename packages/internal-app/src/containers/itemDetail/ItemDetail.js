@@ -253,7 +253,7 @@ const ItemDetail = ({ itemValue }) => {
           .then((res) => res.data)
           .then((repos) => {
             //console.log(repos);
-            const multiAssmebly = get(repos, 'tree', []).length > 0;
+            //const multiAssmebly = get(repos, 'tree', []).length > 0;
             const stack = repos['store'];
             item.fileStack = stack;
             setgltfjson({
@@ -263,7 +263,7 @@ const ItemDetail = ({ itemValue }) => {
               store: item.fileStore,
               stack: stack,
               gdt: item.fileGDT,
-              multiAssmebly: multiAssmebly,
+              //multiAssmebly: multiAssmebly,
               treeLength: repos['tree'].length,
               resourcepath: resourcePathURL
             });
@@ -393,14 +393,14 @@ const ItemDetail = ({ itemValue }) => {
             const treeRes = await getAFileFromStore(datafile, 'tree');
             const orderRes = await getAFileFromStore(datafile, 'order');
 
-            const multiAssmebly = treeRes.length > 0;
+            //const multiAssmebly = treeRes.length > 0;
             const mpps = gltfRes.data['store'];
             item.fileMPPS = mpps;
             setgltfjson({
               gltf: gltfRes.data,
               tree: treeRes.data,
               assemblyorder: orderRes.data,
-              multiAssmebly: multiAssmebly,
+              //multiAssmebly: multiAssmebly,
               treeLength: treeRes.data.length,
               kinematic: item.fileKinematic,
               mpps: mpps,
@@ -525,7 +525,7 @@ const ItemDetail = ({ itemValue }) => {
           };
           let percentFunction = (result) =>
             result.data.percent ? result.data.percent : percentage;
-          await pollFunction(
+          const statusRes = await pollFunction(
             fetchStatus,
             validateStatus,
             20000,
@@ -536,7 +536,11 @@ const ItemDetail = ({ itemValue }) => {
           );
           const gltfRes = await getAFileFromStore(datafile, 'gltf');
           const treeRes = await getAFileFromStore(datafile, 'tree');
-          const multiAssmebly = get(treeRes.data, 'tree', []).length > 0;
+          const multiAssmebly = statusRes
+            ? statusRes.data
+              ? statusRes.data.assemblies > 1
+              : false
+            : false;
           setgltfjson({
             gltf: gltfRes.data,
             tree: treeRes.data,
@@ -550,7 +554,9 @@ const ItemDetail = ({ itemValue }) => {
           });
           setItemProperties((prevData) => ({
             ...prevData,
-            fileStore: datastore
+            fileStore: datastore,
+            multiAssmebly: multiAssmebly,
+            stepTreeLength: treeRes.data.length
           }));
         }
       } else {
@@ -559,7 +565,14 @@ const ItemDetail = ({ itemValue }) => {
           setIsLoading(false);
         } else {
           const treeLength = get(getHierarchyRes.data, 'tree', []).length;
-          const multiAssmebly = treeLength > 0;
+          const multiAssmebly = getHierarchyRes
+            ? getHierarchyRes.data
+              ? getHierarchyRes.data.status
+                ? getHierarchyRes.data.status.assemblies > 1
+                : false
+              : false
+            : false;
+          //const multiAssmebly = treeLength > 0;
           setgltfjson({
             ...getHierarchyRes.data,
             multiAssmebly: multiAssmebly,
@@ -572,7 +585,9 @@ const ItemDetail = ({ itemValue }) => {
           });
           setItemProperties((prevData) => ({
             ...prevData,
-            fileStore: datastore
+            fileStore: datastore,
+            multiAssmebly: multiAssmebly,
+            stepTreeLength: treeLength
           }));
         }
       }
@@ -642,7 +657,7 @@ const ItemDetail = ({ itemValue }) => {
       )
         .then((res) => res.data)
         .then((repos) => {
-          const multiAssmebly = get(repos, 'tree', []).length > 0;
+          //const multiAssmebly = get(repos, 'tree', []).length > 0;
           const kinematic = repos['store'];
           item.fileKinematic = kinematic;
 
@@ -653,7 +668,7 @@ const ItemDetail = ({ itemValue }) => {
             store: item.fileStore,
             stack: item.fileStack,
             gdt: item.fileGDT,
-            multiAssmebly: multiAssmebly,
+            //multiAssmebly: multiAssmebly,
             treeLength: repos['tree'].length,
             resourcepath: resourcePathURL
           });
@@ -766,7 +781,7 @@ const ItemDetail = ({ itemValue }) => {
           };
           let percentFunction = (result) =>
             result.data.percent ? result.data.percent : percentage;
-          await pollFunction(
+          const statusRes = await pollFunction(
             fetchStatus,
             validateStatus,
             20000,
@@ -777,7 +792,11 @@ const ItemDetail = ({ itemValue }) => {
           );
           const gltfRes = await getAFileFromStore(datafile, 'gltf');
           const treeRes = await getAFileFromStore(datafile, 'tree');
-          const multiAssmebly = treeRes.data.length > 0;
+          const multiAssmebly = statusRes
+            ? statusRes.data
+              ? statusRes.data.assemblies > 1
+              : false
+            : false;
           const fileStore = filenameWithOutExtension + '0';
           setgltfjson({
             gltf: gltfRes.data,
@@ -794,7 +813,9 @@ const ItemDetail = ({ itemValue }) => {
           setItemProperties((prevData) => ({
             ...prevData,
             fileGDT: datastore,
-            fileStore: fileStore
+            fileStore: fileStore,
+            multiAssmebly: multiAssmebly,
+            stepTreeLength: treeRes.data.length
           }));
         }
       } else {
@@ -803,7 +824,13 @@ const ItemDetail = ({ itemValue }) => {
           setIsFileLoading(false);
         } else {
           const treeLength = get(getHierarchyRes.data, 'tree', []).length;
-          const multiAssmebly = treeLength > 0;
+          const multiAssmebly = getHierarchyRes
+            ? getHierarchyRes.data
+              ? getHierarchyRes.data.status
+                ? getHierarchyRes.data.status.assemblies > 1
+                : false
+              : false
+            : false;
           const fileStore = filenameWithOutExtension + '0';
           setgltfjson({
             ...getHierarchyRes.data,
@@ -819,7 +846,9 @@ const ItemDetail = ({ itemValue }) => {
           setItemProperties((prevData) => ({
             ...prevData,
             fileGDT: datastore,
-            fileStore: fileStore
+            fileStore: fileStore,
+            multiAssmebly: multiAssmebly,
+            stepTreeLength: treeLength
           }));
         }
       }
@@ -996,7 +1025,7 @@ const ItemDetail = ({ itemValue }) => {
           myResourcePath
         );
       }
-      const multiAssmebly = treeRes.length > 0;
+      //const multiAssmebly = treeRes.length > 0;
 
       setgltfjson({
         ...obj,
@@ -1004,7 +1033,7 @@ const ItemDetail = ({ itemValue }) => {
         tree: treeRes.data,
         stackable: stackRes.data,
         assemblyorder: orderRes.data,
-        multiAssmebly: multiAssmebly,
+        //multiAssmebly: multiAssmebly,
         gdttable: gdtRes.data,
         treeLength: treeRes.data.length,
         resourcepath: myResourcePath

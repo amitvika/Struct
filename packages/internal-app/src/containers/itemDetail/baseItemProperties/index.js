@@ -174,6 +174,7 @@ export default function BaseItemProperties({
       let datastore = '';
       let datagdt = '';
       let treeLength = 0;
+      let multiAssmebly = false;
       dataload = data.filename;
       /*let filenameWithOutExtension = dataload.replace(/^.*[\\\/]/, '');
       const lastDotIndex = filenameWithOutExtension.lastIndexOf('.');
@@ -307,7 +308,7 @@ export default function BaseItemProperties({
           let percentFunction = (result) =>
             result.data.percent ? result.data.percent : percentager;
           // console.log('Entering poll', datagdt, dataload);
-          await pollFunction(
+          const statusRes = await pollFunction(
             fetchStatus,
             validateStatus,
             20000,
@@ -319,34 +320,45 @@ export default function BaseItemProperties({
           // console.log('Completing poll', datagdt, dataload);
           const gltfRes = await getAFileFromStore(datafile, 'gltf');
           const treeRes = await getAFileFromStore(datafile, 'tree');
-
+          multiAssmebly = statusRes
+            ? statusRes.data
+              ? statusRes.data.assemblies > 1
+              : false
+            : false;
           treeLength = treeRes.data.length;
 
           setgltfjson({
             gltf: gltfRes.data,
             tree: treeRes.data,
-            multiAssmebly: treeLength > 0,
+            multiAssmebly: multiAssmebly,
             gdt: datagdt,
             treeLength: treeLength,
             resourcepath: resourcePathURL
           });
           setItemProperties((prevData) => ({
             ...prevData,
-            multiAssmebly: treeLength > 0,
+            multiAssmebly: multiAssmebly,
             stepTreeLength: treeLength
           }));
         }
       } else {
         treeLength = get(getHierarchyRes.data, 'tree', []).length;
+        multiAssmebly = getHierarchyRes
+          ? getHierarchyRes.data
+            ? getHierarchyRes.data.status
+              ? getHierarchyRes.data.status.assemblies > 1
+              : false
+            : false
+          : false;
         setgltfjson({
           ...getHierarchyRes.data,
-          multiAssmebly: treeLength > 0,
+          multiAssmebly: multiAssmebly,
           gdt: datagdt,
           treeLength: treeLength
         });
         setItemProperties((prevData) => ({
           ...prevData,
-          multiAssmebly: treeLength > 0,
+          multiAssmebly: multiAssmebly,
           stepTreeLength: treeLength
         }));
       }
@@ -362,7 +374,7 @@ export default function BaseItemProperties({
           fileStore: datastore,
           fileGDT: datagdt,
           fileName: dataload,
-          multiAssmebly: treeLength > 0,
+          multiAssmebly: multiAssmebly,
           stepTreeLength: treeLength,
           distanceGap: distanceGaper,
           angleGap: angleGaper,
@@ -379,7 +391,7 @@ export default function BaseItemProperties({
         fileMPPS: null,
         fileStack: null,
         fileKinematic: null,
-        multiAssmebly: treeLength > 0,
+        multiAssmebly: multiAssmebly,
         stepTreeLength: treeLength,
         distanceGap: distanceGaper,
         angleGap: angleGaper,

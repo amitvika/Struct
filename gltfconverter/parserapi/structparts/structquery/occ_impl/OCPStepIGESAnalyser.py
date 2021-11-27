@@ -1192,12 +1192,13 @@ class StepExportWithColor(object):
         name = None
         lengthCheck = 0
         #print("Passed",myTree)
+        myParentCheck = myParent if myParent else 1
         for aTree in myTree:
             #print("My aTree",aTree)
-            if aTree[self.gltf_dict['id']]==myParent :
+            if aTree[self.gltf_dict['id']]==myParentCheck :
                 name=aTree[self.gltf_dict['name']]
                 if name is None:
-                    name =  "Struct Assembly "+str(myParent)
+                    name =  "Struct Assembly "+str(myParentCheck)
                 break
             lengthCheck+=1
             if lengthCheck >=treeLength:
@@ -1205,33 +1206,36 @@ class StepExportWithColor(object):
         addedAssembly = 0
         assemblyCount=0
         if name:
-            lengthCheck = 0
-            myParentId=myParent
-            for aTree in myTree:
-                if aTree[self.gltf_dict['parentId']]==myParent : 
-                    myParentId = aTree[self.gltf_dict['id']]
-                    assemblyCount +=1
-                    if assemblyCount > 1:
-                        break
-                lengthCheck+=1
-                if lengthCheck >=treeLength:
-                    break
-            if assemblyCount>1:
-                myParentId=myParent
-            elif assemblyCount==1:
-                assemblyCount=0
+            if myParent:
                 lengthCheck = 0
+                myParentId=myParent
                 for aTree in myTree:
-                    if aTree[self.gltf_dict['parentId']]==myParentId : 
+                    if aTree[self.gltf_dict['parentId']]==myParent : 
+                        myParentId = aTree[self.gltf_dict['id']]
                         assemblyCount +=1
-                        break
+                        if assemblyCount > 1:
+                            break
                     lengthCheck+=1
                     if lengthCheck >=treeLength:
                         break
-                if assemblyCount == 0:
-                    #myParentId = myParent
-                    assemblyCount=1
-
+                if assemblyCount>1:
+                    myParentId=myParent
+                elif assemblyCount==1:
+                    assemblyCount=0
+                    lengthCheck = 0
+                    for aTree in myTree:
+                        if aTree[self.gltf_dict['parentId']]==myParentId : 
+                            assemblyCount +=1
+                            break
+                        lengthCheck+=1
+                        if lengthCheck >=treeLength:
+                            break
+                    if assemblyCount == 0:
+                        #myParentId = myParent
+                        assemblyCount=1
+            else:
+                myParentId = None
+                assemblyCount=1                 
         if (name) and (assemblyCount>=1):
             assemblyNames = []
             lengthCheck = 0
@@ -1330,10 +1334,11 @@ class StepExportWithColor(object):
     def GetFirstLevelAssemblyOutPutShapesForOrder(self,shapes,myParent,myTree,treeLength):
         name = None
         lengthCheck = 0
-        if myParent:
+        """ if myParent:
             myParentCheck = myParent
         else:
-            myParentCheck = 1
+            myParentCheck = 1 """
+        myParentCheck = myParent if myParent else 1
         #print("Passed",myTree)
         for aTree in myTree:
             #print("My aTree",aTree)
@@ -1392,7 +1397,57 @@ class StepExportWithColor(object):
                     break
             return  addedAssembly,firstLevelAssemblies,name
         return addedAssembly,None,name
-
+    
+    def FindAssemblyCount(self,myParent,myTree,treeLength):
+        name = None
+        lengthCheck = 0
+        """ if myParent:
+            myParentCheck = myParent
+        else:
+            myParentCheck = 1 """
+        myParentCheck = myParent if myParent else 1
+        #print("Passed",myTree)
+        for aTree in myTree:
+            #print("My aTree",aTree)
+            if aTree[self.gltf_dict['id']]==myParentCheck :
+                name=aTree[self.gltf_dict['name']]
+                if name is None:
+                    name =  "Struct Assembly "+str(myParentCheck)
+                break
+            lengthCheck+=1
+            if lengthCheck >=treeLength:
+                break
+        assemblyCount=0
+        if name:
+            if myParent:
+                lengthCheck = 0
+                myParentId=myParent
+                for aTree in myTree:
+                    if aTree[self.gltf_dict['parentId']]==myParent : 
+                        myParentId = aTree[self.gltf_dict['id']]
+                        assemblyCount +=1
+                    lengthCheck+=1
+                    if lengthCheck >=treeLength:
+                        break
+                if assemblyCount>1:
+                    myParentId=myParent
+                elif assemblyCount==1:
+                    assemblyCount=0
+                    lengthCheck = 0
+                    for aTree in myTree:
+                        if aTree[self.gltf_dict['parentId']]==myParentId : 
+                            assemblyCount +=1
+                        lengthCheck+=1
+                        if lengthCheck >=treeLength:
+                            break
+                    if assemblyCount == 0:
+                        myParentId = myParent
+                        assemblyCount=1
+            else:
+                myParentId = None
+                assemblyCount=1
+        
+        return assemblyCount,name
 class StepIgesAnalyser():
     """A class that analyzes the structure of an OCAF document."""
     scale = 0.001  # mm to meters
@@ -1605,6 +1660,8 @@ class StepIgesAnalyser():
         self.thumbheight = thumbheight
         self.thumbwidth = thumbwidth     
         self.multiplegltf = multipleGLTF 
+        self.assemblycount = 0
+        self.assemblyname = None
         if (self.edgesize == 0) and (self.vertexsize==0):
             self.writeStep = False
             self.writeColorStep = False
@@ -3982,6 +4039,9 @@ class StepIgesAnalyser():
             mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
         elif(maxgap==0):
             mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
+        if self.assemblycount>0:
+            mystatusdict["assemblies"]=self.assemblycount
+            mystatusdict["assembly"]=self.assemblyname
         try:            
             timingdelta = datetime.utcnow()-self.currenttime            
             if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
@@ -4091,7 +4151,7 @@ class StepIgesAnalyser():
             print("Error while copying to s3",e)
         try:
             newfilename = COPY_PATH+self.displaypath+dict["store"]+".gltf"
-            if self.writefiles:
+            if (self.writefiles) and (not (self.ascompound)):
                 print("Writing",newfilename)
                 with open(newfilename, 'w') as fh:
                     fh.write(json.dumps(dict["gltf"], sort_keys=True, indent=2 ))
@@ -4101,7 +4161,7 @@ class StepIgesAnalyser():
             print("While Writing",newfilename,e)
         try:
             treefilename = COPY_PATH+self.displaypath+dict["store"]+".tree"
-            if self.writefiles:
+            if (self.writefiles) and (not (self.ascompound)):
                 print("Writing",treefilename)
                 with open(treefilename, 'w') as fh:
                     fh.write(json.dumps(dict["tree"], sort_keys=True, indent=2 ))
@@ -4228,9 +4288,12 @@ class StepIgesAnalyser():
             mythread.start()
         else:
             self.write_in_thread(dict_return,getPNG,True)
+        myTreeLenBeforeAddingEdgesAndVertices = len(self.tstep_dict["tree"])
+        (self.assemblycount,self.assemblyname)=StepExportWithColor().FindAssemblyCount(\
+                    1,self.tstep_dict["tree"],myTreeLenBeforeAddingEdgesAndVertices)   
         self.percentage = 100
         self.write_status(0)
-        myTreeLenBeforeAddingEdgesAndVertices = len(self.tstep_dict["tree"])
+        
         #self.mstep_dict['tree']=self.tstep_dict['tree']
         if (self.edgesize!=0) or (self.vertexsize!=0): 
             try:
