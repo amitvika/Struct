@@ -210,7 +210,7 @@ export default function LargeFileUpload({
     setDrawLine(e.target.checked);
   };
 
-  const getActualFileName = (url) => url.split('/').pop();
+  const getActualFileName = (url) => url.replace(/^.*[\\\/]/, ''); // url.split('/').pop();
 
   const fileGDTPath =
     (itemProperties.fileUUId ? itemProperties.fileUUId + '/' : '') +
