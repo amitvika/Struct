@@ -1,11 +1,13 @@
 const isArray = require('lodash/isArray');
 const get = require('lodash/get');
+/*
 const {
   resourcePathURL,
   resourcePathS3URL,
-  isFileExistingInServer
-} = require('@monostruct/common/api/common');
-
+  isFileExistingInServer,
+  getExistingPathFromServer
+} = require('@monostruct/common/api/fileUpload.api');
+*/
 exports.mapItems = async (data) => {
   if (isArray(data)) {
     let myitems = [];
@@ -40,13 +42,11 @@ exports.mapItem = async (item = {}) => {
     return {};
   }
   //console.log(resourcePathURL,"Resource path",item.fileStore);
+
   let file_url = item.fileStore
-    ? (item.fileUUId
-        ? (resourcePathURL || '') + item.fileUUId + '/'
-        : resourcePathURL || '') +
-      item.fileStore +
-      '.png'
+    ? (item.fileUUId ? item.fileUUId + '/' : '') + item.fileStore
     : undefined;
+
   // if (file_url) {
   //   let isFileExists = await isFileExistingInServer(file_url);
   //   if (!isFileExists) {

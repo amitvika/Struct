@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   Grid,
   Typography,
@@ -22,7 +22,7 @@ import StructLogo from '../../assets/images/new_logo.png';
 import './style.css';
 import { useMediaQuery } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
-
+import { getExistingPathFromServer } from '@monostruct/common/api/fileUpload.api';
 const useStyles = makeStyles((theme) => ({
   tableCell: {
     borderBottom: 'none'
@@ -167,28 +167,47 @@ export default function GridView({
     return item;
   };
 
-  const renderIconBasedOnFileType = (file_url) => {
-    if (!file_url) {
+  const RenderIconBasedOnFileType = ({ file_url }) => {
+    const [icons, setIcons] = useState(file_url);
+    useEffect(() => {
+      //console.log('URL', file_url);
+      if (file_url) {
+        getExistingPathFromServer(file_url, 'png')
+          .then((file_png) => {
+            //console.log('PNG', file_png + file_url + '.png');
+            if (file_png) {
+              setIcons(file_png + file_url + '.png');
+            } else {
+              setIcons('');
+            }
+          })
+          .catch((err) => {
+            console.log('while fetching', err, file_url);
+          });
+      } else {
+        setIcons('');
+      }
+    }, [file_url]);
+    if (!icons) {
       return <img className={classes.img} alt="complex" src={StructLogo} />;
     }
-    //console.log("Png file",file_url);
-    file_url = file_url.toString();
-    file_url.replace('undefined/', '');
-    if (file_url.indexOf('.pdf') != -1 || file_url.indexOf('.PDF') != -1) {
+    let file_png = icons.toString();
+    file_png.replace('undefined/', '');
+    if (file_png.indexOf('.pdf') != -1 || file_png.indexOf('.PDF') != -1) {
       return <PictureAsPdf className={classes.img} fontSize="large" />;
     } else if (
-      file_url.indexOf('.docs') != -1 ||
-      file_url.indexOf('.docx') != -1
+      file_png.indexOf('.docs') != -1 ||
+      file_png.indexOf('.docx') != -1
     ) {
       return <DescriptionIcon className={classes.img} fontSize="large" />;
     } else if (
-      file_url.indexOf('.png') != -1 ||
-      file_url.indexOf('.jpg') != -1 ||
-      file_url.indexOf('.jpeg') != -1
+      file_png.indexOf('.png') != -1 ||
+      file_png.indexOf('.jpg') != -1 ||
+      file_png.indexOf('.jpeg') != -1
     ) {
-      return <img className={classes.img} alt="complex" src={file_url} />;
+      return <img className={classes.img} alt="complex" src={file_png} />;
     } else {
-      let fileName = file_url.substring(file_url.lastIndexOf('/') + 1);
+      let fileName = file_png.substring(file_png.lastIndexOf('/') + 1);
       return <Avatar variant="square" alt={fileName} />;
     }
   };
@@ -227,7 +246,7 @@ export default function GridView({
                 }}
               >
                 <Grid item sm sm={4} className={classes.thumbnailContainer}>
-                  {renderIconBasedOnFileType(product.file_url)}
+                  <RenderIconBasedOnFileType file_url={product.file_url} />
                 </Grid>
                 <Grid item sm sm={6} className={classes.contentContainer}>
                   {renderItem(product)}

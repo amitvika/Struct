@@ -227,10 +227,10 @@ export const getExistingPathFromServer = async (store, ext) => {
     const resdata = await axios.get(fetchURL);
     if (resdata && resdata.data) {
       if (resdata.data.path == 'Linux') {
-        return resourcePathDisplay;
+        return resourcePathURL;
       }
       if (resdata.data.path == 'S3') {
-        return resourcePathS3;
+        return resourcePathS3URL;
       }
       return '';
     }
