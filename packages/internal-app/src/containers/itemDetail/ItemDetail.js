@@ -65,6 +65,10 @@ import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Classification from '../classification';
 import EditItemTitle from './EditItemTitle';
 import ProductDesignSetup from '../productDesignSetup';
+import { Box } from '@mui/system';
+import { useMediaQuery } from '@material-ui/core';
+import { useTheme } from '@material-ui/core/styles';
+import { Headding } from 'src/components';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -1345,41 +1349,9 @@ const ItemDetail = ({ itemValue }) => {
       <Grid container>
         <Grid item sm={12}>
           <SubHeaderWithArrow action={'/items'} title={'Items Details'} />
-          <Paper
-            style={{
-              padding: 10,
-              margin: 10,
-              display: 'flex',
-              position: 'relative'
-            }}
-          >
-            <Grid style={{ zIndex: 999 }}>
-              <EditItemTitle
-                {...{
-                  itemProperties,
-                  updateItemOnServer: handleSave
-                }}
-              />
-              <div style={{ display: 'flex' }}>
-                <p>Item ID:{id} </p>
-                {/* <ClipboardText handleCopyId={handleCopyId} /> */}
-              </div>
-            </Grid>
-            <Grid
-              style={{
-                margin: 'auto',
-                position: 'absolute',
-                display: 'flex',
-                justifyContent: 'center',
-                width: '100%',
-                alignItems: 'center',
-                textAlign: 'center',
-                height: '100%'
-              }}
-            >
-              <h4>{tabList[tabIndex]}</h4>
-            </Grid>
-          </Paper>
+          <DetailSubHeader
+            {...{ itemProperties, handleSave, tabList, tabIndex }}
+          />
         </Grid>
       </Grid>
       <Grid container style={{ flexWrap: 'unset' }}>
@@ -1415,4 +1387,44 @@ const ItemDetail = ({ itemValue }) => {
   );
 };
 
+const DetailSubHeader = ({ itemProperties, handleSave, tabList, tabIndex }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  return (
+    <Paper
+      style={{
+        padding: 10,
+        margin: 10,
+        display: 'flex',
+        position: 'relative',
+        flexDirection: 'column'
+      }}
+    >
+      <Box style={{ zIndex: 999 }}>
+        <EditItemTitle
+          {...{
+            itemProperties,
+            updateItemOnServer: handleSave
+          }}
+        />
+      </Box>
+      <Headding as={'h5'}>Item ID:{itemProperties.id} </Headding>
+
+      <Headding
+        as={'h4'}
+        style={{
+          position: isMobile ? 'relative' : 'absolute',
+          display: 'flex',
+          justifyContent: 'center',
+          width: '100%',
+          alignItems: 'center',
+          height: '100%'
+        }}
+      >
+        {tabList[tabIndex]}
+      </Headding>
+    </Paper>
+  );
+};
 export default ItemDetail;

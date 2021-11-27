@@ -123,4 +123,5 @@ body,
 
 .MuiPaper-rounded {
   border-radius: 15px !important;
+  margin: 10px;
 }

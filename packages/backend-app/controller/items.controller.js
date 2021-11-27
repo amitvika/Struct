@@ -200,81 +200,12 @@ exports.update = async (req, res) => {
   try {
     const body = req.body;
 
-    let updateData = {};
-    if (body.name) {
-      updateData.name = body.name;
-    }
-    if (body.itemTypeConfiguration) {
-      updateData.itemTypeConfiguration = body.itemTypeConfiguration;
-    }
-    if (body.itemGeometry) {
-      updateData.itemGeometry = body.itemGeometry;
-    }
-    if (body.source) {
-      updateData.source = body.source;
-    }
-    if (body.assemblyType) {
-      updateData.assemblyType = body.assemblyType;
-    }
-    if (body.selectedClientId) {
-      updateData.selectedClientId = body.selectedClientId;
-    }
+    let updateData = req.body;
 
     if (body.multiAssmebly) {
       updateData.assemblyType = 'Multi-Item Assembly';
     } else {
       updateData.assemblyType = 'Single Item Part';
-    }
-
-    if (body.fileId || body.fileUUId) {
-      updateData.fileId = body.fileId || null;
-      updateData.fileUUId = body.fileUUId || null;
-      updateData.fileStore = body.fileStore;
-      updateData.fileGDT = body.fileGDT;
-      updateData.fileMPPS = body.fileMPPS;
-      updateData.fileStack = body.fileStack;
-      updateData.fileKinematic = body.fileKinematic;
-      updateData.distanceGap = body.distanceGap;
-      updateData.angleGap = body.angleGap;
-      updateData.drawLine = body.drawLine;
-      updateData.fileName = body.fileName;
-      updateData.stepTreeLength = body.stepTreeLength;
-    }
-
-    if (
-      (body.itemGeometry && body.itemGeometry.isEndProductSelected === false) ||
-      body.selectedClientId === null
-    ) {
-      updateData.selectedClientId = null;
-    }
-
-    if (body.compliance) {
-      updateData.compliance = body.compliance;
-    }
-    if (body.dispensing) {
-      updateData.dispensing = body.dispensing;
-    }
-    if (body.fullProcess) {
-      updateData.fullProcess = body.fullProcess;
-    }
-    if (body.storage) {
-      updateData.storage = body.storage;
-    }
-
-    if (body.hierarchySelections) {
-      updateData.hierarchySelections = body.hierarchySelections;
-    }
-
-    if (body.classificationConfig) {
-      updateData.classificationConfig = body.classificationConfig;
-    }
-
-    if (body.is_child_created) {
-      updateData.is_child_created = body.is_child_created;
-    }
-
-    if (body.filePartName) {
-      updateData.filePartName = body.filePartName;
     }
 
     let prevItem = await ItemModel.findById(req.body.id);
@@ -289,7 +220,6 @@ exports.update = async (req, res) => {
     } else {
       req.body.created_by = req.user.id;
       req.body.updated_by = req.user.id;
-      // prevItem = await ItemModel.create(req.body);
       await ItemModel.updateOne({ _id: req.body.id }, req.body, {
         upsert: true,
         new: true

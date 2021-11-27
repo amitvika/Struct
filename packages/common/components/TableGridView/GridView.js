@@ -20,6 +20,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 import StructLogo from '../../assets/images/new_logo.png';
 import './style.css';
+import { useMediaQuery } from '@material-ui/core';
+import { useTheme } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   tableCell: {
@@ -74,6 +76,29 @@ const useStyles = makeStyles((theme) => ({
   fieldItem: {
     display: 'flex',
     padding: '10px 0 0 0'
+  },
+  actionIconContainer: {
+    display: 'flex',
+    margin: 'auto',
+    flexDirection: 'column',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'row'
+    }
+  },
+  thumbnailContainer: {
+    display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: 'center',
+      width: '100%'
+    }
+  },
+  contentContainer: {
+    marginTop: '25px',
+    overflow: 'hidden',
+    [theme.breakpoints.down('sm')]: {
+      marginTop: '0',
+      padding: '5px'
+    }
   }
 }));
 
@@ -88,7 +113,8 @@ export default function GridView({
   handleTableRowClick,
   isHistoryLinkVisible = true,
   isAddEditLinkVisible = false,
-  isInsideDetailPanel = false
+  isInsideDetailPanel = false,
+  showDeleteActionButton = true
 }) {
   const classes = useStyles();
   const [text, setText] = useState('');
@@ -200,28 +226,13 @@ export default function GridView({
                   paddingBottom: '10px'
                 }}
               >
-                <Grid item sm sm={4} style={{ display: 'flex' }}>
+                <Grid item sm sm={4} className={classes.thumbnailContainer}>
                   {renderIconBasedOnFileType(product.file_url)}
                 </Grid>
-                <Grid
-                  elevation={3}
-                  item
-                  sm
-                  sm={6}
-                  style={{ marginTop: '25px' }}
-                >
+                <Grid item sm sm={6} className={classes.contentContainer}>
                   {renderItem(product)}
                 </Grid>
-                <Grid
-                  item
-                  sm
-                  sm={2}
-                  style={{
-                    display: 'flex',
-                    margin: 'auto',
-                    flexDirection: 'column'
-                  }}
-                >
+                <Grid item sm={2} className={classes.actionIconContainer}>
                   <ClipboardText item_id={product.id} />
                   {isAddEditLinkVisible && (
                     <CustomIconButton
@@ -243,7 +254,8 @@ export default function GridView({
                       <HistoryIcon />
                     </CustomIconButton>
                   )}
-                  {!isViewArchivedChecked && (
+
+                  {showDeleteActionButton && !isViewArchivedChecked && (
                     <CustomIconButton
                       title={'Delete'}
                       onClick={(event) => {
@@ -253,7 +265,7 @@ export default function GridView({
                       <DeleteOutlineIcon />
                     </CustomIconButton>
                   )}
-                  {isViewArchivedChecked && (
+                  {showDeleteActionButton && isViewArchivedChecked && (
                     <CustomIconButton
                       title={'Undelete'}
                       onClick={(event) => {

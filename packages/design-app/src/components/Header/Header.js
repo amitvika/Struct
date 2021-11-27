@@ -8,13 +8,12 @@ import {
   Typography,
   useMediaQuery,
   useScrollTrigger,
-  Slide,
+  Slide
 } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import { useStyles } from './Header.style';
 import HeaderMobileView from './HeaderMobileView';
 import HeaderDesktopView from './HeaderDesktopView';
-import { useDispatch } from 'react-redux';
 import { AuthContext } from '../../context/AuthContext';
 
 function HideOnScroll(props) {

@@ -192,7 +192,10 @@ export default function LargeFileUpload({
     setProgress(0);
   };
   const handleExportButton = () => {
-    download(itemProperties.fileName);
+    download({
+      downloadURL: itemProperties.fileName,
+      fileName: getActualFileName(itemProperties.fileName)
+    });
   };
 
   const onDistanceChange = (e) => {
@@ -206,6 +209,9 @@ export default function LargeFileUpload({
   const onDrawLineChange = (e) => {
     setDrawLine(e.target.checked);
   };
+
+  const getActualFileName = (url) => url.split('/').pop();
+
   const fileGDTPath =
     (itemProperties.fileUUId ? itemProperties.fileUUId + '/' : '') +
     (itemProperties.fileGDT ? itemProperties.fileGDT : '');
@@ -226,7 +232,7 @@ export default function LargeFileUpload({
             color: 'blue'
           }}
         >
-          {itemProperties.fileStore}
+          {getActualFileName(itemProperties.fileName)}
         </Typography>
         <IconButton margin="auto" onClick={handleExportButton}>
           <img
