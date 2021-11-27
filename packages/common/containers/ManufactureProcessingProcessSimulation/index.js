@@ -14,14 +14,14 @@ import FullProcess from './fullProcess';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   paper: {
     padding: theme.spacing(1),
     textAlign: 'center',
     color: theme.palette.text.secondary,
     marginTop: '10px',
-    marginBottom: '10px',
+    marginBottom: '10px'
   },
   tabPaper: {
     padding: theme.spacing(1),
@@ -30,20 +30,20 @@ const useStyles = makeStyles((theme) => ({
     cursor: 'pointer',
     transition: '0.3s',
     '&:hover, &:focus': {
-      backgroundColor: '#DCDCDC',
-    },
+      backgroundColor: '#DCDCDC'
+    }
   },
   selectedTab: {
-    backgroundColor: 'blue',
+    backgroundColor: 'blue'
   },
   dividerStyle: {
     marginTop: '20px',
-    marginBottom: '20px',
+    marginBottom: '20px'
   },
   verticalDivider: {
     margin: '5px',
-    width: '1px',
-  },
+    width: '1px'
+  }
 }));
 
 export default function Index2(props) {
@@ -77,14 +77,14 @@ export default function Index2(props) {
     'Particulate Consolidation',
     'Designer',
     'Manufacture',
-    'Classification',
+    'Classification'
   ];
 
   const subTabArray = [
     'Manufacturability Analysis',
     'Process Configuration',
     'Process Statistics and Analysis',
-    'Process Steps',
+    'Process Steps'
   ];
 
   const handleTabChange = (tabName) => {
@@ -101,7 +101,7 @@ export default function Index2(props) {
     }
     if (tabName2 == 'Manufacturability Analysis') {
       if (selectedTab == 'Assembly') {
-        setOrder({...itemProperties});
+        setOrder({ ...itemProperties });
       } /* else if(selectedTab=="Storage") {
                 setStack(itemProperties);
             } */
@@ -128,7 +128,7 @@ export default function Index2(props) {
 
   return (
     <>
-      <Paper elevation={3} className={classes.paper}>
+      <Paper className={classes.paper}>
         <Grid container spacing={1}>
           <Grid item xs={2}>
             <Paper
@@ -137,7 +137,7 @@ export default function Index2(props) {
                 backgroundColor:
                   selectedTab === 'Full Process' ? '#343a40' : '',
                 color: selectedTab === 'Full Process' ? 'white' : '',
-                fontWeight: 'bold',
+                fontWeight: 'bold'
               }}
               className={classes.tabPaper}
             >
@@ -158,6 +158,7 @@ export default function Index2(props) {
                 style={{
                   backgroundColor: selectedTab === tabName ? '#343a40' : '',
                   color: selectedTab === tabName ? 'white' : '',
+                  margin: 0
                 }}
                 className={classes.tabPaper}
               >
@@ -171,9 +172,9 @@ export default function Index2(props) {
       {isSubTabVisible ? (
         <>
           <Paper
-            elevation={3}
             style={{
               visibility: isSubTabVisible ? 'visible' : 'hidden',
+              flexDirection: 'column'
             }}
             className={classes.paper}
           >
@@ -186,6 +187,7 @@ export default function Index2(props) {
                       backgroundColor:
                         selectedSubTab === tabName2 ? '#3369FF' : '',
                       color: selectedSubTab === tabName2 ? 'white' : '',
+                      margin: 0
                     }}
                     className={classes.tabPaper}
                   >

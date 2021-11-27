@@ -29,9 +29,9 @@ export default function Toolbar({
         padding: '10px',
         marginTop: '10px',
         marginBottom: '10px',
-        position: 'relative'
+        position: 'relative',
+        flexDirection: 'column'
       }}
-      elevation={8}
     >
       <Grid container>
         <Grid item xs style={{ display: 'flex', flexDirection: 'column' }}>
@@ -46,7 +46,8 @@ export default function Toolbar({
           position: 'absolute',
           display: 'flex',
           width: '100%',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          bottom: 0
         }}
       >
         <Headding as={'h4'} title={title}></Headding>

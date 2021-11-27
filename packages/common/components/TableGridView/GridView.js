@@ -217,7 +217,6 @@ export default function GridView({
             <Paper
               className={classes.paper}
               onClick={() => handleTableRowClick(product)}
-              elevation={8}
             >
               <Grid
                 container
