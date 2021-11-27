@@ -1,7 +1,7 @@
 
 from math import ceil
 
-from OCC.Core.gp import gp_Pnt 
+
 from django.http.response import JsonResponse, FileResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -28,48 +28,43 @@ import threading
 
 from datetime import datetime
 from pathlib import Path
-#from .structparts import Part
-from .structparts import Assembly
-#from .structparts.codec.step import (Importer, Exporter)
-#from .structparts.codec.mstep import Exporter
-from .structparts import conversion
-#from .structparts.structquery.occ_impl import OCPDataExchange
-from .structparts.structquery.occ_impl import (OCPStepIGESAnalyser, OCPImporters)
-from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
-
-from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
-    translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance, minimum_distance_only, scale_shape,  
-    getPartStackablePositions, get_bounding_details, get_oriented_bounding_details, 
-    recognize_direction, recognize_entity)
-from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices
-#from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
-from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeSphere
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
-from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
-from .settingscopy import (DISPLAY_URL,MEDIA_URL)
-
-
-#from OCC.Core.Tesselator import ShapeTesselator
-from OCC.Core.BRep import  BRep_Tool
-
-from OCC.Core.TopoDS import (topods_Vertex)
-
-
-from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound #, excluded_list_of_shapes_to_compound
-
-
-
-from .assemblyorder import FindAssemblingOrder
-from .assemblystack import FindStackability
-
 from decimal import Decimal 
 import traceback
 import logging
-from .dirSync import checkIdle, copyTree
+
 #import textwrap
 
 from logging.handlers import TimedRotatingFileHandler
 
+#from .structparts import Part
+from .structparts import (Assembly, conversion)
+#from .structparts.codec.step import (Importer, Exporter)
+#from .structparts.codec.mstep import Exporter
+#from .structparts import conversion
+#from .structparts.structquery.occ_impl import OCPDataExchange
+from .structparts.structquery.occ_impl import (OCPStepIGESAnalyser, OCPImporters)
+from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
+from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
+    translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance, minimum_distance_only, scale_shape,  
+    getPartStackablePositions, get_bounding_details, get_oriented_bounding_details, 
+    recognize_direction, recognize_entity)
+from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound #, excluded_list_of_shapes_to_compound
+from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices
+
+#from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
+from OCC.Core.gp import gp_Pnt 
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeSphere
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
+from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
+#from OCC.Core.Tesselator import ShapeTesselator
+#from OCC.Core.BRep import  BRep_Tool
+#from OCC.Core.TopoDS import (topods_Vertex)
+
+from .settingscopy import (DISPLAY_URL,MEDIA_URL)
+#from .dirSync import checkIdle, copyTree
+from .recursivecopier import RecursiveCopier, copyFilesRecursive
+from .assemblyorder import FindAssemblingOrder
+from .assemblystack import FindStackability
 
 class HttpFormatter(logging.Formatter):
 
@@ -103,9 +98,11 @@ timeLogger = "Media/TimeWatcher.txt"
 try:
     os.makedirs(os.path.dirname(fileLogger), exist_ok=True)
     os.makedirs(os.path.dirname(timeLogger), exist_ok=True)
+    logging.info("Log Dir Creations"+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S"))
 except Exception as e:
     print("Exception in creating files",e)
-class RecursiveCopier():
+
+""" class RecursiveCopier():
 
     def __init__(self,interval,hFunction):
         self.t=interval
@@ -156,9 +153,9 @@ class RecursiveCopier():
                 print("There is an error while cancelling thread",e)
 
     def timeUTCLagFromServer(self):
-        return self.timelag    
+        return self.timelag    """ 
 
-def copyFiles(timelag):
+""" def copyFiles(timelag):
     try:
         if checkIdle(timelag,fileLogger) > 1600:            
             logprintinfo="Syncer Started "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
@@ -175,7 +172,7 @@ def copyFiles(timelag):
         else:
             print("I am not Idle to move files from Linux box to S3Box")
     except Exception as e:
-        print("Error while moving",e)
+        print("Error while moving",e) """
 
 logHandler = TimedRotatingFileHandler(fileLogger,when="midnight")
 #logFormatter = logging.Formatter('%(asctime)s %(message)s')
@@ -184,9 +181,6 @@ logHandler.setFormatter( logFormatter )
 logger = logging.getLogger()
 logger.addHandler( logHandler )
 logger.setLevel( logging.INFO )
-
-recursiveCopier = RecursiveCopier(1500,copyFiles)
-recursiveCopier.start()
 
 def logRoundtrip(response, *args, **kwargs): 
         extra = {
@@ -206,6 +200,7 @@ def logRoundtrip(response, *args, **kwargs):
         }
         logger.debug('HTTP roundtrip', extra=extra)
 
+RecursiveCopier(1500, copyFilesRecursive, logging, fileLogger, timeLogger).start()
 gltf_dict = gltfdict()
 
 @api_view(['GET', 'POST', 'DELETE'])
