@@ -98,7 +98,9 @@ timeLogger = "Media/TimeWatcher.txt"
 try:
     os.makedirs(os.path.dirname(fileLogger), exist_ok=True)
     os.makedirs(os.path.dirname(timeLogger), exist_ok=True)
-    logging.info("Log Dir Creations"+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S"))
+    logprintinfo = "Log Dir Creations "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
+    logging.info("Log Dir Creations "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S"))
+    print(logprintinfo)
 except Exception as e:
     print("Exception in creating files",e)
 
