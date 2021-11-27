@@ -284,7 +284,7 @@ const VendorListPage = () => {
           handleHistoryToggle={handleHistoryToggle}
           columnsFields={columnsFields}
           handleTableRowClick={handleTableRowClick}
-          isAddEditLinkVisible={true}
+          isEditLinkVisible={true}
           handleEditButtonPress={toggleEditModal}
         />
       ) : (

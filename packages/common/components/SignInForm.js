@@ -58,7 +58,7 @@ const SignInForm = ({ handleLoginSubmit, msg, isLoginStarted }) => {
   return (
     <Box as="div" className={classes.container}>
       <Card elevation={3} className={classes.card_container}>
-        <CardContent>
+        <CardContent style={{ width: '100%' }}>
           <Box as="div" className={classes.logo_container}>
             <img src={StructLogo} className={classes.logo} />
           </Box>

@@ -5,7 +5,7 @@ export default function Styles() {
   const filteredItemList = ['1', '2', '3'];
   const columnsFields = [
     { title: 'Name', field: 'name', type: 'text' },
-    { title: 'Template', field: 'template', type: 'text' },
+    { title: 'Template', field: 'template', type: 'text' }
   ];
 
   return (
@@ -15,7 +15,7 @@ export default function Styles() {
         handleHistoryToggle={false}
         columnsFields={columnsFields}
         handleTableRowClick={false}
-        isAddEditLinkVisible={false}
+        isEditLinkVisible={false}
         handleEditButtonPress={false}
       />
     </div>

@@ -22,7 +22,7 @@ const VendorListPage = () => {
       upsertListItem={API.upsertVendorApi}
       isAddEditActionsEnabled={true}
       handleItemClick={handleItemClick}
-      isAddEditLinkVisible={true}
+      isEditLinkVisible={false}
     />
   );
 };

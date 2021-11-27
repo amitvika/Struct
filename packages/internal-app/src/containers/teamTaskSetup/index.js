@@ -22,7 +22,7 @@ const TeamTaskSetup = () => {
       fetchList={TeamSetupAPI.fetchTeamTask}
       upsertListItem={TeamSetupAPI.upsertTeamTask}
       AddUpdateModal={AddUpdateModal}
-      isAddEditLinkVisible={true}
+      isEditLinkVisible={true}
       isManageTeamVisible={true}
       ManageTeamModal={AssignTeamModal}
     />

@@ -14,7 +14,7 @@ const CriteriaUpload = () => {
       upsertListItem={CriteriaUploadAPI.upsertCriteriaUpload}
       isAddEditActionsEnabled={true}
       // handleItemClick={handleItemClick}
-      isAddEditLinkVisible={true}
+      isEditLinkVisible={true}
       AddUpdateModal={AddUpdateModal}
       isDesignModalOpened={true}
     />

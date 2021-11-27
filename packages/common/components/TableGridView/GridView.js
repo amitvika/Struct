@@ -112,9 +112,9 @@ export default function GridView({
   columnsFields,
   handleTableRowClick,
   isHistoryLinkVisible = true,
-  isAddEditLinkVisible = false,
   isInsideDetailPanel = false,
-  showDeleteActionButton = true
+  showDeleteActionButton = true,
+  isEditLinkVisible = false
 }) {
   const classes = useStyles();
   const [text, setText] = useState('');
@@ -236,7 +236,6 @@ export default function GridView({
             <Paper
               className={classes.paper}
               onClick={() => handleTableRowClick(product)}
-              elevation={8}
             >
               <Grid
                 container
@@ -253,7 +252,7 @@ export default function GridView({
                 </Grid>
                 <Grid item sm={2} className={classes.actionIconContainer}>
                   <ClipboardText item_id={product.id} />
-                  {isAddEditLinkVisible && (
+                  {isEditLinkVisible && (
                     <CustomIconButton
                       title={'Edit'}
                       onClick={(event) => {

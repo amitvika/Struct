@@ -47,9 +47,7 @@ export default function TableView({
       data={list}
       title={title}
       components={{
-        Container: (props) => (
-          <Paper {...props} elevation={8} style={{ padding: 10 }} />
-        ),
+        Container: (props) => <Paper {...props} style={{ padding: 10 }} />,
         Toolbar: (props) => (
           <>
             {showToolbar ? (

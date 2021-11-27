@@ -17,11 +17,12 @@ const DesignPage = () => {
       fields={fields}
       fetchList={ProductDesignAPI.fetchProductDesigns}
       upsertListItem={ProductDesignAPI.upsertProductDesign}
-      isAddEditActionsEnabled={true}
+      isAddEditActionsEnabled={false}
       handleItemClick={handleItemClick}
-      isAddEditLinkVisible={true}
       AddUpdateModal={AddUpdateModal}
       isDesignModalOpened={true}
+      isEditLinkVisible={false}
+      isHistoryLinkVisible={false}
     />
   );
 };
