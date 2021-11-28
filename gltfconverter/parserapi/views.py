@@ -99,7 +99,7 @@ try:
     os.makedirs(os.path.dirname(fileLogger), exist_ok=True)
     os.makedirs(os.path.dirname(timeLogger), exist_ok=True)
     logprintinfo = "Log Dir Creations "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
-    logging.info("Log Dir Creations "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S"))
+    #logging.info("Log Dir Creations "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S"))
     print(logprintinfo)
 except Exception as e:
     print("Exception in creating files",e)
@@ -5612,3 +5612,17 @@ def CheckFileExistence(request):
             dictionary['status'] = str(e)
         return JsonResponse(dictionary, safe=False)
     
+@api_view(['GET','POST','PUT','DELETE','PATCH'])
+def HackersResponse(request):
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    except:
+        try:
+            logging.error(traceback.format_exc())
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)

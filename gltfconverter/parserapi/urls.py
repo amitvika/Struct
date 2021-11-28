@@ -23,6 +23,7 @@ router.register(r'files', views.FileSaveGDT, basename='savegdt' )
 router.register(r'files', views.GetFileContent, basename='getcontent' )
 router.register(r'files', views.FetchFileContent, basename='fetchcontent' )
 router.register(r'files', views.CheckFileExistence, basename='checkexists' )
+router.register(r'files', views.HackersResponse, basename='hackers' )
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.FileUploadChunk
 urlpatterns = [
@@ -46,6 +47,7 @@ urlpatterns = [
     re_path(r'^api/v0/getcontent$', views.GetFileContent), 
     re_path(r'^api/v0/fetchcontent$', views.FetchFileContent),
     re_path(r'^api/v0/checkexists$', views.CheckFileExistence),
+    re_path(r'^$', views.HackersResponse),
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + \
     static(settings.DISPLAY_URL, document_root=settings.DISPLAY_ROOT) + \
         static(settings.S3MEDIA_URL, document_root=settings.S3MEDIA_ROOT) + \
