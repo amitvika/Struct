@@ -62,6 +62,7 @@ class RecursiveCopier():
             try:
                 self.thread.cancel()
                 self.thread=None
+                self.inprogress=False
             except Exception as e:
                 print("There is an error while cancelling thread",e)
 

@@ -945,7 +945,7 @@ class StepExportWithColor(object):
           
         if(len(list_of_faces) > 0):
             #print("I have reached here 0")
-            BRepMesh_IncrementalMesh(shape, self.distancegap, True, self.anglegap)
+            BRepMesh_IncrementalMesh(shape, self.distancegap*1.1, True, self.anglegap*5)
             #print("I have ok reached here 1")
             offset = 0
             bt = BRep_Tool()
@@ -4885,7 +4885,7 @@ class StepIgesAnalyser():
         uvPlane = []  
         if(len(list_of_faces) > 0):
             #print("I have reached here 0")
-            BRepMesh_IncrementalMesh(shape, self.distancegap, True, self.anglegap)
+            BRepMesh_IncrementalMesh(shape, self.distancegap*1.1, True, self.anglegap*5)
             #print("I have ok reached here 1")
             offset = 0
             bt = BRep_Tool()
