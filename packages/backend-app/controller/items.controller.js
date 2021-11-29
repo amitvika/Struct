@@ -66,9 +66,9 @@ const buildQuery = (req) => {
     });
   }
 
-  if (req.query.assemblyType) {
+  if (req.query.multiAssembly) {
     query.$and.push({
-      assemblyType: req.query.assemblyType
+      multiAssembly: req.query.multiAssembly
     });
   }
 
@@ -170,7 +170,7 @@ exports.create = async (req, res) => {
       name: req.body.name,
       vendorId: req.body.vendorId,
       author: req.user.id,
-      assemblyType: req.body.assemblyType
+      multiAssembly: req.body.multiAssembly
     });
 
     const savedItem = await newItem.save();
@@ -201,12 +201,6 @@ exports.update = async (req, res) => {
     const body = req.body;
 
     let updateData = req.body;
-
-    if (body.multiAssmebly) {
-      updateData.assemblyType = 'Multi-Item Assembly';
-    } else {
-      updateData.assemblyType = 'Single Item Part';
-    }
 
     let prevItem = await ItemModel.findById(req.body.id);
 
@@ -462,6 +456,7 @@ exports.updateItemGeometry = async (req, res) => {
 exports.upsert = async (req, res) => {
   try {
     let items = req.body || [];
+
     items = items.map((item) => ({
       ...item,
       created_by: item.created_by || req.user.id,

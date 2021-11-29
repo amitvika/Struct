@@ -70,7 +70,10 @@ exports.mapItem = async (item = {}) => {
     created_by: get(item, 'created_by._id', ''),
     updated_by_name: get(item, 'updated_by.name', ''),
     updated_by: get(item, 'updated_by._id', ''),
-    is_archived: item.is_archived
+    is_archived: item.is_archived,
+    assemblyType: item.multiAssembly
+      ? 'Multi-Item Assembly'
+      : 'Single Item Part'
   };
   // console.log('Getting one item', myobject, item.name);
   return myobject;

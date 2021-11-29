@@ -174,7 +174,7 @@ export default function BaseItemProperties({
       let datastore = '';
       let datagdt = '';
       let treeLength = 0;
-      let multiAssmebly = false;
+      let multiAssembly = false;
       dataload = data.filename;
       /*let filenameWithOutExtension = dataload.replace(/^.*[\\\/]/, '');
       const lastDotIndex = filenameWithOutExtension.lastIndexOf('.');
@@ -320,7 +320,7 @@ export default function BaseItemProperties({
           // console.log('Completing poll', datagdt, dataload);
           const gltfRes = await getAFileFromStore(datafile, 'gltf');
           const treeRes = await getAFileFromStore(datafile, 'tree');
-          multiAssmebly = statusRes
+          multiAssembly = statusRes
             ? statusRes.data
               ? statusRes.data.assemblies > 1
               : false
@@ -330,20 +330,20 @@ export default function BaseItemProperties({
           setgltfjson({
             gltf: gltfRes.data,
             tree: treeRes.data,
-            multiAssmebly: multiAssmebly,
+            multiAssembly: multiAssembly,
             gdt: datagdt,
             treeLength: treeLength,
             resourcepath: resourcePathURL
           });
           setItemProperties((prevData) => ({
             ...prevData,
-            multiAssmebly: multiAssmebly,
+            multiAssembly: multiAssembly,
             stepTreeLength: treeLength
           }));
         }
       } else {
         treeLength = get(getHierarchyRes.data, 'tree', []).length;
-        multiAssmebly = getHierarchyRes
+        multiAssembly = getHierarchyRes
           ? getHierarchyRes.data
             ? getHierarchyRes.data.status
               ? getHierarchyRes.data.status.assemblies > 1
@@ -352,13 +352,13 @@ export default function BaseItemProperties({
           : false;
         setgltfjson({
           ...getHierarchyRes.data,
-          multiAssmebly: multiAssmebly,
+          multiAssembly: multiAssembly,
           gdt: datagdt,
           treeLength: treeLength
         });
         setItemProperties((prevData) => ({
           ...prevData,
-          multiAssmebly: multiAssmebly,
+          multiAssembly: multiAssembly,
           stepTreeLength: treeLength
         }));
       }
@@ -374,7 +374,7 @@ export default function BaseItemProperties({
           fileStore: datastore,
           fileGDT: datagdt,
           fileName: dataload,
-          multiAssmebly: multiAssmebly,
+          multiAssembly: multiAssembly,
           stepTreeLength: treeLength,
           distanceGap: distanceGaper,
           angleGap: angleGaper,
@@ -391,7 +391,7 @@ export default function BaseItemProperties({
         fileMPPS: null,
         fileStack: null,
         fileKinematic: null,
-        multiAssmebly: multiAssmebly,
+        multiAssembly: multiAssembly,
         stepTreeLength: treeLength,
         distanceGap: distanceGaper,
         angleGap: angleGaper,

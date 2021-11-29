@@ -14,7 +14,7 @@ import {
   Paper,
   Button,
   Icon,
-  CircularProgress,
+  CircularProgress
 } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import ItemAPI from '@monostruct/common/api/items.api';
@@ -25,7 +25,7 @@ export default function ItemSelectionModal({
   toggleItemSelection,
   isItemSelectionModalOpen,
   selectedAssemblySequence,
-  handleUpdateAssemblySequence,
+  handleUpdateAssemblySequence
 }) {
   const [itemList, setItemList] = useState([]);
   const [filter, setFilter] = useState({});
@@ -35,7 +35,7 @@ export default function ItemSelectionModal({
   const [searchItemByName, setSearchItemByName] = useState({
     name: '',
     typing: false,
-    typingTimeout: 0,
+    typingTimeout: 0
   });
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function ItemSelectionModal({
       if (selectedItem) {
         return [
           selectedItem,
-          ...preItemList.filter((item) => item._id !== data._id),
+          ...preItemList.filter((item) => item._id !== data._id)
         ];
       } else {
         return preItemList.filter((item) => item._id !== data._id);
@@ -85,7 +85,7 @@ export default function ItemSelectionModal({
     setFilter((prevFilter) => {
       return {
         ...prevFilter,
-        [name]: value,
+        [name]: value
       };
     });
   };
@@ -119,7 +119,7 @@ export default function ItemSelectionModal({
       typing: false,
       typingTimeout: setTimeout(() => {
         fetchData({ query: `search=${inputValue}` });
-      }, 1000),
+      }, 1000)
     });
   };
 
@@ -179,28 +179,28 @@ export default function ItemSelectionModal({
                 { label: 'Machine - Actuator', value: 'Machine - Actuator' },
                 {
                   label: 'Machine - Motion Control',
-                  value: 'Machine - Motion Control',
+                  value: 'Machine - Motion Control'
                 },
                 {
                   label: 'Machine - Tool/Workholding',
-                  value: 'Machine - Tool/Workholding',
+                  value: 'Machine - Tool/Workholding'
                 },
                 {
                   label: 'Machine - Workpiece Environment Modification',
-                  value: 'Machine - Workpiece Environment Modification',
+                  value: 'Machine - Workpiece Environment Modification'
                 },
                 {
                   label: 'Containment - Pressure Vessel',
-                  value: 'Containment - Pressure Vessel',
+                  value: 'Containment - Pressure Vessel'
                 },
                 {
                   label: 'Containment - Liquid Container',
-                  value: 'Containment - Liquid Container',
+                  value: 'Containment - Liquid Container'
                 },
                 { label: 'Tool', value: 'Tool' },
                 { label: 'Machine - Tool', value: 'Machine - Tool' },
                 { label: 'Unassembled Kit', value: 'Unassembled Kit' },
-                { label: 'Other', value: 'Other' },
+                { label: 'Other', value: 'Other' }
               ]}
               onChange={(data) => handleChange('itemType', data.value)}
               value={filter.itemType ? { label: filter.itemType } : ''}
@@ -219,10 +219,10 @@ export default function ItemSelectionModal({
                 { label: ' Solid', value: 'Solid' },
                 {
                   label: 'Bulk Powder/Particles/Grains',
-                  value: 'Bulk Powder/Particles/Grains',
+                  value: 'Bulk Powder/Particles/Grains'
                 },
                 { label: 'Liquid', value: 'Liquid' },
-                { label: 'Gas', value: 'Gas' },
+                { label: 'Gas', value: 'Gas' }
               ]}
               onChange={(data) => handleChange('itemCategory', data.value)}
               value={filter.itemCategory ? { label: filter.itemCategory } : ''}
@@ -237,11 +237,13 @@ export default function ItemSelectionModal({
             <Select
               placeholder="Select"
               options={[
-                { label: 'Single Item Part', value: 'Single Item Part' },
-                { label: 'Multi-Item Assembly', value: 'Multi-Item Assembly' },
+                { label: 'Single Item Part', value: false },
+                { label: 'Multi-Item Assembly', value: true }
               ]}
-              onChange={(data) => handleChange('assemblyType', data.value)}
-              value={filter.assemblyType ? { label: filter.assemblyType } : ''}
+              onChange={(data) => handleChange('multiAssembly', data.value)}
+              value={
+                filter.multiAssembly ? { value: filter.multiAssembly } : ''
+              }
             />
           </Grid>
           <Grid item xs={5}></Grid>

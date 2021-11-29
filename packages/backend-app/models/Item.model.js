@@ -29,7 +29,6 @@ const ItemSchema = new mongoose.Schema(
       type: Schema.Types.ObjectId,
       ref: 'Client'
     },
-    assemblyType: { type: String },
     itemGeometry: { type: Object },
     itemTypeConfiguration: { type: Object },
     vendorDetails: { type: Object },
@@ -75,6 +74,7 @@ const ItemSchema = new mongoose.Schema(
     parent_id: { type: Schema.Types.ObjectId, ref: 'Item' },
     is_child_item: { type: Boolean, default: false },
     is_child_created: { type: Boolean, default: false },
+    multiAssembly: { type: Boolean, default: false },
     filePartName: { type: String },
     is_archived: { type: Boolean, default: false },
     created_by: { type: Schema.Types.ObjectId, ref: 'User', required: true },

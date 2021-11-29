@@ -7,7 +7,9 @@ export const mapItems = (itemArray) => {
         id: item._id,
         name: item.name,
         source: item?.vendorId?.name || 'STRUCT',
-        assemblyType: item.assemblyType
+        assemblyType: item.multiAssembly
+          ? 'Multi-Item Assembly'
+          : 'Single Item Part'
       };
     });
   } else {
