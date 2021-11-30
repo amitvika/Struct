@@ -43,7 +43,6 @@ yarn install
 - run `conda activate structquery`
 - CD to `gltfconverter` directory
 - run `pip install -r requirements.txt`
-- sudo apt install s3fs
 
 ### Following is needed for Headless AWS and For windows, it is not needed.
 
@@ -137,7 +136,7 @@ conda activate structquery
 
 export DONOTUSES3=False
 
-# Start s3fs system # not needed
+# Start s3fs system is not needed everytime while restarting but only one time it is needed whenever you reboot the system
 
 #- s3fs gltf-media /home/ubuntu/Struct/gltfconverter/s3bucket -o passwd_file=~/.passwd-s3fs
 
