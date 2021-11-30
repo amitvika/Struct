@@ -43,13 +43,14 @@ yarn install
 - run `conda activate structquery`
 - CD to `gltfconverter` directory
 - run `pip install -r requirements.txt`
-- sudo apt install s3fs
 
 ### Following is needed for Headless AWS and For windows, it is not needed.
 
 - sudo apt install s3fs
 
 ### echo Access key ID:Secret access key > filename
+
+# Example is given below
 
 - echo AKIAUGAS44POH5Z3OJTG:l7loXGKujNI3BLbhUY7I4yPnyhezqBrMFhS2auI/> ~/.passwd-s3fs
 - chmod 600 ~/.passwd-s3fs
@@ -131,13 +132,13 @@ npm start-public
 conda activate structquery
 ```
 
-- For headless AWS to start opengl, following 2 commands needed and they are not needed for windows environment
+- For headless AWS to start opengl, following 4 commands needed and they are not needed for windows environment
 
 # Export your S3
 
 export DONOTUSES3=False
 
-# Start s3fs system # not needed
+# Start s3fs system is not needed everytime while restarting but only one time it is needed whenever you reboot the system
 
 #- s3fs gltf-media /home/ubuntu/Struct/gltfconverter/s3bucket -o passwd_file=~/.passwd-s3fs
 
@@ -149,7 +150,7 @@ Xvfb :1 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &> xvfb.log &
 
 export DISPLAY=:1
 
-- For headless AWS to start opengl, above 2 commands needed and they are not needed for windows environment
+- For headless AWS to start opengl, above 4 commands needed and they are not needed for windows environment
 
 - Run the following command
 

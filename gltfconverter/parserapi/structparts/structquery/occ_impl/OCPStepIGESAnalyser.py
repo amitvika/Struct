@@ -1143,27 +1143,28 @@ class StepExportWithColor(object):
             treeDisplay=treeName
         if  aTree[self.gltf_dict['leaf']]==True:
             #print("Finding a shape",treeName,aTree)
-            item = self.findMyShapeByTreeID(shapes,treeID)
-            if item != None:
-                [shape, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, (uvPlane, solidfound, buff, uvbuff)] = item
-            else:
-                shape=None
-            if(shape):
-                R=aTree[self.gltf_dict['R']]
-                G=aTree[self.gltf_dict['G']]
-                B=aTree[self.gltf_dict['B']]
-                c=Quantity_Color(R,G,B,Quantity_TOC_RGB)
-                part = self.shapetool.NewShape()
-                comp = TopoDS_Compound()
-                comp_builder = TopoDS_Builder()
-                comp_builder.MakeCompound(comp)        
-                comp_builder.Add(comp, shape)
-                self.shapetool.SetShape(part,comp) 
-                TDataStd_Name.Set(part, TCollection_ExtendedString(treeDisplay))
-                #print("Adding a shape",treeName,aTree)
-                self.colortool.SetColor(part,c,XCAFDoc_ColorType.XCAFDoc_ColorSurf) 
-                self.shapetool.AddComponent(assembly, part,TopLoc_Location())  
-                self.shapetool.UpdateAssemblies()
+            if  aTree[self.gltf_dict['element']]=="P":
+                item = self.findMyShapeByTreeID(shapes,treeID)
+                if item != None:
+                    [shape, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, (uvPlane, solidfound, buff, uvbuff)] = item
+                else:
+                    shape=None
+                if(shape):
+                    R=aTree[self.gltf_dict['R']]
+                    G=aTree[self.gltf_dict['G']]
+                    B=aTree[self.gltf_dict['B']]
+                    c=Quantity_Color(R,G,B,Quantity_TOC_RGB)
+                    part = self.shapetool.NewShape()
+                    comp = TopoDS_Compound()
+                    comp_builder = TopoDS_Builder()
+                    comp_builder.MakeCompound(comp)        
+                    comp_builder.Add(comp, shape)
+                    self.shapetool.SetShape(part,comp) 
+                    TDataStd_Name.Set(part, TCollection_ExtendedString(treeDisplay))
+                    #print("Adding a shape",treeName,aTree)
+                    self.colortool.SetColor(part,c,XCAFDoc_ColorType.XCAFDoc_ColorSurf) 
+                    self.shapetool.AddComponent(assembly, part,TopLoc_Location())  
+                    self.shapetool.UpdateAssemblies()
         else:     
             #print("Recursing a shape",treeName,aTree)      
             subassembly=self.GetAssemblyOutPutShapes(treeID,myTree,shapes,treeName,treeLength)
@@ -1289,9 +1290,12 @@ class StepExportWithColor(object):
             treeDisplay=treeName
         if  aTree[self.gltf_dict['leaf']]==True:
             #print("Finding a shape",treeName,aTree)
-            item = self.findMyShapeByTreeID(shapes,treeID)
-            if item != None:
-                [shape, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, (uvPlane, solidfound, buff, uvbuff)] = item
+            if  aTree[self.gltf_dict['element']]=="P":
+                item = self.findMyShapeByTreeID(shapes,treeID)
+                if item != None:
+                    [shape, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, (uvPlane, solidfound, buff, uvbuff)] = item
+                else:
+                    shape=None
             else:
                 shape=None
             R=aTree[self.gltf_dict['R']]
