@@ -120,6 +120,7 @@ const ItemDetail = ({ itemValue }) => {
 
   useEffect(() => {
     if (currentItem) {
+      console.log('I am setting currentitem as itemproperties', currentItem);
       setItemProperties(currentItem);
     }
   }, [currentItem]);
