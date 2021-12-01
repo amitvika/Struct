@@ -74,10 +74,10 @@ export default function Index2(props) {
     'Holding',
     'Separation and Refinement',
     'Particulate/Liquid/Gas Mixing',
-    'Particulate Consolidation',
-    'Designer',
-    'Manufacture',
-    'Classification'
+    'Particulate Consolidation'
+    // 'Designer',
+    // 'Manufacture',
+    // 'Classification'
   ];
 
   const subTabArray = [
@@ -145,12 +145,12 @@ export default function Index2(props) {
             </Paper>
           </Grid>
 
-          <Divider
+          {/* <Divider
             orientation="vertical"
             flexItem
             className={classes.verticalDivider}
             style={{ borderStyle: 'inset', height: '30px' }}
-          />
+          /> */}
           {tabArray.map((tabName) => (
             <Grid item xs={2} key={tabName}>
               <Paper
