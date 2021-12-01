@@ -109,6 +109,10 @@ const ItemDetail = ({ itemValue }) => {
     if (toFetchItem) {
       (async () => {
         dispatch(setCurrentItemAction(itemValue));
+        console.log(
+          'Setting item properties from set current action statement',
+          itemValue
+        );
         setItemProperties(itemValue);
         setGLTFAndTree({ ...itemValue }, myTabIndex);
         //console.log("coiming",itemValue);
@@ -1268,6 +1272,10 @@ const ItemDetail = ({ itemValue }) => {
 
   const handleItemUpdate = (change) => {
     let tempItemProperties = Object.assign({}, itemProperties, change);
+    console.log(
+      'Changing itemproperties in hanldeitemupdate',
+      tempItemProperties
+    );
     setItemProperties(tempItemProperties);
   };
 
@@ -1280,6 +1288,7 @@ const ItemDetail = ({ itemValue }) => {
     ItemAPI.updateItemAPI(id, { ...updateItemProperties })
       .then((res) => {
         if (res && res.data) {
+          console.log('Changing item properties from handle save', res.data);
           setItemProperties(res.data);
           dispatch(showSuccessAlert({ message: 'Item Updated' }));
         } else {
