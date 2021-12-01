@@ -1093,10 +1093,20 @@ class FindAssemblingOrder(object):
         print(lenShape,self.shapeorder,self.shapesdistance,self.shapesvolume, self.shapessurface, self.shapesdimension)#,self.scaledshapes)
 
     def writeToGltfFile(self,sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,processed):
+        #print("Calling Write to GLtffile",sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,processed)
         dictionary={}
+        #print("myShapes -1")
+        #print("myshapres 0",self.newShapes)
         try:
+            #print("myShapes0",self.newShapes)
+            skipInitialShape = self.newShapes
+            if skipInitialShape:
+                #print("myShapes1",skipInitialShape)
+                if(len(skipInitialShape)>0):
+                    skipInitialShape = skipInitialShape[1:]
+            #print("myshapes2",skipInitialShape)
             (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=self.newShapes,includeparts=False,distancegap=distancegap,logging=self.logging,
+                    filename=sourceFileName,shapeslist=skipInitialShape,includeparts=False,distancegap=distancegap,logging=self.logging,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,writethread=False,
                     edgesize=0, vertexsize=0, animations=self.moveArrays,shapeorder=self.shapeorder,delay=animationtime).dump()
             dictionary['assemblyorder']={   "order":self.shapeorder,
@@ -1110,9 +1120,9 @@ class FindAssemblingOrder(object):
                 with open(orderfile, 'w') as fh:
                     fh.write(json.dumps(dictionary["assemblyorder"], sort_keys=True, indent=2 ))
             except Exception as e:
-                print("Error while writing orderfile",e) 
+                print("Error while writing orderfile 14",e) 
         except Exception as e:
-                print("Error while writing orderfile",e) 
+                print("Error while writing orderfile 24", e, "Going great?", len(self.newShapes)) 
         return dictionary
     
     def writeToOrderFile(self,storename,starttime,currenttime,processed):
@@ -1129,9 +1139,9 @@ class FindAssemblingOrder(object):
                 with open(orderfile,'w') as fh:
                     fh.write(json.dumps(mydictionary, sort_keys=True, indent=2 ))
             except Exception as e:
-                print("Error while writing orderfile",e) 
+                print("Error while writing orderfile 3 ",e) 
         except Exception as e:
-                print("Error while writing orderfile",e) 
+                print("Error while writing orderfile 4",e) 
         return mydictionary
     
     def write_status(self,storename,percentage,starttime,currenttime):
@@ -1633,8 +1643,9 @@ class FindAssemblingOrder(object):
                     self.shapeorder.append(currentIndex)
                     currentIndex +=1
         currenttime=datetime.utcnow()
-        
+        #print("Calling write to gltf file")
         dictionary = self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape)  
+        #print("Called write to gltf file")
         print(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape)
         try:
             if self.logging != None and self.byThread:
@@ -1665,7 +1676,9 @@ class FindAssemblingOrder(object):
         try:
             self.InitExplodeParts(debugMe)
             currenttime=datetime.utcnow()   
+            #print("About to call write to gltf file")
             dictionary=self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,0)
+            #print("Completed calling write to gltfile")
             if bythread:
                 mythread = threading.Thread(target=self.threadAssembling, daemon=True, \
                     args=(sourceFileName,distancegap,anglegap,animationtime,starttime,dictionary["store"],debugMe,maxgap))
@@ -1802,8 +1815,9 @@ class FindAssemblingOrder(object):
                 self.newShapes[myIndex+1] = (finalShape,aName,aColor)    
                 
         currenttime=datetime.utcnow()
-        
+        #print("DOing for calling write to gltf file")
         dictionary = self.writeToGltfFile(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape)  
+        #print("completed DOing for calling write to gltf file")
         print(sourceFileName,distancegap,anglegap,animationtime,starttime,currenttime,lenShape,self.shapeorder)
         try:
             if self.logging != None and self.byThread:

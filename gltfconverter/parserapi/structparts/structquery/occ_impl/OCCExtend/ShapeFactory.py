@@ -276,16 +276,16 @@ def get_oriented_bounding_details(shape, optimal_BB=True):
     
 
     obb = Bnd_OBB()
-    
-    try:
-        if optimal_BB:
-            use_triangulation = True
-            use_shapetolerance = False
-            brepbndlib_AddOBB(shape, obb, use_triangulation, optimal_BB, use_shapetolerance)           
-        else:
-            brepbndlib_AddOBB(shape, obb)
-    except Exception as e:
-        print("Unable to find bounding box,",e)        
+    if shape:
+        try:
+            if optimal_BB:
+                use_triangulation = True
+                use_shapetolerance = False
+                brepbndlib_AddOBB(shape, obb, use_triangulation, optimal_BB, use_shapetolerance)           
+            else:
+                brepbndlib_AddOBB(shape, obb)
+        except Exception as e:
+            print("Unable to find bounding box,",e)        
     return obb
     
 
@@ -2121,11 +2121,14 @@ def minimum_distance_only(shp1, shp2):
     @param shp2:    any TopoDS_*
     @return: minimum distance
     '''    
-    bdss = BRepExtrema_DistShapeShape(shp1, shp2)
-    bdss.Perform()
-    assert_isdone(bdss, 'failed computing minimum distances')
-    min_dist = bdss.Value()
-    return min_dist
+    if shp1 and shp2:
+        bdss = BRepExtrema_DistShapeShape(shp1, shp2)
+        bdss.Perform()
+        assert_isdone(bdss, 'failed computing minimum distances')
+        min_dist = bdss.Value()
+        return min_dist
+    else:
+        return 0
 
 
 def minimum_z_distance(shp1, shp2):

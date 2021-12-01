@@ -27,6 +27,7 @@ import uuid
 #from glob import glob
 
 import logging
+from rest_framework import status
 
 from six import MovedAttribute
 log = logging.getLogger(__name__)
@@ -102,7 +103,7 @@ from ....thumbnail.thumbnail import createThumbnail
 from .gltfDictionary import gltfdict
 from .Quaternion import Quaternion
 
-from ....settingscopy import (DISPLAY_URL,MEDIA_URL,COPY_PATH)
+from ....settingscopy import (DISPLAY_URL,MEDIA_URL,COPY_PATH,S3_BUCKET)
 from ....assemblyorder import FindAssemblingOrder
 from ....assemblystack import FindStackability
 
@@ -1035,8 +1036,8 @@ class StepExportWithColor(object):
                 return item
         return None
     
-    def getShapesFromOutPutShapes(self,shapes,myParent,mytree,treeLength):
-        assemblyCount, myAssemblies, myAssemblyName  = self.GetFirstLevelAssemblyOutPutShapesForOrder(shapes,myParent,mytree,treeLength)
+    def getShapesFromOutPutShapes(self,shapes,myParent,mytree,treeLength,fuuid):
+        assemblyCount, myAssemblies, myAssemblyName  = self.GetFirstLevelAssemblyOutPutShapesForOrder(shapes,myParent,mytree,treeLength,fuuid)
         retshapes=[]
         onlyshapes=[]
         if (myAssemblies is None) or (assemblyCount==0):
@@ -1131,7 +1132,21 @@ class StepExportWithColor(object):
         #print(retshapes,onlyshapes)
         return (retshapes,onlyshapes,retcoloredshapes,self.findAssemblyShapeName(myParent,mytree))
     
-    def GetSelfAndTreeFromOutputShapes(self,assembly,aTree,shapes,myTree,treeLength):
+    def getShapeFromPickle(self,fname):
+        fnamepath = DISPLAY_URL+fname+".pickle"
+        if not os.path.isfile(fnamepath):
+            fnamepath = S3_BUCKET+DISPLAY_URL+fname+".pickle"
+            if not os.path.isfile(fnamepath):
+                fnamepath = None
+        shellshape=None
+        if fnamepath:
+            with open(fnamepath, 'rb') as f:
+                # The protocol version used is detected automatically, so we do not
+                # have to specify it.
+                shellshape = pickle.load(f)
+        return fnamepath, shellshape
+
+    def GetSelfAndTreeFromOutputShapes(self,assembly,aTree,shapes,myTree,treeLength,fuuid):
         treeID = aTree[self.gltf_dict['id']]
         treeName = aTree[self.gltf_dict['name']]
         treeDisplay =  aTree[self.gltf_dict['display']]
@@ -1143,10 +1158,20 @@ class StepExportWithColor(object):
             treeDisplay=treeName
         if  aTree[self.gltf_dict['leaf']]==True:
             #print("Finding a shape",treeName,aTree)
-            if  aTree[self.gltf_dict['element']]=="P":
-                item = self.findMyShapeByTreeID(shapes,treeID)
-                if item != None:
-                    [shape, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, (uvPlane, solidfound, buff, uvbuff)] = item
+            if aTree[self.gltf_dict['element']]=="P":
+                if shapes:
+                    item = self.findMyShapeByTreeID(shapes,treeID)
+                    if item != None:
+                        [shape, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, (uvPlane, solidfound, buff, uvbuff)] = item
+                    else:
+                        shape=None
+                elif aTree[self.gltf_dict['step']]:
+                    fname = aTree[self.gltf_dict['step']]
+                    fname = fname[0:-5] #'.step' is removed at the end
+                    guid = fuuid
+                    if guid!='':
+                        guid = guid+'/'
+                    _,shape = self.getShapeFromPickle(guid+fname)
                 else:
                     shape=None
                 if(shape):
@@ -1167,11 +1192,11 @@ class StepExportWithColor(object):
                     self.shapetool.UpdateAssemblies()
         else:     
             #print("Recursing a shape",treeName,aTree)      
-            subassembly=self.GetAssemblyOutPutShapes(treeID,myTree,shapes,treeName,treeLength)
+            subassembly=self.GetAssemblyOutPutShapes(treeID,myTree,shapes,treeName,treeLength,fuuid)
             self.shapetool.AddComponent(assembly, subassembly,TopLoc_Location())  
             self.shapetool.UpdateAssemblies()
 
-    def GetAssemblyOutPutShapes(self,myParent,myTree,shapes,name,treeLength):        
+    def GetAssemblyOutPutShapes(self,myParent,myTree,shapes,name,treeLength,fuuid):        
         assembly = self.shapetool.NewShape()
         if name is None:
             name =  "Struct Assembly "+str(myParent)
@@ -1179,7 +1204,7 @@ class StepExportWithColor(object):
         lengthCheck=0
         for aTree in myTree:
             if aTree[self.gltf_dict['parentId']]==myParent : 
-                self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength)
+                self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength,fuuid)
             lengthCheck+=1
             if lengthCheck >=treeLength:
                 break
@@ -1189,7 +1214,7 @@ class StepExportWithColor(object):
         includeparts,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight, \
             logging, seperateparts,edgesize, vertexsize, maximumfacestoinclude,\
                 CreateChildSteps,CreateAssemblyOrder,explodegap,center,holescale,removegap,\
-                    recreatefororder,CreateStackability):
+                    recreatefororder,CreateStackability,fuuid):
         name = None
         lengthCheck = 0
         #print("Passed",myTree)
@@ -1253,7 +1278,7 @@ class StepExportWithColor(object):
                     treeID = aTree[self.gltf_dict['id']]
                     treeName = aTree[self.gltf_dict['name']]
                     #print("Getting a shape",treeName,aTree)
-                    self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength)
+                    self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength,fuuid)
                     uuidname = str(uuid.uuid4())
                     uniquename=filename+" "+str(treeID)
                     addedAssembly+=1
@@ -1278,7 +1303,7 @@ class StepExportWithColor(object):
             return  (addedAssembly,assemblyNames) 
         return (addedAssembly,None)
 
-    def GetFirstLevelSelfAndTreeFromOutputShapes(self,aTree,shapes,myTree,treeLength):
+    def GetFirstLevelSelfAndTreeFromOutputShapes(self,aTree,shapes,myTree,treeLength,fuuid):
         treeID = aTree[self.gltf_dict['id']]
         treeName = aTree[self.gltf_dict['name']]
         treeDisplay =  aTree[self.gltf_dict['display']]
@@ -1291,9 +1316,19 @@ class StepExportWithColor(object):
         if  aTree[self.gltf_dict['leaf']]==True:
             #print("Finding a shape",treeName,aTree)
             if  aTree[self.gltf_dict['element']]=="P":
-                item = self.findMyShapeByTreeID(shapes,treeID)
-                if item != None:
-                    [shape, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, (uvPlane, solidfound, buff, uvbuff)] = item
+                if shapes:
+                    item = self.findMyShapeByTreeID(shapes,treeID)
+                    if item != None:
+                        [shape, subName, subEntry, c, myId, myParent, rootName, rootEntry, meshname, basenamehere, (uvPlane, solidfound, buff, uvbuff)] = item
+                    else:
+                        shape=None
+                elif aTree[self.gltf_dict['step']]:
+                    fname = aTree[self.gltf_dict['step']]
+                    fname = fname[0:-5] #'.step' is removed at the end
+                    guid = fuuid
+                    if guid!='':
+                        guid = guid+'/'
+                    _,shape = self.getShapeFromPickle(guid+fname)
                 else:
                     shape=None
             else:
@@ -1305,10 +1340,10 @@ class StepExportWithColor(object):
             return (shape,treeDisplay,R,G,B)
         else:     
             #print("Recursing a shape",treeName,aTree)      
-            subassembly=self.GetFirstLevelAssemblyOutPutShapes(treeID,myTree,shapes,treeName,treeLength)
+            subassembly=self.GetFirstLevelAssemblyOutPutShapes(treeID,myTree,shapes,treeName,treeLength,fuuid)
             return subassembly
 
-    def GetFirstLevelAssemblyOutPutShapes(self,myParent,myTree,shapes,name,treeLength): 
+    def GetFirstLevelAssemblyOutPutShapes(self,myParent,myTree,shapes,name,treeLength,fuuid): 
         comp = TopoDS_Compound()
         comp_builder = TopoDS_Builder()
         comp_builder.MakeCompound(comp)        
@@ -1319,7 +1354,7 @@ class StepExportWithColor(object):
         oneItemAdded = 0
         for aTree in myTree:
             if aTree[self.gltf_dict['parentId']]==myParent : 
-                (shape, treeDisplay, R_, G_, B_) =  self.GetFirstLevelSelfAndTreeFromOutputShapes(aTree,shapes,myTree,treeLength)
+                (shape, treeDisplay, R_, G_, B_) =  self.GetFirstLevelSelfAndTreeFromOutputShapes(aTree,shapes,myTree,treeLength,fuuid)
                 if shape:
                     try:
                         comp_builder.Add(comp, shape)
@@ -1335,7 +1370,7 @@ class StepExportWithColor(object):
         else:
             return (None, treeDisplay, R, G, B)
 
-    def GetFirstLevelAssemblyOutPutShapesForOrder(self,shapes,myParent,myTree,treeLength):
+    def GetFirstLevelAssemblyOutPutShapesForOrder(self,shapes,myParent,myTree,treeLength,fuuid):
         name = None
         lengthCheck = 0
         """ if myParent:
@@ -1392,7 +1427,7 @@ class StepExportWithColor(object):
             lengthCheck = 0
             for aTree in myTree:
                 if aTree[self.gltf_dict['parentId']]==myParentId :   
-                    (shape, treeDisplay, R, G, B) = self.GetFirstLevelSelfAndTreeFromOutputShapes(aTree,shapes,myTree,treeLength)
+                    (shape, treeDisplay, R, G, B) = self.GetFirstLevelSelfAndTreeFromOutputShapes(aTree,shapes,myTree,treeLength,fuuid)
                     if shape:
                         firstLevelAssemblies.append((shape, treeDisplay, R, G, B)) 
                         addedAssembly+=1
@@ -1589,7 +1624,7 @@ class StepIgesAnalyser():
         #print("I m initializing")
         if filename:
             head, tail = os.path.split(self.fname)
-            if(head[:-1]!="/"):
+            if(head[-1]!="/"):
                 #print("Head does not contain last /",head)
                 head = head + "/"
             #else:
@@ -1665,7 +1700,9 @@ class StepIgesAnalyser():
         self.thumbwidth = thumbwidth     
         self.multiplegltf = multipleGLTF 
         self.assemblycount = 0
+        self.treelengthbeforevertices=0
         self.assemblyname = None
+        self.recursiveTree = recursiveTree
         if (self.edgesize == 0) and (self.vertexsize==0):
             self.writeStep = False
             self.writeColorStep = False
@@ -1682,9 +1719,8 @@ class StepIgesAnalyser():
             if shapeslist:
                 #print("shapes",shapeslist)
                 self.shapeslist = shapeslist
-            elif recursiveShapes:
+            elif recursiveTree:
                 self.recursiveShapes = recursiveShapes
-                self.recursiveTree = recursiveTree
                 self.recursiveID = recursiveID
             elif filename:
                 #print("shapres",shapeslist)
@@ -3127,7 +3163,51 @@ class StepIgesAnalyser():
                 return item
         return None
 
-    
+    def getIfTreeExists(self):
+        filename = self.displaypath+self.basefilename+".tree"
+        DisplayURLLength = len(DISPLAY_URL)
+        if filename[0:DisplayURLLength]==DISPLAY_URL:
+            fileuuid = filename[DisplayURLLength:]
+            if fileuuid[-1]=='/':
+                fileuuid=fileuuid[:-1]
+        else:
+            fileuuid=None
+        if not os.path.isfile(filename):
+            filename = S3_BUCKET+filename
+            if not os.path.isfile(filename):
+                filename = None
+        return  filename, fileuuid
+
+    def createChilds(self,filename,fileuuid):
+        data=None        
+        with open(filename, "r") as f:
+            data = f.read()
+        if data:
+            treeArray = json.loads(data)
+            statusArray = self.read_status()
+            treelengthbeforevertices = self.treelengthbeforevertices
+            if not treelengthbeforevertices:
+                if "trees" in statusArray:
+                    treelengthbeforevertices = statusArray["trees"]
+                    if not treelengthbeforevertices:
+                        treelengthbeforevertices = len(treeArray)
+                else:
+                    treelengthbeforevertices = len(treeArray)
+            progressArray = self.read_progress()
+            (_,self.childfiles)=StepExportWithColor().WriteAssemblyOutPutShapes(\
+                    None,self.basefilename,1,treeArray,\
+                        treelengthbeforevertices,self.includeparts,self.distancegap,\
+                            self.anglegap,self.disectparts,self.moverotate,self.thumbwidth,self.thumbheight,\
+                                self.logging, self.seperateparts, self.edgesize, self.vertexsize,\
+                                    self.maximumfacestoinclude,self.CreateChildSteps,\
+                                        self.CreateAssemblyOrder,self.explodegap,self.center,\
+                                            self.holescale,self.removegap,self.recreatefororder,\
+                                                self.CreateStackability,fileuuid)
+            self.write_progress(maxgap=0,action='Child Items Written',written=True,\
+                start=progressArray["start"] if ("start" in progressArray) else None,\
+                    finish=None) 
+        
+
     
     def addShapes(self):        
         
@@ -3467,7 +3547,7 @@ class StepIgesAnalyser():
         else:            
             return {}
 
-    def write_progress(self,maxgap=10,action='',written=False):
+    def write_progress(self,maxgap=10,action='',written=False,start=None,finish=None):
         currenttime = datetime.utcnow()
         timingdelta = currenttime-self.currenttime            
         if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
@@ -3476,16 +3556,33 @@ class StepIgesAnalyser():
                     json.dumps({
                         "begin":self.lenfeature,
                         "end":self.lenFeatures,
-                        "start":self.edgestarttime.strftime("%H-%M-%S"),
+                        "start": start if start else (self.edgestarttime.strftime("%H-%M-%S")),
                         "current":currenttime.strftime("%H-%M-%S"),
                         "children":self.myParentId_Dict,
                         "action":action,
-                        "finish":currenttime.strftime("%H-%M-%S") if (maxgap==0) and (self.lenfeature>0) else '',
+                        "finish":finish if finish else (currenttime.strftime("%H-%M-%S") if (maxgap==0) and (self.lenfeature>0) else ''),
                         "childfiles":self.childfiles,
                         "childwritten":written},
                         sort_keys=True, 
                         indent=2 ))
             self.currenttime=currenttime
+
+    def read_progress(self):
+        filename = self.progressfile
+        with open(filename, "r") as f:
+            data = f.read()
+        progressArray = None
+        if data:
+            progressArray = json.loads(data)
+            if "begin" in progressArray:
+                self.lenfeature=progressArray["begin"]
+            if "end" in progressArray:
+                self.lenFeatures=progressArray["end"]
+            if "children" in progressArray:                
+                self.myParentId_Dict= progressArray["children"]
+            if "childfiles" in progressArray:
+                self.childfiles = progressArray["childfiles"]           
+        return progressArray
 
     def addFeatures(self):  
         try:
@@ -3494,7 +3591,7 @@ class StepIgesAnalyser():
         except Exception as e:
             print("Error while logging",e)
         head, tail = os.path.split(self.fname) 
-        if(head[:-1]!="/"):
+        if(head[-1]!="/"):
             #print("Head does not contain last /",head)
             head = head + "/"
         #else:
@@ -3600,7 +3697,7 @@ class StepIgesAnalyser():
         except Exception as e:
             print("Error while logging",e)
     
-    def addAnimations(self):
+    def addAnimations(self,addRotation=False):
         if self.animations == None:
             return            
         lenAnimations = len(self.animations)        
@@ -3609,92 +3706,97 @@ class StepIgesAnalyser():
         samplers = []
         chanels = []
         lenShapeOrder = len(self.shapeorder)
-        if lenShapeOrder>0:
-            rotationtimebuff = TimeBuffer(
-                max_index=lenAnimations+2
-            )            
-            rotationbuff =RotationBuffer(
-                max_index=lenAnimations+2
-            )
-            for steps in range(lenAnimations+3):
-                rotationtimebuff.add_time(steps*self.delay)
-                theta = 2*math.pi*steps/(lenAnimations+2)
-                rotationbuff.add_rotation(0,0,math.sin(theta),math.cos(theta))
-            buffer_index = len(self.mstep_dict['buffers'])
-            rotationlen = len(rotationtimebuff)
-            buffer_dict = {
-                "byteLength":  rotationlen                                 
-            }   
-            base64data = base64.b64encode(rotationtimebuff.read()).decode('ascii')
-            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
-                mimetype="application/octet-stream",
-                data=base64data,
-            )   
-            self.mstep_dict['buffers'].append(buffer_dict)          
-            bufferView_index = len(self.mstep_dict['bufferViews'])
-            bufferview = {
-                "buffer" : buffer_index,
-                "byteOffset" : 0,
-                "byteLength" : rotationlen
-            }            
-            self.mstep_dict['bufferViews'].append(bufferview)
-            buffer_index = len(self.mstep_dict['buffers'])
-            rotationlen = len(rotationbuff)
-            buffer_dict = {
-                "byteLength":  rotationlen                                 
-            }   
-            base64data = base64.b64encode(rotationbuff.read()).decode('ascii')
-            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
-                mimetype="application/octet-stream",
-                data=base64data,
-            )  
-            self.mstep_dict['buffers'].append(buffer_dict) 
-            bufferView_index = len(self.mstep_dict['bufferViews'])
-            bufferview = {
-                "buffer" : buffer_index,
-                "byteOffset" : 0,
-                "byteLength" : rotationlen
-            }            
-            self.mstep_dict['bufferViews'].append(bufferview)
-            accessor_index = len(self.mstep_dict['accessors'])
-            accessorview = [ {
-                "bufferView" : bufferView_index-1,
-                "byteOffset" : 0,
-                "componentType" : 5126,
-                "count" : lenAnimations+3,
-                "type" : "SCALAR",
-                "max" : [ rotationtimebuff.time_max ],
-                "min" : [ rotationtimebuff.time_min ]
-                },
-                {
-                "bufferView" : bufferView_index,
-                "byteOffset" : 0,
-                "componentType" : 5126,
-                "count" : lenAnimations+3,
-                "type" : "VEC4",
-                "max" : [ rotationbuff.rotation_umax, rotationbuff.rotation_vmax, rotationbuff.rotation_wmax, rotationbuff.rotation_xmax ],
-                "min" : [ rotationbuff.rotation_umin, rotationbuff.rotation_vmin, rotationbuff.rotation_wmin, rotationbuff.rotation_xmin ]
-                } ]
-            self.mstep_dict['accessors'].append(accessorview[0])
-            self.mstep_dict['accessors'].append(accessorview[1])
-            
-            self.mstep_dict['nodes'][2]['rotation']=[ 0.0, 0.0, 0.0, 1.0 ]
-            
-            sampler = { 
-                "input" : accessor_index,
-                "interpolation" : "LINEAR",
-                "output" : accessor_index+1
-            }
-            samplers.append(sampler)            
-            chanel = {
-                    "sampler" : 0,
-                    "target" : {
-                    "node" : 2,
-                    "path" : "rotation"
-                    }
+        node_id_addition = 0
+        if lenShapeOrder>0 :
+            if addRotation:
+                rotationtimebuff = TimeBuffer(
+                    max_index=lenAnimations+2
+                )            
+                rotationbuff =RotationBuffer(
+                    max_index=lenAnimations+2
+                )
+                for steps in range(lenAnimations+3):
+                    rotationtimebuff.add_time(steps*self.delay)
+                    theta = 2*math.pi*steps/(lenAnimations+2)
+                    rotationbuff.add_rotation(0,0,math.sin(theta),math.cos(theta))
+                buffer_index = len(self.mstep_dict['buffers'])
+                rotationlen = len(rotationtimebuff)
+                buffer_dict = {
+                    "byteLength":  rotationlen                                 
+                }   
+                base64data = base64.b64encode(rotationtimebuff.read()).decode('ascii')
+                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                    mimetype="application/octet-stream",
+                    data=base64data,
+                )   
+                self.mstep_dict['buffers'].append(buffer_dict)          
+                bufferView_index = len(self.mstep_dict['bufferViews'])
+                bufferview = {
+                    "buffer" : buffer_index,
+                    "byteOffset" : 0,
+                    "byteLength" : rotationlen
+                }            
+                self.mstep_dict['bufferViews'].append(bufferview)
+                buffer_index = len(self.mstep_dict['buffers'])
+                rotationlen = len(rotationbuff)
+                buffer_dict = {
+                    "byteLength":  rotationlen                                 
+                }   
+                base64data = base64.b64encode(rotationbuff.read()).decode('ascii')
+                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                    mimetype="application/octet-stream",
+                    data=base64data,
+                )  
+                self.mstep_dict['buffers'].append(buffer_dict) 
+                bufferView_index = len(self.mstep_dict['bufferViews'])
+                bufferview = {
+                    "buffer" : buffer_index,
+                    "byteOffset" : 0,
+                    "byteLength" : rotationlen
+                }            
+                self.mstep_dict['bufferViews'].append(bufferview)
+                accessor_index = len(self.mstep_dict['accessors'])
+                accessorview = [ {
+                    "bufferView" : bufferView_index-1,
+                    "byteOffset" : 0,
+                    "componentType" : 5126,
+                    "count" : lenAnimations+3,
+                    "type" : "SCALAR",
+                    "max" : [ rotationtimebuff.time_max ],
+                    "min" : [ rotationtimebuff.time_min ]
+                    },
+                    {
+                    "bufferView" : bufferView_index,
+                    "byteOffset" : 0,
+                    "componentType" : 5126,
+                    "count" : lenAnimations+3,
+                    "type" : "VEC4",
+                    "max" : [ rotationbuff.rotation_umax, rotationbuff.rotation_vmax, rotationbuff.rotation_wmax, rotationbuff.rotation_xmax ],
+                    "min" : [ rotationbuff.rotation_umin, rotationbuff.rotation_vmin, rotationbuff.rotation_wmin, rotationbuff.rotation_xmin ]
+                    } ]
+                self.mstep_dict['accessors'].append(accessorview[0])
+                self.mstep_dict['accessors'].append(accessorview[1])
+                
+                self.mstep_dict['nodes'][2]['rotation']=[ 0.0, 0.0, 0.0, 1.0 ]
+                
+                sampler = { 
+                    "input" : accessor_index,
+                    "interpolation" : "LINEAR",
+                    "output" : accessor_index+1
                 }
-            chanels.append(chanel)
-            startRange = 0
+                samplers.append(sampler)            
+                chanel = {
+                        "sampler" : 0,
+                        "target" : {
+                        "node" : 2,
+                        "path" : "rotation"
+                        }
+                    }
+                chanels.append(chanel)
+                startRange = 0
+            else:
+                startRange = 1
+                node_id_addition = -1
         else:
             startRange = 1  
                     
@@ -3793,7 +3895,7 @@ class StepIgesAnalyser():
                 } ]
             self.mstep_dict['accessors'].append(accessorview[0])
             self.mstep_dict['accessors'].append(accessorview[1])
-            node_id = mystep+3
+            node_id = mystep+3+node_id_addition
             if lenShapeOrder > 0:
                 self.mstep_dict['nodes'][node_id]['translation']=[ 0.0, 0.0, 0.0 ]
             else:
@@ -4052,6 +4154,7 @@ class StepIgesAnalyser():
         if self.assemblycount>0:
             mystatusdict["assemblies"]=self.assemblycount
             mystatusdict["assembly"]=self.assemblyname
+            mystatusdict["trees"]=self.treelengthbeforevertices
         try:            
             timingdelta = datetime.utcnow()-self.currenttime            
             if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
@@ -4074,6 +4177,23 @@ class StepIgesAnalyser():
             print("While Writing",statusfilename,e)   
         
         return mystatusdict
+
+    def read_status(self):
+        filename = self.displaypath+self.basefilename+".status"
+        with open(filename, "r") as f:
+            data = f.read()
+        statusArray = None
+        if data:
+            statusArray = json.loads(data)
+            if "percent" in statusArray:
+                self.percentage = statusArray["percent"]
+            if "assemblies" in statusArray:
+                self.assemblycount = statusArray["assemblies"]
+            if "assembly" in statusArray:
+                self.assemblyname = statusArray["assembly"]
+            if "trees" in statusArray:
+                self.treelengthbeforevertices = statusArray["trees"]
+        return statusArray
 
     def copyonefile(self, srcname, dstname, symlinks=False):
         errors = []
@@ -4240,9 +4360,21 @@ class StepIgesAnalyser():
         for i in range(1,fullshapes.Length()+1):
             refLabel = fullshapes.Value(i) 
             print(i,refLabel.GetLabelName(), refLabel.EntryDumpToString()) """
-        self.percentage = 0
-        self.currenttime=self.starttime
-        self.write_status(0)
+        
+        filetreepath=None
+        filetreeuuid=None
+        if self.recursiveTree:
+            filetreepath, filetreeuuid = self.getIfTreeExists()
+        if filetreepath and filetreeuuid:
+            self.createChilds(filetreepath,filetreeuuid)
+            if byThread:
+                return
+            else:
+                return None
+        else:
+            self.percentage = 0
+            self.currenttime=self.starttime
+            self.write_status(0)                  
         if self.shapeslist:
             self.addShapes()
         else:
@@ -4300,7 +4432,8 @@ class StepIgesAnalyser():
             self.write_in_thread(dict_return,getPNG,True)
         myTreeLenBeforeAddingEdgesAndVertices = len(self.tstep_dict["tree"])
         (self.assemblycount,self.assemblyname)=StepExportWithColor().FindAssemblyCount(\
-                    1,self.tstep_dict["tree"],myTreeLenBeforeAddingEdgesAndVertices)   
+                    1,self.tstep_dict["tree"],myTreeLenBeforeAddingEdgesAndVertices)  
+        self.treelengthbeforevertices = myTreeLenBeforeAddingEdgesAndVertices 
         self.percentage = 100
         self.write_status(0)
         
@@ -4337,7 +4470,7 @@ class StepIgesAnalyser():
                                     self.maximumfacestoinclude,self.CreateChildSteps,\
                                         self.CreateAssemblyOrder,self.explodegap,self.center,\
                                             self.holescale,self.removegap,self.recreatefororder,\
-                                                self.CreateStackability)           
+                                                self.CreateStackability,'')           
                 self.write_progress(maxgap=0,action='Child Items Written',written=True)
                 print("Completing Child Steps",self.fname)
             if self.CreateAssemblyOrder:
@@ -4356,7 +4489,7 @@ class StepIgesAnalyser():
                     dictionaryOrderTree=self.tstep_dict["tree"]
                     lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
                 shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
-                    getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,lenDictionaryOrderTree)
+                    getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,lenDictionaryOrderTree,'')
                 orderStatusName = self.basefilename[:-1]+'M'
                 StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
                     30,self.starttime,False)
@@ -4394,7 +4527,7 @@ class StepIgesAnalyser():
                 dictionaryOrderTree=self.tstep_dict["tree"]
                 lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
                 shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
-                    getShapesFromOutPutShapes(outputShapesOrder,None,dictionaryOrderTree,lenDictionaryOrderTree)
+                    getShapesFromOutPutShapes(outputShapesOrder,None,dictionaryOrderTree,lenDictionaryOrderTree,'')
                 orderStatusName = self.basefilename[:-1]+'S'
                 StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
                     30,self.starttime,False)

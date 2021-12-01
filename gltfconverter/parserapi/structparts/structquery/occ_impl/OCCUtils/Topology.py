@@ -487,33 +487,34 @@ def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[], face
     """
      Print the details of an object from the top down
     """
-    brt = BRep_Tool()
-    s = shape.ShapeType()
-    myhash = hash(shape)
-    dict = {"id":myhash,
-            "parentId":parentId[-1],
-            "type":shapeString(shape),
-            "indent": level,
-            "leaf": False}
-    if s == TopAbs_VERTEX:
-        pnt = brt.Pnt(topods_Vertex(shape))        
-        dict["Info"] =  {"x":pnt.X(),"y": pnt.Y(), "z":pnt.Z(), "kind":"Point"}
-        dict["leaf"] = True
-    elif s == TopAbs_FACE:
-        dict["Info"] = recognize_face(shape)        
-    elif s == TopAbs_EDGE:        
-        dict["Info"] = recognize_edge(shape,faceInfo)
-    else:
-        dict["Info"] = recognize_shape_entity_info(shape)
-    returnStructure.append(dict)
-    it = TopoDS_Iterator(shape)
-    parentId.append(myhash)
-    while it.More():
-        shp = it.Value()
-        it.Next()
-        if( (depth==0) or ((level+1) < depth) ):
-            dumpTopologyStructures(shp, level + 1,parentId=parentId, returnStructure=returnStructure,faceInfo=dict["Info"])
-    parentId.pop()
+    if shape:
+        brt = BRep_Tool()
+        s = shape.ShapeType()
+        myhash = hash(shape)
+        dict = {"id":myhash,
+                "parentId":parentId[-1],
+                "type":shapeString(shape),
+                "indent": level,
+                "leaf": False}
+        if s == TopAbs_VERTEX:
+            pnt = brt.Pnt(topods_Vertex(shape))        
+            dict["Info"] =  {"x":pnt.X(),"y": pnt.Y(), "z":pnt.Z(), "kind":"Point"}
+            dict["leaf"] = True
+        elif s == TopAbs_FACE:
+            dict["Info"] = recognize_face(shape)        
+        elif s == TopAbs_EDGE:        
+            dict["Info"] = recognize_edge(shape,faceInfo)
+        else:
+            dict["Info"] = recognize_shape_entity_info(shape)
+        returnStructure.append(dict)
+        it = TopoDS_Iterator(shape)
+        parentId.append(myhash)
+        while it.More():
+            shp = it.Value()
+            it.Next()
+            if( (depth==0) or ((level+1) < depth) ):
+                dumpTopologyStructures(shp, level + 1,parentId=parentId, returnStructure=returnStructure,faceInfo=dict["Info"])
+        parentId.pop()
     return len(returnStructure)
 
 def hashTransCode(transform):

@@ -881,8 +881,8 @@ export default function ManufacturabilityAnalysis(props) {
     if (myJsonTree) {
       var gltfjsonParam = { ...state_gltfjson };
       if (gltfjsonParam && gltfjsonParam.tree) {
-        for (let index = 2; index < gltfjsonParam.tree.length; index++) {
-          gltfjsonParam.tree[index] = mydata[index - 2];
+        for (let index = 1; index < gltfjsonParam.tree.length; index++) {
+          gltfjsonParam.tree[index] = mydata[index - 1];
         }
       }
       //console.log("Saving", gltfjsonParam.tree,itemProperties.fileMPPS);
@@ -1122,9 +1122,9 @@ export default function ManufacturabilityAnalysis(props) {
     if (myJsonTree) {
       var gltfjsonParam = { ...state_gltfjson };
       if (gltfjsonParam && gltfjsonParam.tree) {
-        for (let index = 2; index < gltfjsonParam.tree.length; index++) {
-          gltfjsonParam.tree[index] = mydata[index - 2];
-          gltfjsonParam.tree[index].selectedshell = index - 2 == newIndex;
+        for (let index = 1; index < gltfjsonParam.tree.length; index++) {
+          gltfjsonParam.tree[index] = mydata[index - 1];
+          gltfjsonParam.tree[index].selectedshell = index - 1 == newIndex;
         }
       }
       setState({ gltfjson: gltfjsonParam });
@@ -1379,7 +1379,7 @@ export default function ManufacturabilityAnalysis(props) {
         return;
       }
 
-      for (let index = 2; index < gltfjsonParam.tree.length; index++) {
+      for (let index = 1; index < gltfjsonParam.tree.length; index++) {
         if (firstTimeLoading === false && doupdate === false) {
           gltfjsonParam.tree[index].selectedshell = false;
         }
@@ -1388,7 +1388,7 @@ export default function ManufacturabilityAnalysis(props) {
         //console.log(element);
         currentData.push({
           id: index,
-          index: index - 1,
+          index: index,
           name: element[gltf_Dict['name']],
           order: null,
           AX: 0,
@@ -1436,13 +1436,13 @@ export default function ManufacturabilityAnalysis(props) {
             gltfjsonParam.assemblyorder.complete ===
             gltfjsonParam.assemblyorder.order.length
           ) {
-            gltfjsonParam.tree[index + 2].AX = currentData[index].AX;
-            gltfjsonParam.tree[index + 2].AY = currentData[index].AY;
-            gltfjsonParam.tree[index + 2].AZ = currentData[index].AZ;
-            gltfjsonParam.tree[index + 2].CX = currentData[index].CX;
-            gltfjsonParam.tree[index + 2].CY = currentData[index].CY;
-            gltfjsonParam.tree[index + 2].CZ = currentData[index].CZ;
-            gltfjsonParam.tree[index + 2].CW = currentData[index].CW;
+            gltfjsonParam.tree[index + 1].AX = currentData[index].AX;
+            gltfjsonParam.tree[index + 1].AY = currentData[index].AY;
+            gltfjsonParam.tree[index + 1].AZ = currentData[index].AZ;
+            gltfjsonParam.tree[index + 1].CX = currentData[index].CX;
+            gltfjsonParam.tree[index + 1].CY = currentData[index].CY;
+            gltfjsonParam.tree[index + 1].CZ = currentData[index].CZ;
+            gltfjsonParam.tree[index + 1].CW = currentData[index].CW;
           }
           itemset = true;
         }
@@ -1453,7 +1453,7 @@ export default function ManufacturabilityAnalysis(props) {
             gltfjsonParam.assemblyorder.complete ===
             gltfjsonParam.assemblyorder.order.length
           ) {
-            gltfjsonParam.tree[element + 2].order = currentData[element].order;
+            gltfjsonParam.tree[element + 1].order = currentData[element].order;
           }
           itemset = true;
         }

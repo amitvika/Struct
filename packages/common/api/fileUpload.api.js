@@ -80,9 +80,10 @@ export const getHierarchySplitFiles = async (
   holescale = 0.77,
   removegap = 8.0,
   center = true,
-  animationtime = 1.0
+  animationtime = 1.0,
+  createchilds = false
 ) => {
-  const additionalparams = `&CreateChildSteps=${CreateChildSteps}&CreateAssemblyOrder=${CreateAssemblyOrder}&CreateStackability=${CreateStackability}&explodegap=${explodegap}&holescale=${holescale}&removegap=${removegap}&center=${center}&animationtime=${animationtime}`;
+  const additionalparams = `&CreateChildSteps=${CreateChildSteps}&CreateAssemblyOrder=${CreateAssemblyOrder}&CreateStackability=${CreateStackability}&explodegap=${explodegap}&holescale=${holescale}&removegap=${removegap}&center=${center}&animationtime=${animationtime}&createchilds=${createchilds}`;
   const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}&edgesize=${edgesize}&vertexsize=${vertexsize}&moverotate=${moverotate}&maximumfaces=${maximumfaces}&seperateparts=${seperateparts}&createthumb=${createthumb}${additionalparams}`;
   // console.log(splitURL);
   return axios.get(splitURL);
