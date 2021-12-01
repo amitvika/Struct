@@ -13,6 +13,7 @@ export const createChildItems = async ({
   parentId
 }) => {
   try {
+    console.log('Child item creation started');
     const datafile = `${fileUUId}/${pathFileName}`;
     let fetchStatus = () => getAFileFromStore(datafile, 'progress');
     let validateStatus = (result) => {
@@ -40,7 +41,10 @@ export const createChildItems = async ({
       is_child_item: true,
       filePartName: item[2]
     }));
+    console.log('-newItem--------', newItem);
 
     await NewItemAPI.upsertItems(newItem);
-  } catch (error) {}
+  } catch (error) {
+    console.log('Child item creation Error');
+  }
 };

@@ -107,12 +107,12 @@ export default function GeometryInput({
         [name]: value
       }
     }));
-    console.log(
-      'Changing item properties from Geometryinput from name value',
-      itemProperties,
-      name,
-      value
-    );
+    // console.log(
+    //   'Changing item properties from Geometryinput from name value',
+    //   itemProperties,
+    //   name,
+    //   value
+    // );
   };
 
   useEffect(() => {
@@ -125,11 +125,11 @@ export default function GeometryInput({
         }
       };
     });
-    console.log(
-      'Changing item properties from Geometryinput selected materials',
-      itemProperties,
-      selectedMaterials
-    );
+    // console.log(
+    //   'Changing item properties from Geometryinput selected materials',
+    //   itemProperties,
+    //   selectedMaterials
+    // );
     return () => {};
   }, [selectedMaterials]);
 
@@ -219,7 +219,7 @@ export default function GeometryInput({
               checked={isCreateChildItemChecked}
               onChange={handleSwitchChange}
               inputProps={{ 'aria-label': 'controlled' }}
-              disabled={itemProperties.is_child_created}
+              // disabled={itemProperties.is_child_created}
             />
           </Grid>
 

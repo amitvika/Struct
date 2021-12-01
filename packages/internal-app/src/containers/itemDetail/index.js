@@ -8,6 +8,7 @@ import { NEW_ITEM, getFromSessionStorage } from '../../utils/usefulHelpers';
 
 export default function ItemDetailMain() {
   let { id } = useParams();
+
   const [isLoading, setIsLoading] = useState(true);
   const [itemValue, setItemValue] = useState(null);
 

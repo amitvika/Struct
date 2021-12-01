@@ -206,42 +206,31 @@ export default function ItemTypeConfiguration(props) {
       </Headding>
       {/*  <LoadingModal isLoading={isLoading} /> */}
       {renderExcelUI()}
-      {
-        /*!isLoading &&*/ <Paper className={classes.mainContainer}>
-          <Paper className={classes.viewerContainer}>
-            {
-              /*!isLoading &&
-              Object.keys(gltfjson).length > 0 &&
-              !isFileLoading &&*/ <GeometricDimensioning
-                fileId={fileId}
-                fileGDT={fileGDT}
-                fileUUId={fileUUIder}
-                gltfjson={gltfjson}
-                isLoading={isFileLoading}
-                tabIndex={tabIndex}
-                keyName={fieldKey}
-                handleChangeOfSelection={handleChangeOfSelection}
-                additionalSaveFunction={additionalSaveFunction}
-                progressBarLoad={progressBarLoader}
-                percentage={percentager}
-                currentProgressText={currentProgressTexter}
-                completionProgressText={completionProgressTexter}
-                centerActionText={centerActionTexter}
-                //setProgressBarRender={setProgressBarRender}
-                setPercentage={setPercentager}
-                setProgressBarLoad={setProgressBarLoader}
-                setCurrentProgressText={setCurrentProgressTexter}
-                setCompletionProgressText={setCompletionProgressTexter}
-                setCenterActionText={setCenterActionTexter}
-                drawLine={drawLiner}
-                selectedOption={selectedOption}
-                setSelectedOption={setSelectedOption}
-              />
-            }
-            {/* {(isLoading || isFileLoading) && <CircularProgress />} */}
-          </Paper>
-        </Paper>
-      }
+      <GeometricDimensioning
+        fileId={fileId}
+        fileGDT={fileGDT}
+        fileUUId={fileUUIder}
+        gltfjson={gltfjson}
+        isLoading={isFileLoading}
+        tabIndex={tabIndex}
+        keyName={fieldKey}
+        handleChangeOfSelection={handleChangeOfSelection}
+        additionalSaveFunction={additionalSaveFunction}
+        progressBarLoad={progressBarLoader}
+        percentage={percentager}
+        currentProgressText={currentProgressTexter}
+        completionProgressText={completionProgressTexter}
+        centerActionText={centerActionTexter}
+        //setProgressBarRender={setProgressBarRender}
+        setPercentage={setPercentager}
+        setProgressBarLoad={setProgressBarLoader}
+        setCurrentProgressText={setCurrentProgressTexter}
+        setCompletionProgressText={setCompletionProgressTexter}
+        setCenterActionText={setCenterActionTexter}
+        drawLine={drawLiner}
+        selectedOption={selectedOption}
+        setSelectedOption={setSelectedOption}
+      />
     </>
   );
 }
