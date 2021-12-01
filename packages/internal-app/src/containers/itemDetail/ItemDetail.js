@@ -1283,12 +1283,22 @@ const ItemDetail = ({ itemValue }) => {
     itemProperties.step = undefined;
     itemProperties.gltfjson = undefined;
     itemProperties.itemId = undefined;
-
+    console.log(
+      'Changing item properties from handle save before assiging',
+      itemProperties
+    );
     let updateItemProperties = Object.assign({}, itemProperties, change);
+    console.log(
+      'Changing item properties from handle save after assiging',
+      updateItemProperties
+    );
     ItemAPI.updateItemAPI(id, { ...updateItemProperties })
       .then((res) => {
         if (res && res.data) {
-          console.log('Changing item properties from handle save', res.data);
+          console.log(
+            'Changing item properties from handle save after UpdateItemAPI',
+            res.data
+          );
           setItemProperties(res.data);
           dispatch(showSuccessAlert({ message: 'Item Updated' }));
         } else {
