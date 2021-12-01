@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
-import SubHeaderWithArrow from '../../components/SubHeaderWithArrow';
 import { useParams, useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
@@ -30,13 +29,9 @@ import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Classification from '../classification';
-import EditItemTitle from './EditItemTitle';
 import ProductDesignSetup from '../productDesignSetup';
-import { Box } from '@mui/system';
-import { useMediaQuery } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
-import { Headding } from 'src/components';
-import ClipboardText from '@monostruct/common/components/ClipboardText';
+import DetailComponentInnerHeader from '@monostruct/common/components/DetailComponentInnerHeader';
+
 import {
   handleInternalUseProduct,
   handleProductDesignTab,
@@ -565,13 +560,16 @@ const ItemDetail = ({ itemValue }) => {
       {<LoadingModal isLoading={isFileLoading} />}
       <Grid container>
         <Grid item sm={12}>
-          <SubHeaderWithArrow action={'/items'} title={'Items Details'} />
           <DetailComponentInnerHeader
             {...{
+              prefix: 'Item',
               name: itemProperties.name,
               id: itemProperties.id,
               handleSave,
-              tabName: tabList[tabIndex]
+              tabName: tabList[tabIndex],
+              action: '/items',
+              title: 'Items Details',
+              allowEditTitle: true
             }}
           />
         </Grid>
@@ -610,46 +608,3 @@ const ItemDetail = ({ itemValue }) => {
 };
 
 export default ItemDetail;
-
-const DetailComponentInnerHeader = ({ name, id, handleSave, tabName }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  return (
-    <Paper
-      style={{
-        padding: 10,
-        margin: 10,
-        display: 'flex',
-        position: 'relative',
-        flexDirection: 'column'
-      }}
-    >
-      <Box style={{ zIndex: 999 }}>
-        <EditItemTitle
-          {...{
-            name,
-            updateItemOnServer: handleSave
-          }}
-        />
-      </Box>
-      <Headding as={'h5'}>
-        Item ID:{id} <ClipboardText item_id={id} />
-      </Headding>
-      <Headding
-        as={'h4'}
-        style={{
-          position: isMobile ? 'relative' : 'absolute',
-          display: 'flex',
-
-          justifyContent: 'center',
-          width: '100%',
-          alignItems: 'center',
-          height: '100%'
-        }}
-      >
-        {tabName}
-      </Headding>
-    </Paper>
-  );
-};

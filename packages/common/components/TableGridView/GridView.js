@@ -167,7 +167,7 @@ export default function GridView({
     return item;
   };
 
-  const RenderIconBasedOnFileType = ({ file_url }) => {
+  const RenderIconBasedOnFileType = ({ file_url, logo_url }) => {
     const [icons, setIcons] = useState(file_url);
     useEffect(() => {
       //console.log('URL', file_url);
@@ -184,10 +184,13 @@ export default function GridView({
           .catch((err) => {
             console.log('while fetching', err, file_url);
           });
+      } else if (logo_url) {
+        setIcons(logo_url);
       } else {
         setIcons('');
       }
-    }, [file_url]);
+    }, [file_url, logo_url]);
+
     if (!icons) {
       return <img className={classes.img} alt="complex" src={StructLogo} />;
     }
@@ -203,7 +206,8 @@ export default function GridView({
     } else if (
       file_png.indexOf('.png') != -1 ||
       file_png.indexOf('.jpg') != -1 ||
-      file_png.indexOf('.jpeg') != -1
+      file_png.indexOf('.jpeg') != -1 ||
+      file_png.indexOf('.webp') != -1
     ) {
       return <img className={classes.img} alt="complex" src={file_png} />;
     } else {
@@ -245,7 +249,10 @@ export default function GridView({
                 }}
               >
                 <Grid item sm sm={4} className={classes.thumbnailContainer}>
-                  <RenderIconBasedOnFileType file_url={product.file_url} />
+                  <RenderIconBasedOnFileType
+                    file_url={product.file_url}
+                    logo_url={product.logo_url}
+                  />
                 </Grid>
                 <Grid item sm sm={6} className={classes.contentContainer}>
                   {renderItem(product)}

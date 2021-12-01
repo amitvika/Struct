@@ -15,16 +15,11 @@ exports.get = async (req, res) => {
     }
 
     const item = await VendorModel.find(query)
-      .sort({ date: -1 })
-      .map((data) => {
-        data.logoName = data.logoName;
-        data.logoUrl = data.logoUrl
-          ? `http://${req.headers.host}/logo/${data.logoName}`
-          : '';
-        return data;
-      });
+      .populate('created_by')
+      .populate('updated_by')
+      .sort({ date: -1 });
 
-    res.json(mapVendors(item));
+    res.json(mapVendors(item, req.headers.host));
   } catch (error) {
     console.log('====', error);
     res.status(500).send(error);
@@ -165,10 +160,10 @@ exports.upsert = async (req, res) => {
     if (vendor) {
       req.body.updated_by = req.user.id;
 
-      if(!req.body.created_by){
+      if (!req.body.created_by) {
         req.body.created_by = req.user.id;
       }
-      
+
       vendor = await VendorModel.findByIdAndUpdate(
         req.body.id,
         { $set: req.body },

@@ -1,17 +1,17 @@
 const isArray = require('lodash/isArray');
 const get = require('lodash/get');
 
-exports.mapVendors = (data) => {
+exports.mapVendors = (data, host) => {
   if (isArray(data)) {
     return data.map((vendor, index) => {
-      return this.mapVendor(vendor);
+      return this.mapVendor(vendor, host);
     });
   } else {
     return [];
   }
 };
 
-exports.mapVendor = (vendor = {}) => {
+exports.mapVendor = (vendor = {}, host) => {
   if (vendor === null) {
     return {};
   }
@@ -19,8 +19,8 @@ exports.mapVendor = (vendor = {}) => {
   return {
     id: vendor._id || vendor.id,
     name: vendor.name,
-    logo_url: get(vendor, 'logo_url', ''),
-    logo_name: get(vendor, 'logo_name', ''),
+    logo_url: vendor.logoUrl ? `http://${host}/logo/${vendor.logoName}` : '',
+    logo_name: get(vendor, 'logoName', ''),
     suppliedItems: get(vendor, 'suppliedItems', []),
     created_by_name: get(vendor, 'created_by.name', ''),
     created_by: get(vendor, 'created_by._id', ''),

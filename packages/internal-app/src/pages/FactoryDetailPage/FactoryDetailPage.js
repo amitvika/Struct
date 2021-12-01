@@ -19,6 +19,7 @@ import get from 'lodash/get';
 import { useQuery } from 'src/utils/customHooks';
 import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
+import DetailComponentInnerHeader from '@monostruct/common/components/DetailComponentInnerHeader';
 
 const FactoriesDetail = () => {
   let { id } = useParams();
@@ -106,7 +107,7 @@ const FactoriesDetail = () => {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
         <Spinner animation="border" />
@@ -123,32 +124,24 @@ const FactoriesDetail = () => {
 
     history.push({
       pathname: `/factories/${id}`,
-      search,
+      search
     });
   };
 
   return (
     <>
-      <Grid container>
-        <Grid item sm sm={12}>
-          <SubHeaderWithArrow
-            action={'/factories'}
-            title={'Factories Details'}
-          />
-          <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-              }}
-            >
-              <h4>Factory Name: {factoryValue.name}</h4>
-              <p>Factory ID:{id}</p>
-            </div>
-          </Paper>
-        </Grid>
-      </Grid>
+      <DetailComponentInnerHeader
+        {...{
+          prefix: 'Factory',
+          name: factoryValue.name,
+          id: factoryValue.id,
+          action: '/factories',
+          title: 'Factories Details',
+          allowEditTitle: false,
+          allowLogoUpload: false
+        }}
+      />
+
       <Grid container>
         <TabContainer>
           <Tabs
@@ -169,7 +162,7 @@ const FactoriesDetail = () => {
       </Grid>
       <Snackbar
         style={{
-          left: '10%',
+          left: '10%'
         }}
         open={true}
       >

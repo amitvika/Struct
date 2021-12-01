@@ -16,19 +16,20 @@ import { Spinner } from 'reactstrap';
 import Documentation from '../../containers/documentation';
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks';
+import DetailComponentInnerHeader from '@monostruct/common/components/DetailComponentInnerHeader';
 
 const useStyles = makeStyles((theme) => ({
   tab: {
     textAlign: 'left',
-    minHeight: '30px !important',
+    minHeight: '30px !important'
   },
   MuiTabWrapper: {
     width: '100%',
     display: 'inline-flex',
     alignItems: 'flex-start !important',
     flexDirection: 'column',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'
+  }
 }));
 
 const ClientDetailPage = () => {
@@ -88,7 +89,7 @@ const ClientDetailPage = () => {
     const updatedValues = {
       ...clientData,
       logo_name: logoName,
-      logo_url: logoUrl,
+      logo_url: logoUrl
     };
 
     setClientData(updatedValues);
@@ -154,7 +155,7 @@ const ClientDetailPage = () => {
 
     history.push({
       pathname: `/clients/${id}`,
-      search: `?tab=${newTabIndex}`,
+      search: `?tab=${newTabIndex}`
     });
   };
 
@@ -163,7 +164,7 @@ const ClientDetailPage = () => {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
         <Spinner animation="border" />
@@ -173,28 +174,22 @@ const ClientDetailPage = () => {
 
   return (
     <>
-      <Grid container>
-        <Grid item sm sm={12}>
-          <SubHeaderWithArrow action={'/clients'} title={'Client Details'} />
-          <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-              }}
-            >
-              <h4>Client Name: {clientData.name}</h4>
-              <p>Client ID:{id}</p>
-            </div>
-            <LogoView
-              logoUrl={clientData.logo_url}
-              handleLogoChange={handleLogoChange}
-              name={clientData.name}
-            />
-          </Paper>
-        </Grid>
-      </Grid>
+      <DetailComponentInnerHeader
+        {...{
+          prefix: 'Client',
+          name: clientData.name,
+          id: clientData.id,
+          handleSave,
+          tabName: '',
+          action: '/clients',
+          title: 'Client Details',
+          allowEditTitle: false,
+          handleLogoChange,
+          logoUrl: clientData.logo_url,
+          allowLogoUpload: true
+        }}
+      />
+
       <Grid container>
         <TabContainer>
           <Tabs
@@ -228,7 +223,7 @@ const ClientDetailPage = () => {
       </Grid>
       <Snackbar
         style={{
-          left: '10%',
+          left: '10%'
         }}
         open={true}
       >

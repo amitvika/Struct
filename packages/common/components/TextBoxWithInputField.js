@@ -10,8 +10,14 @@ import Cancel from '@material-ui/icons/Cancel';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import { useMediaQuery } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
 
-export default function EditItemTitle({ name, updateItemOnServer }) {
+export default function TextBoxWithInputField({
+  prefix,
+  name,
+  updateItemOnServer,
+  allowEditTitle = true
+}) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -52,14 +58,14 @@ export default function EditItemTitle({ name, updateItemOnServer }) {
 
   return (
     <div style={{ display: 'flex' }}>
-      <Headding as={'h5'}> Item Name:</Headding>
+      <Headding as={'h5'}> {prefix} Name:</Headding>
       <div style={{ marginLeft: 20 }}>
         {!isEditMode ? (
           <div style={{ display: 'flex' }}>
             <Headding as={'h5'} style={{ fontWeight: 'bold' }}>
               {itemTitle}
             </Headding>
-            {!isMobile && (
+            {!isMobile && allowEditTitle && (
               <Button onClick={() => setIsEditMode(true)}>
                 <EditIcon />
               </Button>

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
-import SubHeaderWithArrow from '../../components/SubHeaderWithArrow';
 import { useParams, useHistory, useLocation } from 'react-router-dom';
 import VendorAPI from '@monostruct/common/api/vendor.api';
-import LogoView from '@monostruct/common/components/LogoView';
 import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 
@@ -14,6 +12,7 @@ import SuppliedItemOption from './suppliedItemOptions';
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks';
 import './style.css';
+import DetailComponentInnerHeader from '@monostruct/common/components/DetailComponentInnerHeader';
 
 const VendorDetail = () => {
   const dispatch = useDispatch();
@@ -94,7 +93,7 @@ const VendorDetail = () => {
     const updatedValues = {
       ...vendorInfo,
       logoName,
-      logoUrl,
+      logoUrl
     };
 
     setVendorInfo(updatedValues);
@@ -108,36 +107,27 @@ const VendorDetail = () => {
 
     history.push({
       pathname: `/vendors/${id}`,
-      search,
+      search
     });
   };
 
   return (
     <>
-      <Grid container>
-        <Grid item sm sm={12}>
-          <SubHeaderWithArrow action={'/vendors'} title={'Vendors Details'} />
-
-          <Paper style={{ display: 'flex', padding: 10, margin: 10 }}>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-              }}
-            >
-              <h4>Vendor Name: {vendorInfo.name}</h4>
-              <p>Vendor ID:{id}</p>
-            </div>
-
-            <LogoView
-              logoUrl={vendorInfo.logoUrl}
-              handleLogoChange={handleLogoChange}
-              name={vendorInfo.name}
-            />
-          </Paper>
-        </Grid>
-      </Grid>
+      <DetailComponentInnerHeader
+        {...{
+          prefix: 'Vendor',
+          name: vendorInfo.name,
+          id: vendorInfo._id,
+          handleSave,
+          tabName: '',
+          action: '/vendors',
+          title: 'Vendors Details',
+          allowEditTitle: false,
+          handleLogoChange,
+          logoUrl: vendorInfo.logoUrl,
+          allowLogoUpload: true
+        }}
+      />
       <Grid container style={{ display: 'flex' }}>
         <TabContainer>
           <Tabs
@@ -156,7 +146,7 @@ const VendorDetail = () => {
       </Grid>
       <Snackbar
         style={{
-          left: '10%',
+          left: '10%'
         }}
         open={true}
       >

@@ -219,7 +219,7 @@ export default function GeometryInput({
               checked={isCreateChildItemChecked}
               onChange={handleSwitchChange}
               inputProps={{ 'aria-label': 'controlled' }}
-              // disabled={itemProperties.is_child_created}
+              disabled={itemProperties.is_child_created}
             />
           </Grid>
 
