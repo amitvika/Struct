@@ -60,7 +60,7 @@ from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 #from OCC.Core.BRep import  BRep_Tool
 #from OCC.Core.TopoDS import (topods_Vertex)
 
-from .settingscopy import (DISPLAY_URL,MEDIA_URL)
+from .settingscopy import (DISPLAY_URL,MEDIA_URL,S3_BUCKET)
 #from .dirSync import checkIdle, copyTree
 from .recursivecopier import RecursiveCopier, copyFilesRecursive
 from .assemblyorder import FindAssemblingOrder
@@ -771,19 +771,45 @@ ROTATEONLY=2
 MOVEANDROTATE=3
 ROTATEANDMOVE=4
 
+def getShapeFromPickle(fname):
+    fnamepath = DISPLAY_URL+fname+".pickle"
+    if not os.path.isfile(fnamepath):
+        fnamepath = S3_BUCKET+DISPLAY_URL+fname+".pickle"
+        if not os.path.isfile(fnamepath):
+            fnamepath = None
+    shellshape=None
+    if fnamepath:
+        with open(fnamepath, 'rb') as f:
+            # The protocol version used is detected automatically, so we do not
+            # have to specify it.
+            shellshape = pickle.load(f)
+    return fnamepath, shellshape
+
 def findMinimumDistance(xmove,ymove,zmove,xrotate,yrotate,zrotate,moverotate,fname,sname):
     firstshell = None
     secondshell = None
     try:
-
-        with open(DISPLAY_URL+fname+".pickle", 'rb') as f:
-            # The protocol version used is detected automatically, so we do not
-            # have to specify it.
-            firstshell = pickle.load(f)
-        with open(DISPLAY_URL+sname+".pickle", 'rb') as f:
-            # The protocol version used is detected automatically, so we do not
-            # have to specify it.
-            secondshell = pickle.load(f) 
+        fnamepath, firstshell = getShapeFromPickle(fname)
+        """ if not os.path.isfile(fnamepath):
+           fnamepath = S3_BUCKET+DISPLAY_URL+fname+".pickle"
+           if not os.path.isfile(fnamepath):
+               fnamepath = None
+        if fnamepath:
+            with open(fnamepath, 'rb') as f:
+                # The protocol version used is detected automatically, so we do not
+                # have to specify it.
+                firstshell = pickle.load(f) """
+        snamepath, secondshell = getShapeFromPickle(sname)
+        """ snamepath = DISPLAY_URL+sname+".pickle"
+        if not os.path.isfile(snamepath):
+           snamepath = S3_BUCKET+DISPLAY_URL+sname+".pickle"
+           if not os.path.isfile(snamepath):
+               snamepath = None
+        if snamepath:
+            with open(snamepath, 'rb') as f:
+                # The protocol version used is detected automatically, so we do not
+                # have to specify it.
+                secondshell = pickle.load(f)  """
     except Exception as e:
         print("Error while loading",fname,sname,e)
     if firstshell:
@@ -909,7 +935,8 @@ def exportToHierarchyGLTF(
     disectparts,moverotate,edgesize,vertexsize,
     thumbwidth,thumbheight,maximumfaces,seperateparts,
     CreateChildSteps,CreateAssemblyOrder,CreateStackability,
-    explodegap,holescale,removegap,center,animationtime):
+    explodegap,holescale,removegap,center,animationtime,
+    createfromtree):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -943,7 +970,7 @@ def exportToHierarchyGLTF(
                     maximumfacestoinclude=maximumfaces,CreateChildSteps=CreateChildSteps,
                     CreateAssemblyOrder=CreateAssemblyOrder,CreateStackability=CreateStackability,
                     explodegap=explodegap,holescale=holescale,removegap=removegap,center=center,
-                    delay=animationtime).dump()
+                    delay=animationtime,recursiveTree=createfromtree).dump()
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)
@@ -976,7 +1003,7 @@ def exportToHierarchyGLTF(
                     vertexsize=vertexsize, maximumfacestoinclude=maximumfaces,
                     CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,
                     CreateStackability=CreateStackability,explodegap=explodegap,holescale=holescale,
-                    removegap=removegap,center=center,delay=animationtime).dump() 
+                    removegap=removegap,center=center,delay=animationtime,recursiveTree=createfromtree).dump() 
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)
@@ -999,7 +1026,7 @@ def exportToHierarchyGLTF(
                     vertexsize=vertexsize, maximumfacestoinclude=maximumfaces,
                     CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,
                     CreateStackability=CreateStackability,explodegap=explodegap,holescale=holescale,
-                    removegap=removegap,center=center,delay=animationtime).dump()  
+                    removegap=removegap,center=center,delay=animationtime,recursiveTree=createfromtree).dump()  
                 #dictionary['thumbnail']=thumbnail                             
             except Exception as e:
                 print("error",e)
@@ -1021,7 +1048,7 @@ def exportToHierarchyGLTF(
                     vertexsize=vertexsize, maximumfacestoinclude=maximumfaces,
                     CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,
                     CreateStackability=CreateStackability,explodegap=explodegap,holescale=holescale,
-                    removegap=removegap,center=center,delay=animationtime).dump() 
+                    removegap=removegap,center=center,delay=animationtime,recursiveTree=createfromtree).dump() 
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)                
@@ -1036,7 +1063,7 @@ def splitHierarchyFile(
     id,key,includeparts,distancegap,anglegap,disectparts,moverotate,
     edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
     CreateChildSteps,CreateAssemblyOrder,CreateStackability,
-    explodegap,holescale,removegap,center,animationtime):
+    explodegap,holescale,removegap,center,animationtime,createfromtree):
     data =[]
     if id or is_number(id) :
         _, file_extension = os.path.splitext(id)
@@ -1047,7 +1074,7 @@ def splitHierarchyFile(
                 sourcefilename,includeparts,distancegap,anglegap,disectparts,moverotate,
                 edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
                 CreateChildSteps,CreateAssemblyOrder,CreateStackability,
-                explodegap,holescale,removegap,center,animationtime)
+                explodegap,holescale,removegap,center,animationtime,createfromtree)
             if converted:
                 return data
             else:   
@@ -1056,7 +1083,7 @@ def splitHierarchyFile(
                         data,includeparts,distancegap,anglegap,disectparts,moverotate,
                         edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
                         CreateChildSteps,CreateAssemblyOrder,CreateStackability,
-                        explodegap,holescale,removegap,center,animationtime)
+                        explodegap,holescale,removegap,center,animationtime,createfromtree)
                     return data                        
                 else:
                     print(" Unable to split", sourcefilename, "since not supported type", file_extension)               
@@ -1104,7 +1131,7 @@ def FileHierarchySplit(request):
             removegap = convertToFloat(request.GET.get('removegap',"8.0"),8.0)
             center = convertToBool(request.GET.get('center',"true"),True)
             animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
-            
+            createfromtree = convertToBool(request.GET.get('createchilds',"false"),False)
             #print(includeparts)
             if includeparts:           
                 print("I am including minorparts")
@@ -1123,7 +1150,7 @@ def FileHierarchySplit(request):
                             eachfile.file.name,MEDIA_URL,includeparts,distancegap,anglegap,disectparts,
                             moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
                             CreateChildSteps,CreateAssemblyOrder,CreateStackability,
-                            explodegap,holescale,removegap,center,animationtime)
+                            explodegap,holescale,removegap,center,animationtime,createfromtree)
                 else:
                     #id = request.GET.get('file', None)
                     if id is not None:
@@ -1131,7 +1158,7 @@ def FileHierarchySplit(request):
                             id,MEDIA_URL,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,
                             vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
                             CreateChildSteps,CreateAssemblyOrder,CreateStackability,
-                            explodegap,holescale,removegap,center,animationtime)
+                            explodegap,holescale,removegap,center,animationtime,createfromtree)
             """ if ((edgesize!=0) or (vertexsize !=0)):
                 try:
                     gdtfile = "Display/"+data["store"]+".gdt"
@@ -1345,8 +1372,7 @@ def CompareWithTollerance(first,second,tollerance):
 def IsCircular(checkEntity):
     return (checkEntity["kind"]=="Sphere") or (checkEntity["kind"]=="Cylinder") or\
                 (checkEntity["kind"]=="Circle") or (checkEntity["kind"]=="Cone") 
-def findMates(firstshell,secondshell):
-    
+def findMates(firstshell,secondshell):    
     coplaner = "unknown"
     parallel = "unknown"
     normal = "unknown"
@@ -1385,6 +1411,9 @@ def findMates(firstshell,secondshell):
             angle = firstDir.Angle(secondDir)         
            
         return firstEntity["kind"], secondEntity["kind"], coplaner, parallel, normal, opposite, concentric, coradial, angle
+    else:
+        return 'None', 'None', coplaner, parallel, normal, opposite, concentric, coradial, angle
+        
 
 
 def compareDimension(dim1, dim2):
@@ -1515,87 +1544,107 @@ def FileGetShapeInfo(request):
             #print("Got request for",fname,index,start)
             if fname:
                 try:
-                    with open(DISPLAY_URL+guid+fname+".pickle", 'rb') as f:
-                        #print("storing to",index)
-                        thisshell.append(pickle.load(f))                        
-                        #print("stored to",index)
-                        data = []
-                        if index >=start :
-                            dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data,faceInfo=None, depth=1)
+                    _, appendable = getShapeFromPickle(guid+fname)
+                    """ fnamepath = DISPLAY_URL+guid+fname+".pickle"
+                    if not os.path.isfile(fnamepath):
+                        fnamepath = S3_BUCKET+DISPLAY_URL+guid+fname+".pickle"
+                        if not os.path.isfile(fnamepath):
+                            fnamepath = None
+                    appendable=None
+                    if fnamepath:
+                        with open(fnamepath, 'rb') as f:
+                            appendable = pickle.load(f)  """
+                    thisshell.append(appendable)
+                    data = []
+                    if index >=start :
+                        dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data,faceInfo=None, depth=1)
+                        thisdimension = get_oriented_bounding_details(thisshell[index])                        
+                        thisdictionary = getDictionaryFromOBB(thisdimension)
+                        if(len(data)==0):
+                            data=[{'type':'None'}]
+                        data[0]['obb']=thisdictionary
+                        
+                        foundHole=False
+                        if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
+                            thiscenterpointXYZ = thisdimension.Center()
+                            thiscenterpoint=(thiscenterpointXYZ.X(),thiscenterpointXYZ.Y(),thiscenterpointXYZ.Z())
+                            thisradius=0.1
+                            if 'center' in data[0]['Info']:  
+                                thiscenterpoint = data[0]['Info']['center'] 
+                            if 'radius' in data[0]['Info']:  
+                                thisradius = convertToFloat(data[0]['Info']['radius'],0.1) / 1.6
+
                             thisdimension = get_oriented_bounding_details(thisshell[index])
-                           
-                            thisdictionary = getDictionaryFromOBB(thisdimension)
-                            data[0]['obb']=thisdictionary
-                            
-                            foundHole=False
-                            if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
-                                thiscenterpointXYZ = thisdimension.Center()
-                                thiscenterpoint=(thiscenterpointXYZ.X(),thiscenterpointXYZ.Y(),thiscenterpointXYZ.Z())
-                                thisradius=0.1
-                                if 'center' in data[0]['Info']:  
-                                    thiscenterpoint = data[0]['Info']['center'] 
-                                if 'radius' in data[0]['Info']:  
-                                    thisradius = convertToFloat(data[0]['Info']['radius'],0.1) / 1.6
-
-                                thisdimension = get_oriented_bounding_details(thisshell[index])
-                                """ thissiblings = pnames[index]                                
-                                for sibling in thissiblings:
-                                    try:
-                                        with open("Display/"+guid+sibling+".pickle", 'rb') as fs:
-                                            thissibling = pickle.load(fs)
-                                            siblingdimension =  get_oriented_bounding_details(thissibling)
-                                            bigger = compareDimension(siblingdimension,thisdimension)
-                                            if bigger:
-                                                data[0]['fill']="Hole"
-                                                foundHole=True
-                                                break
-                                    except Exception as e:
-                                        print("Error while loading",sibling) """
-                                thisparentpartname = partnames[index]
+                            """ thissiblings = pnames[index]                                
+                            for sibling in thissiblings:
                                 try:
-                                    with open(DISPLAY_URL+guid+thisparentpartname+".pickle", 'rb') as fs:
-                                        thisparentpart = pickle.load(fs)
-
-                                        smallcube = CreateSphereFromCenter(thiscenterpoint,vertexsize=thisradius)
-                                        whatwegot = minimum_distance_only(smallcube,thisparentpart)
-                                        if whatwegot <= 0.001:
-                                            data[0]['fill']="Soild"
-                                        else:
-                                            print("Distance",whatwegot)
+                                    with open("Display/"+guid+sibling+".pickle", 'rb') as fs:
+                                        thissibling = pickle.load(fs)
+                                        siblingdimension =  get_oriented_bounding_details(thissibling)
+                                        bigger = compareDimension(siblingdimension,thisdimension)
+                                        if bigger:
                                             data[0]['fill']="Hole"
-                                        foundHole=True
+                                            foundHole=True
+                                            break
                                 except Exception as e:
-                                    print("Error while loading",thisparentpartname,e)
+                                    print("Error while loading",sibling) """
+                            thisparentpartname = partnames[index]
+                            try:
 
-                            if foundHole==False:
-                                data[0]['fill']="Soild"
-                            
-                            print(fname,data)
-                            """ elif thisparent[index]:
-                                    parentdict=recognize_entity(thisparent[index])
-                                    if 'Info' in parentdict :
-                                        if 'fill' in parentdict['Info']:
-                                            data[0]['fill']=parentdict['Info']['fill']
-                                        else:
-                                            data[0]['fill']="NoFill" 
-                                    else:
-                                        data[0]['fill']="NoInfo"                                
-                            else:
-                                if(data[0]['type']=='Face'):
-                                    if 'Info' in data[0] :
-                                        if 'fill' in data[0]['Info']:
-                                            data[0]['fill']=data[0]['Info']['fill']
-                                        else:
-                                            data[0]['fill']="NoFill" 
-                                    else:
-                                        data[0]['fill']="NoInfo"
+                                _, thisparentpart = getShapeFromPickle(guid+thisparentpartname)
+                                """ fnamepath = DISPLAY_URL+guid+thisparentpartname+".pickle"
+                                thisparentpart = None
+                                if not os.path.isfile(fnamepath):
+                                    fnamepath = S3_BUCKET+DISPLAY_URL+guid+thisparentpartname+".pickle"
+                                    if not os.path.isfile(fnamepath):
+                                        fnamepath = None
+                                if fnamepath:
+                                    with open(fnamepath, 'rb') as fs:                                   
+                                        thisparentpart = pickle.load(fs) """   
+                                
+                                """ with open(DISPLAY_URL+guid+thisparentpartname+".pickle", 'rb') as fs:
+                                    thisparentpart = pickle.load(fs) """
+
+                                smallcube = CreateSphereFromCenter(thiscenterpoint,vertexsize=thisradius)
+                                whatwegot = minimum_distance_only(smallcube,thisparentpart)
+                                if whatwegot <= 0.001:
+                                    data[0]['fill']="Soild"
                                 else:
-                                    data[0]['fill']="" """
-                            mateArray=[]
-                            for mateindex in range(index):
-                                mymates = findMates(thisshell[mateindex],thisshell[index])
-                                mateArray.append((mymates))
-                            structArray.append((data,(mateArray)))                            
+                                    print("Distance",whatwegot)
+                                    data[0]['fill']="Hole"
+                                foundHole=True
+                            except Exception as e:
+                                print("Error while loading",thisparentpartname,e)
+
+                        if foundHole==False:
+                            data[0]['fill']="Soild"
+                        
+                        print(fname,data)
+                        """ elif thisparent[index]:
+                                parentdict=recognize_entity(thisparent[index])
+                                if 'Info' in parentdict :
+                                    if 'fill' in parentdict['Info']:
+                                        data[0]['fill']=parentdict['Info']['fill']
+                                    else:
+                                        data[0]['fill']="NoFill" 
+                                else:
+                                    data[0]['fill']="NoInfo"                                
+                        else:
+                            if(data[0]['type']=='Face'):
+                                if 'Info' in data[0] :
+                                    if 'fill' in data[0]['Info']:
+                                        data[0]['fill']=data[0]['Info']['fill']
+                                    else:
+                                        data[0]['fill']="NoFill" 
+                                else:
+                                    data[0]['fill']="NoInfo"
+                            else:
+                                data[0]['fill']="" """
+                        mateArray=[]
+                        for mateindex in range(index):
+                            mymates = findMates(thisshell[mateindex],thisshell[index])
+                            mateArray.append((mymates))
+                        structArray.append((data,(mateArray)))                            
                 except Exception as e:
                     print("Error while loading",fname,e)
         #print("Struct Array in Shape Info",structArray)           
@@ -4753,7 +4802,7 @@ def findMyShapeByTreeID(shapes,treeID):
 
 def getShapesFromOutPutShapes(shapes,mytree):
     return  OCPStepIGESAnalyser.StepExportWithColor().\
-        getShapesFromOutPutShapes(shapes,1,mytree,len(mytree))
+        getShapesFromOutPutShapes(shapes,1,mytree,len(mytree),'')
 
 def getShapesFromOutPutShapes_old(shapes,mytree):
     retshapes=[]
@@ -5197,7 +5246,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5)
             with open(picklefile, 'wb') as f:                                
                 pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
                 # Pickle the 'data' dictionary using the highest protocol available.
-                pickle.dump(shapePickles, f, pickle.HIGHEST_PROTOCOL)
+                #pickle.dump(shapePickles, f, pickle.HIGHEST_PROTOCOL)
         except Exception as e:
             print(e,"File, %s has error" % picklefile)          
         return dictionary
@@ -5276,10 +5325,11 @@ def FileSaveTree(request):
                 guid = guid+'/'
             try:
                 colorShapeArray=[]
-                with open(DISPLAY_URL+guid+name+".pickle", 'rb') as f:
+                _, myPickle = getShapeFromPickle(guid+name)
+                """ with open(DISPLAY_URL+guid+name+".pickle", 'rb') as f:
                     # The protocol version used is detected automatically, so we do not
                     # have to specify it.
-                    myPickle = pickle.load(f)
+                    myPickle = pickle.load(f) """
                 sourceType = myPickle['sourceType']
                 if sourceType=='Kinematic':
                     sourceFileName=myPickle['sourceFileName']
@@ -5386,6 +5436,10 @@ def FileSaveTree(request):
             if sourceType!='Order':  
                 try:
                     treefile = DISPLAY_URL+guid+name+'.tree'
+                    if not os.path.isfile(treefile):
+                        treefile=S3_BUCKET+DISPLAY_URL+guid+name+'.tree'
+                        if not os.path.isfile(treefile):
+                            treefile = DISPLAY_URL+guid+name+'.tree'
                     print("Writing,",treefile)
                     with open(treefile, 'w') as fh:
                         fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
@@ -5436,7 +5490,13 @@ def FileSaveGDT(request):
             name = request.data['name']            
             try:
                 gdtfile = DISPLAY_URL+guid+name+'.gdt'
+                if not os.path.isfile(gdtfile):
+                    gdtfile=S3_BUCKET+DISPLAY_URL+guid+name+'.gdt'
+                    if not os.path.isfile(gdtfile):
+                        gdtfile = DISPLAY_URL+guid+name+'.gdt'
                 print("Writing,",gdtfile)
+                """ gdtfile = DISPLAY_URL+guid+name+'.gdt'
+                print("Writing,",gdtfile) """
                 with open(gdtfile, 'w') as fh:
                     fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
                 dictionary=request.data
@@ -5619,10 +5679,10 @@ def HackersResponse(request):
             logging.info(request)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': "Hackers System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': "Hackers System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
