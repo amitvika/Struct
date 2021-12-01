@@ -104,13 +104,21 @@ export default function BaseItemProperties({
   //   distanceGaper
   // );
   useEffect(() => {
-    //console.log('Setting gltf', gltfjson);
+    console.log(
+      'changing file uuid due to gltf changing',
+      gltfjson,
+      itemProperties
+    );
     setfileUUId(itemProperties.fileUUId);
     setGltfObj(gltfjson);
   }, [gltfjson]);
 
   useEffect(() => {
     //console.log('Setting itemProperties', itemProperties);
+    console.log(
+      'changing file uuid due to itemproperties changing',
+      itemProperties
+    );
     setfileUUId(itemProperties.fileUUId);
   }, [itemProperties]);
 
