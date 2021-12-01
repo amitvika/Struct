@@ -10,7 +10,12 @@ function ClipboardText({ item_id }) {
   };
 
   return (
-    <Tooltip title="Copy to clipboard" aria-label="copy" placement="left">
+    <Tooltip
+      title="Copy to clipboard"
+      aria-label="copy"
+      placement="left"
+      style={{ zIndex: '3' }}
+    >
       <IconButton onClick={handleCopyId}>
         <FileCopyOutlinedIcon />
       </IconButton>

@@ -287,7 +287,7 @@ export default function LargeFileUpload({
           }
           label="Load All Edges"
         />
-        <FormControlLabel
+        {/* <FormControlLabel
           control={
             <Checkbox
               checked={allowFirstLevelItems}
@@ -298,7 +298,7 @@ export default function LargeFileUpload({
             />
           }
           label="Create First Level Items"
-        />
+        /> */}
         <FormControlLabel
           control={
             <Checkbox

@@ -24,6 +24,7 @@ import Assembly from './assembly';
 import Production from './production';
 import SurfaceFinishAndTreatment from './SurfaceFinishAndTreatment';
 import ComplianceAndCertifications from './ComplianceAndCertifications';
+// import DetailComponentInnerHeader from '@monostruct/common/components/DetailComponentInnerHeader';
 
 import ItemTypeConfigurations from '../itemTypeConfigurations';
 import ItemAPI from '@monostruct/common/api/items.api';
@@ -69,6 +70,7 @@ import { Box } from '@mui/system';
 import { useMediaQuery } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import { Headding } from 'src/components';
+import ClipboardText from '@monostruct/common/components/ClipboardText';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -1354,8 +1356,13 @@ const ItemDetail = ({ itemValue }) => {
       <Grid container>
         <Grid item sm={12}>
           <SubHeaderWithArrow action={'/items'} title={'Items Details'} />
-          <DetailSubHeader
-            {...{ itemProperties, handleSave, tabList, tabIndex }}
+          <DetailComponentInnerHeader
+            {...{
+              name: itemProperties.name,
+              id: itemProperties.id,
+              handleSave,
+              tabName: tabList[tabIndex]
+            }}
           />
         </Grid>
       </Grid>
@@ -1392,7 +1399,9 @@ const ItemDetail = ({ itemValue }) => {
   );
 };
 
-const DetailSubHeader = ({ itemProperties, handleSave, tabList, tabIndex }) => {
+export default ItemDetail;
+
+const DetailComponentInnerHeader = ({ name, id, handleSave, tabName }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -1409,27 +1418,29 @@ const DetailSubHeader = ({ itemProperties, handleSave, tabList, tabIndex }) => {
       <Box style={{ zIndex: 999 }}>
         <EditItemTitle
           {...{
-            itemProperties,
+            name,
             updateItemOnServer: handleSave
           }}
         />
+        {console.log('--->>naame', name)}
       </Box>
-      <Headding as={'h5'}>Item ID:{itemProperties.id} </Headding>
-
+      <Headding as={'h5'}>
+        Item ID:{id} <ClipboardText item_id={id} />
+      </Headding>
       <Headding
         as={'h4'}
         style={{
           position: isMobile ? 'relative' : 'absolute',
           display: 'flex',
+
           justifyContent: 'center',
           width: '100%',
           alignItems: 'center',
           height: '100%'
         }}
       >
-        {tabList[tabIndex]}
+        {tabName}
       </Headding>
     </Paper>
   );
 };
-export default ItemDetail;

@@ -11,17 +11,17 @@ import Headding from '@monostruct/common/components/atoms/Headding';
 import { useMediaQuery } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 
-export default function EditItemTitle({ itemProperties, updateItemOnServer }) {
+export default function EditItemTitle({ name, updateItemOnServer }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const wrapperRef = useRef(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [itemTitle, setItemTitle] = useState(itemProperties.name);
+  const [itemTitle, setItemTitle] = useState(name);
 
   useEffect(() => {
-    setItemTitle(itemProperties.name);
-  }, [itemProperties.name]);
+    setItemTitle(name);
+  }, [name]);
 
   const handleSave = () => {
     setIsEditMode(false);
@@ -29,7 +29,7 @@ export default function EditItemTitle({ itemProperties, updateItemOnServer }) {
   };
   const handleCancel = () => {
     setIsEditMode(false);
-    setItemTitle(itemProperties.name);
+    setItemTitle(name);
   };
 
   useEffect(() => {
