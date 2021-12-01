@@ -1,33 +1,33 @@
 import { createTheme } from '@material-ui/core/styles';
 
-export const darkTheme = createTheme({
+export const darkTheme = {
   palette: {
     type: 'dark',
     background: {
-      default: '#000000',
+      default: '#000000'
     },
     primary: {
-      main: '#000',
-    },
+      main: '#000'
+    }
   },
   typography: {
     fontSize: 12,
     fontFamily: 'Raleway, Arial',
     body1: {
-      fontSize: 12,
-    },
+      fontSize: 12
+    }
   },
   header: {
     backgroundColor: '#000000',
-    color: '#ffffff',
+    color: '#ffffff'
   },
   overrides: {
     MuiOutlinedInput: {
       root: {
         '& $notchedOutline': {
-          top: 0,
-        },
-      },
-    },
-  },
-});
+          top: 0
+        }
+      }
+    }
+  }
+};

@@ -47,7 +47,9 @@ export default function TableView({
       data={list}
       title={title}
       components={{
-        Container: (props) => <Paper {...props} style={{ padding: 10 }} />,
+        Container: (props) => (
+          <Paper {...props} style={{ padding: 10, flexDirection: 'column' }} />
+        ),
         Toolbar: (props) => (
           <>
             {showToolbar ? (

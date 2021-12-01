@@ -109,6 +109,7 @@ const ItemDetail = ({ itemValue }) => {
     if (toFetchItem) {
       (async () => {
         dispatch(setCurrentItemAction(itemValue));
+        setItemProperties(itemValue);
         setGLTFAndTree({ ...itemValue }, myTabIndex);
         //console.log("coiming",itemValue);
       })();
@@ -885,6 +886,7 @@ const ItemDetail = ({ itemValue }) => {
         }));
       }
     }
+    handleSave();
   };
 
   const setGLTFAndTree = async (item, myTabedIndex) => {

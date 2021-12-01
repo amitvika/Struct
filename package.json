@@ -2,7 +2,7 @@
   "name": "struct",
   "private": true,
   "workspaces": [
-      "packages/*"
+    "packages/*"
   ],
   "scripts": {
     "start": "yarn workspace @monostruct/internal-app run start",
@@ -11,6 +11,7 @@
     "build-design": "yarn workspace @monostruct/design-app run build",
     "start-public": "yarn workspace @monostruct/public-app run start",
     "build-public": "yarn workspace @monostruct/public-app run build",
+    "start-client": "yarn workspace @monostruct/client-app run start",
     "server": "yarn workspace @monostruct/backend-app start",
     "dev": "yarn start & yarn server",
     "lint": "yarn lint:public",
