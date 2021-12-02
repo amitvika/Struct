@@ -3194,6 +3194,9 @@ class StepIgesAnalyser():
                 else:
                     treelengthbeforevertices = len(treeArray)
             progressArray = self.read_progress()
+            self.write_progress(maxgap=0,action='Child Items Started',written=False,\
+                start=progressArray["start"] if ("start" in progressArray) else None,\
+                    finish=None) 
             (_,self.childfiles)=StepExportWithColor().WriteAssemblyOutPutShapes(\
                     None,self.basefilename,1,treeArray,\
                         treelengthbeforevertices,self.includeparts,self.distancegap,\
@@ -4162,13 +4165,25 @@ class StepIgesAnalyser():
                     if (self.writefiles) or (self.ascompound)or(maxgap==0):
                         #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
                         statusfilename = self.displaypath+self.basefilename+".status"
-                        print("Writing",statusfilename,"Percentage",self.percentage)                        
-                        self.currenttime = datetime.utcnow() 
+                        print("Writing",statusfilename,"Percentage",self.percentage)
                         try:
                             with open(statusfilename, 'w') as fh:
                                 fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                                self.currenttime = datetime.utcnow()
                         except Exception as e:
-                            print("While Writing",statusfilename,e,self.percentage) 
+                            print("While Writing",statusfilename,e,self.percentage)                        
+                        if ((maxgap==0) and (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "K") and (self.suffixname != "A")) :
+                            paramfilename = self.displaypath+self.basefilename[:-1]+".status"
+                            #mystatusdict["createoption"]=self.basefilename[-1]
+                            mystatusdict["createchilds"]=self.CreateChildSteps
+                            mystatusdict["createorder"]=self.CreateAssemblyOrder
+                            mystatusdict["createstack"]=self.CreateStackability
+                            try:
+                                with open(paramfilename, 'w') as fh:
+                                    fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                            except Exception as e:
+                                print("While Writing",paramfilename,e,self.percentage)
+
                     else:
                         print("Not Writing status",self.percentage)
                 else:
@@ -4462,6 +4477,7 @@ class StepIgesAnalyser():
             #    self.scene_max[0],self.scene_max[1],self.scene_max[2])
             if self.CreateChildSteps:
                 print("Starting Child Steps",self.fname)
+                self.write_progress(maxgap=0,action='Child Items Started') 
                 (_,self.childfiles)=StepExportWithColor().WriteAssemblyOutPutShapes(\
                     self.outputShapes,self.basefilename,1,self.tstep_dict["tree"],\
                         myTreeLenBeforeAddingEdgesAndVertices,self.includeparts,self.distancegap,\

@@ -17,7 +17,10 @@ import ComplianceAndCertifications from './ComplianceAndCertifications';
 import ItemTypeConfigurations from '../itemTypeConfigurations';
 import ItemAPI from '@monostruct/common/api/items.api';
 
-import { SELECTFEATURE } from '@monostruct/common/gltf/Tree/utils';
+import {
+  SELECTFEATURE,
+  PROCESSINGSTATUS
+} from '@monostruct/common/gltf/Tree/utils';
 
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import get from 'lodash/get';
@@ -147,7 +150,11 @@ const ItemDetail = ({ itemValue }) => {
       } else if (myTabIndex === 'pdcu') {
         const okToParse = await isOKToParseForProductDesignTab({ item });
 
-        if (okToParse > 1 || !item.fileStore || item.fileStore === null) {
+        if (
+          okToParse > PROCESSINGSTATUS.INPROGRESS ||
+          !item.fileStore ||
+          item.fileStore === null
+        ) {
           updatedItemProp = await handleProductDesignTab({
             item,
             myTabedIndex,

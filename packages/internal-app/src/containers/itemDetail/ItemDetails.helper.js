@@ -2,6 +2,7 @@ import { createChildItems } from './baseItemProperties/helper';
 
 import {
   STATEPROPS,
+  PROCESSINGSTATUS,
   pollFunction,
   isEmptyObjectDictionary
 } from '@monostruct/common/gltf/Tree/utils';
@@ -66,7 +67,7 @@ export const fetchGLTFAndTree = async ({
     }
 
     setProgressBarLoad(true);
-    if (fileUUId && okToParse == 1) {
+    if (fileUUId && okToParse == PROCESSINGSTATUS.INPROGRESS) {
       const statusRes = await getAFileFromStore(whichOneToLoad, 'status');
       let percent = 0;
       if (
@@ -158,14 +159,14 @@ export const fetchGLTFAndTree = async ({
 };
 
 export const isOKToParseForOtherTab = async ({ item }) => {
-  let okToParse = 0;
+  let okToParse = PROCESSINGSTATUS.PROCESSED;
   if (!item.fileGDT || item.fileGDT === null) {
     if (item.fileStore && item.fileStore.length > 0) {
       const fileGDT = item.fileStore.slice(0, item.fileStore.length - 1) + '3';
       const whichOneToLoad = getResourcePathURL(item) + fileGDT;
       const whichOneToStatus = getStatusPathURL(item) + fileGDT;
       okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
-      if (okToParse <= 1) {
+      if (okToParse <= PROCESSINGSTATUS.INPROGRESS) {
         item.fileGDT = fileGDT;
       } else {
         console.log('GDT Not Found', fileGDT);
@@ -177,7 +178,7 @@ export const isOKToParseForOtherTab = async ({ item }) => {
     const whichOneToLoad = getResourcePathURL(item) + item.fileGDT;
     const whichOneToStatus = getStatusPathURL(item) + item.fileGDT;
     okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
-    if (okToParse > 1) {
+    if (okToParse > PROCESSINGSTATUS.INPROGRESS) {
       item.fileGDT = null;
     }
   }
@@ -357,7 +358,7 @@ export const setStack = async ({
   }
 
   try {
-    let okToParse = 0;
+    let okToParse = PROCESSINGSTATUS.PROCESSED;
     if (!item.fileStack || item.fileStack === null) {
       //console.log('Checking Store', item.fileStore);
       if (item.fileStore && item.fileStore.length > 0) {
@@ -367,7 +368,7 @@ export const setStack = async ({
         const whichOneToLoad = getResourcePathURL(item) + fileStack;
         const whichOneToStatus = getStatusPathURL(item) + fileStack;
         okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
-        if (okToParse <= 1) {
+        if (okToParse <= PROCESSINGSTATUS.INPROGRESS) {
           //console.log('Found', fileStack);
           item.fileStack = fileStack;
         } else {
@@ -380,7 +381,7 @@ export const setStack = async ({
       const whichOneToLoad = getResourcePathURL(item) + item.fileStack;
       const whichOneToStatus = getStatusPathURL(item) + item.fileStack;
       okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
-      if (okToParse > 1) {
+      if (okToParse > PROCESSINGSTATUS.INPROGRESS) {
         item.fileStack = null;
       }
     }
@@ -451,7 +452,7 @@ export const setStack = async ({
 
 export const getOKTOParseForSetOrder = async ({ item }) => {
   try {
-    let okToParse = 0;
+    let okToParse = PROCESSINGSTATUS.PROCESSED;
     if (!item.fileMPPS || item.fileMPPS === null) {
       //console.log('Checking Store', item.fileStore);
       if (item.fileStore && item.fileStore.length > 0) {
@@ -461,7 +462,7 @@ export const getOKTOParseForSetOrder = async ({ item }) => {
         const whichOneToLoad = getResourcePathURL(item) + fileMPPS;
         const whichOneToStatus = getStatusPathURL(item) + fileMPPS;
         okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
-        if (okToParse <= 1) {
+        if (okToParse <= PROCESSINGSTATUS.INPROGRESS) {
           //console.log('Found', fileMPPS);
           item.fileMPPS = fileMPPS;
         } else {
@@ -474,7 +475,7 @@ export const getOKTOParseForSetOrder = async ({ item }) => {
       const whichOneToLoad = getResourcePathURL(item) + item.fileMPPS;
       const whichOneToStatus = getStatusPathURL(item) + item.fileMPPS;
       okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
-      if (okToParse > 1) {
+      if (okToParse > PROCESSINGSTATUS.INPROGRESS) {
         item.fileMPPS = null;
       }
     }
@@ -596,13 +597,13 @@ export const setOrder = async ({
 
 export const isOKToParseForProductDesignTab = async ({ item }) => {
   try {
-    let okToParse = 0;
+    let okToParse = PROCESSINGSTATUS.PROCESSED;
     if (item.fileStore) {
       const whichOneToLoad = getResourcePathURL(item) + item.fileStore;
       const whichOneToStatus = getStatusPathURL(item) + item.fileStore;
       okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
     } else {
-      okToParse = 2;
+      okToParse = PROCESSINGSTATUS.HUNG;
     }
     return okToParse;
   } catch (error) {
@@ -743,7 +744,7 @@ export const handleProductDesignTab = async ({
 };
 
 export const isOKToParseForInternalUseProduct = async ({ item }) => {
-  let okToParse = 0;
+  let okToParse = PROCESSINGSTATUS.PROCESSED;
   try {
     if (!item.fileKinematic || item.fileKinematic === null) {
       //console.log('Checking Store', item.fileStore);
@@ -754,7 +755,7 @@ export const isOKToParseForInternalUseProduct = async ({ item }) => {
         const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
         const whichOneToStatus = getStatusPathURL(item) + fileKinematic;
         okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
-        if (okToParse <= 1) {
+        if (okToParse <= PROCESSINGSTATUS.INPROGRESS) {
           //console.log('Found', fileKinematic);
           item.fileKinematic = fileKinematic;
         } else {
@@ -767,7 +768,7 @@ export const isOKToParseForInternalUseProduct = async ({ item }) => {
       const whichOneToLoad = getResourcePathURL(item) + item.fileKinematic;
       const whichOneToStatus = getStatusPathURL(item) + item.fileKinematic;
       okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
-      if (okToParse > 1) {
+      if (okToParse > PROCESSINGSTATUS.INPROGRESS) {
         item.fileKinematic = null;
       }
     }
@@ -839,7 +840,7 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
   );
   if (myResourcePath) {
     //console.log('Found gltf', whichOneToLoad);
-    return 0;
+    return PROCESSINGSTATUS.PROCESSED;
   }
   const statusURL = `${resourceStatusURL}${whichOneToStatus}.status`;
   //console.log('Checking Existing', statusURL);
@@ -855,10 +856,10 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
       //console.log('Status Result', statusRes, statusRes.data);
       percent = statusRes.data.percent;
       if (percent == 100) {
-        return 0;
+        return PROCESSINGSTATUS.PROCESSED;
       }
     } else {
-      return 2;
+      return PROCESSINGSTATUS.HUNG;
     }
     //find deltaTime of currenttime and statusRes time., If time is too big: problem to reparse
     let currenttime = new Date().toUTCString();
@@ -876,11 +877,11 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
       difference += 24 * 60 * 60;
     }
     if (difference > 2 * 60) {
-      return 2;
+      return PROCESSINGSTATUS.HUNG;
     }
-    return 1;
+    return PROCESSINGSTATUS.INPROGRESS;
   }
-  return 3;
+  return PROCESSINGSTATUS.NOTSTARTED;
 };
 
 const handleCopyId = (event, id) => {
