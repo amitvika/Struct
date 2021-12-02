@@ -4171,11 +4171,10 @@ class StepIgesAnalyser():
                                 fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
                                 self.currenttime = datetime.utcnow()
                         except Exception as e:
-                            print("While Writing",statusfilename,e,self.percentage) 
-                        option = self.basefilename[-1]
-                        if (maxgap==0) and (option !='M') and (option!='S') and (option!='K') and (option!='A'):
+                            print("While Writing",statusfilename,e,self.percentage)                        
+                        if ((maxgap==0) and (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "K") and (self.suffixname != "A")) :
                             paramfilename = self.displaypath+self.basefilename[:-1]+".status"
-                            mystatusdict["createoption"]=option
+                            #mystatusdict["createoption"]=self.basefilename[-1]
                             mystatusdict["createchilds"]=self.CreateChildSteps
                             mystatusdict["createorder"]=self.CreateAssemblyOrder
                             mystatusdict["createstack"]=self.CreateStackability

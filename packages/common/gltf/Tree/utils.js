@@ -571,3 +571,10 @@ export const isEmptyObjectDictionary = (obj) => {
   }
   return true;
 };
+
+export const PROCESSINGSTATUS = {
+  PROCESSED: 0,
+  INPROGRESS: 1,
+  HUNG: 2,
+  NOTSTARTED: 3
+};
