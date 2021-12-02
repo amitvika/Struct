@@ -203,12 +203,7 @@ export default function GridView({
       file_png.indexOf('.docx') != -1
     ) {
       return <DescriptionIcon className={classes.img} fontSize="large" />;
-    } else if (
-      file_png.indexOf('.png') != -1 ||
-      file_png.indexOf('.jpg') != -1 ||
-      file_png.indexOf('.jpeg') != -1 ||
-      file_png.indexOf('.webp') != -1
-    ) {
+    } else if (file_png) {
       return <img className={classes.img} alt="complex" src={file_png} />;
     } else {
       let fileName = file_png.substring(file_png.lastIndexOf('/') + 1);

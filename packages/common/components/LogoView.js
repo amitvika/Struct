@@ -19,8 +19,8 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative'
   },
   large: {
-    width: '96px',
-    height: '96px',
+    width: '100px',
+    height: '100px',
     objectFit: 'contain'
   },
   editIconContainer: {

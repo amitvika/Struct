@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import SubHeaderWithArrow from '../../components/SubHeaderWithArrow';
 import { useParams, useHistory } from 'react-router-dom';
 import API from '@monostruct/common/api/clients.api';
 import Products from './products';
 import ClientPortal from './clientPortal';
-import LogoView from '@monostruct/common/components/LogoView';
 import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 
@@ -64,8 +62,8 @@ const ClientDetailPage = () => {
       });
   }, [id]);
 
-  const handleSave = () => {
-    syncWithServer(clientData);
+  const handleSave = (data) => {
+    syncWithServer({ id: clientData.id, ...data });
   };
 
   const syncWithServer = (data) => {
@@ -172,6 +170,15 @@ const ClientDetailPage = () => {
     );
   }
 
+  const tabItem = [
+    'Contract Manufacturing Products',
+    'Client Portal',
+    'Orders and Fulfillment',
+    'Billing',
+    'Purchased Automation Product/Services',
+    Documentation
+  ];
+
   return (
     <>
       <DetailComponentInnerHeader
@@ -180,10 +187,10 @@ const ClientDetailPage = () => {
           name: clientData.name,
           id: clientData.id,
           handleSave,
-          tabName: '',
+          tabName: tabItem[tabIndex - 1],
           action: '/clients',
           title: 'Client Details',
-          allowEditTitle: false,
+          allowEditTitle: true,
           handleLogoChange,
           logoUrl: clientData.logo_url,
           allowLogoUpload: true

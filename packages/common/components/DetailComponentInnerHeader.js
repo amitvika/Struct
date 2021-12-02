@@ -41,7 +41,6 @@ export default function DetailComponentInnerHeader({
         padding: 10,
         margin: 10,
         paddingTop: 30,
-        paddingBottom: 30,
         display: 'flex',
         position: 'relative',
         flexDirection: isMobile ? 'column' : 'row'
