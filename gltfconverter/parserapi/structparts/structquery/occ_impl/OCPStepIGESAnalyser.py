@@ -3194,6 +3194,9 @@ class StepIgesAnalyser():
                 else:
                     treelengthbeforevertices = len(treeArray)
             progressArray = self.read_progress()
+            self.write_progress(maxgap=0,action='Child Items Started',written=False,\
+                start=progressArray["start"] if ("start" in progressArray) else None,\
+                    finish=None) 
             (_,self.childfiles)=StepExportWithColor().WriteAssemblyOutPutShapes(\
                     None,self.basefilename,1,treeArray,\
                         treelengthbeforevertices,self.includeparts,self.distancegap,\
@@ -4462,6 +4465,7 @@ class StepIgesAnalyser():
             #    self.scene_max[0],self.scene_max[1],self.scene_max[2])
             if self.CreateChildSteps:
                 print("Starting Child Steps",self.fname)
+                self.write_progress(maxgap=0,action='Child Items Started') 
                 (_,self.childfiles)=StepExportWithColor().WriteAssemblyOutPutShapes(\
                     self.outputShapes,self.basefilename,1,self.tstep_dict["tree"],\
                         myTreeLenBeforeAddingEdgesAndVertices,self.includeparts,self.distancegap,\
