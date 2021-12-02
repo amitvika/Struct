@@ -4165,13 +4165,26 @@ class StepIgesAnalyser():
                     if (self.writefiles) or (self.ascompound)or(maxgap==0):
                         #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
                         statusfilename = self.displaypath+self.basefilename+".status"
-                        print("Writing",statusfilename,"Percentage",self.percentage)                        
-                        self.currenttime = datetime.utcnow() 
+                        print("Writing",statusfilename,"Percentage",self.percentage)
                         try:
                             with open(statusfilename, 'w') as fh:
                                 fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                                self.currenttime = datetime.utcnow()
                         except Exception as e:
                             print("While Writing",statusfilename,e,self.percentage) 
+                        option = self.basefilename[-1]
+                        if (maxgap==0) and (option !='M') and (option!='S') and (option!='K') and (option!='A'):
+                            paramfilename = self.displaypath+self.basefilename[:-1]+".status"
+                            mystatusdict["createoption"]=option
+                            mystatusdict["createchilds"]=self.CreateChildSteps
+                            mystatusdict["createorder"]=self.CreateAssemblyOrder
+                            mystatusdict["createstack"]=self.CreateStackability
+                            try:
+                                with open(paramfilename, 'w') as fh:
+                                    fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                            except Exception as e:
+                                print("While Writing",paramfilename,e,self.percentage)
+
                     else:
                         print("Not Writing status",self.percentage)
                 else:
