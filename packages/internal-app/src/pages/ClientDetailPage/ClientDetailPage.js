@@ -62,7 +62,7 @@ const ClientDetailPage = () => {
       });
   }, [id]);
 
-  const handleSave = (data) => {
+  const handleSave = (data = {}) => {
     syncWithServer({ id: clientData.id, ...data });
   };
 
