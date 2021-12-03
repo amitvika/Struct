@@ -4,9 +4,10 @@ import Paper from '@material-ui/core/Paper';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Input from '@monostruct/common/components/atoms/Input';
 import EditIcon from '@material-ui//icons/Edit';
-import SaveIcon from '@material-ui//icons/Save';
+import AddBoxIcon from '@material-ui//icons/AddBox';
+// import AddBoxIcon from '@mui/icons-material/AddBox';
 
-import { IconButton,Typography } from '@material-ui/core';
+import { IconButton, Typography } from '@material-ui/core';
 
 export default function AddDesign({ handleSave, name }) {
   const [value, setValue] = useState('');
@@ -30,45 +31,44 @@ export default function AddDesign({ handleSave, name }) {
   };
 
   return (
-   
-      <Grid container>
-        <Grid
-          item
-          xs={6}
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-start',
-            padding: '10px',
-            alignItems: 'center',
-          }}
-        >
-          {!isEditing ? (
-            <div onClick={handleTitleClick} style={{ display: 'flex' }}>
-              <Headding
-                fontSize={30}
-                title={value}
-                // title="helo"
-                onClick={handleTitleClick}
-                style={{ cursor: 'pointer', margin: 'auto' }}
-              />
-              <IconButton>
-                <EditIcon />
-              </IconButton>
-            </div>
-          ) : (
-            <>
-              <Input
-                placeholder="Enter"
-                type="text"
-                onChange={onChange}
-                value={value}
-              />
-              <IconButton onClick={handleSaveTitle}>
-                <SaveIcon />
-              </IconButton>
-            </>
-          )}
-          {/* <Button
+    <Grid container>
+      <Grid
+        item
+        xs={6}
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-start',
+          padding: '10px',
+          alignItems: 'center'
+        }}
+      >
+        {!isEditing ? (
+          <div onClick={handleTitleClick} style={{ display: 'flex' }}>
+            <Headding
+              fontSize={30}
+              title={value}
+              // title="helo"
+              onClick={handleTitleClick}
+              style={{ cursor: 'pointer', margin: 'auto' }}
+            />
+            <IconButton>
+              <EditIcon />
+            </IconButton>
+          </div>
+        ) : (
+          <>
+            <Input
+              placeholder="Enter"
+              type="text"
+              onChange={onChange}
+              value={value}
+            />
+            <IconButton onClick={handleSaveTitle}>
+              <AddBoxIcon />
+            </IconButton>
+          </>
+        )}
+        {/* <Button
             variant="contained"
             color="primary"
             size="large"
@@ -76,7 +76,7 @@ export default function AddDesign({ handleSave, name }) {
           >
             Save
           </Button> */}
-        </Grid>
       </Grid>
+    </Grid>
   );
 }

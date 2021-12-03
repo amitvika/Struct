@@ -15,11 +15,14 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useTheme } from '@mui/material/styles';
 import { ColorModeContext } from '../App';
+import { useNavigate } from 'react-router-dom';
+
 const pages = ['My Purchases', 'Robot Programming', 'Design'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 const ResponsiveAppBar = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const colorMode = React.useContext(ColorModeContext);
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -98,10 +101,13 @@ const ResponsiveAppBar = () => {
             LOGO
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
+            {pages.map((page, index) => (
               <Button
                 key={page}
-                onClick={handleCloseNavMenu}
+                onClick={() => {
+                  navigate('/my-purchases');
+                  handleCloseNavMenu();
+                }}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
                 {page}
