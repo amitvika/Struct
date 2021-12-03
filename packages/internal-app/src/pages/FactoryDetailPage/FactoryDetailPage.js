@@ -11,7 +11,6 @@ import BaseFactorySetup from './baseFactorySetup';
 import ItemsInProduction from './itemsInProduction';
 import Autoscaling from './autoscaling';
 import FloorplanSetup from './floorplanSetup';
-import SubHeaderWithArrow from '../../components/SubHeaderWithArrow';
 import FacilityCapabilities from './FacilityCapabilities';
 import './style.css';
 
@@ -53,8 +52,8 @@ const FactoriesDetail = () => {
       });
   }, [id]);
 
-  const handleSave = () => {
-    syncWithServer(factoryValue);
+  const handleSave = (data = {}) => {
+    syncWithServer({ ...factoryValue, ...data });
   };
 
   const syncWithServer = (data) => {
@@ -136,8 +135,9 @@ const FactoriesDetail = () => {
           name: factoryValue.name,
           id: factoryValue.id,
           action: '/factories',
+          handleSave,
           title: 'Factories Details',
-          allowEditTitle: false,
+          allowEditTitle: true,
           allowLogoUpload: false
         }}
       />

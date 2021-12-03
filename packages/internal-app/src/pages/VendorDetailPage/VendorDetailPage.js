@@ -72,10 +72,10 @@ const VendorDetail = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = (data = {}) => {
     vendorInfo.itemId = undefined;
 
-    syncWithServer(vendorInfo);
+    syncWithServer({ ...vendorInfo, ...data });
   };
 
   const syncWithServer = (data) => {
@@ -110,6 +110,12 @@ const VendorDetail = () => {
       search
     });
   };
+  const tabItems = [
+    'Supplied Items',
+    'Payments',
+    'Validation Failures',
+    'Vendor as Client'
+  ];
 
   return (
     <>
@@ -119,10 +125,10 @@ const VendorDetail = () => {
           name: vendorInfo.name,
           id: vendorInfo._id,
           handleSave,
-          tabName: '',
+          tabName: tabItems[tabItems - 1],
           action: '/vendors',
           title: 'Vendors Details',
-          allowEditTitle: false,
+          allowEditTitle: true,
           handleLogoChange,
           logoUrl: vendorInfo.logoUrl,
           allowLogoUpload: true
