@@ -13,6 +13,7 @@ import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks';
 import './style.css';
 import DetailComponentInnerHeader from '@monostruct/common/components/DetailComponentInnerHeader';
+import Documentation from 'src/containers/documentation';
 
 const VendorDetail = () => {
   const dispatch = useDispatch();
@@ -67,6 +68,8 @@ const VendorDetail = () => {
         return 'shows a log of all items that do not pass vailidation along with other client complaints';
       case 4:
         return 'if this vendor is a client, shows payments and billing, along with a unified net payments/billing description';
+      case 5:
+        return <Documentation />;
       default:
         return 'Undefined Tab Index';
     }
@@ -146,6 +149,7 @@ const VendorDetail = () => {
             <Tab label="Payments" value={2} className="tab" />
             <Tab label="Validation Failures" value={3} className="tab" />
             <Tab label="Vendor as Client" value={4} className="tab" />
+            <Tab label="Documentation" value={5} className="tab" />
           </Tabs>
         </TabContainer>
         <TabPanelContainer>{renderPageSwitch()}</TabPanelContainer>
