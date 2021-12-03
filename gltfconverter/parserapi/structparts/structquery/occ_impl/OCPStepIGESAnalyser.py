@@ -3175,9 +3175,10 @@ class StepIgesAnalyser():
 
     def getIfTreeExists(self):
         filename = self.displaypath+self.basefilename+".tree"
+        head, _ = os.path.split(filename) 
         DisplayURLLength = len(DISPLAY_URL)
-        if filename[0:DisplayURLLength]==DISPLAY_URL:
-            fileuuid = filename[DisplayURLLength:]
+        if head[0:DisplayURLLength]==DISPLAY_URL:
+            fileuuid = head[DisplayURLLength:]
             if fileuuid[-1]=='/':
                 fileuuid=fileuuid[:-1]
         else:
