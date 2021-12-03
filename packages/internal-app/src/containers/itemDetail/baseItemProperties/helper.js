@@ -20,8 +20,8 @@ export const createChildItems = async ({
       return !result.data.childwritten;
     };
     let percentFunction = (result) => result.data.childwritten;
-    // console.log('Entering poll', datagdt, dataload);
-    await pollFunction(
+
+    const childRes = await pollFunction(
       fetchStatus,
       validateStatus,
       30000,
@@ -30,7 +30,7 @@ export const createChildItems = async ({
       null,
       null
     );
-    const childRes = await getAFileFromStore(datafile, 'progress');
+    // const childRes = await getAFileFromStore(datafile, 'progress'); avoided since pollfunction returns the same..
     const childFiles = get(childRes, 'data.childfiles', []);
     const newItem = childFiles.map((item) => ({
       fileUUId: item[0],
