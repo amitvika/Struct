@@ -39,7 +39,9 @@ export const createChildItems = async ({
       fileStore: `${item[1]}0`,
       parent_id: parentId,
       is_child_item: true,
-      filePartName: item[2]
+      filePartName: item[2],
+      multiAssembly: item.length > 3 ? item[3] > 1 : false,
+      treeLength: item.length > 4 ? item[4] : 0
     }));
     console.log('-newItem--------', newItem);
 
