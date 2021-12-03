@@ -126,6 +126,13 @@ const FactoriesDetail = () => {
       search
     });
   };
+  const tabItems = [
+    'Base Factory Setup',
+    'Items in Production',
+    'Floorplan Setup',
+    'Facility Capabilities',
+    'Autoscaling'
+  ];
 
   return (
     <>
@@ -138,7 +145,8 @@ const FactoriesDetail = () => {
           handleSave,
           title: 'Factories Details',
           allowEditTitle: true,
-          allowLogoUpload: false
+          allowLogoUpload: false,
+          tabName: tabItems[tabIndex - 1]
         }}
       />
 
