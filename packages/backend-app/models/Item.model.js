@@ -73,7 +73,11 @@ const ItemSchema = new mongoose.Schema(
     classificationConfig: [{ type: Object }],
     parent_id: { type: Schema.Types.ObjectId, ref: 'Item' },
     is_child_item: { type: Boolean, default: false },
-    is_child_created: { type: Boolean, default: false },
+    child_item_status: {
+      type: String,
+      enum: ['INITIATED', 'COMPLETED', 'NOT_INITIATED'],
+      default: 'NOT_INITIATED'
+    },
     multiAssembly: { type: Boolean, default: false },
     filePartName: { type: String },
     is_archived: { type: Boolean, default: false },

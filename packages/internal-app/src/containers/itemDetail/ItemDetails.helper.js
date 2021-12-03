@@ -39,6 +39,7 @@ export const fetchGLTFAndTree = async ({
   setgltfjson
 }) => {
   try {
+    console.log('----------');
     let obj = {
       gltf: {},
       tree: {},

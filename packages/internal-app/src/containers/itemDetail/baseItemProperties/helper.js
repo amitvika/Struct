@@ -43,9 +43,8 @@ export const createChildItems = async ({
       multiAssembly: item.length > 3 ? item[3] > 1 : false,
       treeLength: item.length > 4 ? item[4] : 0
     }));
-    console.log('-newItem--------', newItem);
 
-    await NewItemAPI.upsertItems(newItem);
+    return NewItemAPI.upsertItems(newItem);
   } catch (error) {
     console.log('Child item creation Error');
   }

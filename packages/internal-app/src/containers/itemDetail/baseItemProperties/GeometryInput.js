@@ -51,18 +51,12 @@ export default function GeometryInput({
   const [tooltipOpen, setTooltipOpen] = useState(false);
   // const [fileId, setFileId] = useState(0);
   const itemGeometry = itemProperties.itemGeometry || {};
-  const [isCreateChildItemChecked, setIsCreateChildItemChecked] =
-    useState(false);
-
-  useEffect(() => {
-    setIsCreateChildItemChecked(itemProperties.is_child_created);
-  }, [itemProperties.is_child_created]);
 
   const handleSwitchChange = (event) => {
-    setIsCreateChildItemChecked(event.target.checked);
+    setAllowFirstLevelItems(event.target.checked);
     if (event.target.checked) {
       handleItemSaveOnServer({
-        is_child_created: true
+        child_item_status: 'INITIATED'
       });
       createChildItems({
         pathFileName: getFileNameWithoutExtension(itemProperties.fileName),
@@ -201,8 +195,6 @@ export default function GeometryInput({
               drawLine={drawLine}
               setDrawLine={setDrawLine}
               {...{
-                allowFirstLevelItems,
-                setAllowFirstLevelItems,
                 createAutoAssemblyOrder,
                 setCreateAutoAssemblyOrder,
                 createAutoStackability,
@@ -216,10 +208,13 @@ export default function GeometryInput({
           </Grid>
           <Grid item xs={8}>
             <Switch
-              checked={isCreateChildItemChecked}
+              checked={allowFirstLevelItems}
               onChange={handleSwitchChange}
               inputProps={{ 'aria-label': 'controlled' }}
-              disabled={itemProperties.is_child_created}
+              disabled={
+                itemProperties.child_item_status !== 'NOT_INITIATED' ||
+                !itemProperties.fileUUId
+              }
             />
           </Grid>
 

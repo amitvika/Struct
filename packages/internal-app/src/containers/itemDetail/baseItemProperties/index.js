@@ -403,17 +403,16 @@ export default function BaseItemProperties({
         stepTreeLength: treeLength,
         distanceGap: distanceGaper,
         angleGap: angleGaper,
-        drawLine: drawLiner,
-        is_child_created: allowFirstLevelItems
+        drawLine: drawLiner
       });
 
-      if (allowFirstLevelItems) {
-        createChildItems({
-          pathFileName: filenameWithOutExtension,
-          fileUUId: data.uuid,
-          parentId: itemProperties.id
-        });
-      }
+      // if (allowFirstLevelItems) {
+      //   createChildItems({
+      //     pathFileName: filenameWithOutExtension,
+      //     fileUUId: data.uuid,
+      //     parentId: itemProperties.id
+      //   });
+      // }
 
       setIsLoading(false);
       dispatch(showSuccessAlert({ message: 'File Parsed successfully' }));
