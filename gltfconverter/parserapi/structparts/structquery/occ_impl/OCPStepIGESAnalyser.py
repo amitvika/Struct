@@ -1285,9 +1285,8 @@ class StepExportWithColor(object):
                     fullpath = 'Media/'+uuidname+'/'+uniquename+".step"
                     os.makedirs(os.path.dirname(fullpath), exist_ok=True)
                     if(self.write_file(fullpath)):  
-                        #print("Assigning a shape",uuidname,uniquename,treeName,aTree)                    
-                        assemblyNames.append((uuidname,uniquename,treeName))
-                        StepIgesAnalyser(filename=fullpath,includeparts=includeparts,\
+                        #print("Assigning a shape",uuidname,uniquename,treeName,aTree) 
+                        (_,_,status_dict)=StepIgesAnalyser(filename=fullpath,includeparts=includeparts,\
                             distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,\
                                 moverotate=moverotate,thumbwidth=thumbwidth,thumbheight=thumbheight,\
                                     logging=logging,seperateparts=seperateparts, edgesize=edgesize,\
@@ -1296,6 +1295,17 @@ class StepExportWithColor(object):
                                                 explodegap=explodegap, center=center, holescale=holescale,\
                                                      removegap=removegap,recreatefororder=recreatefororder,\
                                                          CreateStackability=CreateStackability).dump(False) 
+                        subassemblyCounthere=0
+                        subassemblyTreehere=0
+                        try:
+                            if "status" in status_dict:
+                                if "assemblies" in status_dict["status"]:
+                                    subassemblyCounthere=status_dict["status"]["assemblies"]
+                                if "trees" in status_dict["status"]:
+                                    subassemblyTreehere=status_dict["status"]["trees"]
+                        except Exception as e:
+                            print("There is an exception while fetching assembly count",e)
+                        assemblyNames.append((uuidname,uniquename,treeName,subassemblyCounthere,subassemblyTreehere))
                                         #in thread background thumbnail creation is not working Hence forcing dump to be thread free.
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
@@ -3165,9 +3175,10 @@ class StepIgesAnalyser():
 
     def getIfTreeExists(self):
         filename = self.displaypath+self.basefilename+".tree"
+        head, _ = os.path.split(filename) 
         DisplayURLLength = len(DISPLAY_URL)
-        if filename[0:DisplayURLLength]==DISPLAY_URL:
-            fileuuid = filename[DisplayURLLength:]
+        if head[0:DisplayURLLength]==DISPLAY_URL:
+            fileuuid = head[DisplayURLLength:]
             if fileuuid[-1]=='/':
                 fileuuid=fileuuid[:-1]
         else:
@@ -4420,7 +4431,10 @@ class StepIgesAnalyser():
                 createThumbnail(newfilename,self.thumbwidth,self.thumbheight,imagefilename)            
             except Exception as e:
                 print("While Writing",imagefilename,e) """
-        
+        myTreeLenBeforeAddingEdgesAndVertices = len(self.tstep_dict["tree"])
+        (self.assemblycount,self.assemblyname)=StepExportWithColor().FindAssemblyCount(\
+                    1,self.tstep_dict["tree"],myTreeLenBeforeAddingEdgesAndVertices)  
+        self.treelengthbeforevertices = myTreeLenBeforeAddingEdgesAndVertices 
         dict_return = {
             "gltf":self.mstep_dict,
             "tree":self.tstep_dict['tree'],
@@ -4437,7 +4451,10 @@ class StepIgesAnalyser():
                           "key":"" }],
             "status": {"percent":self.percentage,
                         "start":self.starttime.strftime("%H-%M-%S"),
-                        "current":datetime.utcnow().strftime("%H-%M-%S") },
+                        "current":datetime.utcnow().strftime("%H-%M-%S"),
+                        "assemblies":self.assemblycount,
+                        "assembly":self.assemblyname,
+                        "trees":self.treelengthbeforevertices},
              "display":COPY_PATH+self.displaypath
         }
         if self.writethread:
@@ -4445,10 +4462,7 @@ class StepIgesAnalyser():
             mythread.start()
         else:
             self.write_in_thread(dict_return,getPNG,True)
-        myTreeLenBeforeAddingEdgesAndVertices = len(self.tstep_dict["tree"])
-        (self.assemblycount,self.assemblyname)=StepExportWithColor().FindAssemblyCount(\
-                    1,self.tstep_dict["tree"],myTreeLenBeforeAddingEdgesAndVertices)  
-        self.treelengthbeforevertices = myTreeLenBeforeAddingEdgesAndVertices 
+        
         self.percentage = 100
         self.write_status(0)
         

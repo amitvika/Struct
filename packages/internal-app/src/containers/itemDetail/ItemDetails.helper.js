@@ -609,6 +609,7 @@ export const isOKToParseForProductDesignTab = async ({ item }) => {
   } catch (error) {
     console.log('Error: isOKToParseForProductDesignTab', error);
   }
+  return PROCESSINGSTATUS.HUNG;
 };
 
 export const handleProductDesignTab = async ({
