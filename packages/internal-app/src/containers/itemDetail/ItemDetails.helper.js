@@ -883,7 +883,7 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
         'difference Result',
         currenttime,
         servertime,
-        currentimearray,
+        currenttimearray,
         servertimearray
       );
       return PROCESSINGSTATUS.HUNG;
@@ -892,7 +892,7 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
       'inporgress Result',
       currenttime,
       servertime,
-      currentimearray,
+      currenttimearray,
       servertimearray
     );
     return PROCESSINGSTATUS.INPROGRESS;
