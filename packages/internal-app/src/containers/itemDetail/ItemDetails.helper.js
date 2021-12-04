@@ -99,7 +99,13 @@ export const fetchGLTFAndTree = async (props) => {
         );
       }
     }
-    // console.log('Fetching files, ', whichOneToLoad);
+    console.log(
+      'Fetching files, ',
+      fileUUId,
+      whichOneToLoad,
+      myTabIndex,
+      myTabedIndex
+    );
     //
     const myResourcePath = await checkExistingPathFromStore(
       whichOneToLoad,
