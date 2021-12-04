@@ -14,15 +14,17 @@ export const headerListItem = [
   },
   {
     label: 'Design Stuff',
-    href: `//${process.env.REACT_APP_DESIGN_URL}`,
+    href: `${process.env.REACT_APP_DESIGN_URL}`,
     target: '_blank',
-    addSeparator: false
+    addSeparator: false,
+    rel: 'noopener noreferrer'
   },
   {
     label: 'Struct Home',
-    href: `//${process.env.REACT_APP_STRUCT_HOME}`,
+    href: `${process.env.REACT_APP_STRUCT_HOME}`,
     target: '_blank',
-    addSeparator: false
+    addSeparator: false,
+    rel: 'noopener noreferrer'
   }
 ];
 

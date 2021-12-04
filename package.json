@@ -12,6 +12,7 @@
     "start-public": "yarn workspace @monostruct/public-app run start",
     "build-public": "yarn workspace @monostruct/public-app run build",
     "start-client": "yarn workspace @monostruct/client-app run start",
+    "build-client": "yarn workspace @monostruct/client-app run build",
     "server": "yarn workspace @monostruct/backend-app start",
     "dev": "yarn start & yarn server",
     "lint": "yarn lint:public",

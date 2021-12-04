@@ -67,7 +67,7 @@ export default function HeaderDesktopView({
 
   const getMenuButtons = () => {
     let menuItems = headerListItem.map(
-      ({ label, href, addSeparator, target }) => {
+      ({ label, href, addSeparator, target, rel }) => {
         return (
           <li
             key={`primary_button_${label}`}
@@ -77,12 +77,18 @@ export default function HeaderDesktopView({
             }
           >
             <Button
+              onClick={() => {
+                if (target) {
+                  window.open(`${href}`, '_blank');
+                }
+              }}
               {...{
                 key: label,
                 color: 'inherit',
                 to: href,
                 component: RouterLink,
                 target,
+                rel,
                 className:
                   classes.menuButton +
                   ` ${location.pathname.includes(href) && classes.linkSelected}`
@@ -115,7 +121,7 @@ export default function HeaderDesktopView({
         style={{ color: 'white' }}
         className={classes.menuButton}
       >
-        {isAuthenticated ? `Welcome: ${user.email}` : 'Not logged in5500--=='}
+        {isAuthenticated ? `Welcome: ${user.email}` : 'Login'}
       </Button>
     );
 
