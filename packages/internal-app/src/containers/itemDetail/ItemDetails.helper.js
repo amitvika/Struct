@@ -481,7 +481,9 @@ export const getOKTOParseForSetOrder = async ({ item }) => {
       }
     }
     return okToParse;
-  } catch (error) {}
+  } catch (error) {
+    console.log(error, item);
+  }
 };
 
 export const setOrder = async ({
