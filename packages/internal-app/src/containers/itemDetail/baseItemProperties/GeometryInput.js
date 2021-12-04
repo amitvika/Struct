@@ -23,6 +23,8 @@ import MaterialPropertiesModal from './MaterialPropertiesModal';
 //import FileUploadAndExport from './FileUploadAndExport';
 import LargeFileUpload from '@monostruct/common/gltf/LargeFileUpload';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
+import { getFileNameWithoutExtension } from '@monostruct/common/gltf/Tree/utils';
+import { createChildItems } from './helper';
 
 // const {
 
