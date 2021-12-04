@@ -231,7 +231,8 @@ const ItemDetail = ({ itemValue }) => {
     state_additionalSaveFunction = saveFunction;
   };
 
-  const handleSetOrder = async (item) => {
+  const handleSetOrder = async (props) => {
+    const { item } = props;
     if (!item.fileId && !item.fileUUId) {
       return;
     }
@@ -250,14 +251,14 @@ const ItemDetail = ({ itemValue }) => {
         setItemProperties
       });
     } else {
-      fetchGLTFAndTree(
-        'mpps',
-        item.fileStore,
-        item.fileGDT,
-        item.fileMPPS,
-        item.fileStack,
-        item.fileKinematic,
-        item.fileUUId,
+      fetchGLTFAndTree({
+        item: 'mpps',
+        fileStore: item.fileStore,
+        fileGDT: item.fileGDT,
+        fileMPPS: item.fileMPPS,
+        fileStack: item.fileStack,
+        fileKinematic: item.fileKinematic,
+        fileUUID: item.fileUUId,
         okToParse,
         setIsLoading,
         setIsFileLoading,
@@ -268,7 +269,7 @@ const ItemDetail = ({ itemValue }) => {
         setCompletionProgressText,
         setgltfjson,
         setItemProperties
-      );
+      });
       if (itemProperties.fileMPPS != item.fileMPPS) {
         setItemProperties((prevData) => ({
           ...prevData,

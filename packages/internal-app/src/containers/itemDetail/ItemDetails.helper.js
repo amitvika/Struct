@@ -441,14 +441,14 @@ export const setStack = async (props) => {
         });
     } else {
       //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
-      fetchGLTFAndTree(
-        'stack',
-        item.fileStore,
-        item.fileGDT,
-        item.fileMPPS,
-        item.fileStack,
-        item.fileKinematic,
-        item.fileUUId,
+      fetchGLTFAndTree({
+        item: 'stack',
+        fileStore: item.fileStore,
+        fileGDT: item.fileGDT,
+        fileMPPS: item.fileMPPS,
+        fileStack: item.fileStack,
+        fileKinematic: item.fileKinematic,
+        fileUUID: item.fileUUId,
         okToParse,
         setIsLoading,
         setIsFileLoading,
@@ -459,7 +459,7 @@ export const setStack = async (props) => {
         setCompletionProgressText,
         setgltfjson,
         setItemProperties
-      );
+      });
       if (itemProperties.fileStack != item.fileStack) {
         setItemProperties((prevData) => ({
           ...prevData,

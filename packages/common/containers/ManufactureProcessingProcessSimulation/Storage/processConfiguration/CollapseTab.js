@@ -51,7 +51,7 @@ export default function NestedList(props) {
     } else {
       setCurrentTab(value);
       if (value == 'Stacked') {
-        setStack({ ...itemProperties, ...props });
+        setStack({ item: itemProperties, ...props });
       }
     }
   };
