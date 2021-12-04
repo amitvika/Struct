@@ -444,7 +444,16 @@ export const setStack = async ({
         item.fileStack,
         item.fileKinematic,
         item.fileUUId,
-        okToParse
+        okToParse,
+        setIsLoading,
+        setIsFileLoading,
+        setProgressBarLoad,
+        setPercentage,
+        percentage,
+        setCurrentProgressText,
+        setCompletionProgressText,
+        setgltfjson,
+        setItemProperties
       );
       if (itemProperties.fileStack != item.fileStack) {
         setItemProperties((prevData) => ({

@@ -38,8 +38,8 @@ export default function NestedList(props) {
       ...currentItem,
       storage: {
         ...storage,
-        [event.target.name]: event.target.checked,
-      },
+        [event.target.name]: event.target.checked
+      }
     };
 
     dispatch(setCurrentItemAction(updatedItem));
@@ -51,7 +51,7 @@ export default function NestedList(props) {
     } else {
       setCurrentTab(value);
       if (value == 'Stacked') {
-        setStack({...itemProperties});
+        setStack({ ...itemProperties, ...props });
       }
     }
   };
@@ -63,7 +63,7 @@ export default function NestedList(props) {
     gridStacked,
     bulkContainer,
     liquidVat,
-    pressure,
+    pressure
   } = currentItem?.storage || {};
 
   const error =
@@ -74,7 +74,7 @@ export default function NestedList(props) {
       gridStacked,
       bulkContainer,
       liquidVat,
-      pressure,
+      pressure
     ].filter((v) => v).length !== 2;
 
   return (

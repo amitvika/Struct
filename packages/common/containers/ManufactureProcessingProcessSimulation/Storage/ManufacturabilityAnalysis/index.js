@@ -7,26 +7,26 @@ import Stackability from '../../Stackability';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   text: {
     textAlign: 'center',
     fontSize: 'x-large',
     color: '#787676',
-    fontWeight: '600',
+    fontWeight: '600'
   },
   gridContainer: {
-    margin: '5px',
+    margin: '5px'
   },
   innerGrid: {
     maxWidth: '19%',
-    textAlign: 'center',
+    textAlign: 'center'
   },
   paper: {
-    color: ' #65696c',
+    color: ' #65696c'
   },
   button: {
-    color: ' #65696c',
+    color: ' #65696c'
   },
 
   paper: {
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
     marginTop: '10px',
-    marginBottom: '10px',
+    marginBottom: '10px'
   },
   tabPaper: {
     padding: theme.spacing(1),
@@ -43,9 +43,9 @@ const useStyles = makeStyles((theme) => ({
     cursor: 'pointer',
     transition: '0.3s',
     '&:hover, &:focus': {
-      backgroundColor: '#DCDCDC',
-    },
-  },
+      backgroundColor: '#DCDCDC'
+    }
+  }
 }));
 
 export default function ManufacturabilityAnalysis(props) {
@@ -64,7 +64,7 @@ export default function ManufacturabilityAnalysis(props) {
     console.log(tabName);
 
     if (tabName == 'Stackability') {
-      setStack({...itemProperties});
+      setStack({ ...itemProperties, ...props });
     }
   };
 
@@ -73,7 +73,7 @@ export default function ManufacturabilityAnalysis(props) {
     'Fragility',
     'Size Constraints',
     'Quantity/Time',
-    'Physical State',
+    'Physical State'
   ];
   return (
     <>
@@ -90,7 +90,7 @@ export default function ManufacturabilityAnalysis(props) {
               onClick={() => handleTabChange(tabName)}
               style={{
                 backgroundColor: selectedTab === tabName ? '#343a40' : '',
-                color: selectedTab === tabName ? 'white' : '',
+                color: selectedTab === tabName ? 'white' : ''
               }}
               className={classes.tabPaper}
             >
