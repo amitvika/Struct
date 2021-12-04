@@ -112,7 +112,7 @@ export default function HeaderDesktopView({
         style={{ color: 'white' }}
         className={classes.menuButton}
       >
-        {isAuthenticated ? `Welcome: ${user.email}` : 'Not logged in'}
+        {isAuthenticated ? `Welcome: ${user.email}` : 'Not logged in5500--=='}
       </Button>
     );
 
