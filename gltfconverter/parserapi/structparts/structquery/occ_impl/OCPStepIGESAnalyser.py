@@ -1067,7 +1067,7 @@ class StepExportWithColor(object):
             print("Error while wrting",statusfilename,e)
         return mystatusdict
 
-    def writeProgress(self, maxgap=10, currentcount=0, action=''):
+    def writeProgress(self, maxgap=10, currentcount=0, action='',childfiles=[]):
         currenttime = datetime.utcnow()
         mystatusdict =  {
             "begin":currentcount,
@@ -1077,11 +1077,13 @@ class StepExportWithColor(object):
             "action":action,
             "createchilds":self.CreateChildSteps,
             "createorder":self.CreateAssemblyOrder,
-            "createstack":self.CreateStackability }
+            "createstack":self.CreateStackability,
+            "childfiles":childfiles }
         try:            
             timingdelta = currenttime-self.currenttime            
             if (timingdelta.total_seconds() >= maxgap) or (maxgap==0):        
                 paramfilename = self.displaypath+self.basefilename[:-1]+".status"
+                print("Status File",paramfilename,mystatusdict)
                 try:
                     with open(paramfilename, 'w') as fh:
                         fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
@@ -1344,7 +1346,7 @@ class StepExportWithColor(object):
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break
-            self.writeProgress(0,totalcount,"Completed")
+            self.writeProgress(0,totalcount,"Completed",assemblyNames)
             return  (addedAssembly,assemblyNames)
         self.writeProgress(0,totalcount,"No Child") 
         return (addedAssembly,None)
@@ -3243,7 +3245,7 @@ class StepIgesAnalyser():
                     treelengthbeforevertices = len(treeArray)
             if "assemblies" in statusArray:
                 assemblycount = statusArray["assemblies"]
-                
+            #print("Status Array",statusArray,assemblycount)   
             progressArray = self.read_progress()
             self.write_progress(maxgap=0,action='Child Items Started',written=False,\
                 start=progressArray["start"] if ("start" in progressArray) else None,\
@@ -4195,6 +4197,8 @@ class StepIgesAnalyser():
         self.mstep_dict['animations']=animationchannels
 
     def write_status(self,maxgap=10,action=''):
+        if self.recursiveTree:
+            return
         currenttime = datetime.utcnow()  
         mystatusdict =  {
                 "percent":(self.percentage if self.ascompound==False else self.percentage/4.0),
@@ -4224,7 +4228,7 @@ class StepIgesAnalyser():
                                 self.currenttime = datetime.utcnow()
                         except Exception as e:
                             print("While Writing",statusfilename,e,self.percentage)                        
-                        if ((maxgap==0) and (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "K") and (self.suffixname != "A")) :
+                        """ if ((maxgap==0) and (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "K") and (self.suffixname != "A")) :
                             paramfilename = self.displaypath+self.basefilename[:-1]+".status"
                             #mystatusdict["createoption"]=self.basefilename[-1]
                             mystatusdict["createchilds"]=self.CreateChildSteps
@@ -4234,7 +4238,7 @@ class StepIgesAnalyser():
                                 with open(paramfilename, 'w') as fh:
                                     fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
                             except Exception as e:
-                                print("While Writing",paramfilename,e,self.percentage)
+                                print("While Writing",paramfilename,e,self.percentage) """
 
                     else:
                         print("Not Writing status",self.percentage)

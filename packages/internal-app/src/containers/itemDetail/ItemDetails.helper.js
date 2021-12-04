@@ -39,6 +39,7 @@ export const fetchGLTFAndTree = async (props) => {
     setCompletionProgressText,
     setgltfjson
   } = props;
+  let updatedItemProp = {};
   try {
     console.log('----------', props);
     let obj = {
@@ -69,8 +70,9 @@ export const fetchGLTFAndTree = async (props) => {
     }
 
     setProgressBarLoad(true);
+    let statusRes = await getAFileFromStore(whichOneToLoad, 'status');
     if (fileUUId && okToParse == PROCESSINGSTATUS.INPROGRESS) {
-      const statusRes = await getAFileFromStore(whichOneToLoad, 'status');
+      // statusRes = await getAFileFromStore(whichOneToLoad, 'status');
       let percent = 0;
       if (
         statusRes &&
@@ -88,7 +90,7 @@ export const fetchGLTFAndTree = async (props) => {
         };
         let percentFunction = (result) =>
           result.data.percent ? result.data.percent : percentage;
-        await pollFunction(
+        statusRes = await pollFunction(
           fetchStatus,
           validateStatus,
           20000,
@@ -169,10 +171,24 @@ export const fetchGLTFAndTree = async (props) => {
     });
     setIsLoading(false);
     setProgressBarLoad(false);
+    if (myTabIndex == 'gdtac') {
+      const multiAssembly = statusRes
+        ? statusRes.data
+          ? statusRes.data.assemblies > 1
+          : false
+        : false;
+      updatedItemProp = {
+        multiAssembly: multiAssembly,
+        stepTreeLength: treeRes.data.length
+      };
+    }
+
+    return updatedItemProp;
   } catch (error) {
     console.log(error);
     setIsLoading(false);
   }
+  return updatedItemProp;
 };
 
 export const isOKToParseForOtherTab = async ({ item }) => {
@@ -217,6 +233,7 @@ export const handleOtherTabCase = async (props) => {
     setCurrentProgressText,
     setCompletionProgressText,
     setgltfjson,
+    setCenterActionText,
     setItemProperties
   } = props;
   console.log('handleOtherTabCase', props);
@@ -240,7 +257,7 @@ export const handleOtherTabCase = async (props) => {
     //item.stepTreeLength > STATEPROPS.maximumparts,
     true,
     myTabedIndex == 'pdcu',
-    allowFirstLevelItems,
+    false,
     createAutoAssemblyOrder,
     createAutoStackability,
     STATEPROPS.explodegap,
@@ -347,11 +364,23 @@ export const handleOtherTabCase = async (props) => {
     }
   }
   if (allowFirstLevelItems && datastore) {
-    await createChildItems({
-      pathFileName: filenameWithOutExtension,
-      fileUUId: item.fileUUId,
-      parentId: item.id
-    });
+    if (item.child_item_status === 'INITIATED') {
+      const itemClone = { ...item, fileGDT: datastore };
+      const childrenCreated = await createChildItems({
+        item: itemClone,
+        percentage,
+        setPercentage,
+        setCurrentProgressText,
+        setCompletionProgressText,
+        setCenterActionText
+      });
+      if (childrenCreated) {
+        updatedItemProp = {
+          ...updatedItemProp,
+          child_item_status: 'COMPLETED'
+        };
+      }
+    }
   }
   setProgressBarLoad(false);
   setIsLoading(false);
@@ -682,7 +711,7 @@ export const handleProductDesignTab = async (props) => {
     //item.stepTreeLength > STATEPROPS.maximumparts,
     true,
     myTabedIndex == 'pdcu',
-    allowFirstLevelItems,
+    false,
     createAutoAssemblyOrder,
     createAutoStackability,
     STATEPROPS.explodegap,
@@ -863,7 +892,7 @@ const getStatusPathURL = (item) => {
   return '';
 };
 
-const getStepFile = (item) => {
+export const getStepFile = (item) => {
   if (item.fileUUId) {
     const fullpath = item.fileName;
     return fullpath.slice(6, fullpath.length);

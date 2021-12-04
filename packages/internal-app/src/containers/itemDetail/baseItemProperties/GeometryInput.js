@@ -46,7 +46,12 @@ export default function GeometryInput({
   setCreateAutoAssemblyOrder,
   createAutoStackability,
   setCreateAutoStackability,
-  handleItemSaveOnServer
+  handleItemSaveOnServer,
+  percentage,
+  setPercentage,
+  setCurrentProgressText,
+  setCompletionProgressText,
+  setCenterActionText
 }) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   // const [fileId, setFileId] = useState(0);
@@ -55,14 +60,28 @@ export default function GeometryInput({
   const handleSwitchChange = (event) => {
     setAllowFirstLevelItems(event.target.checked);
     if (event.target.checked) {
-      handleItemSaveOnServer({
-        child_item_status: 'INITIATED'
-      });
-      createChildItems({
-        pathFileName: getFileNameWithoutExtension(itemProperties.fileName),
-        fileUUId: itemProperties.fileUUId,
-        parentId: itemProperties.id
-      });
+      if (itemProperties.child_item_status === 'NOT_INITIATED') {
+        handleItemSaveOnServer({
+          child_item_status: 'INITIATED'
+        });
+        const itemClone = {
+          ...itemProperties,
+          fileGDT: getFileNameWithoutExtension(itemProperties.fileName) + '3'
+        };
+        const childrenCreated = createChildItems({
+          item: itemClone,
+          percentage,
+          setPercentage,
+          setCurrentProgressText,
+          setCompletionProgressText,
+          setCenterActionText
+        });
+        if (childrenCreated) {
+          handleItemSaveOnServer({
+            child_item_status: 'COMPLETED'
+          });
+        }
+      }
     }
   };
 
@@ -208,12 +227,16 @@ export default function GeometryInput({
           </Grid>
           <Grid item xs={8}>
             <Switch
-              checked={allowFirstLevelItems}
+              checked={
+                allowFirstLevelItems ||
+                itemProperties.child_item_status === 'INITIATED'
+              }
               onChange={handleSwitchChange}
               inputProps={{ 'aria-label': 'controlled' }}
               disabled={
                 itemProperties.child_item_status !== 'NOT_INITIATED' ||
-                !itemProperties.fileUUId
+                !itemProperties.fileUUId ||
+                itemProperties.assemblyType != 'Multi-Item Assembly'
               }
             />
           </Grid>

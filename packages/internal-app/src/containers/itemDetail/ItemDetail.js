@@ -67,7 +67,9 @@ const ItemDetail = ({ itemValue }) => {
   const [progressBarLoad, setProgressBarLoad] = useState(false);
   const [internalProductConfig, setInternalProductConfig] = useState(null);
   const [selectedOption, setSelectedOption] = useState(SELECTFEATURE);
-  const [allowFirstLevelItems, setAllowFirstLevelItems] = useState(false);
+  const [allowFirstLevelItems, setAllowFirstLevelItems] = useState(
+    itemValue?.child_item_status === 'INITIATED'
+  );
   const [createAutoAssemblyOrder, setCreateAutoAssemblyOrder] = useState(false);
   const [createAutoStackability, setCreateAutoStackability] = useState(false);
   const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
@@ -80,7 +82,7 @@ const ItemDetail = ({ itemValue }) => {
     }
 
     handleGLTFAndTreeLoading({ item: itemValue, myTabedIndex: myTabIndex });
-    setAllowFirstLevelItems(itemValue?.child_item_status !== 'NOT_INITIATED');
+    setAllowFirstLevelItems(itemValue?.child_item_status === 'INITIATED');
   }, [tabIndex]);
 
   useEffect(() => {
@@ -196,11 +198,12 @@ const ItemDetail = ({ itemValue }) => {
             setCurrentProgressText,
             setCompletionProgressText,
             setgltfjson,
+            setCenterActionText,
             setItemProperties
           });
         } else {
           let okToParse = await isOKToParseForOtherTab({ item });
-          await fetchGLTFAndTree({
+          updatedItemProp = await fetchGLTFAndTree({
             ...gltfParam,
             okToParse
           });
@@ -209,15 +212,20 @@ const ItemDetail = ({ itemValue }) => {
 
       setItemProperties((prev) => ({ ...prev, updatedItemProp }));
       handleSave(updatedItemProp);
-
+      console.log('Item child status', item, item.child_item_status);
       if (item.fileGDT && item.child_item_status === 'INITIATED') {
+        console.log('Going to do child creations', item);
         const childrenCreated = await createChildItems({
-          fileUUId: item.fileUUId,
-          pathFileName: item.fileGDT.slice(0, -1),
-          parentId: item.id
+          item,
+          percentage,
+          setPercentage,
+          setCurrentProgressText,
+          setCompletionProgressText,
+          setCenterActionText
         });
-
-        childrenCreated && handleSave({ child_item_status: 'COMPLETED' });
+        if (childrenCreated) {
+          handleSave({ child_item_status: 'COMPLETED' });
+        }
       }
     } catch (error) {
       console.log('Error', error);
