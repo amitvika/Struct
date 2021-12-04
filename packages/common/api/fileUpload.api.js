@@ -190,14 +190,16 @@ export const getAFileFromURLStore = async (store, ext, fromURL) => {
     return getAFile(fetchURL);
   } else {
     const availURL = await getExistingPathFromServer(store, ext);
-    let fetchURL = `${availURL ? availURL : fromURL}${store}.${ext}`;
+    let fetchURL = `${
+      availURL ? availURL : fromURL ? fromURL : ''
+    }${store}.${ext}`;
     try {
       const resData = await axios.get(fetchURL);
       if (resData) return resData;
     } catch (error) {
       console.log('Error while fetching 1', error, fetchURL);
     }
-    if (availURL != fromURL && availURL != null) {
+    if (availURL != fromURL && availURL != null && fromURL != null) {
       const linuxURL = `${fromURL}${store}.${ext}`;
       let isFileExists = await isFileExistingInServer(linuxURL);
       if (isFileExists) {
@@ -263,11 +265,13 @@ export const getAFileFromStore = async (store, ext) => {
   } else {
     const availURL = await getExistingPathFromServer(store, ext);
     let fetchURL = `${availURL ? availURL : resourcePathURL}${store}.${ext}`;
-    try {
-      const resData = await axios.get(fetchURL);
-      if (resData) return resData;
-    } catch (error) {
-      console.log('Error while fetching 1', error, fetchURL);
+    if (availURL != null) {
+      try {
+        const resData = await axios.get(fetchURL);
+        if (resData) return resData;
+      } catch (error) {
+        console.log('Error while fetching 1', error, fetchURL);
+      }
     }
     if (availURL != resourcePathURL && availURL != null) {
       const linuxURL = `${resourcePathURL}${store}.${ext}`;
@@ -281,7 +285,7 @@ export const getAFileFromStore = async (store, ext) => {
         }
       }
     }
-    if (availURL != resourcePathS3URL) {
+    if (availURL != resourcePathS3URL && availURL != null) {
       const linuxURL = `${resourcePathS3URL}${store}.${ext}`;
       let isFileExists = await isFileExistingInServer(linuxURL);
       if (isFileExists) {
@@ -317,7 +321,18 @@ export const checkExistingPathFromStore = async (
         return checkURL;
       }
     }
-    if (checkURL != resourcePathURL) {
+    const availURL = await getExistingPathFromServer(store, ext);
+    if (availURL) {
+      return availURL;
+    } else {
+      if (checkPresence) {
+        return null;
+      } else {
+        return resourcePathS3URL;
+      }
+    }
+
+    /* if (checkURL != resourcePathURL) {
       const linuxURL = `${resourcePathURL}${store}.${ext}`;
       let isFileExists = await isFileExistingInServer(linuxURL);
       if (isFileExists) {
@@ -335,7 +350,7 @@ export const checkExistingPathFromStore = async (
       return null;
     } else {
       return resourcePathS3URL;
-    }
+    } */
   }
 };
 
