@@ -140,7 +140,15 @@ export const fetchGLTFAndTree = async ({
       );
     }
     //const multiAssembly = treeRes.length > 0;
-
+    console.log(
+      myResourcePath,
+      obj,
+      gltfRes.data,
+      treeRes.data,
+      stackRes.data,
+      orderRes.data,
+      gdtRes.data
+    );
     setgltfjson({
       ...obj,
       gltf: gltfRes.data,
@@ -155,6 +163,7 @@ export const fetchGLTFAndTree = async ({
     setIsLoading(false);
     setProgressBarLoad(false);
   } catch (error) {
+    console.log(error);
     setIsLoading(false);
   }
 };
