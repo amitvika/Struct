@@ -117,7 +117,7 @@ const ItemDetail = ({ itemValue }) => {
           : myTabedIndex;
 
       const gltfParam = {
-        myTabIndex: myTabIndex,
+        myTabedIndex: myTabIndex,
         fileStore: item.fileStore,
         fileGDT: item.fileGDT,
         fileMPPS: item.fileMPPS,
@@ -252,7 +252,7 @@ const ItemDetail = ({ itemValue }) => {
       });
     } else {
       fetchGLTFAndTree({
-        item: 'mpps',
+        myTabedIndex: 'mpps',
         fileStore: item.fileStore,
         fileGDT: item.fileGDT,
         fileMPPS: item.fileMPPS,

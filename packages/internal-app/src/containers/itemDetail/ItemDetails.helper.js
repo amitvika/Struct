@@ -442,7 +442,7 @@ export const setStack = async (props) => {
     } else {
       //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
       fetchGLTFAndTree({
-        item: 'stack',
+        myTabedIndex: 'stack',
         fileStore: item.fileStore,
         fileGDT: item.fileGDT,
         fileMPPS: item.fileMPPS,

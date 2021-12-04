@@ -64,7 +64,7 @@ export default function ManufacturabilityAnalysis(props) {
     console.log(tabName);
 
     if (tabName == 'Stackability') {
-      setStack({ item: itemProperties, ...props });
+      setStack({ item: { ...itemProperties }, ...props });
     }
   };
 
