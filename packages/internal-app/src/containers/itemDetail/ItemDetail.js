@@ -117,7 +117,7 @@ const ItemDetail = ({ itemValue }) => {
           : myTabedIndex;
 
       const gltfParam = {
-        myTabIndex: myTabIndex,
+        myTabedIndex: myTabIndex,
         fileStore: item.fileStore,
         fileGDT: item.fileGDT,
         fileMPPS: item.fileMPPS,
@@ -221,11 +221,12 @@ const ItemDetail = ({ itemValue }) => {
     state_additionalSaveFunction = saveFunction;
   };
 
-  const handleSetOrder = async (item) => {
+  const handleSetOrder = async (props) => {
+    const { item } = props;
     if (!item.fileId && !item.fileUUId) {
       return;
     }
-
+    let okToParse = await getOKTOParseForSetOrder({ item });
     if (!item.fileMPPS || item.fileMPPS === null) {
       setOrder({
         item,
@@ -240,17 +241,25 @@ const ItemDetail = ({ itemValue }) => {
         setItemProperties
       });
     } else {
-      let okToParse = await getOKTOParseForSetOrder({ item });
-      fetchGLTFAndTree(
-        'mpps',
-        item.fileStore,
-        item.fileGDT,
-        item.fileMPPS,
-        item.fileStack,
-        item.fileKinematic,
-        item.fileUUId,
-        okToParse
-      );
+      fetchGLTFAndTree({
+        myTabedIndex: 'mpps',
+        fileStore: item.fileStore,
+        fileGDT: item.fileGDT,
+        fileMPPS: item.fileMPPS,
+        fileStack: item.fileStack,
+        fileKinematic: item.fileKinematic,
+        fileUUId: item.fileUUId,
+        okToParse,
+        setIsLoading,
+        setIsFileLoading,
+        setProgressBarLoad,
+        setPercentage,
+        percentage,
+        setCurrentProgressText,
+        setCompletionProgressText,
+        setgltfjson,
+        setItemProperties
+      });
       if (itemProperties.fileMPPS != item.fileMPPS) {
         setItemProperties((prevData) => ({
           ...prevData,

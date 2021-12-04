@@ -39,7 +39,7 @@ yarn install
 
 - Install miniconda
 - start miniconda terminal
-- run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib`
+- run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib `
 - run `conda activate structquery`
 - CD to `gltfconverter` directory
 - run `pip install -r requirements.txt`

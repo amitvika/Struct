@@ -21,25 +21,26 @@ import {
 } from '@monostruct/common/api/fileUpload.api';
 import get from 'lodash/get';
 
-export const fetchGLTFAndTree = async ({
-  myTabedIndex,
-  fileStore,
-  fileGDT,
-  fileMPPS,
-  fileStack,
-  fileKinematic,
-  fileUUId,
-  okToParse,
-  setIsLoading,
-  setProgressBarLoad,
-  percentage,
-  setPercentage,
-  setCurrentProgressText,
-  setCompletionProgressText,
-  setgltfjson
-}) => {
+export const fetchGLTFAndTree = async (props) => {
+  const {
+    myTabedIndex,
+    fileStore,
+    fileGDT,
+    fileMPPS,
+    fileStack,
+    fileKinematic,
+    fileUUId,
+    okToParse,
+    setIsLoading,
+    setProgressBarLoad,
+    percentage,
+    setPercentage,
+    setCurrentProgressText,
+    setCompletionProgressText,
+    setgltfjson
+  } = props;
   try {
-    console.log('----------');
+    console.log('----------', props);
     let obj = {
       gltf: {},
       tree: {},
@@ -98,7 +99,13 @@ export const fetchGLTFAndTree = async ({
         );
       }
     }
-    // console.log('Fetching files, ', whichOneToLoad);
+    console.log(
+      'Fetching files, ',
+      fileUUId,
+      whichOneToLoad,
+      myTabIndex,
+      myTabedIndex
+    );
     //
     const myResourcePath = await checkExistingPathFromStore(
       whichOneToLoad,
@@ -140,7 +147,15 @@ export const fetchGLTFAndTree = async ({
       );
     }
     //const multiAssembly = treeRes.length > 0;
-
+    console.log(
+      myResourcePath,
+      obj,
+      gltfRes.data,
+      treeRes.data,
+      stackRes.data,
+      orderRes.data,
+      gdtRes.data
+    );
     setgltfjson({
       ...obj,
       gltf: gltfRes.data,
@@ -155,6 +170,7 @@ export const fetchGLTFAndTree = async ({
     setIsLoading(false);
     setProgressBarLoad(false);
   } catch (error) {
+    console.log(error);
     setIsLoading(false);
   }
 };
@@ -185,23 +201,25 @@ export const isOKToParseForOtherTab = async ({ item }) => {
   }
 };
 
-export const handleOtherTabCase = async ({
-  item,
-  myTabedIndex,
-  myTabIndex,
-  setIsLoading,
-  setIsFileLoading,
-  setProgressBarLoad,
-  allowFirstLevelItems,
-  createAutoAssemblyOrder,
-  createAutoStackability,
-  setPercentage,
-  percentage,
-  setCurrentProgressText,
-  setCompletionProgressText,
-  setgltfjson,
-  setItemProperties
-}) => {
+export const handleOtherTabCase = async (props) => {
+  const {
+    item,
+    myTabedIndex,
+    myTabIndex,
+    setIsLoading,
+    setIsFileLoading,
+    setProgressBarLoad,
+    allowFirstLevelItems,
+    createAutoAssemblyOrder,
+    createAutoStackability,
+    setPercentage,
+    percentage,
+    setCurrentProgressText,
+    setCompletionProgressText,
+    setgltfjson,
+    setItemProperties
+  } = props;
+  console.log('handleOtherTabCase', props);
   let updatedItemProp = {};
 
   setIsLoading(true);
@@ -341,19 +359,21 @@ export const handleOtherTabCase = async ({
   return updatedItemProp;
 };
 
-export const setStack = async ({
-  item,
-  setIsLoading,
-  setIsFileLoading,
-  setProgressBarLoad,
-  setPercentage,
-  percentage,
-  setCurrentProgressText,
-  setCompletionProgressText,
-  setgltfjson,
-  setItemProperties,
-  itemProperties
-}) => {
+export const setStack = async (props) => {
+  const {
+    item,
+    setIsLoading,
+    setIsFileLoading,
+    setProgressBarLoad,
+    setPercentage,
+    percentage,
+    setCurrentProgressText,
+    setCompletionProgressText,
+    setgltfjson,
+    setItemProperties,
+    itemProperties
+  } = props;
+  console.log('SetStack', props);
   if (!item.fileId && !item.fileUUId) {
     return;
   }
@@ -427,16 +447,25 @@ export const setStack = async ({
         });
     } else {
       //console.log("Up1",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
-      fetchGLTFAndTree(
-        'stack',
-        item.fileStore,
-        item.fileGDT,
-        item.fileMPPS,
-        item.fileStack,
-        item.fileKinematic,
-        item.fileUUId,
-        okToParse
-      );
+      fetchGLTFAndTree({
+        myTabedIndex: 'stack',
+        fileStore: item.fileStore,
+        fileGDT: item.fileGDT,
+        fileMPPS: item.fileMPPS,
+        fileStack: item.fileStack,
+        fileKinematic: item.fileKinematic,
+        fileUUId: item.fileUUId,
+        okToParse,
+        setIsLoading,
+        setIsFileLoading,
+        setProgressBarLoad,
+        setPercentage,
+        percentage,
+        setCurrentProgressText,
+        setCompletionProgressText,
+        setgltfjson,
+        setItemProperties
+      });
       if (itemProperties.fileStack != item.fileStack) {
         setItemProperties((prevData) => ({
           ...prevData,
@@ -481,21 +510,25 @@ export const getOKTOParseForSetOrder = async ({ item }) => {
       }
     }
     return okToParse;
-  } catch (error) {}
+  } catch (error) {
+    console.log(error, item);
+  }
 };
 
-export const setOrder = async ({
-  item,
-  setIsLoading,
-  setIsFileLoading,
-  setProgressBarLoad,
-  setPercentage,
-  percentage,
-  setCurrentProgressText,
-  setCompletionProgressText,
-  setgltfjson,
-  setItemProperties
-}) => {
+export const setOrder = async (props) => {
+  const {
+    item,
+    setIsLoading,
+    setIsFileLoading,
+    setProgressBarLoad,
+    setPercentage,
+    percentage,
+    setCurrentProgressText,
+    setCompletionProgressText,
+    setgltfjson,
+    setItemProperties
+  } = props;
+  console.log('Set Order', props);
   try {
     setIsLoading(true);
     setIsFileLoading(true);
@@ -613,22 +646,24 @@ export const isOKToParseForProductDesignTab = async ({ item }) => {
   return PROCESSINGSTATUS.HUNG;
 };
 
-export const handleProductDesignTab = async ({
-  item,
-  myTabedIndex,
-  setIsLoading,
-  setIsFileLoading,
-  setProgressBarLoad,
-  allowFirstLevelItems,
-  createAutoAssemblyOrder,
-  createAutoStackability,
-  percentage,
-  setPercentage,
-  setCurrentProgressText,
-  setCompletionProgressText,
-  setgltfjson,
-  setItemProperties
-}) => {
+export const handleProductDesignTab = async (props) => {
+  const {
+    item,
+    myTabedIndex,
+    setIsLoading,
+    setIsFileLoading,
+    setProgressBarLoad,
+    allowFirstLevelItems,
+    createAutoAssemblyOrder,
+    createAutoStackability,
+    percentage,
+    setPercentage,
+    setCurrentProgressText,
+    setCompletionProgressText,
+    setgltfjson,
+    setItemProperties
+  } = props;
+  console.log('handleProductDesignTab', props);
   setIsLoading(true);
   setIsFileLoading(true);
   setProgressBarLoad(true);
@@ -781,7 +816,9 @@ export const isOKToParseForInternalUseProduct = async ({ item }) => {
   }
 };
 
-export const handleInternalUseProduct = async ({ item, setgltfjson }) => {
+export const handleInternalUseProduct = async (props) => {
+  const { item, setgltfjson } = props;
+  console.log('handleInternalUseProduct', props);
   try {
     const partsKinematicOrderResp = await getPartsKinematicOrder(
       getStepFile(item),
@@ -841,13 +878,13 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
     true
   );
   if (myResourcePath) {
-    //console.log('Found gltf', whichOneToLoad);
+    console.log('Found gltf', whichOneToLoad, myResourcePath);
     return PROCESSINGSTATUS.PROCESSED;
   }
   const statusURL = `${resourceStatusURL}${whichOneToStatus}.status`;
-  //console.log('Checking Existing', statusURL);
+  console.log('Checking Existing', statusURL);
   if (isFileExistingInServer(statusURL)) {
-    //console.log('Found status', whichOneToLoad);
+    console.log('Found status', statusURL);
     const statusRes = await getAFileFromStore(whichOneToStatus, 'status');
     let percent = 0;
     if (
@@ -855,7 +892,7 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
       statusRes.data &&
       !isEmptyObjectDictionary(statusRes.data)
     ) {
-      //console.log('Status Result', statusRes, statusRes.data);
+      console.log('Status Result', statusRes, statusRes.data);
       percent = statusRes.data.percent;
       if (percent == 100) {
         return PROCESSINGSTATUS.PROCESSED;
@@ -879,10 +916,25 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
       difference += 24 * 60 * 60;
     }
     if (difference > 2 * 60) {
+      console.log(
+        'difference Result',
+        currenttime,
+        servertime,
+        currenttimearray,
+        servertimearray
+      );
       return PROCESSINGSTATUS.HUNG;
     }
+    console.log(
+      'inporgress Result',
+      currenttime,
+      servertime,
+      currenttimearray,
+      servertimearray
+    );
     return PROCESSINGSTATUS.INPROGRESS;
   }
+  console.log('not started Result', statusURL);
   return PROCESSINGSTATUS.NOTSTARTED;
 };
 

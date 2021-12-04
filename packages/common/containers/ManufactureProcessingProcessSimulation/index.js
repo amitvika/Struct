@@ -101,7 +101,7 @@ export default function Index2(props) {
     }
     if (tabName2 == 'Manufacturability Analysis') {
       if (selectedTab == 'Assembly') {
-        setOrder({ ...itemProperties });
+        setOrder({ item: { ...itemProperties }, ...props });
       } /* else if(selectedTab=="Storage") {
                 setStack(itemProperties);
             } */
