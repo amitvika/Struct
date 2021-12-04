@@ -21,25 +21,26 @@ import {
 } from '@monostruct/common/api/fileUpload.api';
 import get from 'lodash/get';
 
-export const fetchGLTFAndTree = async ({
-  myTabedIndex,
-  fileStore,
-  fileGDT,
-  fileMPPS,
-  fileStack,
-  fileKinematic,
-  fileUUId,
-  okToParse,
-  setIsLoading,
-  setProgressBarLoad,
-  percentage,
-  setPercentage,
-  setCurrentProgressText,
-  setCompletionProgressText,
-  setgltfjson
-}) => {
+export const fetchGLTFAndTree = async (props) => {
+  const {
+    myTabedIndex,
+    fileStore,
+    fileGDT,
+    fileMPPS,
+    fileStack,
+    fileKinematic,
+    fileUUId,
+    okToParse,
+    setIsLoading,
+    setProgressBarLoad,
+    percentage,
+    setPercentage,
+    setCurrentProgressText,
+    setCompletionProgressText,
+    setgltfjson
+  } = props;
   try {
-    console.log('----------');
+    console.log('----------', props);
     let obj = {
       gltf: {},
       tree: {},
@@ -194,23 +195,25 @@ export const isOKToParseForOtherTab = async ({ item }) => {
   }
 };
 
-export const handleOtherTabCase = async ({
-  item,
-  myTabedIndex,
-  myTabIndex,
-  setIsLoading,
-  setIsFileLoading,
-  setProgressBarLoad,
-  allowFirstLevelItems,
-  createAutoAssemblyOrder,
-  createAutoStackability,
-  setPercentage,
-  percentage,
-  setCurrentProgressText,
-  setCompletionProgressText,
-  setgltfjson,
-  setItemProperties
-}) => {
+export const handleOtherTabCase = async (props) => {
+  const {
+    item,
+    myTabedIndex,
+    myTabIndex,
+    setIsLoading,
+    setIsFileLoading,
+    setProgressBarLoad,
+    allowFirstLevelItems,
+    createAutoAssemblyOrder,
+    createAutoStackability,
+    setPercentage,
+    percentage,
+    setCurrentProgressText,
+    setCompletionProgressText,
+    setgltfjson,
+    setItemProperties
+  } = props;
+  console.log('handleOtherTabCase', props);
   let updatedItemProp = {};
 
   setIsLoading(true);
@@ -637,22 +640,24 @@ export const isOKToParseForProductDesignTab = async ({ item }) => {
   return PROCESSINGSTATUS.HUNG;
 };
 
-export const handleProductDesignTab = async ({
-  item,
-  myTabedIndex,
-  setIsLoading,
-  setIsFileLoading,
-  setProgressBarLoad,
-  allowFirstLevelItems,
-  createAutoAssemblyOrder,
-  createAutoStackability,
-  percentage,
-  setPercentage,
-  setCurrentProgressText,
-  setCompletionProgressText,
-  setgltfjson,
-  setItemProperties
-}) => {
+export const handleProductDesignTab = async (props) => {
+  const {
+    item,
+    myTabedIndex,
+    setIsLoading,
+    setIsFileLoading,
+    setProgressBarLoad,
+    allowFirstLevelItems,
+    createAutoAssemblyOrder,
+    createAutoStackability,
+    percentage,
+    setPercentage,
+    setCurrentProgressText,
+    setCompletionProgressText,
+    setgltfjson,
+    setItemProperties
+  } = props;
+  console.log('handleProductDesignTab', props);
   setIsLoading(true);
   setIsFileLoading(true);
   setProgressBarLoad(true);
@@ -805,7 +810,9 @@ export const isOKToParseForInternalUseProduct = async ({ item }) => {
   }
 };
 
-export const handleInternalUseProduct = async ({ item, setgltfjson }) => {
+export const handleInternalUseProduct = async () => {
+  const { item, setgltfjson } = props;
+  console.log('handleInternalUseProduct', props);
   try {
     const partsKinematicOrderResp = await getPartsKinematicOrder(
       getStepFile(item),
