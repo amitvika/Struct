@@ -810,7 +810,7 @@ export const isOKToParseForInternalUseProduct = async ({ item }) => {
   }
 };
 
-export const handleInternalUseProduct = async () => {
+export const handleInternalUseProduct = async (props) => {
   const { item, setgltfjson } = props;
   console.log('handleInternalUseProduct', props);
   try {
