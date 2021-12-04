@@ -47,6 +47,7 @@ import {
   fetchGLTFAndTree,
   getOKTOParseForSetOrder
 } from './ItemDetails.helper';
+import MaterialTab from './materialTab';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -269,6 +270,71 @@ const ItemDetail = ({ itemValue }) => {
     }
   };
 
+  const handleItemUpdate = (change) => {
+    let tempItemProperties = Object.assign({}, itemProperties, change);
+    console.log(
+      'Changing itemproperties in hanldeitemupdate',
+      tempItemProperties
+    );
+    setItemProperties(tempItemProperties);
+  };
+  const handleSave = async (change) => {
+    itemProperties.step = undefined;
+    itemProperties.gltfjson = undefined;
+    itemProperties.itemId = undefined;
+
+    let updateItemProperties = Object.assign({}, itemProperties, change);
+
+    if (Object.keys(updateItemProperties).length === 0) {
+      return;
+    }
+
+    ItemAPI.updateItemAPI(id, { ...updateItemProperties })
+      .then((res) => {
+        if (res && res.data) {
+          console.log(
+            'Changing item properties from handle save after UpdateItemAPI',
+            res.data
+          );
+          setItemProperties(res.data);
+          setAllowFirstLevelItems(
+            res.data?.child_item_status !== 'NOT_INITIATED'
+          );
+          dispatch(showSuccessAlert({ message: 'Item Updated' }));
+        } else {
+          dispatch(showErrorAlert({ message: 'Unable to save info' }));
+        }
+      })
+      .catch((error) => {
+        dispatch(showErrorAlert({ message: 'Unable to save info' }));
+      });
+    try {
+      if (state_additionalSaveFunction) {
+        state_additionalSaveFunction();
+      }
+    } catch (error) {
+      console.log('Error while saving', error);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      if (
+        itemProperties.fileUUId &&
+        itemProperties.fileGDT &&
+        itemProperties.child_item_status === 'INITIATED'
+      ) {
+        const childrenCreated = await createChildItems({
+          fileUUId: itemProperties.fileUUId,
+          pathFileName: itemProperties.fileGDT.slice(0, -1),
+          parentId: itemProperties.id
+        });
+
+        childrenCreated && handleSave({ child_item_status: 'COMPLETED' });
+      }
+    })();
+  }, [itemProperties.child_item_status, handleSave]);
+
   const renderPageSwitch = () => {
     if (!get(itemProperties, 'id') && !id) {
       return null;
@@ -475,70 +541,12 @@ const ItemDetail = ({ itemValue }) => {
         return 'Recycling & Sustainability';
       case 'pds':
         return <ProductDesignSetup {...{ itemId: id, gltfjson }} />;
+      case 'itemProperties':
+        return 'Item Properties';
+      case 'materials':
+        return <MaterialTab {...{ itemProperties, setItemProperties }} />;
       default:
         return 'Undefined Tab Index';
-    }
-  };
-
-  const handleItemUpdate = (change) => {
-    let tempItemProperties = Object.assign({}, itemProperties, change);
-    console.log(
-      'Changing itemproperties in hanldeitemupdate',
-      tempItemProperties
-    );
-    setItemProperties(tempItemProperties);
-  };
-
-  const handleSave = async (change) => {
-    itemProperties.step = undefined;
-    itemProperties.gltfjson = undefined;
-    itemProperties.itemId = undefined;
-
-    let updateItemProperties = Object.assign({}, itemProperties, change);
-
-    if (Object.keys(updateItemProperties).length === 0) {
-      return;
-    }
-
-    if (
-      updateItemProperties.fileUUId &&
-      updateItemProperties.fileGDT &&
-      updateItemProperties.child_item_status === 'INITIATED'
-    ) {
-      const childrenCreated = await createChildItems({
-        fileUUId: updateItemProperties.fileUUId,
-        pathFileName: updateItemProperties.fileGDT.slice(0, -1),
-        parentId: updateItemProperties.id
-      });
-
-      updateItemProperties.child_item_status = 'COMPLETED';
-    }
-
-    ItemAPI.updateItemAPI(id, { ...updateItemProperties })
-      .then((res) => {
-        if (res && res.data) {
-          console.log(
-            'Changing item properties from handle save after UpdateItemAPI',
-            res.data
-          );
-          setItemProperties(res.data);
-          setAllowFirstLevelItems(
-            res.data?.child_item_status !== 'NOT_INITIATED'
-          );
-          dispatch(showSuccessAlert({ message: 'Item Updated' }));
-        } else {
-          dispatch(showErrorAlert({ message: 'Unable to save info' }));
-        }
-      })
-      .catch((error) => {
-        dispatch(showErrorAlert({ message: 'Unable to save info' }));
-      });
-    try {
-      if (state_additionalSaveFunction) {
-        state_additionalSaveFunction();
-      }
-    } catch (error) {
-      console.log('Error while saving', error);
     }
   };
 
@@ -556,6 +564,9 @@ const ItemDetail = ({ itemValue }) => {
 
   const tabList = {
     pdcu: 'Product Design or CAD Upload',
+    itemProperties: 'Item Properties',
+    materials: 'Materials',
+    iupc: 'Internal Item Properties',
     cf: 'Classification',
     cc: 'Compliance and Certifications',
     gdtac: 'GD&T and Assembly Constraints',
@@ -571,7 +582,6 @@ const ItemDetail = ({ itemValue }) => {
     pd: 'Product Documentation',
     rs: 'Recycling & Sustainability',
     pds: 'Product Design Setup',
-    iupc: 'Internal Use Product Configurations',
     production: 'Production'
   };
 

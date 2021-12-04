@@ -1,16 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Button,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Icon,
-  Typography
-} from '@material-ui/core';
+import { Paper, Icon, Typography } from '@material-ui/core';
 import { Tooltip } from 'reactstrap';
 import Grid from '@material-ui/core/Grid';
 import Switch from '@material-ui/core/Switch';
@@ -18,9 +7,6 @@ import Switch from '@material-ui/core/Switch';
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
 import Headding from '@monostruct/common/components/atoms/Headding';
-import MaterialModal from './MaterialModal';
-import MaterialPropertiesModal from './MaterialPropertiesModal';
-//import FileUploadAndExport from './FileUploadAndExport';
 import LargeFileUpload from '@monostruct/common/gltf/LargeFileUpload';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
@@ -70,31 +56,6 @@ export default function GeometryInput({
 
   const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
 
-  const [materialProperties, setMaterialProperties] = useState({});
-  const [selectedMaterials, setSelectedMaterials] = useState(
-    itemGeometry.materials || []
-  );
-
-  const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
-  const toggleMaterial = () => {
-    setIsMaterialModalOpen((prevValue) => {
-      return !prevValue;
-    });
-  };
-
-  const [isMaterialPropertiesModalOpen, setIsMaterialPropertiesModalOpen] =
-    useState(false);
-  const toggleMaterialProperties = () => {
-    setIsMaterialPropertiesModalOpen((prevValue) => {
-      return !prevValue;
-    });
-  };
-
-  const handleMaterialPropertieView = (material) => {
-    setIsMaterialPropertiesModalOpen(true);
-    setMaterialProperties(material);
-  };
-
   const handleOnChange = (name, value) => {
     setItemProperties((prevData) => ({
       ...prevData,
@@ -111,65 +72,15 @@ export default function GeometryInput({
     // );
   };
 
-  useEffect(() => {
-    setItemProperties((prevProps) => {
-      return {
-        ...prevProps,
-        itemGeometry: {
-          ...itemGeometry,
-          materials: selectedMaterials
-        }
-      };
-    });
-    // console.log(
-    //   'Changing item properties from Geometryinput selected materials',
-    //   itemProperties,
-    //   selectedMaterials
-    // );
-    return () => {};
-  }, [selectedMaterials]);
-
   return (
     <div style={{ margin: 10 }}>
       {<LoadingModal isLoading={isFileLoading} />}
-      {isMaterialModalOpen && (
-        <MaterialModal
-          toggleMaterial={toggleMaterial}
-          isMaterialModalOpen={isMaterialModalOpen}
-          materialProperties={materialProperties}
-          handleMaterialPropertieView={handleMaterialPropertieView}
-          selectedMaterials={selectedMaterials}
-          itemProperties={itemProperties}
-          setItemProperties={setItemProperties}
-          setSelectedMaterials={setSelectedMaterials}
-        />
-      )}
-      {isMaterialPropertiesModalOpen && (
-        <MaterialPropertiesModal
-          toggleMaterialProperties={toggleMaterialProperties}
-          isMaterialPropertiesModalOpen={isMaterialPropertiesModalOpen}
-          materialProperties={materialProperties}
-          setMaterialProperties={setMaterialProperties}
-        />
-      )}
+
       <Paper style={{ padding: 20, margin: 10 }} variant="outlined" square>
         <Grid className="section-padding-left" container spacing={4}>
           <Grid item xs={12}>
             <Typography
               variant={'h4'}
-              style={{
-                fontSize: 'xxLarge',
-                fontWeight: 'bold',
-                textAlign: 'center'
-              }}
-            >
-              Item Properties
-            </Typography>
-          </Grid>
-
-          <Grid item xs={12} style={{ display: 'flex' }}>
-            <Typography
-              variant="h5"
               style={{
                 fontSize: 'xxLarge',
                 fontWeight: 'bold',
@@ -348,53 +259,6 @@ export default function GeometryInput({
                 />
               </Grid>
             </>
-          )}
-        </Grid>
-        <Grid className="section-padding-left" container spacing={4}>
-          <Grid item>
-            <Headding fontSize={20} bold title={'Item Material'} />
-            <Button
-              size="large"
-              variant="contained"
-              color="primary"
-              disabled={itemProperties.assemblyType === 'Multi-Item Assembly'}
-              onClick={toggleMaterial}
-            >
-              Select Material
-            </Button>
-          </Grid>
-          {selectedMaterials.length > 0 && (
-            <Grid item xs={12}>
-              <Headding bold title={'Selected Materials'} />
-
-              <TableContainer className="mb-2" component={Paper}>
-                <Table aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>S No</TableCell>
-                      <TableCell>Material Name</TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {selectedMaterials.map((materialRow) => (
-                      <TableRow key={materialRow._id}>
-                        <TableCell>{materialRow._id}</TableCell>
-                        <TableCell>{materialRow.name}</TableCell>
-                        <TableCell
-                          style={{ cursor: 'pointer' }}
-                          onClick={() =>
-                            handleMaterialPropertieView(materialRow)
-                          }
-                        >
-                          View Material Properties
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
           )}
         </Grid>
       </Paper>
