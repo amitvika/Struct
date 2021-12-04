@@ -258,7 +258,7 @@ const ItemDetail = ({ itemValue }) => {
         fileMPPS: item.fileMPPS,
         fileStack: item.fileStack,
         fileKinematic: item.fileKinematic,
-        fileUUID: item.fileUUId,
+        fileUUId: item.fileUUId,
         okToParse,
         setIsLoading,
         setIsFileLoading,
