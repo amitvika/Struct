@@ -1067,6 +1067,28 @@ class StepExportWithColor(object):
             print("Error while wrting",statusfilename,e)
         return mystatusdict
 
+    def writeProgress(self, maxgap=10, currentcount=0, action=''):
+        currenttime = datetime.utcnow()
+        mystatusdict =  {
+            "begin":currentcount,
+            "end":self.totalcount,
+            "start":self.starttime.strftime("%H-%M-%S"),
+            "current":currenttime.strftime("%H-%M-%S"),
+            "action":action,
+            "createchilds":self.CreateChildSteps,
+            "createorder":self.CreateAssemblyOrder,
+            "createstack":self.CreateStackability }
+        try:            
+            timingdelta = currenttime-self.currenttime            
+            if (timingdelta.total_seconds() >= maxgap) or (maxgap==0):        
+                paramfilename = self.displaypath+self.basefilename[:-1]+".status"
+                try:
+                    with open(paramfilename, 'w') as fh:
+                        fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                except Exception as e:
+                    print("While Writing",paramfilename,e,currentcount)
+        except Exception as e:
+                print("While Writing",paramfilename,e,currentcount)
 
     def getShapesFromOutPutShapes_old(self,shapes,myParent,mytree,treeLength):
         retshapes=[]
@@ -1214,7 +1236,16 @@ class StepExportWithColor(object):
         includeparts,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight, \
             logging, seperateparts,edgesize, vertexsize, maximumfacestoinclude,\
                 CreateChildSteps,CreateAssemblyOrder,explodegap,center,holescale,removegap,\
-                    recreatefororder,CreateStackability,fuuid):
+                    recreatefororder,CreateStackability,fuuid,displaypath='',\
+                        starttime=datetime.utcnow(),totalcount=0):
+        self.basefilename=filename
+        self.displaypath=displaypath
+        self.starttime=starttime
+        self.CreateChildSteps=CreateChildSteps
+        self.CreateAssemblyOrder=CreateAssemblyOrder
+        self.CreateStackability=CreateStackability
+        self.totalcount=totalcount
+        self.currenttime=datetime.utcnow()
         name = None
         lengthCheck = 0
         #print("Passed",myTree)
@@ -1261,10 +1292,12 @@ class StepExportWithColor(object):
                         assemblyCount=1
             else:
                 myParentId = None
-                assemblyCount=1                 
+                assemblyCount=1   
+                   
         if (name) and (assemblyCount>=1):
             assemblyNames = []
             lengthCheck = 0
+            self.writeProgress(0,0,"Started")
             for aTree in myTree:
                 if aTree[self.gltf_dict['parentId']]==myParentId :                     
                     self.app = XCAFApp_Application_GetApplication()
@@ -1282,6 +1315,7 @@ class StepExportWithColor(object):
                     uuidname = str(uuid.uuid4())
                     uniquename=filename+" "+str(treeID)
                     addedAssembly+=1
+                    self.writeProgress(currentcount=addedAssembly)
                     fullpath = 'Media/'+uuidname+'/'+uniquename+".step"
                     os.makedirs(os.path.dirname(fullpath), exist_ok=True)
                     if(self.write_file(fullpath)):  
@@ -1310,7 +1344,9 @@ class StepExportWithColor(object):
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break
-            return  (addedAssembly,assemblyNames) 
+            self.writeProgress(0,totalcount,"Completed")
+            return  (addedAssembly,assemblyNames)
+        self.writeProgress(0,totalcount,"No Child") 
         return (addedAssembly,None)
 
     def GetFirstLevelSelfAndTreeFromOutputShapes(self,aTree,shapes,myTree,treeLength,fuuid):
@@ -3197,6 +3233,7 @@ class StepIgesAnalyser():
             treeArray = json.loads(data)
             statusArray = self.read_status()
             treelengthbeforevertices = self.treelengthbeforevertices
+            assemblycount=0
             if not treelengthbeforevertices:
                 if "trees" in statusArray:
                     treelengthbeforevertices = statusArray["trees"]
@@ -3204,6 +3241,9 @@ class StepIgesAnalyser():
                         treelengthbeforevertices = len(treeArray)
                 else:
                     treelengthbeforevertices = len(treeArray)
+            if "assemblies" in statusArray:
+                assemblycount = statusArray["assemblies"]
+                
             progressArray = self.read_progress()
             self.write_progress(maxgap=0,action='Child Items Started',written=False,\
                 start=progressArray["start"] if ("start" in progressArray) else None,\
@@ -3216,7 +3256,8 @@ class StepIgesAnalyser():
                                     self.maximumfacestoinclude,self.CreateChildSteps,\
                                         self.CreateAssemblyOrder,self.explodegap,self.center,\
                                             self.holescale,self.removegap,self.recreatefororder,\
-                                                self.CreateStackability,fileuuid)
+                                                self.CreateStackability,fileuuid,self.displaypath,\
+                                                    self.starttime,assemblycount)
             self.write_progress(maxgap=0,action='Child Items Written',written=True,\
                 start=progressArray["start"] if ("start" in progressArray) else None,\
                     finish=None) 
@@ -4500,7 +4541,8 @@ class StepIgesAnalyser():
                                     self.maximumfacestoinclude,self.CreateChildSteps,\
                                         self.CreateAssemblyOrder,self.explodegap,self.center,\
                                             self.holescale,self.removegap,self.recreatefororder,\
-                                                self.CreateStackability,'')           
+                                                self.CreateStackability,'',self.displaypath,\
+                                                    self.starttime,self.assemblycount)           
                 self.write_progress(maxgap=0,action='Child Items Written',written=True)
                 print("Completing Child Steps",self.fname)
             if self.CreateAssemblyOrder:
