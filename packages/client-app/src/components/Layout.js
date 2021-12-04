@@ -1,7 +1,5 @@
 import React from 'react';
 import Header from '@monostruct/common/components/Header/Header';
-const pages = ['My Purchases', 'Robot Programming', 'Design'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 export const headerListItem = [
   {
@@ -15,8 +13,15 @@ export const headerListItem = [
     addSeparator: false
   },
   {
-    label: 'Design',
-    href: '/design',
+    label: 'Design Stuff',
+    href: `//${process.env.REACT_APP_DESIGN_URL}`,
+    target: '_blank',
+    addSeparator: false
+  },
+  {
+    label: 'Struct Home',
+    href: `//${process.env.REACT_APP_STRUCT_HOME}`,
+    target: '_blank',
     addSeparator: false
   }
 ];

@@ -181,22 +181,22 @@ export default function ItemTypeConfiguration(props) {
   }, [isLoading]);
 
   const renderExcelUI = () => {
-    if (
-      itemProperties.itemGeometry?.itemType ===
-      'Machine - Compound/Tool/Workholding'
-    ) {
-      return (
-        <DynamicHierarchyForm
-          setShowKineticModal={setShowKineticModal}
-          handleItemUpdate={handleItemUpdate}
-          renderData={renderData}
-          setRenderData={addSelectionFromComponent}
-          internalProductConfig={internalProductConfig}
-        />
-      );
-    } else {
-      return null;
-    }
+    // if (
+    //   itemProperties.itemGeometry?.itemType ===
+    //   'Machine - Compound/Tool/Workholding'
+    // ) {
+    return (
+      <DynamicHierarchyForm
+        setShowKineticModal={setShowKineticModal}
+        handleItemUpdate={handleItemUpdate}
+        renderData={renderData}
+        setRenderData={addSelectionFromComponent}
+        internalProductConfig={internalProductConfig}
+      />
+    );
+    //   } else {
+    //     return null;
+    //   }
   };
 
   return (

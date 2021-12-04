@@ -66,31 +66,34 @@ export default function HeaderDesktopView({
   };
 
   const getMenuButtons = () => {
-    let menuItems = headerListItem.map(({ label, href, addSeparator }) => {
-      return (
-        <li
-          key={`primary_button_${label}`}
-          className={
-            classes.primaryListItemHeader +
-            ` ${addSeparator && classes.verticalBar}`
-          }
-        >
-          <Button
-            {...{
-              key: label,
-              color: 'inherit',
-              to: href,
-              component: RouterLink,
-              className:
-                classes.menuButton +
-                ` ${location.pathname.includes(href) && classes.linkSelected}`
-            }}
+    let menuItems = headerListItem.map(
+      ({ label, href, addSeparator, target }) => {
+        return (
+          <li
+            key={`primary_button_${label}`}
+            className={
+              classes.primaryListItemHeader +
+              ` ${addSeparator && classes.verticalBar}`
+            }
           >
-            {label}
-          </Button>
-        </li>
-      );
-    });
+            <Button
+              {...{
+                key: label,
+                color: 'inherit',
+                to: href,
+                component: RouterLink,
+                target,
+                className:
+                  classes.menuButton +
+                  ` ${location.pathname.includes(href) && classes.linkSelected}`
+              }}
+            >
+              {label}
+            </Button>
+          </li>
+        );
+      }
+    );
     return menuItems;
   };
   const getSecondMenu = () => {

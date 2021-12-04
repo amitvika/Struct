@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Icon, Typography } from '@material-ui/core';
+import { Paper, Icon, Typography, makeStyles } from '@material-ui/core';
 import { Tooltip } from 'reactstrap';
 import Grid from '@material-ui/core/Grid';
 import Switch from '@material-ui/core/Switch';
@@ -12,14 +12,14 @@ import LoadingModal from '@monostruct/common/components/LoadingModal';
 import { getFileNameWithoutExtension } from '@monostruct/common/gltf/Tree/utils';
 import { createChildItems } from './helper';
 
-// const {
-
-//   width: 100%;
-//     display: flex;
-//     align-items: center;
-//     justify-content: space-between;
-// }
-
+const useStyles = makeStyles((theme) => ({
+  item_row: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  }
+}));
 export default function GeometryInput({
   itemProperties = {},
   setItemProperties,
@@ -48,6 +48,7 @@ export default function GeometryInput({
   setCompletionProgressText,
   setCenterActionText
 }) {
+  const classes = useStyles();
   const [tooltipOpen, setTooltipOpen] = useState(false);
   // const [fileId, setFileId] = useState(0);
   const itemGeometry = itemProperties.itemGeometry || {};
@@ -142,7 +143,7 @@ export default function GeometryInput({
             />
           </Grid>
 
-          <Grid item>
+          <Grid item className={classes.item_row}>
             <Typography variant="h6" noWrap>
               {'Create child items:'}
             </Typography>
@@ -161,33 +162,33 @@ export default function GeometryInput({
             />
           </Grid>
 
-          <Grid item>
+          <Grid item className={classes.item_row}>
             <Typography variant="h6">{'Child Items Created :'}</Typography>
             <Typography variant="h6">
               {itemProperties.child_item_created}
             </Typography>
           </Grid>
 
-          <Grid item>
+          <Grid item className={classes.item_row}>
             <Typography variant="h6">{'Assembly Type :'}</Typography>
             <Typography variant="h6" bold>
               {itemProperties.assemblyType}
             </Typography>
           </Grid>
-          <Grid item>
+          <Grid item className={classes.item_row}>
             <Typography variant="h6">{'Direct Parent ID :'}</Typography>
             <Typography variant="h6">
               {itemProperties.direct_parent_id}
             </Typography>
           </Grid>
-          <Grid item>
+          <Grid item className={classes.item_row}>
             <Typography variant="h6">{'Origin Parent ID :'}</Typography>
-            <Typography variant="h6">
+            <Typography variant="h6" fontWeight="fontWeightBold">
               {itemProperties.origin_parent_id}
             </Typography>
           </Grid>
 
-          <Grid item>
+          <Grid item className={classes.item_row}>
             <Typography variant="h6">Item Type</Typography>
 
             <Select
