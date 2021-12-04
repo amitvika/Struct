@@ -1,11 +1,9 @@
 import React from 'react';
 
-import { Link as RouterLink, useHistory } from 'react-router-dom';
-import Logo from '../../assets/images/transparent_logo.png';
+import { useHistory } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
-  Typography,
   useMediaQuery,
   useScrollTrigger,
   Slide
@@ -44,34 +42,13 @@ export default function Header(props) {
     <HideOnScroll {...props}>
       <AppBar className={classes.header}>
         <Toolbar className={classes.toolbar}>
-          <StructLogo />
           {isMobile ? (
-            <HeaderMobileView {...{ handleLogout }} />
+            <HeaderMobileView {...{ handleLogout, ...props }} />
           ) : (
-            <HeaderDesktopView {...{ handleLogout }} />
+            <HeaderDesktopView {...{ handleLogout, ...props }} />
           )}
         </Toolbar>
       </AppBar>
     </HideOnScroll>
   );
 }
-
-const StructLogo = () => {
-  const classes = useStyles();
-
-  return (
-    <Typography
-      to={'/omnidesign'}
-      component={RouterLink}
-      className={classes.logo}
-    >
-      <div
-        className="d-inline-block align-top"
-        style={{ display: 'flex' }}
-        // onClick={handleOmniClick}
-      >
-        <img src={Logo} alt="logo" style={{ width: '100px' }} />
-      </div>
-    </Typography>
-  );
-};

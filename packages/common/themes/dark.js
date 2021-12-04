@@ -1,5 +1,3 @@
-import { createTheme } from '@material-ui/core/styles';
-
 export const darkTheme = {
   palette: {
     type: 'dark',
@@ -20,6 +18,14 @@ export const darkTheme = {
   header: {
     backgroundColor: '#000000',
     color: '#ffffff'
+  },
+  menuButton: {
+    fontWeight: 700,
+    size: '18px',
+    '&:hover, &:focus': {
+      background: '#5D6D7E ',
+      color: '#ffffff'
+    }
   },
   overrides: {
     MuiOutlinedInput: {

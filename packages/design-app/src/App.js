@@ -1,6 +1,6 @@
 import { ThemeContextProvider } from '@monostruct/common/themes/ThemeContextProvider';
 import AppRoutes from './AppRoutes';
-import { AuthContextProvider } from './context/AuthContext';
+import { AuthContextProvider } from '@monostruct/common/context/AuthContext';
 import '@monostruct/common/global.css';
 
 function App() {

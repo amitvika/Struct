@@ -23,8 +23,15 @@ import MaterialPropertiesModal from './MaterialPropertiesModal';
 //import FileUploadAndExport from './FileUploadAndExport';
 import LargeFileUpload from '@monostruct/common/gltf/LargeFileUpload';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
-import { createChildItems } from './helper';
-import { getFileNameWithoutExtension } from '@monostruct/common/gltf/Tree/utils';
+
+// const {
+
+//   width: 100%;
+//     display: flex;
+//     align-items: center;
+//     justify-content: space-between;
+// }
+
 export default function GeometryInput({
   itemProperties = {},
   setItemProperties,
@@ -197,7 +204,7 @@ export default function GeometryInput({
             </Typography>
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid item>
             <LargeFileUpload
               itemId={itemId}
               handleFileUpload={handleFileUpload}
@@ -222,10 +229,10 @@ export default function GeometryInput({
             />
           </Grid>
 
-          <Grid item xs={4}>
-            <Typography variant="h6">{'Create child items'}</Typography>
-          </Grid>
-          <Grid item xs={8}>
+          <Grid item>
+            <Typography variant="h6" noWrap>
+              {'Create child items:'}
+            </Typography>
             <Switch
               checked={
                 allowFirstLevelItems ||
@@ -241,19 +248,35 @@ export default function GeometryInput({
             />
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item>
+            <Typography variant="h6">{'Child Items Created :'}</Typography>
             <Typography variant="h6">
-              {'Single Item Part or Multi-Item Assembly'}{' '}
+              {itemProperties.child_item_created}
             </Typography>
           </Grid>
-          <Grid item xs={8}>
-            <span>{itemProperties.assemblyType}</span>
+
+          <Grid item>
+            <Typography variant="h6">{'Assembly Type :'}</Typography>
+            <Typography variant="h6" bold>
+              {itemProperties.assemblyType}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="h6">{'Direct Parent ID :'}</Typography>
+            <Typography variant="h6">
+              {itemProperties.direct_parent_id}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="h6">{'Origin Parent ID :'}</Typography>
+            <Typography variant="h6">
+              {itemProperties.origin_parent_id}
+            </Typography>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item>
             <Typography variant="h6">Item Type</Typography>
-          </Grid>
-          <Grid item xs={8}>
+
             <Select
               placeholder="Select"
               options={[
@@ -356,10 +379,8 @@ export default function GeometryInput({
           )}
         </Grid>
         <Grid className="section-padding-left" container spacing={4}>
-          <Grid item xs={4}>
+          <Grid item>
             <Headding fontSize={20} bold title={'Item Material'} />
-          </Grid>
-          <Grid item xs={8}>
             <Button
               size="large"
               variant="contained"

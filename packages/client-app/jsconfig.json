@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@jibin/common/*": ["../common/*"]
+      "@monostruct/common/*": ["../common/*"]
     }
   },
   "exclude": ["node_modules"]

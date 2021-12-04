@@ -1,5 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect
+} from 'react-router-dom';
 
 import AppDesignerPage from './pages/AppDesignerPage';
 import Layout from './components/Layout';
@@ -14,7 +19,7 @@ import ProductMaker from './pages/ProductMaker/ProductMaker';
 import SiliconMaker from './pages/SiliconMaker/SiliconMaker';
 import ClothesMaker from './pages/ClothesMaker/ClothesMaker';
 import ArchitectureDesigner from './pages/ArchitectureDesigner/ArchitectureDesigner';
-import { AuthContext } from './context/AuthContext';
+import { AuthContext } from '@monostruct/common/context/AuthContext';
 
 export default function Routes() {
   return (
@@ -30,11 +35,27 @@ export default function Routes() {
               <AppRoute authenticate path="/pcb" component={PcbTab} />
               <AppRoute authenticate path="/silicon" component={SiliconMaker} />
               <AppRoute authenticate path="/clothes" component={ClothesMaker} />
-              <AppRoute authenticate path="/architecture" component={ArchitectureDesigner} />
-              <AppRoute authenticate path="/predesigned" component={PredesignedComponents} />
-              <AppRoute authenticate path="/appdesigner" component={AppDesignerPage} />
+              <AppRoute
+                authenticate
+                path="/architecture"
+                component={ArchitectureDesigner}
+              />
+              <AppRoute
+                authenticate
+                path="/predesigned"
+                component={PredesignedComponents}
+              />
+              <AppRoute
+                authenticate
+                path="/appdesigner"
+                component={AppDesignerPage}
+              />
 
-              <AppRoute authenticate path="/omnidesign" component={OmniDesign} />
+              <AppRoute
+                authenticate
+                path="/omnidesign"
+                component={OmniDesign}
+              />
               <AppRoute authenticate path="/my_profile" component={MyProfile} />
             </Switch>
           </Layout>
@@ -45,8 +66,7 @@ export default function Routes() {
 }
 
 const AppRoute = ({ component: Component, authenticate, ...rest }) => {
-  const { authUser } = React.useContext(AuthContext)
-  ;
+  const { authUser } = React.useContext(AuthContext);
   // const isLoggedIn = () => localStorage.getItem('token') !== 'null';
 
   return (
@@ -54,7 +74,7 @@ const AppRoute = ({ component: Component, authenticate, ...rest }) => {
       {...rest}
       render={({ location, ...other }) => {
         if (authenticate && authUser.isAuthenticated) {
-          return <Component location={location} {...other} />
+          return <Component location={location} {...other} />;
         }
         return (
           <Redirect

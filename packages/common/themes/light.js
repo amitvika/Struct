@@ -1,5 +1,3 @@
-import { createTheme } from '@material-ui/core/styles';
-
 export const lightTheme = {
   palette: {
     mode: 'light',
@@ -27,8 +25,7 @@ export const lightTheme = {
     '&:hover, &:focus': {
       background: '#5D6D7E ',
       color: '#ffffff'
-    },
-    marginRight: '15px'
+    }
   },
   overrides: {
     MuiOutlinedInput: {

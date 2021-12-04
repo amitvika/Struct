@@ -73,7 +73,10 @@ exports.mapItem = async (item = {}) => {
     is_archived: item.is_archived,
     assemblyType: item.multiAssembly
       ? 'Multi-Item Assembly'
-      : 'Single Item Part'
+      : 'Single Item Part',
+    child_item_created: item.child_item_status === 'COMPLETED' ? 'Yes' : 'No',
+    direct_parent_id: item.parent_id,
+    origin_parent_id: item.parent_id
   };
   // console.log('Getting one item', myobject, item.name);
   return myobject;

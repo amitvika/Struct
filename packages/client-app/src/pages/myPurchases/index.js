@@ -26,7 +26,7 @@ export default function MyPurchases() {
         </Tabs>
       </TabContainer>
 
-      <TabPanelContainer></TabPanelContainer>
+      {/* <TabPanelContainer></TabPanelContainer> */}
     </div>
   );
 }
