@@ -3,9 +3,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import { IconButton, Typography, Menu, MenuItem } from '@material-ui/core';
 import { useStyles } from './Header.style';
 import MenuIcon from '@material-ui/icons/Menu';
-import { headerListItem } from './Header.helper';
+import LogoComponent from './LogoComponent';
 
-export default function HeaderMobileView({ handleLogout }) {
+export default function HeaderMobileView({
+  handleLogout,
+  headerListItem = []
+}) {
   const classes = useStyles();
   const [anchor, setAnchor] = React.useState(null);
   const open = Boolean(anchor);
@@ -26,17 +29,18 @@ export default function HeaderMobileView({ handleLogout }) {
       >
         <MenuIcon />
       </IconButton>
+      <LogoComponent />
       <Menu
         id="menu-appbar"
         anchorEl={anchor}
         anchorOrigin={{
           vertical: 'top',
-          horizontal: 'right',
+          horizontal: 'right'
         }}
         KeepMounted
         transformOrigin={{
           vertical: 'top',
-          horizontal: 'right',
+          horizontal: 'right'
         }}
         open={open}
         classes={classes.header}
@@ -58,7 +62,7 @@ export default function HeaderMobileView({ handleLogout }) {
         >
           <Typography variant="h6">My Profile</Typography>
         </MenuItem>
-      
+
         <MenuItem key={`logout_link`} onClick={handleLogout}>
           <Typography variant="h6">Logout</Typography>
         </MenuItem>

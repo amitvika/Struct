@@ -9,10 +9,18 @@ import Switch from '@material-ui/core/Switch';
 
 import { useStyles } from './Header.style';
 import { AuthContext } from '../../context/AuthContext';
-import { headerListItem } from './Header.helper';
 import { ThemeContext } from '@monostruct/common/themes/ThemeContextProvider';
+import LogoComponent from './LogoComponent';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { useTheme } from '@mui/material/styles';
+import IconButton from '@mui/material/IconButton';
 
-export default function HeaderDesktopView({ handleLogout }) {
+export default function HeaderDesktopView({
+  handleLogout,
+  headerListItem = []
+}) {
+  const theme = useTheme();
   const { themeName, setThemeName } = React.useContext(ThemeContext);
 
   const classes = useStyles();
@@ -23,15 +31,11 @@ export default function HeaderDesktopView({ handleLogout }) {
   const [open, setOpen] = useState(false);
 
   const {
-    authUser: { isAuthenticated, user },
+    authUser: { isAuthenticated, user }
   } = useContext(AuthContext);
 
   const handleThemeChange = (event) => {
-    if (event.target.checked) {
-      setThemeName('darkTheme');
-    } else {
-      setThemeName('lightTheme');
-    }
+    setThemeName(themeName === 'darkTheme' ? 'lightTheme' : 'darkTheme');
   };
 
   const handleToggle = () => {
@@ -79,7 +83,7 @@ export default function HeaderDesktopView({ handleLogout }) {
               component: RouterLink,
               className:
                 classes.menuButton +
-                ` ${location.pathname.includes(href) && classes.linkSelected}`,
+                ` ${location.pathname.includes(href) && classes.linkSelected}`
             }}
           >
             {label}
@@ -91,6 +95,12 @@ export default function HeaderDesktopView({ handleLogout }) {
   };
   const getSecondMenu = () => {
     let menuItems = [];
+
+    menuItems.push(
+      <IconButton sx={{ ml: 1 }} onClick={handleThemeChange} color="inherit">
+        {themeName === 'darkTheme' ? <Brightness4Icon /> : <Brightness7Icon />}
+      </IconButton>
+    );
 
     menuItems.push(
       <Button
@@ -120,7 +130,7 @@ export default function HeaderDesktopView({ handleLogout }) {
             {...TransitionProps}
             style={{
               transformOrigin:
-                placement === 'bottom' ? 'center top' : 'center bottom',
+                placement === 'bottom' ? 'center top' : 'center bottom'
             }}
           >
             <Paper>
@@ -137,14 +147,14 @@ export default function HeaderDesktopView({ handleLogout }) {
                   >
                     My Profile
                   </MenuItem>
-                  <MenuItem key={`theme_changer`}>
+                  {/* <MenuItem key={`theme_changer`}>
                     <Switch
                       checked={themeName === 'darkTheme'}
                       onChange={handleThemeChange}
                       name="currentTheme"
                     />
                     {themeName === 'darkTheme' ? 'Dark' : 'Light'}
-                  </MenuItem>
+                  </MenuItem> */}
 
                   <MenuItem
                     key={`logout_link`}
@@ -164,17 +174,20 @@ export default function HeaderDesktopView({ handleLogout }) {
     return menuItems;
   };
   return (
-    <Box component="div" className={classes.menuContainer}>
-      <Box
-        component="ul"
-        key={`primary_list1`}
-        className={classes.primaryListHeader}
-      >
-        {getMenuButtons()}
+    <>
+      <Box component="div" className={classes.menuContainer}>
+        <LogoComponent />
+        <Box
+          component="ul"
+          key={`primary_list1`}
+          className={classes.primaryListHeader}
+        >
+          {getMenuButtons()}
+        </Box>
       </Box>
       <Box component="div" key={`secondary_list1`} style={{ display: 'flex' }}>
         {getSecondMenu()}
       </Box>
-    </Box>
+    </>
   );
 }

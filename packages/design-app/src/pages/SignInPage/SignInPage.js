@@ -5,7 +5,7 @@ import { useQuery } from '@monostruct/common/utils/customHooks';
 import SignInForm from '@monostruct/common/components/SignInForm';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '@monostruct/common/context/AuthContext';
 import AuthService from '../../services/AuthServices';
 
 const SignInPage = () => {
@@ -18,7 +18,7 @@ const SignInPage = () => {
     if (authUser.isAuthenticated) {
       history.push('/design');
     }
-  }, [authUser,history]);
+  }, [authUser, history]);
 
   const fetchUser = async () => {
     try {
@@ -39,8 +39,7 @@ const SignInPage = () => {
     if (query.get('token')) {
       localStorage.setItem('token', query.get('token'));
       fetchUser();
-    }
-    else if(localStorage.getItem('token', null)){
+    } else if (localStorage.getItem('token', null)) {
       fetchUser();
     }
   }, [query.get('token')]);

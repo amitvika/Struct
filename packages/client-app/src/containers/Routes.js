@@ -1,18 +1,24 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect
+} from 'react-router-dom';
 
 import HomePage from '../pages/homePage/index';
-import Header from '../components/Header';
 import MyPurchases from 'src/pages/myPurchases';
+import Layout from 'src/components/Layout';
 
 export default function AppRoutes() {
   return (
-    <BrowserRouter>
-      <Header />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/my-purchases" element={<MyPurchases />} />
-      </Routes>
-    </BrowserRouter>
+    <Router>
+      <Layout>
+        <Switch>
+          <Route exact path="/" component={HomePage} />
+          <Route exact path="/my-purchases" component={MyPurchases} />
+        </Switch>
+      </Layout>
+    </Router>
   );
 }

@@ -21,7 +21,6 @@ export const ThemeContextProvider = ({ children }) => {
   const toggleTheme = () => {
     setThemeName(themeName === 'light' ? 'dark' : 'light');
   };
-  console.log('--------->>>>', themeName, getThemeByName(themeName));
 
   return (
     <ThemeContext.Provider value={{ themeName, setThemeName, toggleTheme }}>
