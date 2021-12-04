@@ -41,7 +41,7 @@ import {
 import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
 
 import '../style.css';
-import { createChildItems } from './helper';
+// import { createChildItems } from './helper';
 
 export default function BaseItemProperties({
   itemId,
@@ -241,7 +241,7 @@ export default function BaseItemProperties({
         STATEPROPS.maximumfaces,
         true,
         true,
-        allowFirstLevelItems,
+        false,
         createAutoAssemblyOrder,
         createAutoStackability,
         STATEPROPS.explodegap,
@@ -509,6 +509,7 @@ export default function BaseItemProperties({
               drawLine={drawLiner}
               setDrawLine={setDrawLiner}
               setProgressBarRender={setProgressBarRender}
+              percentage={percentager}
               setPercentage={setPercentager}
               setProgressBarLoad={setProgressBarLoader}
               setCurrentProgressText={setCurrentProgressTexter}

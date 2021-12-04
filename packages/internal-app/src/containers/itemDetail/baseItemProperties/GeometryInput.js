@@ -9,6 +9,8 @@ import Input from '@monostruct/common/components/atoms/Input';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import LargeFileUpload from '@monostruct/common/gltf/LargeFileUpload';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
+import { getFileNameWithoutExtension } from '@monostruct/common/gltf/Tree/utils';
+import { createChildItems } from './helper';
 
 // const {
 
@@ -39,7 +41,12 @@ export default function GeometryInput({
   setCreateAutoAssemblyOrder,
   createAutoStackability,
   setCreateAutoStackability,
-  handleItemSaveOnServer
+  handleItemSaveOnServer,
+  percentage,
+  setPercentage,
+  setCurrentProgressText,
+  setCompletionProgressText,
+  setCenterActionText
 }) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   // const [fileId, setFileId] = useState(0);
@@ -48,9 +55,28 @@ export default function GeometryInput({
   const handleSwitchChange = (event) => {
     setAllowFirstLevelItems(event.target.checked);
     if (event.target.checked) {
-      handleItemSaveOnServer({
-        child_item_status: 'INITIATED'
-      });
+      if (itemProperties.child_item_status === 'NOT_INITIATED') {
+        handleItemSaveOnServer({
+          child_item_status: 'INITIATED'
+        });
+        const itemClone = {
+          ...itemProperties,
+          fileGDT: getFileNameWithoutExtension(itemProperties.fileName) + '3'
+        };
+        const childrenCreated = createChildItems({
+          item: itemClone,
+          percentage,
+          setPercentage,
+          setCurrentProgressText,
+          setCompletionProgressText,
+          setCenterActionText
+        });
+        if (childrenCreated) {
+          handleItemSaveOnServer({
+            child_item_status: 'COMPLETED'
+          });
+        }
+      }
     }
   };
 
@@ -121,12 +147,16 @@ export default function GeometryInput({
               {'Create child items:'}
             </Typography>
             <Switch
-              checked={allowFirstLevelItems}
+              checked={
+                allowFirstLevelItems ||
+                itemProperties.child_item_status === 'INITIATED'
+              }
               onChange={handleSwitchChange}
               inputProps={{ 'aria-label': 'controlled' }}
               disabled={
                 itemProperties.child_item_status !== 'NOT_INITIATED' ||
-                !itemProperties.fileUUId
+                !itemProperties.fileUUId ||
+                itemProperties.assemblyType != 'Multi-Item Assembly'
               }
             />
           </Grid>
