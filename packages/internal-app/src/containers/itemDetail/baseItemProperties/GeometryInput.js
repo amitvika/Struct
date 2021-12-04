@@ -23,8 +23,7 @@ import MaterialPropertiesModal from './MaterialPropertiesModal';
 //import FileUploadAndExport from './FileUploadAndExport';
 import LargeFileUpload from '@monostruct/common/gltf/LargeFileUpload';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
-import { createChildItems } from './helper';
-import { getFileNameWithoutExtension } from '@monostruct/common/gltf/Tree/utils';
+
 export default function GeometryInput({
   itemProperties = {},
   setItemProperties,
@@ -57,11 +56,6 @@ export default function GeometryInput({
     if (event.target.checked) {
       handleItemSaveOnServer({
         child_item_status: 'INITIATED'
-      });
-      createChildItems({
-        pathFileName: getFileNameWithoutExtension(itemProperties.fileName),
-        fileUUId: itemProperties.fileUUId,
-        parentId: itemProperties.id
       });
     }
   };

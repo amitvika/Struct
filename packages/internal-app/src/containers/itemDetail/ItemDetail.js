@@ -209,16 +209,6 @@ const ItemDetail = ({ itemValue }) => {
 
       setItemProperties((prev) => ({ ...prev, updatedItemProp }));
       handleSave(updatedItemProp);
-
-      if (item.fileGDT && item.child_item_status === 'INITIATED') {
-        const childrenCreated = await createChildItems({
-          fileUUId: item.fileUUId,
-          pathFileName: item.fileGDT.slice(0, -1),
-          parentId: item.id
-        });
-
-        childrenCreated && handleSave({ child_item_status: 'COMPLETED' });
-      }
     } catch (error) {
       console.log('Error', error);
     }
@@ -490,7 +480,7 @@ const ItemDetail = ({ itemValue }) => {
     setItemProperties(tempItemProperties);
   };
 
-  const handleSave = (change) => {
+  const handleSave = async (change) => {
     itemProperties.step = undefined;
     itemProperties.gltfjson = undefined;
     itemProperties.itemId = undefined;
@@ -499,6 +489,20 @@ const ItemDetail = ({ itemValue }) => {
 
     if (Object.keys(updateItemProperties).length === 0) {
       return;
+    }
+
+    if (
+      updateItemProperties.fileUUId &&
+      updateItemProperties.fileGDT &&
+      updateItemProperties.child_item_status === 'INITIATED'
+    ) {
+      const childrenCreated = await createChildItems({
+        fileUUId: updateItemProperties.fileUUId,
+        pathFileName: updateItemProperties.fileGDT.slice(0, -1),
+        parentId: updateItemProperties.id
+      });
+
+      updateItemProperties.child_item_status = 'COMPLETED';
     }
 
     ItemAPI.updateItemAPI(id, { ...updateItemProperties })
