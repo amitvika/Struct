@@ -189,21 +189,31 @@ export const getAFileFromURLStore = async (store, ext, fromURL) => {
     // console.log(fetchURL);
     return getAFile(fetchURL);
   } else {
-    const linuxURL = `${fromURL}${store}.${ext}`;
-    let isFileExists = await isFileExistingInServer(linuxURL);
-    if (isFileExists) {
-      try {
-        const resData = await axios.get(linuxURL);
-        if (resData) return resData;
-      } catch (error) {
-        console.log('Error while fetching', error, linuxURL);
-      }
-      const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
-      return getAFile(fetchURL);
-    } else {
-      const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
-      return getAFile(fetchURL);
+    const availURL = await getExistingPathFromServer(store, ext);
+    let fetchURL = `${availURL ? availURL : fromURL}${store}.${ext}`;
+    try {
+      const resData = await axios.get(fetchURL);
+      if (resData) return resData;
+    } catch (error) {
+      console.log('Error while fetching 1', error, fetchURL);
     }
+    if (availURL != fromURL && availURL != null) {
+      const linuxURL = `${fromURL}${store}.${ext}`;
+      let isFileExists = await isFileExistingInServer(linuxURL);
+      if (isFileExists) {
+        try {
+          const resData = await axios.get(linuxURL);
+          if (resData) return resData;
+        } catch (error) {
+          console.log('Error while fetching 2', error, linuxURL);
+        }
+      }
+    }
+    fetchURL = `${
+      availURL == resourcePathDisplay ? resourcePathS3 : resourcePathDisplay
+    }${store}.${ext}`;
+    console.log('Getting file from', fetchURL);
+    return getAFile(fetchURL);
   }
 };
 export const getAFileFromPathStore = async (store, ext, fromPath) => {
@@ -251,34 +261,43 @@ export const getAFileFromStore = async (store, ext) => {
     // console.log(fetchURL);
     //return axios.get(fetchURL);
   } else {
-    const linuxURL = `${resourcePathURL}${store}.${ext}`;
-    let isFileExists = await isFileExistingInServer(linuxURL);
-    if (isFileExists) {
-      try {
-        const resData = await axios.get(linuxURL);
-        if (resData) return resData;
-      } catch (error) {
-        console.log('Error while fetching', error, linuxURL);
-      }
-      const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
-      return getAFile(fetchURL);
-    } else {
-      const s3URL = `${resourcePathS3URL}${store}.${ext}`;
-      // console.log(s3URL);
-      isFileExists = await isFileExistingInServer(s3URL);
+    const availURL = await getExistingPathFromServer(store, ext);
+    let fetchURL = `${availURL ? availURL : resourcePathURL}${store}.${ext}`;
+    try {
+      const resData = await axios.get(fetchURL);
+      if (resData) return resData;
+    } catch (error) {
+      console.log('Error while fetching 1', error, fetchURL);
+    }
+    if (availURL != resourcePathURL && availURL != null) {
+      const linuxURL = `${resourcePathURL}${store}.${ext}`;
+      let isFileExists = await isFileExistingInServer(linuxURL);
       if (isFileExists) {
         try {
-          const resData = await axios.get(s3URL);
+          const resData = await axios.get(linuxURL);
           if (resData) return resData;
         } catch (error) {
-          console.log('Error while fetching', error, s3URL);
+          console.log('Error while fetching 2', error, linuxURL);
         }
-        const fetchURL = `${resourcePathS3}${store}.${ext}`;
-        return getAFile(fetchURL);
       }
-      const fetchURL = `${resourcePathDisplay}${store}.${ext}`;
-      return getAFile(fetchURL);
     }
+    if (availURL != resourcePathS3URL) {
+      const linuxURL = `${resourcePathS3URL}${store}.${ext}`;
+      let isFileExists = await isFileExistingInServer(linuxURL);
+      if (isFileExists) {
+        try {
+          const resData = await axios.get(linuxURL);
+          if (resData) return resData;
+        } catch (error) {
+          console.log('Error while fetching 3', error, linuxURL);
+        }
+      }
+    }
+    fetchURL = `${
+      availURL == resourcePathDisplay ? resourcePathS3 : resourcePathDisplay
+    }${store}.${ext}`;
+    console.log('Getting file from', fetchURL);
+    return getAFile(fetchURL);
   }
 };
 
