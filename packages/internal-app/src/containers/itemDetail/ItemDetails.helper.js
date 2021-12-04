@@ -350,19 +350,21 @@ export const handleOtherTabCase = async ({
   return updatedItemProp;
 };
 
-export const setStack = async ({
-  item,
-  setIsLoading,
-  setIsFileLoading,
-  setProgressBarLoad,
-  setPercentage,
-  percentage,
-  setCurrentProgressText,
-  setCompletionProgressText,
-  setgltfjson,
-  setItemProperties,
-  itemProperties
-}) => {
+export const setStack = async (props) => {
+  const {
+    item,
+    setIsLoading,
+    setIsFileLoading,
+    setProgressBarLoad,
+    setPercentage,
+    percentage,
+    setCurrentProgressText,
+    setCompletionProgressText,
+    setgltfjson,
+    setItemProperties,
+    itemProperties
+  } = props;
+  console.log('SetStack', props);
   if (!item.fileId && !item.fileUUId) {
     return;
   }
@@ -504,18 +506,20 @@ export const getOKTOParseForSetOrder = async ({ item }) => {
   }
 };
 
-export const setOrder = async ({
-  item,
-  setIsLoading,
-  setIsFileLoading,
-  setProgressBarLoad,
-  setPercentage,
-  percentage,
-  setCurrentProgressText,
-  setCompletionProgressText,
-  setgltfjson,
-  setItemProperties
-}) => {
+export const setOrder = async (props) => {
+  const {
+    item,
+    setIsLoading,
+    setIsFileLoading,
+    setProgressBarLoad,
+    setPercentage,
+    percentage,
+    setCurrentProgressText,
+    setCompletionProgressText,
+    setgltfjson,
+    setItemProperties
+  } = props;
+  console.log('Set Order', props);
   try {
     setIsLoading(true);
     setIsFileLoading(true);
