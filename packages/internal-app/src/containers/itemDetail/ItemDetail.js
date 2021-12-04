@@ -235,7 +235,7 @@ const ItemDetail = ({ itemValue }) => {
     if (!item.fileId && !item.fileUUId) {
       return;
     }
-
+    let okToParse = await getOKTOParseForSetOrder({ item });
     if (!item.fileMPPS || item.fileMPPS === null) {
       setOrder({
         item,
@@ -250,7 +250,6 @@ const ItemDetail = ({ itemValue }) => {
         setItemProperties
       });
     } else {
-      let okToParse = await getOKTOParseForSetOrder({ item });
       fetchGLTFAndTree(
         'mpps',
         item.fileStore,
