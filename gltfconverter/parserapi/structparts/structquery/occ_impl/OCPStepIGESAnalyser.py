@@ -1317,7 +1317,7 @@ class StepExportWithColor(object):
                     uuidname = str(uuid.uuid4())
                     uniquename=filename+" "+str(treeID)
                     addedAssembly+=1
-                    self.writeProgress(currentcount=addedAssembly)
+                    self.writeProgress(currentcount=addedAssembly-1)
                     fullpath = 'Media/'+uuidname+'/'+uniquename+".step"
                     os.makedirs(os.path.dirname(fullpath), exist_ok=True)
                     if(self.write_file(fullpath)):  
