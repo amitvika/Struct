@@ -841,13 +841,13 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
     true
   );
   if (myResourcePath) {
-    //console.log('Found gltf', whichOneToLoad);
+    console.log('Found gltf', whichOneToLoad, myResourcePath);
     return PROCESSINGSTATUS.PROCESSED;
   }
   const statusURL = `${resourceStatusURL}${whichOneToStatus}.status`;
-  //console.log('Checking Existing', statusURL);
+  console.log('Checking Existing', statusURL);
   if (isFileExistingInServer(statusURL)) {
-    //console.log('Found status', whichOneToLoad);
+    console.log('Found status', statusURL);
     const statusRes = await getAFileFromStore(whichOneToStatus, 'status');
     let percent = 0;
     if (
@@ -855,7 +855,7 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
       statusRes.data &&
       !isEmptyObjectDictionary(statusRes.data)
     ) {
-      //console.log('Status Result', statusRes, statusRes.data);
+      console.log('Status Result', statusRes, statusRes.data);
       percent = statusRes.data.percent;
       if (percent == 100) {
         return PROCESSINGSTATUS.PROCESSED;
@@ -879,10 +879,25 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
       difference += 24 * 60 * 60;
     }
     if (difference > 2 * 60) {
+      console.log(
+        'difference Result',
+        currenttime,
+        servertime,
+        currentimearray,
+        servertimearray
+      );
       return PROCESSINGSTATUS.HUNG;
     }
+    console.log(
+      'inporgress Result',
+      currenttime,
+      servertime,
+      currentimearray,
+      servertimearray
+    );
     return PROCESSINGSTATUS.INPROGRESS;
   }
+  console.log('not started Result', statusURL);
   return PROCESSINGSTATUS.NOTSTARTED;
 };
 
