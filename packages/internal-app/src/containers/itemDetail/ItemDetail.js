@@ -664,7 +664,7 @@ const ItemDetail = ({ itemValue }) => {
               handleSave,
               tabName: tabList[tabIndex],
               action: '/items',
-              title: 'Items Details',
+              title: 'Item Details',
               allowEditTitle: true
             }}
           />
