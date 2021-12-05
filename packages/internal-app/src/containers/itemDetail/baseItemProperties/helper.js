@@ -82,12 +82,17 @@ export const createChildItems = async ({
   setPercentage,
   setCurrentProgressText,
   setCompletionProgressText,
-  setCenterActionText
+  setCenterActionText,
+  setIsLoading,
+  setIsFileLoading,
+  setProgressBarLoad
 }) => {
   const fileUUId = item.fileUUId;
   const pathFileName = item.fileGDT.slice(0, -1);
   const parentId = item.id;
   try {
+    setProgressBarLoad(true);
+    setIsLoading(true);
     console.log('Child item creation started');
     setCenterActionText('Initial Parsing');
 
@@ -116,6 +121,7 @@ export const createChildItems = async ({
     const okToParse = await checkStatusToParse(datafile);
     console.log('Oktoparse', okToParse);
     if (okToParse > PROCESSINGSTATUS.INPROGRESS) {
+      setIsFileLoading(true);
       await getHierarchySplitFiles(
         getStepFile(item),
         true,
@@ -139,6 +145,7 @@ export const createChildItems = async ({
         STATEPROPS.animationtime,
         true
       );
+      setIsFileLoading(false);
     }
 
     fetchStatus = () => getAFileFromStore(datafile, 'status');
@@ -214,8 +221,13 @@ export const createChildItems = async ({
       treeLength: item.length > 4 ? item[4] : 0
     }));
     console.log('New Items', newItem);
+    setIsLoading(false);
+    setProgressBarLoad(false);
     return NewItemAPI.upsertItems(newItem);
   } catch (error) {
     console.log('Child item creation Error');
   }
+  setIsLoading(false);
+  setProgressBarLoad(false);
+  setIsFileLoading(false);
 };

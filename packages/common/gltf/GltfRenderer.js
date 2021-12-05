@@ -2411,13 +2411,13 @@ class GLTFRenderer extends Component {
     ) {
       event.preventDefault();
 
-      //   console.log(
-      //     'Reaching here to load edges',
-      //     'Node',
-      //     this.state.lastClickedNode,
-      //     'intersect',
-      //     this.INTERSECTED
-      //   );
+      // console.log(
+      //   'Reaching here to load edges',
+      //   'Node',
+      //   this.state.lastClickedNode,
+      //   'intersect',
+      //   this.INTERSECTED
+      // );
       this.findSingleNode(
         this.state.lastClickedNode
           ? this.state.lastClickedNode
@@ -3074,7 +3074,12 @@ class GLTFRenderer extends Component {
       ? state_gltfobj.resourcepath
       : resourcePathURL;
     if (this.gltfJSON != null) {
-      console.log('Getting me3!', this.selectedoption, this.activeFile);
+      console.log(
+        'Getting me3!',
+        this.selectedoption,
+        this.activeFile,
+        state_gltfobj.gltf
+      );
       //this.gltfLoader = new GLTFLoader().setCrossOrigin('anonymous');
       //console.log(this.props.gltfobj.gltf);
       let myParserParams = {
