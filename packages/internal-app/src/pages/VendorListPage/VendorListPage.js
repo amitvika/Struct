@@ -6,7 +6,14 @@ import API from '@monostruct/common/api/vendor.api';
 import { useHistory } from 'react-router-dom';
 
 const columnsFields = [
-  { title: 'ID', field: 'id', editable: 'never', align: 'center' },
+  {
+    title: 'ID',
+    field: 'id',
+    editable: 'never',
+    align: 'center',
+    isLink: true,
+    linkPrefix: '/vendors/'
+  },
   { title: 'Name', field: 'name', type: 'text' }
 ];
 

@@ -5,7 +5,8 @@ import {
   makeStyles,
   Paper,
   Button,
-  IconButton
+  IconButton,
+  Link
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import Avatar from '@material-ui/core/Avatar';
@@ -100,7 +101,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const HeadingCopyToClipboard = ({ title, valueToCopy }) => {
+const FieldItemTitle = ({ title, valueToCopy }) => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
@@ -130,9 +131,10 @@ const HeadingCopyToClipboard = ({ title, valueToCopy }) => {
       disableTouchListener
       title="Copied To Clipboard"
     >
-      <span className={classes.boldtablecell} onClick={handleTooltipOpen}>
+      <Typography className={classes.boldtablecell} onClick={handleTooltipOpen}>
         {title}
-      </span>
+        {`: `}
+      </Typography>
     </Tooltip>
   );
 };
@@ -146,6 +148,19 @@ export default function GridView({
   const classes = useStyles();
   const titleRef = useRef();
 
+  const FieldItemValue = ({ data, fieldItem }) => {
+    return (
+      <Typography
+        ref={titleRef}
+        className={classes.tableCell}
+        value={`${data[fieldItem.field]}`}
+      >{` ${
+        data[fieldItem.field] != undefined || data[fieldItem.field] != null
+          ? data[fieldItem.field]
+          : ''
+      }`}</Typography>
+    );
+  };
   const renderItem = (data) => {
     let item = [];
     columnsFields
@@ -158,45 +173,25 @@ export default function GridView({
         item.push(
           <Grid
             item
-            sm
             sm={12}
             key={`${fieldItem.title}_${data[fieldItem.field]}`}
+            style={{ display: 'flex' }}
           >
-            {fieldItem.isLink ? (
-              <Typography
-                variant="body2"
-                style={{ cursor: 'pointer', textAlign: 'center' }}
-                onClick={fieldItem.onClick}
-                className={classes.historyLink}
-              >
-                {fieldItem.title}
-              </Typography>
-            ) : (
-              <Typography
-                variant="subtitle2"
-                gutterBottom
-                noWrap={true}
-                style={{ display: 'flex' }}
-              >
-                <HeadingCopyToClipboard
-                  {...{
-                    title: fieldItem.title,
-                    valueToCopy: data[fieldItem.field]
-                  }}
-                />
-                {`: `}
-                <span
-                  ref={titleRef}
-                  className={classes.tableCell}
-                  value={`${data[fieldItem.field]}`}
-                >{` ${
-                  data[fieldItem.field] != undefined ||
-                  data[fieldItem.field] != null
-                    ? data[fieldItem.field]
-                    : ''
-                }`}</span>
-              </Typography>
-            )}
+            <FieldItemTitle
+              {...{
+                title: fieldItem.title,
+                valueToCopy: data[fieldItem.field]
+              }}
+            />
+            <div style={{ marginLeft: '5px' }}>
+              {fieldItem.isLink ? (
+                <Link to={`${fieldItem.linkPrefix}${data[fieldItem.field]}`}>
+                  {data[fieldItem.field]}
+                </Link>
+              ) : (
+                <FieldItemValue {...{ data, fieldItem }} />
+              )}
+            </div>
           </Grid>
         );
       });
