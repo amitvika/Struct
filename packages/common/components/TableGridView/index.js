@@ -36,7 +36,8 @@ const TableGridView = ({
   handleAddButtonPress,
   isPaginationEnabled = false,
   isEditLinkVisible = true,
-  isHistoryLinkVisible = true
+  isHistoryLinkVisible = true,
+  noThumbnail = false
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [list, setList] = useState([]);
@@ -235,7 +236,8 @@ const TableGridView = ({
           isViewArchivedChecked={isViewArchivedChecked}
           {...{
             isHistoryLinkVisible,
-            isEditLinkVisible
+            isEditLinkVisible,
+            noThumbnail
           }}
         />
       );

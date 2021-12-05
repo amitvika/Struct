@@ -40,7 +40,8 @@ const useStyles = makeStyles((theme) => ({
     '&:hover, &:focus': {
       backgroundColor: '#DCDCDC',
       color: '#000000'
-    }
+    },
+    margin: '0 !important'
   },
 
   image: {
@@ -51,8 +52,6 @@ const useStyles = makeStyles((theme) => ({
     margin: 'auto',
     padding: '5px',
     display: 'block',
-    maxWidth: '96px',
-    maxHeight: '96px',
     width: '100%',
     height: '100%',
     objectFit: 'contain'
@@ -81,11 +80,12 @@ const useStyles = makeStyles((theme) => ({
   actionIconContainer: {
     display: 'flex',
     margin: '0 auto',
-    flexDirection: 'row'
+    flexDirection: 'column'
   },
   thumbnailContainer: {
     display: 'flex',
     flexDirection: 'column',
+    height: '250px',
     [theme.breakpoints.down('sm')]: {
       justifyContent: 'center'
     }
@@ -143,6 +143,7 @@ export default function GridView({
   list,
   columnsFields,
   handleTableRowClick,
+  noThumbnail,
   ...props
 }) {
   const classes = useStyles();
@@ -175,7 +176,7 @@ export default function GridView({
             item
             sm={12}
             key={`${fieldItem.title}_${data[fieldItem.field]}`}
-            style={{ display: 'flex' }}
+            style={{ display: 'flex', alignItems: 'center' }}
           >
             <FieldItemTitle
               {...{
@@ -255,18 +256,31 @@ export default function GridView({
                 container
                 style={{
                   height: '100%',
-                  paddingBottom: '10px'
+                  flexDirection: 'row'
                 }}
               >
-                <Grid item sm sm={4} className={classes.thumbnailContainer}>
-                  <RenderIconBasedOnFileType
-                    file_url={product.file_url}
-                    logo_url={product.logo_url}
-                  />
-                  <ActionButtonContainer {...{ product, ...props }} />
-                </Grid>
-                <Grid item sm sm={8} className={classes.contentContainer}>
-                  {renderItem(product)}
+                {!noThumbnail && (
+                  <Grid item sm sm={12} className={classes.thumbnailContainer}>
+                    <RenderIconBasedOnFileType
+                      file_url={product.file_url}
+                      logo_url={product.logo_url}
+                    />
+                  </Grid>
+                )}
+                <Grid item sm sm={12} className={classes.contentContainer}>
+                  <Grid container>
+                    <Grid
+                      item
+                      sm={10}
+                      style={{ display: 'flex', flexDirection: 'column' }}
+                    >
+                      {renderItem(product)}
+                    </Grid>
+
+                    <Grid item sm={2}>
+                      <ActionButtonContainer {...{ product, ...props }} />
+                    </Grid>
+                  </Grid>
                 </Grid>
               </Grid>
             </Paper>

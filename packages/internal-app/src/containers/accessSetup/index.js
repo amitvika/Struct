@@ -12,13 +12,14 @@ const AccessSetup = ({ handleTabChange, accessSetupId }) => {
   }
   return (
     <TableGridView
-      title={'Access Setup'}
+      title={'User Access Permissions'}
       fields={accessSetupFields}
       fetchList={AccessSetupAPI.fetchAccessSetup}
       upsertListItem={AccessSetupAPI.upsertAccessSetup}
       isManageTeamVisible={true}
       ManageTeamModal={ManageAccessSetupModal}
       handleItemClick={(id) => handleTabChange({}, 3, id)}
+      noThumbnail={true}
     />
   );
 };

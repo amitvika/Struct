@@ -13,7 +13,7 @@ import AccessSetup from '../accessSetup';
 import CriteriaUpload from '../criteriaUpload';
 import Users from '../users';
 import ConfigurationHistory from 'src/pages/ConfigurationHistory';
-import './style.css'
+import './style.css';
 
 const Administrative = () => {
   const history = useHistory();
@@ -62,7 +62,7 @@ const Administrative = () => {
 
     history.push({
       pathname: `/administrative`,
-      search,
+      search
     });
   };
 
@@ -75,7 +75,7 @@ const Administrative = () => {
               display: 'flex',
               justifyContent: 'center',
               padding: 10,
-              margin: 10,
+              margin: 10
             }}
           >
             <h4>Administrative </h4>
@@ -90,36 +90,16 @@ const Administrative = () => {
               value={tabIndex}
               onChange={handleTabChange}
             >
+              <Tab label="All Users" value={0} className="tab" />
+              <Tab label="User Access Permissions" value={3} className="tab" />
+              <Tab label="Team User Assignments" value={1} className="tab" />
               <Tab
-                label="Users"
-                value={0}
-                className='tab'
-              />
-              <Tab
-                label="Team Setup"
-                value={1}
-                className='tab'
-              />
-              <Tab
-                label="Task Assignment Rules"
+                label="Task Types & Team Assigments"
                 value={2}
-                className='tab'
+                className="tab"
               />
-              <Tab
-                label="Access Setup"
-                value={3}
-                className='tab'
-              />
-              <Tab
-                label="Criteria Upload"
-                value={4}
-                className='tab'
-              />
-              <Tab
-                label="Configuration History"
-                value={5}
-                className='tab'
-              />
+              <Tab label="Criteria Upload" value={4} className="tab" />
+              <Tab label="Configuration History" value={5} className="tab" />
             </Tabs>
           </Paper>
         </Grid>
