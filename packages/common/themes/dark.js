@@ -9,10 +9,10 @@ export const darkTheme = {
     }
   },
   typography: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'Raleway, Arial',
     body1: {
-      fontSize: 12
+      fontSize: 14
     }
   },
   header: {

@@ -47,7 +47,8 @@ export default function Toolbar({
           display: 'flex',
           width: '100%',
           justifyContent: 'center',
-          bottom: 0
+          bottom: 0,
+          paddingBottom: '10px'
         }}
       >
         <Headding as={'h4'} title={title}></Headding>

@@ -1,6 +1,9 @@
 import React from 'react';
 import { Paper, Tab, Tabs, Grid } from '@material-ui/core';
 
+import TabContainer from '@monostruct/common/components/TabContainer';
+import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
+
 export default function DetailPageTab({ tabList }) {
   const [selectedTabIndex, setSelectedTabIndex] = React.useState(0);
 
@@ -22,23 +25,19 @@ export default function DetailPageTab({ tabList }) {
     : null;
 
   return (
-    <Grid container>
-      <Grid item sm={2}>
-        <Paper style={{ margin: 10, marginBottom: '70px' }}>
-          <Tabs
-            className="MuiTab-wrapper"
-            orientation="vertical"
-            variant="scrollable"
-            value={selectedTabIndex}
-            onChange={handleTabChange}
-          >
-            {renderTab()}
-          </Tabs>
-        </Paper>
-      </Grid>
-      <Grid item sm={10}>
-        {TabContent && <TabContent />}
-      </Grid>
+    <Grid container style={{ flexWrap: 'unset' }}>
+      <TabContainer>
+        <Tabs
+          className="MuiTab-wrapper"
+          orientation="vertical"
+          variant="scrollable"
+          value={selectedTabIndex}
+          onChange={handleTabChange}
+        >
+          {renderTab()}
+        </Tabs>
+      </TabContainer>
+      <TabPanelContainer>{TabContent && <TabContent />}</TabPanelContainer>
     </Grid>
   );
 }
