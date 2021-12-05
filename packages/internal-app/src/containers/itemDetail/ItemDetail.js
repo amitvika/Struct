@@ -75,6 +75,13 @@ const ItemDetail = ({ itemValue }) => {
   const [createAutoStackability, setCreateAutoStackability] = useState(false);
   const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
 
+  /* useEffect(() => {
+    if (itemValue) {
+      setItemProperties(itemValue);
+      setAllowFirstLevelItems(itemValue.child_item_status === 'INITIATED');
+    }
+  }, [itemValue]); */
+
   useEffect(() => {
     let myTabIndex = 'pdcu';
     if (query.get('tab')) {
@@ -82,8 +89,11 @@ const ItemDetail = ({ itemValue }) => {
       setTabIndex(myTabIndex);
     }
 
-    handleGLTFAndTreeLoading({ item: itemValue, myTabedIndex: myTabIndex });
-    setAllowFirstLevelItems(itemValue?.child_item_status === 'INITIATED');
+    handleGLTFAndTreeLoading({
+      item: itemProperties,
+      myTabedIndex: myTabIndex
+    });
+    setAllowFirstLevelItems(itemProperties?.child_item_status === 'INITIATED');
   }, [tabIndex]);
 
   useEffect(() => {
@@ -99,6 +109,15 @@ const ItemDetail = ({ itemValue }) => {
   }, []);
 
   const handleGLTFAndTreeLoading = ({ item, myTabedIndex }) => {
+    /* console.log(
+      'Coming here1 handleGLTFAndTreeLoading ',
+      item.fileId,
+      item.fileUUId,
+      myTabedIndex,
+      tabIndex,
+      item,
+      itemProperties
+    ); */
     if (
       myTabedIndex !== tabIndex ||
       (!item.fileId && !item.fileUUId) ||
@@ -106,7 +125,7 @@ const ItemDetail = ({ itemValue }) => {
     ) {
       return;
     }
-
+    //console.log('Coming here2 handleGLTFAndTreeLoading ');
     setGLTFAndTree({ item, myTabedIndex });
   };
 
@@ -118,7 +137,7 @@ const ItemDetail = ({ itemValue }) => {
         myTabedIndex === 'iupc' || myTabedIndex === 'pdcu'
           ? 'gdtac'
           : myTabedIndex;
-
+      console.log('setGLTFAndTree', myTabIndex, myTabedIndex);
       const gltfParam = {
         myTabedIndex: myTabIndex,
         fileStore: item.fileStore,
