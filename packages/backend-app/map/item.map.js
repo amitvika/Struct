@@ -75,8 +75,8 @@ exports.mapItem = async (item = {}) => {
       ? 'Multi-Item Assembly'
       : 'Single Item Part',
     child_item_created: item.child_item_status === 'COMPLETED' ? 'Yes' : 'No',
-    direct_parent_id: item.parent_id,
-    origin_parent_id: item.parent_id
+    direct_parent_id: item.parent_id || item._id,
+    origin_parent_id: item.parent_id || item._id
   };
   // console.log('Getting one item', myobject, item.name);
   return myobject;
