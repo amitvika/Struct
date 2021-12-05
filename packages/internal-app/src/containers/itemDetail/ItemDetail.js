@@ -222,7 +222,10 @@ const ItemDetail = ({ itemValue }) => {
           setPercentage,
           setCurrentProgressText,
           setCompletionProgressText,
-          setCenterActionText
+          setCenterActionText,
+          setIsLoading,
+          setIsFileLoading,
+          setProgressBarLoad
         });
         if (childrenCreated) {
           handleSave({ child_item_status: 'COMPLETED' });
@@ -342,13 +345,24 @@ const ItemDetail = ({ itemValue }) => {
         itemProperties.fileGDT &&
         itemProperties.child_item_status === 'INITIATED'
       ) {
+        const itemClone = {
+          ...itemProperties,
+          fileGDT: itemProperties.fileGDT
+        };
         const childrenCreated = await createChildItems({
-          fileUUId: itemProperties.fileUUId,
-          pathFileName: itemProperties.fileGDT.slice(0, -1),
-          parentId: itemProperties.id
+          item: itemClone,
+          percentage,
+          setPercentage,
+          setCurrentProgressText,
+          setCompletionProgressText,
+          setCenterActionText,
+          setIsLoading,
+          setIsFileLoading,
+          setProgressBarLoad
         });
-
-        childrenCreated && handleSave({ child_item_status: 'COMPLETED' });
+        if (childrenCreated) {
+          handleSave({ child_item_status: 'COMPLETED' });
+        }
       }
     })();
   }, [itemProperties.child_item_status, handleSave]);

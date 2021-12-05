@@ -46,7 +46,9 @@ export default function GeometryInput({
   setPercentage,
   setCurrentProgressText,
   setCompletionProgressText,
-  setCenterActionText
+  setCenterActionText,
+  setIsLoading,
+  setProgressBarLoad
 }) {
   const classes = useStyles();
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -70,7 +72,10 @@ export default function GeometryInput({
           setPercentage,
           setCurrentProgressText,
           setCompletionProgressText,
-          setCenterActionText
+          setCenterActionText,
+          setIsLoading,
+          setIsFileLoading,
+          setProgressBarLoad
         });
         if (childrenCreated) {
           handleItemSaveOnServer({
@@ -156,8 +161,8 @@ export default function GeometryInput({
               inputProps={{ 'aria-label': 'controlled' }}
               disabled={
                 itemProperties.child_item_status !== 'NOT_INITIATED' ||
-                !itemProperties.fileUUId ||
-                itemProperties.assemblyType != 'Multi-Item Assembly'
+                !itemProperties.fileUUId
+                // || itemProperties.assemblyType != 'Multi-Item Assembly'
               }
             />
           </Grid>

@@ -372,7 +372,10 @@ export const handleOtherTabCase = async (props) => {
         setPercentage,
         setCurrentProgressText,
         setCompletionProgressText,
-        setCenterActionText
+        setCenterActionText,
+        setIsLoading,
+        setIsFileLoading,
+        setProgressBarLoad
       });
       if (childrenCreated) {
         updatedItemProp = {
@@ -437,6 +440,7 @@ export const setStack = async (props) => {
     }
     if (!item.fileStack || item.fileStack === null) {
       //console.log("Up0",myTabIndex,tabIndex,item.fileStore,item.fileGDT,item.fileId);
+      setProgressBarLoad(true);
       setIsLoading(true);
       setIsFileLoading(true);
       getPartsStackableInfo(
@@ -468,10 +472,12 @@ export const setStack = async (props) => {
           }));
           setIsLoading(false);
           setIsFileLoading(false);
+          setProgressBarLoad(false);
         })
         .catch((err) => {
           setIsLoading(false);
           setIsFileLoading(false);
+          setProgressBarLoad(false);
           console.log('Error While Parsing', err);
         });
     } else {

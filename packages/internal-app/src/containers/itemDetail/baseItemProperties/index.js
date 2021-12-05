@@ -499,6 +499,8 @@ export default function BaseItemProperties({
               removeFile={removeFile}
               setItemProperties={setItemProperties}
               itemProperties={itemProperties}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
               isFileLoading={isFileLoading}
               setIsFileLoading={setIsFileLoading}
               label={'STEP, IGES, BREP, STL'}
