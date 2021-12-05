@@ -3247,9 +3247,9 @@ class StepIgesAnalyser():
                 assemblycount = statusArray["assemblies"]
             #print("Status Array",statusArray,assemblycount)   
             progressArray = self.read_progress()
-            self.write_progress(maxgap=0,action='Child Items Started',written=False,\
+            """ self.write_progress(maxgap=0,action='Child Items Started',written=False,\
                 start=progressArray["start"] if ("start" in progressArray) else None,\
-                    finish=None) 
+                    finish=None)  """
             (_,self.childfiles)=StepExportWithColor().WriteAssemblyOutPutShapes(\
                     None,self.basefilename,1,treeArray,\
                         treelengthbeforevertices,self.includeparts,self.distancegap,\
@@ -3260,9 +3260,9 @@ class StepIgesAnalyser():
                                             self.holescale,self.removegap,self.recreatefororder,\
                                                 self.CreateStackability,fileuuid,self.displaypath,\
                                                     self.starttime,assemblycount)
-            self.write_progress(maxgap=0,action='Child Items Written',written=True,\
+            """ self.write_progress(maxgap=0,action='Child Items Written',written=True,\
                 start=progressArray["start"] if ("start" in progressArray) else None,\
-                    finish=None) 
+                    finish=None)  """
         
 
     
@@ -3617,9 +3617,10 @@ class StepIgesAnalyser():
                         "current":currenttime.strftime("%H-%M-%S"),
                         "children":self.myParentId_Dict,
                         "action":action,
-                        "finish":finish if finish else (currenttime.strftime("%H-%M-%S") if (maxgap==0) and (self.lenfeature>0) else ''),
-                        "childfiles":self.childfiles,
-                        "childwritten":written},
+                        "finish":finish if finish else (currenttime.strftime("%H-%M-%S") if (maxgap==0) and (self.lenfeature>0) else '') #,
+                        # "childfiles":self.childfiles,
+                        # "childwritten":written
+                        },
                         sort_keys=True, 
                         indent=2 ))
             self.currenttime=currenttime
@@ -4536,7 +4537,7 @@ class StepIgesAnalyser():
             #    self.scene_max[0],self.scene_max[1],self.scene_max[2])
             if self.CreateChildSteps:
                 print("Starting Child Steps",self.fname)
-                self.write_progress(maxgap=0,action='Child Items Started') 
+                """ self.write_progress(maxgap=0,action='Child Items Started')  """
                 (_,self.childfiles)=StepExportWithColor().WriteAssemblyOutPutShapes(\
                     self.outputShapes,self.basefilename,1,self.tstep_dict["tree"],\
                         myTreeLenBeforeAddingEdgesAndVertices,self.includeparts,self.distancegap,\
@@ -4547,7 +4548,7 @@ class StepIgesAnalyser():
                                             self.holescale,self.removegap,self.recreatefororder,\
                                                 self.CreateStackability,'',self.displaypath,\
                                                     self.starttime,self.assemblycount)           
-                self.write_progress(maxgap=0,action='Child Items Written',written=True)
+                """ self.write_progress(maxgap=0,action='Child Items Written',written=True) """
                 print("Completing Child Steps",self.fname)
             if self.CreateAssemblyOrder:
                 print("Starting Assembly order",self.fname)
