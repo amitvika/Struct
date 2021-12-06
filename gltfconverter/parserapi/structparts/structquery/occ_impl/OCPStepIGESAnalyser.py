@@ -1090,7 +1090,7 @@ class StepExportWithColor(object):
                 except Exception as e:
                     print("While Writing",paramfilename,e,self.assemblycreatedcurrentcount)
         except Exception as e:
-                print("While Writing",paramfilename,e,self.assemblycreatedcurrentcount)
+                print("While Writing",e,self.assemblycreatedcurrentcount)
 
     def getShapesFromOutPutShapes_old(self,shapes,myParent,mytree,treeLength):
         retshapes=[]
@@ -4204,78 +4204,83 @@ class StepIgesAnalyser():
         self.mstep_dict['animations']=animationchannels
 
     def write_status(self,maxgap=10,action=''):
-        if self.recursiveTree:
-            return
-        if self.updateprogressfile:
-            try:
-                self.updateprogressfile()
-            except Exception as e:
-                print("While Updating progress file",e,self.percentage) 
         currenttime = datetime.utcnow()  
         mystatusdict =  {
                 "percent":(self.percentage if self.ascompound==False else self.percentage/4.0),
                 "start":self.starttime.strftime("%H-%M-%S"),
                 "current":currenttime.strftime("%H-%M-%S"),
                 "action":action }
-        if(maxgap==0 and self.percentage>0):
-            mystatusdict["finish"]=currenttime.strftime("%H-%M-%S")
-            mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
-        elif(maxgap==0):
-            mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
-        if self.assemblycount>0:
-            mystatusdict["assemblies"]=self.assemblycount
-            mystatusdict["assembly"]=self.assemblyname
-            mystatusdict["trees"]=self.treelengthbeforevertices
-        try:            
-            timingdelta = datetime.utcnow()-self.currenttime            
-            if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
-                if(self.byThread)or(self.ascompound)or(maxgap==0):
-                    if (self.writefiles) or (self.ascompound)or(maxgap==0):
-                        #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
-                        statusfilename = self.displaypath+self.basefilename+".status"
-                        print("Writing",statusfilename,"Percentage",self.percentage)
-                        try:
-                            with open(statusfilename, 'w') as fh:
-                                fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
-                                self.currenttime = datetime.utcnow()
-                        except Exception as e:
-                            print("While Writing",statusfilename,e,self.percentage)                        
-                        """ if ((maxgap==0) and (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "K") and (self.suffixname != "A")) :
-                            paramfilename = self.displaypath+self.basefilename[:-1]+".status"
-                            #mystatusdict["createoption"]=self.basefilename[-1]
-                            mystatusdict["createchilds"]=self.CreateChildSteps
-                            mystatusdict["createorder"]=self.CreateAssemblyOrder
-                            mystatusdict["createstack"]=self.CreateStackability
+        try:
+            if self.recursiveTree:
+                return mystatusdict
+            if self.updateprogressfile:
+                try:
+                    self.updateprogressfile()
+                except Exception as e:
+                    print("While Updating progress file",e,self.percentage) 
+            if(maxgap==0 and self.percentage>0):
+                mystatusdict["finish"]=currenttime.strftime("%H-%M-%S")
+                mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
+            elif(maxgap==0):
+                mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
+            if self.assemblycount>0:
+                mystatusdict["assemblies"]=self.assemblycount
+                mystatusdict["assembly"]=self.assemblyname
+                mystatusdict["trees"]=self.treelengthbeforevertices
+            try:            
+                timingdelta = datetime.utcnow()-self.currenttime            
+                if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
+                    if(self.byThread)or(self.ascompound)or(maxgap==0):
+                        if (self.writefiles) or (self.ascompound)or(maxgap==0):
+                            #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
+                            statusfilename = self.displaypath+self.basefilename+".status"
+                            print("Writing",statusfilename,"Percentage",self.percentage)
                             try:
-                                with open(paramfilename, 'w') as fh:
+                                with open(statusfilename, 'w') as fh:
                                     fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                                    self.currenttime = datetime.utcnow()
                             except Exception as e:
-                                print("While Writing",paramfilename,e,self.percentage) """
+                                print("While Writing",statusfilename,e,self.percentage)                        
+                            """ if ((maxgap==0) and (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "K") and (self.suffixname != "A")) :
+                                paramfilename = self.displaypath+self.basefilename[:-1]+".status"
+                                #mystatusdict["createoption"]=self.basefilename[-1]
+                                mystatusdict["createchilds"]=self.CreateChildSteps
+                                mystatusdict["createorder"]=self.CreateAssemblyOrder
+                                mystatusdict["createstack"]=self.CreateStackability
+                                try:
+                                    with open(paramfilename, 'w') as fh:
+                                        fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                                except Exception as e:
+                                    print("While Writing",paramfilename,e,self.percentage) """
 
+                        else:
+                            print("Not Writing status",self.percentage)
                     else:
-                        print("Not Writing status",self.percentage)
-                else:
-                    print("Percentage",self.percentage)
+                        print("Percentage",self.percentage)
+            except Exception as e:
+                print("While Writing",e)   
         except Exception as e:
-            print("While Writing",statusfilename,e)   
-        
+            print("While Writing",e)  
         return mystatusdict
 
     def read_status(self):
-        filename = self.displaypath+self.basefilename+".status"
-        with open(filename, "r") as f:
-            data = f.read()
         statusArray = None
-        if data:
-            statusArray = json.loads(data)
-            if "percent" in statusArray:
-                self.percentage = statusArray["percent"]
-            if "assemblies" in statusArray:
-                self.assemblycount = statusArray["assemblies"]
-            if "assembly" in statusArray:
-                self.assemblyname = statusArray["assembly"]
-            if "trees" in statusArray:
-                self.treelengthbeforevertices = statusArray["trees"]
+        try:
+            filename = self.displaypath+self.basefilename+".status"
+            with open(filename, "r") as f:
+                data = f.read()
+            if data:
+                statusArray = json.loads(data)
+                if "percent" in statusArray:
+                    self.percentage = statusArray["percent"]
+                if "assemblies" in statusArray:
+                    self.assemblycount = statusArray["assemblies"]
+                if "assembly" in statusArray:
+                    self.assemblyname = statusArray["assembly"]
+                if "trees" in statusArray:
+                    self.treelengthbeforevertices = statusArray["trees"]
+        except Exception as e:
+            print("While Reading",e)  
         return statusArray
 
     def copyonefile(self, srcname, dstname, symlinks=False):
@@ -4522,7 +4527,7 @@ class StepIgesAnalyser():
         print("Going to write final percentage",self.fname)
         self.percentage = 100
         self.write_status(0)
-        
+        self.write_status(0) #sometimes write_status fails because when in another thread there is a read command..
         #self.mstep_dict['tree']=self.tstep_dict['tree']
         if (self.edgesize!=0) or (self.vertexsize!=0): 
             try:
