@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { Col, Form, FormGroup, CustomInput } from 'reactstrap';
-import { Button } from '@material-ui/core';
+import { Button } from '@mui/material';
 
 export default function FileUpload({ handleFileUpload, getFiles }) {
   //State

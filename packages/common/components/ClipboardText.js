@@ -1,7 +1,7 @@
 import React from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import FileCopyOutlinedIcon from '@mui/icons-material/FileCopyOutlined';
 
 function ClipboardText({ item_id }) {
   const handleCopyId = (event) => {
@@ -16,7 +16,7 @@ function ClipboardText({ item_id }) {
       placement="left"
       style={{ zIndex: '3' }}
     >
-      <IconButton onClick={handleCopyId}>
+      <IconButton onClick={handleCopyId} size="large">
         <FileCopyOutlinedIcon />
       </IconButton>
     </Tooltip>

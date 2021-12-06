@@ -1,5 +1,10 @@
 import React from 'react';
-import { ThemeProvider, createTheme } from '@mui/material';
+import { adaptV4Theme } from '@mui/material/styles';
+import {
+  ThemeProvider,
+  StyledEngineProvider,
+  createTheme
+} from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { purple } from '@mui/material/colors';
 
@@ -20,40 +25,50 @@ export const ColorModeContextProvider = ({ children }) => {
   );
 
   // Update the theme only if the mode changes
-  const theme = React.useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
+  const theme = React.useMemo(
+    () => createTheme(adaptV4Theme(getDesignTokens(mode))),
+    [mode]
+  );
 
   return (
     <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      </StyledEngineProvider>
     </ColorModeContext.Provider>
   );
 };
 
 const lightModePallete = {
   primary: {
-    main: '#ba000d'
+    main: '#424242'
   },
   background: {
-    paper: '#000000',
-    default: '#f2f2f2'
+    default: '#252525',
+    paper: '#ffffff'
   }
 };
 
 const darkModePallete = {
   primary: {
-    main: '#000000'
+    main: '#424242'
   },
   background: {
-    default: '#000000'
+    default: '#000000',
+    paper: '#252525'
   }
 };
 
 const getDesignTokens = (mode) => ({
   palette: {
     mode,
+    // appBarBlack: {
+    //   main: '#000000',
+    //   contrastText: '#ffffff'
+    // },
     ...(mode === 'light' ? lightModePallete : darkModePallete)
   },
   typography: {
@@ -62,10 +77,6 @@ const getDesignTokens = (mode) => ({
     body1: {
       fontSize: 14
     }
-  },
-  header: {
-    backgroundColor: '#252525',
-    color: '#ffffff'
   },
   menuButton: {
     fontWeight: 700,
@@ -81,24 +92,6 @@ const getDesignTokens = (mode) => ({
         '& $notchedOutline': {
           top: 0
         }
-      }
-    }
-  },
-  components: {
-    // Name of the component
-    MuiToolbar: {
-      styleOverrides: {
-        // Name of the slot
-        root: {
-          // Some CSS
-          background: '#252525',
-          color: '#ffffff'
-        }
-      }
-    },
-    MuiPaper: {
-      defaultProps: {
-        backgroundColor: '#424242'
       }
     }
   }

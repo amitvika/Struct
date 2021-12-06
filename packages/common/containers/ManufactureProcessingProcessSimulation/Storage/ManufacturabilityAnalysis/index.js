@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button, Link, Paper } from '@material-ui/core';
-import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles';
+import { Button, Link, Paper } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import makeStyles from '@mui/styles/makeStyles';
 import MainModal from '@monostruct/common/components/Modal';
 import Stackability from '../../Stackability';
 

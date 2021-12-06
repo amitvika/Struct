@@ -7,8 +7,8 @@ import {
   useMediaQuery,
   useScrollTrigger,
   Slide
-} from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useStyles } from './Header.style';
 import HeaderMobileView from './HeaderMobileView';
 import HeaderDesktopView from './HeaderDesktopView';
@@ -29,7 +29,7 @@ export default function Header(props) {
   const classes = useStyles();
   const theme = useTheme();
   const history = useHistory();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const { authUser, setAuthUser } = React.useContext(AuthContext);
 

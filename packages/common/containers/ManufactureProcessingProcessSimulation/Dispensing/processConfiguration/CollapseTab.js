@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import Collapse from '@material-ui/core/Collapse';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import { Button, Grid, Paper } from '@material-ui/core';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import Collapse from '@mui/material/Collapse';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import { Button, Grid, Paper } from '@mui/material';
 //import { useSelector, useDispatch } from 'react-redux';
 //import { setCurrentItemAction } from '../../../../actions/itemActions';
 import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';

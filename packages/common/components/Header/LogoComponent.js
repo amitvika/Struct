@@ -2,7 +2,7 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useStyles } from './Header.style';
 import Logo from '../../assets/transparent_logo.png';
-import { IconButton, Typography, Menu, MenuItem } from '@material-ui/core';
+import { IconButton, Typography, Menu, MenuItem } from '@mui/material';
 
 export default function LogoComponent() {
   const classes = useStyles();

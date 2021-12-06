@@ -165,6 +165,7 @@ export default function Header() {
         onClick={colorMode.toggleColorMode}
         color="inherit"
       >
+        {theme.palette.mode}
         {theme.palette.mode === 'dark' ? (
           <Brightness7Icon />
         ) : (
@@ -266,7 +267,7 @@ export default function Header() {
     history.replace('/');
   };
 
-  return <AppBar>{displayDesktop()}</AppBar>;
+  return <AppBar position="static">{displayDesktop()}</AppBar>;
 }
 
 const headersData = [

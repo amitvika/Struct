@@ -1,9 +1,9 @@
 import { lightTheme } from './light';
 import { darkTheme } from './dark';
-import { createTheme } from '@material-ui/core/styles';
+import { createTheme, adaptV4Theme } from '@mui/material/styles';
 
 export function getThemeByName(theme) {
-  return createTheme(themeMap[theme]);
+  return createTheme(adaptV4Theme(themeMap[theme]));
 }
 export function getThemeName(theme) {
   return theme

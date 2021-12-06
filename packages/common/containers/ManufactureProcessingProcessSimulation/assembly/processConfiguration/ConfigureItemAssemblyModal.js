@@ -8,9 +8,9 @@ import {
 	Button,
 	Grid,
 	Radio
-} from "@material-ui/core";
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+} from "@mui/material";
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import {
 	Headding,

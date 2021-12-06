@@ -1,11 +1,11 @@
 import React, { useRef, useState, useContext } from 'react';
 import { useHistory, useLocation, Link as RouterLink } from 'react-router-dom';
-import Box from '@material-ui/core/Box';
-import Grow from '@material-ui/core/Grow';
-import Popper from '@material-ui/core/Popper';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { Button, MenuList, MenuItem, Paper } from '@material-ui/core';
-import Switch from '@material-ui/core/Switch';
+import Box from '@mui/material/Box';
+import Grow from '@mui/material/Grow';
+import Popper from '@mui/material/Popper';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import { Button, MenuList, MenuItem, Paper } from '@mui/material';
+import Switch from '@mui/material/Switch';
 
 import { useStyles } from './Header.style';
 import { AuthContext } from '../../context/AuthContext';
@@ -106,7 +106,7 @@ export default function HeaderDesktopView({
     let menuItems = [];
 
     menuItems.push(
-      <IconButton sx={{ ml: 1 }} onClick={handleThemeChange} color="inherit">
+      <IconButton sx={{ ml: 1 }} onClick={handleThemeChange} color="inherit" size="large">
         {themeName === 'darkTheme' ? <Brightness4Icon /> : <Brightness7Icon />}
       </IconButton>
     );

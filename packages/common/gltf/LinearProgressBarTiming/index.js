@@ -2,7 +2,7 @@ import {
   LinearProgress,
   CircularProgress,
   Typography
-} from '@material-ui/core';
+} from '@mui/material';
 export default function LinearProgressBarTiming(props) {
   const {
     value,

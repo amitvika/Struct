@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import CheckboxUI from '@material-ui/core/Checkbox';
+import CheckboxUI from '@mui/material/Checkbox';
 import HistoryIcon from '@mui/icons-material/History';
 
 const Checkbox = ({

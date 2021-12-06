@@ -1,10 +1,10 @@
 import React from 'react'
-import Modal from '@material-ui/core/Modal';
-import Backdrop from '@material-ui/core/Backdrop';
-import Fade from '@material-ui/core/Fade';
-import { makeStyles } from '@material-ui/core/styles';
-import { Paper, Grid } from '@material-ui/core';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Modal from '@mui/material/Modal';
+import Backdrop from '@mui/material/Backdrop';
+import Fade from '@mui/material/Fade';
+import makeStyles from '@mui/styles/makeStyles';
+import { Paper, Grid } from '@mui/material';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
 
 const useStyles = makeStyles((theme) => ({
     modal: {

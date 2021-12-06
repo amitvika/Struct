@@ -1,9 +1,9 @@
 import React, { useState, useReducer } from 'react';
 
-import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import Divider from '@material-ui/core/Divider';
+import makeStyles from '@mui/styles/makeStyles';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
+import Divider from '@mui/material/Divider';
 
 import Assembly from './assembly';
 import Maching from './machining';

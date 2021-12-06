@@ -10,9 +10,9 @@ import {
   oneOfType,
   oneOf
 } from 'prop-types';
-import Slider from '@material-ui/core/Slider';
-import InputLabel from '@material-ui/core/InputLabel';
-//import Grid from '@material-ui/core/Grid';
+import Slider from '@mui/material/Slider';
+import InputLabel from '@mui/material/InputLabel';
+//import Grid from '@mui/material/Grid';
 const getName = (name) => _.replace(name, /\./g, ' ');
 
 const CustomSliderField = ({

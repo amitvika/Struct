@@ -1,8 +1,9 @@
 import React from 'react';
-import { Paper, Grid, makeStyles } from '@material-ui/core';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
+import { Paper, Grid } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 import { Headding } from '../../../../components';
 

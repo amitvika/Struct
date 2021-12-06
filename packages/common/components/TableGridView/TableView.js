@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MaterialTable, { MTableToolbar } from 'material-table';
-import Paper from '@material-ui/core/Paper';
+import Paper from '@mui/material/Paper';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import HistoryIcon from '@mui/icons-material/History';
 

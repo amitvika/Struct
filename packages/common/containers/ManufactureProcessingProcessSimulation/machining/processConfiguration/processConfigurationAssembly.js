@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Button, Paper, Grid, makeStyles } from '@material-ui/core';
+import { Button, Paper, Grid } from '@mui/material';
+
+import makeStyles from '@mui/styles/makeStyles';
 
 import FileUpload from './FileUpload';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';

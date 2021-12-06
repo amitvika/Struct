@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Paper from '@material-ui/core/Paper';
-import Link from '@material-ui/core/Link';
+import Paper from '@mui/material/Paper';
+import Link from '@mui/material/Link';
 import { Spinner } from 'reactstrap';
 import get from 'lodash/get';
 import { useHistory, useParams } from 'react-router-dom';

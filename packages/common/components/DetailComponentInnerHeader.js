@@ -2,10 +2,10 @@ import React from 'react';
 import ClipboardText from './ClipboardText';
 import TextBoxWithInputField from './TextBoxWithInputField';
 
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import { Paper, Box, IconButton } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
-import { useMediaQuery } from '@material-ui/core';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Paper, Box, IconButton } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material';
 import { Headding } from 'src/components';
 import LogoView from './LogoView';
 import { useHistory } from 'react-router-dom';
@@ -25,7 +25,7 @@ export default function DetailComponentInnerHeader({
 }) {
   const history = useHistory();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleClick = () => {
     if (action) {

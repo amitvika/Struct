@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Button } from '@material-ui/core';
-import EditIcon from '@material-ui/icons/Edit';
-import IconButton from '@material-ui/core/IconButton';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import FormControl from '@material-ui/core/FormControl';
-import Check from '@material-ui/icons/Check';
-import Cancel from '@material-ui/icons/Cancel';
+import { Button } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import IconButton from '@mui/material/IconButton';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
+import FormControl from '@mui/material/FormControl';
+import Check from '@mui/icons-material/Check';
+import Cancel from '@mui/icons-material/Cancel';
 import Headding from '@monostruct/common/components/atoms/Headding';
-import { useMediaQuery } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
+import { useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useHistory } from 'react-router-dom';
 
 export default function TextBoxWithInputField({
@@ -19,7 +19,7 @@ export default function TextBoxWithInputField({
   allowEditTitle = true
 }) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const wrapperRef = useRef(null);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -88,14 +88,14 @@ export default function TextBoxWithInputField({
                     aria-label="toggle password visibility"
                     onClick={handleSave}
                     edge="end"
-                  >
+                    size="large">
                     <Check />
                   </IconButton>
                   <IconButton
                     aria-label="toggle password visibility"
                     onClick={handleCancel}
                     edge="end"
-                  >
+                    size="large">
                     <Cancel />
                   </IconButton>
                 </InputAdornment>

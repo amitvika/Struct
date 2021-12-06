@@ -1,10 +1,10 @@
 import React from 'react';
-import { Grid, Paper, Button } from '@material-ui/core';
+import { Grid, Paper, Button } from '@mui/material';
 import Headding from '../atoms/Headding';
 import Filter from './Filter';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material//AddBox';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import HistoryIcon from '@mui/icons-material//History';
 import FolderDeleteIcon from '@mui/icons-material//DeleteSweepOutlined';
 import Tooltip from '@mui/material/Tooltip';
@@ -57,7 +57,7 @@ export default function Toolbar({
       <Box style={{ display: 'flex', justifyContent: 'center' }}>
         <Box style={{ marginLeft: 'auto' }}>
           <Tooltip title="View History">
-            <IconButton onClick={handleHistoryToggle}>
+            <IconButton onClick={handleHistoryToggle} size="large">
               <HistoryIcon
                 sx={{
                   fontSize: 30,
@@ -67,7 +67,7 @@ export default function Toolbar({
             </IconButton>
           </Tooltip>
           <Tooltip title="View Archived Items">
-            <IconButton onClick={handleViewArchived}>
+            <IconButton onClick={handleViewArchived} size="large">
               <FolderDeleteIcon
                 sx={{
                   fontSize: 30,
@@ -79,7 +79,7 @@ export default function Toolbar({
 
           {isCustomAddButtonVisible && (
             <Tooltip title="Create New Item">
-              <IconButton onClick={handleAddButtonPress}>
+              <IconButton onClick={handleAddButtonPress} size="large">
                 <AddIcon />
               </IconButton>
             </Tooltip>

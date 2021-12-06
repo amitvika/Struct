@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box/*, LinearProgress*/ } from '@material-ui/core';
+import { Box/*, LinearProgress*/ } from '@mui/material';
 
 import GLTFRenderer from '../gltf/GltfRenderer'
 import { DEFAULTBACKCOLOR, DEFAULTSELECTCOLOR, DEFAULTTOUCHCOLOR, SELECTSOLID, SELECTHIRERACHY, STATEPROPS } from "../gltf/Tree/utils";

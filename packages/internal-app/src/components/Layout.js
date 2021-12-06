@@ -1,14 +1,11 @@
-import React from 'react'
+import React from 'react';
 import Header from './Header';
 
 export default function Layout(props) {
-    return (
-        < >
-            {/* <AppNavbar/> */}
-            <Header />
-            <div style={{ marginTop: '75px' }}>
-                {props.children}
-            </div>
-        </>
-    )
+  return (
+    <>
+      <Header />
+      {props.children}
+    </>
+  );
 }

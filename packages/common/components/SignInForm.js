@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@material-ui/core';
+import { Card, CardContent } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import StructLogo from '../assets/images/new_logo.png';
-import { makeStyles } from '@material-ui/core/styles';
-import Box from '@material-ui/core/Box';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import makeStyles from '@mui/styles/makeStyles';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 const useStyles = makeStyles((theme) => ({
@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   card_container: {
     maxWidth: '800px',
     width: '45%',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       width: '100%'
     }
   },

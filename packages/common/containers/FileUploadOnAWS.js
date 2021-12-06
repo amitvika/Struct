@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Headding } from '@monostruct/common/components';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import CircularProgress from '@mui/material/CircularProgress';
 
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import DocViewer, { DocViewerRenderers } from 'react-doc-viewer';
 import { uploadFileS3Bucket } from '@monostruct/common/api/aws';
 

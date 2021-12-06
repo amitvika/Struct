@@ -6,9 +6,9 @@ import {
   Radio,
   FormControlLabel,
   IconButton
-} from "@material-ui/core";
-import AddIcon from '@material-ui/icons/Add';
-import DeleteIcon from '@material-ui/icons/Delete';
+} from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Link } from 'react-router-dom';
 import ThreejsViewModal from './ThreejsViewModal';
 
@@ -72,7 +72,7 @@ export default function AssemblyComponent({ setIsAddComponentModalOpen, selected
 
               <span>None</span>
 
-              <IconButton color="primary" aria-label="New Workholding">
+              <IconButton color="primary" aria-label="New Workholding" size="large">
                 <AddIcon />
               </IconButton>
             </div>
@@ -80,5 +80,5 @@ export default function AssemblyComponent({ setIsAddComponentModalOpen, selected
         </div>
       </Paper>
     </div>
-  )
+  );
 }

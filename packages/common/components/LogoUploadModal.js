@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { Modal, ModalHeader, ModalBody, CustomInput } from 'reactstrap';
-import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
-import Paper from '@material-ui/core/Paper';
-import InputBase from '@material-ui/core/InputBase';
-import IconButton from '@material-ui/core/IconButton';
-import SearchIcon from '@material-ui/icons/Search';
+import Grid from '@mui/material/Grid';
+import makeStyles from '@mui/styles/makeStyles';
+import { Button } from '@mui/material';
+import Paper from '@mui/material/Paper';
+import InputBase from '@mui/material/InputBase';
+import IconButton from '@mui/material/IconButton';
+import SearchIcon from '@mui/icons-material/Search';
 
-import red from '@material-ui/core/colors/red';
-import blue from '@material-ui/core/colors/blue';
 import axios from 'axios';
 
-import MuiAlert from '@material-ui/lab/Alert';
+import MuiAlert from '@mui/material/Alert';
+
+import { red, blue } from '@mui/material/colors';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -124,74 +124,72 @@ export default function ImageUploadModal({
     setSnackbarOptions({ isOpen: false });
   };
 
-  return (
-    <>
-      <Modal
-        isOpen={isModalOpened}
-        toggle={toggleModal}
-        className={classes.modalContainer}
-      >
-        <ModalHeader toggle={toggleModal} hideBackdrop={true}>
-          Upload Logo
-        </ModalHeader>
-        <ModalBody>
-          <Grid container spacing={1}>
+  return <>
+    <Modal
+      isOpen={isModalOpened}
+      toggle={toggleModal}
+      className={classes.modalContainer}
+    >
+      <ModalHeader toggle={toggleModal} hideBackdrop={true}>
+        Upload Logo
+      </ModalHeader>
+      <ModalBody>
+        <Grid container spacing={1}>
+          <Grid
+            item
+            xs={8}
+            style={{
+              display: 'flex',
+              height: '50vh',
+              justifyContent: 'center'
+            }}
+          >
+            <img className={classes.imagePreview} src={logoURL} />
+          </Grid>
+          <Grid item xs={4}>
+            <Grid item xs={12}>
+              <CustomInput
+                type="file"
+                id="file"
+                name="file"
+                label={'Choose logo'}
+                onChange={handleChange}
+              />
+            </Grid>
             <Grid
               item
-              xs={8}
+              xs={12}
               style={{
-                display: 'flex',
-                height: '50vh',
-                justifyContent: 'center'
+                marginTop: '10px',
+                display: isFileChanged ? 'block' : 'none'
               }}
             >
-              <img className={classes.imagePreview} src={logoURL} />
-            </Grid>
-            <Grid item xs={4}>
-              <Grid item xs={12}>
-                <CustomInput
-                  type="file"
-                  id="file"
-                  name="file"
-                  label={'Choose logo'}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid
-                item
-                xs={12}
-                style={{
-                  marginTop: '10px',
-                  display: isFileChanged ? 'block' : 'none'
-                }}
+              <Button
+                variant="contained"
+                color="primary"
+                type="button"
+                onClick={handleFileUpload}
               >
-                <Button
-                  variant="contained"
-                  color="primary"
-                  type="button"
-                  onClick={handleFileUpload}
-                >
-                  Upload Logo
-                </Button>
-              </Grid>
-              <Paper component="form" style={{ display: 'flex' }}>
-                <InputBase
-                  className={classes.input}
-                  placeholder="Search Google Image"
-                  inputProps={{ 'aria-label': 'search google maps' }}
-                />
-                <IconButton
-                  type="submit"
-                  className={classes.iconButton}
-                  aria-label="search"
-                >
-                  <SearchIcon />
-                </IconButton>
-              </Paper>
+                Upload Logo
+              </Button>
             </Grid>
+            <Paper component="form" style={{ display: 'flex' }}>
+              <InputBase
+                className={classes.input}
+                placeholder="Search Google Image"
+                inputProps={{ 'aria-label': 'search google maps' }}
+              />
+              <IconButton
+                type="submit"
+                className={classes.iconButton}
+                aria-label="search"
+                size="large">
+                <SearchIcon />
+              </IconButton>
+            </Paper>
           </Grid>
-        </ModalBody>
-      </Modal>
-    </>
-  );
+        </Grid>
+      </ModalBody>
+    </Modal>
+  </>;
 }

@@ -4,7 +4,7 @@
  //import * as React from 'react'
  import {  useState } from "react";
  import { motion } from 'framer-motion'
- import styled, { ThemeProvider } from 'styled-components'
+ import styled, { ThemeProvider, StyledEngineProvider } from 'styled-components';
  import Container from './Tree/Container'
  import Icon from './Tree/Icon'
  
@@ -135,99 +135,101 @@
    const classAppend = disectparts ? 1 : 0;
    //console.log("Tree", structure);
    return (
-     <ThemeProvider theme={_theme}>
-       
-       <MotionTree
-         grow={grow}
-         currentTheme={theme || 'dark'}
-         size={size}
-         style={{ ...containerStyle }}
-       >
-         {!!nodes.length && structure && (
-           <div>
-             <table>
-             <thead>
-               <tr>              
-                 <th className ={disectparts?"tdpart1":"tdpart"}>Part</th>
-                 <th className ={disectparts?"tdselect1":"tdselect"}>Tick</th>
-                 <th className ={disectparts?"tdpos1":"tdpos"}>Position</th>
-                 <th className ={disectparts?"tdcolor1":"tdcolor"}>Color</th>
-                 <th className ={disectparts?"tdtexture1":"tdtexture"}>Texture</th>
-                 <th className ={disectparts?"tdslider1":"tdslider"}>Metal</th>
-                 <th className ={disectparts?"tdslider1":"tdslider"}>Rough</th>
-                 <th className ={disectparts?"tdslider1":"tdslider"}>Opaque</th>
-                 {classAppend &&(
-                   <th className = "tdstruct1" >Structure</th>    
-                 )}                  
-               </tr>   
-             </thead>
-             </table>
-             <Container
-               selected={_selected}
-               onSelect={selectNode}
-               parent={null}
-               nodes={nodes}
-               currentTheme={theme || 'dark'}
-               noIcons={noIcons}
-               iconSet={iconSet}
-               showEmptyItems={showEmptyItems}
-               textures={textures}
-               structure={structure}
-               disectparts={disectparts}
-               selectitems={selectitems}
-             />
-          
-           </div>
-         )}
-         {!!nodes.length && !structure && (
-           <div>
-             <table>
-             <thead>
-             <tr>
-             <td className="tdtype">Type</td>
-             <td className="tdinfo">Info</td>           
-             </tr>            
-             </thead>
-             </table>
-             <Container
-               selected={_selected}
-               onSelect={selectNode}
-               parent={null}
-               nodes={nodes}
-               currentTheme={theme || 'dark'}
-               noIcons={noIcons}
-               iconSet={iconSet}
-               showEmptyItems={showEmptyItems}
-               textures={textures}
-               structure={structure}
-               disectparts={disectparts}
-               selectitems={selectitems}
-             />
-          
-           </div>
-         )}
-         {!isLoading && !nodes.length && (
-           <Loader>
-             <p>No data :(</p>
-           </Loader>
-         )}
-         {isLoading && (
-           <Loader>
-             {!noIcons && (
-               <Icon
-                 size="xlarge"
-                 spin
+     <StyledEngineProvider injectFirst>
+       <ThemeProvider theme={_theme}>
+         
+         <MotionTree
+           grow={grow}
+           currentTheme={theme || 'dark'}
+           size={size}
+           style={{ ...containerStyle }}
+         >
+           {!!nodes.length && structure && (
+             <div>
+               <table>
+               <thead>
+                 <tr>              
+                   <th className ={disectparts?"tdpart1":"tdpart"}>Part</th>
+                   <th className ={disectparts?"tdselect1":"tdselect"}>Tick</th>
+                   <th className ={disectparts?"tdpos1":"tdpos"}>Position</th>
+                   <th className ={disectparts?"tdcolor1":"tdcolor"}>Color</th>
+                   <th className ={disectparts?"tdtexture1":"tdtexture"}>Texture</th>
+                   <th className ={disectparts?"tdslider1":"tdslider"}>Metal</th>
+                   <th className ={disectparts?"tdslider1":"tdslider"}>Rough</th>
+                   <th className ={disectparts?"tdslider1":"tdslider"}>Opaque</th>
+                   {classAppend &&(
+                     <th className = "tdstruct1" >Structure</th>    
+                   )}                  
+                 </tr>   
+               </thead>
+               </table>
+               <Container
+                 selected={_selected}
+                 onSelect={selectNode}
+                 parent={null}
+                 nodes={nodes}
                  currentTheme={theme || 'dark'}
-                 icon={
-                   iconSet && iconSet['loader'] ? iconSet['loader'] : 'loader'
-                 }
+                 noIcons={noIcons}
+                 iconSet={iconSet}
+                 showEmptyItems={showEmptyItems}
+                 textures={textures}
+                 structure={structure}
+                 disectparts={disectparts}
+                 selectitems={selectitems}
                />
-             )}
-           </Loader>
-         )}
-       </MotionTree>
-     </ThemeProvider>
-   )
+            
+             </div>
+           )}
+           {!!nodes.length && !structure && (
+             <div>
+               <table>
+               <thead>
+               <tr>
+               <td className="tdtype">Type</td>
+               <td className="tdinfo">Info</td>           
+               </tr>            
+               </thead>
+               </table>
+               <Container
+                 selected={_selected}
+                 onSelect={selectNode}
+                 parent={null}
+                 nodes={nodes}
+                 currentTheme={theme || 'dark'}
+                 noIcons={noIcons}
+                 iconSet={iconSet}
+                 showEmptyItems={showEmptyItems}
+                 textures={textures}
+                 structure={structure}
+                 disectparts={disectparts}
+                 selectitems={selectitems}
+               />
+            
+             </div>
+           )}
+           {!isLoading && !nodes.length && (
+             <Loader>
+               <p>No data :(</p>
+             </Loader>
+           )}
+           {isLoading && (
+             <Loader>
+               {!noIcons && (
+                 <Icon
+                   size="xlarge"
+                   spin
+                   currentTheme={theme || 'dark'}
+                   icon={
+                     iconSet && iconSet['loader'] ? iconSet['loader'] : 'loader'
+                   }
+                 />
+               )}
+             </Loader>
+           )}
+         </MotionTree>
+       </ThemeProvider>
+     </StyledEngineProvider>
+   );
  }
  
  DisplayStructure.defaultProps = {

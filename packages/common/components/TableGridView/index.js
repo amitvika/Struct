@@ -8,14 +8,14 @@ import DefaultContainer from '../../components/DefaultContainer';
 import CommonAddUpdateModal from './AddUpdateModal';
 import LoadingModal from '../LoadingModal';
 import get from 'lodash/get';
-import TablePagination from '@material-ui/core/TablePagination';
+import TablePagination from '@mui/material/TablePagination';
 import {
   getFromLocalStorage,
   saveToLocalStorage
 } from '../../utils/usefulHelpers';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 
 const TableGridView = ({
@@ -359,7 +359,7 @@ const GridAndListSelector = ({ isGridViewSelected, setIsGridViewSelected }) => {
   return (
     <div style={{ display: 'inline-flex', padding: 10 }}>
       <Tooltip title="View Result in Grid View">
-        <IconButton onClick={() => setIsGridViewSelected(true)}>
+        <IconButton onClick={() => setIsGridViewSelected(true)} size="large">
           <GridViewIcon
             sx={{
               fontSize: 30,
@@ -369,7 +369,7 @@ const GridAndListSelector = ({ isGridViewSelected, setIsGridViewSelected }) => {
         </IconButton>
       </Tooltip>
       <Tooltip title="View Result in Table View">
-        <IconButton onClick={() => setIsGridViewSelected(false)}>
+        <IconButton onClick={() => setIsGridViewSelected(false)} size="large">
           <ViewListIcon
             sx={{
               fontSize: 30,

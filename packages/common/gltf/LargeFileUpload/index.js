@@ -7,7 +7,7 @@ import {
   TextField,
   Checkbox,
   FormControlLabel
-} from '@material-ui/core';
+} from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -18,7 +18,7 @@ import {
 
 import ExportLogo from '../../assets/images/export.png';
 
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles((theme) => ({
   custom_file: {
@@ -234,7 +234,7 @@ export default function LargeFileUpload({
         >
           {getActualFileName(itemProperties.fileName)}
         </Typography>
-        <IconButton margin="auto" onClick={handleExportButton}>
+        <IconButton margin="auto" onClick={handleExportButton} size="large">
           <img
             src={ExportLogo}
             style={{ width: '20px', paddingTop: '2px' }}

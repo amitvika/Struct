@@ -1,10 +1,10 @@
-import AddToQueueOutlinedIcon from '@material-ui/icons/AddToQueueOutlined';
-import SpeedOutlinedIcon from '@material-ui/icons/SpeedOutlined';
-//import SettingsBrightnessOutlinedIcon from '@material-ui/icons/SettingsBrightnessOutlined';
-import BrightnessMediumOutlinedIcon from '@material-ui/icons/BrightnessMediumOutlined';
-//import PhotoSizeSelectActualOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActualOutlined';
-import WeekendOutlinedIcon from '@material-ui/icons/WeekendOutlined';
-import MovieOutlinedIcon from '@material-ui/icons/MovieOutlined';
+import AddToQueueOutlinedIcon from '@mui/icons-material/AddToQueueOutlined';
+import SpeedOutlinedIcon from '@mui/icons-material/SpeedOutlined';
+//import SettingsBrightnessOutlinedIcon from '@mui/icons-material/SettingsBrightnessOutlined';
+import BrightnessMediumOutlinedIcon from '@mui/icons-material/BrightnessMediumOutlined';
+//import PhotoSizeSelectActualOutlinedIcon from '@mui/icons-material/PhotoSizeSelectActualOutlined';
+import WeekendOutlinedIcon from '@mui/icons-material/WeekendOutlined';
+import MovieOutlinedIcon from '@mui/icons-material/MovieOutlined';
 export const myMenus = [
   {
     folder: 'Display',
