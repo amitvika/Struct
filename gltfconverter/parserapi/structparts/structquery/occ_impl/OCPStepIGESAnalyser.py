@@ -1617,7 +1617,7 @@ class StepIgesAnalyser():
         self, document=None, filename=None, shapeslist=None, includeparts=False, ascompound=False, 
         distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
         maximumfacestoinclude=48, animations=None, delay=1.0, shapeorder=[], kinematicanimation=None,
-        thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=False, suffixname='',
+        thumbheight=300, thumbwidth=300, multipleGLTF=1200, addfeaturesThread=False, suffixname='',
         writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
         defaultR=0.3, defaultG=0.32, defaultB=0.37, seperateparts=False, seperatecompounds=True,

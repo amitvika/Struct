@@ -52,13 +52,13 @@ baxter_head_chain = Chain.from_json_file("../resources/baxter/baxter_head.json")
 
 # %%
 from mpl_toolkits.mplot3d import Axes3D;
-fig, ax = plot.init_3d_figure();
+fig, ax = plot.init_3d_figure()
 baxter_left_arm_chain.plot([0] * (len(baxter_left_arm_chain)), ax)
 baxter_right_arm_chain.plot([0] * (len(baxter_right_arm_chain)), ax)
 baxter_pedestal_chain.plot([0] * (2 + 2), ax)
 baxter_head_chain.plot([0] * (4 + 2), ax)
 ax.legend()
-
+plot.show_figure()
 # %%
 """
 ## Inverse kinematics
@@ -66,7 +66,7 @@ ax.legend()
 
 # %%
 ### Let's try some IK
-fig, ax = plot.init_3d_figure();
+fig, ax = plot.init_3d_figure()
 
 
 target = [0.3, 0.5, 0.15]
@@ -83,3 +83,4 @@ baxter_right_arm_chain.plot([0] * (len(baxter_left_arm_chain)), ax)
 baxter_pedestal_chain.plot([0] * (2 + 2), ax)
 baxter_head_chain.plot([0] * (4 + 2), ax)
 ax.legend()
+plot.show_figure()
