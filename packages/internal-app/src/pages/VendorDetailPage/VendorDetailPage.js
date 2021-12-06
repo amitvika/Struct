@@ -130,7 +130,7 @@ const VendorDetail = () => {
           handleSave,
           tabName: tabItems[tabItems - 1],
           action: '/vendors',
-          title: 'Vendors Details',
+          title: 'Vendor Details',
           allowEditTitle: true,
           handleLogoChange,
           logoUrl: vendorInfo.logoUrl,

@@ -48,11 +48,7 @@ export const headerListItem = [
   },
   {
     label: 'Creators',
-    addSeparator: true
-  },
-  {
-    label: 'Machines and Tools',
-    addSeparator: true
+    addSeparator: false
   }
 ];
 

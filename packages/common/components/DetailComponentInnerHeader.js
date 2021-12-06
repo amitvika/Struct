@@ -46,9 +46,9 @@ export default function DetailComponentInnerHeader({
         flexDirection: isMobile ? 'column' : 'row'
       }}
     >
-      <IconButton style={{ zIndex: 999 }} color="primary" onClick={handleClick}>
+      {/* <IconButton style={{ zIndex: 999 }} color="primary" onClick={handleClick}>
         <ArrowBackIcon />
-      </IconButton>
+      </IconButton> */}
       <Box style={{ zIndex: 999 }}>
         <TextBoxWithInputField
           {...{
@@ -59,7 +59,7 @@ export default function DetailComponentInnerHeader({
           }}
         />
         <Headding as={'h6'}>
-          {prefix} ID:{id} <ClipboardText item_id={id} />
+          {prefix} ID: {id} <ClipboardText item_id={id} />
         </Headding>
       </Box>
       {allowLogoUpload && (
@@ -77,8 +77,8 @@ export default function DetailComponentInnerHeader({
           flexDirection: 'column'
         }}
       >
-        <Headding as={'h4'}>{title}</Headding>
-        <Headding as={'h5'}>{tabName}</Headding>
+        <Headding as={'h5'}>{title}</Headding>
+        <Headding as={'h6'}>{tabName}</Headding>
       </Box>
     </Paper>
   );

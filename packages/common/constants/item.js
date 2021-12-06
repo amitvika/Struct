@@ -8,7 +8,13 @@ export const columnsFields = [
 ];
 
 export const columnsForItemView = [
-  { title: 'ID', field: 'id', editable: 'never' },
+  {
+    title: 'ID',
+    field: 'id',
+    editable: 'never',
+    isLink: true,
+    linkPrefix: '/items/'
+  },
   { title: 'Name', field: 'name', type: 'text', editable: 'never' },
   {
     title: 'Source',
@@ -24,8 +30,20 @@ export const columnsForItemView = [
       'Multi-Item Assembly': 'Multi-Item Assembly'
     }
   },
-  { title: 'Direct Parent ID', field: 'direct_parent_id', editable: 'never' },
-  { title: 'Origin Parent ID', field: 'origin_parent_id', editable: 'never' },
+  {
+    title: 'Direct Parent ID',
+    field: 'direct_parent_id',
+    editable: 'never',
+    isLink: true,
+    linkPrefix: '/items/'
+  },
+  {
+    title: 'Origin Parent ID',
+    field: 'origin_parent_id',
+    editable: 'never',
+    isLink: true,
+    linkPrefix: '/items/'
+  },
   {
     title: 'Child Items Created',
     field: 'child_item_created',

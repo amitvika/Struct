@@ -57,11 +57,11 @@ export default function TextBoxWithInputField({
   }, [wrapperRef]);
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div style={{ display: 'flex', alignItems: 'center' }}>
       <Headding as={'h5'}> {prefix} Name:</Headding>
-      <div style={{ marginLeft: 20 }}>
+      <div style={{ marginLeft: 5 }}>
         {!isEditMode ? (
-          <div style={{ display: 'flex' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <Headding as={'h5'} style={{ fontWeight: 'bold' }}>
               {itemTitle}
             </Headding>

@@ -616,12 +616,12 @@ const ItemDetail = ({ itemValue }) => {
   const tabList = {
     pdcu: 'Product Design or CAD Upload',
     itemProperties: 'Item Properties',
+    gdtac: 'GD&T and Assembly Constraints',
+    sft: 'Surface Finish and Treatment',
     materials: 'Materials',
     iupc: 'Internal Item Properties',
     cf: 'Classification',
     cc: 'Compliance and Certifications',
-    gdtac: 'GD&T and Assembly Constraints',
-    sft: 'Surface Finish and Treatment',
     fls: 'Functional Load and Simulation',
     dm: 'Design Modifications',
     slfpi: 'Software Loading for PCBs, ICs',
@@ -664,7 +664,7 @@ const ItemDetail = ({ itemValue }) => {
               handleSave,
               tabName: tabList[tabIndex],
               action: '/items',
-              title: 'Items Details',
+              title: 'Item Details',
               allowEditTitle: true
             }}
           />

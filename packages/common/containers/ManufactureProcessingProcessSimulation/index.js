@@ -137,7 +137,8 @@ export default function Index2(props) {
                 backgroundColor:
                   selectedTab === 'Full Process' ? '#343a40' : '',
                 color: selectedTab === 'Full Process' ? 'white' : '',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                margin: 0
               }}
               className={classes.tabPaper}
             >

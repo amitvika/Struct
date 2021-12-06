@@ -11,7 +11,6 @@ const Headding = ({ as, children, className, onClick, title, style }) => {
   return (
     <Typography
       variant={as}
-      gutterBottom
       onClick={onClick}
       style={{ ...style, fontSize: `${isMobile ? '20px' : ''}` }}
     >

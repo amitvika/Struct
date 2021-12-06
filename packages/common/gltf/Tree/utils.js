@@ -377,7 +377,8 @@ export const USESTYLES = makeStyles((theme) => ({
   },
   assemblyTableContainer: {
     display: 'inline-block',
-    minWidth: '600px'
+    minWidth: '700px',
+    maxWidth: '700px'
   },
   table: {
     minWidth: 400
@@ -387,9 +388,7 @@ export const USESTYLES = makeStyles((theme) => ({
   },
   tableCell: {
     padding: '0px 8px',
-    whiteSpace: 'normal',
-    wordWrap: 'break-word',
-    wordBreak: 'break-all'
+    whiteSpace: 'normal'
   }
 }));
 export const StyledTableRow = withStyles((theme) => ({
@@ -406,7 +405,8 @@ export const StyledTableRow = withStyles((theme) => ({
 
 export const StyledTableCell = withStyles((theme) => ({
   root: {
-    padding: '0px 8px'
+    padding: '0px 8px',
+    width: '25%'
   }
 }))(TableCell);
 

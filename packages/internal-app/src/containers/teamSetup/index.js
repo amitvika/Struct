@@ -8,7 +8,7 @@ import ManageTeamModal from './ManageTeamModal';
 const TeamSetup = ({ fields }) => {
   return (
     <TableGridView
-      title={'Team Setup'}
+      title={'Team User Assignments'}
       fields={teamSetupFields}
       fetchList={UserSetupAPI.fetchTeams}
       upsertListItem={UserSetupAPI.upsertTeam}

@@ -5,7 +5,8 @@ import {
   makeStyles,
   Paper,
   Button,
-  IconButton
+  IconButton,
+  Link
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import Avatar from '@material-ui/core/Avatar';
@@ -16,13 +17,13 @@ import HistoryIcon from '@material-ui/icons/History';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 // import DeleteForeverIcon from '@material-ui/icons/DeleteForeverIcon';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import Tooltip from '@material-ui/core/Tooltip';
 
 import StructLogo from '../../assets/images/new_logo.png';
-import './style.css';
-import { useMediaQuery } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
 import { getExistingPathFromServer } from '@monostruct/common/api/fileUpload.api';
+import Tooltip from '@mui/material/Tooltip';
+
+import './style.css';
+
 const useStyles = makeStyles((theme) => ({
   tableCell: {
     borderBottom: 'none'
@@ -39,7 +40,8 @@ const useStyles = makeStyles((theme) => ({
     '&:hover, &:focus': {
       backgroundColor: '#DCDCDC',
       color: '#000000'
-    }
+    },
+    margin: '0 !important'
   },
 
   image: {
@@ -50,8 +52,6 @@ const useStyles = makeStyles((theme) => ({
     margin: 'auto',
     padding: '5px',
     display: 'block',
-    maxWidth: '96px',
-    maxHeight: '96px',
     width: '100%',
     height: '100%',
     objectFit: 'contain'
@@ -79,22 +79,21 @@ const useStyles = makeStyles((theme) => ({
   },
   actionIconContainer: {
     display: 'flex',
-    margin: 'auto',
-    flexDirection: 'column',
-    [theme.breakpoints.down('sm')]: {
-      flexDirection: 'row'
-    }
+    margin: '0 auto',
+    flexDirection: 'column'
   },
   thumbnailContainer: {
     display: 'flex',
+    flexDirection: 'column',
+    height: '250px',
     [theme.breakpoints.down('sm')]: {
-      justifyContent: 'center',
-      width: '100%'
+      justifyContent: 'center'
     }
   },
   contentContainer: {
-    marginTop: '25px',
     overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
     [theme.breakpoints.down('sm')]: {
       marginTop: '0',
       padding: '5px'
@@ -102,24 +101,67 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const FieldItemTitle = ({ title, valueToCopy }) => {
+  const classes = useStyles();
+  const [open, setOpen] = React.useState(false);
+
+  const handleTooltipClose = () => {
+    setOpen(false);
+  };
+
+  const handleTooltipOpen = (event) => {
+    event.stopPropagation();
+    setOpen(true);
+
+    navigator.clipboard.writeText(valueToCopy);
+
+    setTimeout(() => {
+      setOpen(false);
+    }, 500);
+  };
+  return (
+    <Tooltip
+      PopperProps={{
+        disablePortal: true
+      }}
+      onClose={handleTooltipClose}
+      open={open}
+      disableFocusListener
+      disableHoverListener
+      disableTouchListener
+      title="Copied To Clipboard"
+    >
+      <Typography className={classes.boldtablecell} onClick={handleTooltipOpen}>
+        {title}
+        {`: `}
+      </Typography>
+    </Tooltip>
+  );
+};
+
 export default function GridView({
   list,
-  handleUndeleteButton = () => {},
-  handleDelete = () => {},
-  handleHistoryToggle = () => {},
-  handleEditButtonPress = () => {},
-  isViewArchivedChecked = true,
   columnsFields,
   handleTableRowClick,
-  isHistoryLinkVisible = true,
-  isInsideDetailPanel = false,
-  showDeleteActionButton = true,
-  isEditLinkVisible = false
+  noThumbnail,
+  ...props
 }) {
   const classes = useStyles();
-  const [text, setText] = useState('');
   const titleRef = useRef();
 
+  const FieldItemValue = ({ data, fieldItem }) => {
+    return (
+      <Typography
+        ref={titleRef}
+        className={classes.tableCell}
+        value={`${data[fieldItem.field]}`}
+      >{` ${
+        data[fieldItem.field] != undefined || data[fieldItem.field] != null
+          ? data[fieldItem.field]
+          : ''
+      }`}</Typography>
+    );
+  };
   const renderItem = (data) => {
     let item = [];
     columnsFields
@@ -132,35 +174,25 @@ export default function GridView({
         item.push(
           <Grid
             item
-            sm
             sm={12}
             key={`${fieldItem.title}_${data[fieldItem.field]}`}
+            style={{ display: 'flex', alignItems: 'center' }}
           >
-            {fieldItem.isLink ? (
-              <Typography
-                variant="body2"
-                style={{ cursor: 'pointer', textAlign: 'center' }}
-                onClick={fieldItem.onClick}
-                className={classes.historyLink}
-              >
-                {fieldItem.title}
-              </Typography>
-            ) : (
-              <Typography variant="subtitle2" gutterBottom noWrap={true}>
-                <span className={classes.boldtablecell}>{fieldItem.title}</span>
-                {`: `}
-                <span
-                  ref={titleRef}
-                  className={classes.tableCell}
-                  value={`${data[fieldItem.field]}`}
-                >{` ${
-                  data[fieldItem.field] != undefined ||
-                  data[fieldItem.field] != null
-                    ? data[fieldItem.field]
-                    : ''
-                }`}</span>
-              </Typography>
-            )}
+            <FieldItemTitle
+              {...{
+                title: fieldItem.title,
+                valueToCopy: data[fieldItem.field]
+              }}
+            />
+            <div style={{ marginLeft: '5px' }}>
+              {fieldItem.isLink ? (
+                <Link to={`${fieldItem.linkPrefix}${data[fieldItem.field]}`}>
+                  {data[fieldItem.field]}
+                </Link>
+              ) : (
+                <FieldItemValue {...{ data, fieldItem }} />
+              )}
+            </div>
           </Grid>
         );
       });
@@ -211,6 +243,68 @@ export default function GridView({
     }
   };
 
+  return (
+    <Grid container spacing={2}>
+      {list.map((product) => {
+        return (
+          <Grid item xs={6} sm={3} key={product.id}>
+            <Paper
+              className={classes.paper}
+              onClick={() => handleTableRowClick(product)}
+            >
+              <Grid
+                container
+                style={{
+                  height: '100%',
+                  flexDirection: 'row'
+                }}
+              >
+                {!noThumbnail && (
+                  <Grid item sm sm={12} className={classes.thumbnailContainer}>
+                    <RenderIconBasedOnFileType
+                      file_url={product.file_url}
+                      logo_url={product.logo_url}
+                    />
+                  </Grid>
+                )}
+                <Grid item sm sm={12} className={classes.contentContainer}>
+                  <Grid container>
+                    <Grid
+                      item
+                      sm={10}
+                      style={{ display: 'flex', flexDirection: 'column' }}
+                    >
+                      {renderItem(product)}
+                    </Grid>
+
+                    <Grid item sm={2}>
+                      <ActionButtonContainer {...{ product, ...props }} />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Paper>
+          </Grid>
+        );
+      })}
+    </Grid>
+  );
+}
+
+const ActionButtonContainer = ({
+  product,
+  handleUndeleteButton = () => {},
+  handleDelete = () => {},
+  handleHistoryToggle = () => {},
+  handleEditButtonPress = () => {},
+  isViewArchivedChecked = true,
+  isHistoryLinkVisible = true,
+  isInsideDetailPanel = false,
+  showDeleteActionButton = true,
+  isEditLinkVisible = false
+}) => {
+  const classes = useStyles();
+
   const CustomIconButton = ({ title, onClick, children }) => {
     return (
       <Tooltip title={title} aria-label={title} placement="left">
@@ -228,79 +322,49 @@ export default function GridView({
   };
 
   return (
-    <Grid container spacing={2}>
-      {list.map((product) => {
-        return (
-          <Grid item xs={6} sm={3} key={product.id}>
-            <Paper
-              className={classes.paper}
-              onClick={() => handleTableRowClick(product)}
-            >
-              <Grid
-                container
-                style={{
-                  height: '100%',
-                  paddingBottom: '10px'
-                }}
-              >
-                <Grid item sm sm={4} className={classes.thumbnailContainer}>
-                  <RenderIconBasedOnFileType
-                    file_url={product.file_url}
-                    logo_url={product.logo_url}
-                  />
-                </Grid>
-                <Grid item sm sm={6} className={classes.contentContainer}>
-                  {renderItem(product)}
-                </Grid>
-                <Grid item sm={2} className={classes.actionIconContainer}>
-                  <ClipboardText item_id={product.id} />
-                  {isEditLinkVisible && (
-                    <CustomIconButton
-                      title={'Edit'}
-                      onClick={(event) => {
-                        handleEditButtonPress(product);
-                      }}
-                    >
-                      <EditIcon />
-                    </CustomIconButton>
-                  )}
-                  {isHistoryLinkVisible && (
-                    <CustomIconButton
-                      title={'View History'}
-                      onClick={(event) => {
-                        handleHistoryToggle({ rowId: product.id });
-                      }}
-                    >
-                      <HistoryIcon />
-                    </CustomIconButton>
-                  )}
+    <div className={classes.actionIconContainer}>
+      {/* <ClipboardText item_id={product.id} /> */}
+      {isEditLinkVisible && (
+        <CustomIconButton
+          title={'Edit'}
+          onClick={(event) => {
+            handleEditButtonPress(product);
+          }}
+        >
+          <EditIcon />
+        </CustomIconButton>
+      )}
+      {isHistoryLinkVisible && (
+        <CustomIconButton
+          title={'View History'}
+          onClick={(event) => {
+            handleHistoryToggle({ rowId: product.id });
+          }}
+        >
+          <HistoryIcon />
+        </CustomIconButton>
+      )}
 
-                  {showDeleteActionButton && !isViewArchivedChecked && (
-                    <CustomIconButton
-                      title={'Delete'}
-                      onClick={(event) => {
-                        handleDelete({ id: product.id });
-                      }}
-                    >
-                      <DeleteOutlineIcon />
-                    </CustomIconButton>
-                  )}
-                  {showDeleteActionButton && isViewArchivedChecked && (
-                    <CustomIconButton
-                      title={'Undelete'}
-                      onClick={(event) => {
-                        handleUndeleteButton({ id: product.id });
-                      }}
-                    >
-                      <DeleteForeverIcon />
-                    </CustomIconButton>
-                  )}
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
-        );
-      })}
-    </Grid>
+      {showDeleteActionButton && !isViewArchivedChecked && (
+        <CustomIconButton
+          title={'Delete'}
+          onClick={(event) => {
+            handleDelete({ id: product.id });
+          }}
+        >
+          <DeleteOutlineIcon />
+        </CustomIconButton>
+      )}
+      {showDeleteActionButton && isViewArchivedChecked && (
+        <CustomIconButton
+          title={'Undelete'}
+          onClick={(event) => {
+            handleUndeleteButton({ id: product.id });
+          }}
+        >
+          <DeleteForeverIcon />
+        </CustomIconButton>
+      )}
+    </div>
   );
-}
+};

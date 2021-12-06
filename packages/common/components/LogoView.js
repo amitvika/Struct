@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   editIconContainer: {
     position: 'absolute',
     zIndex: 1000,
-    top: '-22px',
+    top: '0px',
     right: '-25px',
     cursor: 'pointer'
   }

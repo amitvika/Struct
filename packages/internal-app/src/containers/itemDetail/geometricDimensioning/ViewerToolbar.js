@@ -226,7 +226,9 @@ export default function ViewerToolbar({
   const getSelectedFeaturePosition = () => {
     const list = getFeatureListForGDT();
 
-    const feature = list.find((row) => row.kind === 'Circle' || row.kind === 'Cylinder');
+    const feature = list.find(
+      (row) => row.kind === 'Circle' || row.kind === 'Cylinder'
+    );
     return feature;
   };
 
@@ -247,7 +249,7 @@ export default function ViewerToolbar({
         {selectedObjects && selectedObjects.length >= 1 && (
           <div align={'center'}>{renderButtons()}</div>
         )}
-        <SectionContainer title={'Current Selection'}>
+        <SectionContainer title={'Summary'}>
           <SelectedSummaryTable
             features={selectedOption != SELECTASSEMBLY}
             featureList={
@@ -258,6 +260,14 @@ export default function ViewerToolbar({
             setCurrentDataTable={setCurrentDataTable}
             gltfjson={gltfjson}
             mateValues={mateValues}
+          />
+        </SectionContainer>
+
+        <SectionContainer title={'Feature Identification'}>
+          <SelectedFeatureMenu
+            features={selectedOption != SELECTASSEMBLY}
+            featureList={getFeatureListForGDT()}
+            setRowKeyValue={setRowKeyValue}
           />
         </SectionContainer>
 
@@ -280,13 +290,17 @@ export default function ViewerToolbar({
           )}
         {selectedObjects && selectedObjects.length >= 1 && (
           <>
-            <SectionContainer
-              title={'GD&T and Features'}
-              paperStyle={{ display: 'flex', flexDiraction: 'column' }}
-            >
-              <DynamicFeature selectedFeature={getSelectedFeaturePosition()} />
-            </SectionContainer>
-            <SectionContainer
+            {getSelectedFeaturePosition()?.diameter && (
+              <SectionContainer
+                title={'GD&T and Features'}
+                paperStyle={{ display: 'flex', flexDiraction: 'column' }}
+              >
+                <DynamicFeature
+                  selectedFeature={getSelectedFeaturePosition()}
+                />
+              </SectionContainer>
+            )}
+            {/* <SectionContainer
               title={'Geometric Dimensioning and Tolerance'}
               paperStyle={{ display: 'flex', flexDiraction: 'column' }}
             >
@@ -295,15 +309,7 @@ export default function ViewerToolbar({
                 featureList={getFeatureListForGDT()}
                 setRowKeyValue={setRowKeyValue}
               />
-            </SectionContainer>
-
-            <SectionContainer title={'Feature Identification'}>
-              <SelectedFeatureMenu
-                features={selectedOption != SELECTASSEMBLY}
-                featureList={getFeatureListForGDT()}
-                setRowKeyValue={setRowKeyValue}
-              />
-            </SectionContainer>
+            </SectionContainer> */}
           </>
         )}
       </Box>
