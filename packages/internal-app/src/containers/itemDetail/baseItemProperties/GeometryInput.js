@@ -66,7 +66,7 @@ export default function GeometryInput({
           ...itemProperties,
           fileGDT: getFileNameWithoutExtension(itemProperties.fileName) + '3'
         };
-        const childrenCreated = createChildItems({
+        const childrenCreated = await createChildItems({
           item: itemClone,
           percentage,
           setPercentage,
@@ -161,8 +161,9 @@ export default function GeometryInput({
               inputProps={{ 'aria-label': 'controlled' }}
               disabled={
                 itemProperties.child_item_status !== 'NOT_INITIATED' ||
-                !itemProperties.fileUUId
-                // || itemProperties.assemblyType != 'Multi-Item Assembly'
+                !itemProperties.fileUUId ||
+                (itemProperties.stepTreeLength > 0 &&
+                  itemProperties.assemblyType != 'Multi-Item Assembly')
               }
             />
           </Grid>

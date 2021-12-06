@@ -88,12 +88,11 @@ const ItemDetail = ({ itemValue }) => {
       myTabIndex = query.get('tab');
       setTabIndex(myTabIndex);
     }
-
+    setAllowFirstLevelItems(itemProperties?.child_item_status === 'INITIATED');
     handleGLTFAndTreeLoading({
       item: itemProperties,
       myTabedIndex: myTabIndex
     });
-    setAllowFirstLevelItems(itemProperties?.child_item_status === 'INITIATED');
   }, [tabIndex]);
 
   useEffect(() => {
@@ -337,9 +336,7 @@ const ItemDetail = ({ itemValue }) => {
             res.data
           );
           setItemProperties(res.data);
-          setAllowFirstLevelItems(
-            res.data?.child_item_status !== 'NOT_INITIATED'
-          );
+          setAllowFirstLevelItems(res.data?.child_item_status === 'INITIATED');
           dispatch(showSuccessAlert({ message: 'Item Updated' }));
         } else {
           dispatch(showErrorAlert({ message: 'Unable to save info' }));

@@ -205,7 +205,18 @@ export const createChildItems = async ({
     );
     */
     // const childRes = await getAFileFromStore(datafile, 'progress'); avoided since pollfunction returns the same..
-
+    if (
+      !childRes ||
+      !childRes.data ||
+      childRes.data.begin != childRes.data.end ||
+      childRes.data.begin == 0
+    ) {
+      console.log('Error in child res', childRes);
+      setIsLoading(false);
+      setProgressBarLoad(false);
+      setIsFileLoading(false);
+      return false;
+    }
     const childFiles = get(childRes, 'data.childfiles', []);
     setCenterActionText('Started Creation');
     console.log('ChildFiles', childFiles);
@@ -230,4 +241,5 @@ export const createChildItems = async ({
   setIsLoading(false);
   setProgressBarLoad(false);
   setIsFileLoading(false);
+  return false;
 };
