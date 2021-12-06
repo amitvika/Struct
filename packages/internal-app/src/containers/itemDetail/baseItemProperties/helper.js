@@ -242,15 +242,17 @@ export const createChildItems = async ({
         treeLength: item.length > 4 ? item[4] : 0
       }));
       console.log('New Items', newItem);
+      setIsLoading(false);
+      setProgressBarLoad(false);
+      return NewItemAPI.upsertItems(newItem);
     } else {
       console.log(
         'Not creating because it might be already created',
         itemapidetailsRes.data
       );
+      setIsLoading(false);
+      setProgressBarLoad(false);
     }
-    setIsLoading(false);
-    setProgressBarLoad(false);
-    return NewItemAPI.upsertItems(newItem);
   } catch (error) {
     console.log('Child item creation Error');
   }
