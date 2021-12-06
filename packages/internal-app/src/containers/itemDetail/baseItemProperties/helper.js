@@ -225,7 +225,7 @@ export const createChildItems = async ({
     if (
       !itemapidetailsRes ||
       !itemapidetailsRes.data ||
-      itemapidetailsRes.data.child_item_status === 'INITIATED'
+      itemapidetailsRes.data[0].child_item_status === 'INITIATED'
     ) {
       const childFiles = get(childRes, 'data.childfiles', []);
       setCenterActionText('Started Creation');
