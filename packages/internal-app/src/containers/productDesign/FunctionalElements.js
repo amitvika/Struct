@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
-import { Grid, Paper } from '@material-ui/core';
+import { Grid, Paper } from '@mui/material';
 
 export default function FunctionalElements({ productDesign = {} }) {
   // const functionElements = productDesign.functionElements;

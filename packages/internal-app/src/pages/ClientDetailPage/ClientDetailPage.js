@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { useParams, useHistory } from 'react-router-dom';
 import API from '@monostruct/common/api/clients.api';
 import Products from './products';

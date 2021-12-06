@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Spinner } from 'reactstrap';
 import { changePage } from '../actions/pageActions';
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@mui/material/Checkbox';
 import PropTypes from 'prop-types';
 import UserAccessTypesAPI from '@monostruct/common/api/access.api';
 

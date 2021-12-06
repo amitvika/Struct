@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Modal from '@material-ui/core/Modal';
+import Modal from '@mui/material/Modal';
 import DisplayStructure from "./DisplayStructure"
 
 const DEFAULTDATA = {

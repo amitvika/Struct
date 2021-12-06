@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import Grid from '@material-ui/core/Grid';
-import Link from '@material-ui/core/Link';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
+import Checkbox from '@mui/material/Checkbox';
+import Button from '@mui/material/Button';
+import LinearProgress from '@mui/material/LinearProgress';
 
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Input from '@monostruct/common/components/atoms/Input';

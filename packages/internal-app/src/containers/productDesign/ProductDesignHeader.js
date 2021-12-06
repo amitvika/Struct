@@ -1,12 +1,13 @@
 import React from "react";
-import { AppBar, Toolbar, makeStyles, Paper, Grid } from "@material-ui/core";
-import Typography from '@material-ui/core/Typography'
+import { AppBar, Toolbar, Paper, Grid } from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import Typography from '@mui/material/Typography'
 import { useLocation, Link as RouterLink } from "react-router-dom";
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import clsx from 'clsx';
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
-import MenuIcon from '@material-ui/icons/Menu';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
+import MenuIcon from '@mui/icons-material/Menu';
 import Viewer from "src/components/Viewer";
 import { Headding } from "src/components";
 import { useQuery } from '../../utils/customHooks'

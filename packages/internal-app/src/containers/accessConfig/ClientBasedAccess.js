@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import MaterialTable from "material-table";
-import InfoIcon from "@material-ui/icons/Info";
+import InfoIcon from "@mui/icons-material/Info";
 import { Spinner } from "reactstrap";
-import { Checkbox } from "@material-ui/core";
+import { Checkbox } from "@mui/material";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClientAction } from '../../actions/client.action'
 

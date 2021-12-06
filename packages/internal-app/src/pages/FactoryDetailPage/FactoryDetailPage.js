@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
+import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@mui/material';
 import { NavLink, useHistory, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Spinner } from 'reactstrap';

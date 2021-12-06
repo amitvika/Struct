@@ -13,10 +13,10 @@ import {
   InputLabel,
   Grid,
   Typography,
-} from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
-import InfoIcon from '@material-ui/icons/Info';
-import AddIcon from '@material-ui/icons/Add';
+} from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
+import InfoIcon from '@mui/icons-material/Info';
+import AddIcon from '@mui/icons-material/Add';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import { NavLink } from 'react-router-dom';

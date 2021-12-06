@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Paper, Grid } from '@material-ui/core';
+import { Button, Paper, Grid } from '@mui/material';
 
 import ItemsAPI from '@monostruct/common/api/items.api';
 import FileUpload from '@monostruct/common/components/FileUpload';

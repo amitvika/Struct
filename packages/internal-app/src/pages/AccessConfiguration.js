@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Spinner } from 'reactstrap';
-import Card from '@material-ui/core/Card';
-import { Button, Snackbar, Breadcrumbs, CardContent } from '@material-ui/core';
+import Card from '@mui/material/Card';
+import { Button, Snackbar, Breadcrumbs, CardContent } from '@mui/material';
 
 import UserAccessModal from '../containers/UserAccessModal';
 import ClientBasedAccess from '../containers/accessConfig/ClientBasedAccess';

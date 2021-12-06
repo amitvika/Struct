@@ -1,10 +1,10 @@
 import React, { useState, useEffect, Fragment } from "react";
 
-import Paper from "@material-ui/core/Paper"
-import Tab from "@material-ui/core/Tab"
-import Tabs from "@material-ui/core/Tabs"
-import Grid from "@material-ui/core/Grid"
-import CircularProgress from "@material-ui/core/CircularProgress"
+import Paper from "@mui/material/Paper"
+import Tab from "@mui/material/Tab"
+import Tabs from "@mui/material/Tabs"
+import Grid from "@mui/material/Grid"
+import CircularProgress from "@mui/material/CircularProgress"
 import { useSelector } from 'react-redux';
 import { useHistory } from "react-router-dom";
 

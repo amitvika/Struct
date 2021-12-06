@@ -12,8 +12,8 @@ import {
   TableHead,
   TableRow,
   Paper
-} from "@material-ui/core";
-import InfoIcon from "@material-ui/icons/Info";
+} from "@mui/material";
+import InfoIcon from "@mui/icons-material/Info";
 
 class UserAccessModal extends Component {
   state = {

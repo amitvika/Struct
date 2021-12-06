@@ -1,7 +1,7 @@
 import React from 'react'
 import MaterialTable from "material-table";
-import InfoIcon from "@material-ui/icons/Info";
-import { Checkbox } from "@material-ui/core";
+import InfoIcon from "@mui/icons-material/Info";
+import { Checkbox } from "@mui/material";
 
 export default function OperationAccess({ access, updateAccessState }) {
   return (

@@ -1,7 +1,7 @@
 import React from 'react';
 import { func, shape, string, oneOf } from 'prop-types';
 import _ from 'lodash';
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 import FineUploaderTraditional from 'fine-uploader-wrappers';
 
 const imageLabelStyle = {

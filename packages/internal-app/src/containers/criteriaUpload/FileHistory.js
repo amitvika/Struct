@@ -8,7 +8,7 @@ import {
   TableRow,
   Paper,
   Grid,
-} from '@material-ui/core';
+} from '@mui/material';
 import { Headding } from '@monostruct/common/components';
 import { fetchFileHistoryApi } from '@monostruct/common/api/fileHistory.api';
 

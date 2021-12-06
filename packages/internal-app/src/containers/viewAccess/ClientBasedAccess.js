@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import MaterialTable from "material-table";
-import Checkbox from "@material-ui/core/Checkbox";
-import InfoIcon from "@material-ui/icons/Info";
+import Checkbox from "@mui/material/Checkbox";
+import InfoIcon from "@mui/icons-material/Info";
 import { Spinner } from "reactstrap";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClientAction } from '../../actions/viewAccess.action';

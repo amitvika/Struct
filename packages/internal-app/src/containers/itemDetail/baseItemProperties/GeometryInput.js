@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Icon, Typography, makeStyles } from '@material-ui/core';
+import { Paper, Icon, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { Tooltip } from 'reactstrap';
-import Grid from '@material-ui/core/Grid';
-import Switch from '@material-ui/core/Switch';
+import Grid from '@mui/material/Grid';
+import Switch from '@mui/material/Switch';
 
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';

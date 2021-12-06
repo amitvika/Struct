@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Paper from '@material-ui/core/Paper';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import Grid from '@material-ui/core/Grid';
+import Paper from '@mui/material/Paper';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import Grid from '@mui/material/Grid';
 
 import { useHistory } from 'react-router-dom';
 import { useQuery } from '../../utils/customHooks';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Paper, Grid, Icon, Button } from '@material-ui/core';
+import { Paper, Grid, Icon, Button } from '@mui/material';
 import Headding from '@monostruct/common/components/atoms/Headding';
 
 import { Link } from 'react-router-dom';

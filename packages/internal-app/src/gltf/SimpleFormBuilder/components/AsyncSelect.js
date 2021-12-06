@@ -1,18 +1,18 @@
 import _ from 'lodash';
 import React from 'react';
 //import RelativePortal from 'react-relative-portal';
-import Portal from '@material-ui/core/Portal';
+import Portal from '@mui/material/Portal';
 import { shape, string, func, number, oneOfType, arrayOf } from 'prop-types';
 import classNames from 'classnames';
 import AsyncSelect from 'react-select/lib/Async';
-import { withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
-import Paper from '@material-ui/core/Paper';
-import Chip from '@material-ui/core/Chip';
-import MenuItem from '@material-ui/core/MenuItem';
-import CancelIcon from '@material-ui/icons/Cancel';
-import { emphasize } from '@material-ui/core/styles/colorManipulator';
+import { emphasize } from '@mui/material/styles';
+import withStyles from '@mui/styles/withStyles';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Paper from '@mui/material/Paper';
+import Chip from '@mui/material/Chip';
+import MenuItem from '@mui/material/MenuItem';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const styles = (theme) => ({
   root: {
@@ -35,7 +35,7 @@ const styles = (theme) => ({
   },
   chipFocused: {
     backgroundColor: emphasize(
-      // theme.palette.type === 'light' ? theme.palette.grey[300] : theme.palette.grey[700],
+      // theme.palette.mode === 'light' ? theme.palette.grey[300] : theme.palette.grey[700],
       // theme.palette.grey[300],
       '#DCDCDC',
       0.08

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import Grid from '@material-ui/core/Grid';
+import Grid from '@mui/material/Grid';
 import {
   Paper,
   CircularProgress,
   Box
   /*LinearProgress,
   makeStyles*/
-} from '@material-ui/core';
+} from '@mui/material';
 import { useDispatch } from 'react-redux';
 
 import GeometryInput from './GeometryInput';

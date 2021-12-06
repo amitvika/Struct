@@ -6,11 +6,12 @@ import Headding from '@monostruct/common/components/atoms/Headding';
 import Space from '@monostruct/common/components/atoms/Space';
 import ItemAPI from '@monostruct/common/api/items.api';
 
-import { Grid, Typography, makeStyles, Paper } from '@material-ui/core';
+import { Grid, Typography, Paper } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { Spinner } from 'reactstrap';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 import { columnsFields } from '@monostruct/common/constants/item';
 import get from 'lodash/get';

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { Box /*, LinearProgress*/ } from '@material-ui/core';
+import { Box /*, LinearProgress*/ } from '@mui/material';
 // import GLTFRenderer from '../../../gltf/GltfRenderer';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';
 import {

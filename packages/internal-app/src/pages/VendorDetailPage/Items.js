@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import MaterialTable from 'material-table';
-import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import ItemsAPI from '@monostruct/common/api/items.api';
 import ShowHistoryModal from '../ShowHistoryModal';
 import { withRouter } from 'react-router-dom';

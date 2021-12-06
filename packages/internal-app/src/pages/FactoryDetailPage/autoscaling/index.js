@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
+import makeStyles from '@mui/styles/makeStyles';
+import Paper from '@mui/material/Paper';
 import TableView from '@monostruct/common/components/TableGridView/TableView';
 import AutoscalingAPI from '@monostruct/common/api/autoscaling.api';
 import { Spinner } from 'reactstrap';
@@ -16,7 +16,7 @@ import DateFnsUtils from '@date-io/date-fns';
 import moment from 'moment';
 import ApprovalModal from '@monostruct/common/components/ApprovalModal';
 import SimpleLoadingModal from '@monostruct/common/components/LoadingModal';
-import { Link } from '@material-ui/core';
+import { Link } from '@mui/material';
 
 export default function Autoscaling() {
   let history = useHistory();

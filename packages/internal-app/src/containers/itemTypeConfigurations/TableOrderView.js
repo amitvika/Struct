@@ -4,14 +4,15 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
+import withStyles from '@mui/styles/withStyles';
+import makeStyles from '@mui/styles/makeStyles';
 //import { Overlay } from 'react-overlays';
-import TextField from '@material-ui/core/TextField';
-import Select from '@material-ui/core/Select';
-import Button from '@material-ui/core/Button';
-import SaveOutlinedIcon from '@material-ui/icons/SaveOutlined';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import Button from '@mui/material/Button';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 
-import Paper from '@material-ui/core/Paper';
+import Paper from '@mui/material/Paper';
 import {
   AutoResizer,
   BaseTable,
@@ -19,7 +20,7 @@ import {
 } from '@monostruct/common/gltf/GridTable';
 import { createGlobalStyle } from 'styled-components/macro';
 import styled from 'styled-components';
-//import TableHead from '@material-ui/core/TableHead';
+//import TableHead from '@mui/material/TableHead';
 //let rowParent = null;
 const styles = (theme) => ({
   flexContainer: {

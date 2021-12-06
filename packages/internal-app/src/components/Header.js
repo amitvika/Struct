@@ -1,22 +1,25 @@
 import React, { useState, useRef } from 'react';
-import { AppBar, Toolbar, makeStyles } from '@material-ui/core';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
+import { AppBar, Toolbar } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 import { useLocation, useHistory, Link as RouterLink } from 'react-router-dom';
 
 import StructLogo from '../assets/images/logo_white.png';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import { useDispatch, useSelector } from 'react-redux';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Grow from '@material-ui/core/Grow';
-import Paper from '@material-ui/core/Paper';
-import Popper from '@material-ui/core/Popper';
-import MenuItem from '@material-ui/core/MenuItem';
-import MenuList from '@material-ui/core/MenuList';
-import Switch from '@material-ui/core/Switch';
-import { setSelectedTheme } from '@monostruct/common/gltf/Tree/utils';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import Grow from '@mui/material/Grow';
+import Paper from '@mui/material/Paper';
+import Popper from '@mui/material/Popper';
+import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
 import { logout } from '../actions/authActions';
-import { setThemeAction } from '../actions/theme.action';
+import { ColorModeContext } from '@monostruct/common/themes/ColorModeContextProvider';
+import { useTheme } from '@mui/material/styles';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import IconButton from '@mui/material/IconButton';
 
 const useStyles = makeStyles((theme) => ({
   toolbar: {
@@ -52,6 +55,9 @@ export default function Header() {
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
+
+  const theme = useTheme();
+  const colorMode = React.useContext(ColorModeContext);
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [open, setOpen] = useState(false);
@@ -154,6 +160,20 @@ export default function Header() {
     );
 
     menuItems.push(
+      <IconButton
+        sx={{ ml: 1 }}
+        onClick={colorMode.toggleColorMode}
+        color="inherit"
+      >
+        {theme.palette.mode === 'dark' ? (
+          <Brightness7Icon />
+        ) : (
+          <Brightness4Icon />
+        )}
+      </IconButton>
+    );
+
+    menuItems.push(
       <Popper
         key={`popper_admin_options`}
         open={open}
@@ -183,14 +203,14 @@ export default function Header() {
                   >
                     Administrative
                   </MenuItem>
-                  <MenuItem key={`theme_changer`}>
+                  {/* <MenuItem key={`theme_changer`}>
                     <Switch
                       checked={lightThemeSelected}
                       onChange={handleThemeChange}
                       name="currentTheme"
                     />
                     {lightThemeSelected ? 'Dark' : 'Light'}
-                  </MenuItem>
+                  </MenuItem> */}
 
                   <MenuItem key={`logout_link`} onClick={handleLogout}>
                     Logout
@@ -222,16 +242,16 @@ export default function Header() {
     }
   };
 
-  const handleThemeChange = (event) => {
-    setLightThemeSelected(event.target.checked);
-    if (event.target.checked) {
-      dispatch(setThemeAction({ themeName: 'darkTheme' }));
-      setSelectedTheme('dark');
-    } else {
-      dispatch(setThemeAction({ themeName: 'lightTheme' }));
-      setSelectedTheme('light');
-    }
-  };
+  // const handleThemeChange = (event) => {
+  //   setLightThemeSelected(event.target.checked);
+  //   if (event.target.checked) {
+  //     dispatch(setThemeAction({ themeName: 'darkTheme' }));
+  //     setSelectedTheme('dark');
+  //   } else {
+  //     dispatch(setThemeAction({ themeName: 'lightTheme' }));
+  //     setSelectedTheme('light');
+  //   }
+  // };
 
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
@@ -246,11 +266,7 @@ export default function Header() {
     history.replace('/');
   };
 
-  return (
-    <header>
-      <AppBar className={classes.header}>{displayDesktop()}</AppBar>
-    </header>
-  );
+  return <AppBar>{displayDesktop()}</AppBar>;
 }
 
 const headersData = [

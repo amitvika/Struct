@@ -2,21 +2,21 @@ import React from 'react';
 import _ from 'lodash';
 
 //import Box, { VBox } from 'react-layout-components';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
-//import Button from '@material-ui/core/Button';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControl from '@material-ui/core/FormControl';
-import Checkbox from '@material-ui/core/Checkbox';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup  from '@material-ui/core/RadioGroup';
-import InputLabel from '@material-ui/core/InputLabel';
-import Grid from '@material-ui/core/Grid';
+//import Button from '@mui/material/Button';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from '@mui/material/FormGroup';
+import FormControl from '@mui/material/FormControl';
+import Checkbox from '@mui/material/Checkbox';
+import Radio from '@mui/material/Radio';
+import RadioGroup  from '@mui/material/RadioGroup';
+import InputLabel from '@mui/material/InputLabel';
+import Grid from '@mui/material/Grid';
 import {ColorPicker} from 'material-ui-color';
 
-//import IconButton from '@material-ui/core/IconButton';
-//import Smile from '@material-ui/icons/Mood';
+//import IconButton from '@mui/material/IconButton';
+//import Smile from '@mui/icons-material/Mood';
 //import EmojiPicker from 'emoji-picker-react';
 //import EmojiConvertor from 'emoji-js';
 

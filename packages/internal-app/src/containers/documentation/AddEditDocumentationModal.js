@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import makeStyles from '@mui/styles/makeStyles';
 import {
   Select,
   Input,
@@ -9,8 +9,8 @@ import {
   Headding,
 } from '@monostruct/common/components';
 import Modal from '@monostruct/common/components/Modal';
-import Popover from '@material-ui/core/Popover';
-import Typography from '@material-ui/core/Typography';
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
 import FileHistory from '@monostruct/common/containers/FileHistory';
 import FileUploadOnAWS from '@monostruct/common/containers/FileUploadOnAWS';
 import { useSelector } from 'react-redux';

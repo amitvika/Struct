@@ -8,7 +8,7 @@ import ItemAPI from '@monostruct/common/api/items.api';
 import { mapItems } from '../../../utils/mapper';
 import get from 'lodash/get';
 import { useParams, useHistory } from 'react-router-dom';
-import { Link } from '@material-ui/core';
+import { Link } from '@mui/material';
 
 export default function IncomingVendorProducts({ setVendorInfo, vendorInfo }) {
   const { id } = useParams();

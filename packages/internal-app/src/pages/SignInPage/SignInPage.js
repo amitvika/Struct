@@ -23,7 +23,7 @@ const SignInPage = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      history.push('/items');
+      history.push('/clients');
     }
   }, [isAuthenticated]);
 

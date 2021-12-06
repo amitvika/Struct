@@ -5,15 +5,15 @@ import {
 	ModalBody,
 	CustomInput
 } from "reactstrap";
-import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles';
-import { Button } from "@material-ui/core";
+import Grid from '@mui/material/Grid';
+import makeStyles from '@mui/styles/makeStyles';
+import { Button } from "@mui/material";
 
-import red from "@material-ui/core/colors/red";
-import blue from "@material-ui/core/colors/blue";
 import axios from "axios";
 
-import MuiAlert from '@material-ui/lab/Alert';
+import MuiAlert from '@mui/material/Alert';
+
+import { red, blue } from '@mui/material/colors';
 
 function Alert(props) {
 	return <MuiAlert elevation={6} variant="filled" {...props} />;

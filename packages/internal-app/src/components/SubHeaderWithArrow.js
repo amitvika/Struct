@@ -1,6 +1,6 @@
 import React from 'react';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import { Paper, Typography, IconButton } from '@material-ui/core';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Paper, Typography, IconButton } from '@mui/material';
 import { useHistory } from 'react-router-dom';
 
 export default function SubHeaderWithArrow({ action, title }) {
@@ -15,7 +15,7 @@ export default function SubHeaderWithArrow({ action, title }) {
   };
   return (
     <Paper>
-      <IconButton color="primary" onClick={handleClick} component="span">
+      <IconButton color="primary" onClick={handleClick} component="span" size="large">
         <ArrowBackIcon />
       </IconButton>
       <Typography

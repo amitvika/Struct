@@ -5,7 +5,7 @@ import GridView from '@monostruct/common/components/TableGridView/GridView';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Space from '@monostruct/common/components/atoms/Space';
 
-import { Grid, Paper } from '@material-ui/core';
+import { Grid, Paper } from '@mui/material';
 import { Spinner } from 'reactstrap';
 
 import { columnsFields } from '@monostruct/common/constants/item';

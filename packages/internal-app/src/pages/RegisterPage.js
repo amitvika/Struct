@@ -10,7 +10,7 @@ import {
 import { register } from "../actions/authActions";
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from "react-router-dom";
-import { Card, CardContent } from "@material-ui/core";
+import { Card, CardContent } from "@mui/material";
 
 const Register = () => {
 

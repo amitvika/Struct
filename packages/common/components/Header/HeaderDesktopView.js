@@ -35,7 +35,7 @@ export default function HeaderDesktopView({
   } = useContext(AuthContext);
 
   const handleThemeChange = (event) => {
-    setThemeName(themeName === 'darkTheme' ? 'lightTheme' : 'darkTheme');
+    setThemeName(themeName === 'dark' ? 'light' : 'darkTheme');
   };
 
   const handleToggle = () => {

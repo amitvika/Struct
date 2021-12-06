@@ -9,7 +9,7 @@ import {
 } from "reactstrap";
 import { useDispatch, useSelector } from 'react-redux';
 import { login, loadUser } from "../../actions/authActions";
-import { Card, CardContent } from "@material-ui/core";
+import { Card, CardContent } from "@mui/material";
 
 const LoginModal = () => {
   const dispatch = useDispatch();

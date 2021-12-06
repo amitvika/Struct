@@ -5,7 +5,7 @@ import {
   Box
   /*LinearProgress,
   /*makeStyles*/
-} from '@material-ui/core';
+} from '@mui/material';
 import { Spinner } from 'reactstrap';
 import TableOrderView from './TableOrderView';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer.js';

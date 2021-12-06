@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
-import Grid from '@material-ui/core/Grid';
-import { Paper, Icon } from '@material-ui/core';
+import Grid from '@mui/material/Grid';
+import { Paper, Icon } from '@mui/material';
 
 import Headding from '@monostruct/common/components/atoms/Headding';
 import MaterialAPI from '@monostruct/common/api/material.api';

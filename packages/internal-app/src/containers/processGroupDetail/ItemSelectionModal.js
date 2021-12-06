@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
-import Grid from '@material-ui/core/Grid';
+import Grid from '@mui/material/Grid';
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
 import Headding from '@monostruct/common/components/atoms/Headding';
@@ -15,7 +15,7 @@ import {
   Button,
   Icon,
   CircularProgress
-} from '@material-ui/core';
+} from '@mui/material';
 import { Link } from 'react-router-dom';
 import ItemAPI from '@monostruct/common/api/items.api';
 

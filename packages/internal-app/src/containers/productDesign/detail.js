@@ -9,7 +9,7 @@ import {
   Breadcrumbs,
   Link,
   Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import { NavLink, useParams, useLocation } from "react-router-dom";
 import FunctionalElements from './FunctionalElements';
 

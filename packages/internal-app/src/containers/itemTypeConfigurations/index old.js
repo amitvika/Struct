@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-//import Paper from '@material-ui/core/Paper';
-import { Paper, CircularProgress, makeStyles } from '@material-ui/core';
+//import Paper from '@mui/material/Paper';
+import { Paper, CircularProgress } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import TableOrderView from './TableOrderView';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer.js';
 import {

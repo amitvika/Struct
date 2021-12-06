@@ -8,8 +8,8 @@ import store from './store';
 import { setUser } from './actions/authActions';
 import AppRoutes from './AppRoutes';
 import Alert from './components/Alert';
-import ThemeProvider from './ThemeProvider';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
+import { ColorModeContextProvider } from '@monostruct/common/themes/ColorModeContextProvider';
 
 const App = () => {
   useEffect(() => {
@@ -18,13 +18,11 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      <ThemeProvider>
-        <>
-          <Alert />
-          <AppRoutes />
-          <LoadingModal />
-        </>
-      </ThemeProvider>
+      <ColorModeContextProvider>
+        <Alert />
+        <AppRoutes />
+        <LoadingModal />
+      </ColorModeContextProvider>
     </Provider>
   );
 };

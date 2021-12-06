@@ -86,18 +86,18 @@ import {
 } from './Tree/utils';
 import './styles/style.css';
 
-import Grid from '@material-ui/core/Grid';
+import Grid from '@mui/material/Grid';
 
-import Popper from '@material-ui/core/Popper';
+import Popper from '@mui/material/Popper';
 
-import Paper from '@material-ui/core/Paper';
-//import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+import Paper from '@mui/material/Paper';
+//import { MuiThemeProvider, createMuiTheme } from '@mui/material/styles';
+import Button from '@mui/material/Button';
 import GroupFormBuilder from './GroupFormBuilder';
 import { myMenus } from './gltfMenus';
-import { ClickAwayListener } from '@material-ui/core';
-import RotateLeftSharpIcon from '@material-ui/icons/RotateLeftSharp';
-//import { Box } from "@material-ui/core";
+import { ClickAwayListener } from '@mui/material';
+import RotateLeftSharpIcon from '@mui/icons-material/RotateLeftSharp';
+//import { Box } from "@mui/material";
 
 //import { motion } from 'framer-motion'
 //import styled from 'styled-components'

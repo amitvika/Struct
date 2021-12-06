@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import TableGridView from '@monostruct/common/components/TableGridView';
 import ItemsAPI from '@monostruct/common/api/items.api';
 import { useHistory } from 'react-router-dom';
-import Link from '@material-ui/core/Link';
+import Link from '@mui/material/Link';
 import DatePickerForMT from '@monostruct/common/components/DatePickerForMT';
 import moment from 'moment';
 import IdentificationModal from './identificationModal';
