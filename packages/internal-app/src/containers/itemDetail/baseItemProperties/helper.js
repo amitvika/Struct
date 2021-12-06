@@ -248,7 +248,9 @@ export const createChildItems = async ({
     } else {
       console.log(
         'Not creating because it might be already created',
-        itemapidetailsRes.data
+        itemapidetailsRes.data,
+        itemapidetailsRes.data[0].child_item_status,
+        itemapidetailsRes.data[0].child_item_status === 'INITIATED'
       );
       setIsLoading(false);
       setProgressBarLoad(false);
