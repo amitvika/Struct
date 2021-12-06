@@ -868,8 +868,8 @@ def FileSplit(request):
             anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
             disectparts = convertToBool(request.GET.get('disectparts',"false"),False)
             moverotate = convertToInt(request.GET.get('moverotate',"0"),0)   
-            thumbwidth = convertToInt(request.GET.get('thumbwidth',"96"),96)
-            thumbheight = convertToInt(request.GET.get('thumbheight',"96"),96)   
+            thumbwidth = convertToInt(request.GET.get('thumbwidth',"300"),300)
+            thumbheight = convertToInt(request.GET.get('thumbheight',"300"),300)   
             #print(includeparts)
             if includeparts:           
                 print("I am including minorparts")
@@ -1113,14 +1113,14 @@ def FileHierarchySplit(request):
             vertexsize = convertToFloat(request.GET.get('vertexsize',"0.3"),1.0)
             createthumb = convertToBool(request.GET.get('createthumb',"false"),False)
             if createthumb==True:
-                defthumb=96
-                defthumbstr="96"
+                defthumb=300
+                defthumbstr="300"
             else:
                 defthumb=0
                 defthumbstr="0"
             thumbwidth = convertToInt(request.GET.get('thumbwidth',defthumbstr),defthumb)
             thumbheight = convertToInt(request.GET.get('thumbheight',defthumbstr),defthumb)
-            maximumfaces = convertToInt(request.GET.get('maximumfaces',"50"),defthumb)
+            maximumfaces = convertToInt(request.GET.get('maximumfaces',"50"),50)
             seperateparts = convertToBool(request.GET.get('seperateparts',"false"),False)
             
             CreateChildSteps=convertToBool(request.GET.get('CreateChildSteps',"false"),False)

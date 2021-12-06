@@ -1067,10 +1067,10 @@ class StepExportWithColor(object):
             print("Error while wrting",statusfilename,e)
         return mystatusdict
 
-    def writeProgress(self, maxgap=10, currentcount=0, action='',childfiles=[]):
+    def writeProgress(self, maxgap=10, action='',childfiles=[]):
         currenttime = datetime.utcnow()
         mystatusdict =  {
-            "begin":currentcount,
+            "begin":self.assemblycreatedcurrentcount,
             "end":self.totalcount,
             "start":self.starttime.strftime("%H-%M-%S"),
             "current":currenttime.strftime("%H-%M-%S"),
@@ -1088,9 +1088,9 @@ class StepExportWithColor(object):
                     with open(paramfilename, 'w') as fh:
                         fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
                 except Exception as e:
-                    print("While Writing",paramfilename,e,currentcount)
+                    print("While Writing",paramfilename,e,self.assemblycreatedcurrentcount)
         except Exception as e:
-                print("While Writing",paramfilename,e,currentcount)
+                print("While Writing",e,self.assemblycreatedcurrentcount)
 
     def getShapesFromOutPutShapes_old(self,shapes,myParent,mytree,treeLength):
         retshapes=[]
@@ -1299,7 +1299,8 @@ class StepExportWithColor(object):
         if (name) and (assemblyCount>=1):
             assemblyNames = []
             lengthCheck = 0
-            self.writeProgress(0,0,"Started")
+            self.assemblycreatedcurrentcount=0
+            self.writeProgress(0,"Started")
             for aTree in myTree:
                 if aTree[self.gltf_dict['parentId']]==myParentId :                     
                     self.app = XCAFApp_Application_GetApplication()
@@ -1316,8 +1317,9 @@ class StepExportWithColor(object):
                     self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength,fuuid)
                     uuidname = str(uuid.uuid4())
                     uniquename=filename+" "+str(treeID)
+                    self.assemblycreatedcurrentcount=addedAssembly
                     addedAssembly+=1
-                    self.writeProgress(currentcount=addedAssembly-1)
+                    self.writeProgress()
                     fullpath = 'Media/'+uuidname+'/'+uniquename+".step"
                     os.makedirs(os.path.dirname(fullpath), exist_ok=True)
                     if(self.write_file(fullpath)):  
@@ -1330,7 +1332,8 @@ class StepExportWithColor(object):
                                             CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,\
                                                 explodegap=explodegap, center=center, holescale=holescale,\
                                                      removegap=removegap,recreatefororder=recreatefororder,\
-                                                         CreateStackability=CreateStackability).dump(False) 
+                                                         CreateStackability=CreateStackability,\
+                                                             updateprogressfile=self.writeProgress).dump(False) 
                         subassemblyCounthere=0
                         subassemblyTreehere=0
                         try:
@@ -1346,7 +1349,8 @@ class StepExportWithColor(object):
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break
-            self.writeProgress(0,totalcount,"Completed",assemblyNames)
+            self.assemblycreatedcurrentcount = totalcount
+            self.writeProgress(0,"Completed",assemblyNames)
             return  (addedAssembly,assemblyNames)
         self.writeProgress(0,totalcount,"No Child") 
         return (addedAssembly,None)
@@ -1617,13 +1621,13 @@ class StepIgesAnalyser():
         self, document=None, filename=None, shapeslist=None, includeparts=False, ascompound=False, 
         distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
         maximumfacestoinclude=48, animations=None, delay=1.0, shapeorder=[], kinematicanimation=None,
-        thumbheight=96, thumbwidth=96, multipleGLTF=1200, addfeaturesThread=False, suffixname='',
+        thumbheight=300, thumbwidth=300, multipleGLTF=1200, addfeaturesThread=False, suffixname='',
         writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
         defaultR=0.3, defaultG=0.32, defaultB=0.37, seperateparts=False, seperatecompounds=True,
         recursiveShapes=None, recursiveTree=None, recursiveID=1, CreateChildSteps=False,
         CreateAssemblyOrder=False, explodegap=10.0, center=True, holescale=0.77, removegap=8.0,
-        recreatefororder=False, CreateStackability=False
+        recreatefororder=False, CreateStackability=False,updateprogressfile=None
         ):
         """Supply one or the other: document or STEP filename or Shapes."""
         self.starttime = datetime.utcnow()
@@ -1663,6 +1667,7 @@ class StepIgesAnalyser():
         self.CreateAssemblyOrder = CreateAssemblyOrder
         self.CreateChildSteps = CreateChildSteps
         self.CreateStackability = CreateStackability
+        self.updateprogressfile = updateprogressfile
         try:
             self.commonpipe = BRepPrimAPI_MakeBox(gp_Pnt(0,0,0),0.1,0.1,0.1).Shape()
             self.commoncompound, _ = list_of_shapes_to_compound(self.commonpipe)
@@ -3648,6 +3653,7 @@ class StepIgesAnalyser():
                 self.logging.info("Started addFeatures Thread") 
         except Exception as e:
             print("Error while logging",e)
+        print("Going to add features",self.fname)
         head, tail = os.path.split(self.fname) 
         if(head[-1]!="/"):
             #print("Head does not contain last /",head)
@@ -4198,73 +4204,83 @@ class StepIgesAnalyser():
         self.mstep_dict['animations']=animationchannels
 
     def write_status(self,maxgap=10,action=''):
-        if self.recursiveTree:
-            return
         currenttime = datetime.utcnow()  
         mystatusdict =  {
                 "percent":(self.percentage if self.ascompound==False else self.percentage/4.0),
                 "start":self.starttime.strftime("%H-%M-%S"),
                 "current":currenttime.strftime("%H-%M-%S"),
                 "action":action }
-        if(maxgap==0 and self.percentage>0):
-            mystatusdict["finish"]=currenttime.strftime("%H-%M-%S")
-            mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
-        elif(maxgap==0):
-            mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
-        if self.assemblycount>0:
-            mystatusdict["assemblies"]=self.assemblycount
-            mystatusdict["assembly"]=self.assemblyname
-            mystatusdict["trees"]=self.treelengthbeforevertices
-        try:            
-            timingdelta = datetime.utcnow()-self.currenttime            
-            if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
-                if(self.byThread)or(self.ascompound)or(maxgap==0):
-                    if (self.writefiles) or (self.ascompound)or(maxgap==0):
-                        #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
-                        statusfilename = self.displaypath+self.basefilename+".status"
-                        print("Writing",statusfilename,"Percentage",self.percentage)
-                        try:
-                            with open(statusfilename, 'w') as fh:
-                                fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
-                                self.currenttime = datetime.utcnow()
-                        except Exception as e:
-                            print("While Writing",statusfilename,e,self.percentage)                        
-                        """ if ((maxgap==0) and (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "K") and (self.suffixname != "A")) :
-                            paramfilename = self.displaypath+self.basefilename[:-1]+".status"
-                            #mystatusdict["createoption"]=self.basefilename[-1]
-                            mystatusdict["createchilds"]=self.CreateChildSteps
-                            mystatusdict["createorder"]=self.CreateAssemblyOrder
-                            mystatusdict["createstack"]=self.CreateStackability
+        try:
+            if self.recursiveTree:
+                return mystatusdict
+            if self.updateprogressfile:
+                try:
+                    self.updateprogressfile()
+                except Exception as e:
+                    print("While Updating progress file",e,self.percentage) 
+            if(maxgap==0 and self.percentage>0):
+                mystatusdict["finish"]=currenttime.strftime("%H-%M-%S")
+                mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
+            elif(maxgap==0):
+                mystatusdict["reset"]=currenttime.strftime("%H-%M-%S")
+            if self.assemblycount>0:
+                mystatusdict["assemblies"]=self.assemblycount
+                mystatusdict["assembly"]=self.assemblyname
+                mystatusdict["trees"]=self.treelengthbeforevertices
+            try:            
+                timingdelta = datetime.utcnow()-self.currenttime            
+                if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
+                    if(self.byThread)or(self.ascompound)or(maxgap==0):
+                        if (self.writefiles) or (self.ascompound)or(maxgap==0):
+                            #os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
+                            statusfilename = self.displaypath+self.basefilename+".status"
+                            print("Writing",statusfilename,"Percentage",self.percentage)
                             try:
-                                with open(paramfilename, 'w') as fh:
+                                with open(statusfilename, 'w') as fh:
                                     fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                                    self.currenttime = datetime.utcnow()
                             except Exception as e:
-                                print("While Writing",paramfilename,e,self.percentage) """
+                                print("While Writing",statusfilename,e,self.percentage)                        
+                            """ if ((maxgap==0) and (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "K") and (self.suffixname != "A")) :
+                                paramfilename = self.displaypath+self.basefilename[:-1]+".status"
+                                #mystatusdict["createoption"]=self.basefilename[-1]
+                                mystatusdict["createchilds"]=self.CreateChildSteps
+                                mystatusdict["createorder"]=self.CreateAssemblyOrder
+                                mystatusdict["createstack"]=self.CreateStackability
+                                try:
+                                    with open(paramfilename, 'w') as fh:
+                                        fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
+                                except Exception as e:
+                                    print("While Writing",paramfilename,e,self.percentage) """
 
+                        else:
+                            print("Not Writing status",self.percentage)
                     else:
-                        print("Not Writing status",self.percentage)
-                else:
-                    print("Percentage",self.percentage)
+                        print("Percentage",self.percentage)
+            except Exception as e:
+                print("While Writing",e)   
         except Exception as e:
-            print("While Writing",statusfilename,e)   
-        
+            print("While Writing",e)  
         return mystatusdict
 
     def read_status(self):
-        filename = self.displaypath+self.basefilename+".status"
-        with open(filename, "r") as f:
-            data = f.read()
         statusArray = None
-        if data:
-            statusArray = json.loads(data)
-            if "percent" in statusArray:
-                self.percentage = statusArray["percent"]
-            if "assemblies" in statusArray:
-                self.assemblycount = statusArray["assemblies"]
-            if "assembly" in statusArray:
-                self.assemblyname = statusArray["assembly"]
-            if "trees" in statusArray:
-                self.treelengthbeforevertices = statusArray["trees"]
+        try:
+            filename = self.displaypath+self.basefilename+".status"
+            with open(filename, "r") as f:
+                data = f.read()
+            if data:
+                statusArray = json.loads(data)
+                if "percent" in statusArray:
+                    self.percentage = statusArray["percent"]
+                if "assemblies" in statusArray:
+                    self.assemblycount = statusArray["assemblies"]
+                if "assembly" in statusArray:
+                    self.assemblyname = statusArray["assembly"]
+                if "trees" in statusArray:
+                    self.treelengthbeforevertices = statusArray["trees"]
+        except Exception as e:
+            print("While Reading",e)  
         return statusArray
 
     def copyonefile(self, srcname, dstname, symlinks=False):
@@ -4508,10 +4524,10 @@ class StepIgesAnalyser():
             mythread.start()
         else:
             self.write_in_thread(dict_return,getPNG,True)
-        
+        print("Going to write final percentage",self.fname)
         self.percentage = 100
         self.write_status(0)
-        
+        self.write_status(0) #sometimes write_status fails because when in another thread there is a read command..
         #self.mstep_dict['tree']=self.tstep_dict['tree']
         if (self.edgesize!=0) or (self.vertexsize!=0): 
             try:
