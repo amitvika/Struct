@@ -55,7 +55,7 @@ export default function GeometryInput({
   // const [fileId, setFileId] = useState(0);
   const itemGeometry = itemProperties.itemGeometry || {};
 
-  const handleSwitchChange = (event) => {
+  const handleSwitchChange = async (event) => {
     setAllowFirstLevelItems(event.target.checked);
     if (event.target.checked) {
       if (itemProperties.child_item_status === 'NOT_INITIATED') {
