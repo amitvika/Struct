@@ -3653,6 +3653,7 @@ class StepIgesAnalyser():
                 self.logging.info("Started addFeatures Thread") 
         except Exception as e:
             print("Error while logging",e)
+        print("Going to add features",self.fname)
         head, tail = os.path.split(self.fname) 
         if(head[-1]!="/"):
             #print("Head does not contain last /",head)
@@ -4518,7 +4519,7 @@ class StepIgesAnalyser():
             mythread.start()
         else:
             self.write_in_thread(dict_return,getPNG,True)
-        
+        print("Going to write final percentage",self.fname)
         self.percentage = 100
         self.write_status(0)
         
