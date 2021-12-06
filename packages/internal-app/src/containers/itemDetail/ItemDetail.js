@@ -354,7 +354,7 @@ const ItemDetail = ({ itemValue }) => {
     }
   };
 
-  useEffect(() => {
+  /*useEffect(() => {
     (async () => {
       if (
         itemProperties.fileUUId &&
@@ -381,7 +381,7 @@ const ItemDetail = ({ itemValue }) => {
         }
       }
     })();
-  }, [itemProperties.child_item_status, handleSave]);
+  }, [itemProperties.child_item_status, handleSave]); */
 
   const renderPageSwitch = () => {
     if (!get(itemProperties, 'id') && !id) {

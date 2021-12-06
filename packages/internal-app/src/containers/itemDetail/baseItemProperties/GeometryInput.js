@@ -62,7 +62,6 @@ export default function GeometryInput({
         handleItemSaveOnServer({
           child_item_status: 'INITIATED'
         });
-        /* Since there is an useEffect, it is removed 
         const itemClone = {
           ...itemProperties,
           fileGDT: getFileNameWithoutExtension(itemProperties.fileName) + '3'
@@ -82,7 +81,7 @@ export default function GeometryInput({
           handleItemSaveOnServer({
             child_item_status: 'COMPLETED'
           });
-        } */
+        }
       }
     }
   };
