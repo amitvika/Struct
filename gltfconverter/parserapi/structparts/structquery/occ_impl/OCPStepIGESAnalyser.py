@@ -1067,10 +1067,10 @@ class StepExportWithColor(object):
             print("Error while wrting",statusfilename,e)
         return mystatusdict
 
-    def writeProgress(self, maxgap=10, currentcount=0, action='',childfiles=[]):
+    def writeProgress(self, maxgap=10, action='',childfiles=[]):
         currenttime = datetime.utcnow()
         mystatusdict =  {
-            "begin":currentcount,
+            "begin":self.assemblycreatedcurrentcount,
             "end":self.totalcount,
             "start":self.starttime.strftime("%H-%M-%S"),
             "current":currenttime.strftime("%H-%M-%S"),
@@ -1088,9 +1088,9 @@ class StepExportWithColor(object):
                     with open(paramfilename, 'w') as fh:
                         fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
                 except Exception as e:
-                    print("While Writing",paramfilename,e,currentcount)
+                    print("While Writing",paramfilename,e,self.assemblycreatedcurrentcount)
         except Exception as e:
-                print("While Writing",paramfilename,e,currentcount)
+                print("While Writing",paramfilename,e,self.assemblycreatedcurrentcount)
 
     def getShapesFromOutPutShapes_old(self,shapes,myParent,mytree,treeLength):
         retshapes=[]
@@ -1299,7 +1299,8 @@ class StepExportWithColor(object):
         if (name) and (assemblyCount>=1):
             assemblyNames = []
             lengthCheck = 0
-            self.writeProgress(0,0,"Started")
+            self.assemblycreatedcurrentcount=0
+            self.writeProgress(0,"Started")
             for aTree in myTree:
                 if aTree[self.gltf_dict['parentId']]==myParentId :                     
                     self.app = XCAFApp_Application_GetApplication()
@@ -1316,8 +1317,9 @@ class StepExportWithColor(object):
                     self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength,fuuid)
                     uuidname = str(uuid.uuid4())
                     uniquename=filename+" "+str(treeID)
+                    self.assemblycreatedcurrentcount=addedAssembly
                     addedAssembly+=1
-                    self.writeProgress(currentcount=addedAssembly-1)
+                    self.writeProgress()
                     fullpath = 'Media/'+uuidname+'/'+uniquename+".step"
                     os.makedirs(os.path.dirname(fullpath), exist_ok=True)
                     if(self.write_file(fullpath)):  
@@ -1330,7 +1332,8 @@ class StepExportWithColor(object):
                                             CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,\
                                                 explodegap=explodegap, center=center, holescale=holescale,\
                                                      removegap=removegap,recreatefororder=recreatefororder,\
-                                                         CreateStackability=CreateStackability).dump(False) 
+                                                         CreateStackability=CreateStackability,\
+                                                             updateprogressfile=self.writeProgress).dump(False) 
                         subassemblyCounthere=0
                         subassemblyTreehere=0
                         try:
@@ -1346,7 +1349,8 @@ class StepExportWithColor(object):
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break
-            self.writeProgress(0,totalcount,"Completed",assemblyNames)
+            self.assemblycreatedcurrentcount = totalcount
+            self.writeProgress(0,"Completed",assemblyNames)
             return  (addedAssembly,assemblyNames)
         self.writeProgress(0,totalcount,"No Child") 
         return (addedAssembly,None)
@@ -1623,7 +1627,7 @@ class StepIgesAnalyser():
         defaultR=0.3, defaultG=0.32, defaultB=0.37, seperateparts=False, seperatecompounds=True,
         recursiveShapes=None, recursiveTree=None, recursiveID=1, CreateChildSteps=False,
         CreateAssemblyOrder=False, explodegap=10.0, center=True, holescale=0.77, removegap=8.0,
-        recreatefororder=False, CreateStackability=False
+        recreatefororder=False, CreateStackability=False,updateprogressfile=None
         ):
         """Supply one or the other: document or STEP filename or Shapes."""
         self.starttime = datetime.utcnow()
@@ -1663,6 +1667,7 @@ class StepIgesAnalyser():
         self.CreateAssemblyOrder = CreateAssemblyOrder
         self.CreateChildSteps = CreateChildSteps
         self.CreateStackability = CreateStackability
+        self.updateprogressfile = updateprogressfile
         try:
             self.commonpipe = BRepPrimAPI_MakeBox(gp_Pnt(0,0,0),0.1,0.1,0.1).Shape()
             self.commoncompound, _ = list_of_shapes_to_compound(self.commonpipe)
@@ -4200,6 +4205,11 @@ class StepIgesAnalyser():
     def write_status(self,maxgap=10,action=''):
         if self.recursiveTree:
             return
+        if self.updateprogressfile:
+            try:
+                self.updateprogressfile()
+            except Exception as e:
+                print("While Updating progress file",e,self.percentage) 
         currenttime = datetime.utcnow()  
         mystatusdict =  {
                 "percent":(self.percentage if self.ascompound==False else self.percentage/4.0),
