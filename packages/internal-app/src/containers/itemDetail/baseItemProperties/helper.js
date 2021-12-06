@@ -15,6 +15,7 @@ import {
 import { getStepFile } from '../ItemDetails.helper';
 
 import NewItemAPI from '@monostruct/common/api/items.api';
+import ItemAPI from '@monostruct/common/api/items.api';
 
 const checkStatusToParse = async (whichOneToStatus) => {
   const statusURL = `${resourceStatusURL}${whichOneToStatus}.status`;
@@ -217,21 +218,36 @@ export const createChildItems = async ({
       setIsFileLoading(false);
       return false;
     }
-    const childFiles = get(childRes, 'data.childfiles', []);
-    setCenterActionText('Started Creation');
-    console.log('ChildFiles', childFiles);
-    const newItem = childFiles.map((item) => ({
-      fileUUId: item[0],
-      name: item[1],
-      fileName: `Media/${item[0]}/${item[1]}.step`,
-      fileStore: `${item[1]}0`,
-      parent_id: parentId,
-      is_child_item: true,
-      filePartName: item[2],
-      multiAssembly: item.length > 3 ? item[3] > 1 : false,
-      treeLength: item.length > 4 ? item[4] : 0
-    }));
-    console.log('New Items', newItem);
+
+    const itemapidetailsRes = await ItemAPI.getItemsAPI(
+      `id=${parentId}&call_type=detail`
+    );
+    if (
+      !itemapidetailsRes ||
+      !itemapidetailsRes.data ||
+      itemapidetailsRes.data.child_item_status === 'INITIATED'
+    ) {
+      const childFiles = get(childRes, 'data.childfiles', []);
+      setCenterActionText('Started Creation');
+      console.log('ChildFiles', childFiles);
+      const newItem = childFiles.map((item) => ({
+        fileUUId: item[0],
+        name: item[1],
+        fileName: `Media/${item[0]}/${item[1]}.step`,
+        fileStore: `${item[1]}0`,
+        parent_id: parentId,
+        is_child_item: true,
+        filePartName: item[2],
+        multiAssembly: item.length > 3 ? item[3] > 1 : false,
+        treeLength: item.length > 4 ? item[4] : 0
+      }));
+      console.log('New Items', newItem);
+    } else {
+      console.log(
+        'Not creating because it might be already created',
+        itemapidetailsRes.data
+      );
+    }
     setIsLoading(false);
     setProgressBarLoad(false);
     return NewItemAPI.upsertItems(newItem);
