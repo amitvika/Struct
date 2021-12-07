@@ -1,9 +1,9 @@
 import React from 'react'
-import Box from '@material-ui/core/Box';
-import Popover from '@material-ui/core/Popover';
+import Box from '@mui/material/Box';
+import Popover from '@mui/material/Popover';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Logo from "../../assets/images/loginLogo.jpg"
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 import {Link} from "react-router-dom";
 // import './style.css'
 

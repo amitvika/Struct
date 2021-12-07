@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import makeStyles from '@mui/styles/makeStyles';
 import Paper from '@mui/material/Paper';
 import TableView from '@monostruct/common/components/TableGridView/TableView';
 import AutoscalingAPI from '@monostruct/common/api/autoscaling.api';
-import { Spinner } from 'reactstrap';
 import { useHistory, useParams } from 'react-router-dom';
 import get from 'lodash/get';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   showErrorAlert,
-  showSuccessAlert,
+  showSuccessAlert
 } from '../../../actions/alert.action';
-import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
+// import AdapterDateFns from '@mui/lab/AdapterDateFns';
+// import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import DatePicker from '@mui/lab/DatePicker';
 import moment from 'moment';
 import ApprovalModal from '@monostruct/common/components/ApprovalModal';
 import SimpleLoadingModal from '@monostruct/common/components/LoadingModal';
@@ -37,7 +36,7 @@ export default function Autoscaling() {
       type: 'date',
       // value="2013-01-08",
       render: (rowData) => moment(rowData.start_date).format('DD/MM/YYYY'),
-      editComponent: (props) => <CustomDatePicker {...props} />,
+      editComponent: (props) => <CustomDatePicker {...props} />
     },
     {
       title: 'Autoscaling End Date',
@@ -49,7 +48,7 @@ export default function Autoscaling() {
           {...props}
           value={props.value ? props.value : new Date('12/31/2099')}
         />
-      ),
+      )
     },
     {
       title: 'Approval',
@@ -69,27 +68,24 @@ export default function Autoscaling() {
               {rowData.approval_list.length === 3 ? 'Approved' : 'Not Approved'}
             </Link>
           </span>
-        ),
-    },
+        )
+    }
   ]);
 
   const CustomDatePicker = (props) => (
-    <MuiPickersUtilsProvider
-      utils={DateFnsUtils}
-      locale={props.dateTimePickerLocalization}
-    >
-      <DatePicker
-        format="dd/MM/yyyy"
-        value={props.value || new Date()}
-        onChange={props.onChange}
-        clearable
-        InputProps={{
-          style: {
-            fontSize: 13,
-          },
-        }}
-      />
-    </MuiPickersUtilsProvider>
+    // <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <DatePicker
+      format="dd/MM/yyyy"
+      value={props.value || new Date()}
+      onChange={props.onChange}
+      clearable
+      InputProps={{
+        style: {
+          fontSize: 13
+        }
+      }}
+    />
+    // </LocalizationProvider>
   );
 
   const toggleModal = (data) => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Input from '@monostruct/common/components/atoms/Input';
 

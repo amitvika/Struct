@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import Input from '@monostruct/common/components/atoms/Input';
-import { Grid, Button, makeStyles, Divider, Paper } from '@material-ui/core';
+import { Grid, Button, Divider, Paper } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import TemplateModal from './TemplateModal';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 import UserAccess from './userAccess';
 import { AppDesignerContextProvider } from '../../context/AppDesignerContext';
 import Navbar from './component/Navbar';

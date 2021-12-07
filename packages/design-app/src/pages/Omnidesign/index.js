@@ -9,9 +9,9 @@ import {
   TextField,
   FormControl,
   IconButton,
-} from '@material-ui/core';
-import EditIcon from '@material-ui/icons/Edit';
-import SaveIcon from '@material-ui/icons/Save';
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
 // import SubHeaderWithArrow from "@monostruct/internal-app/src/components/SubHeaderWithArrow";
 import { useParams, useHistory } from 'react-router-dom';
 import Designer from './Designer';
@@ -99,68 +99,66 @@ const OmniDesign = ({ gltfjson, setgltfjson }) => {
     return tabP;
   };
 
-  return (
-    <>
-      <Grid container>
-        <Grid item sm sm={12}>
-          <Paper style={{ padding: 10, margin: 10, display: 'flex' }}>
-            <Grid style={{ margin: 'auto' }}>
-              {isEditing ? (
-                <FormControl>
-                  <TextField
-                    value={isEditing ? updatedValue : tabList[tabIndex]}
-                    defaultValue={tabList[tabIndex]}
-                    onChange={handleUpdatedValue}
-                    variant="outlined"
-                    InputProps={{
-                      endAdornment: (
-                        <IconButton onClick={handleSaveButton}>
-                          <SaveIcon />
-                        </IconButton>
-                      ),
-                    }}
-                  />
-                </FormControl>
-              ) : (
-                <h2>{tabList[tabIndex]} </h2>
-              )}
-            </Grid>
-            <Grid style={{ marginLeft: 'auto' }}>
-              <Button onClick={handleEditButtonClick}>
-                <EditIcon />
-              </Button>
-            </Grid>
-          </Paper>
-        </Grid>
-        <Grid item sm={2}>
-          <Paper style={{ margin: 10, marginBottom: '70px' }}>
-            <Tabs
-              className="MuiTab-wrapper"
-              orientation="vertical"
-              variant="scrollable"
-              value={tabIndex}
-              onChange={handleTabChange}
-            >
-              {renderTab()}
-            </Tabs>
-          </Paper>
-        </Grid>
-        <Grid item sm sm={10}>
-          {renderPageSwitch()}
-        </Grid>
+  return <>
+    <Grid container>
+      <Grid item sm sm={12}>
+        <Paper style={{ padding: 10, margin: 10, display: 'flex' }}>
+          <Grid style={{ margin: 'auto' }}>
+            {isEditing ? (
+              <FormControl>
+                <TextField
+                  value={isEditing ? updatedValue : tabList[tabIndex]}
+                  defaultValue={tabList[tabIndex]}
+                  onChange={handleUpdatedValue}
+                  variant="outlined"
+                  InputProps={{
+                    endAdornment: (
+                      <IconButton onClick={handleSaveButton} size="large">
+                        <SaveIcon />
+                      </IconButton>
+                    ),
+                  }}
+                />
+              </FormControl>
+            ) : (
+              <h2>{tabList[tabIndex]} </h2>
+            )}
+          </Grid>
+          <Grid style={{ marginLeft: 'auto' }}>
+            <Button onClick={handleEditButtonClick}>
+              <EditIcon />
+            </Button>
+          </Grid>
+        </Paper>
       </Grid>
-      <Snackbar
-        style={{
-          left: '10%',
-        }}
-        open={true}
-      >
-        <Button size="large" variant="contained" color="primary">
-          Save
-        </Button>
-      </Snackbar>
-    </>
-  );
+      <Grid item sm={2}>
+        <Paper style={{ margin: 10, marginBottom: '70px' }}>
+          <Tabs
+            className="MuiTab-wrapper"
+            orientation="vertical"
+            variant="scrollable"
+            value={tabIndex}
+            onChange={handleTabChange}
+          >
+            {renderTab()}
+          </Tabs>
+        </Paper>
+      </Grid>
+      <Grid item sm sm={10}>
+        {renderPageSwitch()}
+      </Grid>
+    </Grid>
+    <Snackbar
+      style={{
+        left: '10%',
+      }}
+      open={true}
+    >
+      <Button size="large" variant="contained" color="primary">
+        Save
+      </Button>
+    </Snackbar>
+  </>;
 };
 
 export default OmniDesign;

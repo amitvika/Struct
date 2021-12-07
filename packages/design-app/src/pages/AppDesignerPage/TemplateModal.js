@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Modal from '@monostruct/common/components/Modal';
-import { Paper, Tabs, Tab, Grid, Divider, Button } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Paper, Tabs, Tab, Grid, Divider, Button } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import Templates from './TemplatesTab';
 import Styles from './StylesTab';
 import './style.css';

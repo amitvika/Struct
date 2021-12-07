@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Portal from '@mui/material/Portal';
 import { shape, string, func, number, oneOfType, arrayOf } from 'prop-types';
 import classNames from 'classnames';
-import Select from 'react-select';
+// import Select from 'react-select';
 import { emphasize } from '@mui/material/styles';
 import withStyles from '@mui/styles/withStyles';
 import Typography from '@mui/material/Typography';
@@ -277,7 +277,7 @@ function IntegrationReactSelect({
         content={dialogContent}
         title={dialogTitle}
       />
-      <Select
+      {/* <Select
         classes={classes}
         styles={selectStyles}
         textFieldProps={{
@@ -305,7 +305,7 @@ function IntegrationReactSelect({
         isMulti={field.multiple}
         {...others}
         // menuIsOpen={true}
-      />
+      /> */}
       {errorText && (
         <span
           style={{

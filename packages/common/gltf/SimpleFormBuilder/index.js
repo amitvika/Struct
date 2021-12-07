@@ -13,7 +13,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import InputLabel from '@mui/material/InputLabel';
 import Grid from '@mui/material/Grid';
-import { ColorPicker } from 'material-ui-color';
+// import { ColorPicker } from 'material-ui-color';
 
 //import IconButton from '@mui/material/IconButton';
 //import Smile from '@mui/icons-material/Mood';
@@ -266,7 +266,7 @@ export default class SimpleFormBuilder extends React.Component {
                 {this.getName(name)}
               </InputLabel>
             )}
-            <ColorPicker
+            {/* <ColorPicker
               zindex="tooltip"
               style={{ zIndex: 2000 }}
               field={field}
@@ -276,7 +276,7 @@ export default class SimpleFormBuilder extends React.Component {
               defaultValue={this.getProperty(key, defaultValue, '')}
               onChange={(color) => this.handleChange(key, color.value, false)}
               //style={{width:textwidth.toString()+"%",height:"600"}}
-            />
+            /> */}
           </span>
           // </Grid>
         );

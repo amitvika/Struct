@@ -4,7 +4,7 @@ import React from 'react';
 import Portal from '@mui/material/Portal';
 import { shape, string, func, number, oneOfType, arrayOf } from 'prop-types';
 import classNames from 'classnames';
-import AsyncSelect from 'react-select/lib/Async';
+// import AsyncSelect from 'react-select/lib/Async';
 import { emphasize } from '@mui/material/styles';
 import withStyles from '@mui/styles/withStyles';
 import Typography from '@mui/material/Typography';
@@ -220,7 +220,7 @@ function IntegrationReactSelect({
 
   return (
     <div className={classes.root}>
-      <AsyncSelect
+      {/* <AsyncSelect
         classes={classes}
         styles={selectStyles}
         textFieldProps={{
@@ -236,7 +236,7 @@ function IntegrationReactSelect({
         defaultOptions={items}
         isMulti={field.multiple}
         {...others}
-      />
+      /> */}
       {errorText && (
         <span
           style={{

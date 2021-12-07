@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Button, Paper, Grid, Typography } from '@material-ui/core';
-import AddBoxIcon from '@material-ui/icons/AddBox';
-import EditIcon from '@material-ui/icons/Edit';
+import { Button, Paper, Grid, Typography } from '@mui/material';
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import EditIcon from '@mui/icons-material/Edit';
 import { useStyles } from './DetailComponent.style';
 import AddDesign from './AddDesignForm';
 

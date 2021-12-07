@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import { shape, string, func, number, arrayOf, oneOfType } from 'prop-types';
 import classNames from 'classnames';
-import CreatableSelect from 'react-select/lib/Creatable';
+// import CreatableSelect from 'react-select/lib/Creatable';
 import { emphasize } from '@mui/material/styles';
 import withStyles from '@mui/styles/withStyles';
 import Typography from '@mui/material/Typography';
@@ -134,7 +134,7 @@ const ChipInput = ({ field, value, onChange, errors, classes }) => {
 
   return (
     <div>
-      <CreatableSelect
+      {/* <CreatableSelect
         classes={classes}
         components={components}
         inputValue={inputValue}
@@ -153,7 +153,7 @@ const ChipInput = ({ field, value, onChange, errors, classes }) => {
         isClearable
         isMulti
         menuIsOpen={false}
-      />
+      /> */}
       {errorText && (
         <span
           style={{

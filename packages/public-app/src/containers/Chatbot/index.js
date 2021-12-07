@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './style.css'
 import ChatManager from './ChatManager'
-// import ChatIcon from '@material-ui/icons/Chat';
+// import ChatIcon from '@mui/icons-material/Chat';
 import ChatIcon from '../../assets/images/Chatbot_icon.jpg'
 
 function Chatbot() {
