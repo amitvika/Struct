@@ -58,12 +58,10 @@ export default function Layout(props) {
       <Header {...{ headerListItem }} />
       <div
         style={{
-          marginTop: '75px',
           width: '100%',
           top: 0,
           left: 'auto',
-          right: 0,
-          position: 'fixed'
+          right: 0
         }}
       >
         {props.children}

@@ -36,6 +36,8 @@ export default function HeaderDesktopView({
     authUser: { isAuthenticated, user }
   } = useContext(AuthContext);
 
+  console.log('--isAuthenticated---', isAuthenticated, user);
+
   const handleToggle = () => {
     if (isAuthenticated) {
       setOpen((prevOpen) => !prevOpen);

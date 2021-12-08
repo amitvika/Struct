@@ -60,12 +60,10 @@ export default function Layout(props) {
       />
       <div
         style={{
-          marginTop: '90px',
           width: '100%',
           top: 0,
           left: 'auto',
-          right: 0,
-          position: 'fixed'
+          right: 0
         }}
       >
         {props.children}

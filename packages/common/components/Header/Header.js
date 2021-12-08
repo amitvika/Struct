@@ -13,14 +13,28 @@ import { useStyles } from './Header.style';
 import HeaderMobileView from './HeaderMobileView';
 import HeaderDesktopView from './HeaderDesktopView';
 import { AuthContext } from '../../context/AuthContext';
+import AuthService from '@monostruct/common/services/AuthServices';
 
-export default function Header(props) {
+const Header = (props) => {
   const classes = useStyles();
   const theme = useTheme();
   const history = useHistory();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const { authUser, setAuthUser } = React.useContext(AuthContext);
+
+  React.useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const resUser = await AuthService.fetchUser();
+      setAuthUser({ user: resUser, isAuthenticated: true });
+    } catch (error) {
+      console.log('Error', error);
+    }
+  };
 
   const handleLogout = () => {
     setAuthUser({ user: {}, isAuthenticated: false });
@@ -38,4 +52,6 @@ export default function Header(props) {
       </Toolbar>
     </AppBar>
   );
-}
+};
+
+export default React.memo(Header);

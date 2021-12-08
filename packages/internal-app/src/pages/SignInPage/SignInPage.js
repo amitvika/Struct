@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useQuery } from '@monostruct/common/utils/customHooks';
 import SignInForm from '@monostruct/common/components/SignInForm';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
