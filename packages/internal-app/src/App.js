@@ -10,19 +10,18 @@ import AppRoutes from './AppRoutes';
 import Alert from './components/Alert';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 import { ColorModeContextProvider } from '@monostruct/common/themes/ColorModeContextProvider';
+import { AuthContextProvider } from '@monostruct/common/context/AuthContext';
 
 const App = () => {
-  useEffect(() => {
-    store.dispatch(setUser());
-  }, []);
-
   return (
     <Provider store={store}>
-      <ColorModeContextProvider>
-        <Alert />
-        <AppRoutes />
-        <LoadingModal />
-      </ColorModeContextProvider>
+      <AuthContextProvider>
+        <ColorModeContextProvider>
+          <Alert />
+          <AppRoutes />
+          <LoadingModal />
+        </ColorModeContextProvider>
+      </AuthContextProvider>
     </Provider>
   );
 };

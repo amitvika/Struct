@@ -14,17 +14,6 @@ import HeaderMobileView from './HeaderMobileView';
 import HeaderDesktopView from './HeaderDesktopView';
 import { AuthContext } from '../../context/AuthContext';
 
-function HideOnScroll(props) {
-  const { children } = props;
-  const trigger = useScrollTrigger();
-
-  return (
-    <Slide appear={false} direction={'down'} in={!trigger}>
-      {children}
-    </Slide>
-  );
-}
-
 export default function Header(props) {
   const classes = useStyles();
   const theme = useTheme();
@@ -39,16 +28,14 @@ export default function Header(props) {
   };
 
   return (
-    <HideOnScroll {...props}>
-      <AppBar className={classes.header}>
-        <Toolbar className={classes.toolbar}>
-          {isMobile ? (
-            <HeaderMobileView {...{ handleLogout, ...props }} />
-          ) : (
-            <HeaderDesktopView {...{ handleLogout, ...props }} />
-          )}
-        </Toolbar>
-      </AppBar>
-    </HideOnScroll>
+    <AppBar position="static" sx={{ background: '#000000' }}>
+      <Toolbar className={classes.toolbar}>
+        {isMobile ? (
+          <HeaderMobileView {...{ handleLogout, ...props }} />
+        ) : (
+          <HeaderDesktopView {...{ handleLogout, ...props }} />
+        )}
+      </Toolbar>
+    </AppBar>
   );
 }

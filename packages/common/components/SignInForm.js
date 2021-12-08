@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const SignInForm = ({ handleLoginSubmit, msg, isLoginStarted }) => {
+const SignInForm = ({ handleLoginSubmit, isLoginStarted }) => {
   const classes = useStyles();
 
   const [email, setEmail] = useState('');

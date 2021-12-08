@@ -19,7 +19,9 @@ export const useStyles = makeStyles((theme) => ({
   },
   primaryListHeader: {
     display: 'flex',
-    ['list-style-type']: 'none'
+    ['list-style-type']: 'none',
+    margin: 0,
+    alignItems: 'center'
   },
   verticalBar: {
     borderRight: '1px solid #bbb'
@@ -30,10 +32,9 @@ export const useStyles = makeStyles((theme) => ({
     }
   },
   menuButton: {
-    ...theme.menuButton,
     size: '18px',
-    fontWeight: 700,
-    margin: '0 10px 0 10px',
+    fontWeight: '800 !important',
+    margin: '0 10px 0 10px !important',
     '&::after': {
       content: '',
       borderLeft: '1px solid white'
@@ -46,7 +47,7 @@ export const useStyles = makeStyles((theme) => ({
     alignItems: 'center'
   },
   linkSelected: {
-    background: '#5D6D7E',
-    color: '#ffffff'
+    background: '#5D6D7E !important',
+    color: '#ffffff !important'
   }
 }));

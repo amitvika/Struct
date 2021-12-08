@@ -6,7 +6,7 @@ import SignInForm from '@monostruct/common/components/SignInForm';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 import { AuthContext } from '@monostruct/common/context/AuthContext';
-import AuthService from '../../services/AuthServices';
+import AuthService from '@monostruct/common/services/AuthServices';
 
 const SignInPage = () => {
   const { authUser, setAuthUser } = React.useContext(AuthContext);

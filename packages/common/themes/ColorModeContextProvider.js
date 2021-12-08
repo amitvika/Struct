@@ -32,12 +32,12 @@ export const ColorModeContextProvider = ({ children }) => {
 
   return (
     <ColorModeContext.Provider value={colorMode}>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          {children}
-        </ThemeProvider>
-      </StyledEngineProvider>
+      {/* <StyledEngineProvider injectFirst> */}
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </ThemeProvider>
+      {/* </StyledEngineProvider> */}
     </ColorModeContext.Provider>
   );
 };
@@ -52,8 +52,8 @@ const lightModePallete = {
     dark: '#000'
   },
   background: {
-    default: '#252525',
-    paper: '#ffffff'
+    default: '#f2f2f2',
+    paper: '#f2f2f2'
   }
 };
 
@@ -69,16 +69,15 @@ const darkModePallete = {
   background: {
     default: '#000000',
     paper: '#252525'
+  },
+  text: {
+    primary: '#ffffff'
   }
 };
 
 const getDesignTokens = (mode) => ({
   palette: {
     mode,
-    // appBarBlack: {
-    //   main: '#000000',
-    //   contrastText: '#ffffff'
-    // },
     ...(mode === 'light' ? lightModePallete : darkModePallete)
   },
   typography: {
@@ -98,9 +97,10 @@ const getDesignTokens = (mode) => ({
   },
   overrides: {
     MuiOutlinedInput: {
-      root: {
-        '& $notchedOutline': {
-          top: 0
+      notchedOutline: {
+        top: 0,
+        '& legend': {
+          display: 'none'
         }
       }
     }

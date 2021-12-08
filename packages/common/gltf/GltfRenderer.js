@@ -130,11 +130,7 @@ import Button from '@mui/material/Button';
 import GroupFormBuilder from './GroupFormBuilder';
 import ModelessDialog from './ModelessDialog';
 import { myMenus } from './gltfMenus';
-import {
-  CircularProgress,
-  ClickAwayListener,
-  Snackbar
-} from '@mui/material';
+import { CircularProgress, ClickAwayListener, Snackbar } from '@mui/material';
 import RotateLeftSharpIcon from '@mui/icons-material/RotateLeftSharp';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -6165,14 +6161,13 @@ class GLTFRenderer extends Component {
           <Button
             aria-describedby={this.idEl[index]}
             id={'pop' + index.toString()}
-            type="button"
-            variant="contained"
+            variant="outlined"
             key={this.openEl[index] ? 'O' : 'I' + index.toString()}
             onClick={(event) => {
               this.handlePopperClick(event, index);
             }}
             color={
-              index == myIndex && this.openEl[index] ? 'primary' : 'default'
+              index == myIndex && this.openEl[index] ? 'primary' : 'secondary'
             }
             startIcon={data.icon}
           >
@@ -6502,9 +6497,6 @@ class GLTFRenderer extends Component {
           <Grid p={1}>
             {this.buildMenus(this.state.selectedmenu)}
             <Button
-              aria-describedby={'Reset Controls'}
-              id={'popreset'}
-              type="button"
               variant="contained"
               onClick={(event) => {
                 this.resetMyControls();

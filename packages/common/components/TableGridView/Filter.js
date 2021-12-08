@@ -4,8 +4,8 @@ import { Grid, Paper, Icon, Button } from '@mui/material';
 import Select from '../atoms/Select';
 import SearchIcon from '@mui/icons-material/Search';
 import makeStyles from '@mui/styles/makeStyles';
-import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
+import OutlinedInput from '@mui/material/OutlinedInput';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -150,15 +150,11 @@ export default function Filter({
     if (isSearchBarVisible) {
       item.push(
         <Grid item style={{ flex: 1 }} key={`filter_search_text`}>
-          <TextField
-            className={classes.margin}
+          <OutlinedInput
             id="input-with-icon-textfield"
-            variant="outlined"
-            size="small"
             onChange={handleSearchInput}
             value={searchTerm}
             placeholder={'Enter'}
-            style={{ top: 0 }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -166,6 +162,8 @@ export default function Filter({
                 </InputAdornment>
               )
             }}
+            size="small"
+            notched={false}
           />
         </Grid>
       );

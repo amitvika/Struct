@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Input from '@monostruct/common/components/atoms/Input';
-import EditIcon from '@mui//icons/Edit';
-import AddBoxIcon from '@mui//icons/AddBox';
-// import AddBoxIcon from '@mui/icons-material/AddBox';
+import EditIcon from '@mui/icons-material/Edit';
+import AddBoxIcon from '@mui/icons-material/AddBox';
 
 import { IconButton, Typography } from '@mui/material';
 
