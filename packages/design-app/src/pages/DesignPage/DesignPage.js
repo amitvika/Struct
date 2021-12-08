@@ -12,20 +12,18 @@ const DesignPage = () => {
     history.push(`/design?type=${type}&id=${id}&name=${name}`);
 
   return (
-    <div style={{ margin: '0  7% 0 7%' }}>
-      <TableGridView
-        title={'Product Design'}
-        fields={fields}
-        fetchList={ProductDesignAPI.fetchProductDesigns}
-        upsertListItem={ProductDesignAPI.upsertProductDesign}
-        isAddEditActionsEnabled={false}
-        handleItemClick={handleItemClick}
-        AddUpdateModal={AddUpdateModal}
-        isDesignModalOpened={true}
-        isEditLinkVisible={false}
-        isHistoryLinkVisible={false}
-      />
-    </div>
+    <TableGridView
+      title={'Product Design'}
+      fields={fields}
+      fetchList={ProductDesignAPI.fetchProductDesigns}
+      upsertListItem={ProductDesignAPI.upsertProductDesign}
+      isAddEditActionsEnabled={false}
+      handleItemClick={handleItemClick}
+      AddUpdateModal={AddUpdateModal}
+      isDesignModalOpened={true}
+      isEditLinkVisible={false}
+      isHistoryLinkVisible={false}
+    />
   );
 };
 

@@ -56,16 +56,7 @@ export default function Layout(props) {
   return (
     <>
       <Header {...{ headerListItem }} />
-      <div
-        style={{
-          width: '100%',
-          top: 0,
-          left: 'auto',
-          right: 0
-        }}
-      >
-        {props.children}
-      </div>
+      {props.children}
     </>
   );
 }

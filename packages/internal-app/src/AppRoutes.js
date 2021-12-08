@@ -30,6 +30,7 @@ import FactoryDetail from './pages/FactoryDetailPage';
 import ItemDetail from './containers/itemDetail';
 import Administrative from './containers/administrative';
 import ViewMyProfile from './containers/viewMyProfile';
+import { Box } from '@mui/system';
 
 // import Viewer from './DynamicHierarchy'
 
@@ -46,7 +47,7 @@ export default function AppRoutes() {
         <Route path="/register" component={Register} />
         {/* <Route path="/viewer" component={Viewer} /> */}
         <Layout>
-          <div style={{ marginLeft: '7%', marginRight: '7%' }}>
+          <Box sx={{ margin: '20px 7%' }}>
             <Switch>
               <AppRoute authenticate path="/dashboard" component={Dashboard} />
               <AppRoute
@@ -96,7 +97,7 @@ export default function AppRoutes() {
                 component={ConfigurationHistory}
               />
             </Switch>
-          </div>
+          </Box>
           <Switch>
             <AppRoute
               authenticate

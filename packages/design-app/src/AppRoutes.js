@@ -20,6 +20,7 @@ import SiliconMaker from './pages/SiliconMaker/SiliconMaker';
 import ClothesMaker from './pages/ClothesMaker/ClothesMaker';
 import ArchitectureDesigner from './pages/ArchitectureDesigner/ArchitectureDesigner';
 import { AuthContext } from '@monostruct/common/context/AuthContext';
+import { Box } from '@mui/system';
 
 export default function Routes() {
   return (
@@ -28,7 +29,9 @@ export default function Routes() {
         <Route exact path="/" component={SignInPage} />
         <Layout>
           <Switch>
-            <AppRoute authenticate path="/design" component={DesignPage} />
+            <Box sx={{ margin: '20px 7%' }}>
+              <AppRoute authenticate path="/design" component={DesignPage} />
+            </Box>
             <AppRoute authenticate path="/product" component={ProductMaker} />
             <AppRoute authenticate path="/cad" component={CadMaker} />
             <AppRoute authenticate path="/pcb" component={PcbTab} />
