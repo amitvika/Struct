@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import API from '@monostruct/common/api/vendor.api';
 import Toolbar from '@monostruct/common/components/TableGridView/Toolbar';
@@ -50,8 +50,8 @@ export default function SuppliedItems() {
             {' '}
             Indentification Modal{' '}
           </span>
-        ),
-    },
+        )
+    }
   ]);
   const columnsFields = { id: 'ID', name: 'Name' };
 
@@ -103,7 +103,7 @@ export default function SuppliedItems() {
             id: x._id,
             name: x.name,
             source: x.source,
-            logoUrl: x.logoUrl,
+            logoUrl: x.logoUrl
           };
         });
 
@@ -128,7 +128,7 @@ export default function SuppliedItems() {
           return {
             id: item._id,
             name: item.name,
-            source: item.source,
+            source: item.source
           };
         });
       })
@@ -141,7 +141,7 @@ export default function SuppliedItems() {
         {
           const newClient = {
             name: newData.name,
-            source: newData.source,
+            source: newData.source
           }; //
 
           API.addVendorApi(newClient)
@@ -164,7 +164,7 @@ export default function SuppliedItems() {
           console.log(newData.client);
           const data = {
             name: newData.name,
-            source: newData.source,
+            source: newData.source
           };
 
           API.updateVendorApi(newData.id, data)
@@ -201,7 +201,7 @@ export default function SuppliedItems() {
     // history.push(`/vendors/${event.id}`);
     history.push({
       pathname: `/vendors/${id}`,
-      search: `?tab=10`,
+      search: `?tab=10`
     });
   };
 
@@ -210,10 +210,10 @@ export default function SuppliedItems() {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

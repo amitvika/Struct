@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useHistory } from 'react-router-dom';
 
 import API from '@monostruct/common/api/vendor.api';
@@ -232,7 +232,7 @@ const VendorListPage = () => {
           justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

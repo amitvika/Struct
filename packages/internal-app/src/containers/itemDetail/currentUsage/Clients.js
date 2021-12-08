@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useHistory, useParams } from 'react-router-dom';
 
 import API from '@monostruct/common/api/clients.api';
@@ -10,10 +10,7 @@ import GridView from '@monostruct/common/components/TableGridView/GridView';
 import Toolbar from '@monostruct/common/components/TableGridView/Toolbar';
 import { columnsFields } from '@monostruct/common/constants/client';
 
-import {
-  showErrorAlert,
-  showSuccessAlert,
-} from '../../../actions/alert.action';
+import { showErrorAlert } from '../../../actions/alert.action';
 import get from 'lodash/get';
 
 const Client = () => {
@@ -39,8 +36,8 @@ const Client = () => {
     {
       title: 'Created By',
       field: 'created_by',
-      editable: 'never',
-    },
+      editable: 'never'
+    }
   ]);
 
   useEffect(() => {
@@ -59,7 +56,7 @@ const Client = () => {
           name: x.name,
           created_by: x.createdByUserId.name,
           deleted_at: x.deletedAt,
-          logoUrl: x.logoUrl,
+          logoUrl: x.logoUrl
         };
       });
       setClientList(clients);
@@ -117,10 +114,10 @@ const Client = () => {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

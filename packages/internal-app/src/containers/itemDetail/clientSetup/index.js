@@ -5,10 +5,8 @@ import GridView from '@monostruct/common/components/TableGridView/GridView';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Space from '@monostruct/common/components/atoms/Space';
 
-import { Grid, Typography, Paper } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { Spinner } from 'reactstrap';
-
+import { Grid, Paper } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import { columnsFields } from '@monostruct/common/constants/client';
 import API from '@monostruct/common/api/clients.api';
 
@@ -35,7 +33,7 @@ export default function ClientSetup({ itemProperties, setItemProperties }) {
             id: x._id,
             name: x.name,
             created_by: x.createdByUserId.name,
-            deleted_at: x.deletedAt,
+            deleted_at: x.deletedAt
           };
         });
         setClientList(clients);
@@ -77,7 +75,7 @@ export default function ClientSetup({ itemProperties, setItemProperties }) {
     setSelectedClient(data);
     setItemProperties((prevState) => ({
       ...prevState,
-      selectedClientId: data.id,
+      selectedClientId: data.id
     }));
   };
 
@@ -88,7 +86,7 @@ export default function ClientSetup({ itemProperties, setItemProperties }) {
     setSelectedClient({});
     setItemProperties((prevState) => ({
       ...prevState,
-      selectedClientId: null,
+      selectedClientId: null
     }));
   };
 
@@ -97,10 +95,10 @@ export default function ClientSetup({ itemProperties, setItemProperties }) {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

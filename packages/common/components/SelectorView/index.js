@@ -10,8 +10,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 
 import { Grid, Paper } from '@mui/material';
-import { Spinner } from 'reactstrap';
-
+import CircularProgress from '@mui/material/CircularProgress';
 import get from 'lodash/get';
 
 export default function SelectorView({
@@ -152,7 +151,7 @@ export default function SelectorView({
           justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

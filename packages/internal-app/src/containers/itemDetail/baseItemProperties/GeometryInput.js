@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Icon, Typography } from '@mui/material';
+import { Paper, Icon, Typography, Tooltip } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import { Tooltip } from 'reactstrap';
 import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
 
@@ -239,15 +238,10 @@ export default function GeometryInput({
                   info
                 </Icon>
                 <Tooltip
-                  placement="top"
-                  isOpen={tooltipOpen}
-                  target="TooltipExample"
-                  toggle={toggleTooltip}
-                >
-                  This allows for selection of the general geometry or matter
+                  title={`This allows for selection of the general geometry or matter
                   state of the item. The downstream impacts include how the item
-                  is handled and transported within Struct Production Systems
-                </Tooltip>
+                  is handled and transported within Struct Production Systems`}
+                ></Tooltip>
               </Grid>
               <Grid item xs={8}>
                 <Select

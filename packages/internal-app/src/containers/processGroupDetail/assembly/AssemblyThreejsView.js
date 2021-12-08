@@ -1,30 +1,24 @@
-import React, { Component } from 'react'
-import MeshJSON from '../../../assets/mesh.json'
-import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-} from "reactstrap";
+import MainModal from '@monostruct/common/components/Modal';
+import React, { Component } from 'react';
 
-import {
-//   ThreejsViewer
-} from '../../../components';
+import //   ThreejsViewer
+'../../../components';
 
 export default class AssemblyThreejsView extends Component {
-
   render() {
     const { isModalVisible, handleModalToggle } = this.props;
     return (
-      <Modal isOpen={isModalVisible} toggle={handleModalToggle}>
-        <ModalHeader toggle={handleModalToggle}>Thressjs</ModalHeader>
-        <ModalBody>
-          <div style={{ height: '40vh' }}>
-            {/* <ThreejsViewer isLoading={false}
+      <MainModal
+        open={isModalVisible}
+        toggleModal={handleModalToggle}
+        title={'Thressjs'}
+      >
+        <div style={{ height: '40vh' }}>
+          {/* <ThreejsViewer isLoading={false}
               data={MeshJSON}
             ></ThreejsViewer> */}
-          </div >
-        </ModalBody>
-      </Modal>
-    )
+        </div>
+      </MainModal>
+    );
   }
 }

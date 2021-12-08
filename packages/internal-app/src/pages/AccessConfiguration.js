@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 import Card from '@mui/material/Card';
 import { Button, Snackbar, Breadcrumbs, CardContent } from '@mui/material';
 
@@ -78,7 +78,7 @@ const AccessConfiguration = (props) => {
     POA_5_E: false,
     POA_5_V: false,
     POA_6_E: false,
-    POA_6_V: false,
+    POA_6_V: false
   });
 
   const { isLoading, data } = useSelector((state) => state.accessConfig);
@@ -99,7 +99,7 @@ const AccessConfiguration = (props) => {
             ...state,
             userAccessLoaded: true,
             userAccessName: data.name,
-            userAccessId: data._id,
+            userAccessId: data._id
           };
         });
       } else {
@@ -109,7 +109,7 @@ const AccessConfiguration = (props) => {
             ...data.access,
             userAccessLoaded: true,
             userAccessName: data.name,
-            userAccessId: data._id,
+            userAccessId: data._id
           };
         });
       }
@@ -124,7 +124,7 @@ const AccessConfiguration = (props) => {
           {
             state: localState,
             user: user,
-            name: localState.userAccessName,
+            name: localState.userAccessName
           }
         );
 
@@ -136,7 +136,7 @@ const AccessConfiguration = (props) => {
         {
           users: userAccessUsers,
           user: user,
-          userAccessId: localState.userAccessId,
+          userAccessId: localState.userAccessId
         }
       );
       dispatch(showSuccessAlert({ message: 'All data is saved' }));
@@ -159,7 +159,7 @@ const AccessConfiguration = (props) => {
         msg: message,
         snackBarAlertType: 'error',
         snackBar: true,
-        tableLoaded: true,
+        tableLoaded: true
       };
     });
   };
@@ -168,7 +168,7 @@ const AccessConfiguration = (props) => {
     setLocalState((state) => {
       return {
         ...state,
-        [e.target.name]: !state[e.target.name],
+        [e.target.name]: !state[e.target.name]
       };
     });
   };
@@ -201,7 +201,7 @@ const AccessConfiguration = (props) => {
                 <div
                   style={{
                     display: 'flex',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                   }}
                 >
                   <h4>{localState.userAccessName} </h4>
@@ -209,7 +209,7 @@ const AccessConfiguration = (props) => {
                 <div
                   style={{
                     display: 'flex',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                   }}
                 >
                   <p>Access Setup ID: {localState.userAccessId} </p>
@@ -218,7 +218,7 @@ const AccessConfiguration = (props) => {
                 <div
                   style={{
                     display: 'flex',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                   }}
                 >
                   <UserAccessModal userAccessState={localState} />
@@ -271,11 +271,11 @@ const AccessConfiguration = (props) => {
               //autoHideDuration={10000}
               //onClose={this.handleClose}
               style={{
-                marginRight: '17%',
+                marginRight: '17%'
               }}
               anchorOrigin={{
                 vertical: 'bottom',
-                horizontal: 'right',
+                horizontal: 'right'
               }}
             >
               <Button
@@ -292,10 +292,10 @@ const AccessConfiguration = (props) => {
           <div
             style={{
               display: 'flex',
-              justifyContent: 'center',
+              justifyContent: 'center'
             }}
           >
-            <Spinner animation="border" />
+            <CircularProgress />
           </div>
         )}
       </div>

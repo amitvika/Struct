@@ -6,7 +6,7 @@ import Headding from '@monostruct/common/components/atoms/Headding';
 import Space from '@monostruct/common/components/atoms/Space';
 
 import { Grid, Paper } from '@mui/material';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { columnsFields } from '@monostruct/common/constants/item';
 import ProductionAPI from '@monostruct/common/api/production.api';
@@ -15,7 +15,7 @@ import get from 'lodash/get';
 export default function ItemsInProduction({
   factoryId,
   setFactoryValue,
-  factoryValue,
+  factoryValue
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,7 +27,7 @@ export default function ItemsInProduction({
 
   const onClick = () => setIsItemSelectionVisible(!isItemSelectionVisible);
   const [state, setState] = useState({
-    checkedA: true,
+    checkedA: true
   });
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.checked });
@@ -52,7 +52,7 @@ export default function ItemsInProduction({
           id: item._id,
           name: item.name,
           source: item?.vendorId?.name || 'STRUCT',
-          assemblyType: item.assemblyType,
+          assemblyType: item.assemblyType
         };
       });
       setItemList(items);
@@ -69,10 +69,10 @@ export default function ItemsInProduction({
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

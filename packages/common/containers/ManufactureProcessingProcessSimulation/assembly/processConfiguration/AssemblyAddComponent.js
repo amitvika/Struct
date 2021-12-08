@@ -1,28 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  Form,
-  FormGroup,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-} from 'reactstrap';
 import ItemsAPI from '@monostruct/common/api/items.api';
+import MainModal from '@monostruct/common/components/Modal';
 
 export default function AppComponent({
   isAddComponentModalOpen,
   setIsAddComponentModalOpen,
-  setSelectedItem,
+  setSelectedItem
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [itemList, setItemList] = useState([]);
   const [localSelectedItem, setLocalSelectedItem] = useState({
-    name: 'Select Item',
+    name: 'Select Item'
   });
 
   const toggleModal = () => {
@@ -56,41 +45,32 @@ export default function AppComponent({
   const onSubmit = () => {};
 
   return (
-    <Modal className="Add_Component" isOpen={modalOpen} toggle={toggleModal}>
-      <ModalHeader toggle={toggleModal}>Add Item</ModalHeader>
-      <ModalBody>
-        <Form onSubmit={onSubmit}>
-          <FormGroup>
-            <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
-              <DropdownToggle caret>{localSelectedItem.name}</DropdownToggle>
-              <DropdownMenu>
-                {itemList.map((item, index) => {
-                  return (
-                    <DropdownItem
-                      key={index}
-                      onClick={() => handleChange(item)}
-                      value={item.name}
-                    >
-                      {item.name}
-                    </DropdownItem>
-                  );
-                })}
-              </DropdownMenu>
-            </Dropdown>
-            <Button
-              color="dark"
-              style={{ marginBottom: '2rem' }}
-              block
-              onClick={() => {
-                toggleModal();
-                setSelectedItem(localSelectedItem);
-              }}
-            >
-              Go
-            </Button>
-          </FormGroup>
-        </Form>
-      </ModalBody>
-    </Modal>
+    <MainModal open={modalOpen} toggleModal={toggleModal} title={'Add Item'}>
+      <Select
+        labelId="demo-multiple-name-label"
+        id="demo-multiple-name"
+        multiple
+        value={localSelectedItem.name}
+        onChange={handleChange}
+        input={<OutlinedInput label="Name" />}
+      >
+        {itemList.map(({ name }) => (
+          <MenuItem key={name} value={name}>
+            {name}
+          </MenuItem>
+        ))}
+      </Select>
+      <Button
+        color="dark"
+        style={{ marginBottom: '2rem' }}
+        block
+        onClick={() => {
+          toggleModal();
+          setSelectedItem(localSelectedItem);
+        }}
+      >
+        Go
+      </Button>
+    </MainModal>
   );
 }

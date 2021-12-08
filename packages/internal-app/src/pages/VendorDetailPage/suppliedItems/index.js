@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import SelectorView from '@monostruct/common/components/SelectorView';
 import ItemAPI from '@monostruct/common/api/items.api';
@@ -34,11 +34,11 @@ export default function IncomingVendorProducts({ setVendorInfo, vendorInfo }) {
           >
             <Link> Identification </Link>
           </span>
-        ),
-    },
+        )
+    }
   ];
   const [state, setState] = useState({
-    checkedA: true,
+    checkedA: true
   });
 
   const fetchSelectedList = () => {
@@ -52,10 +52,10 @@ export default function IncomingVendorProducts({ setVendorInfo, vendorInfo }) {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }
@@ -74,7 +74,7 @@ export default function IncomingVendorProducts({ setVendorInfo, vendorInfo }) {
       handleUpdate={(data) =>
         setVendorInfo({
           ...vendorInfo,
-          suppliedItems: data,
+          suppliedItems: data
         })
       }
       handleSelection={handleSelection}

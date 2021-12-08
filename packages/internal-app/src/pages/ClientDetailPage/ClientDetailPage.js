@@ -10,7 +10,7 @@ import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 import Documentation from '../../containers/documentation';
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks';
@@ -165,7 +165,7 @@ const ClientDetailPage = () => {
           justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

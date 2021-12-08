@@ -44,7 +44,12 @@ export const ColorModeContextProvider = ({ children }) => {
 
 const lightModePallete = {
   primary: {
-    main: '#424242'
+    main: '#424242',
+    dark: '#000'
+  },
+  secondary: {
+    main: '#424242',
+    dark: '#000'
   },
   background: {
     default: '#252525',
@@ -54,7 +59,12 @@ const lightModePallete = {
 
 const darkModePallete = {
   primary: {
-    main: '#424242'
+    main: '#424242',
+    dark: '#000'
+  },
+  secondary: {
+    main: '#424242',
+    dark: '#000'
   },
   background: {
     default: '#000000',

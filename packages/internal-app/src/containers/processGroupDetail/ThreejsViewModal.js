@@ -1,27 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  Tooltip,
-} from 'reactstrap';
 import ItemsAPI from '@monostruct/common/api/items.api';
 import AssemblyProcessAPI from '@monostruct/common/api/assemblyProcess.api';
+import MainModal from '@monostruct/common/components/Modal';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import { MenuItem, Select, Tooltip } from '@mui/material';
+import { Button } from 'bootstrap';
 
 export default function ThreejsViewModal({
   isVisible = false,
   setIsThreejsVisible,
-  assemblyProcessData = {},
+  assemblyProcessData = {}
 }) {
   const [isModalVisible, setIsModalVisible] = useState(isVisible);
   const [itemList, setItemList] = useState([]);
   const [localSelectedItem, setLocalSelectedItem] = useState({
-    name: 'Select Item',
+    name: 'Select Item'
   });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [threejsObject, setThreejsObject] = useState({});
@@ -86,7 +79,7 @@ export default function ThreejsViewModal({
     }
 
     AssemblyProcessAPI.updateAssemblyProcessApi(assemblyProcessData._id, {
-      itemId: localSelectedItem._id,
+      itemId: localSelectedItem._id
     })
       .then((res) => {
         console.log('Response --->>>', res);
@@ -99,68 +92,48 @@ export default function ThreejsViewModal({
   };
 
   return (
-    <div>
-      <Modal isOpen={isModalVisible} toggle={() => setIsThreejsVisible(false)}>
-        <ModalHeader toggle={() => setIsThreejsVisible(false)}>
-          Thressjs
-        </ModalHeader>
-        <ModalBody>
-          <div
-            style={{ display: 'flex', flexDirection: 'row', height: '75vh' }}
+    <MainModal
+      open={isModalVisible}
+      toggleModal={() => setIsThreejsVisible(false)}
+      title={'Thressjs'}
+    >
+      <div style={{ display: 'flex', flexDirection: 'row', height: '75vh' }}>
+        <div style={{ width: '70%' }}>
+          {/* <ThreejsViewer data={threejsObject} isLoading={isLoading} /> */}
+        </div>
+        <Tooltip
+          title={
+            assemblyProcessData.action === 'Work Holding 1'
+              ? `This will only show items of type "Machine - Tool/Workholding. Please ensure item has 3d model loaded, otherwise it will not populate here`
+              : `Please ensure item has 3d model loaded, otherwise it will not populate here`
+          }
+        ></Tooltip>
+        <div style={{ width: '30%' }}>
+          <Select
+            labelId="demo-multiple-name-label"
+            id="demo-multiple-name"
+            multiple
+            value={localSelectedItem.name}
+            onChange={handleChange}
+            input={<OutlinedInput label="Name" />}
           >
-            <div style={{ width: '70%' }}>
-              {/* <ThreejsViewer data={threejsObject} isLoading={isLoading} /> */}
-            </div>
-            <Tooltip
-              placement="right"
-              isOpen={tooltipOpen}
-              target="TooltipExample"
-              toggle={toggle}
-            >
-              {assemblyProcessData.action === 'Work Holding 1'
-                ? `This will only show items of type "Machine - Tool/Workholding. Please ensure item has 3d model loaded, otherwise it will not populate here`
-                : `Please ensure item has 3d model loaded, otherwise it will not populate here`}
-            </Tooltip>
-            <div style={{ width: '30%' }}>
-              <Dropdown
-                isOpen={dropdownOpen}
-                toggle={toggleDropdown}
-                style={{ marginBottom: '2rem' }}
-              >
-                <DropdownToggle
-                  caret
-                  style={{ width: '100%' }}
-                  id="TooltipExample"
-                >
-                  {localSelectedItem.name}
-                </DropdownToggle>
-                <DropdownMenu>
-                  {itemList.map((item, index) => {
-                    return (
-                      <DropdownItem
-                        key={index}
-                        onClick={() => handleChange(item)}
-                        value={item.name}
-                      >
-                        {item.name}
-                      </DropdownItem>
-                    );
-                  })}
-                </DropdownMenu>
-              </Dropdown>
+            {itemList.map((name) => (
+              <MenuItem key={name} value={name}>
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
 
-              <Button
-                color="dark"
-                style={{ marginBottom: '2rem' }}
-                block
-                onClick={handleSubmitButton}
-              >
-                Go
-              </Button>
-            </div>
-          </div>
-        </ModalBody>
-      </Modal>
-    </div>
+          <Button
+            color="dark"
+            style={{ marginBottom: '2rem' }}
+            block
+            onClick={handleSubmitButton}
+          >
+            Go
+          </Button>
+        </div>
+      </div>
+    </MainModal>
   );
 }

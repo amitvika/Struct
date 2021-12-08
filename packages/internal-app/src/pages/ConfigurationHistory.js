@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import MaterialTable from 'material-table';
 import { connect } from 'react-redux';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 import ConfigurationHistoryAPI from '@monostruct/common/api/configurationHistory.api';
 
 class ConfigurationHistory extends Component {
   state = {
     rowData: [],
-    tableLoaded: true,
+    tableLoaded: true
   };
 
   dataQueryPage = (query) => {
@@ -28,7 +28,7 @@ class ConfigurationHistory extends Component {
                 client: x.client.name,
                 model: x.model,
                 time: x.date,
-                update: x.update,
+                update: x.update
               };
             } else {
               return {
@@ -38,7 +38,7 @@ class ConfigurationHistory extends Component {
                 client: x.client,
                 model: x.model,
                 time: x.date,
-                update: x.update,
+                update: x.update
               };
             }
           });
@@ -46,7 +46,7 @@ class ConfigurationHistory extends Component {
           resolve({
             data: rowData,
             page: result.page - 1,
-            totalCount: result.totalPages,
+            totalCount: result.totalPages
           });
         })
         .catch((err) => console.log(err));
@@ -63,7 +63,7 @@ class ConfigurationHistory extends Component {
               { title: 'Table', field: 'model' },
               { title: 'Change Type', field: 'type' },
               { title: 'Updated Item Id', field: 'updatedItem' },
-              { title: 'Change Date/Time', field: 'time' },
+              { title: 'Change Date/Time', field: 'time' }
             ]}
             data={(query) => this.dataQueryPage(query)}
             title="Configuration History"
@@ -76,10 +76,10 @@ class ConfigurationHistory extends Component {
           <div
             style={{
               display: 'flex',
-              justifyContent: 'center',
+              justifyContent: 'center'
             }}
           >
-            <Spinner animation="border" />
+            <CircularProgress />
           </div>
         )}
       </div>
@@ -88,7 +88,7 @@ class ConfigurationHistory extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  auth: state.auth,
+  auth: state.auth
 });
 
 export default connect(mapStateToProps, null)(ConfigurationHistory);

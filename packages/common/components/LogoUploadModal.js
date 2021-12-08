@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Modal, ModalHeader, ModalBody, CustomInput } from 'reactstrap';
 import Grid from '@mui/material/Grid';
 import makeStyles from '@mui/styles/makeStyles';
 import { Button } from '@mui/material';
@@ -7,12 +6,13 @@ import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
-
+import FormControl from '@mui/material/FormControl';
 import axios from 'axios';
 
 import MuiAlert from '@mui/material/Alert';
 
 import { red, blue } from '@mui/material/colors';
+import MainModal from './Modal';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -124,72 +124,80 @@ export default function ImageUploadModal({
     setSnackbarOptions({ isOpen: false });
   };
 
-  return <>
-    <Modal
-      isOpen={isModalOpened}
-      toggle={toggleModal}
+  return (
+    <MainModal
+      open={isModalOpened}
+      toggleModal={toggleModal}
       className={classes.modalContainer}
+      title={'Upload Logo'}
     >
-      <ModalHeader toggle={toggleModal} hideBackdrop={true}>
-        Upload Logo
-      </ModalHeader>
-      <ModalBody>
-        <Grid container spacing={1}>
+      <Grid container spacing={1}>
+        <Grid
+          item
+          xs={8}
+          style={{
+            display: 'flex',
+            height: '50vh',
+            justifyContent: 'center'
+          }}
+        >
+          <img className={classes.imagePreview} src={logoURL} />
+        </Grid>
+        <Grid item xs={4}>
+          <Grid item xs={12}>
+            <FormControl>
+              <label htmlFor="btn-upload">
+                <input
+                  id="btn-upload"
+                  name="btn-upload"
+                  style={{ display: 'none' }}
+                  type="file"
+                  onChange={handleChange}
+                />
+                <Button
+                  className="btn-choose"
+                  variant="outlined"
+                  component="span"
+                >
+                  Choose Files
+                </Button>
+              </label>
+            </FormControl>
+          </Grid>
           <Grid
             item
-            xs={8}
+            xs={12}
             style={{
-              display: 'flex',
-              height: '50vh',
-              justifyContent: 'center'
+              marginTop: '10px',
+              display: isFileChanged ? 'block' : 'none'
             }}
           >
-            <img className={classes.imagePreview} src={logoURL} />
-          </Grid>
-          <Grid item xs={4}>
-            <Grid item xs={12}>
-              <CustomInput
-                type="file"
-                id="file"
-                name="file"
-                label={'Choose logo'}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              style={{
-                marginTop: '10px',
-                display: isFileChanged ? 'block' : 'none'
-              }}
+            <Button
+              variant="contained"
+              color="primary"
+              type="button"
+              onClick={handleFileUpload}
             >
-              <Button
-                variant="contained"
-                color="primary"
-                type="button"
-                onClick={handleFileUpload}
-              >
-                Upload Logo
-              </Button>
-            </Grid>
-            <Paper component="form" style={{ display: 'flex' }}>
-              <InputBase
-                className={classes.input}
-                placeholder="Search Google Image"
-                inputProps={{ 'aria-label': 'search google maps' }}
-              />
-              <IconButton
-                type="submit"
-                className={classes.iconButton}
-                aria-label="search"
-                size="large">
-                <SearchIcon />
-              </IconButton>
-            </Paper>
+              Upload Logo
+            </Button>
           </Grid>
+          <Paper component="form" style={{ display: 'flex' }}>
+            <InputBase
+              className={classes.input}
+              placeholder="Search Google Image"
+              inputProps={{ 'aria-label': 'search google maps' }}
+            />
+            <IconButton
+              type="submit"
+              className={classes.iconButton}
+              aria-label="search"
+              size="large"
+            >
+              <SearchIcon />
+            </IconButton>
+          </Paper>
         </Grid>
-      </ModalBody>
-    </Modal>
-  </>;
+      </Grid>
+    </MainModal>
+  );
 }

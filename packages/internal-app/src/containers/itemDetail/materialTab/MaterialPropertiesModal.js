@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import Grid from '@mui/material/Grid';
 import { Paper, Icon } from '@mui/material';
 
 import Headding from '@monostruct/common/components/atoms/Headding';
 import MaterialAPI from '@monostruct/common/api/material.api';
+import MainModal from '@monostruct/common/components/Modal';
 
 export default function MaterialProperties({
   materialProperties = {},
   toggleMaterialProperties,
-  isMaterialPropertiesModalOpen,
+  isMaterialPropertiesModalOpen
 }) {
   const [hierarchy, setHierarchy] = useState(null);
 
@@ -186,41 +186,37 @@ export default function MaterialProperties({
   }
 
   return (
-    <Modal
-      isOpen={isMaterialPropertiesModalOpen}
-      toggle={toggleMaterialProperties}
+    <MainModal
+      open={isMaterialPropertiesModalOpen}
+      toggleModal={toggleMaterialProperties}
       style={{ width: '70%' }}
+      title={materialProperties.name}
     >
-      <ModalHeader toggle={toggleMaterialProperties}>
-        {materialProperties.name}
-      </ModalHeader>
-      <ModalBody>
-        <Paper style={{ padding: 20, margin: 10 }}>
-          <Grid className="section-padding-left" container spacing={4}>
-            <Grid item xs={3}>
-              <Headding bold title={'Material Hierarchy'} />
-            </Grid>
-            <Grid item xs={9}>
-              {hierarchy}
-            </Grid>
-
-            <Grid item xs={3}>
-              <Headding bold title={'Description'} />
-            </Grid>
-            <Grid item xs={9}>
-              <Headding title={materialProperties.description}></Headding>
-            </Grid>
+      <Paper style={{ padding: 20, margin: 10 }}>
+        <Grid className="section-padding-left" container spacing={4}>
+          <Grid item xs={3}>
+            <Headding bold title={'Material Hierarchy'} />
           </Grid>
-        </Paper>
+          <Grid item xs={9}>
+            {hierarchy}
+          </Grid>
 
-        {renderChemicalComposition()}
+          <Grid item xs={3}>
+            <Headding bold title={'Description'} />
+          </Grid>
+          <Grid item xs={9}>
+            <Headding title={materialProperties.description}></Headding>
+          </Grid>
+        </Grid>
+      </Paper>
 
-        {renderTechnologiesProperties()}
+      {renderChemicalComposition()}
 
-        {renderProperties()}
+      {renderTechnologiesProperties()}
 
-        {renderApplications()}
-      </ModalBody>
-    </Modal>
+      {renderProperties()}
+
+      {renderApplications()}
+    </MainModal>
   );
 }

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import Grid from '@mui/material/Grid';
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
@@ -14,17 +13,18 @@ import {
   Paper,
   Button,
   Icon,
-  CircularProgress,
+  CircularProgress
 } from '@mui/material';
 
 import MaterialAPI from '@monostruct/common/api/material.api';
+import MainModal from '@monostruct/common/components/Modal';
 
 export default function MaterialModal({
   toggleMaterial,
   isMaterialModalOpen,
   handleMaterialPropertieView,
   selectedMaterials,
-  setSelectedMaterials,
+  setSelectedMaterials
 }) {
   const [currentCategory, setCurrentCategory] = useState('');
   const [currentSubCategoryOne, setCurrentSubCategoryOne] = useState('');
@@ -45,7 +45,7 @@ export default function MaterialModal({
   const [searchMaterialByName, setSearchMaterialByName] = useState({
     name: '',
     typing: false,
-    typingTimeout: 0,
+    typingTimeout: 0
   });
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function MaterialModal({
         data.categories.map((item) => {
           return {
             label: item.title,
-            value: item.id,
+            value: item.id
           };
         })
       );
@@ -109,7 +109,7 @@ export default function MaterialModal({
     setFilter((prevFilter) => {
       return {
         ...prevFilter,
-        [name]: value,
+        [name]: value
       };
     });
   };
@@ -121,7 +121,7 @@ export default function MaterialModal({
     setSearchMaterialByName({
       name: '',
       typing: false,
-      typingTimeout: 0,
+      typingTimeout: 0
     });
   };
 
@@ -151,7 +151,7 @@ export default function MaterialModal({
         subCategories.categories.map((item) => {
           return {
             label: item.title,
-            value: item.id,
+            value: item.id
           };
         })
       );
@@ -173,7 +173,7 @@ export default function MaterialModal({
         subCategories.categories.map((item) => {
           return {
             label: item.title,
-            value: item.id,
+            value: item.id
           };
         })
       );
@@ -195,7 +195,7 @@ export default function MaterialModal({
         subCategories.categories.map((item) => {
           return {
             label: item.title,
-            value: item.id,
+            value: item.id
           };
         })
       );
@@ -217,7 +217,7 @@ export default function MaterialModal({
         subCategories.categories.map((item) => {
           return {
             label: item.title,
-            value: item.id,
+            value: item.id
           };
         })
       );
@@ -264,328 +264,312 @@ export default function MaterialModal({
       typing: false,
       typingTimeout: setTimeout(() => {
         fetchData({ query: `search=${inputValue}` });
-      }, 1000),
+      }, 1000)
     });
   };
 
   return (
-    <Modal
-      isOpen={isMaterialModalOpen}
-      toggle={toggleMaterial}
+    <MainModal
+      open={isMaterialModalOpen}
+      toggleModal={toggleMaterial}
       style={{ width: '50%', top: '37px' }}
+      title={'Select Material'}
     >
-      <ModalHeader toggle={toggleMaterial}>Select Material</ModalHeader>
-      <ModalBody>
-        <Grid className="section-padding-left" container spacing={4}>
-          <Grid item xs={3}>
-            <Headding title="Name Search" />
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              placeholder="Enter"
-              type="text"
-              value={searchText}
-              onChange={(event) => handleNameChange(event)}
-            />
-          </Grid>
-          <Grid
-            item
-            xs={3}
-            style={{ display: 'flex', justifyContent: 'space-between' }}
+      <Grid className="section-padding-left" container spacing={4}>
+        <Grid item xs={3}>
+          <Headding title="Name Search" />
+        </Grid>
+        <Grid item xs={3}>
+          <Input
+            placeholder="Enter"
+            type="text"
+            value={searchText}
+            onChange={(event) => handleNameChange(event)}
+          />
+        </Grid>
+        <Grid
+          item
+          xs={3}
+          style={{ display: 'flex', justifyContent: 'space-between' }}
+        >
+          <Button
+            variant="contained"
+            color="primary"
+            endIcon={<Icon>search</Icon>}
+            onClick={searchMaterial}
           >
-            <Button
-              variant="contained"
-              color="primary"
-              endIcon={<Icon>search</Icon>}
-              onClick={searchMaterial}
-            >
-              Search
-            </Button>
-            <Button
-              style={{ marginLeft: '8px' }}
-              variant="contained"
-              color="primary"
-              type="button"
-              value="Clear"
-              onClick={handleClearButton}
-            >
-              Clear
-            </Button>
-          </Grid>
-          <Grid item xs={3}>
-            {isMaterialLoading && <CircularProgress />}
-          </Grid>
-
-          <Grid item xs={3}>
-            <Headding title="Density Range (g/cm3)"></Headding>
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              placeholder="Enter Min"
-              type="number"
-              onChange={(event) =>
-                handleChange('densityMin', event.target.value)
-              }
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              placeholder="Enter Max"
-              type="number"
-              onChange={(event) =>
-                handleChange('densityMax', event.target.value)
-              }
-            />
-          </Grid>
-          <Grid item xs={3}></Grid>
-          {/* Tensile Strength */}
-          <Grid item xs={3}>
-            <Headding title="Tensile Strength (MPa)"></Headding>
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              placeholder="Enter Min"
-              type="number"
-              onChange={(event) =>
-                handleChange('tensileMin', event.target.value)
-              }
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              placeholder="Enter Max"
-              type="number"
-              onChange={(event) =>
-                handleChange('tensileMax', event.target.value)
-              }
-            />
-          </Grid>
-          <Grid item xs={3}></Grid>
-
-          {/* Elastic Modulus (GPa) */}
-          <Grid item xs={3}>
-            <Headding title="Elastic Modulus (GPa)"></Headding>
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              placeholder="Enter Min"
-              type="number"
-              onChange={(event) =>
-                handleChange('elasticMin', event.target.value)
-              }
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              placeholder="Enter Max"
-              type="number"
-              onChange={(event) =>
-                handleChange('elasticMax', event.target.value)
-              }
-            />
-          </Grid>
-          <Grid item xs={3}></Grid>
-
-          {/* Yield Strength (MPa) */}
-          <Grid item xs={3}>
-            <Headding title="Yield Strength (MPa)"></Headding>
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              placeholder="Enter Min"
-              type="number"
-              onChange={(event) => handleChange('yieldMin', event.target.value)}
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              placeholder="Enter Max"
-              type="number"
-              onChange={(event) => handleChange('yieldMax', event.target.value)}
-            />
-          </Grid>
-          <Grid item xs={3}></Grid>
-
-          {/* Flexural Modulus(GPa) */}
-          <Grid item xs={3}>
-            <Headding title="Flexural Modulus(GPa)"></Headding>
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              placeholder="Enter Min"
-              type="number"
-              onChange={(event) =>
-                handleChange('flexuralMin', event.target.value)
-              }
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              placeholder="Enter Max"
-              type="number"
-              onChange={(event) =>
-                handleChange('flexuralMax', event.target.value)
-              }
-            />
-          </Grid>
+            Search
+          </Button>
+          <Button
+            style={{ marginLeft: '8px' }}
+            variant="contained"
+            color="primary"
+            type="button"
+            value="Clear"
+            onClick={handleClearButton}
+          >
+            Clear
+          </Button>
+        </Grid>
+        <Grid item xs={3}>
+          {isMaterialLoading && <CircularProgress />}
         </Grid>
 
-        <Grid className="section-padding-left" container spacing={4}>
-          <>
-            <Grid item xs={3}>
-              <Headding title="Category"></Headding>
-            </Grid>
-            <Grid item xs={6}>
-              {/* {
+        <Grid item xs={3}>
+          <Headding title="Density Range (g/cm3)"></Headding>
+        </Grid>
+        <Grid item xs={3}>
+          <Input
+            placeholder="Enter Min"
+            type="number"
+            onChange={(event) => handleChange('densityMin', event.target.value)}
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <Input
+            placeholder="Enter Max"
+            type="number"
+            onChange={(event) => handleChange('densityMax', event.target.value)}
+          />
+        </Grid>
+        <Grid item xs={3}></Grid>
+        {/* Tensile Strength */}
+        <Grid item xs={3}>
+          <Headding title="Tensile Strength (MPa)"></Headding>
+        </Grid>
+        <Grid item xs={3}>
+          <Input
+            placeholder="Enter Min"
+            type="number"
+            onChange={(event) => handleChange('tensileMin', event.target.value)}
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <Input
+            placeholder="Enter Max"
+            type="number"
+            onChange={(event) => handleChange('tensileMax', event.target.value)}
+          />
+        </Grid>
+        <Grid item xs={3}></Grid>
+
+        {/* Elastic Modulus (GPa) */}
+        <Grid item xs={3}>
+          <Headding title="Elastic Modulus (GPa)"></Headding>
+        </Grid>
+        <Grid item xs={3}>
+          <Input
+            placeholder="Enter Min"
+            type="number"
+            onChange={(event) => handleChange('elasticMin', event.target.value)}
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <Input
+            placeholder="Enter Max"
+            type="number"
+            onChange={(event) => handleChange('elasticMax', event.target.value)}
+          />
+        </Grid>
+        <Grid item xs={3}></Grid>
+
+        {/* Yield Strength (MPa) */}
+        <Grid item xs={3}>
+          <Headding title="Yield Strength (MPa)"></Headding>
+        </Grid>
+        <Grid item xs={3}>
+          <Input
+            placeholder="Enter Min"
+            type="number"
+            onChange={(event) => handleChange('yieldMin', event.target.value)}
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <Input
+            placeholder="Enter Max"
+            type="number"
+            onChange={(event) => handleChange('yieldMax', event.target.value)}
+          />
+        </Grid>
+        <Grid item xs={3}></Grid>
+
+        {/* Flexural Modulus(GPa) */}
+        <Grid item xs={3}>
+          <Headding title="Flexural Modulus(GPa)"></Headding>
+        </Grid>
+        <Grid item xs={3}>
+          <Input
+            placeholder="Enter Min"
+            type="number"
+            onChange={(event) =>
+              handleChange('flexuralMin', event.target.value)
+            }
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <Input
+            placeholder="Enter Max"
+            type="number"
+            onChange={(event) =>
+              handleChange('flexuralMax', event.target.value)
+            }
+          />
+        </Grid>
+      </Grid>
+
+      <Grid className="section-padding-left" container spacing={4}>
+        <>
+          <Grid item xs={3}>
+            <Headding title="Category"></Headding>
+          </Grid>
+          <Grid item xs={6}>
+            {/* {
                                 !isSearchNameActive && */}
 
+            <Select
+              // label="Category"
+              placeholder="Select"
+              options={categoryOptions}
+              onChange={(data) => handleCategoryChange(data.value)}
+              value={`${currentCategory}`}
+            />
+            {/* } */}
+          </Grid>
+          <Grid item xs={3} />
+        </>
+        {subcategoryOptionsOne.length > 0 && (
+          <>
+            <Grid item xs={3}>
+              <Headding title="Sub Category 1"></Headding>
+            </Grid>
+            <Grid item xs={6}>
               <Select
-                // label="Category"
+                // label="Sub Category"
                 placeholder="Select"
-                options={categoryOptions}
-                onChange={(data) => handleCategoryChange(data.value)}
-                value={`${currentCategory}`}
+                options={subcategoryOptionsOne}
+                onChange={(data) => handleSubCategoryOneChange(data.value)}
+                value={`${currentSubCategoryOne}`}
               />
-              {/* } */}
             </Grid>
             <Grid item xs={3} />
           </>
-          {subcategoryOptionsOne.length > 0 && (
-            <>
-              <Grid item xs={3}>
-                <Headding title="Sub Category 1"></Headding>
-              </Grid>
-              <Grid item xs={6}>
-                <Select
-                  // label="Sub Category"
-                  placeholder="Select"
-                  options={subcategoryOptionsOne}
-                  onChange={(data) => handleSubCategoryOneChange(data.value)}
-                  value={`${currentSubCategoryOne}`}
-                />
-              </Grid>
-              <Grid item xs={3} />
-            </>
-          )}
+        )}
 
-          {subcategoryOptionsTwo.length > 0 && (
-            <>
-              <Grid item xs={3}>
-                <Headding title="Sub Category 2"></Headding>
-              </Grid>
-              <Grid item xs={6}>
-                <Select
-                  // label="Sub Category"
-                  placeholder="Select"
-                  options={subcategoryOptionsTwo}
-                  onChange={(data) => handleSubCategoryTwoChange(data.value)}
-                  value={`${currentSubCategoryTwo}`}
-                />
-              </Grid>
-              <Grid item xs={3} />
-            </>
-          )}
+        {subcategoryOptionsTwo.length > 0 && (
+          <>
+            <Grid item xs={3}>
+              <Headding title="Sub Category 2"></Headding>
+            </Grid>
+            <Grid item xs={6}>
+              <Select
+                // label="Sub Category"
+                placeholder="Select"
+                options={subcategoryOptionsTwo}
+                onChange={(data) => handleSubCategoryTwoChange(data.value)}
+                value={`${currentSubCategoryTwo}`}
+              />
+            </Grid>
+            <Grid item xs={3} />
+          </>
+        )}
 
-          {subcategoryOptionsThree.length > 0 && (
-            <>
-              <Grid item xs={3}>
-                <Headding title="Sub Category 3"></Headding>
-              </Grid>
-              <Grid item xs={6}>
-                <Select
-                  // label="Sub Category"
-                  placeholder="Select"
-                  options={subcategoryOptionsThree}
-                  onChange={(data) => handleSubCategoryThreeChange(data.value)}
-                  value={`${currentSubCategoryThree}`}
-                />
-              </Grid>
-              <Grid item xs={3} />
-            </>
-          )}
+        {subcategoryOptionsThree.length > 0 && (
+          <>
+            <Grid item xs={3}>
+              <Headding title="Sub Category 3"></Headding>
+            </Grid>
+            <Grid item xs={6}>
+              <Select
+                // label="Sub Category"
+                placeholder="Select"
+                options={subcategoryOptionsThree}
+                onChange={(data) => handleSubCategoryThreeChange(data.value)}
+                value={`${currentSubCategoryThree}`}
+              />
+            </Grid>
+            <Grid item xs={3} />
+          </>
+        )}
 
-          {subcategoryOptionsFour.length > 0 && (
-            <>
-              <Grid item xs={3}>
-                <Headding title="Sub Category 4"></Headding>
-              </Grid>
-              <Grid item xs={6}>
-                <Select
-                  // label="Sub Category"
-                  placeholder="Select"
-                  options={subcategoryOptionsFour}
-                  onChange={(data) => handleSubCategoryFourChange(data.value)}
-                  value={`${currentSubCategoryFour}`}
-                />
-              </Grid>
-              <Grid item xs={3} />
-            </>
-          )}
-        </Grid>
+        {subcategoryOptionsFour.length > 0 && (
+          <>
+            <Grid item xs={3}>
+              <Headding title="Sub Category 4"></Headding>
+            </Grid>
+            <Grid item xs={6}>
+              <Select
+                // label="Sub Category"
+                placeholder="Select"
+                options={subcategoryOptionsFour}
+                onChange={(data) => handleSubCategoryFourChange(data.value)}
+                value={`${currentSubCategoryFour}`}
+              />
+            </Grid>
+            <Grid item xs={3} />
+          </>
+        )}
+      </Grid>
 
-        <div>
-          <h5 className="mt-2">Selected Material</h5>
-          <TableContainer className="mb-2" component={Paper}>
-            <Table aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>S No</TableCell>
-                  <TableCell>Material Name</TableCell>
-                  <TableCell></TableCell>
+      <div>
+        <h5 className="mt-2">Selected Material</h5>
+        <TableContainer className="mb-2" component={Paper}>
+          <Table aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>S No</TableCell>
+                <TableCell>Material Name</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {selectedMaterials.map((materialRow) => (
+                <TableRow key={materialRow._id}>
+                  <TableCell>{materialRow._id}</TableCell>
+                  <TableCell
+                    onClick={() => removeMaterialFromSelected(materialRow)}
+                  >
+                    {materialRow.name}
+                  </TableCell>
+                  <TableCell
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleMaterialPropertieView(materialRow)}
+                  >
+                    View Material Properties
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {selectedMaterials.map((materialRow) => (
-                  <TableRow key={materialRow._id}>
-                    <TableCell>{materialRow._id}</TableCell>
-                    <TableCell
-                      onClick={() => removeMaterialFromSelected(materialRow)}
-                    >
-                      {materialRow.name}
-                    </TableCell>
-                    <TableCell
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => handleMaterialPropertieView(materialRow)}
-                    >
-                      View Material Properties
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <h5>Select Material</h5>
-          <TableContainer component={Paper}>
-            <Table aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>S No</TableCell>
-                  <TableCell>Material Name</TableCell>
-                  <TableCell></TableCell>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <h5>Select Material</h5>
+        <TableContainer component={Paper}>
+          <Table aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>S No</TableCell>
+                <TableCell>Material Name</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {materialList.map((materialRow) => (
+                <TableRow key={materialRow._id}>
+                  <TableCell>{materialRow._id}</TableCell>
+                  <TableCell onClick={() => addMaterialToSelected(materialRow)}>
+                    {materialRow.name}
+                  </TableCell>
+                  <TableCell
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleMaterialPropertieView(materialRow)}
+                  >
+                    View Material Properties
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {materialList.map((materialRow) => (
-                  <TableRow key={materialRow._id}>
-                    <TableCell>{materialRow._id}</TableCell>
-                    <TableCell
-                      onClick={() => addMaterialToSelected(materialRow)}
-                    >
-                      {materialRow.name}
-                    </TableCell>
-                    <TableCell
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => handleMaterialPropertieView(materialRow)}
-                    >
-                      View Material Properties
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
-      </ModalBody>
-    </Modal>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+    </MainModal>
   );
 }

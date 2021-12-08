@@ -1,19 +1,18 @@
-import React from "react";
+import React from 'react';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Redirect
-} from "react-router-dom";
-
-import { Spinner } from "reactstrap";
+} from 'react-router-dom';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useSelector } from 'react-redux';
 import Layout from './components/Layout';
 import Login from './pages/SignInPage/SignInPage';
 import Register from './pages/RegisterPage';
 
-import VendorListPage from "./pages/VendorListPage";
-import VendorDetailPage from "./pages/VendorDetailPage";
+import VendorListPage from './pages/VendorListPage';
+import VendorDetailPage from './pages/VendorDetailPage';
 
 import Dashboard from './pages/Dashboard';
 import ProcessGroups from './containers/processGroups/ProcessGroups';
@@ -23,25 +22,22 @@ import ConfigurationHistory from './pages/ConfigurationHistory';
 import AccessConfiguration from './pages/AccessConfiguration';
 import ViewAccess from './pages/ViewAccess';
 import ClientListPage from './pages/ClientListPage';
-import ClientDetailPage from "./pages/ClientDetailPage";
+import ClientDetailPage from './pages/ClientDetailPage';
 
 import FactoryListPage from './pages/FactoryListPage';
-import FactoryDetail from './pages/FactoryDetailPage'
+import FactoryDetail from './pages/FactoryDetailPage';
 
-import ItemDetail from "./containers/itemDetail";
+import ItemDetail from './containers/itemDetail';
 import Administrative from './containers/administrative';
-import ViewMyProfile from './containers/viewMyProfile'
-
+import ViewMyProfile from './containers/viewMyProfile';
 
 // import Viewer from './DynamicHierarchy'
 
 export default function AppRoutes() {
-  const isUserLoading = useSelector(state => state.auth.isLoading);
+  const isUserLoading = useSelector((state) => state.auth.isLoading);
 
   if (isUserLoading) {
-    return <Spinner
-      className='UserLoading__Progress'
-      animation="border" />
+    return <CircularProgress />;
   }
   return (
     <Router>
@@ -50,37 +46,95 @@ export default function AppRoutes() {
         <Route path="/register" component={Register} />
         {/* <Route path="/viewer" component={Viewer} /> */}
         <Layout>
-
           <div style={{ marginLeft: '7%', marginRight: '7%' }}>
             <Switch>
-              <AppRoute authenticate path='/dashboard' component={Dashboard} />
-              <AppRoute authenticate exact path='/vendors' component={VendorListPage} />
-              <AppRoute authenticate exact path='/clients' component={ClientListPage} />
-              <AppRoute authenticate exact path='/process-groups' component={ProcessGroups} />
-              <AppRoute authenticate exact path='/items' component={ItemListPage} />
-              <AppRoute authenticate exact path='/factories' component={FactoryListPage} />
-              <AppRoute authenticate path='/access-setup' component={AccessSetup} />
-              <AppRoute authenticate path='/view-access' component={ViewAccess} />
+              <AppRoute authenticate path="/dashboard" component={Dashboard} />
+              <AppRoute
+                authenticate
+                exact
+                path="/vendors"
+                component={VendorListPage}
+              />
+              <AppRoute
+                authenticate
+                exact
+                path="/clients"
+                component={ClientListPage}
+              />
+              <AppRoute
+                authenticate
+                exact
+                path="/process-groups"
+                component={ProcessGroups}
+              />
+              <AppRoute
+                authenticate
+                exact
+                path="/items"
+                component={ItemListPage}
+              />
+              <AppRoute
+                authenticate
+                exact
+                path="/factories"
+                component={FactoryListPage}
+              />
+              <AppRoute
+                authenticate
+                path="/access-setup"
+                component={AccessSetup}
+              />
+              <AppRoute
+                authenticate
+                path="/view-access"
+                component={ViewAccess}
+              />
 
-              <AppRoute authenticate path='/configuration-history' component={ConfigurationHistory} />
+              <AppRoute
+                authenticate
+                path="/configuration-history"
+                component={ConfigurationHistory}
+              />
             </Switch>
           </div>
           <Switch>
+            <AppRoute
+              authenticate
+              path="/clients/:id"
+              component={ClientDetailPage}
+            />
 
-            <AppRoute authenticate path='/clients/:id' component={ClientDetailPage} />
+            <AppRoute
+              authenticate
+              path="/vendors/:id"
+              component={VendorDetailPage}
+            />
 
-            <AppRoute authenticate path='/vendors/:id' component={VendorDetailPage} />
+            <AppRoute authenticate path="/items/:id" component={ItemDetail} />
 
-            <AppRoute authenticate path='/items/:id' component={ItemDetail} />
+            <AppRoute
+              authenticate
+              path="/factories/:id"
+              component={FactoryDetail}
+            />
 
-            <AppRoute authenticate path='/factories/:id' component={FactoryDetail} />
+            <AppRoute
+              authenticate
+              path="/access-configuration/:id"
+              component={AccessConfiguration}
+            />
 
-            <AppRoute authenticate path='/access-configuration/:id' component={AccessConfiguration} />
+            <AppRoute
+              authenticate
+              path="/administrative"
+              component={Administrative}
+            />
 
-            <AppRoute authenticate path="/administrative" component={Administrative} />
-
-
-            <AppRoute authenticate path='/viewMyProfile' component={ViewMyProfile} />
+            <AppRoute
+              authenticate
+              path="/viewMyProfile"
+              component={ViewMyProfile}
+            />
           </Switch>
         </Layout>
       </Switch>
@@ -88,9 +142,7 @@ export default function AppRoutes() {
   );
 }
 
-
 const AppRoute = ({ component: Component, authenticate, ...rest }) => {
-
   const isLoggedIn = () => localStorage.getItem('token') !== 'null';
 
   return (
@@ -98,7 +150,7 @@ const AppRoute = ({ component: Component, authenticate, ...rest }) => {
       {...rest}
       render={({ location, ...other }) => {
         if (authenticate && isLoggedIn) {
-          return <Component location={location} {...other} />
+          return <Component location={location} {...other} />;
         }
         return (
           <Redirect
