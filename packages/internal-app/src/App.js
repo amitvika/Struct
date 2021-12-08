@@ -5,7 +5,6 @@ import '@monostruct/common/global.css';
 
 import { Provider } from 'react-redux';
 import store from './store';
-import { setUser } from './actions/authActions';
 import AppRoutes from './AppRoutes';
 import Alert from './components/Alert';
 import LoadingModal from '@monostruct/common/components/LoadingModal';

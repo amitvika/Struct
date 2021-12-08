@@ -26,7 +26,7 @@ export default function Toolbar({
   return (
     <Paper
       style={{
-        padding: '10px',
+        padding: '15px',
         marginTop: '10px',
         marginBottom: '10px',
         position: 'relative',

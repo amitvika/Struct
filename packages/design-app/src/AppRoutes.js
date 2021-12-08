@@ -26,40 +26,34 @@ export default function Routes() {
     <Router>
       <Switch>
         <Route exact path="/" component={SignInPage} />
-        <div style={{ marginLeft: '7%', marginRight: '7%' }}>
-          <Layout>
-            <Switch>
-              <AppRoute authenticate path="/design" component={DesignPage} />
-              <AppRoute authenticate path="/product" component={ProductMaker} />
-              <AppRoute authenticate path="/cad" component={CadMaker} />
-              <AppRoute authenticate path="/pcb" component={PcbTab} />
-              <AppRoute authenticate path="/silicon" component={SiliconMaker} />
-              <AppRoute authenticate path="/clothes" component={ClothesMaker} />
-              <AppRoute
-                authenticate
-                path="/architecture"
-                component={ArchitectureDesigner}
-              />
-              <AppRoute
-                authenticate
-                path="/predesigned"
-                component={PredesignedComponents}
-              />
-              <AppRoute
-                authenticate
-                path="/appdesigner"
-                component={AppDesignerPage}
-              />
+        <Layout>
+          <Switch>
+            <AppRoute authenticate path="/design" component={DesignPage} />
+            <AppRoute authenticate path="/product" component={ProductMaker} />
+            <AppRoute authenticate path="/cad" component={CadMaker} />
+            <AppRoute authenticate path="/pcb" component={PcbTab} />
+            <AppRoute authenticate path="/silicon" component={SiliconMaker} />
+            <AppRoute authenticate path="/clothes" component={ClothesMaker} />
+            <AppRoute
+              authenticate
+              path="/architecture"
+              component={ArchitectureDesigner}
+            />
+            <AppRoute
+              authenticate
+              path="/predesigned"
+              component={PredesignedComponents}
+            />
+            <AppRoute
+              authenticate
+              path="/appdesigner"
+              component={AppDesignerPage}
+            />
 
-              <AppRoute
-                authenticate
-                path="/omnidesign"
-                component={OmniDesign}
-              />
-              <AppRoute authenticate path="/my_profile" component={MyProfile} />
-            </Switch>
-          </Layout>
-        </div>
+            <AppRoute authenticate path="/omnidesign" component={OmniDesign} />
+            <AppRoute authenticate path="/my_profile" component={MyProfile} />
+          </Switch>
+        </Layout>
       </Switch>
     </Router>
   );
