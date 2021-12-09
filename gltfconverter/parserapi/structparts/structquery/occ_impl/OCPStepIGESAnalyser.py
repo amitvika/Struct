@@ -1083,7 +1083,7 @@ class StepExportWithColor(object):
             timingdelta = currenttime-self.currenttime            
             if (timingdelta.total_seconds() >= maxgap) or (maxgap==0):        
                 paramfilename = self.displaypath+self.basefilename[:-1]+".status"
-                print("Status File",paramfilename,mystatusdict)
+                print("Status File",paramfilename,self.assemblycreatedcurrentcount,self.totalcount,action)
                 try:
                     with open(paramfilename, 'w') as fh:
                         fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
