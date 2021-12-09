@@ -1,11 +1,11 @@
 import React from 'react';
-import { Paper, Grid } from '@material-ui/core';
-import { useMediaQuery } from '@material-ui/core';
-import { useTheme } from '@material-ui/core/styles';
+import { Paper, Grid } from '@mui/material';
+import { useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 export default function TabContainer(props) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
     <Grid item style={{ maxWidth: `${isMobile ? 'unset' : '18%'}` }}>

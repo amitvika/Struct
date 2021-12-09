@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Grid, Button } from '@material-ui/core';
+import { Paper, Grid, Button } from '@mui/material';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Space from '@monostruct/common/components/atoms/Space';
 import Select from '@monostruct/common/components/atoms/Select';

@@ -1,27 +1,26 @@
-import React from 'react'
+import React from 'react';
 
-import {
-  MuiPickersUtilsProvider,
-  DatePicker
-} from "@material-ui/pickers";
-
-import DateFnsUtils from "@date-io/date-fns";
+// import AdapterDateFns from '@mui/lab/AdapterDateFns';
+// import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import DatePicker from '@mui/lab/DatePicker';
 
 export default function DatePickerForMT(props) {
-    return (
-        <MuiPickersUtilsProvider utils={DateFnsUtils}
-            locale={props.dateTimePickerLocalization}>
-            <DatePicker
-                format="dd/MM/yyyy"
-                value={props.value || new Date()}
-                onChange={props.onChange}
-                clearable
-                InputProps={{
-                    style: {
-                        fontSize: 13,
-                    }
-                }}
-            />
-        </MuiPickersUtilsProvider>
-    )
+  return (
+    // <LocalizationProvider
+    //   dateAdapter={AdapterDateFns}
+    //   locale={props.dateTimePickerLocalization}
+    // >
+    <DatePicker
+      format="dd/MM/yyyy"
+      value={props.value || new Date()}
+      onChange={props.onChange}
+      clearable
+      InputProps={{
+        style: {
+          fontSize: 13
+        }
+      }}
+    />
+    // </LocalizationProvider>
+  );
 }

@@ -1,6 +1,7 @@
-import { withStyles, makeStyles } from '@material-ui/core/styles';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
+import withStyles from '@mui/styles/withStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
 //import { useSelector } from 'react-redux';
 //import { getThemeName } from '@monostruct/common/themes/base';
 import { stringify } from '../BeautifyJson';

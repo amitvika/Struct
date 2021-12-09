@@ -1,45 +1,12 @@
 import React, { useEffect } from 'react';
-import Select from '@material-ui/core/Select';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
-import MenuItem from '@material-ui/core/MenuItem';
-import InputBase from '@material-ui/core/InputBase';
-import Checkbox from '@material-ui/core/Checkbox';
-import ListItemText from '@material-ui/core/ListItemText';
-import Typography from '@material-ui/core/Typography';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-
-const useStyles = makeStyles((theme) => ({
-  formControl: {
-    width: '100%'
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2)
-  }
-}));
-
-const BootstrapInput = withStyles((theme) => ({
-  root: {
-    width: '100%',
-    'label + &': {
-      marginTop: theme.spacing(3)
-    }
-  },
-  input: {
-    borderRadius: 4,
-    position: 'relative',
-    backgroundColor: theme.palette.background.paper,
-    border: '1px solid #ced4da',
-    fontSize: theme.typography.fontSize,
-    padding: '8px',
-    transition: theme.transitions.create(['border-color', 'box-shadow']),
-    '&:focus': {
-      borderRadius: 4,
-      borderColor: '#80bdff',
-      boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)'
-    }
-  }
-}))(InputBase);
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
+import Typography from '@mui/material/Typography';
+import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
+import OutlinedInput from '@mui/material/OutlinedInput';
 
 const MenuProps = {
   anchorOrigin: {
@@ -73,8 +40,6 @@ const SelectExample = ({
   hasError = null,
   ...props
 }) => {
-  const classes = useStyles();
-
   const handleChange = (event) => {
     onChange({ value: event.target.value, label: event.target.value });
   };
@@ -88,7 +53,7 @@ const SelectExample = ({
           multiple
           onChange={(event) => onChange(event.target.value)}
           value={value}
-          input={<BootstrapInput />}
+          input={<OutlinedInput label={label} />}
           renderValue={(selected) => {
             if (value && value.length > 0) {
               return <span>{`${value.length} ${label} selected`}</span>;
@@ -121,7 +86,7 @@ const SelectExample = ({
           multiple
           value={value}
           onChange={onChange}
-          input={<BootstrapInput />}
+          input={<OutlinedInput label={label} />}
           MenuProps={MenuProps}
         >
           <MenuItem disabled value="">
@@ -147,7 +112,7 @@ const SelectExample = ({
           id={id}
           value={initialValue}
           onChange={handleChange}
-          input={<BootstrapInput />}
+          input={<OutlinedInput label={label} />}
           MenuProps={MenuProps}
           displayEmpty
         >
@@ -167,7 +132,7 @@ const SelectExample = ({
   };
 
   return (
-    <FormControl className={classes.formControl} error={hasError}>
+    <FormControl sx={{ width: '100%' }} size="small">
       {render()}
       {hasError && <FormHelperText>This is required!</FormHelperText>}
     </FormControl>

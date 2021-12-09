@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
+import Grid from '@mui/material/Grid';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Input from '@monostruct/common/components/atoms/Input';
-import EditIcon from '@material-ui//icons/Edit';
-import AddBoxIcon from '@material-ui//icons/AddBox';
-// import AddBoxIcon from '@mui/icons-material/AddBox';
+import EditIcon from '@mui/icons-material/Edit';
+import AddBoxIcon from '@mui/icons-material/AddBox';
 
-import { IconButton, Typography } from '@material-ui/core';
+import { IconButton, Typography } from '@mui/material';
 
 export default function AddDesign({ handleSave, name }) {
   const [value, setValue] = useState('');
@@ -51,7 +49,7 @@ export default function AddDesign({ handleSave, name }) {
               onClick={handleTitleClick}
               style={{ cursor: 'pointer', margin: 'auto' }}
             />
-            <IconButton>
+            <IconButton size="large">
               <EditIcon />
             </IconButton>
           </div>
@@ -63,7 +61,7 @@ export default function AddDesign({ handleSave, name }) {
               onChange={onChange}
               value={value}
             />
-            <IconButton onClick={handleSaveTitle}>
+            <IconButton onClick={handleSaveTitle} size="large">
               <AddBoxIcon />
             </IconButton>
           </>

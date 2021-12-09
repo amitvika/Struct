@@ -5,26 +5,22 @@ import '@monostruct/common/global.css';
 
 import { Provider } from 'react-redux';
 import store from './store';
-import { setUser } from './actions/authActions';
 import AppRoutes from './AppRoutes';
 import Alert from './components/Alert';
-import ThemeProvider from './ThemeProvider';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
+import { ColorModeContextProvider } from '@monostruct/common/themes/ColorModeContextProvider';
+import { AuthContextProvider } from '@monostruct/common/context/AuthContext';
 
 const App = () => {
-  useEffect(() => {
-    store.dispatch(setUser());
-  }, []);
-
   return (
     <Provider store={store}>
-      <ThemeProvider>
-        <>
+      <AuthContextProvider>
+        <ColorModeContextProvider>
           <Alert />
           <AppRoutes />
           <LoadingModal />
-        </>
-      </ThemeProvider>
+        </ColorModeContextProvider>
+      </AuthContextProvider>
     </Provider>
   );
 };

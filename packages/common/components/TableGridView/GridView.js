@@ -1,22 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react';
-import {
-  Grid,
-  Typography,
-  makeStyles,
-  Paper,
-  Button,
-  IconButton,
-  Link
-} from '@material-ui/core';
-import EditIcon from '@material-ui/icons/Edit';
-import Avatar from '@material-ui/core/Avatar';
-import PictureAsPdf from '@material-ui/icons/PictureAsPdf';
-import DescriptionIcon from '@material-ui/icons/Description';
+import { Grid, Typography, Paper, Button, IconButton, Link } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import EditIcon from '@mui/icons-material/Edit';
+import Avatar from '@mui/material/Avatar';
+import PictureAsPdf from '@mui/icons-material/PictureAsPdf';
+import DescriptionIcon from '@mui/icons-material/Description';
 import ClipboardText from '../ClipboardText';
-import HistoryIcon from '@material-ui/icons/History';
-import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-// import DeleteForeverIcon from '@material-ui/icons/DeleteForeverIcon';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import HistoryIcon from '@mui/icons-material/History';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+// import DeleteForeverIcon from '@mui/icons-material/DeleteForeverIcon';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 import StructLogo from '../../assets/images/new_logo.png';
 import { getExistingPathFromServer } from '@monostruct/common/api/fileUpload.api';
@@ -86,7 +79,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     height: '250px',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       justifyContent: 'center'
     }
   },
@@ -94,7 +87,7 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       marginTop: '0',
       padding: '5px'
     }
@@ -314,7 +307,7 @@ const ActionButtonContainer = ({
             onClick();
           }}
           style={{ padding: '7px' }}
-        >
+          size="large">
           {children}
         </IconButton>
       </Tooltip>

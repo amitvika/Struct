@@ -1,88 +1,46 @@
-import React, { Fragment, useState } from "react";
-import {
-  Col,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  FormText,
-  CustomInput
-} from "reactstrap";
-import { Button } from "@material-ui/core";
-import axios from "axios";
-import Message from "../Message";
-import ProgressBar from "../ProgressBar";
+import React, { Fragment, useState } from 'react';
+
+import { Button, FormControl } from '@mui/material';
+import axios from 'axios';
+import Message from '../Message';
+import ProgressBar from '../ProgressBar';
 
 export default function FileUpload() {
   //State
-  const [file, setFile] = useState("");
-  const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState('');
+  const [fileName, setFileName] = useState('');
   const [uploadedFile, setUploadedFile] = useState({});
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState();
   const [uploadPercentage, setUploadPercentage] = useState();
 
   //Methods
-  const onChange = e => {
+  const onChange = (e) => {
     //e.preventDefault();
     setFile(e.target.files[0]);
     setFileName(e.target.files[0].name);
   };
 
-  /*
-        onUploadProgress: progressEvent => {
-          setUploadPercentage(
-            parseInt(
-              Math.round((progressEvent.loaded * 100) / progressEvent.total)
-            )
-          );
-          setTimeout(() => setUploadPercentage(0), 1000);
-        }
-      });
-      const { fileName, filePath } = res.data;
-      setUploadedFile({ fileName, filePath });
-      setMessageType(1);
-      setMessage("File Uploaded");
-    } catch (err) {
-      if (err.response.status === 500) {
-        setMessageType(2);
-        setMessage("There was a problem with the server");
-      } else {
-        setMessage(err.response.data.msg);
-        setMessageType(2);
-      }
-    }
-  };*/
-  /*const onSubmit = async e => {
+  const onSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("file", file);
-    try {
-      const res = await axios.post("/api/upload", formData, {
-        /* headers: {
-          "Content-Type": "multipart/form-data"
-        },*/
-
-  const onSubmit = e => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("file", file);
+    formData.append('file', file);
     axios
-      .post("/api/upload", formData)
-      .then(res => {
+      .post('/api/upload', formData)
+      .then((res) => {
         console.log(res.data);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   };
   const getFiles = () => {
     axios
       .get(`/api/upload`)
-      .then(res => {
+      .then((res) => {
         console.log(res.data);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   };
@@ -94,10 +52,10 @@ export default function FileUpload() {
         <ProgressBar percentage={uploadPercentage} />
       ) : null}
 
-      <Form onSubmit={onSubmit} encType="multipart/form-data">
-        <FormGroup row>
+      <form onSubmit={onSubmit} encType="multipart/form-data">
+        <FormControl row>
           <Button
-            style={{ marginLeft: "1%" }}
+            style={{ marginLeft: '1%' }}
             color="primary"
             variant="contained"
             onClick={getFiles}
@@ -106,7 +64,7 @@ export default function FileUpload() {
           </Button>
 
           <Button
-            style={{ marginLeft: "1%" }}
+            style={{ marginLeft: '1%' }}
             variant="contained"
             color="primary"
             type="submit"
@@ -115,17 +73,20 @@ export default function FileUpload() {
             Load File
           </Button>
 
-          <Col>
-            <CustomInput
+          <label htmlFor="btn-upload">
+            <input
+              id="btn-upload"
+              name="btn-upload"
+              style={{ display: 'none' }}
               type="file"
-              id="file"
-              name="file"
-              label="Upload Goal Geometry File - STEP Files Only"
               onChange={onChange}
             />
-          </Col>
-        </FormGroup>
-      </Form>
+            <Button className="btn-choose" variant="outlined" component="span">
+              Upload Goal Geometry File - STEP Files Only
+            </Button>
+          </label>
+        </FormControl>
+      </form>
     </Fragment>
   );
 }

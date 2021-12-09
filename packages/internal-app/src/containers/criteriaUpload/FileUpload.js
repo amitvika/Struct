@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Headding } from '@monostruct/common/components';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
 
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import DocViewer, { DocViewerRenderers } from 'react-doc-viewer';
 
 const useStyles = makeStyles((theme) => ({

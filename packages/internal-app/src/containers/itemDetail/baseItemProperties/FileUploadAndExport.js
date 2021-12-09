@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
-import IconButton from '@material-ui/core/IconButton';
-import Box from '@material-ui/core/Box';
-import { makeStyles } from '@material-ui/core/styles';
-import { Typography } from '@material-ui/core';
+import IconButton from '@mui/material/IconButton';
+import Box from '@mui/material/Box';
+import makeStyles from '@mui/styles/makeStyles';
+import { Typography } from '@mui/material';
 
 import ExportLogo from '../../../assets/images/export.png';
 import { download } from '@monostruct/common/api/fileUpload.api';
@@ -88,7 +88,7 @@ export default function FileUploadAndExport({
         >
           {itemProperties.fileStore}
         </Typography>
-        <IconButton margin="auto" onClick={handleExportButton}>
+        <IconButton margin="auto" onClick={handleExportButton} size="large">
           <img
             src={ExportLogo}
             style={{ width: '20px', paddingTop: '2px' }}

@@ -2,12 +2,12 @@ import React, { useState, useEffect, Component } from 'react';
 
 import { gltf_Dict } from '@monostruct/common/gltf/Tree/utils';
 
-import ToysOutlinedIcon from '@material-ui/icons/ToysOutlined';
-import FilterDramaSharpIcon from '@material-ui/icons/FilterDramaSharp';
-import AllInboxOutlinedIcon from '@material-ui/icons/AllInboxOutlined';
-import FiberManualRecordOutlinedIcon from '@material-ui/icons/FiberManualRecordOutlined';
-import DeveloperBoardOutlinedIcon from '@material-ui/icons/DeveloperBoardOutlined';
-import TuneOutlinedIcon from '@material-ui/icons/TuneOutlined';
+import ToysOutlinedIcon from '@mui/icons-material/ToysOutlined';
+import FilterDramaSharpIcon from '@mui/icons-material/FilterDramaSharp';
+import AllInboxOutlinedIcon from '@mui/icons-material/AllInboxOutlined';
+import FiberManualRecordOutlinedIcon from '@mui/icons-material/FiberManualRecordOutlined';
+import DeveloperBoardOutlinedIcon from '@mui/icons-material/DeveloperBoardOutlined';
+import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined';
 
 import classNames from 'classnames';
 import Tree from 'react-virtualized-tree';

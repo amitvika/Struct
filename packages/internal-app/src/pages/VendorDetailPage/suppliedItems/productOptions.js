@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import API from '@monostruct/common/api/vendor.api';
 import Toolbar from '@monostruct/common/components/TableGridView/Toolbar';
@@ -55,8 +55,8 @@ export default function ProductOptions() {
             {' '}
             Indentification Modal{' '}
           </span>
-        ),
-    },
+        )
+    }
   ]);
 
   const alertForError = (err) => {
@@ -107,7 +107,7 @@ export default function ProductOptions() {
             id: x._id,
             name: x.name,
             source: x.source,
-            logoUrl: x.logoUrl,
+            logoUrl: x.logoUrl
           };
         });
 
@@ -132,7 +132,7 @@ export default function ProductOptions() {
           return {
             id: item._id,
             name: item.name,
-            source: item.source,
+            source: item.source
           };
         });
       })
@@ -145,7 +145,7 @@ export default function ProductOptions() {
         {
           const newClient = {
             name: newData.name,
-            source: newData.source,
+            source: newData.source
           }; //
 
           API.addVendorApi(newClient)
@@ -168,7 +168,7 @@ export default function ProductOptions() {
           console.log(newData.client);
           const data = {
             name: newData.name,
-            source: newData.source,
+            source: newData.source
           };
 
           API.updateVendorApi(newData.id, data)
@@ -210,10 +210,10 @@ export default function ProductOptions() {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

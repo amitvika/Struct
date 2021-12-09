@@ -121,32 +121,28 @@ import {
 } from './Tree/utils';
 import './styles/style.css';
 
-import Grid from '@material-ui/core/Grid';
+import Grid from '@mui/material/Grid';
 
-import Popper from '@material-ui/core/Popper';
+import Popper from '@mui/material/Popper';
 
-//import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+//import { MuiThemeProvider, createMuiTheme } from '@mui/material/styles';
+import Button from '@mui/material/Button';
 import GroupFormBuilder from './GroupFormBuilder';
 import ModelessDialog from './ModelessDialog';
 import { myMenus } from './gltfMenus';
-import {
-  CircularProgress,
-  ClickAwayListener,
-  Snackbar
-} from '@material-ui/core';
-import RotateLeftSharpIcon from '@material-ui/icons/RotateLeftSharp';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import { withStyles /*, makeStyles*/ } from '@material-ui/core/styles';
-import { Typography } from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
-//import { Box } from '@material-ui/core';
+import { CircularProgress, ClickAwayListener, Snackbar } from '@mui/material';
+import RotateLeftSharpIcon from '@mui/icons-material/RotateLeftSharp';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import withStyles from '@mui/styles/withStyles';
+import { Typography } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
+//import { Box } from '@mui/material';
 
 /* const useStyles = makeStyles({ // It throws error if i use this, i dont know///
   table: {
@@ -181,7 +177,7 @@ const StyledTableCell = withStyles((theme) => ({
   }
 }))(TableCell);
 
-//import { Box } from "@material-ui/core";
+//import { Box } from "@mui/material";
 
 //import { motion } from 'framer-motion'
 //import styled from 'styled-components'
@@ -6165,14 +6161,13 @@ class GLTFRenderer extends Component {
           <Button
             aria-describedby={this.idEl[index]}
             id={'pop' + index.toString()}
-            type="button"
-            variant="contained"
+            variant="outlined"
             key={this.openEl[index] ? 'O' : 'I' + index.toString()}
             onClick={(event) => {
               this.handlePopperClick(event, index);
             }}
             color={
-              index == myIndex && this.openEl[index] ? 'primary' : 'default'
+              index == myIndex && this.openEl[index] ? 'primary' : 'secondary'
             }
             startIcon={data.icon}
           >
@@ -6502,9 +6497,6 @@ class GLTFRenderer extends Component {
           <Grid p={1}>
             {this.buildMenus(this.state.selectedmenu)}
             <Button
-              aria-describedby={'Reset Controls'}
-              id={'popreset'}
-              type="button"
               variant="contained"
               onClick={(event) => {
                 this.resetMyControls();

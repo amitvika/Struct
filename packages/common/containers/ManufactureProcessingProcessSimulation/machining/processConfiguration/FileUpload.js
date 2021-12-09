@@ -1,7 +1,6 @@
 import React, { Fragment, useState } from 'react';
-import { Col, Form, FormGroup, CustomInput } from 'reactstrap';
-import { Button } from '@material-ui/core';
-
+import { Button } from '@mui/material';
+import FormControl from '@mui/material/FormControl';
 export default function FileUpload({ handleFileUpload, getFiles }) {
   //State
   const [file, setFile] = useState('');
@@ -20,8 +19,8 @@ export default function FileUpload({ handleFileUpload, getFiles }) {
 
   return (
     <Fragment>
-      <Form onSubmit={onSubmit} encType="multipart/form-data">
-        <FormGroup row>
+      <form onSubmit={onSubmit} encType="multipart/form-data">
+        <FormControl>
           <Button
             style={{ marginLeft: '1%' }}
             color="primary"
@@ -41,17 +40,20 @@ export default function FileUpload({ handleFileUpload, getFiles }) {
             Load File
           </Button>
 
-          <Col>
-            <CustomInput
+          <label htmlFor="btn-upload">
+            <input
+              id="btn-upload"
+              name="btn-upload"
+              style={{ display: 'none' }}
               type="file"
-              id="file"
-              name="file"
-              label="Upload Goal Geometry File - STEP Files Only"
               onChange={onChange}
             />
-          </Col>
-        </FormGroup>
-      </Form>
+            <Button className="btn-choose" variant="outlined" component="span">
+              Upload Goal Geometry File - STEP Files Only
+            </Button>
+          </label>
+        </FormControl>
+      </form>
     </Fragment>
   );
 }

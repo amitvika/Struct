@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
+import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@mui/material';
 import { NavLink, useHistory, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import FactoriesAPI from '@monostruct/common/api/factories.api';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
@@ -109,7 +109,7 @@ const FactoriesDetail = () => {
           justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

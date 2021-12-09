@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { useParams, useHistory } from 'react-router-dom';
 import API from '@monostruct/common/api/clients.api';
 import Products from './products';
@@ -10,7 +10,7 @@ import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 
 import { useDispatch } from 'react-redux';
 import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 import Documentation from '../../containers/documentation';
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks';
@@ -165,7 +165,7 @@ const ClientDetailPage = () => {
           justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

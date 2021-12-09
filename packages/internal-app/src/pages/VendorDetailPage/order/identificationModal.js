@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grid, Button } from '@material-ui/core';
+import { Grid, Button } from '@mui/material';
 import MainModal from '@monostruct/common/components/Modal';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import FileUpload from '@monostruct/common/components/FileUpload';

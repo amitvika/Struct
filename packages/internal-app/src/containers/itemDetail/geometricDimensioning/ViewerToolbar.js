@@ -1,5 +1,5 @@
 import React /*, { useState, useEffect }*/ from 'react';
-import { /*Grid,*/ Paper } from '@material-ui/core';
+import { /*Grid,*/ Paper } from '@mui/material';
 import {
   SELECTSOLID,
   SELECTEDGE,
@@ -9,16 +9,16 @@ import {
   SELECTFEATURE
 } from '@monostruct/common/gltf/Tree/utils';
 
-import Button from '@material-ui/core/Button';
-import ApartmentOutlinedIcon from '@material-ui/icons/ApartmentOutlined';
-import DashboardOutlinedIcon from '@material-ui/icons/DashboardOutlined';
-import ExtensionOutlinedIcon from '@material-ui/icons/ExtensionOutlined';
-import FilterDramaOutlinedIcon from '@material-ui/icons/FilterDramaOutlined';
-import SaveOutlinedIcon from '@material-ui/icons/SaveOutlined';
-import RotateLeftSharpIcon from '@material-ui/icons/RotateLeftSharp';
-import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
+import Button from '@mui/material/Button';
+import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import ExtensionOutlinedIcon from '@mui/icons-material/ExtensionOutlined';
+import FilterDramaOutlinedIcon from '@mui/icons-material/FilterDramaOutlined';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import RotateLeftSharpIcon from '@mui/icons-material/RotateLeftSharp';
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 
 import SelectedFeatureMenu from './SelectedFeatureMenu';
 import SelectedMatesRelation from './SelectedMatesRelation';

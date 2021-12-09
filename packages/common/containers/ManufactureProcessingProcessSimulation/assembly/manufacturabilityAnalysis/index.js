@@ -5,8 +5,8 @@ import {
   Box
   /*LinearProgress,
   /*makeStyles*/
-} from '@material-ui/core';
-import { Spinner } from 'reactstrap';
+} from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import TableOrderView from './TableOrderView';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer.js';
 import {
@@ -1581,7 +1581,7 @@ export default function ManufacturabilityAnalysis(props) {
           justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import MainModal from './Modal'
-import { Paper, Grid, Button } from '@material-ui/core';
-import Checkbox from '@material-ui/core/Checkbox';
+import { Paper, Grid, Button } from '@mui/material';
+import Checkbox from '@mui/material/Checkbox';
 import Heading from './atoms/Headding';
 import moment from 'moment';
 // import GridView from '../../../components/GridView';
 import { useSelector } from 'react-redux';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function ApprovalModal({
     isModalOpened,

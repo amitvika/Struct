@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Paper, Grid, Button } from '@material-ui/core';
-import Checkbox from '@material-ui/core/Checkbox';
+import { Paper, Grid, Button } from '@mui/material';
+import Checkbox from '@mui/material/Checkbox';
 import moment from 'moment';
 // import GridView from '../../../components/GridView';
 import { useSelector } from 'react-redux';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Heading from '@monostruct/common/components/atoms/Headding';
 import MainModal from './Modal';
 

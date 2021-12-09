@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { Paper, Grid, Button } from '@material-ui/core';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { Paper, Grid, Button } from '@mui/material';
 import MainModal from '@monostruct/common/components/Modal';
 import Heading from '@monostruct/common/components/atoms/Headding';
-import Link from '@material-ui/core/Link';
+import Link from '@mui/material/Link';
 import { useHistory, useParams } from 'react-router-dom';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function ProductionApprovalModal({
   isModalOpened,

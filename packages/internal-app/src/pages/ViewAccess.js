@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import MaterialTable from 'material-table';
 import { connect } from 'react-redux';
-import { Spinner } from 'reactstrap';
-import Card from '@material-ui/core/Card';
+import CircularProgress from '@mui/material/CircularProgress';
+import Card from '@mui/material/Card';
 import { changePage } from '../actions/pageActions';
-import Checkbox from '@material-ui/core/Checkbox';
-import InfoIcon from '@material-ui/icons/Info';
-import CardContent from '@material-ui/core/CardContent';
+import Checkbox from '@mui/material/Checkbox';
+import InfoIcon from '@mui/icons-material/Info';
+import CardContent from '@mui/material/CardContent';
 import OperationAccess from '../containers/viewAccess/OperationAccess';
 import ClientObjectAccess from '../containers/viewAccess/ClientObjectAccess';
 import ClientBasedAccess from '../containers/viewAccess/ClientBasedAccess';
@@ -64,7 +64,7 @@ class ViewAccess extends Component {
     POA_5_V: false,
     POA_6_E: false,
     POA_6_V: false,
-    clientList: [],
+    clientList: []
   };
 
   componentDidMount() {
@@ -74,7 +74,7 @@ class ViewAccess extends Component {
 
   retrieveUserAccessFromDb = () => {
     this.setState((state) => ({
-      userAccessLoaded: false,
+      userAccessLoaded: false
     }));
     console.log('----this.props.auth.user', this.props.auth.user);
 
@@ -85,7 +85,7 @@ class ViewAccess extends Component {
           this.setState((state) => ({
             userAccessLoaded: true,
             userAccessName: res.data.name,
-            userAccessId: res.data._id,
+            userAccessId: res.data._id
           }));
         } else {
           this.setState((state) => ({
@@ -130,7 +130,7 @@ class ViewAccess extends Component {
             POA_5_E: res.data.access.POA_5_E,
             POA_5_V: res.data.access.POA_5_V,
             POA_6_E: res.data.access.POA_6_E,
-            POA_6_V: res.data.access.POA_6_V,
+            POA_6_V: res.data.access.POA_6_V
           }));
         }
       })
@@ -142,7 +142,7 @@ class ViewAccess extends Component {
       .then((res) => {
         if (res.data) {
           this.setState((state) => ({
-            clientList: res.data,
+            clientList: res.data
           }));
         }
       })
@@ -160,7 +160,7 @@ class ViewAccess extends Component {
                   <div
                     style={{
                       display: 'flex',
-                      justifyContent: 'center',
+                      justifyContent: 'center'
                     }}
                   >
                     <h4>
@@ -171,7 +171,7 @@ class ViewAccess extends Component {
                   <div
                     style={{
                       display: 'flex',
-                      justifyContent: 'center',
+                      justifyContent: 'center'
                     }}
                   >
                     <p>
@@ -184,7 +184,7 @@ class ViewAccess extends Component {
                   <div
                     style={{
                       display: 'flex',
-                      justifyContent: 'center',
+                      justifyContent: 'center'
                     }}
                   >
                     {/* <UserAccessModal userAccessState={this.state} />*/}
@@ -209,12 +209,12 @@ class ViewAccess extends Component {
                 columns={[
                   { title: 'Description', field: 'desc' },
                   { title: 'Add/Edit/Delete Access', field: 'edit' },
-                  { title: 'View Access', field: 'view' },
+                  { title: 'View Access', field: 'view' }
                 ]}
                 options={{
                   search: false,
                   pageSize: 3,
-                  paging: false,
+                  paging: false
                 }}
                 data={[
                   {
@@ -239,7 +239,7 @@ class ViewAccess extends Component {
                         name="PGOA_1_V"
                         checked={this.state.PGOA_1_V}
                       />
-                    ),
+                    )
                   },
                   {
                     desc: (
@@ -263,7 +263,7 @@ class ViewAccess extends Component {
                         name="PGOA_2_V"
                         checked={this.state.PGOA_2_V}
                       />
-                    ),
+                    )
                   },
                   {
                     desc: (
@@ -287,8 +287,8 @@ class ViewAccess extends Component {
                         name="PGOA_3_V"
                         checked={this.state.PGOA_3_V}
                       />
-                    ),
-                  },
+                    )
+                  }
                 ]}
                 title={<h5>Process Group Object Access</h5>}
               />
@@ -297,12 +297,12 @@ class ViewAccess extends Component {
                 columns={[
                   { title: 'Description', field: 'desc' },
                   { title: 'Add/Edit/Delete Access', field: 'edit' },
-                  { title: 'View Access', field: 'view' },
+                  { title: 'View Access', field: 'view' }
                 ]}
                 options={{
                   search: false,
                   pageSize: 3,
-                  paging: false,
+                  paging: false
                 }}
                 data={[
                   {
@@ -327,7 +327,7 @@ class ViewAccess extends Component {
                         name="IOA_1_V"
                         checked={this.state.IOA_1_V}
                       />
-                    ),
+                    )
                   },
                   {
                     desc: (
@@ -351,7 +351,7 @@ class ViewAccess extends Component {
                         name="IOA_2_V"
                         checked={this.state.IOA_2_V}
                       />
-                    ),
+                    )
                   },
                   {
                     desc: (
@@ -375,8 +375,8 @@ class ViewAccess extends Component {
                         name="IOA_3_V"
                         checked={this.state.IOA_3_V}
                       />
-                    ),
-                  },
+                    )
+                  }
                 ]}
                 title={<h5>Item Object Access</h5>}
               />
@@ -385,12 +385,12 @@ class ViewAccess extends Component {
                 columns={[
                   { title: 'Description', field: 'desc' },
                   { title: 'Add/Edit/Delete Access', field: 'edit' },
-                  { title: 'View Access', field: 'view' },
+                  { title: 'View Access', field: 'view' }
                 ]}
                 options={{
                   search: false,
                   pageSize: 6,
-                  paging: false,
+                  paging: false
                 }}
                 data={[
                   {
@@ -415,7 +415,7 @@ class ViewAccess extends Component {
                         name="POA_1_V"
                         checked={this.state.POA_1_V}
                       />
-                    ),
+                    )
                   },
                   {
                     desc: (
@@ -439,7 +439,7 @@ class ViewAccess extends Component {
                         name="POA_2_V"
                         checked={this.state.POA_2_V}
                       />
-                    ),
+                    )
                   },
                   {
                     desc: (
@@ -463,7 +463,7 @@ class ViewAccess extends Component {
                         name="POA_3_V"
                         checked={this.state.POA_3_V}
                       />
-                    ),
+                    )
                   },
                   {
                     desc: (
@@ -487,7 +487,7 @@ class ViewAccess extends Component {
                         name="POA_4_V"
                         checked={this.state.POA_4_V}
                       />
-                    ),
+                    )
                   },
 
                   {
@@ -512,7 +512,7 @@ class ViewAccess extends Component {
                         name="POA_5_V"
                         checked={this.state.POA_5_V}
                       />
-                    ),
+                    )
                   },
                   {
                     desc: (
@@ -536,8 +536,8 @@ class ViewAccess extends Component {
                         name="POA_6_V"
                         checked={this.state.POA_6_V}
                       />
-                    ),
-                  },
+                    )
+                  }
                 ]}
                 title={<h5>Process Object Access</h5>}
               />
@@ -546,10 +546,10 @@ class ViewAccess extends Component {
             <div
               style={{
                 display: 'flex',
-                justifyContent: 'center',
+                justifyContent: 'center'
               }}
             >
-              <Spinner animation="border" />
+              <CircularProgress />
             </div>
           )}
         </div>
@@ -561,7 +561,7 @@ class ViewAccess extends Component {
 const mapStateToProps = (state) => ({
   page: state.page,
   auth: state.auth,
-  userAccessUsers: state.userAccessUsers,
+  userAccessUsers: state.userAccessUsers
 });
 
 export default connect(mapStateToProps, { changePage })(ViewAccess);

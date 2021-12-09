@@ -30,20 +30,10 @@ export const headerListItem = [
 
 export default function Layout(props) {
   return (
-    <>
+    <div sx={{ margin: '20px 7%' }}>
       <Header {...{ headerListItem }} />
-      <div
-        style={{
-          marginTop: '75px',
-          width: '100%',
-          top: 0,
-          left: 'auto',
-          right: 0,
-          position: 'fixed'
-        }}
-      >
-        {props.children}
-      </div>
-    </>
+
+      {props.children}
+    </div>
   );
 }

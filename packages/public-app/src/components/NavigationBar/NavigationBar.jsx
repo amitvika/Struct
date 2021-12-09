@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, NavLink, withRouter } from 'react-router-dom';
 import Routes from '../../Routes';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Theme } from '@mui/material/styles';
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import {
   Paper,
   AppBar,
@@ -13,11 +15,11 @@ import {
   MenuList,
   MenuItem,
   ListItemText,
-} from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 import LoginPopup from '../LoginPopup';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
-import Popover from '@material-ui/core/Popover';
+import Popover from '@mui/material/Popover';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -83,7 +85,13 @@ const NavigationBar = (props) => {
       <div className={classes.root}>
         <AppBar position="fixed"  >
           <Toolbar>
-            <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
+            <IconButton
+              edge="start"
+              className={classes.menuButton}
+              color="inherit"
+              aria-label="menu"
+              onClick={toggleDrawer(true)}
+              size="large">
               <MenuIcon />
             </IconButton>
             <Typography variant="h3" className={classes.title}>
@@ -137,7 +145,6 @@ const NavigationBar = (props) => {
       </Drawer>
 
     </div >
-
   );
 };
 

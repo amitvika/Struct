@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Slider } from '@material-ui/core';
+import { Slider } from '@mui/material';
 const SliderState = (props) => {
   const { value, onChange, step, min, max, disabled } = props;
   const [sliderState, setSliderState]= useState(value);

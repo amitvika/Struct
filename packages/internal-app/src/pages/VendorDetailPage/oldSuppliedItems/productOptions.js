@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import makeStyles from '@mui/styles/makeStyles';
+import AppBar from '@mui/material/AppBar';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import {
     Paper,
     IconButton,
-} from '@material-ui/core';
+} from '@mui/material';
 import SuppliedItems from '.';
 
 
@@ -73,13 +73,12 @@ export default function ProductOptions({clientData}) {
     // }
 
     return (
-
         <div className={classes.root}>
                 <>
                     <AppBar position="static" color="default">
                         <Paper style={{ padding: '10px', marginTop: '10px', marginBottom: '10px', display: 'flex' }} >
 
-                            <IconButton color="primary"  component="span">
+                            <IconButton color="primary" component="span" size="large">
                                 <ArrowBackIcon />
                             </IconButton>
                             <Tabs

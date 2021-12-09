@@ -1,9 +1,8 @@
-import axios from "axios";
-import { Spinner } from "reactstrap";
-import React, { Component } from "react";
-import { Modal, ModalHeader, ModalBody } from "reactstrap";
-import { connect } from "react-redux";
-import { updateUsers } from "../actions/userAccessUserActions";
+import axios from 'axios';
+import CircularProgress from '@mui/material/CircularProgress';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { updateUsers } from '../actions/userAccessUserActions';
 import {
   Table,
   TableBody,
@@ -12,8 +11,9 @@ import {
   TableHead,
   TableRow,
   Paper
-} from "@material-ui/core";
-import InfoIcon from "@material-ui/icons/Info";
+} from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
+import MainModal from '@monostruct/common/components/Modal';
 
 class UserAccessModal extends Component {
   state = {
@@ -24,13 +24,13 @@ class UserAccessModal extends Component {
     removedUserRowData: [],
     tableLoaded: false,
     columnSelectedUsers: [
-      { title: "User Email", field: "id" },
-      { title: "Name", field: "name" }
+      { title: 'User Email', field: 'id' },
+      { title: 'Name', field: 'name' }
     ],
     columns: [
-      { title: "User Email", field: "id" },
-      { title: "Name", field: "name" },
-      { title: "Current Access", field: "currentAccess" }
+      { title: 'User Email', field: 'id' },
+      { title: 'Name', field: 'name' },
+      { title: 'Current Access', field: 'currentAccess' }
     ]
   };
   componentDidMount() {
@@ -42,13 +42,13 @@ class UserAccessModal extends Component {
     });
   };
   retrieveFromDb = () => {
-    this.setState(state => ({
+    this.setState((state) => ({
       tableLoaded: false,
       chooseUserRowData: state.chooseUserRowData
     }));
     axios
-      .get("/api/userList")
-      .then(res => {
+      .get('/api/userList')
+      .then((res) => {
         var userRowData = res.data.map((x, index) => {
           if (x.userAccess != null) {
             return {
@@ -63,31 +63,31 @@ class UserAccessModal extends Component {
               id: x._id,
               email: x.email,
               name: x.name,
-              currentAccess: "Unassigned",
+              currentAccess: 'Unassigned',
               currentAccessId: null
             };
           }
         });
 
-        var chooseUserRowData = userRowData.filter(x => {
+        var chooseUserRowData = userRowData.filter((x) => {
           return x.currentAccessId !== this.props.userAccessState.userAccessId;
         });
 
-        var selectedUserRowData = userRowData.filter(x => {
+        var selectedUserRowData = userRowData.filter((x) => {
           return x.currentAccessId === this.props.userAccessState.userAccessId;
         });
 
-        this.setState(state => ({
+        this.setState((state) => ({
           tableLoaded: true,
           chooseUserRowData,
           selectedUserRowData,
           originalSelectedUserRowData: selectedUserRowData
         }));
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   };
 
-  addUser = event => {
+  addUser = (event) => {
     var chooseUserRowData = this.state.chooseUserRowData;
     var selectedUserRowData = this.state.selectedUserRowData;
     chooseUserRowData = chooseUserRowData.filter((x, index) => {
@@ -114,7 +114,7 @@ class UserAccessModal extends Component {
       removedUsers: removedUserRowData
     });
   };
-  removeUser = event => {
+  removeUser = (event) => {
     var chooseUserRowData = this.state.chooseUserRowData;
     var selectedUserRowData = this.state.selectedUserRowData;
     selectedUserRowData = selectedUserRowData.filter((x, index) => {
@@ -155,87 +155,84 @@ class UserAccessModal extends Component {
         >
           Assign Users
         </Button> */}
-        <Modal size={"lg"} isOpen={this.state.modal} toggle={this.toggle}>
-          <ModalHeader toggle={this.toggle}>
-            <div title="Please click each row you would like to move from one table to the other.  Save the changes with the save button to the bottom right">
-              {" "}
-              <InfoIcon />
-              {this.props.userAccessState.userAccessName} User Assignment{" "}
+        <MainModal
+          open={this.state.modal}
+          toggleModal={this.toggle}
+          title="Please click each row you would like to move from one table to the other.  Save the changes with the save button to the bottom right"
+        >
+          <InfoIcon />
+          {this.props.userAccessState.userAccessName} User Assignment{' '}
+          {this.state.tableLoaded ? (
+            <div>
+              <h5 className="mt-2">Assigned Users</h5>
+              <TableContainer className="mb-2" component={Paper}>
+                <Table aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>User IDs</TableCell>
+                      <TableCell>Name</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {this.state.selectedUserRowData.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        onClick={this.removeUser.bind(this, row)}
+                      >
+                        <TableCell component="th" scope="row">
+                          {row.email}
+                        </TableCell>
+                        <TableCell>{row.name}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <h5>Select Users</h5>
+              <TableContainer component={Paper}>
+                <Table aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>User IDs</TableCell>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Current Access</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {this.state.chooseUserRowData.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        onClick={this.addUser.bind(this, row)}
+                      >
+                        <TableCell component="th" scope="row">
+                          {row.email}
+                        </TableCell>
+                        <TableCell>{row.name}</TableCell>
+                        <TableCell>{row.currentAccess}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <div className="mb-2"> </div>
             </div>
-          </ModalHeader>
-          <ModalBody>
-            {this.state.tableLoaded ? (
-              <div>
-                <h5 className="mt-2">Assigned Users</h5>
-                <TableContainer className="mb-2" component={Paper}>
-                  <Table aria-label="simple table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>User IDs</TableCell>
-                        <TableCell>Name</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {this.state.selectedUserRowData.map(row => (
-                        <TableRow
-                          key={row.id}
-                          onClick={this.removeUser.bind(this, row)}
-                        >
-                          <TableCell component="th" scope="row">
-                            {row.email}
-                          </TableCell>
-                          <TableCell>{row.name}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-                <h5>Select Users</h5>
-                <TableContainer component={Paper}>
-                  <Table aria-label="simple table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>User IDs</TableCell>
-                        <TableCell>Name</TableCell>
-                        <TableCell>Current Access</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {this.state.chooseUserRowData.map(row => (
-                        <TableRow
-                          key={row.id}
-                          onClick={this.addUser.bind(this, row)}
-                        >
-                          <TableCell component="th" scope="row">
-                            {row.email}
-                          </TableCell>
-                          <TableCell>{row.name}</TableCell>
-                          <TableCell>{row.currentAccess}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-                <div className="mb-2"> </div>
-              </div>
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center"
-                }}
-              >
-                <Spinner animation="border" />
-              </div>
-            )}
-          </ModalBody>
-        </Modal>
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center'
+              }}
+            >
+              <CircularProgress />
+            </div>
+          )}
+        </MainModal>
       </div>
     );
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   isAutheticated: state.auth.isAutheticated,
   error: state.error
 });

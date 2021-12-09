@@ -5,13 +5,12 @@ import GridView from '../TableGridView/GridView';
 import Headding from '../atoms/Headding';
 import Space from '../atoms/Space';
 
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
-import { Grid, Paper } from '@material-ui/core';
-import { Spinner } from 'reactstrap';
-
+import { Grid, Paper } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import get from 'lodash/get';
 
 export default function SelectorView({
@@ -152,7 +151,7 @@ export default function SelectorView({
           justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

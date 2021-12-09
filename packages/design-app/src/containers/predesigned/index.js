@@ -1,6 +1,6 @@
 import React from 'react';
 import Viewer from '@monostruct/common/components/Viewer';
-import Paper from '@material-ui/core/Paper';
+import Paper from '@mui/material/Paper';
 import Headding from '@monostruct/common/components/atoms/Headding';
 
 export default function PredesignedComponents({ gltfjson = {}, setgltfjson }) {

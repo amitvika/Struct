@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 import { changePage } from '../../actions/pageActions';
 import {
   Snackbar,
@@ -12,11 +12,11 @@ import {
   FormControl,
   InputLabel,
   Grid,
-  Typography,
-} from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
-import InfoIcon from '@material-ui/icons/Info';
-import AddIcon from '@material-ui/icons/Add';
+  Typography
+} from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
+import InfoIcon from '@mui/icons-material/Info';
+import AddIcon from '@mui/icons-material/Add';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import { NavLink } from 'react-router-dom';
@@ -40,14 +40,14 @@ class ProcessGroupDetail extends Component {
       {
         dataField: 'record',
         text: 'Processes',
-        filter: textFilter(),
-      },
+        filter: textFilter()
+      }
     ],
     products: [],
     allProcesses: [],
     allProcessesObject: {},
     processGroupDataLoaded: false,
-    isDeleteProcessDialogOpen: false,
+    isDeleteProcessDialogOpen: false
   };
 
   componentDidMount = () => {
@@ -69,7 +69,7 @@ class ProcessGroupDetail extends Component {
         this.setState(
           {
             allProcesses: res.data,
-            allProcessesObject: allProcessesObject,
+            allProcessesObject: allProcessesObject
           },
           () => {
             this.getProcessGroup();
@@ -81,21 +81,21 @@ class ProcessGroupDetail extends Component {
         this.setState({
           msg: err,
           snackBarAlertType: 'error',
-          snackBar: true,
+          snackBar: true
         });
       });
   };
 
   getProcessGroup = () => {
     this.setState((state) => ({
-      processGroupDataLoaded: false,
+      processGroupDataLoaded: false
     }));
     ProcessGroupAPI.getProcessGroupsByIdApi(this.props.match.params.id)
       .then((res) => {
         this.setState((state) => ({
           processGroupName: res.data.name,
           processGroupClientName: res.data.client.name,
-          processGroupClientId: res.data.client._id,
+          processGroupClientId: res.data.client._id
         }));
         ///////////////////////
         ProcessGroupAPI.getProcessDataListApi(this.props.match.params.id)
@@ -107,7 +107,7 @@ class ProcessGroupDetail extends Component {
                   this.state.allProcessesObject[x.process] + '\nID:' + x._id,
                 process: x.process,
                 processName: this.state.allProcessesObject[x.process],
-                createdBy: x.createdBy,
+                createdBy: x.createdBy
                 // record: "process name" + "\nID:" + x._id
               };
             });
@@ -117,19 +117,19 @@ class ProcessGroupDetail extends Component {
               process: 0,
               createdBy: 'Struct',
               processName: 'Process Helper',
-              record: <strong>Process Helper</strong>,
+              record: <strong>Process Helper</strong>
             });
 
             this.setState((state) => ({
               processGroupDataLoaded: true,
-              products: processData,
+              products: processData
             }));
           })
           .catch((err) => {
             this.setState({
               msg: err.message,
               snackBarAlertType: 'error',
-              snackBar: true,
+              snackBar: true
             });
           });
         //////////////////////////
@@ -138,7 +138,7 @@ class ProcessGroupDetail extends Component {
         this.setState({
           msg: err,
           snackBarAlertType: 'error',
-          snackBar: true,
+          snackBar: true
         });
       });
   };
@@ -149,7 +149,7 @@ class ProcessGroupDetail extends Component {
 
   onNewProcessSelect = (event) => {
     this.setState({
-      selectedProcess: event.target.value,
+      selectedProcess: event.target.value
     });
   };
 
@@ -158,7 +158,7 @@ class ProcessGroupDetail extends Component {
       process: this.state.selectedProcess,
       user: this.props.auth.user._id,
       processGroup: this.props.match.params.id,
-      client: this.state.processGroupClientId,
+      client: this.state.processGroupClientId
     }; //
 
     ProcessGroupAPI.addProcessDataApi(newClient)
@@ -173,14 +173,14 @@ class ProcessGroupDetail extends Component {
             res.data._id,
           createdBy: this.props.auth.user,
           process: res.data.process,
-          processName: this.state.allProcessesObject[res.data.process],
+          processName: this.state.allProcessesObject[res.data.process]
         };
         tempProcessList.push(newProcess);
         this.setState({
           msg: 'Process Added',
           snackBarAlertType: 'success',
           snackBar: true,
-          products: tempProcessList,
+          products: tempProcessList
         });
       })
       .catch((err) => {
@@ -193,13 +193,13 @@ class ProcessGroupDetail extends Component {
       this.setState({
         msg: err.response.data.message,
         snackBarAlertType: 'error',
-        snackBar: true,
+        snackBar: true
       });
     }
   };
   handleClose = (event, reason) => {
     this.setState({
-      snackBar: !this.state.snackBar,
+      snackBar: !this.state.snackBar
     });
   };
   selectRow = {
@@ -212,9 +212,9 @@ class ProcessGroupDetail extends Component {
         value: row.process,
         selectedProcessId: row.id,
         selectedProcessName: row.processName,
-        selectedProcessCreator: row.createdBy.name,
+        selectedProcessCreator: row.createdBy.name
       });
-    },
+    }
   };
 
   renderPageSwitch = (index) => {
@@ -244,7 +244,7 @@ class ProcessGroupDetail extends Component {
 
   setDeleteProcessDialogOpen = (isDeleteProcessDialogOpen) => {
     this.setState({
-      isDeleteProcessDialogOpen,
+      isDeleteProcessDialogOpen
     });
   };
 
@@ -258,7 +258,7 @@ class ProcessGroupDetail extends Component {
         this.setState(
           {
             snackBar: true,
-            msg: res.data.message,
+            msg: res.data.message
           },
           () => {
             this.getProcesses();
@@ -300,7 +300,7 @@ class ProcessGroupDetail extends Component {
                 <Breadcrumbs
                   style={{
                     display: 'flex',
-                    justifyContent: 'center',
+                    justifyContent: 'center'
                   }}
                 >
                   <NavLink to="/process-groups">Process Groups</NavLink>
@@ -329,7 +329,7 @@ class ProcessGroupDetail extends Component {
                     <div
                       style={{
                         display: 'flex',
-                        justifyContent: 'center',
+                        justifyContent: 'center'
                       }}
                     >
                       <div title="Please select processes to add to the below process group.  This will add the process to this group for organization purposes.  Each process utilizes item(s) and generates item(s)">
@@ -381,13 +381,13 @@ class ProcessGroupDetail extends Component {
                       padding: 20,
                       margin: 10,
                       display: 'flex',
-                      justifyContent: 'space-between',
+                      justifyContent: 'space-between'
                     }}
                   >
                     <div
                       style={{
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: 'column'
                       }}
                     >
                       <h4>{this.state.selectedProcessName}</h4>
@@ -402,7 +402,7 @@ class ProcessGroupDetail extends Component {
                       style={{
                         justifyContent: 'center',
                         alignItems: 'center',
-                        display: 'flex',
+                        display: 'flex'
                       }}
                     >
                       <Button
@@ -430,10 +430,10 @@ class ProcessGroupDetail extends Component {
             style={{
               display: 'flex',
               justifyContent: 'center',
-              marginTop: '7%',
+              marginTop: '7%'
             }}
           >
-            <Spinner animation="border" />
+            <CircularProgress />
           </div>
         )}
       </div>
@@ -442,7 +442,7 @@ class ProcessGroupDetail extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  auth: state.auth,
+  auth: state.auth
 });
 
 export default connect(mapStateToProps, { changePage })(ProcessGroupDetail);

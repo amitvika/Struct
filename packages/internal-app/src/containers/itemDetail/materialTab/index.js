@@ -9,7 +9,7 @@ import {
   TableHead,
   TableRow,
   Grid
-} from '@material-ui/core';
+} from '@mui/material';
 import MaterialModal from './MaterialModal';
 import MaterialPropertiesModal from './MaterialPropertiesModal';
 import { Typography } from '@mui/material';

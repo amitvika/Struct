@@ -10,9 +10,9 @@ import {
   oneOfType,
   oneOf
 } from 'prop-types';
-import TextField from '@material-ui/core/TextField';
-import InputLabel from '@material-ui/core/InputLabel';
-//import Grid from '@material-ui/core/Grid';
+import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+//import Grid from '@mui/material/Grid';
 
 const getName = (name) => _.replace(name, /\./g, ' ');
 

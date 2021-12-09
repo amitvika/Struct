@@ -20,46 +20,43 @@ import SiliconMaker from './pages/SiliconMaker/SiliconMaker';
 import ClothesMaker from './pages/ClothesMaker/ClothesMaker';
 import ArchitectureDesigner from './pages/ArchitectureDesigner/ArchitectureDesigner';
 import { AuthContext } from '@monostruct/common/context/AuthContext';
+import { Box } from '@mui/system';
 
 export default function Routes() {
   return (
     <Router>
       <Switch>
         <Route exact path="/" component={SignInPage} />
-        <div style={{ marginLeft: '7%', marginRight: '7%' }}>
-          <Layout>
-            <Switch>
+        <Layout>
+          <Switch>
+            <Box sx={{ margin: '20px 7%' }}>
               <AppRoute authenticate path="/design" component={DesignPage} />
-              <AppRoute authenticate path="/product" component={ProductMaker} />
-              <AppRoute authenticate path="/cad" component={CadMaker} />
-              <AppRoute authenticate path="/pcb" component={PcbTab} />
-              <AppRoute authenticate path="/silicon" component={SiliconMaker} />
-              <AppRoute authenticate path="/clothes" component={ClothesMaker} />
-              <AppRoute
-                authenticate
-                path="/architecture"
-                component={ArchitectureDesigner}
-              />
-              <AppRoute
-                authenticate
-                path="/predesigned"
-                component={PredesignedComponents}
-              />
-              <AppRoute
-                authenticate
-                path="/appdesigner"
-                component={AppDesignerPage}
-              />
+            </Box>
+            <AppRoute authenticate path="/product" component={ProductMaker} />
+            <AppRoute authenticate path="/cad" component={CadMaker} />
+            <AppRoute authenticate path="/pcb" component={PcbTab} />
+            <AppRoute authenticate path="/silicon" component={SiliconMaker} />
+            <AppRoute authenticate path="/clothes" component={ClothesMaker} />
+            <AppRoute
+              authenticate
+              path="/architecture"
+              component={ArchitectureDesigner}
+            />
+            <AppRoute
+              authenticate
+              path="/predesigned"
+              component={PredesignedComponents}
+            />
+            <AppRoute
+              authenticate
+              path="/appdesigner"
+              component={AppDesignerPage}
+            />
 
-              <AppRoute
-                authenticate
-                path="/omnidesign"
-                component={OmniDesign}
-              />
-              <AppRoute authenticate path="/my_profile" component={MyProfile} />
-            </Switch>
-          </Layout>
-        </div>
+            <AppRoute authenticate path="/omnidesign" component={OmniDesign} />
+            <AppRoute authenticate path="/my_profile" component={MyProfile} />
+          </Switch>
+        </Layout>
       </Switch>
     </Router>
   );

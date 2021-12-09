@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Paper from '@material-ui/core/Paper';
-import Link from '@material-ui/core/Link';
-import { Spinner } from 'reactstrap';
+import Paper from '@mui/material/Paper';
+import Link from '@mui/material/Link';
+import CircularProgress from '@mui/material/CircularProgress';
+
 import get from 'lodash/get';
 import { useHistory, useParams } from 'react-router-dom';
 
@@ -205,7 +206,7 @@ export default function ProductionTable() {
           justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

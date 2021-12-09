@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 //import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
 //import { useSelector } from 'react-redux';
-import { Paper, Grid, /*CircularProgress,*/ Box /*, LinearProgress, makeStyles*/ } from '@material-ui/core';
+import { Paper, Grid, /*CircularProgress,*/ Box /*, LinearProgress, makeStyles*/ } from '@mui/material';
 // import { Headding } from '../../../components';
 import Heading from '@monostruct/common/components/atoms/Headding';
 

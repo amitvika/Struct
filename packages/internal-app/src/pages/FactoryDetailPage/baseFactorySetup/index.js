@@ -6,11 +6,12 @@ import Headding from '@monostruct/common/components/atoms/Headding';
 import Space from '@monostruct/common/components/atoms/Space';
 import ItemAPI from '@monostruct/common/api/items.api';
 
-import { Grid, Typography, makeStyles, Paper } from '@material-ui/core';
-import { Spinner } from 'reactstrap';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+import { Grid, Typography, Paper } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import CircularProgress from '@mui/material/CircularProgress';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 import { columnsFields } from '@monostruct/common/constants/item';
 import get from 'lodash/get';
@@ -18,7 +19,7 @@ import get from 'lodash/get';
 export default function BaseFactorySetup({
   factoryId,
   setFactoryValue,
-  factoryValue,
+  factoryValue
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,7 +31,7 @@ export default function BaseFactorySetup({
 
   const onClick = () => setIsItemSelectionVisible(!isItemSelectionVisible);
   const [state, setState] = useState({
-    checkedA: true,
+    checkedA: true
   });
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.checked });
@@ -46,7 +47,7 @@ export default function BaseFactorySetup({
 
       const itemRes = await ItemAPI.getItemsAPI(`itemType=Structure`);
 
-      const items = get(itemRes, 'data', [])
+      const items = get(itemRes, 'data', []);
       setItemList(items);
       setFilteredItemList(items);
 
@@ -83,7 +84,7 @@ export default function BaseFactorySetup({
       setSelectedItem(data);
       setFactoryValue((prevState) => ({
         ...prevState,
-        selectedItemId: data.id,
+        selectedItemId: data.id
       }));
     }
   };
@@ -103,10 +104,10 @@ export default function BaseFactorySetup({
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }
@@ -135,7 +136,7 @@ export default function BaseFactorySetup({
           style={{
             fontWeight: 'bold',
             alignItems: 'center',
-            display: 'flex',
+            display: 'flex'
           }}
         ></Headding>
         <FormGroup style={{ marginLeft: '20px' }}>

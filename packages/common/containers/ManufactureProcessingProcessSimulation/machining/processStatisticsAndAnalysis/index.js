@@ -1,5 +1,7 @@
 import React from 'react';
-import { Paper, Grid, makeStyles, Divider } from '@material-ui/core';
+import { Paper, Grid, Divider } from '@mui/material';
+
+import makeStyles from '@mui/styles/makeStyles';
 
 import { Headding, Input } from '../../../../components';
 

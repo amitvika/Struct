@@ -1,6 +1,6 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import GridList from '@material-ui/core/GridList';
+import makeStyles from '@mui/styles/makeStyles';
+import ImageList from '@mui/material/ImageList';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,9 +25,9 @@ export default function List(props) {
 
   return (
     <div className={classes.root}>
-      <GridList cellHeight={200} spacing={1} className={classes.gridList}>
+      <ImageList cellHeight={200} spacing={1} className={classes.gridList}>
         {props.children}
-      </GridList>
+      </ImageList>
     </div>
   );
 }

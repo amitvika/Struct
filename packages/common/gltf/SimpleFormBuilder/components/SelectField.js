@@ -1,14 +1,14 @@
 import React from 'react';
 import _ from 'lodash';
 import { array, shape, string, func, number, oneOfType } from 'prop-types';
-import Select from '@material-ui/core/Select';
-import FormControl from '@material-ui/core/FormControl';
-import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
-import MenuItem from '@material-ui/core/MenuItem';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
-//import Grid from '@material-ui/core/Grid';
+import Select from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import ListItemText from '@mui/material/ListItemText';
+import Checkbox from '@mui/material/Checkbox';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormHelperText from '@mui/material/FormHelperText';
+//import Grid from '@mui/material/Grid';
 
 const getName = (name) => _.replace(name, /\./g, ' ');
 

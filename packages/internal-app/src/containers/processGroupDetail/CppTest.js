@@ -1,49 +1,40 @@
-import React, { Fragment, useState } from "react";
-import {
-  Col,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  FormText,
-  CustomInput
-} from "reactstrap";
-import { Button } from "@material-ui/core";
-import axios from "axios";
+import React, { Fragment, useState } from 'react';
+import { Button, FormControl } from '@mui/material';
+import axios from 'axios';
 
 export default function CppTest() {
   //State
-  const [file, setFile] = useState("");
+  const [file, setFile] = useState('');
 
   //Methods
 
   const getFiles = () => {
     axios
       .get(`/api/cpp`)
-      .then(res => {
+      .then((res) => {
         console.log(res.data);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
 
-    console.log("get files");
+    console.log('get files');
   };
 
   return (
     <Fragment>
-      <Form encType="multipart/form-data">
-        <FormGroup row>
+      <form encType="multipart/form-data">
+        <FormControl row>
           <Button
-            style={{ marginLeft: "1%" }}
+            style={{ marginLeft: '1%' }}
             color="primary"
             variant="contained"
             onClick={getFiles}
           >
             Get C++ Output
           </Button>
-        </FormGroup>
-      </Form>
+        </FormControl>
+      </form>
     </Fragment>
   );
 }

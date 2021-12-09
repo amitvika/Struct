@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useHistory } from 'react-router-dom';
 
 import API from '@monostruct/common/api/processGroup.api';
@@ -36,8 +36,8 @@ const ProcessGroups = () => {
       field: 'clientName',
       title: 'Client Name',
       field: 'created_by',
-      title: 'Created By',
-    },
+      title: 'Created By'
+    }
   ];
 
   const alertForError = (err) => {
@@ -102,7 +102,7 @@ const ProcessGroups = () => {
             client: x.client._id,
             clientName: x.client.name,
             created_by: x.createdBy.name,
-            deleted_at: x.deletedAt,
+            deleted_at: x.deletedAt
           };
         });
 
@@ -123,7 +123,7 @@ const ProcessGroups = () => {
           const newClient = {
             name: newData.name,
             client: newData.client,
-            user: isAuthenticated ? user._id : 'Guest',
+            user: isAuthenticated ? user._id : 'Guest'
           };
 
           API.addProcessGroupApi(newClient)
@@ -147,7 +147,7 @@ const ProcessGroups = () => {
           const data = {
             name: newData.name,
             user: user._id,
-            client: newData.client,
+            client: newData.client
           };
 
           API.updateProcessGroupApi(newData.id, data)
@@ -189,10 +189,10 @@ const ProcessGroups = () => {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
-        <Spinner animation="border" />
+        <CircularProgress />
       </div>
     );
   }

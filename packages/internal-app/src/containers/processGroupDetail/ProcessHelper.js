@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import FileUpload from '@monostruct/common/components/FileUpload';
 import ProcessGroupAPI from '@monostruct/common/api/processGroup.api';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default class ProcessHelper extends Component {
   constructor(props) {

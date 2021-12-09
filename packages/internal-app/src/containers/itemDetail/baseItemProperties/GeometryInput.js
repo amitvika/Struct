@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Icon, Typography, makeStyles } from '@material-ui/core';
-import { Tooltip } from 'reactstrap';
-import Grid from '@material-ui/core/Grid';
-import Switch from '@material-ui/core/Switch';
+import { Paper, Icon, Typography, Tooltip } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import Grid from '@mui/material/Grid';
+import Switch from '@mui/material/Switch';
 
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
@@ -238,15 +238,10 @@ export default function GeometryInput({
                   info
                 </Icon>
                 <Tooltip
-                  placement="top"
-                  isOpen={tooltipOpen}
-                  target="TooltipExample"
-                  toggle={toggleTooltip}
-                >
-                  This allows for selection of the general geometry or matter
+                  title={`This allows for selection of the general geometry or matter
                   state of the item. The downstream impacts include how the item
-                  is handled and transported within Struct Production Systems
-                </Tooltip>
+                  is handled and transported within Struct Production Systems`}
+                ></Tooltip>
               </Grid>
               <Grid item xs={8}>
                 <Select

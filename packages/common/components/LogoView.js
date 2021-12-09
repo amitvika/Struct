@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import { makeStyles } from '@material-ui/core/styles';
+import Avatar from '@mui/material/Avatar';
+import makeStyles from '@mui/styles/makeStyles';
 
 import StructLogo from '../assets/images/struct_logo.png';
-import EditIcon from '@material-ui/icons/Edit';
+import EditIcon from '@mui/icons-material/Edit';
 import ImageUploadModal from './LogoUploadModal';
 
 const useStyles = makeStyles((theme) => ({

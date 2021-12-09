@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@material-ui/core';
+import { Snackbar, Button, Paper, Tab, Tabs, Grid } from '@mui/material';
 import { useParams, useHistory, useLocation } from 'react-router-dom';
 import VendorAPI from '@monostruct/common/api/vendor.api';
 import TabContainer from '@monostruct/common/components/TabContainer';

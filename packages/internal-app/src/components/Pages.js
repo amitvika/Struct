@@ -1,28 +1,28 @@
-import React, { Component, Fragment } from "react";
-import { Container } from "reactstrap";
-import { connect } from "react-redux";
-import PropTypes from "prop-types";
-import AppNavbar from "./AppNavbar";
+import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import AppNavbar from './AppNavbar';
 //Main Nav
-import Clients from "./mainNav/Clients";
-import Vendors from "./mainNav/Vendors";
-import Items from "./mainNav/Items";
-import ProcessGroups from "./mainNav/ProcessGroups";
-import ProductDesign from "./mainNav/ProductDesign";
+import Clients from './mainNav/Clients';
+import Vendors from './mainNav/Vendors';
+import Items from './mainNav/Items';
+import ProcessGroups from './mainNav/ProcessGroups';
+import ProductDesign from './mainNav/ProductDesign';
 //Ops Nav
-import AccessConfiguration from "./opsNav/AccessConfiguration";
-import ConfigurationHistory from "./opsNav/ConfigurationHistory";
-import ViewAccess from "./opsNav/ViewAccess";
-import AccessSetup from "./opsNav/AccessSetup";
-import LoginPage from "./auth/LoginPage";
+import AccessConfiguration from './opsNav/AccessConfiguration';
+import ConfigurationHistory from './opsNav/ConfigurationHistory';
+import ViewAccess from './opsNav/ViewAccess';
+import AccessSetup from './opsNav/AccessSetup';
+import LoginPage from './auth/LoginPage';
 //Sub Nav
-import ClientDetail from "../pages/ClientDetail";
-import ProcessGroupDetail from "./subNav/ProcessGroupDetail";
-import VendorDetail from "./subNav/VendorDetail";
-import ItemDetail from "./subNav/ItemDetail";
-import ProductDesignDetail from "./subNav/ProductDesignDetail";
+import ClientDetail from '../pages/ClientDetail';
+import ProcessGroupDetail from './subNav/ProcessGroupDetail';
+import VendorDetail from './subNav/VendorDetail';
+import ItemDetail from './subNav/ItemDetail';
+import ProductDesignDetail from './subNav/ProductDesignDetail';
 //UI Library Components
-import { Spinner } from "reactstrap";
+import CircularProgress from '@mui/material/CircularProgress';
+import { Box } from '@mui/system';
 class Pages extends Component {
   state = {
     userLoaded: false,
@@ -30,106 +30,106 @@ class Pages extends Component {
   };
 
   render() {
-    const containerNav = item => {
-      return <Container style={{ marginTop: "7%" }}>{item}</Container>;
+    const containerNav = (item) => {
+      return <Box style={{ marginTop: '7%' }}>{item}</Box>;
     };
 
-    const mainNav = page => {
+    const mainNav = (page) => {
       switch (page.page) {
-        case "ProcessGroups":
+        case 'ProcessGroups':
           return containerNav(<ProcessGroups />);
-        case "Items":
+        case 'Items':
           return containerNav(<Items />);
-        case "Clients":
+        case 'Clients':
           return containerNav(<Clients />);
-        case "Vendors":
+        case 'Vendors':
           return containerNav(<Vendors />);
-        case "ProductDesign":
+        case 'ProductDesign':
           return containerNav(<ProductDesign />);
         default:
-          return "undefined";
+          return 'undefined';
       }
     };
-    const clientsNav = page => {
+    const clientsNav = (page) => {
       switch (page.page) {
         default:
           return (
-            <div style={{ marginTop: "4%" }}>
-              <ClientDetail id={page.objId} />{" "}
+            <div style={{ marginTop: '4%' }}>
+              <ClientDetail id={page.objId} />{' '}
             </div>
           );
       }
     };
-    const vendorsNav = page => {
+    const vendorsNav = (page) => {
       switch (page.page) {
         default:
           return (
-            <div style={{ marginTop: "4%" }}>
-              <VendorDetail id={page.objId} />{" "}
+            <div style={{ marginTop: '4%' }}>
+              <VendorDetail id={page.objId} />{' '}
             </div>
           );
       }
     };
-    const itemsNav = page => {
+    const itemsNav = (page) => {
       switch (page.page) {
         default:
           return (
-            <div style={{ marginTop: "4%" }}>
-              <ItemDetail id={page.objId} />{" "}
+            <div style={{ marginTop: '4%' }}>
+              <ItemDetail id={page.objId} />{' '}
             </div>
           );
       }
     };
-    const productDesignNav = page => {
+    const productDesignNav = (page) => {
       switch (page.page) {
         default:
           return (
-            <div style={{ marginTop: "4%" }}>
-              <ProductDesignDetail id={page.objId} />{" "}
+            <div style={{ marginTop: '4%' }}>
+              <ProductDesignDetail id={page.objId} />{' '}
             </div>
           );
       }
     };
-    const processGroupsNav = page => {
+    const processGroupsNav = (page) => {
       switch (page.page) {
         default:
           return (
-            <div style={{ marginTop: "4%" }}>
+            <div style={{ marginTop: '4%' }}>
               <ProcessGroupDetail id={page.objId} />
             </div>
           );
       }
     };
-    const opsNav = page => {
+    const opsNav = (page) => {
       switch (page.page) {
-        case "ConfigurationHistory":
+        case 'ConfigurationHistory':
           return containerNav(<ConfigurationHistory />);
         //return "config hx";
-        case "AccessSetup":
+        case 'AccessSetup':
           return containerNav(<AccessSetup />);
-        case "ViewAccess":
+        case 'ViewAccess':
           return containerNav(<ViewAccess />);
-        case "AccessConfiguration":
+        case 'AccessConfiguration':
           return containerNav(<AccessConfiguration />);
         default:
-          return "undefined";
+          return 'undefined';
       }
     };
     function renderPageSwitch(page) {
       switch (page.navType) {
-        case "MainNav":
+        case 'MainNav':
           return mainNav(page);
-        case "OpsNav":
+        case 'OpsNav':
           return opsNav(page);
-        case "ClientsNav":
+        case 'ClientsNav':
           return clientsNav(page);
-        case "VendorsNav":
+        case 'VendorsNav':
           return vendorsNav(page);
-        case "ProcessGroupsNav":
+        case 'ProcessGroupsNav':
           return processGroupsNav(page);
-        case "ItemsNav":
+        case 'ItemsNav':
           return itemsNav(page);
-        case "ProductDesignNav":
+        case 'ProductDesignNav':
           return productDesignNav(page);
         default:
           return mainNav(page);
@@ -145,21 +145,21 @@ class Pages extends Component {
                 {renderPageSwitch(this.props.page.page)}
               </div>
             ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center"
-                  }}
-                >
-                  <Spinner animation="border" />
-                </div>
-              )}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center'
+                }}
+              >
+                <CircularProgress />
+              </div>
+            )}
           </div>
         ) : (
-            <Container style={{ marginTop: "7%" }}>
-              <LoginPage />
-            </Container>
-          )}
+          <Box style={{ marginTop: '7%' }}>
+            <LoginPage />
+          </Box>
+        )}
       </div>
     );
   }
@@ -169,7 +169,7 @@ Pages.propTypes = {
   page: PropTypes.object.isRequired
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   page: state.page,
   auth: state.auth
 });

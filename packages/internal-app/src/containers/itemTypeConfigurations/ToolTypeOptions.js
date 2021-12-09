@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
-import Grid from '@material-ui/core/Grid';
+import Grid from '@mui/material/Grid';
 import EndMillOptions from './EndMillOptions';
 
 export default function ToolTypeOptions({ itemConfiguration, handleOnChange }) {

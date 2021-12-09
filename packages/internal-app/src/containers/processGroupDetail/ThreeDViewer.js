@@ -3,7 +3,7 @@ import React, { Component, Fragment, useState, useEffect } from "react";
 import * as THREE from "three";
 import ParseStepFile from "./ParseStepFile";
 
-import { Button } from "@material-ui/core";
+import { Button } from "@mui/material";
 import { NURBSCurve } from "../../ThreeJSFunctionalElements/NURBSCurve.js";
 import { NURBSSurface } from "../../ThreeJSFunctionalElements/NURBSSurface.js";
 

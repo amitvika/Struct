@@ -1,6 +1,6 @@
 import React from 'react';
-import { MuiThemeProvider } from '@material-ui/core';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
 import { getThemeByName } from '@monostruct/common/themes/base';
 
 export const ThemeContext = React.createContext({});
@@ -24,10 +24,12 @@ export const ThemeContextProvider = ({ children }) => {
 
   return (
     <ThemeContext.Provider value={{ themeName, setThemeName, toggleTheme }}>
-      <MuiThemeProvider theme={getThemeByName(themeName)}>
-        <CssBaseline />
-        {children}
-      </MuiThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={getThemeByName(themeName)}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      </StyledEngineProvider>
     </ThemeContext.Provider>
   );
 };

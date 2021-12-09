@@ -1,37 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  Form,
-  FormGroup,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-} from 'reactstrap';
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import InputLabel from '@mui/material/InputLabel';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 import ItemsAPI from '@monostruct/common/api/items.api';
 
-export default function AppComponent({
+export default function DialogSelect({
   isAddComponentModalOpen,
   setIsAddComponentModalOpen,
-  setSelectedItem,
+  setSelectedItem
 }) {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [itemList, setItemList] = useState([]);
-  const [localSelectedItem, setLocalSelectedItem] = useState({
-    name: 'Select Item',
+  const [open, setOpen] = React.useState(false);
+
+  const [itemList, setItemList] = React.useState([]);
+  const [localSelectedItem, setLocalSelectedItem] = React.useState({
+    name: 'Select Item'
   });
 
-  const toggleModal = () => {
-    setIsAddComponentModalOpen(!isAddComponentModalOpen);
-    setModalOpen((prevState) => !prevState);
+  const handleClickOpen = () => {
+    setOpen(true);
   };
-  const toggleDropdown = () => setDropdownOpen((prevState) => !prevState);
 
-  useEffect(() => {
+  const handleClose = (event, reason) => {
+    if (reason !== 'backdropClick') {
+      setOpen(false);
+    }
+  };
+
+  React.useEffect(() => {
     ItemsAPI.getItemsAllAPI()
       .then((res) => {
         if (Array.isArray(res.data)) {
@@ -43,9 +45,9 @@ export default function AppComponent({
       });
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isAddComponentModalOpen) {
-      setModalOpen(true);
+      setOpen(true);
     }
   }, [isAddComponentModalOpen]);
 
@@ -56,41 +58,41 @@ export default function AppComponent({
   const onSubmit = () => {};
 
   return (
-    <Modal className="Add_Component" isOpen={modalOpen} toggle={toggleModal}>
-      <ModalHeader toggle={toggleModal}>Add Item</ModalHeader>
-      <ModalBody>
-        <Form onSubmit={onSubmit}>
-          <FormGroup>
-            <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
-              <DropdownToggle caret>{localSelectedItem.name}</DropdownToggle>
-              <DropdownMenu>
+    <div>
+      <Button onClick={handleClickOpen}>Open select dialog</Button>
+      <Dialog disableEscapeKeyDown open={open} onClose={handleClose}>
+        <DialogTitle>Add Item</DialogTitle>
+        <DialogContent>
+          <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
+            <FormControl sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel htmlFor="demo-dialog-native">Items</InputLabel>
+              <Select
+                native
+                value={localSelectedItem.name}
+                onChange={handleChange}
+                input={<OutlinedInput label="Age" id="demo-dialog-native" />}
+              >
+                <option aria-label="None" value="" />
                 {itemList.map((item, index) => {
                   return (
-                    <DropdownItem
+                    <option
                       key={index}
                       onClick={() => handleChange(item)}
                       value={item.name}
                     >
                       {item.name}
-                    </DropdownItem>
+                    </option>
                   );
                 })}
-              </DropdownMenu>
-            </Dropdown>
-            <Button
-              color="dark"
-              style={{ marginBottom: '2rem' }}
-              block
-              onClick={() => {
-                toggleModal();
-                setSelectedItem(localSelectedItem);
-              }}
-            >
-              Go
-            </Button>
-          </FormGroup>
-        </Form>
-      </ModalBody>
-    </Modal>
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleClose}>Ok</Button>
+        </DialogActions>
+      </Dialog>
+    </div>
   );
 }

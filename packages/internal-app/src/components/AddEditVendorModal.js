@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MainModal from '@monostruct/common/components/Modal';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
 import { Input, Headding } from '@monostruct/common/components';
 
 export default function AddEditVendorModal({

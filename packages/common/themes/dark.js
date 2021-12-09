@@ -1,6 +1,6 @@
 export const darkTheme = {
   palette: {
-    type: 'dark',
+    mode: 'dark',
     background: {
       default: '#000000'
     },

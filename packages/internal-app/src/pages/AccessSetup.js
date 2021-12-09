@@ -1,9 +1,9 @@
 import MaterialTable, { MTableToolbar } from 'material-table';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Spinner } from 'reactstrap';
+import CircularProgress from '@mui/material/CircularProgress';
 import { changePage } from '../actions/pageActions';
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@mui/material/Checkbox';
 import PropTypes from 'prop-types';
 import UserAccessTypesAPI from '@monostruct/common/api/access.api';
 
@@ -14,12 +14,12 @@ class AccessSetup extends Component {
     showDeletes: false,
     columns: [
       { title: 'ID', field: 'id', editable: 'never' },
-      { title: 'Name', field: 'name' },
-    ],
+      { title: 'Name', field: 'name' }
+    ]
   };
   static propTypes = {
     auth: PropTypes.object.isRequired,
-    changePage: PropTypes.func.isRequired,
+    changePage: PropTypes.func.isRequired
   };
 
   componentDidMount() {
@@ -29,7 +29,7 @@ class AccessSetup extends Component {
   retrieveFromDb = () => {
     this.setState((state) => ({
       tableLoaded: false,
-      rowData: state.rowData,
+      rowData: state.rowData
     }));
     UserAccessTypesAPI.fetchUserAccessTypesApi()
       .then((res) => {
@@ -42,7 +42,7 @@ class AccessSetup extends Component {
             return {
               id: x._id,
               name: x.name,
-              deleted_at: x.deletedAt,
+              deleted_at: x.deletedAt
             };
           });
         } else {
@@ -50,7 +50,7 @@ class AccessSetup extends Component {
             return {
               id: x._id,
               name: x.name,
-              deleted_at: x.deletedAt,
+              deleted_at: x.deletedAt
             };
           });
         }
@@ -60,7 +60,7 @@ class AccessSetup extends Component {
 
         this.setState((state) => ({
           tableLoaded: true,
-          rowData,
+          rowData
         }));
       })
       .catch((err) => console.log(err));
@@ -70,7 +70,7 @@ class AccessSetup extends Component {
     const pageDetail = {
       navType,
       page,
-      objId,
+      objId
     };
     this.props.changePage(pageDetail);
   };
@@ -84,7 +84,7 @@ class AccessSetup extends Component {
     }
     this.setState(
       (state) => ({
-        showDeletes: !state.showDeletes,
+        showDeletes: !state.showDeletes
       }),
       () => this.retrieveFromDb()
     );
@@ -104,7 +104,7 @@ class AccessSetup extends Component {
                 actionsColumnIndex: 3,
                 addRowPosition: 'first',
                 exportButton: true,
-                exportFileName: 'UserAccessTypes',
+                exportFileName: 'UserAccessTypes'
               }}
               onRowClick={(rowdata, event) =>
                 this.props.history.push(`/access-configuration/${event.id}`)
@@ -127,7 +127,7 @@ class AccessSetup extends Component {
                       Show Deletions
                     </div>
                   </div>
-                ),
+                )
               }}
               editable={{
                 onRowAdd: (newData) =>
@@ -136,11 +136,11 @@ class AccessSetup extends Component {
                       {
                         this.setState((state) => ({
                           tableLoaded: false,
-                          rowData: state.rowData,
+                          rowData: state.rowData
                         }));
                         const newClient = {
                           name: newData.name,
-                          user: user._id,
+                          user: user._id
 
                           /*this.props.auth.isAuthenticated
                                                         ? this.props.auth.user._id
@@ -152,7 +152,7 @@ class AccessSetup extends Component {
                             this.retrieveFromDb();
                             this.setState((state) => ({
                               tableLoaded: true,
-                              rowData: state.rowData,
+                              rowData: state.rowData
                             }));
                           })
                           .catch((err) => console.log(err.data));
@@ -165,18 +165,18 @@ class AccessSetup extends Component {
                     setTimeout(() => {
                       this.setState((state) => ({
                         tableLoaded: false,
-                        rowData: state.rowData,
+                        rowData: state.rowData
                       }));
 
                       UserAccessTypesAPI.updateUserAccessTypesApi(newData.id, {
                         name: newData.name,
-                        user: user._id,
+                        user: user._id
                       })
                         .then((res) => {
                           this.retrieveFromDb();
                           this.setState((state) => ({
                             tableLoaded: true,
-                            rowData: state.rowData,
+                            rowData: state.rowData
                           }));
                         })
                         .catch((err) => console.log(err.data));
@@ -189,7 +189,7 @@ class AccessSetup extends Component {
                     setTimeout(() => {
                       this.setState((state) => ({
                         tableLoaded: false,
-                        rowData: state.rowData,
+                        rowData: state.rowData
                       }));
 
                       UserAccessTypesAPI.deleteUserAccessTypesApi(oldData.id)
@@ -197,14 +197,14 @@ class AccessSetup extends Component {
                           this.retrieveFromDb();
                           this.setState((state) => ({
                             tableLoaded: true,
-                            rowData: state.rowData,
+                            rowData: state.rowData
                           }));
                         })
                         .catch((err) => console.log(err.data));
 
                       resolve();
                     }, 1000);
-                  }),
+                  })
               }}
               //////
             />
@@ -212,10 +212,10 @@ class AccessSetup extends Component {
             <div
               style={{
                 display: 'flex',
-                justifyContent: 'center',
+                justifyContent: 'center'
               }}
             >
-              <Spinner animation="border" />
+              <CircularProgress />
             </div>
           )}
         </div>
@@ -225,7 +225,7 @@ class AccessSetup extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  auth: state.auth,
+  auth: state.auth
 });
 
 export default connect(mapStateToProps, { changePage })(AccessSetup);

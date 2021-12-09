@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import get from 'lodash/get';
-import Grid from '@material-ui/core/Grid';
+import Grid from '@mui/material/Grid';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Select from '@monostruct/common/components/atoms/Select';
 

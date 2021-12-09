@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
 import LabelledCheckBox from '@monostruct/common/components/LabelledCheckBox';
-import Checkbox from '@material-ui/core/Checkbox';
-import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
-import CircleChecked from '@material-ui/icons/CheckCircleOutline';
-//import { withStyles, makeStyles } from "@material-ui/core/styles";
+import Checkbox from '@mui/material/Checkbox';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import CircleChecked from '@mui/icons-material/CheckCircleOutline';
+//import { withStyles, makeStyles } from "@mui/material/styles";
 import {
   USESTYLES,
   StyledTableRow,

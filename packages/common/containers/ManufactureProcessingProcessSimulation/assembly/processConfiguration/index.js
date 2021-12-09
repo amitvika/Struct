@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-import {
-	Button,
-	makeStyles,
-	Paper
-} from "@material-ui/core";
+import { Button, Paper } from "@mui/material";
+
+import makeStyles from '@mui/styles/makeStyles';
 
 import ThreejsViewModal from './ThreejsViewModal'
 import AddLineItem from './AddLineItem';

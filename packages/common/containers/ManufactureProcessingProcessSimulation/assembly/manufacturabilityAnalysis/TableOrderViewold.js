@@ -4,12 +4,13 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
-import TableCell from '@material-ui/core/TableCell';
-import Paper from '@material-ui/core/Paper';
+import withStyles from '@mui/styles/withStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import TableCell from '@mui/material/TableCell';
+import Paper from '@mui/material/Paper';
 import { AutoSizer, Column, CellMeasurer, CellMeasurerCache, Table, SortIndicator, SortDirection } from 'react-virtualized';
 
-//import TableHead from '@material-ui/core/TableHead';
+//import TableHead from '@mui/material/TableHead';
 //let rowParent = null;
 const styles = (theme) => ({
   flexContainer: {
@@ -62,7 +63,7 @@ const GetSortOrder=(sortBy, sortDirection)=> {
       }    
       return 0;    
   }    
-}    
+}
 class MuiVirtualizedTable extends React.PureComponent {
   static defaultProps = {
     headerHeight: 24,

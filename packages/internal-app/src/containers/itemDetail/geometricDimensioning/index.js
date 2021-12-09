@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Paper } from '@material-ui/core';
+import { Paper } from '@mui/material';
 import Viewer from './Viewer';
 import ViewerToolbar from './ViewerToolbar';
 import {

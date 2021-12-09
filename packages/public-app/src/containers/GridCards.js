@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
+import makeStyles from '@mui/styles/makeStyles';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
 import TileData from './MyMachines/TileData';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import ButtonBase from '@material-ui/core/ButtonBase';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import ButtonBase from '@mui/material/ButtonBase';
 import Logo from '../assets/images/pizza.webp';
-import { Link } from '@material-ui/core';
+import { Link } from '@mui/material';
 import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
@@ -65,10 +65,10 @@ export default function GridCards({ detailLink }) {
     return (
         <div className={classes.root}>
 
-            <GridList cellHeight={180} className={classes.gridList} cols={4}>
+            <ImageList cellHeight={180} className={classes.gridList} cols={4}>
 
                 {TileData.map((tile) => (
-                    <GridListTile className={classes.gridListTile}>
+                    <ImageListItem className={classes.gridListTile}>
                         <ButtonBase>
                             <Paper
                                 className={classes.paper}
@@ -102,9 +102,9 @@ export default function GridCards({ detailLink }) {
                             </Paper>
                         </ButtonBase>
 
-                    </GridListTile>
+                    </ImageListItem>
                 ))}
-            </GridList>
+            </ImageList>
 
         </div>
     );
