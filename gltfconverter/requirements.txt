@@ -1,2 +1,4 @@
 boto3==1.19.12
+catkin-pkg==0.4.24
 django-storages==1.12.3
+docutils==0.18.1
