@@ -6,7 +6,6 @@ import {
   createTheme
 } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
-import { purple } from '@mui/material/colors';
 
 export const ColorModeContext = React.createContext({
   toggleColorMode: () => {}

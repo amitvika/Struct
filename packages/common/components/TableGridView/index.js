@@ -52,7 +52,7 @@ const TableGridView = ({
   const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
 
   const paginationValues = getFromLocalStorage(`${title}-pagination`) || {};
-  const [page, setPage] = React.useState(paginationValues.page || 1);
+  const [page, setPage] = React.useState(paginationValues.page || 0);
   const [rowsPerPage, setRowsPerPage] = React.useState(
     paginationValues.rowsPerPage || 100
   );
@@ -275,6 +275,7 @@ const TableGridView = ({
     setPage(0);
   };
 
+  console.log('count', totalDocs, 'page', page, 'rowsPerPage', rowsPerPage);
   return (
     <>
       <LoadingModal isLoading={isLoading} />
