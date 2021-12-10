@@ -275,7 +275,6 @@ const TableGridView = ({
     setPage(0);
   };
 
-  console.log('count', totalDocs, 'page', page, 'rowsPerPage', rowsPerPage);
   return (
     <>
       <LoadingModal isLoading={isLoading} />
