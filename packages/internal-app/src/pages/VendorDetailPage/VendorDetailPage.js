@@ -145,11 +145,36 @@ const VendorDetail = () => {
             value={tabIndex}
             onChange={(event, newTabIndex) => handleTabChange(newTabIndex)}
           >
-            <Tab label="Supplied Items " value={1} className="tab" />
-            <Tab label="Payments" value={2} className="tab" />
-            <Tab label="Validation Failures" value={3} className="tab" />
-            <Tab label="Vendor as Client" value={4} className="tab" />
-            <Tab label="Documentation" value={5} className="tab" />
+            <Tab
+              label="Supplied Items "
+              value={1}
+              className="tab"
+              sx={{ alignItems: 'start' }}
+            />
+            <Tab
+              label="Payments"
+              value={2}
+              className="tab"
+              sx={{ alignItems: 'start' }}
+            />
+            <Tab
+              label="Validation Failures"
+              value={3}
+              className="tab"
+              sx={{ alignItems: 'start' }}
+            />
+            <Tab
+              label="Vendor as Client"
+              value={4}
+              className="tab"
+              sx={{ alignItems: 'start' }}
+            />
+            <Tab
+              label="Documentation"
+              value={5}
+              className="tab"
+              sx={{ alignItems: 'start' }}
+            />
           </Tabs>
         </TabContainer>
         <TabPanelContainer>{renderPageSwitch()}</TabPanelContainer>

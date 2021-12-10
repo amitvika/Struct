@@ -641,7 +641,7 @@ const ItemDetail = ({ itemValue }) => {
           label={`${index + 1}. ${tabList[key]}`}
           value={key}
           key={key}
-          style={{ textAlign: 'left', minHeight: '30px' }}
+          sx={{ textAlign: 'left', minHeight: '30px', alignItems: 'start' }}
         />
       );
     });
