@@ -24,6 +24,7 @@ import {
 } from '@monostruct/common/gltf/Tree/utils';
 import Assembly from '../assembly';
 import { buildParentChildTree } from './helper';
+import { Box } from '@mui/system';
 
 let myGlobalTree = null;
 let myGlobalState = {};
@@ -1488,7 +1489,7 @@ export default function GeometricDimensioning(props) {
   } */
 
   return (
-    <Paper className={classes.mainContainer}>
+    <Box className={classes.mainContainer}>
       {!isLoading && state.gltfjson?.tree && (
         <div className={` ${classes.assemblyTreeContainer}`}>
           <Assembly
@@ -1536,33 +1537,31 @@ export default function GeometricDimensioning(props) {
       </Paper>
 
       {optionForAssemblyTree == 'Configuration' && tabIndex == 'gdtac' && (
-        <Paper className={`${classes.paper} ${classes.assemblyTableContainer}`}>
-          <ViewerToolbar
-            {...state}
-            selectedOption={selectedOption}
-            setSelectedOption={setSelectedOption}
-            resetSelections={resetSelections}
-            selectAllSelectedSolids={selectAllSelectedSolids}
-            setCtrlKey={setCtrlKey}
-            toolbar={true}
-            activeDataTable={activeDataTable}
-            setActiveDataTable={globalSetActiveDataTable}
-            incrementActiveDataTable={incrementActiveDataTable}
-            saveGDTDataTable={saveGDTDataTable}
-            resetActiveDataTable={resetActiveDataTable}
-            setCurrentDataTable={setCurrentDataTable}
-            setRowKeyValue={setRowKeyValue}
-            setMateValues={setMateValues}
-            setAngle={setAngle}
-            setOffset={setOffset}
-            isProgressOpen={isProgressOpen}
-            progressOpenedFiles={progressOpenedFiles}
-            setIsProgressOpen={setIsProgressOpen}
-            setProgressOpenedFiles={setProgressOpenedFiles}
-            {...{ internalProductConfig }}
-          />
-        </Paper>
+        <ViewerToolbar
+          {...state}
+          selectedOption={selectedOption}
+          setSelectedOption={setSelectedOption}
+          resetSelections={resetSelections}
+          selectAllSelectedSolids={selectAllSelectedSolids}
+          setCtrlKey={setCtrlKey}
+          toolbar={true}
+          activeDataTable={activeDataTable}
+          setActiveDataTable={globalSetActiveDataTable}
+          incrementActiveDataTable={incrementActiveDataTable}
+          saveGDTDataTable={saveGDTDataTable}
+          resetActiveDataTable={resetActiveDataTable}
+          setCurrentDataTable={setCurrentDataTable}
+          setRowKeyValue={setRowKeyValue}
+          setMateValues={setMateValues}
+          setAngle={setAngle}
+          setOffset={setOffset}
+          isProgressOpen={isProgressOpen}
+          progressOpenedFiles={progressOpenedFiles}
+          setIsProgressOpen={setIsProgressOpen}
+          setProgressOpenedFiles={setProgressOpenedFiles}
+          {...{ internalProductConfig }}
+        />
       )}
-    </Paper>
+    </Box>
   );
 }

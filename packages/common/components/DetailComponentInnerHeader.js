@@ -40,7 +40,6 @@ export default function DetailComponentInnerHeader({
       style={{
         padding: 10,
         margin: 10,
-        paddingTop: 30,
         display: 'flex',
         position: 'relative',
         flexDirection: isMobile ? 'column' : 'row'
@@ -49,7 +48,14 @@ export default function DetailComponentInnerHeader({
       {/* <IconButton style={{ zIndex: 999 }} color="primary" onClick={handleClick}>
         <ArrowBackIcon />
       </IconButton> */}
-      <Box style={{ zIndex: 999 }}>
+      <Box
+        sx={{
+          zIndex: 999,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center'
+        }}
+      >
         <TextBoxWithInputField
           {...{
             prefix,
@@ -66,7 +72,7 @@ export default function DetailComponentInnerHeader({
         <LogoView {...{ logoUrl, handleLogoChange, name: title }} />
       )}
       <Box
-        style={{
+        sx={{
           position: isMobile ? 'relative' : 'absolute',
           display: 'flex',
           top: 0,

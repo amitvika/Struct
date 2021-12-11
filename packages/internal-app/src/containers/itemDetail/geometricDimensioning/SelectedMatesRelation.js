@@ -10,46 +10,13 @@ import LabelledCheckBox from '@monostruct/common/components/LabelledCheckBox';
 import Checkbox from '@mui/material/Checkbox';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CircleChecked from '@mui/icons-material/CheckCircleOutline';
-//import { withStyles, makeStyles } from "@mui/material/styles";
+import Typography from '@mui/material/Typography';
 import {
   USESTYLES,
   StyledTableRow,
   StyledTableCell
 } from '@monostruct/common/gltf/Tree/utils';
-/*
-const useStyles = makeStyles({
-  table: {
-    minWidth: 400
-  },
-  tableRow: {
-    height: 30
-  },
-  tableCell: {
-    padding: "0px 8px",
-    whiteSpace: "normal",
-    wordWrap: "break-word",
-    wordBreak: "break-all"   
-  }
-});
 
-const StyledTableRow = withStyles((theme) => ({
-  root: {
-    height: 30,
-    '&:nth-of-type(odd)': {
-      backgroundColor: "white",
-    },
-    '&:nth-of-type(even)': {
-      backgroundColor: "#FAFAFA",
-    },
-  }
-}))(TableRow);
-
-const StyledTableCell = withStyles((theme) => ({
-  root: {
-    padding: "0px 8px"
-  }
-}))(TableCell);
-*/
 const SelectedMatesRelation = (props) => {
   const classes = USESTYLES();
   const {
@@ -63,7 +30,8 @@ const SelectedMatesRelation = (props) => {
     setOffset,
     onSelect = (a, b) => {
       console.log(a, b);
-    }
+    },
+    title
   } = props;
   const myCheckBoxes = [
     'coplaner',
@@ -251,24 +219,34 @@ const SelectedMatesRelation = (props) => {
   };
 
   return (
-    <TableContainer component={Paper} style={{ minWidth: 400 }}>
-      <Table className={classes.table} aria-label="simple table">
-        <TableHead>
-          <TableRow
-            className={classes.tableRow}
-            style={{ background: '#CCCCCC', fontWeight: 'bold' }}
-          >
-            <TableCell className={classes.tableCell} align="right">
-              Mate
-            </TableCell>
-            <TableCell className={classes.tableCell} align="left">
-              Estimated Mate
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>{renderTable()}</TableBody>
-      </Table>
-    </TableContainer>
+    <Paper style={{ minWidth: 400 }}>
+      <Typography
+        sx={{ flex: '1 1 100%', fontWeight: 'bold' }}
+        variant="h6"
+        id="tableTitle"
+        component="div"
+      >
+        {title}
+      </Typography>
+      <TableContainer>
+        <Table className={classes.table} aria-label="simple table">
+          <TableHead>
+            <TableRow
+              className={classes.tableRow}
+              style={{ background: '#CCCCCC', fontWeight: 'bold' }}
+            >
+              <TableCell className={classes.tableCell} align="right">
+                Mate
+              </TableCell>
+              <TableCell className={classes.tableCell} align="left">
+                Estimated Mate
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>{renderTable()}</TableBody>
+        </Table>
+      </TableContainer>
+    </Paper>
   );
 };
 export default SelectedMatesRelation;

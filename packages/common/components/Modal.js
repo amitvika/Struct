@@ -6,6 +6,9 @@ import Box from '@mui/material/Box';
 
 const style = {
   position: 'absolute',
+  height: '70%',
+  minWidth: '50%',
+  overflowX: 'scroll',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',

@@ -4,7 +4,14 @@ import Box from '@mui/material/Box';
 import Grow from '@mui/material/Grow';
 import Popper from '@mui/material/Popper';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
-import { Button, MenuList, MenuItem, Paper } from '@mui/material';
+import {
+  Button,
+  MenuList,
+  MenuItem,
+  Paper,
+  Tooltip,
+  Menu
+} from '@mui/material';
 
 import { useStyles } from './Header.style';
 import { AuthContext } from '../../context/AuthContext';
@@ -30,13 +37,13 @@ export default function HeaderDesktopView({
 
   const history = useHistory();
   const anchorRef = useRef(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+
   const [open, setOpen] = useState(false);
 
   const {
     authUser: { isAuthenticated, user }
   } = useContext(AuthContext);
-
-  console.log('--isAuthenticated---', isAuthenticated, user);
 
   const handleToggle = () => {
     if (isAuthenticated) {
@@ -54,7 +61,7 @@ export default function HeaderDesktopView({
     setOpen(false);
   };
   const handleLink = (path) => {
-    setOpen(false);
+    handleCloseUserMenu();
     history.push(path);
   };
 
@@ -100,24 +107,79 @@ export default function HeaderDesktopView({
     });
     return menuItems;
   };
+
+  const handleOpenUserMenu = (event) => {
+    if (isAuthenticated) {
+      setAnchorElUser(event.currentTarget);
+    } else {
+      handleLogout();
+    }
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
   const getSecondMenu = () => {
     let menuItems = [];
 
     menuItems = getMenuButtons(secondHeaderList);
 
+    // menuItems.push(
+    //   <li>
+    //     <Button
+    //       key="user_profile"
+    //       ref={anchorRef}
+    //       aria-controls={open ? 'menu-list-grow' : undefined}
+    //       aria-haspopup="true"
+    //       onClick={handleToggle}
+    //       style={{ color: 'white' }}
+    //       className={classes.menuButton}
+    //     >
+    //       {isAuthenticated ? `Welcome: ${user.email}` : 'Login'}
+    //     </Button>
+    //   </li>
+    // );
+
     menuItems.push(
       <li>
-        <Button
-          key="user_profile"
-          ref={anchorRef}
-          aria-controls={open ? 'menu-list-grow' : undefined}
-          aria-haspopup="true"
-          onClick={handleToggle}
-          style={{ color: 'white' }}
-          className={classes.menuButton}
+        <Tooltip title={isAuthenticated ? 'Open settings' : 'Go To Login Page'}>
+          <Button
+            onClick={handleOpenUserMenu}
+            sx={{ p: 0, color: 'white' }}
+            className={classes.menuButton}
+          >
+            {isAuthenticated ? `Welcome: ${user.email}` : 'Login'}
+          </Button>
+        </Tooltip>
+
+        <Menu
+          sx={{ mt: '45px' }}
+          id="menu-appbar"
+          anchorEl={anchorElUser}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right'
+          }}
+          keepMounted
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right'
+          }}
+          open={Boolean(anchorElUser)}
+          onClose={handleCloseUserMenu}
         >
-          {isAuthenticated ? `Welcome: ${user.email}` : 'Login'}
-        </Button>
+          <MenuItem
+            key={`user_setup_link`}
+            onClick={() => handleLink('/administrative')}
+          >
+            Administrative
+          </MenuItem>
+
+          <MenuItem key={`logout_link`} onClick={handleLogout}>
+            Logout
+          </MenuItem>
+        </Menu>
       </li>
     );
 
@@ -142,47 +204,47 @@ export default function HeaderDesktopView({
       return menuItems;
     }
 
-    menuItems.push(
-      <Popper
-        key={`popper_admin_options`}
-        open={open}
-        anchorEl={anchorRef.current}
-        role={undefined}
-        transition
-        disablePortal
-      >
-        {({ TransitionProps, placement }) => (
-          <Grow
-            {...TransitionProps}
-            style={{
-              transformOrigin:
-                placement === 'bottom' ? 'center top' : 'center bottom'
-            }}
-          >
-            <Paper>
-              <ClickAwayListener onClickAway={handleClose}>
-                <MenuList
-                  autoFocusItem={open}
-                  id="menu-list-grow"
-                  onKeyDown={handleListKeyDown}
-                >
-                  <MenuItem
-                    key={`user_setup_link`}
-                    onClick={() => handleLink('/administrative')}
-                  >
-                    Administrative
-                  </MenuItem>
+    // menuItems.push(
+    //   <Popper
+    //     key={`popper_admin_options`}
+    //     open={open}
+    //     anchorEl={anchorRef.current}
+    //     role={undefined}
+    //     transition
+    //     disablePortal
+    //   >
+    //     {({ TransitionProps, placement }) => (
+    //       <Grow
+    //         {...TransitionProps}
+    //         style={{
+    //           transformOrigin:
+    //             placement === 'bottom' ? 'center top' : 'center bottom'
+    //         }}
+    //       >
+    //         <Paper>
+    //           <ClickAwayListener onClickAway={handleClose}>
+    //             <MenuList
+    //               autoFocusItem={open}
+    //               id="menu-list-grow"
+    //               onKeyDown={handleListKeyDown}
+    //             >
+    //               <MenuItem
+    //                 key={`user_setup_link`}
+    //                 onClick={() => handleLink('/administrative')}
+    //               >
+    //                 Administrative
+    //               </MenuItem>
 
-                  <MenuItem key={`logout_link`} onClick={handleLogout}>
-                    Logout
-                  </MenuItem>
-                </MenuList>
-              </ClickAwayListener>
-            </Paper>
-          </Grow>
-        )}
-      </Popper>
-    );
+    //               <MenuItem key={`logout_link`} onClick={handleLogout}>
+    //                 Logout
+    //               </MenuItem>
+    //             </MenuList>
+    //           </ClickAwayListener>
+    //         </Paper>
+    //       </Grow>
+    //     )}
+    //   </Popper>
+    // );
 
     return menuItems;
   };

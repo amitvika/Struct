@@ -276,10 +276,10 @@ export default function MaterialModal({
       title={'Select Material'}
     >
       <Grid className="section-padding-left" container spacing={4}>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Headding title="Name Search" />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Input
             placeholder="Enter"
             type="text"
@@ -311,93 +311,90 @@ export default function MaterialModal({
             Clear
           </Button>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={1}>
           {isMaterialLoading && <CircularProgress />}
         </Grid>
 
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Headding title="Density Range (g/cm3)"></Headding>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Input
             placeholder="Enter Min"
             type="number"
             onChange={(event) => handleChange('densityMin', event.target.value)}
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Input
             placeholder="Enter Max"
             type="number"
             onChange={(event) => handleChange('densityMax', event.target.value)}
           />
         </Grid>
-        <Grid item xs={3}></Grid>
+
         {/* Tensile Strength */}
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Headding title="Tensile Strength (MPa)"></Headding>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Input
             placeholder="Enter Min"
             type="number"
             onChange={(event) => handleChange('tensileMin', event.target.value)}
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Input
             placeholder="Enter Max"
             type="number"
             onChange={(event) => handleChange('tensileMax', event.target.value)}
           />
         </Grid>
-        <Grid item xs={3}></Grid>
 
         {/* Elastic Modulus (GPa) */}
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Headding title="Elastic Modulus (GPa)"></Headding>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Input
             placeholder="Enter Min"
             type="number"
             onChange={(event) => handleChange('elasticMin', event.target.value)}
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Input
             placeholder="Enter Max"
             type="number"
             onChange={(event) => handleChange('elasticMax', event.target.value)}
           />
         </Grid>
-        <Grid item xs={3}></Grid>
 
         {/* Yield Strength (MPa) */}
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Headding title="Yield Strength (MPa)"></Headding>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Input
             placeholder="Enter Min"
             type="number"
             onChange={(event) => handleChange('yieldMin', event.target.value)}
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Input
             placeholder="Enter Max"
             type="number"
             onChange={(event) => handleChange('yieldMax', event.target.value)}
           />
         </Grid>
-        <Grid item xs={3}></Grid>
 
         {/* Flexural Modulus(GPa) */}
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Headding title="Flexural Modulus(GPa)"></Headding>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Input
             placeholder="Enter Min"
             type="number"
@@ -406,7 +403,7 @@ export default function MaterialModal({
             }
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Input
             placeholder="Enter Max"
             type="number"
@@ -415,52 +412,42 @@ export default function MaterialModal({
             }
           />
         </Grid>
-      </Grid>
 
-      <Grid className="section-padding-left" container spacing={4}>
-        <>
-          <Grid item xs={3}>
-            <Headding title="Category"></Headding>
-          </Grid>
-          <Grid item xs={6}>
-            {/* {
-                                !isSearchNameActive && */}
+        <Grid item xs={4}>
+          <Headding title="Category"></Headding>
+        </Grid>
+        <Grid item xs={8}>
+          <Select
+            placeholder="Select"
+            options={categoryOptions}
+            onChange={(data) => handleCategoryChange(data.value)}
+            value={`${currentCategory}`}
+            size={'large'}
+          />
+        </Grid>
 
-            <Select
-              // label="Category"
-              placeholder="Select"
-              options={categoryOptions}
-              onChange={(data) => handleCategoryChange(data.value)}
-              value={`${currentCategory}`}
-            />
-            {/* } */}
-          </Grid>
-          <Grid item xs={3} />
-        </>
         {subcategoryOptionsOne.length > 0 && (
           <>
-            <Grid item xs={3}>
+            <Grid item xs={4}>
               <Headding title="Sub Category 1"></Headding>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={8}>
               <Select
-                // label="Sub Category"
                 placeholder="Select"
                 options={subcategoryOptionsOne}
                 onChange={(data) => handleSubCategoryOneChange(data.value)}
                 value={`${currentSubCategoryOne}`}
               />
             </Grid>
-            <Grid item xs={3} />
           </>
         )}
 
         {subcategoryOptionsTwo.length > 0 && (
           <>
-            <Grid item xs={3}>
+            <Grid item xs={4}>
               <Headding title="Sub Category 2"></Headding>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={8}>
               <Select
                 // label="Sub Category"
                 placeholder="Select"
@@ -469,16 +456,15 @@ export default function MaterialModal({
                 value={`${currentSubCategoryTwo}`}
               />
             </Grid>
-            <Grid item xs={3} />
           </>
         )}
 
         {subcategoryOptionsThree.length > 0 && (
           <>
-            <Grid item xs={3}>
+            <Grid item xs={4}>
               <Headding title="Sub Category 3"></Headding>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={8}>
               <Select
                 // label="Sub Category"
                 placeholder="Select"
@@ -487,16 +473,15 @@ export default function MaterialModal({
                 value={`${currentSubCategoryThree}`}
               />
             </Grid>
-            <Grid item xs={3} />
           </>
         )}
 
         {subcategoryOptionsFour.length > 0 && (
           <>
-            <Grid item xs={3}>
+            <Grid item xs={4}>
               <Headding title="Sub Category 4"></Headding>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={8}>
               <Select
                 // label="Sub Category"
                 placeholder="Select"
@@ -505,7 +490,6 @@ export default function MaterialModal({
                 value={`${currentSubCategoryFour}`}
               />
             </Grid>
-            <Grid item xs={3} />
           </>
         )}
       </Grid>

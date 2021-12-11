@@ -317,8 +317,6 @@ export const USESTYLES = makeStyles((theme) => ({
     }
   },
   mainContainer: {
-    margin: 10,
-    padding: 10,
     display: 'inline-flex',
     minWidth: '100%',
     //background: "#F3F3F3",
@@ -351,8 +349,6 @@ export const USESTYLES = makeStyles((theme) => ({
   flexpaper: {
     flex: 1,
     display: 'flex',
-    padding: '20px',
-    margin: '0px 15px',
     boxShadow: '0 0 10px rgb(0 0 0 / 20%)'
   },
   container: {

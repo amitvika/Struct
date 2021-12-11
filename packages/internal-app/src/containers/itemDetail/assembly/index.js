@@ -178,7 +178,7 @@ class Extensions extends Component {
 
   render() {
     return (
-      <FilteringContainer style={{ border: 'unset' }} nodes={this.state.nodes}>
+      <FilteringContainer className="MuiPaper-rounded" nodes={this.state.nodes}>
         {({ nodes }) => (
           <div style={{ height: 800 }}>
             <Tree

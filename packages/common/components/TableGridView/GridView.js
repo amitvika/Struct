@@ -185,8 +185,9 @@ export default function GridView({
             />
             <div style={{ marginLeft: '5px' }}>
               {fieldItem.isLink ? (
-                <div
-                  style={{ cursor: 'pointer' }}
+                <Link
+                  component="button"
+                  variant="body2"
                   onClick={(event) => {
                     event.stopPropagation();
                     history.push(
@@ -195,7 +196,7 @@ export default function GridView({
                   }}
                 >
                   {data[fieldItem.field]}
-                </div>
+                </Link>
               ) : (
                 <FieldItemValue {...{ data, fieldItem }} />
               )}

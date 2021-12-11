@@ -38,6 +38,7 @@ const SelectExample = ({
   id,
   isRequired = false,
   hasError = null,
+  size = 'small',
   ...props
 }) => {
   const handleChange = (event) => {
@@ -132,7 +133,7 @@ const SelectExample = ({
   };
 
   return (
-    <FormControl sx={{ width: '100%' }} size="small">
+    <FormControl sx={{ width: '100%' }} size={size}>
       {render()}
       {hasError && <FormHelperText>This is required!</FormHelperText>}
     </FormControl>
