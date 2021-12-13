@@ -21,6 +21,9 @@ export const buildParentChildTree = (
 ) => {
   const tree = [];
   const childrenOf = {};
+  if (!data) {
+    return tree;
+  }
   data.forEach((item) => {
     item[childrenKey] = [];
   });

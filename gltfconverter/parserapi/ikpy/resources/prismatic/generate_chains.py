@@ -1,5 +1,5 @@
 # IKPy imports
-from ikpy import chain
+from ...src.ikpy import chain
 
 
 ########################## Simple prismatic robot ###############################

@@ -125,6 +125,16 @@ export const getPartsKinematicOrder = async (
   // console.log(kinematicURL);
   return axios.get(kinematicURL);
 };
+export const getPartsKinematicMovement = async (
+  id,
+  distancegap,
+  anglegap,
+  animationtime
+) => {
+  const kinematicURL = `${host}/kinematicmove?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}`;
+  // console.log(kinematicURL);
+  return axios.get(kinematicURL);
+};
 
 export const getMinimumDistance = async (
   xmove,

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Paper /*, CircularProgress*/ } from '@mui/material';
+import { Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import Switch from '@mui/material/Switch';
 import GeometricDimensioning from '../itemDetail/geometricDimensioning';
 import { SELECTFEATURE, USESTYLES } from '@monostruct/common/gltf/Tree/utils';
 
@@ -30,7 +32,9 @@ export default function ItemTypeConfiguration(props) {
     drawLine,
     internalProductConfig,
     selectedOption,
-    setSelectedOption
+    setSelectedOption,
+    showKinematicMove,
+    setShowKinematicMove
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
@@ -198,12 +202,24 @@ export default function ItemTypeConfiguration(props) {
     //     return null;
     //   }
   };
-
+  const handleSwitchChange = async (event) => {
+    setShowKinematicMove(event.target.checked);
+  };
   return (
     <>
       <Headding style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 20 }}>
         {itemProperties.itemGeometry?.itemType || 'Configure Item'}
       </Headding>
+      <Grid item className={classes.item_row}>
+        <Typography variant="h6" noWrap>
+          {'Show Kinematic Animation:'}
+        </Typography>
+        <Switch
+          checked={showKinematicMove}
+          onChange={handleSwitchChange}
+          inputProps={{ 'aria-label': 'controlled' }}
+        />
+      </Grid>
       {/*  <LoadingModal isLoading={isLoading} /> */}
       {renderExcelUI()}
       <GeometricDimensioning
