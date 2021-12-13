@@ -14,6 +14,7 @@ import CriteriaUpload from '../criteriaUpload';
 import Users from '../users';
 import ConfigurationHistory from 'src/pages/ConfigurationHistory';
 import './style.css';
+import { Headding } from 'src/components';
 
 const Administrative = () => {
   const history = useHistory();
@@ -74,11 +75,11 @@ const Administrative = () => {
             style={{
               display: 'flex',
               justifyContent: 'center',
-              padding: 10,
+              padding: 30,
               margin: 10
             }}
           >
-            <h4>Administrative </h4>
+            <Headding as={'h4'}>Administrative</Headding>
           </Paper>
         </Grid>
 

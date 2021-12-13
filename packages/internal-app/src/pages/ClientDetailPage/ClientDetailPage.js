@@ -19,7 +19,8 @@ import DetailComponentInnerHeader from '@monostruct/common/components/DetailComp
 const useStyles = makeStyles((theme) => ({
   tab: {
     textAlign: 'left',
-    minHeight: '30px !important'
+    minHeight: '30px !important',
+    alignItems: 'start'
   },
   MuiTabWrapper: {
     width: '100%',

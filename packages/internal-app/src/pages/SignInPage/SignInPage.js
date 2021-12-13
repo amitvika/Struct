@@ -19,7 +19,7 @@ const SignInPage = () => {
 
       setTimeout(() => {
         setIsLoading(false);
-        history.push('/clients');
+        history.push('/items');
       }, 3000);
     } catch (error) {
       console.log('Error', error);
@@ -28,7 +28,7 @@ const SignInPage = () => {
 
   useEffect(() => {
     if (authUser.isAuthenticated) {
-      history.push('/clients');
+      history.push('/items');
     }
   }, [authUser, history]);
 

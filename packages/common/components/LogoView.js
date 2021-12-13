@@ -76,6 +76,7 @@ export default function LogoView({
             alt={name}
             imgProps={{ style: { objectFit: 'contain' } }}
             src={logo}
+            sx={{ width: '120px', height: '120px' }}
             className={classes.large}
           />
         ) : (
@@ -83,6 +84,7 @@ export default function LogoView({
             variant="square"
             alt={name}
             src={StructLogo}
+            sx={{ width: '100px', height: '100px' }}
             className={classes.large}
           />
         )}

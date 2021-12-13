@@ -1,13 +1,7 @@
 import React from 'react';
 
 import { useHistory } from 'react-router-dom';
-import {
-  AppBar,
-  Toolbar,
-  useMediaQuery,
-  useScrollTrigger,
-  Slide
-} from '@mui/material';
+import { AppBar, Toolbar, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useStyles } from './Header.style';
 import HeaderMobileView from './HeaderMobileView';

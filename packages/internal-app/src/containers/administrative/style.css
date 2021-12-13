@@ -1,3 +1,4 @@
 .tab {
-  text-align: left;
+  display: flex !important;
+  align-items: start !important;
 }

@@ -53,14 +53,12 @@ export default function SelectedSummaryTable({
   featureList = [],
   features = true,
   activeDataTable = 0,
-  setActiveDataTable = (data) => {
-    console.log(data);
-  },
   setCurrentDataTable = (data) => {
     console.log(data);
   },
   gltfjson = {},
-  mateValues = []
+  mateValues = [],
+  title
 }) {
   /* const myStyle = {
     whiteSpace: "normal",
@@ -233,8 +231,16 @@ export default function SelectedSummaryTable({
   };
 
   return (
-    <Typography component="div">
-      <TableContainer component={Paper} style={{ minWidth: 400 }}>
+    <Paper style={{ minWidth: 400 }}>
+      <Typography
+        sx={{ flex: '1 1 100%', fontWeight: 'bold' }}
+        variant="h6"
+        id="tableTitle"
+        component="div"
+      >
+        {title}
+      </Typography>
+      <TableContainer>
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow
@@ -294,6 +300,6 @@ export default function SelectedSummaryTable({
           </TableBody>
         </Table>
       </TableContainer>
-    </Typography>
+    </Paper>
   );
 }

@@ -249,44 +249,41 @@ export default function ViewerToolbar({
         {selectedObjects && selectedObjects.length >= 1 && (
           <div align={'center'}>{renderButtons()}</div>
         )}
-        <SectionContainer title={'Summary'}>
-          <SelectedSummaryTable
-            features={selectedOption != SELECTASSEMBLY}
-            featureList={
-              selectedOption != SELECTASSEMBLY ? selectedObjects : parentObjects
-            }
-            activeDataTable={activeDataTable}
-            setActiveDataTable={setActiveDataTable}
-            setCurrentDataTable={setCurrentDataTable}
-            gltfjson={gltfjson}
-            mateValues={mateValues}
-          />
-        </SectionContainer>
+        <SelectedSummaryTable
+          features={selectedOption != SELECTASSEMBLY}
+          featureList={
+            selectedOption != SELECTASSEMBLY ? selectedObjects : parentObjects
+          }
+          activeDataTable={activeDataTable}
+          setActiveDataTable={setActiveDataTable}
+          setCurrentDataTable={setCurrentDataTable}
+          gltfjson={gltfjson}
+          mateValues={mateValues}
+          title={'Summary'}
+        />
 
-        <SectionContainer title={'Feature Identification'}>
-          <SelectedFeatureMenu
-            features={selectedOption != SELECTASSEMBLY}
-            featureList={getFeatureListForGDT()}
-            setRowKeyValue={setRowKeyValue}
-          />
-        </SectionContainer>
+        <SelectedFeatureMenu
+          features={selectedOption != SELECTASSEMBLY}
+          featureList={getFeatureListForGDT()}
+          setRowKeyValue={setRowKeyValue}
+          title={'Feature Identification'}
+        />
 
         {selectedObjects &&
           selectedObjects.length >= 2 &&
           selectedOption != SELECTSOLID &&
           selectedOption != SELECTASSEMBLY && (
-            <SectionContainer title={'Assembly Mates'}>
-              <SelectedMatesRelation
-                mates={mates}
-                featureList={selectedObjects}
-                mateValues={mateValues}
-                angleMate={angle}
-                offsetMate={offset}
-                setMateValues={setMateValues}
-                setAngle={setAngle}
-                setOffset={setOffset}
-              />
-            </SectionContainer>
+            <SelectedMatesRelation
+              mates={mates}
+              featureList={selectedObjects}
+              mateValues={mateValues}
+              angleMate={angle}
+              offsetMate={offset}
+              setMateValues={setMateValues}
+              setAngle={setAngle}
+              setOffset={setOffset}
+              title={'Assembly Mates'}
+            />
           )}
         {selectedObjects && selectedObjects.length >= 1 && (
           <>

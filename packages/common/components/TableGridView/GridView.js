@@ -1,20 +1,25 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Grid, Typography, Paper, Button, IconButton, Link } from '@mui/material';
+import {
+  Grid,
+  Typography,
+  Paper,
+  Button,
+  IconButton,
+  Link
+} from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import EditIcon from '@mui/icons-material/Edit';
 import Avatar from '@mui/material/Avatar';
 import PictureAsPdf from '@mui/icons-material/PictureAsPdf';
 import DescriptionIcon from '@mui/icons-material/Description';
-import ClipboardText from '../ClipboardText';
 import HistoryIcon from '@mui/icons-material/History';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-// import DeleteForeverIcon from '@mui/icons-material/DeleteForeverIcon';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 import StructLogo from '../../assets/images/new_logo.png';
 import { getExistingPathFromServer } from '@monostruct/common/api/fileUpload.api';
 import Tooltip from '@mui/material/Tooltip';
-
+import { useHistory } from 'react-router-dom';
 import './style.css';
 
 const useStyles = makeStyles((theme) => ({
@@ -141,6 +146,7 @@ export default function GridView({
 }) {
   const classes = useStyles();
   const titleRef = useRef();
+  const history = useHistory();
 
   const FieldItemValue = ({ data, fieldItem }) => {
     return (
@@ -179,7 +185,16 @@ export default function GridView({
             />
             <div style={{ marginLeft: '5px' }}>
               {fieldItem.isLink ? (
-                <Link to={`${fieldItem.linkPrefix}${data[fieldItem.field]}`}>
+                <Link
+                  component="button"
+                  variant="body2"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    history.push(
+                      `${fieldItem.linkPrefix}${data[fieldItem.field]}`
+                    );
+                  }}
+                >
                   {data[fieldItem.field]}
                 </Link>
               ) : (
@@ -307,7 +322,8 @@ const ActionButtonContainer = ({
             onClick();
           }}
           style={{ padding: '7px' }}
-          size="large">
+          size="large"
+        >
           {children}
         </IconButton>
       </Tooltip>

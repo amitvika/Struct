@@ -159,11 +159,36 @@ const FactoriesDetail = () => {
             onChange={(event, newTabIndex) => handleTabChange(newTabIndex)}
             className="tab"
           >
-            <Tab label="Base Factory Setup" value={1} className="tab" />
-            <Tab label="Items in Production" value={2} className="tab" />
-            <Tab label="Floorplan Setup" value={3} className="tab" />
-            <Tab label="Facility Capabilities" value={4} className="tab" />
-            <Tab label="Autoscaling" value={5} className="tab" />
+            <Tab
+              label="Base Factory Setup"
+              value={1}
+              className="tab"
+              sx={{ alignItems: 'start' }}
+            />
+            <Tab
+              label="Items in Production"
+              value={2}
+              className="tab"
+              sx={{ alignItems: 'start' }}
+            />
+            <Tab
+              label="Floorplan Setup"
+              value={3}
+              className="tab"
+              sx={{ alignItems: 'start' }}
+            />
+            <Tab
+              label="Facility Capabilities"
+              value={4}
+              className="tab"
+              sx={{ alignItems: 'start' }}
+            />
+            <Tab
+              label="Autoscaling"
+              value={5}
+              className="tab"
+              sx={{ alignItems: 'start' }}
+            />
           </Tabs>
         </TabContainer>
         <TabPanelContainer>{renderPageSwitch(value)}</TabPanelContainer>

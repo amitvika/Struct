@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import '@monostruct/common/global.css';
 
