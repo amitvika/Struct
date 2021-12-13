@@ -24,7 +24,7 @@ import sys
 import math
 import pickle
 import threading
-
+import random
 
 from datetime import datetime
 from pathlib import Path
@@ -1487,6 +1487,19 @@ def getDictionaryFromOBB(obb):
                 "cx": 0, "cy": 0, "cz": 0,
                 "sx": 0, "sy": 0, "sz": 0
             }
+
+def getMaxDirectionFromOBB(obb):
+        if obb:
+            xsize, ysize, zsize =  obb.XHSize() ,  obb.YHSize() ,  obb.ZHSize() 
+            if (zsize >= xsize) and (zsize >= ysize):
+                aDir = obb.ZDirection()
+            elif (ysize >= zsize) and (ysize >= xsize):
+                aDir = obb.YDirection()
+            else:
+                aDir = obb.XDirection()
+            return (aDir.X(), aDir.Y(), aDir.Z())
+        else:
+            return (0,0,0)
 
 def CreateSphereFromCenter(center,vertexsize=0.1,circular=False):
         
@@ -5686,3 +5699,179 @@ def HackersResponse(request):
         except Exception as e:
             print("Error while logging",e)
         return JsonResponse({'message': "Hackers System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+
+
+def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None):#,thumbwidth,thumbheight):
+    """
+    Imports a file based on the type (STEP, IGES, BREP, STL)    
+    """
+    #Now read and return the shape
+   
+    try:
+        
+        
+        dictionary={}
+        _, file_extension = os.path.splitext(sourceFileName)
+        file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
+        file_extension = file_extension.lower()
+        newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
+        newfilename = newfilenamewithoutext + ".step"
+        outputShapes={}
+        if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :          
+            
+            try:
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,includeparts=False,distancegap=distancegap, logging=logging, 
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
+                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
+            except Exception as e:
+                print("error",e)
+       
+        if file_extension=="stl" :            
+            try:
+                shape = conversion.read_stl_file(sourceFileName, as_compound=False)
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
+            except Exception as e:
+                print("error",e)
+        
+        if file_extension=="brep" :            
+            try:
+                shape = conversion.read_brep_file(sourceFileName, as_compound=False)
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()                
+            except Exception as e:
+                print("error",e)
+        
+        if file_extension=="dxf" :            
+            try:
+                shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
+                    anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
+                    thumbwidth=0,thumbheight=0).dump()                 
+            except Exception as e:
+                print("error",e)
+        
+        try:
+            getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
+            _, myShapes = outputShapes
+            shapeArray,onlyShapes,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            kinematicrotation = []
+            if(len(onlyShapes)==8):
+                shapeorder = [0,1,2,6,3,7,5,4]
+            else:
+                shapeorder=[]
+            shapeCount = 0
+            ap=-1
+            for eachShape in onlyShapes:
+                myobb = get_oriented_bounding_details(eachShape)
+                ax, ay, az = getMaxDirectionFromOBB(myobb)
+                ap*=-1
+                aw = math.pi/12 * ap #random.random()
+                """if aw < 0.1:
+                    aw=0.1
+                if aw > 0.9:
+                    aw=0.9
+                aw = (math.pi/len(onlyShapes))*aw"""
+                kinematicrotation.append((ax,ay,az,aw))
+                if(len(onlyShapes)!=8):                   
+                    shapeorder.append(shapeCount)
+                
+                shapeCount += 1
+            print(shapeCount,shapeorder,kinematicrotation)
+            (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
+                anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
+                edgesize=0, vertexsize=0, kinematicrotation=kinematicrotation,shapeorder=shapeorder,
+                delay=animationtime).dump()
+
+        except Exception as e:
+            print("error",e) 
+        try:
+            myPickle = {'sourceType':'KinematicRotation',
+                            'sourceFileName':sourceFileName,
+                            'distancegap':distancegap,
+                            'anglegap':anglegap,
+                            'animationtime':animationtime,
+                            'colorshapes':shapePickles}
+            picklefile = dictionary["display"]+dictionary["store"]+".pickle"
+            with open(picklefile, 'wb') as f:                                
+                pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
+                # Pickle the 'data' dictionary using the highest protocol available.
+                #pickle.dump(shapePickles, f, pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            print(e,"File, %s has error" % picklefile)  
+        getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],100,starttime,False)        
+        return 
+       
+       
+    except:
+        return {}
+        #raise ValueError("File Could not be loaded") 
+
+
+
+@api_view(['GET'])
+def FileGetKinematicRotationalAnimation(request):
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'GET':
+            id = request.GET.get('id', None)
+            distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            animationtime = convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
+            print(id,distancegap,anglegap,animationtime)
+            starttime = datetime.utcnow() 
+            if is_number(id) :            
+                files = File.objects.filter(id__icontains=id)
+                for eachfile in files: 
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,0,"R")
+                    data = getEmptyDictionary(MEDIA_URL+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
+                    print("From assembly",data)
+                    mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
+                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime))
+                    mythread.start()  
+            else:
+                #id = request.GET.get('file', None)
+                if id is not None:
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"R")
+                    data = getEmptyDictionary(MEDIA_URL+id, basefilename,displaypath,0,starttime,True) 
+                    print("From assembly",data)
+                    mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
+                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime))
+                    mythread.start()                     
+        return JsonResponse(data, safe=False)    
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)  
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)

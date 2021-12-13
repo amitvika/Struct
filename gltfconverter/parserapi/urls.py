@@ -18,6 +18,7 @@ router.register(r'files', views.FileGetShapeInfo, basename='shapeinfo' )
 router.register(r'files', views.FileGetStackablePositions, basename='stackable' )
 router.register(r'files', views.FileGetAssemblyOrder, basename='assemblyorder' )
 router.register(r'files', views.FileGetKinematicAnimation, basename='kinematicorder' )
+router.register(r'files', views.FileGetKinematicRotationalAnimation, basename='kinematicmove' )
 router.register(r'files', views.FileSaveTree, basename='savetree' )
 router.register(r'files', views.FileSaveGDT, basename='savegdt' )
 router.register(r'files', views.GetFileContent, basename='getcontent' )
@@ -42,6 +43,7 @@ urlpatterns = [
     re_path(r'^api/v0/stackable$', views.FileGetStackablePositions),
     re_path(r'^api/v0/assemblyorder$', views.FileGetAssemblyOrder),
     re_path(r'^api/v0/kinematicorder$', views.FileGetKinematicAnimation),
+    re_path(r'^api/v0/kinematicmove$', views.FileGetKinematicRotationalAnimation),
     re_path(r'^api/v0/savetree', views.FileSaveTree),
     re_path(r'^api/v0/savegdt', views.FileSaveGDT),
     re_path(r'^api/v0/getcontent$', views.GetFileContent), 

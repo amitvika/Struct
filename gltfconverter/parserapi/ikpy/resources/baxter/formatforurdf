@@ -1,0 +1,24 @@
+For each Part, we need to input following:
+Sequence: integer
+isEndEffector: boolean
+IsJointOrLink: boolean
+for Joint:
+	FallingRaising: number
+	DynamicsDamping: number
+	DynamicsFriction:number
+	limitEffort: number
+	limitvelocity: number
+	limitlowerlimit: number
+	limitupperlimit: number
+	safety_velocity: number
+	safety_position: number
+	safety_lowerlimit: number
+	safety_upperlimit: number
+for Link:
+	InertiaXX: number
+	InertiaXY: number
+	InertiaXZ: number
+	InertiaYY: number
+	InertiaYZ: number
+	InertiaZZ: number
+	InertialMass: number

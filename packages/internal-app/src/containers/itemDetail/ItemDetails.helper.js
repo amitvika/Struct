@@ -10,7 +10,7 @@ import {
 import {
   getPartsStackableInfo,
   getPartsAssemblyOrder,
-  getPartsKinematicOrder,
+  getPartsKinematicMovement,
   getHierarchySplitFiles,
   getAFileFromStore,
   resourcePathURL,
@@ -37,7 +37,8 @@ export const fetchGLTFAndTree = async (props) => {
     setPercentage,
     setCurrentProgressText,
     setCompletionProgressText,
-    setgltfjson
+    setgltfjson,
+    showKinematicMove
   } = props;
   let updatedItemProp = {};
   try {
@@ -55,7 +56,9 @@ export const fetchGLTFAndTree = async (props) => {
     setIsLoading(true);
 
     let myTabIndex =
-      myTabedIndex == 'iupc' || myTabedIndex == 'pdcu' ? 'gdtac' : myTabedIndex;
+      (myTabedIndex === 'iupc' && !showKinematicMove) || myTabedIndex == 'pdcu'
+        ? 'gdtac'
+        : myTabedIndex;
     let whichOneToLoad = fileUUId ? fileUUId + '/' : '';
     if (myTabIndex == 'pdcu') {
       whichOneToLoad += fileStore;
@@ -490,6 +493,7 @@ export const setStack = async (props) => {
         fileStack: item.fileStack,
         fileKinematic: item.fileKinematic,
         fileUUId: item.fileUUId,
+        showKinematicMove: false,
         okToParse,
         setIsLoading,
         setIsFileLoading,
@@ -727,7 +731,7 @@ export const handleProductDesignTab = async (props) => {
     STATEPROPS.animationtime
   );
 
-  // setIsFileLoading(false);
+  setIsFileLoading(false);
   let datastore = getHierarchyRes.data.store;
   let dataload = getHierarchyRes.data.load;
   const datastatus = getHierarchyRes.data.status;
@@ -776,7 +780,8 @@ export const handleProductDesignTab = async (props) => {
         treeLength: treeRes.data.length,
         resourcepath: resourcePathURL
       });
-
+      setIsLoading(false);
+      setIsFileLoading(false);
       return {
         fileStore: datastore,
         multiAssembly: multiAssembly,
@@ -805,6 +810,8 @@ export const handleProductDesignTab = async (props) => {
         treeLength: treeLength,
         resourcepath: resourcePathURL
       });
+      setIsLoading(false);
+      setIsFileLoading(false);
       return {
         fileStore: datastore,
         multiAssembly: multiAssembly,
@@ -812,6 +819,8 @@ export const handleProductDesignTab = async (props) => {
       };
     }
   }
+  setIsLoading(false);
+  setIsFileLoading(false);
   setProgressBarLoad(false);
 };
 
@@ -822,7 +831,7 @@ export const isOKToParseForInternalUseProduct = async ({ item }) => {
       //console.log('Checking Store', item.fileStore);
       if (item.fileStore && item.fileStore.length > 0) {
         const fileKinematic =
-          item.fileStore.slice(0, item.fileStore.length - 1) + 'K0';
+          item.fileStore.slice(0, item.fileStore.length - 1) + 'R0';
         //console.log('Checking Kinematic', fileKinematic);
         const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
         const whichOneToStatus = getStatusPathURL(item) + fileKinematic;
@@ -852,15 +861,96 @@ export const isOKToParseForInternalUseProduct = async ({ item }) => {
 };
 
 export const handleInternalUseProduct = async (props) => {
-  const { item, setgltfjson } = props;
+  const {
+    item,
+    setIsLoading,
+    setIsFileLoading,
+    setProgressBarLoad,
+    percentage,
+    setPercentage,
+    setCurrentProgressText,
+    setCompletionProgressText,
+    setgltfjson
+  } = props;
   console.log('handleInternalUseProduct', props);
+  setIsLoading(true);
+  setIsFileLoading(true);
+  setProgressBarLoad(true);
+  let percent = 0;
   try {
-    const partsKinematicOrderResp = await getPartsKinematicOrder(
+    const getHierarchyRes = await getPartsKinematicMovement(
       getStepFile(item),
       item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
       item.angleGap ? item.angleGap : STATEPROPS.anglegap,
       STATEPROPS.animationtime
     );
+
+    setIsFileLoading(false);
+    let datastore = getHierarchyRes.data.store;
+    let dataload = getHierarchyRes.data.load;
+    const datastatus = getHierarchyRes.data.status;
+
+    if (datastatus) {
+      percent = datastatus.percent;
+    }
+
+    // setPercentage(percent);
+
+    if ((!datastore || percent !== 100) && item.fileUUId) {
+      if (datastore) {
+        const datafile = item.fileUUId + '/' + datastore;
+        let fetchStatus = () => getAFileFromStore(datafile, 'status');
+        let validateStatus = (result) => {
+          //console.log(result.data,result.data.percent,result.data.percent!=100);
+          return result.data.percent !== 100;
+        };
+        let percentFunction = (result) =>
+          result.data.percent ? result.data.percent : percentage;
+        const statusRes = await pollFunction(
+          fetchStatus,
+          validateStatus,
+          20000,
+          setPercentage,
+          percentFunction,
+          setCurrentProgressText,
+          setCompletionProgressText
+        );
+        const gltfRes = await getAFileFromStore(datafile, 'gltf');
+        const treeRes = await getAFileFromStore(datafile, 'tree');
+
+        setgltfjson({
+          gltf: gltfRes.data,
+          tree: treeRes.data,
+          kinematic: datastore,
+          resourcepath: resourcePathURL
+        });
+        setIsLoading(false);
+        setIsFileLoading(false);
+        return {
+          fileKinematic: datastore
+        };
+      }
+    } else {
+      if (datastore) {
+        //const multiAssembly = treeLength > 0;
+        setgltfjson({
+          ...getHierarchyRes.data,
+          kinematic: datastore,
+          resourcepath: resourcePathURL
+        });
+        setIsLoading(false);
+        setIsFileLoading(false);
+        return {
+          fileKinematic: datastore
+        };
+      }
+    }
+    setIsLoading(false);
+    setIsFileLoading(false);
+    setProgressBarLoad(false);
+    /* 
+
+
 
     const repos = partsKinematicOrderResp.data;
     const kinematic = repos['store'];
@@ -879,8 +969,11 @@ export const handleInternalUseProduct = async (props) => {
 
     return {
       fileKinematic: kinematic
-    };
+    }; */
   } catch (error) {
+    setIsLoading(false);
+    setIsFileLoading(false);
+    setProgressBarLoad(false);
     console.log('Error: handleInternalUseProduct', error);
   }
 };

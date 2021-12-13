@@ -27,9 +27,9 @@ import uuid
 #from glob import glob
 
 import logging
-from rest_framework import status
+#from rest_framework import status
 
-from six import MovedAttribute
+#from six import MovedAttribute
 log = logging.getLogger(__name__)
 
 from OCC.Core.STEPControl import  STEPControl_Writer, STEPControl_AsIs
@@ -1621,8 +1621,8 @@ class StepIgesAnalyser():
         self, document=None, filename=None, shapeslist=None, includeparts=False, ascompound=False, 
         distancegap=0.1, anglegap=0.5, disectparts=False, moverotate=0, edgesize=0.3, vertexsize=1.0, 
         maximumfacestoinclude=48, animations=None, delay=1.0, shapeorder=[], kinematicanimation=None,
-        thumbheight=300, thumbwidth=300, multipleGLTF=1200, addfeaturesThread=False, suffixname='',
-        writethread=False, writepickle=True, writefiles=True, logging=None,
+        kinematicrotation=None, thumbheight=300, thumbwidth=300, multipleGLTF=1200, addfeaturesThread=False, 
+        suffixname='', writethread=False, writepickle=True, writefiles=True, logging=None,
         includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
         defaultR=0.3, defaultG=0.32, defaultB=0.37, seperateparts=False, seperatecompounds=True,
         recursiveShapes=None, recursiveTree=None, recursiveID=1, CreateChildSteps=False,
@@ -1710,6 +1710,10 @@ class StepIgesAnalyser():
                 self.basefilename = pathfilename+"K"+self.edgeGapStr
                 self.writethread = False
                 self.suffixname = "K"
+            elif (kinematicrotation!=None) or (suffixname=="R"):
+                self.basefilename = pathfilename+"R"+self.edgeGapStr
+                self.writethread = False
+                self.suffixname = "R"
             else:
                 self.basefilename = pathfilename+self.edgeGapStr
                 self.writethread = writethread
@@ -1726,6 +1730,7 @@ class StepIgesAnalyser():
         self.progressfile = self.displaypath+pathfilename+".progress"
         #print(self.fname,self.basefilename)
         self.kinematicanimation=kinematicanimation
+        self.kinematicrotation=kinematicrotation
         self.includeparts = includeparts
         self.ascompound = ascompound
         if self.includeparts:
@@ -3770,7 +3775,8 @@ class StepIgesAnalyser():
         samplers = []
         chanels = []
         lenShapeOrder = len(self.shapeorder)
-        node_id_addition = 0
+        node_id_starter = 0
+        startRange = 0
         if lenShapeOrder>0 :
             if addRotation:
                 rotationtimebuff = TimeBuffer(
@@ -3858,11 +3864,13 @@ class StepIgesAnalyser():
                     }
                 chanels.append(chanel)
                 startRange = 0
+                node_id_starter = 0
             else:
                 startRange = 1
-                node_id_addition = -1
+                node_id_starter = 1
         else:
-            startRange = 1  
+            startRange = 1
+            node_id_starter = 0  
                     
         for steps in range(1,lenAnimations+1):
             #print(steps,lenAnimations)
@@ -3959,7 +3967,7 @@ class StepIgesAnalyser():
                 } ]
             self.mstep_dict['accessors'].append(accessorview[0])
             self.mstep_dict['accessors'].append(accessorview[1])
-            node_id = mystep+3+node_id_addition
+            node_id = mystep+3-node_id_starter
             if lenShapeOrder > 0:
                 self.mstep_dict['nodes'][node_id]['translation']=[ 0.0, 0.0, 0.0 ]
             else:
@@ -4103,6 +4111,192 @@ class StepIgesAnalyser():
                         [a1,a2,a3,a4]=my_quaternion.q
                         rotationbuff.add_rotation(a2,a3,a4,a1)
                                                  
+            buffer_index = len(self.mstep_dict['buffers'])
+            timelen = len(timebuff)
+            #print(timelen,self.rotateFirst)
+            buffer_dict = {
+                "byteLength":  timelen                                 
+            }   
+            base64data = base64.b64encode(timebuff.read()).decode('ascii')
+            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                mimetype="application/octet-stream",
+                data=base64data,
+            )   
+            self.mstep_dict['buffers'].append(buffer_dict)          
+            bufferView_index = len(self.mstep_dict['bufferViews'])
+            bufferview = {
+                "buffer" : buffer_index,
+                "byteOffset" : 0,
+                "byteLength" : timelen
+            }            
+            self.mstep_dict['bufferViews'].append(bufferview)
+            buffer_index = len(self.mstep_dict['buffers'])
+            if a==0:
+                translationlen = len(translationbuff)
+            else:
+                rotationlen = len(rotationbuff)
+            buffer_dict = {
+                "byteLength":  translationlen if a==0 else rotationlen                                   
+            }   
+            if a==0:
+                base64data = base64.b64encode(translationbuff.read()).decode('ascii')
+            else:
+                base64data = base64.b64encode(rotationbuff.read()).decode('ascii')
+            
+            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                mimetype="application/octet-stream",
+                data=base64data,
+            )  
+            self.mstep_dict['buffers'].append(buffer_dict) 
+            bufferView_index = len(self.mstep_dict['bufferViews'])
+            bufferview = {
+                "buffer" : buffer_index,
+                "byteOffset" : 0,
+                "byteLength" : translationlen if a==0 else rotationlen
+            }            
+            self.mstep_dict['bufferViews'].append(bufferview)
+            accessor_index = len(self.mstep_dict['accessors'])
+            accessorview = [ {
+                "bufferView" : bufferView_index-1,
+                "byteOffset" : 0,
+                "componentType" : 5126,
+                "count" : lenOfAnimationsTime, #steps+1,
+                "type" : "SCALAR",
+                "max" : [ timebuff.time_max ],
+                "min" : [ timebuff.time_min ]
+                },
+                {
+                "bufferView" : bufferView_index,
+                "byteOffset" : 0,
+                "componentType" : 5126,
+                "count" : lenOfAnimationsTime, #steps+1,
+                "type" : "VEC3" if a==0 else "VEC4",
+                "max" : [ translationbuff.translation_umax, translationbuff.translation_vmax,translationbuff.translation_wmax ] if a==0 \
+                    else [ rotationbuff.rotation_umax, rotationbuff.rotation_vmax,rotationbuff.rotation_wmax ] ,
+                "min" : [ translationbuff.translation_umin,translationbuff.translation_vmin,translationbuff.translation_wmin ] if a==0 \
+                    else [ rotationbuff.rotation_umin,rotationbuff.rotation_vmin,rotationbuff.rotation_wmin ]
+                } ]
+            self.mstep_dict['accessors'].append(accessorview[0])
+            self.mstep_dict['accessors'].append(accessorview[1])
+            node_id = mystep+2
+            print(node_id)
+            if a==0:
+                self.mstep_dict['nodes'][node_id]['translation']=[ 0.0, 0.0, 0.0 ]
+            else:
+                #my_quaternion = Quaternion(axis=[u, v, w], angle=0)
+                #my_quaternion.normalise()
+                #print("Initial position of rotation",my_quaternion.q)
+                #[a1,a2,a3,a4] = my_quaternion.q
+                self.mstep_dict['nodes'][node_id]['rotation']=[ 0.0, 0, 0, 1 ]
+            #print(self.mstep_dict)
+            sampler = { 
+                "input" : accessor_index,
+                "interpolation" : "LINEAR",
+                "output" : accessor_index+1
+            }
+            samplers.append(sampler)            
+            chanel = {
+                "sampler" : steps-startRange,
+                "target" : {
+                "node" : node_id,
+                "path" : "translation" if a==0 else "rotation"
+                }
+            }
+            chanels.append(chanel)
+
+        animationchannels = [{
+            "samplers" : samplers,
+            "channels" : chanels
+            }
+        ]
+        self.mstep_dict['animations']=animationchannels
+
+    def quaternion_mult(self, q,r):
+        return [r[0]*q[0]-r[1]*q[1]-r[2]*q[2]-r[3]*q[3],
+                r[0]*q[1]+r[1]*q[0]-r[2]*q[3]+r[3]*q[2],
+                r[0]*q[2]+r[1]*q[3]+r[2]*q[0]-r[3]*q[1],
+                r[0]*q[3]-r[1]*q[2]+r[2]*q[1]+r[3]*q[0]]
+
+    def point_rotation_by_quaternion(self, point,q):
+        r = [0]+point
+        q_conj = [q[0],-1*q[1],-1*q[2],-1*q[3]]
+        return self.quaternion_mult(self.quaternion_mult(q,r),q_conj)[1:]
+
+
+
+    def addKinematicRotationalAnimations(self):
+        if self.kinematicrotation==None:
+            return
+        lenAnimations = len(self.kinematicrotation)
+        
+        if( lenAnimations<=0  ):
+            return
+
+        samplers = []
+        chanels = []
+        
+        startRange = 1  
+        lenShapeOrder = len(self.shapeorder)     
+        print("Len Nodes",len(self.mstep_dict['nodes']))   
+        globalTranslation=[(0,0,0)]
+        globalRotation=[(0,0,0,1)]   
+        globalAngle=[0]
+        for steps in range(1,lenAnimations+1):
+            print(steps,lenAnimations,lenShapeOrder)
+            lenOfAnimationsTime = steps+1 #or lenAnimations ; it works for both...
+            timebuff = TimeBuffer(
+                max_index=2
+            ) 
+            mystep = steps-1
+            if lenShapeOrder > 0:
+                mystep = self.shapeorder[steps-1] 
+            u,v,w,a=self.kinematicrotation[steps-1]
+            print(mystep,u,v,w,a,lenAnimations,lenShapeOrder,steps-1)
+            if a==0:
+                translationbuff =TranslationBuffer(
+                    max_index=2
+                )
+            else:
+                dist = math.sqrt(u*u + v*v +w*w)
+                if dist==0:
+                    u, v, w = 1, 1, 1
+                else:
+                    u, v, w = u/dist, v/dist, w/dist
+                
+                rotationbuff =RotationBuffer(
+                    max_index=2
+                )   
+            
+            for istep in range(lenOfAnimationsTime):  
+                timebuff.add_time(istep*self.delay)
+                if a==0:
+                    if istep < steps: 
+                        up, vp, wp = globalTranslation[istep]                
+                        translationbuff.add_translation(up,vp,wp)
+                    else:
+                        translationbuff.add_translation(u,v,w)
+                        globalTranslation.append((u,v,w))
+                else:
+                    if istep < steps:
+                        b1, b2, b3, b4 = globalRotation[istep]
+                        rotationbuff.add_rotation(b2,b3,b4,b1)
+                    else:
+                        # u,v, w = old w,v,w * quaternion with which
+                        my_quaternion=None
+                        if steps>0:
+                            b1, b2, b3, b4 = globalRotation[steps-1]
+                            ba = globalAngle[steps-1]
+                            [nu, nv, nw] = self.point_rotation_by_quaternion([u,v,w],[b1,b2,b3,b4]) 
+                            my_quaternion = Quaternion(axis=[nu, nv, nw], angle=a) 
+                        else:
+                            my_quaternion = Quaternion(axis=[u, v, w], angle=a)
+                        my_quaternion.normalise()
+                        #print("My Quaternion",my_quaternion.q)
+                        [a1,a2,a3,a4]=my_quaternion.q
+                        globalRotation.append((a1,a2,a3,a4))
+                        globalAngle.append(a)
+                        rotationbuff.add_rotation(a2,a3,a4,a1)
+                        print("Global Rotation",globalRotation)                    
             buffer_index = len(self.mstep_dict['buffers'])
             timelen = len(timebuff)
             #print(timelen,self.rotateFirst)
@@ -4470,6 +4664,7 @@ class StepIgesAnalyser():
         if self.delay != 0:
             self.addAnimations()
             self.addKinematicAnimations()
+            self.addKinematicRotationalAnimations()
         
         #print("Shapes Len",len(self.animations),len(self.outputShapes))
         #self.mstep_dict['download']=self.tree
@@ -4548,7 +4743,8 @@ class StepIgesAnalyser():
                         print("Error while copying Edges to s3",e)
             except Exception as e:
                 print("Error while disecting",e)
-        if ( (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "K") and (self.suffixname != "A") ):
+        if ( (self.suffixname != "M") and (self.suffixname != "S") and \
+            (self.suffixname != "K") and (self.suffixname != "R") and (self.suffixname != "A") ):
             #orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
             #    self.scene_max[0],self.scene_max[1],self.scene_max[2])
             if self.CreateChildSteps:

@@ -73,6 +73,8 @@ const ItemDetail = ({ itemValue }) => {
   );
   const [createAutoAssemblyOrder, setCreateAutoAssemblyOrder] = useState(false);
   const [createAutoStackability, setCreateAutoStackability] = useState(false);
+  const [showKinematicMove, setShowKinematicMove] = useState(false);
+
   const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
 
   /* useEffect(() => {
@@ -94,7 +96,13 @@ const ItemDetail = ({ itemValue }) => {
       myTabedIndex: myTabIndex
     });
   }, [tabIndex]);
-
+  useEffect(() => {
+    console.log('Changing Kinematic Move', tabIndex, showKinematicMove);
+    handleGLTFAndTreeLoading({
+      item: itemProperties,
+      myTabedIndex: tabIndex
+    });
+  }, [showKinematicMove]);
   useEffect(() => {
     CriteriaUploadAPI.fetchCriteriaUpload(
       `type=Internal Use Product Configuration`
@@ -133,7 +141,8 @@ const ItemDetail = ({ itemValue }) => {
       let updatedItemProp = {};
 
       let myTabIndex =
-        myTabedIndex === 'iupc' || myTabedIndex === 'pdcu'
+        (myTabedIndex === 'iupc' && !showKinematicMove) ||
+        myTabedIndex === 'pdcu'
           ? 'gdtac'
           : myTabedIndex;
       console.log('setGLTFAndTree', myTabIndex, myTabedIndex);
@@ -160,6 +169,13 @@ const ItemDetail = ({ itemValue }) => {
             item,
             myTabedIndex,
             myTabIndex,
+            setIsLoading,
+            setIsFileLoading,
+            setProgressBarLoad,
+            percentage,
+            setPercentage,
+            setCurrentProgressText,
+            setCompletionProgressText,
             setgltfjson
           });
         } else {
@@ -167,7 +183,8 @@ const ItemDetail = ({ itemValue }) => {
 
           await fetchGLTFAndTree({
             ...gltfParam,
-            okToParse
+            okToParse,
+            showKinematicMove
           });
         }
       } else if (myTabIndex === 'pdcu') {
@@ -197,7 +214,8 @@ const ItemDetail = ({ itemValue }) => {
         } else {
           await fetchGLTFAndTree({
             ...gltfParam,
-            okToParse
+            okToParse,
+            showKinematicMove: false
           });
         }
       } else {
@@ -224,7 +242,8 @@ const ItemDetail = ({ itemValue }) => {
           let okToParse = await isOKToParseForOtherTab({ item });
           updatedItemProp = await fetchGLTFAndTree({
             ...gltfParam,
-            okToParse
+            okToParse,
+            showKinematicMove: false
           });
         }
       }
@@ -289,6 +308,7 @@ const ItemDetail = ({ itemValue }) => {
         fileStack: item.fileStack,
         fileKinematic: item.fileKinematic,
         fileUUId: item.fileUUId,
+        showKinematicMove: false,
         okToParse,
         setIsLoading,
         setIsFileLoading,
@@ -513,6 +533,8 @@ const ItemDetail = ({ itemValue }) => {
                 ? true
                 : */ itemProperties.drawLine
             }
+            showKinematicMove={showKinematicMove}
+            setShowKinematicMove={setShowKinematicMove}
           />
         );
       case 5:
