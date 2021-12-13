@@ -5767,20 +5767,21 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             else:
                 shapeorder=[]
             shapeCount = 0
-            ax=-1
+            ap=-1
             for eachShape in onlyShapes:
                 myobb = get_oriented_bounding_details(eachShape)
                 ax, ay, az = getMaxDirectionFromOBB(myobb)
-                ax*=-1
-                aw = math.pi/36 * ax #random.random()
+                ap*=-1
+                aw = math.pi/12 * ap #random.random()
                 """if aw < 0.1:
                     aw=0.1
                 if aw > 0.9:
                     aw=0.9
                 aw = (math.pi/len(onlyShapes))*aw"""
                 kinematicrotation.append((ax,ay,az,aw))
-                if(len(onlyShapes)!=8):
+                if(len(onlyShapes)!=8):                   
                     shapeorder.append(shapeCount)
+                
                 shapeCount += 1
             print(shapeCount,shapeorder,kinematicrotation)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(

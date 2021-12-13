@@ -24,9 +24,15 @@ export const buildParentChildTree = (
   if (!data) {
     return tree;
   }
-  data.forEach((item) => {
-    item[childrenKey] = [];
-  });
+  console.log('Got data is', data);
+  try {
+    data.forEach((item) => {
+      item[childrenKey] = [];
+    });
+  } catch (error) {
+    console.log('Error while obtaining tree', error);
+    return tree;
+  }
   data.forEach((item) => {
     let visible = false;
     if (item[gltf_Dict['topLeft']]) {
