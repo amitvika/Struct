@@ -61,7 +61,6 @@ export default function AppComponent({
         ))}
       </Select>
       <Button
-        color="dark"
         style={{ marginBottom: '2rem' }}
         block
         onClick={() => {

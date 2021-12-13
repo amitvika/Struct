@@ -43,7 +43,7 @@ class newProcessAdd extends Component {
             onChange={this.onChange}
             style={{ marginBottom: '2rem' }}
           />
-          <Button color="dark" style={{ marginBottom: '2rem' }} block>
+          <Button style={{ marginBottom: '2rem' }} block>
             Add
           </Button>
         </FormControl>

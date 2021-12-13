@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Paper /*, CircularProgress*/ } from '@mui/material';
 import GeometricDimensioning from '../itemDetail/geometricDimensioning';
 import { SELECTFEATURE, USESTYLES } from '@monostruct/common/gltf/Tree/utils';
 
@@ -206,7 +205,7 @@ export default function ItemTypeConfiguration(props) {
       </Headding>
       {/*  <LoadingModal isLoading={isLoading} /> */}
       {renderExcelUI()}
-      <GeometricDimensioning
+      {/* <GeometricDimensioning
         fileId={fileId}
         fileGDT={fileGDT}
         fileUUId={fileUUIder}
@@ -230,7 +229,7 @@ export default function ItemTypeConfiguration(props) {
         drawLine={drawLiner}
         selectedOption={selectedOption}
         setSelectedOption={setSelectedOption}
-      />
+      /> */}
     </>
   );
 }

@@ -135,7 +135,6 @@ export default function ThreejsViewModal({
           </Dropdown>
 
           <Button
-            color="dark"
             style={{ marginBottom: '2rem' }}
             block
             onClick={handleSubmitButton}
