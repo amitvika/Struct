@@ -1431,6 +1431,7 @@ class GLTFRenderer extends Component {
       this.light2.position.set(0.5, 0, 0.866); // ~60ยบ
       this.light2.name = 'main_light';
       this.defaultCamera.add(this.light2);
+      console.log('my directional light', this.light2.matrix);
 
       this.lights.push(this.light1, this.light2);
     }

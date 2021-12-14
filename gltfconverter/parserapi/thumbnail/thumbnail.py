@@ -5661,7 +5661,8 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
     
     # Create scene
     try:
-        scene = Scene(ambient_light=np.array([0.2, 0.2, 0.2, 1.0]))
+        #scene = Scene(ambient_light=np.array([0, 0, 0, 1.0]))
+        scene = Scene() #no ambient light..
     except Exception as e:
         print("createThumbnailError1",e)
         return False
@@ -5682,13 +5683,23 @@ def createThumbnailAndReturn(model_path, thumbnail_width, thumbnail_height, thum
             return False
 
     # Set up lighting
-    light = DirectionalLight(color=np.ones(3), intensity=5.0)
+    light = DirectionalLight(color=np.ones(3), intensity=2.0)
+    cos60 = 0.5
+    sin60 = np.sqrt(3)/2
+
     light_pose = np.array([
-        [0.0,  -np.sqrt(2)/2, np.sqrt(2)/2, -10.5],
-        [1.0, 0.0,           0.0,           -10.0],
-        [0.0,  np.sqrt(2)/2,  np.sqrt(2)/2, -10.4],
-        [0.0,  0.0,           0.0,          1.0]
+        [0.0,   -cos60, sin60,  0.0],
+        [1.0,   0.0,    0.0,    0.0],
+        [0.0,   cos60,  sin60,  0.0],
+        [0.0,   0.0,    0.0,    1.0]
     ])
+
+    """ light_pose = np.array([
+        [1,     0,       -0.5,  0],
+        [0,   0.866,    0.0,   0],
+        [0,  0,   -0.866,  0],
+        [0.0,   0.0,    0.0,    1.0]
+    ]) """
 
     # Add objects to scene
     scene.add(light, pose=light_pose)

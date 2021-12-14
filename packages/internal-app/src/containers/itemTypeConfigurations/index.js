@@ -246,6 +246,7 @@ export default function ItemTypeConfiguration(props) {
         drawLine={drawLiner}
         selectedOption={selectedOption}
         setSelectedOption={setSelectedOption}
+        fileAnimation={true}
       />
     </>
   );

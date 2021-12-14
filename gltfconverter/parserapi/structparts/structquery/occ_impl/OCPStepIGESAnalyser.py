@@ -4239,7 +4239,7 @@ class StepIgesAnalyser():
         lenShapeOrder = len(self.shapeorder)     
         print("Len Nodes",len(self.mstep_dict['nodes']))   
         globalTranslation=[(0,0,0)]
-        globalRotation=[(0,0,0,1)]   
+        globalRotation=[(1,0,0,0)]   
         globalAngle=[0]
         for steps in range(1,lenAnimations+1):
             print(steps,lenAnimations,lenShapeOrder)
@@ -4250,7 +4250,7 @@ class StepIgesAnalyser():
             mystep = steps-1
             if lenShapeOrder > 0:
                 mystep = self.shapeorder[steps-1] 
-            u,v,w,a=self.kinematicrotation[steps-1]
+            u,v,w,a=self.kinematicrotation[mystep]
             print(mystep,u,v,w,a,lenAnimations,lenShapeOrder,steps-1)
             if a==0:
                 translationbuff =TranslationBuffer(
@@ -4276,27 +4276,47 @@ class StepIgesAnalyser():
                     else:
                         translationbuff.add_translation(u,v,w)
                         globalTranslation.append((u,v,w))
+                        globalRotation.append((1,0,0,0))
                 else:
                     if istep < steps:
                         b1, b2, b3, b4 = globalRotation[istep]
                         rotationbuff.add_rotation(b2,b3,b4,b1)
+                        print("less than step",istep,steps,b1,b2,b3,b4)
                     else:
-                        # u,v, w = old w,v,w * quaternion with which
-                        my_quaternion=None
+                        # u,v, w = old w,v,w * quaternion with which                        
                         if steps>0:
                             b1, b2, b3, b4 = globalRotation[steps-1]
                             ba = globalAngle[steps-1]
-                            [nu, nv, nw] = self.point_rotation_by_quaternion([u,v,w],[b1,b2,b3,b4]) 
-                            my_quaternion = Quaternion(axis=[nu, nv, nw], angle=a) 
+                            if (u==0 and v==0 and w==0) :
+                                [a1,a2,a3,a4]=[b1, b2, b3, b4]
+                            else:
+                                na=a
+                                if na==7:
+                                    na=0
+                                [nu, nv, nw] = self.point_rotation_by_quaternion([u,v,w],[b1,b2,b3,b4]) 
+                                dist = math.sqrt(nu*nu + nv*nv +nw*nw)
+                                if dist==0:
+                                    nu, nv, nw = 1, 1, 1
+                                else:
+                                    nu, nv, nw = nu/dist, nv/dist, nw/dist
+                                my_quaternion = Quaternion(axis=[nu, nv, nw], angle=na) 
+                                my_quaternion.normalise()
+                                [a1,a2,a3,a4]=my_quaternion.q
+                            print("step==0",istep,steps,a1,a2,a3,a4)
                         else:
-                            my_quaternion = Quaternion(axis=[u, v, w], angle=a)
-                        my_quaternion.normalise()
-                        #print("My Quaternion",my_quaternion.q)
-                        [a1,a2,a3,a4]=my_quaternion.q
-                        globalRotation.append((a1,a2,a3,a4))
-                        globalAngle.append(a)
+                            na=a
+                            if na==7:
+                                na=0
+                            my_quaternion = Quaternion(axis=[u, v, w], angle=na)
+                            my_quaternion.normalise()
+                            [a1,a2,a3,a4]=my_quaternion.q
+                            print("step!=0",istep,steps,a1,a2,a3,a4)
+                        #print("My Quaternion",a1,a2,a3,a4)                        
                         rotationbuff.add_rotation(a2,a3,a4,a1)
-                        print("Global Rotation",globalRotation)                    
+                        globalRotation.append((a1,a2,a3,a4))
+                        globalTranslation.append((0,0,0))
+                        globalAngle.append(a)                        
+                        print("Global Rotation",len(globalRotation),globalRotation)                    
             buffer_index = len(self.mstep_dict['buffers'])
             timelen = len(timebuff)
             #print(timelen,self.rotateFirst)

@@ -5767,20 +5767,27 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             else:
                 shapeorder=[]
             shapeCount = 0
-            ap=-1
+            kp=1
+            ap=kp
             for eachShape in onlyShapes:
                 myobb = get_oriented_bounding_details(eachShape)
                 ax, ay, az = getMaxDirectionFromOBB(myobb)
-                ap*=-1
-                aw = math.pi/12 * ap #random.random()
+                ap*=kp
+                aw = math.pi/36 * ap #random.random()
                 """if aw < 0.1:
                     aw=0.1
                 if aw > 0.9:
                     aw=0.9
                 aw = (math.pi/len(onlyShapes))*aw"""
-                kinematicrotation.append((ax,ay,az,aw))
-                if(len(onlyShapes)!=8):                   
+                
+                if(len(onlyShapes)!=8):     
+                    kinematicrotation.append((ax,ay,az,aw))              
                     shapeorder.append(shapeCount)
+                else:
+                    if shapeCount>=2 and shapeCount<=3:
+                        kinematicrotation.append((ax,ay,az,7))
+                    else:
+                        kinematicrotation.append((ax,ay,az,aw))
                 
                 shapeCount += 1
             print(shapeCount,shapeorder,kinematicrotation)

@@ -49,7 +49,8 @@ export default function GeometricDimensioning(props) {
     setSelectedOption,
     keyName = { name: '', option: SELECTFEATURE },
     handleChangeOfSelection = (selectedObjects) => {},
-    additionalSaveFunction = (saveObjects) => {}
+    additionalSaveFunction = (saveObjects) => {},
+    fileAnimation = false
   } = props;
   const classes = USESTYLES();
 
@@ -1533,6 +1534,7 @@ export default function GeometricDimensioning(props) {
           setCompletionProgressText={setCompletionProgressTexter}
           setCenterActionText={setCenterActionTexter}
           drawLine={drawLiner}
+          fileAnimation={fileAnimation}
         />
       </Paper>
 
