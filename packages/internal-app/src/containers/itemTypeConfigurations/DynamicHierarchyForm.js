@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import DynamicCriteria from './DynamicForm';
-import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import get from 'lodash/get';
 import { useSelector } from 'react-redux';
 import DynamicHierarchyDropdowns from '@monostruct/common/containers/DynamicHierarchyDropdowns';
@@ -36,7 +35,6 @@ export default function DynamicHierarchy(props) {
     if (get(currentItem, 'hierarchySelections[0]')) {
       setSelections(get(currentItem, 'hierarchySelections', []));
     }
-    
   }, []);
 
   const handleOnDropdownSelection = ({ value }) => {

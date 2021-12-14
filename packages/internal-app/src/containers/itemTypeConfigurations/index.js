@@ -9,6 +9,7 @@ import Headding from '@monostruct/common/components/atoms/Headding';
 
 import DynamicHierarchyForm from './DynamicHierarchyForm';
 import { drop } from 'lodash';
+import MotionControlComponent from '../MotionControlComponent';
 
 //let state_selectedObjects = [];
 let state_fileOnChange = null;
@@ -220,8 +221,8 @@ export default function ItemTypeConfiguration(props) {
           inputProps={{ 'aria-label': 'controlled' }}
         />
       </Grid>
-      {/*  <LoadingModal isLoading={isLoading} /> */}
       {renderExcelUI()}
+      <MotionControlComponent />
       <GeometricDimensioning
         fileId={fileId}
         fileGDT={fileGDT}

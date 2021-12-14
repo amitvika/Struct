@@ -31,8 +31,7 @@ import ItemDetail from './containers/itemDetail';
 import Administrative from './containers/administrative';
 import ViewMyProfile from './containers/viewMyProfile';
 import { Box } from '@mui/system';
-
-// import Viewer from './DynamicHierarchy'
+import MotionControl from './containers/MotionControlComponent';
 
 export default function AppRoutes() {
   const isUserLoading = useSelector((state) => state.auth.isLoading);
@@ -44,8 +43,10 @@ export default function AppRoutes() {
     <Router>
       <Switch>
         <Route exact path="/" component={Login} />
-        <Route path="/register" component={Register} />
-        {/* <Route path="/viewer" component={Viewer} /> */}
+        <Route exact path="/register" component={Register} />
+
+        <Route exact path="/motion-control" component={MotionControl} />
+
         <Layout>
           <Box sx={{ margin: '20px 7%' }}>
             <Switch>

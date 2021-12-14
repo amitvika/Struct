@@ -95,7 +95,7 @@ const Register = () => {
               />
             </FormControl>
 
-            <Button color="dark" style={{ marginBottom: '2rem' }} block>
+            <Button style={{ marginBottom: '2rem' }} block>
               Register
             </Button>
           </form>

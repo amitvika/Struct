@@ -140,7 +140,7 @@ export default function ThreejsSelection(props) {
       id={'popselect'}
       type="button"
       variant="contained"
-      color={active ? 'primary' : 'default'}
+      color={active ? 'primary' : 'inherit'}
       onClick={(event) => {
         const myoption = getMyOption();
         console.log(
