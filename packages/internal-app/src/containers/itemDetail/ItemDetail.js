@@ -531,6 +531,7 @@ const ItemDetail = ({ itemValue }) => {
             }
             showKinematicMove={showKinematicMove}
             setShowKinematicMove={setShowKinematicMove}
+            {...{ handleSave }}
           />
         );
       case 5:

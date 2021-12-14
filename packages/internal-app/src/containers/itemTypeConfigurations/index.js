@@ -34,7 +34,8 @@ export default function ItemTypeConfiguration(props) {
     selectedOption,
     setSelectedOption,
     showKinematicMove,
-    setShowKinematicMove
+    setShowKinematicMove,
+    handleSave
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
@@ -149,14 +150,14 @@ export default function ItemTypeConfiguration(props) {
           : fieldKey
         : 'fieldKey'
       : 'fieldKey';
-    if (handleItemUpdate) {
+    if (handleSave) {
       console.log(
         'I am asking the component to set',
         mySelectedObjects,
         fieldKey,
         fieldItemKey
       );
-      handleItemUpdate({ [fieldItemKey]: [...mySelectedObjects] });
+      handleSave({ [fieldItemKey]: [...mySelectedObjects] });
     } else {
       console.log(
         'I am not asking the component to set because itemupdate is null ',

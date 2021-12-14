@@ -20,6 +20,10 @@ export default function Alert() {
       open={isVisible}
       autoHideDuration={6000}
       onClose={handleSnackbarClose}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'right'
+      }}
     >
       <MuiAlert
         elevation={6}
