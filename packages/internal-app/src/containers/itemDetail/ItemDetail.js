@@ -96,13 +96,14 @@ const ItemDetail = ({ itemValue }) => {
       myTabedIndex: myTabIndex
     });
   }, [tabIndex]);
+
   useEffect(() => {
-    console.log('Changing Kinematic Move', tabIndex, showKinematicMove);
     handleGLTFAndTreeLoading({
       item: itemProperties,
       myTabedIndex: tabIndex
     });
   }, [showKinematicMove]);
+
   useEffect(() => {
     CriteriaUploadAPI.fetchCriteriaUpload(
       `type=Internal Use Product Configuration`
@@ -145,7 +146,6 @@ const ItemDetail = ({ itemValue }) => {
         myTabedIndex === 'pdcu'
           ? 'gdtac'
           : myTabedIndex;
-      console.log('setGLTFAndTree', myTabIndex, myTabedIndex);
       const gltfParam = {
         myTabedIndex: myTabIndex,
         fileStore: item.fileStore,
@@ -250,9 +250,7 @@ const ItemDetail = ({ itemValue }) => {
 
       setItemProperties((prev) => ({ ...prev, updatedItemProp }));
       handleSave(updatedItemProp);
-      console.log('Item child status', item, item.child_item_status);
       if (item.fileGDT && item.child_item_status === 'INITIATED') {
-        console.log('Going to do child creations', item);
         const childrenCreated = await createChildItems({
           item,
           percentage,
@@ -331,12 +329,10 @@ const ItemDetail = ({ itemValue }) => {
 
   const handleItemUpdate = (change) => {
     let tempItemProperties = Object.assign({}, itemProperties, change);
-    console.log(
-      'Changing itemproperties in hanldeitemupdate',
-      tempItemProperties
-    );
+
     setItemProperties(tempItemProperties);
   };
+
   const handleSave = async (change) => {
     itemProperties.step = undefined;
     itemProperties.gltfjson = undefined;
@@ -622,7 +618,6 @@ const ItemDetail = ({ itemValue }) => {
 
   const handleTabChange = (event, newTabIndex) => {
     if (tabIndex !== newTabIndex) {
-      console.log(tabIndex, newTabIndex);
       setIsLoading(true);
       setTabIndex(newTabIndex);
       history.push({

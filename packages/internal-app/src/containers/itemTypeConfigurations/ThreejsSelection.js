@@ -20,7 +20,6 @@ export default function ThreejsSelection(props) {
     onClick
   } = props;
   const myvalue = value ? value : ['No Data Selected'];
-  console.log('THRESSJSC', renderData, value, mykey);
 
   const getMyOption = () => {
     if (
@@ -143,18 +142,7 @@ export default function ThreejsSelection(props) {
       color={active ? 'primary' : 'inherit'}
       onClick={(event) => {
         const myoption = getMyOption();
-        console.log(
-          'THRESSJSOC',
-          renderData,
-          'VALUE',
-          value,
-          'KEY',
-          mykey,
-          'TYPE',
-          mytype,
-          'OPTION',
-          myoption
-        );
+
         setRenderData(value, { name: mykey, option: myoption }, onChange);
         onClick(mykey);
       }}

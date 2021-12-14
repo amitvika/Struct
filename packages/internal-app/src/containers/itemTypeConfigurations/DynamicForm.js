@@ -13,6 +13,7 @@ export default function DynamicCriteria({
   handleUpdate,
   renderData,
   setRenderData,
+  setIsMotionControlCmpVisible = () => ({})
 }) {
   const handleOnChange = (name, value) => {
     const findIndex = stateFormFields.findIndex(
@@ -41,7 +42,6 @@ export default function DynamicCriteria({
   }, [formFields]);
 
   const renderFields = () => {
-    console.log('STATEFORMFIELDS', stateFormFields);
     if (!stateFormFields) {
       return null;
     }
@@ -85,29 +85,21 @@ export default function DynamicCriteria({
               <ThreejsSelection
                 renderData={renderData}
                 setRenderData={setRenderData}
-                value={fieldItem.value}  
-                mykey={fieldItem.fieldName} 
+                value={fieldItem.value}
+                mykey={fieldItem.fieldName}
                 mytype={fieldItem.dataType}
                 active={fieldItem.activeCell}
                 onChange={(mykeyinfo, valuefound) => {
                   if (fieldItem.activeCell) {
-                    console.log(
-                      'Changing Values',
-                      fieldItem,
-                      mykeyinfo,
-                      valuefound
-                    );
                     handleOnChange(fieldItem.fieldName, valuefound);
-                  } else {
-                    console.log(
-                      'Not Changing Values',
-                      fieldItem,
-                      mykeyinfo,
-                      valuefound
-                    );
                   }
                 }}
-                onClick={handleOnClick}
+                onClick={(value) => {
+                  setIsMotionControlCmpVisible(
+                    fieldItem.dataType === 'MotionControl'
+                  );
+                  handleOnClick(value);
+                }}
               />
             )}
           </Grid>

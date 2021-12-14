@@ -8,8 +8,7 @@ import { SELECTFEATURE, USESTYLES } from '@monostruct/common/gltf/Tree/utils';
 import Headding from '@monostruct/common/components/atoms/Headding';
 
 import DynamicHierarchyForm from './DynamicHierarchyForm';
-import { drop } from 'lodash';
-import MotionControlComponent from '../MotionControlComponent';
+import MotionControlComponent from './MotionControlComponent';
 
 //let state_selectedObjects = [];
 let state_fileOnChange = null;
@@ -52,6 +51,9 @@ export default function ItemTypeConfiguration(props) {
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
 
   const [showKineticModel, setShowKineticModal] = useState(true);
+
+  const [isMotionControlCmpVisible, setIsMotionControlCmpVisible] =
+    useState(false);
 
   useEffect(() => {
     if (fileUUId) {
@@ -197,6 +199,11 @@ export default function ItemTypeConfiguration(props) {
         renderData={renderData}
         setRenderData={addSelectionFromComponent}
         internalProductConfig={internalProductConfig}
+        {...{
+          isMotionControlCmpVisible,
+          setIsMotionControlCmpVisible,
+          itemProperties
+        }}
       />
     );
     //   } else {
@@ -222,7 +229,13 @@ export default function ItemTypeConfiguration(props) {
         />
       </Grid>
       {renderExcelUI()}
-      <MotionControlComponent />
+      {isMotionControlCmpVisible && (
+        <MotionControlComponent
+          {...{
+            itemId: itemProperties.id
+          }}
+        />
+      )}
       <GeometricDimensioning
         fileId={fileId}
         fileGDT={fileGDT}

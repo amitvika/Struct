@@ -10,14 +10,19 @@ export default function DynamicHierarchy(props) {
     handleItemUpdate,
     renderData,
     setRenderData,
-    internalProductConfig
+    internalProductConfig,
+    setIsMotionControlCmpVisible,
+    itemProperties
   } = props;
   const currentItem = useSelector((state) => state.item.currentItem);
 
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
-  const [selections, setSelections] = useState([
-    { key: 'Internal Use Product Configuration', formFields: [] }
-  ]);
+  const [selections, setSelections] = useState(
+    itemProperties.hierarchySelections || [
+      { key: 'Internal Use Product Configuration', formFields: [] }
+    ]
+  );
+
   const [stateUpdated, setStateUpdated] = useState(false);
 
   useEffect(() => {
@@ -86,6 +91,7 @@ export default function DynamicHierarchy(props) {
             }}
             renderData={renderData}
             setRenderData={setRenderData}
+            {...{ setIsMotionControlCmpVisible }}
           />
         );
       })}

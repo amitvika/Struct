@@ -198,27 +198,26 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const body = req.body;
-
+    const itemId = req.body.id || req.params.id;
     let updateData = req.body;
 
-    let prevItem = await ItemModel.findById(req.body.id);
+    let prevItem = await ItemModel.findById(itemId);
 
     if (prevItem) {
       req.body.updated_by = req.user.id;
       prevItem = await ItemModel.findByIdAndUpdate(
-        req.body.id,
+        itemId,
         { $set: updateData },
         { new: true }
       );
     } else {
       req.body.created_by = req.user.id;
       req.body.updated_by = req.user.id;
-      await ItemModel.updateOne({ _id: req.body.id }, req.body, {
+      await ItemModel.updateOne({ _id: itemId }, req.body, {
         upsert: true,
         new: true
       });
-      prevItem = await ItemModel.findById(req.body.id);
+      prevItem = await ItemModel.findById(itemId);
     }
 
     const changeTracking = new ChangeTracking({

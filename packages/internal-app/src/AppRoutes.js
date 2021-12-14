@@ -31,7 +31,7 @@ import ItemDetail from './containers/itemDetail';
 import Administrative from './containers/administrative';
 import ViewMyProfile from './containers/viewMyProfile';
 import { Box } from '@mui/system';
-import MotionControl from './containers/MotionControlComponent';
+import MotionControl from './containers/itemTypeConfigurations/MotionControlComponent';
 
 export default function AppRoutes() {
   const isUserLoading = useSelector((state) => state.auth.isLoading);

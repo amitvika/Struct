@@ -81,6 +81,7 @@ const ItemSchema = new mongoose.Schema(
     multiAssembly: { type: Boolean, default: false },
     filePartName: { type: String },
     is_archived: { type: Boolean, default: false },
+    actuatorAxisNumber: { type: Number, default: 0 },
     created_by: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     updated_by: { type: Schema.Types.ObjectId, ref: 'User', required: true }
   },
