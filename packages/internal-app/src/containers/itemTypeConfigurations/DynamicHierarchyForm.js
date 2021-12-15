@@ -17,11 +17,14 @@ export default function DynamicHierarchy(props) {
   const currentItem = useSelector((state) => state.item.currentItem);
 
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
-  const [selections, setSelections] = useState(
-    itemProperties.hierarchySelections || [
-      { key: 'Internal Use Product Configuration', formFields: [] }
-    ]
-  );
+
+  const getDefaultSelection = () => {
+    if (itemProperties.hierarchySelections.length > 0) {
+      return itemProperties.hierarchySelections;
+    }
+    return [{ key: 'Internal Use Product Configuration', formFields: [] }];
+  };
+  const [selections, setSelections] = useState(getDefaultSelection());
 
   const [stateUpdated, setStateUpdated] = useState(false);
 

@@ -45,7 +45,7 @@ export default function Assembly(props) {
 
     const updateAssemblySequence = [
       ...assemblySequenceList,
-      { orderNumber: maxCount + 1 },
+      { orderNumber: maxCount + 1 }
     ];
 
     syncProcessData({ assemblySequences: updateAssemblySequence });
@@ -70,7 +70,7 @@ export default function Assembly(props) {
 
     setSelectedAssemblySequence((prevState) => ({
       ...prevState,
-      ...updatedData,
+      ...updatedData
     }));
     setAssemblySequenceList(updateAssemblySequence);
     setIsAssemblySequenceSynced(false);
@@ -81,7 +81,7 @@ export default function Assembly(props) {
       updatedData.assemblySequences = updatedData?.assemblySequences.map(
         (sequenceItem) => ({
           ...sequenceItem,
-          itemId: sequenceItem?.itemId?._id,
+          itemId: sequenceItem?.itemId?._id
         })
       );
     } else {
@@ -106,7 +106,7 @@ export default function Assembly(props) {
 
   const [
     isConfigureItemAssemblyModalOpen,
-    setIsConfigureItemAssemblyModalOpen,
+    setIsConfigureItemAssemblyModalOpen
   ] = useState(false);
 
   const toggleConfigureItemAssembly = (assemblySequence) => {
@@ -130,11 +130,11 @@ export default function Assembly(props) {
 
   return (
     <div>
-      <ThreejsViewModal
+      {/* <ThreejsViewModal
         isVisible={isThreejsVisible}
         setIsThreejsVisible={setIsThreejsVisible}
         assemblyProcessData={assemblyProcessData}
-      />
+      /> */}
 
       <ConfigureItemAssembly
         toggleConfigureItemAssembly={toggleConfigureItemAssembly}

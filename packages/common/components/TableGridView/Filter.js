@@ -162,8 +162,7 @@ export default function Filter({
                 </InputAdornment>
               )
             }}
-            size="small"
-            notched={false}
+            notched={true}
           />
         </Grid>
       );

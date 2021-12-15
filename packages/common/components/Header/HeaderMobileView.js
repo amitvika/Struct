@@ -21,7 +21,6 @@ export default function HeaderMobileView({
   return (
     <>
       <IconButton
-        color="textPrimary"
         className={classes.menuButton}
         edge="start"
         aria-label="menu"

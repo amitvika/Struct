@@ -48,5 +48,15 @@ export const columnsForItemView = [
     title: 'Child Items Created',
     field: 'child_item_created',
     editable: 'never'
+  },
+  {
+    title: 'File Name',
+    editable: 'never',
+    field: 'fileStore'
+  },
+  {
+    title: 'Material',
+    editable: 'never',
+    field: 'material'
   }
 ];

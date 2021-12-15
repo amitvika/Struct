@@ -648,7 +648,8 @@ const ItemDetail = ({ itemValue }) => {
     pd: 'Product Documentation',
     rs: 'Recycling & Sustainability',
     pds: 'Product Design Setup',
-    production: 'Production'
+    production: 'Production',
+    assembly: 'Assembly'
   };
 
   const renderTab = () => {
