@@ -13,8 +13,13 @@ import Radio from '@mui/material/Radio';
 import ItemApi from '@monostruct/common/api/items.api';
 import { get } from 'lodash';
 import { Checkbox } from '@mui/material';
+import { getTableData } from './helper';
 
-export default function MotionControlComponent({ itemId }) {
+export default function MotionControlComponent({
+  itemId,
+  gltfjson,
+  setRenderData
+}) {
   const [selectedValue, setSelectedValue] = React.useState('a');
   const [itemList, setItemList] = React.useState([]);
 
@@ -65,6 +70,9 @@ export default function MotionControlComponent({ itemId }) {
             {itemList.map((item) => (
               <TableRow
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                onClick={() => {
+                  setRenderData(getTableData(gltfjson));
+                }}
               >
                 <TableCell component="th" scope="row">
                   {item.name}

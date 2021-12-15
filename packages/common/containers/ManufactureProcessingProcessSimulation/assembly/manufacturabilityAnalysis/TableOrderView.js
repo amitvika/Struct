@@ -517,7 +517,7 @@ export default function TableOrderView({
   };
 
   const onRowClick = (dataRow, event) => {
-    //console.log('BeforeDataRowClock', data, sortBy, sortDirection);
+    console.log('BeforeDataRowClock', dataRow);
     handleDataRowClick(dataRow, event);
     //console.log('AfterDataRowClock', data, sortBy, sortDirection);
   };

@@ -1522,6 +1522,7 @@ export default function ManufacturabilityAnalysis(props) {
   useEffect(() => {
     setIsFileLoading(isLoading);
   }, [isLoading]);
+
   useEffect(() => {
     const includeParts = true;
     //console.log("Reaching in useeffect", gltfjson, fileId, isLoading, state.mycounter?state.mycounter:0);

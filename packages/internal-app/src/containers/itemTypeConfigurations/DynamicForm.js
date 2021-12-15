@@ -14,7 +14,8 @@ export default function DynamicCriteria({
   handleUpdate,
   renderData,
   setRenderData,
-  itemProperties
+  itemProperties,
+  gltfjson
 }) {
   const handleOnChange = (name, value) => {
     const findIndex = stateFormFields.findIndex(
@@ -103,7 +104,9 @@ export default function DynamicCriteria({
             {fieldItem.dataType === 'MotionControl' && (
               <MotionControlComponent
                 {...{
-                  itemId: itemProperties.id
+                  itemId: itemProperties.id,
+                  gltfjson,
+                  setRenderData
                 }}
               />
             )}

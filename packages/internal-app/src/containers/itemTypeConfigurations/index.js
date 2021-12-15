@@ -198,7 +198,8 @@ export default function ItemTypeConfiguration(props) {
         setRenderData={addSelectionFromComponent}
         internalProductConfig={internalProductConfig}
         {...{
-          itemProperties
+          itemProperties,
+          gltfjson
         }}
       />
     );
@@ -251,6 +252,7 @@ export default function ItemTypeConfiguration(props) {
         selectedOption={selectedOption}
         setSelectedOption={setSelectedOption}
         fileAnimation={true}
+        changedata={renderData}
       />
     </>
   );

@@ -11,7 +11,7 @@ export default function DynamicHierarchy(props) {
     renderData,
     setRenderData,
     internalProductConfig,
-    setIsMotionControlCmpVisible,
+    gltfjson,
     itemProperties
   } = props;
   const currentItem = useSelector((state) => state.item.currentItem);
@@ -94,7 +94,7 @@ export default function DynamicHierarchy(props) {
             }}
             renderData={renderData}
             setRenderData={setRenderData}
-            {...{ itemProperties }}
+            {...{ itemProperties, gltfjson }}
           />
         );
       })}
