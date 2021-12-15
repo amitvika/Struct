@@ -777,7 +777,7 @@ export default function ManufacturabilityAnalysis(props) {
   };
 
   const addSelectionFromTable = async (selectedNodes, event) => {
-    //console.log("Selected Node", selectedNodes, "Event", event);
+    //console.log('Selected Node', selectedNodes, 'Event', event);
     setFirstTimeLoading(true);
     if (selectedNodes?.index) {
       const myTree = findMyMaterial(selectedNodes);

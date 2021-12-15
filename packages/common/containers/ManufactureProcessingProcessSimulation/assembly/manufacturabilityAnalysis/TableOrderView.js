@@ -19,7 +19,7 @@ import {
   AutoResizer,
   BaseTable,
   DraggableTable,
-  SortOrder,
+  SortOrder
 } from '@monostruct/common/gltf/GridTable';
 import { createGlobalStyle } from 'styled-components/macro';
 import styled from 'styled-components';
@@ -30,17 +30,17 @@ const styles = (theme) => ({
     display: 'flex',
     alignItems: 'center',
     boxSizing: 'border-box',
-    borderSpacing: 0,
+    borderSpacing: 0
   },
   table: {
     '& .ReactVirtualized__Table__headerRow': {
       flip: false,
-      paddingRight: theme.direction === 'rtl' ? '0 !important' : undefined,
+      paddingRight: theme.direction === 'rtl' ? '0 !important' : undefined
     },
     borderSpacing: 0,
     whiteSpace: 'normal',
     wordWrap: 'break-word',
-    wordBreak: 'break-all',
+    wordBreak: 'break-all'
   },
   tableRow: {
     cursor: 'pointer',
@@ -48,7 +48,7 @@ const styles = (theme) => ({
     backgroundColor: '#FFFFFF',
     whiteSpace: 'normal',
     wordWrap: 'break-word',
-    wordBreak: 'break-all',
+    wordBreak: 'break-all'
   },
   selectedTableRow: {
     cursor: 'pointer',
@@ -56,39 +56,39 @@ const styles = (theme) => ({
     backgroundColor: '#00FF00',
     whiteSpace: 'normal',
     wordWrap: 'break-word',
-    wordBreak: 'break-all',
+    wordBreak: 'break-all'
   },
   headerTableRow: {
     flex: 1,
     borderSpacing: 0,
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   tableRowHover: {
     '&:hover': {
-      backgroundColor: theme.palette.grey[200],
-    },
+      backgroundColor: theme.palette.grey[200]
+    }
   },
   tableCell: {
     flex: 1,
     borderSpacing: 0,
     whiteSpace: 'normal',
     wordWrap: 'break-word',
-    wordBreak: 'break-all',
+    wordBreak: 'break-all'
   },
   noClick: {
-    cursor: 'initial',
+    cursor: 'initial'
   },
   'sticky-row': {
     '& .sticky-row.BaseTable__row': {
-      backgroundColor: '#00FF00',
-    },
+      backgroundColor: '#00FF00'
+    }
   },
   backgroundColor: theme.palette.grey[255],
   mainContainer: {
     margin: 10,
     padding: 10,
     display: 'inline-flex',
-    minWidth: '100%',
+    minWidth: '100%'
   },
   viewerContainer: {
     flex: 1,
@@ -97,8 +97,8 @@ const styles = (theme) => ({
     display: 'inline-block',
     boxShadow: '0 0 10px rgb(0 0 0 / 20%)',
     borderSpacing: 0,
-    minWidth: 700,
-  },
+    minWidth: 700
+  }
 });
 const CellContainer = styled.div`
   display: flex;
@@ -143,7 +143,7 @@ const GetSortOrder = (sortBy, sortDirection) => {
 class MuiVirtualizedTable extends React.PureComponent {
   static defaultProps = {
     headerHeight: 24,
-    rowHeight: 12,
+    rowHeight: 12
   };
   /* cache = new CellMeasurerCache({
     fixedWidth: true,
@@ -153,7 +153,7 @@ class MuiVirtualizedTable extends React.PureComponent {
     super(props);
     this.setState({
       sortedlist: this.props.list,
-      sortState: this.props.defaultSort,
+      sortState: this.props.defaultSort
     });
     //console.log("Getting SortedList",this.state.sortedlist);
   }
@@ -161,13 +161,13 @@ class MuiVirtualizedTable extends React.PureComponent {
     sortBy: 'order',
     sortDirection: SortOrder.ASC,
     sortedlist: this.props.list,
-    sortState: this.props.defaultSort,
+    sortState: this.props.defaultSort
   };
   static getDerivedStateFromProps(props, current_state) {
     //console.log("derivedstate",props, current_state);
     if (current_state.sortedlist !== props.list) {
       return {
-        sortedlist: props.list,
+        sortedlist: props.list
       };
     }
     return null;
@@ -186,13 +186,13 @@ class MuiVirtualizedTable extends React.PureComponent {
     const { classes, onRowClick } = this.props;
     //console.log(classes.tableRow);
     const Megot = clsx(classes.tableRow, classes.flexContainer, {
-      [classes.tableRowHover]: rowIndex !== -1 && onRowClick != null,
+      [classes.tableRowHover]: rowIndex !== -1 && onRowClick != null
     });
     const classHere =
       rowIndex >= 0
         ? list[rowIndex].selectedshell
           ? clsx(classes.selectedTableRow, classes.flexContainer, {
-              [classes.tableRowHover]: rowIndex !== -1 && onRowClick != null,
+              [classes.tableRowHover]: rowIndex !== -1 && onRowClick != null
             })
           : Megot
         : Megot;
@@ -234,14 +234,14 @@ class MuiVirtualizedTable extends React.PureComponent {
           [key]:
             this.state.sortState[key] === SortOrder.DESC
               ? SortOrder.ASC
-              : SortOrder.DESC,
-        },
+              : SortOrder.DESC
+        }
       });
     }
   };
 
   rowEventHandlers = {
-    onClick: this.props.onRowClick,
+    onClick: this.props.onRowClick
   };
 
   render() {
@@ -276,7 +276,7 @@ class MuiVirtualizedTable extends React.PureComponent {
                 onColumnSort={this.sortTableColumn}
                 sortBy={{
                   key: this.state.sortBy,
-                  order: this.state.sortDirection,
+                  order: this.state.sortDirection
                 }}
                 sortDirection={this.state.sortDirection}
                 columns={columns}
@@ -323,7 +323,7 @@ class MuiVirtualizedTable extends React.PureComponent {
                 onColumnSort={this.sortTableColumn}
                 sortBy={{
                   key: this.state.sortBy,
-                  order: this.state.sortDirection,
+                  order: this.state.sortDirection
                 }}
                 sortDirection={this.state.sortDirection}
                 columns={columns}
@@ -369,16 +369,16 @@ MuiVirtualizedTable.propTypes = {
       title: PropTypes.string.isRequired,
       numeric: PropTypes.bool,
       align: PropTypes.string.isRequired,
-      width: PropTypes.number.isRequired,
+      width: PropTypes.number.isRequired
     })
   ).isRequired,
   headerHeight: PropTypes.number,
   onRowClick: PropTypes.func,
-  rowHeight: PropTypes.number,
+  rowHeight: PropTypes.number
 };
 class EditableCell extends React.PureComponent {
   state = {
-    value: this.props.cellData,
+    value: this.props.cellData
   };
 
   render() {
@@ -390,7 +390,7 @@ class EditableCell extends React.PureComponent {
       //console.log(event);
       //console.log('GOt here', event, rowIndex, columnIndex, rowData);
       this.setState({
-        value: event.target.value,
+        value: event.target.value
       });
       columns[columnIndex].onCellChange(
         rowIndex,
@@ -401,6 +401,7 @@ class EditableCell extends React.PureComponent {
     };
     const onClick = (event) => {
       //console.log('GOT here', event, rowIndex, columnIndex, rowData);
+      columns[columnIndex].resetMySelection(rowData, event);
       columns[columnIndex].onRowClick(rowData, event);
     };
     //console.log(currentColumn);
@@ -455,33 +456,44 @@ export default function TableOrderView({
   list,
   columns,
   setColumns,
-  additionalSaveFunction=(abc) => {console.log(abc);},
+  additionalSaveFunction = (abc) => {
+    console.log(abc);
+  },
   title,
-  alerter,
+  alerter
 }) {
   const classes = useStyles();
-  const resetMySelection = (thisdata,event) => {
+  const resetMySelection = (thisdata, event) => {
     let mydata = [...data];
     let selectedRows = [];
     //console.log("Mydata",mydata,"statedata",data, "thisdata",thisdata);
     for (let index = 0; index < mydata.length; index++) {
-      //console.log(index,mydata[index],thisdata);      
-      if (mydata[index].index == thisdata.index) {   
-        if(event && event.ctrlKey) {
-          mydata[index].selectedshell = !mydata[index].selectedshell ;
+      //console.log(index, mydata[index], thisdata);
+      if (mydata[index].index == thisdata.index) {
+        if (event && event.ctrlKey) {
+          mydata[index].selectedshell = !mydata[index].selectedshell;
         } else {
           mydata[index].selectedshell = true;
-        }    
+        }
       } else {
-        if(!event || !event.ctrlKey) {
+        if (!event || !event.ctrlKey) {
           mydata[index].selectedshell = false;
         }
       }
-      if(mydata[index].selectedshell) {
+      if (mydata[index].selectedshell) {
         selectedRows.push(mydata[index]);
-      }  
+      }
     }
-    //console.log("Mydata",mydata,"statedata",data, "thisdata",thisdata);
+    /* console.log(
+      'Mydata',
+      mydata,
+      'statedata',
+      data,
+      'thisdata',
+      thisdata,
+      'selected rows',
+      selectedRows
+    ); */
     setData(mydata);
     return selectedRows;
   };
@@ -495,14 +507,14 @@ export default function TableOrderView({
     let sortedList = list;
     sortedList.sort(GetSortOrder(sortBy, sortDirection));
     setData(sortedList);
-    if(additionalSaveFunction) {
+    if (additionalSaveFunction) {
       additionalSaveFunction(saveData);
     }
   }, [list]);
 
-  const saveData =()=>{
+  const saveData = () => {
     saveDataTable(data);
-  }
+  };
 
   const onRowClick = (dataRow, event) => {
     //console.log('BeforeDataRowClock', data, sortBy, sortDirection);
@@ -528,11 +540,13 @@ export default function TableOrderView({
       editable.cellRenderer = EditableCell;
       editable.onCellChange = onCellChange;
       editable.onRowClick = onRowClick;
+      editable.resetMySelection = resetMySelection;
     } else {
       //console.log('Setting', element);
       editable.cellRenderer = EditableCell;
       editable.onRowClick = onRowClick;
       editable.onCellChange = onCellChange;
+      editable.resetMySelection = resetMySelection;
     }
     editable.key = element.dataKey;
     editable.alerter = getAlerter;
@@ -548,7 +562,7 @@ export default function TableOrderView({
         style={{
           fontWeight: 'bold',
           textAlign: 'center',
-          fontSize: 20,
+          fontSize: 20
         }}
         align="center"
       >
@@ -600,11 +614,11 @@ export default function TableOrderView({
         rowGetter={({ index }) => data[index]}
         columns={mycolumns}
         onRowClick={(thisdata) => {
-          //console.log(thisdata);
-          resetMySelection(thisdata.rowData,thisdata.event);
-          //console.log('BeforeDataRowClock', data, sortBy, sortDirection);
+          //          console.log('Resetbefore', thisdata);
+          resetMySelection(thisdata.rowData, thisdata.event);
+          //          console.log('BeforeDataRowClock', data, sortBy, sortDirection);
           handleDataRowClick(thisdata.rowData, thisdata.event);
-          //console.log('AfterDataRowClock', data, sortBy, sortDirection);
+          //          console.log('AfterDataRowClock', data, sortBy, sortDirection);
         }}
         updateOrderChange={(mydata, oldIndex, newIndex) => {
           //console.log('Before order change', mydata, data, oldIndex, newIndex);
