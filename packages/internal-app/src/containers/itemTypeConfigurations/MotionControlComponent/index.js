@@ -12,6 +12,7 @@ import Select from '@mui/material/Select';
 import Radio from '@mui/material/Radio';
 import ItemApi from '@monostruct/common/api/items.api';
 import { get } from 'lodash';
+import { Checkbox } from '@mui/material';
 
 export default function MotionControlComponent({ itemId }) {
   const [selectedValue, setSelectedValue] = React.useState('a');
@@ -37,8 +38,10 @@ export default function MotionControlComponent({ itemId }) {
     setSelectedValue(event.target.value);
   };
 
+  const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
+
   return (
-    <Paper style={{ width: '70%' }}>
+    <Paper>
       <Typography
         sx={{ flex: '1 1 100%', fontWeight: 'bold' }}
         variant="h6"
@@ -53,6 +56,8 @@ export default function MotionControlComponent({ itemId }) {
             <TableRow>
               <TableCell>Item name</TableCell>
               <TableCell align="right">Axis Number</TableCell>
+              <TableCell align="right">Actuator</TableCell>
+              <TableCell align="right">Actuator Type</TableCell>
               <TableCell align="right">End Effector</TableCell>
             </TableRow>
           </TableHead>
@@ -89,6 +94,14 @@ export default function MotionControlComponent({ itemId }) {
                     item.actuatorAxisNumber
                   )}
                 </TableCell>
+                <TableCell>
+                  {selectedValue === item.id ? (
+                    <Checkbox {...label} />
+                  ) : (
+                    item.actuator
+                  )}
+                </TableCell>
+                <TableCell align="right">Actuator Type</TableCell>
                 <TableCell align="right">
                   <Radio
                     checked={selectedValue === item.id}

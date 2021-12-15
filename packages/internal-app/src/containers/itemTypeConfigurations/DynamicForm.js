@@ -5,6 +5,7 @@ import Headding from '@monostruct/common/components/atoms/Headding';
 import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
 import ThreejsSelection from './ThreejsSelection';
+import MotionControlComponent from './MotionControlComponent';
 
 export default function DynamicCriteria({
   formFields,
@@ -13,7 +14,7 @@ export default function DynamicCriteria({
   handleUpdate,
   renderData,
   setRenderData,
-  setIsMotionControlCmpVisible = () => ({})
+  itemProperties
 }) {
   const handleOnChange = (name, value) => {
     const findIndex = stateFormFields.findIndex(
@@ -57,7 +58,7 @@ export default function DynamicCriteria({
               }`}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={8}>
             {fieldItem.fieldType === 'Input' && (
               <Input
                 placeholder="Enter"
@@ -81,24 +82,28 @@ export default function DynamicCriteria({
               />
             )}
 
-            {fieldItem.fieldType === 'Custom' && (
-              <ThreejsSelection
-                renderData={renderData}
-                setRenderData={setRenderData}
-                value={fieldItem.value}
-                mykey={fieldItem.fieldName}
-                mytype={fieldItem.dataType}
-                active={fieldItem.activeCell}
-                onChange={(mykeyinfo, valuefound) => {
-                  if (fieldItem.activeCell) {
-                    handleOnChange(fieldItem.fieldName, valuefound);
-                  }
-                }}
-                onClick={(value) => {
-                  setIsMotionControlCmpVisible(
-                    fieldItem.dataType === 'MotionControl'
-                  );
-                  handleOnClick(value);
+            {fieldItem.fieldType === 'Custom' &&
+              fieldItem.dataType !== 'MotionControl' && (
+                <ThreejsSelection
+                  renderData={renderData}
+                  setRenderData={setRenderData}
+                  value={fieldItem.value}
+                  mykey={fieldItem.fieldName}
+                  mytype={fieldItem.dataType}
+                  active={fieldItem.activeCell}
+                  onChange={(mykeyinfo, valuefound) => {
+                    if (fieldItem.activeCell) {
+                      handleOnChange(fieldItem.fieldName, valuefound);
+                    }
+                  }}
+                  onClick={handleOnClick}
+                />
+              )}
+
+            {fieldItem.dataType === 'MotionControl' && (
+              <MotionControlComponent
+                {...{
+                  itemId: itemProperties.id
                 }}
               />
             )}

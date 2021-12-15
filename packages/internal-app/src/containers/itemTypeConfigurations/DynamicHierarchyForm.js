@@ -94,7 +94,7 @@ export default function DynamicHierarchy(props) {
             }}
             renderData={renderData}
             setRenderData={setRenderData}
-            {...{ setIsMotionControlCmpVisible }}
+            {...{ itemProperties }}
           />
         );
       })}

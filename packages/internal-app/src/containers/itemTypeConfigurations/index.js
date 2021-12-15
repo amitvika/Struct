@@ -53,9 +53,6 @@ export default function ItemTypeConfiguration(props) {
 
   const [showKineticModel, setShowKineticModal] = useState(true);
 
-  const [isMotionControlCmpVisible, setIsMotionControlCmpVisible] =
-    useState(false);
-
   useEffect(() => {
     if (fileUUId) {
       console.log('Before Changing fileUUId from IUPC', fileUUIder, fileUUId);
@@ -201,8 +198,6 @@ export default function ItemTypeConfiguration(props) {
         setRenderData={addSelectionFromComponent}
         internalProductConfig={internalProductConfig}
         {...{
-          isMotionControlCmpVisible,
-          setIsMotionControlCmpVisible,
           itemProperties
         }}
       />
@@ -230,13 +225,7 @@ export default function ItemTypeConfiguration(props) {
         />
       </Grid>
       {renderExcelUI()}
-      {isMotionControlCmpVisible && (
-        <MotionControlComponent
-          {...{
-            itemId: itemProperties.id
-          }}
-        />
-      )}
+
       <GeometricDimensioning
         fileId={fileId}
         fileGDT={fileGDT}

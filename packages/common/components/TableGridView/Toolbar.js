@@ -25,9 +25,10 @@ export default function Toolbar({
   const [isFilterResetted, setIsFilterResetted] = React.useState(false);
   return (
     <Paper
-      sx={{
-        padding: '15px',
-        margin: 0,
+      style={{
+        padding: '10px',
+        marginTop: '10px',
+        marginBottom: '10px',
         position: 'relative',
         flexDirection: 'column'
       }}
