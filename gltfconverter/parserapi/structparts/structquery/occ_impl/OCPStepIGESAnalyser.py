@@ -4240,59 +4240,54 @@ class StepIgesAnalyser():
         print("Len Nodes",len(self.mstep_dict['nodes']))   
         globalTranslation=[(0,0,0)]
         globalRotation=[(1,0,0,0)]   
-        globalAngle=[0]
-        for steps in range(1,lenAnimations+1):
-            print(steps,lenAnimations,lenShapeOrder)
-            lenOfAnimationsTime = steps+1 #or lenAnimations ; it works for both...
-            timebuff = TimeBuffer(
-                max_index=2
-            ) 
-            mystep = steps-1
-            if lenShapeOrder > 0:
-                mystep = self.shapeorder[steps-1] 
-            u,v,w,a=self.kinematicrotation[mystep]
-            print(mystep,u,v,w,a,lenAnimations,lenShapeOrder,steps-1)
-            if a==0:
-                translationbuff =TranslationBuffer(
+        #globalAngle=[0]
+        for action in ["translation","rotation"]:
+            for steps in range(1,lenAnimations+1):
+                print(steps,lenAnimations,lenShapeOrder)
+                lenOfAnimationsTime = steps+1 #or lenAnimations ; it works for both...
+                timebuff = TimeBuffer(
                     max_index=2
-                )
-            else:
-                dist = math.sqrt(u*u + v*v +w*w)
-                if dist==0:
-                    u, v, w = 1, 1, 1
+                ) 
+                mystep = steps-1
+                if lenShapeOrder > 0:
+                    mystep = self.shapeorder[steps-1] 
+                (tu,tv,tw,td),(u,v,w,a)=self.kinematicrotation[mystep]
+                print(mystep,tu,tv,tw,td,u,v,w,a,lenAnimations,lenShapeOrder,steps-1)
+                if action=="translation":
+                    translationbuff =TranslationBuffer(
+                        max_index=2
+                    )
+                    u, v, w = tu*td, tv*td, tw*td
                 else:
-                    u, v, w = u/dist, v/dist, w/dist
+                    dist = math.sqrt(u*u + v*v +w*w)
+                    if dist==0:
+                        u, v, w = 1, 1, 1
+                    else:
+                        u, v, w = u/dist, v/dist, w/dist
+                    
+                    rotationbuff =RotationBuffer(
+                        max_index=2
+                    )   
                 
-                rotationbuff =RotationBuffer(
-                    max_index=2
-                )   
-            
-            for istep in range(lenOfAnimationsTime):  
-                timebuff.add_time(istep*self.delay)
-                if a==0:
-                    if istep < steps: 
-                        up, vp, wp = globalTranslation[istep]                
-                        translationbuff.add_translation(up,vp,wp)
+                for istep in range(lenOfAnimationsTime):  
+                    timebuff.add_time(istep*self.delay) #if action=="tranlation" else 2*istep*self.delay+1 )
+                    if action=="translation":
+                        if istep < steps: 
+                            up, vp, wp = globalTranslation[istep]                
+                            translationbuff.add_translation(up,vp,wp)
+                        else:
+                            translationbuff.add_translation(u,v,w)
+                            globalTranslation.append((u,v,w))
                     else:
-                        translationbuff.add_translation(u,v,w)
-                        globalTranslation.append((u,v,w))
-                        globalRotation.append((1,0,0,0))
-                else:
-                    if istep < steps:
-                        b1, b2, b3, b4 = globalRotation[istep]
-                        rotationbuff.add_rotation(b2,b3,b4,b1)
-                        print("less than step",istep,steps,b1,b2,b3,b4)
-                    else:
-                        # u,v, w = old w,v,w * quaternion with which                        
-                        if steps>0:
-                            b1, b2, b3, b4 = globalRotation[steps-1]
-                            ba = globalAngle[steps-1]
-                            if (u==0 and v==0 and w==0) :
-                                [a1,a2,a3,a4]=[b1, b2, b3, b4]
-                            else:
+                        if istep < steps:
+                            b1, b2, b3, b4 = globalRotation[istep]
+                            rotationbuff.add_rotation(b2,b3,b4,b1)
+                            print("less than step",istep,steps,b1,b2,b3,b4)
+                        else:
+                            # u,v, w = old w,v,w * quaternion with which                        
+                            if steps>0:
+                                b1, b2, b3, b4 = globalRotation[steps-1]
                                 na=a
-                                if na==7:
-                                    na=0
                                 [nu, nv, nw] = self.point_rotation_by_quaternion([u,v,w],[b1,b2,b3,b4]) 
                                 dist = math.sqrt(nu*nu + nv*nv +nw*nw)
                                 if dist==0:
@@ -4302,113 +4297,112 @@ class StepIgesAnalyser():
                                 my_quaternion = Quaternion(axis=[nu, nv, nw], angle=na) 
                                 my_quaternion.normalise()
                                 [a1,a2,a3,a4]=my_quaternion.q
-                            print("step==0",istep,steps,a1,a2,a3,a4)
-                        else:
-                            na=a
-                            if na==7:
-                                na=0
-                            my_quaternion = Quaternion(axis=[u, v, w], angle=na)
-                            my_quaternion.normalise()
-                            [a1,a2,a3,a4]=my_quaternion.q
-                            print("step!=0",istep,steps,a1,a2,a3,a4)
-                        #print("My Quaternion",a1,a2,a3,a4)                        
-                        rotationbuff.add_rotation(a2,a3,a4,a1)
-                        globalRotation.append((a1,a2,a3,a4))
-                        globalTranslation.append((0,0,0))
-                        globalAngle.append(a)                        
-                        print("Global Rotation",len(globalRotation),globalRotation)                    
-            buffer_index = len(self.mstep_dict['buffers'])
-            timelen = len(timebuff)
-            #print(timelen,self.rotateFirst)
-            buffer_dict = {
-                "byteLength":  timelen                                 
-            }   
-            base64data = base64.b64encode(timebuff.read()).decode('ascii')
-            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
-                mimetype="application/octet-stream",
-                data=base64data,
-            )   
-            self.mstep_dict['buffers'].append(buffer_dict)          
-            bufferView_index = len(self.mstep_dict['bufferViews'])
-            bufferview = {
-                "buffer" : buffer_index,
-                "byteOffset" : 0,
-                "byteLength" : timelen
-            }            
-            self.mstep_dict['bufferViews'].append(bufferview)
-            buffer_index = len(self.mstep_dict['buffers'])
-            if a==0:
-                translationlen = len(translationbuff)
-            else:
-                rotationlen = len(rotationbuff)
-            buffer_dict = {
-                "byteLength":  translationlen if a==0 else rotationlen                                   
-            }   
-            if a==0:
-                base64data = base64.b64encode(translationbuff.read()).decode('ascii')
-            else:
-                base64data = base64.b64encode(rotationbuff.read()).decode('ascii')
-            
-            buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
-                mimetype="application/octet-stream",
-                data=base64data,
-            )  
-            self.mstep_dict['buffers'].append(buffer_dict) 
-            bufferView_index = len(self.mstep_dict['bufferViews'])
-            bufferview = {
-                "buffer" : buffer_index,
-                "byteOffset" : 0,
-                "byteLength" : translationlen if a==0 else rotationlen
-            }            
-            self.mstep_dict['bufferViews'].append(bufferview)
-            accessor_index = len(self.mstep_dict['accessors'])
-            accessorview = [ {
-                "bufferView" : bufferView_index-1,
-                "byteOffset" : 0,
-                "componentType" : 5126,
-                "count" : lenOfAnimationsTime, #steps+1,
-                "type" : "SCALAR",
-                "max" : [ timebuff.time_max ],
-                "min" : [ timebuff.time_min ]
-                },
-                {
-                "bufferView" : bufferView_index,
-                "byteOffset" : 0,
-                "componentType" : 5126,
-                "count" : lenOfAnimationsTime, #steps+1,
-                "type" : "VEC3" if a==0 else "VEC4",
-                "max" : [ translationbuff.translation_umax, translationbuff.translation_vmax,translationbuff.translation_wmax ] if a==0 \
-                    else [ rotationbuff.rotation_umax, rotationbuff.rotation_vmax,rotationbuff.rotation_wmax ] ,
-                "min" : [ translationbuff.translation_umin,translationbuff.translation_vmin,translationbuff.translation_wmin ] if a==0 \
-                    else [ rotationbuff.rotation_umin,rotationbuff.rotation_vmin,rotationbuff.rotation_wmin ]
-                } ]
-            self.mstep_dict['accessors'].append(accessorview[0])
-            self.mstep_dict['accessors'].append(accessorview[1])
-            node_id = mystep+2
-            print(node_id)
-            if a==0:
-                self.mstep_dict['nodes'][node_id]['translation']=[ 0.0, 0.0, 0.0 ]
-            else:
-                #my_quaternion = Quaternion(axis=[u, v, w], angle=0)
-                #my_quaternion.normalise()
-                #print("Initial position of rotation",my_quaternion.q)
-                #[a1,a2,a3,a4] = my_quaternion.q
-                self.mstep_dict['nodes'][node_id]['rotation']=[ 0.0, 0, 0, 1 ]
-            #print(self.mstep_dict)
-            sampler = { 
-                "input" : accessor_index,
-                "interpolation" : "LINEAR",
-                "output" : accessor_index+1
-            }
-            samplers.append(sampler)            
-            chanel = {
-                "sampler" : steps-startRange,
-                "target" : {
-                "node" : node_id,
-                "path" : "translation" if a==0 else "rotation"
+                                print("step==0",istep,steps,a1,a2,a3,a4)
+                            else:
+                                na=a
+                                my_quaternion = Quaternion(axis=[u, v, w], angle=na)
+                                my_quaternion.normalise()
+                                [a1,a2,a3,a4]=my_quaternion.q
+                                print("step!=0",istep,steps,a1,a2,a3,a4)
+                            #print("My Quaternion",a1,a2,a3,a4)                        
+                            rotationbuff.add_rotation(a2,a3,a4,a1)
+                            globalRotation.append((a1,a2,a3,a4))                            
+                            #globalAngle.append(a)                        
+                            print("Global Rotation",len(globalRotation),globalRotation)                    
+                buffer_index = len(self.mstep_dict['buffers'])
+                timelen = len(timebuff)
+                #print(timelen,self.rotateFirst)
+                buffer_dict = {
+                    "byteLength":  timelen                                 
+                }   
+                base64data = base64.b64encode(timebuff.read()).decode('ascii')
+                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                    mimetype="application/octet-stream",
+                    data=base64data,
+                )   
+                self.mstep_dict['buffers'].append(buffer_dict)          
+                bufferView_index = len(self.mstep_dict['bufferViews'])
+                bufferview = {
+                    "buffer" : buffer_index,
+                    "byteOffset" : 0,
+                    "byteLength" : timelen
+                }            
+                self.mstep_dict['bufferViews'].append(bufferview)
+                buffer_index = len(self.mstep_dict['buffers'])
+                if action=="translation":
+                    translationlen = len(translationbuff)
+                else:
+                    rotationlen = len(rotationbuff)
+                buffer_dict = {
+                    "byteLength":  translationlen if action=="translation" else rotationlen                                   
+                }   
+                if action=="translation":
+                    base64data = base64.b64encode(translationbuff.read()).decode('ascii')
+                else:
+                    base64data = base64.b64encode(rotationbuff.read()).decode('ascii')
+                
+                buffer_dict['uri'] = "data:{mimetype};base64,{data}".format(
+                    mimetype="application/octet-stream",
+                    data=base64data,
+                )  
+                self.mstep_dict['buffers'].append(buffer_dict) 
+                bufferView_index = len(self.mstep_dict['bufferViews'])
+                bufferview = {
+                    "buffer" : buffer_index,
+                    "byteOffset" : 0,
+                    "byteLength" : translationlen if action=="translation" else rotationlen
+                }            
+                self.mstep_dict['bufferViews'].append(bufferview)
+                accessor_index = len(self.mstep_dict['accessors'])
+                accessorview = [ {
+                    "bufferView" : bufferView_index-1,
+                    "byteOffset" : 0,
+                    "componentType" : 5126,
+                    "count" : lenOfAnimationsTime, #steps+1,
+                    "type" : "SCALAR",
+                    "max" : [ timebuff.time_max ],
+                    "min" : [ timebuff.time_min ]
+                    },
+                    {
+                    "bufferView" : bufferView_index,
+                    "byteOffset" : 0,
+                    "componentType" : 5126,
+                    "count" : lenOfAnimationsTime, #steps+1,
+                    "type" : "VEC3" if action=="translation" else "VEC4",
+                    "max" : [ translationbuff.translation_umax, translationbuff.translation_vmax, translationbuff.translation_wmax ] if action=="translation" \
+                        else [ rotationbuff.rotation_umax, rotationbuff.rotation_vmax, rotationbuff.rotation_wmax ] ,
+                    "min" : [ translationbuff.translation_umin, translationbuff.translation_vmin, translationbuff.translation_wmin ] if action=="translation" \
+                        else [ rotationbuff.rotation_umin, rotationbuff.rotation_vmin, rotationbuff.rotation_wmin ]
+                    } ]
+                self.mstep_dict['accessors'].append(accessorview[0])
+                self.mstep_dict['accessors'].append(accessorview[1])
+                node_id = mystep+2
+                print(node_id)
+                if action=="translation":
+                    self.mstep_dict['nodes'][node_id]['translation']=[ 0.0, 0.0, 0.0 ]
+                else:
+                    #my_quaternion = Quaternion(axis=[u, v, w], angle=0)
+                    #my_quaternion.normalise()
+                    #print("Initial position of rotation",my_quaternion.q)
+                    #[a1,a2,a3,a4] = my_quaternion.q
+                    self.mstep_dict['nodes'][node_id]['rotation']=[ 0.0, 0, 0, 1 ]
+                #print(self.mstep_dict)
+                sampler = { 
+                    "input" : accessor_index,
+                    "interpolation" : "LINEAR",
+                    "output" : accessor_index+1
                 }
-            }
-            chanels.append(chanel)
+                samplers_index = len(samplers)
+                samplers.append(sampler)    
+                print("Sampler",samplers_index, steps-startRange,action)        
+                chanel = {
+                    "sampler" : samplers_index, #steps-startRange,
+                    "target" : {
+                    "node" : node_id,
+                    "path" : "translation" if action=="translation" else "rotation"
+                    }
+                }
+                chanels.append(chanel)
 
         animationchannels = [{
             "samplers" : samplers,

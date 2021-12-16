@@ -5781,13 +5781,16 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 aw = (math.pi/len(onlyShapes))*aw"""
                 
                 if(len(onlyShapes)!=8):     
-                    kinematicrotation.append((ax,ay,az,aw))              
+                    if shapeCount>=2 and shapeCount<=5:
+                        kinematicrotation.append(((ax,ay,az,20*shapeCount),(ax,ay,az,0)))
+                    else:
+                        kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,aw)))              
                     shapeorder.append(shapeCount)
                 else:
                     if shapeCount>=2 and shapeCount<=3:
-                        kinematicrotation.append((ax,ay,az,7))
+                        kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,0)))
                     else:
-                        kinematicrotation.append((ax,ay,az,aw))
+                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
                 
                 shapeCount += 1
             print(shapeCount,shapeorder,kinematicrotation)
