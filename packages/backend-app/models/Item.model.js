@@ -82,6 +82,7 @@ const ItemSchema = new mongoose.Schema(
     filePartName: { type: String },
     is_archived: { type: Boolean, default: false },
     actuatorAxisNumber: { type: Number, default: 0 },
+    isActuatorApplies: { type: Boolean, default: false },
     created_by: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     updated_by: { type: Schema.Types.ObjectId, ref: 'User', required: true }
   },

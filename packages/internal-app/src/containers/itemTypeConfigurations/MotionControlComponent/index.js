@@ -24,7 +24,7 @@ export default function MotionControlComponent({
   const [itemList, setItemList] = React.useState([]);
 
   React.useEffect(() => {
-    ItemApi.getItemsAPI(`parent_id=${itemId}`)
+    ItemApi.getItemsAPI(`parent_id=${itemId}&isActuator=true`)
       .then((res) => {
         setItemList(get(res, 'data', []));
       })
@@ -45,6 +45,12 @@ export default function MotionControlComponent({
 
   const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
+  const renderAxisMenu = () => {
+    return itemList.map((item, index) => (
+      <MenuItem value={index + 1}>{index + 1}</MenuItem>
+    ));
+  };
+
   return (
     <Paper>
       <Typography
@@ -59,11 +65,11 @@ export default function MotionControlComponent({
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Item name</TableCell>
-              <TableCell align="right">Axis Number</TableCell>
-              <TableCell align="right">Actuator</TableCell>
-              <TableCell align="right">Actuator Type</TableCell>
-              <TableCell align="right">End Effector</TableCell>
+              <TableCell padding="none">Item name</TableCell>
+              <TableCell padding="none">Axis Number</TableCell>
+              <TableCell padding="none">Actuator Applies</TableCell>
+              <TableCell padding="none">Machine’s Actuator Limits</TableCell>
+              <TableCell padding="none">End Effector</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -74,10 +80,10 @@ export default function MotionControlComponent({
                   setRenderData(getTableData(gltfjson));
                 }}
               >
-                <TableCell component="th" scope="row">
+                <TableCell component="th" padding="none">
                   {item.name}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell padding="none">
                   {' '}
                   {selectedValue === item.id ? (
                     <Select
@@ -92,25 +98,26 @@ export default function MotionControlComponent({
                         });
                       }}
                     >
-                      <MenuItem value={0}>0</MenuItem>
-                      <MenuItem value={1}>1</MenuItem>
-                      <MenuItem value={2}>2</MenuItem>
-                      <MenuItem value={3}>3</MenuItem>
-                      <MenuItem value={4}>4</MenuItem>
+                      {renderAxisMenu()}
                     </Select>
                   ) : (
                     item.actuatorAxisNumber
                   )}
                 </TableCell>
-                <TableCell>
-                  {selectedValue === item.id ? (
-                    <Checkbox {...label} />
-                  ) : (
-                    item.actuator
-                  )}
+                <TableCell padding="none">
+                  <Checkbox
+                    {...label}
+                    disabled={selectedValue !== item.id}
+                    checked={item.isActuatorApplies}
+                    onChange={(event) => {
+                      updateAxisNumber(item.id, {
+                        isActuatorApplies: event.target.checked
+                      });
+                    }}
+                  />
                 </TableCell>
-                <TableCell align="right">Actuator Type</TableCell>
-                <TableCell align="right">
+                <TableCell padding="none"></TableCell>
+                <TableCell padding="none">
                   <Radio
                     checked={selectedValue === item.id}
                     onChange={handleChange}

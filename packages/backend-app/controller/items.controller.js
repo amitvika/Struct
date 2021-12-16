@@ -84,6 +84,15 @@ const buildQuery = (req) => {
     });
   }
 
+  if (req.query.isActuator) {
+    query.$and.push({
+      $or: [
+        { 'hierarchySelections.value': 'Actuator|Rotational' },
+        { 'hierarchySelections.value': 'Actuator|Linear' }
+      ]
+    });
+  }
+
   // if (req.query.call_type !== 'detail') {
   //   if (req.query.is_child_item) {
   //     query.$and.push({ is_child_item: { $in: true } });
