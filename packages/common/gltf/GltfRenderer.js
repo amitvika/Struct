@@ -416,7 +416,9 @@ class GLTFRenderer extends Component {
     const edgeChange = toChange ? this.findEdgeChange(prevProps) : false;
     toChange = toChange || edgeChange;
     if (toChange) {
-      this_state_gltf = this.props.gltfobj;
+      if (this.props.gltf != null) {
+        this_state_gltf = this.props.gltfobj;
+      }
       this.raycastObjects = this.rayCastObjectFilters(this.partsMeshes);
     }
     this.changedctrlkey = this.props.ctrlKey;
@@ -703,7 +705,10 @@ class GLTFRenderer extends Component {
 
   init = () => {
     const state_gltfobj =
-      this_state_gltf || this.state.gltfobj || this.props.gltfobj;
+      this.props.gltfobj ||
+      this_state_gltf ||
+      this.state.gltfobj ||
+      this.props.gltfobj;
 
     this.gltfJSON = state_gltfobj.gltf || state_gltfobj;
 
@@ -878,6 +883,8 @@ class GLTFRenderer extends Component {
     //this.materialtype = this.props.materialtype;
     //console.log("Rendering here!",this.activeFile,this.props.activefile,
     //        this.materialtype,this.props.materialtype,this.selectedoption,this.props.selectedoption);
+    //console.log('Doing this.props.gltfobj');
+    this_state_gltf = this.props.gltfobj;
     this.alter(this.props.gltfobj);
     //console.log("Coming from here to changeparts");
     this.changeparts();
@@ -1295,38 +1302,50 @@ class GLTFRenderer extends Component {
       this.mixer.stopAllAction();
       this.mixer.uncacheRoot(this.mixer.getRoot());
       this.mixer = null;
+      //      console.log('Cleared Existing animation');
+    } else {
+      //      console.log('NO existing animations');
     }
 
     this.clips = clips;
-    //console.log(this.clips);
+    //    console.log('Clips', this.clips);
     if (!clips.length) {
+      //      console.log('No Clips', this.clips);
       return;
     }
-    //console.log(this.content[0]);
+    //    console.log(this.content[0]);
     if (this.content && this.content.length > 0) {
       this.mixer = new AnimationMixer(this.content[0]);
     }
-
+    //    console.log(this.mixer);
     this.playAllClips(this.state.pauseAnimation, true);
   };
 
   playAllClips = (pauseAnimation, reset) => {
     this.clips.forEach((clip) => {
       //console.log(clip,reset);
-      if (pauseAnimation == 'Continue') {
-        if (reset) {
-          this.mixer.clipAction(clip).reset().play();
-        } else {
-          this.mixer.clipAction(clip).play();
-        }
-      } else {
-        if (reset) {
-          this.mixer.clipAction(clip).reset().stop();
-        } else {
-          this.mixer.clipAction(clip).stop();
+      if (clip) {
+        try {
+          if (pauseAnimation == 'Continue') {
+            if (reset) {
+              this.mixer.clipAction(clip).reset().play();
+            } else {
+              this.mixer.clipAction(clip).play();
+            }
+          } else {
+            if (reset) {
+              this.mixer.clipAction(clip).reset().stop();
+            } else {
+              this.mixer.clipAction(clip).stop();
+            }
+          }
+        } catch (error) {
+          console.log('While playing animation', error);
         }
       }
-      this.state.actionStates[clip.name] = true;
+      if (clip && clip.name) {
+        this.state.actionStates[clip.name] = true;
+      }
     });
   };
 
@@ -1340,12 +1359,23 @@ class GLTFRenderer extends Component {
     if (this.mixer) {
       this.clips.forEach((clip) => {
         const action = this.mixer.clipAction(clip);
-        /* console.log(clip,this.mixer.time,this.mixer.timeScale,
-                    action.time,action.timeScale,action.loop,action.weight,
-                    action.getEffectiveTimeScale(),action.getEffectiveWeight(),pauseAnimation ); */
+        /*        console.log(
+          clip,
+          this.mixer.time,
+          this.mixer.timeScale,
+          action.time,
+          action.timeScale,
+          action.loop,
+          action.weight,
+          action.getEffectiveTimeScale(),
+          action.getEffectiveWeight(),
+          pauseAnimation
+        ); */
         action.paused = pauseAnimation == 'Pause';
       });
       //console.log(this.mixer.timeScale);
+    } else {
+      //console.log('No mixer found');
     }
   };
 
@@ -3095,7 +3125,7 @@ class GLTFRenderer extends Component {
       const onload = (gltf) => {
         this.object = gltf.scene || gltf.scenes[0];
         this.clips = gltf.animations || [];
-        //console.log("gltf", gltf, "Objects",this.object);
+        //console.log('gltf', gltf, 'Objects', this.object, 'Clips', this.clips);
         this.setContent(this.object, this.clips);
         this.setState({ progressBarRender: false });
         if (this.props.setProgressBarRender) {
@@ -3138,7 +3168,7 @@ class GLTFRenderer extends Component {
         this.props.setProgressBarRender(true);
       }
       parser.parse(onload, onError, onProgress);
-      //console.log("Parsing started",this.props.gltfobj.gltf);
+      //console.log('Parsing started', this.props.gltfobj.gltf);
     }
     //}
   };
@@ -6433,7 +6463,10 @@ class GLTFRenderer extends Component {
         //console.log("Rerendering here!",this.activeFile,this.props.activefile,this.materialtype,
         //    this.props.materialtype,this.selectedoption,this.props.selectedoption);
         if (this.initDone) {
-          this.alter(state_gltfobj);
+          //console.log('Doing state_gltfobj');
+          this.alter(
+            this_state_gltf || this.state.gltfobj || this.props.gltfobj
+          );
         }
       }
     }
