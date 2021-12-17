@@ -275,6 +275,7 @@ class GLTFRenderer extends Component {
     directColor: 0xffffff,
     partsSelection: [],
     intersectedShell: null,
+    intersectedShellName: '',
     anchorEls: new Array(myMenus.length),
     selectedmenu: 0,
     displaytext: null,
@@ -407,6 +408,7 @@ class GLTFRenderer extends Component {
     //var toChange = ( (prevProps.gltfobj !== this.props.gltfobj)  || (prevState.gltfobj  !== this.props.gltfobj) );
     //console.log("COMPONENT",prevProps,this.props);
     var toChange = prevProps.gltfobj !== this.props.gltfobj;
+    const toInvokeRender = toChange;
     toChange = toChange || prevProps.activeFile !== this.props.activefile;
     toChange = toChange || prevProps.materialtype != this.props.materialtype;
     toChange =
@@ -416,7 +418,13 @@ class GLTFRenderer extends Component {
     const edgeChange = toChange ? this.findEdgeChange(prevProps) : false;
     toChange = toChange || edgeChange;
     if (toChange) {
-      if (this.props.gltf != null) {
+      // console.log(
+      //   'Changing this_state_gltf',
+      //   this.props.gltfobj,
+      //   this_state_gltf,
+      //   prevProps.gltfobj
+      // );
+      if (this.props.gltfobj != null) {
         this_state_gltf = this.props.gltfobj;
       }
       this.raycastObjects = this.rayCastObjectFilters(this.partsMeshes);
@@ -427,6 +435,13 @@ class GLTFRenderer extends Component {
     changeback = changeback || this.datatouchcolor != this.props.touchcolor;
     if (changeback) {
       this.changeBackgroundWhenPropsChange();
+    }
+    if (toInvokeRender) {
+      if (this.initDone) {
+        //console.log('Doing this_state_gltf', this_state_gltf, this.renderDone);
+        this.alter(this_state_gltf);
+        this.render();
+      }
     }
     /* 
         if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
@@ -883,9 +898,10 @@ class GLTFRenderer extends Component {
     //this.materialtype = this.props.materialtype;
     //console.log("Rendering here!",this.activeFile,this.props.activefile,
     //        this.materialtype,this.props.materialtype,this.selectedoption,this.props.selectedoption);
-    //console.log('Doing this.props.gltfobj');
+    //console.log('Doing this.props.gltfobj', this.props.gltfobj);
     this_state_gltf = this.props.gltfobj;
     this.alter(this.props.gltfobj);
+    this.renderDone = true;
     //console.log("Coming from here to changeparts");
     this.changeparts();
     this.onWindowResize();
@@ -3042,7 +3058,10 @@ class GLTFRenderer extends Component {
           }
           this.INTERSECTED = intersects[myObject].object;
           this.setTouchingColor(this.INTERSECTED);
-          this.setState({ intersectedShell: this.INTERSECTED });
+          this.setState({
+            intersectedShell: this.INTERSECTED,
+            intersectedShellName: this.getIntersectedName(this.INTERSECTED.name)
+          });
           if (this.controls) {
             if (this.controls.setTargetPosition) {
               //console.log("Intersects", intersects[myObject],intersects[myObject].object,intersects[myObject].point );
@@ -4533,7 +4552,10 @@ class GLTFRenderer extends Component {
         //this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
       }
       this.INTERSECTED = null;
-      this.setState({ intersectedShell: this.INTERSECTED });
+      this.setState({
+        intersectedShell: this.INTERSECTED,
+        intersectedShellName: ''
+      });
       if (
         this.controls &&
         this.controls.target &&
@@ -4553,6 +4575,69 @@ class GLTFRenderer extends Component {
       }
     }
   }
+  getNameWithFeatures = (item) => {
+    let myName = item[gltf_Dict['name']];
+    let myDisplayName = item[gltf_Dict['display']];
+    if (!myDisplayName) {
+      return myName;
+    }
+    const myelement = item[gltf_Dict['element']];
+    let prefix = '';
+    if (myelement) {
+      if (myelement == 'F') {
+        prefix = 'FACE';
+      } else if (myelement == 'E') {
+        prefix = 'EDGE';
+      } else if (myelement == 'V') {
+        prefix = 'VERTEX';
+      } else if (myelement == 'P') {
+        prefix = 'PART';
+      } else if (myelement == 'f' || myelement == 'e' || myelement == 'v') {
+        prefix = 'SLICER';
+      }
+    } else {
+      prefix = myName.slice(0, 4);
+      if (prefix != 'FACE' && prefix != 'EDGE' && prefix != 'PART') {
+        prefix = myName.slice(0, 6);
+        if (prefix != 'VERTEX') {
+          prefix = 'SLICER';
+        }
+      }
+    }
+    return prefix + myDisplayName;
+  };
+  getIntersectedName = (name) => {
+    let myName = name;
+    const state_gltfobj =
+      this_state_gltf || this.state.gltfobj || this.props.gltfobj;
+    const myStateTree = state_gltfobj.tree;
+    if (
+      this.selectedoption != SELECTASSEMBLY ||
+      this.props.splitmethod != SELECTDISECTPARTS
+    ) {
+      for (var i = 0; i < myStateTree.length; i++) {
+        if (myStateTree[i][gltf_Dict['name']] == name) {
+          return this.getNameWithFeatures(myStateTree[i]);
+        }
+      }
+      return myName;
+    }
+    var myParentID = -1;
+    for (var i = 0; i < myStateTree.length; i++) {
+      if (myStateTree[i][gltf_Dict['name']] == name) {
+        myParentID = myStateTree[i][gltf_Dict['parentId']];
+        break;
+      }
+    }
+    if (myParentID != -1) {
+      for (var i = 0; i < myStateTree.length; i++) {
+        if (myStateTree[i][gltf_Dict['id']] == myParentID) {
+          return this.getNameWithFeatures(myStateTree[i]);
+        }
+      }
+    }
+    return myName;
+  };
 
   getNameID = (name) => {
     if (
@@ -6463,7 +6548,11 @@ class GLTFRenderer extends Component {
         //console.log("Rerendering here!",this.activeFile,this.props.activefile,this.materialtype,
         //    this.props.materialtype,this.selectedoption,this.props.selectedoption);
         if (this.initDone) {
-          //console.log('Doing state_gltfobj');
+          // console.log(
+          //   'Doing this_state_gltf || this.state.gltfobj || this.props.gltfobj',
+          //   this_state_gltf || this.state.gltfobj || this.props.gltfobj,
+          //   this.renderDone
+          // );
           this.alter(
             this_state_gltf || this.state.gltfobj || this.props.gltfobj
           );
@@ -6594,7 +6683,7 @@ class GLTFRenderer extends Component {
           }}
         >
           {this.state.intersectedShell
-            ? this.getNameID(this.state.intersectedShell.name)
+            ? this.state.intersectedShellName //this.getNameID(this.state.intersectedShell.name)
             : ''}
           {/*this.state.displaytext*/}
         </div>

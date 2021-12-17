@@ -194,6 +194,7 @@ class Extensions extends Component {
                 let myelement = node[gltf_Dict['element']];
 
                 let myName = node[gltf_Dict['name']];
+                let myDisplay = node[gltf_Dict['display']];
                 let first4chars = myName.slice(0, 4);
                 let first6chars = myName.slice(0, 6);
                 if (myelement) {
@@ -233,12 +234,15 @@ class Extensions extends Component {
                 } else {
                   myIcon = <DeveloperBoardOutlinedIcon />;
                 }
+                if (!myDisplay) {
+                  myDisplay = myName;
+                }
                 return (
                   <div style={style}>
                     <Expandable node={node} {...rest}>
                       <Selection node={node} {...rest}>
                         {myIcon}
-                        {myName}
+                        {myDisplay}
                       </Selection>
                     </Expandable>
                   </div>

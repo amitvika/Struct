@@ -12,7 +12,8 @@ import { Box } from '@mui/material';
 import {
   USESTYLES,
   StyledTableRow,
-  StyledTableCell
+  StyledTableCell,
+  gltf_Dict
 } from '@monostruct/common/gltf/Tree/utils';
 /*
 const useStyles = makeStyles({
@@ -158,6 +159,17 @@ export default function SelectedSummaryTable({
   const renderMateValues = (myMateValues) => {
     return myMateValues.map((row, index) => (row ? myCheckBoxes[index] : ''));
   };
+  const getDisplayName = (row) => {
+    let displayName = features
+      ? row[gltf_Dict['display']]
+      : row.parent[gltf_Dict['display']];
+    if (!displayName) {
+      displayName = features
+        ? row[gltf_Dict['name']]
+        : row.parent[gltf_Dict['name']];
+    }
+    return displayName;
+  };
   const renderTable = (myData, groupid, myMateValues, active) => {
     //console.log("FeaturList",featureList,features);
     if (!myData || myData.length == 0) {
@@ -195,7 +207,11 @@ export default function SelectedSummaryTable({
     } else {
       return myData.map((row, index) => (
         <StyledTableRow
-          key={(features ? row.n : row.parent.n) + index.toString()}
+          key={
+            (features
+              ? row[gltf_Dict['name']]
+              : row.parent[gltf_Dict['name']]) + index.toString()
+          }
           onClick={() => {
             setCurrentDataTable(groupid);
           }}
@@ -204,7 +220,7 @@ export default function SelectedSummaryTable({
             <Box
               sx={active ? { fontWeight: 'bold' } : { fontWeight: 'normal' }}
             >
-              {features ? row.n : row.parent.n}
+              {getDisplayName(row)}
             </Box>
           </StyledTableCell>
           <StyledTableCell align="right">

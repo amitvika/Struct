@@ -465,7 +465,10 @@ export default function ManufacturabilityAnalysis(props) {
     if (state_gltfjson.tree) {
       for (var i = 0; i < state_gltfjson.tree.length; i++) {
         //console.log(state.gltfjson.tree[i]);
-        if (state_gltfjson.tree[i][gltf_Dict['name']] === data['name']) {
+        if (
+          state_gltfjson.tree[i][gltf_Dict['name']] ===
+          (data[gltf_Dict['name']] || data['name'])
+        ) {
           return state_gltfjson.tree[i];
         }
       }
@@ -485,7 +488,10 @@ export default function ManufacturabilityAnalysis(props) {
     if (state_gltfjson.tree) {
       for (var i = 0; i < state_gltfjson.tree.length; i++) {
         //console.log(state.gltfjson.tree[i]);
-        if (state_gltfjson.tree[i][gltf_Dict['name']] === data['name']) {
+        if (
+          state_gltfjson.tree[i][gltf_Dict['name']] ===
+          (data[gltf_Dict['name']] || data['name'])
+        ) {
           return i;
         }
       }
@@ -1389,7 +1395,7 @@ export default function ManufacturabilityAnalysis(props) {
         currentData.push({
           id: index,
           index: index,
-          name: element[gltf_Dict['name']],
+          name: element[gltf_Dict['display']] || element[gltf_Dict['name']],
           order: null,
           AX: 0,
           AY: 0,

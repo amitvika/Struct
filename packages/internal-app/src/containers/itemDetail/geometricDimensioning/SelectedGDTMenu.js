@@ -10,7 +10,8 @@ import Paper from '@mui/material/Paper';
 import {
   USESTYLES,
   StyledTableRow,
-  StyledTableCell
+  StyledTableCell,
+  gltf_Dict
 } from '@monostruct/common/gltf/Tree/utils';
 /*
 const useStyles = makeStyles({
@@ -71,16 +72,32 @@ export default function SelectedGDTMenu({
   const Options3 = ['!1!', '!2!', '!3!', '!4!', '!5!', '!6!', '!7!'];
   const Options4 = ['@1@', '@2@', '@3@', '@4@', '@5@', '@6@', '@7@'];
   const classes = USESTYLES();
+  const getDisplayName = (row) => {
+    let displayName = features
+      ? row[gltf_Dict['display']]
+      : row.parent[gltf_Dict['display']];
+    if (!displayName) {
+      displayName = features
+        ? row[gltf_Dict['name']]
+        : row.parent[gltf_Dict['name']];
+    }
+    return displayName;
+  };
   const renderTable = () => {
     //console.log("FeaturList",featureList,features);
+
     return featureList.map(
       (row, index) =>
         row.kind == 'Circle' && (
           <StyledTableRow
-            key={(features ? row.n : row.parent.n) + index.toString()}
+            key={
+              (features
+                ? row[gltf_Dict['name']]
+                : row.parent[gltf_Dict['name']]) + index.toString()
+            }
           >
             <StyledTableCell component="th" scope="row">
-              {features ? row.n : row.parent.n}
+              {getDisplayName(row)}
             </StyledTableCell>
             <StyledTableCell align="right">
               {row.fill == 'Hole' ? 'Hole' : 'Shaft'}
@@ -91,7 +108,7 @@ export default function SelectedGDTMenu({
                 value={row.fill == 'Hole' ? row.option3 : row.option4}
                 onChange={(e) =>
                   setRowKeyValue(
-                    row.n,
+                    row[gltf_Dict['name']],
                     row.fill == 'Hole' ? 'option3' : 'option4',
                     e.target.value
                   )
