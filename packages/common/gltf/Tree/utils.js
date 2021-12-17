@@ -171,7 +171,16 @@ export const gltf_Dict = {
   direction: 'V',
   basic: 'b'
 };
-
+export const element_Dict = {
+  P: 'PART',
+  F: 'FACE',
+  E: 'EDGE',
+  V: 'VERTEX',
+  e: 'SLICER',
+  f: 'SLICER',
+  v: 'SLICER',
+  ' ': 'ASSEMBLY'
+};
 export const defaultGDTTable = {
   edges: [],
   selectedObjects: [],

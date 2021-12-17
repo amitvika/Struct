@@ -150,7 +150,15 @@ exports.getAll = async (req, res) => {
         drawLine: itemDetail.drawLine,
         fileId: itemDetail.fileId,
         hierarchySelections: itemDetail.hierarchySelections,
-        stepTreeLength: itemDetail.stepTreeLength
+        stepTreeLength: itemDetail.stepTreeLength,
+        classificationConfig: itemDetail.classificationConfig,
+        is_child_item: itemDetail.is_child_item,
+        child_item_status: itemDetail.child_item_status,
+        multiAssembly: itemDetail.multiAssembly,
+        filePartName: itemDetail.filePartName,
+        is_archived: itemDetail.is_archived,
+        actuatorAxisNumber: itemDetail.actuatorAxisNumber,
+        isActuatorApplies: itemDetail.isActuatorApplies
       }));
     res.json(itemDetails);
   } catch (error) {
