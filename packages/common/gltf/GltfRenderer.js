@@ -407,7 +407,8 @@ class GLTFRenderer extends Component {
   componentDidUpdate(prevProps, prevState) {
     //var toChange = ( (prevProps.gltfobj !== this.props.gltfobj)  || (prevState.gltfobj  !== this.props.gltfobj) );
     //console.log("COMPONENT",prevProps,this.props);
-    var toChange = prevProps.gltfobj !== this.props.gltfobj;
+    var toChange =
+      JSON.stringify(prevProps.gltfobj) !== JSON.stringify(this.props.gltfobj);
     const toInvokeRender = toChange;
     toChange = toChange || prevProps.activeFile !== this.props.activefile;
     toChange = toChange || prevProps.materialtype != this.props.materialtype;
@@ -2280,11 +2281,21 @@ class GLTFRenderer extends Component {
       this.setOriginalColor(this.INTERSECTED);
       //this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
       this.changeStateOfSelection(this.INTERSECTED, event);
-      //console.log(this.INTERSECTED,"Going for inner table selection",event,this.props.onClick,this.INTERSECTED.selectedshell);
+      /* console.log(
+        this.INTERSECTED,
+        'Going for inner table selection',
+        event,
+        this.props.onClick,
+        this.INTERSECTED.selectedshell
+      ); */
       if (this.props.onClick) {
         this.props.onClick(this.INTERSECTED, SELECTANITEM, event);
       }
-      //console.log("After",this.INTERSECTED.material.color,this.INTERSECTED.selectedshell);
+      /* console.log(
+        'After',
+        this.INTERSECTED.material.color,
+        this.INTERSECTED.selectedshell
+      ); */
       //if(this.INTERSECTED.selectedshell) this.INTERSECTED = null;
     } else {
       //console.log("I got to click");
@@ -4226,6 +4237,12 @@ class GLTFRenderer extends Component {
   changeparts = () => {
     const changedata = this.props.changedata;
     this.changedctrlkey = this.props.ctrlKey;
+    /* console.log(
+      this.props.whatchanged,
+      this.whatchanged,
+      JSON.stringify(changedata),
+      JSON.stringify(this.changeddataarray)
+    ); */
     if (
       (this.props.whatchanged == SELECTANITEM &&
         JSON.stringify(changedata) != JSON.stringify(this.changeddataarray)) ||
