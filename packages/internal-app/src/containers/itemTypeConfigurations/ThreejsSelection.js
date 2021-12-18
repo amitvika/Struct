@@ -32,10 +32,41 @@ export default function ThreejsSelection(props) {
     if (mytype == 'LinearFaceOrEdgeSelection3D') return SELECTLINEAR;
     return SELECTFEATURE;
   };
-
+  const getNameWithFeatures = (item) => {
+    let myName = item[gltf_Dict['name']];
+    let myDisplayName = item[gltf_Dict['display']];
+    if (!myDisplayName) {
+      return myName;
+    }
+    const myelement = item[gltf_Dict['element']];
+    let prefix = '';
+    if (myelement) {
+      if (myelement == 'F') {
+        prefix = 'FACE';
+      } else if (myelement == 'E') {
+        prefix = 'EDGE';
+      } else if (myelement == 'V') {
+        prefix = 'VERTEX';
+      } else if (myelement == 'P') {
+        prefix = 'PART';
+      } else if (myelement == 'f' || myelement == 'e' || myelement == 'v') {
+        prefix = 'SLICER';
+      }
+    } else {
+      prefix = myName.slice(0, 4);
+      if (prefix != 'FACE' && prefix != 'EDGE' && prefix != 'PART') {
+        prefix = myName.slice(0, 6);
+        if (prefix != 'VERTEX') {
+          prefix = 'SLICER';
+        }
+      }
+    }
+    return prefix + myDisplayName;
+  };
   const getMyName = (item) => {
     let myelement = item[gltf_Dict['element']];
-    let myName = item[gltf_Dict['name']];
+    //let myName = item[gltf_Dict['name']];
+    let myName = getNameWithFeatures(item);
     //let myCode = item[gltf_Dict['geometry']];
     let first4chars = myName.slice(0, 4);
     let first6chars = myName.slice(0, 6);
@@ -95,7 +126,8 @@ export default function ThreejsSelection(props) {
       const item = myvalue[index];
       if (item && item[gltf_Dict['name']]) {
         let myelement = item[gltf_Dict['element']];
-        let myName = item[gltf_Dict['name']];
+        //let myName = item[gltf_Dict['name']];
+        let myName = getNameWithFeatures(item);
         //let myCode = item[gltf_Dict['geometry']];
         let first4chars = myName.slice(0, 4);
         let first6chars = myName.slice(0, 6);

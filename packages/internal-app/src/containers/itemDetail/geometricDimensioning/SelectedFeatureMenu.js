@@ -10,7 +10,8 @@ import Paper from '@mui/material/Paper';
 import {
   USESTYLES,
   StyledTableRow,
-  StyledTableCell
+  StyledTableCell,
+  gltf_Dict
 } from '@monostruct/common/gltf/Tree/utils';
 import { Typography } from '@mui/material';
 
@@ -101,14 +102,29 @@ export default function SelectedFeatureMenu({
     '1 1/8"',
     '1 1/4"'
   ];
+  const getDisplayName = (row) => {
+    let displayName = features
+      ? row[gltf_Dict['display']]
+      : row.parent[gltf_Dict['display']];
+    if (!displayName) {
+      displayName = features
+        ? row[gltf_Dict['name']]
+        : row.parent[gltf_Dict['name']];
+    }
+    return displayName;
+  };
   const renderTable = () => {
     console.log('FeaturList', featureList, features);
+
     return featureList.map((row, index) => (
       <StyledTableRow
-        key={(features ? row.n : row.parent.n) + index.toString()}
+        key={
+          (features ? row[gltf_Dict['name']] : row.parent[gltf_Dict['name']]) +
+          index.toString()
+        }
       >
         <StyledTableCell component="th" scope="row">
-          {features ? row.n : row.parent.n}
+          {getDisplayName(row)}
         </StyledTableCell>
         <StyledTableCell align="right">{row.type}</StyledTableCell>
         <StyledTableCell align="right">{row.kind}</StyledTableCell>
@@ -117,7 +133,13 @@ export default function SelectedFeatureMenu({
             <select
               id={'i1d' + index.toString()}
               value={row.option1}
-              onChange={(e) => setRowKeyValue(row.n, 'option1', e.target.value)}
+              onChange={(e) =>
+                setRowKeyValue(
+                  row[gltf_Dict['name']],
+                  'option1',
+                  e.target.value
+                )
+              }
             >
               {renderOptions(Options1, row.option1)}
             </select>
@@ -128,7 +150,13 @@ export default function SelectedFeatureMenu({
             <select
               id={'i2d' + index.toString()}
               value={row.option2}
-              onChange={(e) => setRowKeyValue(row.n, 'option2', e.target.value)}
+              onChange={(e) =>
+                setRowKeyValue(
+                  row[gltf_Dict['name']],
+                  'option2',
+                  e.target.value
+                )
+              }
             >
               {renderOptions(Options2, row.option2)}
             </select>

@@ -1313,6 +1313,7 @@ class StepExportWithColor(object):
                     TDataStd_Name.Set(assembly, TCollection_ExtendedString(name))
                     treeID = aTree[self.gltf_dict['id']]
                     treeName = aTree[self.gltf_dict['name']]
+                    treeDisplay = aTree[self.gltf_dict['display']]
                     #print("Getting a shape",treeName,aTree)
                     self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength,fuuid)
                     uuidname = str(uuid.uuid4())
@@ -1344,7 +1345,7 @@ class StepExportWithColor(object):
                                     subassemblyTreehere=status_dict["status"]["trees"]
                         except Exception as e:
                             print("There is an exception while fetching assembly count",e)
-                        assemblyNames.append((uuidname,uniquename,treeName,subassemblyCounthere,subassemblyTreehere))
+                        assemblyNames.append((uuidname,uniquename,treeName,subassemblyCounthere,subassemblyTreehere,treeDisplay))
                                         #in thread background thumbnail creation is not working Hence forcing dump to be thread free.
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
