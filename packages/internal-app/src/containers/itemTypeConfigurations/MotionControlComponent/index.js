@@ -25,7 +25,7 @@ export default function MotionControlComponent({
   const [itemList, setItemList] = React.useState([]);
 
   React.useEffect(() => {
-    ItemApi.getItemsAPI(`parent_id=${itemId}&isActuator=true`)
+    ItemApi.getItemsAPI(`parent_id=${itemId}`)
       .then((res) => {
         setItemList(get(res, 'data', []));
       })

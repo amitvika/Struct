@@ -3,6 +3,7 @@ import { gltf_Dict } from '@monostruct/common/gltf/Tree/utils';
 export const getTableData = (gltfjsonParam) => {
   //console.log(gltfjsonParam,gltfjson);
   let currentData = [];
+  console.log('gltgltfjsonParam', gltfjsonParam);
   if (gltfjsonParam && gltfjsonParam.tree) {
     for (let index = 1; index < gltfjsonParam.tree.length; index++) {
       const element = gltfjsonParam.tree[index];
@@ -22,9 +23,12 @@ export const getTableData = (gltfjsonParam) => {
         insert: 'Sliding',
         dispense: null,
         quantity: null,
-        ...element
+        ...element,
+        selected: true,
+        selectedshell: true
       });
     }
   }
+  console.log('Currentdata', currentData);
   return currentData;
 };

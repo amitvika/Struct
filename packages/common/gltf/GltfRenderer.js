@@ -417,6 +417,17 @@ class GLTFRenderer extends Component {
     toChange =
       toChange || prevProps.activeDataTable != this.props.activeDataTable;
     const edgeChange = toChange ? this.findEdgeChange(prevProps) : false;
+    if (prevProps.selectedoption != this.props.selectedoption) {
+      const thisoption = this.getValueOptionFromString(
+        this.props.selectedoption
+      );
+      console.log(
+        'Setting the selection menu for option ',
+        this.props.selectedoption,
+        thisoption
+      );
+      myMenus[3].groups[0].values.selectedOption = thisoption;
+    }
     toChange = toChange || edgeChange;
     if (toChange) {
       // console.log(
@@ -5954,7 +5965,17 @@ class GLTFRenderer extends Component {
     if (value == 'Linear') return SELECTLINEAR;
     return SELECTFEATURE;
   };
-
+  getValueOptionFromString = (value) => {
+    if (value == SELECTASSEMBLY) return 'Assemblies';
+    if (value == SELECTSOLID) return 'Parts';
+    if (value == SELECTEDGE) return 'Edges';
+    if (value == SELECTFEATURE) return 'Specify Assembly Mates and GD&T';
+    if (value == SELECTFACE) return 'Faces';
+    if (value == SELECTCORNER) return 'Corners';
+    if (value == SELECTCIRCULAR) return 'Circular';
+    if (value == SELECTLINEAR) return 'Linear';
+    return 'Specify Assembly Mates and GD&T';
+  };
   changeValues = (values, param, group, keyfolder, keyname) => {
     let toSet = false;
     //console.log(values,param,group);
