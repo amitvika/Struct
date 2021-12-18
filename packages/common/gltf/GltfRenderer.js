@@ -94,7 +94,7 @@ import {
   defaultGDTTable,
   SELECT2DTEXTURE,
   SELECT3DTEXTURE,
-  SELECTDISTANCE,
+  SELECTANITEM,
   DEFAULTEDGECOLOR,
   SELECTSOLID,
   SELECTEDGE,
@@ -2282,7 +2282,7 @@ class GLTFRenderer extends Component {
       this.changeStateOfSelection(this.INTERSECTED, event);
       //console.log(this.INTERSECTED,"Going for inner table selection",event,this.props.onClick,this.INTERSECTED.selectedshell);
       if (this.props.onClick) {
-        this.props.onClick(this.INTERSECTED, SELECTDISTANCE, event);
+        this.props.onClick(this.INTERSECTED, SELECTANITEM, event);
       }
       //console.log("After",this.INTERSECTED.material.color,this.INTERSECTED.selectedshell);
       //if(this.INTERSECTED.selectedshell) this.INTERSECTED = null;
@@ -2290,7 +2290,7 @@ class GLTFRenderer extends Component {
       //console.log("I got to click");
       this.changeStateOfSelection(this.INTERSECTED, event);
       if (this.props.onClick) {
-        this.props.onClick(this.INTERSECTED, SELECTDISTANCE, event);
+        this.props.onClick(this.INTERSECTED, SELECTANITEM, event);
       }
       //console.log(event.clientX, event.clientY);
     }
@@ -4227,7 +4227,7 @@ class GLTFRenderer extends Component {
     const changedata = this.props.changedata;
     this.changedctrlkey = this.props.ctrlKey;
     if (
-      (this.props.whatchanged == SELECTDISTANCE &&
+      (this.props.whatchanged == SELECTANITEM &&
         changedata != this.changeddataarray) ||
       this.props.whatchanged != this.whatchanged ||
       (changedata ? changedata[gltf_Dict['name']] : '') != this.activeId ||
@@ -4444,7 +4444,7 @@ class GLTFRenderer extends Component {
           );
         }
       }
-      if (this.props.whatchanged == SELECTDISTANCE) {
+      if (this.props.whatchanged == SELECTANITEM) {
         //console.log("Ok Here?",changedata);
         let event = {};
         event['ctrlKey'] = this.changedctrlkey;

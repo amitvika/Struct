@@ -17,7 +17,7 @@ import {
   SELECT2DTEXTURE,
   SELECT3DTEXTURE,
   SELECTMATERIRAL,
-  SELECTDISTANCE,
+  SELECTANITEM,
   SELECTSHOWINFO,
   SELECTSOLID,
   SELECTFACE,
@@ -29,7 +29,7 @@ import {
   SELECTDISECTPARTS,
   SELECTSTACKABLE,
   prettyPrintArray,
-  gltf_Dict,
+  gltf_Dict
 } from './Tree/utils';
 import Icon from './Tree/Icon';
 
@@ -45,7 +45,7 @@ import {
   getAllTextures,
   getAllFiles,
   getShapeInfo,
-  fetchShapeInfo,
+  fetchShapeInfo
 } from '@monostruct/common/api/fileUpload.api';
 
 import DistanceCalculator from './DistanceCalculator';
@@ -58,7 +58,7 @@ const DEFAULTSPLITS = {
   download: '',
   tree: [],
   //"tree": [],
-  stackable: [],
+  stackable: []
 };
 
 const DEFAULTTEXTURE = getTexture(null);
@@ -124,7 +124,7 @@ class DropZone extends Component {
     fetchinfo: [],
     selectedOption: SELECTMEASURE,
     splitMethod: 0,
-    selectedObjects: [],
+    selectedObjects: []
   };
 
   resetOption = true;
@@ -206,7 +206,7 @@ class DropZone extends Component {
     fetchShapeInfo(this.state.splitfiles.tree)
       .then((res) => {
         this.setState({
-          fetchinfo: res.data,
+          fetchinfo: res.data
         });
         //console.log(res.data);
         this.setStateLoadingContent(false);
@@ -286,9 +286,9 @@ class DropZone extends Component {
                 console.log('DisplayTree-----onSelect', data, what);
                 this.setState({
                   changedata: data,
-                  whatchanged: what,
+                  whatchanged: what
                 });
-                if (what == SELECTDISTANCE) {
+                if (what == SELECTANITEM) {
                   //console.log(data);
                   this.changeStateOfSelection(data, null);
                 }
@@ -323,7 +323,7 @@ class DropZone extends Component {
     if (this.state.disectstruct) {
       this.setState({
         currentdata: data,
-        showshapeinfo: true,
+        showshapeinfo: true
       });
     } else {
       this.setStateLoadingContent(true);
@@ -336,7 +336,7 @@ class DropZone extends Component {
           mydata[gltf_Dict['structures']] = repos;
           this.setState({
             currentdata: mydata,
-            showshapeinfo: true,
+            showshapeinfo: true
           });
         });
     }
@@ -348,14 +348,14 @@ class DropZone extends Component {
         if (!this.state.firstshell) {
           const firstshell = data;
           this.setState({
-            firstshell: firstshell,
+            firstshell: firstshell
           });
           //console.log("FirstShell",firstshell,this.state.firstshell);
         } else {
           if (!this.state.secondshell) {
             const secondshell = data;
             this.setState({
-              secondshell: secondshell,
+              secondshell: secondshell
             });
             //console.log("SecondShell",secondshell,this.state.secondshell);
           } else {
@@ -363,7 +363,7 @@ class DropZone extends Component {
             const secondshell = this.state.secondshell;
             this.setState({
               firstshell: secondshell,
-              secondshell: data,
+              secondshell: data
             });
             //console.log("First and second",this.state.firstshell,this.state.secondshell,data)
           }
@@ -380,7 +380,7 @@ class DropZone extends Component {
           const secondshell = this.state.secondshell;
           this.setState({
             firstshell: secondshell,
-            secondshell: null,
+            secondshell: null
           });
         } else {
           if (
@@ -389,7 +389,7 @@ class DropZone extends Component {
           ) {
             this.state.secondshell.selectedshell = false;
             this.setState({
-              secondshell: null,
+              secondshell: null
             });
           } else {
             //console.log("This condition is not possible");
@@ -427,7 +427,7 @@ class DropZone extends Component {
               }
               if (!alreadyPresent) {
                 this.setState((prevState) => ({
-                  selectedObjects: [...prevState.selectedObjects, elementdata],
+                  selectedObjects: [...prevState.selectedObjects, elementdata]
                 }));
               }
             } else {
@@ -478,7 +478,7 @@ class DropZone extends Component {
     this.setState({
       selectedObjects: [],
       firstshell: null,
-      secondshell: null,
+      secondshell: null
     });
   };
 
@@ -687,7 +687,7 @@ class DropZone extends Component {
             dataselection={this.state.dataselection}
             activeDataTable={0}
             onClick={(data, what, event) => {
-              if (what == SELECTDISTANCE) {
+              if (what == SELECTANITEM) {
                 //console.log(data);
                 const mymesh = this.findMyMaterial(data);
                 if (mymesh) {
@@ -720,7 +720,7 @@ class DropZone extends Component {
             data={this.state.currentdata}
             closeModal={() => {
               this.setState({
-                showshapeinfo: false,
+                showshapeinfo: false
               });
             }}
           />
@@ -733,31 +733,31 @@ class DropZone extends Component {
     if (dataselection == SELECTBACKCOLOR) {
       this.setState({
         databackcolor: data,
-        dataselection: SELECTBACKCOLOR,
+        dataselection: SELECTBACKCOLOR
       });
     }
     if (dataselection == SELECT2DTEXTURE) {
       this.setState({
         data2values: data,
-        dataselection: SELECT2DTEXTURE,
+        dataselection: SELECT2DTEXTURE
       });
     }
     if (dataselection == SELECT3DTEXTURE) {
       this.setState({
         data3values: data,
-        dataselection: SELECT3DTEXTURE,
+        dataselection: SELECT3DTEXTURE
       });
     }
     if (dataselection == SELECTTOUCHCOLOR) {
       this.setState({
         datatouchcolor: data,
-        dataselection: SELECTTOUCHCOLOR,
+        dataselection: SELECTTOUCHCOLOR
       });
     }
     if (dataselection == SELECTSELECTCOLOR) {
       this.setState({
         dataselectcolor: data,
-        dataselection: SELECTSELECTCOLOR,
+        dataselection: SELECTSELECTCOLOR
       });
     }
   };
@@ -767,14 +767,14 @@ class DropZone extends Component {
       files: [],
       splitfiles: DEFAULTSPLITS,
       selectedindex: -1,
-      splitMethod: 0,
+      splitMethod: 0
     });
     files.forEach((oneFile) => {
       this.setStateLoadingContent(true);
       upload3DFile(oneFile)
         .then((res) => {
           this.setState((prevState) => ({
-            files: [...prevState.files, res.data],
+            files: [...prevState.files, res.data]
             /* distancegap: [...prevState.distancegap,DEFAULTDISTANCEGAP],
 						anglegap: [...prevState.anglegap,DEFAULTANGLEGAP],
 						disect: [...prevState.disect,DEFAULTDISECT],
@@ -794,7 +794,7 @@ class DropZone extends Component {
       files: [],
       splitfiles: DEFAULTSPLITS,
       selectedindex: -1,
-      splitMethod: 0,
+      splitMethod: 0
     });
     this.setStateLoadingContent(true);
     getAllFiles()
@@ -802,7 +802,7 @@ class DropZone extends Component {
       .then((repos) => {
         //console.log(repos);
         this.setState({
-          files: repos,
+          files: repos
           /* distancegap: new Array(repos.length).fill(DEFAULTDISTANCEGAP),
 					anglegap:new Array(repos.length).fill(DEFAULTANGLEGAP),
 					disect: new Array(repos.length).fill(DEFAULTDISECT),
@@ -823,7 +823,7 @@ class DropZone extends Component {
       .then((repos) => {
         //console.log("textures", repos);
         this.setState({
-          textures: repos,
+          textures: repos
         });
         this.setStateLoadingContent(false);
       })
@@ -846,7 +846,7 @@ class DropZone extends Component {
           splitfiles: repos,
           dataselection: 0,
           firstshell: null,
-          secondshell: null,
+          secondshell: null
         });
         this.state.splitfiles['stackable'] = [];
         this.state.splitfiles['tree'] = [];
@@ -899,7 +899,7 @@ class DropZone extends Component {
           showdisect: stateprops.showdisect[index],
           showinfoonselect: stateprops.showinfoonselect[index],
           splitMethod: SELECTCONTINOUS,
-          selectedObjects: [],
+          selectedObjects: []
         });
         this.state.splitfiles['stackable'] = [];
         this.state.splitfiles['tree'] = [];
@@ -959,7 +959,7 @@ class DropZone extends Component {
           showdisect: stateprops.showdisect[index],
           showinfoonselect: stateprops.showinfoonselect[index],
           splitMethod: includeParts ? SELECTDISECTPARTS : SELECTHIRERACHY,
-          selectedObjects: [],
+          selectedObjects: []
         });
         this.state.splitfiles['stackable'] = [];
         this.state.splitfiles['tree'] = [];
@@ -1008,7 +1008,7 @@ class DropZone extends Component {
           showdisect: stateprops.showdisect[index],
           showinfoonselect: stateprops.showinfoonselect[index],
           splitMethod: SELECTSTACKABLE,
-          selectedObjects: [],
+          selectedObjects: []
         });
         this.state.splitfiles['tree'] = [];
         this.state.splitfiles.tree.forEach((element) => {
@@ -1028,7 +1028,7 @@ class DropZone extends Component {
   setShowInfo = (data, index) => {
     if (this.state.selectedindex == index) {
       this.setState({
-        showinfoonselect: data,
+        showinfoonselect: data
       });
     }
   };
@@ -1037,7 +1037,7 @@ class DropZone extends Component {
     if (this.state.selectedindex == index) {
       this.setState({
         materialname: data[0].name,
-        dataselect: SELECTMATERIRAL,
+        dataselect: SELECTMATERIRAL
       });
     }
   };
@@ -1048,8 +1048,8 @@ class DropZone extends Component {
       bg: '#ffd', // the colours used for background
       highlight: '#fd0', // the colours used for selected and hover items
       decal: '#da2', // the colours used  for open folder indicators and icons
-      accent: '#bcd', // the colour used for row borders and empty file indicators
-    },
+      accent: '#bcd' // the colour used for row borders and empty file indicators
+    }
   };
   hierarchy = (
     data = [],
@@ -1125,7 +1125,7 @@ class DropZone extends Component {
                 style={{
                   border: '1px solid blue',
                   paddingLeft: '20px',
-                  padding: '5px',
+                  padding: '5px'
                 }}
               >
                 <this.TableSplitPaneRight />

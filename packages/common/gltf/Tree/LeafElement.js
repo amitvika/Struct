@@ -13,13 +13,13 @@ import {
   SELECTMETAL,
   SELECTROUGH,
   SELECTOPAQUE,
-  SELECTDISTANCE,
+  SELECTANITEM,
   SELECTSHOWINFO,
   hexToRGB,
   rgbToHex,
   getTexture,
   prettyPrintArray,
-  getFloat,
+  getFloat
 } from './utils';
 import DisplayStructure from '../DisplayStructure';
 
@@ -34,7 +34,7 @@ const LeafElement = (props) => {
     noIcons,
     textures,
     structure,
-    disectparts,
+    disectparts
   } = props;
 
   const [state, setstate] = useState({
@@ -43,7 +43,7 @@ const LeafElement = (props) => {
     datametal: data.metallicFactor || 0.1,
     datarough: data.roughnessFactor || 0.7,
     dataopaque: data.A || 1.0,
-    dataselect: data.selectedshell || false,
+    dataselect: data.selectedshell || false
   });
 
   //console.log(state);
@@ -88,12 +88,12 @@ const LeafElement = (props) => {
                       //console.log("state.data1",state.dataselect,data.selected,state);
                       const dataselect = e.target.checked;
                       setstate({
-                        dataselect: dataselect,
+                        dataselect: dataselect
                       });
                       data.selectedshell = dataselect;
                       //console.log("state.data2",state.dataselect,data.selected,state);
 
-                      onSelect(data, SELECTDISTANCE);
+                      onSelect(data, SELECTANITEM);
                       /* if(dataselect && firstshell && secondshell) {
                 alert("Already 2 items selected, deselect other one(s)");
               } else {
@@ -125,7 +125,7 @@ const LeafElement = (props) => {
                     if (event && event.target) {
                       //console.log("1",state)
                       setstate({
-                        datacolor: event.target.value,
+                        datacolor: event.target.value
                       });
                       const myColors = hexToRGB(event.target.value);
                       data.R = myColors[0];
@@ -143,7 +143,7 @@ const LeafElement = (props) => {
                   style={{
                     maxWidth: '350px',
                     margin: '0 auto',
-                    minWidth: '100px',
+                    minWidth: '100px'
                   }}
                 >
                   <Select
@@ -321,7 +321,7 @@ LeafElement.defaultProps = {
   data: {
     id: null,
     name: null,
-    parent_id: null,
+    parent_id: null
   },
   level: 0,
   currentTheme: 'dark',
@@ -331,7 +331,7 @@ LeafElement.defaultProps = {
   noIcons: undefined,
   structure: true,
   disectparts: false,
-  selectitems: false,
+  selectitems: false
 };
 
 export default LeafElement;

@@ -14,7 +14,7 @@ import {
   DEFAULTSELECTCOLOR,
   DEFAULTTOUCHCOLOR,
   USESTYLES,
-  SELECTDISTANCE,
+  SELECTANITEM,
   SELECTSOLID,
   SELECTHIRERACHY,
   SELECTDISECTPARTS,
@@ -1140,7 +1140,7 @@ export default function ManufacturabilityAnalysis(props) {
   const setRenderData = (data) => {
     setState({
       renderdata: data,
-      whatchange: SELECTDISTANCE
+      whatchange: SELECTANITEM
     });
   };
 
@@ -1319,7 +1319,7 @@ export default function ManufacturabilityAnalysis(props) {
   const handleModelClick = (data, what, event) => {
     //console.log(data, what, event);
     setFirstTimeLoading(true);
-    if (what === SELECTDISTANCE) {
+    if (what === SELECTANITEM) {
       if (data) {
         //console.log(data);
         const mymesh = findMyMaterial(data);

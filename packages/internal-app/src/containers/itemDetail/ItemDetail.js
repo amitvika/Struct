@@ -85,7 +85,7 @@ const ItemDetail = ({ itemValue }) => {
   }, [itemValue]); */
 
   useEffect(() => {
-    let myTabIndex = 'pdcu';
+    let myTabIndex = tabIndex ? tabIndex : 'pdcu';
     if (query.get('tab')) {
       myTabIndex = query.get('tab');
       setTabIndex(myTabIndex);
@@ -140,7 +140,6 @@ const ItemDetail = ({ itemValue }) => {
   const setGLTFAndTree = async ({ item, myTabedIndex }) => {
     try {
       let updatedItemProp = {};
-
       let myTabIndex =
         (myTabedIndex === 'iupc' && !showKinematicMove) ||
         myTabedIndex === 'pdcu'
@@ -162,8 +161,9 @@ const ItemDetail = ({ itemValue }) => {
         setCompletionProgressText,
         setgltfjson
       };
-
+      //console.log('TabIndexes', myTabIndex, myTabedIndex, tabIndex, item);
       if (myTabIndex === 'iupc') {
+        let okToParse = await isOKToParseForInternalUseProduct({ item });
         if (!item.fileKinematic || item.fileKinematic === null) {
           updatedItemProp = await handleInternalUseProduct({
             item,
@@ -179,8 +179,7 @@ const ItemDetail = ({ itemValue }) => {
             setgltfjson
           });
         } else {
-          let okToParse = await isOKToParseForInternalUseProduct({ item });
-
+          gltfParam.fileKinematic = item.fileKinematic;
           await fetchGLTFAndTree({
             ...gltfParam,
             okToParse,
@@ -188,8 +187,7 @@ const ItemDetail = ({ itemValue }) => {
           });
         }
       } else if (myTabIndex === 'pdcu') {
-        const okToParse = await isOKToParseForProductDesignTab({ item });
-
+        let okToParse = await isOKToParseForProductDesignTab({ item });
         if (
           okToParse > PROCESSINGSTATUS.INPROGRESS ||
           !item.fileStore ||
@@ -212,6 +210,7 @@ const ItemDetail = ({ itemValue }) => {
             setgltfjson
           });
         } else {
+          gltfParam.fileStore = item.fileStore;
           await fetchGLTFAndTree({
             ...gltfParam,
             okToParse,
@@ -219,6 +218,9 @@ const ItemDetail = ({ itemValue }) => {
           });
         }
       } else {
+        //        console.log('Item before ok to parse', item);
+        let okToParse = await isOKToParseForOtherTab({ item });
+        //        console.log('Item after ok to parse', item);
         if (!item.fileGDT || item.fileGDT === null) {
           updatedItemProp = await handleOtherTabCase({
             item,
@@ -239,7 +241,7 @@ const ItemDetail = ({ itemValue }) => {
             setItemProperties
           });
         } else {
-          let okToParse = await isOKToParseForOtherTab({ item });
+          gltfParam.fileGDT = item.fileGDT;
           updatedItemProp = await fetchGLTFAndTree({
             ...gltfParam,
             okToParse,

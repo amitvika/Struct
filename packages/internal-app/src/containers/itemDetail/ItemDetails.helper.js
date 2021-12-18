@@ -196,11 +196,14 @@ export const fetchGLTFAndTree = async (props) => {
 
 export const isOKToParseForOtherTab = async ({ item }) => {
   let okToParse = PROCESSINGSTATUS.PROCESSED;
+  //console.log('Item in parsing', item);
   if (!item.fileGDT || item.fileGDT === null) {
+    //console.log('Item in parsing 2', item);
     if (item.fileStore && item.fileStore.length > 0) {
       const fileGDT = item.fileStore.slice(0, item.fileStore.length - 1) + '3';
       const whichOneToLoad = getResourcePathURL(item) + fileGDT;
       const whichOneToStatus = getStatusPathURL(item) + fileGDT;
+      //console.log('Item in parsing 3', item, whichOneToLoad, whichOneToStatus);
       okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
       if (okToParse <= PROCESSINGSTATUS.INPROGRESS) {
         item.fileGDT = fileGDT;
@@ -213,11 +216,13 @@ export const isOKToParseForOtherTab = async ({ item }) => {
   } else {
     const whichOneToLoad = getResourcePathURL(item) + item.fileGDT;
     const whichOneToStatus = getStatusPathURL(item) + item.fileGDT;
+    //console.log('Item in parsing 4', item, whichOneToLoad, whichOneToStatus);
     okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
     if (okToParse > PROCESSINGSTATUS.INPROGRESS) {
       item.fileGDT = null;
     }
   }
+  return okToParse;
 };
 
 export const handleOtherTabCase = async (props) => {

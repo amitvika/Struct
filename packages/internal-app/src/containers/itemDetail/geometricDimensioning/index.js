@@ -7,7 +7,7 @@ import {
   saveGDTInfo
 } from '@monostruct/common/api/fileUpload.api';
 import {
-  SELECTDISTANCE,
+  SELECTANITEM,
   SELECTSOLID,
   SELECTMEASURE,
   SELECTASSEMBLY,
@@ -1059,7 +1059,7 @@ export default function GeometricDimensioning(props) {
     if (ctrlKey != false) {
       setCtrlKey(false);
     }
-    setState({ renderdata: selectedNodes, whatchange: SELECTDISTANCE });
+    setState({ renderdata: selectedNodes, whatchange: SELECTANITEM });
     updateSelectionFromTree(selectedNodes, true, selectedOption);
   };
 
@@ -1465,7 +1465,7 @@ export default function GeometricDimensioning(props) {
   };
 
   const handleModelClick = (data, what, event) => {
-    if (what == SELECTDISTANCE) {
+    if (what == SELECTANITEM) {
       if (data) {
         const mymesh = findMyMaterial(data);
         if (mymesh) {

@@ -6,7 +6,7 @@ import GeometricDimensioning from '../itemDetail/geometricDimensioning';
 import {
   SELECTFEATURE,
   USESTYLES,
-  SELECTDISTANCE
+  SELECTANITEM
 } from '@monostruct/common/gltf/Tree/utils';
 
 import Headding from '@monostruct/common/components/atoms/Headding';
@@ -137,7 +137,7 @@ export default function ItemTypeConfiguration(props) {
     );
 
     setRenderData(selectedNodes);
-    setWhatchange(SELECTDISTANCE);
+    setWhatchange(SELECTANITEM);
 
     setFieldKey(aFileKey);
     state_fileOnChange = OnChange;
@@ -258,7 +258,8 @@ export default function ItemTypeConfiguration(props) {
         setSelectedOption={setSelectedOption}
         fileAnimation={true}
         changedata={renderData}
-        {...{ whatchange }}
+        whatchanged={whatchange}
+        //{...{ whatchange }}
       />
     </>
   );
