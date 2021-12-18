@@ -104,12 +104,17 @@ export default function GeometricDimensioning(props) {
   }, [drawLine]);
 
   useEffect(() => {
-    setState({ renderdata: changingdata, whatchange: whatchanger });
+    console.log('Use effect', changingdata, whatchanger);
+    if (changingdata != state.renderdata && whatchanger != 0) {
+      console.log('setting Use effect', changingdata, whatchanger);
+      setState({ renderdata: changingdata, whatchange: whatchanger });
+    }
   }, [changingdata]);
 
-  useEffect(() => {
+  /*
+    useEffect(() => {
     setState({ renderdata: changingdata, whatchange: whatchanger });
-  }, [whatchanger]);
+  }, [whatchanger]); */
 
   useEffect(() => {
     const includeParts = true;
