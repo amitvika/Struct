@@ -29,14 +29,34 @@ export default function Routes() {
         <Route exact path="/" component={SignInPage} />
         <Layout>
           <Switch>
-            <Box sx={{ margin: '20px 7%' }}>
-              <AppRoute authenticate path="/design" component={DesignPage} />
-            </Box>
-            <AppRoute authenticate path="/product" component={ProductMaker} />
-            <AppRoute authenticate path="/cad" component={CadMaker} />
-            <AppRoute authenticate path="/pcb" component={PcbTab} />
-            <AppRoute authenticate path="/silicon" component={SiliconMaker} />
-            <AppRoute authenticate path="/clothes" component={ClothesMaker} />
+            {/* <Box sx={{ margin: '20px 7%' }}> */}
+            <AppRoute
+              exact
+              authenticate
+              path="/design"
+              component={DesignPage}
+            />
+            {/* </Box> */}
+            <AppRoute
+              exact
+              authenticate
+              path="/product"
+              component={ProductMaker}
+            />
+            <AppRoute exact authenticate path="/cad" component={CadMaker} />
+            <AppRoute exact authenticate path="/pcb" component={PcbTab} />
+            <AppRoute
+              exact
+              authenticate
+              path="/silicon"
+              component={SiliconMaker}
+            />
+            <AppRoute
+              exact
+              authenticate
+              path="/clothes"
+              component={ClothesMaker}
+            />
             <AppRoute
               authenticate
               path="/architecture"
@@ -62,15 +82,37 @@ export default function Routes() {
   );
 }
 
+// const AppRoute = ({ component: Component, authenticate, ...rest }) => {
+//   const { authUser } = React.useContext(AuthContext);
+
+//   return (
+//     <Route
+//       {...rest}
+//       render={({ location, ...other }) => {
+//         if (authenticate && authUser.isAuthenticated) {
+//           return <Component location={location} {...other} />;
+//         }
+//         return (
+//           <Redirect
+//             to={{
+//               pathname: '/'
+//             }}
+//           />
+//         );
+//       }}
+//     />
+//   );
+// };
+
 const AppRoute = ({ component: Component, authenticate, ...rest }) => {
-  const { authUser } = React.useContext(AuthContext);
-  // const isLoggedIn = () => localStorage.getItem('token') !== 'null';
+  const isLoggedIn = () => localStorage.getItem('token') !== 'null';
+  console.log('------------------------>>>>', rest);
 
   return (
     <Route
       {...rest}
       render={({ location, ...other }) => {
-        if (authenticate && authUser.isAuthenticated) {
+        if (authenticate && isLoggedIn) {
           return <Component location={location} {...other} />;
         }
         return (

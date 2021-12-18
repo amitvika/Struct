@@ -3,12 +3,15 @@ import { Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
 import GeometricDimensioning from '../itemDetail/geometricDimensioning';
-import { SELECTFEATURE, USESTYLES } from '@monostruct/common/gltf/Tree/utils';
+import {
+  SELECTFEATURE,
+  USESTYLES,
+  SELECTDISTANCE
+} from '@monostruct/common/gltf/Tree/utils';
 
 import Headding from '@monostruct/common/components/atoms/Headding';
 
 import DynamicHierarchyForm from './DynamicHierarchyForm';
-import MotionControlComponent from './MotionControlComponent';
 
 //let state_selectedObjects = [];
 let state_fileOnChange = null;
@@ -52,6 +55,7 @@ export default function ItemTypeConfiguration(props) {
   const [fileUUIder, setfileUUIder] = useState(fileUUId);
 
   const [showKineticModel, setShowKineticModal] = useState(true);
+  const [whatchange, setWhatchange] = useState(0);
 
   useEffect(() => {
     if (fileUUId) {
@@ -107,13 +111,16 @@ export default function ItemTypeConfiguration(props) {
       );
     }
   }, [percentage]);
+
   useEffect(() => {
     setDrawLiner(drawLine);
   }, [drawLine]);
+
   const [fieldKey, setFieldKey] = useState({
     name: 'NoKey',
     option: SELECTFEATURE
   });
+
   const [renderData, setRenderData] = useState([]);
   //const [fieldOnChange,setFieldOnChange] = useState(null); //unable to set state for the functions..
 
@@ -128,7 +135,10 @@ export default function ItemTypeConfiguration(props) {
       aFileKey,
       fieldKey
     );
+
     setRenderData(selectedNodes);
+    setWhatchange(SELECTDISTANCE);
+
     setFieldKey(aFileKey);
     state_fileOnChange = OnChange;
     console.log(
@@ -186,10 +196,6 @@ export default function ItemTypeConfiguration(props) {
   }, [isLoading]);
 
   const renderExcelUI = () => {
-    // if (
-    //   itemProperties.itemGeometry?.itemType ===
-    //   'Machine - Compound/Tool/Workholding'
-    // ) {
     return (
       <DynamicHierarchyForm
         setShowKineticModal={setShowKineticModal}
@@ -203,13 +209,12 @@ export default function ItemTypeConfiguration(props) {
         }}
       />
     );
-    //   } else {
-    //     return null;
-    //   }
   };
+
   const handleSwitchChange = async (event) => {
     setShowKinematicMove(event.target.checked);
   };
+
   return (
     <>
       <Headding style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 20 }}>
@@ -253,6 +258,7 @@ export default function ItemTypeConfiguration(props) {
         setSelectedOption={setSelectedOption}
         fileAnimation={true}
         changedata={renderData}
+        {...{ whatchange }}
       />
     </>
   );

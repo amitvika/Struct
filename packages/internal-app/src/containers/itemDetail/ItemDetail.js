@@ -649,7 +649,8 @@ const ItemDetail = ({ itemValue }) => {
     rs: 'Recycling & Sustainability',
     pds: 'Product Design Setup',
     production: 'Production',
-    assembly: 'Assembly'
+    assembly: 'Assembly',
+    itemReport: 'Item Report'
   };
 
   const renderTab = () => {

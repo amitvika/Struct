@@ -8,7 +8,7 @@ export const headerListItem = [
     addSeparator: true
   },
   {
-    label: 'Product Maker',
+    label: 'Product Builder',
     href: '/product',
     addSeparator: false
   },
@@ -28,13 +28,13 @@ export const headerListItem = [
     addSeparator: false
   },
   {
-    label: 'Clothes',
-    href: '/clothes',
+    label: 'Architecture',
+    href: '/architecture',
     addSeparator: false
   },
   {
-    label: 'Architecture',
-    href: '/architecture',
+    label: 'Clothing',
+    href: '/clothes',
     addSeparator: false
   },
   {
@@ -43,11 +43,11 @@ export const headerListItem = [
     addSeparator: true
   },
   {
-    label: 'Buy From Creators',
+    label: 'Designers',
     addSeparator: false
   },
   {
-    label: 'Creators',
+    label: 'Makers',
     addSeparator: false
   }
 ];

@@ -20,6 +20,8 @@ export default function Toolbar({
   isCustomAddButtonVisible = false,
   handleAddButtonPress = () => {},
   AdditionalFilter = null,
+  showHistoryButtonToolbar = true,
+  showArchiveButtonToolbar = true,
   ...restProps
 }) {
   const [isFilterResetted, setIsFilterResetted] = React.useState(false);
@@ -56,27 +58,33 @@ export default function Toolbar({
 
       <Box style={{ display: 'flex', justifyContent: 'center' }}>
         <Box style={{ marginLeft: 'auto' }}>
-          <Tooltip title="View History">
-            <IconButton onClick={handleHistoryToggle} size="large">
-              <HistoryIcon
-                sx={{
-                  fontSize: 30,
-                  color: `${isHistoryCheckboxVisible ? '#000000' : 'disabled'}`
-                }}
-              />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="View Archived Items">
-            <IconButton onClick={handleViewArchived} size="large">
-              <FolderDeleteIcon
-                sx={{
-                  fontSize: 30,
-                  color: `${isViewArchivedChecked ? '#000000' : 'disabled'}`
-                }}
-              />
-            </IconButton>
-          </Tooltip>
+          {showHistoryButtonToolbar && (
+            <Tooltip title="View History">
+              <IconButton onClick={handleHistoryToggle} size="large">
+                <HistoryIcon
+                  sx={{
+                    fontSize: 30,
+                    color: `${
+                      isHistoryCheckboxVisible ? '#000000' : 'disabled'
+                    }`
+                  }}
+                />
+              </IconButton>
+            </Tooltip>
+          )}
 
+          {showArchiveButtonToolbar && (
+            <Tooltip title="View Archived Items">
+              <IconButton onClick={handleViewArchived} size="large">
+                <FolderDeleteIcon
+                  sx={{
+                    fontSize: 30,
+                    color: `${isViewArchivedChecked ? '#000000' : 'disabled'}`
+                  }}
+                />
+              </IconButton>
+            </Tooltip>
+          )}
           {isCustomAddButtonVisible && (
             <Tooltip title="Create New Item">
               <IconButton onClick={handleAddButtonPress} size="large">

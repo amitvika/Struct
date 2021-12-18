@@ -14,8 +14,9 @@ export default function LogoComponent({ isInternalApp }) {
         <img
           src={isInternalApp ? StructLogo : OmniDesignLogo}
           alt="logo"
-          width="150"
-          height="30"
+          width={isInternalApp ? '180px' : '100%'}
+          height={isInternalApp ? '40px' : '50px'}
+          objectFit={isInternalApp ? 'contain' : 'cover'}
         />
       </div>
     </Typography>

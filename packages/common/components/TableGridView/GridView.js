@@ -307,7 +307,6 @@ const ActionButtonContainer = ({
   handleEditButtonPress = () => {},
   isViewArchivedChecked = true,
   isHistoryLinkVisible = true,
-  isInsideDetailPanel = false,
   showDeleteActionButton = true,
   isEditLinkVisible = false
 }) => {

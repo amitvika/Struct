@@ -13,7 +13,7 @@ const DesignPage = () => {
 
   return (
     <TableGridView
-      title={'Product Design'}
+      title={'All Designs'}
       fields={fields}
       fetchList={ProductDesignAPI.fetchProductDesigns}
       upsertListItem={ProductDesignAPI.upsertProductDesign}
@@ -23,6 +23,9 @@ const DesignPage = () => {
       isDesignModalOpened={true}
       isEditLinkVisible={false}
       isHistoryLinkVisible={false}
+      showDeleteActionButton={false}
+      showHistoryButtonToolbar={false}
+      showArchiveButtonToolbar={false}
     />
   );
 };

@@ -210,21 +210,58 @@ const ClientDetailPage = () => {
             <Tab
               label="Contract Manufacturing Products"
               value={1}
-              className={classes.tab}
+              sx={{
+                textAlign: 'left',
+                minHeight: '30px',
+                alignItems: 'start'
+              }}
             />
-            <Tab label="Client Portal" value={2} className={classes.tab} />
+            <Tab
+              label="Client Portal"
+              value={2}
+              className={classes.tab}
+              sx={{
+                textAlign: 'left',
+                minHeight: '30px',
+                alignItems: 'start'
+              }}
+            />
             <Tab
               label="Orders and Fulfillment"
               value={-2}
-              className={classes.tab}
+              sx={{
+                textAlign: 'left',
+                minHeight: '30px',
+                alignItems: 'start'
+              }}
             />
-            <Tab label="Billing" value={5} className={classes.tab} />
+            <Tab
+              label="Billing"
+              value={5}
+              sx={{
+                textAlign: 'left',
+                minHeight: '30px',
+                alignItems: 'start'
+              }}
+            />
             <Tab
               label="Purchased Automation Product/Services"
               value={null}
-              className={classes.tab}
+              sx={{
+                textAlign: 'left',
+                minHeight: '30px',
+                alignItems: 'start'
+              }}
             />
-            <Tab label="Documentation" value={4} />
+            <Tab
+              label="Documentation"
+              value={4}
+              sx={{
+                textAlign: 'left',
+                minHeight: '30px',
+                alignItems: 'start'
+              }}
+            />
           </Tabs>
         </TabContainer>
         <TabPanelContainer>{renderPageSwitch(value)}</TabPanelContainer>

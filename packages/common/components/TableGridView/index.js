@@ -37,7 +37,10 @@ const TableGridView = ({
   isPaginationEnabled = false,
   isEditLinkVisible = true,
   isHistoryLinkVisible = true,
-  noThumbnail = false
+  noThumbnail = false,
+  showDeleteActionButton = true,
+  showHistoryButtonToolbar = true,
+  showArchiveButtonToolbar = true
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [list, setList] = useState([]);
@@ -237,7 +240,8 @@ const TableGridView = ({
           {...{
             isHistoryLinkVisible,
             isEditLinkVisible,
-            noThumbnail
+            noThumbnail,
+            showDeleteActionButton
           }}
         />
       );
@@ -322,7 +326,12 @@ const TableGridView = ({
           handleAddButtonPress={handleToggleModal}
           isSearchBarVisible={true}
           AdditionalFilter={AdditionalFilter}
-          {...{ isHistoryCheckboxVisible, isEditLinkVisible }}
+          {...{
+            isHistoryCheckboxVisible,
+            isEditLinkVisible,
+            showHistoryButtonToolbar,
+            showArchiveButtonToolbar
+          }}
         />
         <div
           style={{

@@ -50,7 +50,8 @@ export default function GeometricDimensioning(props) {
     keyName = { name: '', option: SELECTFEATURE },
     handleChangeOfSelection = (selectedObjects) => {},
     additionalSaveFunction = (saveObjects) => {},
-    fileAnimation = false
+    fileAnimation = false,
+    whatchange
   } = props;
   const classes = USESTYLES();
 
@@ -1505,7 +1506,7 @@ export default function GeometricDimensioning(props) {
       )}
       <Paper className={`${classes.paper} ${classes.viewerContainer}`}>
         <Viewer
-          {...state}
+          {...{ whatchange, ...state }}
           fileGDT={fileGDT}
           fileUUId={fileUUIder}
           selectedOption={selectedOption}

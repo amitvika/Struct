@@ -167,6 +167,11 @@ export default function AddUpdateModal({
     >
       {isLoading && <LoadingModal isLoading={isLoading} />}
       <Grid className="section-padding-left" container spacing={4}>
+        <Grid item xs={12} style={{ display: 'flex', justifyContent: 'end' }}>
+          <Button variant="contained" color="primary" onClick={handleSave}>
+            {isEditing ? 'Update' : 'Save'}
+          </Button>
+        </Grid>
         <Grid item xs={4}>
           <Headding bold title={'Name *'} />
         </Grid>
@@ -228,14 +233,7 @@ export default function AddUpdateModal({
           refreshFileHistory={refreshFileHistory}
         />
 
-        <Grid
-          item
-          xs={12}
-          style={{ display: 'flex', justifyContent: 'space-around' }}
-        >
-          <Button variant="contained" color="secondary" onClick={toggleModal}>
-            Cancel
-          </Button>
+        <Grid item xs={12} style={{ display: 'flex', justifyContent: 'end' }}>
           <Button variant="contained" color="primary" onClick={handleSave}>
             {isEditing ? 'Update' : 'Save'}
           </Button>

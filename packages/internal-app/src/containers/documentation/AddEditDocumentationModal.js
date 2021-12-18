@@ -6,7 +6,7 @@ import {
   Select,
   Input,
   Textarea,
-  Headding,
+  Headding
 } from '@monostruct/common/components';
 import Modal from '@monostruct/common/components/Modal';
 import Popover from '@mui/material/Popover';
@@ -14,6 +14,10 @@ import Typography from '@mui/material/Typography';
 import FileHistory from '@monostruct/common/containers/FileHistory';
 import FileUploadOnAWS from '@monostruct/common/containers/FileUploadOnAWS';
 import { useSelector } from 'react-redux';
+import SaveIcon from '@mui/icons-material/Save';
+import { IconButton } from '@mui/material';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -22,14 +26,14 @@ const useStyles = makeStyles((theme) => ({
     left: '10%',
     overflow: 'scroll',
     height: '100%',
-    display: 'block',
+    display: 'block'
   },
   paper: {
-    padding: theme.spacing(1),
+    padding: theme.spacing(1)
   },
   popover: {
-    pointerEvents: 'none',
-  },
+    pointerEvents: 'none'
+  }
 }));
 
 export default function AddDocumentationModal({
@@ -37,7 +41,7 @@ export default function AddDocumentationModal({
   toggleModal,
   handleUpdate,
   isEditing,
-  selectedValue,
+  selectedValue
 }) {
   const classes = useStyles();
   const [isDesignModalOpened, setIsDesignModalOpened] = useState(false);
@@ -78,7 +82,7 @@ export default function AddDocumentationModal({
       ...preValue,
       [name]: data,
       file_url: data.file_url ? data.file_url : preValue.file_url,
-      file_history,
+      file_history
     }));
   };
 
@@ -92,7 +96,7 @@ export default function AddDocumentationModal({
   const handleArchive = () => {
     setdocumentValue((preValue) => ({
       ...preValue,
-      is_archived: preValue.is_archived ? false : true,
+      is_archived: preValue.is_archived ? false : true
     }));
   };
 
@@ -108,7 +112,7 @@ export default function AddDocumentationModal({
           xs={12}
           style={{ display: 'flex', justifyContent: 'flex-end' }}
         >
-          <Button
+          <IconButton
             variant="contained"
             color="secondary"
             aria-owns={isPopoverOpen ? 'mouse-over-popover' : undefined}
@@ -117,23 +121,27 @@ export default function AddDocumentationModal({
             onMouseLeave={handlePopoverClose}
             onClick={handleArchive}
           >
-            {`${documentValue.is_archived ? 'Unarchive' : 'Archive'}`}
-          </Button>
+            {documentValue.is_archived ? (
+              <DeleteForeverIcon fontSize={'large'} />
+            ) : (
+              <DeleteOutlineIcon fontSize={'large'} />
+            )}
+          </IconButton>
           <Popover
             id="mouse-over-popover"
             className={classes.popover}
             classes={{
-              paper: classes.paper,
+              paper: classes.paper
             }}
             open={isPopoverOpen}
             anchorEl={anchorEl}
             anchorOrigin={{
               vertical: 'bottom',
-              horizontal: 'left',
+              horizontal: 'left'
             }}
             transformOrigin={{
               vertical: 'top',
-              horizontal: 'left',
+              horizontal: 'left'
             }}
             onClose={handlePopoverClose}
             disableRestoreFocus
@@ -143,6 +151,14 @@ export default function AddDocumentationModal({
               an item if you need it again
             </Typography>
           </Popover>
+          <IconButton
+            variant="contained"
+            color="primary"
+            onClick={handleSaveButton}
+            style={{ marginLeft: '10px' }}
+          >
+            <SaveIcon fontSize={'large'} />
+          </IconButton>
         </Grid>
         <Grid item xs={4}>
           <Headding bold title={'Name'} />
@@ -165,7 +181,7 @@ export default function AddDocumentationModal({
             options={[
               { label: 'Requirements', value: 'Requirements' },
               { label: 'Service Agreement', value: 'Service Agreement' },
-              { label: 'Communications', value: 'Communications' },
+              { label: 'Communications', value: 'Communications' }
             ]}
             onChange={(data) => handleOnChange('category', data.value)}
             value={documentValue.category && { label: documentValue.category }}
@@ -194,17 +210,6 @@ export default function AddDocumentationModal({
           selectedFileName={selectedFileName}
           link_id={documentValue.id}
         />
-
-        <Grid item xs={12} className={classes.action_button}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSaveButton}
-            style={{ width: '100%' }}
-          >
-            {isEditing ? 'Update' : 'Save'}
-          </Button>
-        </Grid>
       </Grid>
     </Modal>
   );

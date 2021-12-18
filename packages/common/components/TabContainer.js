@@ -8,7 +8,7 @@ export default function TabContainer(props) {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
-    <Grid item style={{ maxWidth: `${isMobile ? 'unset' : '18%'}` }}>
+    <Grid item style={{ maxWidth: `${isMobile ? 'unset' : '15%'}` }}>
       <Paper style={{ padding: 20, margin: 10 }}>{props.children}</Paper>
     </Grid>
   );

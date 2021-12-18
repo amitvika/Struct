@@ -21,6 +21,8 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import { ColorModeContext } from '../../themes/ColorModeContextProvider';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import Avatar from '@mui/material/Avatar';
 
 export default function HeaderDesktopView({
   handleLogout,
@@ -143,6 +145,22 @@ export default function HeaderDesktopView({
 
     menuItems.push(
       <li>
+        <IconButton
+          sx={{ ml: 1 }}
+          onClick={colorMode.toggleColorMode}
+          color="inherit"
+        >
+          {theme.palette.mode === 'dark' ? (
+            <Brightness7Icon />
+          ) : (
+            <Brightness4Icon />
+          )}
+        </IconButton>
+      </li>
+    );
+
+    menuItems.push(
+      <li>
         <Tooltip title={isAuthenticated ? 'Open settings' : 'Go To Login Page'}>
           <Button
             onClick={handleOpenUserMenu}
@@ -184,19 +202,12 @@ export default function HeaderDesktopView({
     );
 
     menuItems.push(
-      <li>
-        <IconButton
-          sx={{ ml: 1 }}
-          onClick={colorMode.toggleColorMode}
-          color="inherit"
-        >
-          {theme.palette.mode}
-          {theme.palette.mode === 'dark' ? (
-            <Brightness7Icon />
-          ) : (
-            <Brightness4Icon />
-          )}
-        </IconButton>
+      <li style={{ marginLeft: 10 }}>
+        <Tooltip title="Open settings">
+          <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+            <Avatar alt={'Hello'} src="/static/images/avatar/2.jpg" />
+          </IconButton>
+        </Tooltip>
       </li>
     );
 
