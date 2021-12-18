@@ -12,7 +12,8 @@ export default function DynamicHierarchy(props) {
     setRenderData,
     internalProductConfig,
     gltfjson,
-    itemProperties
+    itemProperties,
+    setSelectedOption
   } = props;
   const currentItem = useSelector((state) => state.item.currentItem);
 
@@ -84,6 +85,7 @@ export default function DynamicHierarchy(props) {
         return (
           <DynamicCriteria
             {...selectionItem}
+            setSelectedOption={setSelectedOption}
             handleUpdate={(updatedFormFields) => {
               console.log(
                 'Doing Changes in Dynaimc Hirearchy',

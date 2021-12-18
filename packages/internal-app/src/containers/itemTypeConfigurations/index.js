@@ -202,6 +202,7 @@ export default function ItemTypeConfiguration(props) {
         handleItemUpdate={handleItemUpdate}
         renderData={renderData}
         setRenderData={addSelectionFromComponent}
+        setSelectedOption={setSelectedOption}
         internalProductConfig={internalProductConfig}
         {...{
           itemProperties,

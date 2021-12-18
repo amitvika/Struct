@@ -14,11 +14,12 @@ import ItemApi from '@monostruct/common/api/items.api';
 import { get } from 'lodash';
 import { Checkbox } from '@mui/material';
 import { getTableData } from './helper';
-
+import { SELECTSOLID } from '@monostruct/common/gltf/Tree/utils';
 export default function MotionControlComponent({
   itemId,
   gltfjson,
-  setRenderData
+  setRenderData,
+  setSelectedOption
 }) {
   const [selectedValue, setSelectedValue] = React.useState('a');
   const [itemList, setItemList] = React.useState([]);
@@ -77,6 +78,7 @@ export default function MotionControlComponent({
               <TableRow
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 onClick={() => {
+                  setSelectedOption(SELECTSOLID);
                   setRenderData(getTableData(gltfjson));
                 }}
               >
