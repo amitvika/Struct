@@ -230,6 +230,7 @@ export const createChildItems = async ({
       const childFiles = get(childRes, 'data.childfiles', []);
       setCenterActionText('Started Creation');
       console.log('ChildFiles', childFiles);
+
       const newItem = childFiles.map((item) => ({
         fileUUId: item[0],
         name: item[1],
@@ -241,6 +242,7 @@ export const createChildItems = async ({
         multiAssembly: item.length > 3 ? item[3] > 1 : false,
         treeLength: item.length > 4 ? item[4] : 0
       }));
+
       console.log('New Items', newItem);
       setIsLoading(false);
       setProgressBarLoad(false);

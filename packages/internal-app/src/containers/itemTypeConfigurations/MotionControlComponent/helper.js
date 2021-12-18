@@ -1,13 +1,12 @@
 import { gltf_Dict } from '@monostruct/common/gltf/Tree/utils';
 
-export const getTableData = (gltfjsonParam) => {
-  //console.log(gltfjsonParam,gltfjson);
+export const getTableData = ({ gltfjson, filePartName }) => {
+  const gltfjsonParam = gltfjson;
   let currentData = [];
-  console.log('gltgltfjsonParam', gltfjsonParam);
   if (gltfjsonParam && gltfjsonParam.tree) {
     for (let index = 1; index < gltfjsonParam.tree.length; index++) {
       const element = gltfjsonParam.tree[index];
-      //console.log(element);
+
       currentData.push({
         id: index,
         index: index,
@@ -24,11 +23,14 @@ export const getTableData = (gltfjsonParam) => {
         dispense: null,
         quantity: null,
         ...element,
-        selected: true,
-        selectedshell: true
+        selected:
+          filePartName == element[gltf_Dict['display']] ||
+          filePartName == element[gltf_Dict['name']],
+        selectedshell:
+          filePartName == element[gltf_Dict['display']] ||
+          filePartName == element[gltf_Dict['name']]
       });
     }
   }
-  console.log('Currentdata', currentData);
   return currentData;
 };

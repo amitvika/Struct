@@ -255,220 +255,6 @@ exports.update = async (req, res) => {
   }
 };
 
-exports.delete = (req, res) => {
-  ItemModel.findById(req.params.id, 'deletedAt', function (err, client) {
-    if (client.deletedAt == null) {
-      const saveObject = {
-        deletedAt: Date.now()
-      };
-      ItemModel.findByIdAndUpdate(req.params.id, saveObject)
-        .then((saveObject) => {
-          const changeTracking = new ChangeTracking({
-            client: saveObject._id,
-            update: saveObject,
-            model: 'Item',
-            updateType: 'Delete',
-            updatedObject: req.params.id,
-            updatedBy: req.user.id
-          });
-          changeTracking.save().catch((error) => console.log(error));
-
-          res.json({ success: true });
-        })
-        .catch((err) => res.status(404).json({ success: false }));
-    } else {
-      const saveObject = {
-        deletedAt: null
-      };
-      ItemModel.findByIdAndUpdate(req.params.id, saveObject)
-        .then(() => {
-          const changeTracking = new ChangeTracking({
-            client: saveObject.client,
-            update: saveObject,
-            model: 'Item',
-            updateType: 'Un-Delete',
-            updatedObject: req.params.id,
-            updatedBy: req.user.id
-          });
-          changeTracking.save().catch((error) => console.log(error));
-
-          res.json({ success: true });
-        })
-        .catch((err) => res.status(404).json({ success: false }));
-    }
-  });
-};
-
-const readSTEP = (req) => {
-  var filename = path.join(global.MY_ROOT, req.file.path);
-
-  return new Promise((resolve, reject) => {
-    function progress(percent) {}
-
-    occ.readSTEP(
-      filename,
-      async function (err, solids) {
-        if (err) {
-          reject(err);
-        } else {
-          const stepReponse = buildResponse(solids, []);
-          resolve(stepReponse);
-        }
-      },
-      progress
-    );
-  });
-};
-
-exports.load_cadfile = async function (req, res) {
-  try {
-    if (!req.file) {
-      return;
-    }
-
-    let data = {};
-
-    if (req.file.originalname.includes('.step')) {
-      const stepJSON = await readSTEP(req);
-      data = { stl: null, step: stepJSON };
-    } else if (req.file.originalname.includes('.STL')) {
-      data = { stl: req.file.filename, step: null };
-    }
-
-    const itemDetailDoc = await ItemModel.findById(req.body.itemId);
-
-    if (itemDetailDoc && itemDetailDoc !== null) {
-      await ItemModel.findByIdAndUpdate(req.body.itemId, { $set: data });
-    } else {
-      const itemDetail = new ItemModel({
-        ...data
-      });
-
-      await itemDetail.save();
-    }
-
-    res.json({
-      ...data,
-      stl: data.stl
-        ? `http://localhost:3000/api/stl-file/${req.file.filename}`
-        : null
-    });
-  } catch (err) {
-    res.status(500).send({ message: err.message, success: false });
-  }
-};
-
-function buildResponse(solids, logs) {
-  let response = { solids: [], logs: [] };
-  let counter = 1;
-  solids.forEach(function (solid) {
-    solid.name = 'S' + counter;
-    counter++;
-    try {
-      let mesh = occ.buildSolidMesh(solid);
-      response.solids.push(mesh);
-    } catch (err) {
-      console.log(' EXCEPTION in MESHING ');
-    }
-  });
-  response.logs = logs;
-  return response;
-}
-
-exports.itemDetailThreejs = (req, res) => {
-  const itemId = req.params.id;
-
-  ItemModel.findById(itemId)
-    .then((data) => {
-      if (!data) {
-        res.send({});
-      } else if (data.stl) {
-        res.send({
-          itemId: data.itemId,
-          stl: `http://localhost:3000/api/stl-file/${data.stl}`
-        });
-      } else {
-        res.send(data);
-      }
-    })
-    .catch((error) => {
-      res.status(500).send({ message: 'Internal Server Error' });
-    });
-};
-
-exports.itemGeometry = (req, res) => {
-  const itemId = req.params.id;
-
-  ItemModel.findOne(itemId)
-    .then((data) => {
-      if (!data) {
-        res.send(null);
-      } else {
-        res.send({
-          itemId: data._id,
-          step: data.step,
-          stl:
-            data.stl !== null
-              ? `http://localhost:3000/api/stl-file/${data.stl}`
-              : null,
-          itemGeometry: data.itemGeometry,
-          itemTypeConfiguration: data.itemTypeConfiguration
-        });
-      }
-    })
-    .catch((error) => {
-      res.status(500).send({ message: 'Internal Server Error' });
-    });
-};
-
-exports.removeItemDetailThreejs = (req, res) => {
-  const itemId = req.params.id;
-
-  ItemModel.findByIdAndUpdate(
-    itemId,
-    { $set: { step: null, stl: null } },
-    { new: true }
-  )
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((error) => {
-      res.status(500).send({ message: 'Internal Server Error' });
-    });
-};
-
-exports.updateItemGeometry = async (req, res) => {
-  try {
-    const data = req.body;
-
-    let itemDetailData = await ItemModel.findById(req.params.id);
-
-    if (itemDetailData && itemDetailData !== null) {
-      itemDetailData = await ItemModel.findByIdAndUpdate(
-        req.params.id,
-        {
-          $set: {
-            step: itemDetailData.step,
-            stl: itemDetailData.stl,
-            itemTypeConfiguration: data.itemTypeConfiguration,
-            itemGeometry: data.itemGeometry,
-            selectedClientId: data.selectedClientId
-          }
-        },
-        { new: true }
-      );
-    } else {
-      itemDetailData = await ItemModel.create(data);
-    }
-
-    console.log('ppppp', data);
-    res.send(data);
-  } catch (error) {
-    console.log('Error', error);
-    res.status(500).send({ message: 'Internal Server Error' });
-  }
-};
-
 exports.upsert = async (req, res) => {
   try {
     let items = req.body || [];
@@ -483,7 +269,21 @@ exports.upsert = async (req, res) => {
 
     res.json({ success: true, itemUpdated });
   } catch (error) {
-    console.log('------>>', error);
     return res.status(500).send({ message: 'Some unexpected error occurred' });
+  }
+};
+
+exports.removeChildItems = async (req, res) => {
+  try {
+    await ItemModel.deleteMany({ parent_id: getObjectId(req.params.id) });
+
+    let itemUpdated = await ItemModel.findByIdAndUpdate(
+      itemId,
+      { $set: { child_item_status: 'NOT_INITIATED' } },
+      { new: true }
+    );
+    res.json({ success: true, itemUpdated });
+  } catch (error) {
+    return res.status(500).send({ message: 'Child Item removed' });
   }
 };

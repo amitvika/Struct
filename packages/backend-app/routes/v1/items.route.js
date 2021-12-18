@@ -17,16 +17,10 @@ router.put('/:id', ItemsController.update);
 
 router.get('/:id', ItemsController.getOne);
 
-router.delete('/:id', ItemsController.delete);
-
-router.get('/:id/geomtery', ItemsController.itemGeometry);
-
-router.get('/:id/three-model', ItemsController.itemDetailThreejs);
-
-router.delete('/:id/three-model', ItemsController.removeItemDetailThreejs);
-
 router.get('/order', ItemOrderController.get);
 
 router.post('/order', ItemOrderController.upsert);
+
+router.delete('/remove-child/:id', ItemsController.removeChildItems);
 
 module.exports = router;

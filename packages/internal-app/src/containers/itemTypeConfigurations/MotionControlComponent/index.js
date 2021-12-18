@@ -79,7 +79,9 @@ export default function MotionControlComponent({
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 onClick={() => {
                   setSelectedOption(SELECTSOLID);
-                  setRenderData(getTableData(gltfjson));
+                  setRenderData(
+                    getTableData({ gltfjson, filePartName: item.filePartName })
+                  );
                 }}
               >
                 <TableCell component="th" padding="none">

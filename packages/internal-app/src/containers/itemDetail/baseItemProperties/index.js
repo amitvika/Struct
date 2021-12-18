@@ -423,17 +423,7 @@ export default function BaseItemProperties({
     }
   };
 
-  const removeFile = (data) => {
-    // setIsLoading(true);
-    ItemAPI.deleteItemGeomtery(itemId)
-      .then((res) => {
-        // setThreejsObject({});
-        setIsStepLoaded(false);
-      })
-      .catch((error) => {
-        // setIsLoading(false);
-      });
-  };
+  const removeFile = (data) => {};
 
   let gltfjsonlen = Object.keys(gltfobj).length;
   if (gltfjsonlen > 0) {
