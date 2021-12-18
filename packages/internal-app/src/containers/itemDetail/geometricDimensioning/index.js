@@ -51,7 +51,8 @@ export default function GeometricDimensioning(props) {
     handleChangeOfSelection = (selectedObjects) => {},
     additionalSaveFunction = (saveObjects) => {},
     fileAnimation = false,
-    whatchange
+    changingdata = [],
+    whatchanger = 0
   } = props;
   const classes = USESTYLES();
 
@@ -101,6 +102,14 @@ export default function GeometricDimensioning(props) {
   useEffect(() => {
     setDrawLiner(drawLine);
   }, [drawLine]);
+
+  useEffect(() => {
+    setState({ renderdata: changingdata, whatchange: whatchanger });
+  }, [changingdata]);
+
+  useEffect(() => {
+    setState({ renderdata: changingdata, whatchange: whatchanger });
+  }, [whatchanger]);
 
   useEffect(() => {
     const includeParts = true;
@@ -1506,7 +1515,7 @@ export default function GeometricDimensioning(props) {
       )}
       <Paper className={`${classes.paper} ${classes.viewerContainer}`}>
         <Viewer
-          {...{ whatchange, ...state }}
+          {...state}
           fileGDT={fileGDT}
           fileUUId={fileUUIder}
           selectedOption={selectedOption}

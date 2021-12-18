@@ -257,8 +257,8 @@ export default function ItemTypeConfiguration(props) {
         selectedOption={selectedOption}
         setSelectedOption={setSelectedOption}
         fileAnimation={true}
-        changedata={renderData}
-        whatchanged={whatchange}
+        changingata={renderData}
+        whatchanger={whatchange}
         //{...{ whatchange }}
       />
     </>
