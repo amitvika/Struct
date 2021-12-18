@@ -105,7 +105,10 @@ export default function GeometricDimensioning(props) {
 
   useEffect(() => {
     console.log('Use effect in changing data', changingdata, whatchanger);
-    if (changingdata != state.renderdata && whatchanger != 0) {
+    if (
+      changingdata != state.renderdata &&
+      (whatchanger != 0 || state.whatchange != whatchanger)
+    ) {
       console.log(
         'setting Use effect in changing data',
         changingdata,
@@ -117,7 +120,10 @@ export default function GeometricDimensioning(props) {
 
   useEffect(() => {
     console.log('Use effect in whatchanger', changingdata, whatchanger);
-    if (changingdata != state.renderdata && whatchanger != 0) {
+    if (
+      changingdata != state.renderdata &&
+      (whatchanger != 0 || state.whatchange != whatchanger)
+    ) {
       console.log(
         'setting Use effect in in whatchanger',
         changingdata,
