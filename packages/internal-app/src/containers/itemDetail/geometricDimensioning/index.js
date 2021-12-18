@@ -112,7 +112,9 @@ export default function GeometricDimensioning(props) {
       console.log(
         'setting Use effect in changing data',
         changingdata,
-        whatchanger
+        state.renderdata,
+        whatchanger,
+        state.whatchange
       );
       setState({ renderdata: changingdata, whatchange: whatchanger });
     }
@@ -127,7 +129,9 @@ export default function GeometricDimensioning(props) {
       console.log(
         'setting Use effect in in whatchanger',
         changingdata,
-        whatchanger
+        state.renderdata,
+        whatchanger,
+        state.whatchange
       );
       setState({ renderdata: changingdata, whatchange: whatchanger });
     }
