@@ -14,7 +14,7 @@ export default function DetailPage({
     <>
       <DetailComponentHeader {...{ title, isAddDesignVisible }} />
 
-      {/* {tabList && <DetailComponentTab {...{ tabList }} />} */}
+      {tabList && <DetailComponentTab {...{ tabList }} />}
     </>
   );
 }

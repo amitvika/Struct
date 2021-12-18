@@ -16,6 +16,5 @@ export default function ProductMaker() {
       // tabContent: <CadMakerDesigner />,
     }
   ];
-  console.log('---------->>>>-');
   return <DetailComponent title={'Product Builder'} tabList={tabList} />;
 }
