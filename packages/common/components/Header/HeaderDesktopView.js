@@ -1,17 +1,7 @@
 import React, { useRef, useState, useContext } from 'react';
 import { useHistory, useLocation, Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import Grow from '@mui/material/Grow';
-import Popper from '@mui/material/Popper';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
-import {
-  Button,
-  MenuList,
-  MenuItem,
-  Paper,
-  Tooltip,
-  Menu
-} from '@mui/material';
+import { Button, MenuItem, Tooltip, Menu } from '@mui/material';
 
 import { useStyles } from './Header.style';
 import { AuthContext } from '../../context/AuthContext';
@@ -21,8 +11,10 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import { ColorModeContext } from '../../themes/ColorModeContextProvider';
-import AccountCircle from '@mui/icons-material/AccountCircle';
 import Avatar from '@mui/material/Avatar';
+import Switch from '@mui/material/Switch';
+import Grow from '@mui/material/Grow';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 export default function HeaderDesktopView({
   handleLogout,
@@ -47,66 +39,96 @@ export default function HeaderDesktopView({
     authUser: { isAuthenticated, user }
   } = useContext(AuthContext);
 
-  const handleToggle = () => {
-    if (isAuthenticated) {
-      setOpen((prevOpen) => !prevOpen);
-    } else {
-      handleLogout();
-    }
-  };
-
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
-    setOpen(false);
-  };
   const handleLink = (path) => {
     handleCloseUserMenu();
     history.push(path);
   };
 
-  const handleListKeyDown = (event) => {
-    if (event.key === 'Tab') {
-      event.preventDefault();
-      setOpen(false);
-    }
+  const [checked, setChecked] = React.useState(false);
+
+  const handleChange = () => {
+    setChecked((prev) => !prev);
   };
 
   const getMenuButtons = (list) => {
-    let menuItems = list.map(({ label, href, addSeparator, target, rel }) => {
-      return (
-        <li
-          key={`primary_button_${label}`}
-          className={
-            classes.primaryListItemHeader +
-            ` ${addSeparator && classes.verticalBar}`
-          }
-        >
-          <Button
-            onClick={() => {
-              if (target) {
-                window.open(`${href}`, '_blank');
-              }
-            }}
-            {...{
-              key: label,
-              color: 'inherit',
-              to: href,
-              component: RouterLink,
-              target,
-              rel,
-              className:
-                classes.menuButton +
-                ` ${location.pathname.includes(href) && classes.linkSelected}`
-            }}
+    let menuItems = list.map(
+      ({
+        label,
+        href,
+        addSeparator = false,
+        target,
+        rel,
+        showOnHover,
+        hoverMenuHandler
+      }) => {
+        const childItem = (
+          <li
+            key={`primary_button_${label}`}
+            className={
+              classes.primaryListItemHeader +
+              ` ${addSeparator && classes.verticalBar}`
+            }
           >
-            {label}
-          </Button>
-        </li>
-      );
-    });
+            <Button
+              onClick={() => {
+                if (target) {
+                  window.open(`${href}`, '_blank');
+                }
+              }}
+              {...{
+                key: label,
+                color: 'inherit',
+                to: href,
+                component: RouterLink,
+                target,
+                rel,
+                className:
+                  classes.menuButton +
+                  ` ${location.pathname.includes(href) && classes.linkSelected}`
+              }}
+            >
+              {label}
+            </Button>
+          </li>
+        );
+
+        if (hoverMenuHandler) {
+          return (
+            <li
+              key={`primary_button_${label}`}
+              className={
+                classes.primaryListItemHeader +
+                ` ${addSeparator && classes.verticalBar}`
+              }
+              style={{ display: `${checked ? 'none' : 'block'}` }}
+              color={'inherit'}
+            >
+              <Button
+                onMouseEnter={() => setChecked(true)}
+                className={classes.menuButton}
+                sx={{ color: 'unset' }}
+              >
+                {label}
+              </Button>
+            </li>
+          );
+        }
+
+        if (!showOnHover) {
+          return childItem;
+        }
+
+        return (
+          <Grow
+            in={checked}
+            style={{ transformOrigin: '0 1 1' }}
+            {...(checked ? { timeout: 1000 + 0 * 50 } : {})}
+          >
+            {childItem}
+          </Grow>
+        );
+      }
+    );
     return menuItems;
   };
 
@@ -126,22 +148,6 @@ export default function HeaderDesktopView({
     let menuItems = [];
 
     menuItems = getMenuButtons(secondHeaderList);
-
-    // menuItems.push(
-    //   <li>
-    //     <Button
-    //       key="user_profile"
-    //       ref={anchorRef}
-    //       aria-controls={open ? 'menu-list-grow' : undefined}
-    //       aria-haspopup="true"
-    //       onClick={handleToggle}
-    //       style={{ color: 'white' }}
-    //       className={classes.menuButton}
-    //     >
-    //       {isAuthenticated ? `Welcome: ${user.email}` : 'Login'}
-    //     </Button>
-    //   </li>
-    // );
 
     menuItems.push(
       <li>
@@ -215,54 +221,17 @@ export default function HeaderDesktopView({
       return menuItems;
     }
 
-    // menuItems.push(
-    //   <Popper
-    //     key={`popper_admin_options`}
-    //     open={open}
-    //     anchorEl={anchorRef.current}
-    //     role={undefined}
-    //     transition
-    //     disablePortal
-    //   >
-    //     {({ TransitionProps, placement }) => (
-    //       <Grow
-    //         {...TransitionProps}
-    //         style={{
-    //           transformOrigin:
-    //             placement === 'bottom' ? 'center top' : 'center bottom'
-    //         }}
-    //       >
-    //         <Paper>
-    //           <ClickAwayListener onClickAway={handleClose}>
-    //             <MenuList
-    //               autoFocusItem={open}
-    //               id="menu-list-grow"
-    //               onKeyDown={handleListKeyDown}
-    //             >
-    //               <MenuItem
-    //                 key={`user_setup_link`}
-    //                 onClick={() => handleLink('/administrative')}
-    //               >
-    //                 Administrative
-    //               </MenuItem>
-
-    //               <MenuItem key={`logout_link`} onClick={handleLogout}>
-    //                 Logout
-    //               </MenuItem>
-    //             </MenuList>
-    //           </ClickAwayListener>
-    //         </Paper>
-    //       </Grow>
-    //     )}
-    //   </Popper>
-    // );
-
     return menuItems;
   };
   return (
     <>
-      <Box component="div" className={classes.menuContainer}>
+      <Box
+        component="div"
+        className={classes.menuContainer}
+        onMouseLeave={() => setChecked(false)}
+      >
         <LogoComponent {...{ isInternalApp }} />
+
         <Box
           component="ul"
           key={`primary_list1`}

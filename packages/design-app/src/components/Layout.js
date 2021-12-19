@@ -8,47 +8,61 @@ export const headerListItem = [
     addSeparator: true
   },
   {
+    label: 'Design Tools',
+    addSeparator: false,
+    hoverMenuHandler: true
+  },
+  {
     label: 'Product Builder',
     href: '/product',
-    addSeparator: false
+    addSeparator: false,
+    showOnHover: true
   },
   {
     label: 'CAD',
     href: '/cad',
-    addSeparator: false
+    addSeparator: false,
+    showOnHover: true
   },
   {
     label: 'PCB',
     href: '/pcb',
-    addSeparator: false
+    addSeparator: false,
+    showOnHover: true
   },
   {
     label: 'Silicon',
     href: '/silicon',
-    addSeparator: false
+    addSeparator: false,
+    showOnHover: true
   },
   {
     label: 'Architecture',
     href: '/architecture',
-    addSeparator: false
+    addSeparator: false,
+    showOnHover: true
   },
   {
     label: 'Clothing',
     href: '/clothes',
-    addSeparator: false
+    addSeparator: false,
+    showOnHover: true
   },
   {
     label: 'UI & UX App Designer',
     href: '/appdesigner',
-    addSeparator: true
+    addSeparator: true,
+    showOnHover: true
   },
   {
     label: 'Designers',
-    addSeparator: false
+    addSeparator: false,
+    showOnHover: true
   },
   {
     label: 'Makers',
-    addSeparator: false
+    addSeparator: false,
+    showOnHover: true
   }
 ];
 
