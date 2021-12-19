@@ -8,15 +8,11 @@ export const headerListItem = [
     addSeparator: true
   },
   {
-    label: 'Design Tools',
-    addSeparator: false,
-    hoverMenuHandler: true
-  },
-  {
     label: 'Product Builder',
     href: '/product',
     addSeparator: false,
-    showOnHover: true
+    hoverMenuHandler: true,
+    hoverMenuLabel: 'Design Tools'
   },
   {
     label: 'CAD',

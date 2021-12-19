@@ -59,7 +59,8 @@ export default function HeaderDesktopView({
         target,
         rel,
         showOnHover,
-        hoverMenuHandler
+        hoverMenuHandler,
+        hoverMenuLabel
       }) => {
         const childItem = (
           <li
@@ -100,16 +101,48 @@ export default function HeaderDesktopView({
                 classes.primaryListItemHeader +
                 ` ${addSeparator && classes.verticalBar}`
               }
-              style={{ display: `${checked ? 'none' : 'block'}` }}
+              // style={{ display: `${checked ? 'none' : 'block'}` }}
               color={'inherit'}
             >
-              <Button
-                onMouseEnter={() => setChecked(true)}
-                className={classes.menuButton}
-                sx={{ color: 'unset' }}
-              >
-                {label}
-              </Button>
+              {!checked ? (
+                <Button
+                  onMouseEnter={() => setChecked(true)}
+                  className={classes.menuButton}
+                  sx={{ color: 'unset' }}
+                >
+                  {hoverMenuLabel}
+                </Button>
+              ) : (
+                <Grow
+                  in={checked}
+                  style={{ transformOrigin: '0 1 1' }}
+                  {...(checked ? { timeout: 1000 + 0 * 50 } : {})}
+                >
+                  <Button
+                    onClick={() => {
+                      if (target) {
+                        window.open(`${href}`, '_blank');
+                      }
+                    }}
+                    {...{
+                      key: label,
+                      color: 'inherit',
+                      to: href,
+                      component: RouterLink,
+                      target,
+                      rel,
+                      className:
+                        classes.menuButton +
+                        ` ${
+                          location.pathname.includes(href) &&
+                          classes.linkSelected
+                        }`
+                    }}
+                  >
+                    {label}
+                  </Button>
+                </Grow>
+              )}
             </li>
           );
         }
