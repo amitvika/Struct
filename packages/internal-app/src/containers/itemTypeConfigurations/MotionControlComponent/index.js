@@ -55,8 +55,12 @@ export default function MotionControlComponent({
     return item.name
       ? item.name + '0' == item.fileStore
         ? item.filePartName
+          ? item.filePartName
+          : item.name
         : item.name
-      : item.filePartName;
+      : item.filePartName
+      ? item.filePartName
+      : 'Untitled-2';
   };
   return (
     <Paper>

@@ -24,8 +24,12 @@ export default function ProductDesignSetup({ gltfjson, itemId }) {
     return item.name
       ? item.name + '0' == item.fileStore
         ? item.filePartName
+          ? item.filePartName
+          : item.name
         : item.name
-      : item.filePartName;
+      : item.filePartName
+      ? item.filePartName
+      : 'Untitled-2';
   };
   const handleItemSelect = (data) => {
     const itemFind = firstLevelItems.find((item) =>
