@@ -20,9 +20,16 @@ export default function ProductDesignSetup({ gltfjson, itemId }) {
       });
   }, []);
 
+  const itemName = (item) => {
+    return item.name
+      ? item.name + '0' == item.fileStore
+        ? item.filePartName
+        : item.name
+      : item.filePartName;
+  };
   const handleItemSelect = (data) => {
     const itemFind = firstLevelItems.find((item) =>
-      data.name.includes(item.filePartName)
+      data.name.includes(itemName(item))
     );
 
     if (itemFind) {

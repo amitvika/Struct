@@ -63,7 +63,11 @@ exports.mapItem = async (item = {}) => {
   let myobject = {
     ...item.toObject(),
     id: item._id,
-    name: item.name,
+    name: item.name
+      ? item.name + '0' == item.fileStore
+        ? item.filePartName
+        : item.name
+      : 'Untitled-2',
     source: get(item, 'vendorId.name', 'STRUCT'),
     file_url: file_url,
     created_by_name: get(item, 'created_by.name', ''),
