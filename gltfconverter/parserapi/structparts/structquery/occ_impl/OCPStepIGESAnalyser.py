@@ -1266,7 +1266,7 @@ class StepExportWithColor(object):
         assemblyCount=0
         if name:
             if myParent:
-                lengthCheck = 0
+                """ lengthCheck = 0
                 myParentId=myParent
                 for aTree in myTree:
                     if aTree[self.gltf_dict['parentId']]==myParent : 
@@ -1291,7 +1291,8 @@ class StepExportWithColor(object):
                             break
                     if assemblyCount == 0:
                         #myParentId = myParent
-                        assemblyCount=1
+                        assemblyCount=1 """
+                assemblyCount, myParentId = self.getChildTreeCountAndDeepestParentID(myParent,myTree,treeLength,True)
             else:
                 myParentId = None
                 assemblyCount=1   
@@ -1422,6 +1423,34 @@ class StepExportWithColor(object):
             return (comp, treeDisplay, R, G, B)
         else:
             return (None, treeDisplay, R, G, B)
+    
+    def getChildTreeCountAndDeepestParentID(self,myParent,myTree,treeLength,checkOnlyMore):
+        assemblyCount=0
+        lengthCheck = 0
+        myParentId = None
+        for aTree in myTree:
+            if aTree[self.gltf_dict['parentId']]==myParent : 
+                myParentId = aTree[self.gltf_dict['id']]
+                assemblyCount +=1
+                if (assemblyCount > 1) and (checkOnlyMore==True):
+                    break
+            lengthCheck+=1
+            if lengthCheck >=treeLength:
+                break
+        if assemblyCount==1 and myParentId!=None:
+            myAssemblyCount, subParent = self.getChildTreeCountAndDeepestParentID(myParentId,myTree,treeLength,checkOnlyMore)
+            print("getChildTreeCountAndDeepestParentID1",myAssemblyCount, subParent, myParentId, myParent)
+            if myAssemblyCount==0:
+                print("getChildTreeCountAndDeepestParentID2",myAssemblyCount, myParent)
+                return 1, myParent
+            elif myAssemblyCount==1:
+                print("getChildTreeCountAndDeepestParentID3",myAssemblyCount, subParent)
+                return 1, subParent
+            else:
+                print("getChildTreeCountAndDeepestParentID4",myAssemblyCount, myParentId)
+                return myAssemblyCount, myParentId
+        print("getChildTreeCountAndDeepestParentID5",assemblyCount, myParent)
+        return assemblyCount, myParent
 
     def GetFirstLevelAssemblyOutPutShapesForOrder(self,shapes,myParent,myTree,treeLength,fuuid):
         name = None
@@ -1446,7 +1475,7 @@ class StepExportWithColor(object):
         assemblyCount=0
         if name:
             if myParent:
-                lengthCheck = 0
+                """ lengthCheck = 0
                 myParentId=myParent
                 for aTree in myTree:
                     if aTree[self.gltf_dict['parentId']]==myParent : 
@@ -1471,7 +1500,8 @@ class StepExportWithColor(object):
                             break
                     if assemblyCount == 0:
                         myParentId = myParent
-                        assemblyCount=1
+                        assemblyCount=1 """
+                assemblyCount, myParentId = self.getChildTreeCountAndDeepestParentID(myParent,myTree,treeLength,True)
             else:
                 myParentId = None
                 assemblyCount=1
@@ -1512,7 +1542,7 @@ class StepExportWithColor(object):
         assemblyCount=0
         if name:
             if myParent:
-                lengthCheck = 0
+                """ lengthCheck = 0
                 myParentId=myParent
                 for aTree in myTree:
                     if aTree[self.gltf_dict['parentId']]==myParent : 
@@ -1534,9 +1564,10 @@ class StepExportWithColor(object):
                             break
                     if assemblyCount == 0:
                         myParentId = myParent
-                        assemblyCount=1
+                        assemblyCount=1 """
+                assemblyCount, _ = self.getChildTreeCountAndDeepestParentID(myParent,myTree,treeLength,False)
             else:
-                myParentId = None
+                #myParentId = None
                 assemblyCount=1
         
         return assemblyCount,name
