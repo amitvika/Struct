@@ -233,12 +233,13 @@ export const createChildItems = async ({
 
       const newItem = childFiles.map((item) => ({
         fileUUId: item[0],
-        name: item[1],
+        name:
+          item.length > 5 ? item[5] || item[2] || item[1] : item[2] || item[1],
         fileName: `Media/${item[0]}/${item[1]}.step`,
         fileStore: `${item[1]}0`,
         parent_id: parentId,
         is_child_item: true,
-        filePartName: item.length > 5 ? item[5] || item[2] : item[2],
+        filePartName: item[2],
         multiAssembly: item.length > 3 ? item[3] > 1 : false,
         treeLength: item.length > 4 ? item[4] : 0
       }));

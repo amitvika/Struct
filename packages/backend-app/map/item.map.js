@@ -60,10 +60,21 @@ exports.mapItem = async (item = {}) => {
   //   } else {
   //   }
   // }
+  const itemName = (item) => {
+    return item.name
+      ? item.name + '0' == item.fileStore
+        ? item.filePartName
+          ? item.filePartName
+          : item.name
+        : item.name
+      : item.filePartName
+      ? item.filePartName
+      : 'Untitled-2';
+  };
   let myobject = {
     ...item.toObject(),
     id: item._id,
-    name: item.name,
+    name: itemName(item),
     source: get(item, 'vendorId.name', 'STRUCT'),
     file_url: file_url,
     created_by_name: get(item, 'created_by.name', ''),

@@ -206,7 +206,7 @@ export default function HeaderDesktopView({
             sx={{ p: 0, color: 'white' }}
             className={classes.menuButton}
           >
-            {isAuthenticated ? `Welcome: ${user.email}` : 'Login'}
+            {isAuthenticated ? `Welcome: ${user ? user.email : ''}` : 'Login'}
           </Button>
         </Tooltip>
 

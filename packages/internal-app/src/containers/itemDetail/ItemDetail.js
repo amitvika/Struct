@@ -669,7 +669,15 @@ const ItemDetail = ({ itemValue }) => {
     });
     return tabP;
   };
-
+  const itemName = (item) => {
+    return item.name
+      ? item.name + '0' == item.fileStore
+        ? item.filePartName
+        : item.name
+      : item.filePartName
+      ? item.filePartName
+      : 'Untitled-2';
+  };
   return (
     <>
       {<LoadingModal isLoading={isFileLoading} />}
@@ -678,7 +686,7 @@ const ItemDetail = ({ itemValue }) => {
           <DetailComponentInnerHeader
             {...{
               prefix: 'Item',
-              name: itemProperties.name,
+              name: itemName(itemProperties),
               id: itemProperties.id,
               handleSave,
               tabName: tabList[tabIndex],

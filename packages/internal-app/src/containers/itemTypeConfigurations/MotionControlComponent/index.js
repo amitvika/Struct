@@ -51,7 +51,17 @@ export default function MotionControlComponent({
       <MenuItem value={index + 1}>{index + 1}</MenuItem>
     ));
   };
-
+  const itemName = (item) => {
+    return item.name
+      ? item.name + '0' == item.fileStore
+        ? item.filePartName
+          ? item.filePartName
+          : item.name
+        : item.name
+      : item.filePartName
+      ? item.filePartName
+      : 'Untitled-2';
+  };
   return (
     <Paper>
       <Typography
@@ -80,12 +90,15 @@ export default function MotionControlComponent({
                 onClick={() => {
                   setSelectedOption(SELECTSOLID);
                   setRenderData(
-                    getTableData({ gltfjson, filePartName: item.filePartName })
+                    getTableData({
+                      gltfjson,
+                      filePartName: itemName(item)
+                    })
                   );
                 }}
               >
                 <TableCell component="th" padding="none">
-                  {item.name}
+                  {itemName(item)}
                 </TableCell>
                 <TableCell padding="none">
                   {' '}
