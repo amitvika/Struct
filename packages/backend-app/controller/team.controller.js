@@ -1,6 +1,6 @@
 const TeamModel = require('../models/team.modal');
 const ChangeTracking = require('../models/ChangeTracking.model');
-const { getObjectId } = require('../utils/helper');
+const { getObjectId, createSearchQuery } = require('../utils/helper');
 const UserModel = require('../models/User');
 const { mapTeam, mapTeams } = require('../map/team');
 const { mapUser, mapUsers } = require('../map/user');
@@ -50,6 +50,10 @@ const buildQuery = (req) => {
 
   if (req.query.name) {
     query.$and.push({ name: { $regex: new RegExp(`${req.query.name}`, 'i') } });
+  }
+
+  if (req.query.full_search) {
+    query.$and.push(createSearchQuery(req.query.full_search, ['name']));
   }
 
   // query.push({ $sort: { date: -1 } })

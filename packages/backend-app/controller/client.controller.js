@@ -3,7 +3,7 @@ const ChangeTracking = require('../models/ChangeTracking.model');
 const GoDaddyAPI = require('../config/godaddy');
 const _ = require('lodash');
 const { mapClients, mapClient } = require('../map/clients');
-const { getObjectId } = require('../utils/helper');
+const { getObjectId, createSearchQuery } = require('../utils/helper');
 
 exports.get = async (req, res) => {
   try {
@@ -47,6 +47,10 @@ const buildQuery = (req) => {
 
   if (req.query.name) {
     query.$and.push({ name: { $regex: new RegExp(`${req.query.name}`, 'i') } });
+  }
+
+  if (req.query.full_search) {
+    query.$and.push(createSearchQuery(req.query.full_search, ['name']));
   }
 
   return query;

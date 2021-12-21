@@ -20,3 +20,21 @@ exports.getObjectId = (id) => {
 };
 
 exports.isObjectIdValid = (id) => ObjectId.isValid(id);
+
+exports.createSearchQuery = (queryValue, strFields = []) => {
+  let filterQuery = { $or: [] };
+
+  if (this.isObjectIdValid(queryValue)) {
+    filterQuery.$or.push({ _id: queryValue });
+  }
+
+  strFields.map((field) => {
+    filterQuery.$or.push({
+      [field]: {
+        $regex: new RegExp(`${queryValue}`, 'i')
+      }
+    });
+  });
+
+  return filterQuery;
+};

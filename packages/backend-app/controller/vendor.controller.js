@@ -1,29 +1,37 @@
 const VendorModel = require('../models/Vendor.model');
 const ChangeTracking = require('../models/ChangeTracking.model');
 const { mapVendor, mapVendors } = require('../map/vendor.map');
+const { createSearchQuery } = require('../utils/helper');
 
 exports.get = async (req, res) => {
   try {
-    let query = { deletedAt: null };
-    if (req.query.search) {
-      query = {
-        $and: [
-          { deletedAt: null },
-          { name: { $regex: new RegExp(`${req.query.search}`, 'i') } }
-        ]
-      };
+    let query = buildQuery(req);
+
+    if (query.$and.length > 0) {
+      vendor = await VendorModel.find(query)
+        .populate('created_by')
+        .sort({ updatedAt: -1 });
+    } else {
+      vendor = await VendorModel.find()
+        .populate('created_by')
+        .sort({ updatedAt: -1 });
     }
 
-    const item = await VendorModel.find(query)
-      .populate('created_by')
-      .populate('updated_by')
-      .sort({ date: -1 });
-
-    res.json(mapVendors(item, req.headers.host));
+    res.json(mapVendors(vendor, req.headers.host));
   } catch (error) {
     console.log('====', error);
     res.status(500).send(error);
   }
+};
+
+const buildQuery = (req) => {
+  let query = { $and: [] };
+
+  if (req.query.full_search) {
+    query.$and.push(createSearchQuery(req.query.full_search, ['name']));
+  }
+
+  return query;
 };
 
 exports.getOne = (req, res) => {

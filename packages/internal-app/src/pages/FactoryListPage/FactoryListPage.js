@@ -16,7 +16,7 @@ const FactoryListPage = () => {
     <TableGridView
       title={'Factory'}
       fields={columnsFields}
-      fetchList={() => FactoriesAPI.fetchFactories()}
+      fetchList={FactoriesAPI.fetchFactories}
       upsertListItem={(value) =>
         FactoriesAPI.upsertFactoryApi({ ...value, factory_id })
       }
