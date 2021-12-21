@@ -55,7 +55,7 @@ const TableGridView = ({
   const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
 
   const paginationValues = getFromLocalStorage(`${title}-pagination`) || {};
-  const [page, setPage] = React.useState(paginationValues.page || 0);
+  const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(
     paginationValues.rowsPerPage || 100
   );
@@ -66,21 +66,25 @@ const TableGridView = ({
 
   useEffect(() => {
     fetchResult();
-    saveToLocalStorage(`${title}-pagination`, { page, rowsPerPage });
+    saveToLocalStorage(`${title}-pagination`, { rowsPerPage });
   }, [page, rowsPerPage]);
 
-  const fetchResult = () => {
-    let queryString = '';
+  const fetchResult = (filterQS) => {
+    let queryString = [];
 
     if (isPaginationEnabled) {
-      queryString = `page=${page}&limit=${rowsPerPage}`;
+      queryString = [`page=${page}`, `limit=${rowsPerPage}`];
+    }
+
+    if (filterQS) {
+      queryString.push(filterQS);
     }
 
     (async () => {
       try {
         setIsLoading(true);
 
-        const res = await fetchList(queryString);
+        const res = await fetchList(queryString.join('&'));
 
         populateData(res);
 
@@ -90,6 +94,8 @@ const TableGridView = ({
       }
     })();
   };
+
+  const handleSearch = (queryString) => fetchResult(queryString);
 
   const populateData = (res) => {
     let mappedList = get(res, 'data', []);
@@ -330,7 +336,8 @@ const TableGridView = ({
             isHistoryCheckboxVisible,
             isEditLinkVisible,
             showHistoryButtonToolbar,
-            showArchiveButtonToolbar
+            showArchiveButtonToolbar,
+            handleSearch
           }}
         />
         <div

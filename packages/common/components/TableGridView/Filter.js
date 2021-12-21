@@ -6,6 +6,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import makeStyles from '@mui/styles/makeStyles';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
+import { useDebounce } from '../../utils/customHooks';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,7 +34,8 @@ export default function Filter({
   setFilteredList = () => {},
   columnsFields = [],
   isSearchBarVisible = false,
-  setIsFilterResetted = () => {}
+  setIsFilterResetted = () => {},
+  handleSearch
 }) {
   const classes = useStyles();
 
@@ -41,6 +43,17 @@ export default function Filter({
   const [selectedFieldOptions, setSelectedFieldOptions] = useState([]);
   const [selectedFields, setSelectedFields] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  useEffect(
+    () => {
+      if (debouncedSearchTerm) {
+        handleSearch(`full_search=${searchTerm}`);
+      }
+    },
+    [debouncedSearchTerm] // Only call effect if debounced search term changes
+  );
 
   const filtered = (updatedSelectedFields) => {
     const myArrayFiltered = list.filter((el) => {
@@ -104,25 +117,25 @@ export default function Filter({
     }
   };
 
-  const handleSearchInput = (event) => {
-    let searchText = event.target.value;
-    setSearchTerm(searchText);
+  // const handleSearchInput = (event) => {
+  //   let searchText = event.target.value;
+  //   setSearchTerm(searchText);
 
-    const filteredData = list.filter((item) => {
-      for (const key in item) {
-        const currentValue = item[key];
-        if (
-          typeof currentValue === 'string' &&
-          currentValue.includes(searchText)
-        ) {
-          return true;
-        }
-      }
-      return false;
-    });
-    setIsFilterResetted(false);
-    setFilteredList(filteredData);
-  };
+  //   const filteredData = list.filter((item) => {
+  //     for (const key in item) {
+  //       const currentValue = item[key];
+  //       if (
+  //         typeof currentValue === 'string' &&
+  //         currentValue.includes(searchText)
+  //       ) {
+  //         return true;
+  //       }
+  //     }
+  //     return false;
+  //   });
+  //   setIsFilterResetted(false);
+  //   setFilteredList(filteredData);
+  // };
 
   const renderItem = () => {
     let item = [];
@@ -152,7 +165,7 @@ export default function Filter({
         <Grid item style={{ flex: 1 }} key={`filter_search_text`}>
           <OutlinedInput
             id="input-with-icon-textfield"
-            onChange={handleSearchInput}
+            onChange={(e) => setSearchTerm(e.target.value)}
             value={searchTerm}
             placeholder={'Enter'}
             InputProps={{

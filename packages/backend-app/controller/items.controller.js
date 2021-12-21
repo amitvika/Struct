@@ -3,7 +3,7 @@ const ChangeTracking = require('../models/ChangeTracking.model');
 
 const occ = {}; //nodeocc.occ;
 const path = require('path');
-const { getObjectId } = require('../utils/helper');
+const { getObjectId, isObjectIdValid } = require('../utils/helper');
 const _ = require('lodash');
 const { mapItems, mapItem } = require('../map/item.map');
 
@@ -93,13 +93,9 @@ const buildQuery = (req) => {
     });
   }
 
-  // if (req.query.call_type !== 'detail') {
-  //   if (req.query.is_child_item) {
-  //     query.$and.push({ is_child_item: { $in: true } });
-  //   } else {
-  //     query.$and.push({ is_child_item: { $in: [null, false] } });
-  //   }
-  // }
+  if (req.query.full_search) {
+    query.$and.push(createSearchQuery(req.query.full_search));
+  }
 
   if (req.query.parent_id) {
     query.$and.push({
@@ -108,6 +104,23 @@ const buildQuery = (req) => {
   }
 
   return query;
+};
+
+const createSearchQuery = (queryValue) => {
+  let filterQuery = { $or: [] };
+
+  if (isObjectIdValid(queryValue)) {
+    filterQuery.$or.push({ _id: queryValue });
+    filterQuery.$or.push({ parent_id: queryValue });
+  } else {
+    filterQuery.$or.push({
+      name: {
+        $regex: new RegExp(`${queryValue}`, 'i')
+      }
+    });
+  }
+
+  return filterQuery;
 };
 
 exports.getAll = async (req, res) => {
