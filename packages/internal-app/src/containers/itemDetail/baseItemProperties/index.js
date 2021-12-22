@@ -47,6 +47,8 @@ export default function BaseItemProperties({
   itemId,
   itemProperties,
   setItemProperties,
+  tabIndex,
+  setTabIndex,
   gltfjson,
   setgltfjson,
   handleItemUpdateLocallay,
@@ -455,7 +457,9 @@ export default function BaseItemProperties({
                   fileUUId={fileUUId}
                   fileAnimation={false}
                   activefile={
-                    (fileId || fileUUId || '') + gltfjsonlen.toString()
+                    (fileId || fileUUId || '') +
+                    gltfjsonlen.toString() +
+                    tabIndex.toString()
                   }
                   backcolor={DEFAULTBACKCOLOR()}
                   selectcolor={DEFAULTSELECTCOLOR()}

@@ -74,7 +74,7 @@ const ItemDetail = ({ itemValue }) => {
   const [createAutoAssemblyOrder, setCreateAutoAssemblyOrder] = useState(false);
   const [createAutoStackability, setCreateAutoStackability] = useState(false);
   const [showKinematicMove, setShowKinematicMove] = useState(false);
-
+  const [kinematicItemList, setKinematicItemList] = useState([]);
   const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
 
   /* useEffect(() => {
@@ -176,7 +176,8 @@ const ItemDetail = ({ itemValue }) => {
             setPercentage,
             setCurrentProgressText,
             setCompletionProgressText,
-            setgltfjson
+            setgltfjson,
+            kinematicItemList
           });
         } else {
           gltfParam.fileKinematic = item.fileKinematic;
@@ -251,7 +252,9 @@ const ItemDetail = ({ itemValue }) => {
       }
 
       setItemProperties((prev) => ({ ...prev, updatedItemProp }));
-      handleSave(updatedItemProp);
+      console.log('BEfore Calling handle save', gltfjson);
+      handleSave(updatedItemProp); //Revert back after testing
+      console.log('After Calling handle save', gltfjson);
       if (item.fileGDT && item.child_item_status === 'INITIATED') {
         const childrenCreated = await createChildItems({
           item,
@@ -336,10 +339,11 @@ const ItemDetail = ({ itemValue }) => {
   };
 
   const handleSave = async (change) => {
+    // return; //FOr testing purpose..
     itemProperties.step = undefined;
     itemProperties.gltfjson = undefined;
     itemProperties.itemId = undefined;
-
+    console.log('GLTFJSON before saving', gltfjson);
     let updateItemProperties = Object.assign({}, itemProperties, change);
 
     if (Object.keys(updateItemProperties).length === 0) {
@@ -370,6 +374,7 @@ const ItemDetail = ({ itemValue }) => {
     } catch (error) {
       console.log('Error while saving', error);
     }
+    console.log('GLTFJSON after saving', gltfjson);
   };
 
   /*useEffect(() => {
@@ -533,6 +538,8 @@ const ItemDetail = ({ itemValue }) => {
             }
             showKinematicMove={showKinematicMove}
             setShowKinematicMove={setShowKinematicMove}
+            kinematicItemList={kinematicItemList}
+            setKinematicItemList={setKinematicItemList}
             {...{ handleSave }}
           />
         );

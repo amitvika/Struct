@@ -37,6 +37,8 @@ export default function ItemTypeConfiguration(props) {
     setSelectedOption,
     showKinematicMove,
     setShowKinematicMove,
+    kinematicItemList,
+    setKinematicItemList,
     handleSave
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
@@ -232,6 +234,8 @@ export default function ItemTypeConfiguration(props) {
         setRenderData={addSelectionFromComponent}
         setSelectedOption={setSelectedOption}
         internalProductConfig={internalProductConfig}
+        kinematicItemList={kinematicItemList}
+        setKinematicItemList={setKinematicItemList}
         {...{
           itemProperties,
           gltfjson,

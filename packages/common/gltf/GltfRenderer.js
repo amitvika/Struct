@@ -449,11 +449,11 @@ class GLTFRenderer extends Component {
       this.changeBackgroundWhenPropsChange();
     }
     if (toInvokeRender) {
-      if (this.initDone) {
+      /*  if (this.initDone) {
         //console.log('Doing this_state_gltf', this_state_gltf, this.renderDone);
         this.alter(this_state_gltf);
         this.render();
-      }
+      } */
     }
     /* 
         if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
@@ -1262,7 +1262,11 @@ class GLTFRenderer extends Component {
       const state_gltfobj =
         this_state_gltf || this.state.gltfobj || this.props.gltfobj;
 
-      //console.log("GDTTable",state_gltfobj.gdttable,this.props.activeDataTable);
+      console.log(
+        'GDTTable',
+        state_gltfobj.gdttable,
+        this.props.activeDataTable
+      );
       let gdttable = state_gltfobj.gdttable || [defaultGDTTable];
       this.updateGDTTable(gdttable[this.props.activeDataTable]);
       //console.log(this.props);
@@ -1284,7 +1288,7 @@ class GLTFRenderer extends Component {
       gdttableEdges.edges.forEach((element) => {
         //console.log("my node",element,element.name);
         const node = element.name ? this.findMyMaterial(element) : null;
-        //console.log("my node",element.name,"material node",node);
+        console.log('my node', element.name, 'material node', node);
         this.loadAllEdges(
           element.parent,
           element.start,
@@ -3541,7 +3545,12 @@ class GLTFRenderer extends Component {
         ) {
           featureSetFinish = 0;
         }
-        //console.log("Load Features",findEdges,featureSetStart,featureSetFinish);
+        console.log(
+          'Load Features',
+          findEdges,
+          featureSetStart,
+          featureSetFinish
+        );
         if (featureSetStart < featureSetFinish) {
           this.loadAllEdges(
             myParentID,
@@ -3788,7 +3797,7 @@ class GLTFRenderer extends Component {
       }
       //console.log("Parent", myParentsParentID, myParentID, myID);
       var myParents = [];
-      if (myParentsParentID == -1) {
+      if (myParentsParentID == -1 || myParentsParentID == 1) {
         //RootNode
         //console.log("Pushing", myParentsParentID, myParentID, myID);
         myParents.push(myID);

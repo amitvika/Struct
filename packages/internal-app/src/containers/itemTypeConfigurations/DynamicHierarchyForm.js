@@ -15,7 +15,9 @@ export default function DynamicHierarchy(props) {
     itemProperties,
     setSelectedOption,
     setIsCircularFaceOrEdgeSelection,
-    handleRotationalAxisChange
+    handleRotationalAxisChange,
+    kinematicItemList,
+    setKinematicItemList
   } = props;
   const currentItem = useSelector((state) => state.item.currentItem);
 
@@ -100,7 +102,9 @@ export default function DynamicHierarchy(props) {
               itemProperties,
               gltfjson,
               setIsCircularFaceOrEdgeSelection,
-              handleRotationalAxisChange
+              handleRotationalAxisChange,
+              kinematicItemList,
+              setKinematicItemList
             }}
           />
         );

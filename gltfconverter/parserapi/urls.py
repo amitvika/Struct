@@ -44,6 +44,7 @@ urlpatterns = [
     re_path(r'^api/v0/assemblyorder$', views.FileGetAssemblyOrder),
     re_path(r'^api/v0/kinematicorder$', views.FileGetKinematicAnimation),
     re_path(r'^api/v0/kinematicmove$', views.FileGetKinematicRotationalAnimation),
+    re_path(r'^api/v0/kinematicmove', views.FileGetKinematicRotationalAnimation),
     re_path(r'^api/v0/savetree', views.FileSaveTree),
     re_path(r'^api/v0/savegdt', views.FileSaveGDT),
     re_path(r'^api/v0/getcontent$', views.GetFileContent), 

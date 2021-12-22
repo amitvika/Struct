@@ -18,7 +18,9 @@ export default function DynamicCriteria({
   gltfjson,
   setSelectedOption,
   setIsCircularFaceOrEdgeSelection,
-  handleRotationalAxisChange
+  handleRotationalAxisChange,
+  kinematicItemList,
+  setKinematicItemList
 }) {
   const handleOnChange = (name, value) => {
     const findIndex = stateFormFields.findIndex(
@@ -125,7 +127,9 @@ export default function DynamicCriteria({
                   itemId: itemProperties.id,
                   gltfjson,
                   setRenderData,
-                  setSelectedOption
+                  setSelectedOption,
+                  kinematicItemList,
+                  setKinematicItemList
                 }}
               />
             )}
