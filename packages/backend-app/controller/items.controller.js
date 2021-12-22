@@ -1,8 +1,6 @@
 const ItemModel = require('../models/Item.model');
+const ItemMotionControlModel = require('../models/ItemMotionControl.model');
 const ChangeTracking = require('../models/ChangeTracking.model');
-
-const occ = {}; //nodeocc.occ;
-const path = require('path');
 const { getObjectId, isObjectIdValid } = require('../utils/helper');
 const _ = require('lodash');
 const { mapItems, mapItem } = require('../map/item.map');
@@ -129,100 +127,27 @@ exports.getAll = async (req, res) => {
 
     let itemDetails = await ItemModel.find();
 
-    itemDetails = itemDetails
-      .filter((itemDetail) => {
-        if (itemDetail.step === null && itemDetail === null) {
+    itemDetails = itemDetails.filter((itemDetail) => {
+      if (itemDetail.step === null && itemDetail === null) {
+        return false;
+      }
+      if (item_type === 'Work Holding 1') {
+        if (
+          itemDetail.itemTypeConfiguration &&
+          itemDetail.itemTypeConfiguration.itemType ===
+            'Machine - Tool/Workholding'
+        ) {
+          return true;
+        } else {
           return false;
         }
-        if (item_type === 'Work Holding 1') {
-          if (
-            itemDetail.itemTypeConfiguration &&
-            itemDetail.itemTypeConfiguration.itemType ===
-              'Machine - Tool/Workholding'
-          ) {
-            return true;
-          } else {
-            return false;
-          }
-        } else {
-          return true;
-        }
-      })
-      .map((itemDetail) => ({
-        itemGeometry: itemDetail.itemGeometry,
-        itemTypeConfiguration: itemDetail.itemTypeConfiguration,
-        name: itemDetail.name,
-        fileStore: itemDetail.fileStore,
-        fileGDT: itemDetail.fileGDT,
-        fileUUId: itemDetail.fileUUId,
-        fileMPPS: itemDetail.fileMPPS,
-        fileStack: itemDetail.fileStack,
-        fileKinematic: itemDetail.fileKinematic,
-        distanceGap: itemDetail.distanceGap,
-        angleGap: itemDetail.angleGap,
-        drawLine: itemDetail.drawLine,
-        fileId: itemDetail.fileId,
-        hierarchySelections: itemDetail.hierarchySelections,
-        stepTreeLength: itemDetail.stepTreeLength,
-        classificationConfig: itemDetail.classificationConfig,
-        is_child_item: itemDetail.is_child_item,
-        child_item_status: itemDetail.child_item_status,
-        multiAssembly: itemDetail.multiAssembly,
-        filePartName: itemDetail.filePartName,
-        is_archived: itemDetail.is_archived,
-        actuatorAxisNumber: itemDetail.actuatorAxisNumber,
-        isActuatorApplies: itemDetail.isActuatorApplies
-      }));
-    res.json(itemDetails);
+      } else {
+        return true;
+      }
+    });
+    res.json(mapItems(itemDetails));
   } catch (error) {
     res.status(500).send(error);
-  }
-};
-
-exports.getOne = async (req, res) => {
-  try {
-    const item = await ItemModel.findById(req.params.id);
-
-    // const factory = await FactoryModel.find({ selectedItemId: req.params.id });
-
-    // if (factory) {
-    // 	item.itemGeometry.itemType = 'Structure';
-    // }
-    res.json(item);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-};
-
-exports.create = async (req, res) => {
-  try {
-    const newItem = new ItemModel({
-      name: req.body.name,
-      vendorId: req.body.vendorId,
-      author: req.user.id,
-      multiAssembly: req.body.multiAssembly
-    });
-
-    const savedItem = await newItem.save();
-    if (!savedItem) {
-      throw { message: 'Unable to save' };
-    }
-
-    const changeTracking = new ChangeTracking({
-      client: savedItem._id,
-      update: savedItem,
-      model: 'Item',
-      updateType: 'Create',
-      updatedObject: savedItem._id,
-      updatedBy: req.user.id
-    });
-    await changeTracking.save();
-
-    res.json(savedItem);
-  } catch (error) {
-    console.log(error);
-
-    return res.status(500).send({ message: 'Some unexpected error occurred' });
   }
 };
 
@@ -260,7 +185,7 @@ exports.update = async (req, res) => {
     });
     await changeTracking.save();
     let mymapitem = await mapItem(prevItem);
-    //console.log('From single item controller', mymapitem);
+
     res.json(Object.assign({}, prevItem.toObject(), mymapitem));
   } catch (error) {
     console.log('Error', error);

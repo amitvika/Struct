@@ -7,17 +7,9 @@ import {
 
 const getItemsAPI = (query) => getRequest(`/api/items?${query}`);
 
-const addItemApi = (data) => postRequest(`/api/items`, data);
-
-const saveItemAPI = (data) => postRequest(`/api/items`, data);
-
 const updateItemAPI = (id, data) => putRequest(`/api/items/${id}`, data);
 
-const deleteItemAPI = (id) => deleteRequest(`/api/items/${id}`);
-
 const getItemsAllAPI = (query) => getRequest(`/api/items/all?${query}`);
-
-const getItemThreejsData = (id) => getRequest(`/api/items/${id}/three-model`);
 
 const getItemOrders = (query) => getRequest(`/api/itemOrder?${query}`);
 
@@ -27,12 +19,8 @@ const upsertItems = (data) => postRequest(`/api/items/upsert`, data);
 
 export default {
   getItemsAPI,
-  addItemApi,
-  saveItemAPI,
   updateItemAPI,
-  deleteItemAPI,
   getItemsAllAPI,
-  getItemThreejsData,
   getItemOrders,
   upsertItemOrder,
   upsertItems

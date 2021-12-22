@@ -9,13 +9,9 @@ router.get('/', ItemsController.get);
 
 router.get('/all', ItemsController.getAll);
 
-router.post('/', ItemsController.create);
-
 router.post('/upsert', ItemsController.upsert);
 
 router.put('/:id', ItemsController.update);
-
-router.get('/:id', ItemsController.getOne);
 
 router.get('/order', ItemOrderController.get);
 

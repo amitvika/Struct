@@ -41,25 +41,11 @@ exports.mapItem = async (item = {}) => {
   if (item === null) {
     return {};
   }
-  //console.log(resourcePathURL,"Resource path",item.fileStore);
 
   let file_url = item.fileStore
     ? (item.fileUUId ? item.fileUUId + '/' : '') + item.fileStore
     : undefined;
 
-  // if (file_url) {
-  //   let isFileExists = await isFileExistingInServer(file_url);
-  //   if (!isFileExists) {
-  //     file_url = item.fileStore
-  //       ? (item.fileUUId
-  //           ? (resourcePathS3URL || '') + item.fileUUId + '/'
-  //           : resourcePathS3URL || '') +
-  //         item.fileStore +
-  //         '.png'
-  //       : undefined;
-  //   } else {
-  //   }
-  // }
   const itemName = (item) => {
     return item.name
       ? item.name + '0' == item.fileStore

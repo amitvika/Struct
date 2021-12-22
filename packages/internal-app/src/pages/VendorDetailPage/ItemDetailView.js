@@ -4,7 +4,7 @@ import ItemsAPI from '@monostruct/common/api/items.api';
 export default function ThreejsViewModal({
   itemId = '',
   isVisible = false,
-  closeModal,
+  closeModal
 }) {
   const [threejsObject, setThreejsObject] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -13,19 +13,7 @@ export default function ThreejsViewModal({
     fetchStep();
   }, [isVisible]);
 
-  const fetchStep = () => {
-    setIsLoading(true);
-    ItemsAPI.getItemThreejsData(itemId)
-      .then((res) => {
-        setIsLoading(false);
-        setTimeout(() => {
-          setThreejsObject(res.data);
-        }, 100);
-      })
-      .catch((error) => {
-        setIsLoading(false);
-      });
-  };
+  const fetchStep = () => {};
 
   return (
     <div className="Vendor_modal" style={{ width: '500px', height: '500px' }}>

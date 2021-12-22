@@ -33,7 +33,7 @@ export default function MotionControlComponent({
   }, []);
 
   const updateAxisNumber = (id, change) => {
-    ItemApi.updateItemAPI(id, change)
+    ItemApi.updateItemAPI(id, { actuator_motion_control: change })
       .then((res) => {
         setItemList(itemList.map((item) => (item.id === id ? res.data : item)));
       })
@@ -84,67 +84,73 @@ export default function MotionControlComponent({
             </TableRow>
           </TableHead>
           <TableBody>
-            {itemList.map((item) => (
-              <TableRow
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                onClick={() => {
-                  setSelectedOption(SELECTSOLID);
-                  setRenderData(
-                    getTableData({
-                      gltfjson,
-                      filePartName: itemName(item)
-                    })
-                  );
-                }}
-              >
-                <TableCell component="th" padding="none">
-                  {itemName(item)}
-                </TableCell>
-                <TableCell padding="none">
-                  {' '}
-                  {selectedValue === item.id ? (
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      label={item.actuatorAxisNumber}
-                      sx={{ width: '100%' }}
-                      value={item.actuatorAxisNumber}
+            {itemList.map((item) => {
+              const actuator_motion_control =
+                item.actuator_motion_control || {};
+              return (
+                <TableRow
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  onClick={() => {
+                    setSelectedOption(SELECTSOLID);
+                    setRenderData(
+                      getTableData({
+                        gltfjson,
+                        filePartName: itemName(item)
+                      })
+                    );
+                  }}
+                >
+                  <TableCell component="th" padding="none">
+                    {itemName(item)}
+                  </TableCell>
+                  <TableCell padding="none">
+                    {' '}
+                    {selectedValue === item.id ? (
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        label={actuator_motion_control.child_sequence_number}
+                        sx={{ width: '100%' }}
+                        value={actuator_motion_control.child_sequence_number}
+                        onChange={(event) => {
+                          updateAxisNumber(item.id, {
+                            child_sequence_number: event.target.value
+                          });
+                        }}
+                      >
+                        {renderAxisMenu()}
+                      </Select>
+                    ) : (
+                      actuator_motion_control.child_sequence_number
+                    )}
+                  </TableCell>
+                  <TableCell padding="none">
+                    <Checkbox
+                      {...label}
+                      disabled={selectedValue !== item.id}
+                      checked={
+                        actuator_motion_control.is_actuator_or_chain_link
+                      }
                       onChange={(event) => {
                         updateAxisNumber(item.id, {
-                          actuatorAxisNumber: event.target.value
+                          is_actuator_or_chain_link: event.target.checked
                         });
                       }}
-                    >
-                      {renderAxisMenu()}
-                    </Select>
-                  ) : (
-                    item.actuatorAxisNumber
-                  )}
-                </TableCell>
-                <TableCell padding="none">
-                  <Checkbox
-                    {...label}
-                    disabled={selectedValue !== item.id}
-                    checked={item.isActuatorApplies}
-                    onChange={(event) => {
-                      updateAxisNumber(item.id, {
-                        isActuatorApplies: event.target.checked
-                      });
-                    }}
-                  />
-                </TableCell>
-                <TableCell padding="none"></TableCell>
-                <TableCell padding="none">
-                  <Radio
-                    checked={selectedValue === item.id}
-                    onChange={handleChange}
-                    value={item.id}
-                    name="radio-buttons"
-                    inputProps={{ 'aria-label': 'A' }}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
+                    />
+                  </TableCell>
+                  <TableCell padding="none"></TableCell>
+                  <TableCell padding="none">
+                    <Radio
+                      checked={selectedValue === item.id}
+                      onChange={handleChange}
+                      value={item.id}
+                      name="radio-buttons"
+                      inputProps={{ 'aria-label': 'A' }}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

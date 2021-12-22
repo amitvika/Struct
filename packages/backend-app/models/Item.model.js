@@ -2,7 +2,28 @@ const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate-v2');
 const Schema = mongoose.Schema;
 
-//Define the User model schema(filed structure)
+const ItemMotionControlSchema = new mongoose.Schema(
+  {
+    item_id: { type: Schema.Types.ObjectId, ref: 'Item' },
+    child_sequence_number: { type: Number, default: 0 },
+    child_part_name: { type: String },
+    child_part_display_name: { type: String },
+    is_actuator_or_chain_link: { type: Boolean, default: false },
+    is_linear_or_rotational: { type: Boolean, default: false },
+    cylindrical_axis_of_rotation_or_movement: {
+      x: { type: Number, default: 0 },
+      y: { type: Number, default: 0 },
+      z: { type: Number, default: 0 }
+    },
+    angle_or_distant_limit: { type: Number, default: 0 },
+    created_by: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    updated_by: { type: Schema.Types.ObjectId, ref: 'User', required: true }
+  },
+  {
+    timestamps: true
+  }
+);
+
 const ItemSchema = new mongoose.Schema(
   {
     name: {
@@ -81,8 +102,7 @@ const ItemSchema = new mongoose.Schema(
     multiAssembly: { type: Boolean, default: false },
     filePartName: { type: String },
     is_archived: { type: Boolean, default: false },
-    actuatorAxisNumber: { type: Number, default: 0 },
-    isActuatorApplies: { type: Boolean, default: false },
+    actuator_motion_control: ItemMotionControlSchema,
     created_by: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     updated_by: { type: Schema.Types.ObjectId, ref: 'User', required: true }
   },
