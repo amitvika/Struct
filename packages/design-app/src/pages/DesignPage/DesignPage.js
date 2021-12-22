@@ -6,6 +6,7 @@ import TableGridView from '@monostruct/common/components/TableGridView';
 import { fields } from '@monostruct/common/constants/productDesign';
 import AddUpdateModal from './AddUpdateModal';
 import { Box } from '@mui/system';
+import AddDesignMenu from './AddDesignMenu';
 
 const DesignPage = () => {
   let history = useHistory();
@@ -28,6 +29,8 @@ const DesignPage = () => {
         showDeleteActionButton={false}
         showHistoryButtonToolbar={false}
         showArchiveButtonToolbar={false}
+        AddDesignMenu={AddDesignMenu}
+        isCustomAddButtonVisible={false}
       />
     </Box>
   );

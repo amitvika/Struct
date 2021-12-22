@@ -6,17 +6,19 @@ import Select from '@monostruct/common/components/atoms/Select';
 import Input from '@monostruct/common/components/atoms/Input';
 import ThreejsSelection from './ThreejsSelection';
 import MotionControlComponent from './MotionControlComponent';
+import { Typography } from '@mui/material';
+import { get } from 'lodash';
 
 export default function DynamicCriteria({
-  formFields,
-  key,
-  value,
+  form,
   handleUpdate,
   renderData,
   setRenderData,
   itemProperties,
   gltfjson,
-  setSelectedOption
+  setSelectedOption,
+  setIsCircularFaceOrEdgeSelection,
+  handleRotationalAxisChange
 }) {
   const handleOnChange = (name, value) => {
     const findIndex = stateFormFields.findIndex(
@@ -38,11 +40,14 @@ export default function DynamicCriteria({
     });
     setStateFormFields(tempFields);
   };
-  const [stateFormFields, setStateFormFields] = useState(formFields);
+
+  const [stateFormFields, setStateFormFields] = useState([]);
 
   useEffect(() => {
-    setStateFormFields(formFields);
-  }, [formFields]);
+    if (form) {
+      setStateFormFields(form.fields);
+    }
+  }, [form]);
 
   const renderFields = () => {
     if (!stateFormFields) {
@@ -98,7 +103,19 @@ export default function DynamicCriteria({
                       handleOnChange(fieldItem.fieldName, valuefound);
                     }
                   }}
+                  cylindrical_axis_of_rotation={
+                    fieldItem.dataType === 'CircularFaceOrEdgeSelection'
+                      ? get(
+                          itemProperties,
+                          'actuator_motion_control.cylindrical_axis_of_rotation'
+                        )
+                      : null
+                  }
                   onClick={handleOnClick}
+                  {...{
+                    setIsCircularFaceOrEdgeSelection,
+                    handleRotationalAxisChange
+                  }}
                 />
               )}
 
@@ -118,13 +135,15 @@ export default function DynamicCriteria({
     });
   };
 
-  if (!formFields || !formFields[0]) {
+  if (!form) {
     return null;
   }
 
   return (
     <Paper style={{ padding: 20, margin: 10 }}>
-      <Headding style={{ fontSize: 24 }}>{value}</Headding>
+      <Typography variant="h5" gutterBottom component="div">
+        {form.criteriaTitle}
+      </Typography>
       {renderFields()}
     </Paper>
   );

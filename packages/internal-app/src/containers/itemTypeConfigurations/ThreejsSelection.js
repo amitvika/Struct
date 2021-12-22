@@ -7,17 +7,22 @@ import {
   SELECTFEATURE
 } from '@monostruct/common/gltf/Tree/utils';
 import Button from '@mui/material/Button';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 export default function ThreejsSelection(props) {
   const {
-    renderData,
     setRenderData,
     value,
     mykey,
     mytype,
     active,
     onChange,
-    onClick
+    onClick,
+    setIsCircularFaceOrEdgeSelection,
+    cylindrical_axis_of_rotation,
+    handleRotationalAxisChange
   } = props;
   const myvalue = value ? value : ['No Data Selected'];
 
@@ -165,24 +170,47 @@ export default function ThreejsSelection(props) {
     }
     return false;
   };
+
   return (
-    <Button
-      aria-describedby={'Save Controls'}
-      id={'popselect'}
-      type="button"
-      variant="contained"
-      color={active ? 'primary' : 'inherit'}
-      onClick={(event) => {
-        const myoption = getMyOption();
+    <>
+      <Button
+        aria-describedby={'Save Controls'}
+        id={'popselect'}
+        type="button"
+        variant="contained"
+        color={active ? 'primary' : 'inherit'}
+        onClick={(event) => {
+          const myoption = getMyOption();
 
-        setRenderData(value, { name: mykey, option: myoption }, onChange);
-        onClick(mykey);
-      }}
-    >
-      {/* <div style={{background:active?"#A0A0A0":"#D0D0D0"}}> */}
-      {getEmpty(myvalue) ? 'Please select features' : getComponents(myvalue)}
+          setRenderData(value, { name: mykey, option: myoption }, onChange);
 
-      {/* </div> */}
-    </Button>
+          if (mytype === 'CircularFaceOrEdgeSelection') {
+            setIsCircularFaceOrEdgeSelection(true);
+          }
+          onClick(mykey);
+        }}
+      >
+        {/* <div style={{background:active?"#A0A0A0":"#D0D0D0"}}> */}
+        {getEmpty(myvalue) ? 'Please select features' : getComponents(myvalue)}
+
+        {/* </div> */}
+      </Button>
+      {cylindrical_axis_of_rotation && (
+        <FormGroup sx={{ flexDirection: 'row' }}>
+          {Object.keys(cylindrical_axis_of_rotation).map((key) => (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  // checked={key}
+                  onChange={handleRotationalAxisChange}
+                  name={key}
+                />
+              }
+              label={key}
+            />
+          ))}
+        </FormGroup>
+      )}
+    </>
   );
 }

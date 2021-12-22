@@ -13,11 +13,14 @@ export default function DynamicHierarchy(props) {
     internalProductConfig,
     gltfjson,
     itemProperties,
-    setSelectedOption
+    setSelectedOption,
+    setIsCircularFaceOrEdgeSelection,
+    handleRotationalAxisChange
   } = props;
   const currentItem = useSelector((state) => state.item.currentItem);
 
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
+  const [criteriaForms, setCriteriaForms] = useState({});
 
   const getDefaultSelection = () => {
     if (itemProperties.hierarchySelections.length > 0) {
@@ -34,17 +37,13 @@ export default function DynamicHierarchy(props) {
   }, [stateUpdated]);
 
   useEffect(() => {
-    const hierarchySchemaArr = get(
-      internalProductConfig,
-      'hierarchySchema',
-      []
-    );
-    setHierarchyDropdownList(hierarchySchemaArr);
+    setHierarchyDropdownList(get(internalProductConfig, 'hierarchySchema', []));
+    setCriteriaForms(get(internalProductConfig, 'criteriaSchema', {}));
 
     if (get(currentItem, 'hierarchySelections[0]')) {
       setSelections(get(currentItem, 'hierarchySelections', []));
     }
-  }, []);
+  }, [internalProductConfig]);
 
   const handleOnDropdownSelection = ({ value }) => {
     if (value === 'Motion Control') {
@@ -77,14 +76,15 @@ export default function DynamicHierarchy(props) {
           handleOnDropdownSelection,
           hierarchyDropdownList,
           selections,
-          setSelections
+          setSelections,
+          criteriaForms
         }}
       />
 
       {selections.map((selectionItem) => {
         return (
           <DynamicCriteria
-            {...selectionItem}
+            form={selectionItem.form}
             setSelectedOption={setSelectedOption}
             handleUpdate={(updatedFormFields) => {
               console.log(
@@ -96,7 +96,12 @@ export default function DynamicHierarchy(props) {
             }}
             renderData={renderData}
             setRenderData={setRenderData}
-            {...{ itemProperties, gltfjson }}
+            {...{
+              itemProperties,
+              gltfjson,
+              setIsCircularFaceOrEdgeSelection,
+              handleRotationalAxisChange
+            }}
           />
         );
       })}

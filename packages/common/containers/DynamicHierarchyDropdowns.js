@@ -12,10 +12,11 @@ export default function DynamicHierarchy(props) {
     setSelections = () => {},
     inToolbar = false,
     isPaperContainer = true,
-    filterTitle
+    filterTitle,
+    criteriaForms = {}
   } = props;
 
-  const handleDropdownSelection = (title, value, form) => {
+  const handleDropdownSelection = (title, value) => {
     // [{key : 'Item Type' , value: 'Actuator', form: []}]
     let indexOfCurrentSelection = selections.findIndex(
       (item) => item.key === title
@@ -38,11 +39,8 @@ export default function DynamicHierarchy(props) {
 
     tempSelections[indexOfCurrentSelection].key = title;
     tempSelections[indexOfCurrentSelection].value = value;
-    if (form && form.fields) {
-      tempSelections[indexOfCurrentSelection].formFields = form.fields;
-    } else {
-      tempSelections[indexOfCurrentSelection].formFields = undefined;
-    }
+
+    tempSelections[indexOfCurrentSelection].form = criteriaForms[value];
 
     setSelections(tempSelections);
   };
@@ -66,8 +64,8 @@ export default function DynamicHierarchy(props) {
   };
 
   const handleOnChange = ({ data, fieldItem }) => {
-    const form = getFormFromOptions(fieldItem.options, data.value);
-    handleDropdownSelection(`${fieldItem.title}`, data.value, form);
+    // const form = getFormFromOptions(fieldItem.options, data.value);
+    handleDropdownSelection(`${fieldItem.title}`, data.value);
     handleOnDropdownSelection({ value: data.value });
   };
 
@@ -112,10 +110,7 @@ export default function DynamicHierarchy(props) {
 
   const getIndexOfFieldInSelectionArray = (selections, listItem) => {
     return selections.findIndex((item) => {
-      if (
-        item.key === listItem.title ||
-        (item.value && item.value.includes(listItem.title))
-      ) {
+      if (item.key === listItem.title || item.value === listItem.keyName) {
         return true;
       } else {
         return false;

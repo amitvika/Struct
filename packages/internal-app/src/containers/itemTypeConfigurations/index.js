@@ -8,10 +8,10 @@ import {
   USESTYLES,
   SELECTANITEM
 } from '@monostruct/common/gltf/Tree/utils';
-
+import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Headding from '@monostruct/common/components/atoms/Headding';
-
 import DynamicHierarchyForm from './DynamicHierarchyForm';
+import { get } from 'lodash';
 
 //let state_selectedObjects = [];
 let state_fileOnChange = null;
@@ -33,7 +33,6 @@ export default function ItemTypeConfiguration(props) {
     completionProgressText,
     centerActionText,
     drawLine,
-    internalProductConfig,
     selectedOption,
     setSelectedOption,
     showKinematicMove,
@@ -56,6 +55,21 @@ export default function ItemTypeConfiguration(props) {
 
   const [showKineticModel, setShowKineticModal] = useState(true);
   const [whatchange, setWhatchange] = useState(0);
+  const [internalProductConfig, setInternalProductConfig] = useState(null);
+  const [isFaceSelectionSeleted, setIsCircularFaceOrEdgeSelection] =
+    useState(false);
+
+  useEffect(() => {
+    CriteriaUploadAPI.fetchCriteriaUpload(
+      `type=Internal Use Product Configuration`
+    )
+      .then((resp) => {
+        if (get(resp, 'data[0]')) {
+          setInternalProductConfig(get(resp, 'data[0]'));
+        }
+      })
+      .catch((error) => {});
+  }, []);
 
   useEffect(() => {
     if (fileUUId) {
@@ -164,7 +178,19 @@ export default function ItemTypeConfiguration(props) {
         fieldKey,
         fieldItemKey
       );
-      handleSave({ [fieldItemKey]: [...mySelectedObjects] });
+      if (
+        mySelectedObjects[0] &&
+        mySelectedObjects[0].obb &&
+        isFaceSelectionSeleted
+      ) {
+        handleSave({
+          actuator_motion_control: {
+            cylindrical_axis_of_rotation: mySelectedObjects[0].obb
+          }
+        });
+
+        setIsCircularFaceOrEdgeSelection(false);
+      }
     } else {
       console.log(
         'I am not asking the component to set because itemupdate is null ',
@@ -195,6 +221,8 @@ export default function ItemTypeConfiguration(props) {
     setIsFileLoading(isLoading);
   }, [isLoading]);
 
+  const handleRotationalAxisChange = () => {};
+
   const renderExcelUI = () => {
     return (
       <DynamicHierarchyForm
@@ -206,7 +234,9 @@ export default function ItemTypeConfiguration(props) {
         internalProductConfig={internalProductConfig}
         {...{
           itemProperties,
-          gltfjson
+          gltfjson,
+          setIsCircularFaceOrEdgeSelection,
+          handleRotationalAxisChange
         }}
       />
     );

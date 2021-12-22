@@ -33,7 +33,10 @@ export const hierarchyFileParser = async (file, title) => {
 
     dropList.push(initialDropdown);
 
-    for (let i = 1; i < numOfRows; i++) {
+    let prevParents = [];
+    let prevIndex = -1;
+
+    for (let i = initialIndex; i < numOfRows; i++) {
       let dataRow = rows[i];
       let valueIndex = dataRow.findIndex(
         (dataColumn) => dataColumn !== null && dataColumn.trim().length > 0
@@ -41,30 +44,42 @@ export const hierarchyFileParser = async (file, title) => {
       let parentValue = dataRow[valueIndex];
       let options = [];
 
+      if (valueIndex === 0) {
+        prevParents = [parentValue];
+        prevIndex = 0;
+      } else if (valueIndex > prevIndex) {
+        prevParents.push(parentValue);
+        prevIndex = valueIndex;
+      } else {
+        prevParents.splice(prevIndex, 1);
+        prevParents.push(parentValue);
+      }
+
       for (let j = i + 1; j < numOfRows; j++) {
         let nextDataRow = rows[j];
         let nextValueIndex = nextDataRow.findIndex(
           (dataColumn) => dataColumn !== null && dataColumn.trim().length > 0
         );
-
         if (valueIndex + 1 === nextValueIndex) {
-          let key = `${parentValue}|${nextDataRow[nextValueIndex]}`;
+          let key = `${prevParents.join('|')}|${nextDataRow[nextValueIndex]}`;
           options.push({
             value: key,
-            label: nextDataRow[nextValueIndex],
-            form: criteriaSchema[key]
+            label: nextDataRow[nextValueIndex]
           });
         } else if (valueIndex < nextValueIndex) {
         } else if (valueIndex === nextValueIndex) {
           break;
         }
       }
+      let keyName = `${prevParents.join('|')}`;
 
       if (options.length > 0) {
         dropList.push({
+          keyName,
           title: parentValue,
           options,
-          headerName: dataRow[valueIndex + 1]
+          form: criteriaSchema[keyName],
+          headerName: dataRow[valueIndex + 1] || parentValue
         });
       }
     }
