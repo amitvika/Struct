@@ -1572,6 +1572,7 @@ export default function GeometricDimensioning(props) {
           setCenterActionText={setCenterActionTexter}
           drawLine={drawLiner}
           fileAnimation={fileAnimation}
+          tabIndex={tabIndex}
         />
       </Paper>
 

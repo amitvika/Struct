@@ -46,7 +46,8 @@ export default function Viewer({
   completionProgressText = null,
   centerActionText = null,
   drawLine = false,
-  fileAnimation = false
+  fileAnimation = false,
+  tabIndex = ''
 }) {
   const [percentager, setPercentager] = useState(percentage || 0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
@@ -120,7 +121,7 @@ export default function Viewer({
           fileGDT={fileGDT}
           fileUUId={fileUUIder}
           fileAnimation={false}
-          activefile={activefile + gltfjsonlen.toString()}
+          activefile={activefile + gltfjsonlen.toString() + tabIndex.toString()}
           backcolor={DEFAULTBACKCOLOR()}
           selectcolor={DEFAULTSELECTCOLOR()}
           touchcolor={DEFAULTTOUCHCOLOR()}
