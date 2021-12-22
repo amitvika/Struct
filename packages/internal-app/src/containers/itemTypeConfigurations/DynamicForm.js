@@ -16,7 +16,9 @@ export default function DynamicCriteria({
   setRenderData,
   itemProperties,
   gltfjson,
-  setSelectedOption
+  setSelectedOption,
+  kinematicItemList,
+  setKinematicItemList
 }) {
   const handleOnChange = (name, value) => {
     const findIndex = stateFormFields.findIndex(
@@ -108,7 +110,9 @@ export default function DynamicCriteria({
                   itemId: itemProperties.id,
                   gltfjson,
                   setRenderData,
-                  setSelectedOption
+                  setSelectedOption,
+                  kinematicItemList,
+                  setKinematicItemList
                 }}
               />
             )}

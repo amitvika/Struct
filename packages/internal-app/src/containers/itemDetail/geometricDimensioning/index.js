@@ -307,6 +307,7 @@ export default function GeometricDimensioning(props) {
     });
     updateSelectionFromTree([], false, selectedFeature);
     setSelectedOption(selectedFeature);
+    console.log('My Tree', myTree);
     if (myTree.tree) {
       myTree.tree.length = myTree.treeLength;
     }

@@ -129,11 +129,20 @@ export const getPartsKinematicMovement = async (
   id,
   distancegap,
   anglegap,
-  animationtime
+  animationtime,
+  kinematicItemList
 ) => {
-  const kinematicURL = `${host}/kinematicmove?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}`;
+  var formInfo = new FormData();
+  formInfo.append('id', id);
+  formInfo.append('distancegap', distancegap);
+  formInfo.append('anglegap', anglegap);
+  formInfo.append('animationtime', animationtime);
+  formInfo.append('parts', JSON.stringify({ parts: kinematicItemList }));
+  return axios.post(`${host}/kinematicmove/`, formInfo);
+
+  /*  const kinematicURL = `${host}/kinematicmove?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}`;
   // console.log(kinematicURL);
-  return axios.get(kinematicURL);
+  return axios.get(kinematicURL); */
 };
 
 export const getMinimumDistance = async (

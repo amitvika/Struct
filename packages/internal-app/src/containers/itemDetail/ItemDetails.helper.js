@@ -875,7 +875,8 @@ export const handleInternalUseProduct = async (props) => {
     setPercentage,
     setCurrentProgressText,
     setCompletionProgressText,
-    setgltfjson
+    setgltfjson,
+    kinematicItemList
   } = props;
   console.log('handleInternalUseProduct', props);
   setIsLoading(true);
@@ -887,7 +888,8 @@ export const handleInternalUseProduct = async (props) => {
       getStepFile(item),
       item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
       item.angleGap ? item.angleGap : STATEPROPS.anglegap,
-      STATEPROPS.animationtime
+      STATEPROPS.animationtime,
+      kinematicItemList
     );
 
     setIsFileLoading(false);

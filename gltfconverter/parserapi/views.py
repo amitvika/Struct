@@ -5701,7 +5701,7 @@ def HackersResponse(request):
         return JsonResponse({'message': "Hackers System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
 
-def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None):#,thumbwidth,thumbheight):
+def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None,partsteps=[]):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -5762,37 +5762,47 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             _, myShapes = outputShapes
             shapeArray,onlyShapes,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             kinematicrotation = []
-            if(len(onlyShapes)==8):
-                shapeorder = [0,1,2,6,3,7,5,4]
-            else:
-                shapeorder=[]
+            shapeorder=[]
             shapeCount = 0
-            kp=1
-            ap=kp
-            for eachShape in onlyShapes:
-                myobb = get_oriented_bounding_details(eachShape)
-                ax, ay, az = getMaxDirectionFromOBB(myobb)
-                ap*=kp
-                aw = math.pi/36 * ap #random.random()
-                """if aw < 0.1:
-                    aw=0.1
-                if aw > 0.9:
-                    aw=0.9
-                aw = (math.pi/len(onlyShapes))*aw"""
-                
-                if(len(onlyShapes)!=8):     
-                    if shapeCount>=2 and shapeCount<=5:
-                        kinematicrotation.append(((ax,ay,az,20*shapeCount),(ax,ay,az,0)))
-                    else:
-                        kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,aw)))              
-                    shapeorder.append(shapeCount)
+            if 'part' in partsteps:
+                kinematicparts = partsteps['parts']
+            else:
+                kinematicparts = []
+            if (partsteps==None) or (len(kinematicparts)==0):
+               
+                if(len(onlyShapes)==8):
+                    shapeorder = [0,1,2,6,3,7,5,4]
                 else:
-                    if shapeCount>=2 and shapeCount<=3:
-                        kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,0)))
-                    else:
-                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
+                    shapeorder=[]
                 
-                shapeCount += 1
+                kp=1
+                ap=kp
+                for eachShape in onlyShapes:
+                    myobb = get_oriented_bounding_details(eachShape)
+                    ax, ay, az = getMaxDirectionFromOBB(myobb)
+                    ap*=kp
+                    aw = math.pi/36 * ap #random.random()
+                    """if aw < 0.1:
+                        aw=0.1
+                    if aw > 0.9:
+                        aw=0.9
+                    aw = (math.pi/len(onlyShapes))*aw"""
+                    
+                    if(len(onlyShapes)!=8):     
+                        if shapeCount>=2 and shapeCount<=5:
+                            kinematicrotation.append(((ax,ay,az,20*shapeCount),(ax,ay,az,0)))
+                        else:
+                            kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,aw)))              
+                        shapeorder.append(shapeCount)
+                    else:
+                        if shapeCount>=2 and shapeCount<=3:
+                            kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,0)))
+                        else:
+                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
+                    shapeCount += 1
+            else:
+                pass                
+            print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
             print(shapeCount,shapeorder,kinematicrotation)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
@@ -5826,7 +5836,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
 
 
 
-@api_view(['GET'])
+@api_view(['GET','POST'])
 def FileGetKinematicRotationalAnimation(request):
     try:
         try:
@@ -5858,7 +5868,35 @@ def FileGetKinematicRotationalAnimation(request):
                     print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
                         args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime))
-                    mythread.start()                     
+                    mythread.start()         
+        elif request.method == 'POST':
+            print("Reached here in kinematic move",request.data)
+            id = request.data['id']
+            distancegap = convertToFloat(request.data['distancegap'],0.1)
+            anglegap = convertToFloat(request.data['anglegap'],0.5)
+            animationtime = convertToFloat(request.data['animationtime'],1.0)
+            print("kinematicmove",id,distancegap,anglegap,animationtime)
+            parts = request.data['parts']
+            partsteps=json.loads(parts)
+            starttime = datetime.utcnow() 
+            if is_number(id) :            
+                files = File.objects.filter(id__icontains=id)
+                for eachfile in files: 
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,0,"R")
+                    data = getEmptyDictionary(MEDIA_URL+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
+                    print("From assembly",data)
+                    mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
+                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,partsteps))
+                    mythread.start()  
+            else:
+                #id = request.GET.get('file', None)
+                if id is not None:
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"R")
+                    data = getEmptyDictionary(MEDIA_URL+id, basefilename,displaypath,0,starttime,True) 
+                    print("From assembly",data)
+                    mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
+                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,partsteps))
+                    mythread.start() 
         return JsonResponse(data, safe=False)    
     except Exception as e:
         try:

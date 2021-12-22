@@ -32,5 +32,6 @@ export const getTableData = ({ gltfjson, filePartName }) => {
       });
     }
   }
+  console.log('CurrentClickedData', currentData);
   return currentData;
 };

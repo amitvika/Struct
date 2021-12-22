@@ -14,28 +14,38 @@ import ItemApi from '@monostruct/common/api/items.api';
 import { get } from 'lodash';
 import { Checkbox } from '@mui/material';
 import { getTableData } from './helper';
-import { SELECTSOLID } from '@monostruct/common/gltf/Tree/utils';
+import {
+  SELECTSOLID,
+  SELECTASSEMBLY
+} from '@monostruct/common/gltf/Tree/utils';
 export default function MotionControlComponent({
   itemId,
   gltfjson,
   setRenderData,
-  setSelectedOption
+  setSelectedOption,
+  kinematicItemList,
+  setKinematicItemList
 }) {
   const [selectedValue, setSelectedValue] = React.useState('a');
-  const [itemList, setItemList] = React.useState([]);
+  const [itemList, setItemList] = React.useState(kinematicItemList);
 
   React.useEffect(() => {
     ItemApi.getItemsAPI(`parent_id=${itemId}`)
       .then((res) => {
+        console.log('IUPC Item Details', res, itemId);
         setItemList(get(res, 'data', []));
       })
       .catch((error) => {});
   }, []);
-
+  React.useEffect(() => {
+    setItemList(kinematicItemList);
+  }, [kinematicItemList]);
   const updateAxisNumber = (id, change) => {
     ItemApi.updateItemAPI(id, { actuator_motion_control: change })
       .then((res) => {
-        setItemList(itemList.map((item) => (item.id === id ? res.data : item)));
+        setKinematicItemList(
+          itemList.map((item) => (item.id === id ? res.data : item))
+        );
       })
       .catch((error) => {});
   };
@@ -91,7 +101,7 @@ export default function MotionControlComponent({
                 <TableRow
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   onClick={() => {
-                    setSelectedOption(SELECTSOLID);
+                    setSelectedOption(SELECTASSEMBLY);
                     setRenderData(
                       getTableData({
                         gltfjson,
