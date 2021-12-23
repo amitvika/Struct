@@ -5782,16 +5782,15 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 kinematicparts = partsteps['parts']
             else:
                 kinematicparts = []
-            if (partsteps==None) or (len(kinematicparts)==0):
-               
-                if(len(onlyShapes)==8):
-                    shapeorder = [0,1,2,6,3,7,5,4]
-                else:
-                    shapeorder=[]
-                
-                kp=1
-                ap=kp
-                for eachShape in onlyShapes:
+                           
+            if(len(onlyShapes)==8):
+                shapeorder = [0,1,2,6,3,7,5,4]
+            else:
+                shapeorder=[x for x in range(len(onlyShapes))]                
+            kp=1
+            ap=kp
+            for (eachShape,eachName,_) in shapeArray:
+                if (partsteps==None) or (len(kinematicparts)==0):
                     myobb = get_oriented_bounding_details(eachShape)
                     ax, ay, az = getMaxDirectionFromOBB(myobb)
                     ap*=kp
@@ -5813,9 +5812,16 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                             kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,0)))
                         else:
                             kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
-                    shapeCount += 1
-            else:
-                pass                
+                else:
+                    sequence, isActuator, isLinear, [ax,ay,az], aw = getKinematicInformation(kinematicparts,eachName)
+                    shapeorder[sequence]=shapeCount
+                    if isActuator:
+                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0)))
+                    elif isLinear:
+                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
+                    else:
+                        kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0)))
+                shapeCount += 1                          
             print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
             print(shapeCount,shapeorder,kinematicrotation)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
