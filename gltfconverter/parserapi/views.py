@@ -24,7 +24,8 @@ import sys
 import math
 import pickle
 import threading
-import random
+#import random
+import html
 
 from datetime import datetime
 from pathlib import Path
@@ -5700,6 +5701,19 @@ def HackersResponse(request):
             print("Error while logging",e)
         return JsonResponse({'message': "Hackers System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
+def getKinematicInformation(kinematicparts,partname):
+    html_display = html.escape(partname)
+    for kinematicpart in kinematicparts:
+        if 'actuator_motion_control' in kinematicpart:
+            kinematicinfo = kinematicpart['actuator_motion_control']
+            if (kinematicinfo['child_part_name']==html_display) or (kinematicinfo['child_part_display_name']==html_display):
+                return convertToInt(kinematicinfo['child_sequence_number'],1),\
+                    convertToBool(kinematicinfo['is_actuator_or_chain_link'],False),\
+                        convertToBool(kinematicinfo['is_linear_or_rotational'],False),\
+                            kinematicinfo['cylindrical_axis_of_rotation'],\
+                                convertToFloat(kinematicinfo['angle_or_distant_limit'],0.1)   
+    return (0,False,False,[0,0,0],0)
+    
 
 def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None,partsteps=[]):#,thumbwidth,thumbheight):
     """
@@ -5768,16 +5782,15 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 kinematicparts = partsteps['parts']
             else:
                 kinematicparts = []
-            if (partsteps==None) or (len(kinematicparts)==0):
-               
-                if(len(onlyShapes)==8):
-                    shapeorder = [0,1,2,6,3,7,5,4]
-                else:
-                    shapeorder=[]
-                
-                kp=1
-                ap=kp
-                for eachShape in onlyShapes:
+                           
+            if(len(onlyShapes)==8):
+                shapeorder = [0,1,2,6,3,7,5,4]
+            else:
+                shapeorder=[x for x in range(len(onlyShapes))]                
+            kp=1
+            ap=kp
+            for (eachShape,eachName,_) in shapeArray:
+                if (partsteps==None) or (len(kinematicparts)==0):
                     myobb = get_oriented_bounding_details(eachShape)
                     ax, ay, az = getMaxDirectionFromOBB(myobb)
                     ap*=kp
@@ -5799,9 +5812,18 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                             kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,0)))
                         else:
                             kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
-                    shapeCount += 1
-            else:
-                pass                
+                else:
+                    sequence, isActuator, isLinear, [ax,ay,az], aw = getKinematicInformation(kinematicparts,eachName)
+                    shapeorder[sequence]=shapeCount
+                    if isActuator:
+                        if isLinear:
+                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
+                        else:
+                            kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0)))
+                    else:
+                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0)))
+                    
+                shapeCount += 1                          
             print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
             print(shapeCount,shapeorder,kinematicrotation)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(

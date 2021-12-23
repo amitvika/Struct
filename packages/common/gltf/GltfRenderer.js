@@ -457,6 +457,7 @@ class GLTFRenderer extends Component {
         this.alter(this_state_gltf);
         this.render();
       } */
+      //console.log('Doing this_state_gltf', this_state_gltf, this.renderDone);
       this.render();
     }
     /* 
@@ -6632,6 +6633,10 @@ class GLTFRenderer extends Component {
         : 0
       : 0;
     const edgeChange = this.gltfobjLen != 0 && edgeLength == 0;
+    // if (fromwhere == 1) {
+    //   console.log(this.activeFile, this.props.activefile);
+    // }
+
     if (
       this.activeFile != this.props.activefile ||
       this.materialtype != this.props.materialtype ||
@@ -6684,9 +6689,13 @@ class GLTFRenderer extends Component {
           //   this_state_gltf || this.state.gltfobj || this.props.gltfobj,
           //   this.renderDone
           // );
-          this.alter(
-            this_state_gltf || this.state.gltfobj || this.props.gltfobj
-          );
+          const mygltfcontent =
+            this_state_gltf || this.state.gltfobj || this.props.gltfobj;
+          if (!isEmptyObjectDictionary(mygltfcontent)) {
+            this.alter(mygltfcontent);
+          } else {
+            console.log('Skipping rendering due to blank', mygltfcontent);
+          }
         }
       }
     }

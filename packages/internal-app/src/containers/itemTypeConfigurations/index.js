@@ -295,6 +295,7 @@ export default function ItemTypeConfiguration(props) {
         fileAnimation={true}
         changingdata={renderData}
         whatchanger={whatchange}
+        showKinematicMove={showKinematicMove}
         //{...{ whatchange }}
       />
     </>
