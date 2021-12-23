@@ -34,8 +34,21 @@ export default function DynamicHierarchy(props) {
 
   const [stateUpdated, setStateUpdated] = useState(false);
 
+  const checkActuatorTypeComponent = (selections) => {
+    const findIndex = selections.findIndex(
+      (item) =>
+        item.key === 'Motion Actuator' || item.value === 'Motion Actuator'
+    );
+    return findIndex > -1;
+  };
+
   useEffect(() => {
-    handleItemUpdate({ hierarchySelections: selections });
+    handleItemUpdate({
+      hierarchySelections: selections,
+      actuator_motion_control: {
+        is_actuator_or_chain_link: checkActuatorTypeComponent(selections)
+      }
+    });
   }, [stateUpdated]);
 
   useEffect(() => {

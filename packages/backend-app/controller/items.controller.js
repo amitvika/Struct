@@ -83,10 +83,7 @@ const buildQuery = (req) => {
 
   if (req.query.isActuator) {
     query.$and.push({
-      $or: [
-        { 'hierarchySelections.value': 'Actuator|Rotational' },
-        { 'hierarchySelections.value': 'Actuator|Linear' }
-      ]
+      'actuator_motion_control.is_linear_or_rotational': true
     });
   }
 
