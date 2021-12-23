@@ -29,8 +29,8 @@ const DesignPage = () => {
         showDeleteActionButton={false}
         showHistoryButtonToolbar={false}
         showArchiveButtonToolbar={false}
-        AddDesignMenu={AddDesignMenu}
         isCustomAddButtonVisible={false}
+        CustomAddButton={AddDesignMenu}
       />
     </Box>
   );

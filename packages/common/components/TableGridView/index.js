@@ -40,7 +40,8 @@ const TableGridView = ({
   noThumbnail = false,
   showDeleteActionButton = true,
   showHistoryButtonToolbar = true,
-  showArchiveButtonToolbar = true
+  showArchiveButtonToolbar = true,
+  CustomAddButton
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [list, setList] = useState([]);
@@ -337,7 +338,8 @@ const TableGridView = ({
             isEditLinkVisible,
             showHistoryButtonToolbar,
             showArchiveButtonToolbar,
-            handleSearch
+            handleSearch,
+            CustomAddButton
           }}
         />
         <div

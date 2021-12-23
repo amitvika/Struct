@@ -22,6 +22,7 @@ export default function Toolbar({
   AdditionalFilter = null,
   showHistoryButtonToolbar = true,
   showArchiveButtonToolbar = true,
+  CustomAddButton,
   ...restProps
 }) {
   const [isFilterResetted, setIsFilterResetted] = React.useState(false);
@@ -32,7 +33,8 @@ export default function Toolbar({
         marginTop: '10px',
         marginBottom: '10px',
         position: 'relative',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        minHeight: '150px'
       }}
     >
       <Grid container>
@@ -92,6 +94,7 @@ export default function Toolbar({
               </IconButton>
             </Tooltip>
           )}
+          {CustomAddButton && <CustomAddButton />}
         </Box>
       </Box>
     </Paper>
