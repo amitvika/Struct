@@ -53,7 +53,8 @@ export default function GeometricDimensioning(props) {
     additionalSaveFunction = (saveObjects) => {},
     fileAnimation = false,
     changingdata = [],
-    whatchanger = 0
+    whatchanger = 0,
+    showKinematicMove = false
   } = props;
   const classes = USESTYLES();
 
@@ -1581,6 +1582,7 @@ export default function GeometricDimensioning(props) {
           drawLine={drawLiner}
           fileAnimation={fileAnimation}
           tabIndex={tabIndex}
+          showKinematicMove={showKinematicMove}
         />
       </Paper>
 
