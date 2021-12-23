@@ -5816,11 +5816,13 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                     sequence, isActuator, isLinear, [ax,ay,az], aw = getKinematicInformation(kinematicparts,eachName)
                     shapeorder[sequence]=shapeCount
                     if isActuator:
-                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0)))
-                    elif isLinear:
-                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
+                        if isLinear:
+                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
+                        else:
+                            kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0)))
                     else:
-                        kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0)))
+                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0)))
+                    
                 shapeCount += 1                          
             print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
             print(shapeCount,shapeorder,kinematicrotation)
