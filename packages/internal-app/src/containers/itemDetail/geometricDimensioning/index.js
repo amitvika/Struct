@@ -22,6 +22,7 @@ import {
   arrayRemove,
   gltf_Dict
 } from '@monostruct/common/gltf/Tree/utils';
+import { stringify } from '@monostruct/common/gltf/Flatted.js';
 import Assembly from '../assembly';
 import { buildParentChildTree } from './helper';
 import { Box } from '@mui/system';
@@ -106,7 +107,7 @@ export default function GeometricDimensioning(props) {
   useEffect(() => {
     console.log('Use effect in changing data', changingdata, whatchanger);
     if (
-      JSON.stringify(changingdata) != JSON.stringify(state.renderdata) &&
+      stringify(changingdata || {}) != stringify(state.renderdata || {}) &&
       (whatchanger != 0 || state.whatchange != whatchanger)
     ) {
       console.log(
@@ -123,7 +124,7 @@ export default function GeometricDimensioning(props) {
   useEffect(() => {
     console.log('Use effect in whatchanger', changingdata, whatchanger);
     if (
-      JSON.stringify(changingdata) != JSON.stringify(state.renderdata) &&
+      stringify(changingdata || {}) != stringify(state.renderdata || {}) &&
       (whatchanger != 0 || state.whatchange != whatchanger)
     ) {
       console.log(
@@ -684,13 +685,13 @@ export default function GeometricDimensioning(props) {
       return null;
     } else {
       var mySiblingNodes = [];
-      const nullArray = JSON.stringify([null, null, null]);
+      const nullArray = stringify([null, null, null]);
       if (mystate_gltfjson && mystate_gltfjson.tree) {
         for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
           if (
             mystate_gltfjson.tree[i][gltf_Dict['parentId']] == myParentID &&
             mystate_gltfjson.tree[i][gltf_Dict['id']] != myID &&
-            JSON.stringify(mystate_gltfjson.tree[i][gltf_Dict['topLeft']]) !==
+            stringify(mystate_gltfjson.tree[i][gltf_Dict['topLeft']] || {}) !==
               nullArray
           ) {
             mySiblingNodes.push(mystate_gltfjson.tree[i]);
@@ -821,24 +822,29 @@ export default function GeometricDimensioning(props) {
           }
         }
       }
-
       var myParents = [];
-      if (myParentsParentID == -1) {
-        //RootNode
+      if (myParentID == 1) {
         myParents.push(myID);
       } else {
-        if (mystate_gltfjson && mystate_gltfjson.tree) {
-          for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
-            if (
-              mystate_gltfjson.tree[i][gltf_Dict['parentId']] ==
-              myParentsParentID
-            ) {
-              myParents.push(mystate_gltfjson.tree[i][gltf_Dict['id']]);
-            } else {
+        if (myParentsParentID == -1 || myParentsParentID == 1) {
+          //RootNode
+          //console.log("Pushing", myParentsParentID, myParentID, myID);
+          myParents.push(myParentID);
+        } else {
+          if (mystate_gltfjson && mystate_gltfjson.tree) {
+            for (i = 0; i < mystate_gltfjson.tree.length; i++) {
               if (
-                mystate_gltfjson.tree[i][gltf_Dict['id']] == myParentsParentID
+                mystate_gltfjson.tree[i][gltf_Dict['parentId']] ===
+                myParentsParentID
               ) {
-                parentNode = mystate_gltfjson.tree[i];
+                myParents.push(mystate_gltfjson.tree[i][gltf_Dict['id']]);
+              } else {
+                if (
+                  mystate_gltfjson.tree[i][gltf_Dict['id']] ===
+                  myParentsParentID
+                ) {
+                  parentNode = mystate_gltfjson.tree[i];
+                }
               }
             }
           }
@@ -994,6 +1000,8 @@ export default function GeometricDimensioning(props) {
             structure.objects[structure.start + index]['fill'] =
               element[0].fill;
             structure.objects[structure.start + index]['obb'] = element[0].obb;
+            structure.objects[structure.start + index]['axis'] =
+              element[0].direction;
             if (
               element[0].Info['kind'] === 'Circle' ||
               element[0].Info['kind'] === 'Cylinder'

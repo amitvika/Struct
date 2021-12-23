@@ -1,5 +1,9 @@
 export const valueExistInSelected = (value, values, props) =>
-  !!values.find((val) => getByPath(val, props['valueField']) === value || getByPath(val, props['labelField']) === value);
+  !!values.find(
+    (val) =>
+      getByPath(val, props['valueField']) === value ||
+      getByPath(val, props['labelField']) === value
+  );
 
 export const hexToRGBA = (hex, alpha) => {
   if (hex.length === 4) {
@@ -27,7 +31,8 @@ export const debounce = (fn, delay = 0) => {
   };
 };
 
-export const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+export const isEqual = (a, b) =>
+  JSON.stringify(a || {}) === JSON.stringify(b || {});
 
 export const getByPath = (object, path) => {
   if (!path) {
@@ -42,7 +47,9 @@ export const getProp = (object, path, defaultValue) => {
     return object;
   }
 
-  const normalizedPath = Array.isArray(path) ? path : path.split('.').filter((item) => item.length);
+  const normalizedPath = Array.isArray(path)
+    ? path
+    : path.split('.').filter((item) => item.length);
 
   if (!normalizedPath.length) {
     return object === undefined ? defaultValue : object;

@@ -75,6 +75,7 @@ export default function ThreejsSelection(props) {
     //let myCode = item[gltf_Dict['geometry']];
     let first4chars = myName.slice(0, 4);
     let first6chars = myName.slice(0, 6);
+    //console.log('GetMyName', myName, first4chars, first6chars);
     if (myelement) {
       first4chars = myelement;
       first6chars = myelement;
@@ -118,6 +119,7 @@ export default function ThreejsSelection(props) {
     }
   };
   const getComponents = (myvalue) => {
+    //console.log('GetComponents', myvalue);
     return myvalue.map((row, index) =>
       row
         ? row[gltf_Dict['name']]
@@ -126,7 +128,8 @@ export default function ThreejsSelection(props) {
         : '\u0020'
     );
   };
-  const getEmpty = (myvalue) => {
+  const getNotEmpty = (myvalue) => {
+    //console.log('GetNotEmpty', myvalue);
     for (let index = 0; index < myvalue.length; index++) {
       const item = myvalue[index];
       if (item && item[gltf_Dict['name']]) {
@@ -191,7 +194,9 @@ export default function ThreejsSelection(props) {
         }}
       >
         {/* <div style={{background:active?"#A0A0A0":"#D0D0D0"}}> */}
-        {getEmpty(myvalue) ? 'Please select features' : getComponents(myvalue)}
+        {getNotEmpty(myvalue)
+          ? getComponents(myvalue)
+          : 'Please select features'}
 
         {/* </div> */}
       </Button>

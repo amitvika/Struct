@@ -388,22 +388,27 @@ export default function ManufacturabilityAnalysis(props) {
 
       //console.log(myParentID, myParentsParentID, parentNode);
       var myParents = [];
-      if (myParentsParentID === -1) {
-        //RootNode
+      if (myParentID == 1) {
         myParents.push(myID);
       } else {
-        if (state_gltfjson && state_gltfjson.tree) {
-          for (i = 0; i < state_gltfjson.tree.length; i++) {
-            if (
-              state_gltfjson.tree[i][gltf_Dict['parentId']] ===
-              myParentsParentID
-            ) {
-              myParents.push(state_gltfjson.tree[i][gltf_Dict['id']]);
-            } else {
+        if (myParentsParentID == -1 || myParentsParentID == 1) {
+          //RootNode
+          //console.log("Pushing", myParentsParentID, myParentID, myID);
+          myParents.push(myParentID);
+        } else {
+          if (state_gltfjson && state_gltfjson.tree) {
+            for (i = 0; i < state_gltfjson.tree.length; i++) {
               if (
-                state_gltfjson.tree[i][gltf_Dict['id']] === myParentsParentID
+                state_gltfjson.tree[i][gltf_Dict['parentId']] ===
+                myParentsParentID
               ) {
-                parentNode = state_gltfjson.tree[i];
+                myParents.push(state_gltfjson.tree[i][gltf_Dict['id']]);
+              } else {
+                if (
+                  state_gltfjson.tree[i][gltf_Dict['id']] === myParentsParentID
+                ) {
+                  parentNode = state_gltfjson.tree[i];
+                }
               }
             }
           }

@@ -81,6 +81,7 @@ import {
   getAFileFromURLStore,
   checkExistingPathFromStore
 } from '@monostruct/common/api/fileUpload.api.js';
+import { stringify } from './Flatted.js';
 import {
   SELECTCOLOR,
   SELECTTEXTURE,
@@ -407,8 +408,10 @@ class GLTFRenderer extends Component {
   componentDidUpdate(prevProps, prevState) {
     //var toChange = ( (prevProps.gltfobj !== this.props.gltfobj)  || (prevState.gltfobj  !== this.props.gltfobj) );
     //console.log("COMPONENT",prevProps,this.props);
+    //console.log('STRINGIFY', stringify);
     var toChange =
-      JSON.stringify(prevProps.gltfobj) !== JSON.stringify(this.props.gltfobj);
+      stringify(prevProps.gltfobj || {}) !==
+      stringify(this.props.gltfobj || {});
     const toInvokeRender = toChange;
     toChange = toChange || prevProps.activeFile !== this.props.activefile;
     toChange = toChange || prevProps.materialtype != this.props.materialtype;
@@ -454,6 +457,7 @@ class GLTFRenderer extends Component {
         this.alter(this_state_gltf);
         this.render();
       } */
+      this.render();
     }
     /* 
         if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
@@ -3797,17 +3801,22 @@ class GLTFRenderer extends Component {
       }
       //console.log("Parent", myParentsParentID, myParentID, myID);
       var myParents = [];
-      if (myParentsParentID == -1 || myParentsParentID == 1) {
-        //RootNode
-        //console.log("Pushing", myParentsParentID, myParentID, myID);
+      if (myParentID == 1) {
         myParents.push(myID);
       } else {
-        for (var i = 0; i < myStateTree.length; i++) {
-          if (myStateTree[i][gltf_Dict['parentId']] == myParentsParentID) {
-            myParents.push(myStateTree[i][gltf_Dict['id']]);
+        if (myParentsParentID == -1 || myParentsParentID == 1) {
+          //RootNode
+          //console.log("Pushing", myParentsParentID, myParentID, myID);
+          myParents.push(myParentID);
+        } else {
+          for (var i = 0; i < myStateTree.length; i++) {
+            if (myStateTree[i][gltf_Dict['parentId']] == myParentsParentID) {
+              myParents.push(myStateTree[i][gltf_Dict['id']]);
+            }
           }
         }
       }
+
       //console.log("MyParents",myParents);
       for (var j = 0; j < myParents.length; j++) {
         myParentID = myParents[j];
@@ -4130,7 +4139,7 @@ class GLTFRenderer extends Component {
             }
           });
         }
-        //console.log("My Mesh name",meshmaterial.name);
+        //console.log('My Mesh name', meshmaterial.name);
         const myAllChilds = this.findMyParentChilds(
           meshmaterial,
           addToGDTTable
@@ -4153,7 +4162,7 @@ class GLTFRenderer extends Component {
           });
         }
         var copy_selectobjects = arrayCopy(this.state_selectedObjects);
-        //console.log(myAllChilds);
+        //console.log('My All childs', myAllChilds);
         myAllChilds.node.forEach((element) => {
           //console.log("Setting colors",meshmaterial.selectedshell,element.selectedshell);
           element.selectedshell = meshmaterial.selectedshell;
@@ -4204,7 +4213,11 @@ class GLTFRenderer extends Component {
             }
           }
         });
-        //console.log(this.state_selectedObjects,meshmaterial);
+        // console.log(
+        //   'Selected Objects',
+        //   this.state_selectedObjects,
+        //   meshmaterial
+        // );
       } else {
         this.state_selectedObjects.forEach((elementobject) => {
           elementobject.selectedshell = false;
@@ -4218,37 +4231,49 @@ class GLTFRenderer extends Component {
 
   doOneSelection = (element, event, addToGDTTable = true) => {
     if (element) {
-      //console.log("Starting in gltfrender",element,element.selectedshell);
-      const aShape = element[gltf_Dict['name']];
-      if (aShape) {
-        const first4chars = aShape.slice(0, 4);
-        const first6chars = aShape.slice(0, 6);
-        if (
-          first4chars == 'FACE' ||
-          first4chars == 'EDGE' ||
-          first4chars == 'PART' ||
-          first6chars == 'VERTEX'
-        ) {
-          //console.log("Setting..",element);
-          //element.selectedshell=true;
-          //console.log("Setting..Done",element);
-          const mymesh = this.findMyMaterial(element);
+      //console.log('Starting in gltfrender', element, element.selectedshell);
+      let myItem = this.getSubDepthPart(element);
+      if (!myItem) {
+        myItem = element;
+      }
+      const aShape = this.getPrefixItem(myItem);
+      if (
+        aShape == 'FACE' ||
+        aShape == 'EDGE' ||
+        aShape == 'PART' ||
+        aShape == 'VERTEX'
+      ) {
+        //console.log("Setting..",element);
+        //element.selectedshell=true;
+        //console.log("Setting..Done",element);
+        const mymesh = this.findMyMaterial(myItem);
 
-          if (mymesh) {
-            //console.log("Before",mymesh,element,mymesh.selectedshell,element.selectedshell);
-            mymesh.selectedshell = element.selectedshell;
-            this.changeStateOfSelection(mymesh, event, addToGDTTable);
-            /*  if (this.props.onClick) {
+        if (mymesh) {
+          // console.log(
+          //   'Before',
+          //   mymesh,
+          //   element,
+          //   mymesh.selectedshell,
+          //   element.selectedshell
+          // );
+          mymesh.selectedshell = element.selectedshell;
+          this.changeStateOfSelection(mymesh, event, addToGDTTable);
+          /*  if (this.props.onClick) {
                             const mytask =  this.props.onClick(mymesh, SELECTDISTANCE, event);                                                                      
                             console.log(element,mymesh);
                         } else {
                             console.log("No Click functions found",this.props.onClick,element);
                         } */
-            event['ctrlKey'] = true;
-            //console.log("aftet",mymesh,element,mymesh.selectedshell,element.selectedshell);
-          } else {
-            console.log('No mesh...?', mymesh, element, element.selectedshell);
-          }
+          event['ctrlKey'] = true;
+          // console.log(
+          //   'aftet',
+          //   mymesh,
+          //   element,
+          //   mymesh.selectedshell,
+          //   element.selectedshell
+          // );
+        } else {
+          console.log('No mesh...?', mymesh, element, element.selectedshell);
         }
       }
     }
@@ -4265,7 +4290,8 @@ class GLTFRenderer extends Component {
     ); */
     if (
       (this.props.whatchanged == SELECTANITEM &&
-        JSON.stringify(changedata) != JSON.stringify(this.changeddataarray)) ||
+        stringify(changedata || {}) !=
+          stringify(this.changeddataarray || {})) ||
       this.props.whatchanged != this.whatchanged ||
       (changedata ? changedata[gltf_Dict['name']] : '') != this.activeId ||
       (this.props.whatchanged == SELECTCOLOR &&
@@ -4494,7 +4520,7 @@ class GLTFRenderer extends Component {
                         this.props.resetSelections();
                     } */
         } else {
-          //console.log("Reducing",event,changedata);
+          //console.log('Reducing', event, changedata);
           changedata.reduce(
             (p, x) => p.then((_) => this.doOneSelection(x, event)),
             Promise.resolve()
@@ -4612,12 +4638,9 @@ class GLTFRenderer extends Component {
       }
     }
   }
-  getNameWithFeatures = (item) => {
+
+  getPrefixItem = (item) => {
     let myName = item[gltf_Dict['name']];
-    let myDisplayName = item[gltf_Dict['display']];
-    if (!myDisplayName) {
-      return myName;
-    }
     const myelement = item[gltf_Dict['element']];
     let prefix = '';
     if (myelement) {
@@ -4629,10 +4652,17 @@ class GLTFRenderer extends Component {
         prefix = 'VERTEX';
       } else if (myelement == 'P') {
         prefix = 'PART';
-      } else if (myelement == 'f' || myelement == 'e' || myelement == 'v') {
+      } else if (
+        myelement == 'f' ||
+        myelement == 'e' ||
+        myelement == 'v' ||
+        myelement == ' '
+      ) {
+        prefix = 'SLICER';
+      } else {
         prefix = 'SLICER';
       }
-    } else {
+    } else if (myName) {
       prefix = myName.slice(0, 4);
       if (prefix != 'FACE' && prefix != 'EDGE' && prefix != 'PART') {
         prefix = myName.slice(0, 6);
@@ -4641,6 +4671,35 @@ class GLTFRenderer extends Component {
         }
       }
     }
+    return prefix;
+  };
+
+  getSubDepthPart = (item) => {
+    const prefix = this.getPrefixItem(item);
+
+    if (prefix != 'SLICER') {
+      return item;
+    }
+    const state_gltfobj =
+      this_state_gltf || this.state.gltfobj || this.props.gltfobj;
+    const myStateTree = state_gltfobj.tree;
+    const myID = item[gltf_Dict['id']];
+    for (var i = 0; i < myStateTree.length; i++) {
+      if (myStateTree[i][gltf_Dict['parentId']] == myID) {
+        const retItem = this.getSubDepthPart(myStateTree[i]);
+        if (retItem) {
+          return retItem;
+        }
+      }
+    }
+    return null;
+  };
+  getNameWithFeatures = (item) => {
+    const myDisplayName = item[gltf_Dict['display']];
+    if (!myDisplayName) {
+      return item[gltf_Dict['name']];
+    }
+    const prefix = this.getPrefixItem(item);
     return prefix + myDisplayName;
   };
   getIntersectedName = (name) => {
@@ -4660,11 +4719,16 @@ class GLTFRenderer extends Component {
       return myName;
     }
     var myParentID = -1;
+    var myParentTree = null;
     for (var i = 0; i < myStateTree.length; i++) {
       if (myStateTree[i][gltf_Dict['name']] == name) {
         myParentID = myStateTree[i][gltf_Dict['parentId']];
+        myParentTree = myStateTree[i];
         break;
       }
+    }
+    if (myParentID == 1) {
+      return this.getNameWithFeatures(myParentTree);
     }
     if (myParentID != -1) {
       for (var i = 0; i < myStateTree.length; i++) {
@@ -4875,6 +4939,23 @@ class GLTFRenderer extends Component {
       if (this.props.setCenterActionText) {
         this.props.setCenterActionText('Generating Edges' + progressFile);
       }
+      const updateSelectionFromGdtTable = () => {
+        if (gdttableEdges) {
+          //console.log("Inside load edges gdts",this.partsMeshes,gdttableEdges);
+          let event = {};
+          event['ctrlKey'] = false;
+          gdttableEdges.selectedObjects.forEach((element) => {
+            //console.log("Setting inside the load all edges",element,event);
+            element.selectedshell = true;
+            this.doOneSelection(element, event, false);
+          });
+          if (gdttableEdges.edges.length == 0) {
+            this.changeStateOfSelection(null, event, false);
+          }
+        } else {
+          //console.log("Inside load edges s",this.partsMeshes);
+        }
+      };
       const onload = (gltf, url) => {
         try {
           const myobject = gltf.scene || gltf.scenes[0];
@@ -4907,7 +4988,7 @@ class GLTFRenderer extends Component {
             ...this.raycastObjects,
             ...this.rayCastObjectFilters(partsMeshes)
           ];
-          if (gdttableEdges) {
+          /*  if (gdttableEdges) {
             //console.log("Inside load edges gdts",this.partsMeshes,gdttableEdges);
             let event = {};
             event['ctrlKey'] = false;
@@ -4921,8 +5002,8 @@ class GLTFRenderer extends Component {
             }
           } else {
             //console.log("Inside load edges s",this.partsMeshes);
-          }
-
+          } */
+          updateSelectionFromGdtTable();
           this.onCloseProgress(url, 'success', 'loaded successfully');
         } catch (error) {
           console.log('Got error while loading', error);
@@ -5561,14 +5642,17 @@ class GLTFRenderer extends Component {
               //parentLineNodes.onBeforeRender = function( renderer ) { renderer.clearDepth(); };
               this.scene.add(parentLineNodes);
               this.content.push(parentLineNodes);
+              //console.log('Before adding edges', this.partsMeshes);
               this.partsMeshes = [
                 ...this.partsMeshes,
                 ...parentLineNodes.children
               ];
+              //console.log('After adding edges', this.partsMeshes);
               this.raycastObjects = [
                 ...this.raycastObjects,
                 ...this.rayCastObjectFilters(parentLineNodes.children)
               ];
+              updateSelectionFromGdtTable();
             }
           }
         }
