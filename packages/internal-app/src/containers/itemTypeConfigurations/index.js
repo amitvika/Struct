@@ -187,6 +187,7 @@ export default function ItemTypeConfiguration(props) {
       ) {
         handleSave({
           actuator_motion_control: {
+            ...(itemProperties.actuator_motion_control || {}),
             cylindrical_axis_of_rotation:
               mySelectedObjects[0].Info[0].direction || mySelectedObjects[0].obb
           }

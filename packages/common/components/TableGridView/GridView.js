@@ -198,8 +198,9 @@ export default function GridView({
                     if (event.ctrlKey) {
                       const win = window.open(linkUrl, '_blank');
                       win.focus();
+                    } else {
+                      history.push(linkUrl);
                     }
-                    history.push(linkUrl);
                   }}
                 >
                   {data[fieldItem.field]}

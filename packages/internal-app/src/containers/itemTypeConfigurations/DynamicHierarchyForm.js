@@ -25,7 +25,7 @@ export default function DynamicHierarchy(props) {
   const [criteriaForms, setCriteriaForms] = useState({});
 
   const getDefaultSelection = () => {
-    if (itemProperties.hierarchySelections.length > 0) {
+    if (get(itemProperties, 'hierarchySelections[0]')) {
       return itemProperties.hierarchySelections;
     }
     return [{ key: 'Internal Use Product Configuration', formFields: [] }];
@@ -45,9 +45,7 @@ export default function DynamicHierarchy(props) {
   useEffect(() => {
     handleItemUpdate({
       hierarchySelections: selections,
-      actuator_motion_control: {
-        is_actuator_or_chain_link: checkActuatorTypeComponent(selections)
-      }
+      is_actuator_type: checkActuatorTypeComponent(selections)
     });
   }, [stateUpdated]);
 

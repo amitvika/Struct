@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -14,10 +15,10 @@ import ItemApi from '@monostruct/common/api/items.api';
 import { get } from 'lodash';
 import { Checkbox } from '@mui/material';
 import { getTableData } from './helper';
-import {
-  SELECTSOLID,
-  SELECTASSEMBLY
-} from '@monostruct/common/gltf/Tree/utils';
+import { SELECTASSEMBLY } from '@monostruct/common/gltf/Tree/utils';
+
+import { useHistory } from 'react-router-dom';
+
 export default function MotionControlComponent({
   itemId,
   gltfjson,
@@ -28,6 +29,7 @@ export default function MotionControlComponent({
 }) {
   const [selectedValue, setSelectedValue] = React.useState('a');
   const [itemList, setItemList] = React.useState(kinematicItemList);
+  const history = useHistory();
 
   React.useEffect(() => {
     ItemApi.getItemsAPI(`parent_id=${itemId}`)
@@ -40,7 +42,8 @@ export default function MotionControlComponent({
   React.useEffect(() => {
     setItemList(kinematicItemList);
   }, [kinematicItemList]);
-  const updateAxisNumber = (id, change) => {
+
+  const updateMotionControlActuator = (id, change) => {
     ItemApi.updateItemAPI(id, { actuator_motion_control: change })
       .then((res) => {
         setKinematicItemList(
@@ -48,10 +51,6 @@ export default function MotionControlComponent({
         );
       })
       .catch((error) => {});
-  };
-
-  const handleChange = (event) => {
-    setSelectedValue(event.target.value);
   };
 
   const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
@@ -72,6 +71,46 @@ export default function MotionControlComponent({
       ? item.filePartName
       : 'Untitled-2';
   };
+
+  const handleItemNameClick = (event, id) => {
+    event.stopPropagation();
+
+    let linkUrl = `/items/${id}`;
+
+    if (event.ctrlKey) {
+      const win = window.open(linkUrl, '_blank');
+      win.focus();
+    } else {
+      history.push(linkUrl);
+    }
+  };
+
+  const SelectAxisMenu = ({ keyName, itemId, actuator_motion_control }) => {
+    return (
+      <>
+        {selectedValue === itemId ? (
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            label={actuator_motion_control[keyName]}
+            sx={{ width: '100%' }}
+            value={actuator_motion_control[keyName]}
+            onChange={(event) =>
+              updateMotionControlActuator(itemId, {
+                ...actuator_motion_control,
+                [keyName]: event.target.value
+              })
+            }
+          >
+            {renderAxisMenu()}
+          </Select>
+        ) : (
+          actuator_motion_control[keyName]
+        )}
+      </>
+    );
+  };
+
   return (
     <Paper>
       <Typography
@@ -88,7 +127,9 @@ export default function MotionControlComponent({
             <TableRow>
               <TableCell padding="none">Item name</TableCell>
               <TableCell padding="none">Axis Number</TableCell>
-              <TableCell padding="none">Actuator Applies</TableCell>
+              <TableCell padding="none">Link applies</TableCell>
+              <TableCell padding="none">Axis Before Link</TableCell>
+              <TableCell padding="none">Axis After Link</TableCell>
               <TableCell padding="none">Machine’s Actuator Limits</TableCell>
               <TableCell padding="none">End Effector</TableCell>
             </TableRow>
@@ -112,28 +153,23 @@ export default function MotionControlComponent({
                   }}
                 >
                   <TableCell component="th" padding="none">
-                    {itemName(item)}
+                    <Link
+                      component="button"
+                      color="primary"
+                      sx={{ textAlign: 'left' }}
+                      onClick={(event) => handleItemNameClick(event, item.id)}
+                    >
+                      {itemName(item)}
+                    </Link>
                   </TableCell>
                   <TableCell padding="none">
-                    {' '}
-                    {selectedValue === item.id ? (
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        label={actuator_motion_control.child_sequence_number}
-                        sx={{ width: '100%' }}
-                        value={actuator_motion_control.child_sequence_number}
-                        onChange={(event) => {
-                          updateAxisNumber(item.id, {
-                            child_sequence_number: event.target.value
-                          });
-                        }}
-                      >
-                        {renderAxisMenu()}
-                      </Select>
-                    ) : (
-                      actuator_motion_control.child_sequence_number
-                    )}
+                    <SelectAxisMenu
+                      {...{
+                        keyName: 'child_sequence_number',
+                        itemId: item.id,
+                        actuator_motion_control
+                      }}
+                    />
                   </TableCell>
                   <TableCell padding="none">
                     <Checkbox
@@ -142,10 +178,29 @@ export default function MotionControlComponent({
                       checked={
                         actuator_motion_control.is_actuator_or_chain_link
                       }
-                      onChange={(event) => {
-                        updateAxisNumber(item.id, {
+                      onChange={(event) =>
+                        updateMotionControlActuator(item.id, {
+                          ...actuator_motion_control,
                           is_actuator_or_chain_link: event.target.checked
-                        });
+                        })
+                      }
+                    />
+                  </TableCell>
+                  <TableCell padding="none">
+                    <SelectAxisMenu
+                      {...{
+                        keyName: 'axis_before_link',
+                        itemId: item.id,
+                        actuator_motion_control
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell padding="none">
+                    <SelectAxisMenu
+                      {...{
+                        keyName: 'axis_after_link',
+                        itemId: item.id,
+                        actuator_motion_control
                       }}
                     />
                   </TableCell>
@@ -155,6 +210,12 @@ export default function MotionControlComponent({
                       value={item.id}
                       name="radio-buttons"
                       inputProps={{ 'aria-label': 'A' }}
+                      onChange={(event) =>
+                        updateMotionControlActuator(item.id, {
+                          ...actuator_motion_control,
+                          end_effector: event.target.checked
+                        })
+                      }
                     />
                   </TableCell>
                 </TableRow>

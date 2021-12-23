@@ -514,7 +514,7 @@ const ItemDetail = ({ itemValue }) => {
             gltfjson={gltfjson}
             setgltfjson={setgltfjson}
             isLoading={isLoading}
-            handleItemUpdate={handleItemUpdate}
+            handleItemUpdate={handleSave}
             tabIndex={tabIndex}
             additionalSaveFunction={additionalSaveFunction}
             progressBarLoad={progressBarLoad}

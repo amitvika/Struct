@@ -81,9 +81,9 @@ const buildQuery = (req) => {
     });
   }
 
-  if (req.query.isActuator) {
+  if (req.query.is_actuator_type) {
     query.$and.push({
-      'actuator_motion_control.is_linear_or_rotational': true
+      is_actuator_type: true
     });
   }
 
