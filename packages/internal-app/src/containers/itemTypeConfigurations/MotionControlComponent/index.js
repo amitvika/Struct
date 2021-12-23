@@ -101,6 +101,7 @@ export default function MotionControlComponent({
                 <TableRow
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   onClick={() => {
+                    setSelectedValue(item.id);
                     setSelectedOption(SELECTASSEMBLY);
                     setRenderData(
                       getTableData({
@@ -151,8 +152,6 @@ export default function MotionControlComponent({
                   <TableCell padding="none"></TableCell>
                   <TableCell padding="none">
                     <Radio
-                      checked={selectedValue === item.id}
-                      onChange={handleChange}
                       value={item.id}
                       name="radio-buttons"
                       inputProps={{ 'aria-label': 'A' }}

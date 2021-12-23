@@ -190,9 +190,16 @@ export default function GridView({
                   variant="body2"
                   onClick={(event) => {
                     event.stopPropagation();
-                    history.push(
-                      `${fieldItem.linkPrefix}${data[fieldItem.field]}`
-                    );
+
+                    let linkUrl = `${fieldItem.linkPrefix}${
+                      data[fieldItem.field]
+                    }`;
+
+                    if (event.ctrlKey) {
+                      const win = window.open(linkUrl, '_blank');
+                      win.focus();
+                    }
+                    history.push(linkUrl);
                   }}
                 >
                   {data[fieldItem.field]}
