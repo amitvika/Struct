@@ -258,7 +258,7 @@ export default function GridView({
           <Grid item xs={6} sm={3} key={product.id}>
             <Paper
               className={classes.paper}
-              onClick={() => handleTableRowClick(product)}
+              onClick={(event) => handleTableRowClick(product, event.ctrlKey)}
             >
               <Grid
                 container

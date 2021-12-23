@@ -10,7 +10,15 @@ import ObjectID from 'bson-objectid';
 
 const ItemsView = () => {
   let history = useHistory();
-  const handleItemClick = (id) => history.push(`/items/${id}`);
+  const handleItemClick = (id, data, openInTab) => {
+    let link = `/items/${id}`;
+    if (openInTab) {
+      const win = window.open(link, '_blank');
+      win.focus();
+    } else {
+      history.push(link);
+    }
+  };
   const handleAddButtonPress = () => {
     const newItemId = ObjectID().toString();
 

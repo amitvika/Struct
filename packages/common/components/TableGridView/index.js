@@ -195,9 +195,9 @@ const TableGridView = ({
     return upsertItem(updateValue);
   };
 
-  const handleTableRowClick = (data) => {
+  const handleTableRowClick = (data, openInTab) => {
     if (handleItemClick) {
-      handleItemClick(data.id, data);
+      handleItemClick(data.id, data, openInTab);
       return;
     }
 
