@@ -7,6 +7,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import { useDebounce } from '../../utils/customHooks';
+import AutoCompleteFilter from './AutoCompleteFilter';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -65,7 +66,7 @@ export default function Filter({
         const fieldValues = updatedSelectedFields[key];
 
         if (flag && fieldValues.length > 0) {
-          flag = fieldValues.some((f) => f === el[key]);
+          flag = fieldValues.some((f) => f.title === el[key]);
         }
       });
 
@@ -105,7 +106,7 @@ export default function Filter({
       let tempValue = array[i][field];
       if (tempValue && tempValue.length > 0) {
         flags[array[i][field]] = true;
-        output.push(array[i][field]);
+        output.push({ title: array[i][field] });
       }
     }
     return output;
@@ -149,7 +150,15 @@ export default function Filter({
       .map((fieldItem, index) => {
         item.push(
           <Grid item style={{ flex: 1 }} key={`filteritem_${fieldItem.title}`}>
-            <Select
+            <AutoCompleteFilter
+              {...{
+                placeholder: `Select ${fieldItem.title}`,
+                options: get_unique_options(fieldItem.field),
+                handleChange,
+                keyName: fieldItem.field
+              }}
+            />
+            {/* <Select
               isCheckbox
               isMulti
               onChange={(data) => handleChange(data, fieldItem.field)}
@@ -157,7 +166,7 @@ export default function Filter({
               placeholder={`Select ${fieldItem.title}`}
               value={getValues(fieldItem)}
               label={fieldItem.title}
-            />
+            /> */}
           </Grid>
         );
       });
