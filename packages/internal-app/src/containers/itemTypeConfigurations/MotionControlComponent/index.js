@@ -204,6 +204,14 @@ export default function MotionControlComponent({
                         filePartName: itemName(item)
                       })
                     );
+                    setSelectedValue(item.id);
+                    setSelectedOption(SELECTASSEMBLY);
+                    setRenderData(
+                      getTableData({
+                        gltfjson,
+                        filePartName: itemName(item)
+                      })
+                    );
                   }}
                 >
                   <TableCell component="th" padding="none">
