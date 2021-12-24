@@ -138,6 +138,7 @@ export default function ItemTypeConfiguration(props) {
   });
 
   const [renderData, setRenderData] = useState([]);
+  const [selected3JSData, setSelected3JSData] = useState([]);
   //const [fieldOnChange,setFieldOnChange] = useState(null); //unable to set state for the functions..
 
   const addSelectionFromComponent = async (
@@ -238,6 +239,7 @@ export default function ItemTypeConfiguration(props) {
         internalProductConfig={internalProductConfig}
         kinematicItemList={kinematicItemList}
         setKinematicItemList={setKinematicItemList}
+        selected3JSData={selected3JSData}
         {...{
           itemProperties,
           gltfjson,
@@ -252,6 +254,10 @@ export default function ItemTypeConfiguration(props) {
     setShowKinematicMove(event.target.checked);
   };
 
+  const additionalModelClick = (data) => {
+    console.log('I am getting from addiitonal Model Click', data);
+    setSelected3JSData(data);
+  };
   return (
     <>
       <Headding style={{ fontSize: 24, fontWeight: 'bold', marginLeft: 20 }}>
@@ -297,6 +303,7 @@ export default function ItemTypeConfiguration(props) {
         changingdata={renderData}
         whatchanger={whatchange}
         showKinematicMove={showKinematicMove}
+        additionalModelClick={additionalModelClick}
         //{...{ whatchange }}
       />
     </>

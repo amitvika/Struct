@@ -20,7 +20,8 @@ export default function DynamicCriteria({
   setIsCircularFaceOrEdgeSelection,
   handleRotationalAxisChange,
   kinematicItemList,
-  setKinematicItemList
+  setKinematicItemList,
+  selected3JSData
 }) {
   const handleOnChange = (name, value) => {
     const findIndex = stateFormFields.findIndex(
@@ -130,7 +131,8 @@ export default function DynamicCriteria({
                   setRenderData,
                   setSelectedOption,
                   kinematicItemList,
-                  setKinematicItemList
+                  setKinematicItemList,
+                  selected3JSData
                 }}
               />
             )}

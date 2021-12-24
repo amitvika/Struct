@@ -5785,7 +5785,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             kinematicrotation = []
             shapeorder=[]
             shapeCount = 0
-            if 'part' in partsteps:
+            if 'parts' in partsteps:
                 kinematicparts = partsteps['parts']
             else:
                 kinematicparts = []

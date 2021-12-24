@@ -17,7 +17,8 @@ export default function DynamicHierarchy(props) {
     setIsCircularFaceOrEdgeSelection,
     handleRotationalAxisChange,
     kinematicItemList,
-    setKinematicItemList
+    setKinematicItemList,
+    selected3JSData
   } = props;
   const currentItem = useSelector((state) => state.item.currentItem);
 
@@ -116,7 +117,8 @@ export default function DynamicHierarchy(props) {
               setIsCircularFaceOrEdgeSelection,
               handleRotationalAxisChange,
               kinematicItemList,
-              setKinematicItemList
+              setKinematicItemList,
+              selected3JSData
             }}
           />
         );

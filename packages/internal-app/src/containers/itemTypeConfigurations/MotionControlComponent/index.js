@@ -16,7 +16,7 @@ import { get } from 'lodash';
 import { Checkbox } from '@mui/material';
 import { getTableData } from './helper';
 import { SELECTASSEMBLY } from '@monostruct/common/gltf/Tree/utils';
-
+import { gltf_Dict } from '@monostruct/common/gltf/Tree/utils';
 import { useHistory } from 'react-router-dom';
 
 export default function MotionControlComponent({
@@ -25,7 +25,8 @@ export default function MotionControlComponent({
   setRenderData,
   setSelectedOption,
   kinematicItemList,
-  setKinematicItemList
+  setKinematicItemList,
+  selected3JSData
 }) {
   const [selectedValue, setSelectedValue] = React.useState('a');
   const [itemList, setItemList] = React.useState(kinematicItemList);
@@ -35,7 +36,9 @@ export default function MotionControlComponent({
     ItemApi.getItemsAPI(`parent_id=${itemId}`)
       .then((res) => {
         console.log('IUPC Item Details', res, itemId);
-        setItemList(get(res, 'data', []));
+        const thisList = get(res, 'data', []);
+        setItemList(thisList);
+        setKinematicItemList(thisList);
       })
       .catch((error) => {});
   }, []);
@@ -43,6 +46,49 @@ export default function MotionControlComponent({
   React.useEffect(() => {
     setItemList(kinematicItemList);
   }, [kinematicItemList]);
+
+  React.useEffect(() => {
+    //console.log('I have got changed selection', selected3JSData);
+    let selectedAnItem = false;
+    if (selected3JSData && selected3JSData.length == 2) {
+      let parentNode = selected3JSData[1];
+      if (!parentNode) {
+        parentNode = selected3JSData[0][0];
+      }
+      if (parentNode) {
+        for (let index = 0; index < itemList.length; index++) {
+          const element = itemList[index];
+          console.log(
+            'Checking to match',
+            element.filePartName,
+            parentNode,
+            parentNode[gltf_Dict['display']],
+            parentNode[gltf_Dict['name']],
+            element.filePartName == parentNode[gltf_Dict['display']] ||
+              element.filePartName == parentNode[gltf_Dict['name']]
+          );
+          if (
+            element.filePartName == parentNode[gltf_Dict['display']] ||
+            element.filePartName == parentNode[gltf_Dict['name']]
+          ) {
+            //console.log('Got to select', element);
+            setSelectedValue(element.id);
+            selectedAnItem = true;
+          }
+        }
+      }
+      if (selectedAnItem == false) {
+        console.log(
+          'I could not get an item to select from',
+          itemList,
+          'with',
+          selected3JSData,
+          parentNode,
+          selected3JSData.length
+        );
+      }
+    }
+  }, [selected3JSData]);
 
   const updateMotionControlActuator = (id, change) => {
     ItemApi.updateItemAPI(id, { actuator_motion_control: change })
@@ -139,9 +185,16 @@ export default function MotionControlComponent({
             {itemList.map((item) => {
               const actuator_motion_control =
                 item.actuator_motion_control || {};
+              //console.log('Assinging table row', selectedValue, item.id);
               return (
                 <TableRow
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  style={{
+                    background: selectedValue == item.id ? 'lime' : 'white'
+                  }}
+                  sx={{
+                    '&:last-child td, &:last-child th': { border: 0 },
+                    bgcolor: selectedValue == item.id ? 'lime' : 'white'
+                  }}
                   onClick={() => {
                     setSelectedValue(item.id);
                     setSelectedOption(SELECTASSEMBLY);

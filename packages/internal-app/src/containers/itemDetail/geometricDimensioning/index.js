@@ -54,7 +54,8 @@ export default function GeometricDimensioning(props) {
     fileAnimation = false,
     changingdata = [],
     whatchanger = 0,
-    showKinematicMove = false
+    showKinematicMove = false,
+    additionalModelClick = null
   } = props;
   const classes = USESTYLES();
 
@@ -806,6 +807,25 @@ export default function GeometricDimensioning(props) {
       }
     }
 
+    const getTopParentNode = (node) => {
+      let nodeParentID = node[gltf_Dict['parentId']];
+      if (nodeParentID == null || nodeParentID == 1) {
+        return node;
+      } else {
+        if (mystate_gltfjson && mystate_gltfjson.tree) {
+          for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
+            if (mystate_gltfjson.tree[i][gltf_Dict['id']] == nodeParentID) {
+              let myParentsParent = getTopParentNode(mystate_gltfjson.tree[i]);
+              if (myParentsParent) {
+                return myParentsParent;
+              }
+            }
+          }
+        }
+        return null;
+      }
+    };
+
     const myParentPart = findMyParentPart(mynode);
     if (myParentPart) {
       parentNode = myParentPart;
@@ -818,7 +838,9 @@ export default function GeometricDimensioning(props) {
         for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
           if (mystate_gltfjson.tree[i][gltf_Dict['id']] == myParentID) {
             myParentsParentID = mystate_gltfjson.tree[i][gltf_Dict['parentId']];
-            parentNode = mystate_gltfjson.tree[i];
+            if (myParentID != 1) {
+              parentNode = mystate_gltfjson.tree[i];
+            }
             break;
           }
         }
@@ -870,8 +892,17 @@ export default function GeometricDimensioning(props) {
         }
       }
     }
+    let myTopParent = parentNode ? parentNode : mynode;
+    if (
+      myTopParent &&
+      myTopParent[gltf_Dict['id']] != 1 &&
+      myTopParent[gltf_Dict['parentId']] != 1
+    ) {
+      myTopParent = getTopParentNode(myTopParent);
+    }
+
     if (myMaterials.length != 0) {
-      return [myMaterials, parentNode];
+      return [myMaterials, myTopParent];
     }
     return [[mynode], mynode];
   };
@@ -1512,11 +1543,21 @@ export default function GeometricDimensioning(props) {
 
   const handleModelClick = (data, what, event) => {
     //console.log('Handling model click', data);
+
     if (what == SELECTANITEM) {
       if (data) {
         const mymesh = findMyMaterial(data);
         if (mymesh) {
           const mymeshcopy = { ...mymesh };
+          if (additionalModelClick) {
+            if (selectedOption == SELECTASSEMBLY) {
+              const myAllChildsAndParents = findMyParentChilds(
+                mymeshcopy,
+                selectedOption
+              );
+              additionalModelClick(myAllChildsAndParents);
+            }
+          }
           //mymesh.selectedshell = data.selectedshell;
           setSelectedShell(mymeshcopy, data.selectedshell);
           return changeStateOfSelection(mymeshcopy, event);

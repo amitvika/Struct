@@ -499,6 +499,7 @@ const ItemDetail = ({ itemValue }) => {
                 ? true
                 :  */ itemProperties.drawLine
             }
+            additionalModelClick={null}
             {...{ internalProductConfig }}
           />
         );
