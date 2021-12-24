@@ -31,7 +31,7 @@ export default function DynamicCriteria({
     tempFields.map((fieldItem, index) => {
       fieldItem.activeCell = index == findIndex;
     });
-
+    //console.log('Changig fields', tempFields);
     setStateFormFields(tempFields);
     handleUpdate(tempFields);
   };
@@ -47,6 +47,7 @@ export default function DynamicCriteria({
 
   useEffect(() => {
     if (form) {
+      //console.log('Setting form fields from form', form);
       setStateFormFields(form.fields);
     }
   }, [form]);

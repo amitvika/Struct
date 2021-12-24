@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   SELECTSOLID,
   SELECTLINEAR,
   SELECTCIRCULAR,
   gltf_Dict,
-  SELECTFEATURE
+  SELECTFEATURE,
+  SELECTFACE
 } from '@monostruct/common/gltf/Tree/utils';
 import Button from '@mui/material/Button';
 import FormGroup from '@mui/material/FormGroup';
@@ -24,7 +25,14 @@ export default function ThreejsSelection(props) {
     cylindrical_axis_of_rotation,
     handleRotationalAxisChange
   } = props;
-  const myvalue = value ? value : ['No Data Selected'];
+
+  const [myvalue, setMyvalue] = useState(value);
+  const [clicked, setClicked] = useState(false);
+
+  React.useEffect(() => {
+    console.log('Getting changed value to assign', value);
+    setMyvalue(value);
+  }, [value]);
 
   const getMyOption = () => {
     if (
@@ -35,6 +43,7 @@ export default function ThreejsSelection(props) {
       return SELECTSOLID;
     if (mytype == 'CircularFaceOrEdgeSelection') return SELECTCIRCULAR;
     if (mytype == 'LinearFaceOrEdgeSelection3D') return SELECTLINEAR;
+    if (mytype == 'FaceSelection') return SELECTFACE;
     return SELECTFEATURE;
   };
   const getNameWithFeatures = (item) => {
@@ -98,14 +107,17 @@ export default function ThreejsSelection(props) {
       first4chars == 'PART'
     ) {
       return myName + '\u2003';
+    } else if (mytype == 'FaceSelection' && first4chars == 'FACE') {
+      return myName + '\u2003';
     } else if (
       mytype != 'PartSelection' &&
       mytype != 'PartSelection3D' &&
       mytype != 'MotionControlKinematicModelling' &&
+      mytype != 'FaceSelection' &&
       first4chars == 'EDGE'
     ) {
       if (item.parentnode) {
-        const myParentName = item.parentnode[gltf_Dict['name']];
+        const myParentName = getNameWithFeatures(item.parentnode);
         if (myParentName) {
           return myParentName + '\u2003';
         } else {
@@ -119,7 +131,11 @@ export default function ThreejsSelection(props) {
     }
   };
   const getComponents = (myvalue) => {
-    //console.log('GetComponents', myvalue);
+    //console.log('GetComponents1', myvalue);
+    if (!myvalue) {
+      return '\u0020';
+    }
+    //console.log('GetComponents2', myvalue);
     return myvalue.map((row, index) =>
       row
         ? row[gltf_Dict['name']]
@@ -129,9 +145,14 @@ export default function ThreejsSelection(props) {
     );
   };
   const getNotEmpty = (myvalue) => {
-    //console.log('GetNotEmpty', myvalue);
+    //console.log('GetNotEmpty1', myvalue);
+    if (!myvalue) {
+      return false;
+    }
+    //console.log('GetNotEmpty2', myvalue);
     for (let index = 0; index < myvalue.length; index++) {
       const item = myvalue[index];
+      //console.log(item, mytype);
       if (item && item[gltf_Dict['name']]) {
         let myelement = item[gltf_Dict['element']];
         //let myName = item[gltf_Dict['name']];
@@ -161,10 +182,13 @@ export default function ThreejsSelection(props) {
           first4chars == 'PART'
         ) {
           return true;
+        } else if (mytype == 'FaceSelection' && first4chars == 'FACE') {
+          return true;
         } else if (
           mytype != 'PartSelection' &&
           mytype != 'PartSelection3D' &&
           mytype != 'MotionControlKinematicModelling' &&
+          mytype != 'FaceSelection' &&
           first4chars == 'EDGE'
         ) {
           return true;
@@ -181,16 +205,22 @@ export default function ThreejsSelection(props) {
         id={'popselect'}
         type="button"
         variant="contained"
-        color={active ? 'primary' : 'inherit'}
+        color={active && clicked ? 'primary' : 'inherit'}
         onClick={(event) => {
-          const myoption = getMyOption();
+          const clickedState = !clicked;
+          setClicked(clickedState);
+          if (clickedState) {
+            const myoption = getMyOption();
 
-          setRenderData(value, { name: mykey, option: myoption }, onChange);
+            setRenderData(myvalue, { name: mykey, option: myoption }, onChange);
 
-          if (mytype === 'CircularFaceOrEdgeSelection') {
-            setIsCircularFaceOrEdgeSelection(true);
+            if (mytype === 'CircularFaceOrEdgeSelection') {
+              setIsCircularFaceOrEdgeSelection(true);
+            }
+            onClick(mykey);
+          } else {
+            setRenderData(myvalue, { name: '', option: SELECTFEATURE }, null);
           }
-          onClick(mykey);
         }}
       >
         {/* <div style={{background:active?"#A0A0A0":"#D0D0D0"}}> */}

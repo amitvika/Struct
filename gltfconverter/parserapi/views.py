@@ -1512,6 +1512,12 @@ def CreateSphereFromCenter(center,vertexsize=0.1,circular=False):
             corner = gp_Pnt(centerX-vertexsize, centerY-vertexsize, centerZ-vertexsize)
             return BRepPrimAPI_MakeBox(corner,vertexsize*2,vertexsize*2,vertexsize*2).Shape()
 
+def getValueFromJSONKey(jsonstruct, key):
+    if key in jsonstruct:
+        return jsonstruct[key]
+    else:
+        return None
+
 @api_view(['GET', 'POST'])
 def FileGetShapeInfo(request):
     try:
@@ -5706,12 +5712,13 @@ def getKinematicInformation(kinematicparts,partname):
     for kinematicpart in kinematicparts:
         if 'actuator_motion_control' in kinematicpart:
             kinematicinfo = kinematicpart['actuator_motion_control']
-            if (kinematicinfo['child_part_name']==html_display) or (kinematicinfo['child_part_display_name']==html_display):
-                return convertToInt(kinematicinfo['child_sequence_number'],1),\
-                    convertToBool(kinematicinfo['is_actuator_or_chain_link'],False),\
-                        convertToBool(kinematicinfo['is_linear_or_rotational'],False),\
-                            kinematicinfo['cylindrical_axis_of_rotation'],\
-                                convertToFloat(kinematicinfo['angle_or_distant_limit'],0.1)   
+            if (getValueFromJSONKey(kinematicinfo,'child_part_name')==html_display) or \
+                (getValueFromJSONKey(kinematicinfo,'child_part_display_name')==html_display):
+                return convertToInt(getValueFromJSONKey(kinematicinfo,'child_sequence_number'),1),\
+                    convertToBool(getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),False),\
+                        convertToBool(getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),False),\
+                            getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
+                                convertToFloat(getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),0.1)   
     return (0,False,False,[0,0,0],0)
     
 

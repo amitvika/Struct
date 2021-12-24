@@ -39,6 +39,7 @@ export default function MotionControlComponent({
       })
       .catch((error) => {});
   }, []);
+
   React.useEffect(() => {
     setItemList(kinematicItemList);
   }, [kinematicItemList]);

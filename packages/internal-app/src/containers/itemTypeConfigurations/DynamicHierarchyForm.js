@@ -72,6 +72,7 @@ export default function DynamicHierarchy(props) {
     if (findIndex > -1) {
       let tempSelections = [...selections];
       tempSelections[findIndex].formFields = updatedFormFields;
+      //console.log('Setting values', tempSelections);
       setSelections(tempSelections);
       setStateUpdated(!stateUpdated);
     }

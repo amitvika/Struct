@@ -1,5 +1,6 @@
 var XMLHttpRequest = require('xhr2');
 import axios from 'axios';
+import CircularJSON from '../gltf/CircularJson';
 
 // const host = `https://cadapi.struct.services/api/v0`;
 
@@ -19,16 +20,32 @@ export const uploadChunkData = async (formData) => {
   // console.log('Uploading', `${host}/chunkupload/`, formData);
   return axios.post(`${host}/chunkupload/`, formData);
 };
+
+const stringify = (jsonStructure) => {
+  try {
+    const jsonString = JSON.stringify(jsonStructure);
+    return jsonString;
+  } catch (error) {
+    console.log('Error in Json String Conversion', error);
+    try {
+      const circularString = CircularJSON.CircularJSON.stringify(jsonStructure);
+      return circularString;
+    } catch (error) {
+      console.log('Error in Json String Circular Conversion', error);
+      return jsonStructure;
+    }
+  }
+};
 export const fetchShapeInfo = async (tree) => {
   var formTree = new FormData();
-  formTree.append('tree', JSON.stringify(tree));
+  formTree.append('tree', stringify(tree));
   return axios.post(`${host}/shapeinfo/`, formTree);
 };
 
 export const saveTreeInfo = async (tree, name, fileGUID) => {
   // console.log(tree);
   var formTree = new FormData();
-  formTree.append('tree', JSON.stringify(tree));
+  formTree.append('tree', stringify(tree));
   formTree.append('name', name);
   formTree.append('uuid', fileGUID || '');
   return axios.post(`${host}/savetree/`, formTree);
@@ -37,7 +54,7 @@ export const saveTreeInfo = async (tree, name, fileGUID) => {
 export const saveGDTInfo = async (gdt, name, fileGUID = '') => {
   // console.log(gdt);
   var formGDT = new FormData();
-  formGDT.append('gdt', JSON.stringify(gdt));
+  formGDT.append('gdt', stringify(gdt));
   formGDT.append('name', name);
   formGDT.append('uuid', fileGUID || '');
   return axios.post(`${host}/savegdt/`, formGDT);
@@ -137,7 +154,7 @@ export const getPartsKinematicMovement = async (
   formInfo.append('distancegap', distancegap);
   formInfo.append('anglegap', anglegap);
   formInfo.append('animationtime', animationtime);
-  formInfo.append('parts', JSON.stringify({ parts: kinematicItemList }));
+  formInfo.append('parts', stringify({ parts: kinematicItemList }));
   return axios.post(`${host}/kinematicmove/`, formInfo);
 
   /*  const kinematicURL = `${host}/kinematicmove?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}`;
@@ -176,9 +193,9 @@ export const getShapeInfo = async (
   // console.log(start, stepArray, siblingArray);
   var formShapeInfo = new FormData();
   formShapeInfo.append('start', start);
-  formShapeInfo.append('steps', JSON.stringify({ steps: stepArray }));
-  formShapeInfo.append('siblings', JSON.stringify({ siblings: siblingArray }));
-  formShapeInfo.append('parts', JSON.stringify({ parts: partArray }));
+  formShapeInfo.append('steps', stringify({ steps: stepArray }));
+  formShapeInfo.append('siblings', stringify({ siblings: siblingArray }));
+  formShapeInfo.append('parts', stringify({ parts: partArray }));
   formShapeInfo.append('uuid', fileGUID || '');
   return axios.post(`${host}/shapeinfo/`, formShapeInfo);
 };

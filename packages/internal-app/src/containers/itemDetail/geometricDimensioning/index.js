@@ -899,6 +899,7 @@ export default function GeometricDimensioning(props) {
       setState({ gltfjson: gltfjson });
       mystate_gltfjson = gltfjson;
     }
+    //console.log('Find my Material', data, mystate_gltfjson.tree);
     if (mystate_gltfjson.tree) {
       for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
         if (mystate_gltfjson.tree[i][gltf_Dict['name']] == data['name']) {
@@ -1510,6 +1511,7 @@ export default function GeometricDimensioning(props) {
   };
 
   const handleModelClick = (data, what, event) => {
+    //console.log('Handling model click', data);
     if (what == SELECTANITEM) {
       if (data) {
         const mymesh = findMyMaterial(data);
