@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
+import Button from '@mui/material/Button';
+import DynamicFeedOutlinedIcon from '@mui/icons-material/DynamicFeedOutlined';
 import GeometricDimensioning from '../itemDetail/geometricDimensioning';
 import {
   SELECTFEATURE,
@@ -37,6 +39,8 @@ export default function ItemTypeConfiguration(props) {
     setSelectedOption,
     showKinematicMove,
     setShowKinematicMove,
+    regenerateKinematicMove,
+    setRegenerateKinematicMove,
     kinematicItemList,
     setKinematicItemList,
     handleSave
@@ -252,6 +256,11 @@ export default function ItemTypeConfiguration(props) {
 
   const handleSwitchChange = async (event) => {
     setShowKinematicMove(event.target.checked);
+    setRegenerateKinematicMove(0);
+  };
+
+  const handleRegenerate = async (event) => {
+    setRegenerateKinematicMove(regenerateKinematicMove + 1);
   };
 
   const additionalModelClick = (data) => {
@@ -272,6 +281,17 @@ export default function ItemTypeConfiguration(props) {
           onChange={handleSwitchChange}
           inputProps={{ 'aria-label': 'controlled' }}
         />
+        {showKinematicMove && (
+          <Button
+            aria-describedby={'Recreate Animation'}
+            id={'popfetch'}
+            type="button"
+            variant="contained"
+            color="primary"
+            onClick={handleRegenerate}
+            startIcon={<DynamicFeedOutlinedIcon />}
+          ></Button>
+        )}
       </Grid>
       {renderExcelUI()}
 
@@ -303,6 +323,7 @@ export default function ItemTypeConfiguration(props) {
         changingdata={renderData}
         whatchanger={whatchange}
         showKinematicMove={showKinematicMove}
+        regenerateKinematicMove={regenerateKinematicMove}
         additionalModelClick={additionalModelClick}
         //{...{ whatchange }}
       />

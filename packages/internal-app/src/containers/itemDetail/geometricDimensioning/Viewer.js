@@ -48,7 +48,8 @@ export default function Viewer({
   drawLine = false,
   fileAnimation = false,
   tabIndex = '',
-  showKinematicMove = false
+  showKinematicMove = false,
+  regenerateKinematicMove = 0
 }) {
   const [percentager, setPercentager] = useState(percentage || 0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
@@ -126,7 +127,8 @@ export default function Viewer({
             activefile +
             gltfjsonlen.toString() +
             tabIndex.toString() +
-            showKinematicMove.toString()
+            showKinematicMove.toString() +
+            regenerateKinematicMove.toString()
           }
           backcolor={DEFAULTBACKCOLOR()}
           selectcolor={DEFAULTSELECTCOLOR()}

@@ -48,13 +48,14 @@ export default function GeometricDimensioning(props) {
     internalProductConfig,
     selectedOption,
     setSelectedOption,
-    keyName = { name: '', option: SELECTFEATURE },
+    keyName = { name: 'FreeKey', option: SELECTFEATURE },
     handleChangeOfSelection = (selectedObjects) => {},
     additionalSaveFunction = (saveObjects) => {},
     fileAnimation = false,
     changingdata = [],
     whatchanger = 0,
     showKinematicMove = false,
+    regenerateKinematicMove = 0,
     additionalModelClick = null
   } = props;
   const classes = USESTYLES();
@@ -1626,6 +1627,7 @@ export default function GeometricDimensioning(props) {
           fileAnimation={fileAnimation}
           tabIndex={tabIndex}
           showKinematicMove={showKinematicMove}
+          regenerateKinematicMove={regenerateKinematicMove}
         />
       </Paper>
 

@@ -38,7 +38,8 @@ export const fetchGLTFAndTree = async (props) => {
     setCurrentProgressText,
     setCompletionProgressText,
     setgltfjson,
-    showKinematicMove
+    showKinematicMove,
+    regenerateKinematicMove
   } = props;
   let updatedItemProp = {};
   try {
@@ -499,6 +500,7 @@ export const setStack = async (props) => {
         fileKinematic: item.fileKinematic,
         fileUUId: item.fileUUId,
         showKinematicMove: false,
+        regenerateKinematicMove: 0,
         okToParse,
         setIsLoading,
         setIsFileLoading,
@@ -829,7 +831,14 @@ export const handleProductDesignTab = async (props) => {
   setProgressBarLoad(false);
 };
 
-export const isOKToParseForInternalUseProduct = async ({ item }) => {
+export const isOKToParseForInternalUseProduct = async ({
+  item,
+  regenerateKinematicMove
+}) => {
+  if (regenerateKinematicMove) {
+    item.fileKinematic = null;
+    return PROCESSINGSTATUS.HUNG;
+  }
   let okToParse = PROCESSINGSTATUS.PROCESSED;
   try {
     if (!item.fileKinematic || item.fileKinematic === null) {

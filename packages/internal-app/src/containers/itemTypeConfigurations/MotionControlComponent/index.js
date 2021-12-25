@@ -198,20 +198,20 @@ export default function MotionControlComponent({
                   onClick={() => {
                     setSelectedValue(item.id);
                     setSelectedOption(SELECTASSEMBLY);
-                    setRenderData(
-                      getTableData({
-                        gltfjson,
-                        filePartName: itemName(item)
-                      })
-                    );
-                    setSelectedValue(item.id);
+                    const tableData = getTableData({
+                      gltfjson,
+                      filePartName: itemName(item)
+                    });
+                    setRenderData(tableData);
+                    console.log('Clicked and Sent', tableData, item.id);
+                    /*                     setSelectedValue(item.id);
                     setSelectedOption(SELECTASSEMBLY);
                     setRenderData(
                       getTableData({
                         gltfjson,
                         filePartName: itemName(item)
                       })
-                    );
+                    ); */
                   }}
                 >
                   <TableCell component="th" padding="none">

@@ -5707,6 +5707,52 @@ def HackersResponse(request):
             print("Error while logging",e)
         return JsonResponse({'message': "Hackers System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
+def extractKinematicInformation(kinematicparts):
+    #print("Kinematic Parts",kinematicparts)
+    kinematicInformation = []
+    for kinematicpart in kinematicparts:
+        myInfo = (None,None,0,False,False,[0,0,0],0,0,0)
+        if 'actuator_motion_control' in kinematicpart:
+            kinematicinfo = kinematicpart['actuator_motion_control']
+            myInfo = getValueFromJSONKey(kinematicinfo,'child_part_name'),\
+                getValueFromJSONKey(kinematicinfo,'child_part_display_name'),\
+                    convertToInt(getValueFromJSONKey(kinematicinfo,'child_sequence_number'),0),\
+                        convertToBool(getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),False),\
+                            convertToBool(getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),False),\
+                                getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
+                                    convertToFloat(getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),0.1),\
+                                        convertToInt(getValueFromJSONKey(kinematicinfo,'axis_before_link'),0),\
+                                            convertToInt(getValueFromJSONKey(kinematicinfo,'axis_after_link'),0)
+                                       
+        partName, displayName, sequence, isActuator, isLinear, axis, aw, bl, al = myInfo
+        if partName==None:
+            partName = getValueFromJSONKey(kinematicpart,'filePartName')
+        if displayName==None:
+            displayName = getValueFromJSONKey(kinematicpart,'name')
+        if isinstance(axis, list)==False:
+            axis = [axis,axis,axis]
+        myInfo = partName, displayName, sequence, isActuator, isLinear, axis, aw, bl, al
+        kinematicInformation.append(myInfo)
+    lengthOfKinematicInfo = len(kinematicInformation)
+    print("Kinematic Info before arranging",kinematicInformation)
+    for kinematicInfo in range(lengthOfKinematicInfo):
+        partName, displayName, _, isActuator, isLinear, [ax,ay,az], aw, bl, al = kinematicInformation[kinematicInfo]
+        if not isActuator:
+            kinematicInformation[kinematicInfo] = partName, displayName, 0, isActuator, isLinear, [ax,ay,az], aw, bl, al
+            for secondPass in range(lengthOfKinematicInfo):
+                 partName2, displayName2, sequence2, isActuator2, isLinear2, [ax2,ay2,az2], aw2, bl2, al2 = kinematicInformation[secondPass]
+                 if sequence2>=bl:
+                     kinematicInformation[secondPass] = partName2, displayName2, sequence2+1, isActuator2, isLinear2, [ax2,ay2,az2], aw2, bl2, al2
+            for secondPass in range(kinematicInfo,lengthOfKinematicInfo):
+                 partName2, displayName2, sequence2, isActuator2, isLinear2, [ax2,ay2,az2], aw2, bl2, al2 = kinematicInformation[secondPass]
+                 if not isActuator:
+                    if secondPass==kinematicInfo:
+                        kinematicInformation[secondPass] = partName2, displayName2, bl, isActuator2, isLinear2, [ax2,ay2,az2], aw2, bl2+1, al2+1
+                    elif bl2>=bl:
+                        kinematicInformation[secondPass] = partName2, displayName2, sequence2, isActuator2, isLinear2, [ax2,ay2,az2], aw2, bl2+1, al2+1
+    print("Kinematic Info after arranging",kinematicInformation)               
+    return kinematicInformation
+
 def getKinematicInformation(kinematicparts,partname):
     html_display = html.escape(partname)
     for kinematicpart in kinematicparts:
@@ -5720,6 +5766,14 @@ def getKinematicInformation(kinematicparts,partname):
                             getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
                                 convertToFloat(getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),0.1)   
     return (0,False,False,[0,0,0],0)
+
+def getKinematicInformationFromIndex(kinematicParts,partname):
+    html_display = html.escape(partname)
+    for kinematicPart in kinematicParts:
+        partName, displayName, _, _, _, [_,_,_], _, _, _ = kinematicPart
+        if (partName==html_display) or (displayName==html_display):
+            return kinematicPart 
+    return ("NoName","EmptyItem",0,False,False,[0,0,0],0,0,0)
     
 
 def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None,partsteps=[]):#,thumbwidth,thumbheight):
@@ -5789,11 +5843,15 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 kinematicparts = partsteps['parts']
             else:
                 kinematicparts = []
-                           
+            try:
+                indexedKinematicInformation = extractKinematicInformation(kinematicparts) 
+            except Exception as e:
+                print("Error while parsing kinematic",e)                         
             if(len(onlyShapes)==8):
                 shapeorder = [0,1,2,6,3,7,5,4]
             else:
-                shapeorder=[x for x in range(len(onlyShapes))]                
+                shapeorder=[x for x in range(len(onlyShapes))]    
+            print("initial parsing",shapeorder,indexedKinematicInformation)            
             kp=1
             ap=kp
             for (eachShape,eachName,_) in shapeArray:
@@ -5820,8 +5878,13 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                         else:
                             kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
                 else:
-                    sequence, isActuator, isLinear, [ax,ay,az], aw = getKinematicInformation(kinematicparts,eachName)
-                    shapeorder[sequence]=shapeCount
+                    #sequence, isActuator, isLinear, [ax,ay,az], aw = getKinematicInformation(kinematicparts,eachName)
+                    _, _, sequence, isActuator, isLinear, [ax,ay,az], aw, _, _ = \
+                        getKinematicInformationFromIndex(indexedKinematicInformation,eachName)                 
+                    if sequence >0 and sequence <= len(shapeorder):
+                        shapeorder[sequence-1]=shapeCount
+                    elif sequence==0:
+                        shapeorder[0]=shapeCount
                     if isActuator:
                         if isLinear:
                             kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
@@ -5831,7 +5894,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                         kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0)))
                     
                 shapeCount += 1                          
-            print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
+            #print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
             print(shapeCount,shapeorder,kinematicrotation)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,

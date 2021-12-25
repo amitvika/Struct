@@ -155,6 +155,7 @@ export const getPartsKinematicMovement = async (
   formInfo.append('anglegap', anglegap);
   formInfo.append('animationtime', animationtime);
   formInfo.append('parts', stringify({ parts: kinematicItemList }));
+  //console.log('Kinematic Move', formInfo);
   return axios.post(`${host}/kinematicmove/`, formInfo);
 
   /*  const kinematicURL = `${host}/kinematicmove?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}`;

@@ -4140,11 +4140,12 @@ class GLTFRenderer extends Component {
             }
           });
         }
-        //console.log('My Mesh name', meshmaterial.name);
+
         const myAllChilds = this.findMyParentChilds(
           meshmaterial,
           addToGDTTable
         );
+        //console.log('My Mesh name', meshmaterial, myAllChilds);
         if (
           myAllChilds.select == false &&
           this.selectedoption != SELECTFEATURE &&
@@ -4167,6 +4168,13 @@ class GLTFRenderer extends Component {
         myAllChilds.node.forEach((element) => {
           //console.log("Setting colors",meshmaterial.selectedshell,element.selectedshell);
           element.selectedshell = meshmaterial.selectedshell;
+          /* console.log(
+            'Before Setting colors',
+            meshmaterial.selectedshell,
+            element.selectedshell,
+            toAdd,
+            element
+          ); */
           if (meshmaterial.selectedshell) {
             this.setSelectionColor(element);
           } else {
@@ -4175,7 +4183,13 @@ class GLTFRenderer extends Component {
                             element.material.color.setHex(element.currentHex);
                         }   */
           }
-          //console.log("After Setting colors",meshmaterial.selectedshell,element.selectedshell,toAdd);
+          /* console.log(
+            'After Setting colors',
+            meshmaterial.selectedshell,
+            element.selectedshell,
+            toAdd,
+            element
+          ); */
           if (toAdd) {
             if (meshmaterial.selectedshell) {
               var alreadyPresent = false;
@@ -4220,6 +4234,7 @@ class GLTFRenderer extends Component {
         //   meshmaterial
         // );
       } else {
+        //console.log('No material', this.state_selectedObjects);
         this.state_selectedObjects.forEach((elementobject) => {
           elementobject.selectedshell = false;
           this.setOriginalColor(elementobject);
@@ -4941,7 +4956,7 @@ class GLTFRenderer extends Component {
         this.props.setCenterActionText('Generating Edges' + progressFile);
       }
       const updateSelectionFromGdtTable = () => {
-        if (gdttableEdges) {
+        if (gdttableEdges && gdttableEdges.selectedObjects) {
           //console.log("Inside load edges gdts",this.partsMeshes,gdttableEdges);
           let event = {};
           event['ctrlKey'] = false;
@@ -4950,7 +4965,7 @@ class GLTFRenderer extends Component {
             element.selectedshell = true;
             this.doOneSelection(element, event, false);
           });
-          if (gdttableEdges.edges.length == 0) {
+          if (gdttableEdges.selectedObjects.length == 0) {
             this.changeStateOfSelection(null, event, false);
           }
         } else {

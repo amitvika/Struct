@@ -74,6 +74,7 @@ const ItemDetail = ({ itemValue }) => {
   const [createAutoAssemblyOrder, setCreateAutoAssemblyOrder] = useState(false);
   const [createAutoStackability, setCreateAutoStackability] = useState(false);
   const [showKinematicMove, setShowKinematicMove] = useState(false);
+  const [regenerateKinematicMove, setRegenerateKinematicMove] = useState(0);
   const [kinematicItemList, setKinematicItemList] = useState([]);
   const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
 
@@ -103,6 +104,13 @@ const ItemDetail = ({ itemValue }) => {
       myTabedIndex: tabIndex
     });
   }, [showKinematicMove]);
+
+  useEffect(() => {
+    handleGLTFAndTreeLoading({
+      item: itemProperties,
+      myTabedIndex: tabIndex
+    });
+  }, [regenerateKinematicMove]);
 
   useEffect(() => {
     CriteriaUploadAPI.fetchCriteriaUpload(
@@ -161,9 +169,26 @@ const ItemDetail = ({ itemValue }) => {
         setCompletionProgressText,
         setgltfjson
       };
-      //console.log('TabIndexes', myTabIndex, myTabedIndex, tabIndex, item);
+      /* console.log(
+        'TabIndexes',
+        myTabIndex,
+        myTabedIndex,
+        tabIndex,
+        item,
+        regenerateKinematicMove,
+        showKinematicMove
+      ); */
       if (myTabIndex === 'iupc') {
-        let okToParse = await isOKToParseForInternalUseProduct({ item });
+        let okToParse = await isOKToParseForInternalUseProduct({
+          item,
+          regenerateKinematicMove
+        });
+        /* console.log(
+          'What I got from oktoparse',
+          okToParse,
+          item,
+          regenerateKinematicMove
+        ); */
         if (!item.fileKinematic || item.fileKinematic === null) {
           updatedItemProp = await handleInternalUseProduct({
             item,
@@ -184,7 +209,8 @@ const ItemDetail = ({ itemValue }) => {
           await fetchGLTFAndTree({
             ...gltfParam,
             okToParse,
-            showKinematicMove
+            showKinematicMove,
+            regenerateKinematicMove
           });
         }
       } else if (myTabIndex === 'pdcu') {
@@ -215,7 +241,8 @@ const ItemDetail = ({ itemValue }) => {
           await fetchGLTFAndTree({
             ...gltfParam,
             okToParse,
-            showKinematicMove: false
+            showKinematicMove: false,
+            regenerateKinematicMove: 0
           });
         }
       } else {
@@ -246,7 +273,8 @@ const ItemDetail = ({ itemValue }) => {
           updatedItemProp = await fetchGLTFAndTree({
             ...gltfParam,
             okToParse,
-            showKinematicMove: false
+            showKinematicMove: false,
+            regenerateKinematicMove: 0
           });
         }
       }
@@ -312,6 +340,7 @@ const ItemDetail = ({ itemValue }) => {
         fileKinematic: item.fileKinematic,
         fileUUId: item.fileUUId,
         showKinematicMove: false,
+        regenerateKinematicMove: 0,
         okToParse,
         setIsLoading,
         setIsFileLoading,
@@ -478,7 +507,7 @@ const ItemDetail = ({ itemValue }) => {
             isLoading={isLoading}
             //assemblyTree={get(gltfjson, 'tree', [])}
             tabIndex={tabIndex}
-            keyName={{ name: '', option: SELECTFEATURE }}
+            keyName={{ name: 'BlankKey', option: SELECTFEATURE }}
             handleChangeOfSelection={null}
             additionalSaveFunction={additionalSaveFunction}
             progressBarLoad={progressBarLoad}
@@ -539,6 +568,8 @@ const ItemDetail = ({ itemValue }) => {
             }
             showKinematicMove={showKinematicMove}
             setShowKinematicMove={setShowKinematicMove}
+            regenerateKinematicMove={regenerateKinematicMove}
+            setRegenerateKinematicMove={setRegenerateKinematicMove}
             kinematicItemList={kinematicItemList}
             setKinematicItemList={setKinematicItemList}
             {...{ handleSave }}

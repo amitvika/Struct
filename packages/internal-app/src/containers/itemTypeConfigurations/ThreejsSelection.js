@@ -219,7 +219,11 @@ export default function ThreejsSelection(props) {
             }
             onClick(mykey);
           } else {
-            setRenderData(myvalue, { name: '', option: SELECTFEATURE }, null);
+            setRenderData(
+              myvalue,
+              { name: 'EmptyKey', option: SELECTFEATURE },
+              null
+            );
           }
         }}
       >
