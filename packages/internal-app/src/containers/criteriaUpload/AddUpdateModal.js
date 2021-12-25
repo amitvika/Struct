@@ -15,6 +15,7 @@ import {
 } from './parser';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 import Select from '@monostruct/common/components/atoms/Select';
+import get from 'lodash/get';
 
 export default function AddUpdateModal({
   title,
@@ -150,7 +151,8 @@ export default function AddUpdateModal({
     return optionsList.filter((option) => {
       const isAvailable = dataList.find(
         (dataItem) =>
-          dataItem.type === option.value && selectedValue.id !== dataItem.id
+          dataItem.type === option.value &&
+          get(selectedValue, 'id') !== get(dataItem, 'id')
       );
       if (isAvailable) {
         return false;

@@ -109,8 +109,11 @@ export default function DynamicHierarchy(props) {
   };
 
   const getIndexOfFieldInSelectionArray = (selections, listItem) => {
-    return selections.findIndex((item) => {
-      if (item.key === listItem.title || item.value === listItem.keyName) {
+    return selections.findIndex((selectionItem) => {
+      if (
+        selectionItem.key === listItem.title ||
+        selectionItem.value === listItem.keyName
+      ) {
         return true;
       } else {
         return false;

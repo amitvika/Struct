@@ -155,16 +155,18 @@ exports.update = async (req, res) => {
     let prevItem = await ItemModel.findById(itemId);
 
     if (prevItem) {
-      req.body.updated_by = req.user.id;
+      updateData.created_by = prevItem.created_by;
+      updateData.updated_by = req.user.id;
+
       prevItem = await ItemModel.findByIdAndUpdate(
         itemId,
         { $set: updateData },
         { new: true }
       );
     } else {
-      req.body.created_by = req.user.id;
-      req.body.updated_by = req.user.id;
-      await ItemModel.updateOne({ _id: itemId }, req.body, {
+      updateData.created_by = req.user.id;
+      updateData.updated_by = req.user.id;
+      await ItemModel.updateOne({ _id: itemId }, updateData, {
         upsert: true,
         new: true
       });
