@@ -13,7 +13,8 @@ const ItemMotionControlSchema = new mongoose.Schema(
     cylindrical_axis_of_rotation: { type: Number, default: 0 },
     axis_before_link: { type: Number, default: 0 },
     axis_after_link: { type: Number, default: 0 },
-    angle_or_distant_limit: { type: Number, default: 0 }
+    angle_or_distant_limit: { type: Number, default: 0 },
+    is_end_effector: { type: Boolean, default: false }
   },
   {
     timestamps: true
