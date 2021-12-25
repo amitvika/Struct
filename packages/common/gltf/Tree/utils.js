@@ -190,7 +190,7 @@ export const defaultGDTTable = {
   angle: 0,
   offset: 0,
   option: SELECTFEATURE,
-  key: 'InitialKey'
+  key: ''
 };
 
 export const arrayFindIndex = (arr, value, parent = false) => {
