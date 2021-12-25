@@ -159,8 +159,10 @@ export default function ItemTypeConfiguration(props) {
 
     setRenderData(selectedNodes);
     setWhatchange(SELECTANITEM);
+    if (aFileKey) {
+      setFieldKey(aFileKey);
+    }
 
-    setFieldKey(aFileKey);
     state_fileOnChange = OnChange;
     console.log(
       'Add Selection from Components',

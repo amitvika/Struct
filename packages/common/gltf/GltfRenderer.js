@@ -1306,9 +1306,11 @@ class GLTFRenderer extends Component {
       event['ctrlKey'] = false;
       gdttableEdges.selectedObjects.forEach((element) => {
         element.selectedshell = true;
+        //console.log('setting selections to clear all selections');
         this.doOneSelection(element, event, false);
       });
       if (gdttableEdges.selectedObjects.length == 0) {
+        //console.log('Resetting blank selections to clear all selections');
         this.changeStateOfSelection(null, event, false);
       }
     }
