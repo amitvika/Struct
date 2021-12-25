@@ -507,7 +507,7 @@ const ItemDetail = ({ itemValue }) => {
             isLoading={isLoading}
             //assemblyTree={get(gltfjson, 'tree', [])}
             tabIndex={tabIndex}
-            keyName={{ name: 'BlankKey', option: SELECTFEATURE }}
+            keyName={{ name: '', option: SELECTFEATURE }}
             handleChangeOfSelection={null}
             additionalSaveFunction={additionalSaveFunction}
             progressBarLoad={progressBarLoad}

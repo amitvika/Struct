@@ -48,7 +48,7 @@ export default function GeometricDimensioning(props) {
     internalProductConfig,
     selectedOption,
     setSelectedOption,
-    keyName = { name: 'FreeKey', option: SELECTFEATURE },
+    keyName = { name: '', option: SELECTFEATURE },
     handleChangeOfSelection = (selectedObjects) => {},
     additionalSaveFunction = (saveObjects) => {},
     fileAnimation = false,
