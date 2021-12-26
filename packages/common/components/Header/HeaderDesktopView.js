@@ -12,9 +12,7 @@ import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import { ColorModeContext } from '../../themes/ColorModeContextProvider';
 import Avatar from '@mui/material/Avatar';
-import Switch from '@mui/material/Switch';
 import Grow from '@mui/material/Grow';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
 export default function HeaderDesktopView({
   handleLogout,
@@ -30,10 +28,7 @@ export default function HeaderDesktopView({
   const location = useLocation();
 
   const history = useHistory();
-  const anchorRef = useRef(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  const [open, setOpen] = useState(false);
 
   const {
     authUser: { isAuthenticated, user }
@@ -60,8 +55,24 @@ export default function HeaderDesktopView({
         rel,
         showOnHover,
         hoverMenuHandler,
-        hoverMenuLabel
+        hoverMenuLabel,
+        isCustomComponent,
+        Component
       }) => {
+        if (isCustomComponent) {
+          return (
+            <li
+              key={`primary_button_${label}`}
+              className={
+                classes.primaryListItemHeader +
+                ` ${addSeparator && classes.verticalBar}`
+              }
+            >
+              <Component />
+            </li>
+          );
+        }
+
         const childItem = (
           <li
             key={`primary_button_${label}`}
