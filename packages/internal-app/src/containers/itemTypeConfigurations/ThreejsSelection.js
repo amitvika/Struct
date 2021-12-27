@@ -219,10 +219,12 @@ export default function ThreejsSelection(props) {
           setClicked(clickedState);
           if (clickedState) {
             const myoption = getMyOption();
-            myvalue.forEach((element) => {
-              element.selectedshell = true;
-              element.selected = true;
-            });
+            if (myvalue) {
+              myvalue.forEach((element) => {
+                element.selectedshell = true;
+                element.selected = true;
+              });
+            }
             console.log(
               'setRenderData1',
               myvalue,

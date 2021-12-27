@@ -1469,24 +1469,25 @@ export default function GeometricDimensioning(props) {
                 newgltfjson.gdttable,
                 myGlobalActiveDataTable
               );
-              newgltfjson.gdttable[myGlobalActiveDataTable].selectedObjects = [
-                ...copy_selectobjects
-              ];
-              newgltfjson.gdttable[myGlobalActiveDataTable].parentObjects = [
-                ...newParentObjects
-              ];
-              newgltfjson.gdttable[myGlobalActiveDataTable].mates = [
-                ...copy_mateobjects
-              ];
-              //const renderingdata = changingdata || state.renderdata;
-              //newgltfjson.renderdata = renderingdata;
-              setgltfjson(newgltfjson);
-              console.log(
-                'adding parent object gltfjson.gdttable[myGlobalActiveDataTable]',
-                node,
-                newgltfjson,
-                myGlobalState
-              );
+              if (newgltfjson.gdttable[myGlobalActiveDataTable]) {
+                newgltfjson.gdttable[myGlobalActiveDataTable].selectedObjects =
+                  [...copy_selectobjects];
+                newgltfjson.gdttable[myGlobalActiveDataTable].parentObjects = [
+                  ...newParentObjects
+                ];
+                newgltfjson.gdttable[myGlobalActiveDataTable].mates = [
+                  ...copy_mateobjects
+                ];
+                //const renderingdata = changingdata || state.renderdata;
+                //newgltfjson.renderdata = renderingdata;
+                setgltfjson(newgltfjson);
+                console.log(
+                  'adding parent object gltfjson.gdttable[myGlobalActiveDataTable]',
+                  node,
+                  newgltfjson,
+                  myGlobalState
+                );
+              }
             } else {
             }
           } else {
@@ -1504,24 +1505,26 @@ export default function GeometricDimensioning(props) {
               newgltfjson.gdttable,
               myGlobalActiveDataTable
             );
-            newgltfjson.gdttable[myGlobalActiveDataTable].selectedObjects = [
-              ...copy_selectobjects
-            ];
-            newgltfjson.gdttable[myGlobalActiveDataTable].parentObjects = [
-              ...newParentObjects
-            ];
-            newgltfjson.gdttable[myGlobalActiveDataTable].mates = [
-              ...copy_mateobjects
-            ];
-            //const renderingdata = changingdata || state.renderdata;
-            //newgltfjson.renderdata = renderingdata;
-            setgltfjson(newgltfjson);
-            console.log(
-              'setting parent object',
-              copy_parentobjects,
-              newgltfjson,
-              myGlobalState
-            );
+            if (newgltfjson.gdttable[myGlobalActiveDataTable]) {
+              newgltfjson.gdttable[myGlobalActiveDataTable].selectedObjects = [
+                ...copy_selectobjects
+              ];
+              newgltfjson.gdttable[myGlobalActiveDataTable].parentObjects = [
+                ...newParentObjects
+              ];
+              newgltfjson.gdttable[myGlobalActiveDataTable].mates = [
+                ...copy_mateobjects
+              ];
+              //const renderingdata = changingdata || state.renderdata;
+              //newgltfjson.renderdata = renderingdata;
+              setgltfjson(newgltfjson);
+              console.log(
+                'setting parent object',
+                copy_parentobjects,
+                newgltfjson,
+                myGlobalState
+              );
+            }
           }
         } else {
           if (data.selectedshell) {
@@ -1538,24 +1541,26 @@ export default function GeometricDimensioning(props) {
               newgltfjson.gdttable,
               myGlobalActiveDataTable
             );
-            newgltfjson.gdttable[myGlobalActiveDataTable].selectedObjects = [
-              ...copy_selectobjects
-            ];
-            newgltfjson.gdttable[myGlobalActiveDataTable].parentObjects = [
-              ...newParentObjects
-            ];
-            newgltfjson.gdttable[myGlobalActiveDataTable].mates = [
-              ...copy_mateobjects
-            ];
-            //const renderingdata = changingdata || state.renderdata;
-            //newgltfjson.renderdata = renderingdata;
-            setgltfjson(newgltfjson);
-            console.log(
-              'Assigning parent object',
-              node,
-              newgltfjson,
-              myGlobalState
-            );
+            if (newgltfjson.gdttable[myGlobalActiveDataTable]) {
+              newgltfjson.gdttable[myGlobalActiveDataTable].selectedObjects = [
+                ...copy_selectobjects
+              ];
+              newgltfjson.gdttable[myGlobalActiveDataTable].parentObjects = [
+                ...newParentObjects
+              ];
+              newgltfjson.gdttable[myGlobalActiveDataTable].mates = [
+                ...copy_mateobjects
+              ];
+              //const renderingdata = changingdata || state.renderdata;
+              //newgltfjson.renderdata = renderingdata;
+              setgltfjson(newgltfjson);
+              console.log(
+                'Assigning parent object',
+                node,
+                newgltfjson,
+                myGlobalState
+              );
+            }
           } else {
             const newParentObjects = [];
             setState({ parentObjects: newParentObjects });
@@ -1566,19 +1571,21 @@ export default function GeometricDimensioning(props) {
               newgltfjson.gdttable,
               myGlobalActiveDataTable
             );
-            newgltfjson.gdttable[myGlobalActiveDataTable].selectedObjects = [
-              ...copy_selectobjects
-            ];
-            newgltfjson.gdttable[myGlobalActiveDataTable].parentObjects = [
-              ...newParentObjects
-            ];
-            newgltfjson.gdttable[myGlobalActiveDataTable].mates = [
-              ...copy_mateobjects
-            ];
-            //const renderingdata = changingdata || state.renderdata;
-            //newgltfjson.renderdata = renderingdata;
-            setgltfjson(newgltfjson);
-            console.log('Emptying parent object', newgltfjson, myGlobalState);
+            if (newgltfjson.gdttable[myGlobalActiveDataTable]) {
+              newgltfjson.gdttable[myGlobalActiveDataTable].selectedObjects = [
+                ...copy_selectobjects
+              ];
+              newgltfjson.gdttable[myGlobalActiveDataTable].parentObjects = [
+                ...newParentObjects
+              ];
+              newgltfjson.gdttable[myGlobalActiveDataTable].mates = [
+                ...copy_mateobjects
+              ];
+              //const renderingdata = changingdata || state.renderdata;
+              //newgltfjson.renderdata = renderingdata;
+              setgltfjson(newgltfjson);
+              console.log('Emptying parent object', newgltfjson, myGlobalState);
+            }
           }
         }
       } else {
@@ -1721,19 +1728,24 @@ export default function GeometricDimensioning(props) {
       myGlobalActiveDataTable,
       activeTable
     );
-    newgltfjson.gdttable[activeTable].selectedObjects = [...copy_selectobjects];
-    newgltfjson.gdttable[activeTable].parentObjects = [...copy_parentobjects];
-    newgltfjson.gdttable[activeTable].mates = [...copy_mateobjects];
-    //const renderingdata = changingdata || state.renderdata;
-    //newgltfjson.renderdata = renderingdata;
-    setgltfjson(newgltfjson);
-    console.log(
-      'PreFinal gltfson',
-      newgltfjson,
-      newgltfjson.gdttable,
-      newgltfjson.gdttable[activeTable].selectedObjects,
-      copy_selectobjects
-    );
+    if (newgltfjson.gdttable[activeTable]) {
+      newgltfjson.gdttable[activeTable].selectedObjects = [
+        ...copy_selectobjects
+      ];
+      newgltfjson.gdttable[activeTable].parentObjects = [...copy_parentobjects];
+      newgltfjson.gdttable[activeTable].mates = [...copy_mateobjects];
+      //const renderingdata = changingdata || state.renderdata;
+      //newgltfjson.renderdata = renderingdata;
+      setgltfjson(newgltfjson);
+      console.log(
+        'PreFinal gltfson',
+        newgltfjson,
+        newgltfjson.gdttable,
+        newgltfjson.gdttable[activeTable].selectedObjects,
+        copy_selectobjects
+      );
+    }
+
     setState({
       selectedObjects: [...copy_selectobjects],
       parentObjects: [...copy_parentobjects],
