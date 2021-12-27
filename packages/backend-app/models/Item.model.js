@@ -13,7 +13,8 @@ const ItemMotionControlSchema = new mongoose.Schema(
     cylindrical_axis_of_rotation: { type: Number, default: 0 },
     axis_before_link: { type: Number, default: 0 },
     axis_after_link: { type: Number, default: 0 },
-    angle_or_distant_limit: { type: Number, default: 0 }
+    angle_or_distant_limit: { type: Number, default: 0 },
+    is_end_effector: { type: Boolean, default: false }
   },
   {
     timestamps: true
@@ -100,8 +101,8 @@ const ItemSchema = new mongoose.Schema(
     is_archived: { type: Boolean, default: false },
     is_actuator_type: { type: Boolean, default: false },
     actuator_motion_control: ItemMotionControlSchema,
-    created_by: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    updated_by: { type: Schema.Types.ObjectId, ref: 'User', required: true }
+    created_by: { type: Schema.Types.ObjectId, ref: 'User' },
+    updated_by: { type: Schema.Types.ObjectId, ref: 'User' }
   },
   {
     timestamps: true

@@ -272,13 +272,13 @@ export default function MotionControlComponent({
                   <TableCell padding="none"></TableCell>
                   <TableCell padding="none">
                     <Radio
-                      value={item.id}
+                      checked={actuator_motion_control.is_end_effector}
                       name="radio-buttons"
                       inputProps={{ 'aria-label': 'A' }}
                       onChange={(event) =>
                         updateMotionControlActuator(item.id, {
                           ...actuator_motion_control,
-                          end_effector: event.target.checked
+                          is_end_effector: event.target.checked
                         })
                       }
                     />

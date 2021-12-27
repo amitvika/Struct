@@ -15,7 +15,8 @@ export const useStyles = makeStyles((theme) => ({
   logo: {
     fontWeight: 600,
     color: '#FFFEFE',
-    textAlign: 'left'
+    textAlign: 'left',
+    width: '150px !important'
   },
   primaryListHeader: {
     display: 'flex',
@@ -38,7 +39,8 @@ export const useStyles = makeStyles((theme) => ({
     '&::after': {
       content: '',
       borderLeft: '1px solid white'
-    }
+    },
+    whiteSpace: 'nowrap !important'
   },
   menuContainer: {
     display: 'flex',

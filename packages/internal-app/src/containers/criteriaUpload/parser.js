@@ -51,7 +51,7 @@ export const hierarchyFileParser = async (file, title) => {
         prevParents.push(parentValue);
         prevIndex = valueIndex;
       } else {
-        prevParents.splice(prevIndex, 1);
+        prevParents.splice(valueIndex);
         prevParents.push(parentValue);
       }
 
@@ -71,6 +71,7 @@ export const hierarchyFileParser = async (file, title) => {
           break;
         }
       }
+
       let keyName = `${prevParents.join('|')}`;
 
       if (options.length > 0) {

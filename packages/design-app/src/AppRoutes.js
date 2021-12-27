@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 
 import AppDesignerPage from './pages/AppDesignerPage';
-import Layout from './components/Layout';
+import Layout from './components/Layout/Layout';
 import DesignPage from './pages/DesignPage/index';
 import CadMaker from './pages/CadMaker/CadMaker';
 import PcbTab from './containers/pcb';
