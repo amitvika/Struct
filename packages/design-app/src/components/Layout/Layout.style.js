@@ -9,7 +9,8 @@ export const useStyles = makeStyles((theme) => ({
       content: '',
       borderLeft: '1px solid white'
     },
-    whiteSpace: 'nowrap !important'
+    whiteSpace: 'nowrap !important',
+    color: '#ffffff !important'
   },
   linkSelected: {
     background: '#5D6D7E !important',

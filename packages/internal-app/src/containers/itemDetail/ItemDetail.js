@@ -125,15 +125,6 @@ const ItemDetail = ({ itemValue }) => {
   }, []);
 
   const handleGLTFAndTreeLoading = ({ item, myTabedIndex }) => {
-    /* console.log(
-      'Coming here1 handleGLTFAndTreeLoading ',
-      item.fileId,
-      item.fileUUId,
-      myTabedIndex,
-      tabIndex,
-      item,
-      itemProperties
-    ); */
     if (
       myTabedIndex !== tabIndex ||
       (!item.fileId && !item.fileUUId) ||
@@ -141,7 +132,6 @@ const ItemDetail = ({ itemValue }) => {
     ) {
       return;
     }
-    //console.log('Coming here2 handleGLTFAndTreeLoading ');
     setGLTFAndTree({ item, myTabedIndex });
   };
 
@@ -169,26 +159,13 @@ const ItemDetail = ({ itemValue }) => {
         setCompletionProgressText,
         setgltfjson
       };
-      /* console.log(
-        'TabIndexes',
-        myTabIndex,
-        myTabedIndex,
-        tabIndex,
-        item,
-        regenerateKinematicMove,
-        showKinematicMove
-      ); */
+
       if (myTabIndex === 'iupc') {
         let okToParse = await isOKToParseForInternalUseProduct({
           item,
           regenerateKinematicMove
         });
-        /* console.log(
-          'What I got from oktoparse',
-          okToParse,
-          item,
-          regenerateKinematicMove
-        ); */
+
         if (!item.fileKinematic || item.fileKinematic === null) {
           updatedItemProp = await handleInternalUseProduct({
             item,
@@ -246,9 +223,7 @@ const ItemDetail = ({ itemValue }) => {
           });
         }
       } else {
-        //        console.log('Item before ok to parse', item);
         let okToParse = await isOKToParseForOtherTab({ item });
-        //        console.log('Item after ok to parse', item);
         if (!item.fileGDT || item.fileGDT === null) {
           updatedItemProp = await handleOtherTabCase({
             item,
@@ -280,9 +255,7 @@ const ItemDetail = ({ itemValue }) => {
       }
 
       setItemProperties((prev) => ({ ...prev, updatedItemProp }));
-      console.log('BEfore Calling handle save', gltfjson);
       handleSave(updatedItemProp); //Revert back after testing
-      console.log('After Calling handle save', gltfjson);
       if (item.fileGDT && item.child_item_status === 'INITIATED') {
         const childrenCreated = await createChildItems({
           item,
@@ -299,9 +272,7 @@ const ItemDetail = ({ itemValue }) => {
           handleSave({ child_item_status: 'COMPLETED' });
         }
       }
-    } catch (error) {
-      console.log('Error', error);
-    }
+    } catch (error) {}
     setIsLoading(false);
     setIsFileLoading(false);
     setProgressBarLoad(false);
@@ -372,7 +343,6 @@ const ItemDetail = ({ itemValue }) => {
     itemProperties.step = undefined;
     itemProperties.gltfjson = undefined;
     itemProperties.itemId = undefined;
-    console.log('GLTFJSON before saving', gltfjson);
     let updateItemProperties = Object.assign({}, itemProperties, change);
 
     if (Object.keys(updateItemProperties).length === 0) {
@@ -380,19 +350,13 @@ const ItemDetail = ({ itemValue }) => {
         if (state_additionalSaveFunction) {
           state_additionalSaveFunction();
         }
-      } catch (error) {
-        console.log('Error while saving', error);
-      }
+      } catch (error) {}
       return;
     }
 
     ItemAPI.updateItemAPI(id, { ...updateItemProperties })
       .then((res) => {
         if (res && res.data) {
-          console.log(
-            'Changing item properties from handle save after UpdateItemAPI',
-            res.data
-          );
           setItemProperties(res.data);
           setAllowFirstLevelItems(res.data?.child_item_status === 'INITIATED');
           dispatch(showSuccessAlert({ message: 'Item Updated' }));
@@ -407,10 +371,7 @@ const ItemDetail = ({ itemValue }) => {
       if (state_additionalSaveFunction) {
         state_additionalSaveFunction();
       }
-    } catch (error) {
-      console.log('Error while saving', error);
-    }
-    console.log('GLTFJSON after saving', gltfjson);
+    } catch (error) {}
   };
 
   /*useEffect(() => {

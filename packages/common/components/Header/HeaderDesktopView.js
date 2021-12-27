@@ -194,7 +194,7 @@ export default function HeaderDesktopView({
     menuItems = getMenuButtons(secondHeaderList);
 
     menuItems.push(
-      <li>
+      <li key={'second_menu_theme'}>
         <IconButton
           sx={{ ml: 1 }}
           onClick={colorMode.toggleColorMode}
@@ -210,7 +210,7 @@ export default function HeaderDesktopView({
     );
 
     menuItems.push(
-      <li>
+      <li key={'second_menu_setting'}>
         <Tooltip title={isAuthenticated ? 'Open settings' : 'Go To Login Page'}>
           <Button
             onClick={handleOpenUserMenu}
@@ -252,7 +252,7 @@ export default function HeaderDesktopView({
     );
 
     menuItems.push(
-      <li style={{ marginLeft: 10 }}>
+      <li key={'second_avatar'} style={{ marginLeft: 10 }}>
         <Tooltip title="Open settings">
           <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
             <Avatar alt={'Hello'} src="/static/images/avatar/2.jpg" />

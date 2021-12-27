@@ -1,8 +1,4 @@
-import {
-  LinearProgress,
-  CircularProgress,
-  Typography
-} from '@mui/material';
+import { LinearProgress, CircularProgress, Typography } from '@mui/material';
 export default function LinearProgressBarTiming(props) {
   const {
     value,
@@ -11,6 +7,7 @@ export default function LinearProgressBarTiming(props) {
     centerActionText,
     progressBarRender
   } = props;
+
   let getTrimmedValue = 0;
   getTrimmedValue = value ? parseFloat(value.toFixed(3)) : 0;
   if (isNaN(getTrimmedValue)) {
@@ -22,7 +19,6 @@ export default function LinearProgressBarTiming(props) {
       <LinearProgress
         variant="determinate"
         value={getTrimmedValue}
-        {...props}
         style={{ height: '15px' }}
       />
       {(currentProgressText || progressBarRender) && (

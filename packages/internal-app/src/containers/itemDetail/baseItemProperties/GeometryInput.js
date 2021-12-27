@@ -177,9 +177,7 @@ export default function GeometryInput({
 
           <Grid item className={classes.item_row}>
             <Typography variant="h6">{'Assembly Type :'}</Typography>
-            <Typography variant="h6" bold>
-              {itemProperties.assemblyType}
-            </Typography>
+            <Typography variant="h6">{itemProperties.assemblyType}</Typography>
           </Grid>
           <Grid item className={classes.item_row}>
             <Typography variant="h6">{'Direct Parent ID :'}</Typography>

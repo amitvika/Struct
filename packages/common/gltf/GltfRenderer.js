@@ -6878,7 +6878,6 @@ class GLTFRenderer extends Component {
           onClose={this.closeSnackBar}
         >
           <MuiAlert
-            severity={this.state.snackBarAlertType}
             color={this.state.snackBarAlertType}
             variant="filled"
             onClose={this.closeSnackBar}

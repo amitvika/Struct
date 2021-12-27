@@ -16,7 +16,7 @@ export default function LogoComponent({ isInternalApp }) {
           alt="logo"
           width={isInternalApp ? '180px' : '100%'}
           height={isInternalApp ? '40px' : '50px'}
-          style={{ 'object-fit': isInternalApp ? 'contain' : 'cover' }}
+          style={{ objectFit: isInternalApp ? 'contain' : 'cover' }}
         />
       </div>
     </Typography>
