@@ -68,7 +68,11 @@ export default function Viewer({
       setfileUUIder(fileUUId);
     }
   }, [fileUUId]);
-
+  // useEffect(() => {
+  //   if (gltfjson) {
+  //     console.log('I got a change in gltfjson', gltfjson);
+  //   }
+  // }, [gltfjson]);
   useEffect(() => {
     setProgressBarLoader(progressBarLoad);
   }, [progressBarLoad]);

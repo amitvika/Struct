@@ -3114,7 +3114,7 @@ class StepIgesAnalyser():
         self.percentage = myPercentage + percentincrement
         self.write_status()
     
-    def updateName(self,name,forNodes,addOne=0,display=False,displayName=None):
+    def updateName(self,name,forNodes,addOne=0,display=False,displayName=None,addNumber=False):
         suffix = self.fileprefix+str(self.distancegap)+str(self.anglegap)+" "+str(self.uniqueid+addOne)         
         if name:
             nameForNode = html.escape(self.validFileName(name+" "+suffix))            
@@ -3123,7 +3123,8 @@ class StepIgesAnalyser():
         if display:
             forNodes[self.gltf_Dict["name"]] = nameForNode
             if ((name) or (displayName)):
-                forNodes[self.gltf_Dict["display"]] = html.escape(displayName if (displayName) else name)
+                displayNameAndUniqueID = (displayName if (displayName) else name) + (str(self.uniqueid+addOne) if addNumber else '')
+                forNodes[self.gltf_Dict["display"]] = html.escape(displayNameAndUniqueID)
             else:
                 forNodes[self.gltf_Dict["display"]] = html.escape("No Name"+" "+suffix)
         else:
@@ -4983,7 +4984,7 @@ class StepIgesAnalyser():
         self._share_dict[entry] = value
         return entry + '.' + str(value)   
     
-    def updateParentChild(self,name,aShape,displayname):
+    def updateParentChild(self,name,aShape,displayname,addNumber=False):
         dictionaryLen = len(self.tstep_dict['tree'])
         self.uniqueid = dictionaryLen+1
         mesher_dict = {
@@ -5008,7 +5009,7 @@ class StepIgesAnalyser():
             self.gltf_Dict["points"]:None,
             self.gltf_Dict["entity"]:{}
             }
-        self.updateName(name,mesher_dict,0,True,displayname)
+        self.updateName(name,mesher_dict,0,True,displayname,addNumber)
         if aShape and self.disectparts:
             returnDict = []
             dumpTopologyStructures(aShape,level=0,parentId=[None],returnStructure=returnDict,faceInfo=None)
@@ -5697,13 +5698,14 @@ class StepIgesAnalyser():
             else:
                 if(fromRecursion==False):
                     buff, solidfound, uvbuff, uvPlane = self.part_buffer(part)
-            
-            mesherDict = self.updateParentChild(name,part,nameroot)
+            myFileType = filetype[0:1]
+            addNumber = myFileType=='F' or myFileType=='E' or myFileType=='V'
+            mesherDict = self.updateParentChild(name,part,nameroot,addNumber)
             #print("add_part", mesherDict)
             mesher_dict = self.findDictionary(mesherDict)
             #print("mesh",mesher_dict)
             mesher_dict[self.gltf_Dict["step"]] = os.path.basename(filenameuri)
-            myFileType = filetype[0:1]
+           
             mesher_dict[self.gltf_Dict["element"]] = myFileType
             mesher_dict[self.gltf_Dict["geometry"]] = curvecode
             

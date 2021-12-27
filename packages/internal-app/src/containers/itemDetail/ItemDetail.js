@@ -511,6 +511,7 @@ const ItemDetail = ({ itemValue }) => {
             fileGDT={itemProperties.fileGDT}
             fileUUId={itemProperties.fileUUId}
             gltfjson={gltfjson}
+            setgltfjson={setgltfjson}
             isLoading={isLoading}
             //assemblyTree={get(gltfjson, 'tree', [])}
             tabIndex={tabIndex}

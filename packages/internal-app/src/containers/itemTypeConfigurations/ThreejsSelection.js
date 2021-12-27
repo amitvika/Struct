@@ -34,6 +34,14 @@ export default function ThreejsSelection(props) {
     setMyvalue(value);
   }, [value]);
 
+  React.useEffect(() => {
+    console.log('Getting changed clicked state to assign', active);
+    setClicked(active);
+    if (active) {
+      onClick(mykey);
+    }
+  }, [active]);
+
   const getMyOption = () => {
     if (
       mytype == 'PartSelection' ||
@@ -135,7 +143,7 @@ export default function ThreejsSelection(props) {
     if (!myvalue) {
       return '\u0020';
     }
-    //console.log('GetComponents2', myvalue);
+    console.log('GetComponents2', myvalue);
     return myvalue.map((row, index) =>
       row
         ? row[gltf_Dict['name']]
@@ -211,7 +219,16 @@ export default function ThreejsSelection(props) {
           setClicked(clickedState);
           if (clickedState) {
             const myoption = getMyOption();
-
+            myvalue.forEach((element) => {
+              element.selectedshell = true;
+              element.selected = true;
+            });
+            console.log(
+              'setRenderData1',
+              myvalue,
+              { name: mykey, option: myoption },
+              onChange
+            );
             setRenderData(myvalue, { name: mykey, option: myoption }, onChange);
 
             if (mytype === 'CircularFaceOrEdgeSelection') {
@@ -219,11 +236,16 @@ export default function ThreejsSelection(props) {
             }
             onClick(mykey);
           } else {
+            console.log(
+              'setRenderData2',
+              (myvalue, { name: 'NoKey', option: SELECTFEATURE }, onChange)
+            );
             setRenderData(
               myvalue,
               { name: 'NoKey', option: SELECTFEATURE, onChange },
               null
             );
+            onClick('NoKey');
           }
         }}
       >

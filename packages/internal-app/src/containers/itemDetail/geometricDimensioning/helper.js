@@ -96,10 +96,18 @@ export const buildParentChildTree = (
           selected: item.selectedshell
         };
       } else {
-        item['state'].selected = item.selectedshell;
+        const mySelectedToupdate = item.selectedshell;
         const currentNode = findMyTreeNode(item, myGlobalTree);
+
         if (currentNode) {
-          item['state'].expanded = currentNode['state'].expanded;
+          item['state'] = {
+            expanded: currentNode['state'].expanded,
+            selected: mySelectedToupdate
+          };
+        } else {
+          item['state'] = {
+            selected: mySelectedToupdate
+          };
         }
       }
       const { [idKey]: id, [parentKey]: parentId = 0 } = item;

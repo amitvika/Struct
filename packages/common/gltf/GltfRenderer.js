@@ -413,6 +413,12 @@ class GLTFRenderer extends Component {
       stringify(prevProps.gltfobj || {}) !==
       stringify(this.props.gltfobj || {});
     const toInvokeRender = toChange;
+    /* console.log(
+      'Do i need to render',
+      toInvokeRender,
+      this.props.gltfobj,
+      prevProps.gltfobj
+    ); */
     toChange = toChange || prevProps.activeFile !== this.props.activefile;
     toChange = toChange || prevProps.materialtype != this.props.materialtype;
     toChange =
@@ -433,12 +439,15 @@ class GLTFRenderer extends Component {
     }
     toChange = toChange || edgeChange;
     if (toChange) {
-      // console.log(
-      //   'Changing this_state_gltf',
-      //   this.props.gltfobj,
-      //   this_state_gltf,
-      //   prevProps.gltfobj
-      // );
+      if (toInvokeRender) {
+        console.log(
+          'Changing this_state_gltf',
+          this.props.gltfobj,
+          this_state_gltf,
+          prevProps.gltfobj
+        );
+      }
+
       if (this.props.gltfobj != null) {
         this_state_gltf = this.props.gltfobj;
       }
@@ -1272,7 +1281,12 @@ class GLTFRenderer extends Component {
         state_gltfobj.gdttable,
         this.props.activeDataTable
       );
-      let gdttable = state_gltfobj.gdttable || [defaultGDTTable];
+      let gdttable = [];
+      if (isEmptyObjectDictionary(state_gltfobj.gdttable)) {
+        gdttable = [defaultGDTTable];
+      } else {
+        gdttable = state_gltfobj.gdttable || [defaultGDTTable];
+      }
       this.updateGDTTable(gdttable[this.props.activeDataTable]);
       //console.log(this.props);
     }
@@ -1293,7 +1307,15 @@ class GLTFRenderer extends Component {
       gdttableEdges.edges.forEach((element) => {
         //console.log("my node",element,element.name);
         const node = element.name ? this.findMyMaterial(element) : null;
-        console.log('my node', element.name, 'material node', node);
+        // console.log(
+        //   'my node',
+        //   element.name,
+        //   'material node',
+        //   node,
+        //   element.parent,
+        //   element.start,
+        //   element.finish
+        // );
         this.loadAllEdges(
           element.parent,
           element.start,
@@ -5155,7 +5177,13 @@ class GLTFRenderer extends Component {
               //this.changeState = true;
               //this.setState({gltfobj:gltfobj});
               this_state_gltf = gltfobj;
-              //console.log("About to set upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj,gltfobj)
+              // console.log(
+              //   'About to set upload edges',
+              //   state_gltfobj,
+              //   this_state_gltf,
+              //   this.props.gltfobj,
+              //   gltfobj
+              // );
 
               if (this.props.setStateOfgltf) {
                 this.props.setStateOfgltf(gltfobj);

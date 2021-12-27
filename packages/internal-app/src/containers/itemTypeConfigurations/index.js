@@ -25,6 +25,7 @@ export default function ItemTypeConfiguration(props) {
     fileUUId,
     fileGDT,
     gltfjson,
+    setgltfjson,
     isLoading,
     itemProperties,
     handleItemUpdate,
@@ -302,6 +303,7 @@ export default function ItemTypeConfiguration(props) {
         fileGDT={fileGDT}
         fileUUId={fileUUIder}
         gltfjson={gltfjson}
+        setgltfjson={setgltfjson}
         isLoading={isFileLoading}
         tabIndex={tabIndex}
         keyName={fieldKey}
