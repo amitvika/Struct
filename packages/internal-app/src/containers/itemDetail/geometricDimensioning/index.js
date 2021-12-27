@@ -435,7 +435,7 @@ export default function GeometricDimensioning(props) {
     saveGDTInfo(myTree.gdttable, fileGDT, fileUUIder)
       .then((res) => res.data)
       .then((data) => {
-        console.log('Getting Resources', data);
+        console.log('Getting saved Resources from gdt', data, myTree.gdttable);
       });
   };
   const resetActiveDataTable = () => {
@@ -1525,7 +1525,14 @@ export default function GeometricDimensioning(props) {
       copy_selectobjects = structure.objects;
       copy_mateobjects = structure.mates;
     } else {
-      console.log('I could not get any togetinfo');
+      console.log(
+        'I could not get any togetinfo',
+        toGetInfo,
+        toAddShapeInfo,
+        copy_selectobjects,
+        copy_parentobjects,
+        copy_mateobjects
+      );
     }
     setState({
       selectedObjects: copy_selectobjects,

@@ -1216,7 +1216,7 @@ class StepExportWithColor(object):
                     self.shapetool.UpdateAssemblies()
         else:     
             #print("Recursing a shape",treeName,aTree)      
-            subassembly=self.GetAssemblyOutPutShapes(treeID,myTree,shapes,treeName,treeLength,fuuid)
+            subassembly=self.GetAssemblyOutPutShapes(treeID,myTree,shapes,treeDisplay,treeLength,fuuid)
             self.shapetool.AddComponent(assembly, subassembly,TopLoc_Location())  
             self.shapetool.UpdateAssemblies()
 
@@ -1394,7 +1394,7 @@ class StepExportWithColor(object):
             return (shape,treeDisplay,R,G,B)
         else:     
             #print("Recursing a shape",treeName,aTree)      
-            subassembly=self.GetFirstLevelAssemblyOutPutShapes(treeID,myTree,shapes,treeName,treeLength,fuuid)
+            subassembly=self.GetFirstLevelAssemblyOutPutShapes(treeID,myTree,shapes,treeDisplay,treeLength,fuuid)
             return subassembly
 
     def GetFirstLevelAssemblyOutPutShapes(self,myParent,myTree,shapes,name,treeLength,fuuid): 
@@ -1406,12 +1406,15 @@ class StepExportWithColor(object):
         R,G,B=0.3,0.32,0.37
         lengthCheck=0
         oneItemAdded = 0
+        treeForDisplay = name
+        treeDisplay=''
         for aTree in myTree:
             if aTree[self.gltf_dict['parentId']]==myParent : 
                 (shape, treeDisplay, R_, G_, B_) =  self.GetFirstLevelSelfAndTreeFromOutputShapes(aTree,shapes,myTree,treeLength,fuuid)
                 if shape:
                     try:
                         comp_builder.Add(comp, shape)
+                        treeForDisplay = treeDisplay
                         oneItemAdded+=1
                     except Exception as e:
                         print("Exception while adding compound",e)
@@ -1420,9 +1423,9 @@ class StepExportWithColor(object):
             if lengthCheck >=treeLength:
                 break
         if oneItemAdded>0:
-            return (comp, treeDisplay, R, G, B)
+            return (comp, treeForDisplay, R, G, B)
         else:
-            return (None, treeDisplay, R, G, B)
+            return (None, treeForDisplay if treeDisplay=='' else treeDisplay, R, G, B)
     
     def getChildTreeCountAndDeepestParentID(self,myParent,myTree,treeLength,checkOnlyMore):
         assemblyCount=0

@@ -376,6 +376,13 @@ const ItemDetail = ({ itemValue }) => {
     let updateItemProperties = Object.assign({}, itemProperties, change);
 
     if (Object.keys(updateItemProperties).length === 0) {
+      try {
+        if (state_additionalSaveFunction) {
+          state_additionalSaveFunction();
+        }
+      } catch (error) {
+        console.log('Error while saving', error);
+      }
       return;
     }
 

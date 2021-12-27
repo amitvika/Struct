@@ -202,7 +202,10 @@ export default function MotionControlComponent({
                       gltfjson,
                       filePartName: itemName(item)
                     });
-                    setRenderData(tableData);
+                    setRenderData(tableData, {
+                      name: 'NoKey',
+                      option: SELECTASSEMBLY
+                    });
                     console.log('Clicked and Sent', tableData, item.id);
                     /*                     setSelectedValue(item.id);
                     setSelectedOption(SELECTASSEMBLY);

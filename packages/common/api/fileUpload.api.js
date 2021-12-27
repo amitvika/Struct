@@ -6,7 +6,7 @@ import CircularJSON from '../gltf/CircularJson';
 
 let baseURL = process.env.REACT_APP_GLTF_CONVERTER;
 
-baseURL = `https://cadapi.struct.services`;
+// baseURL = `https://cadapi.struct.services`;
 
 const host = `${baseURL}/api/v0`;
 
@@ -231,6 +231,7 @@ export const getAFileFromURLStore = async (store, ext, fromURL) => {
       availURL ? availURL : fromURL ? fromURL : ''
     }${store}.${ext}`;
     try {
+      //console.log('Fetching from direct', fetchURL);
       const resData = await axios.get(fetchURL);
       if (resData) return resData;
     } catch (error) {
@@ -241,6 +242,7 @@ export const getAFileFromURLStore = async (store, ext, fromURL) => {
       let isFileExists = await isFileExistingInServer(linuxURL);
       if (isFileExists) {
         try {
+          //console.log('Fetching from linux', linuxURL);
           const resData = await axios.get(linuxURL);
           if (resData) return resData;
         } catch (error) {

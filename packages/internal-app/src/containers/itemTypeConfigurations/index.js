@@ -159,9 +159,9 @@ export default function ItemTypeConfiguration(props) {
 
     setRenderData(selectedNodes);
     setWhatchange(SELECTANITEM);
-    if (aFileKey) {
-      setFieldKey(aFileKey);
-    }
+    //if (aFileKey) {
+    setFieldKey(aFileKey);
+    //}
 
     state_fileOnChange = OnChange;
     console.log(
