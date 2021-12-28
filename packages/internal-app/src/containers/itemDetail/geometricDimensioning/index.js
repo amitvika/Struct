@@ -27,6 +27,7 @@ import { stringify } from '@monostruct/common/gltf/Flatted.js';
 import Assembly from '../assembly';
 import { buildParentChildTree } from './helper';
 import { Box } from '@mui/system';
+import { get } from 'lodash';
 
 let myGlobalTree = null;
 let myGlobalState = {};
@@ -1751,12 +1752,7 @@ export default function GeometricDimensioning(props) {
       parentObjects: [...copy_parentobjects],
       mates: [...copy_mateobjects]
     });
-    console.log(
-      'Final gltfson',
-      newgltfjson,
-      newgltfjson.gdttable[activeTable].selectedObjects,
-      copy_selectobjects
-    );
+
     if (handleChangeOfSelection) {
       //console.log('changing selections', copy_selectobjects);
       handleChangeOfSelection(copy_selectobjects);
