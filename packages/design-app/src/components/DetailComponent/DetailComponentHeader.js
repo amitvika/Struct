@@ -9,9 +9,11 @@ import Tooltip from '@mui/material/Tooltip';
 
 export default function DetailComponentHeader({
   title,
-  isAddDesignVisible = true
+  isAddDesignVisible = true,
+  type
 }) {
   const classes = useStyles();
+
   return (
     <Paper
       className={classes.paperContainer}

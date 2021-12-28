@@ -27,6 +27,7 @@ export default function AddDesign({ handleSave, name }) {
   const handleSaveTitle = () => {
     setValue(value);
     setIsEditing(false);
+    handleSave({});
   };
 
   return (
