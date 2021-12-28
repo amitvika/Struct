@@ -12,12 +12,10 @@ import {
 export const buildParentChildTree = (
   data = [],
   mySelectedOption = 0,
-  {
-    idKey = gltf_Dict['id'],
-    parentKey = gltf_Dict['parentId'],
-    childrenKey = 'children'
-  } = {},
-  myGlobalTree
+  idKey = gltf_Dict['id'],
+  parentKey = gltf_Dict['parentId'],
+  childrenKey = 'children',
+  myGlobalTree = null
 ) => {
   const tree = [];
   const childrenOf = {};
@@ -31,6 +29,7 @@ export const buildParentChildTree = (
   } catch (error) {
     return tree;
   }
+  //console.log(data, mySelectedOption, mySelectedOption == SELECTFACE);
   data.forEach((item) => {
     let visible = false;
     if (item[gltf_Dict['topLeft']]) {
@@ -81,7 +80,11 @@ export const buildParentChildTree = (
             visible = true;
           }
         }
+      } else {
+        //visible = true;
       }
+    } else {
+      //visible = true;
     }
     if (visible) {
       if (!item['id']) {
@@ -119,6 +122,7 @@ export const buildParentChildTree = (
     }
   });
   myGlobalTree = tree;
+  //console.log('Got myGlobalTree', tree, myGlobalTree);
   return tree;
 };
 

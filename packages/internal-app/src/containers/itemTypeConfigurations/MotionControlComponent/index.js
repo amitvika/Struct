@@ -39,12 +39,14 @@ export default function MotionControlComponent({
         const thisList = get(res, 'data', []);
         setItemList(thisList);
         setKinematicItemList(thisList);
+        setSelectedOption(SELECTASSEMBLY);
       })
       .catch((error) => {});
   }, []);
 
   React.useEffect(() => {
     setItemList(kinematicItemList);
+    setSelectedOption(SELECTASSEMBLY);
   }, [kinematicItemList]);
 
   React.useEffect(() => {
@@ -91,6 +93,7 @@ export default function MotionControlComponent({
   }, [selected3JSData]);
 
   const updateMotionControlActuator = (id, change) => {
+    setSelectedOption(SELECTASSEMBLY);
     ItemApi.updateItemAPI(id, { actuator_motion_control: change })
       .then((res) => {
         setKinematicItemList(
@@ -103,6 +106,7 @@ export default function MotionControlComponent({
   const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
   const renderAxisMenu = () => {
+    setSelectedOption(SELECTASSEMBLY);
     return itemList.map((item, index) => (
       <MenuItem value={index + 1}>{index + 1}</MenuItem>
     ));
@@ -133,6 +137,7 @@ export default function MotionControlComponent({
   };
 
   const SelectAxisMenu = ({ keyName, itemId, actuator_motion_control }) => {
+    //setSelectedOption(SELECTASSEMBLY);
     return (
       <>
         {selectedValue === itemId ? (

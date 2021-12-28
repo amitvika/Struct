@@ -3510,7 +3510,7 @@ class GLTFRenderer extends Component {
         this_state_gltf || this.state.gltfobj || this.props.gltfobj;
 
       const myStateTree = state_gltfobj.tree;
-      //console.log("State tree",myStateTree,this.props.gltfobj);
+      //console.log('State tree', myStateTree, this.props.gltfobj);
       for (var i = 0; i < myStateTree.length; i++) {
         if (myStateTree[i][gltf_Dict['name']] == mynode.name) {
           myParentID = myStateTree[i][gltf_Dict['id']];

@@ -157,7 +157,11 @@ export default function SelectedSummaryTable({
   ];
 
   const renderMateValues = (myMateValues) => {
-    return myMateValues.map((row, index) => (row ? myCheckBoxes[index] : ''));
+    if (Array.isArray(myMateValues)) {
+      return myMateValues.map((row, index) => (row ? myCheckBoxes[index] : ''));
+    } else {
+      return '';
+    }
   };
   const getDisplayName = (row) => {
     let displayName = features
