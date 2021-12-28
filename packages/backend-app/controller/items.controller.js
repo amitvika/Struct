@@ -97,6 +97,12 @@ const buildQuery = (req) => {
     });
   }
 
+  if (req.query.not_for_public_use) {
+    query.$and.push({
+      not_for_public_use: true
+    });
+  }
+
   return query;
 };
 

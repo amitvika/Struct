@@ -101,6 +101,7 @@ const ItemSchema = new mongoose.Schema(
     is_archived: { type: Boolean, default: false },
     is_actuator_type: { type: Boolean, default: false },
     actuator_motion_control: ItemMotionControlSchema,
+    not_for_public_use: { type: Boolean, default: false },
     created_by: { type: Schema.Types.ObjectId, ref: 'User' },
     updated_by: { type: Schema.Types.ObjectId, ref: 'User' }
   },
