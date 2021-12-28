@@ -30,12 +30,10 @@ export default function ThreejsSelection(props) {
   const [clicked, setClicked] = useState(false);
 
   React.useEffect(() => {
-    console.log('Getting changed value to assign', value);
     setMyvalue(value);
   }, [value]);
 
   React.useEffect(() => {
-    console.log('Getting changed clicked state to assign', active);
     setClicked(active);
     if (active) {
       //onClick(mykey);
@@ -92,7 +90,6 @@ export default function ThreejsSelection(props) {
     //let myCode = item[gltf_Dict['geometry']];
     let first4chars = myName.slice(0, 4);
     let first6chars = myName.slice(0, 6);
-    //console.log('GetMyName', myName, first4chars, first6chars);
     if (myelement) {
       first4chars = myelement;
       first6chars = myelement;
@@ -115,7 +112,10 @@ export default function ThreejsSelection(props) {
       first4chars == 'PART'
     ) {
       return myName + '\u2003';
-    } else if (mytype == 'FaceSelection' && first4chars == 'FACE') {
+    } else if (
+      mytype == 'FaceSelection' &&
+      (first4chars == 'FACE' || first4chars == 'PART')
+    ) {
       return myName + '\u2003';
     } else if (
       mytype != 'PartSelection' &&
@@ -139,28 +139,26 @@ export default function ThreejsSelection(props) {
     }
   };
   const getComponents = (myvalue) => {
-    //console.log('GetComponents1', myvalue);
     if (!myvalue) {
       return '\u0020';
     }
-    console.log('GetComponents2', myvalue);
-    return myvalue.map((row, index) =>
-      row
-        ? row[gltf_Dict['name']]
-          ? getMyName(row)
-          : row + '\u2002'
-        : '\u0020'
-    );
+    const myvalueList = myvalue.map((row, index) => {
+      if (row && row[gltf_Dict['name']]) {
+        return getMyName(row);
+      } else if (row) {
+        return row + '\u2002';
+      }
+      return '\u0020';
+    });
+
+    return myvalueList;
   };
   const getNotEmpty = (myvalue) => {
-    //console.log('GetNotEmpty1', myvalue);
     if (!myvalue) {
       return false;
     }
-    //console.log('GetNotEmpty2', myvalue);
     for (let index = 0; index < myvalue.length; index++) {
       const item = myvalue[index];
-      //console.log(item, mytype);
       if (item && item[gltf_Dict['name']]) {
         let myelement = item[gltf_Dict['element']];
         //let myName = item[gltf_Dict['name']];
@@ -190,7 +188,10 @@ export default function ThreejsSelection(props) {
           first4chars == 'PART'
         ) {
           return true;
-        } else if (mytype == 'FaceSelection' && first4chars == 'FACE') {
+        } else if (
+          mytype == 'FaceSelection' &&
+          (first4chars == 'FACE' || first4chars == 'PART')
+        ) {
           return true;
         } else if (
           mytype != 'PartSelection' &&
@@ -215,8 +216,13 @@ export default function ThreejsSelection(props) {
         variant="contained"
         color={active && clicked ? 'primary' : 'inherit'}
         onClick={(event) => {
-          const clickedState = !clicked;
+          let clickedState = !clicked;
+
           setClicked(clickedState);
+          if (!active) {
+            clickedState = !clicked;
+          }
+
           if (clickedState) {
             const myoption = getMyOption();
             if (myvalue) {
@@ -225,12 +231,6 @@ export default function ThreejsSelection(props) {
                 element.selected = true;
               });
             }
-            console.log(
-              'setRenderData1',
-              myvalue,
-              { name: mykey, option: myoption },
-              onChange
-            );
             setRenderData(myvalue, { name: mykey, option: myoption }, onChange);
 
             if (mytype === 'CircularFaceOrEdgeSelection') {
@@ -238,10 +238,6 @@ export default function ThreejsSelection(props) {
             }
             onClick(mykey);
           } else {
-            console.log(
-              'setRenderData2',
-              (myvalue, { name: 'NoKey', option: SELECTFEATURE }, onChange)
-            );
             setRenderData(
               myvalue,
               { name: 'NoKey', option: SELECTFEATURE, onChange },
@@ -251,12 +247,9 @@ export default function ThreejsSelection(props) {
           }
         }}
       >
-        {/* <div style={{background:active?"#A0A0A0":"#D0D0D0"}}> */}
         {getNotEmpty(myvalue)
           ? getComponents(myvalue)
           : 'Please select features'}
-
-        {/* </div> */}
       </Button>
       {cylindrical_axis_of_rotation && (
         <FormGroup sx={{ flexDirection: 'row' }}>

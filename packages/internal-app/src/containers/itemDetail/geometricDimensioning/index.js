@@ -29,6 +29,7 @@ import { stringify } from '@monostruct/common/gltf/Flatted.js';
 import Assembly from '../assembly';
 import { buildParentChildTree } from './helper';
 import { Box } from '@mui/system';
+import { get } from 'lodash';
 
 let myGlobalTree = null;
 let myGlobalState = {};
