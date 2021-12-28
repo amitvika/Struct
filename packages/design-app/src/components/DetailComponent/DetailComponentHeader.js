@@ -1,10 +1,11 @@
 import React from 'react';
-
-import { Button, Paper, Grid, Typography } from '@mui/material';
-import AddBoxIcon from '@mui/icons-material/AddBox';
-import EditIcon from '@mui/icons-material/Edit';
+import { Paper, Typography } from '@mui/material';
 import { useStyles } from './DetailComponent.style';
-import AddDesign from './AddDesignForm';
+import AddDesignForm from './AddDesignForm';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Tooltip from '@mui/material/Tooltip';
 
 export default function DetailComponentHeader({
   title,
@@ -16,7 +17,10 @@ export default function DetailComponentHeader({
       className={classes.paperContainer}
       style={{ justifyContent: 'unset', alignItems: 'center' }}
     >
-      <div style={{ zIndex: 9 }}>{isAddDesignVisible && <AddDesign />}</div>
+      <div style={{ zIndex: 9, display: 'flex' }}>
+        {isAddDesignVisible && <AddDesignForm />}
+        <DesignTypeSelection />
+      </div>
       <div
         style={{
           position: 'absolute',
@@ -33,3 +37,48 @@ export default function DetailComponentHeader({
     </Paper>
   );
 }
+
+const DesignTypeSelection = () => {
+  return (
+    <RadioGroup
+      row
+      aria-label="gender"
+      name="row-radio-buttons-group"
+      sx={{
+        flexWrap: 'nowrap',
+        whiteSpace: 'nowrap'
+      }}
+    >
+      <Tooltip
+        title="All Private Products are only accessible by the designer/uploader"
+        placement="bottom"
+      >
+        <FormControlLabel
+          value="Private Product"
+          control={<Radio />}
+          label="Private Product"
+        />
+      </Tooltip>
+      <Tooltip
+        title="Open sourcing your design allows others to view, modify, and/or export your design"
+        placement="bottom"
+      >
+        <FormControlLabel
+          value="Open Source"
+          control={<Radio />}
+          label="Open Source"
+        />
+      </Tooltip>
+      <Tooltip
+        title="This allows your design to be public but others can only export or modify the design at a premium paid to you"
+        placement="bottom"
+      >
+        <FormControlLabel
+          value="Available with Fee"
+          control={<Radio />}
+          label="Available with Fee"
+        />
+      </Tooltip>
+    </RadioGroup>
+  );
+};
