@@ -155,7 +155,8 @@ export default function ItemTypeConfiguration(props) {
       'Add Selection from Components',
       selectedNodes,
       aFileKey,
-      fieldKey
+      fieldKey,
+      gltfjson
     );
 
     setRenderData(selectedNodes);

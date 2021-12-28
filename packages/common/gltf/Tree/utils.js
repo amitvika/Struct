@@ -220,13 +220,63 @@ export const arrayRemoveFromValue = (arr, value) => {
   });
 };
 
-export const arrayCopy = (arr) => {
+export const arrayCopy = (arr, dict = [], deepcopy = true) => {
   var copy_selectobjects = [];
-
   arr.forEach((element) => {
-    copy_selectobjects.push(element);
+    let myElement = {};
+    if (dict.length == 0) {
+      if (deepcopy) {
+        myElement = { ...element };
+      } else {
+        myElement = element;
+      }
+    } else {
+      dict.forEach((dictionary) => {
+        myElement[dictionary] = element[dictionary];
+      });
+    }
+    copy_selectobjects.push(myElement);
   });
   return copy_selectobjects;
+};
+export const MUST_DICTIONARY = [
+  'i',
+  'p',
+  's',
+  'n',
+  'D',
+  'f',
+  'e',
+  'g',
+  'c',
+  'r',
+  'S',
+  'E',
+  'structures',
+  'parentnode',
+  'type',
+  'kind',
+  'Info',
+  'fill',
+  'obb',
+  'axis',
+  'diameter',
+  'radius'
+];
+
+export const assignDictionary = (element, dict = MUST_DICTIONARY) => {
+  let myElement = {};
+  if (dict.length == 0) {
+    myElement = { ...element };
+  } else {
+    dict.forEach((dictionary) => {
+      myElement[dictionary] = element[dictionary];
+    });
+  }
+  return myElement;
+};
+export const assignArray = (element, dict = MUST_DICTIONARY) => {
+  return arrayCopy(element, dict);
 };
 //const themeDictionary = useSelector((state) => state.theme.curThemeName);
 //const themeName =getThemeName(themeDictionary);

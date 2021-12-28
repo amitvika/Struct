@@ -36,7 +36,7 @@ export default function ThreejsSelection(props) {
   React.useEffect(() => {
     setClicked(active);
     if (active) {
-      onClick(mykey);
+      //onClick(mykey);
     }
   }, [active]);
 
