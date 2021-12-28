@@ -1924,13 +1924,25 @@ export default function GeometricDimensioning(props) {
   };
 
   const handleModelClick = (data, what, event) => {
-    //console.log('Handling model click', data);
+    // console.log(
+    //   'Handling model click',
+    //   data,
+    //   what,
+    //   what == SELECTANITEM,
+    //   selectedOption,
+    //   selectedOption == SELECTASSEMBLY
+    // );
 
     if (what == SELECTANITEM) {
       if (data) {
         const mymesh = findMyMaterial(data);
         if (mymesh) {
           const mymeshcopy = { ...mymesh };
+          // console.log(
+          //   'Additional Model Click',
+          //   mymeshcopy,
+          //   additionalModelClick
+          // );
           if (additionalModelClick) {
             if (selectedOption == SELECTASSEMBLY) {
               const myAllChildsAndParents = findMyParentChilds(
@@ -1938,6 +1950,7 @@ export default function GeometricDimensioning(props) {
                 selectedOption
               );
               additionalModelClick(myAllChildsAndParents);
+              //console.log('Additional Model Click', myAllChildsAndParents);
             }
           }
           //mymesh.selectedshell = data.selectedshell;
