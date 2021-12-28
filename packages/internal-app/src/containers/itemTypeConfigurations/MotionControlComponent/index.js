@@ -161,7 +161,7 @@ export default function MotionControlComponent({
   return (
     <Paper>
       <Typography
-        sx={{ flex: '1 1 100%', fontWeight: 'bold' }}
+        sx={{ flex: '1 1 100%', fontWeight: 'bold', maxHeight: '410px' }}
         variant="h6"
         id="tableTitle"
         component="div"
