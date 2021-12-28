@@ -1288,6 +1288,7 @@ class GLTFRenderer extends Component {
         gdttable = state_gltfobj.gdttable || [defaultGDTTable];
       }
       this.updateGDTTable(gdttable[this.props.activeDataTable]);
+
       //console.log(this.props);
     }
 
@@ -1303,7 +1304,12 @@ class GLTFRenderer extends Component {
   };
 
   updateGDTTable = (gdttableEdges) => {
-    if (gdttableEdges && gdttableEdges.edges) {
+    console.log('Doing updategdt table', gdttableEdges);
+    if (
+      gdttableEdges &&
+      gdttableEdges.edges &&
+      Array.isArray(gdttableEdges.edges)
+    ) {
       gdttableEdges.edges.forEach((element) => {
         //console.log("my node",element,element.name);
         const node = element.name ? this.findMyMaterial(element) : null;
@@ -1326,14 +1332,16 @@ class GLTFRenderer extends Component {
       });
       let event = {};
       event['ctrlKey'] = false;
-      gdttableEdges.selectedObjects.forEach((element) => {
-        element.selectedshell = true;
-        //console.log('setting selections to clear all selections');
-        this.doOneSelection(element, event, false);
-      });
-      if (gdttableEdges.selectedObjects.length == 0) {
-        //console.log('Resetting blank selections to clear all selections');
-        this.changeStateOfSelection(null, event, false);
+      if (Array.isArray(gdttableEdges.selectedObjects)) {
+        gdttableEdges.selectedObjects.forEach((element) => {
+          element.selectedshell = true;
+          //console.log('setting selections to clear all selections');
+          this.doOneSelection(element, event, false);
+        });
+        if (gdttableEdges.selectedObjects.length == 0) {
+          //console.log('Resetting blank selections to clear all selections');
+          this.changeStateOfSelection(null, event, false);
+        }
       }
     }
   };
@@ -1346,12 +1354,21 @@ class GLTFRenderer extends Component {
       let gdttable = gltfobj.gdttable || [defaultGDTTable];
       gltfobj.gdttable = gdttable;
       //console.log("AddGDTTABLE", gltfobj.gdttable, gdttable,this.props.activeDataTable);
+      console.log('BEfore Changing gdtable in loading edges', gltfobj);
+      if (
+        Array.isArray(gltfobj.gdttable[this.props.activeDataTable].edges) ==
+        false
+      ) {
+        gltfobj.gdttable[this.props.activeDataTable].edges =
+          defaultGDTTable.edges;
+      }
       gltfobj.gdttable[this.props.activeDataTable].edges.push({
         parent: parent,
         start: start,
         finish: finish,
         name: node ? node.name : null
       });
+      console.log('After Changing gdtable in loading edges', gltfobj);
       this.props.setStateOfgltf(gltfobj);
     }
   };
@@ -4980,12 +4997,16 @@ class GLTFRenderer extends Component {
         this.props.setCenterActionText('Generating Edges' + progressFile);
       }
       const updateSelectionFromGdtTable = () => {
-        if (gdttableEdges && gdttableEdges.selectedObjects) {
+        if (
+          gdttableEdges &&
+          gdttableEdges.selectedObjects &&
+          Array.isArray(gdttableEdges.selectedObjects)
+        ) {
           //console.log("Inside load edges gdts",this.partsMeshes,gdttableEdges);
           let event = {};
           event['ctrlKey'] = false;
           gdttableEdges.selectedObjects.forEach((element) => {
-            //console.log("Setting inside the load all edges",element,event);
+            console.log('Setting inside the load all edges', element, event);
             element.selectedshell = true;
             this.doOneSelection(element, event, false);
           });

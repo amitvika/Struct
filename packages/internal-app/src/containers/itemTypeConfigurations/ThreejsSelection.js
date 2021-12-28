@@ -38,7 +38,7 @@ export default function ThreejsSelection(props) {
     console.log('Getting changed clicked state to assign', active);
     setClicked(active);
     if (active) {
-      onClick(mykey);
+      //onClick(mykey);
     }
   }, [active]);
 
