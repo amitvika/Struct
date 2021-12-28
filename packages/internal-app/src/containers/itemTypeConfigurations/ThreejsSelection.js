@@ -36,7 +36,7 @@ export default function ThreejsSelection(props) {
   React.useEffect(() => {
     setClicked(active);
     if (active) {
-      //onClick(mykey);
+      doClick();
     }
   }, [active]);
 
@@ -206,7 +206,21 @@ export default function ThreejsSelection(props) {
     }
     return false;
   };
-
+  const doClick = () => {
+    const myoption = getMyOption();
+    if (myvalue) {
+      myvalue.forEach((element) => {
+        element.selectedshell = true;
+        element.selected = true;
+      });
+    }
+    setRenderData(myvalue, { name: mykey, option: myoption }, onChange);
+    if (mytype === 'CircularFaceOrEdgeSelection') {
+      setIsCircularFaceOrEdgeSelection(true);
+    }
+    onClick(mykey);
+    //setRenderData(myvalue, { name: mykey, option: myoption }, onChange);
+  };
   return (
     <>
       <Button
@@ -222,21 +236,8 @@ export default function ThreejsSelection(props) {
           if (!active) {
             clickedState = !clicked;
           }
-
           if (clickedState) {
-            const myoption = getMyOption();
-            if (myvalue) {
-              myvalue.forEach((element) => {
-                element.selectedshell = true;
-                element.selected = true;
-              });
-            }
-            setRenderData(myvalue, { name: mykey, option: myoption }, onChange);
-
-            if (mytype === 'CircularFaceOrEdgeSelection') {
-              setIsCircularFaceOrEdgeSelection(true);
-            }
-            onClick(mykey);
+            doClick();
           } else {
             setRenderData(
               myvalue,

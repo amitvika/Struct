@@ -139,7 +139,8 @@ export default function ItemTypeConfiguration(props) {
 
   const [fieldKey, setFieldKey] = useState({
     name: 'NoKey',
-    option: SELECTFEATURE
+    option: SELECTFEATURE,
+    selectedNodes: []
   });
 
   const [renderData, setRenderData] = useState([]);
@@ -162,7 +163,7 @@ export default function ItemTypeConfiguration(props) {
     setRenderData(selectedNodes);
     setWhatchange(SELECTANITEM);
     //if (aFileKey) {
-    setFieldKey(aFileKey);
+    setFieldKey({ ...aFileKey, selectedNodes });
     //}
 
     state_fileOnChange = OnChange;
