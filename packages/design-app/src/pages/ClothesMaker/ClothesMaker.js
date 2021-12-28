@@ -14,6 +14,17 @@ export default function ClothesMaker() {
     {
       tabName: 'Classification'
       // tabContent: <CadMakerDesigner />,
+    },
+    {
+      tabName: 'Molecules'
+    },
+    {
+      tabName: 'Therapies'
+      // tabContent: <CadMakerDesigner />,
+    },
+    {
+      tabName: '“Culinary”'
+      // tabContent: <CadMakerDesigner />,
     }
   ];
   return (

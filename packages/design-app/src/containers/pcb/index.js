@@ -17,6 +17,17 @@ export default function PcbTab({ gltfjson = {}, setgltfjson }) {
     {
       tabName: 'Classification'
       // tabContent: <CadMakerDesigner />,
+    },
+    {
+      tabName: 'Molecules'
+    },
+    {
+      tabName: 'Therapies'
+      // tabContent: <CadMakerDesigner />,
+    },
+    {
+      tabName: '“Culinary”'
+      // tabContent: <CadMakerDesigner />,
     }
   ];
   return <DetailComponent title={'PCB'} tabList={tabList} type={'PCB'} />;
