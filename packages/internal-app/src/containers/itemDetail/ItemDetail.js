@@ -339,6 +339,7 @@ const ItemDetail = ({ itemValue }) => {
   };
 
   const handleSave = async (change) => {
+    console.log();
     // return; //FOr testing purpose..
     itemProperties.step = undefined;
     itemProperties.gltfjson = undefined;
@@ -373,35 +374,6 @@ const ItemDetail = ({ itemValue }) => {
       }
     } catch (error) {}
   };
-
-  /*useEffect(() => {
-    (async () => {
-      if (
-        itemProperties.fileUUId &&
-        itemProperties.fileGDT &&
-        itemProperties.child_item_status === 'INITIATED'
-      ) {
-        const itemClone = {
-          ...itemProperties,
-          fileGDT: itemProperties.fileGDT
-        };
-        const childrenCreated = await createChildItems({
-          item: itemClone,
-          percentage,
-          setPercentage,
-          setCurrentProgressText,
-          setCompletionProgressText,
-          setCenterActionText,
-          setIsLoading,
-          setIsFileLoading,
-          setProgressBarLoad
-        });
-        if (childrenCreated) {
-          handleSave({ child_item_status: 'COMPLETED' });
-        }
-      }
-    })();
-  }, [itemProperties.child_item_status, handleSave]); */
 
   const renderPageSwitch = () => {
     if (!get(itemProperties, 'id') && !id) {

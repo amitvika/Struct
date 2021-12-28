@@ -11,6 +11,8 @@ import LargeFileUpload from '@monostruct/common/gltf/LargeFileUpload';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 import { getFileNameWithoutExtension } from '@monostruct/common/gltf/Tree/utils';
 import { createChildItems } from './helper';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 const useStyles = makeStyles((theme) => ({
   item_row: {
@@ -190,6 +192,18 @@ export default function GeometryInput({
             <Typography variant="h6" fontWeight="fontWeightBold">
               {itemProperties.origin_parent_id}
             </Typography>
+          </Grid>
+
+          <Grid item className={classes.item_row}>
+            <Typography variant="h6">{'Not for Public Use :'}</Typography>
+            <Checkbox
+              onChange={(event) =>
+                handleItemSaveOnServer({
+                  not_for_public_use: event.target.checked
+                })
+              }
+              checked={itemProperties.not_for_public_use}
+            />
           </Grid>
 
           <Grid item className={classes.item_row}>
