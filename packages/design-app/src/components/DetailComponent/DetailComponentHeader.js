@@ -6,6 +6,8 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Tooltip from '@mui/material/Tooltip';
+import { useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 export default function DetailComponentHeader({
   title,
@@ -15,23 +17,41 @@ export default function DetailComponentHeader({
   setItemValue
 }) {
   const classes = useStyles();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
     <Paper
       className={classes.paperContainer}
-      style={{ justifyContent: 'unset', alignItems: 'center' }}
+      style={{
+        justifyContent: 'unset',
+        alignItems: 'center',
+        flexDirection: isMobile ? 'column' : 'row'
+      }}
     >
-      <div style={{ zIndex: 9, display: 'flex' }}>
+      <div
+        style={{
+          zIndex: 9,
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row'
+        }}
+      >
         {isAddDesignVisible && (
           <AddDesignForm {...{ itemValue, handleSaveProductDesignItem }} />
         )}
         <DesignTypeSelection
-          {...{ setItemValue, itemValue, handleSaveProductDesignItem }}
+          {...{
+            setItemValue,
+            itemValue,
+            handleSaveProductDesignItem,
+            isMobile
+          }}
         />
       </div>
+
       <div
         style={{
-          position: 'absolute',
+          position: isMobile ? 'relative' : 'absolute',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -49,7 +69,8 @@ export default function DetailComponentHeader({
 const DesignTypeSelection = ({
   setItemValue,
   itemValue,
-  handleSaveProductDesignItem
+  handleSaveProductDesignItem,
+  isMobile
 }) => {
   const [value, setValue] = React.useState(itemValue.design_type);
 
@@ -73,7 +94,7 @@ const DesignTypeSelection = ({
       name="row-radio-buttons-group"
       sx={{
         flexWrap: 'nowrap',
-        whiteSpace: 'nowrap'
+        whiteSpace: isMobile ? 'wrap' : 'nowrap'
       }}
       value={value}
       onChange={handleChange}
