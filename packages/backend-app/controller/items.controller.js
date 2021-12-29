@@ -10,11 +10,21 @@ exports.get = async (req, res) => {
     let result = {};
 
     const options = {
-      page: req.query.page || 1,
-      limit: req.query.limit || 10,
       sort: { updatedAt: -1 },
       populate: ['created_by', 'updated_by']
     };
+
+    if (req.query.page) {
+      options.page = req.query.page;
+    }
+
+    if (req.query.limit) {
+      options.limit = req.query.limit;
+    }
+
+    if (!req.query.limit) {
+      options.pagination = false;
+    }
 
     if (query.$and.length > 0) {
       result = await ItemModel.paginate(query, options);
