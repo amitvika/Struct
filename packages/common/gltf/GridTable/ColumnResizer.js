@@ -13,8 +13,10 @@ export function addUserSelectStyles(doc) {
     styleEl = doc.createElement('style');
     styleEl.type = 'text/css';
     styleEl.id = 'react-draggable-style-el';
-    styleEl.innerHTML = '.react-draggable-transparent-selection *::-moz-selection {all: inherit;}\n';
-    styleEl.innerHTML += '.react-draggable-transparent-selection *::selection {all: inherit;}\n';
+    styleEl.innerHTML =
+      '.react-draggable-transparent-selection *::-moz-selection {all: inherit;}\n';
+    styleEl.innerHTML +=
+      '.react-draggable-transparent-selection *::selection {all: inherit;}\n';
     doc.getElementsByTagName('head')[0].appendChild(styleEl);
   }
   if (doc.body) addClassName(doc.body, 'react-draggable-transparent-selection');
@@ -23,7 +25,8 @@ export function addUserSelectStyles(doc) {
 export function removeUserSelectStyles(doc) {
   if (!doc) return;
   try {
-    if (doc.body) removeClassName(doc.body, 'react-draggable-transparent-selection');
+    if (doc.body)
+      removeClassName(doc.body, 'react-draggable-transparent-selection');
     if (doc.selection) {
       doc.selection.empty();
     } else {
@@ -43,13 +46,13 @@ const eventsFor = {
   touch: {
     start: 'touchstart',
     move: 'touchmove',
-    stop: 'touchend',
+    stop: 'touchend'
   },
   mouse: {
     start: 'mousedown',
     move: 'mousemove',
-    stop: 'mouseup',
-  },
+    stop: 'mouseup'
+  }
 };
 
 let dragEventFor = eventsFor.mouse;
@@ -80,15 +83,29 @@ class ColumnResizer extends React.PureComponent {
     if (this.handleRef) {
       const { ownerDocument } = this.handleRef;
       ownerDocument.removeEventListener(eventsFor.mouse.move, this._handleDrag);
-      ownerDocument.removeEventListener(eventsFor.mouse.stop, this._handleDragStop);
+      ownerDocument.removeEventListener(
+        eventsFor.mouse.stop,
+        this._handleDragStop
+      );
       ownerDocument.removeEventListener(eventsFor.touch.move, this._handleDrag);
-      ownerDocument.removeEventListener(eventsFor.touch.stop, this._handleDragStop);
+      ownerDocument.removeEventListener(
+        eventsFor.touch.stop,
+        this._handleDragStop
+      );
       removeUserSelectStyles(ownerDocument);
     }
   }
 
   render() {
-    const { style, column, onResizeStart, onResize, onResizeStop, minWidth, ...rest } = this.props;
+    const {
+      style,
+      column,
+      onResizeStart,
+      onResize,
+      onResizeStop,
+      minWidth,
+      ...rest
+    } = this.props;
 
     return (
       <div
@@ -107,7 +124,7 @@ class ColumnResizer extends React.PureComponent {
           bottom: 0,
           right: 0,
           cursor: 'col-resize',
-          ...style,
+          ...style
         }}
       />
     );
@@ -171,7 +188,8 @@ class ColumnResizer extends React.PureComponent {
     let clientX = e.clientX;
     if (e.type === eventsFor.touch.move) {
       e.preventDefault();
-      if (e.targetTouches && e.targetTouches[0]) clientX = e.targetTouches[0].clientX;
+      if (e.targetTouches && e.targetTouches[0])
+        clientX = e.targetTouches[0].clientX;
     }
 
     const { offsetParent } = this.handleRef;
@@ -207,7 +225,7 @@ ColumnResizer.defaultProps = {
   onResizeStart: noop,
   onResize: noop,
   onResizeStop: noop,
-  minWidth: 30,
+  minWidth: 30
 };
 
 ColumnResizer.propTypes = {
@@ -237,7 +255,7 @@ ColumnResizer.propTypes = {
   /**
    * Minimum width of the column could be resized to if the column's `minWidth` is not set
    */
-  minWidth: PropTypes.number,
+  minWidth: PropTypes.number
 };
 
 export default ColumnResizer;

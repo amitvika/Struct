@@ -2,23 +2,16 @@ import React, { Component } from 'react';
 import Track from '../Track';
 import Handle from '../Handle';
 import styles from './styles';
-import {
-  has,
-  getValueOrAlt,
-} from '../../utils/common';
-
+import { has, getValueOrAlt } from '../../utils/common';
 
 export default class Slider extends Component {
-
-  
-
   static defaultProps = {
     min: 0,
     max: 100,
     step: 1,
     disabled: false,
     readOnly: false,
-    orientation: 'horizontal',
+    orientation: 'horizontal'
   };
 
   constructor(props) {
@@ -30,7 +23,7 @@ export default class Slider extends Component {
       value = props.defaultValue;
     }
     this.state = {
-      value,
+      value
     };
   }
 
@@ -39,13 +32,15 @@ export default class Slider extends Component {
   componentWillReceiveProps(properties) {
     if (has(properties, 'value')) {
       this.setState({
-        value: properties.value,
+        value: properties.value
       });
     }
     if (properties.style !== this.props.style) {
       this.style = {
-        ...(this.props.orientation === 'vertical' ? styles.wrapperVertical : styles.wrapper),
-        ...properties.wrapperStyle,
+        ...(this.props.orientation === 'vertical'
+          ? styles.wrapperVertical
+          : styles.wrapper),
+        ...properties.wrapperStyle
       };
     }
   }
@@ -57,25 +52,26 @@ export default class Slider extends Component {
   _setTrackDimensions = (track) => {
     if (track) {
       const { orientation } = this.props;
-      const trackLength = orientation === 'vertical' ? track.clientHeight : track.clientWidth;
+      const trackLength =
+        orientation === 'vertical' ? track.clientHeight : track.clientWidth;
       this.setState({
-        trackLength,
+        trackLength
       });
-      this.trackOffset = orientation === 'vertical' ?
-        track.offsetParent && track.offsetParent.offsetTop :
-        track.offsetParent && track.offsetParent.offsetLeft;
+      this.trackOffset =
+        orientation === 'vertical'
+          ? track.offsetParent && track.offsetParent.offsetTop
+          : track.offsetParent && track.offsetParent.offsetLeft;
     }
   };
 
   _setHandleSize = (handle) => {
     if (handle) {
       const { orientation } = this.props;
-      const hendleSize = orientation === 'vertical' ?
-        handle.clientHeight :
-        handle.clientWidth;
+      const hendleSize =
+        orientation === 'vertical' ? handle.clientHeight : handle.clientWidth;
       if (!this.state.hendleSize) {
         this.setState({
-          hendleSize,
+          hendleSize
         });
       }
     }
@@ -85,7 +81,9 @@ export default class Slider extends Component {
     const { disabled, readOnly, step, min } = this.props;
     const { value } = this.state;
     if (!disabled && !readOnly) {
-      const newValue = this._getValue(getValueOrAlt(value, min) + increase * step);
+      const newValue = this._getValue(
+        getValueOrAlt(value, min) + increase * step
+      );
       if (newValue !== value) {
         this._updateState(newValue);
         //console.log("1",newValue,value)
@@ -97,7 +95,9 @@ export default class Slider extends Component {
   _onWrapperMouseDown = (event) => {
     const { disabled, readOnly, orientation } = this.props;
     if (!disabled && !readOnly) {
-      this._moveHandleToPosition(orientation === 'vertical' ? event.pageY : event.pageX);
+      this._moveHandleToPosition(
+        orientation === 'vertical' ? event.pageY : event.pageX
+      );
     }
   };
 
@@ -107,9 +107,9 @@ export default class Slider extends Component {
       if (event.touches.length === 1) {
         event.preventDefault();
         this._moveHandleToPosition(
-          orientation === 'vertical' ?
-          event.touches[0].pageY :
-          event.touches[0].pageX
+          orientation === 'vertical'
+            ? event.touches[0].pageY
+            : event.touches[0].pageX
         );
       }
     }
@@ -124,10 +124,11 @@ export default class Slider extends Component {
       if (orientation === 'vertical') {
         mouseDownPosition = trackLength - (position - this.trackOffset);
       } else {
-        mouseDownPosition = position - this.trackOffset + (min * this.factor);
+        mouseDownPosition = position - this.trackOffset + min * this.factor;
       }
       let newValue = this._getStepValue(
-        (mouseDownPosition - this.state.hendleSize / 2) / this.factor);
+        (mouseDownPosition - this.state.hendleSize / 2) / this.factor
+      );
       newValue = this._getValue(newValue);
       if (newValue !== getValueOrAlt(value, min)) {
         this._updateState(newValue);
@@ -155,12 +156,12 @@ export default class Slider extends Component {
       newValue = this.props.max;
     }
     return newValue;
-  }
+  };
 
   _updateState = (value) => {
     if (!has(this.props, 'value')) {
       this.setState({
-        value,
+        value
       });
     }
   };
@@ -177,26 +178,24 @@ export default class Slider extends Component {
   _afterChange = (value) => {
     if (this.props.afterChange) {
       const myvalue = getValueOrAlt(value, this.state.value);
-      if(myvalue) {
+      if (myvalue) {
         this.props.afterChange(myvalue);
       }
     }
   };
 
   style = {
-    ...(this.props.orientation === 'vertical' ? styles.wrapperVertical : styles.wrapper),
-    ...this.props.wrapperStyle,
+    ...(this.props.orientation === 'vertical'
+      ? styles.wrapperVertical
+      : styles.wrapper),
+    ...this.props.wrapperStyle
   };
 
   render() {
     let position = 0;
     let percentageFactor = 1;
     this.factor = 1;
-    const {
-      hendleSize,
-      trackLength,
-      value,
-    } = this.state;
+    const { hendleSize, trackLength, value } = this.state;
     const {
       id,
       min,
@@ -218,7 +217,7 @@ export default class Slider extends Component {
       trackClassName,
       disabledTrackClassName,
       handleClassName,
-      disabledHandleClassName,
+      disabledHandleClassName
     } = this.props;
     this.value = getValueOrAlt(value, min);
     if (trackLength && hendleSize) {

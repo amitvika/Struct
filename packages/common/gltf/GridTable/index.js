@@ -15,5 +15,5 @@ export {
   unflatten,
   flattenOnKeys,
   getScrollbarSize,
-  getValue,
+  getValue
 } from './utils';

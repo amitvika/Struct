@@ -31,22 +31,25 @@ class TableHeader extends React.PureComponent {
   }
 
   render() {
-    const { className, width, height, rowWidth, headerHeight, frozenData } = this.props;
+    const { className, width, height, rowWidth, headerHeight, frozenData } =
+      this.props;
     if (height <= 0) return null;
 
     const style = {
       width,
       height: height,
       position: 'relative',
-      overflow: 'hidden',
+      overflow: 'hidden'
     };
 
     const innerStyle = {
       width: rowWidth,
-      height,
+      height
     };
 
-    const rowHeights = Array.isArray(headerHeight) ? headerHeight : [headerHeight];
+    const rowHeights = Array.isArray(headerHeight)
+      ? headerHeight
+      : [headerHeight];
     return (
       <div role="grid" ref={this._setRef} className={className} style={style}>
         <div role="rowgroup" style={innerStyle}>
@@ -66,14 +69,17 @@ TableHeader.propTypes = {
   className: PropTypes.string,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  headerHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.arrayOf(PropTypes.number)]).isRequired,
+  headerHeight: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.arrayOf(PropTypes.number)
+  ]).isRequired,
   rowWidth: PropTypes.number.isRequired,
   rowHeight: PropTypes.number.isRequired,
   columns: PropTypes.arrayOf(PropTypes.object).isRequired,
   data: PropTypes.array.isRequired,
   frozenData: PropTypes.array,
   headerRenderer: PropTypes.func.isRequired,
-  rowRenderer: PropTypes.func.isRequired,
+  rowRenderer: PropTypes.func.isRequired
 };
 
 export default TableHeader;

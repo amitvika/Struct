@@ -1,22 +1,22 @@
-import * as React from 'react'
-import { motion } from 'framer-motion'
-import styled from 'styled-components'
-import AppIcons from '../assets/images/icons'
+import * as React from 'react';
+import { motion } from 'framer-motion';
+import styled from 'styled-components';
+import AppIcons from '../assets/images/icons';
 
 const sizes = {
-    xlarge: '24px',
-    large: '20px',
-    default: '16px',
-    small: '14px',
-    xsmall: '10px'
-}
+  xlarge: '24px',
+  large: '20px',
+  default: '16px',
+  small: '14px',
+  xsmall: '10px'
+};
 
 const IconContainer = styled(motion.div)`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: ${props => sizes[props.size]};
-  height: ${props => sizes[props.size]};
+  width: ${(props) => sizes[props.size]};
+  height: ${(props) => sizes[props.size]};
   text-align: center;
   padding: 2px;
   overflow: hidden;
@@ -24,10 +24,20 @@ const IconContainer = styled(motion.div)`
   svg {
     height: 100%;
     width: 100%;
-    fill: ${props => props.theme && props.currentTheme ? props.theme[props.currentTheme].decal ? props.theme[props.currentTheme].decal : 24 : 24};
-    stroke: ${props => props.theme && props.currentTheme ? props.theme[props.currentTheme].decal ? props.theme[props.currentTheme].decal : 24 : 24};
+    fill: ${(props) =>
+      props.theme && props.currentTheme
+        ? props.theme[props.currentTheme].decal
+          ? props.theme[props.currentTheme].decal
+          : 24
+        : 24};
+    stroke: ${(props) =>
+      props.theme && props.currentTheme
+        ? props.theme[props.currentTheme].decal
+          ? props.theme[props.currentTheme].decal
+          : 24
+        : 24};
   }
-`
+`;
 
 /* const _IconImage = styled.img`
   width: 100%;
@@ -35,40 +45,43 @@ const IconContainer = styled(motion.div)`
   object-fit: contain;
 ` */
 
-
 const Icon = (props) => {
-    const { icon, spin, size, ...rest } = props
+  const { icon, spin, size, ...rest } = props;
 
-   /*  const setHTML = val => {
+  /*  const setHTML = val => {
         return {
             __html: val
         }
     } */
 
-    const Render = icon ? (
-        React.isValidElement(icon) ? (
-            <IconContainer size={size} {...rest}>
-                {icon}
-            </IconContainer>
-        ) : (
-            <IconContainer
-                animate={{ rotate: spin ? 360 : 0 }}
-                transition={{ duration: 1, ease: 'linear', loop: Infinity }}
-                size={size}
-                {...rest}
-            // dangerouslySetInnerHTML={setHTML(icon ? AppIcons[icon] : null)}
-            >
-                <img style={{ width: '15px', height: '15px' }} src={AppIcons[icon]} alt="Icon" />
-            </IconContainer>
-        )
-    ) : null
+  const Render = icon ? (
+    React.isValidElement(icon) ? (
+      <IconContainer size={size} {...rest}>
+        {icon}
+      </IconContainer>
+    ) : (
+      <IconContainer
+        animate={{ rotate: spin ? 360 : 0 }}
+        transition={{ duration: 1, ease: 'linear', loop: Infinity }}
+        size={size}
+        {...rest}
+        // dangerouslySetInnerHTML={setHTML(icon ? AppIcons[icon] : null)}
+      >
+        <img
+          style={{ width: '15px', height: '15px' }}
+          src={AppIcons[icon]}
+          alt="Icon"
+        />
+      </IconContainer>
+    )
+  ) : null;
 
-    return Render
-}
+  return Render;
+};
 
 Icon.defaultProps = {
-    icon: null,
-    sping: false,
-    size: 'default'
-}
-export default Icon
+  icon: null,
+  sping: false,
+  size: 'default'
+};
+export default Icon;

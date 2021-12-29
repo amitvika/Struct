@@ -24,7 +24,7 @@ const TableHeaderRow = ({
       column,
       columnIndex,
       headerIndex,
-      expandIcon: column.key === expandColumnKey && <ExpandIcon />,
+      expandIcon: column.key === expandColumnKey && <ExpandIcon />
     })
   );
 
@@ -40,7 +40,7 @@ const TableHeaderRow = ({
 };
 
 TableHeaderRow.defaultProps = {
-  tagName: 'div',
+  tagName: 'div'
 };
 
 TableHeaderRow.propTypes = {
@@ -53,7 +53,7 @@ TableHeaderRow.propTypes = {
   headerRenderer: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),
   expandColumnKey: PropTypes.string,
   expandIcon: PropTypes.func,
-  tagName: PropTypes.elementType,
+  tagName: PropTypes.elementType
 };
 
 export default TableHeaderRow;

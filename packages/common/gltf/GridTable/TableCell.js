@@ -5,8 +5,17 @@ import { toString } from './utils';
 /**
  * Cell component for BaseTable
  */
-const TableCell = ({ className, cellData, column, columnIndex, rowData, rowIndex }) => (
-  <div className={className}>{React.isValidElement(cellData) ? cellData : toString(cellData)}</div>
+const TableCell = ({
+  className,
+  cellData,
+  column,
+  columnIndex,
+  rowData,
+  rowIndex
+}) => (
+  <div className={className}>
+    {React.isValidElement(cellData) ? cellData : toString(cellData)}
+  </div>
 );
 
 TableCell.propTypes = {
@@ -15,7 +24,7 @@ TableCell.propTypes = {
   column: PropTypes.object,
   columnIndex: PropTypes.number,
   rowData: PropTypes.object,
-  rowIndex: PropTypes.number,
+  rowIndex: PropTypes.number
 };
 
 export default TableCell;

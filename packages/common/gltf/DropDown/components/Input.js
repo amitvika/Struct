@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import styled from 'styled-components'
+import styled from 'styled-components';
 ///import styled from '@emotion/styled';
 import { valueExistInSelected } from '../util';
 import * as PropTypes from 'prop-types';
@@ -30,14 +30,19 @@ class Input extends Component {
 
   componentDidUpdate(prevProps) {
     if (
-      this.props.state.dropdown || (prevProps.state.dropdown !== this.props.state.dropdown && this.props.state.dropdown) ||
+      this.props.state.dropdown ||
+      (prevProps.state.dropdown !== this.props.state.dropdown &&
+        this.props.state.dropdown) ||
       this.props.props.autoFocus
     ) {
       this.input.current.focus();
     }
 
-    if (prevProps.state.dropdown !== this.props.state.dropdown && !this.props.state.dropdown) {
-       this.input.current.blur();
+    if (
+      prevProps.state.dropdown !== this.props.state.dropdown &&
+      !this.props.state.dropdown
+    ) {
+      this.input.current.blur();
     }
   }
 
@@ -56,7 +61,11 @@ class Input extends Component {
     return (
       props.create &&
       event.key === 'Enter' &&
-      !valueExistInSelected(state.search, [...state.values, ...props.options], this.props) &&
+      !valueExistInSelected(
+        state.search,
+        [...state.values, ...props.options],
+        this.props
+      ) &&
       state.search &&
       state.cursor === null &&
       methods.createNew(state.search)
@@ -67,7 +76,12 @@ class Input extends Component {
     const { props, state, methods } = this.props;
 
     if (props.inputRenderer) {
-      return props.inputRenderer({ props, state, methods, inputRef: this.input });
+      return props.inputRenderer({
+        props,
+        state,
+        methods,
+        inputRef: this.input
+      });
     }
 
     return (

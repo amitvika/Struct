@@ -18,12 +18,13 @@ import {
   USESTYLES,
   defaultGDTTable,
   arrayCopy,
+  elementCopy,
   arrayFindIndex,
   arrayRemove,
   gltf_Dict,
-  isEmptyObjectDictionary,
-  assignDictionary,
-  assignArray
+  isEmptyObjectDictionary
+  //assignDictionary,
+  //assignArray
 } from '@monostruct/common/gltf/Tree/utils';
 import { stringify } from '@monostruct/common/gltf/Flatted.js';
 import Assembly from '../assembly';
@@ -194,28 +195,32 @@ export default function GeometricDimensioning(props) {
         selectedObjects: gltfjson
           ? gltfjson.gdttable
             ? gltfjson.gdttable[myGlobalActiveDataTable]
-              ? [...gltfjson.gdttable[myGlobalActiveDataTable].selectedObjects]
+              ? arrayCopy(
+                  gltfjson.gdttable[myGlobalActiveDataTable].selectedObjects
+                )
               : []
             : []
           : [],
         parentObjects: gltfjson
           ? gltfjson.gdttable
             ? gltfjson.gdttable[myGlobalActiveDataTable]
-              ? gltfjson.gdttable[myGlobalActiveDataTable].parentObjects
+              ? arrayCopy(
+                  gltfjson.gdttable[myGlobalActiveDataTable].parentObjects
+                )
               : []
             : []
           : [],
         mates: gltfjson
           ? gltfjson.gdttable
             ? gltfjson.gdttable[myGlobalActiveDataTable]
-              ? gltfjson.gdttable[myGlobalActiveDataTable].mates
+              ? arrayCopy(gltfjson.gdttable[myGlobalActiveDataTable].mates)
               : []
             : []
           : [],
         mateValues: gltfjson
           ? gltfjson.gdttable
             ? gltfjson.gdttable[myGlobalActiveDataTable]
-              ? gltfjson.gdttable[myGlobalActiveDataTable].mateValues
+              ? arrayCopy(gltfjson.gdttable[myGlobalActiveDataTable].mateValues)
               : Array(6).fill(false)
             : Array(6).fill(false)
           : Array(6).fill(false),
@@ -280,7 +285,12 @@ export default function GeometricDimensioning(props) {
     }
   }, [keyName]);
 
-  const resetSelections = (activetable, previousActivetable) => {
+  const resetSelections = (
+    activeTable,
+    previousActivetable,
+    myTree,
+    selectedNodes
+  ) => {
     if (state.secondshell) {
       setSelectedShell(state.secondshell, false);
     }
@@ -323,7 +333,7 @@ export default function GeometricDimensioning(props) {
       setState({ gltfjson: gltfjson });
       mystate_gltfjson = gltfjson;
     }
-    let myTree = { ...mystate_gltfjson };
+    let myTree = elementCopy(mystate_gltfjson); //{ ...mystate_gltfjson };
     let gdttable = [];
     if (isEmptyObjectDictionary(myTree.gdttable)) {
       gdttable = [defaultGDTTable];
@@ -332,14 +342,14 @@ export default function GeometricDimensioning(props) {
     }
 
     console.log('My tree gdttable1', myTree.gdttable, gdttable);
-    myTree.gdttable = gdttable;
+    myTree.gdttable = arrayCopy(gdttable);
     if (myTree.gdttable[myGlobalActiveDataTable]) {
       myTree.gdttable[myGlobalActiveDataTable].selectedObjects =
-        mystate.selectedObjects ? [...mystate.selectedObjects] : [];
+        mystate.selectedObjects ? arrayCopy(mystate.selectedObjects) : [];
       myTree.gdttable[myGlobalActiveDataTable].parentObjects =
-        mystate.parentObjects ? [...mystate.parentObjects] : [];
+        mystate.parentObjects ? arrayCopy(mystate.parentObjects) : [];
       myTree.gdttable[myGlobalActiveDataTable].mates = mystate.mates
-        ? [...mystate.mates]
+        ? arrayCopy(mystate.mates)
         : [];
       myTree.gdttable[myGlobalActiveDataTable].option = selectedOption;
     }
@@ -347,7 +357,7 @@ export default function GeometricDimensioning(props) {
     let activetable = myTree.gdttable.length;
     console.log('My tree gdttable', myTree.gdttable, activetable);
     myTree.gdttable.push({
-      ...defaultGDTTable,
+      ...elementCopy(defaultGDTTable),
       key: key,
       option: selectedFeature
     });
@@ -360,7 +370,7 @@ export default function GeometricDimensioning(props) {
       previousActivetable,
       myTree
     );
-    setSelectedOption(selectedFeature);
+    /*  setSelectedOption(selectedFeature);
     console.log('My Tree', myTree);
     if (!selectedNodes) {
       setState({
@@ -373,9 +383,39 @@ export default function GeometricDimensioning(props) {
         offset: 0
       });
       setgltfjson(myTree);
-    }
+    } */
 
     //globalSetActiveDataTable(activetable);
+  };
+  const getMyTree = (option) => {
+    const mystate = isEmptyObject(state) ? myGlobalState : state;
+    let mystate_gltfjson = mystate.gltfjson || gltfjson;
+    if (!mystate_gltfjson || !mystate_gltfjson.tree) {
+      setState({ gltfjson: gltfjson });
+      mystate_gltfjson = gltfjson;
+    }
+    let myTree = elementCopy(mystate_gltfjson);
+
+    let gdttable = myTree.gdttable || [{ ...defaultGDTTable, option: option }];
+    myTree.gdttable = arrayCopy(gdttable);
+    if (myTree.gdttable[myGlobalActiveDataTable]) {
+      myTree.gdttable[myGlobalActiveDataTable].selectedObjects =
+        mystate.selectedObjects ? arrayCopy(mystate.selectedObjects) : [];
+      myTree.gdttable[myGlobalActiveDataTable].parentObjects =
+        mystate.parentObjects ? arrayCopy(mystate.parentObjects) : [];
+      myTree.gdttable[myGlobalActiveDataTable].mates = mystate.mates
+        ? arrayCopy(mystate.mates)
+        : [];
+      myTree.gdttable[myGlobalActiveDataTable].option = selectedOption;
+      myTree.gdttable[myGlobalActiveDataTable].mateValues = mystate.mateValues
+        ? arrayCopy(mystate.mateValues)
+        : Array(6).fill(false);
+      myTree.gdttable[myGlobalActiveDataTable].angle = mystate.angle;
+      myTree.gdttable[myGlobalActiveDataTable].offset = mystate.offset;
+    } else {
+      console.log('I am not assigning state option', selectedOption, option);
+    }
+    return myTree;
   };
   const globalSetActiveDataTable = (activetable) => {
     setActiveDataTable(activetable);
@@ -390,7 +430,7 @@ export default function GeometricDimensioning(props) {
     }
     let myTree = { ...mystate_gltfjson };
     let gdttable = myTree.gdttable || [{ ...defaultGDTTable, option: option }];
-    console.log('Before assigning', gdttable, key);
+    //console.log('Before assigning', gdttable, key, option);
     for (let index = 0; index < gdttable.length; index++) {
       const element = gdttable[index];
       if (element.key == key) {
@@ -407,35 +447,8 @@ export default function GeometricDimensioning(props) {
   ) => {
     if (activetable != myGlobalActiveDataTable) {
       let previousActivetable = myGlobalActiveDataTable;
-      const mystate = isEmptyObject(state) ? myGlobalState : state;
-      let mystate_gltfjson = mystate.gltfjson || gltfjson;
-      if (!mystate_gltfjson || !mystate_gltfjson.tree) {
-        setState({ gltfjson: gltfjson });
-        mystate_gltfjson = gltfjson;
-      }
-      let myTree = { ...mystate_gltfjson };
       let myoption = option ? option : selectedOption;
-      let gdttable = myTree.gdttable || [
-        { ...defaultGDTTable, option: myoption }
-      ];
-      myTree.gdttable = gdttable;
-      if (myTree.gdttable[myGlobalActiveDataTable]) {
-        myTree.gdttable[myGlobalActiveDataTable].selectedObjects =
-          mystate.selectedObjects ? [...mystate.selectedObjects] : [];
-        myTree.gdttable[myGlobalActiveDataTable].parentObjects =
-          mystate.parentObjects ? [...mystate.parentObjects] : [];
-        myTree.gdttable[myGlobalActiveDataTable].mates = mystate.mates
-          ? [...mystate.mates]
-          : [];
-        myTree.gdttable[myGlobalActiveDataTable].option = selectedOption;
-        myTree.gdttable[myGlobalActiveDataTable].mateValues = mystate.mateValues
-          ? [...mystate.mateValues]
-          : Array(6).fill(false);
-        myTree.gdttable[myGlobalActiveDataTable].angle = mystate.angle;
-        myTree.gdttable[myGlobalActiveDataTable].offset = mystate.offset;
-      } else {
-        console.log('I am not assigning state option', selectedOption, option);
-      }
+      let myTree = getMyTree(myoption);
       console.log(
         'Coming from here3',
         myGlobalActiveDataTable,
@@ -480,20 +493,21 @@ export default function GeometricDimensioning(props) {
 
   const saveGDTDataTable = () => {
     const mystate = isEmptyObject(state) ? myGlobalState : state;
-    console.log('While saving gdt', myGlobalState, state);
+    console.log('While saving gdt', myGlobalState, state, selectedOption);
     let mystate_gltfjson = mystate.gltfjson || gltfjson;
     if (!mystate_gltfjson || !mystate_gltfjson.tree) {
       setState({ gltfjson: gltfjson });
       mystate_gltfjson = gltfjson;
     }
-    let myTree = { ...mystate_gltfjson };
+    let myTree = getMyTree(selectedOption);
+    /* let myTree = {...mystate_gltfjson};
     let gdttable = [];
     if (isEmptyObjectDictionary(myTree.gdttable)) {
       gdttable = [defaultGDTTable];
     } else {
       gdttable = myTree.gdttable || [defaultGDTTable];
     }
-    myTree.gdttable = gdttable;
+    myTree.gdttable = arrayCopy(gdttable);
     if (myTree.gdttable[myGlobalActiveDataTable]) {
       myTree.gdttable[myGlobalActiveDataTable].selectedObjects =
         mystate.selectedObjects ? [...mystate.selectedObjects] : [];
@@ -508,7 +522,7 @@ export default function GeometricDimensioning(props) {
         : Array(6).fill(false);
       myTree.gdttable[myGlobalActiveDataTable].angle = mystate.angle;
       myTree.gdttable[myGlobalActiveDataTable].offset = mystate.offset;
-    }
+    } */
     setState({ gltfjson: myTree });
     saveGDTInfo(myTree.gdttable, fileGDT, fileUUIder)
       .then((res) => res.data)
@@ -523,9 +537,9 @@ export default function GeometricDimensioning(props) {
       setState({ gltfjson: gltfjson });
       mystate_gltfjson = gltfjson;
     }
-    let myTree = { ...mystate_gltfjson };
+    let myTree = elementCopy(mystate_gltfjson);
     let gdttable = myTree.gdttable || [defaultGDTTable];
-    myTree.gdttable = gdttable;
+    myTree.gdttable = arrayCopy(gdttable);
     if (myTree.gdttable[myGlobalActiveDataTable]) {
       myTree.gdttable[myGlobalActiveDataTable].selectedObjects = [];
       myTree.gdttable[myGlobalActiveDataTable].parentObjects = [];
@@ -546,9 +560,9 @@ export default function GeometricDimensioning(props) {
       myGlobalActiveDataTable,
       myTree
     );
-    if (myTree.tree) {
-      //myTree.tree.length = myTree.treeLength;
-    }
+    /* if (myTree.tree) {
+      myTree.tree.length = myTree.treeLength;
+    } 
     setState({
       gltfjson: myTree,
       selectedObjects: [],
@@ -559,6 +573,7 @@ export default function GeometricDimensioning(props) {
       offset: 0
     });
     setgltfjson(myTree);
+    */
   };
 
   const setRowKeyValue = (name, key, value) => {
@@ -656,7 +671,7 @@ export default function GeometricDimensioning(props) {
           }
         }
         if (!alreadyPresent) {
-          const mylocalelement = assignDictionary(elementdata); //{ ...elementdata };
+          const mylocalelement = elementCopy(elementdata); //{ ...elementdata };
           setSelectedShell(mylocalelement, true);
           tempSelectedObjects.push(mylocalelement);
           tempMates.push([]);
@@ -675,8 +690,8 @@ export default function GeometricDimensioning(props) {
       }
       if (!alreadyPresent) {
         const node = {
-          parent: assignDictionary(myParentNode),
-          child: assignArray(myAllChilds)
+          parent: elementCopy(myParentNode),
+          child: arrayCopy(myAllChilds)
         };
         tempParentObjects.push(node);
       }
@@ -1236,7 +1251,7 @@ export default function GeometricDimensioning(props) {
       setState({ gltfjson: gltfjson });
       mystate_gltfjson = gltfjson;
     }
-    let myTree = { ...mystate_gltfjson };
+    let myTree = elementCopy(mystate_gltfjson);
     console.log('Coming from here1');
     updateSelectionFromTree(
       selectedNodes,
@@ -1263,7 +1278,7 @@ export default function GeometricDimensioning(props) {
       ? [...mystate.selectedObjects]
       : [];
     selectedNodes.forEach((myelement) => {
-      const element = assignDictionary(myelement);
+      const element = elementCopy(myelement);
       var elementFound = false;
       for (let index = 0; index < state_selectedObjects.length; index++) {
         const stateElement = state_selectedObjects[index];
@@ -1279,7 +1294,7 @@ export default function GeometricDimensioning(props) {
     });
 
     state_selectedObjects.forEach((mystateElement) => {
-      const stateElement = assignDictionary(mystateElement);
+      const stateElement = elementCopy(mystateElement);
       var elementFound = false;
       for (let index = 0; index < selectedNodes.length; index++) {
         const element = selectedNodes[index];
@@ -1437,8 +1452,8 @@ export default function GeometricDimensioning(props) {
           stateLength = mystate.selectedObjects.length;
         }
         const myAllChildsAndParents = findMyParentChilds(data, selectedOption);
-        const myAllChilds = assignArray(myAllChildsAndParents[0]);
-        const myParentNode = assignDictionary(myAllChildsAndParents[1]);
+        const myAllChilds = arrayCopy(myAllChildsAndParents[0]);
+        const myParentNode = elementCopy(myAllChildsAndParents[1]);
 
         for (let elementdata of myAllChilds) {
           //elementdata.selectedshell = data.selectedshell;
@@ -1530,7 +1545,10 @@ export default function GeometricDimensioning(props) {
                 parent: myParentNode,
                 child: myAllChilds
               };
-              const newParentObjects = [...mystate.parentObjects, node];
+              const newParentObjects = [
+                ...arrayCopy(mystate.parentObjects),
+                node
+              ];
               setState({
                 parentObjects: newParentObjects
               });
@@ -1711,8 +1729,8 @@ export default function GeometricDimensioning(props) {
     removeData.forEach((data) => {
       if (data) {
         const myAllChildsAndParents = findMyParentChilds(data, selectedFeature);
-        const myAllChilds = assignArray(myAllChildsAndParents[0]);
-        const myParentNode = assignDictionary(myAllChildsAndParents[1]);
+        const myAllChilds = arrayCopy(myAllChildsAndParents[0]);
+        const myParentNode = elementCopy(myAllChildsAndParents[1]);
         //console.log('Removing', myAllChilds, myParentNode, data);
         for (let elementdata of myAllChilds) {
           setSelectedShell({ ...elementdata }, false);
@@ -1760,8 +1778,8 @@ export default function GeometricDimensioning(props) {
     addData.forEach((data) => {
       if (data) {
         const myAllChildsAndParents = findMyParentChilds(data, selectedFeature);
-        const myAllChilds = assignArray(myAllChildsAndParents[0]);
-        const myParentNode = assignDictionary(myAllChildsAndParents[1]);
+        const myAllChilds = arrayCopy(myAllChildsAndParents[0]);
+        const myParentNode = elementCopy(myAllChildsAndParents[1]);
         //console.log('Adding', myAllChilds, myParentNode, data);
         for (let elementdata of myAllChilds) {
           const mycopydata = { ...elementdata };
@@ -1806,9 +1824,10 @@ export default function GeometricDimensioning(props) {
       ...oneArrayForActiveObjects,
       selectedObjects: [...copy_selectobjects],
       parentObjects: [...copy_parentobjects],
-      mates: [...copy_mateobjects]
+      mates: [...copy_mateobjects],
+      option: selectedFeature
     };
-    if (
+    /* if (
       newgltfjson.tree &&
       newgltfjson.tree.length != newgltfjson.treeLength &&
       newgltfjson.gdttable[previousActivetable] &&
@@ -1817,7 +1836,7 @@ export default function GeometricDimensioning(props) {
       oneArrayForActiveObjects.edges = [
         ...newgltfjson.gdttable[previousActivetable].edges
       ];
-    }
+    } */
     //{ ...myTree };
     console.log(
       'Fomr1',
@@ -1872,13 +1891,13 @@ export default function GeometricDimensioning(props) {
         mateValues: newgltfjson.gdttable[activeTable].mateValues,
         angle: newgltfjson.gdttable[activeTable].angle,
         offset: newgltfjson.gdttable[activeTable].offset,
-        renderdata: selectedNodes,
+        renderdata: [...(selectedNodes || [])],
         whatchange: SELECTANITEM
       });
       setgltfjson(newgltfjson);
       globalSetActiveDataTable(activeTable);
       //let incrementedNodes = [...selectedNodes, { name: 'NoName' }];
-      setState({
+      /* setState({
         gltfjson: newgltfjson,
         selectedObjects: [...copy_selectobjects],
         parentObjects: [...copy_parentobjects],
@@ -1888,7 +1907,7 @@ export default function GeometricDimensioning(props) {
         offset: newgltfjson.gdttable[activeTable].offset,
         renderdata: [...(selectedNodes || [])],
         whatchange: SELECTANITEM
-      });
+      }); */
     } else {
       setState({
         selectedObjects: [...copy_selectobjects],
@@ -1909,8 +1928,8 @@ export default function GeometricDimensioning(props) {
       myGlobalActiveDataTable
     );
     globalSetActiveDataTable(activeTable);
-    if (gltfjson && gltfjson.gdttable && gltfjson.gdttable[activeTable]) {
-      setSelectedOption(gltfjson.gdttable[activeTable].option);
+    if (myTree && myTree.gdttable && myTree.gdttable[activeTable]) {
+      setSelectedOption(myTree.gdttable[activeTable].option);
     }
     if (handleChangeOfSelection) {
       //console.log('changing selections', copy_selectobjects);
@@ -1979,7 +1998,7 @@ export default function GeometricDimensioning(props) {
         <div className={` ${classes.assemblyTreeContainer}`}>
           <Assembly
             assemblyTree={buildParentChildTree(
-              state.gltfjson.tree,
+              arrayCopy(state.gltfjson.tree),
               selectedOption,
               myGlobalTree
             )}

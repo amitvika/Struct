@@ -20,7 +20,7 @@ class GridTable extends React.PureComponent {
     this._itemKey = this._itemKey.bind(this);
     this._getBodyWidth = this._getBodyWidth.bind(this);
     this._handleItemsRendered = this._handleItemsRendered.bind(this);
-    this._resetColumnWidthCache = memoize(bodyWidth => {
+    this._resetColumnWidthCache = memoize((bodyWidth) => {
       if (!this.props.estimatedRowHeight) return;
       this.bodyRef && this.bodyRef.resetAfterColumnIndex(0, false);
     });
@@ -31,7 +31,8 @@ class GridTable extends React.PureComponent {
 
   resetAfterRowIndex(rowIndex = 0, shouldForceUpdate) {
     if (!this.props.estimatedRowHeight) return;
-    this.bodyRef && this.bodyRef.resetAfterRowIndex(rowIndex, shouldForceUpdate);
+    this.bodyRef &&
+      this.bodyRef.resetAfterRowIndex(rowIndex, shouldForceUpdate);
   }
 
   forceUpdateTable() {
@@ -62,7 +63,8 @@ class GridTable extends React.PureComponent {
 
     if (estimatedRowHeight) {
       return (
-        (this.innerRef && this.innerRef.clientHeight) || this._getEstimatedTotalRowsHeight(data, estimatedRowHeight)
+        (this.innerRef && this.innerRef.clientHeight) ||
+        this._getEstimatedTotalRowsHeight(data, estimatedRowHeight)
       );
     }
     return data.length * rowHeight;
@@ -107,7 +109,6 @@ class GridTable extends React.PureComponent {
     this._resetColumnWidthCache(bodyWidth);
     return (
       <div role="table" className={cls} {...containerProps}>
-        
         <Grid
           {...rest}
           className={`${classPrefix}__body`}
@@ -119,7 +120,11 @@ class GridTable extends React.PureComponent {
           width={width}
           height={Math.max(height - headerHeight - frozenRowsHeight, 0)}
           rowHeight={estimatedRowHeight ? getRowHeight : rowHeight}
-          estimatedRowHeight={typeof estimatedRowHeight === 'function' ? undefined : estimatedRowHeight}
+          estimatedRowHeight={
+            typeof estimatedRowHeight === 'function'
+              ? undefined
+              : estimatedRowHeight
+          }
           rowCount={data.length}
           overscanRowCount={overscanRowCount}
           columnWidth={estimatedRowHeight ? this._getBodyWidth : bodyWidth}
@@ -183,12 +188,17 @@ class GridTable extends React.PureComponent {
     return this.props.bodyWidth;
   }
 
-  _handleItemsRendered({ overscanRowStartIndex, overscanRowStopIndex, visibleRowStartIndex, visibleRowStopIndex }) {
+  _handleItemsRendered({
+    overscanRowStartIndex,
+    overscanRowStopIndex,
+    visibleRowStartIndex,
+    visibleRowStopIndex
+  }) {
     this.props.onRowsRendered({
       overscanStartIndex: overscanRowStartIndex,
       overscanStopIndex: overscanRowStopIndex,
       startIndex: visibleRowStartIndex,
-      stopIndex: visibleRowStopIndex,
+      stopIndex: visibleRowStopIndex
     });
   }
 }
@@ -199,7 +209,10 @@ GridTable.propTypes = {
   className: PropTypes.string,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  headerHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.arrayOf(PropTypes.number)]).isRequired,
+  headerHeight: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.arrayOf(PropTypes.number)
+  ]).isRequired,
   headerWidth: PropTypes.number.isRequired,
   bodyWidth: PropTypes.number.isRequired,
   rowHeight: PropTypes.number.isRequired,
@@ -217,7 +230,7 @@ GridTable.propTypes = {
   onScroll: PropTypes.func,
   onRowsRendered: PropTypes.func,
   headerRenderer: PropTypes.func.isRequired,
-  rowRenderer: PropTypes.func.isRequired,
+  rowRenderer: PropTypes.func.isRequired
 };
 
 export default GridTable;

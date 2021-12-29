@@ -1,7 +1,7 @@
 import React from 'react';
-import styled from 'styled-components'
+import styled from 'styled-components';
 //import styled from '@emotion/styled';
-import {getByPath} from '../util';
+import { getByPath } from '../util';
 import { LIB_NAME } from '../constants';
 
 const Option = ({ item, props, state, methods }) =>
@@ -13,11 +13,17 @@ const Option = ({ item, props, state, methods }) =>
       disabled={props.disabled}
       direction={props.direction}
       className={`${LIB_NAME}-option`}
-      color={props.color}>
-      <span className={`${LIB_NAME}-option-label`}>{getByPath(item, props.labelField)}</span>
+      color={props.color}
+    >
+      <span className={`${LIB_NAME}-option-label`}>
+        {getByPath(item, props.labelField)}
+      </span>
       <span
         className={`${LIB_NAME}-option-remove`}
-        onClick={(event) => methods.removeItem(event, item, props.closeOnSelect)}>
+        onClick={(event) =>
+          methods.removeItem(event, item, props.closeOnSelect)
+        }
+      >
         &times;
       </span>
     </OptionComponent>
@@ -31,8 +37,8 @@ const OptionComponent = styled.span`
   background: ${({ color }) => color};
   color: #fff;
   display: flex;
-  flex-direction: ${({ direction }) => direction === 'rtl' ? 'row-reverse' : 'row'};
-  
+  flex-direction: ${({ direction }) =>
+    direction === 'rtl' ? 'row-reverse' : 'row'};
 
   .${LIB_NAME}-option-remove {
     cursor: pointer;

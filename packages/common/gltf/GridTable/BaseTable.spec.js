@@ -10,32 +10,40 @@ const columns = [
     key: 'code',
     title: 'code',
     dataKey: 'code',
-    width: 50,
+    width: 50
   },
   {
     key: 'name',
     title: 'name',
     dataKey: 'name',
-    width: 50,
-  },
+    width: 50
+  }
 ];
 
 const data = [
   {
     id: '1',
     code: '1',
-    name: '1',
+    name: '1'
   },
   {
     id: '2',
     code: '2',
-    name: '2',
-  },
+    name: '2'
+  }
 ];
 
-const Table = props => <BaseTable width={100} height={100} data={data} columns={columns} {...props} />;
+const Table = (props) => (
+  <BaseTable
+    width={100}
+    height={100}
+    data={data}
+    columns={columns}
+    {...props}
+  />
+);
 
-describe('Table', function() {
+describe('Table', function () {
   test('renders correctly', () => {
     const tree = renderer.create(<Table />).toJSON();
     expect(tree).toMatchSnapshot();
@@ -129,12 +137,16 @@ describe('Table', function() {
   });
 
   test('table can receive headerClassName', () => {
-    const tree = renderer.create(<Table headerClassName="custom-class" />).toJSON();
+    const tree = renderer
+      .create(<Table headerClassName="custom-class" />)
+      .toJSON();
     expect(tree).toMatchSnapshot();
   });
 
   test('table can receive rowClassName', () => {
-    const tree = renderer.create(<Table rowClassName="custom-class" />).toJSON();
+    const tree = renderer
+      .create(<Table rowClassName="custom-class" />)
+      .toJSON();
     expect(tree).toMatchSnapshot();
   });
 
@@ -144,12 +156,16 @@ describe('Table', function() {
   });
 
   test('table can receive defaultExpandedRowKeys', () => {
-    const tree = renderer.create(<Table expandColumnKey="code" defaultExpandedRowKeys={['1']} />).toJSON();
+    const tree = renderer
+      .create(<Table expandColumnKey="code" defaultExpandedRowKeys={['1']} />)
+      .toJSON();
     expect(tree).toMatchSnapshot();
   });
 
   test('table can receive expandedRowKeys', () => {
-    const tree = renderer.create(<Table expandColumnKey="code" expandedRowKeys={['1']} />).toJSON();
+    const tree = renderer
+      .create(<Table expandColumnKey="code" expandedRowKeys={['1']} />)
+      .toJSON();
     expect(tree).toMatchSnapshot();
   });
 });

@@ -20,6 +20,8 @@ import { gltf_Dict } from '@monostruct/common/gltf/Tree/utils';
 import { useHistory } from 'react-router-dom';
 
 export default function MotionControlComponent({
+  onClick,
+  mykey,
   itemId,
   gltfjson,
   setRenderData,
@@ -212,6 +214,7 @@ export default function MotionControlComponent({
                       option: SELECTASSEMBLY
                     });
                     console.log('Clicked and Sent', tableData, item.id);
+                    onClick(mykey);
                     /*                     setSelectedValue(item.id);
                     setSelectedOption(SELECTASSEMBLY);
                     setRenderData(

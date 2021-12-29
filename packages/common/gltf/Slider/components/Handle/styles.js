@@ -8,7 +8,7 @@ export default {
     backgroundColor: '#2771e2',
     border: '1px solid #052350',
     borderRadius: '50%',
-    outline: 'none !important',
+    outline: 'none !important'
   },
   handleVertical: {
     position: 'absolute',
@@ -20,24 +20,24 @@ export default {
     backgroundColor: '#2771e2',
     border: '1px solid #052350',
     borderRadius: '50%',
-    outline: 'none !important',
+    outline: 'none !important'
   },
   focusedHandle: {
-    border: '2px solid 052350',
+    border: '2px solid 052350'
   },
   hoveredHandle: {
     backgroundColor: 'white',
     border: '2px solid #052350',
-    boxShadow: '0px 0px 5px 0px #0a53c3',
+    boxShadow: '0px 0px 5px 0px #0a53c3'
   },
   activeHandle: {
     backgroundColor: 'white',
     border: '2px solid #052350',
-    boxShadow: 'inset 0px 0px 5px 0px #0a53c3',
+    boxShadow: 'inset 0px 0px 5px 0px #0a53c3'
   },
   disabledHandle: {
     backgroundColor: '#c4f9f4',
     border: '1px solid #71e4db',
-    cursor: 'default',
-  },
+    cursor: 'default'
+  }
 };

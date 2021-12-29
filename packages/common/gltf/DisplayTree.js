@@ -2,31 +2,31 @@
  * COMPONENTS AND LIBS
  */
 //import * as React from 'react'
-import {  useState } from "react";
-import { motion } from 'framer-motion'
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 import styled, { ThemeProvider, StyledEngineProvider } from 'styled-components';
-import Container from './Tree/Container'
-import Icon from './Tree/Icon'
+import Container from './Tree/Container';
+import Icon from './Tree/Icon';
 
 //STYLES
-import coreTheme from './styles/theme'
+import coreTheme from './styles/theme';
 //import { _TdTexture } from './Tree/utils'
 const MotionTree = styled(motion.div)`
   display: flex;
   flex-direction: column;
-  ${props => (props.grow ? 'flex-grow: 1' : '')};
+  ${(props) => (props.grow ? 'flex-grow: 1' : '')};
   padding: 5px;
   padding-bottom:100px;
   padding-right:20px;
   overflow-y: auto;
-  width: ${props => {
+  width: ${(props) => {
     return props.size && props.theme.app.sizes[props.size]
       ? `${props.theme.app.sizes[props.size]};`
-      : 'auto;'
+      : 'auto;';
   }}
     
-  color: ${props => props.theme[props.currentTheme].text};
-  background-color: ${props => props.theme[props.currentTheme].bg};
+  color: ${(props) => props.theme[props.currentTheme].text};
+  background-color: ${(props) => props.theme[props.currentTheme].bg};
 
   & * {    
     cursor: pointer;
@@ -96,12 +96,12 @@ const MotionTree = styled(motion.div)`
   .tdtype {
     width : 40%
   }
-`
+`;
 
 const Loader = styled(motion.div)`
   align-self: center;
   margin: auto 0;
-`
+`;
 
 //const Spinner = styled(motion.div)``
 
@@ -124,28 +124,27 @@ const DisplayTree = (props) => {
     disectparts,
     selectitems,
     firstshell,
-    secondshell,
-  } = props
+    secondshell
+  } = props;
 
   const [_theme, setTheme] = useState(
     Object.assign({}, customTheme, coreTheme)
-  )
+  );
 
   // STATE
   //const _nodeList = React.useRef(nodes).current
-  const [_selected, _setSelected] = useState(null)
+  const [_selected, _setSelected] = useState(null);
 
   // select the node and call onSelect callback
-  const selectNode = (selectedNode,what) => {
-    _setSelected(selectedNode)
-    onSelect(selectedNode,what)
-  }
+  const selectNode = (selectedNode, what) => {
+    _setSelected(selectedNode);
+    onSelect(selectedNode, what);
+  };
   //const classAppend = disectparts ? "1" : 0;
   //console.log("Tree", structure);
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={_theme}>
-        
         <MotionTree
           grow={grow}
           currentTheme={theme || 'dark'}
@@ -155,22 +154,36 @@ const DisplayTree = (props) => {
           {!!nodes.length && structure && (
             <div>
               <table>
-              <thead>
-                <tr>              
-                  <th className ={disectparts?"tdpart1":"tdpart"}>Part</th>
-                  <th className ={disectparts?"tdselect1":"tdselect"}>Tick</th>
-                  <th className ={disectparts?"tdpos1":"tdpos"}>Position</th>
-                  <th className ={disectparts?"tdcolor1":"tdcolor"}>Color</th>
-                  <th className ={disectparts?"tdtexture1":"tdtexture"}>Texture</th>
-                  <th className ={disectparts?"tdslider1":"tdslider"}>Metal</th>
-                  <th className ={disectparts?"tdslider1":"tdslider"}>Rough</th>
-                  <th className ={disectparts?"tdslider1":"tdslider"}>Opaque</th>
-                  <th className ={disectparts?"tdshow1":"tdshow"}>Details</th>
-                  {disectparts &&(
-                    <th className = "tdstruct1" >Structure</th>    
-                  )}                  
-                </tr>   
-              </thead>
+                <thead>
+                  <tr>
+                    <th className={disectparts ? 'tdpart1' : 'tdpart'}>Part</th>
+                    <th className={disectparts ? 'tdselect1' : 'tdselect'}>
+                      Tick
+                    </th>
+                    <th className={disectparts ? 'tdpos1' : 'tdpos'}>
+                      Position
+                    </th>
+                    <th className={disectparts ? 'tdcolor1' : 'tdcolor'}>
+                      Color
+                    </th>
+                    <th className={disectparts ? 'tdtexture1' : 'tdtexture'}>
+                      Texture
+                    </th>
+                    <th className={disectparts ? 'tdslider1' : 'tdslider'}>
+                      Metal
+                    </th>
+                    <th className={disectparts ? 'tdslider1' : 'tdslider'}>
+                      Rough
+                    </th>
+                    <th className={disectparts ? 'tdslider1' : 'tdslider'}>
+                      Opaque
+                    </th>
+                    <th className={disectparts ? 'tdshow1' : 'tdshow'}>
+                      Details
+                    </th>
+                    {disectparts && <th className="tdstruct1">Structure</th>}
+                  </tr>
+                </thead>
               </table>
               <Container
                 selected={_selected}
@@ -188,18 +201,17 @@ const DisplayTree = (props) => {
                 firstshell={firstshell}
                 secondshell={secondshell}
               />
-           
             </div>
           )}
           {!!nodes.length && !structure && (
             <div>
               <table>
-              <thead>
-              <tr>
-              <td className="tdtype">Type</td>
-              <td className="tdinfo">Info</td>           
-              </tr>            
-              </thead>
+                <thead>
+                  <tr>
+                    <td className="tdtype">Type</td>
+                    <td className="tdinfo">Info</td>
+                  </tr>
+                </thead>
               </table>
               <Container
                 selected={_selected}
@@ -217,7 +229,6 @@ const DisplayTree = (props) => {
                 firstshell={firstshell}
                 secondshell={secondshell}
               />
-           
             </div>
           )}
           {!isLoading && !nodes.length && (
@@ -243,7 +254,7 @@ const DisplayTree = (props) => {
       </ThemeProvider>
     </StyledEngineProvider>
   );
-}
+};
 
 DisplayTree.defaultProps = {
   nodes: [],
@@ -263,12 +274,12 @@ DisplayTree.defaultProps = {
   iconSet: null,
   noIcons: false,
   containerStyle: undefined,
-  textures:[],
-  structure:true,
-  disectparts:false,
-  selectitems:false,
-  firstshell:null,
-  secondshell:null,
-}
+  textures: [],
+  structure: true,
+  disectparts: false,
+  selectitems: false,
+  firstshell: null,
+  secondshell: null
+};
 
-export default DisplayTree
+export default DisplayTree;

@@ -1268,9 +1268,10 @@ class GLTFRenderer extends Component {
       this.state.skeleton,
       this.state.grid
     );
+
     //console.log("File props",this.props.fileGDT,this.props.drawLine,this.props.activeId);
     if (this.props.drawLine && this.props.fileGDT) {
-      this.loadAllEdges(0);
+      this.loadAllEdges(0, (firstTime = true));
     }
     if (this.props.fileGDT) {
       const state_gltfobj =
@@ -1310,9 +1311,11 @@ class GLTFRenderer extends Component {
       gdttableEdges.edges &&
       Array.isArray(gdttableEdges.edges)
     ) {
+      let firstTime = true;
       gdttableEdges.edges.forEach((element) => {
         //console.log("my node",element,element.name);
-        const node = element.name ? this.findMyMaterial(element) : null;
+        //console.log('Coming from hre 2');
+        const node = element.name ? this.findMyMaterial(element, true) : null;
         // console.log(
         //   'my node',
         //   element.name,
@@ -1327,8 +1330,10 @@ class GLTFRenderer extends Component {
           element.start,
           element.finish,
           node,
-          gdttableEdges
+          gdttableEdges,
+          firstTime
         );
+        firstTime = false;
       });
       let event = {};
       event['ctrlKey'] = false;
@@ -2070,17 +2075,24 @@ class GLTFRenderer extends Component {
       });
     }
   };
-  rayCastObjectFilters = (meshes) => {
+  rayCastObjectFilters = (meshes, consolelog = false) => {
     //console.log(this.props.selectedoption, SELECTFACE);
+    if (consolelog) {
+      console.log('MESHES', meshes);
+    }
     var objects = [];
     if (meshes) {
       meshes.forEach((element) => {
-        //console.log(element);
-        if (this.visibllity(element, false, this.selectedoption)) {
+        if (consolelog) {
+          console.log(element);
+        }
+
+        if (this.visibllity(element, false, this.selectedoption, consolelog)) {
           objects.push(element);
         }
       });
     }
+    //console.log(objects);
     return objects;
   };
   updateParts = (meshes) => {
@@ -2885,7 +2897,7 @@ class GLTFRenderer extends Component {
     return valToRet;
   };
 
-  visibllity = (mynode, display, option) => {
+  visibllity = (mynode, display, option, consolelog = false) => {
     if (mynode?.type == 'Line' || mynode?.type == 'MeshLine') {
       //console.log("Returning true");
       if (display) {
@@ -2897,7 +2909,16 @@ class GLTFRenderer extends Component {
     const curvechar = mynode?.name?.slice(4, 5);
     const first6chars = mynode?.name?.slice(0, 6);
     var visible = option == SELECTMEASURE || option == SELECTFEATURE;
-
+    if (consolelog) {
+      console.log(
+        'VVIISBLE',
+        first4chars,
+        curvechar,
+        first6chars,
+        option,
+        visible
+      );
+    }
     //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
     if (first4chars != 'PART') {
       if (first4chars == 'FACE') {
@@ -2910,8 +2931,28 @@ class GLTFRenderer extends Component {
             (option == SELECTLINEAR && curvechar == 'L') ||
             (option == SELECTCIRCULAR &&
               (curvechar == 'C' || curvechar == 'N'));
+          if (consolelog) {
+            console.log(
+              'VVIISBLE2',
+              first4chars,
+              curvechar,
+              first6chars,
+              option,
+              visible
+            );
+          }
         } else {
           visible = visible || option == SELECTFACE; //||
+          if (consolelog) {
+            console.log(
+              'VVIISBLE3',
+              first4chars,
+              curvechar,
+              first6chars,
+              option,
+              visible
+            );
+          }
           //((this.props.selectedoption == SELECTLINEAR) && (curvechar=="L")) ||
           //(this.props.selectedoption == SELECTCIRCULAR &&
           //(curvechar == 'C' || curvechar == 'N'));
@@ -2954,6 +2995,16 @@ class GLTFRenderer extends Component {
           visible = !mynode.verticesLoaded;
         } else {
           visible = true;
+        }
+        if (consolelog) {
+          console.log(
+            'VVIISBLE4',
+            first4chars,
+            curvechar,
+            first6chars,
+            option,
+            visible
+          );
         }
       }
     }
@@ -3282,7 +3333,8 @@ class GLTFRenderer extends Component {
       if (element[gltf_Dict['parentId']] == myId) {
         if (element[gltf_Dict['leaf']]) {
           if (element[gltf_Dict['name']]) {
-            const mymesh = this.findMyMaterial(element);
+            //console.log('Coming from hre 3');
+            const mymesh = this.findMyMaterial(element, false);
             if (mymesh) {
               if (whatchanged == SELECTCOLOR) {
                 //console.log(this.partsMeshes[element.binId-1]);
@@ -3758,7 +3810,8 @@ class GLTFRenderer extends Component {
     const myParentPart = this.findMyParentPart(mynode);
     var myMaterials = [];
     if (myParentPart) {
-      const myChild = this.findMyMaterial(myParentPart);
+      //console.log('Coming from hre 4');
+      const myChild = this.findMyMaterial(myParentPart, false);
       if (myChild) {
         myMaterials.push(myChild);
       }
@@ -3793,12 +3846,20 @@ class GLTFRenderer extends Component {
     return [mynode];
   };
 
-  findMyMaterial = (data) => {
+  findMyMaterial = (data, byname = true) => {
+    //console.log(this.partsMeshes);
     if (this.partsMeshes) {
       for (var i = 0; i < this.partsMeshes.length; i++) {
         //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
-        if (this.partsMeshes[i].name == data[gltf_Dict['name']]) {
-          return this.partsMeshes[i];
+
+        if (byname) {
+          if (this.partsMeshes[i].name == data.name) {
+            return this.partsMeshes[i];
+          }
+        } else {
+          if (this.partsMeshes[i].name == data[gltf_Dict['name']]) {
+            return this.partsMeshes[i];
+          }
         }
       }
     }
@@ -3864,7 +3925,8 @@ class GLTFRenderer extends Component {
         myParentID = myParents[j];
         for (var i = 0; i < myStateTree.length; i++) {
           if (myStateTree[i][gltf_Dict['id']] == myParentID) {
-            var myChild = this.findMyMaterial(myStateTree[i]);
+            //console.log('Coming from hre 1');
+            var myChild = this.findMyMaterial(myStateTree[i], false);
             if (myChild) {
               if (
                 myStateTree[i][gltf_Dict['element']] == 'P' ||
@@ -4117,6 +4179,7 @@ class GLTFRenderer extends Component {
     }
     meshmaterial.material.color.setHex(meshmaterial.currentHex);
     meshmaterial.material.opacity = meshmaterial.currentOpaque;
+    //console.log('Setting here!', meshmaterial);
   };
 
   changeStateOfSelection = (meshmaterial, event, addToGDTTable = true) => {
@@ -4303,7 +4366,8 @@ class GLTFRenderer extends Component {
         //console.log("Setting..",element);
         //element.selectedshell=true;
         //console.log("Setting..Done",element);
-        const mymesh = this.findMyMaterial(myItem);
+        //console.log('Coming from hre 5');
+        const mymesh = this.findMyMaterial(myItem, false);
 
         if (mymesh) {
           // console.log(
@@ -4384,7 +4448,8 @@ class GLTFRenderer extends Component {
           if (changedata[gltf_Dict['name']]) {
             //console.log(this.partsMeshes[changedata.binId-1]);
             //const mymaterial = this.partsMeshes[element.binId-1].material;
-            const mymesh = this.findMyMaterial(changedata);
+            //console.log('Coming from hre 6');
+            const mymesh = this.findMyMaterial(changedata, false);
             if (mymesh) {
               const mymaterial = mymesh.material;
               //console.log("1",mymaterial);
@@ -4424,7 +4489,8 @@ class GLTFRenderer extends Component {
           if (changedata[gltf_Dict['name']]) {
             //console.log(this.partsMeshes[changedata.binId-1]);
             //const mymaterial = this.partsMeshes[element.binId-1].material;
-            const mymesh = this.findMyMaterial(changedata);
+            //console.log('Coming from hre 7');
+            const mymesh = this.findMyMaterial(changedata, false);
             if (mymesh) {
               const mymaterial = mymesh.material;
               //console.log("2",mymaterial);
@@ -4484,7 +4550,8 @@ class GLTFRenderer extends Component {
           if (changedata[gltf_Dict['name']]) {
             //console.log(this.partsMeshes[changedata.binId-1]);
             //const mymaterial = this.partsMeshes[element.binId-1].material;
-            const mymesh = this.findMyMaterial(changedata);
+            //console.log('Coming from hre 8');
+            const mymesh = this.findMyMaterial(changedata, false);
             if (mymesh) {
               const mymaterial = mymesh.material;
               if (mymaterial) {
@@ -4513,7 +4580,8 @@ class GLTFRenderer extends Component {
           if (changedata[gltf_Dict['name']]) {
             //console.log(this.partsMeshes[changedata.binId-1]);
             //const mymaterial = this.partsMeshes[element.binId-1].material;
-            const mymesh = this.findMyMaterial(changedata);
+            //console.log('Coming from hre 9');
+            const mymesh = this.findMyMaterial(changedata, false);
             if (mymesh) {
               const mymaterial = mymesh.material;
               if (mymaterial) {
@@ -4542,7 +4610,8 @@ class GLTFRenderer extends Component {
           if (changedata[gltf_Dict['name']]) {
             //console.log(this.partsMeshes[changedata.binId-1]);
             //const mymaterial = this.partsMeshes[element.binId-1].material;
-            const mymesh = this.findMyMaterial(changedata);
+            //console.log('Coming from hre 10');
+            const mymesh = this.findMyMaterial(changedata, false);
             if (mymesh) {
               const mymaterial = mymesh.material;
               if (mymaterial) {
@@ -4908,7 +4977,8 @@ class GLTFRenderer extends Component {
     featureSetStart = 0,
     featureSetFinish = 3,
     mynode = null,
-    gdttableEdges = null
+    gdttableEdges = null,
+    firstTime = false
   ) => {
     const local_state_gltfobj =
       this_state_gltf || this.state.gltfobj || this.props.gltfobj;
@@ -5009,6 +5079,8 @@ class GLTFRenderer extends Component {
             console.log('Setting inside the load all edges', element, event);
             element.selectedshell = true;
             this.doOneSelection(element, event, false);
+            //console.log(this.scene, this.partsMeshes, this.raycastObjects);
+            //this.render();
           });
           if (gdttableEdges.selectedObjects.length == 0) {
             this.changeStateOfSelection(null, event, false);
@@ -5026,7 +5098,7 @@ class GLTFRenderer extends Component {
           myobject.renderOrder += 1;
           this.scene.add(myobject);
           this.content.push(myobject);
-          //console.log("MyObject",myobject);
+          //console.log('MyObject', myobject);
           let partsMeshes = myobject.children;
 
           if (partsMeshes[0].children.length > 0) {
@@ -5045,6 +5117,8 @@ class GLTFRenderer extends Component {
                     }); */
           //console.log(this.partsMeshes);
           this.partsMeshes = [...this.partsMeshes, ...partsMeshes];
+          //console.log('PartsMeshes', partsMeshes, this_state_gltf.tree);
+          //console.log(this.rayCastObjectFilters(partsMeshes, true));
           this.raycastObjects = [
             ...this.raycastObjects,
             ...this.rayCastObjectFilters(partsMeshes)
@@ -5084,6 +5158,7 @@ class GLTFRenderer extends Component {
 
       let myParentID = allEdges;
       let myParentDic = {};
+      let addTree = true;
       //console.log("Data got in the progress file",myParentID,data);
       if (data.files) {
         alert(
@@ -5191,6 +5266,11 @@ class GLTFRenderer extends Component {
                 this_state_gltf || this.state.gltfobj || this.props.gltfobj;
               //console.log("Inside upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj)
               var myStateTree = state_gltfobj.tree;
+              if (firstTime && addTree) {
+                console.log(myStateTree, state_gltfobj);
+                myStateTree.length = state_gltfobj.treeLength;
+                addTree = false;
+              }
               myStateTree = [...myStateTree, ...treeRes.data];
               //var gltfobj = { ...state.gltfobj } || { ...this.props.gltfobj }
               var gltfobj = { ...state_gltfobj };
@@ -5676,6 +5756,7 @@ class GLTFRenderer extends Component {
                 );
               } else {
                 this.onInitProgress(gltfStore + '.gltf');
+                //console.log('Loading inside edges', gltfStore + '.gltf');
                 myResourcePath = await checkExistingPathFromStore(
                   fileStore,
                   'gltf',
@@ -6758,6 +6839,7 @@ class GLTFRenderer extends Component {
           const mygltfcontent =
             this_state_gltf || this.state.gltfobj || this.props.gltfobj;
           if (!isEmptyObjectDictionary(mygltfcontent)) {
+            //console.log('I am reloading the gltf');
             this.alter(mygltfcontent);
           } else {
             console.log('Skipping rendering due to blank', mygltfcontent);

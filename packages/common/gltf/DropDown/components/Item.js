@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 //import styled from '@emotion/styled';
-import styled from 'styled-components'
+import styled from 'styled-components';
 import { hexToRGBA, getByPath } from '../util';
 import * as PropTypes from 'prop-types';
 import { LIB_NAME } from '../constants';
@@ -11,7 +11,11 @@ class Item extends Component {
   componentDidUpdate() {
     if (this.props.state.cursor === this.props.itemIndex) {
       this.item.current &&
-        this.item.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+        this.item.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        });
     }
   }
 
@@ -34,7 +38,10 @@ class Item extends Component {
         aria-disabled={item.disabled}
         aria-label={getByPath(item, props.labelField)}
         disabled={item.disabled}
-        key={`${getByPath(item, props.valueField)}${getByPath(item, props.labelField)}`}
+        key={`${getByPath(item, props.valueField)}${getByPath(
+          item,
+          props.labelField
+        )}`}
         tabIndex="-1"
         className={`${LIB_NAME}-item ${
           methods.isSelected(item) ? `${LIB_NAME}-item-selected` : ''
@@ -43,8 +50,10 @@ class Item extends Component {
         }`}
         onClick={item.disabled ? undefined : () => methods.addItem(item)}
         onKeyPress={item.disabled ? undefined : () => methods.addItem(item)}
-        color={props.color}>
-        {getByPath(item, props.labelField)} {item.disabled && <ins>{props.disabledLabel}</ins>}
+        color={props.color}
+      >
+        {getByPath(item, props.labelField)}{' '}
+        {item.disabled && <ins>{props.disabledLabel}</ins>}
       </ItemComponent>
     );
   }
@@ -65,7 +74,8 @@ const ItemComponent = styled.span`
 
   &.${LIB_NAME}-item-active {
     border-bottom: 1px solid #fff;
-    ${({ disabled, color }) => !disabled && color && `background: ${hexToRGBA(color, 0.1)};`}
+    ${({ disabled, color }) =>
+      !disabled && color && `background: ${hexToRGBA(color, 0.1)};`}
   }
 
   :hover,

@@ -17,7 +17,10 @@ class ClickOutside extends React.Component {
     const { target } = event;
     const { onClickOutside } = this.props;
 
-    if ((container && container === target) || (container && !container.contains(target))) {
+    if (
+      (container && container === target) ||
+      (container && !container.contains(target))
+    ) {
       onClickOutside(event);
     }
   };
