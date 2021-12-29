@@ -15,10 +15,6 @@ export default function PcbTab({ gltfjson = {}, setgltfjson }) {
       // tabContent: <CadMakerDesigner />,
     },
     {
-      tabName: 'Classification'
-      // tabContent: <CadMakerDesigner />,
-    },
-    {
       tabName: 'Molecules'
     },
     {
@@ -30,5 +26,5 @@ export default function PcbTab({ gltfjson = {}, setgltfjson }) {
       // tabContent: <CadMakerDesigner />,
     }
   ];
-  return <DetailComponent title={'PCB'} tabList={tabList} type={'PCB'} />;
+  return <DetailComponent title={'PCB'} tabList={tabList} type={'pcb'} />;
 }

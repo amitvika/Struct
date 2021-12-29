@@ -17,6 +17,7 @@ exports.mapProductDesign = (item = {}) => {
   }
 
   return {
+    ...item.toObject(),
     id: item._id || item.id,
     name: item.name,
     type: item.type,
@@ -29,9 +30,6 @@ exports.mapProductDesign = (item = {}) => {
     // created_by: get(item, 'created_by._id', ''),
     // updated_by_name: get(item, 'updated_by.name', ''),
     // updated_by: get(item, 'updated_by._id', ''),
-    hierarchySchema: get(item, 'hierarchySchema', []),
-    criteriaSchema: get(item, 'criteriaSchema', {}),
-    lookUpTableSchema: get(item, 'lookUpTableSchema', {}),
     is_archived: item.is_archived
   };
 };

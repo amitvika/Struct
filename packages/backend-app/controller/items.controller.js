@@ -81,11 +81,11 @@ const buildQuery = (req) => {
     });
   }
 
-  if (req.query.is_actuator_type) {
-    query.$and.push({
-      is_actuator_type: true
-    });
-  }
+  // if (req.query.is_actuator_type) {
+  //   query.$and.push({
+  //     is_actuator_type: true
+  //   });
+  // }
 
   if (req.query.full_search) {
     query.$and.push(createSearchQuery(req.query.full_search));

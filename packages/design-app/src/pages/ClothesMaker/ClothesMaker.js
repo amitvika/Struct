@@ -31,7 +31,7 @@ export default function ClothesMaker() {
     <DetailComponent
       title={'Clothes Maker'}
       tabList={tabList}
-      type={'CLOTHES'}
+      type={'clothes'}
     />
   );
 }

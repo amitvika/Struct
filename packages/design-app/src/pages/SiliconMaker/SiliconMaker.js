@@ -12,10 +12,6 @@ export default function SiliconMaker() {
       // tabContent: <CadMakerDesigner />,
     },
     {
-      tabName: 'Classification'
-      // tabContent: <CadMakerDesigner />,
-    },
-    {
       tabName: 'Molecules'
     },
     {
@@ -31,7 +27,7 @@ export default function SiliconMaker() {
     <DetailComponent
       title={'Silicon Maker'}
       tabList={tabList}
-      type={'SILICON'}
+      type={'silicon'}
     />
   );
 }

@@ -11,7 +11,7 @@ import AddDesignMenu from './AddDesignMenu';
 const DesignPage = () => {
   let history = useHistory();
   const handleItemClick = (id, { type, name }) =>
-    history.push(`/design?type=${type}&id=${id}&name=${name}`);
+    history.push(`/${type}?id=${id}&name=${name}`);
 
   return (
     <Box sx={{ margin: '20px 7%' }}>

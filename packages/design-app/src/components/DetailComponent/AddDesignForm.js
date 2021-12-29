@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import Input from '@monostruct/common/components/atoms/Input';
@@ -7,8 +6,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 
 import IconButton from '@mui/material/IconButton';
+import { get } from 'lodash';
 
-export default function AddDesign({ handleSave, name }) {
+export default function AddDesign({ handleSaveProductDesignItem, itemValue }) {
   const [value, setValue] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
@@ -17,17 +17,15 @@ export default function AddDesign({ handleSave, name }) {
   };
 
   useEffect(() => {
-    if (name) {
-      setValue(name);
-    }
-  }, [name]);
+    setValue(get(itemValue, 'name'));
+  }, [itemValue]);
   const handleTitleClick = () => {
     setIsEditing(true);
   };
   const handleSaveTitle = () => {
     setValue(value);
     setIsEditing(false);
-    handleSave({});
+    handleSaveProductDesignItem({ name: value });
   };
 
   return (

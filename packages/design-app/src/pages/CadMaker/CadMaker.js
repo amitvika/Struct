@@ -21,10 +21,6 @@ const CadMaker = () => {
       tabContent: ManufactureProcessingProcessSimulation
     },
     {
-      tabName: 'Classification',
-      tabContent: CadMakerDesigner
-    },
-    {
       tabName: 'Molecules'
     },
     {
@@ -39,7 +35,7 @@ const CadMaker = () => {
 
   return (
     <>
-      <DetailPage title={'CAD'} tabList={tabList} type={'CAD'}></DetailPage>
+      <DetailPage title={'CAD'} tabList={tabList} type={'cad'}></DetailPage>
     </>
   );
 };

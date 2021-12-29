@@ -5,6 +5,7 @@ const ProductDesignSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     type: { type: String },
+    design_type: { type: String },
     category: { type: String },
     notes: { type: String },
     file_history: [

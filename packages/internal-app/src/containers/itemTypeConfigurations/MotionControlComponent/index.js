@@ -35,7 +35,7 @@ export default function MotionControlComponent({
   const history = useHistory();
 
   React.useEffect(() => {
-    ItemApi.getItemsAPI(`parent_id=${itemId}`)
+    ItemApi.getItemsAPI(`parent_id=${itemId}&is_actuator_type=true`)
       .then((res) => {
         console.log('IUPC Item Details', res, itemId);
         const thisList = get(res, 'data', []);

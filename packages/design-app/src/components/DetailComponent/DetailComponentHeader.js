@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Paper, Typography } from '@mui/material';
 import { useStyles } from './DetailComponent.style';
 import AddDesignForm from './AddDesignForm';
@@ -10,7 +10,9 @@ import Tooltip from '@mui/material/Tooltip';
 export default function DetailComponentHeader({
   title,
   isAddDesignVisible = true,
-  type
+  handleSaveProductDesignItem,
+  itemValue,
+  setItemValue
 }) {
   const classes = useStyles();
 
@@ -20,8 +22,12 @@ export default function DetailComponentHeader({
       style={{ justifyContent: 'unset', alignItems: 'center' }}
     >
       <div style={{ zIndex: 9, display: 'flex' }}>
-        {isAddDesignVisible && <AddDesignForm />}
-        <DesignTypeSelection />
+        {isAddDesignVisible && (
+          <AddDesignForm {...{ itemValue, handleSaveProductDesignItem }} />
+        )}
+        <DesignTypeSelection
+          {...{ setItemValue, itemValue, handleSaveProductDesignItem }}
+        />
       </div>
       <div
         style={{
@@ -40,7 +46,26 @@ export default function DetailComponentHeader({
   );
 }
 
-const DesignTypeSelection = () => {
+const DesignTypeSelection = ({
+  setItemValue,
+  itemValue,
+  handleSaveProductDesignItem
+}) => {
+  const [value, setValue] = React.useState(itemValue.design_type);
+
+  useEffect(() => {
+    setValue(itemValue.design_type);
+  }, [itemValue.design_type]);
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+    if (itemValue.id) {
+      handleSaveProductDesignItem({ design_type: event.target.value });
+    } else {
+      setItemValue(event.target.value);
+    }
+  };
+
   return (
     <RadioGroup
       row
@@ -50,6 +75,8 @@ const DesignTypeSelection = () => {
         flexWrap: 'nowrap',
         whiteSpace: 'nowrap'
       }}
+      value={value}
+      onChange={handleChange}
     >
       <Tooltip
         title="All Private Products are only accessible by the designer/uploader"

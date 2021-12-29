@@ -31,7 +31,7 @@ export default function ArchitectureDesigner() {
     <DetailComponent
       title={'Architecture Designer'}
       tabList={tabList}
-      type={'ARCHITECTURE'}
+      type={'architecture'}
     />
   );
 }
