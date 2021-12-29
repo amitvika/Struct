@@ -10,8 +10,16 @@ import AddDesignMenu from './AddDesignMenu';
 
 const DesignPage = () => {
   let history = useHistory();
-  const handleItemClick = (id, { type, name }) =>
-    history.push(`/${type}?id=${id}&name=${name}`);
+
+  const handleItemClick = (id, data, openInTab) => {
+    let link = `/${data.type}?id=${id}`;
+    if (openInTab) {
+      const win = window.open(link, '_blank');
+      win.focus();
+    } else {
+      history.push(link);
+    }
+  };
 
   return (
     <Box sx={{ margin: '20px 7%' }}>
