@@ -19,9 +19,11 @@ export default function AddDesign({ handleSaveProductDesignItem, itemValue }) {
   useEffect(() => {
     setValue(get(itemValue, 'name'));
   }, [itemValue]);
+
   const handleTitleClick = () => {
     setIsEditing(true);
   };
+
   const handleSaveTitle = () => {
     setValue(value);
     setIsEditing(false);
