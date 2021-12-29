@@ -1,18 +1,21 @@
 import React from 'react';
-import styled from 'styled-components'
+import styled from 'styled-components';
 //import styled from '@emotion/styled';
 import { LIB_NAME } from '../constants';
 
 const DropdownHandle = ({ props, state, methods }) => (
   <DropdownHandleComponent
     tabIndex="-1"
-    onClick={(event) => methods.dropDown(state.dropdown ? 'close' : 'open', event)}
+    onClick={(event) =>
+      methods.dropDown(state.dropdown ? 'close' : 'open', event)
+    }
     dropdownOpen={state.dropdown}
     onKeyPress={(event) => methods.dropDown('toggle', event)}
     onKeyDown={(event) => methods.dropDown('toggle', event)}
     className={`${LIB_NAME}-dropdown-handle`}
     rotate={props.dropdownHandleRenderer ? 0 : 1}
-    color={props.color}>
+    color={props.color}
+  >
     {props.dropdownHandleRenderer ? (
       props.dropdownHandleRenderer({ props, state, methods })
     ) : (

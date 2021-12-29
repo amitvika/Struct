@@ -1,14 +1,14 @@
 /* @flow */
 
 export function has(obj, key) {
-  return obj !== undefined && obj !== null && Object.prototype.hasOwnProperty.call(obj, key);
+  return (
+    obj !== undefined &&
+    obj !== null &&
+    Object.prototype.hasOwnProperty.call(obj, key)
+  );
 }
 
-export function stepValidator( // eslint-disable-line consistent-return
-  props,
-  propName,
-  componentName
-) {
+export function stepValidator(props, propName, componentName) { // eslint-disable-line consistent-return
   if (has(props, propName)) {
     if (isNaN(props.step) || props.step <= 0) {
       return new Error(
@@ -22,7 +22,7 @@ export function getValueOrAlt(value, altValue) {
   if (value !== undefined && value !== null) {
     return value;
   }
-  return altValue?altValue:0;
+  return altValue ? altValue : 0;
 }
 
 export function isDefined(value) {

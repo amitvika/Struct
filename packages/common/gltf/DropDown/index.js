@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import styled from 'styled-components'
+import styled from 'styled-components';
 //import styled from '@emotion/styled';
 import ClickOutside from './components/ClickOutside';
 
@@ -76,7 +76,7 @@ export class Select extends Component {
       search: '',
       selectBounds: {},
       cursor: null,
-      searchResults: props.options,
+      searchResults: props.options
     };
 
     this.methods = {
@@ -101,12 +101,16 @@ export class Select extends Component {
     };
 
     this.select = React.createRef();
-    this.dropdownRoot = typeof document !== 'undefined' && document.createElement('div');
+    this.dropdownRoot =
+      typeof document !== 'undefined' && document.createElement('div');
   }
 
   componentDidMount() {
     this.props.portal && this.props.portal.appendChild(this.dropdownRoot);
-    isomorphicWindow().addEventListener('resize', debounce(this.updateSelectBounds));
+    isomorphicWindow().addEventListener(
+      'resize',
+      debounce(this.updateSelectBounds)
+    );
     isomorphicWindow().addEventListener('scroll', debounce(this.onScroll));
 
     this.dropDown('close');
@@ -234,7 +238,7 @@ export class Select extends Component {
       return this.setState({
         dropdown: false,
         search: this.props.clearOnBlur ? '' : this.state.search,
-        searchResults: this.props.options,
+        searchResults: this.props.options
       });
     }
 
@@ -255,7 +259,11 @@ export class Select extends Component {
   addItem = (item) => {
     if (this.props.multi) {
       if (
-        valueExistInSelected(getByPath(item, this.props.valueField), this.state.values, this.props)
+        valueExistInSelected(
+          getByPath(item, this.props.valueField),
+          this.state.values,
+          this.props
+        )
       ) {
         return this.removeItem(null, item, false);
       }
@@ -285,7 +293,8 @@ export class Select extends Component {
     this.setState({
       values: this.state.values.filter(
         (values) =>
-          getByPath(values, this.props.valueField) !== getByPath(item, this.props.valueField)
+          getByPath(values, this.props.valueField) !==
+          getByPath(item, this.props.valueField)
       )
     });
   };
@@ -295,11 +304,14 @@ export class Select extends Component {
       cursor: null
     });
 
-    this.setState({
-      search: event.target.value,
-    }, () => {
-      this.setState({ searchResults: this.searchResults() })
-    });
+    this.setState(
+      {
+        search: event.target.value
+      },
+      () => {
+        this.setState({ searchResults: this.searchResults() });
+      }
+    );
   };
 
   getInputSize = () => {
@@ -316,7 +328,8 @@ export class Select extends Component {
 
   toggleSelectAll = () => {
     return this.setState({
-      values: this.state.values.length === 0 ? this.selectAll() : this.clearAll()
+      values:
+        this.state.values.length === 0 ? this.selectAll() : this.clearAll()
     });
   };
 
@@ -330,7 +343,9 @@ export class Select extends Component {
   selectAll = (valuesList = []) => {
     this.props.onSelectAll();
     const values =
-      valuesList.length > 0 ? valuesList : this.props.options.filter((option) => !option.disabled);
+      valuesList.length > 0
+        ? valuesList
+        : this.props.options.filter((option) => !option.disabled);
 
     this.setState({ values });
   };
@@ -338,11 +353,13 @@ export class Select extends Component {
   isSelected = (option) =>
     !!this.state.values.find(
       (value) =>
-        getByPath(value, this.props.valueField) === getByPath(option, this.props.valueField)
+        getByPath(value, this.props.valueField) ===
+        getByPath(option, this.props.valueField)
     );
 
   areAllSelected = () =>
-    this.state.values.length === this.props.options.filter((option) => !option.disabled).length;
+    this.state.values.length ===
+    this.props.options.filter((option) => !option.disabled).length;
 
   safeString = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -372,12 +389,19 @@ export class Select extends Component {
     return methods
       .sortBy()
       .filter((item) =>
-        regexp.test(getByPath(item, this.props.searchBy) || getByPath(item, this.props.valueField))
+        regexp.test(
+          getByPath(item, this.props.searchBy) ||
+            getByPath(item, this.props.valueField)
+        )
       );
   };
 
   searchResults = () => {
-    const args = { state: this.state, props: this.props, methods: this.methods };
+    const args = {
+      state: this.state,
+      props: this.props,
+      methods: this.methods
+    };
 
     return this.props.searchFn(args) || this.searchFn(args);
   };
@@ -423,7 +447,12 @@ export class Select extends Component {
       });
     }
 
-    if (arrowUp || arrowDown || (shiftTab && state.dropdown) || (tab && state.dropdown)) {
+    if (
+      arrowUp ||
+      arrowDown ||
+      (shiftTab && state.dropdown) ||
+      (tab && state.dropdown)
+    ) {
       event.preventDefault();
     }
 
@@ -434,7 +463,10 @@ export class Select extends Component {
     if (enter) {
       const currentItem = searchResults[cursor];
       if (currentItem && !currentItem.disabled) {
-        if (props.create && valueExistInSelected(state.search, state.values, props)) {
+        if (
+          props.create &&
+          valueExistInSelected(state.search, state.values, props)
+        ) {
           return null;
         }
 
@@ -442,7 +474,10 @@ export class Select extends Component {
       }
     }
 
-    if ((arrowDown || (tab && state.dropdown)) && searchResults.length === cursor) {
+    if (
+      (arrowDown || (tab && state.dropdown)) &&
+      searchResults.length === cursor
+    ) {
       return setState({
         cursor: 0
       });
@@ -476,7 +511,11 @@ export class Select extends Component {
   renderDropdown = () =>
     this.props.portal ? (
       ReactDOM.createPortal(
-        <Dropdown props={this.props} state={this.state} methods={this.methods} />,
+        <Dropdown
+          props={this.props}
+          state={this.state}
+          methods={this.methods}
+        />,
         this.dropdownRoot
       )
     ) : (
@@ -509,8 +548,13 @@ export class Select extends Component {
           disabled={this.props.disabled}
           className={`${LIB_NAME} ${this.props.className}`}
           color={this.props.color}
-          {...this.props.additionalProps}>
-          <Content props={this.props} state={this.state} methods={this.methods} />
+          {...this.props.additionalProps}
+        >
+          <Content
+            props={this.props}
+            state={this.state}
+            methods={this.methods}
+          />
 
           {(this.props.name || this.props.required) && (
             <input
@@ -520,7 +564,9 @@ export class Select extends Component {
               required={this.props.required}
               pattern={this.props.pattern}
               defaultValue={
-                this.state.values.map((value) => value[this.props.labelField]).toString() || []
+                this.state.values
+                  .map((value) => value[this.props.labelField])
+                  .toString() || []
               }
               disabled={this.props.disabled}
             />
@@ -529,11 +575,19 @@ export class Select extends Component {
           {this.props.loading && <Loading props={this.props} />}
 
           {this.props.clearable && (
-            <Clear props={this.props} state={this.state} methods={this.methods} />
+            <Clear
+              props={this.props}
+              state={this.state}
+              methods={this.methods}
+            />
           )}
 
           {this.props.separator && (
-            <Separator props={this.props} state={this.state} methods={this.methods} />
+            <Separator
+              props={this.props}
+              state={this.state}
+              methods={this.methods}
+            />
           )}
 
           {this.props.dropdownHandle && (
@@ -615,7 +669,9 @@ const ReactDropdownSelect = styled.div`
   cursor: pointer;
   min-height: 36px;
   ${({ disabled }) =>
-    disabled ? 'cursor: not-allowed;pointer-events: none;opacity: 0.3;' : 'pointer-events: all;'}
+    disabled
+      ? 'cursor: not-allowed;pointer-events: none;opacity: 0.3;'
+      : 'pointer-events: all;'}
 
   :hover,
   :focus-within {

@@ -13,11 +13,12 @@ class ExpandIcon extends React.PureComponent {
   }
 
   render() {
-    const { expandable, expanded, indentSize, depth, onExpand, ...rest } = this.props;
+    const { expandable, expanded, indentSize, depth, onExpand, ...rest } =
+      this.props;
     if (!expandable && indentSize === 0) return null;
 
     const cls = cn('BaseTable__expand-icon', {
-      'BaseTable__expand-icon--expanded': expanded,
+      'BaseTable__expand-icon--expanded': expanded
     });
     return (
       <div
@@ -36,7 +37,7 @@ class ExpandIcon extends React.PureComponent {
           textAlign: 'center',
           transition: 'transform 0.15s ease-out',
           transform: `rotate(${expandable && expanded ? 90 : 0}deg)`,
-          marginLeft: depth * indentSize,
+          marginLeft: depth * indentSize
         }}
       >
         {expandable && '\u25B8'}
@@ -54,7 +55,7 @@ class ExpandIcon extends React.PureComponent {
 
 ExpandIcon.defaultProps = {
   depth: 0,
-  indentSize: 16,
+  indentSize: 16
 };
 
 ExpandIcon.propTypes = {
@@ -62,7 +63,7 @@ ExpandIcon.propTypes = {
   expanded: PropTypes.bool,
   indentSize: PropTypes.number,
   depth: PropTypes.number,
-  onExpand: PropTypes.func,
+  onExpand: PropTypes.func
 };
 
 export default ExpandIcon;

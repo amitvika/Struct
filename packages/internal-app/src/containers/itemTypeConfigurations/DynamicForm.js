@@ -125,6 +125,8 @@ export default function DynamicCriteria({
 
             {fieldItem.dataType === 'MotionControl' && (
               <MotionControlComponent
+                onClick={handleOnClick}
+                mykey={fieldItem.fieldName}
                 {...{
                   itemId: itemProperties.id,
                   gltfjson,

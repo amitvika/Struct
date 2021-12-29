@@ -12,7 +12,7 @@ import {
   DEFAULTTOUCHCOLOR,
   getTexture,
   SELECT2DTEXTURE,
-  SELECT3DTEXTURE,
+  SELECT3DTEXTURE
 } from './Tree/utils';
 import Select from './DropDown';
 
@@ -27,7 +27,7 @@ const DEFAULTSPLITS = {
   meshes: [],
   nodes: [],
   download: '',
-  tree: [],
+  tree: []
   //"btree": [],
 };
 
@@ -58,7 +58,7 @@ class GetFilesList extends Component {
     materialname: DEFAULTMATERIALNAME,
     disectstruct: false,
     showshapeinfo: false,
-    currentdata: [],
+    currentdata: []
   };
 
   constructor(props) {
@@ -78,7 +78,7 @@ class GetFilesList extends Component {
       .then((repos) => {
         //console.log("textures", repos);
         this.setState({
-          textures: repos,
+          textures: repos
         });
         this.setStateLoadingContent(false);
       })
@@ -134,7 +134,7 @@ class GetFilesList extends Component {
                         //console.log("1",state)
                         this.setState({
                           databackcolor: event.target.value,
-                          dataselection: SELECTBACKCOLOR,
+                          dataselection: SELECTBACKCOLOR
                         });
                         if (this.props.onChange) {
                           this.props.onChange(
@@ -152,7 +152,7 @@ class GetFilesList extends Component {
                     style={{
                       maxWidth: '350px',
                       margin: '0 auto',
-                      minWidth: '100px',
+                      minWidth: '100px'
                     }}
                   >
                     <Select
@@ -167,7 +167,7 @@ class GetFilesList extends Component {
                         if (datavalues && !!datavalues.length) {
                           this.setState({
                             data2values: datavalues,
-                            dataselection: SELECT2DTEXTURE,
+                            dataselection: SELECT2DTEXTURE
                           });
                           if (this.props.onChange) {
                             this.props.onChange(datavalues, SELECT2DTEXTURE);
@@ -183,7 +183,7 @@ class GetFilesList extends Component {
                     style={{
                       maxWidth: '350px',
                       margin: '0 auto',
-                      minWidth: '100px',
+                      minWidth: '100px'
                     }}
                   >
                     <Select
@@ -198,7 +198,7 @@ class GetFilesList extends Component {
                         if (datavalues && !!datavalues.length) {
                           this.setState({
                             data3values: datavalues,
-                            dataselection: SELECT3DTEXTURE,
+                            dataselection: SELECT3DTEXTURE
                           });
                           if (this.props.onChange) {
                             this.props.onChange(datavalues, SELECT3DTEXTURE);
@@ -218,7 +218,7 @@ class GetFilesList extends Component {
                         //console.log("1",state)
                         this.setState({
                           dataselectcolor: event.target.value,
-                          dataselection: SELECTSELECTCOLOR,
+                          dataselection: SELECTSELECTCOLOR
                         });
                         if (this.props.onChange) {
                           this.props.onChange(
@@ -240,7 +240,7 @@ class GetFilesList extends Component {
                         //console.log("1",state)
                         this.setState({
                           datatouchcolor: event.target.value,
-                          dataselection: SELECTTOUCHCOLOR,
+                          dataselection: SELECTTOUCHCOLOR
                         });
                         if (this.props.onChange) {
                           this.props.onChange(

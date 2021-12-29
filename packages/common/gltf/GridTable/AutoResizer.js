@@ -11,18 +11,26 @@ const AutoResizer = ({ className, width, height, children, onResize }) => {
 
   if (disableWidth && disableHeight) {
     return (
-      <div className={className} style={{ width, height, position: 'relative' }}>
+      <div
+        className={className}
+        style={{ width, height, position: 'relative' }}
+      >
         {children({ width, height })}
       </div>
     );
   }
 
   return (
-    <AutoSizer className={className} disableWidth={disableWidth} disableHeight={disableHeight} onResize={onResize}>
-      {size =>
+    <AutoSizer
+      className={className}
+      disableWidth={disableWidth}
+      disableHeight={disableHeight}
+      onResize={onResize}
+    >
+      {(size) =>
         children({
           width: disableWidth ? width : size.width,
-          height: disableHeight ? height : size.height,
+          height: disableHeight ? height : size.height
         })
       }
     </AutoSizer>
@@ -51,7 +59,7 @@ AutoResizer.propTypes = {
    * A callback function when the size of the table container changed if the width and height are not set
    * The handler is of the shape of `({ width, height }) => *`
    */
-  onResize: PropTypes.func,
+  onResize: PropTypes.func
 };
 
 export default AutoResizer;

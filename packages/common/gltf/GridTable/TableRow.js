@@ -11,7 +11,7 @@ class TableRow extends React.PureComponent {
     super(props);
 
     this.state = {
-      measured: false,
+      measured: false
     };
 
     this._setRef = this._setRef.bind(this);
@@ -19,7 +19,9 @@ class TableRow extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.props.estimatedRowHeight && this.props.rowIndex >= 0 && this._measureHeight(true);
+    this.props.estimatedRowHeight &&
+      this.props.rowIndex >= 0 &&
+      this._measureHeight(true);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -62,7 +64,12 @@ class TableRow extends React.PureComponent {
     } = this.props;
     /* eslint-enable no-unused-vars */
 
-    const expandIcon = expandIconRenderer({ rowData, rowIndex, depth, onExpand: this._handleExpand });
+    const expandIcon = expandIconRenderer({
+      rowData,
+      rowIndex,
+      depth,
+      onExpand: this._handleExpand
+    });
     let cells = columns.map((column, columnIndex) =>
       cellRenderer({
         isScrolling,
@@ -71,12 +78,19 @@ class TableRow extends React.PureComponent {
         columnIndex,
         rowData,
         rowIndex,
-        expandIcon: column.key === expandColumnKey && expandIcon,
+        expandIcon: column.key === expandColumnKey && expandIcon
       })
     );
 
     if (rowRenderer) {
-      cells = renderElement(rowRenderer, { isScrolling, cells, columns, rowData, rowIndex, depth });
+      cells = renderElement(rowRenderer, {
+        isScrolling,
+        cells,
+        columns,
+        rowData,
+        rowIndex,
+        depth
+      });
     }
 
     const eventHandlers = this._getEventHandlers(rowEventHandlers);
@@ -119,17 +133,22 @@ class TableRow extends React.PureComponent {
     const height = this.ref.getBoundingClientRect().height;
     this.setState({ measured: true }, () => {
       if (initialMeasure || height !== style.height)
-        onRowHeightChange(rowKey, height, rowIndex, columns[0] && !columns[0].__placeholder__ && columns[0].frozen);
+        onRowHeightChange(
+          rowKey,
+          height,
+          rowIndex,
+          columns[0] && !columns[0].__placeholder__ && columns[0].frozen
+        );
     });
   }
 
   _getEventHandlers(handlers = {}) {
     const { rowData, rowIndex, rowKey, onRowHover } = this.props;
     const eventHandlers = {};
-    Object.keys(handlers).forEach(eventKey => {
+    Object.keys(handlers).forEach((eventKey) => {
       const callback = handlers[eventKey];
       if (typeof callback === 'function') {
-        eventHandlers[eventKey] = event => {
+        eventHandlers[eventKey] = (event) => {
           callback({ rowData, rowIndex, rowKey, event });
         };
       }
@@ -137,25 +156,25 @@ class TableRow extends React.PureComponent {
 
     if (onRowHover) {
       const mouseEnterHandler = eventHandlers['onMouseEnter'];
-      eventHandlers['onMouseEnter'] = event => {
+      eventHandlers['onMouseEnter'] = (event) => {
         onRowHover({
           hovered: true,
           rowData,
           rowIndex,
           rowKey,
-          event,
+          event
         });
         mouseEnterHandler && mouseEnterHandler(event);
       };
 
       const mouseLeaveHandler = eventHandlers['onMouseLeave'];
-      eventHandlers['onMouseLeave'] = event => {
+      eventHandlers['onMouseLeave'] = (event) => {
         onRowHover({
           hovered: false,
           rowData,
           rowIndex,
           rowKey,
-          event,
+          event
         });
         mouseLeaveHandler && mouseLeaveHandler(event);
       };
@@ -166,7 +185,7 @@ class TableRow extends React.PureComponent {
 }
 
 TableRow.defaultProps = {
-  tagName: 'div',
+  tagName: 'div'
 };
 
 TableRow.propTypes = {
@@ -188,7 +207,7 @@ TableRow.propTypes = {
   onRowHover: PropTypes.func,
   onRowExpand: PropTypes.func,
   onRowHeightChange: PropTypes.func,
-  tagName: PropTypes.elementType,
+  tagName: PropTypes.elementType
 };
 
 export default TableRow;

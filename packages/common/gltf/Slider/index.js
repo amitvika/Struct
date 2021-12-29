@@ -5,5 +5,5 @@ import Slider from './components/Slider';
 
 module.exports = {
   RangeSlider,
-  Slider,
+  Slider
 };

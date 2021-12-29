@@ -13,7 +13,7 @@ const DEFAULTDISTANCEDATA = {
   normal: '',
   opposite: '',
   concentric: '',
-  coradial: '',
+  coradial: ''
 };
 const MOVEONLY = 1;
 const ROTATEONLY = 2;
@@ -31,7 +31,7 @@ class DistanceCalculator extends Component {
     distancedata: DEFAULTDISTANCEDATA,
     loadingContent: false,
     firstshell: this.props.firstshell,
-    secondshell: this.props.secondshell,
+    secondshell: this.props.secondshell
   };
   static getDerivedStateFromProps(nextProps, prevState) {
     //console.log(nextProps,prevState);
@@ -43,7 +43,7 @@ class DistanceCalculator extends Component {
       return {
         firstshell: nextProps.firstshell,
         secondshell: nextProps.secondshell,
-        distancedata: DEFAULTDISTANCEDATA,
+        distancedata: DEFAULTDISTANCEDATA
       };
     } else {
       return null;
@@ -55,7 +55,7 @@ class DistanceCalculator extends Component {
   getTransformation = (moverotate) => {
     this.setStateLoadingContent(true);
     this.setState({
-      distancedata: DEFAULTDISTANCEDATA,
+      distancedata: DEFAULTDISTANCEDATA
     });
     getMinimumDistance(
       this.state.xmove,
@@ -73,7 +73,7 @@ class DistanceCalculator extends Component {
         //console.log(repos);
 
         this.setState({
-          distancedata: repos,
+          distancedata: repos
         });
         //console.log(repos);
         this.setStateLoadingContent(false);
@@ -118,7 +118,7 @@ class DistanceCalculator extends Component {
                           const xmove = getFloat(e.target.value);
                           this.setState({
                             xmove: xmove,
-                            distancedata: DEFAULTDISTANCEDATA,
+                            distancedata: DEFAULTDISTANCEDATA
                           });
                         }}
                       />
@@ -134,7 +134,7 @@ class DistanceCalculator extends Component {
                           const ymove = getFloat(e.target.value);
                           this.setState({
                             ymove: ymove,
-                            distancedata: DEFAULTDISTANCEDATA,
+                            distancedata: DEFAULTDISTANCEDATA
                           });
                         }}
                       />
@@ -150,7 +150,7 @@ class DistanceCalculator extends Component {
                           const zmove = getFloat(e.target.value);
                           this.setState({
                             zmove: zmove,
-                            distancedata: DEFAULTDISTANCEDATA,
+                            distancedata: DEFAULTDISTANCEDATA
                           });
                         }}
                       />
@@ -169,7 +169,7 @@ class DistanceCalculator extends Component {
                           const zrotate = getFloat(e.target.value);
                           this.setState({
                             zrotate: zrotate,
-                            distancedata: DEFAULTDISTANCEDATA,
+                            distancedata: DEFAULTDISTANCEDATA
                           });
                         }}
                       />
@@ -185,7 +185,7 @@ class DistanceCalculator extends Component {
                           const yrotate = getFloat(e.target.value);
                           this.setState({
                             yrotate: yrotate,
-                            distancedata: DEFAULTDISTANCEDATA,
+                            distancedata: DEFAULTDISTANCEDATA
                           });
                         }}
                       />
@@ -201,7 +201,7 @@ class DistanceCalculator extends Component {
                           const xrotate = getFloat(e.target.value);
                           this.setState({
                             xrotate: xrotate,
-                            distancedata: DEFAULTDISTANCEDATA,
+                            distancedata: DEFAULTDISTANCEDATA
                           });
                         }}
                       />

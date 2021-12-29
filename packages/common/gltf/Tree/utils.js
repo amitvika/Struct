@@ -5,6 +5,7 @@ import TableRow from '@mui/material/TableRow';
 //import { useSelector } from 'react-redux';
 //import { getThemeName } from '@monostruct/common/themes/base';
 import { stringify } from '../BeautifyJson';
+import cloneDeep from 'lodash/cloneDeep';
 
 export const SELECTCOLOR = 1;
 export const SELECTTEXTURE = 2;
@@ -220,7 +221,36 @@ export const arrayRemoveFromValue = (arr, value) => {
   });
 };
 
+const cloneDeepWithoutError = (arr) => {
+  try {
+    return cloneDeep(arr);
+  } catch (error) {}
+};
+
 export const arrayCopy = (arr, dict = [], deepcopy = true) => {
+  if (dict.length == 0 && deepcopy) {
+    return cloneDeepWithoutError(arr);
+  }
+  var copy_selectobjects = [];
+  arr.forEach((element) => {
+    let myElement = {};
+    if (dict.length == 0) {
+      if (deepcopy) {
+        myElement = cloneDeepWithoutError(element);
+      } else {
+        myElement = element;
+      }
+    } else {
+      dict.forEach((dictionary) => {
+        myElement[dictionary] = cloneDeepWithoutError(element[dictionary]);
+      });
+    }
+    copy_selectobjects.push(myElement);
+  });
+  return copy_selectobjects;
+};
+
+/* export const arrayCopy = (arr, dict = [], deepcopy = true) => {
   var copy_selectobjects = [];
   arr.forEach((element) => {
     let myElement = {};
@@ -238,7 +268,7 @@ export const arrayCopy = (arr, dict = [], deepcopy = true) => {
     copy_selectobjects.push(myElement);
   });
   return copy_selectobjects;
-};
+}; */
 export const MUST_DICTIONARY = [
   'i',
   'p',
@@ -273,14 +303,31 @@ export const MUST_DICTIONARY = [
   'diameter',
   'radius'
 ];
+export const elementCopy = (element, dict = [], deepCopy = true) => {
+  let myElement = {};
+  try {
+    if (dict.length == 0 && deepCopy) {
+      myElement = cloneDeepWithoutError(element);
+    } else {
+      dict.forEach((dictionary) => {
+        if (deepCopy) {
+          myElement[dictionary] = cloneDeepWithoutError(element[dictionary]);
+        } else {
+          myElement[dictionary] = element[dictionary];
+        }
+      });
+    }
+  } catch (error) {}
 
+  return myElement;
+};
 export const assignDictionary = (element, dict = MUST_DICTIONARY) => {
   let myElement = {};
   if (dict.length == 0) {
-    myElement = { ...element };
+    myElement = cloneDeepWithoutError(element);
   } else {
     dict.forEach((dictionary) => {
-      myElement[dictionary] = element[dictionary];
+      myElement[dictionary] = cloneDeepWithoutError(element[dictionary]);
     });
   }
   return myElement;

@@ -1,11 +1,15 @@
 import React from 'react';
-import { sortableContainer, sortableElement, sortableHandle} from 'react-sortable-hoc';
+import {
+  sortableContainer,
+  sortableElement,
+  sortableHandle
+} from 'react-sortable-hoc';
 import BaseTable from './BaseTable';
-import {callOrReturn} from './utils';
-import styled  from 'styled-components';
-const DraggableContainer = sortableContainer(({ children }) => children)
-const DraggableElement = sortableElement(({ children }) => children)
-const DraggableHandle = sortableHandle(({ children }) => children)
+import { callOrReturn } from './utils';
+import styled from 'styled-components';
+const DraggableContainer = sortableContainer(({ children }) => children);
+const DraggableElement = sortableElement(({ children }) => children);
+const DraggableHandle = sortableHandle(({ children }) => children);
 
 const Handle = styled.div`
   flex: none;
@@ -24,7 +28,7 @@ const Handle = styled.div`
   &:hover::before {
     border-color: #888;
   }
-`
+`;
 
 const Row = ({ key, index, children, ...rest }) => (
   <DraggableElement key={key} index={index}>
@@ -35,25 +39,24 @@ const Row = ({ key, index, children, ...rest }) => (
       {children}
     </div>
   </DraggableElement>
-)
+);
 
 const rowProps = ({ rowIndex }) => ({
   tagName: Row,
-  index: rowIndex,
-})
+  index: rowIndex
+});
 
 class DraggableTable extends React.PureComponent {
   state = {
     changedata: false,
-    data: this.props.data,
-  }
+    data: this.props.data
+  };
   constructor(props) {
     super(props);
-    
+
     this.table = React.createRef();
-     
-  };
-  
+  }
+
   /* static getDerivedStateFromProps(props, current_state) {
     console.log("current state",props,current_state);
     if (current_state.data !== props.data && current_state.changedata==false) {
@@ -70,49 +73,50 @@ class DraggableTable extends React.PureComponent {
   } */
 
   componentDidUpdate(prevProps, prevState) {
-    //console.log("current state",prevProps,prevState);  
-    if(prevProps.data != this.props.data) {
-      this.setState({data:this.props.data});
-    } 
+    //console.log("current state",prevProps,prevState);
+    if (prevProps.data != this.props.data) {
+      this.setState({ data: this.props.data });
+    }
   }
 
   getContainer = () => {
-    return this.table.current.getDOMNode().querySelector('.BaseTable__body')
-  }
+    return this.table.current.getDOMNode().querySelector('.BaseTable__body');
+  };
 
   getHelperContainer = () => {
-    return this.table.current.getDOMNode().querySelector('.BaseTable__table')
-  }
+    return this.table.current.getDOMNode().querySelector('.BaseTable__table');
+  };
 
-  rowProps = args => {
+  rowProps = (args) => {
     // don't forget to passing the incoming rowProps
-    const extraProps = callOrReturn(this.props.rowProps)
+    const extraProps = callOrReturn(this.props.rowProps);
     return {
       ...extraProps,
       tagName: Row,
-      index: args.rowIndex,
-    }
-  }
+      index: args.rowIndex
+    };
+  };
 
   handleSortEnd = ({ oldIndex, newIndex }) => {
-    const data = [...this.state.data]
+    const data = [...this.state.data];
     const [removed] = data.splice(oldIndex, 1);
-    data.splice(newIndex, 0, removed);   
-   
-    if(this.props.setSortBy){
+    data.splice(newIndex, 0, removed);
+
+    if (this.props.setSortBy) {
       //console.log("befor calling setting sorting to null");
       this.props.setSortBy(null);
     }
-    if(this.props.updateOrderChange) {
+    if (this.props.updateOrderChange) {
       //console.log("befor calling updateorderchange",data,oldIndex,newIndex);
-      this.props.updateOrderChange(data,oldIndex,newIndex);
+      this.props.updateOrderChange(data, oldIndex, newIndex);
     }
     //console.log("befor calling",data,this.props);
-    this.setState({ 
-      changedata:true,
-      data:data })
-  }
-  
+    this.setState({
+      changedata: true,
+      data: data
+    });
+  };
+
   render() {
     //console.log("Draggable Table",this.props);
     return (
@@ -130,7 +134,7 @@ class DraggableTable extends React.PureComponent {
           rowProps={this.rowProps}
         />
       </DraggableContainer>
-    )
+    );
   }
 }
 

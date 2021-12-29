@@ -9,7 +9,7 @@ const SortOrder = {
   /**
    * Sort data in descending order
    */
-  DESC: 'desc',
+  DESC: 'desc'
 };
 
 export default SortOrder;

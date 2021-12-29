@@ -1,27 +1,25 @@
 //import * as React from 'react'
-import {  useState } from "react";
-import styled from 'styled-components'
-import { motion } from 'framer-motion'
-import NodeElement from './NodeElement'
-import LeafElement from './LeafElement'
-import { Empty } from './Elements'
-import Wrapper from './Wrapper'
+import { useState } from 'react';
+import styled from 'styled-components';
+import { motion } from 'framer-motion';
+import NodeElement from './NodeElement';
+import LeafElement from './LeafElement';
+import { Empty } from './Elements';
+import Wrapper from './Wrapper';
 import {
   getChildrenByParent,
   getAllAncestorsForCurrentContainers
-} from './NodeList'
-
-
+} from './NodeList';
 
 const MotionContainer = styled(motion.div)`
   min-width: 0;
-`
+`;
 
-const MotionDropZone = styled(MotionContainer)``
+const MotionDropZone = styled(MotionContainer)``;
 
-const MotionContent = styled(MotionContainer)``
+const MotionContent = styled(MotionContainer)``;
 
-const MotionChildren = styled(MotionContainer)``
+const MotionChildren = styled(MotionContainer)``;
 
 const Container = (props) => {
   // PROPS
@@ -40,29 +38,27 @@ const Container = (props) => {
     disectparts,
     selectitems,
     firstshell,
-    secondshell,
-  } = props
+    secondshell
+  } = props;
 
   // get container items for this level and ancestors for next container
-  const _containerItems = getChildrenByParent(nodes, parent)
+  const _containerItems = getChildrenByParent(nodes, parent);
   const _containerAncestors = getAllAncestorsForCurrentContainers(
     nodes,
     _containerItems
-  )
+  );
 
   // STATE
   const [_isOpen, _setIsOpen] = useState(
     Array(_containerItems.length).fill(false)
-  ) // keeping track of open folders
- 
-  
+  ); // keeping track of open folders
+
   return (
     <MotionContainer parent={parent}>
       <MotionDropZone>
         {!!_containerItems.length &&
           _containerItems.map((item, k) => {
-            if(item.leaf) {
-             
+            if (item.leaf) {
               return (
                 <LeafElement
                   data={item}
@@ -80,18 +76,17 @@ const Container = (props) => {
                   firstshell={firstshell}
                   secondshell={secondshell}
                 />
-              )
+              );
             } else {
-              
               return (
                 <MotionContent key={k}>
                   <NodeElement
                     data={item}
                     toggle={() =>
-                      _setIsOpen(o => {
-                        const _o = o.slice()
-                        _o[k] = !_o[k]
-                        return _o
+                      _setIsOpen((o) => {
+                        const _o = o.slice();
+                        _o[k] = !_o[k];
+                        return _o;
                       })
                     }
                     onSelect={onSelect}
@@ -147,7 +142,7 @@ const Container = (props) => {
                               firstshell={firstshell}
                               secondshell={secondshell}
                             />
-                          )
+                          );
                         })}
                       {showEmptyItems && !item.items && (
                         <Empty currentTheme={currentTheme}>
@@ -157,14 +152,13 @@ const Container = (props) => {
                     </MotionChildren>
                   )}
                 </MotionContent>
-              )
+              );
             }
-            
           })}
       </MotionDropZone>
     </MotionContainer>
-  )
-}
+  );
+};
 
 Container.defaultProps = {
   nodes: [],
@@ -177,10 +171,10 @@ Container.defaultProps = {
   iconSet: null,
   noIcons: undefined,
   structure: true,
-  disectparts : false,
-  selectitems : true,
-  firstshell : null,
-  secondshell : null,
-}
+  disectparts: false,
+  selectitems: true,
+  firstshell: null,
+  secondshell: null
+};
 
-export default Container
+export default Container;

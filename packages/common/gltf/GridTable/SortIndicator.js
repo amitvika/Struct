@@ -9,7 +9,7 @@ import SortOrder from './SortOrder';
  */
 const SortIndicator = ({ sortOrder, className, style }) => {
   const cls = cn('BaseTable__sort-indicator', className, {
-    'BaseTable__sort-indicator--descending': sortOrder === SortOrder.DESC,
+    'BaseTable__sort-indicator--descending': sortOrder === SortOrder.DESC
   });
   return (
     <div
@@ -20,7 +20,7 @@ const SortIndicator = ({ sortOrder, className, style }) => {
         height: '16px',
         lineHeight: '16px',
         textAlign: 'center',
-        ...style,
+        ...style
       }}
     >
       {sortOrder === SortOrder.DESC ? '\u2193' : '\u2191'}
@@ -31,7 +31,7 @@ const SortIndicator = ({ sortOrder, className, style }) => {
 SortIndicator.propTypes = {
   sortOrder: PropTypes.oneOf([SortOrder.ASC, SortOrder.DESC]),
   className: PropTypes.string,
-  style: PropTypes.object,
+  style: PropTypes.object
 };
 
 export default SortIndicator;

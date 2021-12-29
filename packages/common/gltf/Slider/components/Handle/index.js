@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
-import {  calculateStyle, getMousePosition } from '../../utils/handle';
+import { calculateStyle, getMousePosition } from '../../utils/handle';
 import { notSimilar } from '../../utils/common';
 import styles from './styles';
 
 export default class Handle extends Component {
-
-  
-
   state = {
     hovered: false,
     focused: false,
-    active: false,
+    active: false
   };
 
   componentWillMount() {
@@ -23,11 +20,15 @@ export default class Handle extends Component {
   }
 
   componentWillReceiveProps(properties) {
-    if (notSimilar(
-      properties,
-      this.props,
-      ['offset', 'style', 'hoverStyle', 'focusStyle', 'activeStyle']
-    )) {
+    if (
+      notSimilar(properties, this.props, [
+        'offset',
+        'style',
+        'hoverStyle',
+        'focusStyle',
+        'activeStyle'
+      ])
+    ) {
       this.style = calculateStyle(styles, this.state, properties);
     }
   }
@@ -36,29 +37,35 @@ export default class Handle extends Component {
     // removeStyle();
   }
 
-  _onMouseEnter  = () => {
+  _onMouseEnter = () => {
     if (!this.props.disabled) {
-      this.style = calculateStyle(styles, { ...this.state, ...{ hovered: true } }, this.props);
+      this.style = calculateStyle(
+        styles,
+        { ...this.state, ...{ hovered: true } },
+        this.props
+      );
       this.setState({
-        hovered: true,
+        hovered: true
       });
     }
-   
   };
 
   _onMouseLeave = () => {
     if (!this.props.disabled) {
-      this.style = calculateStyle(styles, { ...this.state, ...{ hovered: false } }, this.props);
+      this.style = calculateStyle(
+        styles,
+        { ...this.state, ...{ hovered: false } },
+        this.props
+      );
       this.setState({
-        hovered: false,
+        hovered: false
       });
     }
-    
   };
 
   _onMouseDown = (event) => {
     const { disabled, readOnly, orientation } = this.props;
-   
+
     if (!disabled && !readOnly) {
       this._moveStart(event, getMousePosition(event, orientation));
     }
@@ -66,12 +73,16 @@ export default class Handle extends Component {
 
   _onDocumentMouseMove = (event) => {
     const { disabled, readOnly, orientation } = this.props;
-    
-    if (!disabled && !readOnly && (this.state.active || this.state.activeCount === 0)) {
+
+    if (
+      !disabled &&
+      !readOnly &&
+      (this.state.active || this.state.activeCount === 0)
+    ) {
       this._move(event, getMousePosition(event, orientation));
     }
     this.setState({
-      activeCount: 1,
+      activeCount: 1
     });
   };
 
@@ -83,10 +94,14 @@ export default class Handle extends Component {
     }
   };
 
-  _onContextMenu= () => {
-    this.style = calculateStyle(styles, { ...this.state, ...{ active: false } }, this.props);
+  _onContextMenu = () => {
+    this.style = calculateStyle(
+      styles,
+      { ...this.state, ...{ active: false } },
+      this.props
+    );
     this.setState({
-      active: false,
+      active: false
     });
   };
 
@@ -110,7 +125,10 @@ export default class Handle extends Component {
     if (!disabled && !readOnly && this.state.active) {
       event.stopPropagation();
       event.preventDefault();
-      this._move(event, getMousePosition(event.touches[0], this.props.orientation));
+      this._move(
+        event,
+        getMousePosition(event.touches[0], this.props.orientation)
+      );
       this._moveEnd(event.touches[0]);
       this.props.afterChange();
     }
@@ -119,11 +137,15 @@ export default class Handle extends Component {
   _moveStart = (event, position) => {
     // event.preventDefault();
     event.stopPropagation();
-    this.style = calculateStyle(styles, { ...this.state, ...{ active: true } }, this.props);
+    this.style = calculateStyle(
+      styles,
+      { ...this.state, ...{ active: true } },
+      this.props
+    );
     this.currentPos = position;
     this.lastPos = position;
     this.setState({
-      active: true,
+      active: true
     });
   };
 
@@ -144,7 +166,7 @@ export default class Handle extends Component {
       incrementFactor = 1;
     }
     const increment = direction > 0 ? 1 : -1;
-    if (direction * distance > ((factor || 1) * step)) {
+    if (direction * distance > (factor || 1) * step) {
       handleMove(increment);
       this.currentPos += incrementFactor * factor * step * increment;
     }
@@ -152,30 +174,42 @@ export default class Handle extends Component {
   };
 
   _moveEnd = () => {
-    this.style = calculateStyle(styles, { ...this.state, ...{ active: false } }, this.props);
+    this.style = calculateStyle(
+      styles,
+      { ...this.state, ...{ active: false } },
+      this.props
+    );
     this.setState({
       active: false,
-      activeCount: 0,
+      activeCount: 0
     });
   };
 
   _onFocus = () => {
-    this.style = calculateStyle(styles, { ...this.state, ...{ focused: true } }, this.props);
+    this.style = calculateStyle(
+      styles,
+      { ...this.state, ...{ focused: true } },
+      this.props
+    );
     this.setState({
-      focused: true,
+      focused: true
     });
   };
 
   _onBlur = () => {
-    this.style = calculateStyle(styles, { ...this.state, ...{ focused: false } }, this.props);
+    this.style = calculateStyle(
+      styles,
+      { ...this.state, ...{ focused: false } },
+      this.props
+    );
     this.setState({
-      focused: false,
+      focused: false
     });
   };
 
   _onKeyDown = (event) => {
     const { disabled, readOnly } = this.props;
-   
+
     if (!disabled && !readOnly) {
       if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') {
         event.stopPropagation();
@@ -194,19 +228,22 @@ export default class Handle extends Component {
   currentPos;
   lastPos;
   style = {
-    ...(this.props.orientation === 'vertical' ? styles.handleVertical : styles.handle),
+    ...(this.props.orientation === 'vertical'
+      ? styles.handleVertical
+      : styles.handle),
     ...this.props.style,
     ...{
-      [`${this.props.orientation === 'vertical' ? 'bottom' : 'left'}`]: this.props.offset,
+      [`${this.props.orientation === 'vertical' ? 'bottom' : 'left'}`]:
+        this.props.offset
     },
-    ...(this.props.disabled ?
-      { ...styles.disabledHandle, ...this.props.disabledStyle } :
-      {}
-    ),
+    ...(this.props.disabled
+      ? { ...styles.disabledHandle, ...this.props.disabledStyle }
+      : {})
   };
 
   render() {
-    const { handleRef, tabIndex, className, disabledClassName, disabled } = this.props;
+    const { handleRef, tabIndex, className, disabledClassName, disabled } =
+      this.props;
     return (
       <div
         ref={handleRef}
@@ -214,9 +251,9 @@ export default class Handle extends Component {
         disabled={disabled}
         tabIndex={tabIndex}
         className={
-          (disabled && disabledClassName) ?
-          `handle ${disabledClassName}` :
-          `handle ${className}`
+          disabled && disabledClassName
+            ? `handle ${disabledClassName}`
+            : `handle ${className}`
         }
         onFocus={this._onFocus}
         onBlur={this._onBlur}
@@ -228,8 +265,7 @@ export default class Handle extends Component {
         onTouchStart={this._onTouchStart}
         onTouchMove={this._onTouchMove}
         onTouchEnd={this._onTouchEnd}
-      >
-      </div>
+      ></div>
     );
   }
 }

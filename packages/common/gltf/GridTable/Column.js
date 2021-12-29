@@ -4,14 +4,14 @@ import PropTypes from 'prop-types';
 export const Alignment = {
   LEFT: 'left',
   CENTER: 'center',
-  RIGHT: 'right',
+  RIGHT: 'right'
 };
 
 export const FrozenDirection = {
   LEFT: 'left',
   RIGHT: 'right',
   DEFAULT: true,
-  NONE: false,
+  NONE: false
 };
 
 /**
@@ -96,7 +96,7 @@ Column.propTypes = {
    * Custom column header renderer
    * The renderer receives props `{ columns, column, columnIndex, headerIndex, container }`
    */
-  headerRenderer: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),
+  headerRenderer: PropTypes.oneOfType([PropTypes.func, PropTypes.element])
 };
 
 Column.Alignment = Alignment;

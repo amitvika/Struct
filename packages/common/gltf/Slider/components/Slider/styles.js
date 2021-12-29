@@ -1,12 +1,12 @@
-export default{
+export default {
   wrapper: {
     position: 'relative',
     width: '100%',
-    height: 34,
+    height: 34
   },
   wrapperVertical: {
     position: 'relative',
     height: '100%',
-    width: 34,
-  },
+    width: 34
+  }
 };

@@ -6,7 +6,7 @@ export default {
     height: 4,
     borderRadius: 10,
     backgroundColor: 'white',
-    border: '1px solid #2771e2',
+    border: '1px solid #2771e2'
   },
   trackVertical: {
     position: 'absolute',
@@ -15,9 +15,9 @@ export default {
     width: 4,
     borderRadius: 10,
     backgroundColor: 'white',
-    border: '1px solid #2771e2',
+    border: '1px solid #2771e2'
   },
   disabledTrack: {
-    opacity: '0.3',
-  },
+    opacity: '0.3'
+  }
 };
