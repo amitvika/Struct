@@ -23,12 +23,23 @@ const CadMaker = () => {
     {
       tabName: 'Classification',
       tabContent: CadMakerDesigner
+    },
+    {
+      tabName: 'Molecules'
+    },
+    {
+      tabName: 'Therapies'
+      // tabContent: <CadMakerDesigner />,
+    },
+    {
+      tabName: '“Culinary”'
+      // tabContent: <CadMakerDesigner />,
     }
   ];
 
   return (
     <>
-      <DetailPage title={'CAD'} tabList={tabList}></DetailPage>
+      <DetailPage title={'CAD'} tabList={tabList} type={'CAD'}></DetailPage>
     </>
   );
 };

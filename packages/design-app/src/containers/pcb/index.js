@@ -7,23 +7,28 @@ import DetailComponent from '../../components/DetailComponent/DetailComponent';
 export default function PcbTab({ gltfjson = {}, setgltfjson }) {
   const tabList = [
     {
-      tabName: 'Designer',
+      tabName: 'Designer'
       // tabContent: <CadMakerDesigner />,
     },
     {
-      tabName: 'Manufacture',
+      tabName: 'Manufacture'
       // tabContent: <CadMakerDesigner />,
     },
     {
-      tabName: 'Classification',
+      tabName: 'Classification'
       // tabContent: <CadMakerDesigner />,
     },
+    {
+      tabName: 'Molecules'
+    },
+    {
+      tabName: 'Therapies'
+      // tabContent: <CadMakerDesigner />,
+    },
+    {
+      tabName: '“Culinary”'
+      // tabContent: <CadMakerDesigner />,
+    }
   ];
-  return (
-    <DetailComponent title={'Silicon Maker'} tabList={tabList}/>
-    // <Paper style={{ padding: 20, margin: 10 }}>
-    //   <Headding>ThreeJS Screen</Headding>
-    //   <Viewer gltfjson={gltfjson} setgltfjson={setgltfjson} />
-    // </Paper>
-  );
+  return <DetailComponent title={'PCB'} tabList={tabList} type={'PCB'} />;
 }

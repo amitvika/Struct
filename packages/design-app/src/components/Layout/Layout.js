@@ -11,11 +11,7 @@ import { useStyles } from './Layout.style';
 
 export const headerListItem = [
   {
-    label: 'Open Source Designs',
-    href: '/design'
-  },
-  {
-    label: 'Design Marketplace',
+    label: 'Designs and Components Database',
     href: '/design',
     addSeparator: true
   },

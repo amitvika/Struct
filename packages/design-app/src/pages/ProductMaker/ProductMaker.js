@@ -14,17 +14,6 @@ export default function ProductMaker() {
     {
       tabName: 'Classification'
       // tabContent: <CadMakerDesigner />,
-    },
-    {
-      tabName: 'Molecules'
-    },
-    {
-      tabName: 'Therapies'
-      // tabContent: <CadMakerDesigner />,
-    },
-    {
-      tabName: '“Culinary”'
-      // tabContent: <CadMakerDesigner />,
     }
   ];
   return <DetailComponent title={'Product Builder'} tabList={tabList} />;

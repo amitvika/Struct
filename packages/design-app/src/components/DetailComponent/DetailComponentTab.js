@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Tab, Tabs, Grid } from '@mui/material';
+import { Tab, Tabs, Grid } from '@mui/material';
 
 import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';

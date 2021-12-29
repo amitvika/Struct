@@ -1,141 +1,133 @@
-const ProductDesignModel = require("../models/productDesign.modal");
-const ChangeTracking = require("../models/ChangeTracking.model");
-const FileHistoryModel = require("../models/fileHistory.modal");
-const { getObjectId } = require('../utils/helper')
-const { mapProductDesign, mapProductDesigns, mapProductDesignsForItem } = require('../map/productDesign');
+const ProductDesignModel = require('../models/productDesign.modal');
+const ChangeTracking = require('../models/ChangeTracking.model');
+const FileHistoryModel = require('../models/fileHistory.modal');
+const { getObjectId } = require('../utils/helper');
+const {
+  mapProductDesign,
+  mapProductDesigns,
+  mapProductDesignsForItem
+} = require('../map/productDesign');
 const _ = require('lodash');
 
 exports.get = async (req, res) => {
-    try {
+  try {
+    const query = buildQuery(req);
 
-        const query = buildQuery(req)
+    let productDesigns = [];
 
-        let productDesigns = [];
-
-        if (query.$and.length > 0) {
-            productDesigns = await ProductDesignModel
-                .find(query)
-                // .populate('file_history.loaded_by')
-                // .populate('file_history.cleared_by')
-                .sort({ updatedAt: -1 })
-
-        }
-        else {
-            productDesigns = await ProductDesignModel
-                .find()
-                // .populate('file_history.loaded_by')
-                // .populate('file_history.cleared_by')
-                .sort({ updatedAt: -1 })
-
-        }
-
-        res.json(mapProductDesigns(productDesigns));
-
+    if (query.$and.length > 0) {
+      productDesigns = await ProductDesignModel.find(query)
+        // .populate('file_history.loaded_by')
+        // .populate('file_history.cleared_by')
+        .sort({ updatedAt: -1 });
+    } else {
+      productDesigns = await ProductDesignModel.find()
+        // .populate('file_history.loaded_by')
+        // .populate('file_history.cleared_by')
+        .sort({ updatedAt: -1 });
     }
-    catch (error) {
-        console.log('get', error)
-        res.status(500).send(error)
-    };
-}
+
+    res.json(mapProductDesigns(productDesigns));
+  } catch (error) {
+    console.log('get', error);
+    res.status(500).send(error);
+  }
+};
 
 const buildQuery = (req) => {
-    let query = { $and: [] };
+  let query = { $and: [] };
 
-    if (req.query.id) {
-        query.$and.push({ _id: getObjectId(req.query.id) });
-    }
+  if (req.query.id) {
+    query.$and.push({ _id: getObjectId(req.query.id) });
+  }
 
-    if (req.query.design_type) {
-        query.$and.push({ design_type: design_type });
-    }
+  if (req.query.design_type) {
+    query.$and.push({ design_type: design_type });
+  }
 
-    if (req.query.name) {
-        query.$and.push({ name: { '$regex': new RegExp(`${req.query.name}`, "i") } })
-    }
+  if (req.query.name) {
+    query.$and.push({ name: { $regex: new RegExp(`${req.query.name}`, 'i') } });
+  }
 
-    query.$and.push({ is_archived: false });
+  query.$and.push({ is_archived: false });
 
-    return query
-}
+  return query;
+};
 
 exports.upsert = async (req, res) => {
-    try {
-        let actionType;
-        let productDesign = await ProductDesignModel.findById(req.body.id);
+  try {
+    let actionType;
+    let productDesign = await ProductDesignModel.findById(req.body.id);
 
-        if (productDesign) {
-            actionType = "Update";
-            req.body.updated_by = req.user.id;
-            let data = req.body;
+    if (productDesign) {
+      actionType = 'Update';
+      req.body.updated_by = req.user.id;
+      let data = req.body;
 
-            // data.file_history = fileHistoryPayload(req, productDesign);
-            productDesign = await ProductDesignModel.findByIdAndUpdate(
-                req.body.id,
-                { $set: data },
-                { new: true });
-        }
-        else {
-            actionType = "Add";
-            req.body.created_by = req.user.id;
-            req.body.updated_by = req.user.id;
+      // data.file_history = fileHistoryPayload(req, productDesign);
+      productDesign = await ProductDesignModel.findByIdAndUpdate(
+        req.body.id,
+        { $set: data },
+        { new: true }
+      );
+    } else {
+      actionType = 'Add';
+      req.body.created_by = req.user.id;
+      req.body.updated_by = req.user.id;
 
-            //check file uploaded
-            // req.body.file_history = fileHistoryPayload(req);
+      //check file uploaded
+      // req.body.file_history = fileHistoryPayload(req);
 
-            productDesign = await ProductDesignModel
-                .create(req.body)
-        }
-
-        if (req.body.new_file) {
-            const fileHistory = await FileHistoryModel.create({
-                file_url: req.body.new_file.file_url,
-                file_name: req.body.new_file.file_name,
-                loaded_by: req.user.id,
-                link_id: productDesign._id
-            });
-            console.log('FileHistory', fileHistory)
-        }
-
-        const changeTracking = new ChangeTracking({
-            client: productDesign._id,
-            update: productDesign,
-            model: "ProductDesign",
-            updateType: actionType,
-            updatedObject: req.body.id,
-            updatedBy: req.user.id
-        });
-        await changeTracking.save();
-
-        productDesign = await ProductDesignModel.findById(productDesign._id)
-            .populate('file_history.loaded_by')
-            .populate('file_history.cleared_by');
-
-        res.json(mapProductDesign(productDesign))
+      productDesign = await ProductDesignModel.create(req.body);
     }
-    catch (error) {
-        console.log('upsert', error)
-        res.status(500).send(error)
-    };
-}
 
+    if (req.body.new_file) {
+      const fileHistory = await FileHistoryModel.create({
+        file_url: req.body.new_file.file_url,
+        file_name: req.body.new_file.file_name,
+        loaded_by: req.user.id,
+        link_id: productDesign._id
+      });
+      console.log('FileHistory', fileHistory);
+    }
+
+    const changeTracking = new ChangeTracking({
+      client: productDesign._id,
+      update: productDesign,
+      model: 'ProductDesign',
+      updateType: actionType,
+      updatedObject: req.body.id,
+      updatedBy: req.user.id
+    });
+    await changeTracking.save();
+
+    productDesign = await ProductDesignModel.findById(productDesign._id)
+      .populate('file_history.loaded_by')
+      .populate('file_history.cleared_by');
+
+    res.json(mapProductDesign(productDesign));
+  } catch (error) {
+    console.log('upsert', error);
+    res.status(500).send(error);
+  }
+};
 
 const fileHistoryPayload = async (req, productDesign) => {
-
-    // if (productDesign && Array.isArray(productDesign.file_history) && req.body.new_file) {
-    //     return [{
-    //         file_url: req.body.new_file.file_url,
-    //         file_name: req.body.new_file.file_name,
-    //         loaded_by: req.user.id,
-    //     }, ...productDesign.file_history]
-    // }
-    // else if (req.body.new_file) {
-    //     return [{
-    //         file_url: req.body.new_file.file_url,
-    //         file_name: req.body.new_file.file_name,
-    //         loaded_by: req.user.id,
-    //     }];
-    // }
-    // else {
-    //     return []
-    // }
-}
+  // if (productDesign && Array.isArray(productDesign.file_history) && req.body.new_file) {
+  //     return [{
+  //         file_url: req.body.new_file.file_url,
+  //         file_name: req.body.new_file.file_name,
+  //         loaded_by: req.user.id,
+  //     }, ...productDesign.file_history]
+  // }
+  // else if (req.body.new_file) {
+  //     return [{
+  //         file_url: req.body.new_file.file_url,
+  //         file_name: req.body.new_file.file_name,
+  //         loaded_by: req.user.id,
+  //     }];
+  // }
+  // else {
+  //     return []
+  // }
+};

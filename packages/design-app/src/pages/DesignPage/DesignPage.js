@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 
 import ProductDesignAPI from '@monostruct/common/api/productDesign.api';
 import TableGridView from '@monostruct/common/components/TableGridView';
-import { fields } from '@monostruct/common/constants/productDesign';
+import { fieldsForOmniDesign } from '@monostruct/common/constants/productDesign';
 import AddUpdateModal from './AddUpdateModal';
 import { Box } from '@mui/system';
 import AddDesignMenu from './AddDesignMenu';
@@ -17,7 +17,7 @@ const DesignPage = () => {
     <Box sx={{ margin: '20px 7%' }}>
       <TableGridView
         title={'All Designs'}
-        fields={fields}
+        fields={fieldsForOmniDesign}
         fetchList={ProductDesignAPI.fetchProductDesigns}
         upsertListItem={ProductDesignAPI.upsertProductDesign}
         isAddEditActionsEnabled={false}
