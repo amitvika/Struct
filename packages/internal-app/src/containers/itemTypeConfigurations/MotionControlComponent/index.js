@@ -166,9 +166,9 @@ export default function MotionControlComponent({
   };
 
   return (
-    <Paper>
+    <Paper sx={{ maxHeight: 400, overflow: 'auto' }}>
       <Typography
-        sx={{ flex: '1 1 100%', fontWeight: 'bold', maxHeight: '410px' }}
+        sx={{ flex: '1 1 100%', fontWeight: 'bold' }}
         variant="h6"
         id="tableTitle"
         component="div"
@@ -176,7 +176,7 @@ export default function MotionControlComponent({
         Actuators in Motion Control Machine
       </Typography>
       <TableContainer>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <Table aria-label="simple table">
           <TableHead>
             <TableRow>
               <TableCell padding="none">Item name</TableCell>
