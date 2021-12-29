@@ -364,9 +364,15 @@ class GLTFRenderer extends Component {
         "key":"" 
     };
     */
-
+  setStateWithoutError = (params) => {
+    try {
+      this.setState(params);
+    } catch (error) {
+      console.log('Error while setting params', params, error);
+    }
+  };
   openSnackBar = (alert, message) => {
-    this.setState({
+    this.setStateWithoutError({
       snackBarAlertType: alert,
       snackBarMessage: message,
       autoHideDuration: alert == 'success' ? 1000 : 5000,
@@ -376,7 +382,7 @@ class GLTFRenderer extends Component {
   };
 
   closeSnackBar = () => {
-    this.setState({ snackBarState: false });
+    this.setStateWithoutError({ snackBarState: false });
   };
 
   findEdgeChange = (prevProps) => {
@@ -524,7 +530,7 @@ class GLTFRenderer extends Component {
       this.openEl[param] = true;
       this.idEl[param] = 'popper' + event.target.id.toString();
     }
-    this.setState({ anchorEls: anchorEls, selectedmenu: param });
+    this.setStateWithoutError({ anchorEls: anchorEls, selectedmenu: param });
   };
 
   disposeCameraAndControls = () => {
@@ -775,7 +781,10 @@ class GLTFRenderer extends Component {
       myView = myView || myMenus[0].groups[0].values.view;
     }
     //console.log("myview",myView);
-    this.setState({ view: myView || 'Orthographic', progressOpenedFiles: [] });
+    this.setStateWithoutError({
+      view: myView || 'Orthographic',
+      progressOpenedFiles: []
+    });
     this.prevTime = 0;
 
     //this.stats = new Stats();
@@ -1067,7 +1076,7 @@ class GLTFRenderer extends Component {
         element
           ? element.traverse((node) => {
               if (node.isLight) {
-                this.setState({ addLights: false });
+                this.setStateWithoutError({ addLights: false });
                 //this.state.addLights = false;
               } else if (node.isMesh) {
                 // TODO(https://github.com/mrdoob/three.js/pull/18235): Clean up.
@@ -1233,7 +1242,7 @@ class GLTFRenderer extends Component {
     this.content = [object];
 
     //this.state.addLights = true;
-    this.setState({ addLights: true });
+    this.setStateWithoutError({ addLights: true });
     this.changeVisibility(this.selectedoption);
 
     /*  this.trackballWidget = new Group();
@@ -1367,36 +1376,44 @@ class GLTFRenderer extends Component {
       var gltfobj = { ...state_gltfobj };
       gltfobj.tree = myStateTree;
       this_state_gltf = gltfobj;
-      if (this.props.setStateOfgltf) {
-        this.props.setStateOfgltf(gltfobj);
+      try {
+        if (this.props.setStateOfgltf) {
+          this.props.setStateOfgltf(gltfobj);
+        }
+      } catch (error) {
+        console.log('Error while setting gltf state', error);
       }
     }
   };
 
   addGDTTable = (parent, start, finish, node) => {
-    if (this.props.setStateOfgltf) {
-      const state_gltfobj =
-        this_state_gltf || this.state.gltfobj || this.props.gltfobj;
-      let gltfobj = { ...state_gltfobj };
-      let gdttable = gltfobj.gdttable || [defaultGDTTable];
-      gltfobj.gdttable = gdttable;
-      //console.log("AddGDTTABLE", gltfobj.gdttable, gdttable,this.props.activeDataTable);
-      console.log('BEfore Changing gdtable in loading edges', gltfobj);
-      if (
-        Array.isArray(gltfobj.gdttable[this.props.activeDataTable].edges) ==
-        false
-      ) {
-        gltfobj.gdttable[this.props.activeDataTable].edges =
-          defaultGDTTable.edges;
+    try {
+      if (this.props.setStateOfgltf) {
+        const state_gltfobj =
+          this_state_gltf || this.state.gltfobj || this.props.gltfobj;
+        let gltfobj = { ...state_gltfobj };
+        let gdttable = gltfobj.gdttable || [defaultGDTTable];
+        gltfobj.gdttable = gdttable;
+        //console.log("AddGDTTABLE", gltfobj.gdttable, gdttable,this.props.activeDataTable);
+        console.log('BEfore Changing gdtable in loading edges', gltfobj);
+        if (
+          Array.isArray(gltfobj.gdttable[this.props.activeDataTable].edges) ==
+          false
+        ) {
+          gltfobj.gdttable[this.props.activeDataTable].edges =
+            defaultGDTTable.edges;
+        }
+        gltfobj.gdttable[this.props.activeDataTable].edges.push({
+          parent: parent,
+          start: start,
+          finish: finish,
+          name: node ? node.name : null
+        });
+        console.log('After Changing gdtable in loading edges', gltfobj);
+        this.props.setStateOfgltf(gltfobj);
       }
-      gltfobj.gdttable[this.props.activeDataTable].edges.push({
-        parent: parent,
-        start: start,
-        finish: finish,
-        name: node ? node.name : null
-      });
-      console.log('After Changing gdtable in loading edges', gltfobj);
-      this.props.setStateOfgltf(gltfobj);
+    } catch (error) {
+      console.log('Error while adding gltf state', error);
     }
   };
   /**
@@ -1778,7 +1795,7 @@ class GLTFRenderer extends Component {
     //viewingCtrl.object.view = this.state.view;
     viewingCtrl.onChange(() => {
       //console.log("before",this.state.view,this.content);
-      this.setState({ view: viewingCtrl.object.view });
+      this.setStateWithoutError({ view: viewingCtrl.object.view });
       //console.log("after",this.state.view,this.content);
       this.addCameraAndControls(viewingCtrl.object.view);
       //console.log("afterControls",this.state.view,this.content);
@@ -1790,7 +1807,7 @@ class GLTFRenderer extends Component {
     ]);
     sideCtrl.onChange(() => {
       //this.state.side = sideCtrl.object.side;
-      this.setState({ side: sideCtrl.object.side });
+      this.setStateWithoutError({ side: sideCtrl.object.side });
       this.updateDisplay(
         sideCtrl.object.side,
         this.state.opaque,
@@ -1807,7 +1824,7 @@ class GLTFRenderer extends Component {
     ]);
     depthCtrl.onChange(() => {
       //this.state.opaque = depthCtrl.object.opaque;
-      this.setState({ opaque: depthCtrl.object.opaque });
+      this.setStateWithoutError({ opaque: depthCtrl.object.opaque });
       this.updateDisplay(
         this.state.side,
         depthCtrl.object.opaque,
@@ -1820,7 +1837,7 @@ class GLTFRenderer extends Component {
     const wiremeshCtrl = dispFolder.add(this.state, 'wiremesh');
     wiremeshCtrl.onChange(() => {
       //this.state.wiremesh = wiremeshCtrl.object.wiremesh;
-      this.setState({ wiremesh: wiremeshCtrl.object.wiremesh });
+      this.setStateWithoutError({ wiremesh: wiremeshCtrl.object.wiremesh });
       this.updateDisplay(
         this.state.side,
         this.state.opaque,
@@ -1833,7 +1850,9 @@ class GLTFRenderer extends Component {
     const castShadowCtrl = dispFolder.add(this.state, 'castshadow');
     castShadowCtrl.onChange(() => {
       //this.state.wiremesh = wiremeshCtrl.object.wiremesh;
-      this.setState({ castshadow: castShadowCtrl.object.castshadow });
+      this.setStateWithoutError({
+        castshadow: castShadowCtrl.object.castshadow
+      });
       this.updateDisplay(
         this.state.side,
         this.state.opaque,
@@ -1846,7 +1865,7 @@ class GLTFRenderer extends Component {
     const skeletonCtrl = dispFolder.add(this.state, 'skeleton');
     skeletonCtrl.onChange(() => {
       //this.state.skeleton = skeletonCtrl.object.skeleton;
-      this.setState({ skeleton: skeletonCtrl.object.skeleton });
+      this.setStateWithoutError({ skeleton: skeletonCtrl.object.skeleton });
       this.updateDisplay(
         this.state.side,
         this.state.opaque,
@@ -1859,7 +1878,7 @@ class GLTFRenderer extends Component {
     const gridCtrl = dispFolder.add(this.state, 'grid');
     gridCtrl.onChange(() => {
       //this.state.grid = gridCtrl.object.grid;
-      this.setState({ grid: gridCtrl.object.grid });
+      this.setStateWithoutError({ grid: gridCtrl.object.grid });
       this.updateDisplay(
         this.state.side,
         this.state.opaque,
@@ -1877,7 +1896,7 @@ class GLTFRenderer extends Component {
     const SpeedZoomCtrl = speedFolder.add(this.state, 'zoomSpeed', 0, 3);
     SpeedZoomCtrl.onChange((speed) => {
       //this.state.zoomSpeed = speed;
-      this.setState({ zoomSpeed: speed });
+      this.setStateWithoutError({ zoomSpeed: speed });
       if (this.controls) {
         this.controls.zoomSpeed = speed;
       }
@@ -1885,7 +1904,7 @@ class GLTFRenderer extends Component {
     const SpeedPanCtrl = speedFolder.add(this.state, 'panSpeed', 0, 3);
     SpeedPanCtrl.onChange((speed) => {
       //this.state.panSpeed = speed;
-      this.setState({ panSpeed: speed });
+      this.setStateWithoutError({ panSpeed: speed });
       if (this.controls) {
         this.controls.panSpeed = speed;
       }
@@ -1893,7 +1912,7 @@ class GLTFRenderer extends Component {
     const SpeedRotateCtrl = speedFolder.add(this.state, 'rotateSpeed', 0, 3);
     SpeedRotateCtrl.onChange((speed) => {
       //this.state.rotateSpeed = speed;
-      this.setState({ rotateSpeed: speed });
+      this.setStateWithoutError({ rotateSpeed: speed });
       if (this.controls) {
         this.controls.rotateSpeed = speed;
       }
@@ -1906,7 +1925,9 @@ class GLTFRenderer extends Component {
     ]);
     encodingCtrl.onChange(() => {
       //this.state.textureEncoding = encodingCtrl.object.textureEncoding;
-      this.setState({ textureEncoding: encodingCtrl.object.textureEncoding });
+      this.setStateWithoutError({
+        textureEncoding: encodingCtrl.object.textureEncoding
+      });
       this.updateTextureEncoding(encodingCtrl.object.textureEncoding);
     });
     lightFolder
@@ -1944,7 +1965,7 @@ class GLTFRenderer extends Component {
         //this.state.ambientColor = ctrl.object.ambientColor;
         //this.state.directIntensity = ctrl.object.directIntensity;
         //this.state.directColor = ctrl.object.directColor;
-        this.setState({
+        this.setStateWithoutError({
           exposure: ctrl.object.exposure,
           ambientIntensity: ctrl.object.ambientIntensity,
           ambientColor: ctrl.object.ambientColor,
@@ -1973,7 +1994,9 @@ class GLTFRenderer extends Component {
     );
     playbackSpeedCtrl.onChange((speed) => {
       //this.state.playbackSpeed = playbackSpeedCtrl.object.playbackSpeed;
-      this.setState({ playbackSpeed: playbackSpeedCtrl.object.playbackSpeed });
+      this.setStateWithoutError({
+        playbackSpeed: playbackSpeedCtrl.object.playbackSpeed
+      });
       if (this.mixer) this.mixer.timeScale = speed;
     });
     this.animFolder.add({ playAll: () => this.playAllClips() }, 'playAll');
@@ -2044,7 +2067,9 @@ class GLTFRenderer extends Component {
       );
       this.defaultCameraCtrl.onChange((name) => {
         //this.state.camera = this.defaultCameraCtrl.object.camera;
-        this.setState({ camera: this.defaultCameraCtrl.object.camera });
+        this.setStateWithoutError({
+          camera: this.defaultCameraCtrl.object.camera
+        });
         this.setCamera(name);
       });
     }
@@ -2073,7 +2098,7 @@ class GLTFRenderer extends Component {
 
     if (this.clips.length) {
       this.animFolder.domElement.style.display = '';
-      this.setState({ actionStates: {} });
+      this.setStateWithoutError({ actionStates: {} });
       const actionStates = this.state.actionStates;
       this.clips.forEach((clip, clipIndex) => {
         // Autoplay the first clip.
@@ -2365,7 +2390,7 @@ class GLTFRenderer extends Component {
   onMouseClick = (event) => {
     if (this.INTERSECTED !== null) {
       //console.log("Before",this.INTERSECTED.material.color);
-      this.setState({ lastClickedNode: { ...this.INTERSECTED } });
+      this.setStateWithoutError({ lastClickedNode: { ...this.INTERSECTED } });
       //console.log("Before", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
       if (this.selectedoption == SELECTMEASURE || event.ctrlKey) {
         this.INTERSECTED.selectedshell = !this.INTERSECTED.selectedshell;
@@ -2383,9 +2408,14 @@ class GLTFRenderer extends Component {
         this.props.onClick,
         this.INTERSECTED.selectedshell
       ); */
-      if (this.props.onClick) {
-        this.props.onClick(this.INTERSECTED, SELECTANITEM, event);
+      try {
+        if (this.props.onClick) {
+          this.props.onClick(this.INTERSECTED, SELECTANITEM, event);
+        }
+      } catch (error) {
+        console.log('Error while doing onclick', error);
       }
+
       /* console.log(
         'After',
         this.INTERSECTED.material.color,
@@ -2395,9 +2425,14 @@ class GLTFRenderer extends Component {
     } else {
       //console.log("I got to click");
       this.changeStateOfSelection(this.INTERSECTED, event);
-      if (this.props.onClick) {
-        this.props.onClick(this.INTERSECTED, SELECTANITEM, event);
+      try {
+        if (this.props.onClick) {
+          this.props.onClick(this.INTERSECTED, SELECTANITEM, event);
+        }
+      } catch (error) {
+        console.log('Error while doing onlcikc', error);
       }
+
       //console.log(event.clientX, event.clientY);
     }
   };
@@ -3203,7 +3238,7 @@ class GLTFRenderer extends Component {
           }
           this.INTERSECTED = intersects[myObject].object;
           this.setTouchingColor(this.INTERSECTED);
-          this.setState({
+          this.setStateWithoutError({
             intersectedShell: this.INTERSECTED,
             intersectedShellName: this.getIntersectedName(this.INTERSECTED.name)
           });
@@ -3291,10 +3326,15 @@ class GLTFRenderer extends Component {
         this.clips = gltf.animations || [];
         //console.log('gltf', gltf, 'Objects', this.object, 'Clips', this.clips);
         this.setContent(this.object, this.clips);
-        this.setState({ progressBarRender: false });
-        if (this.props.setProgressBarRender) {
-          this.props.setProgressBarRender(false);
+        try {
+          this.setStateWithoutError({ progressBarRender: false });
+          if (this.props.setProgressBarRender) {
+            this.props.setProgressBarRender(false);
+          }
+        } catch (error) {
+          console.log('Error while setting progress', error);
         }
+
         try {
           this.openSnackBar('success', 'Rendered Succesfully');
         } catch (error) {
@@ -3307,10 +3347,15 @@ class GLTFRenderer extends Component {
 
       const onError = (exception) => {
         console.log(exception, this.props, myParserParams, this.props.fileUUId);
-        this.setState({ progressBarRender: false });
-        if (this.props.setProgressBarRender) {
-          this.props.setProgressBarRender(false);
+        try {
+          this.setStateWithoutError({ progressBarRender: false });
+          if (this.props.setProgressBarRender) {
+            this.props.setProgressBarRender(false);
+          }
+        } catch (error) {
+          console.log('While updating error progress', error);
         }
+
         try {
           let errorMessage = 'Did not Render Properly ';
           try {
@@ -3327,10 +3372,15 @@ class GLTFRenderer extends Component {
       const onProgress = (progress) => {
         //console.log(progress);
       };
-      this.setState({ progressBarRender: true });
-      if (this.props.setProgressBarRender) {
-        this.props.setProgressBarRender(true);
+      try {
+        this.setStateWithoutError({ progressBarRender: true });
+        if (this.props.setProgressBarRender) {
+          this.props.setProgressBarRender(true);
+        }
+      } catch (error) {
+        console.log('Error while updating progress bar', error);
       }
+
       parser.parse(onload, onError, onProgress);
       //console.log('Parsing started', this.props.gltfobj.gltf);
     }
@@ -4763,7 +4813,7 @@ class GLTFRenderer extends Component {
         //this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
       }
       this.INTERSECTED = null;
-      this.setState({
+      this.setStateWithoutError({
         intersectedShell: this.INTERSECTED,
         intersectedShellName: ''
       });
@@ -5031,18 +5081,23 @@ class GLTFRenderer extends Component {
         result.data.end ? (100 * result.data.begin) / result.data.end : 0;
       console.log('Entering poll', progressFile);
       //this.onInitProgress("Loading Edges"+progressFile);
-      if (this.props.setProgressBarLoad) {
-        console.log('Setting progress bar to load', progressFile);
-        this.props.setProgressBarLoad(true);
-      } else {
-        console.log('Setting progress bar to load', progressFile);
+      try {
+        if (this.props.setProgressBarLoad) {
+          console.log('Setting progress bar to load', progressFile);
+          this.props.setProgressBarLoad(true);
+        } else {
+          console.log('Setting progress bar to load', progressFile);
+        }
+        if (this.props.setCenterActionText) {
+          console.log('Setting center text', progressFile);
+          this.props.setCenterActionText('Parsing Edges');
+        } else {
+          console.log('Not Setting center text', progressFile);
+        }
+      } catch (error) {
+        console.log('Error while setting bars', error);
       }
-      if (this.props.setCenterActionText) {
-        console.log('Setting center text', progressFile);
-        this.props.setCenterActionText('Parsing Edges');
-      } else {
-        console.log('Not Setting center text', progressFile);
-      }
+
       let progressRes = await pollFunction(
         fetchStatus,
         validateStatus,
@@ -5052,9 +5107,14 @@ class GLTFRenderer extends Component {
         this.props.setCurrentProgressText,
         this.props.setCompletionProgressText
       );
-      if (this.props.setProgressBarLoad) {
-        this.props.setProgressBarLoad(false);
+      try {
+        if (this.props.setProgressBarLoad) {
+          this.props.setProgressBarLoad(false);
+        }
+      } catch (error) {
+        console.log('Error while updating progress bar', error);
       }
+
       if (
         progressRes &&
         progressRes.data &&
@@ -5085,9 +5145,14 @@ class GLTFRenderer extends Component {
             : myResourcePath || ''
         )
         .setCrossOrigin('anonymous');
-      if (this.props.setCenterActionText) {
-        this.props.setCenterActionText('Generating Edges' + progressFile);
+      try {
+        if (this.props.setCenterActionText) {
+          this.props.setCenterActionText('Generating Edges' + progressFile);
+        }
+      } catch (error) {
+        console.log('Error while setting center text', error);
       }
+
       const updateSelectionFromGdtTable = () => {
         if (
           gdttableEdges &&
@@ -5307,9 +5372,12 @@ class GLTFRenderer extends Component {
               //   this.props.gltfobj,
               //   gltfobj
               // );
-
-              if (this.props.setStateOfgltf) {
-                this.props.setStateOfgltf(gltfobj);
+              try {
+                if (this.props.setStateOfgltf) {
+                  this.props.setStateOfgltf(gltfobj);
+                }
+              } catch (error) {
+                console.log('Error while setting gltf obj', error);
               }
 
               if (indexFiles >= 1) {
@@ -6248,13 +6316,13 @@ class GLTFRenderer extends Component {
         switch (group) {
           case 0:
             if (values.view != this.state.view) {
-              this.setState({ view: values.view });
+              this.setStateWithoutError({ view: values.view });
               this.addCameraAndControls(values.view);
             }
             break;
           case 1:
             if (values.side != this.state.side) {
-              this.setState({ side: values.side });
+              this.setStateWithoutError({ side: values.side });
               toSet = true;
             }
             if (toSet) {
@@ -6270,7 +6338,7 @@ class GLTFRenderer extends Component {
             break;
           case 2:
             if (values.opaque != this.state.opaque) {
-              this.setState({ opaque: values.opaque });
+              this.setStateWithoutError({ opaque: values.opaque });
               toSet = true;
             }
             if (toSet) {
@@ -6287,19 +6355,19 @@ class GLTFRenderer extends Component {
           case 3:
             //console.log(values, this.state);
             if (values.wiremesh != this.state.wiremesh) {
-              this.setState({ wiremesh: values.wiremesh });
+              this.setStateWithoutError({ wiremesh: values.wiremesh });
               toSet = true;
             }
             if (values.castshadow != this.state.castshadow) {
-              this.setState({ castshadow: values.castshadow });
+              this.setStateWithoutError({ castshadow: values.castshadow });
               toSet = true;
             }
             if (values.skeleton != this.state.skeleton) {
-              this.setState({ skeleton: values.skeleton });
+              this.setStateWithoutError({ skeleton: values.skeleton });
               toSet = true;
             }
             if (values.grid != this.state.grid) {
-              this.setState({ grid: values.grid });
+              this.setStateWithoutError({ grid: values.grid });
               toSet = true;
             }
             if (toSet) {
@@ -6316,7 +6384,7 @@ class GLTFRenderer extends Component {
           case 4:
             if (values.showedges != this.state.showedges) {
               //console.log('changing', values.showedges, this.state.showedges);
-              this.setState({ showedges: values.showedges });
+              this.setStateWithoutError({ showedges: values.showedges });
               this.changeEdgeVisibility(values.showedges);
             } else {
               console.log(
@@ -6327,7 +6395,7 @@ class GLTFRenderer extends Component {
             }
             if (values.linewidth != this.state.edgelinewidth) {
               //console.log('changing', values.showedges, this.state.showedges);
-              this.setState({ edgelinewidth: values.linewidth });
+              this.setStateWithoutError({ edgelinewidth: values.linewidth });
               this.changeEdgeLineWidth(values.linewidth);
             } else {
               console.log(
@@ -6354,7 +6422,7 @@ class GLTFRenderer extends Component {
         switch (group) {
           case 0:
             if (values.zoomSpeed != this.state.zoomSpeed) {
-              this.setState({ zoomSpeed: values.zoomSpeed });
+              this.setStateWithoutError({ zoomSpeed: values.zoomSpeed });
               if (this.controls) {
                 this.controls.zoomSpeed = values.zoomSpeed;
                 this.controls.emSpeed = Math.pow(
@@ -6364,13 +6432,13 @@ class GLTFRenderer extends Component {
               }
             }
             if (values.panSpeed != this.state.panSpeed) {
-              this.setState({ panSpeed: values.panSpeed });
+              this.setStateWithoutError({ panSpeed: values.panSpeed });
               if (this.controls) {
                 this.controls.panSpeed = values.panSpeed;
               }
             }
             if (values.rotateSpeed != this.state.rotateSpeed) {
-              this.setState({ rotateSpeed: values.rotateSpeed });
+              this.setStateWithoutError({ rotateSpeed: values.rotateSpeed });
               if (this.controls) {
                 this.controls.rotateSpeed = values.rotateSpeed;
               }
@@ -6378,16 +6446,16 @@ class GLTFRenderer extends Component {
             break;
           case 1:
             if (values.zoomToCursor != this.state.zoomToCursor) {
-              this.setState({ zoomToCursor: values.zoomToCursor });
+              this.setStateWithoutError({ zoomToCursor: values.zoomToCursor });
               if (this.controls) {
                 this.controls.noZoom = values.zoomToCursor;
               }
             }
             if (values.maxZoomIn != this.state.maxZoomIn) {
-              this.setState({ maxZoomIn: values.maxZoomIn });
+              this.setStateWithoutError({ maxZoomIn: values.maxZoomIn });
             }
             if (values.maxZoomOut != this.state.maxZoomOut) {
-              this.setState({ maxZoomOut: values.maxZoomOut });
+              this.setStateWithoutError({ maxZoomOut: values.maxZoomOut });
             }
             break;
           default:
@@ -6399,13 +6467,17 @@ class GLTFRenderer extends Component {
         switch (group) {
           case 0:
             if (values.textureEncoding != this.state.textureEncoding) {
-              this.setState({ textureEncoding: values.textureEncoding });
+              this.setStateWithoutError({
+                textureEncoding: values.textureEncoding
+              });
               this.updateTextureEncoding(values.textureEncoding);
             }
             break;
           case 1:
             if (values.outputEncoding != this.state.outputEncoding) {
-              this.setState({ outputEncoding: values.outputEncoding });
+              this.setStateWithoutError({
+                outputEncoding: values.outputEncoding
+              });
               if (this.renderer) {
                 this.renderer.outputEncoding =
                   values.outputEncoding == 'sRGB'
@@ -6417,11 +6489,11 @@ class GLTFRenderer extends Component {
             break;
           case 2:
             if (values.exposure != this.state.exposure) {
-              this.setState({ exposure: values.exposure });
+              this.setStateWithoutError({ exposure: values.exposure });
               toSet = true;
             }
             if (values.addLights != this.state.addLights) {
-              this.setState({ addLights: values.addLights });
+              this.setStateWithoutError({ addLights: values.addLights });
               toSet = true;
             }
             if (toSet) {
@@ -6440,11 +6512,13 @@ class GLTFRenderer extends Component {
             break;
           case 3:
             if (values.ambientIntensity != this.state.ambientIntensity) {
-              this.setState({ ambientIntensity: values.ambientIntensity });
+              this.setStateWithoutError({
+                ambientIntensity: values.ambientIntensity
+              });
               toSet = true;
             }
             if (values.ambientColor != this.state.ambientColor) {
-              this.setState({ ambientColor: values.ambientColor });
+              this.setStateWithoutError({ ambientColor: values.ambientColor });
               toSet = true;
             }
             if (toSet) {
@@ -6462,11 +6536,13 @@ class GLTFRenderer extends Component {
             break;
           case 4:
             if (values.directIntensity != this.state.directIntensity) {
-              this.setState({ directIntensity: values.directIntensity });
+              this.setStateWithoutError({
+                directIntensity: values.directIntensity
+              });
               toSet = true;
             }
             if (values.directColor != this.state.directColor) {
-              this.setState({ directColor: values.directColor });
+              this.setStateWithoutError({ directColor: values.directColor });
               toSet = true;
             }
             if (toSet) {
@@ -6492,46 +6568,62 @@ class GLTFRenderer extends Component {
         );
         if (mySelectedoption != this.selectedoption) {
           if (values.ctrlKey != this.props.ctrlKey) {
-            if (this.props.setCtrlKey) {
-              this.props.setCtrlKey(values.ctrlKey);
+            try {
+              if (this.props.setCtrlKey) {
+                this.props.setCtrlKey(values.ctrlKey);
+              }
+            } catch (error) {
+              console.log('Eror while setting ctrlkey', error);
             }
           }
           if (
             this.selectedoption == SELECTMEASURE ||
             mySelectedoption == SELECTMEASURE
           ) {
-            if (this.props.resetSelections) {
-              this.props.resetSelections();
+            try {
+              if (this.props.resetSelections) {
+                this.props.resetSelections();
+              }
+            } catch (error) {
+              console.log('Error while rese selctions', error);
             }
           }
           if (
             mySelectedoption == SELECTASSEMBLY ||
             mySelectedoption == SELECTSOLID
           ) {
-            if (this.props.selectAllSelectedSolids) {
-              this.props.selectAllSelectedSolids(mySelectedoption);
+            try {
+              if (this.props.selectAllSelectedSolids) {
+                this.props.selectAllSelectedSolids(mySelectedoption);
+              }
+            } catch (error) {
+              console.log('Error while setting all solids', error);
             }
           }
           this.changeVisibility(mySelectedoption);
           this.selectedoption = mySelectedoption;
-          if (this.props.setSelectedOption) {
-            this.props.setSelectedOption(mySelectedoption);
+          try {
+            if (this.props.setSelectedOption) {
+              this.props.setSelectedOption(mySelectedoption);
+            }
+          } catch (error) {
+            console.log('Error while setting options', error);
           }
         }
         break;
       case 4:
         if (values.animationSpeed != this.state.animationSpeed) {
-          this.setState({ animationSpeed: values.animationSpeed });
+          this.setStateWithoutError({ animationSpeed: values.animationSpeed });
           this.updateAimationSpeed(values.animationSpeed);
         }
 
         if (values.pauseAnimation != this.state.pauseAnimation) {
-          this.setState({ pauseAnimation: values.pauseAnimation });
+          this.setStateWithoutError({ pauseAnimation: values.pauseAnimation });
           this.updatePauseAnimation(values.pauseAnimation);
         }
 
         if (values.animationTime != this.state.animationTime) {
-          this.setState({ animationTime: values.animationTime });
+          this.setStateWithoutError({ animationTime: values.animationTime });
           this.updateAnimationTime(values.animationTime);
         }
         break;
@@ -6667,10 +6759,15 @@ class GLTFRenderer extends Component {
     } catch (exc) {}
     let openFiles = [...this.state.progressOpenedFiles];
     openFiles = arrayRemoveFromValue(openFiles, aFile);
-    this.setState({ progressOpenedFiles: openFiles });
-    if (this.props.setProgressOpenedFiles) {
-      this.props.setProgressOpenedFiles(openFiles);
+    try {
+      this.setStateWithoutError({ progressOpenedFiles: openFiles });
+      if (this.props.setProgressOpenedFiles) {
+        this.props.setProgressOpenedFiles(openFiles);
+      }
+    } catch (error) {
+      console.log('Error while closing bar', error);
     }
+
     if (openFiles.length == 0) {
       try {
         this.openSnackBar(alert, aFile + ' ' + message);
@@ -6683,10 +6780,15 @@ class GLTFRenderer extends Component {
           message
         );
       }
-      this.setState({ isProgressOpen: false });
-      if (this.props.setIsProgressOpen) {
-        this.props.setIsProgressOpen(false);
+      try {
+        this.setStateWithoutError({ isProgressOpen: false });
+        if (this.props.setIsProgressOpen) {
+          this.props.setIsProgressOpen(false);
+        }
+      } catch (error) {
+        console.log('Error while displaying bar', error);
       }
+
       //console.log("Setting is progress closing",this.state.isProgressOpen,openFiles,aFile);
     } else {
       try {
@@ -6710,14 +6812,19 @@ class GLTFRenderer extends Component {
   onInitProgress = (aFile) => {
     let openFiles = [...this.state.progressOpenedFiles];
     openFiles.push(aFile);
-    this.setState({ progressOpenedFiles: openFiles });
-    if (this.props.setProgressOpenedFiles) {
-      this.props.setProgressOpenedFiles(openFiles);
+    try {
+      this.setStateWithoutError({ progressOpenedFiles: openFiles });
+      if (this.props.setProgressOpenedFiles) {
+        this.props.setProgressOpenedFiles(openFiles);
+      }
+      this.setStateWithoutError({ isProgressOpen: true });
+      if (this.props.setIsProgressOpen) {
+        this.props.setIsProgressOpen(true);
+      }
+    } catch (error) {
+      console.log('While initializing bar', error);
     }
-    this.setState({ isProgressOpen: true });
-    if (this.props.setIsProgressOpen) {
-      this.props.setIsProgressOpen(true);
-    }
+
     //console.log("Setting is progress open",this.state.isProgressOpen);
   };
 
