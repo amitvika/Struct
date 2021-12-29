@@ -1304,28 +1304,27 @@ class GLTFRenderer extends Component {
     console.groupEnd();
   };
 
-  updateGDTTable = (gdttableEdges) => {
+  updateGDTTable = async (gdttableEdges) => {
     console.log('Doing updategdt table', gdttableEdges);
+    let firstTime = true;
     if (
       gdttableEdges &&
       gdttableEdges.edges &&
       Array.isArray(gdttableEdges.edges)
     ) {
-      let firstTime = true;
-      gdttableEdges.edges.forEach((element) => {
-        //console.log("my node",element,element.name);
-        //console.log('Coming from hre 2');
+      for (let index = 0; index < gdttableEdges.edges.length; index++) {
+        const element = gdttableEdges.edges[index];
         const node = element.name ? this.findMyMaterial(element, true) : null;
-        // console.log(
-        //   'my node',
-        //   element.name,
-        //   'material node',
-        //   node,
-        //   element.parent,
-        //   element.start,
-        //   element.finish
-        // );
-        this.loadAllEdges(
+        console.log(
+          'my node',
+          element.name,
+          'material node',
+          node,
+          element.parent,
+          element.start,
+          element.finish
+        );
+        await this.loadAllEdges(
           element.parent,
           element.start,
           element.finish,
@@ -1334,19 +1333,42 @@ class GLTFRenderer extends Component {
           firstTime
         );
         firstTime = false;
-      });
-      let event = {};
-      event['ctrlKey'] = false;
-      if (Array.isArray(gdttableEdges.selectedObjects)) {
-        gdttableEdges.selectedObjects.forEach((element) => {
-          element.selectedshell = true;
-          //console.log('setting selections to clear all selections');
-          this.doOneSelection(element, event, false);
-        });
-        if (gdttableEdges.selectedObjects.length == 0) {
-          //console.log('Resetting blank selections to clear all selections');
-          this.changeStateOfSelection(null, event, false);
+      }
+      if (gdttableEdges.edges.length == 0) {
+        let event = {};
+        event['ctrlKey'] = false;
+        if (Array.isArray(gdttableEdges.selectedObjects)) {
+          gdttableEdges.selectedObjects.forEach((element) => {
+            element.selectedshell = true;
+            //console.log('setting selections to clear all selections');
+            this.doOneSelection(element, event, false);
+          });
+          if (gdttableEdges.selectedObjects.length == 0) {
+            //console.log('Resetting blank selections to clear all selections');
+            this.changeStateOfSelection(null, event, false);
+          }
         }
+      }
+    }
+    if (firstTime) {
+      const state_gltfobj =
+        this_state_gltf || this.state.gltfobj || this.props.gltfobj;
+
+      var myStateTree = state_gltfobj.tree;
+
+      console.log(
+        'Resetting treelength',
+        myStateTree.length,
+        state_gltfobj.treeLength,
+        myStateTree,
+        state_gltfobj
+      );
+      myStateTree.length = state_gltfobj.treeLength;
+      var gltfobj = { ...state_gltfobj };
+      gltfobj.tree = myStateTree;
+      this_state_gltf = gltfobj;
+      if (this.props.setStateOfgltf) {
+        this.props.setStateOfgltf(gltfobj);
       }
     }
   };
