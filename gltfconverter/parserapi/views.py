@@ -5744,6 +5744,8 @@ def extractKinematicInformation(kinematicparts):
             remainingLength = (3-len(axis))
             for indexI in range(remainingLength):
                 axis.append(indexI)
+        if axis==[0,0,0]:
+            axis=[0,1,2]
         if isActuator and aw==0:
             aw=math.pi*ap/72
             ap=-0.1*ap

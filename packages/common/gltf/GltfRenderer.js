@@ -1241,6 +1241,7 @@ class GLTFRenderer extends Component {
                 this.controls.saveState();
             }
         } */
+    //console.log('Updateing camera', object);
     this.updateCameraControls(object, true);
     /*
             this.dotGeometry = new Geometry();
@@ -1255,7 +1256,9 @@ class GLTFRenderer extends Component {
     this.content = [object];
 
     //this.state.addLights = true;
+    //console.log('adding lights', object);
     this.setStateWithoutError({ addLights: true });
+    //console.log('Updateing visibility', object, this.selectedoption);
     this.changeVisibility(this.selectedoption);
 
     /*  this.trackballWidget = new Group();
@@ -1270,8 +1273,11 @@ class GLTFRenderer extends Component {
         this.trackballWidget.renderOrder = 1; // Don't draw to early, thus obscuring other transparent objects        
 				
  */
+    //console.log('Updateing clips', object, clips);
     this.setClips(clips);
+    //console.log('Updateing parts', object);
     this.updateParts(object);
+    //console.log('Updateing lights', object);
     this.updateLights(
       this.state.Exposure,
       this.state.addLights,
@@ -1295,7 +1301,12 @@ class GLTFRenderer extends Component {
     if (this.props.drawLine && this.props.fileGDT) {
       this.loadAllEdges(0, (firstTime = true));
     }
-    if (this.props.fileGDT && this.props.fileAnimation == false) {
+    /* console.log(
+      'For loading edges',
+      this.props.fileGDT,
+      this.props.fileAnimation
+    ); */
+    if (this.props.fileGDT /*&& this.props.fileAnimation == false*/) {
       const state_gltfobj = this_state_gltf || this.props.gltfobj;
 
       console.log(
@@ -1304,12 +1315,17 @@ class GLTFRenderer extends Component {
         this.props.activeDataTable
       );
       let gdttable = [];
-      if (isEmptyObjectDictionary(state_gltfobj.gdttable)) {
+      if (
+        state_gltfobj.gdttable &&
+        isEmptyObjectDictionary(state_gltfobj.gdttable)
+      ) {
         gdttable = [defaultGDTTable];
       } else {
         gdttable = state_gltfobj.gdttable || [defaultGDTTable];
       }
-      this.updateGDTTable(gdttable[this.props.activeDataTable]);
+      if (this.props.activeDataTable < gdttable.length) {
+        this.updateGDTTable(gdttable[this.props.activeDataTable]);
+      }
 
       //console.log(this.props);
     }
@@ -2157,19 +2173,20 @@ class GLTFRenderer extends Component {
             this.gui.removeFolder(this.partsFolder);
         }
         this.partsFolder = this.gui.addFolder("Parts"); */
+    //console.log('My Meshes', meshes);
     if (!meshes) {
       return;
     }
     this.partsMeshes = meshes.children;
+    if (this.partsMeshes[0].children.length > 0) {
+      this.partsMeshes = this.partsMeshes[0].children;
+    }
+
+    if (this.partsMeshes[0].children.length > 0) {
+      this.partsMeshes = this.partsMeshes[0].children;
+    }
+
     this.raycastObjects = this.rayCastObjectFilters(this.partsMeshes);
-    if (this.partsMeshes[0].children.length > 0) {
-      this.partsMeshes = this.partsMeshes[0].children;
-    }
-
-    if (this.partsMeshes[0].children.length > 0) {
-      this.partsMeshes = this.partsMeshes[0].children;
-    }
-
     /* this.ListBoxes = ["All Parts"];
         this.ListValues = [this.partsMeshes.length];
 
@@ -3080,7 +3097,8 @@ class GLTFRenderer extends Component {
             curvechar,
             first6chars,
             option,
-            visible
+            visible,
+            mynode
           );
         }
       }
