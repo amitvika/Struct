@@ -2968,7 +2968,12 @@ class GLTFRenderer extends Component {
     if (mynode?.type == 'Line' || mynode?.type == 'MeshLine') {
       //console.log("Returning true");
       if (display) {
-        return this.state.showedges;
+        return (
+          this.state.showedges ||
+          option == SELECTEDGE ||
+          option == SELECTLINEAR ||
+          option == SELECTCIRCULAR
+        );
       }
     }
 
@@ -3009,7 +3014,12 @@ class GLTFRenderer extends Component {
             );
           }
         } else {
-          visible = visible || option == SELECTFACE; //||
+          visible =
+            visible ||
+            option == SELECTFACE ||
+            (option == SELECTLINEAR && curvechar == 'L') ||
+            (option == SELECTCIRCULAR &&
+              (curvechar == 'C' || curvechar == 'N')); //||
           if (consolelog) {
             console.log(
               'VVIISBLE3',
