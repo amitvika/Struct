@@ -5846,14 +5846,17 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             try:
                 indexedKinematicInformation = extractKinematicInformation(kinematicparts) 
             except Exception as e:
-                print("Error while parsing kinematic",e)                         
-            if(len(onlyShapes)==8):
+                print("Error while parsing kinematic",e)   
+            lengthOfOnlyShapes =  len(onlyShapes)                     
+            if(lengthOfOnlyShapes==8):
                 shapeorder = [0,1,2,6,3,7,5,4]
             else:
-                shapeorder=[x for x in range(len(onlyShapes))]    
+                shapeorder=[x for x in range(lengthOfOnlyShapes)]    
             print("initial parsing",shapeorder,indexedKinematicInformation)            
             kp=1
             ap=kp
+            lengthOfKinematicParts = len(indexedKinematicInformation)
+            notFoundSequence=0
             for (eachShape,eachName,_) in shapeArray:
                 if (partsteps==None) or (len(kinematicparts)==0):
                     myobb = get_oriented_bounding_details(eachShape)
@@ -5879,12 +5882,16 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                             kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
                 else:
                     #sequence, isActuator, isLinear, [ax,ay,az], aw = getKinematicInformation(kinematicparts,eachName)
-                    _, _, sequence, isActuator, isLinear, [ax,ay,az], aw, _, _ = \
-                        getKinematicInformationFromIndex(indexedKinematicInformation,eachName)                 
-                    if sequence >0 and sequence <= len(shapeorder):
+                    whatWeGotFromKinematicInfo=getKinematicInformationFromIndex(indexedKinematicInformation,eachName)  
+                    _, _, sequence, isActuator, isLinear, [ax,ay,az], aw, _, _ = whatWeGotFromKinematicInfo
+                    print("Each one",eachName,sequence,whatWeGotFromKinematicInfo)                     
+                    if sequence >0 and sequence <= lengthOfOnlyShapes:
                         shapeorder[sequence-1]=shapeCount
-                    elif sequence==0:
-                        shapeorder[0]=shapeCount
+                    elif (lengthOfKinematicParts+notFoundSequence) < lengthOfOnlyShapes:
+                        shapeorder[lengthOfKinematicParts+notFoundSequence]=shapeCount
+                        notFoundSequence+=1
+                    else:
+                        notFoundSequence+=1
                     if isActuator:
                         if isLinear:
                             kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
@@ -5895,7 +5902,9 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                     
                 shapeCount += 1                          
             #print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
-            print(shapeCount,shapeorder,kinematicrotation)
+            print("Info of kinematic before truncating",shapeorder,kinematicrotation,notFoundSequence,shapeCount)
+            shapeorder = shapeorder[0:lengthOfKinematicParts]
+            print("Info of kinematic after truncating",shapeorder,kinematicrotation,lengthOfKinematicParts,lengthOfOnlyShapes)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,

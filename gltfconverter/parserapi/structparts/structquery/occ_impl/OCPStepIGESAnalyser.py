@@ -4278,7 +4278,7 @@ class StepIgesAnalyser():
         globalRotation=[(1,0,0,0)]   
         #globalAngle=[0]
         for action in ["translation","rotation"]:
-            for steps in range(1,lenAnimations+1):
+            for steps in range(1,lenShapeOrder+1):
                 print(steps,lenAnimations,lenShapeOrder)
                 lenOfAnimationsTime = steps+1 #or lenAnimations ; it works for both...
                 timebuff = TimeBuffer(
