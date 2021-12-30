@@ -440,8 +440,12 @@ export default function GeometricDimensioning(props) {
   };
 
   const globalSetActiveDataTable = (activetable) => {
-    setActiveDataTable(activetable);
-    myGlobalActiveDataTable = activetable;
+    try {
+      myGlobalActiveDataTable = activetable;
+      setActiveDataTable(activetable);
+    } catch (error) {
+      console.log('Errir while assigning globalstate', error);
+    }
   };
   const setCurrentDataTableFromKey = (key, option, selectedNodes) => {
     const mystate = isEmptyObject(state) ? myGlobalState : state;
@@ -611,7 +615,7 @@ export default function GeometricDimensioning(props) {
         ? [...mystate.parentObjects]
         : [];
     for (let index = 0; index < myobject.length; index++) {
-      let element = myobject[index];
+      let element = elementCopy(myobject[index]);
       if (element[gltf_Dict['name']] == name) {
         element[key] = value;
         if (selectedOption != SELECTASSEMBLY) {
@@ -625,7 +629,7 @@ export default function GeometricDimensioning(props) {
   const setMateValues = (index, value) => {
     const mystate = isEmptyObject(state) ? myGlobalState : state;
     let myValues = mystate.mateValues
-      ? [...mystate.mateValues]
+      ? arrayCopy(mystate.mateValues)
       : Array(6).fill(false);
     myValues[index] = value;
     setState({ mateValues: myValues });
@@ -720,16 +724,16 @@ export default function GeometricDimensioning(props) {
     }
     var structure = {
       objects: [...tempSelectedObjects],
-      mates: tempMates,
+      mates: [...tempMates],
       start: mystate.selectedObjects.length
     };
     structure = await getShapeInformation(structure);
     tempSelectedObjects = structure.objects;
-
+    tempMates = structure.mates;
     setState({
       selectedObjects: [...tempSelectedObjects],
       parentObjects: [...tempParentObjects],
-      mates: [...structure.mates]
+      mates: [...tempMates]
     });
     setResetOption(true);
   };
@@ -1162,9 +1166,13 @@ export default function GeometricDimensioning(props) {
               element[0].Info['kind'];
             structure.objects[structure.start + index]['fill'] =
               element[0].fill;
-            structure.objects[structure.start + index]['obb'] = element[0].obb;
-            structure.objects[structure.start + index]['axis'] =
-              element[0].direction;
+            structure.objects[structure.start + index]['obb'] = elementCopy(
+              element[0].obb
+            );
+            structure.objects[structure.start + index]['axis'] = element[0]
+              .Info['direction']
+              ? elementCopy(element[0].Info['direction'])
+              : null;
             if (
               element[0].Info['kind'] === 'Circle' ||
               element[0].Info['kind'] === 'Cylinder'
@@ -1206,7 +1214,7 @@ export default function GeometricDimensioning(props) {
       }
     }
     if (typeof curData !== 'undefined') {
-      let myTree = { ...mystate_gltfjson };
+      let myTree = insteadstate ? insteadstate : { ...mystate_gltfjson };
       if (myTree.tree) {
         if (
           insteadstate == null ||
@@ -1755,7 +1763,7 @@ export default function GeometricDimensioning(props) {
         const myParentNode = elementCopy(myAllChildsAndParents[1]);
         //console.log('Removing', myAllChilds, myParentNode, data);
         for (let elementdata of myAllChilds) {
-          setSelectedShell({ ...elementdata }, false);
+          setSelectedShell({ ...elementdata }, false, myTree);
           if (toAddShapeInfo) {
             const currentIndex = arrayFindIndex(
               copy_selectobjects,
@@ -1805,7 +1813,7 @@ export default function GeometricDimensioning(props) {
         //console.log('Adding', myAllChilds, myParentNode, data);
         for (let elementdata of myAllChilds) {
           const mycopydata = { ...elementdata };
-          setSelectedShell(mycopydata, true);
+          setSelectedShell(mycopydata, true, myTree);
           copy_selectobjects.push(mycopydata);
           copy_mateobjects.push([]);
           toGetInfo = true;

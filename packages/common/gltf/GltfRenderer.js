@@ -419,6 +419,7 @@ class GLTFRenderer extends Component {
       stringify(prevProps.gltfobj || {}) !==
       stringify(this.props.gltfobj || {});
     const toInvokeRender = toChange;
+    const toChangeGLTF = prevProps.activeFile !== this.props.activefile;
     /* console.log(
       'Do i need to render',
       toInvokeRender,
@@ -445,7 +446,7 @@ class GLTFRenderer extends Component {
     }
     toChange = toChange || edgeChange;
     if (toChange) {
-      if (toInvokeRender) {
+      /* if (toInvokeRender) {
         console.log(
           'Changing this_state_gltf',
           this.props.gltfobj,
@@ -453,8 +454,8 @@ class GLTFRenderer extends Component {
           prevProps.gltfobj
         );
       }
-
-      if (this.props.gltfobj != null) {
+      */
+      if (this.props.gltfobj != null && toChangeGLTF) {
         this_state_gltf = this.props.gltfobj;
       }
       this.raycastObjects = this.rayCastObjectFilters(this.partsMeshes);
@@ -1282,7 +1283,7 @@ class GLTFRenderer extends Component {
     if (this.props.drawLine && this.props.fileGDT) {
       this.loadAllEdges(0, (firstTime = true));
     }
-    if (this.props.fileGDT) {
+    if (this.props.fileGDT && this.props.fileAnimation == false) {
       const state_gltfobj =
         this_state_gltf || this.state.gltfobj || this.props.gltfobj;
 
@@ -6971,6 +6972,9 @@ class GLTFRenderer extends Component {
             //console.log('I am reloading the gltf');
             this.alter(mygltfcontent);
           } else {
+            this.activeFile = this.props.activefile;
+            this.materialtype = this.props.materialtype;
+            this.activeDataTable = this.props.activeDataTable;
             console.log('Skipping rendering due to blank', mygltfcontent);
           }
         }

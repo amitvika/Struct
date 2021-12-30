@@ -1407,14 +1407,14 @@ class StepExportWithColor(object):
         lengthCheck=0
         oneItemAdded = 0
         treeForDisplay = name
-        treeDisplay=''
+        #treeDisplay=''
         for aTree in myTree:
             if aTree[self.gltf_dict['parentId']]==myParent : 
-                (shape, treeDisplay, R_, G_, B_) =  self.GetFirstLevelSelfAndTreeFromOutputShapes(aTree,shapes,myTree,treeLength,fuuid)
+                (shape, _, R_, G_, B_) =  self.GetFirstLevelSelfAndTreeFromOutputShapes(aTree,shapes,myTree,treeLength,fuuid)
                 if shape:
                     try:
                         comp_builder.Add(comp, shape)
-                        treeForDisplay = treeDisplay
+                        #treeForDisplay = treeDisplay
                         oneItemAdded+=1
                     except Exception as e:
                         print("Exception while adding compound",e)
@@ -1425,7 +1425,7 @@ class StepExportWithColor(object):
         if oneItemAdded>0:
             return (comp, treeForDisplay, R, G, B)
         else:
-            return (None, treeForDisplay if treeDisplay=='' else treeDisplay, R, G, B)
+            return (None, treeForDisplay, R, G, B)
     
     def getChildTreeCountAndDeepestParentID(self,myParent,myTree,treeLength,checkOnlyMore):
         assemblyCount=0
@@ -1457,6 +1457,7 @@ class StepExportWithColor(object):
 
     def GetFirstLevelAssemblyOutPutShapesForOrder(self,shapes,myParent,myTree,treeLength,fuuid):
         name = None
+        display=None
         lengthCheck = 0
         """ if myParent:
             myParentCheck = myParent
@@ -1468,9 +1469,13 @@ class StepExportWithColor(object):
             #print("My aTree",aTree)
             if aTree[self.gltf_dict['id']]==myParentCheck :
                 name=aTree[self.gltf_dict['name']]
+                display=aTree[self.gltf_dict['display']]
                 if name is None:
                     name =  "Struct Assembly "+str(myParentCheck)
+                if display is None:
+                    display=name
                 break
+                
             lengthCheck+=1
             if lengthCheck >=treeLength:
                 break
@@ -1512,16 +1517,24 @@ class StepExportWithColor(object):
             firstLevelAssemblies = []
             lengthCheck = 0
             for aTree in myTree:
-                if aTree[self.gltf_dict['parentId']]==myParentId :   
+                if aTree[self.gltf_dict['parentId']]==myParentId : 
+                    myTreeDisplay = aTree[self.gltf_dict['display']]
+                    myTreeName =  aTree[self.gltf_dict['name']] 
+                    if myTreeName=='':
+                        myTreeName = 'No Name '+str(aTree[self.gltf_dict['Id']])
+                    if myTreeDisplay=='':
+                        myTreeDisplay = myTreeName                    
                     (shape, treeDisplay, R, G, B) = self.GetFirstLevelSelfAndTreeFromOutputShapes(aTree,shapes,myTree,treeLength,fuuid)
+                    if myTreeDisplay=='':
+                        myTreeDisplay=treeDisplay
                     if shape:
-                        firstLevelAssemblies.append((shape, treeDisplay, R, G, B)) 
+                        firstLevelAssemblies.append((shape, myTreeDisplay, R, G, B)) 
                         addedAssembly+=1
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break
-            return  addedAssembly,firstLevelAssemblies,name
-        return addedAssembly,None,name
+            return  addedAssembly,firstLevelAssemblies,display
+        return addedAssembly,None,display
     
     def FindAssemblyCount(self,myParent,myTree,treeLength):
         name = None

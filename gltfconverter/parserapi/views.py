@@ -5835,6 +5835,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
         try:
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
             _, myShapes = outputShapes
+            print("myshapes",dictionary["tree"])
             shapeArray,onlyShapes,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             kinematicrotation = []
             shapeorder=[]
@@ -5843,6 +5844,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 kinematicparts = partsteps['parts']
             else:
                 kinematicparts = []
+            print("What we got from react",kinematicparts)
             try:
                 indexedKinematicInformation = extractKinematicInformation(kinematicparts) 
             except Exception as e:

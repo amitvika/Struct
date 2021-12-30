@@ -188,18 +188,33 @@ export default function ItemTypeConfiguration(props) {
         'I am asking the component to set',
         mySelectedObjects,
         fieldKey,
-        fieldItemKey
+        fieldItemKey,
+        'My Selected Objects',
+        mySelectedObjects ? mySelectedObjects[0] : 'Blank',
+        'My Selected Info',
+        mySelectedObjects
+          ? mySelectedObjects[0]
+            ? mySelectedObjects[0].Info
+            : 'Blank'
+          : 'blank',
+        'My Selected OBB',
+        mySelectedObjects
+          ? mySelectedObjects[0]
+            ? mySelectedObjects[0].obb
+            : 'Blank'
+          : 'blank',
+        isFaceSelectionSeleted
       );
       if (
         mySelectedObjects[0] &&
-        mySelectedObjects[0].obb &&
+        (mySelectedObjects[0].obb || mySelectedObjects[0].axis) &&
         isFaceSelectionSeleted
       ) {
         handleSave({
           actuator_motion_control: {
             ...(itemProperties.actuator_motion_control || {}),
             cylindrical_axis_of_rotation:
-              mySelectedObjects[0].Info[0].direction || mySelectedObjects[0].obb
+              mySelectedObjects[0].axis || mySelectedObjects[0].obb
           }
         });
 
