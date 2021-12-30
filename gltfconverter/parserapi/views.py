@@ -5835,8 +5835,9 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
         try:
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
             _, myShapes = outputShapes
-            print("myshapes",dictionary["tree"])
+            
             shapeArray,onlyShapes,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            print("myshapes",shapeArray)
             kinematicrotation = []
             shapeorder=[]
             shapeCount = 0
