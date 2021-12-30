@@ -19,6 +19,7 @@ import ProductMaker from './pages/ProductMaker/ProductMaker';
 import SiliconMaker from './pages/SiliconMaker/SiliconMaker';
 import ClothesMaker from './pages/ClothesMaker/ClothesMaker';
 import ArchitectureDesigner from './pages/ArchitectureDesigner/ArchitectureDesigner';
+import CadItemDetailPage from './pages/CadItemDetailPage/CadItemDetailPage';
 
 export default function Routes() {
   return (
@@ -40,6 +41,13 @@ export default function Routes() {
               component={ProductMaker}
             />
             <AppRoute exact authenticate path="/cad" component={CadMaker} />
+            <AppRoute
+              exact
+              authenticate
+              path="/cad/:id"
+              component={CadItemDetailPage}
+            />
+
             <AppRoute exact authenticate path="/pcb" component={PcbTab} />
             <AppRoute
               exact

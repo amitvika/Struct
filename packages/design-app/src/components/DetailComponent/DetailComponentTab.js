@@ -15,7 +15,11 @@ export default function DetailPageTab({ tabList }) {
       <Tab
         label={`${tab.tabName}`}
         value={index}
-        style={{ textAlign: 'left' }}
+        sx={{
+          textAlign: 'left',
+          minHeight: '30px',
+          alignItems: 'start'
+        }}
       />
     ));
   };

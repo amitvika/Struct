@@ -632,7 +632,8 @@ const ItemDetail = ({ itemValue }) => {
     pds: 'Product Design Setup',
     production: 'Production',
     assembly: 'Assembly',
-    itemReport: 'Item Report'
+    itemReport: 'Item Report',
+    makeItemConfigurable: 'Make Item Configurable/Customizable'
   };
 
   const renderTab = () => {
