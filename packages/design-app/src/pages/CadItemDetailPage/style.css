@@ -1,0 +1,15 @@
+/* .MuiSnackbar-anchorOriginBottomCenter {
+  /* left: unset !important; */
+
+
+/* .Material__Modal{
+  width: 70%;
+    top: 20%;
+}  */
+.MuiTab-wrapper {
+  width: 100%;
+  display: inline-flex;
+  align-items: flex-start !important;
+  flex-direction: column;
+  justify-content: center;
+}
