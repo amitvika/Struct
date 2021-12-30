@@ -5709,29 +5709,46 @@ def HackersResponse(request):
 
 def extractKinematicInformation(kinematicparts):
     #print("Kinematic Parts",kinematicparts)
+    print("")
+
     kinematicInformation = []
+    ap=-1
     for kinematicpart in kinematicparts:
         myInfo = (None,None,0,False,False,[0,0,0],0,0,0)
         if 'actuator_motion_control' in kinematicpart:
             kinematicinfo = kinematicpart['actuator_motion_control']
             myInfo = getValueFromJSONKey(kinematicinfo,'child_part_name'),\
                 getValueFromJSONKey(kinematicinfo,'child_part_display_name'),\
-                    convertToInt(getValueFromJSONKey(kinematicinfo,'child_sequence_number'),0),\
-                        convertToBool(getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),False),\
-                            convertToBool(getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),False),\
+                    getValueFromJSONKey(kinematicinfo,'child_sequence_number'),\
+                        getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),\
+                            getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),\
                                 getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
-                                    convertToFloat(getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),0.1),\
-                                        convertToInt(getValueFromJSONKey(kinematicinfo,'axis_before_link'),0),\
-                                            convertToInt(getValueFromJSONKey(kinematicinfo,'axis_after_link'),0)
+                                    getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),\
+                                        getValueFromJSONKey(kinematicinfo,'axis_before_link'),\
+                                            getValueFromJSONKey(kinematicinfo,'axis_after_link')
+        else:
+            kinematicinfo='No Information for kinematic info'
                                        
         partName, displayName, sequence, isActuator, isLinear, axis, aw, bl, al = myInfo
+        isActuator = not isActuator
+
         if partName==None:
             partName = getValueFromJSONKey(kinematicpart,'filePartName')
         if displayName==None:
             displayName = getValueFromJSONKey(kinematicpart,'name')
-        if isinstance(axis, list)==False:
-            axis = [axis,axis,axis]
+        if isinstance(axis, list)==False :
+            axis = [axis,0,1]
+        elif len(axis)>3:
+            axis = axis[0:3]
+        elif len(axis)<3:
+            remainingLength = (3-len(axis))
+            for indexI in range(remainingLength):
+                axis.append(indexI)
+        if isActuator and aw==0:
+            aw=math.pi*ap/72
+            ap=-0.1*ap
         myInfo = partName, displayName, sequence, isActuator, isLinear, axis, aw, bl, al
+        print("Each Kinematic Info",myInfo,kinematicinfo)
         kinematicInformation.append(myInfo)
     lengthOfKinematicInfo = len(kinematicInformation)
     print("Kinematic Info before arranging",kinematicInformation)
@@ -5835,8 +5852,9 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
         try:
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
             _, myShapes = outputShapes
-            print("myshapes",dictionary["tree"])
+            
             shapeArray,onlyShapes,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            print("myshapes",shapeArray)
             kinematicrotation = []
             shapeorder=[]
             shapeCount = 0
@@ -5851,7 +5869,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 print("Error while parsing kinematic",e)   
             lengthOfOnlyShapes =  len(onlyShapes)                     
             if(lengthOfOnlyShapes==8):
-                shapeorder = [0,1,2,6,3,7,5,4]
+                shapeorder = [0, 2, 1, 3, 6, 7, 5, 4] #[0,1,2,6,3,7,5,4]
             else:
                 shapeorder=[x for x in range(lengthOfOnlyShapes)]    
             print("initial parsing",shapeorder,indexedKinematicInformation)            
@@ -5859,12 +5877,13 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             ap=kp
             lengthOfKinematicParts = len(indexedKinematicInformation)
             notFoundSequence=0
+            #partsteps=None
             for (eachShape,eachName,_) in shapeArray:
                 if (partsteps==None) or (len(kinematicparts)==0):
                     myobb = get_oriented_bounding_details(eachShape)
                     ax, ay, az = getMaxDirectionFromOBB(myobb)
                     ap*=kp
-                    aw = math.pi/36 * ap #random.random()
+                    aw = math.pi/48 * ap #random.random()
                     """if aw < 0.1:
                         aw=0.1
                     if aw > 0.9:
@@ -5879,13 +5898,15 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                         shapeorder.append(shapeCount)
                     else:
                         if shapeCount>=2 and shapeCount<=3:
-                            kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,0)))
+                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0)))
                         else:
                             kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
                 else:
                     #sequence, isActuator, isLinear, [ax,ay,az], aw = getKinematicInformation(kinematicparts,eachName)
                     whatWeGotFromKinematicInfo=getKinematicInformationFromIndex(indexedKinematicInformation,eachName)  
                     _, _, sequence, isActuator, isLinear, [ax,ay,az], aw, _, _ = whatWeGotFromKinematicInfo
+                    #myobb = get_oriented_bounding_details(eachShape)
+                    #ax, ay, az = getMaxDirectionFromOBB(myobb)
                     print("Each one",eachName,sequence,whatWeGotFromKinematicInfo)                     
                     if sequence >0 and sequence <= lengthOfOnlyShapes:
                         shapeorder[sequence-1]=shapeCount
@@ -5896,9 +5917,9 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                         notFoundSequence+=1
                     if isActuator:
                         if isLinear:
-                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
-                        else:
                             kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0)))
+                        else:
+                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
                     else:
                         kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0)))
                     

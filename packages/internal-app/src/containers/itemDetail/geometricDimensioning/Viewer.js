@@ -129,7 +129,7 @@ export default function Viewer({
           fileAnimation={false}
           activefile={
             activefile +
-            gltfjsonlen.toString() +
+            //(showKinematicMove ? '' : gltfjsonlen.toString()) +
             tabIndex.toString() +
             showKinematicMove.toString() +
             regenerateKinematicMove.toString()
