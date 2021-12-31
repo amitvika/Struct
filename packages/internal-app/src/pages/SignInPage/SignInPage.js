@@ -16,9 +16,6 @@ const SignInPage = () => {
       setIsLoading(true);
       const resUser = await AuthService.fetchUser();
       setAuthUser({ user: resUser });
-      // setTimeout(() => {
-      //   history.push('/clients');
-      // }, 3000);
 
       setIsLoading(false);
     } catch (error) {

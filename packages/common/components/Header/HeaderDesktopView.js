@@ -249,7 +249,7 @@ export default function HeaderDesktopView({
       </li>
     );
 
-    if (isLoggedIn) {
+    if (isLoggedIn()) {
       menuItems.push(
         <li key={'second_avatar'} style={{ marginLeft: 10 }}>
           <Tooltip title="Open settings">
