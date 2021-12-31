@@ -40,7 +40,7 @@ const SignInPage = () => {
       localStorage.setItem('token', query.get('token'));
       fetchUser();
     } else if (localStorage.getItem('token', null)) {
-      fetchUser();
+      // fetchUser();
     }
   }, [query.get('token')]);
 

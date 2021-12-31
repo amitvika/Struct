@@ -28,57 +28,52 @@ export default function Routes() {
         <Route exact path="/" component={SignInPage} />
         <Layout>
           <Switch>
-            <AppRoute
-              exact
-              authenticate
-              path="/design"
-              component={DesignPage}
-            />
-            <AppRoute
+            <Route exact authenticate path="/design" component={DesignPage} />
+            <Route
               exact
               authenticate
               path="/product"
               component={ProductMaker}
             />
-            <AppRoute exact authenticate path="/cad" component={CadMaker} />
-            <AppRoute
+            <Route exact authenticate path="/cad" component={CadMaker} />
+            <Route
               exact
               authenticate
               path="/cad/:id"
               component={CadItemDetailPage}
             />
 
-            <AppRoute exact authenticate path="/pcb" component={PcbTab} />
-            <AppRoute
+            <Route exact authenticate path="/pcb" component={PcbTab} />
+            <Route
               exact
               authenticate
               path="/silicon"
               component={SiliconMaker}
             />
-            <AppRoute
+            <Route
               exact
               authenticate
               path="/clothes"
               component={ClothesMaker}
             />
-            <AppRoute
+            <Route
               authenticate
               path="/architecture"
               component={ArchitectureDesigner}
             />
-            <AppRoute
+            <Route
               authenticate
               path="/predesigned"
               component={PredesignedComponents}
             />
-            <AppRoute
+            <Route
               authenticate
               path="/appdesigner"
               component={AppDesignerPage}
             />
 
-            <AppRoute authenticate path="/omnidesign" component={OmniDesign} />
-            <AppRoute authenticate path="/my_profile" component={MyProfile} />
+            <Route authenticate path="/omnidesign" component={OmniDesign} />
+            <Route authenticate path="/my_profile" component={MyProfile} />
           </Switch>
         </Layout>
       </Switch>
@@ -108,25 +103,24 @@ export default function Routes() {
 //   );
 // };
 
-const AppRoute = ({ component: Component, authenticate, ...rest }) => {
-  const isLoggedIn = () => localStorage.getItem('token') !== 'null';
-  console.log('------------------------>>>>', rest);
+// const AppRoute = ({ component: Component, authenticate, ...rest }) => {
+//   const isLoggedIn = () => localStorage.getItem('token') !== 'null';
 
-  return (
-    <Route
-      {...rest}
-      render={({ location, ...other }) => {
-        if (authenticate && isLoggedIn) {
-          return <Component location={location} {...other} />;
-        }
-        return (
-          <Redirect
-            to={{
-              pathname: '/'
-            }}
-          />
-        );
-      }}
-    />
-  );
-};
+//   return (
+//     <Route
+//       {...rest}
+//       render={({ location, ...other }) => {
+//         if (authenticate && isLoggedIn) {
+//           return <Component location={location} {...other} />;
+//         }
+//         return (
+//           <Redirect
+//             to={{
+//               pathname: '/'
+//             }}
+//           />
+//         );
+//       }}
+//     />
+//   );
+// };

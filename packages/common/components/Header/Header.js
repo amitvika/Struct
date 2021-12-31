@@ -24,13 +24,19 @@ const Header = (props) => {
   const fetchUser = async () => {
     try {
       const resUser = await AuthService.fetchUser();
-      setAuthUser({ user: resUser, isAuthenticated: true });
+      if (resUser.data) {
+        setAuthUser({ user: resUser, isAuthenticated: true });
+      } else {
+        setAuthUser({ user: null, isAuthenticated: false });
+      }
     } catch (error) {
+      setAuthUser({ user: null, isAuthenticated: false });
       console.log('Error', error);
     }
   };
 
   const handleLogout = () => {
+    localStorage.setItem('token', null);
     setAuthUser({ user: {}, isAuthenticated: false });
     history.replace('/');
   };

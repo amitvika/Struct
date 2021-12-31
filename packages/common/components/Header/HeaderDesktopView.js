@@ -13,6 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import { ColorModeContext } from '../../themes/ColorModeContextProvider';
 import Avatar from '@mui/material/Avatar';
 import Grow from '@mui/material/Grow';
+import { deleteFromLocalStorage } from '../../utils/usefulHelpers';
 
 export default function HeaderDesktopView({
   handleLogout,
@@ -221,45 +222,49 @@ export default function HeaderDesktopView({
           </Button>
         </Tooltip>
 
-        <Menu
-          sx={{ mt: '45px' }}
-          id="menu-appbar"
-          anchorEl={anchorElUser}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right'
-          }}
-          keepMounted
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right'
-          }}
-          open={Boolean(anchorElUser)}
-          onClose={handleCloseUserMenu}
-        >
-          <MenuItem
-            key={`user_setup_link`}
-            onClick={() => handleLink('/administrative')}
+        {isAuthenticated && (
+          <Menu
+            sx={{ mt: '45px' }}
+            id="menu-appbar"
+            anchorEl={anchorElUser}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right'
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right'
+            }}
+            open={Boolean(anchorElUser)}
+            onClose={handleCloseUserMenu}
           >
-            Administrative
-          </MenuItem>
+            <MenuItem
+              key={`user_setup_link`}
+              onClick={() => handleLink('/administrative')}
+            >
+              Administrative
+            </MenuItem>
 
-          <MenuItem key={`logout_link`} onClick={handleLogout}>
-            Logout
-          </MenuItem>
-        </Menu>
+            <MenuItem key={`logout_link`} onClick={handleLogout}>
+              Logout
+            </MenuItem>
+          </Menu>
+        )}
       </li>
     );
 
-    menuItems.push(
-      <li key={'second_avatar'} style={{ marginLeft: 10 }}>
-        <Tooltip title="Open settings">
-          <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-            <Avatar alt={'Hello'} src="/static/images/avatar/2.jpg" />
-          </IconButton>
-        </Tooltip>
-      </li>
-    );
+    if (isAuthenticated) {
+      menuItems.push(
+        <li key={'second_avatar'} style={{ marginLeft: 10 }}>
+          <Tooltip title="Open settings">
+            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+              <Avatar alt={'Hello'} src="/static/images/avatar/2.jpg" />
+            </IconButton>
+          </Tooltip>
+        </li>
+      );
+    }
 
     if (dropdownList.length === 0) {
       return menuItems;

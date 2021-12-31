@@ -1,16 +1,15 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-const auth = require("../../middleware/auth");
+const auth = require('../../middleware/auth');
 const checkAccess = require('../../middleware/checkAccess');
 const ProductDesignController = require('../../controller/productDesign.controller');
+
+router.get('/', ProductDesignController.get);
 
 router.use(auth);
 router.use(checkAccess);
 
-router.get("/", ProductDesignController.get);
-
-router.post("/", ProductDesignController.upsert);
-
+router.post('/', ProductDesignController.upsert);
 
 module.exports = router;
