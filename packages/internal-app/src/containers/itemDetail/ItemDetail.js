@@ -501,6 +501,8 @@ const ItemDetail = ({ itemValue }) => {
             additionalModelClick={null}
             activeGLTFFile={activeGLTFFile}
             setActiveGLTFile={setActiveGLTFile}
+            activeGDTTable={activeGDTTable}
+            setActiveGDTTable={setActiveGDTTable}
             {...{ internalProductConfig }}
           />
         );
@@ -546,6 +548,8 @@ const ItemDetail = ({ itemValue }) => {
             setKinematicItemList={setKinematicItemList}
             activeGLTFFile={activeGLTFFile}
             setActiveGLTFile={setActiveGLTFile}
+            activeGDTTable={activeGDTTable}
+            setActiveGDTTable={setActiveGDTTable}
             {...{ handleSave }}
           />
         );

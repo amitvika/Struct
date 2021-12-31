@@ -1384,25 +1384,35 @@ class GLTFRenderer extends Component {
     if (firstTime) {
       const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
-      var myStateTree = state_gltfobj.tree;
-
-      console.log(
-        'Resetting treelength',
-        myStateTree.length,
-        state_gltfobj.treeLength,
-        myStateTree,
-        state_gltfobj
-      );
-      myStateTree.length = state_gltfobj.treeLength;
-      var gltfobj = { ...state_gltfobj };
-      gltfobj.tree = myStateTree;
-      this.this_state_gltf = gltfobj;
-      try {
-        if (this.props.setStateOfgltf) {
-          this.props.setStateOfgltf(gltfobj);
+      var myStateTree = state_gltfobj
+        ? state_gltfobj.tree
+        : this.props.gltfobj.tree;
+      if (myStateTree) {
+        console.log(
+          'Resetting treelength',
+          myStateTree.length,
+          state_gltfobj.treeLength,
+          myStateTree,
+          state_gltfobj
+        );
+        if (
+          state_gltfobj.treeLength &&
+          myStateTree.length &&
+          state_gltfobj.treeLength < myStateTree.length
+        ) {
+          myStateTree.length = state_gltfobj.treeLength;
         }
-      } catch (error) {
-        console.log('Error while setting gltf state', error);
+
+        var gltfobj = { ...state_gltfobj };
+        gltfobj.tree = myStateTree;
+        this.this_state_gltf = gltfobj;
+        try {
+          if (this.props.setStateOfgltf) {
+            this.props.setStateOfgltf(gltfobj);
+          }
+        } catch (error) {
+          console.log('Error while setting gltf state', error);
+        }
       }
     }
   };
