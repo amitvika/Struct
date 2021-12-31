@@ -26,7 +26,7 @@ const SignInPage = () => {
 
   useEffect(() => {
     if (authUser.user) {
-      history.push('/clients');
+      history.push('/items');
     }
   }, [authUser]);
 

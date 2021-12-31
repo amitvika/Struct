@@ -254,7 +254,7 @@ export default function HeaderDesktopView({
         <li key={'second_avatar'} style={{ marginLeft: 10 }}>
           <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar alt={'Hello'} src="/static/images/avatar/2.jpg" />
+              <Avatar alt={'Amit'} src="/static/images/avatar/2.jpg" />
             </IconButton>
           </Tooltip>
         </li>
