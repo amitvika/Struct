@@ -15,22 +15,23 @@ const SignInPage = () => {
     try {
       setIsLoading(true);
       const resUser = await AuthService.fetchUser();
-      setAuthUser({ user: resUser, isAuthenticated: true });
+      setAuthUser({ user: resUser });
+      // setTimeout(() => {
+      //   history.push('/clients');
+      // }, 3000);
 
-      setTimeout(() => {
-        setIsLoading(false);
-        history.push('/items');
-      }, 3000);
+      setIsLoading(false);
     } catch (error) {
+      localStorage.setItem('token', null);
       console.log('Error', error);
     }
   };
 
   useEffect(() => {
-    if (authUser.isAuthenticated) {
-      history.push('/items');
+    if (authUser.user) {
+      history.push('/clients');
     }
-  }, [authUser, history]);
+  }, [authUser]);
 
   useEffect(() => {
     if (localStorage.getItem('token', null)) {
@@ -41,7 +42,7 @@ const SignInPage = () => {
   const handleLoginSubmit = async (data) => {
     try {
       const user = await AuthService.signIn(data);
-      setAuthUser({ user, isAuthenticated: true });
+      setAuthUser({ user: user });
     } catch (error) {}
   };
 
