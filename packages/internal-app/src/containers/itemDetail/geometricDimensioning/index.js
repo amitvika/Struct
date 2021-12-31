@@ -334,9 +334,9 @@ export default function GeometricDimensioning(props) {
       offset: 0
     });
     if (myTree) {
-      globalSetActiveDataTable(activeTable);
       setState({ gltfjson: myTree });
       globalSetGltfJSon(myTree);
+      globalSetActiveDataTable(activeTable);
       saveGDTInfo(myTree.gdttable, fileGDT, fileUUIder)
         .then((res) => res.data)
         .then((data) => {
@@ -1929,6 +1929,15 @@ export default function GeometricDimensioning(props) {
         myGlobalActiveDataTable
       );
 
+      if (
+        newgltfjson &&
+        newgltfjson.gdttable &&
+        newgltfjson.gdttable[activeTable]
+      ) {
+        setSelectedOption(newgltfjson.gdttable[activeTable].option);
+      }
+      globalSetGltfJSon(newgltfjson);
+      globalSetActiveDataTable(activeTable);
       setState({
         gltfjson: newgltfjson,
         selectedObjects: [...copy_selectobjects],
@@ -1940,8 +1949,6 @@ export default function GeometricDimensioning(props) {
         renderdata: [...(selectedNodes || [])],
         whatchange: SELECTANITEM
       });
-      globalSetActiveDataTable(activeTable);
-      globalSetGltfJSon(newgltfjson);
       saveGDTInfo(newgltfjson.gdttable, fileGDT, fileUUIder)
         .then((res) => res.data)
         .then((data) => {
@@ -1965,6 +1972,19 @@ export default function GeometricDimensioning(props) {
         whatchange: SELECTANITEM
       }); */
     } else {
+      console.log(
+        'Final gltfson',
+        newgltfjson,
+        newgltfjson.gdttable,
+        newgltfjson.gdttable[activeTable].selectedObjects,
+        copy_selectobjects,
+        activeTable,
+        myGlobalActiveDataTable
+      );
+      if (myTree && myTree.gdttable && myTree.gdttable[activeTable]) {
+        setSelectedOption(myTree.gdttable[activeTable].option);
+      }
+      globalSetActiveDataTable(activeTable);
       setState({
         selectedObjects: [...copy_selectobjects],
         parentObjects: [...copy_parentobjects],
@@ -1972,20 +1992,6 @@ export default function GeometricDimensioning(props) {
         renderdata: selectedNodes,
         whatchange: SELECTANITEM
       });
-    }
-
-    console.log(
-      'Final gltfson',
-      newgltfjson,
-      newgltfjson.gdttable,
-      newgltfjson.gdttable[activeTable].selectedObjects,
-      copy_selectobjects,
-      activeTable,
-      myGlobalActiveDataTable
-    );
-    globalSetActiveDataTable(activeTable);
-    if (myTree && myTree.gdttable && myTree.gdttable[activeTable]) {
-      setSelectedOption(myTree.gdttable[activeTable].option);
     }
     if (handleChangeOfSelection) {
       //console.log('changing selections', copy_selectobjects);
