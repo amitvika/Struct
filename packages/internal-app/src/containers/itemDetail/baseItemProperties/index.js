@@ -68,7 +68,9 @@ export default function BaseItemProperties({
   createAutoAssemblyOrder,
   setCreateAutoAssemblyOrder,
   createAutoStackability,
-  setCreateAutoStackability
+  setCreateAutoStackability,
+  activeGLTFFile,
+  setActiveGLTFile
 }) {
   const classes = USESTYLES();
   const dispatch = useDispatch();
@@ -345,6 +347,8 @@ export default function BaseItemProperties({
             treeLength: treeLength,
             resourcepath: resourcePathURL
           });
+          console.log('Setting active gltf file to', datagdt);
+          setActiveGLTFile(datagdt);
           setItemProperties((prevData) => ({
             ...prevData,
             multiAssembly: multiAssembly,
@@ -366,6 +370,8 @@ export default function BaseItemProperties({
           gdt: datagdt,
           treeLength: treeLength
         });
+        console.log('Setting active gltf file to', datagdt);
+        setActiveGLTFile(datagdt);
         setItemProperties((prevData) => ({
           ...prevData,
           multiAssembly: multiAssembly,
@@ -482,6 +488,8 @@ export default function BaseItemProperties({
                   setCenterActionText={setCenterActionTexter}
                   drawLine={drawLiner}
                   edgecolor={STATEPROPS.edgecolor}
+                  activeGLTFFile={activeGLTFFile}
+                  setActiveGLTFile={setActiveGLTFile}
                 />
               )}
             {isFileLoading && <CircularProgress />}

@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 //import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
 //import { useSelector } from 'react-redux';
-import { Paper, Grid, /*CircularProgress,*/ Box /*, LinearProgress, makeStyles*/ } from '@mui/material';
+import {
+  Paper,
+  Grid,
+  /*CircularProgress,*/ Box /*, LinearProgress, makeStyles*/
+} from '@mui/material';
 // import { Headding } from '../../../components';
 import Heading from '@monostruct/common/components/atoms/Headding';
 
@@ -76,47 +80,53 @@ const useStyles = makeStyles((theme) => ({
 }));
 */
 export default function Stackability(props) {
-  const { 
-    fileId, 
-    gltfjson, 
-    isLoading, 
-    fileUUId, 
-    progressBarLoad, 
-    percentage, 
-    currentProgressText, 
-    completionProgressText, 
+  const {
+    fileId,
+    gltfjson,
+    isLoading,
+    fileUUId,
+    progressBarLoad,
+    percentage,
+    currentProgressText,
+    completionProgressText,
     centerActionText,
-    drawLine 
+    drawLine,
+    activeGLTFFile,
+    setActiveGLTFile
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const [percentager, setPercentager] = useState(percentage || 0);
-  const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);  
-  const [currentProgressTexter,setCurrentProgressTexter]=useState(currentProgressText);
-  const [completionProgressTexter,setCompletionProgressTexter]=useState(completionProgressText);
-  const [centerActionTexter,setCenterActionTexter]=useState(centerActionText);
-  const [progressBarRender, setProgressBarRender] = useState(false); 
-  const [drawLiner,setDrawLiner]=useState(drawLine);
-  
+  const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
+  const [currentProgressTexter, setCurrentProgressTexter] =
+    useState(currentProgressText);
+  const [completionProgressTexter, setCompletionProgressTexter] = useState(
+    completionProgressText
+  );
+  const [centerActionTexter, setCenterActionTexter] =
+    useState(centerActionText);
+  const [progressBarRender, setProgressBarRender] = useState(false);
+  const [drawLiner, setDrawLiner] = useState(drawLine);
+
   useEffect(() => {
     setProgressBarLoader(progressBarLoad);
-  }, [progressBarLoad]);  
+  }, [progressBarLoad]);
   useEffect(() => {
     setCurrentProgressTexter(currentProgressText);
-  }, [currentProgressText]);   
+  }, [currentProgressText]);
   useEffect(() => {
     setCompletionProgressTexter(completionProgressText);
-  }, [completionProgressText]);  
+  }, [completionProgressText]);
   useEffect(() => {
     setCenterActionTexter(centerActionText);
-  }, [centerActionText]);  
+  }, [centerActionText]);
   useEffect(() => {
     if (percentage) {
       setPercentager(percentage);
     }
-  }, [percentage]);  
+  }, [percentage]);
   useEffect(() => {
     //console.log('Setting itemProperties', itemProperties);
-    setDrawLiner(drawLine);   
+    setDrawLiner(drawLine);
   }, [drawLine]);
   const classes = USESTYLES();
 
@@ -131,7 +141,7 @@ export default function Stackability(props) {
     _setState((prevState) => {
       return {
         ...prevState,
-        ...data,
+        ...data
       };
     });
   };
@@ -149,7 +159,7 @@ export default function Stackability(props) {
       setState({
         selectedindex: 0,
         activefile:
-        (fileId || fileUUId || "").toString() +
+          (fileId || fileUUId || '').toString() +
           includeParts.toString() +
           STATEPROPS.distancegap.toString() +
           STATEPROPS.anglegap.toString() +
@@ -167,7 +177,7 @@ export default function Stackability(props) {
         parentObjects: [],
         mates: [],
         renderdata: {},
-        whatchange: 0,
+        whatchange: 0
       });
     }
   }, [gltfjson]);
@@ -180,7 +190,7 @@ export default function Stackability(props) {
       <Paper className={classes.stackContainer}>
         {(progressBarLoader || progressBarRender) && (
           <Box sx={{ width: '100%' }}>
-            <LinearProgressBarTiming 
+            <LinearProgressBarTiming
               value={percentager}
               currentProgressText={currentProgressTexter}
               completionProgressText={completionProgressTexter}
@@ -218,6 +228,8 @@ export default function Stackability(props) {
             setCenterActionText={setCenterActionTexter}
             drawLine={drawLiner}
             edgecolor={STATEPROPS.edgecolor}
+            activeGLTFFile={activeGLTFFile}
+            setActiveGLTFile={setActiveGLTFile}
           />
         )}
         {/* {(isLoading || isFileLoading) && <CircularProgress />} */}

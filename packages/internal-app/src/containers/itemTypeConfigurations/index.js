@@ -18,7 +18,7 @@ import { get } from 'lodash';
 //let state_selectedObjects = [];
 let state_fileOnChange = null;
 
-export default function ItemTypeConfiguration(props) {
+export default function ItemTypeConfigurations(props) {
   const {
     tabIndex,
     fileId,
@@ -44,7 +44,11 @@ export default function ItemTypeConfiguration(props) {
     setRegenerateKinematicMove,
     kinematicItemList,
     setKinematicItemList,
-    handleSave
+    handleSave,
+    activeGLTFFile,
+    setActiveGLTFile,
+    activeGDTTable,
+    setActiveGDTTable
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
@@ -346,6 +350,10 @@ export default function ItemTypeConfiguration(props) {
         showKinematicMove={showKinematicMove}
         regenerateKinematicMove={regenerateKinematicMove}
         additionalModelClick={additionalModelClick}
+        activeGLTFFile={activeGLTFFile}
+        setActiveGLTFile={setActiveGLTFile}
+        activeGDTTable={activeGDTTable}
+        setActiveGDTTable={setActiveGDTTable}
         //{...{ whatchange }}
       />
     </>

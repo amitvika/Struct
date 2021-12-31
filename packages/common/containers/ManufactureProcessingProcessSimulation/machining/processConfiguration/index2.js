@@ -7,7 +7,7 @@ import FileUpload from './FileUpload';
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';
 import {
   upload3DFile,
-  getGLTFJson,
+  getGLTFJson
 } from '@monostruct/common/api/fileUpload.api';
 import {
   DEFAULTBACKCOLOR,
@@ -26,11 +26,12 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
     marginTop: 10,
-    marginBottom: 10,
-  },
+    marginBottom: 10
+  }
 }));
 
-export default function ProcessConfigurationAssembly() {
+export default function ProcessConfigurationAssemblyForMachining(props) {
+  const { activeGLTFFile, setActiveGLTFile } = props;
   const classes = useStyles();
   const [gltfjson, setgltfjson] = useState({});
   const [fileId, setFileId] = useState(0);
@@ -80,6 +81,8 @@ export default function ProcessConfigurationAssembly() {
               dataselection={0}
               activeDataTable={0}
               edgecolor={STATEPROPS.edgecolor}
+              activeGLTFFile={activeGLTFFile}
+              setActiveGLTFile={setActiveGLTFile}
             />
           )}
           {/* <CppTest /> */}

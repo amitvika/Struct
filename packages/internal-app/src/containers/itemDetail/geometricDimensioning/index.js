@@ -62,7 +62,11 @@ export default function GeometricDimensioning(props) {
     whatchanger = 0,
     showKinematicMove = false,
     regenerateKinematicMove = 0,
-    additionalModelClick = null
+    additionalModelClick = null,
+    activeGLTFFile = '',
+    setActiveGLTFile = () => {},
+    activeGDTTable = 0,
+    setActiveGDTTable = () => {}
   } = props;
   const classes = USESTYLES();
 
@@ -71,7 +75,7 @@ export default function GeometricDimensioning(props) {
   const [ctrlKey, setCtrlKey] = useState(false);
   const [optionForAssemblyTree, setOptionForAssemblyTree] =
     useState('Configuration');
-  const [activeDataTable, setActiveDataTable] = useState(0);
+  const [activeDataTable, setActiveDataTable] = useState(activeGDTTable);
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [progressOpenedFiles, setProgressOpenedFiles] = useState([]);
   const [percentager, setPercentager] = useState(percentage || 0);
@@ -91,6 +95,11 @@ export default function GeometricDimensioning(props) {
       setfileUUIder(fileUUId);
     }
   }, [fileUUId]);
+
+  useEffect(() => {
+    setActiveDataTable(activeGDTTable);
+  }, [activeGDTTable]);
+
   useEffect(() => {
     setProgressBarLoader(progressBarLoad);
   }, [progressBarLoad]);
@@ -170,7 +179,7 @@ export default function GeometricDimensioning(props) {
 
   useEffect(() => {
     const includeParts = true;
-    const gltfjsonlen = Object.keys(gltfjson).length;
+    const gltfjsonlen = gltfjson ? Object.keys(gltfjson).length : 0;
     console.log('Changing gltfjson', gltfjson, state.gltfjson);
     if (gltfjsonlen > 0) {
       myGlobalTree = null;
@@ -317,7 +326,6 @@ export default function GeometricDimensioning(props) {
     setState({
       firstshell: null,
       secondshell: null,
-      gltfjson: myTree,
       selectedObjects: [],
       parentObjects: [],
       mates: [],
@@ -325,13 +333,20 @@ export default function GeometricDimensioning(props) {
       angle: 0,
       offset: 0
     });
-    globalSetActiveDataTable(activeTable);
-    globalSetGltfJSon(myTree);
-    saveGDTInfo(myTree.gdttable, fileGDT, fileUUIder)
-      .then((res) => res.data)
-      .then((data) => {
-        console.log('Getting saved Resources from gdt', data, myTree.gdttable);
-      });
+    if (myTree) {
+      globalSetActiveDataTable(activeTable);
+      setState({ gltfjson: myTree });
+      globalSetGltfJSon(myTree);
+      saveGDTInfo(myTree.gdttable, fileGDT, fileUUIder)
+        .then((res) => res.data)
+        .then((data) => {
+          console.log(
+            'Getting saved Resources from gdt',
+            data,
+            myTree.gdttable
+          );
+        });
+    }
   };
 
   const isEmptyObject = (obj) => {
@@ -443,6 +458,7 @@ export default function GeometricDimensioning(props) {
     try {
       myGlobalActiveDataTable = activetable;
       setActiveDataTable(activetable);
+      setActiveGDTTable(activetable);
     } catch (error) {
       console.log('Errir while assigning globalstate', error);
     }
@@ -2044,6 +2060,8 @@ export default function GeometricDimensioning(props) {
             )}
             OnAddition={addSelectionFromTree}
             OnExpansion={expandSelectionFromTree}
+            activeGLTFFile={activeGLTFFile}
+            setActiveGLTFile={setActiveGLTFile}
           />
         </div>
       )}
@@ -2082,6 +2100,8 @@ export default function GeometricDimensioning(props) {
           tabIndex={tabIndex}
           showKinematicMove={showKinematicMove}
           regenerateKinematicMove={regenerateKinematicMove}
+          activeGLTFFile={activeGLTFFile}
+          setActiveGLTFile={setActiveGLTFile}
         />
       </Paper>
 

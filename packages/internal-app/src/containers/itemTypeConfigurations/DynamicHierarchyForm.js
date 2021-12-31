@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import { useSelector } from 'react-redux';
 import DynamicHierarchyDropdowns from '@monostruct/common/containers/DynamicHierarchyDropdowns';
 
-export default function DynamicHierarchy(props) {
+export default function DynamicHierarchyForm(props) {
   const {
     setShowKineticModal,
     handleItemUpdate,
