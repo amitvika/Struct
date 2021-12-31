@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid';
 import Divider from '@mui/material/Divider';
 
 import Assembly from './assembly';
-import Maching from './machining';
+import Machining from './machining';
 import InjectionCasting from './injectionCasting';
 import Dispensing from './Dispensing';
 import Storage from './Storage';
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function Index2(props) {
+export default function ManufactureProcessingProcessSimulation(props) {
   const { itemProperties, setOrder } = props;
   const classes = useStyles();
 
@@ -110,7 +110,7 @@ export default function Index2(props) {
 
   const renderDetailPanel = () => {
     if (selectedTab === 'Machining') {
-      return <Maching {...props} selectedSubTab={selectedSubTab} />;
+      return <Machining {...props} selectedSubTab={selectedSubTab} />;
     } else if (selectedTab === 'Injection Casting') {
       return <InjectionCasting {...props} selectedSubTab={selectedSubTab} />;
     } else if (selectedTab === 'Assembly') {

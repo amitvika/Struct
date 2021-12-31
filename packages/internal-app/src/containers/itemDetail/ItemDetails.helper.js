@@ -388,7 +388,8 @@ export const setStack = async (props) => {
     setCompletionProgressText,
     setgltfjson,
     setItemProperties,
-    itemProperties
+    itemProperties,
+    setActiveGLTFile
   } = props;
   if (!item.fileId && !item.fileUUId) {
     return;
@@ -441,6 +442,8 @@ export const setStack = async (props) => {
             treeLength: repos['tree'].length,
             resourcepath: resourcePathURL
           });
+          console.log('Setting active gltf file to', stack);
+          setActiveGLTFile(stack);
           setItemProperties((prevData) => ({
             ...prevData,
             fileStack: stack
@@ -455,7 +458,7 @@ export const setStack = async (props) => {
           setProgressBarLoad(false);
         });
     } else {
-      fetchGLTFAndTree({
+      await fetchGLTFAndTree({
         myTabedIndex: 'stack',
         fileStore: item.fileStore,
         fileGDT: item.fileGDT,
@@ -476,6 +479,8 @@ export const setStack = async (props) => {
         setgltfjson,
         setItemProperties
       });
+      console.log('Setting active gltf file to', item.fileStack);
+      setActiveGLTFile(item.fileStack);
       if (itemProperties.fileStack != item.fileStack) {
         setItemProperties((prevData) => ({
           ...prevData,
@@ -528,7 +533,8 @@ export const setOrder = async (props) => {
     setCurrentProgressText,
     setCompletionProgressText,
     setgltfjson,
-    setItemProperties
+    setItemProperties,
+    setActiveGLTFile
   } = props;
   try {
     setIsLoading(true);
@@ -594,7 +600,8 @@ export const setOrder = async (props) => {
           gdt: item.fileGDT,
           resourcepath: resourcePathURL
         });
-
+        console.log('Setting active gltf file to', mpps);
+        setActiveGLTFile(mpps);
         setItemProperties((prevData) => ({
           ...prevData,
           fileMPPS: mpps
@@ -616,6 +623,8 @@ export const setOrder = async (props) => {
         gdt: item.fileGDT,
         resourcepath: resourcePathURL
       });
+      console.log('Setting active gltf file to', item.fileMPPS);
+      setActiveGLTFile(item.fileMPPS);
       setIsLoading(false);
       setIsFileLoading(false);
     }

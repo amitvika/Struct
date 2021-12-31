@@ -49,7 +49,9 @@ export default function Viewer({
   fileAnimation = false,
   tabIndex = '',
   showKinematicMove = false,
-  regenerateKinematicMove = 0
+  regenerateKinematicMove = 0,
+  activeGLTFFile = '',
+  setActiveGLTFile = () => {}
 }) {
   const [percentager, setPercentager] = useState(percentage || 0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
@@ -166,6 +168,13 @@ export default function Viewer({
           drawLine={drawLiner}
           edgecolor={STATEPROPS.edgecolor}
           fileAnimation={fileAnimation}
+          activeGLTFFile={
+            activeGLTFFile +
+            tabIndex.toString() +
+            showKinematicMove.toString() +
+            regenerateKinematicMove.toString()
+          }
+          setActiveGLTFile={setActiveGLTFile}
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */
         />

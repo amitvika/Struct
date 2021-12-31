@@ -76,6 +76,8 @@ const ItemDetail = ({ itemValue }) => {
   const [showKinematicMove, setShowKinematicMove] = useState(false);
   const [regenerateKinematicMove, setRegenerateKinematicMove] = useState(0);
   const [kinematicItemList, setKinematicItemList] = useState([]);
+  const [activeGLTFFile, setActiveGLTFileState] = useState('');
+  const [activeGDTTable, setActiveGDTTable] = useState('');
   const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
 
   /* useEffect(() => {
@@ -84,7 +86,14 @@ const ItemDetail = ({ itemValue }) => {
       setAllowFirstLevelItems(itemValue.child_item_status === 'INITIATED');
     }
   }, [itemValue]); */
-
+  const setActiveGLTFile = (data) => {
+    try {
+      setActiveGDTTable(0);
+    } catch (error) {}
+    try {
+      setActiveGLTFileState(data);
+    } catch (error) {}
+  };
   useEffect(() => {
     let myTabIndex = tabIndex ? tabIndex : 'pdcu';
     if (query.get('tab')) {
@@ -181,6 +190,11 @@ const ItemDetail = ({ itemValue }) => {
             setgltfjson,
             kinematicItemList
           });
+          console.log(
+            'Setting active gltf file to',
+            updatedItemProp.fileKinematic
+          );
+          setActiveGLTFile(updatedItemProp.fileKinematic);
         } else {
           gltfParam.fileKinematic = item.fileKinematic;
           await fetchGLTFAndTree({
@@ -189,6 +203,8 @@ const ItemDetail = ({ itemValue }) => {
             showKinematicMove,
             regenerateKinematicMove
           });
+          console.log('Setting active gltf file to', item.fileKinematic);
+          setActiveGLTFile(item.fileKinematic);
         }
       } else if (myTabIndex === 'pdcu') {
         let okToParse = await isOKToParseForProductDesignTab({ item });
@@ -213,6 +229,8 @@ const ItemDetail = ({ itemValue }) => {
             setCompletionProgressText,
             setgltfjson
           });
+          console.log('Setting active gltf file to', updatedItemProp.fileStore);
+          setActiveGLTFile(updatedItemProp.fileStore);
         } else {
           gltfParam.fileStore = item.fileStore;
           await fetchGLTFAndTree({
@@ -221,6 +239,8 @@ const ItemDetail = ({ itemValue }) => {
             showKinematicMove: false,
             regenerateKinematicMove: 0
           });
+          console.log('Setting active gltf file to', item.fileStore);
+          setActiveGLTFile(item.fileStore);
         }
       } else {
         let okToParse = await isOKToParseForOtherTab({ item });
@@ -243,6 +263,8 @@ const ItemDetail = ({ itemValue }) => {
             setCenterActionText,
             setItemProperties
           });
+          console.log('Setting active gltf file to', updatedItemProp.fileGDT);
+          setActiveGLTFile(updatedItemProp.fileGDT);
         } else {
           gltfParam.fileGDT = item.fileGDT;
           updatedItemProp = await fetchGLTFAndTree({
@@ -251,6 +273,8 @@ const ItemDetail = ({ itemValue }) => {
             showKinematicMove: false,
             regenerateKinematicMove: 0
           });
+          console.log('Setting active gltf file to', item.fileGDT);
+          setActiveGLTFile(item.fileGDT);
         }
       }
 
@@ -299,10 +323,11 @@ const ItemDetail = ({ itemValue }) => {
         setCurrentProgressText,
         setCompletionProgressText,
         setgltfjson,
-        setItemProperties
+        setItemProperties,
+        setActiveGLTFile
       });
     } else {
-      fetchGLTFAndTree({
+      await fetchGLTFAndTree({
         myTabedIndex: 'mpps',
         fileStore: item.fileStore,
         fileGDT: item.fileGDT,
@@ -323,6 +348,8 @@ const ItemDetail = ({ itemValue }) => {
         setgltfjson,
         setItemProperties
       });
+      console.log('Setting active gltf file to', item.fileMPPS);
+      setActiveGLTFile(item.fileMPPS);
       if (itemProperties.fileMPPS != item.fileMPPS) {
         setItemProperties((prevData) => ({
           ...prevData,
@@ -433,6 +460,8 @@ const ItemDetail = ({ itemValue }) => {
             setCreateAutoAssemblyOrder={setCreateAutoAssemblyOrder}
             createAutoStackability={createAutoStackability}
             setCreateAutoStackability={setCreateAutoStackability}
+            activeGLTFFile={activeGLTFFile}
+            setActiveGLTFile={setActiveGLTFile}
           />
         );
       case 'cu':
@@ -470,6 +499,8 @@ const ItemDetail = ({ itemValue }) => {
                 :  */ itemProperties.drawLine
             }
             additionalModelClick={null}
+            activeGLTFFile={activeGLTFFile}
+            setActiveGLTFile={setActiveGLTFile}
             {...{ internalProductConfig }}
           />
         );
@@ -513,6 +544,8 @@ const ItemDetail = ({ itemValue }) => {
             setRegenerateKinematicMove={setRegenerateKinematicMove}
             kinematicItemList={kinematicItemList}
             setKinematicItemList={setKinematicItemList}
+            activeGLTFFile={activeGLTFFile}
+            setActiveGLTFile={setActiveGLTFile}
             {...{ handleSave }}
           />
         );
@@ -550,6 +583,8 @@ const ItemDetail = ({ itemValue }) => {
                 ? true
                 :  */ itemProperties.drawLine
             }
+            activeGLTFFile={activeGLTFFile}
+            setActiveGLTFile={setActiveGLTFile}
           />
         );
       case 7:
@@ -560,7 +595,13 @@ const ItemDetail = ({ itemValue }) => {
           />
         );
       case 'assembly':
-        return <Assembly assemblyTree={get(gltfjson, 'tree', [])} />;
+        return (
+          <Assembly
+            assemblyTree={get(gltfjson, 'tree', [])}
+            activeGLTFFile={activeGLTFFile}
+            setActiveGLTFile={setActiveGLTFile}
+          />
+        );
       case 'production':
         return <Production />;
       case 'sft':

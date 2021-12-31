@@ -2,14 +2,15 @@ import React from 'react';
 import ProcessConfiguration from './processConfiguration';
 import ManufacturabilityAnalysis from './ManufacturabilityAnalysis';
 
-export default function FullProcess({ selectedSubTab }) {
+export default function FullProcess(props) {
+  const { selectedSubTab } = props;
   return (
     <div>
       {selectedSubTab === 'Process Configuration' ? (
-        <ProcessConfiguration />
+        <ProcessConfiguration {...props} />
       ) : null}
       {selectedSubTab === 'Manufacturability Analysis' ? (
-        <ManufacturabilityAnalysis />
+        <ManufacturabilityAnalysis {...props} />
       ) : null}
     </div>
   );

@@ -91,7 +91,9 @@ export default function ManufacturabilityAnalysis(props) {
     currentProgressText,
     completionProgressText,
     centerActionText,
-    drawLine
+    drawLine,
+    activeGLTFFile,
+    setActiveGLTFile
   } = props;
   //const [list, setList] = useState([]);
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
@@ -1710,6 +1712,8 @@ export default function ManufacturabilityAnalysis(props) {
               setCenterActionText={setCenterActionTexter}
               drawLine={drawLine}
               edgecolor={STATEPROPS.edgecolor}
+              activeGLTFFile={activeGLTFFile}
+              setActiveGLTFile={setActiveGLTFile}
               //resetSelectionFromTree={resetSelectionFromTree}
             />
           )}

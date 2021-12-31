@@ -231,8 +231,7 @@ const traverseMaterials = (object, callback) => {
       })
     : '';
 };
-let this_state_gltf = null;
-let this_progress_data = null;
+
 class GLTFRenderer extends Component {
   /* theme = createMuiTheme({
         palette: {
@@ -244,7 +243,8 @@ class GLTFRenderer extends Component {
 
   openEl = new Array(myMenus.length);
   idEl = new Array(myMenus.length);
-
+  this_state_gltf = null;
+  this_progress_data = null;
   state = {
     playbackSpeed: 1.0,
     actionStates: {},
@@ -325,11 +325,10 @@ class GLTFRenderer extends Component {
   changeState = false;
   activeDataTable = 0;
   constructor(props) {
-    this_state_gltf = null;
-    this_progress_data = null;
     super(props);
     this.node = React.createRef();
-
+    this.this_state_gltf = null;
+    this.this_progress_data = null;
     //this.nodeguiparent = React.createRef;
     //this.nodegui = React.createRef();
   }
@@ -413,33 +412,23 @@ class GLTFRenderer extends Component {
   };
   componentDidUpdate(prevProps, prevState) {
     //var toChange = ( (prevProps.gltfobj !== this.props.gltfobj)  || (prevState.gltfobj  !== this.props.gltfobj) );
-    //console.log("COMPONENT",prevProps,this.props);
+    //console.log('COMPONENT', prevProps, this.props);
     //console.log('STRINGIFY', stringify);
-    var toChange =
-      stringify(prevProps.gltfobj || {}) !==
-      stringify(this.props.gltfobj || {});
-    const toInvokeRender = toChange;
-    const toChangeGLTF = prevProps.activefile !== this.props.activefile;
-    /* if (toChangeGLTF) {
-      console.log(
-        'Active file changing from',
-        prevProps.activeFile,
-        this.props.activefile,
-        this.props.gltfobj
-      );
-    } */
-    /* console.log(
-      'Do i need to render',
-      toInvokeRender,
-      this.props.gltfobj,
-      prevProps.gltfobj
-    ); */
-    toChange = toChange || prevProps.activefile !== this.props.activefile;
+
+    const toChangeGLTF =
+      prevProps.activeGLTFFile !== this.props.activeGLTFFile ||
+      prevProps.activeDataTable !== this.props.activeDataTable; //prevProps.activefile !== this.props.activefile;
+    console.log(
+      '1',
+      toChangeGLTF,
+      prevProps.activeGLTFFile,
+      this.props.activeGLTFFile,
+      this.props.gltfobj != null && toChangeGLTF,
+      this.props.gltfobj != null
+    );
+
+    var toChange = toChangeGLTF;
     toChange = toChange || prevProps.materialtype != this.props.materialtype;
-    toChange =
-      toChange || prevProps.selectedoption != this.props.selectedoption;
-    toChange =
-      toChange || prevProps.activeDataTable != this.props.activeDataTable;
     const edgeChange = toChange ? this.findEdgeChange(prevProps) : false;
     if (prevProps.selectedoption != this.props.selectedoption) {
       const thisoption = this.getValueOptionFromString(
@@ -451,30 +440,10 @@ class GLTFRenderer extends Component {
         thisoption
       );
       myMenus[3].groups[0].values.selectedOption = thisoption;
+      this.changeSelectedOption(this.props.selectedoption);
     }
     toChange = toChange || edgeChange;
-    if (toChange) {
-      /* if (toInvokeRender) {
-        console.log(
-          'Changing this_state_gltf',
-          this.props.gltfobj,
-          this_state_gltf,
-          prevProps.gltfobj
-        );
-      }
-      */
-      if (this.props.gltfobj != null && toChangeGLTF) {
-        console.log(
-          'You might Assign this_state_gltf',
-          this_state_gltf,
-          this.props.gltfobj,
-          prevProps.activefile,
-          this.props.activefile
-        );
-        //this_state_gltf = this.props.gltfobj;
-      }
-      this.raycastObjects = this.rayCastObjectFilters(this.partsMeshes);
-    }
+
     this.changedctrlkey = this.props.ctrlKey;
     var changeback = this.databackcolor != this.props.backcolor;
     changeback = changeback || this.dataselectcolor != this.props.selectcolor;
@@ -482,15 +451,35 @@ class GLTFRenderer extends Component {
     if (changeback) {
       this.changeBackgroundWhenPropsChange();
     }
-    if (toInvokeRender || toChangeGLTF) {
-      /*  if (this.initDone) {
-        //console.log('Doing this_state_gltf', this_state_gltf, this.renderDone);
-        this.alter(this_state_gltf);
+    if (toChangeGLTF) {
+      /* */
+      this.this_state_gltf = this.props.gltfobj;
+      this.this_progress_data = null;
+      if (this.initDone) {
+        console.log(
+          'Doing this.props.gltfobj in toChangeGLTF',
+          this.props.gltfobj
+        );
+        this.alter(this.props.gltfobj);
         this.render();
-      } */
-      //console.log('Doing this_state_gltf', this_state_gltf, this.renderDone);
-      this.render();
+      } else {
+        console.log(
+          'Not Doing this.this_state_gltf',
+          this.this_state_gltf,
+          this.initDone
+        );
+      }
+      //console.log('Doing this.this_state_gltf', this.this_state_gltf, this.renderDone);
+      //this.render();
+    } else {
+      const toInvokeRaycast =
+        stringify(prevProps.gltfobj || {}) !==
+        stringify(this.props.gltfobj || {});
+      if (toInvokeRaycast) {
+        this.raycastObjects = this.rayCastObjectFilters(this.partsMeshes);
+      }
     }
+    this.changeparts();
     /* 
         if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
             this.setState({gltfobj:this.props.gltfobj});
@@ -768,7 +757,7 @@ class GLTFRenderer extends Component {
 
   init = () => {
     const state_gltfobj =
-      this.props.gltfobj || this_state_gltf || this.props.gltfobj;
+      this.props.gltfobj || this.this_state_gltf || this.props.gltfobj;
 
     this.gltfJSON = state_gltfobj.gltf || state_gltfobj;
 
@@ -946,8 +935,13 @@ class GLTFRenderer extends Component {
     //this.materialtype = this.props.materialtype;
     //console.log("Rendering here!",this.activeFile,this.props.activefile,
     //        this.materialtype,this.props.materialtype,this.selectedoption,this.props.selectedoption);
-    console.log('Doing this.props.gltfobj', this.props.gltfobj);
-    this_state_gltf = this.props.gltfobj;
+    console.log(
+      'Doing this.props.gltfobj',
+      this.props.gltfobj,
+      this.props.activeGLTFFile
+    );
+    this.this_state_gltf = this.props.gltfobj;
+    this.this_progress_data = null;
     this.alter(this.props.gltfobj);
     this.renderDone = true;
     //console.log("Coming from here to changeparts");
@@ -1307,7 +1301,7 @@ class GLTFRenderer extends Component {
       this.props.fileAnimation
     ); */
     if (this.props.fileGDT /*&& this.props.fileAnimation == false*/) {
-      const state_gltfobj = this_state_gltf || this.props.gltfobj;
+      const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
       console.log(
         'GDTTable',
@@ -1388,7 +1382,7 @@ class GLTFRenderer extends Component {
       }
     }
     if (firstTime) {
-      const state_gltfobj = this_state_gltf || this.props.gltfobj;
+      const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
       var myStateTree = state_gltfobj.tree;
 
@@ -1402,7 +1396,7 @@ class GLTFRenderer extends Component {
       myStateTree.length = state_gltfobj.treeLength;
       var gltfobj = { ...state_gltfobj };
       gltfobj.tree = myStateTree;
-      this_state_gltf = gltfobj;
+      this.this_state_gltf = gltfobj;
       try {
         if (this.props.setStateOfgltf) {
           this.props.setStateOfgltf(gltfobj);
@@ -1416,7 +1410,7 @@ class GLTFRenderer extends Component {
   addGDTTable = (parent, start, finish, node) => {
     try {
       if (this.props.setStateOfgltf) {
-        const state_gltfobj = this_state_gltf || this.props.gltfobj;
+        const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
         let gltfobj = { ...state_gltfobj };
         let gdttable = gltfobj.gdttable || [defaultGDTTable];
         gltfobj.gdttable = gdttable;
@@ -3441,7 +3435,7 @@ class GLTFRenderer extends Component {
     whatchanged
   ) => {
     //const myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
-    const state_gltfobj = this_state_gltf || this.props.gltfobj;
+    const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
     const myStateTree = state_gltfobj.tree;
     myStateTree.forEach((element) => {
@@ -3634,7 +3628,7 @@ class GLTFRenderer extends Component {
                 //console.log(data);
                 //console.log(this.props.gltfobj.tree);
                 //var myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
-                const state_gltfobj = this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
+                const state_gltfobj = this.this_state_gltf || this.state.gltfobj  || this.props.gltfobj;
 
                 var myStateTree = state_gltfobj.tree;
                 myStateTree = [...myStateTree,...data];
@@ -3673,7 +3667,7 @@ class GLTFRenderer extends Component {
       var myParentID = -1;
       var findEdges = 0;
       //const myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
-      const state_gltfobj = this_state_gltf || this.props.gltfobj;
+      const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
       const myStateTree = state_gltfobj.tree;
       //console.log('State tree', myStateTree, this.props.gltfobj);
@@ -3872,7 +3866,7 @@ class GLTFRenderer extends Component {
   findMyParentPart = (mynode) => {
     var myParentID = -1;
     //const myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
-    const state_gltfobj = this_state_gltf || this.props.gltfobj;
+    const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
     const myStateTree = state_gltfobj.tree;
     for (var i = 0; i < myStateTree.length; i++) {
@@ -3988,7 +3982,7 @@ class GLTFRenderer extends Component {
     var myParentID = -1;
     var myID = -1;
     //const myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
-    const state_gltfobj = this_state_gltf || this.props.gltfobj;
+    const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
     const myStateTree = state_gltfobj.tree;
     for (var i = 0; i < myStateTree.length; i++) {
@@ -4922,7 +4916,7 @@ class GLTFRenderer extends Component {
     if (prefix != 'SLICER') {
       return item;
     }
-    const state_gltfobj = this_state_gltf || this.props.gltfobj;
+    const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
     const myStateTree = state_gltfobj.tree;
     const myID = item[gltf_Dict['id']];
     for (var i = 0; i < myStateTree.length; i++) {
@@ -4945,7 +4939,7 @@ class GLTFRenderer extends Component {
   };
   getIntersectedName = (name) => {
     let myName = name;
-    const state_gltfobj = this_state_gltf || this.props.gltfobj;
+    const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
     const myStateTree = state_gltfobj.tree;
     if (
       this.selectedoption != SELECTASSEMBLY ||
@@ -4993,7 +4987,7 @@ class GLTFRenderer extends Component {
       return name;
     }
     //const myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
-    const state_gltfobj = this_state_gltf || this.props.gltfobj;
+    const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
     const myStateTree = state_gltfobj.tree;
     var myParentID = -1;
@@ -5059,7 +5053,7 @@ class GLTFRenderer extends Component {
   };
   /*
     getProgressData = async (progressFile) => {
-        if(!this_progress_data) {
+        if(!this.this_progress_data) {
             //const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);  
             console.log("Getting",progressFile);
             const progressRes = await getAFileFromStore(progressFile, 'progress'); 
@@ -5067,10 +5061,10 @@ class GLTFRenderer extends Component {
                 console.log(progressRes.data);
                 alert("Edges are still under construction. Please try after sometime");
             } else {
-                this_progress_data = progressRes.data;
+                this.this_progress_data = progressRes.data;
             }
         }
-        return this_progress_data;       
+        return this.this_progress_data;       
     }
     */
   extrudePath = (points, depth) => {
@@ -5100,7 +5094,7 @@ class GLTFRenderer extends Component {
     gdttableEdges = null,
     firstTime = false
   ) => {
-    const local_state_gltfobj = this_state_gltf || this.props.gltfobj;
+    const local_state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
     //this.fetchTree(gltfFILE,progressFile,myParentID);
     const filenameWithOutExtension = this.props.fileGDT
@@ -5110,7 +5104,7 @@ class GLTFRenderer extends Component {
       (this.props.fileUUId ? this.props.fileUUId + '/' : '') +
       filenameWithOutExtension;
     const progressGLTF = filenameWithOutExtension;
-    if (!this_progress_data) {
+    if (!this.this_progress_data) {
       //const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);
       console.log(
         'Getting',
@@ -5167,19 +5161,19 @@ class GLTFRenderer extends Component {
         progressRes.data &&
         progressRes.data.begin == progressRes.data.end
       ) {
-        this_progress_data = progressRes.data;
+        this.this_progress_data = progressRes.data;
         //this.onCloseProgress("Loading Edges"+progressFile,"success","Loaded succesfully");
       } else {
         //this.onCloseProgress("Loading Edges"+progressFile,"error","not loaded properly");
       }
     }
-    const data = this_progress_data;
+    const data = this.this_progress_data;
     if (!data || data.begin != data.end) {
       //console.log(data);
       alert('Edges are still under construction. Please try after sometime');
     } else {
       //console.log("Edges are loaded",data);
-      this_progress_data = data;
+      this.this_progress_data = data;
     }
     if (data) {
       let myResourcePath = local_state_gltfobj.resourcepath
@@ -5251,7 +5245,7 @@ class GLTFRenderer extends Component {
                     }); */
           //console.log(this.partsMeshes);
           this.partsMeshes = [...this.partsMeshes, ...partsMeshes];
-          //console.log('PartsMeshes', partsMeshes, this_state_gltf.tree);
+          //console.log('PartsMeshes', partsMeshes, this.this_state_gltf.tree);
           //console.log(this.rayCastObjectFilters(partsMeshes, true));
           this.raycastObjects = [
             ...this.raycastObjects,
@@ -5396,8 +5390,8 @@ class GLTFRenderer extends Component {
               treeRes.data &&
               !isEmptyObjectDictionary(treeRes.data)
             ) {
-              const state_gltfobj = this_state_gltf || this.props.gltfobj;
-              //console.log("Inside upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj)
+              const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
+              //console.log("Inside upload edges",state_gltfobj,this.this_state_gltf,this.props.gltfobj)
               var myStateTree = state_gltfobj.tree;
               if (firstTime && addTree) {
                 console.log(myStateTree, state_gltfobj);
@@ -5410,11 +5404,11 @@ class GLTFRenderer extends Component {
               gltfobj.tree = myStateTree;
               //this.changeState = true;
               //this.setState({gltfobj:gltfobj});
-              this_state_gltf = gltfobj;
+              this.this_state_gltf = gltfobj;
               // console.log(
               //   'About to set upload edges',
               //   state_gltfobj,
-              //   this_state_gltf,
+              //   this.this_state_gltf,
               //   this.props.gltfobj,
               //   gltfobj
               // );
@@ -6027,7 +6021,7 @@ class GLTFRenderer extends Component {
       0,
       this.props.fileGDT.length - 1
     );
-    if (!this_progress_data) {
+    if (!this.this_progress_data) {
       //const progressFile = this.props.fileGDT.slice(0, this.props.fileGDT.length - 1);
       //console.log("Getting",progressFile);
       getAFileFromStore(progressFile, 'progress')
@@ -6040,7 +6034,7 @@ class GLTFRenderer extends Component {
             );
           } else {
             //console.log("Edges are loaded",data);
-            this_progress_data = data;
+            this.this_progress_data = data;
           }
           if (data) {
             let myParentID = allEdges;
@@ -6132,8 +6126,8 @@ class GLTFRenderer extends Component {
                       //console.log(this.props.gltfobj.tree);
                       //var myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
                       const state_gltfobj =
-                        this_state_gltf || this.props.gltfobj;
-                      //console.log("Inside upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj)
+                        this.this_state_gltf || this.props.gltfobj;
+                      //console.log("Inside upload edges",state_gltfobj,this.this_state_gltf,this.props.gltfobj)
                       var myStateTree = state_gltfobj.tree;
                       myStateTree = [...myStateTree, ...data];
                       //var gltfobj = { ...state.gltfobj } || { ...this.props.gltfobj }
@@ -6141,14 +6135,14 @@ class GLTFRenderer extends Component {
                       gltfobj.tree = myStateTree;
                       //this.changeState = true;
                       //this.setState({gltfobj:gltfobj});
-                      this_state_gltf = gltfobj;
-                      //console.log("About to set upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj,gltfobj)
+                      this.this_state_gltf = gltfobj;
+                      //console.log("About to set upload edges",state_gltfobj,this.this_state_gltf,this.props.gltfobj,gltfobj)
 
                       if (this.props.setStateOfgltf) {
                         this.props.setStateOfgltf(gltfobj);
                       }
                       //this.props.gltfobj.tree = [...this.props.gltfobj.tree,...data];
-                      //console.log("After setting upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj,gltfobj,"GDT TABLES",gdttableEdges)
+                      //console.log("After setting upload edges",state_gltfobj,this.this_state_gltf,this.props.gltfobj,gltfobj,"GDT TABLES",gdttableEdges)
                       /* if(gdttableEdges) {
                                             let event={};
                                             event['ctrlKey']=false;
@@ -6178,8 +6172,8 @@ class GLTFRenderer extends Component {
           }
         });
     } else {
-      console.log('Already data is got', this_progress_data);
-      const data = this_progress_data;
+      console.log('Already data is got', this.this_progress_data);
+      const data = this.this_progress_data;
       if (data) {
         let myParentID = allEdges;
         let myParentDic = {};
@@ -6269,8 +6263,9 @@ class GLTFRenderer extends Component {
                   //console.log(data);
                   //console.log(this.props.gltfobj.tree);
                   //var myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
-                  const state_gltfobj = this_state_gltf || this.props.gltfobj;
-                  //console.log("Inside upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj)
+                  const state_gltfobj =
+                    this.this_state_gltf || this.props.gltfobj;
+                  //console.log("Inside upload edges",state_gltfobj,this.this_state_gltf,this.props.gltfobj)
                   var myStateTree = state_gltfobj.tree;
                   myStateTree = [...myStateTree, ...data];
                   //var gltfobj = { ...state.gltfobj } || { ...this.props.gltfobj }
@@ -6278,14 +6273,14 @@ class GLTFRenderer extends Component {
                   gltfobj.tree = myStateTree;
                   //this.changeState = true;
                   //this.setState({gltfobj:gltfobj});
-                  this_state_gltf = gltfobj;
-                  //console.log("About to set upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj,gltfobj)
+                  this.this_state_gltf = gltfobj;
+                  //console.log("About to set upload edges",state_gltfobj,this.this_state_gltf,this.props.gltfobj,gltfobj)
 
                   if (this.props.setStateOfgltf) {
                     this.props.setStateOfgltf(gltfobj);
                   }
                   //this.props.gltfobj.tree = [...this.props.gltfobj.tree,...data];
-                  //console.log("After setting upload edges",state_gltfobj,this_state_gltf,this.props.gltfobj,gltfobj)
+                  //console.log("After setting upload edges",state_gltfobj,this.this_state_gltf,this.props.gltfobj,gltfobj)
                   /*  if(gdttableEdges) {
                                         let event={};
                                         event['ctrlKey']=false;
@@ -6939,8 +6934,8 @@ class GLTFRenderer extends Component {
     );
   };
 
-  render(/*fromwhere = 0*/) {
-    const state_gltfobj = this.props.gltfobj || this_state_gltf;
+  /*render() {
+    const state_gltfobj = this.props.gltfobj || this.this_state_gltf;
 
     const edgeLength = state_gltfobj
       ? state_gltfobj.gdttable
@@ -6963,36 +6958,36 @@ class GLTFRenderer extends Component {
       this.activeDataTable != this.props.activeDataTable ||
       edgeChange
     ) {
-      /* if (this.selectedoption == SELECTMEASURE || this.props.selectedoption == SELECTMEASURE) {
-                if (this.secondshell) {
-                    this.secondshell.material.color.setHex(this.secondshell.currentHex);
-                    this.secondshell.selectedshell = false;
-                }
-                if (this.firstshell) {
-                    this.firstshell.material.color.setHex(this.firstshell.currentHex);
-                    this.firstshell.selectedshell = false;
-                }
-                this.state_selectedObjects.forEach(element => {
-                    element.material.color.setHex(element.currentHex);
-                    element.selectedshell = false;
-                });
-                this.secondshell = null;
-                this.firstshell = null;
-                this.state_selectedObjects = [];
-                //this.setState({selectedObjects:[]});
-            }
-            if (((this.props.selectedoption == SELECTSOLID) && (this.selectedoption != SELECTASSEMBLY))
-                || (this.props.selectedoption == SELECTASSEMBLY)) {
-                //console.log("Got Here", this.props.selectedoption);
-                this.selectAllSelectedSolids();
-            }
-            if(this.selectedoption !=this.props.selectedoption) {
-                if(this.props.selectedoption==SELECTLOADEDGES || (this.props.selectedoption==SELECTEDGE && this.props.ctrlKey)) {
-                    this.loadAllEdges(0);                    
-                }
-                this.changeVisibility();
-                this.selectedoption = this.props.selectedoption;
-            } */
+      //  if (this.selectedoption == SELECTMEASURE || this.props.selectedoption == SELECTMEASURE) {
+      //           if (this.secondshell) {
+      //               this.secondshell.material.color.setHex(this.secondshell.currentHex);
+      //               this.secondshell.selectedshell = false;
+      //           }
+      //           if (this.firstshell) {
+      //               this.firstshell.material.color.setHex(this.firstshell.currentHex);
+      //               this.firstshell.selectedshell = false;
+      //           }
+      //           this.state_selectedObjects.forEach(element => {
+      //               element.material.color.setHex(element.currentHex);
+      //               element.selectedshell = false;
+      //           });
+      //           this.secondshell = null;
+      //           this.firstshell = null;
+      //           this.state_selectedObjects = [];
+      //           //this.setState({selectedObjects:[]});
+      //       }
+      //       if (((this.props.selectedoption == SELECTSOLID) && (this.selectedoption != SELECTASSEMBLY))
+      //           || (this.props.selectedoption == SELECTASSEMBLY)) {
+      //           //console.log("Got Here", this.props.selectedoption);
+      //           this.selectAllSelectedSolids();
+      //       }
+      //       if(this.selectedoption !=this.props.selectedoption) {
+      //           if(this.props.selectedoption==SELECTLOADEDGES || (this.props.selectedoption==SELECTEDGE && this.props.ctrlKey)) {
+      //               this.loadAllEdges(0);                    
+      //           }
+      //           this.changeVisibility();
+      //           this.selectedoption = this.props.selectedoption;
+      //       } 
       this.changeSelectedOption(this.props.selectedoption);
       if (
         this.activeFile != this.props.activefile ||
@@ -7004,8 +6999,8 @@ class GLTFRenderer extends Component {
         //    this.props.materialtype,this.selectedoption,this.props.selectedoption);
         if (this.initDone) {
           // console.log(
-          //   'Doing this_state_gltf || this.state.gltfobj || this.props.gltfobj',
-          //   this_state_gltf || this.state.gltfobj || this.props.gltfobj,
+          //   'Doing this.this_state_gltf || this.state.gltfobj || this.props.gltfobj',
+          //   this.this_state_gltf || this.state.gltfobj || this.props.gltfobj,
           //   this.renderDone
           // );
           if (this.activeFile != this.props.activefile) {
@@ -7014,13 +7009,14 @@ class GLTFRenderer extends Component {
               this.activeFile,
               this.props.activefile,
               this.props.gltfobj,
-              this_state_gltf
+              this.this_state_gltf,
+              this.props.activeGLTFFile
             );
             if (!isEmptyObjectDictionary(this.props.gltfobj)) {
-              this_state_gltf = this.props.gltfobj;
+              this.this_state_gltf = this.props.gltfobj;
             }
           }
-          let mygltfcontent = this_state_gltf || this.props.gltfobj;
+          let mygltfcontent = this.this_state_gltf || this.props.gltfobj;
           if (isEmptyObjectDictionary(mygltfcontent)) {
             mygltfcontent = this.props.gltfobj;
           }
@@ -7030,18 +7026,18 @@ class GLTFRenderer extends Component {
               this.activeFile,
               this.props.activefile,
               this.props.gltfobj,
-              this_state_gltf,
+              this.this_state_gltf,
               mygltfcontent
             );
 
-            console.log('I am reloading the gltf');
+            console.log('I am reloading the gltf', this.props.activeGLTFFile);
             this.alter(mygltfcontent);
           } else {
             console.log(
               'Skipping rendering due to blank',
               mygltfcontent,
-              this_state_gltf || this.props.gltfobj,
-              this_state_gltf,
+              this.this_state_gltf || this.props.gltfobj,
+              this.this_state_gltf,
               this.activeFile,
               this.props.activefile,
               this.props.gltfobj
@@ -7053,35 +7049,12 @@ class GLTFRenderer extends Component {
         }
       }
     }
+    */
+
+  render(/*fromwhere = 0*/) {
     if (this.renderer) {
       this.changeBackground();
-      /* const scenechildren = this.scene.children;
-            let object3ds = [];
-            let notobject3ds = [];
-            scenechildren.forEach(element => {
-                if ((element instanceof Group)||(element instanceof OrthographicCamera)||(element instanceof PerspectiveCamera)) {
-                   object3ds.push(element);
-                }  else {
-                    notobject3ds.push(element);
-                }
-            });
-            notobject3ds.forEach(element => {
-                object3ds.push(element);
-            });
-            this.scene.children = object3ds;   */
 
-      //console.log(notobject3ds);
-
-      //this.scene.renderOrder = 0;
-      //this.lineScene.renderOrder = 20;
-
-      //let localscene = new Scene();
-      //localscene.add(this.scene);
-      //localscene.add(this.lineScene);
-      //this.renderer.sortObjects=false;
-      //this.renderer.autoClearDepth = true;
-
-      //this.renderer.render(localscene,this.activeCamera);
       this.renderer.render(this.scene, this.activeCamera);
       //this.renderer.clearDepth();
       //this.renderer.render(this.lineScene, this.activeCamera);
@@ -7098,8 +7071,9 @@ class GLTFRenderer extends Component {
         this.axesRenderer.render(this.axesScene, this.axesCamera);
       }
       //console.log("Coming from here to changeparts");
-      this.changeparts();
+      //this.changeparts();
     }
+
     const myID = (id) => {
       if (id === undefined || !id) {
         return '';

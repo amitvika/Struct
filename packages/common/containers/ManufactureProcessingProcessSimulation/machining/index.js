@@ -1,11 +1,12 @@
 import React from 'react';
-import ProcessConfiguration from './processConfiguration/index2';
+import ProcessConfigurationAssemblyForMachining from './processConfiguration/index2';
 import ProcessStaticsAndAnalysis from './processStatisticsAndAnalysis';
 
-export default function Machining({ selectedSubTab }) {
+export default function Machining(props) {
+  const { selectedSubTab } = props;
   const render = () => {
     if (selectedSubTab === 'Process Configuration') {
-      return <ProcessConfiguration />;
+      return <ProcessConfigurationAssemblyForMachining {...props} />;
     } else if (selectedSubTab === 'Process Statistics and Analysis') {
       return <ProcessStaticsAndAnalysis />;
     } else {

@@ -44,7 +44,9 @@ export default function ItemTypeConfiguration(props) {
     setRegenerateKinematicMove,
     kinematicItemList,
     setKinematicItemList,
-    handleSave
+    handleSave,
+    activeGLTFFile,
+    setActiveGLTFile
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
@@ -346,6 +348,8 @@ export default function ItemTypeConfiguration(props) {
         showKinematicMove={showKinematicMove}
         regenerateKinematicMove={regenerateKinematicMove}
         additionalModelClick={additionalModelClick}
+        activeGLTFFile={activeGLTFFile}
+        setActiveGLTFile={setActiveGLTFile}
         //{...{ whatchange }}
       />
     </>
