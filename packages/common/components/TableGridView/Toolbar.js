@@ -23,6 +23,7 @@ export default function Toolbar({
   showHistoryButtonToolbar = true,
   showArchiveButtonToolbar = true,
   CustomAddButton,
+  handleSearch,
   ...restProps
 }) {
   const [isFilterResetted, setIsFilterResetted] = React.useState(false);
@@ -39,7 +40,7 @@ export default function Toolbar({
     >
       <Grid container>
         <Grid item xs style={{ display: 'flex', flexDirection: 'column' }}>
-          <Filter {...restProps} {...{ setIsFilterResetted }} />
+          <Filter {...restProps} {...{ handleSearch, setIsFilterResetted }} />
           {AdditionalFilter !== null && (
             <AdditionalFilter {...restProps} {...{ isFilterResetted }} />
           )}

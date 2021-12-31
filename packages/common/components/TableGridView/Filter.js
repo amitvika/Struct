@@ -36,7 +36,7 @@ export default function Filter({
   columnsFields = [],
   isSearchBarVisible = false,
   setIsFilterResetted = () => {},
-  handleSearch
+  handleSearch = () => {}
 }) {
   const classes = useStyles();
 
