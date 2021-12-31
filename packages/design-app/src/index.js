@@ -16,10 +16,10 @@ axios.interceptors.response.use(
     return res;
   },
   (error) => {
-    if (error.response && error.response.status === 401) {
-      window.localStorage.clear('token');
-      window.location = '/';
-    }
+    // if (error.response && error.response.status === 401) {
+    //   window.localStorage.clear('token');
+    //   window.location = '/';
+    // }
     return Promise.reject(error);
   }
 );

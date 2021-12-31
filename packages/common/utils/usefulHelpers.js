@@ -14,17 +14,16 @@ export const isURLExisting = async (url) => {
 };
 
 export const saveToLocalStorage = (key, obj) => {
-  window.localStorage.setItem(key, JSON.stringify(obj));
+  localStorage.setItem(key, JSON.stringify(obj));
   return true;
 };
 
 export const getFromLocalStorage = (key) => {
   let obj = {};
-  if (typeof window.localStorage[key] !== 'undefined') {
+  if (typeof localStorage[key] !== 'undefined') {
     obj = JSON.parse(localStorage[key]);
   }
   return obj;
 };
 
-export const deleteFromLocalStorage = (key) =>
-  window.localStorage.removeItem(key);
+export const deleteFromLocalStorage = (key) => localStorage.removeItem(key);

@@ -6,7 +6,7 @@ import DetailPage from '../../components/DetailComponent/DetailComponent';
 const CadMaker = () => {
   const tabList = [
     {
-      tabName: 'CAD Design'
+      tabName: 'CAD or Upload/Customize CAD File'
     },
     {
       tabName: 'Materials'
@@ -48,7 +48,11 @@ const CadMaker = () => {
 
   return (
     <>
-      <DetailPage title={'CAD'} tabList={tabList} type={'cad'}></DetailPage>
+      <DetailPage
+        title={'CAD Design'}
+        tabList={tabList}
+        isAddDesignVisible={false}
+      ></DetailPage>
     </>
   );
 };

@@ -4,11 +4,11 @@ const auth = require('../../middleware/auth');
 const ItemsController = require('../../controller/items.controller');
 const ItemOrderController = require('../../controller/itemOrder.controller');
 
-router.use(auth);
 router.get('/', ItemsController.get);
 
 router.get('/all', ItemsController.getAll);
 
+router.use(auth);
 router.post('/upsert', ItemsController.upsert);
 
 router.put('/:id', ItemsController.update);

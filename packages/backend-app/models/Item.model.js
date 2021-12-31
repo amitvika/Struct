@@ -10,7 +10,7 @@ const ItemMotionControlSchema = new mongoose.Schema(
     child_part_display_name: { type: String },
     is_actuator_or_chain_link: { type: Boolean, default: false },
     is_linear_or_rotational: { type: Boolean, default: false },
-    cylindrical_axis_of_rotation: [{ type: Number, default: 0 }],
+    cylindrical_axis_of_rotation: { type: Object },
     axis_before_link: { type: Number, default: 0 },
     axis_after_link: { type: Number, default: 0 },
     angle_or_distant_limit: { type: Number, default: 0 },

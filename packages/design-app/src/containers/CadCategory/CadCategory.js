@@ -21,7 +21,7 @@ export default function CadCategory() {
     <TableGridView
       title={'Items'}
       fields={columnsForItemView}
-      fetchList={(qS) => ItemApi.getItemsAPI(`not_for_public_use=true&${qS}`)}
+      fetchList={(qS) => ItemApi.getItemsAPI(`not_for_public_use=false&${qS}`)}
       isAddEditActionsEnabled={false}
       isEditLinkVisible={false}
       isDesignModalOpened={false}
