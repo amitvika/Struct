@@ -16,7 +16,10 @@ import { get } from 'lodash';
 import { Checkbox } from '@mui/material';
 import { getTableData } from './helper';
 import { SELECTASSEMBLY } from '@monostruct/common/gltf/Tree/utils';
-import { gltf_Dict } from '@monostruct/common/gltf/Tree/utils';
+import {
+  gltf_Dict,
+  DEFAULTSELECTCOLOR
+} from '@monostruct/common/gltf/Tree/utils';
 import { useHistory } from 'react-router-dom';
 
 export default function MotionControlComponent({
@@ -41,7 +44,7 @@ export default function MotionControlComponent({
         const thisList = get(res, 'data', []);
         setItemList(thisList);
         setKinematicItemList(thisList);
-        setSelectedOption(SELECTASSEMBLY);
+        //setSelectedOption(SELECTASSEMBLY);
       })
       .catch((error) => {});
   }, []);
@@ -49,6 +52,7 @@ export default function MotionControlComponent({
   React.useEffect(() => {
     setItemList(kinematicItemList);
     setSelectedOption(SELECTASSEMBLY);
+    //console.log('Reaching here to change option to Select Assembly');
   }, [kinematicItemList]);
 
   React.useEffect(() => {
@@ -95,7 +99,7 @@ export default function MotionControlComponent({
   }, [selected3JSData]);
 
   const updateMotionControlActuator = (id, change) => {
-    setSelectedOption(SELECTASSEMBLY);
+    //setSelectedOption(SELECTASSEMBLY);
     ItemApi.updateItemAPI(id, { actuator_motion_control: change })
       .then((res) => {
         setKinematicItemList(
@@ -108,7 +112,7 @@ export default function MotionControlComponent({
   const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
   const renderAxisMenu = () => {
-    setSelectedOption(SELECTASSEMBLY);
+    //setSelectedOption(SELECTASSEMBLY);
     return itemList.map((item, index) => (
       <MenuItem value={index + 1}>{index + 1}</MenuItem>
     ));
@@ -196,11 +200,13 @@ export default function MotionControlComponent({
               return (
                 <TableRow
                   style={{
-                    background: selectedValue == item.id ? 'lime' : 'white'
+                    background:
+                      selectedValue == item.id ? DEFAULTSELECTCOLOR() : 'white'
                   }}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 },
-                    bgcolor: selectedValue == item.id ? 'lime' : 'white'
+                    bgcolor:
+                      selectedValue == item.id ? DEFAULTSELECTCOLOR() : 'white'
                   }}
                   onClick={() => {
                     setSelectedValue(item.id);

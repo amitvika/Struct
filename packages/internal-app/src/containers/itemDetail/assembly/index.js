@@ -230,6 +230,7 @@ class Extensions extends Component {
                   myIcon = <FiberManualRecordOutlinedIcon />;
                   myName = myName.slice(6);
                 } else if (first6chars == 'SLICER') {
+                  myName = myName.slice(6);
                   myIcon = <TuneOutlinedIcon />;
                 } else {
                   myIcon = <DeveloperBoardOutlinedIcon />;

@@ -181,6 +181,7 @@ export default function ThreejsSelection(props) {
             first6chars = 'SLICER';
           }
         }
+        //console.log(item, first4chars, first6chars, myName);
         if (
           (mytype == 'PartSelection' ||
             mytype == 'PartSelection3D' ||
@@ -204,6 +205,7 @@ export default function ThreejsSelection(props) {
         }
       }
     }
+    //console.log(mytype, myvalue);
     return false;
   };
   const doClick = () => {

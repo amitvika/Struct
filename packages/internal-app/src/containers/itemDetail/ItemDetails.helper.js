@@ -144,6 +144,7 @@ export const fetchGLTFAndTree = async (props) => {
         'gdt',
         myResourcePath
       );
+      //console.log('WhichOneToLoad', whichOneToLoad, gdtRes, myResourcePath);
     }
 
     setgltfjson({
