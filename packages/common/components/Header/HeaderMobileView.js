@@ -8,7 +8,7 @@ import LogoComponent from './LogoComponent';
 export default function HeaderMobileView({
   handleLogout,
   headerListItem = [],
-  dropdownList
+  handleLogoClick
 }) {
   const classes = useStyles();
   const [anchor, setAnchor] = React.useState(null);
@@ -30,7 +30,7 @@ export default function HeaderMobileView({
       >
         <MenuIcon />
       </IconButton>
-      <LogoComponent />
+      <LogoComponent {...{ handleLogoClick }} />
       <Menu
         id="menu-appbar"
         anchorEl={anchor}
