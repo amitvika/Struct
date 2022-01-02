@@ -114,7 +114,7 @@ import {
   DEFAULTTEXTCOLOR,
   waitFunction,
   hexToRGB,
-  arrayCopy,
+  //arrayCopy,
   arrayRemoveFromValue,
   arrayRemoveFromMesh,
   pollFunction,
@@ -472,12 +472,12 @@ class GLTFRenderer extends Component {
       //console.log('Doing this.this_state_gltf', this.this_state_gltf, this.renderDone);
       //this.render();
     } else {
-      const toInvokeRaycast =
+      /*  const toInvokeRaycast =
         stringify(prevProps.gltfobj || {}) !==
         stringify(this.props.gltfobj || {});
       if (toInvokeRaycast) {
         this.raycastObjects = this.rayCastObjectFilters(this.partsMeshes);
-      }
+      } */
     }
     this.changeparts();
     /* 
@@ -3282,7 +3282,7 @@ class GLTFRenderer extends Component {
           this.setTouchingColor(this.INTERSECTED);
           this.setStateWithoutError({
             intersectedShell: this.INTERSECTED,
-            intersectedShellName: this.getIntersectedName(this.INTERSECTED.name)
+            intersectedShellName: this.getIntersectedName(this.INTERSECTED)
           });
           /* if (this.selectedoption == SELECTASSEMBLY) {
             console.log(
@@ -3991,6 +3991,149 @@ class GLTFRenderer extends Component {
   findFamilyNodes = (mynode, addToGDTTable = true) => {
     var myParentID = -1;
     var myID = -1;
+    var mySelectedNode = mynode;
+    var parentNode = null;
+    const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
+    const myStateTree = state_gltfobj ? state_gltfobj.tree : [];
+    const getTopParentNode = (node) => {
+      let nodeParentID = node[gltf_Dict['parentId']];
+      if (nodeParentID == null || nodeParentID == 1) {
+        return node;
+      } else {
+        if (myStateTree) {
+          for (var i = 0; i < myStateTree.length; i++) {
+            if (myStateTree[i][gltf_Dict['id']] == nodeParentID) {
+              let myParentsParent = getTopParentNode(myStateTree[i]);
+              if (myParentsParent) {
+                return myParentsParent;
+              }
+            }
+          }
+        }
+        return null;
+      }
+    };
+    const getAllChildNodes = (node) => {
+      const nodeID = node[gltf_Dict['id']];
+      let childNodes = [];
+      if (node[gltf_Dict['element']] == 'P') {
+        childNodes = [node];
+      }
+      if (myStateTree) {
+        for (var i = 0; i < myStateTree.length; i++) {
+          const curNode = myStateTree[i];
+          if (curNode[gltf_Dict['parentId']] == nodeID) {
+            const curChildNodes = getAllChildNodes(curNode);
+            curChildNodes.forEach((element) => {
+              childNodes.push(element);
+            });
+          }
+        }
+      }
+      return childNodes;
+    };
+    if (myStateTree) {
+      for (var i = 0; i < myStateTree.length; i++) {
+        if (myStateTree[i][gltf_Dict['name']] == mynode['name']) {
+          mySelectedNode = myStateTree[i];
+          myParentID = mySelectedNode[gltf_Dict['parentId']];
+          myID = mySelectedNode[gltf_Dict['id']];
+          parentNode = mySelectedNode;
+          break;
+        }
+      }
+    }
+    const myParentPart = this.findMyParentPart(mynode);
+    if (myParentPart) {
+      parentNode = myParentPart;
+      myParentID = parentNode[gltf_Dict['id']];
+    }
+    //console.log('GOt parentnode for selctions', myParentPart, myParentID);
+    if (myParentID != -1) {
+      if (myParentID != 1) {
+        var myParentsParentID = -1;
+        if (myStateTree) {
+          for (var i = 0; i < myStateTree.length; i++) {
+            if (myStateTree[i][gltf_Dict['id']] == myParentID) {
+              myParentsParentID = myStateTree[i][gltf_Dict['parentId']];
+              if (myParentsParentID != 1) {
+                parentNode = myStateTree[i];
+              }
+              break;
+            }
+          }
+        }
+      }
+      let myTopParent = parentNode ? parentNode : mynode;
+      // console.log(
+      //   'GOt parentnode for selctions1',
+      //   myParentPart,
+      //   myParentID,
+      //   myTopParent
+      // );
+      if (
+        myTopParent &&
+        myTopParent[gltf_Dict['id']] != 1 &&
+        myTopParent[gltf_Dict['parentId']] != 1
+      ) {
+        myTopParent = getTopParentNode(myTopParent);
+      }
+      // console.log(
+      //   'GOt parentnode for selctions2',
+      //   myParentPart,
+      //   myParentID,
+      //   myTopParent
+      // );
+      var myParents = [];
+      if (myParentID == 1) {
+        myParents = getAllChildNodes(mySelectedNode ? mySelectedNode : mynode);
+        // console.log(
+        //   'GOt parentnode for selctions3',
+        //   myParentPart,
+        //   myParentID,
+        //   myTopParent,
+        //   myMaterials
+        // );
+      } else {
+        myParents = getAllChildNodes(
+          myTopParent ? myTopParent : mySelectedNode ? mySelectedNode : mynode
+        );
+        // console.log(
+        //   'GOt parentnode for selctions4',
+        //   myParentPart,
+        //   myParentID,
+        //   myTopParent,
+        //   myMaterials
+        // );
+      }
+      if (myParents.length != 0) {
+        var myMaterials = [];
+        myParents.forEach((elementNode) => {
+          var myChild = this.findMyMaterial(elementNode, false);
+          if (myChild) {
+            myMaterials.push(myChild);
+          }
+        });
+        if (myMaterials.length != 0) {
+          // console.log(
+          //   'GOt parentnode for selctions5',
+          //   myParentPart,
+          //   myParentID,
+          //   myTopParent,
+          //   myMaterials
+          // );
+          return myMaterials;
+        }
+      }
+    }
+    //console.log('GOt parentnode for selctions6', mynode);
+    return [mynode];
+  };
+
+  /*
+  findFamilyNodes = (mynode, addToGDTTable = true) => {
+    var myParentID = -1;
+    var myID = -1;
     //const myStateTree = state.gltfobj.tree || this.props.gltfobj.tree;
     const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
@@ -4060,6 +4203,102 @@ class GLTFRenderer extends Component {
       return myMaterials;
     }
     return [mynode];
+  };
+  */
+  findTopAssembly = (mynode) => {
+    var myParentID = -1;
+    var myID = -1;
+    var mySelectedNode = null;
+    var parentNode = null;
+    const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
+    const myStateTree = state_gltfobj ? state_gltfobj.tree : [];
+    const getTopParentNode = (node) => {
+      let nodeParentID = node[gltf_Dict['parentId']];
+      if (nodeParentID == null || nodeParentID == 1) {
+        return node;
+      } else {
+        if (myStateTree) {
+          for (var i = 0; i < myStateTree.length; i++) {
+            if (myStateTree[i][gltf_Dict['id']] == nodeParentID) {
+              let myParentsParent = getTopParentNode(myStateTree[i]);
+              if (myParentsParent) {
+                return myParentsParent;
+              }
+            }
+          }
+        }
+        return null;
+      }
+    };
+
+    if (myStateTree) {
+      for (var i = 0; i < myStateTree.length; i++) {
+        if (myStateTree[i][gltf_Dict['name']] == mynode[['name']]) {
+          mySelectedNode = myStateTree[i];
+          myParentID = mySelectedNode[gltf_Dict['parentId']];
+          myID = mySelectedNode[gltf_Dict['id']];
+          parentNode = mySelectedNode;
+          break;
+        }
+      }
+    }
+    const myParentPart = this.findMyParentPart(mynode);
+    if (myParentPart) {
+      parentNode = myParentPart;
+      myParentID = parentNode[gltf_Dict['id']];
+    }
+    //console.log('GOt parentnode for selctions', myParentPart, myParentID);
+    if (myParentID != -1) {
+      if (myParentID != 1) {
+        var myParentsParentID = -1;
+        if (myStateTree) {
+          for (var i = 0; i < myStateTree.length; i++) {
+            if (myStateTree[i][gltf_Dict['id']] == myParentID) {
+              myParentsParentID = myStateTree[i][gltf_Dict['parentId']];
+              if (myParentsParentID != 1) {
+                parentNode = myStateTree[i];
+              }
+              break;
+            }
+          }
+        }
+      }
+      let myTopParent = parentNode ? parentNode : mySelectedNode;
+      // console.log(
+      //   'GOt parentnode for selctions1',
+      //   myParentPart,
+      //   myParentID,
+      //   myTopParent
+      // );
+      if (
+        myTopParent &&
+        myTopParent[gltf_Dict['id']] != 1 &&
+        myTopParent[gltf_Dict['parentId']] != 1
+      ) {
+        myTopParent = getTopParentNode(myTopParent);
+      }
+      // console.log(
+      //   'GOt parentnode for selctions2',
+      //   myParentPart,
+      //   myParentID,
+      //   myTopParent
+      // );
+
+      if (myParentID == 1 || !myTopParent) {
+        return mySelectedNode;
+      } else {
+        return myTopParent;
+        // console.log(
+        //   'GOt parentnode for selctions4',
+        //   myParentPart,
+        //   myParentID,
+        //   myTopParent,
+        //   myMaterials
+        // );
+      }
+    }
+    //console.log('GOt parentnode for selctions6', mynode);
+    return mySelectedNode;
   };
 
   findMyParentChilds = async (mynode, addToGDTTable = true) => {
@@ -4242,21 +4481,23 @@ class GLTFRenderer extends Component {
                 //console.log("My color1",meshmaterial.currentHex);
             }
         } else { */
-    if (
-      meshmaterial.currentHex === null ||
-      typeof meshmaterial.currentHex === 'undefined'
-    ) {
-      meshmaterial.currentHex = meshmaterial.material.color.getHex();
-      meshmaterial.currentOpaque = meshmaterial.material.opacity;
-    } else {
-      //console.log("My color2",meshmaterial.currentHex);
+    if (meshmaterial && meshmaterial.material) {
+      if (
+        meshmaterial.currentHex === null ||
+        typeof meshmaterial.currentHex === 'undefined'
+      ) {
+        meshmaterial.currentHex = meshmaterial.material.color.getHex();
+        meshmaterial.currentOpaque = meshmaterial.material.opacity;
+      } else {
+        //console.log("My color2",meshmaterial.currentHex);
+      }
+      /*}*/
+      //console.log("before",meshmaterial,meshmaterial.material.color);
+      meshmaterial.material.color = this.convertColor(
+        this.props.touchcolor || DEFAULTTOUCHCOLOR()
+      ); // this.props.distanceColor || distanceColor);
+      meshmaterial.material.opacity = 1.0;
     }
-    /*}*/
-    //console.log("before",meshmaterial,meshmaterial.material.color);
-    meshmaterial.material.color = this.convertColor(
-      this.props.touchcolor || DEFAULTTOUCHCOLOR()
-    ); // this.props.distanceColor || distanceColor);
-    meshmaterial.material.opacity = 1.0;
     //console.log("after",meshmaterial,meshmaterial.material.color);
   };
 
@@ -4268,33 +4509,38 @@ class GLTFRenderer extends Component {
                 //console.log("My color1",meshmaterial.currentHex);
             }
         } else { */
-    if (
-      meshmaterial.currentHex === null ||
-      typeof meshmaterial.currentHex === 'undefined'
-    ) {
-      meshmaterial.currentHex = meshmaterial.material.color.getHex();
-      meshmaterial.currentOpaque = meshmaterial.material.opacity;
-    } else {
-      //console.log("My color2",meshmaterial.currentHex);
+    if (meshmaterial && meshmaterial.material) {
+      if (
+        meshmaterial.currentHex === null ||
+        typeof meshmaterial.currentHex === 'undefined'
+      ) {
+        meshmaterial.currentHex = meshmaterial.material.color.getHex();
+        meshmaterial.currentOpaque = meshmaterial.material.opacity;
+      } else {
+        //console.log("My color2",meshmaterial.currentHex);
+      }
+      /*}*/
+      //console.log("before",meshmaterial.material.color);
+      meshmaterial.material.color = this.convertColor(
+        this.props.selectcolor || DEFAULTSELECTCOLOR()
+      ); // this.props.distanceColor || distanceColor);
+      meshmaterial.material.opacity = 1.0;
     }
-    /*}*/
-    //console.log("before",meshmaterial.material.color);
-    meshmaterial.material.color = this.convertColor(
-      this.props.selectcolor || DEFAULTSELECTCOLOR()
-    ); // this.props.distanceColor || distanceColor);
-    meshmaterial.material.opacity = 1.0;
+
     //console.log("after",meshmaterial.material.color);
   };
 
   setOriginalColor = (meshmaterial) => {
-    if (
-      meshmaterial.currentHex === null ||
-      typeof meshmaterial.currentHex === 'undefined'
-    ) {
-      return;
+    if (meshmaterial && meshmaterial.material) {
+      if (
+        meshmaterial.currentHex === null ||
+        typeof meshmaterial.currentHex === 'undefined'
+      ) {
+        return;
+      }
+      meshmaterial.material.color.setHex(meshmaterial.currentHex);
+      meshmaterial.material.opacity = meshmaterial.currentOpaque;
     }
-    meshmaterial.material.color.setHex(meshmaterial.currentHex);
-    meshmaterial.material.opacity = meshmaterial.currentOpaque;
     //console.log('Setting here!', meshmaterial);
   };
 
@@ -4387,10 +4633,14 @@ class GLTFRenderer extends Component {
             }
           });
         }
-        var copy_selectobjects = arrayCopy(this.state_selectedObjects);
+        var copy_selectobjects = [...this.state_selectedObjects];
         //console.log('My All childs', myAllChilds);
         myAllChilds.node.forEach((element) => {
-          //console.log("Setting colors",meshmaterial.selectedshell,element.selectedshell);
+          // console.log(
+          //   'Setting colors',
+          //   meshmaterial.selectedshell,
+          //   element.selectedshell
+          // );
           element.selectedshell = meshmaterial.selectedshell;
           /* console.log(
             'Before Setting colors',
@@ -4407,13 +4657,13 @@ class GLTFRenderer extends Component {
                             element.material.color.setHex(element.currentHex);
                         }   */
           }
-          /* console.log(
-            'After Setting colors',
-            meshmaterial.selectedshell,
-            element.selectedshell,
-            toAdd,
-            element
-          ); */
+          // console.log(
+          //   'After Setting colors',
+          //   meshmaterial.selectedshell,
+          //   element.selectedshell,
+          //   toAdd,
+          //   element
+          // );
           if (toAdd) {
             if (meshmaterial.selectedshell) {
               var alreadyPresent = false;
@@ -4904,16 +5154,16 @@ class GLTFRenderer extends Component {
         myelement == 'v' ||
         myelement == ' '
       ) {
-        prefix = 'SLICER';
+        prefix = 'ASSEMBLY';
       } else {
-        prefix = 'SLICER';
+        prefix = 'ASSEMBLY';
       }
     } else if (myName) {
       prefix = myName.slice(0, 4);
       if (prefix != 'FACE' && prefix != 'EDGE' && prefix != 'PART') {
         prefix = myName.slice(0, 6);
         if (prefix != 'VERTEX') {
-          prefix = 'SLICER';
+          prefix = 'ASSEMBLY';
         }
       }
     }
@@ -4923,7 +5173,7 @@ class GLTFRenderer extends Component {
   getSubDepthPart = (item) => {
     const prefix = this.getPrefixItem(item);
 
-    if (prefix != 'SLICER') {
+    if (prefix != 'ASSEMBLY') {
       return item;
     }
     const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
@@ -4947,8 +5197,8 @@ class GLTFRenderer extends Component {
     const prefix = this.getPrefixItem(item);
     return prefix + myDisplayName;
   };
-  getIntersectedName = (name) => {
-    let myName = name;
+  getIntersectedName = (mynode) => {
+    const myName = mynode.name;
     const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
     const myStateTree = state_gltfobj.tree;
     if (
@@ -4956,33 +5206,42 @@ class GLTFRenderer extends Component {
       this.props.splitmethod != SELECTDISECTPARTS
     ) {
       for (var i = 0; i < myStateTree.length; i++) {
-        if (myStateTree[i][gltf_Dict['name']] == name) {
+        if (myStateTree[i][gltf_Dict['name']] == myName) {
+          //console.log(myStateTree[i]);
           return this.getNameWithFeatures(myStateTree[i]);
         }
       }
       return myName;
     }
-    var myParentID = -1;
-    var myParentTree = null;
+    const myTopAssembly = this.findTopAssembly(mynode);
+    if (myTopAssembly) {
+      return this.getNameWithFeatures(myTopAssembly);
+    }
+    // var myParentID = -1;
+    // var myParentTree = null;
+    // for (var i = 0; i < myStateTree.length; i++) {
+    //   if (myStateTree[i][gltf_Dict['name']] == name) {
+    //     myParentID = myStateTree[i][gltf_Dict['parentId']];
+    //     myParentTree = myStateTree[i];
+    //     break;
+    //   }
+    // }
+    // if (myParentID == 1) {
+    //   //console.log(myParentTree);
+    //   return this.getNameWithFeatures(myParentTree);
+    // }
+    // if (myParentID != -1) {
+    //   for (var i = 0; i < myStateTree.length; i++) {
+    //     if (myStateTree[i][gltf_Dict['id']] == myParentID) {
+    //       //console.log(myStateTree[i]);
+    //       return this.getNameWithFeatures(myStateTree[i]);
+    //     }
+    //   }
+    // }
+
     for (var i = 0; i < myStateTree.length; i++) {
-      if (myStateTree[i][gltf_Dict['name']] == name) {
-        myParentID = myStateTree[i][gltf_Dict['parentId']];
-        myParentTree = myStateTree[i];
-        break;
-      }
-    }
-    if (myParentID == 1) {
-      return this.getNameWithFeatures(myParentTree);
-    }
-    if (myParentID != -1) {
-      for (var i = 0; i < myStateTree.length; i++) {
-        if (myStateTree[i][gltf_Dict['id']] == myParentID) {
-          return this.getNameWithFeatures(myStateTree[i]);
-        }
-      }
-    }
-    for (var i = 0; i < myStateTree.length; i++) {
-      if (myStateTree[i][gltf_Dict['name']] == name) {
+      if (myStateTree[i][gltf_Dict['name']] == myName) {
+        //console.log(myStateTree[i]);
         return this.getNameWithFeatures(myStateTree[i]);
       }
     }
@@ -5039,7 +5298,7 @@ class GLTFRenderer extends Component {
     }; */
 
   selectAllSelectedSolids = async () => {
-    var copy_selectobjects = arrayCopy(this.state_selectedObjects);
+    var copy_selectobjects = [...this.state_selectedObjects];
 
     for (let index = 0; index < copy_selectobjects.length; index++) {
       const meshmaterial = copy_selectobjects[index];
