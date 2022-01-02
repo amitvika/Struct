@@ -1,4 +1,4 @@
-import React, { useRef, useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { useHistory, useLocation, Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import { Button, MenuItem, Tooltip, Menu } from '@mui/material';
@@ -13,7 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import { ColorModeContext } from '../../themes/ColorModeContextProvider';
 import Avatar from '@mui/material/Avatar';
 import Grow from '@mui/material/Grow';
-import { deleteFromLocalStorage } from '../../utils/usefulHelpers';
+import { isLoggedIn } from '@monostruct/common/utils/usefulHelpers';
 
 export default function HeaderDesktopView({
   handleLogout,
@@ -22,6 +22,8 @@ export default function HeaderDesktopView({
   dropdownList = [],
   isInternalApp
 }) {
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [checked, setChecked] = React.useState(false);
   const theme = useTheme();
   const colorMode = React.useContext(ColorModeContext);
 
@@ -29,21 +31,14 @@ export default function HeaderDesktopView({
   const location = useLocation();
 
   const history = useHistory();
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
 
   const {
-    authUser: { isAuthenticated, user }
+    authUser: { user }
   } = useContext(AuthContext);
 
   const handleLink = (path) => {
     handleCloseUserMenu();
     history.push(path);
-  };
-
-  const [checked, setChecked] = React.useState(false);
-
-  const handleChange = () => {
-    setChecked((prev) => !prev);
   };
 
   const getMenuButtons = (list) => {
@@ -178,7 +173,7 @@ export default function HeaderDesktopView({
   };
 
   const handleOpenUserMenu = (event) => {
-    if (isAuthenticated) {
+    if (isLoggedIn()) {
       setAnchorElUser(event.currentTarget);
     } else {
       handleLogout();
@@ -212,17 +207,17 @@ export default function HeaderDesktopView({
 
     menuItems.push(
       <li key={'second_menu_setting'}>
-        <Tooltip title={isAuthenticated ? 'Open settings' : 'Go To Login Page'}>
+        <Tooltip title={isLoggedIn() ? 'Open settings' : 'Go To Login Page'}>
           <Button
             onClick={handleOpenUserMenu}
             sx={{ p: 0, color: 'white' }}
             className={classes.menuButton}
           >
-            {isAuthenticated ? `Welcome: ${user ? user.email : ''}` : 'Login'}
+            {isLoggedIn() ? `Welcome: ${user ? user.email : ''}` : 'Login'}
           </Button>
         </Tooltip>
 
-        {isAuthenticated && (
+        {isLoggedIn() && (
           <Menu
             sx={{ mt: '45px' }}
             id="menu-appbar"
@@ -254,12 +249,12 @@ export default function HeaderDesktopView({
       </li>
     );
 
-    if (isAuthenticated) {
+    if (isLoggedIn()) {
       menuItems.push(
         <li key={'second_avatar'} style={{ marginLeft: 10 }}>
           <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar alt={'Hello'} src="/static/images/avatar/2.jpg" />
+              <Avatar alt={'Amit'} src="/static/images/avatar/2.jpg" />
             </IconButton>
           </Tooltip>
         </li>

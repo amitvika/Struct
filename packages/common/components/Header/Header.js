@@ -24,21 +24,20 @@ const Header = (props) => {
   const fetchUser = async () => {
     try {
       const resUser = await AuthService.fetchUser();
-      if (resUser.data) {
-        setAuthUser({ user: resUser, isAuthenticated: true });
-      } else {
-        setAuthUser({ user: null, isAuthenticated: false });
+      if (resUser) {
+        setAuthUser({ user: resUser });
       }
     } catch (error) {
-      setAuthUser({ user: null, isAuthenticated: false });
       console.log('Error', error);
     }
   };
 
   const handleLogout = () => {
     localStorage.setItem('token', null);
-    setAuthUser({ user: {}, isAuthenticated: false });
-    history.replace('/');
+    setAuthUser({ user: undefined });
+    setTimeout(() => {
+      history.replace('/');
+    }, 0);
   };
 
   return (

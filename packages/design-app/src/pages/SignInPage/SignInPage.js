@@ -15,21 +15,16 @@ const SignInPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (authUser.isAuthenticated) {
+    if (authUser.user) {
       history.push('/design');
     }
-  }, [authUser, history]);
+  }, [authUser]);
 
   const fetchUser = async () => {
     try {
       setIsLoading(true);
       const resUser = await AuthService.fetchUser();
       setAuthUser({ user: resUser, isAuthenticated: true });
-
-      setTimeout(() => {
-        setIsLoading(false);
-        history.push('/design');
-      }, 3000);
     } catch (error) {
       console.log('Error', error);
     }
