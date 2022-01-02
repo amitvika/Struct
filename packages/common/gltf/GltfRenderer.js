@@ -5199,7 +5199,8 @@ class GLTFRenderer extends Component {
   };
   getIntersectedName = (mynode) => {
     const myName = mynode.name;
-
+    const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
+    const myStateTree = state_gltfobj.tree;
     if (
       this.selectedoption != SELECTASSEMBLY ||
       this.props.splitmethod != SELECTDISECTPARTS
@@ -5237,8 +5238,7 @@ class GLTFRenderer extends Component {
     //     }
     //   }
     // }
-    const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
-    const myStateTree = state_gltfobj.tree;
+
     for (var i = 0; i < myStateTree.length; i++) {
       if (myStateTree[i][gltf_Dict['name']] == myName) {
         //console.log(myStateTree[i]);
