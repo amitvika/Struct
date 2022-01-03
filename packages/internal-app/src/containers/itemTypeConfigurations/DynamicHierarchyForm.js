@@ -27,8 +27,36 @@ export default function DynamicHierarchyForm(props) {
 
   const getDefaultSelection = () => {
     if (get(itemProperties, 'hierarchySelections[0]')) {
-      return itemProperties.hierarchySelections;
+      let mySelections = itemProperties.hierarchySelections;
+      if (mySelections) {
+        //console.log('My Selections', mySelections);
+        for (let index = 0; index < mySelections.length; index++) {
+          let tempFields = mySelections[index].form.fields;
+          if (tempFields) {
+            // RESET ACTIVE CELL OF 3JS SELECTIONS
+            for (
+              let indexField = 0;
+              indexField < tempFields.length;
+              indexField++
+            ) {
+              let fieldItem = tempFields[indexField];
+              console.log('My Selection items', fieldItem);
+              if (fieldItem.activeCell) {
+                if (fieldItem.fieldType === 'Custom') {
+                  fieldItem.activeCell = false;
+                }
+              }
+            }
+          }
+        }
+        //console.log('Setting my Selections', mySelections);
+        return mySelections;
+      } else {
+      }
     }
+    // if (get(itemProperties, 'hierarchySelections[0]')) {
+    //   return itemProperties.hierarchySelections;
+    // }
     return [{ key: 'Internal Use Product Configuration', formFields: [] }];
   };
   const [selections, setSelections] = useState(getDefaultSelection());

@@ -1552,8 +1552,8 @@ export default function GeometricDimensioning(props) {
           };
           structure = await getShapeInformation(structure);
           console.log('Got results', structure);
-          copy_selectobjects = structure.objects;
-          copy_mateobjects = structure.mates;
+          copy_selectobjects = structure.objects ? structure.objects : [];
+          copy_mateobjects = structure.mates ? structure.mates : [];
         } else {
         }
 
@@ -1579,7 +1579,9 @@ export default function GeometricDimensioning(props) {
                 child: myAllChilds
               };
               const newParentObjects = [
-                ...arrayCopy(mystate.parentObjects),
+                ...arrayCopy(
+                  mystate.parentObjects ? mystate.parentObjects : []
+                ),
                 node
               ];
               setState({
@@ -1835,8 +1837,8 @@ export default function GeometricDimensioning(props) {
         start: stateLength
       };
       structure = await getShapeInformation(structure);
-      copy_selectobjects = structure.objects;
-      copy_mateobjects = structure.mates;
+      copy_selectobjects = structure.objects ? structure.objects : [];
+      copy_mateobjects = structure.mates ? structure.mates : [];
     } else {
       console.log(
         'I could not get any togetinfo',

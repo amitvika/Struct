@@ -4634,7 +4634,9 @@ class GLTFRenderer extends Component {
             }
           });
         }
-        var copy_selectobjects = [...this.state_selectedObjects];
+        var copy_selectobjects = [
+          ...(this.state_selectedObjects ? this.state_selectedObjects : [])
+        ];
         //console.log('My All childs', myAllChilds);
         myAllChilds.node.forEach((element) => {
           // console.log(
@@ -5299,7 +5301,9 @@ class GLTFRenderer extends Component {
     }; */
 
   selectAllSelectedSolids = async () => {
-    var copy_selectobjects = [...this.state_selectedObjects];
+    var copy_selectobjects = [
+      ...(this.state_selectedObjects ? this.state_selectedObjects : [])
+    ];
 
     for (let index = 0; index < copy_selectobjects.length; index++) {
       const meshmaterial = copy_selectobjects[index];
