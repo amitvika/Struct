@@ -218,6 +218,40 @@ export default function ThreejsSelection(props) {
     onClick(mykey);
     //setRenderData(myvalue, { name: mykey, option: myoption }, onChange);
   };
+
+  const createAxisUI = () => {
+    const axisArr = ['x', 'y', 'z'];
+    let checkboxArr = [];
+
+    axisArr.map((primAxis) => {
+      let value = [];
+
+      axisArr.map((secAxis) => {
+        value.push(
+          (
+            Math.round(
+              cylindrical_axis_of_rotation[`${primAxis}${secAxis}`] * 100
+            ) / 100
+          ).toFixed(2)
+        );
+      });
+
+      checkboxArr.push(
+        <FormControlLabel
+          control={
+            <Checkbox
+              // checked={key}
+              onChange={handleRotationalAxisChange}
+              name={`key_${primAxis}`}
+            />
+          }
+          label={`${primAxis} (${value.join(', ')})`}
+        />
+      );
+    });
+
+    return checkboxArr;
+  };
   return (
     <>
       <Button
@@ -251,20 +285,7 @@ export default function ThreejsSelection(props) {
           : 'Please select features'}
       </Button>
       {cylindrical_axis_of_rotation && (
-        <FormGroup sx={{ flexDirection: 'row' }}>
-          {Object.keys(cylindrical_axis_of_rotation).map((key) => (
-            <FormControlLabel
-              control={
-                <Checkbox
-                  // checked={key}
-                  onChange={handleRotationalAxisChange}
-                  name={key}
-                />
-              }
-              label={key}
-            />
-          ))}
-        </FormGroup>
+        <FormGroup sx={{ flexDirection: 'row' }}>{createAxisUI()}</FormGroup>
       )}
     </>
   );

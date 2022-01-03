@@ -27,6 +27,10 @@ const ItemSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    item_type: {
+      type: String,
+      default: 'CAD'
+    },
     date: {
       type: Date,
       default: Date.now

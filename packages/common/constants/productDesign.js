@@ -21,7 +21,7 @@ export const fieldsForOmniDesign = [
   { title: 'Name', field: 'name', type: 'text' },
   {
     title: 'Type',
-    field: 'type',
+    field: 'item_type',
     editable: 'never'
   },
   {

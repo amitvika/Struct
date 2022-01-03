@@ -35,7 +35,7 @@ export default function Routes() {
               path="/product"
               component={ProductMaker}
             />
-            <Route exact authenticate path="/cad" component={CadMaker} />
+
             <Route
               exact
               authenticate

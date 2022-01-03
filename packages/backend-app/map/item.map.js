@@ -1,13 +1,7 @@
 const isArray = require('lodash/isArray');
 const get = require('lodash/get');
-/*
-const {
-  resourcePathURL,
-  resourcePathS3URL,
-  isFileExistingInServer,
-  getExistingPathFromServer
-} = require('@monostruct/common/api/fileUpload.api');
-*/
+const moment = require('moment');
+
 exports.mapItems = async (data) => {
   if (isArray(data)) {
     let myitems = [];
@@ -23,15 +17,8 @@ exports.mapItems = async (data) => {
         }
       }
     }
-    //console.log('my items array', myitems);
+
     return myitems;
-    /* let myitems = await data.map(async (item, index) => {
-      
-      console.log('Map Items', myItem);
-      return await myItem;
-    });
-    console.log('my items array', myitems);
-    return await myitems; */
   } else {
     return [];
   }
@@ -73,7 +60,11 @@ exports.mapItem = async (item = {}) => {
       : 'Single Item Part',
     child_item_created: item.child_item_status === 'COMPLETED' ? 'Yes' : 'No',
     direct_parent_id: item.parent_id || item._id,
-    origin_parent_id: item.parent_id || item._id
+    origin_parent_id: item.parent_id || item._id,
+    created_at: moment(get(item, 'createdAt')).format(
+      'MMMM Do YYYY, h:mm:ss a'
+    ),
+    updated_at: moment(get(item, 'updatedAt')).format('MMMM Do YYYY, h:mm:ss a')
   };
   // console.log('Getting one item', myobject, item.name);
   return myobject;
