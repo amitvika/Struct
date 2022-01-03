@@ -5,7 +5,8 @@ import {
   SELECTCIRCULAR,
   gltf_Dict,
   SELECTFEATURE,
-  SELECTFACE
+  SELECTFACE,
+  elementCopy
 } from '@monostruct/common/gltf/Tree/utils';
 import Button from '@mui/material/Button';
 import FormGroup from '@mui/material/FormGroup';
@@ -53,8 +54,8 @@ export default function ThreejsSelection(props) {
     return SELECTFEATURE;
   };
   const getNameWithFeatures = (item) => {
-    let myName = item[gltf_Dict['name']];
-    let myDisplayName = item[gltf_Dict['display']];
+    let myName = elementCopy(item[gltf_Dict['name']]);
+    let myDisplayName = elementCopy(item[gltf_Dict['display']]);
     if (!myDisplayName) {
       return myName;
     }

@@ -118,7 +118,8 @@ import {
   arrayRemoveFromValue,
   arrayRemoveFromMesh,
   pollFunction,
-  isEmptyObjectDictionary
+  isEmptyObjectDictionary,
+  elementCopy
 } from './Tree/utils';
 import './styles/style.css';
 
@@ -6077,9 +6078,9 @@ class GLTFRenderer extends Component {
                     }
                     */
                   let geometry = new BufferGeometry({
-                    name: element[gltf_Dict['name']]
+                    name: elementCopy(element[gltf_Dict['name']])
                   });
-                  geometry.name = element[gltf_Dict['name']];
+                  geometry.name = elementCopy(element[gltf_Dict['name']]);
                   //geometry.setPositions(myBase64Points);
                   geometry.setFromPoints(points);
 
@@ -6132,7 +6133,7 @@ class GLTFRenderer extends Component {
                       sketchLineGeometry,
                       sketchMatrial
                     );
-                    ourMesh.name = element[gltf_Dict['name']];
+                    ourMesh.name = elementCopy(element[gltf_Dict['name']]);
                     ourMesh.renderOrder += 20;
                     parentLineNodes.add(ourMesh);
                   } else {
@@ -6140,11 +6141,11 @@ class GLTFRenderer extends Component {
                       color: this.props.edgecolor
                         ? this.props.edgecolor
                         : DEFAULTEDGECOLOR,
-                      name: element[gltf_Dict['name']],
+                      name: elementCopy(element[gltf_Dict['name']]),
                       size: 10
                     });
                     let point = new Points(geometry, material);
-                    point.name = element[gltf_Dict['name']];
+                    point.name = elementCopy(element[gltf_Dict['name']]);
                     parentLineNodes.add(point);
                   }
                 });
