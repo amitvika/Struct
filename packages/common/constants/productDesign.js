@@ -18,11 +18,12 @@ export const fields = [
 ];
 
 export const fieldsForOmniDesign = [
-  { title: 'Name', field: 'name', type: 'text' },
+  { title: 'Name', field: 'name', type: 'text', style: { fontSize: '18px' } },
   {
     title: 'Type',
     field: 'item_type',
-    editable: 'never'
+    editable: 'never',
+    style: { fontSize: '18px' }
   },
   {
     title: 'Designer',
