@@ -20,7 +20,8 @@ export default function HeaderDesktopView({
   headerListItem = [],
   secondHeaderList = [],
   dropdownList = [],
-  isInternalApp
+  isInternalApp,
+  handleLogoClick
 }) {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [checked, setChecked] = React.useState(false);
@@ -274,7 +275,7 @@ export default function HeaderDesktopView({
         className={classes.menuContainer}
         onMouseLeave={() => setChecked(false)}
       >
-        <LogoComponent {...{ isInternalApp }} />
+        <LogoComponent {...{ isInternalApp, handleLogoClick }} />
 
         <Box
           component="ul"

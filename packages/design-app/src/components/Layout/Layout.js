@@ -8,6 +8,7 @@ import MenuList from '@mui/material/MenuList';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Grow from '@mui/material/Grow';
 import { useStyles } from './Layout.style';
+import InfoSection from '../InfoSection/InfoSection';
 
 export const headerListItem = [
   {
@@ -182,9 +183,22 @@ function BuyRentSTRUCTMachines() {
 }
 
 export default function Layout(props) {
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleLogoClick = () => handleClickOpen();
+
   return (
     <>
-      <Header {...{ headerListItem }} />
+      <InfoSection {...{ open, handleClose }} />
+      <Header {...{ headerListItem, handleLogoClick }} />
       {props.children}
     </>
   );
