@@ -13,7 +13,7 @@ import InfoSection from '../InfoSection/InfoSection';
 export const headerListItem = [
   {
     label: 'Designs and Components Database',
-    href: '/design',
+    href: '/',
     addSeparator: true
   },
   {

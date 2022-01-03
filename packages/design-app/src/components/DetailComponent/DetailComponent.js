@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import DetailComponentTab from './DetailComponentTab';
 import DetailComponentHeader from './DetailComponentHeader';
-import ProductDesignAPI from '@monostruct/common/api/productDesign.api';
+import ItemsAPI from '@monostruct/common/api/items.api';
 import get from 'lodash/get';
 import { useQuery } from '@monostruct/common/utils/customHooks';
 
@@ -23,9 +23,10 @@ export default function DetailPage({
     }
 
     setIsLoading(true);
-    ProductDesignAPI.fetchProductDesigns(`id=${query.get('id')}`)
+    ItemsAPI.getItemsAPI(`id=${query.get('id')}`)
       .then((itemDetailResponse) => {
         setItemValue(get(itemDetailResponse, 'data[0]', {}));
+
         setIsLoading(false);
       })
       .catch((error) => {
@@ -34,7 +35,11 @@ export default function DetailPage({
   }, [query.get('id')]);
 
   const handleSaveProductDesignItem = (change) => {
-    ProductDesignAPI.upsertProductDesign({ id: itemValue.id, ...change, type })
+    ItemsAPI.updateItemAPI(itemValue.id, {
+      id: itemValue.id,
+      ...change,
+      item_type: type
+    })
       .then((res) => {
         setItemValue(get(res, 'data', {}));
       })

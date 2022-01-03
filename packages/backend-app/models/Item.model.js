@@ -31,6 +31,9 @@ const ItemSchema = new mongoose.Schema(
       type: String,
       default: 'CAD'
     },
+    design_type: {
+      type: String
+    },
     date: {
       type: Date,
       default: Date.now
@@ -38,14 +41,6 @@ const ItemSchema = new mongoose.Schema(
     vendorId: {
       type: Schema.Types.ObjectId,
       ref: 'Vendor'
-    },
-    author: {
-      type: Schema.Types.ObjectId,
-      ref: 'User'
-    },
-    isDeleted: { type: Boolean, default: false },
-    deletedAt: {
-      type: Date
     },
     selectedClientId: {
       type: Schema.Types.ObjectId,
