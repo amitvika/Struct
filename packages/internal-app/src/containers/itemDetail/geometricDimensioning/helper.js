@@ -6,7 +6,8 @@ import {
   SELECTMEASURE,
   SELECTASSEMBLY,
   SELECTFEATURE,
-  gltf_Dict
+  gltf_Dict,
+  elementCopy
 } from '@monostruct/common/gltf/Tree/utils';
 
 export const buildParentChildTree = (
@@ -35,8 +36,8 @@ export const buildParentChildTree = (
     if (item[gltf_Dict['topLeft']]) {
       visible = item[gltf_Dict['topLeft']][0] !== null;
       if (visible) {
-        let myelement = item[gltf_Dict['element']];
-        let myName = item[gltf_Dict['name']];
+        let myelement = elementCopy(item[gltf_Dict['element']]);
+        let myName = elementCopy(item[gltf_Dict['name']]);
         let first4chars = myName.slice(0, 4);
         let first6chars = myName.slice(0, 6);
         if (myelement) {

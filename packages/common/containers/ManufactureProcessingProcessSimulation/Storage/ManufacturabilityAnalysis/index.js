@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Button, Link, Paper } from '@mui/material';
+import React from 'react';
+import { /*Button, Link,*/ Paper } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import makeStyles from '@mui/styles/makeStyles';
 import MainModal from '@monostruct/common/components/Modal';
@@ -52,7 +52,7 @@ export default function ManufacturabilityAnalysis(props) {
   const classes = useStyles();
   const { itemProperties, setStack } = props;
   const [isModalOpened, setIsModalOpened] = React.useState(false);
-  const [selectedTab, setSelectedTab] = useState('');
+  const [selectedTab, setSelectedTab] = React.useState('');
 
   const toggleModal = () => {
     setIsModalOpened(!isModalOpened);

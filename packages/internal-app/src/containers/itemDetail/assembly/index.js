@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Component } from 'react';
 
-import { gltf_Dict } from '@monostruct/common/gltf/Tree/utils';
+import { gltf_Dict, elementCopy } from '@monostruct/common/gltf/Tree/utils';
 
 import ToysOutlinedIcon from '@mui/icons-material/ToysOutlined';
 import FilterDramaSharpIcon from '@mui/icons-material/FilterDramaSharp';
@@ -193,8 +193,8 @@ class Extensions extends Component {
               {({ style, node, ...rest }) => {
                 let myelement = node[gltf_Dict['element']];
 
-                let myName = node[gltf_Dict['name']];
-                let myDisplay = node[gltf_Dict['display']];
+                let myName = elementCopy(node[gltf_Dict['name']]);
+                let myDisplay = elementCopy(node[gltf_Dict['display']]);
                 let first4chars = myName.slice(0, 4);
                 let first6chars = myName.slice(0, 6);
                 if (myelement) {

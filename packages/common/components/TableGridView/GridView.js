@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import {
   Grid,
   Typography,
@@ -145,7 +145,7 @@ export default function GridView({
   ...props
 }) {
   const classes = useStyles();
-  const titleRef = useRef();
+  const titleRef = React.useRef();
   const history = useHistory();
 
   const FieldItemValue = ({ data, fieldItem }) => {
@@ -216,8 +216,8 @@ export default function GridView({
   };
 
   const RenderIconBasedOnFileType = ({ file_url, logo_url }) => {
-    const [icons, setIcons] = useState(file_url);
-    useEffect(() => {
+    const [icons, setIcons] = React.useState(file_url);
+    React.useEffect(() => {
       //console.log('URL', file_url);
       if (file_url) {
         getExistingPathFromServer(file_url, 'png')

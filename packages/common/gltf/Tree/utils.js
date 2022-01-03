@@ -341,11 +341,11 @@ export const assignArray = (element, dict = MUST_DICTIONARY) => {
 
 export const DEFAULTSELECTCOLOR = () => {
   //console.log("ThemeName",selectedTheme);
-  return selectedTheme == 'light' ? '#7C7C7C' : '#838383'; //'#17FF17' : '#E800E8';
+  return selectedTheme == 'light' ? '#17FF17' : '#E800E8';
 };
 export const DEFAULTTOUCHCOLOR = () => {
   //console.log("ThemeName",selectedTheme);
-  return selectedTheme == 'light' ? '#BCBCBC' : '#434343'; //'#FF1717' : '#00E8E8';
+  return selectedTheme == 'light' ? '#FF1717' : '#00E8E8';
 };
 export const DEFAULTBACKCOLOR = () => {
   //console.log("ThemeName",selectedTheme);
@@ -353,7 +353,7 @@ export const DEFAULTBACKCOLOR = () => {
 };
 export const DEFAULTTEXTCOLOR = () => {
   //console.log("ThemeName",selectedTheme);
-  return selectedTheme == 'light' ? '#171717' : '#E8E8E8'; //'#1717FF' : '#E8E800';
+  return selectedTheme == 'light' ? '#1717FF' : '#E8E800';
 };
 export const DEFAULTBACKMENUCOLOR = () => {
   //console.log("ThemeName",selectedTheme);
@@ -363,7 +363,10 @@ export const DEFAULTTEXTMENUCOLOR = () => {
   //console.log("ThemeName",selectedTheme);
   return selectedTheme == 'light' ? '#010101' : '#FEFEFE';
 };
-
+export const DEFAULTROWSELECTCOLOR = () => {
+  //console.log("ThemeName",selectedTheme);
+  return selectedTheme == 'light' ? '#7C7C7C' : '#838383';
+};
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.1;
 const DEFAULTEDGESIZE = 0.3;

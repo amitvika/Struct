@@ -5,7 +5,8 @@ import {
   SELECTCIRCULAR,
   gltf_Dict,
   SELECTFEATURE,
-  SELECTFACE
+  SELECTFACE,
+  elementCopy
 } from '@monostruct/common/gltf/Tree/utils';
 import Button from '@mui/material/Button';
 import FormGroup from '@mui/material/FormGroup';
@@ -27,7 +28,7 @@ export default function ThreejsSelection(props) {
   } = props;
 
   const [myvalue, setMyvalue] = useState(value);
-  const [clicked, setClicked] = useState(false);
+  const [clicked, setClicked] = useState(active);
 
   React.useEffect(() => {
     setMyvalue(value);
@@ -53,8 +54,8 @@ export default function ThreejsSelection(props) {
     return SELECTFEATURE;
   };
   const getNameWithFeatures = (item) => {
-    let myName = item[gltf_Dict['name']];
-    let myDisplayName = item[gltf_Dict['display']];
+    let myName = elementCopy(item[gltf_Dict['name']]);
+    let myDisplayName = elementCopy(item[gltf_Dict['display']]);
     if (!myDisplayName) {
       return myName;
     }
@@ -112,17 +113,14 @@ export default function ThreejsSelection(props) {
       first4chars == 'PART'
     ) {
       return myName + '\u2003';
-    } else if (
-      mytype == 'FaceSelection' &&
-      (first4chars == 'FACE' || first4chars == 'PART')
-    ) {
+    } else if (mytype == 'FaceSelection' && first4chars == 'FACE') {
       return myName + '\u2003';
     } else if (
       mytype != 'PartSelection' &&
       mytype != 'PartSelection3D' &&
       mytype != 'MotionControlKinematicModelling' &&
       mytype != 'FaceSelection' &&
-      first4chars == 'EDGE'
+      (first4chars == 'EDGE' || first4chars == 'FACE')
     ) {
       if (item.parentnode) {
         const myParentName = getNameWithFeatures(item.parentnode);
@@ -189,17 +187,14 @@ export default function ThreejsSelection(props) {
           first4chars == 'PART'
         ) {
           return true;
-        } else if (
-          mytype == 'FaceSelection' &&
-          (first4chars == 'FACE' || first4chars == 'PART')
-        ) {
+        } else if (mytype == 'FaceSelection' && first4chars == 'FACE') {
           return true;
         } else if (
           mytype != 'PartSelection' &&
           mytype != 'PartSelection3D' &&
           mytype != 'MotionControlKinematicModelling' &&
           mytype != 'FaceSelection' &&
-          first4chars == 'EDGE'
+          (first4chars == 'EDGE' || first4chars == 'FACE')
         ) {
           return true;
         }
@@ -232,21 +227,22 @@ export default function ThreejsSelection(props) {
         variant="contained"
         color={active && clicked ? 'primary' : 'inherit'}
         onClick={(event) => {
-          let clickedState = !clicked;
-
-          setClicked(clickedState);
-          if (!active) {
-            clickedState = !clicked;
-          }
-          if (clickedState) {
-            doClick();
+          if (active) {
+            let clickedState = !clicked;
+            setClicked(clickedState);
+            if (clickedState) {
+              doClick();
+            } else {
+              setRenderData(
+                myvalue,
+                { name: 'NoKey', option: SELECTFEATURE, onChange },
+                null
+              );
+              onClick('NoKey');
+            }
           } else {
-            setRenderData(
-              myvalue,
-              { name: 'NoKey', option: SELECTFEATURE, onChange },
-              null
-            );
-            onClick('NoKey');
+            setClicked(true);
+            doClick();
           }
         }}
       >

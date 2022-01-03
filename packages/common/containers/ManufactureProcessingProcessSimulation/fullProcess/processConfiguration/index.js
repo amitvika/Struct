@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Paper from '@mui/material/Paper';
 import Link from '@mui/material/Link';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -25,7 +25,7 @@ export default function ProductionTable() {
   const [list, setList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filteredList, setFilteredList] = useState([]);
-  const [isModalOpened, setIsModalOpened] = React.useState(false);
+  const [isModalOpened, setIsModalOpened] = useState(false);
   const [selectedValue, setSelectedValue] = useState({});
 
   const [columns, setColumns] = useState([
@@ -107,7 +107,7 @@ export default function ProductionTable() {
     setIsModalOpened(!isModalOpened);
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetchList();
   }, []);
 

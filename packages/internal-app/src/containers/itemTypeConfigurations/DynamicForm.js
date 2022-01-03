@@ -106,6 +106,7 @@ export default function DynamicCriteria({
                     if (fieldItem.activeCell) {
                       handleOnChange(fieldItem.fieldName, valuefound);
                     }
+                    console.log('OnChange', mykeyinfo, valuefound, fieldItem);
                   }}
                   cylindrical_axis_of_rotation={
                     fieldItem.dataType === 'CircularFaceOrEdgeSelection'

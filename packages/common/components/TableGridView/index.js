@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import TableView from './TableView';
 import GridView from './GridView';
@@ -56,16 +56,16 @@ const TableGridView = ({
   const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
 
   const paginationValues = getFromLocalStorage(`${title}-pagination`) || {};
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(
     paginationValues.rowsPerPage || 100
   );
-  const [totalDocs, setTotalDocs] = React.useState(0);
+  const [totalDocs, setTotalDocs] = useState(0);
 
   const [isHistoryCheckboxVisible, setIsHistoryCheckboxVisible] =
     useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetchResult();
     saveToLocalStorage(`${title}-pagination`, { rowsPerPage });
   }, [page, rowsPerPage]);

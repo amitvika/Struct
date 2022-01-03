@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useHistory, useLocation, Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import { Button, MenuItem, Tooltip, Menu } from '@mui/material';
@@ -35,7 +35,7 @@ export default function HeaderDesktopView({
 
   const {
     authUser: { user }
-  } = useContext(AuthContext);
+  } = React.useContext(AuthContext);
 
   const handleLink = (path) => {
     handleCloseUserMenu();

@@ -118,7 +118,8 @@ import {
   arrayRemoveFromValue,
   arrayRemoveFromMesh,
   pollFunction,
-  isEmptyObjectDictionary
+  isEmptyObjectDictionary,
+  elementCopy
 } from './Tree/utils';
 import './styles/style.css';
 
@@ -133,6 +134,7 @@ import ModelessDialog from './ModelessDialog';
 import { myMenus } from './gltfMenus';
 import { CircularProgress, ClickAwayListener, Snackbar } from '@mui/material';
 import RotateLeftSharpIcon from '@mui/icons-material/RotateLeftSharp';
+import AcUnitSharpIcon from '@mui/icons-material/AcUnitSharp';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -288,8 +290,8 @@ class GLTFRenderer extends Component {
     progressBarRender: false,
     lastClickedNode: null,
     autoHideDuration: 1000,
-    edgelinewidth: 2.0
-
+    edgelinewidth: 2.0,
+    freezeNonSelection: false
     //gltfobj:this.props.gltfobj
   };
   state_selectedObjects = [];
@@ -2454,16 +2456,17 @@ class GLTFRenderer extends Component {
       ); */
       //if(this.INTERSECTED.selectedshell) this.INTERSECTED = null;
     } else {
-      //console.log("I got to click");
-      this.changeStateOfSelection(this.INTERSECTED, event);
-      try {
-        if (this.props.onClick) {
-          this.props.onClick(this.INTERSECTED, SELECTANITEM, event);
+      console.log('I got to click', this.state.freezeNonSelection);
+      if (this.state.freezeNonSelection) {
+        this.changeStateOfSelection(this.INTERSECTED, event);
+        try {
+          if (this.props.onClick) {
+            this.props.onClick(this.INTERSECTED, SELECTANITEM, event);
+          }
+        } catch (error) {
+          console.log('Error while doing onlcikc', error);
         }
-      } catch (error) {
-        console.log('Error while doing onlcikc', error);
       }
-
       //console.log(event.clientX, event.clientY);
     }
   };
@@ -4633,7 +4636,9 @@ class GLTFRenderer extends Component {
             }
           });
         }
-        var copy_selectobjects = [...this.state_selectedObjects];
+        var copy_selectobjects = [
+          ...(this.state_selectedObjects ? this.state_selectedObjects : [])
+        ];
         //console.log('My All childs', myAllChilds);
         myAllChilds.node.forEach((element) => {
           // console.log(
@@ -5298,7 +5303,9 @@ class GLTFRenderer extends Component {
     }; */
 
   selectAllSelectedSolids = async () => {
-    var copy_selectobjects = [...this.state_selectedObjects];
+    var copy_selectobjects = [
+      ...(this.state_selectedObjects ? this.state_selectedObjects : [])
+    ];
 
     for (let index = 0; index < copy_selectobjects.length; index++) {
       const meshmaterial = copy_selectobjects[index];
@@ -6077,9 +6084,9 @@ class GLTFRenderer extends Component {
                     }
                     */
                   let geometry = new BufferGeometry({
-                    name: element[gltf_Dict['name']]
+                    name: elementCopy(element[gltf_Dict['name']])
                   });
-                  geometry.name = element[gltf_Dict['name']];
+                  geometry.name = elementCopy(element[gltf_Dict['name']]);
                   //geometry.setPositions(myBase64Points);
                   geometry.setFromPoints(points);
 
@@ -6132,7 +6139,7 @@ class GLTFRenderer extends Component {
                       sketchLineGeometry,
                       sketchMatrial
                     );
-                    ourMesh.name = element[gltf_Dict['name']];
+                    ourMesh.name = elementCopy(element[gltf_Dict['name']]);
                     ourMesh.renderOrder += 20;
                     parentLineNodes.add(ourMesh);
                   } else {
@@ -6140,11 +6147,11 @@ class GLTFRenderer extends Component {
                       color: this.props.edgecolor
                         ? this.props.edgecolor
                         : DEFAULTEDGECOLOR,
-                      name: element[gltf_Dict['name']],
+                      name: elementCopy(element[gltf_Dict['name']]),
                       size: 10
                     });
                     let point = new Points(geometry, material);
-                    point.name = element[gltf_Dict['name']];
+                    point.name = elementCopy(element[gltf_Dict['name']]);
                     parentLineNodes.add(point);
                   }
                 });
@@ -7356,6 +7363,21 @@ class GLTFRenderer extends Component {
         <Grid container spacing={0} direction="column" alignItems="center">
           <Grid p={1}>
             {this.buildMenus(this.state.selectedmenu)}
+            <Button
+              variant="contained"
+              onClick={(event) => {
+                this.setState({
+                  freezeNonSelection: !this.state.freezeNonSelection
+                });
+              }}
+              style={{
+                backgroundColor: this.state.freezeNonSelection
+                  ? '#ffffff'
+                  : '888888'
+              }}
+              //color={this.state.freezeNonSelection ? 'light' : 'dark'}
+              startIcon={<AcUnitSharpIcon />}
+            ></Button>
             <Button
               variant="contained"
               onClick={(event) => {
