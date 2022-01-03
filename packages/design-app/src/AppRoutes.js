@@ -25,10 +25,10 @@ export default function Routes() {
   return (
     <Router>
       <Switch>
-        <Route exact path="/" component={SignInPage} />
+        <Route exact path="/login" component={SignInPage} />
         <Layout>
           <Switch>
-            <Route exact authenticate path="/design" component={DesignPage} />
+            <Route exact path="/" component={DesignPage} />
             <Route
               exact
               authenticate

@@ -194,11 +194,12 @@ export default function Layout(props) {
   };
 
   const handleLogoClick = () => handleClickOpen();
+  const loginPageUrl = '/login';
 
   return (
     <>
       <InfoSection {...{ open, handleClose }} />
-      <Header {...{ headerListItem, handleLogoClick }} />
+      <Header {...{ headerListItem, loginPageUrl, handleLogoClick }} />
       {props.children}
     </>
   );
