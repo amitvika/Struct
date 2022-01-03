@@ -211,7 +211,7 @@ export const getAllFiles = async () => {
   return axios.get(fetchURL);
 };
 export const getAFile = async (file) => {
-  const fetchURL = `${host}/getcontent?file=${file}`;
+  const fetchURL = `${host}/getcontent?file=${file}&timestamp=${new Date().getTime()}`;
   // console.log(fetchURL);
   return axios.get(fetchURL);
 };
@@ -227,11 +227,21 @@ export const getAFileFromURLStore = async (store, ext, fromURL) => {
     return getAFile(fetchURL);
   } else {
     const availURL = await getExistingPathFromServer(store, ext);
-    let fetchURL = `${
-      availURL ? availURL : fromURL ? fromURL : ''
-    }${store}.${ext}`;
+    let fetchURL = '';
+    if (ext == 'gdt' && availURL) {
+      fetchURL = `${
+        availURL == resourcePathURL ? resourcePathDisplay : resourcePathS3
+      }${store}.${ext}`;
+      console.log('Fetching for gdt from direct', fetchURL);
+      try {
+        return getAFile(fetchURL);
+      } catch (error) {
+        console.log('Error while Getting file from', fetchURL, error);
+      }
+    }
+    fetchURL = `${availURL ? availURL : fromURL ? fromURL : ''}${store}.${ext}`;
     try {
-      //console.log('Fetching from direct', fetchURL);
+      console.log('Fetching from direct', fetchURL);
       const resData = await axios.get(fetchURL);
       if (resData) return resData;
     } catch (error) {

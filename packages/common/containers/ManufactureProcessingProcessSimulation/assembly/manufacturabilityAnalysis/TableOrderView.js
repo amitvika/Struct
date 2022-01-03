@@ -21,6 +21,7 @@ import {
   DraggableTable,
   SortOrder
 } from '@monostruct/common/gltf/GridTable';
+import { DEFAULTROWSELECTCOLOR } from '@monostruct/common/gltf/Tree/utils';
 import { createGlobalStyle } from 'styled-components/macro';
 import styled from 'styled-components';
 //import TableHead from '@mui/material/TableHead';
@@ -53,7 +54,7 @@ const styles = (theme) => ({
   selectedTableRow: {
     cursor: 'pointer',
     borderSpacing: 0,
-    backgroundColor: '#00FF00',
+    backgroundColor: DEFAULTROWSELECTCOLOR(),
     whiteSpace: 'normal',
     wordWrap: 'break-word',
     wordBreak: 'break-all'

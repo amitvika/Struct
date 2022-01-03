@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import Link from '@mui/material/Link';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -18,7 +18,7 @@ import { getTableData } from './helper';
 import { SELECTASSEMBLY } from '@monostruct/common/gltf/Tree/utils';
 import {
   gltf_Dict,
-  DEFAULTSELECTCOLOR
+  DEFAULTROWSELECTCOLOR
 } from '@monostruct/common/gltf/Tree/utils';
 import { useHistory } from 'react-router-dom';
 
@@ -201,12 +201,16 @@ export default function MotionControlComponent({
                 <TableRow
                   style={{
                     background:
-                      selectedValue == item.id ? DEFAULTSELECTCOLOR() : 'white'
+                      selectedValue == item.id
+                        ? DEFAULTROWSELECTCOLOR()
+                        : 'white'
                   }}
                   sx={{
                     '&:last-child td, &:last-child th': { border: 0 },
                     bgcolor:
-                      selectedValue == item.id ? DEFAULTSELECTCOLOR() : 'white'
+                      selectedValue == item.id
+                        ? DEFAULTROWSELECTCOLOR()
+                        : 'white'
                   }}
                   onClick={() => {
                     setSelectedValue(item.id);

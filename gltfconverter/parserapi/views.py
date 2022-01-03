@@ -5507,7 +5507,9 @@ def FileSaveGDT(request):
                 guid = guid+'/'
             #print(tree)
             structArray = json.loads(gdt)
-            name = request.data['name']            
+            name = request.data['name']  
+            if name=='null':
+                name='Blank'
             try:
                 gdtfile = DISPLAY_URL+guid+name+'.gdt'
                 if not os.path.isfile(gdtfile):

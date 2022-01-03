@@ -1,15 +1,14 @@
-import React, { Fragment, useState } from 'react';
+import React, { /*Fragment,*/ useState } from 'react';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import makeStyles from '@mui/styles/makeStyles';
 import { Typography } from '@mui/material';
 
-
 const useStyles = makeStyles((theme) => ({
   custom_file: {
     position: 'relative',
     width: '100%',
-    height: 'calc(1.5em + .75rem + 2px)',
+    height: 'calc(1.5em + .75rem + 2px)'
   },
   custom_file_input: {
     zIndex: 2,
@@ -18,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     opacity: 0,
     position: 'relative',
     width: '100%',
-    height: 'calc(1.5em + .75rem + 2px)',
+    height: 'calc(1.5em + .75rem + 2px)'
   },
   custom_file_label: {
     position: 'absolute',
@@ -49,15 +48,15 @@ const useStyles = makeStyles((theme) => ({
       right: 0,
       padding: '.375rem .75rem',
       lineHeight: 1.5,
-      color: '#495057',
-    },
-  },
+      color: '#495057'
+    }
+  }
 }));
 
 export default function FileUpload({
   handleFileUpload,
   itemId,
-  label = 'STEP, DXF, GERBER',
+  label = 'STEP, DXF, GERBER'
 }) {
   //State
   const [file, setFile] = useState('');
@@ -67,7 +66,7 @@ export default function FileUpload({
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState();
   const [uploadPercentage, setUploadPercentage] = useState();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const classes = useStyles();
   const [isFileChanged, setIsFileChanged] = useState(false);
 
