@@ -219,7 +219,7 @@ export default function ThreejsSelection(props) {
       }
     }
     //console.log(mytype, myvalue);
-    if (myvalue.length > 0) {
+    /* if (myvalue.length > 0) {
       if (active) {
         let errorMessage = '';
         if (
@@ -240,7 +240,7 @@ export default function ThreejsSelection(props) {
           console.log('Error while displaying snackbar in errormessage', error);
         }
       }
-    }
+    } */
     return false;
   };
   const doClick = () => {
@@ -327,7 +327,7 @@ export default function ThreejsSelection(props) {
       {cylindrical_axis_of_rotation && (
         <FormGroup sx={{ flexDirection: 'row' }}>{createAxisUI()}</FormGroup>
       )}
-      <Snackbar
+      {/* <Snackbar
         open={snackBarState}
         autoHideDuration={autoHideDuration}
         onClose={closeSnackBar}
@@ -339,7 +339,7 @@ export default function ThreejsSelection(props) {
         >
           {snackBarMessage}
         </MuiAlert>
-      </Snackbar>
+      </Snackbar> */}
     </>
   );
 }

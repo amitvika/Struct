@@ -155,7 +155,7 @@ export default function GeometricDimensioning(props) {
         }
       }
     } else {
-      console.log(
+      /* console.log(
         'Not changing data in Use effect in whatchanger',
         changingdata,
         whatchanger,
@@ -172,7 +172,7 @@ export default function GeometricDimensioning(props) {
           renderdata: state.renderdata,
           whatchange: SELECTANITEM
         });
-      }
+      } */
     }
   }, [changingdata]);
 
