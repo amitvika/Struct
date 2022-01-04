@@ -28,8 +28,12 @@ export default function DynamicCriteria({
       (fieldItem) => name === fieldItem.fieldName
     );
     let tempFields = [...stateFormFields];
-    tempFields[findIndex].value = value;
-    let someThingChanged = false;
+    let someThingChanged =
+      JSON.stringify(tempFields[findIndex].value || {}) !=
+      JSON.stringify(value || {});
+    if (someThingChanged) {
+      tempFields[findIndex].value = value;
+    }
     for (let index = 0; index < tempFields.length; index++) {
       let fieldItem = tempFields[index];
       if (index == findIndex) {
