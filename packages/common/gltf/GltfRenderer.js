@@ -430,8 +430,8 @@ class GLTFRenderer extends Component {
       this.props.gltfobj != null && toChangeGLTF,
       this.props.gltfobj != null,
       this.props.changedata,
-      prevProps.changedata,
-      this.scene
+      prevProps.changedata
+      //this.scene
     );
 
     var toChange = toChangeGLTF;
@@ -463,17 +463,18 @@ class GLTFRenderer extends Component {
       this.this_state_gltf = this.props.gltfobj;
       this.this_progress_data = null;
       if (this.initDone) {
-        console.log(
-          'Doing this.props.gltfobj in toChangeGLTF',
-          this.props.gltfobj
-        );
         if (
           prevProps.activeGLTFFile !== this.props.activeGLTFFile ||
           !this.content ||
           this.content.length == 0
         ) {
+          console.log(
+            'Doing this.props.gltfobj in toChangeGLTF',
+            this.props.gltfobj
+          );
           this.alter(this.props.gltfobj);
         } else {
+          console.log('keeping position in toChangeGLTF', this.props.gltfobj);
           this.changeddataarray = [];
           this.truncToFirst();
           this.loadAdditionalFeatures();
@@ -549,7 +550,16 @@ class GLTFRenderer extends Component {
     }
     if (this.content.length > 1) {
       this.content.length = 1;
-      this.updateParts(this.content[0]);
+      let myobject = this.content[0];
+      myobject.traverse((node) => {
+        if (!node.isMesh) return;
+        //console.log('Initial node', node);
+        node.facesLoaded = false;
+        node.edgesLoaded = false;
+        node.verticesLoaded = false;
+        //console.log('Setting node', node);
+      });
+      this.updateParts(myobject);
     }
     if (
       this.props.gltfobj &&

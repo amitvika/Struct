@@ -49,6 +49,34 @@ export default function ThreejsSelection(props) {
 
   React.useEffect(() => {
     setMyvalue(value);
+    if (value && value.length > 0) {
+      if (active) {
+        const notEmpty = getNotEmpty(value);
+        if (!notEmpty) {
+          let errorMessage = '';
+          if (
+            mytype == 'PartSelection' ||
+            mytype == 'PartSelection3D' ||
+            mytype == 'MotionControlKinematicModelling'
+          ) {
+            errorMessage = 'Please select a Part';
+          } else if (mytype == 'FaceSelection') {
+            errorMessage = 'Please select a Face after pressing CTRL+B';
+          } else {
+            errorMessage =
+              'Please select a Face or Edge after pressing ALT+B or CTRL+B';
+          }
+          try {
+            openSnackBar('error', errorMessage);
+          } catch (error) {
+            console.log(
+              'Error while displaying snackbar in errormessage',
+              error
+            );
+          }
+        }
+      }
+    }
   }, [value]);
 
   React.useEffect(() => {
@@ -327,7 +355,7 @@ export default function ThreejsSelection(props) {
       {cylindrical_axis_of_rotation && (
         <FormGroup sx={{ flexDirection: 'row' }}>{createAxisUI()}</FormGroup>
       )}
-      {/* <Snackbar
+      <Snackbar
         open={snackBarState}
         autoHideDuration={autoHideDuration}
         onClose={closeSnackBar}
@@ -339,7 +367,7 @@ export default function ThreejsSelection(props) {
         >
           {snackBarMessage}
         </MuiAlert>
-      </Snackbar> */}
+      </Snackbar>
     </>
   );
 }
