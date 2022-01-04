@@ -168,7 +168,10 @@ exports.update = async (req, res) => {
     const itemId = req.body.id || req.params.id;
     let updateData = req.body;
 
-    let prevItem = await ItemModel.findById(itemId);
+    let prevItem;
+    if (isObjectIdValid(itemId)) {
+      prevItem = await ItemModel.findById(itemId);
+    }
 
     if (prevItem) {
       updateData.created_by = prevItem.created_by;
@@ -179,7 +182,7 @@ exports.update = async (req, res) => {
         { $set: updateData },
         { new: true }
       );
-    } else {
+    } else if (isObjectIdValid(itemId)) {
       updateData.created_by = req.user.id;
       updateData.updated_by = req.user.id;
       await ItemModel.updateOne({ _id: itemId }, updateData, {
@@ -187,6 +190,10 @@ exports.update = async (req, res) => {
         new: true
       });
       prevItem = await ItemModel.findById(itemId);
+    } else {
+      updateData.created_by = req.user.id;
+      updateData.updated_by = req.user.id;
+      prevItem = await ItemModel.create({ ...updateData });
     }
 
     const changeTracking = new ChangeTracking({

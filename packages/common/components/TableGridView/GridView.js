@@ -99,7 +99,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const FieldItemTitle = ({ title, valueToCopy }) => {
+const FieldItemTitle = ({ style, title, valueToCopy }) => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
@@ -129,7 +129,11 @@ const FieldItemTitle = ({ title, valueToCopy }) => {
       disableTouchListener
       title="Copied To Clipboard"
     >
-      <Typography className={classes.boldtablecell} onClick={handleTooltipOpen}>
+      <Typography
+        className={classes.boldtablecell}
+        onClick={handleTooltipOpen}
+        sx={style || {}}
+      >
         {title}
         {`: `}
       </Typography>
@@ -154,6 +158,7 @@ export default function GridView({
         ref={titleRef}
         className={classes.tableCell}
         value={`${data[fieldItem.field]}`}
+        sx={fieldItem.style || {}}
       >{` ${
         data[fieldItem.field] != undefined || data[fieldItem.field] != null
           ? data[fieldItem.field]
@@ -180,7 +185,8 @@ export default function GridView({
             <FieldItemTitle
               {...{
                 title: fieldItem.title,
-                valueToCopy: data[fieldItem.field]
+                valueToCopy: data[fieldItem.field],
+                style: fieldItem.style
               }}
             />
             <div style={{ marginLeft: '5px' }}>

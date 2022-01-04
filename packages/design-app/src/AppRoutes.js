@@ -25,21 +25,21 @@ export default function Routes() {
   return (
     <Router>
       <Switch>
-        <Route exact path="/" component={SignInPage} />
+        <Route exact path="/login" component={SignInPage} />
         <Layout>
           <Switch>
-            <Route exact authenticate path="/design" component={DesignPage} />
+            <Route exact path="/" component={DesignPage} />
             <Route
               exact
               authenticate
               path="/product"
               component={ProductMaker}
             />
-            <Route exact authenticate path="/cad" component={CadMaker} />
+
             <Route
               exact
               authenticate
-              path="/cad/:id"
+              path="/cad"
               component={CadItemDetailPage}
             />
 

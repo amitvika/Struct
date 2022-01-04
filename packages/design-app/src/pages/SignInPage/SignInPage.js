@@ -16,7 +16,7 @@ const SignInPage = () => {
 
   useEffect(() => {
     if (authUser.user) {
-      history.push('/design');
+      history.push('/');
     }
   }, [authUser]);
 

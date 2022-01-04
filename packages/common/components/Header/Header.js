@@ -35,8 +35,9 @@ const Header = (props) => {
   const handleLogout = () => {
     localStorage.setItem('token', null);
     setAuthUser({ user: undefined });
+    console.log('--------props.loginPageUrl', props.loginPageUrl);
     setTimeout(() => {
-      history.replace('/');
+      history.replace(props.loginPageUrl || '/');
     }, 0);
   };
 

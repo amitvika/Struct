@@ -51,7 +51,7 @@ const CadMaker = () => {
       <DetailPage
         title={'CAD Design'}
         tabList={tabList}
-        isAddDesignVisible={false}
+        isAddDesignVisible={true}
       ></DetailPage>
     </>
   );

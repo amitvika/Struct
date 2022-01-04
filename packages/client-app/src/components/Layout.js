@@ -29,9 +29,10 @@ export const headerListItem = [
 ];
 
 export default function Layout(props) {
+  const loginPageUrl = '/login';
   return (
     <div sx={{ margin: '20px 7%' }}>
-      <Header {...{ headerListItem }} />
+      <Header {...{ headerListItem, loginPageUrl }} />
 
       {props.children}
     </div>
