@@ -63,8 +63,8 @@ export default function ProcessConfigurationAssemblyForMachining(props) {
           <FileUpload handleFileUpload={handleFileUpload} getFiles={getView} />
         </Grid>
         <Grid item xs={12}>
-          {Object.keys(gltfjson).length > 0 && (
-            <GLTFRenderer
+          {
+            /*Object.keys(gltfjson).length > 0 &&*/ <GLTFRenderer
               //gltfjson={JSON.stringify(gltfjson)}
               gltfobj={gltfjson}
               activefile={fileId}
@@ -84,7 +84,7 @@ export default function ProcessConfigurationAssemblyForMachining(props) {
               activeGLTFFile={activeGLTFFile}
               setActiveGLTFile={setActiveGLTFile}
             />
-          )}
+          }
           {/* <CppTest /> */}
         </Grid>
         <Grid item xs={12}>

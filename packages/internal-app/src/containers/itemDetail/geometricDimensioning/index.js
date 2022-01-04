@@ -302,7 +302,7 @@ export default function GeometricDimensioning(props) {
     }
   };
 
-  const resetSelections = (
+  const resetSelections = async (
     activeTable,
     previousActivetable,
     myTree,
@@ -337,15 +337,16 @@ export default function GeometricDimensioning(props) {
       setState({ gltfjson: myTree });
       globalSetGltfJSon(myTree);
       globalSetActiveDataTable(activeTable);
-      saveGDTInfo(myTree.gdttable, fileGDT, fileUUIder)
-        .then((res) => res.data)
-        .then((data) => {
-          console.log(
-            'Getting saved Resources from gdt',
-            data,
-            myTree.gdttable
-          );
-        });
+      const savedData = await saveGDTInfo(myTree.gdttable, fileGDT, fileUUIder);
+      console.log('Saved data from reset selections', savedData);
+      // .then((res) => res.data)
+      // .then((data) => {
+      //   console.log(
+      //     'Getting saved Resources from gdt',
+      //     data,
+      //     myTree.gdttable
+      //   );
+      // });
     }
   };
 
@@ -861,15 +862,17 @@ export default function GeometricDimensioning(props) {
     }
     if (mystate_gltfjson && mystate_gltfjson.tree) {
       for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
-        if (
-          mystate_gltfjson.tree[i][gltf_Dict['name']] ==
-          mynode[gltf_Dict['name']]
-        ) {
-          myParentID = mystate_gltfjson.tree[i][gltf_Dict['parentId']];
-          if (mystate_gltfjson.tree[i][gltf_Dict['element']] == 'P') {
-            return mystate_gltfjson.tree[i];
-          } else {
-            break;
+        if (mystate_gltfjson.tree[i] && mynode) {
+          if (
+            mystate_gltfjson.tree[i][gltf_Dict['name']] ==
+            mynode[gltf_Dict['name']]
+          ) {
+            myParentID = mystate_gltfjson.tree[i][gltf_Dict['parentId']];
+            if (mystate_gltfjson.tree[i][gltf_Dict['element']] == 'P') {
+              return mystate_gltfjson.tree[i];
+            } else {
+              break;
+            }
           }
         }
       }
@@ -881,12 +884,15 @@ export default function GeometricDimensioning(props) {
       var myParentsParentID = -1;
       if (mystate_gltfjson && mystate_gltfjson.tree) {
         for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
-          if (mystate_gltfjson.tree[i][gltf_Dict['id']] == myParentID) {
-            myParentsParentID = mystate_gltfjson.tree[i][gltf_Dict['parentId']];
-            if (mystate_gltfjson.tree[i][gltf_Dict['element']] == 'P') {
-              return mystate_gltfjson.tree[i];
-            } else {
-              break;
+          if (mystate_gltfjson.tree[i]) {
+            if (mystate_gltfjson.tree[i][gltf_Dict['id']] == myParentID) {
+              myParentsParentID =
+                mystate_gltfjson.tree[i][gltf_Dict['parentId']];
+              if (mystate_gltfjson.tree[i][gltf_Dict['element']] == 'P') {
+                return mystate_gltfjson.tree[i];
+              } else {
+                break;
+              }
             }
           }
         }
@@ -898,11 +904,13 @@ export default function GeometricDimensioning(props) {
       } else {
         if (mystate_gltfjson && mystate_gltfjson.tree) {
           for (var i = 0; i < mystate_gltfjson.tree.length; i++) {
-            if (
-              mystate_gltfjson.tree[i][gltf_Dict['id']] == myParentsParentID
-            ) {
-              if (mystate_gltfjson.tree[i][gltf_Dict['element']] == 'P') {
-                return mystate_gltfjson.tree[i];
+            if (mystate_gltfjson.tree[i]) {
+              if (
+                mystate_gltfjson.tree[i][gltf_Dict['id']] == myParentsParentID
+              ) {
+                if (mystate_gltfjson.tree[i][gltf_Dict['element']] == 'P') {
+                  return mystate_gltfjson.tree[i];
+                }
               }
             }
           }
@@ -1208,7 +1216,7 @@ export default function GeometricDimensioning(props) {
       if (mystate_gltfjson && mystate_gltfjson.tree) {
         for (let index = 0; index < mystate_gltfjson.tree.length; index++) {
           const element = mystate_gltfjson.tree[index];
-          if (element[[gltf_Dict['id']]] == myID) {
+          if (element && element[[gltf_Dict['id']]] == myID) {
             curData = index;
             mapdata[myID] = index;
             break;
@@ -1947,8 +1955,9 @@ export default function GeometricDimensioning(props) {
         renderdata: [...(selectedNodes || [])],
         whatchange: SELECTANITEM
       });
-      saveGDTInfo(gdtTableCopy, fileGDT, fileUUIder)
-        .then((res) => res.data)
+      const savedData = await saveGDTInfo(gdtTableCopy, fileGDT, fileUUIder);
+      console.log('Saved Data from Changed selections', savedData);
+      /* .then((res) => res.data)
         .then((data) => {
           console.log(
             'Getting saved Resources from gdt',
@@ -1956,7 +1965,7 @@ export default function GeometricDimensioning(props) {
             newgltfjson.gdttable,
             gdtTableCopy
           );
-        });
+        }); */
 
       //let incrementedNodes = [...selectedNodes, { name: 'NoName' }];
       /* setState({

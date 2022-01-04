@@ -1680,43 +1680,43 @@ export default function ManufacturabilityAnalysis(props) {
             />
           </Box>
         )}
-        {!isLoading &&
+        {
+          /*!isLoading &&
           Object.keys(state.gltfjson).length > 0 &&
-          !isFileLoading && (
-            <GLTFRenderer
-              //gltfjson={JSON.stringify(gltfjson)}
-              gltfobj={state.gltfjson}
-              fileGDT={null}
-              fileUUId={fileUUId}
-              fileAnimation={true}
-              //view="Perspective"
-              activefile={fileId + gltfjsonlen.toString()}
-              backcolor={DEFAULTBACKCOLOR()}
-              selectcolor={DEFAULTSELECTCOLOR()}
-              touchcolor={DEFAULTTOUCHCOLOR()}
-              selectedoption={SELECTFEATURE}
-              splitmethod={SELECTHIRERACHY}
-              changedata={state.renderdata}
-              data2texture={null}
-              data3texture={null}
-              materialtype={STATEPROPS.materialname}
-              whatchanged={state.whatchange}
-              dataselection={0}
-              onClick={handleModelClick}
-              activeDataTable={0}
-              setProgressBarRender={setProgressBarRender}
-              setPercentage={setPercentager}
-              setProgressBarLoad={setProgressBarLoader}
-              setCurrentProgressText={setCurrentProgressTexter}
-              setCompletionProgressText={setCompletionProgressTexter}
-              setCenterActionText={setCenterActionTexter}
-              drawLine={drawLine}
-              edgecolor={STATEPROPS.edgecolor}
-              activeGLTFFile={activeGLTFFile}
-              setActiveGLTFile={setActiveGLTFile}
-              //resetSelectionFromTree={resetSelectionFromTree}
-            />
-          )}
+          !isFileLoading &&*/ <GLTFRenderer
+            //gltfjson={JSON.stringify(gltfjson)}
+            gltfobj={state.gltfjson}
+            fileGDT={null}
+            fileUUId={fileUUId}
+            fileAnimation={true}
+            //view="Perspective"
+            activefile={fileId + gltfjsonlen.toString()}
+            backcolor={DEFAULTBACKCOLOR()}
+            selectcolor={DEFAULTSELECTCOLOR()}
+            touchcolor={DEFAULTTOUCHCOLOR()}
+            selectedoption={SELECTFEATURE}
+            splitmethod={SELECTHIRERACHY}
+            changedata={state.renderdata}
+            data2texture={null}
+            data3texture={null}
+            materialtype={STATEPROPS.materialname}
+            whatchanged={state.whatchange}
+            dataselection={0}
+            onClick={handleModelClick}
+            activeDataTable={0}
+            setProgressBarRender={setProgressBarRender}
+            setPercentage={setPercentager}
+            setProgressBarLoad={setProgressBarLoader}
+            setCurrentProgressText={setCurrentProgressTexter}
+            setCompletionProgressText={setCompletionProgressTexter}
+            setCenterActionText={setCenterActionTexter}
+            drawLine={drawLine}
+            edgecolor={STATEPROPS.edgecolor}
+            activeGLTFFile={activeGLTFFile}
+            setActiveGLTFile={setActiveGLTFile}
+            //resetSelectionFromTree={resetSelectionFromTree}
+          />
+        }
         {/*  {
           (isLoading || isFileLoading) && <CircularProgress />
         } */}

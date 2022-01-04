@@ -454,44 +454,44 @@ export default function BaseItemProperties({
                 />
               </Box>
             )}
-            {!isLoading &&
+            {
+              /*!isLoading &&
               Object.keys(gltfjson).length > 0 &&
-              !isFileLoading && (
-                <GLTFRenderer
-                  gltfobj={gltfobj}
-                  fileGDT={itemProperties.fileGDT}
-                  fileUUId={fileUUId}
-                  fileAnimation={false}
-                  activefile={
-                    (fileId || fileUUId || '') +
-                    gltfjsonlen.toString() +
-                    tabIndex.toString()
-                  }
-                  backcolor={DEFAULTBACKCOLOR()}
-                  selectcolor={DEFAULTSELECTCOLOR()}
-                  touchcolor={DEFAULTTOUCHCOLOR()}
-                  selectedoption={selectedOption}
-                  setSelectedOption={setSelectedOption}
-                  splitmethod={SELECTHIRERACHY}
-                  changedata={[]}
-                  data2texture={null}
-                  data3texture={null}
-                  materialtype={STATEPROPS.materialname}
-                  whatchanged={0}
-                  dataselection={0}
-                  activeDataTable={0}
-                  setProgressBarRender={setProgressBarRender}
-                  setPercentage={setPercentager}
-                  setProgressBarLoad={setProgressBarLoader}
-                  setCurrentProgressText={setCurrentProgressTexter}
-                  setCompletionProgressText={setCompletionProgressTexter}
-                  setCenterActionText={setCenterActionTexter}
-                  drawLine={drawLiner}
-                  edgecolor={STATEPROPS.edgecolor}
-                  activeGLTFFile={activeGLTFFile}
-                  setActiveGLTFile={setActiveGLTFile}
-                />
-              )}
+              !isFileLoading &&*/ <GLTFRenderer
+                gltfobj={gltfobj}
+                fileGDT={itemProperties.fileGDT}
+                fileUUId={fileUUId}
+                fileAnimation={false}
+                activefile={
+                  (fileId || fileUUId || '') +
+                  gltfjsonlen.toString() +
+                  tabIndex.toString()
+                }
+                backcolor={DEFAULTBACKCOLOR()}
+                selectcolor={DEFAULTSELECTCOLOR()}
+                touchcolor={DEFAULTTOUCHCOLOR()}
+                selectedoption={selectedOption}
+                setSelectedOption={setSelectedOption}
+                splitmethod={SELECTHIRERACHY}
+                changedata={[]}
+                data2texture={null}
+                data3texture={null}
+                materialtype={STATEPROPS.materialname}
+                whatchanged={0}
+                dataselection={0}
+                activeDataTable={0}
+                setProgressBarRender={setProgressBarRender}
+                setPercentage={setPercentager}
+                setProgressBarLoad={setProgressBarLoader}
+                setCurrentProgressText={setCurrentProgressTexter}
+                setCompletionProgressText={setCompletionProgressTexter}
+                setCenterActionText={setCenterActionTexter}
+                drawLine={drawLiner}
+                edgecolor={STATEPROPS.edgecolor}
+                activeGLTFFile={activeGLTFFile}
+                setActiveGLTFile={setActiveGLTFile}
+              />
+            }
             {isFileLoading && <CircularProgress />}
           </Paper>
           <Grid className={classes.itemContainer}>

@@ -122,14 +122,14 @@ export default function ThreejsSelection(props) {
       mytype != 'FaceSelection' &&
       (first4chars == 'EDGE' || first4chars == 'FACE')
     ) {
-      if (item.parentnode) {
+      /* if (item.parentnode) {
         const myParentName = getNameWithFeatures(item.parentnode);
         if (myParentName) {
           return myParentName + '\u2003';
         } else {
           return myName + '\u2003';
         }
-      } else {
+      } else */ {
         return myName + '\u2003';
       }
     } else {

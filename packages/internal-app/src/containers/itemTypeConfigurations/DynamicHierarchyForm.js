@@ -40,7 +40,7 @@ export default function DynamicHierarchyForm(props) {
               indexField++
             ) {
               let fieldItem = tempFields[indexField];
-              console.log('My Selection items', fieldItem);
+              //console.log('My Selection items', fieldItem);
               if (fieldItem.activeCell) {
                 if (fieldItem.fieldType === 'Custom') {
                   fieldItem.activeCell = false;

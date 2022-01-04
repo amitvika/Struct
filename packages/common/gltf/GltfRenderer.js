@@ -79,7 +79,8 @@ import {
   resourcePathBase,
   getAFileFromStore,
   getAFileFromURLStore,
-  checkExistingPathFromStore
+  checkExistingPathFromStore,
+  saveGDTInfo
 } from '@monostruct/common/api/fileUpload.api.js';
 import { stringify } from './Flatted.js';
 import {
@@ -119,7 +120,8 @@ import {
   arrayRemoveFromMesh,
   pollFunction,
   isEmptyObjectDictionary,
-  elementCopy
+  elementCopy,
+  arrayCopy
 } from './Tree/utils';
 import './styles/style.css';
 
@@ -1419,13 +1421,14 @@ class GLTFRenderer extends Component {
     }
   };
 
-  addGDTTable = (parent, start, finish, node) => {
+  addGDTTable = async (parent, start, finish, node) => {
     try {
       if (this.props.setStateOfgltf) {
         const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
         let gltfobj = { ...state_gltfobj };
         let gdttable = gltfobj.gdttable || [defaultGDTTable];
-        gltfobj.gdttable = gdttable;
+        const gdttableCopy = arrayCopy(gdttable);
+        gltfobj.gdttable = gdttableCopy;
         //console.log("AddGDTTABLE", gltfobj.gdttable, gdttable,this.props.activeDataTable);
         console.log('BEfore Changing gdtable in loading edges', gltfobj);
         if (
@@ -1439,9 +1442,14 @@ class GLTFRenderer extends Component {
           parent: parent,
           start: start,
           finish: finish,
-          name: node ? node.name : null
+          name: node ? elementCopy(node.name) : null
         });
         console.log('After Changing gdtable in loading edges', gltfobj);
+        await saveGDTInfo(
+          gdttableCopy,
+          this.props.fileGDT,
+          this.props.fileUUId
+        );
         this.props.setStateOfgltf(gltfobj);
       }
     } catch (error) {
@@ -3779,7 +3787,7 @@ class GLTFRenderer extends Component {
           ); //Reusable component..
           if (addToGDTTable) {
             //console.log("Adding here Gdt table",myParentID,featureSetStart, featureSetFinish, mynode);
-            this.addGDTTable(
+            await this.addGDTTable(
               myParentID,
               featureSetStart,
               featureSetFinish,
@@ -7366,24 +7374,24 @@ class GLTFRenderer extends Component {
             <Button
               variant="contained"
               onClick={(event) => {
+                this.resetMyControls();
+              }}
+              startIcon={<RotateLeftSharpIcon />}
+            ></Button>
+            <Button
+              variant="contained"
+              onClick={(event) => {
                 this.setState({
                   freezeNonSelection: !this.state.freezeNonSelection
                 });
               }}
               style={{
                 backgroundColor: this.state.freezeNonSelection
-                  ? '#ffffff'
-                  : '888888'
+                  ? '#BBBBBB'
+                  : '#444444'
               }}
               //color={this.state.freezeNonSelection ? 'light' : 'dark'}
               startIcon={<AcUnitSharpIcon />}
-            ></Button>
-            <Button
-              variant="contained"
-              onClick={(event) => {
-                this.resetMyControls();
-              }}
-              startIcon={<RotateLeftSharpIcon />}
             ></Button>
           </Grid>
 

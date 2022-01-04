@@ -122,8 +122,8 @@ export default function Viewer({
           />
         </Box>
       )}
-      {!isLoading && gltfjsonlen > 0 && (
-        <GLTFRenderer
+      {
+        /*!isLoading && gltfjsonlen > 0 &&*/ <GLTFRenderer
           //gltfjson={JSON.stringify(gltfjson)}
           gltfobj={gltfjson}
           fileGDT={fileGDT}
@@ -178,7 +178,7 @@ export default function Viewer({
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */
         />
-      )}
+      }
       {/* {isLoading && <CircularProgress />} */}
     </>
   );
