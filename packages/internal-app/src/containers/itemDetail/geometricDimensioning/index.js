@@ -129,27 +129,48 @@ export default function GeometricDimensioning(props) {
       whatchanger,
       gltfjson
     );
-    if (
-      stringify(changingdata || {}) != stringify(state.renderdata || {}) &&
-      (whatchanger != 0 || state.whatchange != whatchanger)
-    ) {
+    if (tabIndex != 'gdtac') {
+      if (
+        stringify(changingdata || {}) != stringify(state.renderdata || {}) &&
+        (whatchanger != 0 || state.whatchange != whatchanger)
+      ) {
+        console.log(
+          'setting Use effect in changing data',
+          changingdata,
+          state.renderdata,
+          whatchanger,
+          state.whatchange,
+          changingdata.length
+        );
+        if (changingdata.length > 0) {
+          setState({
+            renderdata: changingdata,
+            whatchange: whatchanger,
+            firstshell: null,
+            secondshell: null,
+            selectedObjects: [],
+            parentObjects: [],
+            mates: []
+          });
+        }
+      }
+    } else {
       console.log(
-        'setting Use effect in changing data',
+        'Not changing data in Use effect in whatchanger',
         changingdata,
-        state.renderdata,
         whatchanger,
+        state.renderdata,
         state.whatchange,
-        changingdata.length
+        gltfjson
       );
-      if (changingdata.length > 0) {
+      if (
+        state.renderdata &&
+        state.renderdata.length > 0 &&
+        state.whatchange != SELECTANITEM
+      ) {
         setState({
-          renderdata: changingdata,
-          whatchange: whatchanger,
-          firstshell: null,
-          secondshell: null,
-          selectedObjects: [],
-          parentObjects: [],
-          mates: []
+          renderdata: state.renderdata,
+          whatchange: SELECTANITEM
         });
       }
     }
@@ -162,18 +183,28 @@ export default function GeometricDimensioning(props) {
       whatchanger,
       gltfjson
     );
-    if (
-      stringify(changingdata || {}) != stringify(state.renderdata || {}) &&
-      (whatchanger != 0 || state.whatchange != whatchanger)
-    ) {
+    if (tabIndex != 'gdtac') {
+      if (
+        stringify(changingdata || {}) != stringify(state.renderdata || {}) &&
+        (whatchanger != 0 || state.whatchange != whatchanger)
+      ) {
+        console.log(
+          'setting Use effect in in whatchanger',
+          changingdata,
+          state.renderdata,
+          whatchanger,
+          state.whatchange
+        );
+        setState({ renderdata: changingdata, whatchange: whatchanger });
+      }
+    } else {
       console.log(
-        'setting Use effect in in whatchanger',
+        'Not changing data in Use effect in whatchanger',
         changingdata,
-        state.renderdata,
         whatchanger,
-        state.whatchange
+        state.renderdata,
+        gltfjson
       );
-      setState({ renderdata: changingdata, whatchange: whatchanger });
     }
   }, [whatchanger]);
 
@@ -246,9 +277,9 @@ export default function GeometricDimensioning(props) {
               ? gltfjson.gdttable[myGlobalActiveDataTable].offset
               : 0
             : 0
-          : 0,
-        renderdata: gltfjson.renderdata || {},
-        whatchange: 0
+          : 0
+        //renderdata: gltfjson.renderdata || {},
+        //whatchange: 0
       });
       setSelectedOption(
         gltfjson
@@ -501,6 +532,12 @@ export default function GeometricDimensioning(props) {
           : myTree.gdttable[activetable].selectedObjects,
         myTree.gdttable
       );
+      if (!selectedNodes && myTree.gdttable[activetable].selectedObjects) {
+        setState({
+          renderdata: myTree.gdttable[activetable].selectedObjects,
+          whatchange: SELECTANITEM
+        });
+      }
       updateSelectionFromTree(
         selectedNodes
           ? selectedNodes
@@ -2064,11 +2101,13 @@ export default function GeometricDimensioning(props) {
 
   return (
     <Box className={classes.mainContainer}>
-      {!isLoading && state.gltfjson?.tree && (
-        <div className={` ${classes.assemblyTreeContainer}`}>
+      {
+        /*!isLoading && state.gltfjson?.tree &&*/ <div
+          className={` ${classes.assemblyTreeContainer}`}
+        >
           <Assembly
             assemblyTree={buildParentChildTree(
-              arrayCopy(state.gltfjson.tree),
+              arrayCopy(state.gltfjson ? state.gltfjson.tree : []),
               selectedOption,
               myGlobalTree
             )}
@@ -2078,7 +2117,7 @@ export default function GeometricDimensioning(props) {
             setActiveGLTFile={setActiveGLTFile}
           />
         </div>
-      )}
+      }
       <Paper className={`${classes.paper} ${classes.viewerContainer}`}>
         <Viewer
           {...state}
