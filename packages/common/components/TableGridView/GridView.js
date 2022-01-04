@@ -27,8 +27,7 @@ const useStyles = makeStyles((theme) => ({
     borderBottom: 'none'
   },
   boldtablecell: {
-    borderBottom: 'none',
-    fontWeight: 'bold'
+    borderBottom: 'none'
   },
   paper: {
     height: '100%',
@@ -185,8 +184,7 @@ export default function GridView({
             <FieldItemTitle
               {...{
                 title: fieldItem.title,
-                valueToCopy: data[fieldItem.field],
-                style: fieldItem.style
+                valueToCopy: data[fieldItem.field]
               }}
             />
             <div style={{ marginLeft: '5px' }}>

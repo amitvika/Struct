@@ -62,41 +62,41 @@ export const columnsForItemView = [
 ];
 
 export const fieldsForOmniDesign = [
-  { title: 'Name', field: 'name', type: 'text', style: { fontSize: '18px' } },
+  {
+    title: 'Name',
+    field: 'name',
+    type: 'text',
+    style: { fontSize: '18px', fontWeight: 'bold' }
+  },
   {
     title: 'Type',
     field: 'item_type',
     editable: 'never',
-    style: { fontSize: '18px' }
+    style: { fontSize: '18px', fontWeight: 'bold' }
   },
   {
     title: 'Designer',
     field: 'designer',
-    editable: 'never',
-    style: { fontSize: '18px' }
+    editable: 'never'
   },
   {
     title: 'Created At',
     field: 'created_at',
-    editable: 'never',
-    style: { fontSize: '18px' }
+    editable: 'never'
   },
   {
     title: 'Modified at',
     field: 'updated_at',
-    editable: 'never',
-    style: { fontSize: '18px' }
+    editable: 'never'
   },
   {
     title: 'File Loaded',
-    field: 'file_loaded',
-    style: { fontSize: '18px' }
+    field: 'file_loaded'
   },
   {
     title: 'ID',
     field: 'id',
     editable: 'never',
-    align: 'center',
-    style: { fontSize: '18px' }
+    align: 'center'
   }
 ];
