@@ -104,8 +104,12 @@ export default function DynamicHierarchyForm(props) {
       let tempSelections = [...selections];
       tempSelections[findIndex].formFields = updatedFormFields;
       //console.log('Setting values', tempSelections);
-      setSelections(tempSelections);
-      setStateUpdated(!stateUpdated);
+      try {
+        setSelections(tempSelections);
+        setStateUpdated(!stateUpdated);
+      } catch (error) {
+        console.log('While setting selections', error);
+      }
     }
   };
 

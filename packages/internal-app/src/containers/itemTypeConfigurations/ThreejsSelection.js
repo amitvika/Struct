@@ -12,6 +12,8 @@ import Button from '@mui/material/Button';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 export default function ThreejsSelection(props) {
   const {
@@ -29,6 +31,21 @@ export default function ThreejsSelection(props) {
 
   const [myvalue, setMyvalue] = useState(value);
   const [clicked, setClicked] = useState(active);
+  const [snackBarMessage, setSnackBarMessage] = useState('');
+  const [snackBarAlertType, setSnackBarAlertType] = useState('');
+  const [snackBarState, setSnackBarState] = useState(false);
+  const [autoHideDuration, setAutoHideDuration] = useState(1000);
+
+  const openSnackBar = (alert, message) => {
+    setSnackBarAlertType(alert);
+    setSnackBarMessage(message);
+    setAutoHideDuration(alert == 'success' ? 1000 : 5000);
+    setSnackBarState(true);
+  };
+
+  const closeSnackBar = () => {
+    setSnackBarState(false);
+  };
 
   React.useEffect(() => {
     setMyvalue(value);
@@ -155,6 +172,7 @@ export default function ThreejsSelection(props) {
     if (!myvalue) {
       return false;
     }
+
     for (let index = 0; index < myvalue.length; index++) {
       const item = myvalue[index];
       if (item && item[gltf_Dict['name']]) {
@@ -201,6 +219,28 @@ export default function ThreejsSelection(props) {
       }
     }
     //console.log(mytype, myvalue);
+    if (myvalue.length > 0) {
+      if (active) {
+        let errorMessage = '';
+        if (
+          mytype == 'PartSelection' ||
+          mytype == 'PartSelection3D' ||
+          mytype == 'MotionControlKinematicModelling'
+        ) {
+          errorMessage = 'Please select a Part';
+        } else if (mytype == 'FaceSelection') {
+          errorMessage = 'Please select a Face after pressing CTRL+B';
+        } else {
+          errorMessage =
+            'Please select a Face or Edge after pressing ALT+B or CTRL+B';
+        }
+        try {
+          openSnackBar('error', errorMessage);
+        } catch (error) {
+          console.log('Error while displaying snackbar in errormessage', error);
+        }
+      }
+    }
     return false;
   };
   const doClick = () => {
@@ -287,6 +327,19 @@ export default function ThreejsSelection(props) {
       {cylindrical_axis_of_rotation && (
         <FormGroup sx={{ flexDirection: 'row' }}>{createAxisUI()}</FormGroup>
       )}
+      <Snackbar
+        open={snackBarState}
+        autoHideDuration={autoHideDuration}
+        onClose={closeSnackBar}
+      >
+        <MuiAlert
+          color={snackBarAlertType}
+          variant="filled"
+          onClose={closeSnackBar}
+        >
+          {snackBarMessage}
+        </MuiAlert>
+      </Snackbar>
     </>
   );
 }

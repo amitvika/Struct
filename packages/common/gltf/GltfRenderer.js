@@ -469,11 +469,12 @@ class GLTFRenderer extends Component {
         );
         if (
           prevProps.activeGLTFFile !== this.props.activeGLTFFile ||
+          !this.content ||
           this.content.length == 0
         ) {
           this.alter(this.props.gltfobj);
         } else {
-          this.changeddataarray = null;
+          this.changeddataarray = [];
           this.truncToFirst();
           this.loadAdditionalFeatures();
         }
@@ -758,6 +759,12 @@ class GLTFRenderer extends Component {
       }
       if (this.defaultCamera) {
         this.defaultCamera.near = size / 100;
+        if (
+          this.defaultCamera.near > 0.01 &&
+          this.defaultCamera.isOrthographicCamera
+        ) {
+          this.defaultCamera.near = 0.01;
+        }
         this.defaultCamera.far = size * 100;
         //console.log("setting1",size,this.defaultCamera);
         this.defaultCamera.updateProjectionMatrix();
@@ -4795,7 +4802,7 @@ class GLTFRenderer extends Component {
     }
   };
 
-  doOneSelection = async (element, event, addToGDTTable = true) => {
+  doOneSelection = (element, event, addToGDTTable = true) => {
     if (element) {
       //console.log('Starting in gltfrender', element, element.selectedshell);
       let myItem = this.getSubDepthPart(element);
@@ -4824,7 +4831,7 @@ class GLTFRenderer extends Component {
           //   element.selectedshell
           // );
           mymesh.selectedshell = element.selectedshell;
-          await this.changeStateOfSelection(mymesh, event, addToGDTTable);
+          this.changeStateOfSelection(mymesh, event, addToGDTTable);
           /*  if (this.props.onClick) {
                             const mytask =  this.props.onClick(mymesh, SELECTDISTANCE, event);                                                                      
                             console.log(element,mymesh);
@@ -7443,10 +7450,18 @@ class GLTFRenderer extends Component {
             ></Button>
             <Button
               variant="contained"
-              onClick={(event) => {
-                this.setState({
-                  freezeNonSelection: !this.state.freezeNonSelection
-                });
+              onClick={async (event) => {
+                // this.setState({
+                //   freezeNonSelection: !this.state.freezeNonSelection
+                // });
+                this.changeStateOfSelection(null, event);
+                try {
+                  if (this.props.onClick) {
+                    this.props.onClick(null, SELECTANITEM, event);
+                  }
+                } catch (error) {
+                  console.log('Error while doing onlcikc from menu', error);
+                }
               }}
               style={{
                 backgroundColor: this.state.freezeNonSelection
