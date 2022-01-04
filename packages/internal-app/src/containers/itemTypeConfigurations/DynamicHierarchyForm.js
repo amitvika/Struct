@@ -31,19 +31,21 @@ export default function DynamicHierarchyForm(props) {
       if (mySelections) {
         //console.log('My Selections', mySelections);
         for (let index = 0; index < mySelections.length; index++) {
-          let tempFields = mySelections[index].form.fields;
-          if (tempFields) {
-            // RESET ACTIVE CELL OF 3JS SELECTIONS
-            for (
-              let indexField = 0;
-              indexField < tempFields.length;
-              indexField++
-            ) {
-              let fieldItem = tempFields[indexField];
-              console.log('My Selection items', fieldItem);
-              if (fieldItem.activeCell) {
-                if (fieldItem.fieldType === 'Custom') {
-                  fieldItem.activeCell = false;
+          if (mySelections[index] && mySelections[index].form) {
+            let tempFields = mySelections[index].form.fields;
+            if (tempFields) {
+              // RESET ACTIVE CELL OF 3JS SELECTIONS
+              for (
+                let indexField = 0;
+                indexField < tempFields.length;
+                indexField++
+              ) {
+                let fieldItem = tempFields[indexField];
+                //console.log('My Selection items', fieldItem);
+                if (fieldItem.activeCell) {
+                  if (fieldItem.fieldType === 'Custom') {
+                    fieldItem.activeCell = false;
+                  }
                 }
               }
             }
@@ -102,8 +104,12 @@ export default function DynamicHierarchyForm(props) {
       let tempSelections = [...selections];
       tempSelections[findIndex].formFields = updatedFormFields;
       //console.log('Setting values', tempSelections);
-      setSelections(tempSelections);
-      setStateUpdated(!stateUpdated);
+      try {
+        setSelections(tempSelections);
+        setStateUpdated(!stateUpdated);
+      } catch (error) {
+        console.log('While setting selections', error);
+      }
     }
   };
 

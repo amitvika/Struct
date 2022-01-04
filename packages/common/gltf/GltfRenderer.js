@@ -79,7 +79,8 @@ import {
   resourcePathBase,
   getAFileFromStore,
   getAFileFromURLStore,
-  checkExistingPathFromStore
+  checkExistingPathFromStore,
+  saveGDTInfo
 } from '@monostruct/common/api/fileUpload.api.js';
 import { stringify } from './Flatted.js';
 import {
@@ -119,7 +120,8 @@ import {
   arrayRemoveFromMesh,
   pollFunction,
   isEmptyObjectDictionary,
-  elementCopy
+  elementCopy,
+  arrayCopy
 } from './Tree/utils';
 import './styles/style.css';
 
@@ -426,7 +428,10 @@ class GLTFRenderer extends Component {
       prevProps.activeGLTFFile,
       this.props.activeGLTFFile,
       this.props.gltfobj != null && toChangeGLTF,
-      this.props.gltfobj != null
+      this.props.gltfobj != null,
+      this.props.changedata,
+      prevProps.changedata
+      //this.scene
     );
 
     var toChange = toChangeGLTF;
@@ -458,11 +463,22 @@ class GLTFRenderer extends Component {
       this.this_state_gltf = this.props.gltfobj;
       this.this_progress_data = null;
       if (this.initDone) {
-        console.log(
-          'Doing this.props.gltfobj in toChangeGLTF',
-          this.props.gltfobj
-        );
-        this.alter(this.props.gltfobj);
+        if (
+          prevProps.activeGLTFFile !== this.props.activeGLTFFile ||
+          !this.content ||
+          this.content.length == 0
+        ) {
+          console.log(
+            'Doing this.props.gltfobj in toChangeGLTF',
+            this.props.gltfobj
+          );
+          this.alter(this.props.gltfobj);
+        } else {
+          console.log('keeping position in toChangeGLTF', this.props.gltfobj);
+          this.changeddataarray = [];
+          this.truncToFirst();
+          this.loadAdditionalFeatures();
+        }
         this.render();
       } else {
         console.log(
@@ -518,7 +534,41 @@ class GLTFRenderer extends Component {
             console.log(this.activeFile,this.activeId,this.gltfobjLen);
         } */
   }
-
+  truncToFirst = () => {
+    for (let index = this.content.length - 1; index > 0; index--) {
+      if (index > 0) {
+        let myobject = this.content[index];
+        this.scene.remove(myobject);
+        myobject.traverse((node) => {
+          if (!node.isMesh) return;
+          if (node.geometry) {
+            node.geometry.dispose();
+            //node.geometry=null;
+          }
+        });
+      }
+    }
+    if (this.content.length > 1) {
+      this.content.length = 1;
+      let myobject = this.content[0];
+      myobject.traverse((node) => {
+        if (!node.isMesh) return;
+        //console.log('Initial node', node);
+        node.facesLoaded = false;
+        node.edgesLoaded = false;
+        node.verticesLoaded = false;
+        //console.log('Setting node', node);
+      });
+      this.updateParts(myobject);
+    }
+    if (
+      this.props.gltfobj &&
+      this.props.gltfobj.tree &&
+      this.props.gltfobj.treeLength < this.props.gltfobj.tree.length
+    ) {
+      this.props.gltfobj.tree.length = this.props.gltfobj.treeLength;
+    }
+  };
   handlePopperClick = (event, param) => {
     let anchorEls = [...this.state.anchorEls];
     if (this.state.selectedmenu != param) {
@@ -719,6 +769,12 @@ class GLTFRenderer extends Component {
       }
       if (this.defaultCamera) {
         this.defaultCamera.near = size / 100;
+        if (
+          this.defaultCamera.near > 0.01 &&
+          this.defaultCamera.isOrthographicCamera
+        ) {
+          this.defaultCamera.near = 0.01;
+        }
         this.defaultCamera.far = size * 100;
         //console.log("setting1",size,this.defaultCamera);
         this.defaultCamera.updateProjectionMatrix();
@@ -1161,7 +1217,39 @@ class GLTFRenderer extends Component {
       });
     }
   };
+  loadAdditionalFeatures = async () => {
+    if (this.props.drawLine && this.props.fileGDT) {
+      await this.loadAllEdges(0, (firstTime = true));
+    }
+    /* console.log(
+      'For loading edges',
+      this.props.fileGDT,
+      this.props.fileAnimation
+    ); */
+    if (this.props.fileGDT /*&& this.props.fileAnimation == false*/) {
+      const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
+      console.log(
+        'GDTTable',
+        state_gltfobj.gdttable,
+        this.props.activeDataTable
+      );
+      let gdttable = [];
+      if (
+        state_gltfobj.gdttable &&
+        isEmptyObjectDictionary(state_gltfobj.gdttable)
+      ) {
+        gdttable = [defaultGDTTable];
+      } else {
+        gdttable = state_gltfobj.gdttable || [defaultGDTTable];
+      }
+      if (this.props.activeDataTable < gdttable.length) {
+        await this.updateGDTTable(gdttable[this.props.activeDataTable]);
+      }
+
+      //console.log(this.props);
+    }
+  };
   /*
    *
    * @param {THREE.Object3D} object
@@ -1292,39 +1380,33 @@ class GLTFRenderer extends Component {
       this.state.skeleton,
       this.state.grid
     );
-
+    this.loadAdditionalFeatures();
     //console.log("File props",this.props.fileGDT,this.props.drawLine,this.props.activeId);
-    if (this.props.drawLine && this.props.fileGDT) {
-      this.loadAllEdges(0, (firstTime = true));
-    }
-    /* console.log(
-      'For loading edges',
-      this.props.fileGDT,
-      this.props.fileAnimation
-    ); */
-    if (this.props.fileGDT /*&& this.props.fileAnimation == false*/) {
-      const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
+    // if (this.props.drawLine && this.props.fileGDT) {
+    //   this.loadAllEdges(0, (firstTime = true));
+    // }
 
-      console.log(
-        'GDTTable',
-        state_gltfobj.gdttable,
-        this.props.activeDataTable
-      );
-      let gdttable = [];
-      if (
-        state_gltfobj.gdttable &&
-        isEmptyObjectDictionary(state_gltfobj.gdttable)
-      ) {
-        gdttable = [defaultGDTTable];
-      } else {
-        gdttable = state_gltfobj.gdttable || [defaultGDTTable];
-      }
-      if (this.props.activeDataTable < gdttable.length) {
-        this.updateGDTTable(gdttable[this.props.activeDataTable]);
-      }
+    // if (this.props.fileGDT ) {
+    //   const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
-      //console.log(this.props);
-    }
+    //   console.log(
+    //     'GDTTable',
+    //     state_gltfobj.gdttable,
+    //     this.props.activeDataTable
+    //   );
+    //   let gdttable = [];
+    //   if (
+    //     state_gltfobj.gdttable &&
+    //     isEmptyObjectDictionary(state_gltfobj.gdttable)
+    //   ) {
+    //     gdttable = [defaultGDTTable];
+    //   } else {
+    //     gdttable = state_gltfobj.gdttable || [defaultGDTTable];
+    //   }
+    //   if (this.props.activeDataTable < gdttable.length) {
+    //     this.updateGDTTable(gdttable[this.props.activeDataTable]);
+    //   }
+    // }
 
     //window.content = this.content;
     //console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
@@ -1419,13 +1501,14 @@ class GLTFRenderer extends Component {
     }
   };
 
-  addGDTTable = (parent, start, finish, node) => {
+  addGDTTable = async (parent, start, finish, node) => {
     try {
       if (this.props.setStateOfgltf) {
         const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
         let gltfobj = { ...state_gltfobj };
         let gdttable = gltfobj.gdttable || [defaultGDTTable];
-        gltfobj.gdttable = gdttable;
+        const gdttableCopy = arrayCopy(gdttable);
+        gltfobj.gdttable = gdttableCopy;
         //console.log("AddGDTTABLE", gltfobj.gdttable, gdttable,this.props.activeDataTable);
         console.log('BEfore Changing gdtable in loading edges', gltfobj);
         if (
@@ -1439,9 +1522,14 @@ class GLTFRenderer extends Component {
           parent: parent,
           start: start,
           finish: finish,
-          name: node ? node.name : null
+          name: node ? elementCopy(node.name) : null
         });
         console.log('After Changing gdtable in loading edges', gltfobj);
+        await saveGDTInfo(
+          gdttableCopy,
+          this.props.fileGDT,
+          this.props.fileUUId
+        );
         this.props.setStateOfgltf(gltfobj);
       }
     } catch (error) {
@@ -3779,7 +3867,7 @@ class GLTFRenderer extends Component {
           ); //Reusable component..
           if (addToGDTTable) {
             //console.log("Adding here Gdt table",myParentID,featureSetStart, featureSetFinish, mynode);
-            this.addGDTTable(
+            await this.addGDTTable(
               myParentID,
               featureSetStart,
               featureSetFinish,
@@ -4724,7 +4812,7 @@ class GLTFRenderer extends Component {
     }
   };
 
-  doOneSelection = async (element, event, addToGDTTable = true) => {
+  doOneSelection = (element, event, addToGDTTable = true) => {
     if (element) {
       //console.log('Starting in gltfrender', element, element.selectedshell);
       let myItem = this.getSubDepthPart(element);
@@ -4753,7 +4841,7 @@ class GLTFRenderer extends Component {
           //   element.selectedshell
           // );
           mymesh.selectedshell = element.selectedshell;
-          await this.changeStateOfSelection(mymesh, event, addToGDTTable);
+          this.changeStateOfSelection(mymesh, event, addToGDTTable);
           /*  if (this.props.onClick) {
                             const mytask =  this.props.onClick(mymesh, SELECTDISTANCE, event);                                                                      
                             console.log(element,mymesh);
@@ -4761,13 +4849,13 @@ class GLTFRenderer extends Component {
                             console.log("No Click functions found",this.props.onClick,element);
                         } */
           event['ctrlKey'] = true;
-          // console.log(
-          //   'aftet',
-          //   mymesh,
-          //   element,
-          //   mymesh.selectedshell,
-          //   element.selectedshell
-          // );
+          console.log(
+            'aftet',
+            mymesh,
+            element,
+            mymesh.selectedshell,
+            element.selectedshell
+          );
         } else {
           console.log('No mesh...?', mymesh, element, element.selectedshell);
         }
@@ -7366,24 +7454,32 @@ class GLTFRenderer extends Component {
             <Button
               variant="contained"
               onClick={(event) => {
-                this.setState({
-                  freezeNonSelection: !this.state.freezeNonSelection
-                });
-              }}
-              style={{
-                backgroundColor: this.state.freezeNonSelection
-                  ? '#ffffff'
-                  : '888888'
-              }}
-              //color={this.state.freezeNonSelection ? 'light' : 'dark'}
-              startIcon={<AcUnitSharpIcon />}
-            ></Button>
-            <Button
-              variant="contained"
-              onClick={(event) => {
                 this.resetMyControls();
               }}
               startIcon={<RotateLeftSharpIcon />}
+            ></Button>
+            <Button
+              variant="contained"
+              onClick={async (event) => {
+                // this.setState({
+                //   freezeNonSelection: !this.state.freezeNonSelection
+                // });
+                this.changeStateOfSelection(null, event);
+                try {
+                  if (this.props.onClick) {
+                    this.props.onClick(null, SELECTANITEM, event);
+                  }
+                } catch (error) {
+                  console.log('Error while doing onlcikc from menu', error);
+                }
+              }}
+              style={{
+                backgroundColor: this.state.freezeNonSelection
+                  ? '#BBBBBB'
+                  : '#444444'
+              }}
+              //color={this.state.freezeNonSelection ? 'light' : 'dark'}
+              startIcon={<AcUnitSharpIcon />}
             ></Button>
           </Grid>
 

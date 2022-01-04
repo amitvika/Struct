@@ -101,6 +101,7 @@ const ItemDetail = ({ itemValue }) => {
       setTabIndex(myTabIndex);
     }
     setAllowFirstLevelItems(itemProperties?.child_item_status === 'INITIATED');
+    setActiveGLTFile('');
     handleGLTFAndTreeLoading({
       item: itemProperties,
       myTabedIndex: myTabIndex

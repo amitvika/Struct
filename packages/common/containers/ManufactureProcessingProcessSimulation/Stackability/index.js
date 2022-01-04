@@ -199,8 +199,8 @@ export default function Stackability(props) {
             />
           </Box>
         )}
-        {!isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading && (
-          <GLTFRenderer
+        {
+          /*!isLoading && Object.keys(gltfjson).length > 0 && !isFileLoading &&*/ <GLTFRenderer
             //gltfjson={JSON.stringify(gltfjson)}
             gltfobj={gltfjson}
             fileGDT={null}
@@ -231,7 +231,7 @@ export default function Stackability(props) {
             activeGLTFFile={activeGLTFFile}
             setActiveGLTFile={setActiveGLTFile}
           />
-        )}
+        }
         {/* {(isLoading || isFileLoading) && <CircularProgress />} */}
       </Paper>
       {splitfiles.stackable && splitfiles.stackable.length > 0 && (

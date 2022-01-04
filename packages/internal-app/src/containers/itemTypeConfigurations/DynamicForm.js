@@ -28,20 +28,58 @@ export default function DynamicCriteria({
       (fieldItem) => name === fieldItem.fieldName
     );
     let tempFields = [...stateFormFields];
-    tempFields[findIndex].value = value;
-    tempFields.map((fieldItem, index) => {
-      fieldItem.activeCell = index == findIndex;
-    });
+    let someThingChanged =
+      JSON.stringify(tempFields[findIndex].value || {}) !=
+      JSON.stringify(value || {});
+    if (someThingChanged) {
+      tempFields[findIndex].value = value;
+    }
+    for (let index = 0; index < tempFields.length; index++) {
+      let fieldItem = tempFields[index];
+      if (index == findIndex) {
+        if (!fieldItem.activeCell) {
+          fieldItem.activeCell = true;
+          someThingChanged = true;
+        }
+      } else {
+        if (fieldItem.activeCell) {
+          fieldItem.activeCell = false;
+          someThingChanged = true;
+        }
+      }
+    }
+    // tempFields.map((fieldItem, index) => {
+    //   fieldItem.activeCell = index == findIndex;
+    // });
     //console.log('Changig fields', tempFields);
-    setStateFormFields(tempFields);
+    if (someThingChanged) {
+      setStateFormFields(tempFields);
+    }
     handleUpdate(tempFields);
   };
   const handleOnClick = (name) => {
     let tempFields = [...stateFormFields];
-    tempFields.map((fieldItem) => {
-      fieldItem.activeCell = fieldItem.fieldName == name;
-    });
-    setStateFormFields(tempFields);
+    // tempFields.map((fieldItem) => {
+    //   fieldItem.activeCell = fieldItem.fieldName == name;
+    // });
+    let someThingChanged = false;
+    for (let index = 0; index < tempFields.length; index++) {
+      let fieldItem = tempFields[index];
+      if (fieldItem.fieldName == name) {
+        if (!fieldItem.activeCell) {
+          fieldItem.activeCell = true;
+          someThingChanged = true;
+        }
+      } else {
+        if (fieldItem.activeCell) {
+          fieldItem.activeCell = false;
+          someThingChanged = true;
+        }
+      }
+    }
+    if (someThingChanged) {
+      setStateFormFields(tempFields);
+    }
   };
 
   const [stateFormFields, setStateFormFields] = useState([]);
