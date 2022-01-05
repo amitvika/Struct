@@ -5745,14 +5745,16 @@ def extractKinematicInformation(kinematicparts):
         print("What I got as Axis1",kinematicinfo,myInfo)                             
         partName, displayName, sequence, isActuator, isLinear, axis, aw, bl, al = myInfo
         print("What I got as Axis2",axis,kinematicinfo,myInfo)
+        
         isActuator = not convertToBool(isActuator,False)
 
         if partName==None:
             partName = getValueFromJSONKey(kinematicpart,'filePartName')
         if displayName==None:
             displayName = getValueFromJSONKey(kinematicpart,'name')
-        
-        if isinstance(axis, list)==False :
+        if axis is None:
+            axis  = [0,1,2]            
+        elif isinstance(axis, list)==False :
             if 'xx' in axis:
                 axis = [axis['xx'],axis['xy'],axis['xz']]
             else:
