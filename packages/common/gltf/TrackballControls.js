@@ -375,19 +375,28 @@ class TrackballControls extends EventDispatcher {
         mouseChange.copy(_panEnd).sub(_panStart);
 
         if (mouseChange.lengthSq()) {
-          /* if ( scope.object.isOrthographicCamera ) {
-
-						let scale_x = ( scope.object.right - scope.object.left ) / scope.object.zoom / scope.domElement.clientWidth;
-						let scale_y = ( scope.object.top - scope.object.bottom ) / scope.object.zoom / scope.domElement.clientWidth;
-						console.log(scale_x,scale_y);
-						if(scale_x <1) scale_x = 1;
-						if(scale_y <1) scale_y = 1;
-						mouseChange.x *= scale_x;
-						mouseChange.y *= scale_y;
-
-					} */
+          if (scope.object.isOrthographicCamera) {
+            let scale_x = screen.width;
+            let scale_y = screen.height;
+            /* let multiplier =
+              scale_x > scale_y ? scale_x / scale_y : scale_y / scale_x;
+            console.log(
+              scale_x,
+              scale_y,
+              multiplier,
+              scope.object.right - scope.object.left,
+              scope.object.top - scope.object.bottom,
+              scope.domElement.clientWidth,
+              scope.domElement.clientHeight
+            ); */
+            if (scale_x > scale_y) {
+              mouseChange.y *= scale_x / scale_y;
+            } else {
+              mouseChange.x *= scale_y / scale_x;
+            }
+          }
           _eye.subVectors(scope.object.position, scope.target);
-          mouseChange.multiplyScalar(_eye.length() * scope.panSpeed);
+          mouseChange.multiplyScalar(_eye.length() * scope.panSpeed * 2);
 
           pan.copy(_eye).cross(scope.object.up).setLength(mouseChange.x);
           pan.add(objectUp.copy(scope.object.up).setLength(mouseChange.y));
