@@ -2,11 +2,13 @@ import React from 'react';
 import './style.css';
 
 import DetailPage from '../../components/DetailComponent/DetailComponent';
+import BaseItemProperties from '@monostruct/common/containers/BaseItemPropertiesTab';
 
 const CadMaker = () => {
   const tabList = [
     {
-      tabName: 'CAD or Upload/Customize CAD File'
+      tabName: 'CAD or Upload/Customize CAD File',
+      tabContent: BaseItemProperties
     },
     {
       tabName: 'Materials'
