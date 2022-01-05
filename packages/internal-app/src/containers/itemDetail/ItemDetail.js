@@ -198,8 +198,9 @@ const ItemDetail = ({ itemValue }) => {
           if (activeGLTFFile != updatedItemProp.fileKinematic) {
             setActiveGLTFile(updatedItemProp.fileKinematic);
           } else {
-            setRegenerateKinematicMove(regenerateKinematicMove + 1);
-            setActiveGLTFile(updatedItemProp.fileKinematic);
+            setActiveGLTFile(
+              updatedItemProp.fileKinematic + regenerateKinematicMove.toString()
+            );
           }
         } else {
           gltfParam.fileKinematic = item.fileKinematic;
