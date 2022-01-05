@@ -732,11 +732,11 @@ def splitFile(id,key,distancegap,anglegap,disectparts,moverotate,thumbwidth,thum
     #print(data)
     return data 
 
-def convertToBool(value,default):
-    if isinstance(value,bool):
-        return value
+def convertToBool(value,default):    
     if value is not None:
         try:
+            if isinstance(value,bool):
+                return value
             if value.lower()=="true":
                 return True
             else:
@@ -751,10 +751,9 @@ def convertToBool(value,default):
         return default
 
 def convertToFloat(value,default):
-    #print("Value=",value)
-    if isinstance(value,float) :
-        return value
     if value is not None:
+        if isinstance(value,float) :
+            return value
         try:
             floatValue = float(value)
             return floatValue
@@ -763,10 +762,10 @@ def convertToFloat(value,default):
     else:
         return default
 
-def convertToInt(value,default):
-    if isinstance(value,int):
-        return value
+def convertToInt(value,default):    
     if value is not None:
+        if isinstance(value,int):
+            return value
         try:
             intValue = int(value)
             return intValue
@@ -5743,15 +5742,16 @@ def extractKinematicInformation(kinematicparts):
                                             getValueFromJSONKey(kinematicinfo,'axis_after_link')
         else:
             kinematicinfo='No Information for kinematic info'
-                                       
+        print("What I got as Axis1",axis,kinematicinfo,myInfo)                             
         partName, displayName, sequence, isActuator, isLinear, axis, aw, bl, al = myInfo
-        
+        print("What I got as Axis2",axis,kinematicinfo,myInfo)
         isActuator = not convertToBool(isActuator,False)
 
         if partName==None:
             partName = getValueFromJSONKey(kinematicpart,'filePartName')
         if displayName==None:
             displayName = getValueFromJSONKey(kinematicpart,'name')
+        
         if isinstance(axis, list)==False :
             if 'xx' in axis:
                 axis = [axis['xx'],axis['xy'],axis['xz']]
