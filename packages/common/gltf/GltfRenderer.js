@@ -770,15 +770,17 @@ class GLTFRenderer extends Component {
       if (this.defaultCamera) {
         this.defaultCamera.near = size / 100;
         if (
-          this.defaultCamera.near > 0.01 &&
+          this.defaultCamera.near > 0.0001 &&
           this.defaultCamera.isOrthographicCamera
         ) {
-          this.defaultCamera.near = 0.01;
+          this.defaultCamera.near = 0.0001;
+          this.defaultCamera.frustumCulled = false;
         }
-        this.defaultCamera.far = size * 100;
+        this.defaultCamera.far = (size * size) / this.defaultCamera.near;
         //console.log("setting1",size,this.defaultCamera);
         this.defaultCamera.updateProjectionMatrix();
         //console.log("setting2",size,this.defaultCamera);
+
         if (this.props.cameraPosition) {
           this.defaultCamera.position.fromArray(this.props.cameraPosition);
           this.defaultCamera.cameraposition = new Vector3();
@@ -793,7 +795,7 @@ class GLTFRenderer extends Component {
           this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
           //console.log("setting4",size,this.defaultCamera);
         }
-
+        //console.log('My camera', this.defaultCamera);
         this.setCamera(DEFAULT_CAMERA);
         //console.log(box,object,this.defaultCamera,object.position,this.defaultCamera.cameraposition,center,this.props.cameraPosition);
 
@@ -1145,7 +1147,10 @@ class GLTFRenderer extends Component {
                 //this.state.addLights = false;
               } else if (node.isMesh) {
                 // TODO(https://github.com/mrdoob/three.js/pull/18235): Clean up.
-
+                node.frustumCulled = false;
+                if (node.material) {
+                  node.material.transparent = false;
+                }
                 for (var i = 0; i < this.state_selectedObjects.length; i++) {
                   if (node.name == this.state_selectedObjects[i].name) {
                     this.setSelectionColor(node);
@@ -1256,7 +1261,7 @@ class GLTFRenderer extends Component {
    * @param {Array<THREE.AnimationClip} clips
    *
    */
-  setContent = (object, clips) => {
+  setContent = async (object, clips) => {
     this.clear();
 
     /* const box = new Box3().setFromObject(object);
@@ -1380,7 +1385,7 @@ class GLTFRenderer extends Component {
       this.state.skeleton,
       this.state.grid
     );
-    this.loadAdditionalFeatures();
+    await this.loadAdditionalFeatures();
     //console.log("File props",this.props.fileGDT,this.props.drawLine,this.props.activeId);
     // if (this.props.drawLine && this.props.fileGDT) {
     //   this.loadAllEdges(0, (firstTime = true));
@@ -1453,14 +1458,14 @@ class GLTFRenderer extends Component {
         let event = {};
         event['ctrlKey'] = false;
         if (Array.isArray(gdttableEdges.selectedObjects)) {
-          gdttableEdges.selectedObjects.forEach((element) => {
+          gdttableEdges.selectedObjects.forEach(async (element) => {
             element.selectedshell = true;
             //console.log('setting selections to clear all selections');
-            this.doOneSelection(element, event, false);
+            await this.doOneSelection(element, event, false);
           });
           if (gdttableEdges.selectedObjects.length == 0) {
             //console.log('Resetting blank selections to clear all selections');
-            this.changeStateOfSelection(null, event, false);
+            await this.changeStateOfSelection(null, event, false);
           }
         }
       }
@@ -2508,7 +2513,7 @@ class GLTFRenderer extends Component {
     }
   };
 
-  onMouseClick = (event) => {
+  onMouseClick = async (event) => {
     if (this.INTERSECTED !== null) {
       //console.log("Before",this.INTERSECTED.material.color);
       this.setStateWithoutError({ lastClickedNode: { ...this.INTERSECTED } });
@@ -2521,7 +2526,7 @@ class GLTFRenderer extends Component {
       //console.log("After", this.INTERSECTED.name,this.INTERSECTED.selectedshell, event.ctrlKey );
       this.setOriginalColor(this.INTERSECTED);
       //this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
-      this.changeStateOfSelection(this.INTERSECTED, event);
+      await this.changeStateOfSelection(this.INTERSECTED, event);
       /* console.log(
         this.INTERSECTED,
         'Going for inner table selection',
@@ -2546,7 +2551,7 @@ class GLTFRenderer extends Component {
     } else {
       console.log('I got to click', this.state.freezeNonSelection);
       if (this.state.freezeNonSelection) {
-        this.changeStateOfSelection(this.INTERSECTED, event);
+        await this.changeStateOfSelection(this.INTERSECTED, event);
         try {
           if (this.props.onClick) {
             this.props.onClick(this.INTERSECTED, SELECTANITEM, event);
@@ -2707,7 +2712,7 @@ class GLTFRenderer extends Component {
     this.raycast();
   };
 
-  onKeyDown = (event) => {
+  onKeyDown = async (event) => {
     //console.log("Onkey down",event,this.props.fileGDT,this.INTERSECTED,this.state.lastClickedNode);
     if (
       this.props.fileGDT &&
@@ -2724,7 +2729,7 @@ class GLTFRenderer extends Component {
       //   'intersect',
       //   this.INTERSECTED
       // );
-      this.findSingleNode(
+      await this.findSingleNode(
         this.state.lastClickedNode
           ? this.state.lastClickedNode
           : this.INTERSECTED,
@@ -3413,7 +3418,7 @@ class GLTFRenderer extends Component {
     }
   };
 
-  alter = (myGltfJson) => {
+  alter = async (myGltfJson) => {
     //console.log("Getting me!");
     //if(this.controls) {
     //console.log("Getting me2!");
@@ -3460,11 +3465,11 @@ class GLTFRenderer extends Component {
       };
       const parser = new GLTFParser(this.gltfJSON, myParserParams);
 
-      const onload = (gltf) => {
+      const onload = async (gltf) => {
         this.object = gltf.scene || gltf.scenes[0];
         this.clips = gltf.animations || [];
         //console.log('gltf', gltf, 'Objects', this.object, 'Clips', this.clips);
-        this.setContent(this.object, this.clips);
+        await this.setContent(this.object, this.clips);
         try {
           this.setStateWithoutError({ progressBarRender: false });
           if (this.props.setProgressBarRender) {
@@ -4812,7 +4817,7 @@ class GLTFRenderer extends Component {
     }
   };
 
-  doOneSelection = (element, event, addToGDTTable = true) => {
+  doOneSelection = async (element, event, addToGDTTable = true) => {
     if (element) {
       //console.log('Starting in gltfrender', element, element.selectedshell);
       let myItem = this.getSubDepthPart(element);
@@ -4841,7 +4846,7 @@ class GLTFRenderer extends Component {
           //   element.selectedshell
           // );
           mymesh.selectedshell = element.selectedshell;
-          this.changeStateOfSelection(mymesh, event, addToGDTTable);
+          await this.changeStateOfSelection(mymesh, event, addToGDTTable);
           /*  if (this.props.onClick) {
                             const mytask =  this.props.onClick(mymesh, SELECTDISTANCE, event);                                                                      
                             console.log(element,mymesh);
@@ -4863,7 +4868,7 @@ class GLTFRenderer extends Component {
     }
   };
 
-  changeparts = () => {
+  changeparts = async () => {
     const changedata = this.props.changedata;
     this.changedctrlkey = this.props.ctrlKey;
     /* console.log(
@@ -5101,7 +5106,7 @@ class GLTFRenderer extends Component {
         let event = {};
         event['ctrlKey'] = this.changedctrlkey;
         if (changedata.length == 0) {
-          this.changeStateOfSelection(null, event);
+          await this.changeStateOfSelection(null, event);
           /*  console.log("I am resetting!");
                     
                     if(this.props.resetSelections){
@@ -5480,7 +5485,12 @@ class GLTFRenderer extends Component {
       let fetchStatus = () => getAFileFromStore(progressFile, 'progress');
       let validateStatus = (result) => {
         //console.log(result.data,result.data.percent,result.data.percent!=100);
-        return !result || !result.data || result.data.begin != result.data.end;
+        return (
+          !result ||
+          !result.data ||
+          result.data.begin != result.data.end ||
+          JSON.stringify(result.data) == JSON.stringify({})
+        );
       };
       let percentFunction = (result) =>
         result.data.end ? (100 * result.data.begin) / result.data.end : 0;
@@ -5558,7 +5568,7 @@ class GLTFRenderer extends Component {
         console.log('Error while setting center text', error);
       }
 
-      const updateSelectionFromGdtTable = () => {
+      const updateSelectionFromGdtTable = async () => {
         if (
           gdttableEdges &&
           gdttableEdges.selectedObjects &&
@@ -5567,15 +5577,15 @@ class GLTFRenderer extends Component {
           //console.log("Inside load edges gdts",this.partsMeshes,gdttableEdges);
           let event = {};
           event['ctrlKey'] = false;
-          gdttableEdges.selectedObjects.forEach((element) => {
+          gdttableEdges.selectedObjects.forEach(async (element) => {
             console.log('Setting inside the load all edges', element, event);
             element.selectedshell = true;
-            this.doOneSelection(element, event, false);
+            await this.doOneSelection(element, event, false);
             //console.log(this.scene, this.partsMeshes, this.raycastObjects);
             //this.render();
           });
           if (gdttableEdges.selectedObjects.length == 0) {
-            this.changeStateOfSelection(null, event, false);
+            await this.changeStateOfSelection(null, event, false);
           }
         } else {
           //console.log("Inside load edges s",this.partsMeshes);
@@ -6318,7 +6328,7 @@ class GLTFRenderer extends Component {
       .setCrossOrigin('anonymous');
 
     //console.log('befor load,', allEdges, featureSetStart, featureSetFinish);
-    const onload = (gltf, url) => {
+    const onload = async (gltf, url) => {
       try {
         const myobject = gltf.scene || gltf.scenes[0];
         myobject.position.x += this.shiftposition.x;
@@ -6349,13 +6359,13 @@ class GLTFRenderer extends Component {
           //console.log("Inside load edges gdts",this.partsMeshes,gdttableEdges);
           let event = {};
           event['ctrlKey'] = false;
-          gdttableEdges.selectedObjects.forEach((element) => {
+          gdttableEdges.selectedObjects.forEach(async (element) => {
             //console.log("Setting inside the load all edges",element,event);
             element.selectedshell = true;
-            this.doOneSelection(element, event, false);
+            await this.doOneSelection(element, event, false);
           });
           if (gdttableEdges.edges.length == 0) {
-            this.changeStateOfSelection(null, event, false);
+            await this.changeStateOfSelection(null, event, false);
           }
         } else {
           //console.log("Inside load edges s",this.partsMeshes);
@@ -7098,7 +7108,7 @@ class GLTFRenderer extends Component {
     }
   };
 
-  changeSelectedOption = (option) => {
+  changeSelectedOption = async (option) => {
     if (this.selectedoption == SELECTMEASURE || option == SELECTMEASURE) {
       if (this.secondshell) {
         this.setOriginalColor(this.secondshell);
@@ -7125,7 +7135,7 @@ class GLTFRenderer extends Component {
       option == SELECTASSEMBLY
     ) {
       //console.log("Got Here", this.props.selectedoption);
-      this.selectAllSelectedSolids();
+      await this.selectAllSelectedSolids();
     }
     if (this.selectedoption != option) {
       if (
@@ -7464,7 +7474,7 @@ class GLTFRenderer extends Component {
                 // this.setState({
                 //   freezeNonSelection: !this.state.freezeNonSelection
                 // });
-                this.changeStateOfSelection(null, event);
+                await this.changeStateOfSelection(null, event);
                 try {
                   if (this.props.onClick) {
                     this.props.onClick(null, SELECTANITEM, event);
