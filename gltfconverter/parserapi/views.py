@@ -733,6 +733,8 @@ def splitFile(id,key,distancegap,anglegap,disectparts,moverotate,thumbwidth,thum
     return data 
 
 def convertToBool(value,default):
+    if isinstance(value,bool):
+        return value
     if value is not None:
         try:
             if value.lower()=="true":
@@ -741,7 +743,8 @@ def convertToBool(value,default):
                 if value.lower()=="false":
                     return False
                 else:
-                    return default
+                    boolvalue = bool(value)
+                    return boolvalue
         except:
             return default
     else:
@@ -749,6 +752,8 @@ def convertToBool(value,default):
 
 def convertToFloat(value,default):
     #print("Value=",value)
+    if isinstance(value,float) :
+        return value
     if value is not None:
         try:
             floatValue = float(value)
@@ -759,6 +764,8 @@ def convertToFloat(value,default):
         return default
 
 def convertToInt(value,default):
+    if isinstance(value,int):
+        return value
     if value is not None:
         try:
             intValue = int(value)
@@ -5738,7 +5745,8 @@ def extractKinematicInformation(kinematicparts):
             kinematicinfo='No Information for kinematic info'
                                        
         partName, displayName, sequence, isActuator, isLinear, axis, aw, bl, al = myInfo
-        isActuator = not isActuator
+        
+        isActuator = not convertToBool(isActuator,False)
 
         if partName==None:
             partName = getValueFromJSONKey(kinematicpart,'filePartName')
@@ -5752,11 +5760,18 @@ def extractKinematicInformation(kinematicparts):
             remainingLength = (3-len(axis))
             for indexI in range(remainingLength):
                 axis.append(indexI)
+        [ax,ay,az]=axis
+        axis = [convertToFloat(ax,0), convertToFloat(ay,0), convertToFloat(az,0)]
         if axis==[0,0,0]:
             axis=[0,1,2]
+        aw = convertToFloat(aw,0)
         if isActuator and aw==0:
             aw=math.pi*ap/72
             ap=-0.1*ap
+        sequence = convertToInt(sequence,0)
+        isLinear = convertToBool(isLinear,False)
+        bl = convertToInt(bl,0)
+        al = convertToInt(al,0)
         myInfo = partName, displayName, sequence, isActuator, isLinear, axis, aw, bl, al
         print("Each Kinematic Info",myInfo,kinematicinfo)
         kinematicInformation.append(myInfo)
