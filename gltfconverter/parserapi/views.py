@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 #from rest_framework.parsers import FileUploadParser
 from rest_framework.parsers import JSONParser
+from rest_framework.views import set_rollback
 
 from .models import File
 from .serializers import FileSerializer
@@ -5521,7 +5522,12 @@ def FileSaveGDT(request):
                 print("Writing,",gdtfile) """
                 with open(gdtfile, 'w') as fh:
                     fh.write(json.dumps(structArray, sort_keys=True, indent=2 ))
-                dictionary=request.data
+                dictionary = {
+                    'gdt':structArray,
+                    'file':gdtfile,
+                    'uuid':guid
+                    }
+                
             except Exception as e:
                 print("Error while writing gdtfile",e)     
         return JsonResponse(dictionary, safe=False)

@@ -156,7 +156,8 @@ export const createChildItems = async ({
         !result ||
         !result.data ||
         result.data.begin != result.data.end ||
-        result.data.begin == 0
+        result.data.begin == 0 ||
+        JSON.stringify(result.data) == JSON.stringify({})
       );
     };
     percentFunction = (result) =>

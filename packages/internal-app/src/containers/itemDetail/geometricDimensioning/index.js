@@ -419,7 +419,7 @@ export default function GeometricDimensioning(props) {
     return myTree;
   };
 
-  const incrementActiveDataTable = (
+  const incrementActiveDataTable = async (
     key = '',
     selectedFeature = SELECTFEATURE,
     selectedNodes = null
@@ -460,7 +460,7 @@ export default function GeometricDimensioning(props) {
       option: selectedFeature
     });
     console.log('Coming from here2', myTree);
-    updateSelectionFromTree(
+    await updateSelectionFromTree(
       selectedNodes ? selectedNodes : [],
       false,
       selectedFeature,
@@ -495,7 +495,7 @@ export default function GeometricDimensioning(props) {
       console.log('Errir while assigning globalstate', error);
     }
   };
-  const setCurrentDataTableFromKey = (key, option, selectedNodes) => {
+  const setCurrentDataTableFromKey = async (key, option, selectedNodes) => {
     const mystate = isEmptyObject(state) ? myGlobalState : state;
     let mystate_gltfjson = mystate.gltfjson || gltfjson;
     if (!mystate_gltfjson || !mystate_gltfjson.tree) {
@@ -508,13 +508,13 @@ export default function GeometricDimensioning(props) {
     for (let index = 0; index < gdttable.length; index++) {
       const element = gdttable[index];
       if (element.key == key) {
-        setCurrentDataTable(index, option, selectedNodes);
+        await setCurrentDataTable(index, option, selectedNodes);
         return;
       }
     }
-    incrementActiveDataTable(key, option, selectedNodes);
+    await incrementActiveDataTable(key, option, selectedNodes);
   };
-  const setCurrentDataTable = (
+  const setCurrentDataTable = async (
     activetable,
     option = null,
     selectedNodes = null
@@ -538,7 +538,7 @@ export default function GeometricDimensioning(props) {
           whatchange: SELECTANITEM
         });
       }
-      updateSelectionFromTree(
+      await updateSelectionFromTree(
         selectedNodes
           ? selectedNodes
           : myTree.gdttable[activetable].selectedObjects,
@@ -610,7 +610,7 @@ export default function GeometricDimensioning(props) {
         console.log('Getting saved Resources from gdt', data, myTree.gdttable);
       });
   };
-  const resetActiveDataTable = () => {
+  const resetActiveDataTable = async () => {
     const mystate = isEmptyObject(state) ? myGlobalState : state;
     let mystate_gltfjson = mystate.gltfjson || gltfjson;
     if (!mystate_gltfjson || !mystate_gltfjson.tree) {
@@ -632,7 +632,7 @@ export default function GeometricDimensioning(props) {
       myTree.gdttable[myGlobalActiveDataTable].offset = 0;
     }
     console.log('Coming from here4', myTree);
-    updateSelectionFromTree(
+    await updateSelectionFromTree(
       [],
       false,
       selectedOption,
@@ -1291,7 +1291,7 @@ export default function GeometricDimensioning(props) {
     }
   };
 
-  const doOneSelection = (element, event) => {
+  const doOneSelection = async (element, event) => {
     const aShape = element[gltf_Dict['name']];
     const first4chars = aShape.slice(0, 4);
     const first6chars = aShape.slice(0, 6);
@@ -1305,7 +1305,7 @@ export default function GeometricDimensioning(props) {
       let mymesh = { ...element }; //findMyMaterial(element);
       if (mymesh) {
         mymesh.selectedshell = true;
-        changeStateOfSelection(mymesh, event);
+        await changeStateOfSelection(mymesh, event);
         event['ctrlKey'] = true;
       }
     }
@@ -1331,7 +1331,7 @@ export default function GeometricDimensioning(props) {
     }
     let myTree = { ...mystate_gltfjson }; //elementCopy(mystate_gltfjson);
     console.log('Coming from here1');
-    updateSelectionFromTree(
+    await updateSelectionFromTree(
       selectedNodes,
       true,
       selectedOption,
@@ -1402,7 +1402,7 @@ export default function GeometricDimensioning(props) {
         activeTable,
         previousActivetable
       );
-      changeStateOfSelections(
+      await changeStateOfSelections(
         whatIsAvailableToRemove,
         whatIsNotThereToAdd,
         toGetShapeInfo,
@@ -1413,7 +1413,12 @@ export default function GeometricDimensioning(props) {
         selectedNodes
       );
     } else {
-      resetSelections(activeTable, previousActivetable, myTree, selectedNodes);
+      await resetSelections(
+        activeTable,
+        previousActivetable,
+        myTree,
+        selectedNodes
+      );
     }
   };
 
@@ -2049,7 +2054,7 @@ export default function GeometricDimensioning(props) {
     }
   };
 
-  const handleModelClick = (data, what, event) => {
+  const handleModelClick = async (data, what, event) => {
     // console.log(
     //   'Handling model click',
     //   data,
@@ -2081,12 +2086,12 @@ export default function GeometricDimensioning(props) {
           }
           //mymesh.selectedshell = data.selectedshell;
           setSelectedShell(mymeshcopy, data.selectedshell);
-          return changeStateOfSelection(mymeshcopy, event);
+          return await changeStateOfSelection(mymeshcopy, event);
         } else {
           console.log('No Mesh', mymesh, data);
         }
       } else {
-        return changeStateOfSelection(data, event);
+        return await changeStateOfSelection(data, event);
       }
       if (event && event.ctrlKey != ctrlKey) {
         setCtrlKey(ctrlKey, event.ctrlKey);
