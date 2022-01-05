@@ -211,7 +211,8 @@ export const createChildItems = async ({
       !childRes ||
       !childRes.data ||
       childRes.data.begin != childRes.data.end ||
-      childRes.data.begin == 0
+      childRes.data.begin == 0 ||
+      JSON.stringify(childRes.data) == JSON.stringify({})
     ) {
       console.log('Error in child res', childRes);
       setIsLoading(false);
