@@ -195,7 +195,12 @@ const ItemDetail = ({ itemValue }) => {
             'Setting active gltf file to',
             updatedItemProp.fileKinematic
           );
-          setActiveGLTFile(updatedItemProp.fileKinematic);
+          if (activeGLTFFile != updatedItemProp.fileKinematic) {
+            setActiveGLTFile(updatedItemProp.fileKinematic);
+          } else {
+            setRegenerateKinematicMove(regenerateKinematicMove + 1);
+            setActiveGLTFile(updatedItemProp.fileKinematic);
+          }
         } else {
           gltfParam.fileKinematic = item.fileKinematic;
           await fetchGLTFAndTree({
