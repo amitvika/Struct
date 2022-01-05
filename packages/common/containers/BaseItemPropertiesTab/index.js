@@ -7,7 +7,7 @@ import {
   /*LinearProgress,
   makeStyles*/
 } from '@mui/material';
-import { useDispatch } from 'react-redux';
+// import { useDispatch } from 'react-redux';
 
 import GeometryInput from './GeometryInput';
 import get from 'lodash/get';
@@ -25,7 +25,7 @@ import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';
 import {
   showErrorAlert,
   showSuccessAlert
-} from '../../../actions/alert.action';
+} from '../../../internal-app/src/actions/alert.action';
 import {
   DEFAULTBACKCOLOR,
   DEFAULTSELECTCOLOR,
@@ -39,10 +39,6 @@ import {
 } from '@monostruct/common/gltf/Tree/utils';
 
 import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
-
-import '../style.css';
-// import { createChildItems } from './helper';
-
 export default function BaseItemProperties({
   itemId,
   itemProperties,
@@ -73,7 +69,7 @@ export default function BaseItemProperties({
   setActiveGLTFile
 }) {
   const classes = USESTYLES();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isStepLoaded, setIsStepLoaded] = useState(false);
@@ -423,11 +419,11 @@ export default function BaseItemProperties({
       // }
 
       setIsLoading(false);
-      dispatch(showSuccessAlert({ message: 'File Parsed successfully' }));
+      // dispatch(showSuccessAlert({ message: 'File Parsed successfully' }));
     } catch (error) {
       setIsLoading(false);
       setIsFileLoading(false);
-      dispatch(showErrorAlert({ message: error.message }));
+      // dispatch(showErrorAlert({ message: error.message }));
     }
   };
 

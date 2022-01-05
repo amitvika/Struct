@@ -1,4 +1,4 @@
-import { createChildItems } from './baseItemProperties/helper';
+import { createChildItems } from '@monostruct/common/containers/BaseItemPropertiesTab/helper';
 
 import {
   STATEPROPS,

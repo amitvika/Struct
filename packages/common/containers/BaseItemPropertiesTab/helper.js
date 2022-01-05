@@ -12,7 +12,7 @@ import {
   STATEPROPS,
   isEmptyObjectDictionary
 } from '@monostruct/common/gltf/Tree/utils';
-import { getStepFile } from '../ItemDetails.helper';
+import { getStepFile } from '../../../internal-app/src/containers/itemDetail/ItemDetails.helper';
 
 import NewItemAPI from '@monostruct/common/api/items.api';
 import ItemAPI from '@monostruct/common/api/items.api';

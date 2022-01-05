@@ -3,7 +3,7 @@ import { Snackbar, Button, Tab, Tabs, Grid } from '@mui/material';
 import { useParams, useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
-import BaseItemProperties from './baseItemProperties';
+import BaseItemProperties from '@monostruct/common/containers/BaseItemPropertiesTab';
 import GeometricDimensioning from './geometricDimensioning';
 import CurrentUsage from './currentUsage';
 import VendorDetails from './VendorDetails';
@@ -34,7 +34,7 @@ import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Classification from '../classification';
 import ProductDesignSetup from '../productDesignSetup';
 import DetailComponentInnerHeader from '@monostruct/common/components/DetailComponentInnerHeader';
-import { createChildItems } from './baseItemProperties/helper';
+import { createChildItems } from '@monostruct/common/containers/BaseItemPropertiesTab/helper';
 
 import {
   handleInternalUseProduct,
