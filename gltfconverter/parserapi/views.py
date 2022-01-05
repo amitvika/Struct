@@ -5742,7 +5742,7 @@ def extractKinematicInformation(kinematicparts):
                                             getValueFromJSONKey(kinematicinfo,'axis_after_link')
         else:
             kinematicinfo='No Information for kinematic info'
-        print("What I got as Axis1",axis,kinematicinfo,myInfo)                             
+        print("What I got as Axis1",kinematicinfo,myInfo)                             
         partName, displayName, sequence, isActuator, isLinear, axis, aw, bl, al = myInfo
         print("What I got as Axis2",axis,kinematicinfo,myInfo)
         isActuator = not convertToBool(isActuator,False)
