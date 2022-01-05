@@ -5753,7 +5753,10 @@ def extractKinematicInformation(kinematicparts):
         if displayName==None:
             displayName = getValueFromJSONKey(kinematicpart,'name')
         if isinstance(axis, list)==False :
-            axis = [axis,0,1]
+            if 'xx' in axis:
+                axis = [axis['xx'],axis['xy'],axis['xz']]
+            else:
+                axis = [axis,0,1]
         elif len(axis)>3:
             axis = axis[0:3]
         elif len(axis)<3:
