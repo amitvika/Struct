@@ -98,13 +98,8 @@ export default function DynamicCriteria({
 
     return stateFormFields.map((fieldItem) => {
       return (
-        <Grid
-          container
-          spacing={4}
-          key={fieldItem.fieldName}
-          sx={{ margin: '10px' }}
-        >
-          <Grid item xs={4}>
+        <>
+          <Grid item xs={3}>
             <Headding
               bold
               title={`${fieldItem.fieldName} ${
@@ -112,7 +107,7 @@ export default function DynamicCriteria({
               }`}
             />
           </Grid>
-          <Grid xs={8} sx={{ display: 'flex' }}>
+          <Grid item xs={8}>
             {fieldItem.fieldType === 'Input' && (
               <Input
                 placeholder="Enter"
@@ -132,7 +127,6 @@ export default function DynamicCriteria({
                 onChange={({ value, label }) =>
                   handleOnChange(fieldItem.fieldName, value)
                 }
-                size={'large'}
                 value={fieldItem.value}
               />
             )}
@@ -184,7 +178,7 @@ export default function DynamicCriteria({
               />
             )}
           </Grid>
-        </Grid>
+        </>
       );
     });
   };
@@ -198,7 +192,9 @@ export default function DynamicCriteria({
       <Typography variant="h5" gutterBottom component="div">
         {form.criteriaTitle}
       </Typography>
-      {renderFields()}
+      <Grid container spacing={1}>
+        {renderFields()}
+      </Grid>
     </Paper>
   );
 }
