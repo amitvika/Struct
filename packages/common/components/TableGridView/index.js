@@ -58,7 +58,7 @@ const TableGridView = ({
   const paginationValues = getFromLocalStorage(`${title}-pagination`) || {};
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(
-    paginationValues.rowsPerPage || 100
+    paginationValues.rowsPerPage || 25
   );
   const [totalDocs, setTotalDocs] = useState(0);
 

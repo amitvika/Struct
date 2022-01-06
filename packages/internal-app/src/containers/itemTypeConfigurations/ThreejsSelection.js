@@ -228,7 +228,6 @@ export default function ThreejsSelection(props) {
             first6chars = 'SLICER';
           }
         }
-        console.log(item, mytype, first4chars);
         if (
           (mytype == 'PartSelection' ||
             mytype == 'PartSelection3D' ||
@@ -252,7 +251,6 @@ export default function ThreejsSelection(props) {
         }
       }
     }
-    console.log(mytype, myvalue);
     /* if (myvalue.length > 0) {
       if (active) {
         let errorMessage = '';
@@ -288,6 +286,8 @@ export default function ThreejsSelection(props) {
     setRenderData(myvalue, { name: mykey, option: myoption }, onChange);
     if (mytype === 'CircularFaceOrEdgeSelection') {
       setIsCircularFaceOrEdgeSelection(true);
+    } else {
+      setIsCircularFaceOrEdgeSelection(false);
     }
     onClick(mykey);
     //setRenderData(myvalue, { name: mykey, option: myoption }, onChange);

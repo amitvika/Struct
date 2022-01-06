@@ -422,17 +422,6 @@ class GLTFRenderer extends Component {
     const toChangeGLTF =
       prevProps.activeGLTFFile !== this.props.activeGLTFFile ||
       prevProps.activeDataTable !== this.props.activeDataTable; //prevProps.activefile !== this.props.activefile;
-    console.log(
-      '1',
-      toChangeGLTF,
-      prevProps.activeGLTFFile,
-      this.props.activeGLTFFile,
-      this.props.gltfobj != null && toChangeGLTF,
-      this.props.gltfobj != null,
-      this.props.changedata,
-      prevProps.changedata
-      //this.scene
-    );
 
     var toChange = toChangeGLTF;
     toChange = toChange || prevProps.materialtype != this.props.materialtype;
@@ -440,11 +429,6 @@ class GLTFRenderer extends Component {
     if (prevProps.selectedoption != this.props.selectedoption) {
       const thisoption = this.getValueOptionFromString(
         this.props.selectedoption
-      );
-      console.log(
-        'Setting the selection menu for option ',
-        this.props.selectedoption,
-        thisoption
       );
       myMenus[3].groups[0].values.selectedOption = thisoption;
       this.changeSelectedOption(this.props.selectedoption);

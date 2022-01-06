@@ -67,7 +67,7 @@ export default function ItemTypeConfigurations(props) {
   const [showKineticModel, setShowKineticModal] = useState(true);
   const [whatchange, setWhatchange] = useState(0);
   const [internalProductConfig, setInternalProductConfig] = useState(null);
-  const [isFaceSelectionSeleted, setIsCircularFaceOrEdgeSelection] =
+  const [isCircularFaceOrEdgeSelection, setIsCircularFaceOrEdgeSelection] =
     useState(false);
 
   useEffect(() => {
@@ -188,31 +188,10 @@ export default function ItemTypeConfigurations(props) {
         : 'fieldKey'
       : 'fieldKey';
     if (handleSave) {
-      console.log(
-        'I am asking the component to set',
-        mySelectedObjects,
-        fieldKey,
-        fieldItemKey,
-        'My Selected Objects',
-        mySelectedObjects ? mySelectedObjects[0] : 'Blank',
-        'My Selected Info',
-        mySelectedObjects
-          ? mySelectedObjects[0]
-            ? mySelectedObjects[0].Info
-            : 'Blank'
-          : 'blank',
-        'My Selected OBB',
-        mySelectedObjects
-          ? mySelectedObjects[0]
-            ? mySelectedObjects[0].obb
-            : 'Blank'
-          : 'blank',
-        isFaceSelectionSeleted
-      );
       if (
         mySelectedObjects[0] &&
         (mySelectedObjects[0].obb || mySelectedObjects[0].axis) &&
-        isFaceSelectionSeleted
+        isCircularFaceOrEdgeSelection
       ) {
         handleSave({
           actuator_motion_control: {
@@ -222,7 +201,7 @@ export default function ItemTypeConfigurations(props) {
           }
         });
 
-        setIsCircularFaceOrEdgeSelection(false);
+        // setIsCircularFaceOrEdgeSelection(false);
       }
     } else {
       console.log(
