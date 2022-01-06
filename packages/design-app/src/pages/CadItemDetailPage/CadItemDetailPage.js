@@ -7,8 +7,8 @@ import BaseItemProperties from '@monostruct/common/containers/BaseItemProperties
 const CadMaker = () => {
   const tabList = [
     {
-      tabName: 'CAD or Upload/Customize CAD File',
-      tabContent: BaseItemProperties
+      tabName: 'CAD or Upload/Customize CAD File'
+      // tabContent: BaseItemProperties
     },
     {
       tabName: 'Materials'
