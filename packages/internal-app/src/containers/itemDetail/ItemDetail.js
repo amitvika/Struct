@@ -366,11 +366,11 @@ const ItemDetail = ({ itemValue }) => {
     }
   };
 
-  const handleItemUpdate = (change) => {
-    let tempItemProperties = Object.assign({}, itemProperties, change);
+  // const handleItemUpdate = (change) => {
+  //   let tempItemProperties = Object.assign({}, itemProperties, change);
 
-    setItemProperties(tempItemProperties);
-  };
+  //   setItemProperties(tempItemProperties);
+  // };
 
   const handleSave = async (change) => {
     console.log();
@@ -420,12 +420,12 @@ const ItemDetail = ({ itemValue }) => {
       case 0:
         return 'Add vendor items here';
       case 'cf':
-        return <Classification handleItemUpdateLocallay={handleItemUpdate} />;
+        return <Classification handleItemUpdateLocallay={handleSave} />;
       case 'pdcu':
         return (
           <BaseItemProperties
             itemId={id}
-            handleItemUpdateLocallay={handleItemUpdate}
+            handleItemUpdateLocallay={handleSave}
             handleItemSaveOnServer={handleSave}
             drawLine={itemProperties.drawLine}
             distanceGap={itemProperties.distanceGap}

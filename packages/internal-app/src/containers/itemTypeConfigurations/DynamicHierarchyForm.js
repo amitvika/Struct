@@ -59,7 +59,9 @@ export default function DynamicHierarchyForm(props) {
     // if (get(itemProperties, 'hierarchySelections[0]')) {
     //   return itemProperties.hierarchySelections;
     // }
-    return [{ key: 'Internal Use Product Configuration', formFields: [] }];
+    return [
+      { key: 'Internal Use Product Configuration', form: { fields: [] } }
+    ];
   };
   const [selections, setSelections] = useState(getDefaultSelection());
 
@@ -73,12 +75,38 @@ export default function DynamicHierarchyForm(props) {
     return findIndex > -1;
   };
 
+  const getAngleOfRotationValue = (selections) => {
+    let angleOfRotationValue = 0;
+    const selectedMotionControl = selections.find(
+      (item) => item.value === 'Motion Actuator|Rotational'
+    );
+
+    if (get(selectedMotionControl, 'form.fields')) {
+      const angleOfRotationObj = selectedMotionControl.form.fields.find(
+        (item) => item.fieldName === 'Angular Rotation Range'
+      );
+
+      if (get(angleOfRotationObj, 'fieldName') === 'Angular Rotation Range') {
+        angleOfRotationValue = get(angleOfRotationObj, 'value');
+      }
+    }
+    return angleOfRotationValue;
+  };
+
   useEffect(() => {
+    // syncDataWithServer(selections);
+  }, [stateUpdated]);
+
+  const syncDataWithServer = (selections) => {
     handleItemUpdate({
+      actuator_motion_control: {
+        ...itemProperties.actuator_motion_control,
+        angle_or_distant_limit: getAngleOfRotationValue(selections)
+      },
       hierarchySelections: selections,
       is_actuator_type: checkActuatorTypeComponent(selections)
     });
-  }, [stateUpdated]);
+  };
 
   useEffect(() => {
     setHierarchyDropdownList(get(internalProductConfig, 'hierarchySchema', []));
@@ -102,11 +130,16 @@ export default function DynamicHierarchyForm(props) {
     const findIndex = selections.findIndex((item) => item.key === key);
     if (findIndex > -1) {
       let tempSelections = [...selections];
-      tempSelections[findIndex].formFields = updatedFormFields;
+      tempSelections[findIndex].form = {
+        ...tempSelections[findIndex],
+        form: undefined,
+        fields: updatedFormFields
+      };
       //console.log('Setting values', tempSelections);
       try {
         setSelections(tempSelections);
         setStateUpdated(!stateUpdated);
+        syncDataWithServer(tempSelections);
       } catch (error) {
         console.log('While setting selections', error);
       }
@@ -136,11 +169,11 @@ export default function DynamicHierarchyForm(props) {
             form={selectionItem.form}
             setSelectedOption={setSelectedOption}
             handleUpdate={(updatedFormFields) => {
-              console.log(
-                'Doing Changes in Dynaimc Hirearchy',
-                selectionItem.key,
-                updatedFormFields
-              );
+              // console.log(
+              //   'Doing Changes in Dynaimc Hirearchy',
+              //   selectionItem.key,
+              //   updatedFormFields
+              // );
               handleDynamicFormUpdate(selectionItem.key, updatedFormFields);
             }}
             renderData={renderData}

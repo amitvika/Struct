@@ -11,7 +11,7 @@ export default function ClassficationFilter({
 }) {
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
   const [selections, setSelections] = useState([
-    { key: 'Classification Configuration', formFields: [] }
+    { key: 'Classification Configuration', form: { fields: [] } }
   ]);
   const [stateUpdated, setStateUpdated] = useState(false);
 
@@ -26,7 +26,9 @@ export default function ClassficationFilter({
 
   useEffect(() => {
     if (isFilterResetted) {
-      setSelections([{ key: 'Classification Configuration', formFields: [] }]);
+      setSelections([
+        { key: 'Classification Configuration', form: { fields: [] } }
+      ]);
       setFilteredList(list);
     }
   }, [isFilterResetted]);

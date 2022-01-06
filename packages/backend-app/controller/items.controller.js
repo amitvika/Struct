@@ -91,11 +91,11 @@ const buildQuery = (req) => {
     });
   }
 
-  if (req.query.hasOwnProperty('is_actuator_type')) {
-    query.$and.push({
-      is_actuator_type: req.query.is_actuator_type
-    });
-  }
+  // if (req.query.hasOwnProperty('is_actuator_type')) {
+  //   query.$and.push({
+  //     is_actuator_type: req.query.is_actuator_type
+  //   });
+  // }
 
   if (req.query.full_search) {
     query.$and.push(createSearchQuery(req.query.full_search));
