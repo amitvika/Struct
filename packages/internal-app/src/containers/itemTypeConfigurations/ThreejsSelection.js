@@ -158,7 +158,10 @@ export default function ThreejsSelection(props) {
       first4chars == 'PART'
     ) {
       return myName + '\u2003';
-    } else if (mytype == 'FaceSelection' && first4chars == 'FACE') {
+    } else if (
+      mytype == 'FaceSelection' &&
+      (first4chars == 'FACE' || first4chars == 'PART')
+    ) {
       return myName + '\u2003';
     } else if (
       mytype != 'PartSelection' &&
@@ -225,7 +228,7 @@ export default function ThreejsSelection(props) {
             first6chars = 'SLICER';
           }
         }
-        //console.log(item, first4chars, first6chars, myName);
+        console.log(item, mytype, first4chars);
         if (
           (mytype == 'PartSelection' ||
             mytype == 'PartSelection3D' ||
@@ -233,7 +236,10 @@ export default function ThreejsSelection(props) {
           first4chars == 'PART'
         ) {
           return true;
-        } else if (mytype == 'FaceSelection' && first4chars == 'FACE') {
+        } else if (
+          mytype == 'FaceSelection' &&
+          (first4chars == 'FACE' || first4chars == 'PART')
+        ) {
           return true;
         } else if (
           mytype != 'PartSelection' &&
@@ -246,7 +252,7 @@ export default function ThreejsSelection(props) {
         }
       }
     }
-    //console.log(mytype, myvalue);
+    console.log(mytype, myvalue);
     /* if (myvalue.length > 0) {
       if (active) {
         let errorMessage = '';
@@ -352,9 +358,9 @@ export default function ThreejsSelection(props) {
           ? getComponents(myvalue)
           : 'Please select features'}
       </Button>
-      {cylindrical_axis_of_rotation && (
+      {/* {cylindrical_axis_of_rotation && (
         <FormGroup sx={{ flexDirection: 'row' }}>{createAxisUI()}</FormGroup>
-      )}
+      )} */}
       <Snackbar
         open={snackBarState}
         autoHideDuration={autoHideDuration}

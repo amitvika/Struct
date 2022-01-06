@@ -366,11 +366,11 @@ const ItemDetail = ({ itemValue }) => {
     }
   };
 
-  const handleItemUpdate = (change) => {
-    let tempItemProperties = Object.assign({}, itemProperties, change);
+  // const handleItemUpdate = (change) => {
+  //   let tempItemProperties = Object.assign({}, itemProperties, change);
 
-    setItemProperties(tempItemProperties);
-  };
+  //   setItemProperties(tempItemProperties);
+  // };
 
   const handleSave = async (change) => {
     console.log();
@@ -420,55 +420,44 @@ const ItemDetail = ({ itemValue }) => {
       case 0:
         return 'Add vendor items here';
       case 'cf':
-        return <Classification handleItemUpdateLocallay={handleItemUpdate} />;
+        return <Classification handleItemUpdateLocallay={handleSave} />;
       case 'pdcu':
         return (
           <BaseItemProperties
             itemId={id}
-            itemProperties={itemProperties}
-            setItemProperties={setItemProperties}
-            gltfjson={gltfjson}
-            setgltfjson={setgltfjson}
-            tabIndex={tabIndex}
-            setTabIndex={setTabIndex}
-            handleItemUpdateLocallay={handleItemUpdate}
+            handleItemUpdateLocallay={handleSave}
             handleItemSaveOnServer={handleSave}
-            progressBarLoad={progressBarLoad}
-            percentage={percentage}
-            currentProgressText={currentProgressText}
-            completionProgressText={completionProgressText}
-            centerActionText={centerActionText}
-            //setProgressBarRender={setProgressBarRender}
-            selectedOption={selectedOption}
-            setSelectedOption={setSelectedOption}
-            setPercentage={setPercentage}
-            setProgressBarLoad={setProgressBarLoad}
-            setCurrentProgressText={setCurrentProgressText}
-            setCompletionProgressText={setCompletionProgressText}
-            setCenterActionText={setCenterActionText}
-            drawLine={
-              /* checkDBNull(itemProperties.drawLine)
-                ? true
-                : */ itemProperties.drawLine
-            }
-            distanceGap={
-              /* checkDBNull(itemProperties.drawLine)
-                ? STATEPROPS.distancegap
-                :  */ itemProperties.distanceGap
-            }
-            angleGap={
-              /* checkDBNull(itemProperties.drawLine)
-                ? STATEPROPS.anglegap
-                : */ itemProperties.angleGap
-            }
-            allowFirstLevelItems={allowFirstLevelItems}
-            setAllowFirstLevelItems={setAllowFirstLevelItems}
-            createAutoAssemblyOrder={createAutoAssemblyOrder}
-            setCreateAutoAssemblyOrder={setCreateAutoAssemblyOrder}
-            createAutoStackability={createAutoStackability}
-            setCreateAutoStackability={setCreateAutoStackability}
-            activeGLTFFile={activeGLTFFile}
-            setActiveGLTFile={setActiveGLTFile}
+            drawLine={itemProperties.drawLine}
+            distanceGap={itemProperties.distanceGap}
+            angleGap={itemProperties.angleGap}
+            {...{
+              allowFirstLevelItems,
+              setAllowFirstLevelItems,
+              createAutoAssemblyOrder,
+              setCreateAutoAssemblyOrder,
+              activeGLTFFile,
+              setActiveGLTFile,
+              setCreateAutoStackability,
+              createAutoStackability,
+              selectedOption,
+              setSelectedOption,
+              setPercentage,
+              setProgressBarLoad,
+              setCurrentProgressText,
+              setCompletionProgressText,
+              setCenterActionText,
+              progressBarLoad,
+              percentage,
+              currentProgressText,
+              completionProgressText,
+              centerActionText,
+              itemProperties,
+              setItemProperties,
+              gltfjson,
+              setgltfjson,
+              tabIndex,
+              setTabIndex
+            }}
           />
         );
       case 'cu':
