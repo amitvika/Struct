@@ -249,7 +249,12 @@ export const createChildItems = async ({
       console.log('New Items', newItem);
       setIsLoading(false);
       setProgressBarLoad(false);
-      return NewItemAPI.upsertItems(newItem);
+      try {
+        return NewItemAPI.upsertItems(newItem);
+      } catch (error) {
+        console.log('While creating error', newItem, error);
+        return false;
+      }
     } else {
       console.log(
         'Not creating because it might be already created',
@@ -261,7 +266,7 @@ export const createChildItems = async ({
       setProgressBarLoad(false);
     }
   } catch (error) {
-    console.log('Child item creation Error');
+    console.log('Child item creation Error', error);
   }
   setIsLoading(false);
   setProgressBarLoad(false);

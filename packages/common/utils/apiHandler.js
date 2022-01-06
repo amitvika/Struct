@@ -9,16 +9,17 @@ export const request = async (path, data, method) => {
     headers: {
       'Content-Type': 'application/json',
       'x-auth-token': token,
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': '*'
     },
-    data,
+    data
   }).catch((error) => {
-    console.log("Error",error);
-    const status = get(error, 'response.status');    
+    console.log('Error', error);
+    const status = get(error, 'response.status');
     if (status === 401 && path !== '/api/auth/user') {
       localStorage.setItem('token', null);
       // window.location = '/';
     }
+    return null;
   });
 };
 
