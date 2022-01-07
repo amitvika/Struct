@@ -4343,14 +4343,14 @@ class StepIgesAnalyser():
                 for istep in range(lenOfAnimationsTime):  
                     timebuff.add_time(istep*self.delay) #if action=="tranlation" else 2*istep*self.delay+1 )
                     if action=="translation":
-                        if istep < steps-1: 
+                        if istep < steps: 
                             up, vp, wp = globalTranslation[istep]                
                             translationbuff.add_translation(up,vp,wp)
                         else:
                             translationbuff.add_translation(u,v,w)
                             globalTranslation.append((u,v,w))
                     else:
-                        if istep < steps-1:
+                        if istep < steps:
                             b1, b2, b3, b4 = globalRotation[istep]
                             rotationbuff.add_rotation(b2,b3,b4,b1)
                             print("less than step",istep,steps,b1,b2,b3,b4)
