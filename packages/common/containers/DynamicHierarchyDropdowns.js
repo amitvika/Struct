@@ -92,8 +92,8 @@ export default function DynamicHierarchy(props) {
     }
 
     return (
-      <Grid container spacing={2} key={`dditem_${title + index}`}>
-        <Grid item xs={4}>
+      <>
+        <Grid item xs={3}>
           <Headding bold title={title} />
         </Grid>
         <Grid item xs={8}>
@@ -104,7 +104,7 @@ export default function DynamicHierarchy(props) {
             value={getSelectionValue(fieldItem.title)}
           />
         </Grid>
-      </Grid>
+      </>
     );
   };
 
@@ -165,7 +165,11 @@ export default function DynamicHierarchy(props) {
 
   if (isPaperContainer) {
     return (
-      <Paper style={{ padding: 20, margin: 10 }}>{renderDropdowns()}</Paper>
+      <Paper style={{ padding: 20, margin: 10 }}>
+        <Grid container spacing={1}>
+          {renderDropdowns()}
+        </Grid>
+      </Paper>
     );
   }
 
