@@ -29,7 +29,7 @@ import {
   //assignArray
 } from '@monostruct/common/gltf/Tree/utils';
 import { stringify } from '@monostruct/common/gltf/Flatted.js';
-import Assembly from '../assembly';
+import Assembly from '@monostruct/common/containers/AssemblyTab';
 import { buildParentChildTree } from './helper';
 import { Box } from '@mui/system';
 import { get } from 'lodash';

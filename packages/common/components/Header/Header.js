@@ -29,13 +29,13 @@ const Header = (props) => {
       }
     } catch (error) {
       console.log('Error', error);
+      // setAuthUser({ user: undefined });
     }
   };
 
   const handleLogout = () => {
     localStorage.setItem('token', null);
     setAuthUser({ user: undefined });
-    console.log('--------props.loginPageUrl', props.loginPageUrl);
     setTimeout(() => {
       history.replace(props.loginPageUrl || '/');
     }, 0);

@@ -9,7 +9,7 @@ import CurrentUsage from './currentUsage';
 import VendorDetails from './VendorDetails';
 import ManufactureProcessingProcessSimulation from '@monostruct/common/containers/ManufactureProcessingProcessSimulation';
 import ClientSetup from './clientSetup';
-import Assembly from './assembly';
+import Assembly from '@monostruct/common/containers/AssemblyTab';
 import Production from './production';
 import SurfaceFinishAndTreatment from './SurfaceFinishAndTreatment';
 import ComplianceAndCertifications from './ComplianceAndCertifications';
@@ -31,7 +31,7 @@ import LoadingModal from '@monostruct/common/components/LoadingModal';
 import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
-import Classification from '../classification';
+import Classification from '@monostruct/common/containers/ClassificationTab';
 import ProductDesignSetup from '../productDesignSetup';
 import DetailComponentInnerHeader from '@monostruct/common/components/DetailComponentInnerHeader';
 import { createChildItems } from '@monostruct/common/containers/BaseItemPropertiesTab/helper';
@@ -47,7 +47,7 @@ import {
   fetchGLTFAndTree,
   getOKTOParseForSetOrder
 } from './ItemDetails.helper';
-import MaterialTab from './materialTab';
+import MaterialTab from '@monostruct/common/containers/MaterialTab/MaterialTab';
 import { getAFileFromStore } from '@monostruct/common/api/fileUpload.api';
 
 let state_additionalSaveFunction = null;
@@ -472,7 +472,7 @@ const ItemDetail = ({ itemValue }) => {
       case 0:
         return 'Add vendor items here';
       case 'cf':
-        return <Classification handleItemUpdateLocallay={handleSave} />;
+        return <Classification {...{ handleSave }} />;
       case 'pdcu':
         return (
           <BaseItemProperties

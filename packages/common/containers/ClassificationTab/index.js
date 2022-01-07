@@ -3,10 +3,7 @@ import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import get from 'lodash/get';
 import DynamicHierarchyDropdowns from '@monostruct/common/containers/DynamicHierarchyDropdowns';
 
-export default function Classification({
-  handleItemUpdateLocallay,
-  isFilterResetted
-}) {
+export default function Classification({ handleSave, isFilterResetted }) {
   const [hierarchyDropdownList, setHierarchyDropdownList] = useState([]);
   const [selections, setSelections] = useState([
     { key: 'Classification Configuration', form: { fields: [] } }
@@ -23,7 +20,7 @@ export default function Classification({
   }, []);
 
   useEffect(() => {
-    handleItemUpdateLocallay({ classificationConfig: selections });
+    handleSave({ classificationConfig: selections });
   }, [stateUpdated]);
 
   const handleOnDropdownSelection = () => {

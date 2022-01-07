@@ -28,6 +28,10 @@ export default function DetailPageTab({ tabList }) {
     ? tabList[selectedTabIndex].tabContent
     : null;
 
+  const TabProps = tabList[selectedTabIndex]
+    ? tabList[selectedTabIndex].tabProps
+    : null;
+
   return (
     <Grid container style={{ flexWrap: 'unset' }}>
       <TabContainer>
@@ -41,7 +45,9 @@ export default function DetailPageTab({ tabList }) {
           {renderTab()}
         </Tabs>
       </TabContainer>
-      <TabPanelContainer>{TabContent && <TabContent />}</TabPanelContainer>
+      <TabPanelContainer>
+        {TabContent && <TabContent {...{ ...TabProps }} />}
+      </TabPanelContainer>
     </Grid>
   );
 }

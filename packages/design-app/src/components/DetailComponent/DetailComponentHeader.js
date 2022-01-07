@@ -12,7 +12,7 @@ import { useTheme } from '@mui/material/styles';
 export default function DetailComponentHeader({
   title,
   isAddDesignVisible = true,
-  handleSaveProductDesignItem,
+  handleSave,
   itemValue,
   setItemValue
 }) {
@@ -36,14 +36,12 @@ export default function DetailComponentHeader({
           flexDirection: isMobile ? 'column' : 'row'
         }}
       >
-        {isAddDesignVisible && (
-          <AddDesignForm {...{ itemValue, handleSaveProductDesignItem }} />
-        )}
+        {isAddDesignVisible && <AddDesignForm {...{ itemValue, handleSave }} />}
         <DesignTypeSelection
           {...{
             setItemValue,
             itemValue,
-            handleSaveProductDesignItem,
+            handleSave,
             isMobile
           }}
         />
@@ -69,7 +67,7 @@ export default function DetailComponentHeader({
 const DesignTypeSelection = ({
   setItemValue,
   itemValue,
-  handleSaveProductDesignItem,
+  handleSave,
   isMobile
 }) => {
   const [value, setValue] = React.useState(itemValue.design_type);
@@ -81,7 +79,7 @@ const DesignTypeSelection = ({
   const handleChange = (event) => {
     setValue(event.target.value);
     if (itemValue.id) {
-      handleSaveProductDesignItem({ design_type: event.target.value });
+      handleSave({ design_type: event.target.value });
     } else {
       setItemValue(event.target.value);
     }

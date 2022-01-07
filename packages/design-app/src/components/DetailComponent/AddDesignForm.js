@@ -8,7 +8,7 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import IconButton from '@mui/material/IconButton';
 import { get } from 'lodash';
 
-export default function AddDesign({ handleSaveProductDesignItem, itemValue }) {
+export default function AddDesign({ handleSave, itemValue }) {
   const [value, setValue] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
@@ -27,7 +27,7 @@ export default function AddDesign({ handleSaveProductDesignItem, itemValue }) {
   const handleSaveTitle = () => {
     setValue(value);
     setIsEditing(false);
-    handleSaveProductDesignItem({ name: value });
+    handleSave({ name: value });
   };
 
   return (

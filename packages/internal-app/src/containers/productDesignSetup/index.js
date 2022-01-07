@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Assembly from '../itemDetail/assembly';
+import Assembly from '@monostruct/common/containers/AssemblyTab';
 import { buildParentChildTree } from '../itemDetail/geometricDimensioning/helper';
 import { SELECTFEATURE } from '@monostruct/common/gltf/Tree/utils';
 import ItemAPI from '@monostruct/common/api/items.api';
