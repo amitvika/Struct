@@ -4357,19 +4357,19 @@ class StepIgesAnalyser():
                         else:
                             # u,v, w = old w,v,w * quaternion with which                        
                             if steps>1:
-                                b1, b2, b3, b4 = globalRotation[steps-1]
+                                """ b1, b2, b3, b4 = globalRotation[steps-1]
                                 na=a
                                 [nu, nv, nw] = self.point_rotation_by_quaternion([u,v,w],[b1,b2,b3,b4]) 
                                 dist = math.sqrt(nu*nu + nv*nv +nw*nw)
                                 if dist==0:
                                     nu, nv, nw = 1, 1, 1
                                 else:
-                                    nu, nv, nw = nu/dist, nv/dist, nw/dist
+                                    nu, nv, nw = nu/dist, nv/dist, nw/dist """
                                 
-                                """ curVector =globalAxisAndAngle[0]
+                                curVector =globalAxisAndAngle[0]
                                 for rotationIndex in range(steps-1):
                                     curVector=self.axis_rotation_multiply(curVector,globalAxisAndAngle[rotationIndex+1])
-                                nu,nv,nw,na=curVector """
+                                nu,nv,nw,na=curVector
                                 my_quaternion = Quaternion(axis=[nu, nv, nw], angle=na) 
                                 my_quaternion.normalise()
                                 [a1,a2,a3,a4]=my_quaternion.q
