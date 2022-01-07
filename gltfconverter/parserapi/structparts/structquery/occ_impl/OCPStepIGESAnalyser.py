@@ -4260,6 +4260,26 @@ class StepIgesAnalyser():
         ]
         self.mstep_dict['animations']=animationchannels
 
+    def axis_rotation_multiply(self, axisAndtheta, vector):
+        """
+        Return the rotation matrix associated with counterclockwise rotation about
+        the given axis by theta radians.
+        """
+        k,l,m,theta=axisAndtheta
+        u, v, w,angle = vector
+        a = math.cos(theta / 2.0)
+        s = math.sin(theta / 2.0)
+        b, c, d = -k*s, -l*s, -m*s        
+        aa, bb, cc, dd = a * a, b * b, c * c, d * d
+        bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+        p,q,r= ((aa + bb - cc - dd)*u)+ (2 * (bc + ad) * v) + (2 * (bd - ac) * w),\
+            (2 * (bc - ad)*u)+( (aa + cc - bb - dd)*v)+(2 * (cd + ab) * w),\
+                (2 * (bd + ac)*u)+(2 * (cd - ab)*v)+( (aa + dd - bb - cc)*w) 
+        sqrtlength = math.sqrt(p*p+q*q+r*r)
+        if sqrtlength==0:
+            return 1/math.sqrt(3), 1/math.sqrt(3), 1/math.sqrt(3)
+        return p/sqrtlength,q/sqrtlength,r/sqrtlength,angle
+
     def quaternion_mult(self, q,r):
         return [r[0]*q[0]-r[1]*q[1]-r[2]*q[2]-r[3]*q[3],
                 r[0]*q[1]+r[1]*q[0]-r[2]*q[3]+r[3]*q[2],
@@ -4267,7 +4287,7 @@ class StepIgesAnalyser():
                 r[0]*q[3]-r[1]*q[2]+r[2]*q[1]+r[3]*q[0]]
 
     def point_rotation_by_quaternion(self, point,q):
-        r = [0]+point
+        r = [0,point[0],point[1],point[2]]
         q_conj = [q[0],-1*q[1],-1*q[2],-1*q[3]]
         return self.quaternion_mult(self.quaternion_mult(q,r),q_conj)[1:]
 
@@ -4291,6 +4311,8 @@ class StepIgesAnalyser():
         globalRotation=[(1,0,0,0)]   
         #globalAngle=[0]
         for action in ["translation","rotation"]:
+            if action=="rotation":
+                globalAxisAndAngle=[]
             for steps in range(1,lenShapeOrder+1):
                 print(steps,lenAnimations,lenShapeOrder)
                 lenOfAnimationsTime = steps+1 #or lenAnimations ; it works for both...
@@ -4310,31 +4332,31 @@ class StepIgesAnalyser():
                 else:
                     dist = math.sqrt(u*u + v*v +w*w)
                     if dist==0:
-                        u, v, w = 1, 1, 1
+                        u, v, w = 1/math.sqrt(3), 1/math.sqrt(3), 1/math.sqrt(3)
                     else:
                         u, v, w = u/dist, v/dist, w/dist
                     
                     rotationbuff =RotationBuffer(
                         max_index=2
                     )   
-                
+                    globalAxisAndAngle.append((u,v,w,a))
                 for istep in range(lenOfAnimationsTime):  
                     timebuff.add_time(istep*self.delay) #if action=="tranlation" else 2*istep*self.delay+1 )
                     if action=="translation":
-                        if istep < steps: 
+                        if istep < steps-1: 
                             up, vp, wp = globalTranslation[istep]                
                             translationbuff.add_translation(up,vp,wp)
                         else:
                             translationbuff.add_translation(u,v,w)
                             globalTranslation.append((u,v,w))
                     else:
-                        if istep < steps:
+                        if istep < steps-1:
                             b1, b2, b3, b4 = globalRotation[istep]
                             rotationbuff.add_rotation(b2,b3,b4,b1)
                             print("less than step",istep,steps,b1,b2,b3,b4)
                         else:
                             # u,v, w = old w,v,w * quaternion with which                        
-                            if steps>0:
+                            if steps>1:
                                 b1, b2, b3, b4 = globalRotation[steps-1]
                                 na=a
                                 [nu, nv, nw] = self.point_rotation_by_quaternion([u,v,w],[b1,b2,b3,b4]) 
@@ -4343,16 +4365,21 @@ class StepIgesAnalyser():
                                     nu, nv, nw = 1, 1, 1
                                 else:
                                     nu, nv, nw = nu/dist, nv/dist, nw/dist
+                                
+                                """ curVector =globalAxisAndAngle[0]
+                                for rotationIndex in range(steps-1):
+                                    curVector=self.axis_rotation_multiply(curVector,globalAxisAndAngle[rotationIndex+1])
+                                nu,nv,nw,na=curVector """
                                 my_quaternion = Quaternion(axis=[nu, nv, nw], angle=na) 
                                 my_quaternion.normalise()
                                 [a1,a2,a3,a4]=my_quaternion.q
-                                print("step==0",istep,steps,a1,a2,a3,a4)
+                                print("step>1",istep,steps,a1,a2,a3,a4,u,v,w,a,nu,nv,nw,na)
                             else:
                                 na=a
                                 my_quaternion = Quaternion(axis=[u, v, w], angle=na)
                                 my_quaternion.normalise()
                                 [a1,a2,a3,a4]=my_quaternion.q
-                                print("step!=0",istep,steps,a1,a2,a3,a4)
+                                print("step==1",istep,steps,a1,a2,a3,a4,u,v,w,a,na)
                             #print("My Quaternion",a1,a2,a3,a4)                        
                             rotationbuff.add_rotation(a2,a3,a4,a1)
                             globalRotation.append((a1,a2,a3,a4))                            
