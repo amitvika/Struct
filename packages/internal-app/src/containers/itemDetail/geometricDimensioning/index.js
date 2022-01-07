@@ -22,7 +22,9 @@ import {
   arrayFindIndex,
   arrayRemove,
   gltf_Dict,
-  isEmptyObjectDictionary
+  isEmptyObjectDictionary,
+  SELECTCIRCULAR,
+  SELECTLINEAR
   //assignDictionary,
   //assignArray
 } from '@monostruct/common/gltf/Tree/utils';
@@ -66,7 +68,9 @@ export default function GeometricDimensioning(props) {
     activeGLTFFile = '',
     setActiveGLTFile = () => {},
     activeGDTTable = 0,
-    setActiveGDTTable = () => {}
+    setActiveGDTTable = () => {},
+    drawAxisLines = null,
+    setDrawAxisLines = () => {}
   } = props;
   const classes = USESTYLES();
 
@@ -784,6 +788,27 @@ export default function GeometricDimensioning(props) {
     structure = await getShapeInformation(structure);
     tempSelectedObjects = structure.objects;
     tempMates = structure.mates;
+    if (selectedOption == SELECTCIRCULAR || selectedOption == SELECTLINEAR) {
+      let axisArray = [];
+      for (
+        let indexObject = mystate.selectedObjects.length;
+        indexObject < tempSelectedObjects.length;
+        indexObject++
+      ) {
+        const element = tempSelectedObjects[indexObject];
+        console.log('Checking elements', element);
+        if (element.axis) {
+          axisArray.push({
+            axis: element.axis,
+            name: element[gltf_Dict['name']]
+          });
+        }
+      }
+      console.log('Getting', axisArray);
+      setDrawAxisLines(axisArray);
+    } else {
+      console.log('Option is', selectedOption);
+    }
     setState({
       selectedObjects: [...tempSelectedObjects],
       parentObjects: [...tempParentObjects],
@@ -1602,8 +1627,34 @@ export default function GeometricDimensioning(props) {
           };
           structure = await getShapeInformation(structure);
           console.log('Got results', structure);
+
           copy_selectobjects = structure.objects ? structure.objects : [];
           copy_mateobjects = structure.mates ? structure.mates : [];
+
+          if (
+            selectedOption == SELECTCIRCULAR ||
+            selectedOption == SELECTLINEAR
+          ) {
+            let axisArray = [];
+            for (
+              let indexObject = stateLength;
+              indexObject < copy_selectobjects.length;
+              indexObject++
+            ) {
+              const element = copy_selectobjects[indexObject];
+              console.log('Checking elements', element);
+              if (element.axis) {
+                axisArray.push({
+                  axis: element.axis,
+                  name: element[gltf_Dict['name']]
+                });
+              }
+            }
+            console.log('Getting', axisArray);
+            setDrawAxisLines(axisArray);
+          } else {
+            console.log('Option is', selectedOption);
+          }
         } else {
         }
 
@@ -1889,6 +1940,27 @@ export default function GeometricDimensioning(props) {
       structure = await getShapeInformation(structure);
       copy_selectobjects = structure.objects ? structure.objects : [];
       copy_mateobjects = structure.mates ? structure.mates : [];
+      if (selectedOption == SELECTCIRCULAR || selectedOption == SELECTLINEAR) {
+        let axisArray = [];
+        for (
+          let indexObject = stateLength;
+          indexObject < copy_selectobjects.length;
+          indexObject++
+        ) {
+          const element = copy_selectobjects[indexObject];
+          console.log('Checking elements', element);
+          if (element.axis) {
+            axisArray.push({
+              axis: element.axis,
+              name: element[gltf_Dict['name']]
+            });
+          }
+        }
+        console.log('Getting', axisArray);
+        setDrawAxisLines(axisArray);
+      } else {
+        console.log('Option is', selectedOption);
+      }
     } else {
       console.log(
         'I could not get any togetinfo',
@@ -2160,6 +2232,7 @@ export default function GeometricDimensioning(props) {
           regenerateKinematicMove={regenerateKinematicMove}
           activeGLTFFile={activeGLTFFile}
           setActiveGLTFile={setActiveGLTFile}
+          drawAxisLines={drawAxisLines}
         />
       </Paper>
 

@@ -48,7 +48,9 @@ export default function ItemTypeConfigurations(props) {
     activeGLTFFile,
     setActiveGLTFile,
     activeGDTTable,
-    setActiveGDTTable
+    setActiveGDTTable,
+    drawAxisLines,
+    setDrawAxisLines
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
@@ -333,6 +335,8 @@ export default function ItemTypeConfigurations(props) {
         setActiveGLTFile={setActiveGLTFile}
         activeGDTTable={activeGDTTable}
         setActiveGDTTable={setActiveGDTTable}
+        drawAxisLines={drawAxisLines}
+        setDrawAxisLines={setDrawAxisLines}
         //{...{ whatchange }}
       />
     </>

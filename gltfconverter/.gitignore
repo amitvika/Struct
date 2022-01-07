@@ -165,6 +165,7 @@ __pycache__
 *.order
 *.gdt
 *.status
+*.axis
 
 
 

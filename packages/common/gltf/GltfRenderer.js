@@ -414,6 +414,77 @@ class GLTFRenderer extends Component {
         : false
       : false;
   };
+
+  drawAxisLine = (axis, objectname) => {
+    if (this.scene && axis && axis.length == 3) {
+      let axisLineNodes = new Group(); //new Object3D();
+      axisLineNodes.linetype = 5;
+      const name = 'AXIS' + (objectname ? objectname : '');
+      let points = [];
+      const maxLength =
+        window.innerWidth > window.innerHeight
+          ? window.innerWidth
+          : window.innerHeight;
+
+      console.log(
+        'Got window for drawing edges',
+        window,
+        maxLength,
+        -axis[0] * maxLength,
+        -axis[2] * maxLength,
+        -axis[1] * maxLength
+      );
+      const startPoint = new Vector3(
+        -axis[0] * maxLength,
+        -axis[2] * maxLength,
+        -axis[1] * maxLength
+      );
+      const finishPoint = new Vector3(
+        axis[0] * maxLength,
+        axis[2] * maxLength,
+        axis[1] * maxLength
+      );
+      points.push(startPoint);
+      points.push(finishPoint);
+      let geometry = new BufferGeometry({
+        name: name
+      });
+      geometry.name = name;
+      //geometry.setPositions(myBase64Points);
+      console.log('Setting points to draw axis', points);
+      geometry.setFromPoints(points);
+      let sketchLineGeometry = new MeshLineGeometry();
+      sketchLineGeometry.setGeometry(geometry);
+      let sketchMatrial = new MeshLineMaterial({
+        color: this.props.edgecolor ? this.props.edgecolor : DEFAULTEDGECOLOR,
+        resolution: new Vector2(400, 400),
+        sizeAttenuation: 0,
+        lineWidth: this.state.edgelinewidth,
+        side: DoubleSide
+      });
+      //Note: resolution is *required*!
+      let ourMesh = new MeshLine(sketchLineGeometry, sketchMatrial);
+      ourMesh.name = name;
+      ourMesh.renderOrder += 40;
+      axisLineNodes.add(ourMesh);
+      axisLineNodes.position.x += this.shiftposition.x;
+      axisLineNodes.position.y += this.shiftposition.y;
+      axisLineNodes.position.z += this.shiftposition.z;
+      axisLineNodes.renderOrder += 40;
+      //parentLineNodes.onBeforeRender = function( renderer ) { renderer.clearDepth(); };
+      this.scene.add(axisLineNodes);
+      if (!this.axisArray) {
+        this.axisArray = [];
+      }
+      if (this.axisArray) {
+        this.axisArray.push(axisLineNodes);
+      }
+      this.raycastObjects = [
+        ...this.raycastObjects,
+        ...this.rayCastObjectFilters(axisLineNodes.children)
+      ];
+    }
+  };
   componentDidUpdate(prevProps, prevState) {
     //var toChange = ( (prevProps.gltfobj !== this.props.gltfobj)  || (prevState.gltfobj  !== this.props.gltfobj) );
     //console.log('COMPONENT', prevProps, this.props);
@@ -482,6 +553,21 @@ class GLTFRenderer extends Component {
       } */
     }
     this.changeparts();
+    if (
+      this.props.drawAxisLines &&
+      JSON.stringify(prevProps.drawAxisLines || []) !=
+        JSON.stringify(this.props.drawAxisLines || [])
+    ) {
+      for (
+        let indexLines = 0;
+        indexLines < this.props.drawAxisLines.length;
+        indexLines++
+      ) {
+        const element = this.props.drawAxisLines[indexLines];
+        console.log('Getting an element to draw axis', element);
+        this.drawAxisLine(element.axis, element.name);
+      }
+    }
     /* 
         if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
             this.setState({gltfobj:this.props.gltfobj});
@@ -518,33 +604,55 @@ class GLTFRenderer extends Component {
             console.log(this.activeFile,this.activeId,this.gltfobjLen);
         } */
   }
+
+  removeFromScreenObjects = (myobject) => {
+    if (myobject) {
+      this.scene.remove(myobject);
+      myobject.traverse((node) => {
+        if (node.isMesh && node.geometry) {
+          node.geometry.dispose();
+        }
+      });
+    }
+  };
+
   truncToFirst = () => {
-    for (let index = this.content.length - 1; index > 0; index--) {
-      if (index > 0) {
-        let myobject = this.content[index];
-        this.scene.remove(myobject);
+    if (this.axisArray) {
+      for (let index = 0; index < this.axisArray.length; index++) {
+        this.removeFromScreenObjects(this.axisArray[index]);
+      }
+      this.axisArray = [];
+    }
+    if (this.content) {
+      for (let index = this.content.length - 1; index > 0; index--) {
+        if (index > 0) {
+          this.removeFromScreenObjects(this.content[index]);
+          // let myobject = this.content[index];
+          // this.scene.remove(myobject);
+          // myobject.traverse((node) => {
+          //   if (!node.isMesh) return;
+          //   if (node.geometry) {
+          //     node.geometry.dispose();
+          //     //node.geometry=null;
+          //   }
+          // });
+        }
+      }
+      if (this.content.length > 1) {
+        this.content.length = 1;
+        let myobject = this.content[0];
         myobject.traverse((node) => {
           if (!node.isMesh) return;
-          if (node.geometry) {
-            node.geometry.dispose();
-            //node.geometry=null;
-          }
+          //console.log('Initial node', node);
+          node.facesLoaded = false;
+          node.edgesLoaded = false;
+          node.verticesLoaded = false;
+          //console.log('Setting node', node);
         });
+        this.updateParts(myobject);
       }
     }
-    if (this.content.length > 1) {
-      this.content.length = 1;
-      let myobject = this.content[0];
-      myobject.traverse((node) => {
-        if (!node.isMesh) return;
-        //console.log('Initial node', node);
-        node.facesLoaded = false;
-        node.edgesLoaded = false;
-        node.verticesLoaded = false;
-        //console.log('Setting node', node);
-      });
-      this.updateParts(myobject);
-    }
+
     if (
       this.props.gltfobj &&
       this.props.gltfobj.tree &&
@@ -819,6 +927,7 @@ class GLTFRenderer extends Component {
     //console.log("Setting in init gltfobj",this.gltfobjLen,state_gltfobj.gdttable);
     this.lights = [];
     this.content = null;
+    this.axisArray = null;
     this.mixer = null;
     this.clips = [];
     this.gui = null;
@@ -1250,7 +1359,7 @@ class GLTFRenderer extends Component {
    */
   setContent = async (object, clips) => {
     this.clear();
-
+    //console.log('Cleared the contents');
     /* const box = new Box3().setFromObject(object);
         const size3D = box.getSize(new Vector3());
         let size = size3D.length() || 1;
@@ -1372,6 +1481,19 @@ class GLTFRenderer extends Component {
       this.state.skeleton,
       this.state.grid
     );
+
+    if (this.props.drawAxisLines) {
+      for (
+        let indexLines = 0;
+        indexLines < this.props.drawAxisLines.length;
+        indexLines++
+      ) {
+        const element = this.props.drawAxisLines[indexLines];
+        console.log('Getting an element to draw axis', element);
+        this.drawAxisLine(element.axis, element.name);
+      }
+    }
+
     await this.loadAdditionalFeatures();
     //console.log("File props",this.props.fileGDT,this.props.drawLine,this.props.activeId);
     // if (this.props.drawLine && this.props.fileGDT) {
@@ -2331,37 +2453,45 @@ class GLTFRenderer extends Component {
   };
 
   clear = () => {
-    if (!this.content) return;
-    this.content.forEach((element) => {
-      if (element) {
-        //if ((element instanceof Group)||(element instanceof OrthographicCamera)||(element instanceof PerspectiveCamera)) {
-        this.scene.remove(element);
-        //} else {
-        //    this.lineScene.remove(element);
-        //}
-
-        // dispose geometry
-        element.traverse((node) => {
-          if (!node.isMesh) return;
-          if (node.geometry) {
-            node.geometry.dispose();
-            //node.geometry=null;
-          }
-        });
-      }
-
-      // dispose textures
-      traverseMaterials(element, (material) => {
-        if (material) {
-          MAP_NAMES.forEach((map) => {
-            if (material[map]) {
-              material[map].dispose();
-              material[map] = null;
+    if (this.content) {
+      this.content.forEach((element) => {
+        this.removeFromScreenObjects(element);
+        /* if (element) {
+          //if ((element instanceof Group)||(element instanceof OrthographicCamera)||(element instanceof PerspectiveCamera)) {
+          this.scene.remove(element);
+          //} else {
+          //    this.lineScene.remove(element);
+          //}
+  
+          // dispose geometry
+          element.traverse((node) => {
+            if (!node.isMesh) return;
+            if (node.geometry) {
+              node.geometry.dispose();
+              //node.geometry=null;
             }
           });
-        }
+        } */
+
+        // dispose textures
+        traverseMaterials(element, (material) => {
+          if (material) {
+            MAP_NAMES.forEach((map) => {
+              if (material[map]) {
+                material[map].dispose();
+                material[map] = null;
+              }
+            });
+          }
+        });
       });
-    });
+    }
+    if (this.axisArray) {
+      for (let index = 0; index < this.axisArray.length; index++) {
+        this.removeFromScreenObjects(this.axisArray[index]);
+      }
+      this.axisArray = [];
+    }
   };
 
   onWindowResize = () => {
@@ -3103,7 +3233,7 @@ class GLTFRenderer extends Component {
       );
     }
     //console.log(this.partsMeshes[i].name,data.name,(this.partsMeshes[i].name==data.name))
-    if (first4chars != 'PART') {
+    if (first4chars != 'PART' && first4chars != 'AXIS') {
       if (first4chars == 'FACE') {
         if (display) {
           visible =
@@ -5835,6 +5965,7 @@ class GLTFRenderer extends Component {
                 this.onInitProgress(fileStore + '.tree');
                 treeRes.data.forEach((element) => {
                   let points = [];
+                  let elementNodeName = elementCopy(element[gltf_Dict['name']]);
                   if (element[gltf_Dict['points']]) {
                     const myBase64Points = this.getFloatArray(
                       element[gltf_Dict['points']]
@@ -6219,9 +6350,9 @@ class GLTFRenderer extends Component {
                     }
                     */
                   let geometry = new BufferGeometry({
-                    name: elementCopy(element[gltf_Dict['name']])
+                    name: elementNodeName
                   });
-                  geometry.name = elementCopy(element[gltf_Dict['name']]);
+                  geometry.name = elementNodeName;
                   //geometry.setPositions(myBase64Points);
                   geometry.setFromPoints(points);
 
@@ -6274,7 +6405,7 @@ class GLTFRenderer extends Component {
                       sketchLineGeometry,
                       sketchMatrial
                     );
-                    ourMesh.name = elementCopy(element[gltf_Dict['name']]);
+                    ourMesh.name = elementNodeName;
                     ourMesh.renderOrder += 20;
                     parentLineNodes.add(ourMesh);
                   } else {
@@ -6282,11 +6413,11 @@ class GLTFRenderer extends Component {
                       color: this.props.edgecolor
                         ? this.props.edgecolor
                         : DEFAULTEDGECOLOR,
-                      name: elementCopy(element[gltf_Dict['name']]),
+                      name: elementNodeName,
                       size: 10
                     });
                     let point = new Points(geometry, material);
-                    point.name = elementCopy(element[gltf_Dict['name']]);
+                    point.name = elementNodeName;
                     parentLineNodes.add(point);
                   }
                 });

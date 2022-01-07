@@ -4294,12 +4294,13 @@ class StepIgesAnalyser():
 
 
     def addKinematicRotationalAnimations(self):
+        WritingGlobalAxisAndAngle=[]
         if self.kinematicrotation==None:
-            return
+            return WritingGlobalAxisAndAngle
         lenAnimations = len(self.kinematicrotation)
         
         if( lenAnimations<=0  ):
-            return
+            return WritingGlobalAxisAndAngle
 
         samplers = []
         chanels = []
@@ -4309,10 +4310,13 @@ class StepIgesAnalyser():
         print("Len Nodes",len(self.mstep_dict['nodes']))   
         globalTranslation=[(0,0,0)]
         globalRotation=[(1,0,0,0)]   
+        myAxisInformation=[]
         #globalAngle=[0]
+        
         for action in ["translation","rotation"]:
             if action=="rotation":
                 globalAxisAndAngle=[]
+                WritingGlobalAxisAndAngle=[]
             for steps in range(1,lenShapeOrder+1):
                 print(steps,lenAnimations,lenShapeOrder)
                 lenOfAnimationsTime = steps+1 #or lenAnimations ; it works for both...
@@ -4322,12 +4326,18 @@ class StepIgesAnalyser():
                 mystep = steps-1
                 if lenShapeOrder > 0:
                     mystep = self.shapeorder[steps-1] 
-                (tu,tv,tw,td),(u,v,w,a)=self.kinematicrotation[mystep]
+                print("what i got for kinematics",self.kinematicrotation[mystep])
+                (tu,tv,tw,td),(u,v,w,a),eachName,partName,displayName,isActuator,isLinear=self.kinematicrotation[mystep]
                 print(mystep,tu,tv,tw,td,u,v,w,a,lenAnimations,lenShapeOrder,steps-1)
                 if action=="translation":
                     translationbuff =TranslationBuffer(
                         max_index=2
                     )
+                    dist = math.sqrt(tu*tu + tv*tv +tw*tw)
+                    if dist==0:
+                        tu, tv, tw = 1/math.sqrt(3), 1/math.sqrt(3), 1/math.sqrt(3)
+                    else:
+                        tu, tv, tw = tu/dist, tv/dist, tw/dist
                     u, v, w = tu*td, tv*td, tw*td
                 else:
                     dist = math.sqrt(u*u + v*v +w*w)
@@ -4375,16 +4385,27 @@ class StepIgesAnalyser():
                                 [a1,a2,a3,a4]=my_quaternion.q
                                 print("step>1",istep,steps,a1,a2,a3,a4,u,v,w,a,nu,nv,nw,na)
                             else:
-                                na=a
-                                my_quaternion = Quaternion(axis=[u, v, w], angle=na)
+                                nu,nv,nw,na=u,v,w,a
+                                my_quaternion = Quaternion(axis=[nu, nv, nw], angle=na)
                                 my_quaternion.normalise()
                                 [a1,a2,a3,a4]=my_quaternion.q
-                                print("step==1",istep,steps,a1,a2,a3,a4,u,v,w,a,na)
+                                print("step==1",istep,steps,a1,a2,a3,a4,u,v,w,a,nu,nv,nw,na)
                             #print("My Quaternion",a1,a2,a3,a4)                        
                             rotationbuff.add_rotation(a2,a3,a4,a1)
                             globalRotation.append((a1,a2,a3,a4))                            
                             #globalAngle.append(a)                        
-                            print("Global Rotation",len(globalRotation),globalRotation)                    
+                            print("Global Rotation",len(globalRotation),globalRotation)    
+                            myDictionaryForAxis= {
+                                'linear':(tu,tv,tw,td),
+                                'rotation':(u,v,w,a),
+                                'rotated':(nu,nv,nw,na),
+                                'assembly':eachName,
+                                'part':partName,
+                                'display':displayName,
+                                'isActuator':isActuator,
+                                'isLinear':isLinear
+                                }
+                            WritingGlobalAxisAndAngle.append(myDictionaryForAxis)                
                 buffer_index = len(self.mstep_dict['buffers'])
                 timelen = len(timebuff)
                 #print(timelen,self.rotateFirst)
@@ -4486,6 +4507,8 @@ class StepIgesAnalyser():
             }
         ]
         self.mstep_dict['animations']=animationchannels
+        print("Written global axis angle",WritingGlobalAxisAndAngle)
+        return  WritingGlobalAxisAndAngle
 
     def write_status(self,maxgap=10,action=''):
         currenttime = datetime.utcnow()  
@@ -4751,11 +4774,13 @@ class StepIgesAnalyser():
             self.addShapes()
         else:
             self.getShapes()
+        WritingGlobalAxisAndAngle=[]
         if self.delay != 0:
             self.addAnimations()
             self.addKinematicAnimations()
-            self.addKinematicRotationalAnimations()
+            WritingGlobalAxisAndAngle=self.addKinematicRotationalAnimations()
         
+        print("What i got for global axis",WritingGlobalAxisAndAngle)
         #print("Shapes Len",len(self.animations),len(self.outputShapes))
         #self.mstep_dict['download']=self.tree
         # Write self.mstep_dict to file as JSON string       
@@ -4810,10 +4835,19 @@ class StepIgesAnalyser():
         else:
             self.write_in_thread(dict_return,getPNG,True)
         print("Going to write final percentage",self.fname)
+        if(len(WritingGlobalAxisAndAngle)>0):
+            try:
+                axisfile = COPY_PATH+self.displaypath+dict_return["store"]+".axis"
+                print("Writing,",axisfile)
+                with open(axisfile, 'w') as fh:
+                    fh.write(json.dumps({'AllAxis':WritingGlobalAxisAndAngle}, sort_keys=True, indent=2 ))
+            except Exception as e:
+                print("Error while writing axisfile",e,"Writingglobal",WritingGlobalAxisAndAngle)
         self.percentage = 100
         self.write_status(0)
         self.write_status(0) #sometimes write_status fails because when in another thread there is a read command..
         #self.mstep_dict['tree']=self.tstep_dict['tree']
+
         if (self.edgesize!=0) or (self.vertexsize!=0): 
             try:
                 if(self.addfeaturesThread):

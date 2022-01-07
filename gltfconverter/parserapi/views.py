@@ -5922,22 +5922,22 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                     
                     if(len(onlyShapes)!=8):     
                         if shapeCount>=2 and shapeCount<=5:
-                            kinematicrotation.append(((ax,ay,az,20*shapeCount),(ax,ay,az,0)))
+                            kinematicrotation.append(((ax,ay,az,20*shapeCount),(ax,ay,az,0),eachName,eachName,eachName,False,False))
                         else:
-                            kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,aw)))              
+                            kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,aw),eachName,eachName,eachName,False,False))              
                         shapeorder.append(shapeCount)
                     else:
                         if shapeCount>=2 and shapeCount<=3:
-                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0)))
+                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0),eachName,eachName,eachName,False,False))
                         else:
-                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
+                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw),eachName,eachName,eachName,False,False))                    
                 else:
                     #sequence, isActuator, isLinear, [ax,ay,az], aw = getKinematicInformation(kinematicparts,eachName)
                     whatWeGotFromKinematicInfo=getKinematicInformationFromIndex(indexedKinematicInformation,eachName)  
-                    _, _, sequence, isActuator, isLinear, [ax,ay,az], aw, _, _ = whatWeGotFromKinematicInfo
+                    partName, displayName, sequence, isActuator, isLinear, [ax,ay,az], aw, _, _ = whatWeGotFromKinematicInfo
                     #myobb = get_oriented_bounding_details(eachShape)
                     #ax, ay, az = getMaxDirectionFromOBB(myobb)
-                    print("Each one",eachName,sequence,whatWeGotFromKinematicInfo)                     
+                    #print("Each one",eachName,sequence,whatWeGotFromKinematicInfo)                     
                     if sequence >0 and sequence <= lengthOfOnlyShapes:
                         shapeorder[sequence-1]=shapeCount
                     elif (lengthOfKinematicParts+notFoundSequence) < lengthOfOnlyShapes:
@@ -5947,12 +5947,12 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                         notFoundSequence+=1
                     if isActuator:
                         if isLinear:
-                            kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0)))
+                            kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear))
                         else:
-                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw)))
+                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw),eachName,partName,displayName,isActuator,isLinear))
                     else:
-                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0)))
-                    
+                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear))                    
+                    #print ("Each Kinematic Rotation", kinematicrotation)
                 shapeCount += 1                          
             #print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
             print("Info of kinematic before truncating",shapeorder,kinematicrotation,notFoundSequence,shapeCount)

@@ -51,7 +51,8 @@ export default function Viewer({
   showKinematicMove = false,
   regenerateKinematicMove = 0,
   activeGLTFFile = '',
-  setActiveGLTFile = () => {}
+  setActiveGLTFile = () => {},
+  drawAxisLines = null
 }) {
   const [percentager, setPercentager] = useState(percentage || 0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
@@ -175,6 +176,7 @@ export default function Viewer({
             regenerateKinematicMove.toString()
           }
           setActiveGLTFile={setActiveGLTFile}
+          drawAxisLines={drawAxisLines}
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */
         />

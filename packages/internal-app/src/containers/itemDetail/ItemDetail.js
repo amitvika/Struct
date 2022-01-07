@@ -48,6 +48,7 @@ import {
   getOKTOParseForSetOrder
 } from './ItemDetails.helper';
 import MaterialTab from './materialTab';
+import { getAFileFromStore } from '@monostruct/common/api/fileUpload.api';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -78,6 +79,7 @@ const ItemDetail = ({ itemValue }) => {
   const [kinematicItemList, setKinematicItemList] = useState([]);
   const [activeGLTFFile, setActiveGLTFileState] = useState('');
   const [activeGDTTable, setActiveGDTTable] = useState('');
+  const [drawAxisLines, setDrawAxisLines] = useState(null);
   const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
 
   /* useEffect(() => {
@@ -153,6 +155,10 @@ const ItemDetail = ({ itemValue }) => {
         myTabedIndex === 'pdcu'
           ? 'gdtac'
           : myTabedIndex;
+      let axisArray = [];
+      if (myTabedIndex == 'iupc') {
+        setDrawAxisLines(axisArray);
+      }
       const gltfParam = {
         myTabedIndex: myTabIndex,
         fileStore: item.fileStore,
@@ -171,6 +177,7 @@ const ItemDetail = ({ itemValue }) => {
       };
 
       if (myTabIndex === 'iupc') {
+        let myFileKinamatic = null;
         let okToParse = await isOKToParseForInternalUseProduct({
           item,
           regenerateKinematicMove
@@ -195,13 +202,7 @@ const ItemDetail = ({ itemValue }) => {
             'Setting active gltf file to',
             updatedItemProp.fileKinematic
           );
-          if (activeGLTFFile != updatedItemProp.fileKinematic) {
-            setActiveGLTFile(updatedItemProp.fileKinematic);
-          } else {
-            setActiveGLTFile(
-              updatedItemProp.fileKinematic + regenerateKinematicMove.toString()
-            );
-          }
+          myFileKinamatic = updatedItemProp.fileKinematic;
         } else {
           gltfParam.fileKinematic = item.fileKinematic;
           await fetchGLTFAndTree({
@@ -210,8 +211,59 @@ const ItemDetail = ({ itemValue }) => {
             showKinematicMove,
             regenerateKinematicMove
           });
-          console.log('Setting active gltf file to', item.fileKinematic);
-          setActiveGLTFile(item.fileKinematic);
+
+          myFileKinamatic = item.fileKinematic;
+        }
+
+        if (activeGLTFFile != myFileKinamatic) {
+          console.log('Setting active gltf file to', myFileKinamatic);
+          setActiveGLTFile(myFileKinamatic);
+        } else {
+          console.log(
+            'Setting active gltf file to',
+            myFileKinamatic + regenerateKinematicMove.toString()
+          );
+          setActiveGLTFile(
+            myFileKinamatic + regenerateKinematicMove.toString()
+          );
+        }
+        let whichOneToLoad =
+          (gltfParam.fileUUId ? gltfParam.fileUUId + '/' : '') +
+          myFileKinamatic;
+        console.log('Going to load axis info', whichOneToLoad);
+
+        let axisRes = await getAFileFromStore(whichOneToLoad, 'axis');
+        if (
+          axisRes &&
+          axisRes.data &&
+          axisRes.data.AllAxis &&
+          axisRes.data.AllAxis.length > 0
+        ) {
+          for (let index = 0; index < axisRes.data.AllAxis.length; index++) {
+            const element = axisRes.data.AllAxis[index];
+            if (element.rotation) {
+              axisArray.push({
+                axis: [
+                  element.rotation[0],
+                  element.rotation[1],
+                  element.rotation[2]
+                ],
+                name: element.display
+              });
+            }
+            if (element.rotated) {
+              axisArray.push({
+                axis: [
+                  element.rotated[0],
+                  element.rotated[1],
+                  element.rotated[2]
+                ],
+                name: 'MULT' + element.display
+              });
+            }
+          }
+          console.log('Getting', axisArray);
+          setDrawAxisLines(axisArray);
         }
       } else if (myTabIndex === 'pdcu') {
         let okToParse = await isOKToParseForProductDesignTab({ item });
@@ -499,6 +551,8 @@ const ItemDetail = ({ itemValue }) => {
             setActiveGLTFile={setActiveGLTFile}
             activeGDTTable={activeGDTTable}
             setActiveGDTTable={setActiveGDTTable}
+            drawAxisLines={drawAxisLines}
+            setDrawAxisLines={setDrawAxisLines}
             {...{ internalProductConfig }}
           />
         );
@@ -546,6 +600,8 @@ const ItemDetail = ({ itemValue }) => {
             setActiveGLTFile={setActiveGLTFile}
             activeGDTTable={activeGDTTable}
             setActiveGDTTable={setActiveGDTTable}
+            drawAxisLines={drawAxisLines}
+            setDrawAxisLines={setDrawAxisLines}
             {...{ handleSave }}
           />
         );
