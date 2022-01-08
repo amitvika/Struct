@@ -981,9 +981,9 @@ def recognize_face(topods_face):
         gp_pln = surf.Plane()
        
         entity['kind'] = "Plane"       
-        entity['location']  = getXYZ(gp_pln.Location())  # a point of the plane
+        entity['normalloc']  = getXYZ(gp_pln.Location())  # a point of the plane
         entity['normaldir'] = getXYZ(gp_pln.Position().Direction())  # the plane normal
-        entity['normalloc'] = getXYZ(gp_pln.Position().Location())  # the plane normal
+        entity['location'] = getXYZ(gp_pln.Position().Location())  # the plane normal
         entity['direction'] = getXYZ(gp_pln.Position().Direction())  # the plane normal
         return entity
     elif surf_type == GeomAbs_Cylinder:
@@ -1236,8 +1236,8 @@ def recognize_edge(topods_edge,face_info):
     if  curve_type == GeomAbs_Line:
         entity['kind'] = "Line" 
         gp_Line = curve.Line()
-        entity['location'] = getXYZ(gp_Line.Location()) 
-        entity['dirlocation'] = getXYZ(gp_Line.Position().Location())  # a point of the axis
+        entity['dirlocation'] = getXYZ(gp_Line.Location()) 
+        entity['location'] = getXYZ(gp_Line.Position().Location())  # a point of the axis
         entity['direction'] = getXYZ(gp_Line.Position().Direction())
     elif curve_type == GeomAbs_Circle:
         entity['kind'] = "Circle"   

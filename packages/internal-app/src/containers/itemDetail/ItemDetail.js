@@ -425,7 +425,7 @@ const ItemDetail = ({ itemValue }) => {
   // };
 
   const handleSave = async (change) => {
-    console.log();
+    console.log('HANDLE SAVE', change);
     // return; //FOr testing purpose..
     itemProperties.step = undefined;
     itemProperties.gltfjson = undefined;

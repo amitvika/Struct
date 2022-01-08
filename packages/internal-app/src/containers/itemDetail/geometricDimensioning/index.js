@@ -2106,7 +2106,7 @@ export default function GeometricDimensioning(props) {
       if (myTree && myTree.gdttable && myTree.gdttable[activeTable]) {
         setSelectedOption(myTree.gdttable[activeTable].option);
       }
-      globalSetActiveDataTable(activeTable);
+      //globalSetActiveDataTable(activeTable);
       setState({
         selectedObjects: [...copy_selectobjects],
         parentObjects: [...copy_parentobjects],

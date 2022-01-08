@@ -133,7 +133,7 @@ export default function MotionControlComponent({
   const handleItemNameClick = (event, id) => {
     event.stopPropagation();
 
-    let linkUrl = `/items/${id}`;
+    let linkUrl = `/items/${id}?tab=iupc`;
 
     if (event.ctrlKey) {
       const win = window.open(linkUrl, '_blank');

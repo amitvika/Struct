@@ -31,7 +31,7 @@ from OCC.Core.TopoDS import (TopoDS_Face, TopoDS_Edge, TopoDS_Shape)
 
 from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
 from OCC.Core.gp import (gp_Vec, gp_Pnt, gp_Trsf, gp_OX, gp_OY,
-                         gp_OZ, gp_XYZ, gp_Ax2, gp_Ax3, gp_Dir, gp_GTrsf, gp_Mat)
+                         gp_OZ, gp_XYZ, gp_Ax2, gp_Ax3, gp_Dir, gp_GTrsf, gp_Mat, gp_Ax1)
 
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.TColStd import (TColStd_Array1OfInteger, TColStd_Array1OfReal, TColStd_Array2OfReal)
@@ -2023,7 +2023,7 @@ def translate_shp(shp, x,y,z, copy=False):
     return brep_trns.Shape()
 
 
-def rotate_shape(shape, axis, angle, unite="deg"):
+def rotate_shape(shape, lu,lv,lw, du,dv,dw, angle, unite="radian",copy=True):
     """ Rotate a shape around an axis, with a given angle.
 
     @param shape : the shape to rotate
@@ -2034,17 +2034,19 @@ def rotate_shape(shape, axis, angle, unite="deg"):
     @return: the rotated shape.
     """
     assert_shape_not_null(shape)
-    if unite == "deg":  # convert angle to radians
+    if unite == "degree":  # convert angle to radians
         angle = radians(angle)
     trns = gp_Trsf()
+    axis = gp_Ax1(gp_Pnt(lu, lv, lw), gp_Dir(du, dv, dw))
+    
     trns.SetRotation(axis, angle)
-    brep_trns = BRepBuilderAPI_Transform(shape, trns, False)
+    brep_trns = BRepBuilderAPI_Transform(shape, trns, copy)
     brep_trns.Build()
     shp = brep_trns.Shape()
     return shp
 
 
-def rotate_shp_3_axis(shape, rx, ry, rz, unity="deg", copy=False):
+def rotate_shp_3_axis(shape, rx, ry, rz, unity="radian", copy=True):
     """ Rotate a shape around (O,x), (O,y) and (O,z).
 
     @param rx_degree : rotation around (O,x)

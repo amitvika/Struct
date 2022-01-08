@@ -1635,13 +1635,18 @@ class GLTFRenderer extends Component {
         const gdttableCopy = arrayCopy(gdttable);
         gltfobj.gdttable = gdttableCopy;
         //console.log("AddGDTTABLE", gltfobj.gdttable, gdttable,this.props.activeDataTable);
-        console.log('BEfore Changing gdtable in loading edges', gltfobj);
+        console.log(
+          'BEfore Changing gdtable in loading edges',
+          gltfobj,
+          this.props.activeDataTable
+        );
         if (
           Array.isArray(gltfobj.gdttable[this.props.activeDataTable].edges) ==
           false
         ) {
-          gltfobj.gdttable[this.props.activeDataTable].edges =
-            defaultGDTTable.edges;
+          gltfobj.gdttable[this.props.activeDataTable].edges = arrayCopy(
+            defaultGDTTable.edges
+          );
         }
         gltfobj.gdttable[this.props.activeDataTable].edges.push({
           parent: parent,

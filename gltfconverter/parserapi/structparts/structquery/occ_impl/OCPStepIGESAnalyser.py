@@ -98,7 +98,7 @@ from .OCPShapes import Shape
 from .OCPAssembly import Color
 
 #from ... import Assembly
-from .OCCExtend.ShapeFactory import recognize_direction, recognize_curve, recognize_face_entity, get_circle_info
+from .OCCExtend.ShapeFactory import recognize_direction, recognize_curve, recognize_face_entity, get_circle_info, rotate_shape
 from ....thumbnail.thumbnail import createThumbnail
 from .gltfDictionary import gltfdict
 from .Quaternion import Quaternion
@@ -4291,7 +4291,23 @@ class StepIgesAnalyser():
         q_conj = [q[0],-1*q[1],-1*q[2],-1*q[3]]
         return self.quaternion_mult(self.quaternion_mult(q,r),q_conj)[1:]
 
-
+    def getShapeLocationAndDirection(self,shapeOfAxis):
+        lu,lv,lw,du,dv,dw=0,0,0,0,0,0
+        if shapeOfAxis:
+            data = []
+            try:
+                dumpTopologyStructures(shapeOfAxis,level=0,parentId=[None],returnStructure=data,faceInfo=None, depth=1)
+                if len(data)>0:
+                    if 'Info' in data:
+                        if 'direction' in data['Info'] and 'location' in data['Info']:
+                            try:
+                                du,dv,dw = data['Info']['direction']
+                                lu,lv,lw = data['Info']['location']
+                            except Exception as e:
+                                print("Error while getting data",e)
+            except Exception as e:
+                print("Error While getting shape location and direction",e)            
+        return lu,lv,lw,du,dv,dw
 
     def addKinematicRotationalAnimations(self):
         WritingGlobalAxisAndAngle=[]
@@ -4310,7 +4326,7 @@ class StepIgesAnalyser():
         print("Len Nodes",len(self.mstep_dict['nodes']))   
         globalTranslation=[(0,0,0)]
         globalRotation=[(1,0,0,0)]   
-        myAxisInformation=[]
+        #myAxisInformation=[]
         #globalAngle=[0]
         
         for action in ["translation","rotation"]:
@@ -4327,7 +4343,7 @@ class StepIgesAnalyser():
                 if lenShapeOrder > 0:
                     mystep = self.shapeorder[steps-1] 
                 print("what i got for kinematics",self.kinematicrotation[mystep])
-                (tu,tv,tw,td),(u,v,w,a),eachName,partName,displayName,isActuator,isLinear=self.kinematicrotation[mystep]
+                (tu,tv,tw,td),(u,v,w,a),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis=self.kinematicrotation[mystep]
                 print(mystep,tu,tv,tw,td,u,v,w,a,lenAnimations,lenShapeOrder,steps-1)
                 if action=="translation":
                     translationbuff =TranslationBuffer(
@@ -4365,7 +4381,8 @@ class StepIgesAnalyser():
                             rotationbuff.add_rotation(b2,b3,b4,b1)
                             print("less than step",istep,steps,b1,b2,b3,b4)
                         else:
-                            # u,v, w = old w,v,w * quaternion with which                        
+                            # u,v, w = old w,v,w * quaternion with which 
+                            lu,lv,lw,du,dv,dw=self.getShapeLocationAndDirection(shapeOfAxis)                      
                             if steps>1:
                                 """ b1, b2, b3, b4 = globalRotation[steps-1]
                                 na=a
@@ -4376,16 +4393,29 @@ class StepIgesAnalyser():
                                 else:
                                     nu, nv, nw = nu/dist, nv/dist, nw/dist """
                                 
-                                curVector =globalAxisAndAngle[steps-1]
-                                for rotationIndex in range(steps-1):
-                                    curVector=self.axis_rotation_multiply(globalAxisAndAngle[rotationIndex],curVector)
-                                nu,nv,nw,na=curVector
+                                if du==0 and dv==0 and dw==0:
+                                    curVector =globalAxisAndAngle[steps-1]
+                                    for rotationIndex in range(steps-1):
+                                        curVector=self.axis_rotation_multiply(globalAxisAndAngle[rotationIndex],curVector)
+                                    nu,nv,nw,na=curVector
+                                else:
+                                    for rotationIndex in range(steps-1):
+                                        stepDictionary = WritingGlobalAxisAndAngle[rotationIndex]
+                                        lp,lq,lr=stepDictionary['location']
+                                        dp,dq,dr=stepDictionary['direction']
+                                        _,_,_,ra=stepDictionary['rotation']
+                                        shapeOfAxis=rotate_shape(shapeOfAxis,lp,lq,lr, dp,dq,dr,ra, unity="radian", copy=True)
+                                    lu,lv,lw,du,dv,dw=self.getShapeLocationAndDirection(shapeOfAxis)    
+                                    nu,nv,nw,na=du,dv,dw,a
                                 my_quaternion = Quaternion(axis=[nu, nv, nw], angle=na) 
                                 my_quaternion.normalise()
                                 [a1,a2,a3,a4]=my_quaternion.q
                                 print("step>1",istep,steps,a1,a2,a3,a4,u,v,w,a,nu,nv,nw,na)
                             else:
-                                nu,nv,nw,na=u,v,w,a
+                                if du==0 and dv==0 and dw==0:
+                                    nu,nv,nw,na=u,v,w,a
+                                else:
+                                    nu,nv,nw,na=du,dv,dw,a
                                 my_quaternion = Quaternion(axis=[nu, nv, nw], angle=na)
                                 my_quaternion.normalise()
                                 [a1,a2,a3,a4]=my_quaternion.q
@@ -4399,6 +4429,8 @@ class StepIgesAnalyser():
                                 'linear':(tu,tv,tw,td),
                                 'rotation':(u,v,w,a),
                                 'rotated':(nu,nv,nw,na),
+                                'location':(lu,lv,lw),
+                                'direction':(du,dv,dw),
                                 'assembly':eachName,
                                 'part':partName,
                                 'display':displayName,

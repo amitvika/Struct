@@ -8,7 +8,8 @@ import GeometricDimensioning from '../itemDetail/geometricDimensioning';
 import {
   SELECTFEATURE,
   USESTYLES,
-  SELECTANITEM
+  SELECTANITEM,
+  gltf_Dict
 } from '@monostruct/common/gltf/Tree/utils';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Headding from '@monostruct/common/components/atoms/Headding';
@@ -28,6 +29,7 @@ export default function ItemTypeConfigurations(props) {
     setgltfjson,
     isLoading,
     itemProperties,
+    setItemProperties,
     handleItemUpdate,
     additionalSaveFunction,
     progressBarLoad,
@@ -190,16 +192,40 @@ export default function ItemTypeConfigurations(props) {
         : 'fieldKey'
       : 'fieldKey';
     if (handleSave) {
+      console.log(
+        'I am getting selected objects',
+        mySelectedObjects,
+        isCircularFaceOrEdgeSelection
+      );
       if (
         mySelectedObjects[0] &&
         (mySelectedObjects[0].obb || mySelectedObjects[0].axis) &&
         isCircularFaceOrEdgeSelection
       ) {
+        let actuator_dictionary = {
+          actuator_motion_control: {
+            ...(itemProperties.actuator_motion_control || {}),
+            cylindrical_axis_of_rotation: {
+              axis: mySelectedObjects[0].axis,
+              obb: mySelectedObjects[0].obb,
+              step:
+                (fileUUIder ? fileUUIder + '/' : '') +
+                mySelectedObjects[0][gltf_Dict['step']].slice(0, -5)
+            }
+          }
+        };
+        let cloneItemProperties = { ...itemProperties, ...actuator_dictionary };
+        setItemProperties(cloneItemProperties);
         handleSave({
           actuator_motion_control: {
             ...(itemProperties.actuator_motion_control || {}),
-            cylindrical_axis_of_rotation:
-              mySelectedObjects[0].axis || mySelectedObjects[0].obb
+            cylindrical_axis_of_rotation: {
+              axis: mySelectedObjects[0].axis,
+              obb: mySelectedObjects[0].obb,
+              step:
+                (fileUUIder ? fileUUIder + '/' : '') +
+                mySelectedObjects[0][gltf_Dict['step']].slice(0, -5)
+            }
           }
         });
 
