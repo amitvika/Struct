@@ -4380,7 +4380,7 @@ class StepIgesAnalyser():
                                 for rotationIndex in range(steps-1):
                                     curVector=self.axis_rotation_multiply(curVector,globalAxisAndAngle[rotationIndex+1])
                                 nu,nv,nw,na=curVector
-                                my_quaternion = Quaternion(axis=[nu, nv, nw], angle=na) 
+                                my_quaternion = Quaternion(axis=[u, v, w], angle=a) 
                                 my_quaternion.normalise()
                                 [a1,a2,a3,a4]=my_quaternion.q
                                 print("step>1",istep,steps,a1,a2,a3,a4,u,v,w,a,nu,nv,nw,na)
