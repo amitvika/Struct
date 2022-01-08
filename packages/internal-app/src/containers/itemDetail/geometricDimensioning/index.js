@@ -316,14 +316,23 @@ export default function GeometricDimensioning(props) {
   useEffect(() => {
     if (tabIndex == 'iupc' || keyName.name != '') {
       console.log('before Setting the current active table', keyName, gltfjson);
-
-      setCurrentDataTableFromKey(
-        keyName.name,
-        keyName.option,
-        keyName.selectedNodes
-      );
-
-      console.log('after Setting the current active table', keyName, gltfjson);
+      if (gltfjson && gltfjson.gdttable) {
+        setCurrentDataTableFromKey(
+          keyName.name,
+          keyName.option,
+          keyName.selectedNodes
+        );
+        console.log(
+          'after Setting the current active table',
+          keyName,
+          gltfjson
+        );
+      } else {
+        console.log(
+          'Ignoring the inititalization routine of set keyname',
+          keyName
+        );
+      }
     } else {
       console.log('Not Setting key as I am from gdt', keyName.name);
     }
