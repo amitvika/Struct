@@ -92,6 +92,7 @@ export const myMenus = [
         values: {
           showedges: true,
           linewidth: 2.0,
+          showchosenaxis: true,
           ctrlKey: false
         },
         fields: [
@@ -108,6 +109,11 @@ export const myMenus = [
             min: 1,
             max: 20,
             key: 'linewidth'
+          },
+          {
+            name: 'Show Axis',
+            type: 'checkbox',
+            key: 'showchosenaxis'
           }
         ]
       },

@@ -5946,7 +5946,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                     if ax==0 and ay==0 and az==0 :
                         myobb = get_oriented_bounding_details(eachShape)
                         ax, ay, az = getMaxDirectionFromOBB(myobb)
-                    #print("Each one",eachName,sequence,whatWeGotFromKinematicInfo)                     
+                    print("Each one",eachName,sequence,whatWeGotFromKinematicInfo, ax, ay, az  )                   
                     if sequence >0 and sequence <= lengthOfOnlyShapes:
                         shapeorder[sequence-1]=shapeCount
                     elif (lengthOfKinematicParts+notFoundSequence) < lengthOfOnlyShapes:
@@ -5965,7 +5965,8 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 shapeCount += 1                          
             #print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
             print("Info of kinematic before truncating",shapeorder,kinematicrotation,notFoundSequence,shapeCount)
-            shapeorder = shapeorder[0:lengthOfKinematicParts]
+            if(lengthOfKinematicParts < lengthOfOnlyShapes):
+                shapeorder = shapeorder[0:lengthOfKinematicParts]
             print("Info of kinematic after truncating",shapeorder,kinematicrotation,lengthOfKinematicParts,lengthOfOnlyShapes)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
