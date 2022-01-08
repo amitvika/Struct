@@ -18,7 +18,8 @@ export default function DynamicHierarchyForm(props) {
     handleRotationalAxisChange,
     kinematicItemList,
     setKinematicItemList,
-    selected3JSData
+    selected3JSData,
+    showKinematicMove
   } = props;
   const currentItem = useSelector((state) => state.item.currentItem);
 
@@ -185,7 +186,8 @@ export default function DynamicHierarchyForm(props) {
               handleRotationalAxisChange,
               kinematicItemList,
               setKinematicItemList,
-              selected3JSData
+              selected3JSData,
+              showKinematicMove
             }}
           />
         );

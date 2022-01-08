@@ -553,19 +553,26 @@ class GLTFRenderer extends Component {
       } */
     }
     this.changeparts();
-    if (
-      this.props.drawAxisLines &&
-      JSON.stringify(prevProps.drawAxisLines || []) !=
+    if (this.props.drawAxisLines) {
+      if (
+        JSON.stringify(prevProps.drawAxisLines || []) !=
         JSON.stringify(this.props.drawAxisLines || [])
-    ) {
-      for (
-        let indexLines = 0;
-        indexLines < this.props.drawAxisLines.length;
-        indexLines++
       ) {
-        const element = this.props.drawAxisLines[indexLines];
-        console.log('Getting an element to draw axis', element);
-        this.drawAxisLine(element.axis, element.name);
+        for (
+          let indexLines = 0;
+          indexLines < this.props.drawAxisLines.length;
+          indexLines++
+        ) {
+          const element = this.props.drawAxisLines[indexLines];
+          console.log('Getting an element to draw axis', element);
+          this.drawAxisLine(element.axis, element.name);
+        }
+      } else if (this.props.drawAxisLines.length > 0) {
+        console.log(
+          'I am not drawing because already drawn',
+          this.props.drawAxisLines,
+          prevProps.drawAxisLines
+        );
       }
     }
     /* 
@@ -1327,7 +1334,10 @@ class GLTFRenderer extends Component {
       this.props.fileGDT,
       this.props.fileAnimation
     ); */
-    if (this.props.fileGDT /*&& this.props.fileAnimation == false*/) {
+    if (
+      this.props.fileGDT &&
+      !this.props.showKinematicMove /*&& this.props.fileAnimation == false*/
+    ) {
       const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
 
       console.log(

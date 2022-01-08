@@ -31,7 +31,8 @@ export default function MotionControlComponent({
   setSelectedOption,
   kinematicItemList,
   setKinematicItemList,
-  selected3JSData
+  selected3JSData,
+  showKinematicMove
 }) {
   const [selectedValue, setSelectedValue] = React.useState('a');
   const [itemList, setItemList] = React.useState(kinematicItemList);
@@ -213,6 +214,9 @@ export default function MotionControlComponent({
                         : 'white'
                   }}
                   onClick={() => {
+                    if (showKinematicMove) {
+                      return;
+                    }
                     setSelectedValue(item.id);
                     setSelectedOption(SELECTASSEMBLY);
                     const tableData = getTableData({

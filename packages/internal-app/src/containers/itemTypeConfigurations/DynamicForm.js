@@ -21,7 +21,8 @@ export default function DynamicCriteria({
   handleRotationalAxisChange,
   kinematicItemList,
   setKinematicItemList,
-  selected3JSData
+  selected3JSData,
+  showKinematicMove
 }) {
   const handleOnChange = (name, value) => {
     const findIndex = stateFormFields.findIndex(
@@ -140,6 +141,7 @@ export default function DynamicCriteria({
                   mykey={fieldItem.fieldName}
                   mytype={fieldItem.dataType}
                   active={fieldItem.activeCell}
+                  showKinematicMove={showKinematicMove}
                   onChange={(mykeyinfo, valuefound) => {
                     if (fieldItem.activeCell) {
                       handleOnChange(fieldItem.fieldName, valuefound);
@@ -173,7 +175,8 @@ export default function DynamicCriteria({
                   setSelectedOption,
                   kinematicItemList,
                   setKinematicItemList,
-                  selected3JSData
+                  selected3JSData,
+                  showKinematicMove
                 }}
               />
             )}

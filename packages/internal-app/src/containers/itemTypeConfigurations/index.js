@@ -249,6 +249,7 @@ export default function ItemTypeConfigurations(props) {
         kinematicItemList={kinematicItemList}
         setKinematicItemList={setKinematicItemList}
         selected3JSData={selected3JSData}
+        showKinematicMove={showKinematicMove}
         {...{
           itemProperties,
           gltfjson,

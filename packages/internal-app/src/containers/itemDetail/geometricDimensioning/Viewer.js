@@ -177,6 +177,7 @@ export default function Viewer({
           }
           setActiveGLTFile={setActiveGLTFile}
           drawAxisLines={drawAxisLines}
+          showKinematicMove={showKinematicMove}
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */
         />
