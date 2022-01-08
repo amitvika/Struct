@@ -133,10 +133,10 @@ export default function GeometricDimensioning(props) {
       whatchanger,
       gltfjson
     );
-    if (tabIndex != 'gdtac') {
+    if (tabIndex == 'iupc') {
       if (
         stringify(changingdata || {}) != stringify(state.renderdata || {}) &&
-        (whatchanger != 0 || state.whatchange != whatchanger)
+        whatchanger
       ) {
         console.log(
           'setting Use effect in changing data',
@@ -187,10 +187,10 @@ export default function GeometricDimensioning(props) {
       whatchanger,
       gltfjson
     );
-    if (tabIndex != 'gdtac') {
+    if (tabIndex == 'iupc') {
       if (
         stringify(changingdata || {}) != stringify(state.renderdata || {}) &&
-        (whatchanger != 0 || state.whatchange != whatchanger)
+        whatchanger != 0
       ) {
         console.log(
           'setting Use effect in in whatchanger',
@@ -314,16 +314,25 @@ export default function GeometricDimensioning(props) {
   }, [gltfjson]);
 
   useEffect(() => {
-    if (tabIndex != 'gdtac' || keyName.name != '') {
+    if (tabIndex == 'iupc' || keyName.name != '') {
       console.log('before Setting the current active table', keyName, gltfjson);
-
-      setCurrentDataTableFromKey(
-        keyName.name,
-        keyName.option,
-        keyName.selectedNodes
-      );
-
-      console.log('after Setting the current active table', keyName, gltfjson);
+      if (gltfjson && gltfjson.gdttable) {
+        setCurrentDataTableFromKey(
+          keyName.name,
+          keyName.option,
+          keyName.selectedNodes
+        );
+        console.log(
+          'after Setting the current active table',
+          keyName,
+          gltfjson
+        );
+      } else {
+        console.log(
+          'Ignoring the inititalization routine of set keyname',
+          keyName
+        );
+      }
     } else {
       console.log('Not Setting key as I am from gdt', keyName.name);
     }

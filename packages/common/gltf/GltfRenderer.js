@@ -258,6 +258,7 @@ class GLTFRenderer extends Component {
     opaque: 'True',
     skeleton: false,
     showedges: true,
+    showchosenaxis: true,
     grid: false,
     side: 'Front',
     view: 'Orthographic',
@@ -483,6 +484,14 @@ class GLTFRenderer extends Component {
         ...this.raycastObjects,
         ...this.rayCastObjectFilters(axisLineNodes.children)
       ];
+    }
+  };
+  makeVisibilityToAxisArrays = (change) => {
+    if (this.axisArray) {
+      for (let index = 0; index < this.axisArray.length; index++) {
+        let element = this.axisArray[index];
+        element.visible = change;
+      }
     }
   };
   componentDidUpdate(prevProps, prevState) {
@@ -6998,6 +7007,12 @@ class GLTFRenderer extends Component {
                 values.linewidth,
                 this.state.edgelinewidth
               );
+            }
+            if (values.showchosenaxis != this.state.showchosenaxis) {
+              this.setStateWithoutError({
+                showchosenaxis: values.showchosenaxis
+              });
+              this.makeVisibilityToAxisArrays(values.showchosenaxis);
             }
             break;
           case 5:
