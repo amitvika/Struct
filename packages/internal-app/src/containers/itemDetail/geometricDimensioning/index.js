@@ -133,10 +133,10 @@ export default function GeometricDimensioning(props) {
       whatchanger,
       gltfjson
     );
-    if (tabIndex != 'gdtac') {
+    if (tabIndex == 'iupc') {
       if (
         stringify(changingdata || {}) != stringify(state.renderdata || {}) &&
-        (whatchanger != 0 || state.whatchange != whatchanger)
+        whatchanger
       ) {
         console.log(
           'setting Use effect in changing data',
@@ -187,10 +187,10 @@ export default function GeometricDimensioning(props) {
       whatchanger,
       gltfjson
     );
-    if (tabIndex != 'gdtac') {
+    if (tabIndex == 'iupc') {
       if (
         stringify(changingdata || {}) != stringify(state.renderdata || {}) &&
-        (whatchanger != 0 || state.whatchange != whatchanger)
+        whatchanger != 0
       ) {
         console.log(
           'setting Use effect in in whatchanger',
@@ -314,7 +314,7 @@ export default function GeometricDimensioning(props) {
   }, [gltfjson]);
 
   useEffect(() => {
-    if (tabIndex != 'gdtac' || keyName.name != '') {
+    if (tabIndex == 'iupc' || keyName.name != '') {
       console.log('before Setting the current active table', keyName, gltfjson);
 
       setCurrentDataTableFromKey(
