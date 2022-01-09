@@ -2023,7 +2023,7 @@ def translate_shp(shp, x,y,z, copy=False):
     return brep_trns.Shape()
 
 
-def rotate_shape(shape, lu,lv,lw, du,dv,dw, angle, unite="radian",copy=True):
+def rotate_shape(shape, lu,lv,lw, du,dv,dw, angle, unity="radian",copy=True):
     """ Rotate a shape around an axis, with a given angle.
 
     @param shape : the shape to rotate
@@ -2034,7 +2034,7 @@ def rotate_shape(shape, lu,lv,lw, du,dv,dw, angle, unite="radian",copy=True):
     @return: the rotated shape.
     """
     assert_shape_not_null(shape)
-    if unite == "degree":  # convert angle to radians
+    if unity == "degree":  # convert angle to radians
         angle = radians(angle)
     trns = gp_Trsf()
     axis = gp_Ax1(gp_Pnt(lu, lv, lw), gp_Dir(du, dv, dw))

@@ -191,6 +191,22 @@ export default function ItemTypeConfigurations(props) {
           : fieldKey
         : 'fieldKey'
       : 'fieldKey';
+    if (state_fileOnChange) {
+      console.log(
+        'I am asking the component to change field via local variable',
+        mySelectedObjects,
+        fieldKey,
+        fieldItemKey
+      );
+      state_fileOnChange(fieldItemKey, [...mySelectedObjects]);
+    } else {
+      console.log(
+        'I am not asking the component to change field via local variable since file on change is null',
+        mySelectedObjects,
+        fieldKey,
+        fieldItemKey
+      );
+    }
     if (handleSave) {
       console.log(
         'I am getting selected objects',
@@ -234,22 +250,6 @@ export default function ItemTypeConfigurations(props) {
     } else {
       console.log(
         'I am not asking the component to set because itemupdate is null ',
-        mySelectedObjects,
-        fieldKey,
-        fieldItemKey
-      );
-    }
-    if (state_fileOnChange) {
-      console.log(
-        'I am asking the component to change field via local variable',
-        mySelectedObjects,
-        fieldKey,
-        fieldItemKey
-      );
-      state_fileOnChange(fieldItemKey, [...mySelectedObjects]);
-    } else {
-      console.log(
-        'I am not asking the component to change field via local variable since file on change is null',
         mySelectedObjects,
         fieldKey,
         fieldItemKey

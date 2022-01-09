@@ -5779,7 +5779,7 @@ def extractKinematicInformation(kinematicparts):
         #     axis=[0,1,2]
         aw = convertToFloat(aw,0)
         if isActuator and aw==0:
-            aw=math.pi*ap/72
+            aw= 3.14 #3.14 #math.pi
             ap=-0.1*ap
         sequence = convertToInt(sequence,0)
         isLinear = convertToBool(isLinear,False)
@@ -5805,6 +5805,7 @@ def extractKinematicInformation(kinematicparts):
                         kinematicInformation[secondPass] = partName2, displayName2, bl, isActuator2, isLinear2, [ax2,ay2,az2], aw2, bl2+1, al2+1, shapeOfAxis2
                     elif bl2>=bl:
                         kinematicInformation[secondPass] = partName2, displayName2, sequence2, isActuator2, isLinear2, [ax2,ay2,az2], aw2, bl2+1, al2+1, shapeOfAxis2
+    print("")
     print("Kinematic Info after arranging",kinematicInformation)               
     return kinematicInformation
 
@@ -5825,7 +5826,7 @@ def getKinematicInformation(kinematicparts,partname):
 def getKinematicInformationFromIndex(kinematicParts,partname):
     html_display = html.escape(partname)
     for kinematicPart in kinematicParts:
-        partName, displayName, _, _, _, [_,_,_], _, _, _ = kinematicPart
+        partName, displayName, _, _, _, [_,_,_], _, _, _,_ = kinematicPart
         if (partName==html_display) or (displayName==html_display):
             return kinematicPart 
     return ("NoName","EmptyItem",0,False,False,[0,0,0],0,0,0,None)
@@ -5910,7 +5911,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 shapeorder = [0, 2, 1, 3, 6, 7, 5, 4] #[0,1,2,6,3,7,5,4]
             else:
                 shapeorder=[x for x in range(lengthOfOnlyShapes)]    
-            print("initial parsing",shapeorder,indexedKinematicInformation)            
+            #print("initial parsing",shapeorder,indexedKinematicInformation)            
             kp=1
             ap=kp
             lengthOfKinematicParts = len(indexedKinematicInformation)
@@ -5942,7 +5943,11 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 else:
                     #sequence, isActuator, isLinear, [ax,ay,az], aw = getKinematicInformation(kinematicparts,eachName)
                     whatWeGotFromKinematicInfo=getKinematicInformationFromIndex(indexedKinematicInformation,eachName)  
+                    #print("What we got here",whatWeGotFromKinematicInfo)
                     partName, displayName, sequence, isActuator, isLinear, [ax,ay,az], aw, _, _, shapeOfAxis = whatWeGotFromKinematicInfo
+                    #print("Error has occured here?")
+                    if shapeOfAxis is None:
+                        shapeOfAxis=eachShape
                     if ax==0 and ay==0 and az==0 :
                         myobb = get_oriented_bounding_details(eachShape)
                         ax, ay, az = getMaxDirectionFromOBB(myobb)
