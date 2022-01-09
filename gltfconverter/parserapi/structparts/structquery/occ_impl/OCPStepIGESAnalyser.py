@@ -4309,8 +4309,8 @@ class StepIgesAnalyser():
                                 print("Error while getting data",e)
             except Exception as e:
                 print("Error While getting shape location and direction",e)   
-        return 0,0,0,0,0,0         
-        #return lu,lv,lw,du,dv,dw
+        #return 0,0,0,0,0,0         
+        return lu,lv,lw,du,dv,dw
 
     def addKinematicRotationalAnimations(self):
         WritingGlobalAxisAndAngle=[]
@@ -4387,7 +4387,9 @@ class StepIgesAnalyser():
                             print("less than step",istep,steps,b1,b2,b3,b4)
                         else:
                             # u,v, w = old w,v,w * quaternion with which 
-                            lu,lv,lw,du,dv,dw=self.getShapeLocationAndDirection(shapeOfAxis)                      
+                            lu,lv,lw,du,dv,dw=self.getShapeLocationAndDirection(shapeOfAxis)   
+                            ilu,ilv,ilw,idu,idv,idw  =   lu,lv,lw,du,dv,dw
+
                             if steps>1:
                                 print("Shape",lu,lv,lw,du,dv,dw,steps,u,v,w,a)
                                 """ b1, b2, b3, b4 = globalRotation[steps-1]
@@ -4401,8 +4403,10 @@ class StepIgesAnalyser():
                                 
                                 if du==0 and dv==0 and dw==0:
                                     curVector =globalAxisAndAngle[steps-1]
+                                    print("Initital CurVector",curVector)
                                     for rotationIndex in range(steps-1):
                                         curVector=self.axis_rotation_multiply(globalAxisAndAngle[rotationIndex],curVector)
+                                        print("CurVector",curVector,globalAxisAndAngle[rotationIndex])
                                     nu,nv,nw,na=curVector
                                 else:
                                     for rotationIndex in range(steps-1):
@@ -4439,6 +4443,8 @@ class StepIgesAnalyser():
                                 'rotated':(nu,nv,nw,na),
                                 'location':(lu,lv,lw),
                                 'direction':(du,dv,dw),
+                                'locating':(ilu,ilv,ilw),
+                                'directing':(idu,idv,idw),
                                 'assembly':eachName,
                                 'part':partName,
                                 'display':displayName,

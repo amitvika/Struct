@@ -809,6 +809,7 @@ export default function GeometricDimensioning(props) {
         if (element.axis) {
           axisArray.push({
             axis: element.axis,
+            position: element.position ? element.position : [0, 0, 0],
             name: element[gltf_Dict['name']]
           });
         }
@@ -1255,6 +1256,10 @@ export default function GeometricDimensioning(props) {
               .Info['direction']
               ? elementCopy(element[0].Info['direction'])
               : null;
+            structure.objects[structure.start + index]['position'] = element[0]
+              .Info['location']
+              ? elementCopy(element[0].Info['location'])
+              : null;
             if (
               element[0].Info['kind'] === 'Circle' ||
               element[0].Info['kind'] === 'Cylinder'
@@ -1655,11 +1660,12 @@ export default function GeometricDimensioning(props) {
               if (element.axis) {
                 axisArray.push({
                   axis: element.axis,
+                  position: element.position ? element.position : [0, 0, 0],
                   name: element[gltf_Dict['name']]
                 });
               }
             }
-            console.log('Getting', axisArray);
+            console.log('Getting points to draw the selection', axisArray);
             setDrawAxisLines(axisArray);
           } else {
             console.log('Option is', selectedOption);
@@ -1961,11 +1967,12 @@ export default function GeometricDimensioning(props) {
           if (element.axis) {
             axisArray.push({
               axis: element.axis,
+              position: element.position ? element.position : [0, 0, 0],
               name: element[gltf_Dict['name']]
             });
           }
         }
-        console.log('Getting', axisArray);
+        console.log('Getting points to draw axis', axisArray);
         setDrawAxisLines(axisArray);
       } else {
         console.log('Option is', selectedOption);

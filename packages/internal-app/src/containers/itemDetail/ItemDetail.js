@@ -146,7 +146,9 @@ const ItemDetail = ({ itemValue }) => {
     }
     setGLTFAndTree({ item, myTabedIndex });
   };
-
+  const existingAxis = (axis) => {
+    return axis && (axis[0] != 0 || axis[1] != 0 || axis[2] != 0);
+  };
   const setGLTFAndTree = async ({ item, myTabedIndex }) => {
     try {
       let updatedItemProp = {};
@@ -241,28 +243,47 @@ const ItemDetail = ({ itemValue }) => {
         ) {
           for (let index = 0; index < axisRes.data.AllAxis.length; index++) {
             const element = axisRes.data.AllAxis[index];
-            if (element.rotation) {
+            //console.log('Element for drawing axis', element);
+            if (existingAxis(element.directing)) {
               axisArray.push({
-                axis: [
-                  element.rotation[0],
-                  element.rotation[1],
-                  element.rotation[2]
-                ],
+                axis: element.directing,
+                position: element.locating ? element.locating : [0, 0, 0],
                 name: element.display
               });
+            } else {
+              if (element.rotation) {
+                axisArray.push({
+                  axis: [
+                    element.rotation[0],
+                    element.rotation[1],
+                    element.rotation[2]
+                  ],
+                  position: element.locating ? element.locating : [0, 0, 0],
+                  name: element.display
+                });
+              }
             }
-            if (element.rotated) {
+            if (existingAxis(element.direction)) {
               axisArray.push({
-                axis: [
-                  element.rotated[0],
-                  element.rotated[1],
-                  element.rotated[2]
-                ],
+                axis: element.direction,
+                position: element.location ? element.location : [0, 0, 0],
                 name: 'MULT' + element.display
               });
+            } else {
+              if (element.rotated) {
+                axisArray.push({
+                  axis: [
+                    element.rotated[0],
+                    element.rotated[1],
+                    element.rotated[2]
+                  ],
+                  position: element.location ? element.location : [0, 0, 0],
+                  name: 'MULT' + element.display
+                });
+              }
             }
           }
-          console.log('Getting', axisArray);
+          console.log('Getting points for axis', axisArray);
           setDrawAxisLines(axisArray);
         }
       } else if (myTabIndex === 'pdcu') {

@@ -416,7 +416,7 @@ class GLTFRenderer extends Component {
       : false;
   };
 
-  drawAxisLine = (axis, objectname) => {
+  drawAxisLine = (axis, position, objectname) => {
     if (this.scene && axis && axis.length == 3) {
       let axisLineNodes = new Group(); //new Object3D();
       axisLineNodes.linetype = 5;
@@ -431,19 +431,19 @@ class GLTFRenderer extends Component {
         'Got window for drawing edges',
         window,
         maxLength,
-        -axis[0] * maxLength,
-        -axis[2] * maxLength,
-        -axis[1] * maxLength
+        position[0] * 0.001 - axis[0] * maxLength,
+        position[2] * 0.001 - axis[2] * maxLength,
+        position[1] * -0.001 + axis[1] * maxLength
       );
       const startPoint = new Vector3(
-        -axis[0] * maxLength,
-        -axis[2] * maxLength,
-        -axis[1] * maxLength
+        position[0] * 0.001 - axis[0] * maxLength,
+        position[2] * 0.001 - axis[2] * maxLength,
+        position[1] * -0.001 + axis[1] * maxLength
       );
       const finishPoint = new Vector3(
-        axis[0] * maxLength,
-        axis[2] * maxLength,
-        axis[1] * maxLength
+        position[0] * 0.001 + axis[0] * maxLength,
+        position[2] * 0.001 + axis[2] * maxLength,
+        position[1] * -0.001 - axis[1] * maxLength
       );
       points.push(startPoint);
       points.push(finishPoint);
@@ -574,14 +574,14 @@ class GLTFRenderer extends Component {
         ) {
           const element = this.props.drawAxisLines[indexLines];
           console.log('Getting an element to draw axis', element);
-          this.drawAxisLine(element.axis, element.name);
+          this.drawAxisLine(element.axis, element.position, element.name);
         }
       } else if (this.props.drawAxisLines.length > 0) {
-        console.log(
-          'I am not drawing because already drawn',
-          this.props.drawAxisLines,
-          prevProps.drawAxisLines
-        );
+        // console.log(
+        //   'I am not drawing because already drawn',
+        //   this.props.drawAxisLines,
+        //   prevProps.drawAxisLines
+        // );
       }
     }
     /* 
@@ -1509,7 +1509,7 @@ class GLTFRenderer extends Component {
       ) {
         const element = this.props.drawAxisLines[indexLines];
         console.log('Getting an element to draw axis', element);
-        this.drawAxisLine(element.axis, element.name);
+        this.drawAxisLine(element.axis, element.position, element.name);
       }
     }
 
