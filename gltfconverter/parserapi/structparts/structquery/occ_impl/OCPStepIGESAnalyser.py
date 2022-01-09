@@ -4416,6 +4416,8 @@ class StepIgesAnalyser():
                                         lp,lq,lr=stepDictionary['location']
                                         dp,dq,dr=stepDictionary['direction']
                                         _,_,_,ra=stepDictionary['rotation']
+                                        if dp==0 and dq==0 and dr==0 :  
+                                            dp,dq,dr,ra=globalAxisAndAngle[rotationIndex]
                                         shapeOfAxis=rotate_shape(shapeOfAxis,lp,lq,lr, dp,dq,dr,ra, unity="radian", copy=True)
                                     lu,lv,lw,du,dv,dw=self.getShapeLocationAndDirection(shapeOfAxis)    
                                     nu,nv,nw,na=du,dv,dw,a

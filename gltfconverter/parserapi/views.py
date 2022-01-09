@@ -5946,6 +5946,8 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                     #print("What we got here",whatWeGotFromKinematicInfo)
                     partName, displayName, sequence, isActuator, isLinear, [ax,ay,az], aw, _, _, shapeOfAxis = whatWeGotFromKinematicInfo
                     #print("Error has occured here?")
+                    if shapeOfAxis is None:
+                        shapeOfAxis=eachShape
                     if ax==0 and ay==0 and az==0 :
                         myobb = get_oriented_bounding_details(eachShape)
                         ax, ay, az = getMaxDirectionFromOBB(myobb)
