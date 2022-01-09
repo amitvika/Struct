@@ -4297,17 +4297,20 @@ class StepIgesAnalyser():
             data = []
             try:
                 dumpTopologyStructures(shapeOfAxis,level=0,parentId=[None],returnStructure=data,faceInfo=None, depth=1)
+                print("")
+                print("data from dumpTopologyStructures",data)
                 if len(data)>0:
-                    if 'Info' in data:
-                        if 'direction' in data['Info'] and 'location' in data['Info']:
+                    if 'Info' in data[0]:
+                        if 'direction' in data[0]['Info'] and 'location' in data[0]['Info']:
                             try:
-                                du,dv,dw = data['Info']['direction']
-                                lu,lv,lw = data['Info']['location']
+                                du,dv,dw = data[0]['Info']['direction']
+                                lu,lv,lw = data[0]['Info']['location']
                             except Exception as e:
                                 print("Error while getting data",e)
             except Exception as e:
-                print("Error While getting shape location and direction",e)            
-        return lu,lv,lw,du,dv,dw
+                print("Error While getting shape location and direction",e)   
+        return 0,0,0,0,0,0         
+        #return lu,lv,lw,du,dv,dw
 
     def addKinematicRotationalAnimations(self):
         WritingGlobalAxisAndAngle=[]
@@ -4342,7 +4345,9 @@ class StepIgesAnalyser():
                 mystep = steps-1
                 if lenShapeOrder > 0:
                     mystep = self.shapeorder[steps-1] 
-                print("what i got for kinematics",self.kinematicrotation[mystep])
+                print("")
+                print("what i got for kinematics",self.kinematicrotation[mystep],mystep,steps-1)
+                print("")
                 (tu,tv,tw,td),(u,v,w,a),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis=self.kinematicrotation[mystep]
                 print(mystep,tu,tv,tw,td,u,v,w,a,lenAnimations,lenShapeOrder,steps-1)
                 if action=="translation":
@@ -4384,6 +4389,7 @@ class StepIgesAnalyser():
                             # u,v, w = old w,v,w * quaternion with which 
                             lu,lv,lw,du,dv,dw=self.getShapeLocationAndDirection(shapeOfAxis)                      
                             if steps>1:
+                                print("Shape",lu,lv,lw,du,dv,dw,steps,u,v,w,a)
                                 """ b1, b2, b3, b4 = globalRotation[steps-1]
                                 na=a
                                 [nu, nv, nw] = self.point_rotation_by_quaternion([u,v,w],[b1,b2,b3,b4]) 
@@ -4401,6 +4407,8 @@ class StepIgesAnalyser():
                                 else:
                                     for rotationIndex in range(steps-1):
                                         stepDictionary = WritingGlobalAxisAndAngle[rotationIndex]
+                                        print("Stepdictionary",rotationIndex,stepDictionary)
+
                                         lp,lq,lr=stepDictionary['location']
                                         dp,dq,dr=stepDictionary['direction']
                                         _,_,_,ra=stepDictionary['rotation']
@@ -4523,7 +4531,7 @@ class StepIgesAnalyser():
                 }
                 samplers_index = len(samplers)
                 samplers.append(sampler)    
-                print("Sampler",samplers_index, steps-startRange,action)        
+                print("Sampler",samplers_index, steps-startRange,action,node_id)        
                 chanel = {
                     "sampler" : samplers_index, #steps-startRange,
                     "target" : {
