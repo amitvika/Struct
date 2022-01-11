@@ -56,6 +56,7 @@ const CadMakerItemDetail = (props) => {
   const getTabs = () => {
     return [
       {
+        tabId: 'pdcu',
         tabName: 'CAD or Upload/Customize CAD File',
         tabContent: BaseItemProperties,
         tabProps: {
@@ -88,6 +89,7 @@ const CadMakerItemDetail = (props) => {
         }
       },
       {
+        tabId: 'materials',
         tabName: 'Materials',
         tabContent: MaterialTab,
         tabProps: {
@@ -96,6 +98,7 @@ const CadMakerItemDetail = (props) => {
         }
       },
       {
+        tabId: 'gdtac',
         tabName: 'GD&T And Assembly Constraints',
         tabContent: GeometricDimensioning,
         tabProps: {
@@ -136,6 +139,7 @@ const CadMakerItemDetail = (props) => {
         tabName: 'Surface Finish and Treatment'
       },
       {
+        tabId: 'assembly',
         tabName: 'Assembly',
         tabContent: AssemblyTab,
         tabProps: {
@@ -145,6 +149,7 @@ const CadMakerItemDetail = (props) => {
         }
       },
       {
+        tabId: 'cf',
         tabName: 'Classification',
         tabContent: ClassificationTab,
         tabProps: {
@@ -184,7 +189,7 @@ const CadMakerItemDetail = (props) => {
       title={'CAD Design'}
       tabList={getTabs()}
       isAddDesignVisible={true}
-      {...{ handleSave, itemValue, setItemValue }}
+      {...{ handleSave, itemValue, setItemValue, changeUrlOnTabChange: true }}
     />
   );
 };

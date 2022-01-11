@@ -38,7 +38,7 @@ export default function Routes() {
             <Route
               exact
               authenticate
-              path="/cad"
+              path="/cad/:id"
               component={CadItemDetailPage}
             />
 

@@ -4,7 +4,10 @@ import { Tab, Tabs, Grid } from '@mui/material';
 import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 
-export default function DetailPageTab({ tabList }) {
+export default function DetailPageTab({
+  tabList,
+  changeUrlOnTabChange = false
+}) {
   const [selectedTabIndex, setSelectedTabIndex] = React.useState(0);
 
   const handleTabChange = (event, newTabIndex) => {

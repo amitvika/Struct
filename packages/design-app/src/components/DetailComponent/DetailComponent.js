@@ -11,7 +11,8 @@ export default function DetailPage({
   isAddDesignVisible = true,
   handleSave,
   itemValue,
-  setItemValue
+  setItemValue,
+  changeUrlOnTabChange
 }) {
   return (
     <>
@@ -25,7 +26,7 @@ export default function DetailPage({
         }}
       />
 
-      {tabList && <DetailComponentTab {...{ tabList }} />}
+      {tabList && <DetailComponentTab {...{ tabList, changeUrlOnTabChange }} />}
     </>
   );
 }

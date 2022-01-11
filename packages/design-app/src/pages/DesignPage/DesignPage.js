@@ -8,7 +8,7 @@ import { Box } from '@mui/system';
 export default function DesignPage() {
   const history = useHistory();
   const handleItemClick = (id, data, openInTab) => {
-    let link = `/cad?id=${id}`;
+    let link = `/cad/${id}`;
     if (openInTab) {
       const win = window.open(link, '_blank');
       win.focus();
