@@ -468,6 +468,7 @@ class GLTFRenderer extends Component {
       ourMesh.name = name;
       ourMesh.renderOrder += 40;
       axisLineNodes.add(ourMesh);
+      //console.log(this.shiftposition);
       axisLineNodes.position.x += this.shiftposition.x;
       axisLineNodes.position.y += this.shiftposition.y;
       axisLineNodes.position.z += this.shiftposition.z;
@@ -858,11 +859,13 @@ class GLTFRenderer extends Component {
         this.defaultCamera.updateProjectionMatrix();
       }
 
-      this.shiftposition = {
-        x: object.position.x - center.x,
-        y: object.position.y - center.y,
-        z: object.position.z - center.z
-      };
+      this.shiftposition = this.props.showKinematicMove
+        ? { x: 0, y: 0, z: 0 }
+        : {
+            x: object.position.x - center.x,
+            y: object.position.y - center.y,
+            z: object.position.z - center.z
+          };
       object.position.x += this.shiftposition.x;
       object.position.y += this.shiftposition.y;
       object.position.z += this.shiftposition.z;
