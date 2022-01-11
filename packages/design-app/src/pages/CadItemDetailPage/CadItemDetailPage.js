@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import ItemsAPI from '@monostruct/common/api/items.api';
 import get from 'lodash/get';
 import MaterialTab from '@monostruct/common/containers/MaterialTab/MaterialTab';
@@ -10,6 +10,7 @@ import { useQuery } from '@monostruct/common/utils/customHooks';
 import DetailPage from '../../components/DetailComponent/DetailComponent';
 import ItemDetailHOC from '@monostruct/common/containers/ItemDetailHOC/ItemDetailHOC';
 import BaseItemProperties from '@monostruct/common/containers/BaseItemPropertiesTab';
+import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
 
 const CadMakerItemDetail = (props) => {
   const {
@@ -141,6 +142,7 @@ const CadMakerItemDetail = (props) => {
 const ItemDetailWrappper = ItemDetailHOC(CadMakerItemDetail);
 
 const ItemDetailContainer = () => {
+  const alertContext = useContext(AlertContext);
   let query = useQuery();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -157,7 +159,10 @@ const ItemDetailContainer = () => {
         setItemValue(get(res, 'data', {}));
       })
       .catch((error) => {
-        console.log('------cons', error);
+        // setItemValue((prev) => ({ ...prev, ...change }));
+        if (get(error, 'response.status') === 401) {
+          alertContext.openErrorAlert({ message: 'Not a valid user' });
+        }
       });
   };
 

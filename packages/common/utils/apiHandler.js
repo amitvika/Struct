@@ -19,7 +19,7 @@ export const request = async (path, data, method) => {
       localStorage.setItem('token', null);
       // window.location = '/';
     }
-    return null;
+    throw error;
   });
 };
 

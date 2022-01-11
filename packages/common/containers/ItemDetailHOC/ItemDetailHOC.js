@@ -95,7 +95,7 @@ const ItemDetailHOC = (Component) =>
         item: itemValue,
         myTabedIndex: tabIndex
       });
-    }, [itemValue, showKinematicMove, regenerateKinematicMove]);
+    }, [itemValue.fileStore, showKinematicMove, regenerateKinematicMove]);
 
     useEffect(() => {
       CriteriaUploadAPI.fetchCriteriaUpload(
