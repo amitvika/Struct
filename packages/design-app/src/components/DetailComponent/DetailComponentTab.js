@@ -3,15 +3,25 @@ import { Tab, Tabs, Grid } from '@mui/material';
 
 import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
+import { useHistory } from 'react-router-dom';
 
 export default function DetailPageTab({
   tabList,
+  urlPathname = '',
   changeUrlOnTabChange = false
 }) {
+  const history = useHistory();
+
   const [selectedTabIndex, setSelectedTabIndex] = React.useState(0);
 
   const handleTabChange = (event, newTabIndex) => {
     setSelectedTabIndex(newTabIndex);
+    if (tabList[newTabIndex].tabId) {
+      history.push({
+        pathname: urlPathname,
+        search: `?tab=${tabList[newTabIndex].tabId}`
+      });
+    }
   };
   const renderTab = () => {
     return tabList.map((tab, index) => (

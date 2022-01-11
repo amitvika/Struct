@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@monostruct/common/utils/customHooks';
 import ItemDetailHOC from '@monostruct/common/containers/ItemDetailHOC/ItemDetailHOC';
 
@@ -11,9 +12,10 @@ import DetailPage from '../../components/DetailComponent/DetailComponent';
 import BaseItemProperties from '@monostruct/common/containers/BaseItemPropertiesTab';
 import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
 import GeometricDimensioning from '@monostruct/common/containers/GeometricDimensioningTab/GeometricDimensioningTab';
-
+import ManufactureProcessingProcessSimulation from '@monostruct/common/containers/ManufactureProcessingProcessSimulation';
 import get from 'lodash/get';
 import './style.css';
+
 const CadMakerItemDetail = (props) => {
   const {
     allowFirstLevelItems,
@@ -50,7 +52,8 @@ const CadMakerItemDetail = (props) => {
     internalProductConfig,
     isLoading,
     additionalSaveFunction,
-    SELECTFEATURE
+    SELECTFEATURE,
+    handleSetOrder
   } = props;
 
   const getTabs = () => {
@@ -163,7 +166,37 @@ const CadMakerItemDetail = (props) => {
         tabName: 'Design Modifications'
       },
       {
-        tabName: 'Manufacturing'
+        tabId: 'mpps',
+        tabName: 'Manufacturing',
+        tabContent: ManufactureProcessingProcessSimulation,
+        tabProps: {
+          itemId: itemValue.id,
+          fileId: itemValue.fileId,
+          fileUUId: itemValue.fileUUId,
+          itemProperties: itemValue,
+          setItemProperties: setItemValue,
+          fetchList: ItemsAPI.getItemsAPI,
+          // setStack={setStack}
+          setOrder: handleSetOrder,
+          gltfjson,
+          isLoading,
+          additionalSaveFunction,
+          progressBarLoad,
+          percentage,
+          currentProgressText,
+          completionProgressText,
+          centerActionText,
+          selectedOption,
+          setSelectedOption,
+          setPercentage,
+          setProgressBarLoad,
+          setCurrentProgressText,
+          setCompletionProgressText,
+          setCenterActionText,
+          drawLine: itemValue.drawLine,
+          activeGLTFFile,
+          setActiveGLTFile
+        }
       },
       {
         tabName: 'Recycling and Sustainability'
@@ -184,12 +217,19 @@ const CadMakerItemDetail = (props) => {
     return null;
   }
 
+  console.log(itemValue);
   return (
     <DetailPage
       title={'CAD Design'}
       tabList={getTabs()}
       isAddDesignVisible={true}
-      {...{ handleSave, itemValue, setItemValue, changeUrlOnTabChange: true }}
+      {...{
+        handleSave,
+        itemValue,
+        setItemValue,
+        changeUrlOnTabChange: true,
+        urlPathname: `/cad/${itemValue.id}`
+      }}
     />
   );
 };
@@ -197,6 +237,8 @@ const CadMakerItemDetail = (props) => {
 const ItemDetailWrappper = ItemDetailHOC(CadMakerItemDetail);
 
 const ItemDetailContainer = () => {
+  let { id } = useParams();
+
   const alertContext = useContext(AlertContext);
   let query = useQuery();
 
@@ -222,12 +264,8 @@ const ItemDetailContainer = () => {
   };
 
   useEffect(() => {
-    if (!query.get('id')) {
-      return;
-    }
-
     setIsLoading(true);
-    ItemsAPI.getItemsAPI(`id=${query.get('id')}`)
+    ItemsAPI.getItemsAPI(`id=${id}`)
       .then((itemDetailResponse) => {
         setItemValue(get(itemDetailResponse, 'data[0]', {}));
 
@@ -236,7 +274,7 @@ const ItemDetailContainer = () => {
       .catch((error) => {
         setIsLoading(false);
       });
-  }, [query.get('id')]);
+  }, [id]);
 
   return <ItemDetailWrappper {...{ itemValue, setItemValue, handleSave }} />;
 };

@@ -4,9 +4,7 @@ import {
   SELECTFEATURE,
   PROCESSINGSTATUS
 } from '@monostruct/common/gltf/Tree/utils';
-
 import get from 'lodash/get';
-
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 
 import {
@@ -23,11 +21,14 @@ import {
 
 import { getAFileFromStore } from '@monostruct/common/api/fileUpload.api';
 import { createChildItems } from '@monostruct/common/containers/BaseItemPropertiesTab/helper';
+import { useQuery } from '@monostruct/common/utils/customHooks';
+
 let state_additionalSaveFunction = null;
 
 const ItemDetailHOC = (Component) =>
   function Comp(props) {
     const { itemValue, setItemValue, handleSave } = props;
+    let query = useQuery();
 
     const [tabIndex, setTabIndex] = useState('pdcu');
     const [isLoading, setIsLoading] = useState(false);
@@ -65,25 +66,23 @@ const ItemDetailHOC = (Component) =>
 
     // console.log('--------itemValue', itemValue);
 
-    // useEffect(() => {
-    //   if (!itemValue) {
-    //     return;
-    //   }
+    useEffect(() => {
+      if (!itemValue) {
+        return;
+      }
 
-    // let myTabIndex = tabIndex ? tabIndex : 'pdcu';
-    // if (query.get('tab')) {
-    //   myTabIndex = query.get('tab');
-    //   setTabIndex(myTabIndex);
-    // }
-    // setAllowFirstLevelItems(
-    //   itemValue?.child_item_status === 'INITIATED'
-    // );
-    // setActiveGLTFile('');
-    //   handleGLTFAndTreeLoading({
-    //     item: itemValue,
-    //     myTabedIndex: myTabIndex
-    //   });
-    // }, [tabIndex]);
+      let myTabIndex = tabIndex ? tabIndex : 'pdcu';
+      if (query.get('tab')) {
+        myTabIndex = query.get('tab');
+        setTabIndex(myTabIndex);
+      }
+      setAllowFirstLevelItems(itemValue?.child_item_status === 'INITIATED');
+      setActiveGLTFile('');
+      handleGLTFAndTreeLoading({
+        item: itemValue,
+        myTabedIndex: myTabIndex
+      });
+    }, [tabIndex]);
 
     useEffect(() => {
       if (!itemValue) {
