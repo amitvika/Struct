@@ -113,9 +113,10 @@ export default function DynamicCriteria({
               <Input
                 placeholder="Enter"
                 type={fieldItem.dataType === 'Numerical' ? 'number' : 'text'}
-                onChange={(event) =>
-                  handleOnChange(fieldItem.fieldName, event.target.value)
-                }
+                onChange={(event) => {
+                  setIsCircularFaceOrEdgeSelection(false);
+                  handleOnChange(fieldItem.fieldName, event.target.value);
+                }}
                 value={fieldItem.value || ''}
               />
             )}
@@ -125,9 +126,10 @@ export default function DynamicCriteria({
                 options={fieldItem.options
                   .split('|')
                   .map((option) => ({ label: option, value: option }))}
-                onChange={({ value, label }) =>
-                  handleOnChange(fieldItem.fieldName, value)
-                }
+                onChange={({ value, label }) => {
+                  setIsCircularFaceOrEdgeSelection(false);
+                  handleOnChange(fieldItem.fieldName, value);
+                }}
                 value={fieldItem.value}
               />
             )}
@@ -146,7 +148,7 @@ export default function DynamicCriteria({
                     if (fieldItem.activeCell) {
                       handleOnChange(fieldItem.fieldName, valuefound);
                     }
-                    console.log('OnChange', mykeyinfo, valuefound, fieldItem);
+                    // console.log('OnChange', mykeyinfo, valuefound, fieldItem);
                   }}
                   cylindrical_axis_of_rotation={
                     fieldItem.dataType === 'CircularFaceOrEdgeSelection'

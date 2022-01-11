@@ -14,6 +14,7 @@ export default function DynamicHierarchyForm(props) {
     gltfjson,
     itemProperties,
     setSelectedOption,
+    isCircularFaceOrEdgeSelection,
     setIsCircularFaceOrEdgeSelection,
     handleRotationalAxisChange,
     kinematicItemList,
@@ -99,14 +100,15 @@ export default function DynamicHierarchyForm(props) {
   }, [stateUpdated]);
 
   const syncDataWithServer = (selections) => {
-    handleItemUpdate({
-      actuator_motion_control: {
-        ...itemProperties.actuator_motion_control,
-        angle_or_distant_limit: getAngleOfRotationValue(selections)
-      },
-      hierarchySelections: selections,
-      is_actuator_type: checkActuatorTypeComponent(selections)
-    });
+    setTimeout(() => {
+      handleItemUpdate({
+        actuator_motion_control: {
+          angle_or_distant_limit: getAngleOfRotationValue(selections)
+        },
+        hierarchySelections: selections,
+        is_actuator_type: checkActuatorTypeComponent(selections)
+      });
+    }, 5000);
   };
 
   useEffect(() => {

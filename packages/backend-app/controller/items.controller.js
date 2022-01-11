@@ -170,12 +170,18 @@ exports.update = async (req, res) => {
 
     let prevItem;
     if (isObjectIdValid(itemId)) {
-      prevItem = await ItemModel.findById(itemId);
+      prevItem = await (await ItemModel.findById(itemId)).toObject();
     }
 
     if (prevItem) {
       updateData.created_by = prevItem.created_by;
       updateData.updated_by = req.user.id;
+
+      updateData.actuator_motion_control = Object.assign(
+        {},
+        prevItem.actuator_motion_control,
+        updateData.actuator_motion_control
+      );
 
       prevItem = await ItemModel.findByIdAndUpdate(
         itemId,

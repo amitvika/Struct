@@ -461,6 +461,13 @@ const ItemDetail = ({ itemValue }) => {
     itemProperties.itemId = undefined;
     let updateItemProperties = Object.assign({}, itemProperties, change);
 
+    if (Object.keys(itemProperties.actuator_motion_control).length > 0) {
+      itemProperties.actuator_motion_control = {
+        ...itemProperties.actuator_motion_control,
+        ...change.actuator_motion_control
+      };
+    }
+
     if (Object.keys(updateItemProperties).length === 0) {
       try {
         if (state_additionalSaveFunction) {

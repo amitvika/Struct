@@ -214,7 +214,11 @@ export default function HeaderDesktopView({
             sx={{ p: 0, color: 'white' }}
             className={classes.menuButton}
           >
-            {isLoggedIn() ? `Welcome: ${user ? user.email : ''}` : 'Login'}
+            {isLoggedIn()
+              ? `Welcome: ${user ? user.email : ''}`
+              : isInternalApp
+              ? 'Login'
+              : 'Login/Sign-Up'}
           </Button>
         </Tooltip>
 

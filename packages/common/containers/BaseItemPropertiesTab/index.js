@@ -1,53 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '@mui/material/Grid';
-import {
-  Paper,
-  CircularProgress,
-  Box
-  /*LinearProgress,
-  makeStyles*/
-} from '@mui/material';
-// import { useDispatch } from 'react-redux';
-
+import { Paper, CircularProgress, Box } from '@mui/material';
 import GeometryInput from './GeometryInput';
 import get from 'lodash/get';
 
 import {
-  //upload3DFile,
   getHierarchySplitFiles,
   getAFileFromStore,
   resourcePathURL
 } from '@monostruct/common/api/fileUpload.api';
-
-import ItemAPI from '@monostruct/common/api/items.api';
-
 import GLTFRenderer from '@monostruct/common/gltf/GltfRenderer';
-import {
-  showErrorAlert,
-  showSuccessAlert
-} from '../../../internal-app/src/actions/alert.action';
+
 import {
   DEFAULTBACKCOLOR,
   DEFAULTSELECTCOLOR,
   DEFAULTTOUCHCOLOR,
   SELECTHIRERACHY,
-  SELECTFEATURE,
   STATEPROPS,
   USESTYLES,
   pollFunction,
   getFileNameWithoutExtension
 } from '@monostruct/common/gltf/Tree/utils';
-
 import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
+
 export default function BaseItemProperties({
   itemId,
   itemProperties,
   setItemProperties,
   tabIndex,
-  setTabIndex,
   gltfjson,
   setgltfjson,
-  handleItemUpdateLocallay,
   handleItemSaveOnServer,
   progressBarLoad,
   percentage,
@@ -94,31 +76,13 @@ export default function BaseItemProperties({
     angleGap ? angleGap : STATEPROPS.anglegap
   );
   const [drawLiner, setDrawLiner] = useState(drawLine);
-  //const [allowFirstLevelItems, setAllowFirstLevelItems] = useState(false);
-  // console.log(
-  //   'ANgle Gap',
-  //   angleGap,
-  //   angleGaper,
-  //   'Distance Gap',
-  //   distanceGap,
-  //   distanceGaper
-  // );
+
   useEffect(() => {
-    // console.log(
-    //   'changing file uuid due to gltf changing',
-    //   gltfjson,
-    //   itemProperties
-    // );
     setfileUUId(itemProperties.fileUUId);
     setGltfObj(gltfjson);
   }, [gltfjson]);
 
   useEffect(() => {
-    //console.log('Setting itemProperties', itemProperties);
-    // console.log(
-    //   'changing file uuid due to itemproperties changing',
-    //   itemProperties
-    // );
     setfileUUId(itemProperties.fileUUId);
   }, [itemProperties]);
 
@@ -410,27 +374,17 @@ export default function BaseItemProperties({
         drawLine: drawLiner
       });
 
-      // if (allowFirstLevelItems) {
-      //   createChildItems({
-      //     pathFileName: filenameWithOutExtension,
-      //     fileUUId: data.uuid,
-      //     parentId: itemProperties.id
-      //   });
-      // }
-
       setIsLoading(false);
-      // dispatch(showSuccessAlert({ message: 'File Parsed successfully' }));
     } catch (error) {
       setIsLoading(false);
       setIsFileLoading(false);
-      // dispatch(showErrorAlert({ message: error.message }));
     }
   };
 
   const removeFile = (data) => {};
 
-  let gltfjsonlen = Object.keys(gltfobj).length;
-  if (gltfjsonlen > 0) {
+  let gltfjsonlen = gltfobj ? Object.keys(gltfobj).length : 0;
+  if (get(gltfobj, 'gltf.accessors')) {
     gltfjsonlen += gltfobj?.gltf?.accessors?.length;
   }
 
