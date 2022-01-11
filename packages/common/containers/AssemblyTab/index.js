@@ -257,7 +257,7 @@ class Extensions extends Component {
   }
 }
 
-export default function Assembly(props) {
+export default function AssemblyTab(props) {
   const {
     assemblyTree,
     OnAddition,

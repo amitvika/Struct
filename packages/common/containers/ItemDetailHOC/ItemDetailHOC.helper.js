@@ -74,9 +74,10 @@ export const fetchGLTFAndTree = async (props) => {
 
     setProgressBarLoad(true);
     let statusRes = await getAFileFromStore(whichOneToLoad, 'status');
+    let percent = 0;
     if (fileUUId && okToParse == PROCESSINGSTATUS.INPROGRESS) {
       // statusRes = await getAFileFromStore(whichOneToLoad, 'status');
-      let percent = 0;
+      percent = 0;
       if (
         statusRes &&
         statusRes.data &&
@@ -103,6 +104,8 @@ export const fetchGLTFAndTree = async (props) => {
           setCompletionProgressText
         );
       }
+    } else {
+      percent = 100;
     }
 
     //
@@ -110,16 +113,19 @@ export const fetchGLTFAndTree = async (props) => {
       whichOneToLoad,
       'gltf'
     );
+    console.log('got percent', percent, whichOneToLoad, myResourcePath);
     //
     const gltfRes = await getAFileFromURLStore(
       whichOneToLoad,
       'gltf',
-      myResourcePath
+      myResourcePath,
+      percent
     );
     const treeRes = await getAFileFromURLStore(
       whichOneToLoad,
       'tree',
-      myResourcePath
+      myResourcePath,
+      percent
     );
     let stackRes = { data: null };
     let orderRes = { data: null };
@@ -128,21 +134,24 @@ export const fetchGLTFAndTree = async (props) => {
       stackRes = await getAFileFromURLStore(
         whichOneToLoad,
         'stack',
-        myResourcePath
+        myResourcePath,
+        percent
       );
     }
     if (myTabIndex == 'mpps') {
       orderRes = await getAFileFromURLStore(
         whichOneToLoad,
         'order',
-        myResourcePath
+        myResourcePath,
+        percent
       );
     }
     if (myTabIndex == 'gdtac') {
       gdtRes = await getAFileFromURLStore(
         whichOneToLoad,
         'gdt',
-        myResourcePath
+        myResourcePath,
+        percent
       );
       console.log('WhichOneToLoad', whichOneToLoad, gdtRes, myResourcePath);
     }
@@ -872,6 +881,7 @@ export const handleInternalUseProduct = async (props) => {
         };
         let percentFunction = (result) =>
           result.data.percent ? result.data.percent : percentage;
+        console.log('Started getting here kineamtic status', datafile);
         const statusRes = await pollFunction(
           fetchStatus,
           validateStatus,
@@ -881,9 +891,10 @@ export const handleInternalUseProduct = async (props) => {
           setCurrentProgressText,
           setCompletionProgressText
         );
+        console.log('Finally got here kineamtic status', statusRes);
         const gltfRes = await getAFileFromStore(datafile, 'gltf');
         const treeRes = await getAFileFromStore(datafile, 'tree');
-
+        console.log('Setting', gltfRes, treeRes);
         setgltfjson({
           gltf: gltfRes.data,
           tree: treeRes.data,

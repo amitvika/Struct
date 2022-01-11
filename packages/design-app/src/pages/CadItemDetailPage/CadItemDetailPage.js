@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useQuery } from '@monostruct/common/utils/customHooks';
+import ItemDetailHOC from '@monostruct/common/containers/ItemDetailHOC/ItemDetailHOC';
+
 import ItemsAPI from '@monostruct/common/api/items.api';
-import get from 'lodash/get';
 import MaterialTab from '@monostruct/common/containers/MaterialTab/MaterialTab';
 import ClassificationTab from '@monostruct/common/containers/ClassificationTab';
-import './style.css';
-
-import { useQuery } from '@monostruct/common/utils/customHooks';
+import AssemblyTab from '@monostruct/common/containers/AssemblyTab';
 
 import DetailPage from '../../components/DetailComponent/DetailComponent';
-import ItemDetailHOC from '@monostruct/common/containers/ItemDetailHOC/ItemDetailHOC';
 import BaseItemProperties from '@monostruct/common/containers/BaseItemPropertiesTab';
 import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
+import GeometricDimensioning from '@monostruct/common/containers/GeometricDimensioningTab/GeometricDimensioningTab';
 
+import get from 'lodash/get';
+import './style.css';
 const CadMakerItemDetail = (props) => {
   const {
     allowFirstLevelItems,
@@ -40,7 +42,15 @@ const CadMakerItemDetail = (props) => {
     setTabIndex,
     itemValue,
     setItemValue,
-    handleSave
+    handleSave,
+    activeGDTTable,
+    setActiveGDTTable,
+    drawAxisLines,
+    setDrawAxisLines,
+    internalProductConfig,
+    isLoading,
+    additionalSaveFunction,
+    SELECTFEATURE
   } = props;
 
   const getTabs = () => {
@@ -86,13 +96,53 @@ const CadMakerItemDetail = (props) => {
         }
       },
       {
-        tabName: 'GD&T And Assembly Constraints'
+        tabName: 'GD&T And Assembly Constraints',
+        tabContent: GeometricDimensioning,
+        tabProps: {
+          fileId: itemValue.fileId,
+          fileGDT: itemValue.fileGDT,
+          fileUUId: itemValue.fileUUId,
+          gltfjson,
+          setgltfjson,
+          isLoading,
+          tabIndex,
+          keyName: { name: '', option: SELECTFEATURE },
+          handleChangeOfSelection: null,
+          additionalSaveFunction,
+          progressBarLoad,
+          percentage,
+          currentProgressText,
+          completionProgressText,
+          centerActionText,
+          selectedOption,
+          setSelectedOption,
+          setPercentage,
+          setProgressBarLoad,
+          setCurrentProgressText,
+          setCompletionProgressText,
+          setCenterActionText,
+          drawLine: itemValue.drawLine,
+          additionalModelClick: null,
+          activeGLTFFile,
+          setActiveGLTFile,
+          activeGDTTable,
+          setActiveGDTTable,
+          drawAxisLines,
+          setDrawAxisLines,
+          internalProductConfig
+        }
       },
       {
         tabName: 'Surface Finish and Treatment'
       },
       {
-        tabName: 'Assembly'
+        tabName: 'Assembly',
+        tabContent: AssemblyTab,
+        tabProps: {
+          assemblyTree: get(gltfjson, 'tree', []),
+          activeGLTFFile: activeGLTFFile,
+          setActiveGLTFile: setActiveGLTFile
+        }
       },
       {
         tabName: 'Classification',

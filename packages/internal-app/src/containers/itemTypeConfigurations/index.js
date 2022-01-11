@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
 import Button from '@mui/material/Button';
 import DynamicFeedOutlinedIcon from '@mui/icons-material/DynamicFeedOutlined';
-import GeometricDimensioning from '../itemDetail/geometricDimensioning';
+import GeometricDimensioning from '@monostruct/common/containers/GeometricDimensioningTab/GeometricDimensioningTab';
 import {
   SELECTFEATURE,
   USESTYLES,

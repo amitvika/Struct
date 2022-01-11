@@ -32,7 +32,6 @@ export const AlertContextProvider = ({ children }) => {
     []
   );
 
-  console.log(alertValue);
   return (
     <AlertContext.Provider value={alertMode}>
       <Snackbar

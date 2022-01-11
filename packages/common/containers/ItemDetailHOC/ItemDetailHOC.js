@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-import ItemAPI from '@monostruct/common/api/items.api';
-
 import {
   SELECTFEATURE,
   PROCESSINGSTATUS
@@ -500,7 +498,15 @@ const ItemDetailHOC = (Component) =>
           gltfjson,
           setgltfjson,
           tabIndex,
-          setTabIndex
+          setTabIndex,
+          activeGDTTable,
+          setActiveGDTTable,
+          drawAxisLines,
+          setDrawAxisLines,
+          internalProductConfig,
+          isLoading,
+          additionalSaveFunction,
+          SELECTFEATURE
         }}
       />
     );
