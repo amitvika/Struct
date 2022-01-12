@@ -4456,7 +4456,7 @@ class StepIgesAnalyser():
                     "ILV",ilv,"FLV", flv,"LV",lv,"OLV",olv,"RV",rv,\
                         "ILW",ilw,"FLW",flw,"LW",lw,"OLW",olw,"RW",rw,\
                             "TU",tu,"TV",tv,"TW",tw,"TD",td,"DR",distanceReducer)
-                tlu, tlv, tlw = (cu-ocu+(tu*td))*distanceReducer,(cv-ocv+(tv*td))*distanceReducer,(cw-ocw+(tw*td))*distanceReducer
+                tlu, tlv, tlw = (flu-olu+(tu*td))*distanceReducer,(flv-olv+(tv*td))*distanceReducer,(flw-olw+(tw*td))*distanceReducer
                 globalTranslation.append((tlu,tlv,tlw))                          
         #globalAngle.append(a)                        
             print("Global Rotation",len(globalRotation),globalRotation,globalTranslation)    

@@ -466,7 +466,7 @@ const ItemDetail = ({ itemValue }) => {
       itemProperties.actuator_motion_control &&
       Object.keys(itemProperties.actuator_motion_control).length > 0
     ) {
-      itemProperties.actuator_motion_control = {
+      updateItemProperties.actuator_motion_control = {
         ...itemProperties.actuator_motion_control,
         ...change.actuator_motion_control
       };
