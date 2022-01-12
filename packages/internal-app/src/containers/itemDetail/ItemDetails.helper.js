@@ -296,8 +296,8 @@ export const handleOtherTabCase = async (props) => {
         setCurrentProgressText,
         setCompletionProgressText
       );
-      const gltfRes = await getAFileFromStore(datafile, 'gltf');
-      const treeRes = await getAFileFromStore(datafile, 'tree');
+      const gltfRes = await getAFileFromStore(datafile, 'gltf', true);
+      const treeRes = await getAFileFromStore(datafile, 'tree', true);
       const multiAssembly = statusRes
         ? statusRes.data
           ? statusRes.data.assemblies > 1
@@ -590,9 +590,9 @@ export const setOrder = async (props) => {
           setCurrentProgressText,
           setCompletionProgressText
         );
-        const gltfRes = await getAFileFromStore(datafile, 'gltf');
-        const treeRes = await getAFileFromStore(datafile, 'tree');
-        const orderRes = await getAFileFromStore(datafile, 'order');
+        const gltfRes = await getAFileFromStore(datafile, 'gltf', true);
+        const treeRes = await getAFileFromStore(datafile, 'tree', true);
+        const orderRes = await getAFileFromStore(datafile, 'order', true);
 
         //const multiAssembly = treeRes.length > 0;
         const mpps = gltfRes.data['store'];
@@ -735,8 +735,8 @@ export const handleProductDesignTab = async (props) => {
         setCurrentProgressText,
         setCompletionProgressText
       );
-      const gltfRes = await getAFileFromStore(datafile, 'gltf');
-      const treeRes = await getAFileFromStore(datafile, 'tree');
+      const gltfRes = await getAFileFromStore(datafile, 'gltf', true);
+      const treeRes = await getAFileFromStore(datafile, 'tree', true);
       const multiAssembly = statusRes
         ? statusRes.data
           ? statusRes.data.assemblies > 1
@@ -892,8 +892,8 @@ export const handleInternalUseProduct = async (props) => {
           setCompletionProgressText
         );
         console.log('Finally got here kineamtic status', statusRes);
-        const gltfRes = await getAFileFromStore(datafile, 'gltf');
-        const treeRes = await getAFileFromStore(datafile, 'tree');
+        const gltfRes = await getAFileFromStore(datafile, 'gltf', true);
+        const treeRes = await getAFileFromStore(datafile, 'tree', true);
         console.log('Setting', gltfRes, treeRes);
         setgltfjson({
           gltf: gltfRes.data,

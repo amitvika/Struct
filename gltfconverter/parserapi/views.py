@@ -51,7 +51,7 @@ from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
     getPartStackablePositions, get_bounding_details, get_oriented_bounding_details, 
     recognize_direction, recognize_entity)
 from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound #, excluded_list_of_shapes_to_compound
-from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices
+from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices #, getShapeLocationAndDirection 
 
 #from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
 from OCC.Core.gp import gp_Pnt 
@@ -5779,7 +5779,7 @@ def extractKinematicInformation(kinematicparts):
         #     axis=[0,1,2]
         aw = convertToFloat(aw,0)
         if isActuator and aw==0:
-            aw= 3.14 #3.14 #math.pi
+            aw= math.pi/6 # 3.14 #3.14 #math.pi
             ap=-0.1*ap
         sequence = convertToInt(sequence,0)
         isLinear = convertToBool(isLinear,False)
@@ -5893,7 +5893,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             _, myShapes = outputShapes
             
             shapeArray,onlyShapes,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
-            print("myshapes",shapeArray)
+            print("myshapes",shapePickles)
             kinematicrotation = []
             shapeorder=[]
             shapeCount = 0
@@ -5901,7 +5901,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 kinematicparts = partsteps['parts']
             else:
                 kinematicparts = []
-            print("What we got from react",kinematicparts)
+            #print("What we got from react",kinematicparts)
             try:
                 indexedKinematicInformation = extractKinematicInformation(kinematicparts) 
             except Exception as e:
@@ -5917,7 +5917,10 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             lengthOfKinematicParts = len(indexedKinematicInformation)
             notFoundSequence=0
             #partsteps=None
-            for (eachShape,eachName,_) in shapeArray:
+            lenShapeArray = len(shapeArray)
+            # firstShapeInfo=None
+            for shapeArrayIndex in  range(lenShapeArray):
+                eachShape,eachName,eachColor=shapeArray[shapeArrayIndex]
                 if (partsteps==None) or (len(kinematicparts)==0):
                     myobb = get_oriented_bounding_details(eachShape)
                     ax, ay, az = getMaxDirectionFromOBB(myobb)
@@ -5931,15 +5934,15 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                     
                     if(len(onlyShapes)!=8):     
                         if shapeCount>=2 and shapeCount<=5:
-                            kinematicrotation.append(((ax,ay,az,20*shapeCount),(ax,ay,az,0),eachName,eachName,eachName,False,False,None))
+                            kinematicrotation.append(((ax,ay,az,20*shapeCount),(ax,ay,az,0),eachName,eachName,eachName,False,False,None,eachShape))
                         else:
-                            kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,aw),eachName,eachName,eachName,False,False,None))              
+                            kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,aw),eachName,eachName,eachName,False,False,None,eachShape))              
                         shapeorder.append(shapeCount)
                     else:
                         if shapeCount>=2 and shapeCount<=3:
-                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0),eachName,eachName,eachName,False,False,None))
+                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0),eachName,eachName,eachName,False,False,None,eachShape))
                         else:
-                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw),eachName,eachName,eachName,False,False,None))                    
+                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw),eachName,eachName,eachName,False,False,None,eachShape))                    
                 else:
                     #sequence, isActuator, isLinear, [ax,ay,az], aw = getKinematicInformation(kinematicparts,eachName)
                     whatWeGotFromKinematicInfo=getKinematicInformationFromIndex(indexedKinematicInformation,eachName)  
@@ -5948,6 +5951,8 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                     #print("Error has occured here?")
                     if shapeOfAxis is None:
                         shapeOfAxis=eachShape
+                    """ if shapeArrayIndex==0:
+                        firstShapeInfo=getShapeLocationAndDirection(shapeOfAxis)  """
                     if ax==0 and ay==0 and az==0 :
                         myobb = get_oriented_bounding_details(eachShape)
                         ax, ay, az = getMaxDirectionFromOBB(myobb)
@@ -5961,11 +5966,24 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                         notFoundSequence+=1
                     if isActuator:
                         if isLinear:
-                            kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis))
+                            kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
                         else:
-                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis))
+                            """ cx,cy,cz,du,dv,dw=getShapeLocationAndDirection(shapeOfAxis)  
+                            if du==0 and dv==0 and dw==0:
+                                myobb = get_oriented_bounding_details(eachShape)
+                                mycenter = myobb.Center()
+                                cx,cy,cz = mycenter.X(),mycenter.Y(),mycenter.Z()
+                            shapeToOrgin=translate_shp(eachShape,-cx,-cy,-cz,True)
+                            shapeOfAxis=translate_shp(shapeOfAxis,-cx,-cy,-cz,True)
+                            shapeArray[shapeArrayIndex]=shapeToOrgin,eachName,eachColor
+                            _,xName,xR,xG,xB=shapePickles[shapeArrayIndex]
+                            shapePickles[shapeArrayIndex]=shapeToOrgin,xName,xR,xG,xB
+                            #cx,cy,cz,du,dv,dw=firstShapeInfo
+                            distance = math.sqrt(cx*cx+cy*cy+cz*cz) """
+                            cx,cy,cz,distance=ax,ay,az,0
+                            kinematicrotation.append(((cx,cy,cz,distance),(ax,ay,az,aw),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
                     else:
-                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis))                    
+                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))                    
                     #print ("Each Kinematic Rotation", kinematicrotation)
                 shapeCount += 1                          
             #print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
@@ -6039,7 +6057,7 @@ def FileGetKinematicRotationalAnimation(request):
                         args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime))
                     mythread.start()         
         elif request.method == 'POST':
-            print("Reached here in kinematic move",request.data)
+            #print("Reached here in kinematic move",request.data)
             id = request.data['id']
             distancegap = convertToFloat(request.data['distancegap'],0.1)
             anglegap = convertToFloat(request.data['anglegap'],0.5)
@@ -6053,7 +6071,7 @@ def FileGetKinematicRotationalAnimation(request):
                 for eachfile in files: 
                     basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,0,"R")
                     data = getEmptyDictionary(MEDIA_URL+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
-                    print("From assembly",data)
+                    #print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
                         args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,partsteps))
                     mythread.start()  
@@ -6062,7 +6080,7 @@ def FileGetKinematicRotationalAnimation(request):
                 if id is not None:
                     basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"R")
                     data = getEmptyDictionary(MEDIA_URL+id, basefilename,displaypath,0,starttime,True) 
-                    print("From assembly",data)
+                    #print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
                         args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,partsteps))
                     mythread.start() 

@@ -5,8 +5,8 @@ from OCC.Core.Geom import (Geom_BezierCurve, Geom_BSplineCurve, Geom_OffsetCurve
 
 __all__ = ['Topo', 'WireExplorer', 'dumpTopology', 'dumpTopologyStructures',\
      'getFacesEdgesVerticesFromShapes', 'dumpTopologyFacesEdgesVertices', 'dumpTopologySolids',\
-         'recognize_face_entity_info','recognize_edge_entity_info','recognize_vertex_entity_info',\
-             'recognize_shape_entity_info','recognize_by_threejs']
+         'recognize_face_entity_info', 'recognize_edge_entity_info', 'recognize_vertex_entity_info',\
+             'recognize_shape_entity_info', 'recognize_by_threejs', 'getShapeLocationAndDirection']
 
 import sys
 from numpy import zeros
@@ -35,6 +35,9 @@ from OCC.Core.GeomAbs import (GeomAbs_C0,
 from OCC.Core.BRepAdaptor import BRepAdaptor_Surface, BRepAdaptor_Curve
 from OCC.Core.TColStd import (TColStd_Array1OfInteger, TColStd_Array1OfReal, TColStd_Array2OfReal)
 from OCC.Core.TColgp import (TColgp_Array1OfPnt, TColgp_Array2OfPnt)
+from OCC.Core.Bnd import Bnd_Box, Bnd_OBB
+from OCC.Core.BRepBndLib import brepbndlib_Add, brepbndlib_AddOptimal, brepbndlib_AddOBB
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakePrism
 #from ..OCCExtend.ShapeFactory import (recognize_edge, recognize_face, recognize_shape)
 from ..gltfDictionary import gltfdict
 gltf_Dict = gltfdict()
@@ -1213,6 +1216,13 @@ def recognize_shape_entity_info(topods_shape):
         for j in range(1,5):
              entity['transformation'].append(transform.Value(i,j))
     entity['orientation'] = "Reverse" if (topods_shape.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Forward"
+    try:
+        thisdimension = get_oriented_bounding_details(topods_shape)
+        entity['location'] = getXYZ(thisdimension.Position().Location())  # a point of the axis
+        entity['direction'] = getXYZ(thisdimension.Position().Direction())
+        entity['center']=getXYZ(thisdimension.Center())
+    except:
+        print("While accessing obb of the shape")
     return entity
 
 def recognize_edge(topods_edge,face_info):
@@ -1331,6 +1341,64 @@ def recognize_edge(topods_edge,face_info):
     else:
         entity['kind'] = "Unknown"   
     return entity
+
+def get_oriented_bounding_details(shape, optimal_BB=True):
+    """ return the minimum bounding box of the TopoDS_Shape `shape`
+
+    Parameters
+    ----------
+
+    shape : TopoDS_Shape or a subclass such as TopoDS_Face
+        the shape to compute the bounding box from
+
+    
+    use_triangulation : bool, True by default
+        This makes the computation more accurate
+
+    Returns
+    -------
+        Bnd_OBB
+    """
+    
+
+    obb = Bnd_OBB()
+    if shape:
+        try:
+            if optimal_BB:
+                use_triangulation = True
+                use_shapetolerance = False
+                brepbndlib_AddOBB(shape, obb, use_triangulation, optimal_BB, use_shapetolerance)           
+            else:
+                brepbndlib_AddOBB(shape, obb)
+        except Exception as e:
+            print("Unable to find bounding box,",e)        
+    return obb
+
+def getShapeLocationAndDirection(shapeOfAxis):
+    lu,lv,lw,du,dv,dw,cu,cv,cw=0,0,0,0,0,0,0,0,0
+    if shapeOfAxis:
+        data = []
+        try:
+            dumpTopologyStructures(shapeOfAxis,level=0,parentId=[None],returnStructure=data,faceInfo=None, depth=1)
+            print("")
+            print("data from dumpTopologyStructures",data)
+            if len(data)>0:
+                if 'Info' in data[0]:
+                    if 'direction' in data[0]['Info'] and 'location' in data[0]['Info']:
+                        try:
+                            du,dv,dw = data[0]['Info']['direction']
+                            lu,lv,lw = data[0]['Info']['location']
+                        except Exception as e:
+                            print("Error while getting data",e)
+                    if 'center' in data[0]['Info']:
+                        try:
+                            cu,cv,cw = data[0]['Info']['center']
+                        except Exception as e:
+                            print("Error while getting data",e)
+        except Exception as e:
+            print("Error While getting shape location and direction",e)   
+    #return 0,0,0,0,0,0,0,0,0         
+    return lu,lv,lw,du,dv,dw,cu,cv,cw
 
 def getFacesEdgesVerticesFromShapes(shape, face_dict={}, edge_dict={}, vertex_dict={}, level=0,\
      parentId=[], returnStructure=[]):
