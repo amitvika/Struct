@@ -100,15 +100,15 @@ export default function DynamicHierarchyForm(props) {
   }, [stateUpdated]);
 
   const syncDataWithServer = (selections) => {
-    setTimeout(() => {
-      handleItemUpdate({
-        actuator_motion_control: {
-          angle_or_distant_limit: getAngleOfRotationValue(selections)
-        },
-        hierarchySelections: selections,
-        is_actuator_type: checkActuatorTypeComponent(selections)
-      });
-    }, 5000);
+    //setTimeout(() => { //Causing over write of actuator only with angle and all other parameters lost.
+    handleItemUpdate({
+      actuator_motion_control: {
+        angle_or_distant_limit: getAngleOfRotationValue(selections)
+      },
+      hierarchySelections: selections,
+      is_actuator_type: checkActuatorTypeComponent(selections)
+    });
+    //}, 5000);
   };
 
   useEffect(() => {
