@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Assembly from '@monostruct/common/containers/AssemblyTab';
-import { buildParentChildTree } from '../itemDetail/geometricDimensioning/helper';
+import { buildParentChildTree } from '@monostruct/common/containers/GeometricDimensioningTab/helper';
 import { SELECTFEATURE } from '@monostruct/common/gltf/Tree/utils';
 import ItemAPI from '@monostruct/common/api/items.api';
 import { get } from 'lodash';

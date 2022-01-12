@@ -4,7 +4,7 @@ import { useParams, useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
 import BaseItemProperties from '@monostruct/common/containers/BaseItemPropertiesTab';
-import GeometricDimensioning from './geometricDimensioning';
+import GeometricDimensioning from '@monostruct/common/containers/GeometricDimensioningTab/GeometricDimensioningTab';
 import CurrentUsage from './currentUsage';
 import VendorDetails from './VendorDetails';
 import ManufactureProcessingProcessSimulation from '@monostruct/common/containers/ManufactureProcessingProcessSimulation';
@@ -96,6 +96,7 @@ const ItemDetail = ({ itemValue }) => {
       setActiveGLTFileState(data);
     } catch (error) {}
   };
+
   useEffect(() => {
     let myTabIndex = tabIndex ? tabIndex : 'pdcu';
     if (query.get('tab')) {

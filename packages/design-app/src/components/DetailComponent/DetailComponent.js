@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import DetailComponentTab from './DetailComponentTab';
 import DetailComponentHeader from './DetailComponentHeader';
-
-import { useQuery } from '@monostruct/common/utils/customHooks';
+import { useParams, useHistory } from 'react-router-dom';
 
 export default function DetailPage({
   tabList,
@@ -11,7 +10,9 @@ export default function DetailPage({
   isAddDesignVisible = true,
   handleSave,
   itemValue,
-  setItemValue
+  setItemValue,
+  changeUrlOnTabChange,
+  urlPathname
 }) {
   return (
     <>
@@ -25,7 +26,11 @@ export default function DetailPage({
         }}
       />
 
-      {tabList && <DetailComponentTab {...{ tabList }} />}
+      {tabList && (
+        <DetailComponentTab
+          {...{ tabList, changeUrlOnTabChange, urlPathname }}
+        />
+      )}
     </>
   );
 }

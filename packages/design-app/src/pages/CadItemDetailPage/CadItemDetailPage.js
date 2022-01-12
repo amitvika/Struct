@@ -1,15 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@monostruct/common/utils/customHooks';
+import ItemDetailHOC from '@monostruct/common/containers/ItemDetailHOC/ItemDetailHOC';
+
 import ItemsAPI from '@monostruct/common/api/items.api';
-import get from 'lodash/get';
 import MaterialTab from '@monostruct/common/containers/MaterialTab/MaterialTab';
 import ClassificationTab from '@monostruct/common/containers/ClassificationTab';
-import './style.css';
-
-import { useQuery } from '@monostruct/common/utils/customHooks';
+import AssemblyTab from '@monostruct/common/containers/AssemblyTab';
 
 import DetailPage from '../../components/DetailComponent/DetailComponent';
-import ItemDetailHOC from '@monostruct/common/containers/ItemDetailHOC/ItemDetailHOC';
 import BaseItemProperties from '@monostruct/common/containers/BaseItemPropertiesTab';
+import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
+import GeometricDimensioning from '@monostruct/common/containers/GeometricDimensioningTab/GeometricDimensioningTab';
+import ManufactureProcessingProcessSimulation from '@monostruct/common/containers/ManufactureProcessingProcessSimulation';
+import get from 'lodash/get';
+import './style.css';
 
 const CadMakerItemDetail = (props) => {
   const {
@@ -39,12 +44,22 @@ const CadMakerItemDetail = (props) => {
     setTabIndex,
     itemValue,
     setItemValue,
-    handleSave
+    handleSave,
+    activeGDTTable,
+    setActiveGDTTable,
+    drawAxisLines,
+    setDrawAxisLines,
+    internalProductConfig,
+    isLoading,
+    additionalSaveFunction,
+    SELECTFEATURE,
+    handleSetOrder
   } = props;
 
   const getTabs = () => {
     return [
       {
+        tabId: 'pdcu',
         tabName: 'CAD or Upload/Customize CAD File',
         tabContent: BaseItemProperties,
         tabProps: {
@@ -77,6 +92,7 @@ const CadMakerItemDetail = (props) => {
         }
       },
       {
+        tabId: 'materials',
         tabName: 'Materials',
         tabContent: MaterialTab,
         tabProps: {
@@ -85,15 +101,58 @@ const CadMakerItemDetail = (props) => {
         }
       },
       {
-        tabName: 'GD&T And Assembly Constraints'
+        tabId: 'gdtac',
+        tabName: 'GD&T And Assembly Constraints',
+        tabContent: GeometricDimensioning,
+        tabProps: {
+          fileId: itemValue.fileId,
+          fileGDT: itemValue.fileGDT,
+          fileUUId: itemValue.fileUUId,
+          gltfjson,
+          setgltfjson,
+          isLoading,
+          tabIndex,
+          keyName: { name: '', option: SELECTFEATURE },
+          handleChangeOfSelection: null,
+          additionalSaveFunction,
+          progressBarLoad,
+          percentage,
+          currentProgressText,
+          completionProgressText,
+          centerActionText,
+          selectedOption,
+          setSelectedOption,
+          setPercentage,
+          setProgressBarLoad,
+          setCurrentProgressText,
+          setCompletionProgressText,
+          setCenterActionText,
+          drawLine: itemValue.drawLine,
+          additionalModelClick: null,
+          activeGLTFFile,
+          setActiveGLTFile,
+          activeGDTTable,
+          setActiveGDTTable,
+          drawAxisLines,
+          setDrawAxisLines,
+          internalProductConfig
+        }
       },
       {
         tabName: 'Surface Finish and Treatment'
       },
       {
-        tabName: 'Assembly'
+        tabId: 'assembly',
+        tabName: 'Assembly',
+        tabContent: AssemblyTab,
+        tabProps: {
+          assemblyTree: get(gltfjson, 'tree', []),
+          activeGLTFFile: activeGLTFFile,
+          setActiveGLTFile: setActiveGLTFile
+        }
       },
       {
+        tabId: 'cf',
         tabName: 'Classification',
         tabContent: ClassificationTab,
         tabProps: {
@@ -107,7 +166,37 @@ const CadMakerItemDetail = (props) => {
         tabName: 'Design Modifications'
       },
       {
-        tabName: 'Manufacturing'
+        tabId: 'mpps',
+        tabName: 'Manufacturing',
+        tabContent: ManufactureProcessingProcessSimulation,
+        tabProps: {
+          itemId: itemValue.id,
+          fileId: itemValue.fileId,
+          fileUUId: itemValue.fileUUId,
+          itemProperties: itemValue,
+          setItemProperties: setItemValue,
+          fetchList: ItemsAPI.getItemsAPI,
+          // setStack={setStack}
+          setOrder: handleSetOrder,
+          gltfjson,
+          isLoading,
+          additionalSaveFunction,
+          progressBarLoad,
+          percentage,
+          currentProgressText,
+          completionProgressText,
+          centerActionText,
+          selectedOption,
+          setSelectedOption,
+          setPercentage,
+          setProgressBarLoad,
+          setCurrentProgressText,
+          setCompletionProgressText,
+          setCenterActionText,
+          drawLine: itemValue.drawLine,
+          activeGLTFFile,
+          setActiveGLTFile
+        }
       },
       {
         tabName: 'Recycling and Sustainability'
@@ -128,12 +217,19 @@ const CadMakerItemDetail = (props) => {
     return null;
   }
 
+  console.log(itemValue);
   return (
     <DetailPage
       title={'CAD Design'}
       tabList={getTabs()}
       isAddDesignVisible={true}
-      {...{ handleSave, itemValue, setItemValue }}
+      {...{
+        handleSave,
+        itemValue,
+        setItemValue,
+        changeUrlOnTabChange: true,
+        urlPathname: `/cad/${itemValue.id}`
+      }}
     />
   );
 };
@@ -141,6 +237,9 @@ const CadMakerItemDetail = (props) => {
 const ItemDetailWrappper = ItemDetailHOC(CadMakerItemDetail);
 
 const ItemDetailContainer = () => {
+  let { id } = useParams();
+
+  const alertContext = useContext(AlertContext);
   let query = useQuery();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -157,17 +256,16 @@ const ItemDetailContainer = () => {
         setItemValue(get(res, 'data', {}));
       })
       .catch((error) => {
-        console.log('------cons', error);
+        // setItemValue((prev) => ({ ...prev, ...change }));
+        if (get(error, 'response.status') === 401) {
+          alertContext.openErrorAlert({ message: 'Not a valid user' });
+        }
       });
   };
 
   useEffect(() => {
-    if (!query.get('id')) {
-      return;
-    }
-
     setIsLoading(true);
-    ItemsAPI.getItemsAPI(`id=${query.get('id')}`)
+    ItemsAPI.getItemsAPI(`id=${id}`)
       .then((itemDetailResponse) => {
         setItemValue(get(itemDetailResponse, 'data[0]', {}));
 
@@ -176,7 +274,7 @@ const ItemDetailContainer = () => {
       .catch((error) => {
         setIsLoading(false);
       });
-  }, [query.get('id')]);
+  }, [id]);
 
   return <ItemDetailWrappper {...{ itemValue, setItemValue, handleSave }} />;
 };

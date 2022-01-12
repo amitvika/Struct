@@ -32,13 +32,12 @@ import { stringify } from '@monostruct/common/gltf/Flatted.js';
 import Assembly from '@monostruct/common/containers/AssemblyTab';
 import { buildParentChildTree } from './helper';
 import { Box } from '@mui/system';
-import { get } from 'lodash';
 
 let myGlobalTree = null;
 let myGlobalState = {};
 let myGlobalActiveDataTable = 0;
 
-export default function GeometricDimensioning(props) {
+export default function GeometricDimensioningTab(props) {
   const {
     tabIndex,
     fileId,
