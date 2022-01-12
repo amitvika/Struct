@@ -455,7 +455,6 @@ const ItemDetail = ({ itemValue }) => {
   // };
 
   const handleSave = async (change) => {
-    console.log('HANDLE SAVE', change);
     // return; //FOr testing purpose..
     itemProperties.step = undefined;
     itemProperties.gltfjson = undefined;
@@ -473,7 +472,7 @@ const ItemDetail = ({ itemValue }) => {
           : {})
       };
     }
-
+    console.log('HANDLE SAVE', change, updateItemProperties);
     if (
       updateItemProperties &&
       Object.keys(updateItemProperties).length === 0
