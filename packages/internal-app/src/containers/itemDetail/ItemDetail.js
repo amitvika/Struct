@@ -468,7 +468,9 @@ const ItemDetail = ({ itemValue }) => {
     ) {
       updateItemProperties.actuator_motion_control = {
         ...itemProperties.actuator_motion_control,
-        ...change.actuator_motion_control
+        ...(change.actuator_motion_control
+          ? change.actuator_motion_control
+          : {})
       };
     }
 
