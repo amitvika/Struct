@@ -5755,7 +5755,10 @@ def extractKinematicInformation(kinematicparts):
                 _, shapeOfAxis = getShapeFromPickle(axisDict['step'])
                         
         isActuator = not convertToBool(isActuator,False)
-
+        bl = convertToInt(bl,0)
+        al = convertToInt(al,0)
+        if al!=0 and bl!=0 : #if it is a link, then it can not be actuator.
+            isActuator = False        
         if partName==None:
             partName = getValueFromJSONKey(kinematicpart,'filePartName')
         if displayName==None:
@@ -5783,8 +5786,7 @@ def extractKinematicInformation(kinematicparts):
             ap=-0.1*ap
         sequence = convertToInt(sequence,0)
         isLinear = convertToBool(isLinear,False)
-        bl = convertToInt(bl,0)
-        al = convertToInt(al,0)
+      
         myInfo = partName, displayName, sequence, isActuator, isLinear, axis, aw, bl, al, shapeOfAxis
         print("Each Kinematic Info",myInfo,kinematicinfo)
         kinematicInformation.append(myInfo)

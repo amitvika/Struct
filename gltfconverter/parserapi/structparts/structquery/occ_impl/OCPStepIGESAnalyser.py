@@ -4361,12 +4361,13 @@ class StepIgesAnalyser():
         globalTranslation=[(0,0,0)]
         globalRotation=[Quaternion(axis=[0,0,1],angle=0)]  
         globalRotationTranslation=[(0,0,0)] 
+        globalCumulativeDistance=[(0,0,0)]
         #myAxisInformation=[]
         #globalAngle=[0]
         #if testRotation:
         #    lenShapeOrder=2
     
-        globalAxisAndAngle=[]
+        globalAxisAndAngle=[]        
         WritingGlobalAxisAndAngle=[]
         maxAngle=-1e10
         for steps in range(1,lenShapeOrder+1): 
@@ -4460,6 +4461,7 @@ class StepIgesAnalyser():
                 local_quaternion = Quaternion(axis=[nu, nv, nw], angle=na)  #3JS coordination transformation 
                 global_quaternion = globalRotation[(steps-1)*totalSubSteps]  
                 result_quaternion = local_quaternion*global_quaternion
+                gtu, gtv, gtw = globalCumulativeDistance[(steps-1)*totalSubSteps]
                 # global_axis = result_quaternion.get_axis()
                 # ga = result_quaternion.angle  
                 # [gu,gv,gw]=global_axis                  
@@ -4476,18 +4478,20 @@ class StepIgesAnalyser():
                 globalRotation.append(result_quaternion)  
                 if steps > 1 and testRotationAnimation:
                     globalTranslation.append((0,0,0))  
-                else:                
-                   
+                else:  
                     if steps > 1:
                         au,av,aw=globalRotationTranslation[(steps-1)*totalSubSteps]
                         au,av,aw=au+plu-lu,av+plv-lv,aw+plw-lw
                     else:
                         au,av,aw=0,0,0
-                    
-                    tlu = (au+flu-olu+(tu*td*subSteps/totalSubSteps)) 
-                    tlv = (av+flv-olv+(tv*td*subSteps/totalSubSteps)) 
-                    tlw = (aw+flw-olw+(tw*td*subSteps/totalSubSteps)) 
+                    tlu = (au+flu-olu+(gtu+(tu*td*subSteps/totalSubSteps))) 
+                    tlv = (av+flv-olv+(gtv+(tv*td*subSteps/totalSubSteps))) 
+                    tlw = (aw+flw-olw+(gtw+(tw*td*subSteps/totalSubSteps))) 
                     globalTranslation.append((tlu,tlv,tlw)) 
+                    globalCumulativeDistance.append(\
+                        ((gtu+(tu*td*subSteps/totalSubSteps)),\
+                            (gtv+(tv*td*subSteps/totalSubSteps)),\
+                                (gtw+(tw*td*subSteps/totalSubSteps))))
                     globalRotationTranslation.append((au+flu-olu,av+flv-olv,aw+flw-olw))                         
             # print("ILU",ilu,"FLU",flu,"LU",lu,"OLU",olu,"AU",au,\
             #             "ILV",ilv,"FLV", flv,"LV",lv,"OLV",olv,"AV",av,\
@@ -4504,6 +4508,7 @@ class StepIgesAnalyser():
                 'locating':(ilu,ilv,ilw),
                 'directing':(idu,idv,idw),
                 'rotating':(inu,inv,inw),
+                'translating':(tlu,tlv,tlw),
                 'assembly':eachName,
                 'part':partName,
                 'display':displayName,
