@@ -5779,7 +5779,7 @@ def extractKinematicInformation(kinematicparts):
         #     axis=[0,1,2]
         aw = convertToFloat(aw,0)
         if isActuator and aw==0:
-            aw= math.pi/24 # 3.14 #3.14 #math.pi
+            aw= math.pi/3 # 3.14 #3.14 #math.pi
             ap=-0.1*ap
         sequence = convertToInt(sequence,0)
         isLinear = convertToBool(isLinear,False)
