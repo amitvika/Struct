@@ -66,11 +66,11 @@ export default function DetailComponentHeader({
 
 const DesignTypeSelection = ({
   setItemValue,
-  itemValue,
+  itemValue = {},
   handleSave,
   isMobile
 }) => {
-  const [value, setValue] = React.useState(itemValue.design_type);
+  const [value, setValue] = React.useState(itemValue?.design_type);
 
   useEffect(() => {
     setValue(itemValue.design_type);

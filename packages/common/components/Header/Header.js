@@ -42,7 +42,13 @@ const Header = (props) => {
   };
 
   return (
-    <AppBar position="static" sx={{ background: '#000000' }}>
+    <AppBar
+      position="static"
+      sx={{
+        color: '#ffffff !important',
+        background: '#000000 !important'
+      }}
+    >
       <Toolbar className={classes.toolbar}>
         {isMobile ? (
           <HeaderMobileView {...{ handleLogout, ...props }} />

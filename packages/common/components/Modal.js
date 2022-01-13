@@ -9,9 +9,6 @@ const style = {
   height: '70%',
   minWidth: '50%',
   overflowX: 'scroll',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -31,6 +28,11 @@ export default function MainModal({
       onClose={toggleModal}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}
     >
       <Box sx={{ ...style, ...boxConstainerStyle }}>
         {title && <h2 id="simple-modal-title">{title}</h2>}
