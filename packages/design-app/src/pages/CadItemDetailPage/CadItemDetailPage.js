@@ -88,7 +88,8 @@ const CadMakerItemDetail = (props) => {
           gltfjson,
           setgltfjson,
           tabIndex,
-          setTabIndex
+          setTabIndex,
+          isDesignSite: true
         }
       },
       {

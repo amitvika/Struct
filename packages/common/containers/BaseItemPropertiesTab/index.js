@@ -48,7 +48,8 @@ export default function BaseItemProperties({
   createAutoStackability,
   setCreateAutoStackability,
   activeGLTFFile,
-  setActiveGLTFile
+  setActiveGLTFile,
+  isDesignSite
 }) {
   const classes = USESTYLES();
   // const dispatch = useDispatch();
@@ -476,7 +477,8 @@ export default function BaseItemProperties({
                 setCreateAutoAssemblyOrder,
                 createAutoStackability,
                 setCreateAutoStackability,
-                handleItemSaveOnServer
+                handleItemSaveOnServer,
+                isDesignSite
               }}
             />
           </Grid>

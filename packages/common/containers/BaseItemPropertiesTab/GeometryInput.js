@@ -50,7 +50,8 @@ export default function GeometryInput({
   setCompletionProgressText,
   setCenterActionText,
   setIsLoading,
-  setProgressBarLoad
+  setProgressBarLoad,
+  isDesignSite
 }) {
   const classes = useStyles();
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -194,18 +195,20 @@ export default function GeometryInput({
             </Typography>
           </Grid>
 
-          <Grid item className={classes.item_row}>
-            <Typography variant="h6">{'Not for Public Use :'}</Typography>
-            <Checkbox
-              onChange={(event) =>
-                handleItemSaveOnServer({
-                  not_for_public_use: event.target.checked
-                })
-              }
-              checked={itemProperties.not_for_public_use}
-              defaultChecked={true}
-            />
-          </Grid>
+          {!isDesignSite && (
+            <Grid item className={classes.item_row}>
+              <Typography variant="h6">{'Not for Public Use :'}</Typography>
+              <Checkbox
+                onChange={(event) =>
+                  handleItemSaveOnServer({
+                    not_for_public_use: event.target.checked
+                  })
+                }
+                checked={itemProperties.not_for_public_use}
+                defaultChecked={true}
+              />
+            </Grid>
+          )}
 
           <Grid item className={classes.item_row}>
             <Typography variant="h6">Item Type</Typography>

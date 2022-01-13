@@ -552,7 +552,8 @@ const ItemDetail = ({ itemValue }) => {
               gltfjson,
               setgltfjson,
               tabIndex,
-              setTabIndex
+              setTabIndex,
+              isDesignSite: false
             }}
           />
         );
