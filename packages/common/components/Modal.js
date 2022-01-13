@@ -18,7 +18,13 @@ const style = {
   p: 4
 };
 
-export default function MainModal({ title, open, toggleModal, children }) {
+export default function MainModal({
+  title,
+  open,
+  toggleModal,
+  children,
+  boxConstainerStyle = {}
+}) {
   return (
     <Modal
       open={open}
@@ -26,9 +32,8 @@ export default function MainModal({ title, open, toggleModal, children }) {
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
-      <Box sx={style}>
-        <h2 id="simple-modal-title">{title}</h2>
-        <p id="simple-modal-description"></p>
+      <Box sx={{ ...style, ...boxConstainerStyle }}>
+        {title && <h2 id="simple-modal-title">{title}</h2>}
         {children}
       </Box>
     </Modal>

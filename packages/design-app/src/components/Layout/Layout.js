@@ -8,7 +8,7 @@ import MenuList from '@mui/material/MenuList';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Grow from '@mui/material/Grow';
 import { useStyles } from './Layout.style';
-import InfoSection from '../InfoSection/InfoSection';
+import InfoSection from '../InfoSlideShow/InfoSlideShow';
 
 export const headerListItem = [
   {

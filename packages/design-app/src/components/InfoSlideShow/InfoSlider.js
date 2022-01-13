@@ -4,14 +4,28 @@ import CarouselSlide from './CarouselSlide';
 import { SLIDE_INFO } from './constants';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { Slide } from '@mui/material';
+import { Box, Slide } from '@mui/material';
 
 function Arrow(props) {
-  const { direction, clickFunction } = props;
+  const { direction, clickFunction, style = {} } = props;
   const icon =
     direction === 'left' ? <ArrowBackIosIcon /> : <ArrowForwardIosIcon />;
 
-  return <div onClick={clickFunction}>{icon}</div>;
+  return (
+    <Box
+      sx={{
+        height: '100%',
+        alignItems: 'center',
+        display: 'flex',
+        padding: '10px',
+        background: '#00000014',
+        ...style
+      }}
+      onClick={clickFunction}
+    >
+      {icon}
+    </Box>
+  );
 }
 
 function InfoSlider() {
@@ -20,7 +34,7 @@ function InfoSlider() {
   const numSlides = SLIDE_INFO.length;
 
   const [slideIn, setSlideIn] = useState(true);
-  const [slideDirection, setSlideDirection] = useState('down');
+  const [slideDirection, setSlideDirection] = useState('left');
 
   const onArrowClick = (direction) => {
     const increment = direction === 'left' ? -1 : 1;
@@ -56,13 +70,21 @@ function InfoSlider() {
 
   return (
     <div className="InfoSlider">
-      <Arrow direction="left" clickFunction={() => onArrowClick('left')} />
+      <Arrow
+        style={{ position: 'absolute', left: 0 }}
+        direction="left"
+        clickFunction={() => onArrowClick('left')}
+      />
       <Slide in={slideIn} direction={slideDirection}>
         <div>
           <CarouselSlide content={content} />
         </div>
       </Slide>
-      <Arrow direction="right" clickFunction={() => onArrowClick('right')} />
+      <Arrow
+        style={{ position: 'absolute', right: 0 }}
+        direction="right"
+        clickFunction={() => onArrowClick('right')}
+      />
     </div>
   );
 }

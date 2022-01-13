@@ -9,11 +9,12 @@ export default function CarouselSlide(props) {
       backgroundColor,
       borderRadius: 5,
       padding: '75px 50px',
-      margin: '0px 25px',
-      width: '500px',
+      width: '700px',
+      height: '500px',
       boxShadow: '20px 20px 20px black',
       display: 'flex',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      margin: '0 !important'
     }
   }));
 
