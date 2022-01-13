@@ -170,7 +170,11 @@ exports.update = async (req, res) => {
 
     let prevItem;
     if (isObjectIdValid(itemId)) {
-      prevItem = await (await ItemModel.findById(itemId)).toObject();
+      prevItem = await await ItemModel.findById(itemId);
+    }
+
+    if (prevItem) {
+      prevItem = prevItem.toObject();
     }
 
     if (prevItem) {

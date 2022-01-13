@@ -4,6 +4,7 @@ import TableGridView from '@monostruct/common/components/TableGridView';
 import { fieldsForOmniDesign } from '@monostruct/common/constants/item';
 import { useHistory } from 'react-router-dom';
 import { Box } from '@mui/system';
+import AddDesignMenu from './AddDesignMenu';
 
 export default function DesignPage() {
   const history = useHistory();
@@ -25,11 +26,19 @@ export default function DesignPage() {
         fetchList={(qS) =>
           ItemApi.getItemsAPI(`not_for_public_use=false&${qS}`)
         }
-        isAddEditActionsEnabled={false}
-        isEditLinkVisible={false}
-        isDesignModalOpened={false}
-        isPaginationEnabled={true}
-        {...{ handleItemClick }}
+        {...{
+          isPaginationEnabled: true,
+          isAddEditActionsEnabled: false,
+          isDesignModalOpened: true,
+          isEditLinkVisible: false,
+          isHistoryLinkVisible: false,
+          showDeleteActionButton: false,
+          showHistoryButtonToolbar: false,
+          showArchiveButtonToolbar: false,
+          handleItemClick,
+          isCustomAddButtonVisible: false,
+          CustomAddButton: AddDesignMenu
+        }}
       />
     </Box>
   );

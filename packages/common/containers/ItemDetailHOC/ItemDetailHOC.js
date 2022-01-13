@@ -505,7 +505,8 @@ const ItemDetailHOC = (Component) =>
           internalProductConfig,
           isLoading,
           additionalSaveFunction,
-          SELECTFEATURE
+          SELECTFEATURE,
+          handleSetOrder
         }}
       />
     );

@@ -203,6 +203,7 @@ export default function GeometryInput({
                 })
               }
               checked={itemProperties.not_for_public_use}
+              defaultChecked={true}
             />
           </Grid>
 
