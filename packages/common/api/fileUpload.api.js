@@ -220,7 +220,12 @@ export const fetchAFile = async (file, path) => {
   // console.log(fetchURL);
   return axios.get(fetchURL);
 };
-export const getAFileFromURLStore = async (store, ext, fromURL) => {
+export const getAFileFromURLStore = async (
+  store,
+  ext,
+  fromURL,
+  percent = 100
+) => {
   if (ext == 'status' || ext == 'progress') {
     const fetchURL = `${resourcePathStatus}${store}.${ext}`;
     // console.log(fetchURL);
@@ -228,7 +233,7 @@ export const getAFileFromURLStore = async (store, ext, fromURL) => {
   } else {
     const availURL = await getExistingPathFromServer(store, ext);
     let fetchURL = '';
-    if (ext == 'gdt' && availURL) {
+    if ((ext == 'gdt' || percent != 100) && availURL) {
       fetchURL = `${
         availURL == resourcePathURL ? resourcePathDisplay : resourcePathS3
       }${store}.${ext}`;
@@ -303,7 +308,7 @@ export const getExistingPathFromServer = async (store, ext) => {
   }
 };
 
-export const getAFileFromStore = async (store, ext) => {
+export const getAFileFromStore = async (store, ext, fetchDirect = false) => {
   if (ext == 'status' || ext == 'progress') {
     // const fetchURL = `${resourceStatusURL}${store}.${ext}`;
     const fetchURL = `${resourcePathStatus}${store}.${ext}`;
@@ -313,7 +318,19 @@ export const getAFileFromStore = async (store, ext) => {
     //return axios.get(fetchURL);
   } else {
     const availURL = await getExistingPathFromServer(store, ext);
-    let fetchURL = `${availURL ? availURL : resourcePathURL}${store}.${ext}`;
+    let fetchURL = '';
+    if (fetchDirect && availURL) {
+      fetchURL = `${
+        availURL == resourcePathURL ? resourcePathDisplay : resourcePathS3
+      }${store}.${ext}`;
+      console.log('Fetching files from directory', fetchURL);
+      try {
+        return getAFile(fetchURL);
+      } catch (error) {
+        console.log('Error while Getting file from', fetchURL, error);
+      }
+    }
+    fetchURL = `${availURL ? availURL : resourcePathURL}${store}.${ext}`;
     if (availURL != null) {
       try {
         const resData = await axios.get(fetchURL);
