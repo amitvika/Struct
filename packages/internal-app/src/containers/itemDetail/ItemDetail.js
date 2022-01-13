@@ -245,7 +245,7 @@ const ItemDetail = ({ itemValue }) => {
           for (let index = 0; index < axisRes.data.AllAxis.length; index++) {
             const element = axisRes.data.AllAxis[index];
             //console.log('Element for drawing axis', element);
-            if (
+            /* if (
               existingAxis(element.directing) &&
               element.rotation &&
               element.rotation[3] != 0
@@ -267,7 +267,7 @@ const ItemDetail = ({ itemValue }) => {
                   name: element.display
                 });
               }
-            }
+            } */
             if (
               existingAxis(element.direction) &&
               element.rotation &&
@@ -276,7 +276,7 @@ const ItemDetail = ({ itemValue }) => {
               axisArray.push({
                 axis: element.direction,
                 position: element.location ? element.location : [0, 0, 0],
-                name: 'MULT' + element.display
+                name: element.display
               });
             } else {
               if (element.rotated && element.rotation[3] != 0) {
@@ -287,7 +287,7 @@ const ItemDetail = ({ itemValue }) => {
                     element.rotated[2]
                   ],
                   position: element.location ? element.location : [0, 0, 0],
-                  name: 'MULT' + element.display
+                  name: element.display
                 });
               }
             }

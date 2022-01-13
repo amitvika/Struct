@@ -1380,8 +1380,8 @@ def getShapeLocationAndDirection(shapeOfAxis):
         data = []
         try:
             dumpTopologyStructures(shapeOfAxis,level=0,parentId=[None],returnStructure=data,faceInfo=None, depth=1)
-            print("")
-            print("data from dumpTopologyStructures",data)
+            #print("")
+            #print("data from dumpTopologyStructures",data)
             if len(data)>0:
                 if 'Info' in data[0]:
                     if 'direction' in data[0]['Info'] and 'location' in data[0]['Info']:
