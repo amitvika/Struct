@@ -5781,9 +5781,9 @@ def extractKinematicInformation(kinematicparts):
         # if axis==[0,0,0]:
         #     axis=[0,1,2]
         aw = convertToFloat(aw,0)
-        if isActuator and aw==0:
-            aw= math.pi/3 # 3.14 #3.14 #math.pi
-            ap=-0.1*ap
+        # if isActuator and aw==0:
+        #     aw= math.pi/3 # 3.14 #3.14 #math.pi
+        #     ap=-0.1*ap
         sequence = convertToInt(sequence,0)
         isLinear = convertToBool(isLinear,False)
       
@@ -5807,6 +5807,15 @@ def extractKinematicInformation(kinematicparts):
                         kinematicInformation[secondPass] = partName2, displayName2, bl, isActuator2, isLinear2, [ax2,ay2,az2], aw2, bl2+1, al2+1, shapeOfAxis2
                     elif bl2>=bl:
                         kinematicInformation[secondPass] = partName2, displayName2, sequence2, isActuator2, isLinear2, [ax2,ay2,az2], aw2, bl2+1, al2+1, shapeOfAxis2
+    for kinematicInfo in range(lengthOfKinematicInfo):
+        partName, displayName, sequence, isActuator, isLinear, [ax,ay,az], aw, bl, al, shapeOfAxis = kinematicInformation[kinematicInfo]
+        if ((not isActuator) and (sequence>1)):
+            for secondPass in range(lengthOfKinematicInfo):
+                 partName2, displayName2, sequence2, isActuator2, isLinear2, [ax2,ay2,az2], aw2, bl2, al2, shapeOfAxis2 = kinematicInformation[secondPass]
+                 if sequence2==sequence-1:
+                    kinematicInformation[kinematicInfo] = partName, displayName, sequence, isActuator, isLinear2, [ax2,ay2,az2], aw2, bl, al, shapeOfAxis2
+                    break
+            
     print("")
     print("Kinematic Info after arranging",kinematicInformation)               
     return kinematicInformation
@@ -5966,27 +5975,31 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                         notFoundSequence+=1
                     else:
                         notFoundSequence+=1
-                    if isActuator:
-                        if isLinear:
-                            kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
-                        else:
-                            """ cx,cy,cz,du,dv,dw=getShapeLocationAndDirection(shapeOfAxis)  
-                            if du==0 and dv==0 and dw==0:
-                                myobb = get_oriented_bounding_details(eachShape)
-                                mycenter = myobb.Center()
-                                cx,cy,cz = mycenter.X(),mycenter.Y(),mycenter.Z()
-                            shapeToOrgin=translate_shp(eachShape,-cx,-cy,-cz,True)
-                            shapeOfAxis=translate_shp(shapeOfAxis,-cx,-cy,-cz,True)
-                            shapeArray[shapeArrayIndex]=shapeToOrgin,eachName,eachColor
-                            _,xName,xR,xG,xB=shapePickles[shapeArrayIndex]
-                            shapePickles[shapeArrayIndex]=shapeToOrgin,xName,xR,xG,xB
-                            #cx,cy,cz,du,dv,dw=firstShapeInfo
-                            distance = math.sqrt(cx*cx+cy*cy+cz*cz) """
-                            cx,cy,cz,distance=ax,ay,az,0
-                            kinematicrotation.append(((cx,cy,cz,distance),(ax,ay,az,aw),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
+                    if isLinear:
+                        kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
                     else:
-                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))                    
-                    #print ("Each Kinematic Rotation", kinematicrotation)
+                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
+                    # if isActuator:
+                    #     if isLinear:
+                    #         kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
+                    #     else:
+                    #         """ cx,cy,cz,du,dv,dw=getShapeLocationAndDirection(shapeOfAxis)  
+                    #         if du==0 and dv==0 and dw==0:
+                    #             myobb = get_oriented_bounding_details(eachShape)
+                    #             mycenter = myobb.Center()
+                    #             cx,cy,cz = mycenter.X(),mycenter.Y(),mycenter.Z()
+                    #         shapeToOrgin=translate_shp(eachShape,-cx,-cy,-cz,True)
+                    #         shapeOfAxis=translate_shp(shapeOfAxis,-cx,-cy,-cz,True)
+                    #         shapeArray[shapeArrayIndex]=shapeToOrgin,eachName,eachColor
+                    #         _,xName,xR,xG,xB=shapePickles[shapeArrayIndex]
+                    #         shapePickles[shapeArrayIndex]=shapeToOrgin,xName,xR,xG,xB
+                    #         #cx,cy,cz,du,dv,dw=firstShapeInfo
+                    #         distance = math.sqrt(cx*cx+cy*cy+cz*cz) """
+                    #         cx,cy,cz,distance=ax,ay,az,0
+                    #         kinematicrotation.append(((cx,cy,cz,distance),(ax,ay,az,aw),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
+                    # else:
+                    #     kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))                    
+                    # #print ("Each Kinematic Rotation", kinematicrotation)
                 shapeCount += 1                          
             #print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
             print("Info of kinematic before truncating",shapeorder,kinematicrotation,notFoundSequence,shapeCount)

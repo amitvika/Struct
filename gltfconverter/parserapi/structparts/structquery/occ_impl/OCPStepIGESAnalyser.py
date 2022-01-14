@@ -4492,7 +4492,9 @@ class StepIgesAnalyser():
                         ((gtu+(tu*td*subSteps/totalSubSteps)),\
                             (gtv+(tv*td*subSteps/totalSubSteps)),\
                                 (gtw+(tw*td*subSteps/totalSubSteps))))
-                    globalRotationTranslation.append((au+flu-olu,av+flv-olv,aw+flw-olw))                         
+                    globalRotationTranslation.append((au+flu-olu,av+flv-olv,aw+flw-olw))   
+                    # if steps==lenShapeOrder:
+                    #     print("Rotation",globalRotation[len(globalRotation)-1],"Translation",globalTranslation[len(globalTranslation)-1])                      
             # print("ILU",ilu,"FLU",flu,"LU",lu,"OLU",olu,"AU",au,\
             #             "ILV",ilv,"FLV", flv,"LV",lv,"OLV",olv,"AV",av,\
             #                 "ILW",ilw,"FLW",flw,"LW",lw,"OLW",olw,"AW",aw,\
