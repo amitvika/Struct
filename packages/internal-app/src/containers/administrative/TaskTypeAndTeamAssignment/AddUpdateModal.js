@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
-import {
-  Select,
-  Input,
-  Textarea,
-  Headding,
-} from '@monostruct/common/components';
+import { Select, Input, Headding } from '@monostruct/common/components';
 import Modal from '@monostruct/common/components/Modal';
 import { useSelector } from 'react-redux';
 
@@ -17,7 +12,7 @@ export default function AddUpdateModal({
   toggleModal,
   handleUpdate,
   isEditing,
-  selectedValue,
+  selectedValue
 }) {
   const [value, setValue] = useState({});
   const teamList = useSelector((state) => state.team.teams);
@@ -40,7 +35,7 @@ export default function AddUpdateModal({
   const handleOnChange = (name, value) => {
     setValue((preValue) => ({
       ...preValue,
-      [name]: value,
+      [name]: value
     }));
   };
 

@@ -6,7 +6,6 @@ import { teamTaskSetupFields } from '@monostruct/common/constants/team';
 import TableGridView from '@monostruct/common/components/TableGridView';
 import AddUpdateModal from './AddUpdateModal';
 import { fetchMyTeamAction } from '../../../actions/team.action';
-import ManageTeamModal from './ManageTeamModal';
 import Box from '@mui/material/Box';
 import TeamAssignment from './TeamAssignment/TeamAssignment';
 import TaskCreation from './TaskCreation/TaskCreation';
@@ -19,15 +18,19 @@ import {
 const TaskTypeAndTeamAssignment = () => {
   const dispatch = useDispatch();
   const [isTabsActive, setIsTabsActive] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(false);
 
   useEffect(() => {
     dispatch(fetchMyTeamAction());
   }, []);
 
-  const handleItemClick = () => setIsTabsActive(!isTabsActive);
+  const handleItemClick = (id, data) => {
+    setSelectedValue(data);
+    setIsTabsActive(!isTabsActive);
+  };
 
   if (isTabsActive) {
-    return <TabComponent />;
+    return <TabComponent {...{ selectedValue }} />;
   }
 
   return (
@@ -37,10 +40,8 @@ const TaskTypeAndTeamAssignment = () => {
       fetchList={TeamSetupAPI.fetchTeamTask}
       upsertListItem={TeamSetupAPI.upsertTeamTask}
       isEditLinkVisible={true}
-      isManageTeamVisible={true}
       {...{
         AddUpdateModal,
-        ManageTeamModal,
         handleItemClick
       }}
     />
@@ -55,7 +56,7 @@ function a11yProps(index) {
   };
 }
 
-const TabComponent = () => {
+const TabComponent = ({ selectedValue }) => {
   const [selectedTabIndex, setCurrentSelectedTab] = useState(0);
 
   const handleTabChange = (newValue) => {
@@ -67,12 +68,12 @@ const TabComponent = () => {
       <CustomTabs>
         <CustomTab
           label="Team assignment"
-          {...{ handleTabChange, selectedTabIndex }}
+          {...{ handleTabChange, selectedTabIndex, selectedValue }}
           {...a11yProps(0)}
         />
         <CustomTab
           label="Task creation"
-          {...{ handleTabChange, selectedTabIndex }}
+          {...{ handleTabChange, selectedTabIndex, selectedValue }}
           {...a11yProps(1)}
         />
       </CustomTabs>
@@ -86,4 +87,4 @@ const TabComponent = () => {
   );
 };
 
-export default TaskTypeAndTeamAssignment;
+export default React.memo(TaskTypeAndTeamAssignment);

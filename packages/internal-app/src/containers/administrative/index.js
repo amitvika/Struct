@@ -93,7 +93,12 @@ const Administrative = () => {
             >
               <Tab label="All Users" value={0} className="tab" />
               <Tab label="User Access Permissions" value={3} className="tab" />
-              <Tab label="Team User Assignments" value={1} className="tab" />
+              <Tab
+                label="Team User Assignments"
+                value={1}
+                className="tab"
+                sx={{ textAlign: 'left' }}
+              />
               <Tab
                 label="Task Types & Team Assigments"
                 value={2}
