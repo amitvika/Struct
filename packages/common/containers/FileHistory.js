@@ -7,10 +7,10 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Grid,
+  Typography
 } from '@mui/material';
-import { Headding } from '@monostruct/common/components';
 import { fetchFileHistoryApi } from '@monostruct/common/api/fileHistory.api';
+import get from 'lodash/get';
 
 export default function FileHistory({ link_id, selectedFileName }) {
   const [fileHistory, setFileHistory] = React.useState([]);
@@ -22,16 +22,27 @@ export default function FileHistory({ link_id, selectedFileName }) {
 
     fetchFileHistoryApi(link_id)
       .then((res) => {
-        setFileHistory(res.data);
+        setFileHistory(get(res, 'data', []));
       })
       .catch((error) => {});
     console.log('File Nmae', fileHistory);
   }, [selectedFileName]);
 
+  if (fileHistory) {
+    return null;
+  }
+
   return (
-    <Grid item xs={12}>
-      <Headding bold title={'File History'} />
-      <TableContainer component={Paper}>
+    <Paper>
+      <Typography
+        sx={{ flex: '1 1 100%', fontWeight: 'bold' }}
+        variant="h6"
+        id="tableTitle"
+        component="div"
+      >
+        File History
+      </Typography>
+      <TableContainer>
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
@@ -61,6 +72,6 @@ export default function FileHistory({ link_id, selectedFileName }) {
           </TableBody>
         </Table>
       </TableContainer>
-    </Grid>
+    </Paper>
   );
 }
