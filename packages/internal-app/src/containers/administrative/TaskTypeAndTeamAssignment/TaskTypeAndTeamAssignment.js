@@ -7,11 +7,14 @@ import TableGridView from '@monostruct/common/components/TableGridView';
 import AddUpdateModal from './AddUpdateModal';
 import { fetchMyTeamAction } from '../../../actions/team.action';
 import ManageTeamModal from './ManageTeamModal';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import TeamAssignment from './TeamAssignment/TeamAssignment';
 import TaskCreation from './TaskCreation/TaskCreation';
+import {
+  CustomTabs,
+  CustomTab,
+  TabPanel
+} from '@monostruct/common/components/CustomTabs/CustomTabs';
 
 const TaskTypeAndTeamAssignment = () => {
   const dispatch = useDispatch();
@@ -47,54 +50,40 @@ const TaskTypeAndTeamAssignment = () => {
 function a11yProps(index) {
   return {
     id: `full-width-tab-${index}`,
-    'aria-controls': `full-width-tabpanel-${index}`
+    'aria-controls': `full-width-tabpanel-${index}`,
+    tabIndex: index
   };
 }
 
 const TabComponent = () => {
-  const [currentSelectedTab, setCurrentSelectedTab] = useState(0);
+  const [selectedTabIndex, setCurrentSelectedTab] = useState(0);
 
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (newValue) => {
     setCurrentSelectedTab(newValue);
   };
 
   return (
     <Box>
-      <Tabs
-        value={currentSelectedTab}
-        onChange={handleTabChange}
-        indicatorColor="secondary"
-        textColor="inherit"
-        variant="fullWidth"
-        aria-label="full width team type assignment"
-      >
-        <Tab label="Team assignment " {...a11yProps(0)} />
-        <Tab label="Task creation" {...a11yProps(1)} />
-      </Tabs>
-      <TabPanel value={currentSelectedTab} index={0}>
+      <CustomTabs>
+        <CustomTab
+          label="Team assignment"
+          {...{ handleTabChange, selectedTabIndex }}
+          {...a11yProps(0)}
+        />
+        <CustomTab
+          label="Task creation"
+          {...{ handleTabChange, selectedTabIndex }}
+          {...a11yProps(1)}
+        />
+      </CustomTabs>
+      <TabPanel value={selectedTabIndex} index={0}>
         <TeamAssignment />
       </TabPanel>
-      <TabPanel value={currentSelectedTab} index={1}>
+      <TabPanel value={selectedTabIndex} index={1}>
         <TaskCreation />
       </TabPanel>
     </Box>
   );
 };
-
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`full-width-tabpanel-${index}`}
-      aria-labelledby={`full-width-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-}
 
 export default TaskTypeAndTeamAssignment;

@@ -3,7 +3,6 @@ import React, { useState, useReducer } from 'react';
 import makeStyles from '@mui/styles/makeStyles';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import Divider from '@mui/material/Divider';
 
 import Assembly from './assembly';
 import Machining from './machining';
