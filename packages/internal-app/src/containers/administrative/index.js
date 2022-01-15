@@ -8,7 +8,7 @@ import { useHistory } from 'react-router-dom';
 import { useQuery } from '../../utils/customHooks';
 
 import TeamSetup from '../teamSetup';
-import TeamTaskSetup from '../teamTaskSetup';
+import TaskTypeAndTeamAssignment from './TaskTypeAndTeamAssignment/TaskTypeAndTeamAssignment';
 import AccessSetup from '../accessSetup';
 import CriteriaUpload from '../criteriaUpload';
 import Users from '../users';
@@ -35,7 +35,7 @@ const Administrative = () => {
       case 1:
         return <TeamSetup />;
       case 2:
-        return <TeamTaskSetup />;
+        return <TaskTypeAndTeamAssignment />;
       case 3:
         return (
           <AccessSetup
