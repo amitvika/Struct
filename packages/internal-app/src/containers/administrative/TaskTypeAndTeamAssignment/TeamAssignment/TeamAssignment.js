@@ -3,17 +3,29 @@ import SelectorView from '@monostruct/common/components/SelectorView';
 import UserSetupAPI from '@monostruct/common/api/teamSetup.api';
 import get from 'lodash/get';
 import TeamSetupAPI from '@monostruct/common/api/teamTask.api';
+import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
 
-const TeamAssignment = ({ selectedValue }) => {
+const TeamAssignment = ({ selectedValue, setSelectedValue }) => {
+  const alertContext = React.useContext(AlertContext);
+
   const handleMemberSelectChange = (data) => {
     TeamSetupAPI.upsertTeamTask({
       ...selectedValue,
       assigned_teams: data
     })
       .then((res) => {
-        console.log('---', res);
+        if (get(res, 'data')) {
+          setSelectedValue(get(res, 'data'));
+          alertContext.openSuccessAlert({
+            message: 'Task successully assigned'
+          });
+        } else {
+          alertContext.openErrorAlert({ message: 'Unable to save info' });
+        }
       })
-      .catch((error) => {});
+      .catch((error) =>
+        alertContext.openErrorAlert({ message: 'Unable to save info' })
+      );
   };
 
   const fetchSelectedList = () => {

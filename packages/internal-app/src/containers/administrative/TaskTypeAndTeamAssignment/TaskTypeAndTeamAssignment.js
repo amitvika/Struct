@@ -14,11 +14,12 @@ import {
   CustomTab,
   TabPanel
 } from '@monostruct/common/components/CustomTabs/CustomTabs';
+import { get } from 'lodash';
 
 const TaskTypeAndTeamAssignment = () => {
   const dispatch = useDispatch();
   const [isTabsActive, setIsTabsActive] = useState(false);
-  const [selectedValue, setSelectedValue] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(null);
 
   useEffect(() => {
     dispatch(fetchMyTeamAction());
@@ -30,15 +31,24 @@ const TaskTypeAndTeamAssignment = () => {
   };
 
   if (isTabsActive) {
-    return <TabComponent {...{ selectedValue }} />;
+    return <TabComponent {...{ selectedValue, setSelectedValue }} />;
   }
+
+  const handleItemUpdate = (data) => {
+    if (data.assigned_teams) {
+      data.assigned_teams = get(data, 'assigned_teams', []).map(
+        (team) => team.id
+      );
+    }
+    return TeamSetupAPI.upsertTeamTask(data);
+  };
 
   return (
     <TableGridView
       title={'Team Task Setup'}
       fields={teamTaskSetupFields}
       fetchList={TeamSetupAPI.fetchTeamTask}
-      upsertListItem={TeamSetupAPI.upsertTeamTask}
+      upsertListItem={handleItemUpdate}
       isEditLinkVisible={true}
       {...{
         AddUpdateModal,
@@ -56,7 +66,7 @@ function a11yProps(index) {
   };
 }
 
-const TabComponent = ({ selectedValue }) => {
+const TabComponent = ({ selectedValue, setSelectedValue }) => {
   const [selectedTabIndex, setCurrentSelectedTab] = useState(0);
 
   const handleTabChange = (newValue) => {
@@ -68,17 +78,17 @@ const TabComponent = ({ selectedValue }) => {
       <CustomTabs>
         <CustomTab
           label="Team assignment"
-          {...{ handleTabChange, selectedTabIndex, selectedValue }}
+          {...{ handleTabChange, selectedTabIndex }}
           {...a11yProps(0)}
         />
         <CustomTab
           label="Task creation"
-          {...{ handleTabChange, selectedTabIndex, selectedValue }}
+          {...{ handleTabChange, selectedTabIndex }}
           {...a11yProps(1)}
         />
       </CustomTabs>
       <TabPanel value={selectedTabIndex} index={0}>
-        <TeamAssignment />
+        <TeamAssignment {...{ selectedValue, setSelectedValue }} />
       </TabPanel>
       <TabPanel value={selectedTabIndex} index={1}>
         <TaskCreation />
