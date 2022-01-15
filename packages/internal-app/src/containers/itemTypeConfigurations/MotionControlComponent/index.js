@@ -21,6 +21,7 @@ import {
   DEFAULTROWSELECTCOLOR
 } from '@monostruct/common/gltf/Tree/utils';
 import { useHistory } from 'react-router-dom';
+import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
 
 export default function MotionControlComponent({
   onClick,
@@ -34,6 +35,8 @@ export default function MotionControlComponent({
   selected3JSData,
   showKinematicMove
 }) {
+  const alertContext = React.useContext(AlertContext);
+
   const [selectedValue, setSelectedValue] = React.useState('a');
   const [itemList, setItemList] = React.useState(kinematicItemList);
   const history = useHistory();
@@ -100,14 +103,18 @@ export default function MotionControlComponent({
   }, [selected3JSData]);
 
   const updateMotionControlActuator = (id, change) => {
-    //setSelectedOption(SELECTASSEMBLY);
     ItemApi.updateItemAPI(id, { actuator_motion_control: change })
       .then((res) => {
+        if (res.data) {
+          alertContext.openSuccessAlert({ message: 'Actuator updated' });
+        }
         setKinematicItemList(
           itemList.map((item) => (item.id === id ? res.data : item))
         );
       })
-      .catch((error) => {});
+      .catch((error) => {
+        alertContext.openErrorAlert({ message: 'Some error occured' });
+      });
   };
 
   const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
@@ -297,12 +304,15 @@ export default function MotionControlComponent({
                       checked={actuator_motion_control.is_end_effector}
                       name="radio-buttons"
                       inputProps={{ 'aria-label': 'A' }}
-                      onChange={(event) =>
+                      value={'is_end_effector'}
+                      onClick={(event) => {
+                        event.stopPropagation();
                         updateMotionControlActuator(item.id, {
                           ...actuator_motion_control,
-                          is_end_effector: event.target.checked
-                        })
-                      }
+                          is_end_effector:
+                            !actuator_motion_control.is_end_effector
+                        });
+                      }}
                     />
                   </TableCell>
                 </TableRow>

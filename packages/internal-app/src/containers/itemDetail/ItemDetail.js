@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Snackbar, Button, Tab, Tabs, Grid } from '@mui/material';
 import { useParams, useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 
 import BaseItemProperties from '@monostruct/common/containers/BaseItemPropertiesTab';
 import GeometricDimensioning from '@monostruct/common/containers/GeometricDimensioningTab/GeometricDimensioningTab';
@@ -49,13 +48,15 @@ import {
 } from './ItemDetails.helper';
 import MaterialTab from '@monostruct/common/containers/MaterialTab/MaterialTab';
 import { getAFileFromStore } from '@monostruct/common/api/fileUpload.api';
+import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
-  const dispatch = useDispatch();
   const history = useHistory();
   let { id } = useParams();
   let query = useQuery();
+
+  const alertContext = React.useContext(AlertContext);
 
   const [tabIndex, setTabIndex] = useState('pdcu');
   const [itemProperties, setItemProperties] = useState(itemValue);
@@ -490,13 +491,13 @@ const ItemDetail = ({ itemValue }) => {
         if (res && res.data) {
           setItemProperties(res.data);
           setAllowFirstLevelItems(res.data?.child_item_status === 'INITIATED');
-          dispatch(showSuccessAlert({ message: 'Item Updated' }));
+          alertContext.openSuccessAlert({ message: 'Item Updated' });
         } else {
-          dispatch(showErrorAlert({ message: 'Unable to save info' }));
+          alertContext.openErrorAlert({ message: 'Unable to save info' });
         }
       })
       .catch((error) => {
-        dispatch(showErrorAlert({ message: 'Unable to save info' }));
+        alertContext.openErrorAlert({ message: 'Unable to save info' });
       });
     try {
       if (state_additionalSaveFunction) {

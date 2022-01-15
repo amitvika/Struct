@@ -10,15 +10,18 @@ import Alert from './components/Alert';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 import { ColorModeContextProvider } from '@monostruct/common/themes/ColorModeContextProvider';
 import { AuthContextProvider } from '@monostruct/common/context/AuthContext';
+import { AlertContextProvider } from '@monostruct/common/context/AlertContext/AlertContext';
 
 const App = () => {
   return (
     <Provider store={store}>
       <AuthContextProvider>
         <ColorModeContextProvider>
-          <Alert />
-          <AppRoutes />
-          <LoadingModal />
+          <AlertContextProvider>
+            <Alert />
+            <AppRoutes />
+            <LoadingModal />
+          </AlertContextProvider>
         </ColorModeContextProvider>
       </AuthContextProvider>
     </Provider>
