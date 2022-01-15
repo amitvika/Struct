@@ -1666,18 +1666,30 @@ class GLTFRenderer extends Component {
           finish: finish,
           name: node ? elementCopy(node.name) : null
         });
-
-        await saveGDTInfo(
-          gdttableCopy,
-          this.props.fileGDT,
+        if (
+          !this.props.showKinematicMove &&
+          gdttableCopy &&
+          this.props.fileGDT &&
           this.props.fileUUId
-        );
-        this.this_state_gltf = { ...gltfobj };
-        console.log(
-          'After Changing gdtable in loading edges',
-          gltfobj,
-          this.this_state_gltf
-        );
+        ) {
+          await saveGDTInfo(
+            gdttableCopy,
+            this.props.fileGDT,
+            this.props.fileUUId
+          );
+          this.this_state_gltf = { ...gltfobj };
+          console.log(
+            'After Changing gdtable in loading edges',
+            gltfobj,
+            this.this_state_gltf
+          );
+        } else {
+          console.log(
+            'I am not Changing gdtable in loading edges',
+            gltfobj,
+            this.this_state_gltf
+          );
+        }
         this.props.setStateOfgltf(gltfobj);
       }
     } catch (error) {

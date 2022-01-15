@@ -380,8 +380,20 @@ export default function GeometricDimensioningTab(props) {
       setState({ gltfjson: myTree });
       globalSetGltfJSon(myTree);
       globalSetActiveDataTable(activeTable);
-      const savedData = await saveGDTInfo(myTree.gdttable, fileGDT, fileUUIder);
-      console.log('Saved data from reset selections', savedData);
+      if (!showKinematicMove && myTree.gdttable && fileGDT && fileUUIder) {
+        const savedData = await saveGDTInfo(
+          myTree.gdttable,
+          fileGDT,
+          fileUUIder
+        );
+        console.log('Saved data from reset selections', savedData);
+      } else {
+        console.log(
+          'I am not saving data from reset selections',
+          myTree.gdttable
+        );
+      }
+
       // .then((res) => res.data)
       // .then((data) => {
       //   console.log(
@@ -591,6 +603,14 @@ export default function GeometricDimensioningTab(props) {
       setState({ gltfjson: gltfjson });
       mystate_gltfjson = gltfjson;
     } */
+    if (showKinematicMove) {
+      console.log(
+        'I am not saving data because animation is ',
+        showKinematicMove
+      );
+
+      return;
+    }
     let myTree = getMyTree(selectedOption);
     /* let myTree = {...mystate_gltfjson};
     let gdttable = [];
@@ -616,11 +636,17 @@ export default function GeometricDimensioningTab(props) {
       myTree.gdttable[myGlobalActiveDataTable].offset = mystate.offset;
     } */
     setState({ gltfjson: myTree });
-    saveGDTInfo(myTree.gdttable, fileGDT, fileUUIder)
-      .then((res) => res.data)
-      .then((data) => {
-        console.log('Getting saved Resources from gdt', data, myTree.gdttable);
-      });
+    if (myTree.gdttable && fileGDT && fileUUIder) {
+      saveGDTInfo(myTree.gdttable, fileGDT, fileUUIder)
+        .then((res) => res.data)
+        .then((data) => {
+          console.log(
+            'Getting saved Resources from gdt',
+            data,
+            myTree.gdttable
+          );
+        });
+    }
   };
   const resetActiveDataTable = async () => {
     const mystate = isEmptyObject(state) ? myGlobalState : state;
@@ -2084,8 +2110,15 @@ export default function GeometricDimensioningTab(props) {
         renderdata: [...(selectedNodes || [])],
         whatchange: SELECTANITEM
       });
-      const savedData = await saveGDTInfo(gdtTableCopy, fileGDT, fileUUIder);
-      console.log('Saved Data from Changed selections', savedData);
+      if (!showKinematicMove && myTree.gdttable && fileGDT && fileUUIder) {
+        const savedData = await saveGDTInfo(gdtTableCopy, fileGDT, fileUUIder);
+        console.log('Saved Data from Changed selections', savedData);
+      } else {
+        console.log(
+          'I am not saving data from changed selections',
+          myTree.gdttable
+        );
+      }
       /* .then((res) => res.data)
         .then((data) => {
           console.log(
