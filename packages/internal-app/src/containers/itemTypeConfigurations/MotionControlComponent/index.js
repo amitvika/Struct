@@ -22,6 +22,7 @@ import {
 } from '@monostruct/common/gltf/Tree/utils';
 import { useHistory } from 'react-router-dom';
 import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
+import TextField from '@mui/material/TextField';
 
 export default function MotionControlComponent({
   onClick,
@@ -177,6 +178,16 @@ export default function MotionControlComponent({
     );
   };
 
+  const handleOnChangeChain = (e) => (itemId, actuator_motion_control) => {
+    console.log(e.key);
+    if (e.keyCode === 13) {
+      updateMotionControlActuator(itemId, {
+        ...actuator_motion_control,
+        chain_number: e.target.value
+      });
+    }
+  };
+
   return (
     <Paper sx={{ maxHeight: 400, overflow: 'auto' }}>
       <Typography
@@ -194,10 +205,9 @@ export default function MotionControlComponent({
               <TableCell padding="none">Item name</TableCell>
               <TableCell padding="none">Axis Number</TableCell>
               <TableCell padding="none">Link applies</TableCell>
-              <TableCell padding="none">Axis Before Link</TableCell>
-              <TableCell padding="none">Axis After Link</TableCell>
               <TableCell padding="none">Machine’s Actuator Limits</TableCell>
               <TableCell padding="none">End Effector</TableCell>
+              <TableCell padding="none">Chain #</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -236,14 +246,6 @@ export default function MotionControlComponent({
                     });
                     console.log('Clicked and Sent', tableData, item.id);
                     onClick(mykey);
-                    /*                     setSelectedValue(item.id);
-                    setSelectedOption(SELECTASSEMBLY);
-                    setRenderData(
-                      getTableData({
-                        gltfjson,
-                        filePartName: itemName(item)
-                      })
-                    ); */
                   }}
                 >
                   <TableCell component="th" padding="none">
@@ -266,37 +268,25 @@ export default function MotionControlComponent({
                     />
                   </TableCell>
                   <TableCell padding="none">
-                    <Checkbox
-                      {...label}
-                      disabled={selectedValue !== item.id}
-                      checked={
-                        actuator_motion_control.is_actuator_or_chain_link
-                      }
-                      onChange={(event) =>
-                        updateMotionControlActuator(item.id, {
-                          ...actuator_motion_control,
-                          is_actuator_or_chain_link: event.target.checked
-                        })
-                      }
-                    />
-                  </TableCell>
-                  <TableCell padding="none">
-                    <SelectAxisMenu
-                      {...{
-                        keyName: 'axis_before_link',
-                        itemId: item.id,
-                        actuator_motion_control
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell padding="none">
-                    <SelectAxisMenu
-                      {...{
-                        keyName: 'axis_after_link',
-                        itemId: item.id,
-                        actuator_motion_control
-                      }}
-                    />
+                    {selectedValue === item.id ? (
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={actuator_motion_control.child_part_type}
+                        onChange={(event) =>
+                          updateMotionControlActuator(item.id, {
+                            ...actuator_motion_control,
+                            child_part_type: event.target.value
+                          })
+                        }
+                      >
+                        <MenuItem value={'STATIC'}>Static</MenuItem>
+                        <MenuItem value={'ACTUATOR'}>Actuator</MenuItem>
+                        <MenuItem value={'LINKAGE'}>Linkage</MenuItem>
+                      </Select>
+                    ) : (
+                      <>{actuator_motion_control.child_part_type}</>
+                    )}
                   </TableCell>
                   <TableCell padding="none"></TableCell>
                   <TableCell padding="none">
@@ -314,6 +304,25 @@ export default function MotionControlComponent({
                         });
                       }}
                     />
+                  </TableCell>
+                  <TableCell padding="none">
+                    {selectedValue === item.id ? (
+                      <TextField
+                        id="standard-basic"
+                        variant="standard"
+                        size="small"
+                        type="number"
+                        inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        onKeyDown={(event) =>
+                          handleOnChangeChain(event)(
+                            item.id,
+                            actuator_motion_control
+                          )
+                        }
+                      />
+                    ) : (
+                      <>{actuator_motion_control.chain_number}</>
+                    )}
                   </TableCell>
                 </TableRow>
               );
