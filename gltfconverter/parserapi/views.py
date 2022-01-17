@@ -5721,7 +5721,7 @@ def HackersResponse(request):
             print("Error while logging",e)
         return JsonResponse({'message': "Hackers System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
-def extractKinematicInformation(kinematicparts):
+def extractKinematicInformation_old(kinematicparts):
     #print("Kinematic Parts",kinematicparts)
     print("")
 
@@ -5820,6 +5820,141 @@ def extractKinematicInformation(kinematicparts):
     print("Kinematic Info after arranging",kinematicInformation)               
     return kinematicInformation
 
+def extractKinematicInformation(kinematicparts):
+    #print("Kinematic Parts",kinematicparts)
+    print("")
+
+    kinematicInformation = []
+    maxChain=-1
+    maxAngle=-1e10
+    for kinematicpart in kinematicparts:
+        myInfo =  (None, None, "STATIC", 0, 0, [0,0,0], 0, 0, False, 0, False, False)
+        if 'actuator_motion_control' in kinematicpart:
+            kinematicinfo = kinematicpart['actuator_motion_control']
+            myInfo = getValueFromJSONKey(kinematicinfo,'child_part_name'),\
+                getValueFromJSONKey(kinematicinfo,'child_part_display_name'),\
+                    getValueFromJSONKey(kinematicinfo,'child_part_type'),\
+                        getValueFromJSONKey(kinematicinfo,'child_sequence_number'),\
+                            getValueFromJSONKey(kinematicinfo,'child_chain_number'),\
+                                getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
+                                    getValueFromJSONKey(kinematicinfo,'rotational_angle_limit'),\
+                                        getValueFromJSONKey(kinematicinfo,'linear_distance_limit'),\
+                                            getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),\
+                                                getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),\
+                                                    getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),\
+                                                        getValueFromJSONKey(kinematicinfo,'is_end_effector')
+        else:
+            kinematicinfo='No Information for kinematic info'
+        #print("What I got as Axis1",kinematicinfo,myInfo)                             
+        partName, displayName, partType, sequence, chains, axisDict, angle, distance, isLinear, aw, isActuator, isEndEffector = myInfo
+        print("What I got as Axis",axisDict,kinematicinfo,myInfo)
+        axis = None
+        shapeOfAxis = None
+        if axisDict is None:
+            axis  = [0,0,0]
+        elif 'axis' in axisDict:
+            axis = axisDict['axis']
+            if 'step' in axisDict:
+                _, shapeOfAxis = getShapeFromPickle(axisDict['step'])
+        isActuator = not convertToBool(isActuator,False)
+        forceAngle = False
+        if partType is None:
+            forceAngle = True
+            if isActuator:
+                partType='ACTUATOR'
+            else:
+                partType='LINKAGE' 
+        else:
+            forceAngle = False
+        if partType is None:
+            partType='STATIC' 
+        if partName==None:
+            partName = getValueFromJSONKey(kinematicpart,'filePartName')
+        if displayName==None:
+            displayName = getValueFromJSONKey(kinematicpart,'name')
+        if axis is None:
+            axis  = [0,0,0]            
+        elif isinstance(axis, list)==False :
+            if 'xx' in axis:
+                axis = [axis['xx'],axis['xy'],axis['xz']]
+            else:
+                axis = [axis,0,0]
+        elif len(axis)>3:
+            axis = axis[0:3]
+        elif len(axis)<3:
+            remainingLength = (3-len(axis))
+            for _ in range(remainingLength):
+                axis.append(0)
+        [ax,ay,az]=axis
+        axis = [convertToFloat(ax,0), convertToFloat(ay,0), convertToFloat(az,0)]
+        if shapeOfAxis and ax==0 and ay==0 and az==0 :
+            myobb = get_oriented_bounding_details(shapeOfAxis)
+            ax, ay, az = getMaxDirectionFromOBB(myobb)
+            axis = [convertToFloat(ax,0), convertToFloat(ay,0), convertToFloat(az,0)]
+
+        # if axis==[0,0,0]:
+        #     axis=[0,1,2]
+        aw = convertToFloat(aw,0)
+        angle = convertToFloat(angle,0)
+        if ((angle==0) and (isLinear==False) ):
+            angle = aw         
+        if maxAngle < angle:
+            maxAngle = angle
+        distance = convertToFloat(distance,0)
+        if ((distance==0) and (isLinear==True)):
+            distance = aw
+
+        # if isActuator and aw==0:
+        #     aw= math.pi/3 # 3.14 #3.14 #math.pi
+        #     ap=-0.1*ap
+        if ((angle==0) and forceAngle):
+            angle = math.pi/3    
+        sequence = convertToInt(sequence,1)
+        if chains is None:
+            chains=[1]
+        elif isinstance(chains, list)==False :
+            chains=[convertToInt(chains,1)]
+        elif len(chains)==0:
+            chains=[1]
+        for chain in range(len(chains)):
+            chains[chain] = convertToInt(chains[chain],1)
+            if maxChain < chains[chain]:
+                maxChain = chains[chain]
+        isLinear = convertToBool(isLinear,False)
+        isEndEffector = convertToBool(isEndEffector,False)
+        myInfo = (partName, displayName, partType, sequence, chains, axis, angle, distance, shapeOfAxis, isLinear, isEndEffector)
+        print("Each Kinematic Info",myInfo,kinematicinfo)
+        kinematicInformation.append(myInfo)
+    lengthOfKinematicInfo = len(kinematicInformation)
+    print("Kinematic Info before arranging",kinematicInformation)
+    
+    for kinematicInfo in range(lengthOfKinematicInfo):
+        print("Kinematic Info of ",kinematicInfo,kinematicInformation[kinematicInfo])
+        partName, displayName, partType, sequence, chains, axis, angle, distance, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
+        
+        if ((partType=="LINKAGE") and (sequence>1)):
+            for secondPass in range(lengthOfKinematicInfo):
+                print("Kinematic Info of secondPass",secondPass,kinematicInformation[secondPass])
+        
+                partName2, displayName2, partType2, sequence2, chains2, axis2, angle2, distance2, shapeOfAxis2, isLinear2, isEndEffector2 = kinematicInformation[secondPass]
+                if ((sequence2==sequence-1) and (sorted(chains2)==sorted(chains))):
+                    kinematicInformation[kinematicInfo] = partName, displayName, partType, sequence, chains, axis2, angle2, distance2, shapeOfAxis2, isLinear2, isEndEffector
+                    kinematicInformation[secondPass] = partName2, displayName2, partType2, sequence2, chains2, axis2, 0, 0, shapeOfAxis2, isLinear2, isEndEffector2
+                    break
+    if maxChain > 0:
+        maxSequence = [-1 for x in range(maxChain)]
+        for kinematicInfo in range(lengthOfKinematicInfo):
+            partName, displayName, partType, sequence, chains, axis, angle, distance, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
+            for chain in chains:
+                if chain > 0:
+                    if maxSequence[chain-1] < sequence:
+                        maxSequence[chain-1] = sequence                
+    else:
+        maxSequence=[]
+    print("")
+    print("Kinematic Info after arranging",kinematicInformation)               
+    return kinematicInformation, maxChain, maxSequence
+
 def getKinematicInformation(kinematicparts,partname):
     html_display = html.escape(partname)
     for kinematicpart in kinematicparts:
@@ -5837,10 +5972,10 @@ def getKinematicInformation(kinematicparts,partname):
 def getKinematicInformationFromIndex(kinematicParts,partname):
     html_display = html.escape(partname)
     for kinematicPart in kinematicParts:
-        partName, displayName, _, _, _, [_,_,_], _, _, _,_ = kinematicPart
+        partName, displayName, _, _, _, _, _, _, _, _, _ = kinematicPart
         if (partName==html_display) or (displayName==html_display):
             return kinematicPart 
-    return ("NoName","EmptyItem",0,False,False,[0,0,0],0,0,0,None)
+    return ("No Name", "Empty Item", "STATIC", 0, 0, [0,0,0], 0, 0, None, False, False) 
     
 
 def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None,partsteps=[]):#,thumbwidth,thumbheight):
@@ -5914,98 +6049,68 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 kinematicparts = []
             #print("What we got from react",kinematicparts)
             try:
-                indexedKinematicInformation = extractKinematicInformation(kinematicparts) 
+                indexedKinematicInformation, maxChain, maxSequence = extractKinematicInformation(kinematicparts) 
             except Exception as e:
                 print("Error while parsing kinematic",e)   
-            lengthOfOnlyShapes =  len(onlyShapes)                     
-            if(lengthOfOnlyShapes==8):
-                shapeorder = [0, 2, 1, 3, 6, 7, 5, 4] #[0,1,2,6,3,7,5,4]
-            else:
-                shapeorder=[x for x in range(lengthOfOnlyShapes)]    
-            #print("initial parsing",shapeorder,indexedKinematicInformation)            
-            kp=1
-            ap=kp
-            lengthOfKinematicParts = len(indexedKinematicInformation)
-            notFoundSequence=0
+            maxChainShape = 0 if maxChain<=0 else maxChain
+            mySequenceCount=0
+            shapeorder=[]
+            notFoundSequence=[]
+            for chainRow in range(maxChainShape):
+                shapeorder.append([])
+                kinematicrotation.append([])
+                notFoundSequence.append(0)
+                maxSequenceShape = (0 if  maxSequence[chainRow]<=0 else maxSequence[chainRow])
+                for _ in range(maxSequenceShape):
+                    shapeorder[chainRow].append(-1)
+                    mySequenceCount+=1
+            # for missingElements in range(mySequenceCount,lengthOfKinematicParts):
+            #     shapeorder[maxChainShape-1].append(-1)
+            
             #partsteps=None
             lenShapeArray = len(shapeArray)
             # firstShapeInfo=None
-            for shapeArrayIndex in  range(lenShapeArray):
-                eachShape,eachName,eachColor=shapeArray[shapeArrayIndex]
-                if (partsteps==None) or (len(kinematicparts)==0):
-                    myobb = get_oriented_bounding_details(eachShape)
-                    ax, ay, az = getMaxDirectionFromOBB(myobb)
-                    ap*=kp
-                    aw = math.pi/48 * ap #random.random()
-                    """if aw < 0.1:
-                        aw=0.1
-                    if aw > 0.9:
-                        aw=0.9
-                    aw = (math.pi/len(onlyShapes))*aw"""
-                    
-                    if(len(onlyShapes)!=8):     
-                        if shapeCount>=2 and shapeCount<=5:
-                            kinematicrotation.append(((ax,ay,az,20*shapeCount),(ax,ay,az,0),eachName,eachName,eachName,False,False,None,eachShape))
-                        else:
-                            kinematicrotation.append(((ax,ay,az,3),(ax,ay,az,aw),eachName,eachName,eachName,False,False,None,eachShape))              
-                        shapeorder.append(shapeCount)
-                    else:
-                        if shapeCount>=2 and shapeCount<=3:
-                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0),eachName,eachName,eachName,False,False,None,eachShape))
-                        else:
-                            kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw),eachName,eachName,eachName,False,False,None,eachShape))                    
-                else:
-                    #sequence, isActuator, isLinear, [ax,ay,az], aw = getKinematicInformation(kinematicparts,eachName)
+            for chain in range(1,maxChain+1):
+                shapeCount=0
+                for shapeArrayIndex in  range(lenShapeArray):
+                    eachShape,eachName,_=shapeArray[shapeArrayIndex]
                     whatWeGotFromKinematicInfo=getKinematicInformationFromIndex(indexedKinematicInformation,eachName)  
                     #print("What we got here",whatWeGotFromKinematicInfo)
-                    partName, displayName, sequence, isActuator, isLinear, [ax,ay,az], aw, _, _, shapeOfAxis = whatWeGotFromKinematicInfo
+                    partName, displayName, partType, sequence, chains, axis, angle, distance, shapeOfAxis, isLinear, isEndEffector = whatWeGotFromKinematicInfo
+                    [ax,ay,az]=axis 
                     #print("Error has occured here?")
                     if shapeOfAxis is None:
                         shapeOfAxis=eachShape
                     """ if shapeArrayIndex==0:
                         firstShapeInfo=getShapeLocationAndDirection(shapeOfAxis)  """
                     if ax==0 and ay==0 and az==0 :
+                        myobb = get_oriented_bounding_details(shapeOfAxis)
+                        ax, ay, az = getMaxDirectionFromOBB(myobb)
+                        ax, ay, az = convertToFloat(ax,0), convertToFloat(ay,0), convertToFloat(az,0)
+                    if ax==0 and ay==0 and az==0 :
                         myobb = get_oriented_bounding_details(eachShape)
                         ax, ay, az = getMaxDirectionFromOBB(myobb)
-                    print("Each one",eachName,sequence,whatWeGotFromKinematicInfo, ax, ay, az  )                   
-                    if sequence >0 and sequence <= lengthOfOnlyShapes:
-                        shapeorder[sequence-1]=shapeCount
-                    elif (lengthOfKinematicParts+notFoundSequence) < lengthOfOnlyShapes:
-                        shapeorder[lengthOfKinematicParts+notFoundSequence]=shapeCount
-                        notFoundSequence+=1
+                        ax, ay, az = convertToFloat(ax,0), convertToFloat(ay,0), convertToFloat(az,0)
+
+                    print("Each one",eachName,sequence,whatWeGotFromKinematicInfo, ax, ay, az  ) 
+                    if  (chain in chains):
+                        maxSequenceShape = maxSequence[chain-1]
+                        if (sequence >0 and sequence <= maxSequenceShape):
+                            shapeorder[chain-1][sequence-1]=shapeCount
+                        else:
+                            notFoundSequence[chain-1]+=1
                     else:
-                        notFoundSequence+=1
-                    if isLinear:
-                        kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
+                        notFoundSequence[chain-1]+=1
+                    if partType=="STATIC":
+                        kinematicrotation[chain-1].append(((ax,ay,az,0),(ax,ay,az,0),eachName,partName, displayName, partType, sequence, chain, shapeOfAxis,eachShape, isLinear, isEndEffector))
                     else:
-                        kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,aw),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
-                    # if isActuator:
-                    #     if isLinear:
-                    #         kinematicrotation.append(((ax,ay,az,aw),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
-                    #     else:
-                    #         """ cx,cy,cz,du,dv,dw=getShapeLocationAndDirection(shapeOfAxis)  
-                    #         if du==0 and dv==0 and dw==0:
-                    #             myobb = get_oriented_bounding_details(eachShape)
-                    #             mycenter = myobb.Center()
-                    #             cx,cy,cz = mycenter.X(),mycenter.Y(),mycenter.Z()
-                    #         shapeToOrgin=translate_shp(eachShape,-cx,-cy,-cz,True)
-                    #         shapeOfAxis=translate_shp(shapeOfAxis,-cx,-cy,-cz,True)
-                    #         shapeArray[shapeArrayIndex]=shapeToOrgin,eachName,eachColor
-                    #         _,xName,xR,xG,xB=shapePickles[shapeArrayIndex]
-                    #         shapePickles[shapeArrayIndex]=shapeToOrgin,xName,xR,xG,xB
-                    #         #cx,cy,cz,du,dv,dw=firstShapeInfo
-                    #         distance = math.sqrt(cx*cx+cy*cy+cz*cz) """
-                    #         cx,cy,cz,distance=ax,ay,az,0
-                    #         kinematicrotation.append(((cx,cy,cz,distance),(ax,ay,az,aw),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))
-                    # else:
-                    #     kinematicrotation.append(((ax,ay,az,0),(ax,ay,az,0),eachName,partName,displayName,isActuator,isLinear,shapeOfAxis,eachShape))                    
-                    # #print ("Each Kinematic Rotation", kinematicrotation)
-                shapeCount += 1                          
-            #print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
-            print("Info of kinematic before truncating",shapeorder,kinematicrotation,notFoundSequence,shapeCount)
-            if(lengthOfKinematicParts < lengthOfOnlyShapes):
-                shapeorder = shapeorder[0:lengthOfKinematicParts]
-            print("Info of kinematic after truncating",shapeorder,kinematicrotation,lengthOfKinematicParts,lengthOfOnlyShapes)
+                        kinematicrotation[chain-1].append(((ax,ay,az,distance),(ax,ay,az,angle),eachName,partName, displayName, partType, sequence, chain, shapeOfAxis,eachShape, isLinear, isEndEffector))
+                    shapeCount += 1                          
+                #print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
+            print("Info of kinematic and shapeorder",shapeorder,kinematicrotation,notFoundSequence,shapeCount)
+            # if(maxChainShape < lengthOfOnlyShapes):
+            #     shapeorder = shapeorder[0:maxChainShape]
+            # print("Info of kinematic after truncating",shapeorder,kinematicrotation,lengthOfKinematicParts,lengthOfOnlyShapes)
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
