@@ -244,9 +244,19 @@ const ItemDetail = ({ itemValue }) => {
           axisRes.data.AllAxis.length > 0
         ) {
           for (let index = 0; index < axisRes.data.AllAxis.length; index++) {
-            const element = axisRes.data.AllAxis[index];
-            //console.log('Element for drawing axis', element);
-            /* if (
+            let elementAxis = axisRes.data.AllAxis[index];
+            if (Array.isArray(elementAxis) == false) {
+              elementAxis = [elementAxis];
+            }
+            for (
+              let indexAxis = 0;
+              indexAxis < elementAxis.length;
+              indexAxis++
+            ) {
+              const element = elementAxis[indexAxis];
+
+              //console.log('Element for drawing axis', element);
+              /* if (
               existingAxis(element.directing) &&
               element.rotation &&
               element.rotation[3] != 0
@@ -269,27 +279,28 @@ const ItemDetail = ({ itemValue }) => {
                 });
               }
             } */
-            if (
-              existingAxis(element.direction) &&
-              element.rotation &&
-              element.rotation[3] != 0
-            ) {
-              axisArray.push({
-                axis: element.direction,
-                position: element.location ? element.location : [0, 0, 0],
-                name: element.display
-              });
-            } else {
-              if (element.rotated && element.rotation[3] != 0) {
+              if (
+                existingAxis(element.direction) &&
+                element.rotation &&
+                element.rotation[3] != 0
+              ) {
                 axisArray.push({
-                  axis: [
-                    element.rotated[0],
-                    element.rotated[1],
-                    element.rotated[2]
-                  ],
+                  axis: element.direction,
                   position: element.location ? element.location : [0, 0, 0],
                   name: element.display
                 });
+              } else {
+                if (element.rotated && element.rotation[3] != 0) {
+                  axisArray.push({
+                    axis: [
+                      element.rotated[0],
+                      element.rotated[1],
+                      element.rotated[2]
+                    ],
+                    position: element.location ? element.location : [0, 0, 0],
+                    name: element.display
+                  });
+                }
               }
             }
           }
