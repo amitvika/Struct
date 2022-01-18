@@ -5856,18 +5856,20 @@ def extractKinematicInformation(kinematicparts):
             axis = axisDict['axis']
             if 'step' in axisDict:
                 _, shapeOfAxis = getShapeFromPickle(axisDict['step'])
+        forceAngle = isActuator is not None
         isActuator = not convertToBool(isActuator,False)
-        forceAngle = False
-        if partType is None:
+        if (partType is None) or forceAngle:
             forceAngle = True
             if isActuator:
                 partType='ACTUATOR'
             else:
                 partType='LINKAGE' 
-        else:
-            forceAngle = False
         if partType is None:
             partType='STATIC' 
+        # if partType=='STATIC' and sequence!=3 and sequence!=5:
+        #     partType='ACTUATOR'
+        # if partType=='STATIC' and (sequence==3 or sequence==5):
+        #     partType='LINKAGE'
         if partName==None:
             partName = getValueFromJSONKey(kinematicpart,'filePartName')
         if displayName==None:
@@ -5910,6 +5912,17 @@ def extractKinematicInformation(kinematicparts):
         if ((angle==0) and forceAngle):
             angle = math.pi/3    
         sequence = convertToInt(sequence,1)
+        # if ((chains is None) or len(chains)==0) and sequence < 6:
+        #     chains=[1,2]
+        # elif ((chains is None) or len(chains)==0) and sequence==6:
+        #     chains=[2]
+        # elif ((chains is None) or len(chains)==0) and sequence > 6:
+        #     chains=[1]
+        #     sequence -=1
+        # elif isinstance(chains, list)==False :
+        #     chains=[convertToInt(chains,1)]
+        # elif len(chains)==0:
+        #     chains=[1]
         if chains is None:
             chains=[1]
         elif isinstance(chains, list)==False :

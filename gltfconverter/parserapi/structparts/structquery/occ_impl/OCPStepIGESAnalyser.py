@@ -4728,12 +4728,18 @@ class StepIgesAnalyser():
         if( lenAnimations<=0  ):
             return WritingGlobalAxisAndAngle
         maxAngle=-1e10
+        maxLenShapeOrder = -1
         for chain in range(lenAnimations):
-            for steps in range(len(self.shapeorder[chain])): 
+            lenShapeOrder = len(self.shapeorder[chain])   
+            if maxLenShapeOrder < lenShapeOrder:
+                maxLenShapeOrder = lenShapeOrder
+            for steps in range(lenShapeOrder): 
                 mystep = self.shapeorder[chain][steps] 
                 (tu,tv,tw,td), (u,v,w,a), eachName, partName, displayName, partType, _, _, shapeOfAxis, _, isLinear, _ = self.kinematicrotation[chain][mystep]
                 if maxAngle < a:
                     maxAngle = a
+        if maxLenShapeOrder < 1:
+            maxLenShapeOrder = 1
         if maxAngle <= 0.1:
             maxAngle=0.1
         self.mstep_dict['animations']=[]
@@ -4902,7 +4908,7 @@ class StepIgesAnalyser():
                     if testRotationAnimation:
                         lenOfAnimationsTime = lenShapeOrder+1
                     else:
-                        lenOfAnimationsTime = lenShapeOrder+1 #steps+1 #if action=="rotation" else steps+1 #or lenAnimations ; it works for both...
+                        lenOfAnimationsTime = maxLenShapeOrder+1 #steps+1 #if action=="rotation" else steps+1 #or lenAnimations ; it works for both...
                     timebuff = TimeBuffer(
                         max_index=2
                     ) 
@@ -4931,6 +4937,8 @@ class StepIgesAnalyser():
                         
                     for istep in range(lenOfAnimationsTime*totalSubSteps):  
                         timebuff.add_time(istep*self.delay/totalSubSteps) #if action=="tranlation" else 2*istep*self.delay+1 )
+                        #print(" ")
+                        #print("ACtion",action,istep*self.delay/totalSubSteps,steps,lenOfAnimationsTime*totalSubSteps)
                         if action=="translation":
                             """ if istep==0:
                                 translationbuff.add_translation(0,0,0)
@@ -5084,7 +5092,7 @@ class StepIgesAnalyser():
                 animationchannels = {
                     "samplers" : samplers,
                     "channels" : chanels,
-                    "name":self.mstep_dict['nodes'][node_id]['name']+("translation" if action=="translation" else "rotation")
+                    "name":str(chain)+self.mstep_dict['nodes'][node_id]['name']+("translation" if action=="translation" else "rotation")
                     }
                 
                 self.mstep_dict['animations'].append(animationchannels)
