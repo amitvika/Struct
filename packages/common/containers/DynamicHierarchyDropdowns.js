@@ -13,7 +13,8 @@ export default function DynamicHierarchy(props) {
     inToolbar = false,
     isPaperContainer = true,
     filterTitle,
-    criteriaForms = {}
+    criteriaForms = {},
+    syncDataWithServer = () => ({})
   } = props;
 
   const handleDropdownSelection = (title, value) => {
@@ -43,6 +44,7 @@ export default function DynamicHierarchy(props) {
     tempSelections[indexOfCurrentSelection].form = criteriaForms[value];
 
     setSelections(tempSelections);
+    syncDataWithServer(tempSelections);
   };
 
   const getSelectionValue = (title) => {

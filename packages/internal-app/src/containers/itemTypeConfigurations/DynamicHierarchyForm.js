@@ -95,15 +95,52 @@ export default function DynamicHierarchyForm(props) {
     return angleOfRotationValue;
   };
 
-  useEffect(() => {
-    // syncDataWithServer(selections);
-  }, [stateUpdated]);
+  const getLinearActuationDistance = (selections) => {
+    let angleOfRotationValue = 0;
+    const selectedMotionControl = selections.find(
+      (item) => item.value === 'Motion Actuator|Linear'
+    );
+
+    if (get(selectedMotionControl, 'form.fields')) {
+      const angleOfRotationObj = selectedMotionControl.form.fields.find(
+        (item) => item.fieldName === 'Linear Actuation Distance'
+      );
+
+      if (
+        get(angleOfRotationObj, 'fieldName') === 'Linear Actuation Distance'
+      ) {
+        angleOfRotationValue = get(angleOfRotationObj, 'value');
+      }
+    }
+    return angleOfRotationValue;
+  };
+
+  const getChildPartType = (selections) => {
+    const isLinkage = selections.find(
+      (item) => item.value === 'Mechanical Linkage'
+    );
+    if (isLinkage) {
+      return 'LINKAGE';
+    }
+
+    const isActuator = selections.find(
+      (item) => item.value === 'Motion Actuator'
+    );
+
+    if (isActuator) {
+      return 'ACTUATOR';
+    }
+
+    return 'STATIC';
+  };
 
   const syncDataWithServer = (selections) => {
     //setTimeout(() => { //Causing over write of actuator only with angle and all other parameters lost.
     handleItemUpdate({
       actuator_motion_control: {
-        angle_or_distant_limit: getAngleOfRotationValue(selections)
+        rotational_angle_limit: getAngleOfRotationValue(selections),
+        linear_distance_limit: getLinearActuationDistance(selections),
+        child_part_type: getChildPartType(selections)
       },
       hierarchySelections: selections,
       is_actuator_type: checkActuatorTypeComponent(selections)
@@ -162,7 +199,8 @@ export default function DynamicHierarchyForm(props) {
           hierarchyDropdownList,
           selections,
           setSelections,
-          criteriaForms
+          criteriaForms,
+          syncDataWithServer
         }}
       />
 
