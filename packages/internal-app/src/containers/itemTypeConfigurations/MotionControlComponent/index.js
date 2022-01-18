@@ -13,7 +13,6 @@ import Select from '@mui/material/Select';
 import Radio from '@mui/material/Radio';
 import ItemApi from '@monostruct/common/api/items.api';
 import { get } from 'lodash';
-import { Checkbox } from '@mui/material';
 import { getTableData } from './helper';
 import { SELECTASSEMBLY } from '@monostruct/common/gltf/Tree/utils';
 import {
@@ -112,6 +111,7 @@ export default function MotionControlComponent({
         setKinematicItemList(
           itemList.map((item) => (item.id === id ? res.data : item))
         );
+        setItemList(itemList.map((item) => (item.id === id ? res.data : item)));
       })
       .catch((error) => {
         alertContext.openErrorAlert({ message: 'Some error occured' });
@@ -151,39 +151,33 @@ export default function MotionControlComponent({
     }
   };
 
-  const SelectAxisMenu = ({ keyName, itemId, actuator_motion_control }) => {
-    //setSelectedOption(SELECTASSEMBLY);
-    return (
-      <>
-        {selectedValue === itemId ? (
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            label={actuator_motion_control[keyName]}
-            sx={{ width: '100%' }}
-            value={actuator_motion_control[keyName]}
-            onChange={(event) =>
-              updateMotionControlActuator(itemId, {
-                ...actuator_motion_control,
-                [keyName]: event.target.value
-              })
-            }
-          >
-            {renderAxisMenu()}
-          </Select>
-        ) : (
-          actuator_motion_control[keyName]
-        )}
-      </>
-    );
+  const SelectAxisMenu = ({ itemId, multiple, onChange, value, label }) => {
+    if (selectedValue === itemId) {
+      return (
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          sx={{ width: '100%' }}
+          {...{
+            multiple,
+            onChange,
+            value,
+            label
+          }}
+        >
+          {renderAxisMenu()}
+        </Select>
+      );
+    }
+
+    return `${value}`;
   };
 
   const handleOnChangeChain = (e) => (itemId, actuator_motion_control) => {
-    console.log(e.key);
     if (e.keyCode === 13) {
       updateMotionControlActuator(itemId, {
         ...actuator_motion_control,
-        chain_number: e.target.value
+        child_chain_number: e.target.value
       });
     }
   };
@@ -208,6 +202,7 @@ export default function MotionControlComponent({
               <TableCell padding="none">Machine’s Actuator Limits</TableCell>
               <TableCell padding="none">End Effector</TableCell>
               <TableCell padding="none">Chain #</TableCell>
+              <TableCell padding="none">Child Sequence Number</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -261,9 +256,13 @@ export default function MotionControlComponent({
                   <TableCell padding="none">
                     <SelectAxisMenu
                       {...{
-                        keyName: 'child_sequence_number',
                         itemId: item.id,
-                        actuator_motion_control
+                        value: actuator_motion_control.axis_number,
+                        onChange: (event) =>
+                          updateMotionControlActuator(item.id, {
+                            ...actuator_motion_control,
+                            axis_number: event.target.value
+                          })
                       }}
                     />
                   </TableCell>
@@ -321,8 +320,23 @@ export default function MotionControlComponent({
                         }
                       />
                     ) : (
-                      <>{actuator_motion_control.chain_number}</>
+                      <>{actuator_motion_control.child_chain_number}</>
                     )}
+                  </TableCell>
+
+                  <TableCell padding="none">
+                    <SelectAxisMenu
+                      {...{
+                        itemId: item.id,
+                        multiple: true,
+                        value: actuator_motion_control.child_sequence_number,
+                        onChange: (event) =>
+                          updateMotionControlActuator(item.id, {
+                            ...actuator_motion_control,
+                            child_sequence_number: event.target.value
+                          })
+                      }}
+                    />
                   </TableCell>
                 </TableRow>
               );
