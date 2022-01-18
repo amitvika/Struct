@@ -173,14 +173,14 @@ export default function MotionControlComponent({
     return `${value}`;
   };
 
-  const handleOnChangeChain = (e) => (itemId, actuator_motion_control) => {
+  /* const handleOnChangeChain = (e) => (itemId, actuator_motion_control) => {
     if (e.keyCode === 13) {
       updateMotionControlActuator(itemId, {
         ...actuator_motion_control,
         child_chain_number: e.target.value
       });
     }
-  };
+  }; */
 
   return (
     <Paper sx={{ maxHeight: 400, overflow: 'auto' }}>
@@ -201,8 +201,8 @@ export default function MotionControlComponent({
               <TableCell padding="none">Link applies</TableCell>
               <TableCell padding="none">Machine’s Actuator Limits</TableCell>
               <TableCell padding="none">End Effector</TableCell>
-              <TableCell padding="none">Chain #</TableCell>
-              <TableCell padding="none">Child Sequence Number</TableCell>
+              {/*  <TableCell padding="none">Chain #</TableCell> */}
+              <TableCell padding="none">Chain Numbers</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -304,7 +304,7 @@ export default function MotionControlComponent({
                       }}
                     />
                   </TableCell>
-                  <TableCell padding="none">
+                  {/* <TableCell padding="none">
                     {selectedValue === item.id ? (
                       <TextField
                         id="standard-basic"
@@ -322,7 +322,7 @@ export default function MotionControlComponent({
                     ) : (
                       <>{actuator_motion_control.child_chain_number}</>
                     )}
-                  </TableCell>
+                  </TableCell> */}
 
                   <TableCell padding="none">
                     <SelectAxisMenu

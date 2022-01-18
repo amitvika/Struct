@@ -5834,8 +5834,8 @@ def extractKinematicInformation(kinematicparts):
             myInfo = getValueFromJSONKey(kinematicinfo,'child_part_name'),\
                 getValueFromJSONKey(kinematicinfo,'child_part_display_name'),\
                     getValueFromJSONKey(kinematicinfo,'child_part_type'),\
-                        getValueFromJSONKey(kinematicinfo,'child_sequence_number'),\
-                            getValueFromJSONKey(kinematicinfo,'child_chain_number'),\
+                        getValueFromJSONKey(kinematicinfo,'axis_number'),\
+                            getValueFromJSONKey(kinematicinfo,'child_sequence_number'),\
                                 getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
                                     getValueFromJSONKey(kinematicinfo,'rotational_angle_limit'),\
                                         getValueFromJSONKey(kinematicinfo,'linear_distance_limit'),\
@@ -5899,7 +5899,9 @@ def extractKinematicInformation(kinematicparts):
         aw = convertToFloat(aw,0)
         angle = convertToFloat(angle,0)
         if ((angle==0) and (isLinear==False) ):
-            angle = aw         
+            angle = aw  
+            if angle==0:
+                angle=math.pi/3       
         if maxAngle < angle:
             maxAngle = angle
         distance = convertToFloat(distance,0)
@@ -5911,6 +5913,9 @@ def extractKinematicInformation(kinematicparts):
         #     ap=-0.1*ap
         if ((angle==0) and forceAngle):
             angle = math.pi/3    
+        if (sequence is None) and (chains) and (isinstance(chains, list)==False) :
+            sequence = chains
+            chains=[1]
         sequence = convertToInt(sequence,1)
         # if ((chains is None) or len(chains)==0) and sequence < 6:
         #     chains=[1,2]
