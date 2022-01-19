@@ -288,7 +288,10 @@ export default function ThreejsSelection(props) {
       });
     }
     setRenderData(myvalue, { name: mykey, option: myoption }, onChange);
-    if (mytype === 'CircularFaceOrEdgeSelection') {
+    if (
+      mytype === 'CircularFaceOrEdgeSelection' ||
+      mytype === 'LinearFaceOrEdgeSelection3D'
+    ) {
       setIsCircularFaceOrEdgeSelection(true);
     } else {
       setIsCircularFaceOrEdgeSelection(false);

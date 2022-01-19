@@ -5900,8 +5900,8 @@ def extractKinematicInformation(kinematicparts):
         angle = convertToFloat(angle,0)
         if ((angle==0) and (isLinear==False) ):
             angle = aw  
-            if angle==0:
-                angle=math.pi/3       
+            # if angle==0:
+            #     angle=math.pi/3       
         if maxAngle < angle:
             maxAngle = angle
         distance = convertToFloat(distance,0)

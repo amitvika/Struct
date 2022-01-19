@@ -134,17 +134,55 @@ export default function DynamicHierarchyForm(props) {
     return 'STATIC';
   };
 
+  const getRotationOrLinearType = (selections) => {
+    const selectedMotionControl = selections.find(
+      (item) => item.value === 'Motion Actuator|Linear'
+    );
+    if (selectedMotionControl) {
+      return true;
+    }
+    return false;
+  };
+  const checkAnyOfActuatorSelections = (selections) => {
+    if (
+      selections.find(
+        (item) =>
+          item.value === 'Motion Actuator|Rotational' ||
+          item.value === 'Motion Actuator|Linear' ||
+          item.value === 'Mechanical Linkage' ||
+          item.value === 'Motion Actuator'
+      )
+    )
+      return true;
+
+    if (
+      selections.findIndex(
+        (item) =>
+          item.key === 'Motion Actuator' || item.value === 'Motion Actuator'
+      ) > -1
+    )
+      return true;
+    return false;
+  };
   const syncDataWithServer = (selections) => {
     //setTimeout(() => { //Causing over write of actuator only with angle and all other parameters lost.
-    handleItemUpdate({
-      actuator_motion_control: {
-        rotational_angle_limit: getAngleOfRotationValue(selections),
-        linear_distance_limit: getLinearActuationDistance(selections),
-        child_part_type: getChildPartType(selections)
-      },
-      hierarchySelections: selections,
-      is_actuator_type: checkActuatorTypeComponent(selections)
-    });
+    if (checkAnyOfActuatorSelections(selections)) {
+      handleItemUpdate({
+        actuator_motion_control: {
+          rotational_angle_limit: getAngleOfRotationValue(selections),
+          linear_distance_limit: getLinearActuationDistance(selections),
+          child_part_type: getChildPartType(selections),
+          is_linear_or_rotational: getRotationOrLinearType(selections)
+        },
+        hierarchySelections: selections,
+        is_actuator_type: checkActuatorTypeComponent(selections)
+      });
+    } else {
+      handleItemUpdate({
+        hierarchySelections: selections
+      });
+    }
+
     //}, 5000);
   };
 
