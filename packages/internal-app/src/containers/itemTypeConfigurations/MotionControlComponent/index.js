@@ -257,7 +257,13 @@ export default function MotionControlComponent({
                     <SelectAxisMenu
                       {...{
                         itemId: item.id,
-                        value: actuator_motion_control.axis_number,
+                        value: actuator_motion_control.axis_number
+                          ? actuator_motion_control.axis_number
+                          : Array.isArray(
+                              actuator_motion_control.child_sequence_number
+                            )
+                          ? actuator_motion_control.child_sequence_number
+                          : actuator_motion_control.axis_number,
                         onChange: (event) =>
                           updateMotionControlActuator(item.id, {
                             ...actuator_motion_control,
@@ -329,7 +335,11 @@ export default function MotionControlComponent({
                       {...{
                         itemId: item.id,
                         multiple: true,
-                        value: actuator_motion_control.child_sequence_number,
+                        value: Array.isArray(
+                          actuator_motion_control.child_sequence_number
+                        )
+                          ? actuator_motion_control.child_sequence_number
+                          : [actuator_motion_control.child_sequence_number],
                         onChange: (event) =>
                           updateMotionControlActuator(item.id, {
                             ...actuator_motion_control,
