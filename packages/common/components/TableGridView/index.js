@@ -6,7 +6,6 @@ import Toolbar from './Toolbar';
 
 import DefaultContainer from '../../components/DefaultContainer';
 import CommonAddUpdateModal from './AddUpdateModal';
-import LoadingModal from '../LoadingModal';
 import get from 'lodash/get';
 import TablePagination from '@mui/material/TablePagination';
 import {
@@ -17,6 +16,8 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
+import Box from '@mui/material/Box';
+import LinearProgress from '@mui/material/LinearProgress';
 
 const TableGridView = ({
   title,
@@ -286,9 +287,18 @@ const TableGridView = ({
     setPage(0);
   };
 
+  const handleFilter = (updatedList) => {
+    setFilteredList(updatedList);
+    setTotalDocs(updatedList.length);
+  };
+
   return (
     <>
-      <LoadingModal isLoading={isLoading} />
+      {isLoading && (
+        <Box sx={{ width: '100%', position: 'absolute', left: 0, top: '60px' }}>
+          <LinearProgress />
+        </Box>
+      )}
       <DefaultContainer
         title={title}
         isHistoryModalOpened={isHistoryModalOpened}
@@ -327,7 +337,7 @@ const TableGridView = ({
           }}
           list={list}
           filteredList={filteredList}
-          setFilteredList={setFilteredList}
+          setFilteredList={handleFilter}
           columnsFields={fields}
           isCustomAddButtonVisible={isCustomAddButtonVisible}
           handleAddButtonPress={handleToggleModal}
