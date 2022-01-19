@@ -145,7 +145,10 @@ export default function MotionControlComponent({
         setItemList(itemList.map((item) => (item.id === id ? res.data : item)));
       })
       .catch((error) => {
-        alertContext.openErrorAlert({ message: 'Some error occured' });
+        console.log('Error while updating', error);
+        alertContext.openErrorAlert({
+          message: 'Some error occured ' + error.toString()
+        });
       });
   };
 
