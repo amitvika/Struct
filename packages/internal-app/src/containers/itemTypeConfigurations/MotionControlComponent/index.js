@@ -62,6 +62,18 @@ export default function MotionControlComponent({
                   ? actuator_motion_control.child_sequence_number
                   : [1]
                 : [1];
+            item.actuator_motion_control.child_chain_number =
+              actuator_motion_control.child_chain_number
+                ? Array.isArray(actuator_motion_control.child_chain_number)
+                  ? 0
+                  : actuator_motion_control.child_chain_number
+                : actuator_motion_control.child_chain_number;
+            console.log(
+              'Changing structure from',
+              thisList[index],
+              'To ',
+              item
+            );
             thisList[index] = item;
           }
         }

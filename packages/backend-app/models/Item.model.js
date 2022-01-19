@@ -6,6 +6,7 @@ const ItemMotionControlSchema = new mongoose.Schema(
   {
     item_id: { type: Schema.Types.ObjectId, ref: 'Item' },
     axis_number: { type: Number, default: 0 },
+    chain_number: { type: Number, default: 0 },
     child_chain_number: { type: Number, default: 0 },
     child_sequence_number: [{ type: Number, default: 0 }],
     child_part_name: { type: String },
