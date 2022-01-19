@@ -262,8 +262,8 @@ export default function MotionControlComponent({
                           : Array.isArray(
                               actuator_motion_control.child_sequence_number
                             )
-                          ? actuator_motion_control.child_sequence_number
-                          : actuator_motion_control.axis_number,
+                          ? actuator_motion_control.axis_number
+                          : actuator_motion_control.child_sequence_number,
                         onChange: (event) =>
                           updateMotionControlActuator(item.id, {
                             ...actuator_motion_control,
