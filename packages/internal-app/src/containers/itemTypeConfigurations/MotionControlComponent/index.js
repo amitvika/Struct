@@ -72,7 +72,10 @@ export default function MotionControlComponent({
                   ? 0
                   : actuator_motion_control.child_chain_number
                 : actuator_motion_control.child_chain_number;
-            if (actuator_motion_control.rotational_angle_limit == 0) {
+            if (
+              actuator_motion_control.rotational_angle_limit == 0 &&
+              actuator_motion_control.is_linear_or_rotational == false
+            ) {
               item.actuator_motion_control.rotational_angle_limit = Math.PI / 3;
             }
             console.log(
