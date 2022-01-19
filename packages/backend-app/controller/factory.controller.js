@@ -21,7 +21,9 @@ exports.get = async (req, res) => {
 
     res.json(mapFactories(factories));
   } catch (error) {
-    return res.status(500).send({ message: 'Some unexpected error occurred' });
+    return res
+      .status(500)
+      .send({ message: 'Some unexpected error occurred ' + error.toString() });
   }
 };
 

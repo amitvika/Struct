@@ -45,7 +45,38 @@ export default function MotionControlComponent({
     ItemApi.getItemsAPI(`parent_id=${itemId}&is_actuator_type=true`)
       .then((res) => {
         console.log('IUPC Item Details', res, itemId);
-        const thisList = get(res, 'data', []);
+        let thisList = get(res, 'data', []);
+        if (thisList) {
+          for (let index = 0; index < thisList.length; index++) {
+            let item = { ...thisList[index] };
+            const actuator_motion_control = item.actuator_motion_control || {};
+            item.actuator_motion_control.axis_number =
+              actuator_motion_control.axis_number
+                ? actuator_motion_control.axis_number
+                : Array.isArray(actuator_motion_control.child_sequence_number)
+                ? actuator_motion_control.axis_number
+                : actuator_motion_control.child_sequence_number;
+            item.actuator_motion_control.child_sequence_number =
+              actuator_motion_control.child_sequence_number
+                ? Array.isArray(actuator_motion_control.child_sequence_number)
+                  ? actuator_motion_control.child_sequence_number
+                  : [1]
+                : [1];
+            item.actuator_motion_control.child_chain_number =
+              actuator_motion_control.child_chain_number
+                ? Array.isArray(actuator_motion_control.child_chain_number)
+                  ? 0
+                  : actuator_motion_control.child_chain_number
+                : actuator_motion_control.child_chain_number;
+            console.log(
+              'Changing structure from',
+              thisList[index],
+              'To ',
+              item
+            );
+            thisList[index] = item;
+          }
+        }
         setItemList(thisList);
         setKinematicItemList(thisList);
         //setSelectedOption(SELECTASSEMBLY);
@@ -114,7 +145,10 @@ export default function MotionControlComponent({
         setItemList(itemList.map((item) => (item.id === id ? res.data : item)));
       })
       .catch((error) => {
-        alertContext.openErrorAlert({ message: 'Some error occured' });
+        console.log('Error while updating', error);
+        alertContext.openErrorAlert({
+          message: 'Some error occured ' + error.toString()
+        });
       });
   };
 
@@ -257,7 +291,13 @@ export default function MotionControlComponent({
                     <SelectAxisMenu
                       {...{
                         itemId: item.id,
-                        value: actuator_motion_control.axis_number,
+                        value: actuator_motion_control.axis_number
+                          ? actuator_motion_control.axis_number
+                          : Array.isArray(
+                              actuator_motion_control.child_sequence_number
+                            )
+                          ? actuator_motion_control.axis_number
+                          : actuator_motion_control.child_sequence_number,
                         onChange: (event) =>
                           updateMotionControlActuator(item.id, {
                             ...actuator_motion_control,
@@ -329,7 +369,13 @@ export default function MotionControlComponent({
                       {...{
                         itemId: item.id,
                         multiple: true,
-                        value: actuator_motion_control.child_sequence_number,
+                        value: actuator_motion_control.child_sequence_number
+                          ? Array.isArray(
+                              actuator_motion_control.child_sequence_number
+                            )
+                            ? actuator_motion_control.child_sequence_number
+                            : [1]
+                          : [1],
                         onChange: (event) =>
                           updateMotionControlActuator(item.id, {
                             ...actuator_motion_control,

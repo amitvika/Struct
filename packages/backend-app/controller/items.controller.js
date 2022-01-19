@@ -220,7 +220,9 @@ exports.update = async (req, res) => {
     res.json(Object.assign({}, prevItem.toObject(), mymapitem));
   } catch (error) {
     console.log('Error', error);
-    return res.status(500).send({ message: 'Some unexpected error occurred' });
+    return res
+      .status(500)
+      .send({ message: 'Some unexpected error occurred ' + error.toString() });
   }
 };
 
@@ -238,7 +240,9 @@ exports.upsert = async (req, res) => {
 
     res.json({ success: true, itemUpdated });
   } catch (error) {
-    return res.status(500).send({ message: 'Some unexpected error occurred' });
+    return res
+      .status(500)
+      .send({ message: 'Some unexpected error occurred ' + error.toString() });
   }
 };
 
