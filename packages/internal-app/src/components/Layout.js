@@ -3,11 +3,9 @@ import Header from '@monostruct/common/components/Header/Header';
 
 const headerListItem = [
   {
-    label: 'Product design',
-    href: `${process.env.REACT_APP_DESIGN_URL}`,
-    target: '_blank',
-    addSeparator: false,
-    rel: 'noopener noreferrer'
+    label: 'Items',
+    href: '/items',
+    addSeparator: false
   },
   {
     label: 'Clients',
@@ -20,14 +18,16 @@ const headerListItem = [
     addSeparator: false
   },
   {
-    label: 'Items',
-    href: '/items',
-    addSeparator: false
-  },
-  {
     label: 'Factories',
     href: '/factories',
     addSeparator: false
+  },
+  {
+    label: 'Product design',
+    href: `${process.env.REACT_APP_DESIGN_URL}`,
+    target: '_blank',
+    addSeparator: false,
+    rel: 'noopener noreferrer'
   }
 ];
 

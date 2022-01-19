@@ -21,7 +21,6 @@ import {
   PROCESSINGSTATUS
 } from '@monostruct/common/gltf/Tree/utils';
 
-import { showErrorAlert, showSuccessAlert } from '../../actions/alert.action';
 import get from 'lodash/get';
 import { useQuery } from '../../utils/customHooks';
 import './style.css';

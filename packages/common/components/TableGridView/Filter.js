@@ -52,7 +52,7 @@ export default function Filter({
       if (debouncedSearchTerm) {
         handleSearch(`full_search=${searchTerm}`);
       } else {
-        handleSearch();
+        // handleSearch();
       }
     },
     [debouncedSearchTerm] // Only call effect if debounced search term changes
