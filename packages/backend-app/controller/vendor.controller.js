@@ -77,7 +77,9 @@ exports.create = async (req, res) => {
   } catch (error) {
     console.log(error);
 
-    return res.status(500).send({ message: 'Some unexpected error occurred' });
+    return res
+      .status(500)
+      .send({ message: 'Some unexpected error occurred ' + error.toString() });
   }
 };
 
@@ -111,7 +113,9 @@ exports.update = async (req, res) => {
   } catch (error) {
     console.log(error);
 
-    return res.status(500).send({ message: 'Some unexpected error occurred' });
+    return res
+      .status(500)
+      .send({ message: 'Some unexpected error occurred ' + error.toString() });
   }
 };
 
