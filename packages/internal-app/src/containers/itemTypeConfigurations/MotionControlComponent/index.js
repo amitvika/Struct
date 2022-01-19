@@ -54,12 +54,16 @@ export default function MotionControlComponent({
               actuator_motion_control.axis_number
                 ? actuator_motion_control.axis_number
                 : Array.isArray(actuator_motion_control.child_sequence_number)
-                ? actuator_motion_control.axis_number
+                ? actuator_motion_control.child_sequence_number.length >= 1
+                  ? actuator_motion_control.child_sequence_number[0]
+                  : actuator_motion_control.axis_number
                 : actuator_motion_control.child_sequence_number;
             item.actuator_motion_control.child_sequence_number =
-              actuator_motion_control.child_sequence_number
-                ? Array.isArray(actuator_motion_control.child_sequence_number)
-                  ? actuator_motion_control.child_sequence_number
+              actuator_motion_control.axis_number
+                ? actuator_motion_control.child_sequence_number
+                  ? Array.isArray(actuator_motion_control.child_sequence_number)
+                    ? actuator_motion_control.child_sequence_number
+                    : [1]
                   : [1]
                 : [1];
             item.actuator_motion_control.child_chain_number =
@@ -296,7 +300,10 @@ export default function MotionControlComponent({
                           : Array.isArray(
                               actuator_motion_control.child_sequence_number
                             )
-                          ? actuator_motion_control.axis_number
+                          ? actuator_motion_control.child_sequence_number
+                              .length >= 1
+                            ? actuator_motion_control.child_sequence_number[0]
+                            : actuator_motion_control.axis_number
                           : actuator_motion_control.child_sequence_number,
                         onChange: (event) =>
                           updateMotionControlActuator(item.id, {
