@@ -72,6 +72,9 @@ export default function MotionControlComponent({
                   ? 0
                   : actuator_motion_control.child_chain_number
                 : actuator_motion_control.child_chain_number;
+            if (actuator_motion_control.rotational_angle_limit == 0) {
+              item.actuator_motion_control.rotational_angle_limit = Math.PI / 3;
+            }
             console.log(
               'Changing structure from',
               thisList[index],
@@ -334,7 +337,17 @@ export default function MotionControlComponent({
                       <>{actuator_motion_control.child_part_type}</>
                     )}
                   </TableCell>
-                  <TableCell padding="none"></TableCell>
+                  <TableCell padding="none">
+                    {actuator_motion_control.child_part_type == 'ACTUATOR'
+                      ? actuator_motion_control.is_linear_or_rotational
+                        ? Number(
+                            actuator_motion_control.linear_distance_limit
+                          ).toFixed(3)
+                        : Number(
+                            actuator_motion_control.rotational_angle_limit
+                          ).toFixed(3)
+                      : ''}
+                  </TableCell>
                   <TableCell padding="none">
                     <Radio
                       checked={actuator_motion_control.is_end_effector}
