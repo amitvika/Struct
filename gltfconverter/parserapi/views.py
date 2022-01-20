@@ -1,4 +1,5 @@
 
+from itertools import chain
 from math import ceil
 
 
@@ -5820,6 +5821,19 @@ def extractKinematicInformation_old(kinematicparts):
     print("Kinematic Info after arranging",kinematicInformation)               
     return kinematicInformation
 
+def findAnyOne(chain1, chain2):
+    length1=len(chain1)
+    length2=len(chain2)
+    if length1 < length2:
+        for achain in chain1:
+            if achain in chain2:
+                return True
+    else:
+        for achain in chain2:
+            if achain in chain1:
+                return True
+    return False
+
 def extractKinematicInformation(kinematicparts):
     #print("Kinematic Parts",kinematicparts)
     print("")
@@ -5828,7 +5842,7 @@ def extractKinematicInformation(kinematicparts):
     maxChain=-1
     maxAngle=-1e10
     for kinematicpart in kinematicparts:
-        myInfo =  (None, None, "STATIC", 0, 0, [0,0,0], 0, 0, False, 0, False, False)
+        myInfo =  (None, None, "STATIC", 0, 0, [0,0,0], 0, 0, 0, False, 0, False, False)
         if 'actuator_motion_control' in kinematicpart:
             kinematicinfo = kinematicpart['actuator_motion_control']
             myInfo = getValueFromJSONKey(kinematicinfo,'child_part_name'),\
@@ -5839,14 +5853,15 @@ def extractKinematicInformation(kinematicparts):
                                 getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
                                     getValueFromJSONKey(kinematicinfo,'rotational_angle_limit'),\
                                         getValueFromJSONKey(kinematicinfo,'linear_distance_limit'),\
-                                            getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),\
-                                                getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),\
-                                                    getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),\
-                                                        getValueFromJSONKey(kinematicinfo,'is_end_effector')
+                                            getValueFromJSONKey(kinematicinfo,'machine_actuator_limit'),\
+                                                getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),\
+                                                    getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),\
+                                                        getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),\
+                                                            getValueFromJSONKey(kinematicinfo,'is_end_effector')
         else:
             kinematicinfo='No Information for kinematic info'
         #print("What I got as Axis1",kinematicinfo,myInfo)                             
-        partName, displayName, partType, sequence, chains, axisDict, angle, distance, isLinear, aw, isActuator, isEndEffector = myInfo
+        partName, displayName, partType, sequence, chains, axisDict, angle, distance, machineLimit, isLinear, aw, isActuator, isEndEffector = myInfo
         print("What I got as Axis",axisDict,kinematicinfo,myInfo)
         axis = None
         shapeOfAxis = None
@@ -5907,7 +5922,7 @@ def extractKinematicInformation(kinematicparts):
         distance = convertToFloat(distance,0)
         if ((distance==0) and (isLinear==True)):
             distance = aw
-
+        machineLimit = convertToFloat(machineLimit, distance if isLinear else angle )
         # if isActuator and aw==0:
         #     aw= math.pi/3 # 3.14 #3.14 #math.pi
         #     ap=-0.1*ap
@@ -5938,31 +5953,52 @@ def extractKinematicInformation(kinematicparts):
             chains[chain] = convertToInt(chains[chain],1)
             if maxChain < chains[chain]:
                 maxChain = chains[chain]
+        chains=sorted(chains)
         isLinear = convertToBool(isLinear,False)
         isEndEffector = convertToBool(isEndEffector,False)
-        myInfo = (partName, displayName, partType, sequence, chains, axis, angle, distance, shapeOfAxis, isLinear, isEndEffector)
+        myInfo = (partName, displayName, partType, sequence, chains, axis, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector)
         print("Each Kinematic Info",myInfo,kinematicinfo)
         kinematicInformation.append(myInfo)
     lengthOfKinematicInfo = len(kinematicInformation)
-    print("Kinematic Info before arranging",kinematicInformation)
+    print("Kinematic Info before arranging",kinematicInformation,lengthOfKinematicInfo)
+    for kinematicInfo in range(lengthOfKinematicInfo):
+        print("Kinematic Info of checking linkage to insert array",kinematicInfo,kinematicInformation[kinematicInfo])
+        partName, displayName, partType, sequence, chains, axis, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector  = kinematicInformation[kinematicInfo]
+        if (partType=="LINKAGE") :
+            for secondPass in range(lengthOfKinematicInfo):
+                partName2, displayName2, partType2, sequence2, chains2, axis2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2 = kinematicInformation[secondPass]
+                if ( (sequence2>sequence) and findAnyOne(chains2,chains)) :
+                    print("Yes Setting Kinematic Info of secondPass to insert array",secondPass,kinematicInformation[secondPass]) 
+                    kinematicInformation[secondPass] = partName2, displayName2, partType2, sequence2+1, chains2, axis2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2
+                else:
+                    print("Not Setting Kinematic Info of secondPass to insert array",secondPass,kinematicInformation[secondPass],chains2,chains,sequence2,sequence) 
+            kinematicInformation[kinematicInfo] =  partName, displayName, partType, sequence+1, chains, axis, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector  
     
     for kinematicInfo in range(lengthOfKinematicInfo):
-        print("Kinematic Info of ",kinematicInfo,kinematicInformation[kinematicInfo])
-        partName, displayName, partType, sequence, chains, axis, angle, distance, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
-        
+        print("Kinematic Info of checking linkage to copy axis",kinematicInfo,kinematicInformation[kinematicInfo])
+        partName, displayName, partType, sequence, chains, axis, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
         if ((partType=="LINKAGE") and (sequence>1)):
             for secondPass in range(lengthOfKinematicInfo):
-                print("Kinematic Info of secondPass",secondPass,kinematicInformation[secondPass])
-        
-                partName2, displayName2, partType2, sequence2, chains2, axis2, angle2, distance2, shapeOfAxis2, isLinear2, isEndEffector2 = kinematicInformation[secondPass]
-                if ((sequence2==sequence-1) and (sorted(chains2)==sorted(chains))):
-                    kinematicInformation[kinematicInfo] = partName, displayName, partType, sequence, chains, axis2, angle2, distance2, shapeOfAxis2, isLinear2, isEndEffector
-                    kinematicInformation[secondPass] = partName2, displayName2, partType2, sequence2, chains2, axis2, 0, 0, shapeOfAxis2, isLinear2, isEndEffector2
+                print("Kinematic Info of secondPass to copy axis",secondPass,kinematicInformation[secondPass])        
+                partName2, displayName2, partType2, sequence2, chains2, axis2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2 = kinematicInformation[secondPass]
+                if ((sequence2==sequence-1) and (chains2==chains)):
+                    kinematicInformation[kinematicInfo] = partName, displayName, partType, sequence, chains, axis2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector
+                    kinematicInformation[secondPass] = partName2, displayName2, partType2, sequence2, chains2, axis2, 0, 0, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2
+                    break
+    for kinematicInfo in range(lengthOfKinematicInfo):
+        print("Kinematic Info of checking linkage to make zero",kinematicInfo,kinematicInformation[kinematicInfo])
+        partName, displayName, partType, sequence, chains, axis, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
+        if ((partType=="LINKAGE") and (sequence<lengthOfKinematicInfo)):
+            for secondPass in range(lengthOfKinematicInfo):
+                print("Kinematic Info of secondPass to make zero",secondPass,kinematicInformation[secondPass])        
+                partName2, displayName2, partType2, sequence2, chains2, axis2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2 = kinematicInformation[secondPass]
+                if ((sequence2==sequence+1) and (chains2==chains)):
+                    kinematicInformation[secondPass] = partName2, displayName2, partType2, sequence2, chains2, axis2, 0, 0, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2
                     break
     if maxChain > 0:
         maxSequence = [-1 for x in range(maxChain)]
         for kinematicInfo in range(lengthOfKinematicInfo):
-            partName, displayName, partType, sequence, chains, axis, angle, distance, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
+            partName, displayName, partType, sequence, chains, axis, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
             for chain in chains:
                 if chain > 0:
                     if maxSequence[chain-1] < sequence:
@@ -5970,7 +6006,7 @@ def extractKinematicInformation(kinematicparts):
     else:
         maxSequence=[]
     print("")
-    print("Kinematic Info after arranging",kinematicInformation)               
+    print("Kinematic Info after arranging",kinematicInformation,maxChain,maxSequence)               
     return kinematicInformation, maxChain, maxSequence
 
 def getKinematicInformation(kinematicparts,partname):
@@ -5990,7 +6026,7 @@ def getKinematicInformation(kinematicparts,partname):
 def getKinematicInformationFromIndex(kinematicParts,partname):
     html_display = html.escape(partname)
     for kinematicPart in kinematicParts:
-        partName, displayName, _, _, _, _, _, _, _, _, _ = kinematicPart
+        partName, displayName, _, _, _, _, _, _, _, _, _,_ = kinematicPart
         if (partName==html_display) or (displayName==html_display):
             return kinematicPart 
     return ("No Name", "Empty Item", "STATIC", 0, 0, [0,0,0], 0, 0, None, False, False) 
@@ -6094,7 +6130,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                     eachShape,eachName,_=shapeArray[shapeArrayIndex]
                     whatWeGotFromKinematicInfo=getKinematicInformationFromIndex(indexedKinematicInformation,eachName)  
                     #print("What we got here",whatWeGotFromKinematicInfo)
-                    partName, displayName, partType, sequence, chains, axis, angle, distance, shapeOfAxis, isLinear, isEndEffector = whatWeGotFromKinematicInfo
+                    partName, displayName, partType, sequence, chains, axis, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = whatWeGotFromKinematicInfo
                     [ax,ay,az]=axis 
                     #print("Error has occured here?")
                     if shapeOfAxis is None:
@@ -6109,7 +6145,6 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                         myobb = get_oriented_bounding_details(eachShape)
                         ax, ay, az = getMaxDirectionFromOBB(myobb)
                         ax, ay, az = convertToFloat(ax,0), convertToFloat(ay,0), convertToFloat(az,0)
-
                     print("Each one",eachName,sequence,whatWeGotFromKinematicInfo, ax, ay, az  ) 
                     if  (chain in chains):
                         maxSequenceShape = maxSequence[chain-1]
@@ -6122,7 +6157,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                     if partType=="STATIC":
                         kinematicrotation[chain-1].append(((ax,ay,az,0),(ax,ay,az,0),eachName,partName, displayName, partType, sequence, chain, shapeOfAxis,eachShape, isLinear, isEndEffector))
                     else:
-                        kinematicrotation[chain-1].append(((ax,ay,az,distance),(ax,ay,az,angle),eachName,partName, displayName, partType, sequence, chain, shapeOfAxis,eachShape, isLinear, isEndEffector))
+                        kinematicrotation[chain-1].append(((ax,ay,az,min(distance,machineLimit)),(ax,ay,az,min(angle,machineLimit)),eachName,partName, displayName, partType, sequence, chain, shapeOfAxis,eachShape, isLinear, isEndEffector))
                     shapeCount += 1                          
                 #print("PART STEPS",partsteps, kinematicparts, (partsteps==None) or (len(kinematicparts)==0))  
             print("Info of kinematic and shapeorder",shapeorder,kinematicrotation,notFoundSequence,shapeCount)

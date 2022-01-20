@@ -243,6 +243,7 @@ export default function MotionControlComponent({
               <TableCell padding="none">Item name</TableCell>
               <TableCell padding="none">Axis Number</TableCell>
               <TableCell padding="none">Link applies</TableCell>
+              <TableCell padding="none">Actuator Limits</TableCell>
               <TableCell padding="none">Machine’s Actuator Limits</TableCell>
               <TableCell padding="none">End Effector</TableCell>
               {/*  <TableCell padding="none">Chain #</TableCell> */}
@@ -351,6 +352,7 @@ export default function MotionControlComponent({
                           ).toFixed(3)
                       : ''}
                   </TableCell>
+                  <TableCell padding="none">{''}</TableCell>
                   <TableCell padding="none">
                     <Radio
                       checked={actuator_motion_control.is_end_effector}
