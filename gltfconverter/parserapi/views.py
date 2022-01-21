@@ -5991,7 +5991,7 @@ def extractKinematicInformation(kinematicparts):
    
     for kinematicInfo in range(lengthOfKinematicInfo):
         print("Kinematic Info of checking linkage to make zero",kinematicInfo,kinematicInformation[kinematicInfo])
-        partName, displayName, partType, sequence, chains, axis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
+        partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
         if ((partType=="LINKAGE") and (sequence<lengthOfKinematicInfo)):
             for secondPass in range(lengthOfKinematicInfo):
                 print("Kinematic Info of secondPass to make zero",secondPass,kinematicInformation[secondPass])        
