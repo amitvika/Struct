@@ -48,6 +48,8 @@ import {
 import MaterialTab from '@monostruct/common/containers/MaterialTab/MaterialTab';
 import { getAFileFromStore } from '@monostruct/common/api/fileUpload.api';
 import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
+import AssignToClient from './AssignToClient';
+import SupplyingVendors from './SupplyingVendors';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -747,6 +749,21 @@ const ItemDetail = ({ itemValue }) => {
         return 'Item Properties';
       case 'materials':
         return <MaterialTab {...{ itemProperties, setItemProperties }} />;
+      case 'AssignToClient':
+        return (
+          <AssignToClient
+            clientData={itemProperties}
+            clientId={id}
+            handleClientUpdate={handleSave}
+          />
+        );
+      case 'sv':
+        return (
+          <SupplyingVendors
+            vendorInfo={itemProperties}
+            setVendorInfo={setItemProperties}
+          />
+        );
       default:
         return 'Undefined Tab Index';
     }
@@ -786,7 +803,9 @@ const ItemDetail = ({ itemValue }) => {
     production: 'Production',
     assembly: 'Assembly',
     itemReport: 'Item Report',
-    makeItemConfigurable: 'Make Item Configurable/Customizable'
+    makeItemConfigurable: 'Make Item Configurable/Customizable',
+    AssignToClient: 'Assign to Client(s)',
+    sv: 'Supplying Vendors'
   };
 
   const renderTab = () => {

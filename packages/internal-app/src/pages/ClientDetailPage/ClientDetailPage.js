@@ -107,13 +107,12 @@ const ClientDetailPage = () => {
 
     switch (tabIndex) {
       case 1:
-        return (
-          <Products
-            clientData={clientData}
-            clientId={id}
-            handleClientUpdate={handleClientUpdate}
-          />
-        );
+        return 'Products';
+        // <Products
+        //   clientData={clientData}
+        //   clientId={id}
+        //   handleClientUpdate={handleClientUpdate}
+        // />
 
       case 2:
         return (

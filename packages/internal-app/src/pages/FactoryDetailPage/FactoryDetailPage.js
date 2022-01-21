@@ -19,6 +19,7 @@ import { useQuery } from 'src/utils/customHooks';
 import TabContainer from '@monostruct/common/components/TabContainer';
 import TabPanelContainer from '@monostruct/common/components/TabPanelContainer';
 import DetailComponentInnerHeader from '@monostruct/common/components/DetailComponentInnerHeader';
+import FactoryLevelProcesses from './FactoryLevelProcesses';
 
 const FactoriesDetail = () => {
   let { id } = useParams();
@@ -96,6 +97,8 @@ const FactoriesDetail = () => {
         return <FacilityCapabilities />;
       case 5:
         return <Autoscaling />;
+      case 6:
+        return <FactoryLevelProcesses />;
       default:
         return 'Undefined Tab Index';
     }
@@ -131,7 +134,8 @@ const FactoriesDetail = () => {
     'Items in Production',
     'Floorplan Setup',
     'Facility Capabilities',
-    'Autoscaling'
+    'Autoscaling',
+    'Factory Level Processes'
   ];
 
   return (
@@ -186,6 +190,12 @@ const FactoriesDetail = () => {
             <Tab
               label="Autoscaling"
               value={5}
+              className="tab"
+              sx={{ alignItems: 'start' }}
+            />
+            <Tab
+              label="Factory Level Processes"
+              value={6}
               className="tab"
               sx={{ alignItems: 'start' }}
             />

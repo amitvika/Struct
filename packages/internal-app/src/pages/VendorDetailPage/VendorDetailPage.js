@@ -55,12 +55,11 @@ const VendorDetail = () => {
             />
           );
         } else {
-          return (
-            <SuppliedItems
-              vendorInfo={vendorInfo}
-              setVendorInfo={setVendorInfo}
-            />
-          );
+          return 'Supplied Items';
+          // <SuppliedItems
+          //   vendorInfo={vendorInfo}
+          //   setVendorInfo={setVendorInfo}
+          // />
         }
       case 2:
         return 'Shows all items to be billed for over here. configure the payments period over here. checks printing and mailing api will be linked to this ';

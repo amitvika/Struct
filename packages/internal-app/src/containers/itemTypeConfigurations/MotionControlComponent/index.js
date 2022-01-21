@@ -21,7 +21,6 @@ import {
 } from '@monostruct/common/gltf/Tree/utils';
 import { useHistory } from 'react-router-dom';
 import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
-import TextField from '@mui/material/TextField';
 
 export default function MotionControlComponent({
   onClick,
