@@ -5968,14 +5968,22 @@ def extractKinematicInformation(kinematicparts):
         print("Kinematic Info of checking linkage to insert array",kinematicInfo,kinematicInformation[kinematicInfo])
         partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector  = kinematicInformation[kinematicInfo]
         if (partType=="LINKAGE") :
+            findAcutator=False
             for secondPass in range(lengthOfKinematicInfo):
                 partName2, displayName2, partType2, sequence2, chains2, axis2, nextAxis2, axisAngle2, axisDistance2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2 = kinematicInformation[secondPass]
-                if ( (sequence2>sequence) and findAnyOne(chains2,chains)) :
-                    print("Yes Setting Kinematic Info of secondPass to insert array",secondPass,kinematicInformation[secondPass]) 
-                    kinematicInformation[secondPass] = partName2, displayName2, partType2, sequence2+1, chains2, axis2, nextAxis2, axisAngle2, axisDistance2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2
-                else:
-                    print("Not Setting Kinematic Info of secondPass to insert array",secondPass,kinematicInformation[secondPass],chains2,chains,sequence2,sequence) 
-            kinematicInformation[kinematicInfo] =  partName, displayName, partType, sequence+1, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector  
+                if ( (partType2=="ACTUATOR") and (sequence2==sequence) and findAnyOne(chains2,chains)) :
+                    findAcutator=True
+                    break
+            if findAcutator:        
+                kinematicInformation[kinematicInfo] =  partName, displayName, partType, sequence+1, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector  
+                for secondPass in range(lengthOfKinematicInfo):
+                    partName2, displayName2, partType2, sequence2, chains2, axis2, nextAxis2, axisAngle2, axisDistance2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2 = kinematicInformation[secondPass]
+                    if ( (sequence2>sequence) and findAnyOne(chains2,chains)) :
+                        print("Yes Setting Kinematic Info of secondPass to insert array",secondPass,kinematicInformation[secondPass]) 
+                        kinematicInformation[secondPass] = partName2, displayName2, partType2, sequence2+1, chains2, axis2, nextAxis2, axisAngle2, axisDistance2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2
+                    else:
+                        print("Not Setting Kinematic Info of secondPass to insert array",secondPass,kinematicInformation[secondPass],chains2,chains,sequence2,sequence) 
+                kinematicInformation[kinematicInfo] =  partName, displayName, partType, sequence+1, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector  
     
     for kinematicInfo in range(lengthOfKinematicInfo):
         print("Kinematic Info of checking linkage to copy axis",kinematicInfo,kinematicInformation[kinematicInfo])
