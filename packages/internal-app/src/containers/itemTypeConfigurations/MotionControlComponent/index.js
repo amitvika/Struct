@@ -40,6 +40,20 @@ export default function MotionControlComponent({
   const [itemList, setItemList] = React.useState(kinematicItemList);
   const history = useHistory();
 
+  const getAxisNumber = (actuator_motion_control) => {
+    if (get(actuator_motion_control, 'axis_number')) {
+      return actuator_motion_control.axis_number;
+    } else if (Array.isArray(actuator_motion_control.child_sequence_number)) {
+      if (actuator_motion_control.child_sequence_number.length >= 1) {
+        return actuator_motion_control.child_sequence_number[0];
+      } else {
+        return actuator_motion_control.axis_number;
+      }
+    } else {
+      return actuator_motion_control.child_sequence_number;
+    }
+  };
+
   React.useEffect(() => {
     ItemApi.getItemsAPI(`parent_id=${itemId}&is_actuator_type=true`)
       .then((res) => {
@@ -48,15 +62,20 @@ export default function MotionControlComponent({
         if (thisList) {
           for (let index = 0; index < thisList.length; index++) {
             let item = { ...thisList[index] };
-            const actuator_motion_control = item.actuator_motion_control || {};
-            item.actuator_motion_control.axis_number =
-              actuator_motion_control.axis_number
-                ? actuator_motion_control.axis_number
-                : Array.isArray(actuator_motion_control.child_sequence_number)
-                ? actuator_motion_control.child_sequence_number.length >= 1
-                  ? actuator_motion_control.child_sequence_number[0]
-                  : actuator_motion_control.axis_number
-                : actuator_motion_control.child_sequence_number;
+            const actuator_motion_control = get(
+              item,
+              'actuator_motion_control',
+              {}
+            );
+
+            if (!item.actuator_motion_control) {
+              item.actuator_motion_control = {};
+            }
+
+            item.actuator_motion_control.axis_number = getAxisNumber(
+              actuator_motion_control
+            );
+
             item.actuator_motion_control.child_sequence_number =
               actuator_motion_control.axis_number
                 ? actuator_motion_control.child_sequence_number
@@ -90,7 +109,9 @@ export default function MotionControlComponent({
         setKinematicItemList(thisList);
         //setSelectedOption(SELECTASSEMBLY);
       })
-      .catch((error) => {});
+      .catch((error) => {
+        console.log('-------------------', error);
+      });
   }, []);
 
   React.useEffect(() => {
