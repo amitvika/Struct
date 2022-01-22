@@ -6370,8 +6370,11 @@ def getOutputShapesFromSourceFile(sourceFileName,distancegap,anglegap,statusfile
         #raise ValueError("File Could not be loaded") 
 def bringToOriginAndToUnitAxis(fullShape1,thisdictionary1):
     cx,cy,cz=thisdictionary1["cx"],thisdictionary1["cy"],thisdictionary1["cz"]
-    fullZeroShape1=translate_shp(fullShape1,-cx,-cy,-cz)
-    rxx,rxy,rxz = math.acos(thisdictionary1["xx"]), math.acos(thisdictionary1["xy"]), math.acos(thisdictionary1["xz"])
+    fullZeroShape1=translate_shp(fullShape1,-cx,-cy,-cz, True)
+    thisdimension1 = get_oriented_bounding_details(fullZeroShape1)                        
+    thisRotateddictionary1 = getDictionaryFromOBB(thisdimension1)
+    print("After translation with center",thisRotateddictionary1,thisdictionary1,cx,cy,cz)
+    rxx,rxy,rxz = math.acos(thisRotateddictionary1["xx"]), math.acos(thisRotateddictionary1["xy"]), math.acos(thisRotateddictionary1["xz"])
     #fullZeroShape1=rotate_shape(fullZeroShape1, 0,0,0, thisdictionary1["xx"],thisdictionary1["xy"],thisdictionary1["xz"], angle, unity="radian",copy=True):
     fullZeroShape1=rotate_shp_3_axis(fullZeroShape1,-rxx,-rxy,-rxz, unity="radian", copy=True) 
     thisdimension1 = get_oriented_bounding_details(fullZeroShape1)                        
@@ -6439,8 +6442,8 @@ def compareToCheckIdentity(sourceFileName1,sourceFileName2,distancegap,anglegap,
             if(dictionary["isEqual"]==False):
                 setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
                 return 
-            fullShape1,_ = list_of_shapes_to_compound(onlyShapes1)
-            fullShape2,_ = list_of_shapes_to_compound(onlyShapes2)
+            fullShape1,_ = list_of_shapes_to_compound(onlyShapes1,True)
+            fullShape2,_ = list_of_shapes_to_compound(onlyShapes2,True)
             thisdimension1 = get_oriented_bounding_details(fullShape1)                        
             thisdictionary1 = getDictionaryFromOBB(thisdimension1)
             sx1,sy1,sz1 = thisdictionary1["sx"],thisdictionary1["sy"],thisdictionary1["sz"]

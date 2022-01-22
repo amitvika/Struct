@@ -2,7 +2,7 @@ from typing import Any, Iterable, Iterator, List, Optional, Tuple
 
 from OCC.Core.BRep import BRep_Tool, BRep_Builder
 from OCC.Core.BRepTools import BRepTools_WireExplorer
-from OCC.Core.gp import gp_Ax2, gp_Dir, gp_Pnt
+from OCC.Core.gp import (gp_Vec, gp_Pnt, gp_Trsf, gp_Ax2, gp_Dir)
 from OCC.Core.HLRBRep import HLRBRep_Algo, HLRBRep_HLRToShape
 from OCC.Core.HLRAlgo import HLRAlgo_Projector
 from OCC.Core.TopAbs import (TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE,
@@ -19,7 +19,7 @@ from OCC.Core.GCPnts import (GCPnts_UniformAbscissa,
                              GCPnts_QuasiUniformDeflection,
                              GCPnts_UniformDeflection)
 from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
-
+from OCC.Core.BRepBuilderAPI import (BRepBuilderAPI_Transform)
 
 class WireExplorer:
     '''
@@ -628,7 +628,7 @@ def get_sorted_hlr_edges(topods_shape: TopoDS_Shape,
     return visible, hidden
 
 
-def list_of_shapes_to_compound(list_of_shapes: List[TopoDS_Shape]) -> Tuple[TopoDS_Compound, bool]:
+def list_of_shapes_to_compound(list_of_shapes: List[TopoDS_Shape], reorient:bool=False) -> Tuple[TopoDS_Compound, bool]:
     """ takes a list of shape in input, gather all shapes into one compound
     returns the compund and a boolean, True if all shapes were added to the compund,
     False otherwise
@@ -646,6 +646,12 @@ def list_of_shapes_to_compound(list_of_shapes: List[TopoDS_Shape]) -> Tuple[Topo
                 continue
             else:
                 the_builder.Add(the_compound, shp)
+    if(reorient):
+        trns = gp_Trsf()
+        trns.SetTranslation(gp_Vec(0,0,0))
+        brep_trns = BRepBuilderAPI_Transform(the_compound, trns, True)
+        brep_trns.Build()
+        return brep_trns.Shape(), all_shapes_converted
     return the_compound, all_shapes_converted
 
 def excluded_list_of_shapes_to_compound(list_of_shapes: List[TopoDS_Shape], list_of_order:List[int], exclude:int, last:int, debug:bool=False) -> TopoDS_Compound:
