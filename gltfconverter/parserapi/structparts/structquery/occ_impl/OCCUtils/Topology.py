@@ -486,14 +486,14 @@ class Topo(object):
             cnt += 1
         return cnt
 
-def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[], faceInfo=None, depth=0):
+def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[], faceInfo=None, depth=0,hashEquals=False):
     """
      Print the details of an object from the top down
     """
     if shape:
         brt = BRep_Tool()
         s = shape.ShapeType()
-        myhash = hash(shape)
+        myhash = 0 if hashEquals else hash(shape)
         dict = {"id":myhash,
                 "parentId":parentId[-1],
                 "type":shapeString(shape),
@@ -516,7 +516,7 @@ def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[], face
             shp = it.Value()
             it.Next()
             if( (depth==0) or ((level+1) < depth) ):
-                dumpTopologyStructures(shp, level + 1,parentId=parentId, returnStructure=returnStructure,faceInfo=dict["Info"])
+                dumpTopologyStructures(shp, level + 1,parentId=parentId, returnStructure=returnStructure,faceInfo=dict["Info"],hashEquals=hashEquals)
         parentId.pop()
     return len(returnStructure)
 

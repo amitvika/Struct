@@ -6295,3 +6295,320 @@ def FileGetKinematicRotationalAnimation(request):
                 logging.exception(e)
             except Exception as e:
                 print("Error while logging",e)
+
+def getOutputShapesFromSourceFile(sourceFileName,distancegap,anglegap,statusfilename,comparedict,starttime=None,fileNo=1):#,thumbwidth,thumbheight):
+    """
+    Imports a file based on the type (STEP, IGES, BREP, STL)    
+    """
+    #Now read and return the shape
+   
+    try:
+        
+        
+        dictionary={}
+        _, file_extension = os.path.splitext(sourceFileName)
+        file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
+        file_extension = file_extension.lower()
+        newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
+        newfilename = newfilenamewithoutext + ".step"
+        outputShapes={}
+        if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :          
+            
+            try:
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,includeparts=False,distancegap=distancegap, logging=logging, 
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
+                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
+            except Exception as e:
+                print("error",e)
+       
+        if file_extension=="stl" :            
+            try:
+                shape = conversion.read_stl_file(sourceFileName, as_compound=False)
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
+            except Exception as e:
+                print("error",e)
+        
+        if file_extension=="brep" :            
+            try:
+                shape = conversion.read_brep_file(sourceFileName, as_compound=False)
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()                
+            except Exception as e:
+                print("error",e)
+        
+        if file_extension=="dxf" :            
+            try:
+                shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
+                    anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
+                    thumbwidth=0,thumbheight=0).dump()                 
+            except Exception as e:
+                print("error",e)
+        
+        try:
+            setComparisonDictionary(statusfilename,10*fileNo,starttime,comparedict,False)
+            _, myShapes = outputShapes
+            
+            shapeArray,onlyShapes,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            return (shapeArray,onlyShapes,shapePickles,dictionary)
+
+        except Exception as e:
+            print("error",e) 
+              
+        return 
+       
+       
+    except:
+        return {}
+        #raise ValueError("File Could not be loaded") 
+def bringToOriginAndToUnitAxis(fullShape1,thisdictionary1):
+    cx,cy,cz=thisdictionary1["cx"],thisdictionary1["cy"],thisdictionary1["cz"]
+    fullZeroShape1=translate_shp(fullShape1,-cx,-cy,-cz)
+    rxx,rxy,rxz = math.acos(thisdictionary1["xx"]), math.acos(thisdictionary1["xy"]), math.acos(thisdictionary1["xz"])
+    #fullZeroShape1=rotate_shape(fullZeroShape1, 0,0,0, thisdictionary1["xx"],thisdictionary1["xy"],thisdictionary1["xz"], angle, unity="radian",copy=True):
+    fullZeroShape1=rotate_shp_3_axis(fullZeroShape1,-rxx,-rxy,-rxz, unity="radian", copy=True) 
+    thisdimension1 = get_oriented_bounding_details(fullZeroShape1)                        
+    thisRotateddictionary1 = getDictionaryFromOBB(thisdimension1)
+    print("After rotation with XDirection",thisRotateddictionary1,thisdictionary1)
+    ryx,ryy,ryz = math.acos(thisRotateddictionary1["yx"]), math.acos(thisRotateddictionary1["yy"]), math.acos(thisRotateddictionary1["yz"])
+    fullZeroShape1=rotate_shp_3_axis(fullZeroShape1,-ryx,-ryy,-ryz, unity="radian", copy=True) 
+    thisdimension1 = get_oriented_bounding_details(fullZeroShape1)                        
+    thisRotateddictionary1 = getDictionaryFromOBB(thisdimension1)
+    print("After rotation with YDirection",thisRotateddictionary1,thisdictionary1)
+    rzx,rzy,rzz = math.acos(thisRotateddictionary1["zx"]), math.acos(thisRotateddictionary1["zy"]), math.acos(thisRotateddictionary1["zz"])
+    fullZeroShape1=rotate_shp_3_axis(fullZeroShape1,-rzx,-rzy,-rzz, unity="radian", copy=True) 
+    thisdimension1 = get_oriented_bounding_details(fullZeroShape1)                        
+    thisRotateddictionary1 = getDictionaryFromOBB(thisdimension1)
+    print("After rotation with ZDirection",thisRotateddictionary1,thisdictionary1)  
+    return (fullZeroShape1,thisRotateddictionary1,(cx,cy,cz,rxx,rxy,rxz,ryx,ryy,ryz,rzx,rzy,rzz))
+
+def getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1):
+    facedata1=[]                        
+    faceList1 = list(face_dict1.values())
+    for faces1 in range(len(faceList1)):
+        facedata1.append([])
+        dumpTopologyStructures(faceList1[faces1],level=0,parentId=[None],returnStructure=facedata1[faces1],faceInfo=None, depth=1, hashEquals=True)                      
+    edgedata1=[]
+    edgeList1 = list(edge_dict1.values())
+    for edges1 in range(len(edgeList1)):
+        edgedata1.append([])
+        dumpTopologyStructures(edgeList1[edges1],level=0,parentId=[None],returnStructure=edgedata1[edges1],faceInfo=None, depth=1, hashEquals=True)                  
+    vertexdata1=[]
+    vertexList1 = list(vertex_dict1.values())
+    for vertex1 in range(len(vertexList1)):
+        vertexdata1.append([])
+        dumpTopologyStructures(vertexList1[vertex1],level=0,parentId=[None],returnStructure=vertexdata1[vertex1],faceInfo=None, depth=1, hashEquals=True)
+    return facedata1, edgedata1, vertexdata1                       
+
+def ordered(obj):
+    if isinstance(obj, dict):
+        return sorted((k, ordered(v)) for k, v in obj.items())
+    if isinstance(obj, list):
+        return sorted(ordered(x) for x in obj)
+    else:
+        return obj
+
+def compareOneToOneShape(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2):
+    print(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2)
+    return faceStruct1==ordered(faceStruct2) and edgeStruct1==ordered(edgeStruct2) and vertexStruct1==ordered(vertexStruct2)
+
+
+def compareToCheckIdentity(sourceFileName1,sourceFileName2,distancegap,anglegap,statusfilename,starttime=None):#,thumbwidth,thumbheight):
+    dictionary={
+        "source1":sourceFileName1,
+        "source2":sourceFileName2,
+        "node1":0,
+        "node2":0,
+        "isEqual":False }
+    if sourceFileName1 and sourceFileName2:
+        try:
+            _,onlyShapes1,_,_ = getOutputShapesFromSourceFile(sourceFileName1,distancegap,anglegap,statusfilename,dictionary,starttime,1)
+            setComparisonDictionary(statusfilename,15,starttime,dictionary,False)
+            _,onlyShapes2,_,_ = getOutputShapesFromSourceFile(sourceFileName2,distancegap,anglegap,statusfilename,dictionary,starttime,2)
+            setComparisonDictionary(statusfilename,25,starttime,dictionary,False)
+            dictionary["node1"]=len(onlyShapes1)
+            dictionary["node2"]=len(onlyShapes2)
+            dictionary["isEqual"]=dictionary["node1"]==dictionary["node2"]
+            if(dictionary["isEqual"]==False):
+                setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                return 
+            fullShape1,_ = list_of_shapes_to_compound(onlyShapes1)
+            fullShape2,_ = list_of_shapes_to_compound(onlyShapes2)
+            thisdimension1 = get_oriented_bounding_details(fullShape1)                        
+            thisdictionary1 = getDictionaryFromOBB(thisdimension1)
+            sx1,sy1,sz1 = thisdictionary1["sx"],thisdictionary1["sy"],thisdictionary1["sz"]
+            [sx1,sy1,sz1] = sorted([sx1,sy1,sz1])
+            thisdimension2 = get_oriented_bounding_details(fullShape2)                        
+            thisdictionary2 = getDictionaryFromOBB(thisdimension2)
+            sx2,sy2,sz2 = thisdictionary2["sx"],thisdictionary2["sy"],thisdictionary2["sz"]
+            [sx2,sy2,sz2] = sorted([sx2,sy2,sz2])
+            dictionary["obb1"]=thisdictionary1
+            dictionary["obb2"]=thisdictionary2
+            dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+            if(dictionary["isEqual"]==False):
+                setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                return
+            fullZeroShape1, fullZeroDictionary1, translationRotation1 = bringToOriginAndToUnitAxis(fullShape1,thisdictionary1)
+            fullZeroShape2, fullZeroDictionary2, translationRotation2 = bringToOriginAndToUnitAxis(fullShape2,thisdictionary2)
+            dictionary["origin1"]=fullZeroDictionary1
+            dictionary["origin2"]=fullZeroDictionary2
+            dictionary["transformation1"]=translationRotation1
+            dictionary["transformation2"]=translationRotation2
+            setComparisonDictionary(statusfilename,30,starttime,dictionary,False)
+            return
+            face_dict1={}
+            edge_dict1={}
+            vertex_dict1={}
+            dumpTopologyFacesEdgesVertices(fullZeroShape1,face_dict1,edge_dict1,vertex_dict1)
+            dictionary["face1"]=len(face_dict1)
+            dictionary["edge1"]=len(edge_dict1)
+            dictionary["vertex1"]=len(vertex_dict1)
+            face_dict2={}
+            edge_dict2={}
+            vertex_dict2={}
+            dumpTopologyFacesEdgesVertices(fullZeroShape2,face_dict2,edge_dict2,vertex_dict2)
+            dictionary["face2"]=len(face_dict2)
+            dictionary["edge2"]=len(edge_dict2)
+            dictionary["vertex2"]=len(vertex_dict2)
+            dictionary["isEqual"] = (dictionary["face1"]==dictionary["face2"]) and (dictionary["edge1"]==dictionary["edge2"]) and (dictionary["vertex1"]==dictionary["vertex2"])
+            if(dictionary["isEqual"]==False):
+                setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+            faceStruct1, edgeStruct1, vertexStruct1 = getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1) 
+            faceStruct2, edgeStruct2, vertexStruct2 = getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
+            dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
+            dictionary["struct2"] = (faceStruct2, edgeStruct2, vertexStruct2)  
+            faceStruct1, edgeStruct1, vertexStruct1 = ordered(faceStruct1), ordered(edgeStruct1), ordered(vertexStruct1)
+            sx1,sy1,sz1 = fullZeroDictionary1["sx"],fullZeroDictionary1["sy"],fullZeroDictionary1["sz"]
+            setComparisonDictionary(statusfilename,30,starttime,dictionary,False)            
+            for xdir in range(4):
+                for ydir in range(4):
+                    for zdir in range(4):
+                        if xdir==0 and ydir==0 and zdir==0: 
+                            sx2,sy2,sz2 = fullZeroDictionary2["sx"],fullZeroDictionary2["sy"],fullZeroDictionary2["sz"]
+                            dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                            if dictionary["isEqual"]:                                                    
+                                dictionary["isEqual"]=compareOneToOneShape(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2)
+                        else:
+                            fullZeroRotatedShape2=rotate_shp_3_axis(fullZeroShape2,xdir*math.pi/4,ydir*math.pi/4,zdir*math.pi/4, unity="radian", copy=True) 
+                            thisRotateddimension2 = get_oriented_bounding_details(fullZeroRotatedShape2)                        
+                            fullZeroDictionary2 = getDictionaryFromOBB(thisRotateddimension2)
+                            sx2,sy2,sz2 = fullZeroDictionary2["sx"],fullZeroDictionary2["sy"],fullZeroDictionary2["sz"]
+                            dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                            if dictionary["isEqual"]:
+                                face_dict2={}
+                                edge_dict2={}
+                                vertex_dict2={}
+                                dumpTopologyFacesEdgesVertices(fullZeroRotatedShape2,face_dict2,edge_dict2,vertex_dict2) 
+                                faceStruct2, edgeStruct2, vertexStruct2 = getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
+                                dictionary["isEqual"]=compareOneToOneShape(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2)
+                        if dictionary["isEqual"]:
+                            dictionary["compare2"]=(xdir*math.pi/4,ydir*math.pi/4,zdir*math.pi/4)
+                            setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                            return
+                        setComparisonDictionary(statusfilename,32+zdir+ydir*4+xdir*16,starttime,dictionary,False) 
+            setComparisonDictionary(statusfilename,100,starttime,dictionary,False)      
+            return
+        except Exception as e:
+            dictionary["error":e]
+            setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+            return
+    setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+    return 
+        #raise ValueError("File Could not be loaded") 
+def setComparisonDictionary(statusfilename,percentage,starttime, mystatusdict, createdirectory):
+    currenttime = datetime.utcnow()  
+    
+    mystatusdict["status"] =  {
+            "percent":(percentage),
+            "start":starttime.strftime("%H-%M-%S"),
+            "current":currenttime.strftime("%H-%M-%S") }
+    try:   
+        if(createdirectory):
+            os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
+            mystatusdict["store"] = statusfilename
+        print("Writing",statusfilename,mystatusdict,percentage) 
+        with open(statusfilename, 'w') as fh:
+            fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))            
+    except Exception as e:
+        print("Error while wrting",statusfilename,e)
+    return mystatusdict
+    
+
+@api_view(['GET','POST'])
+def FileCompareIdentity(request):
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'GET':
+            id1 = request.GET.get('id1', None)
+            id2 = request.GET.get('id2', None)
+            distancegap = convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            print(id1,id2,distancegap,anglegap)
+            starttime = datetime.utcnow() 
+            sourceFile1=None
+            if is_number(id1) :            
+                files = File.objects.filter(id__icontains=id1)
+                for eachfile in files: 
+                    sourceFile1=MEDIA_URL+eachfile.file.name
+            else:
+                if id1 is not None:
+                    sourceFile1=MEDIA_URL+id1
+            sourceFile2=None
+            if is_number(id2) :            
+                files = File.objects.filter(id__icontains=id2)
+                for eachfile in files: 
+                    sourceFile2=MEDIA_URL+eachfile.file.name
+            else:
+                if id2 is not None:
+                    sourceFile2=MEDIA_URL+id2  
+            basefilename1,displaypath1 = getBasefileNameAndDisplayPath(sourceFile1,0,"A")
+            getEmptyDictionary(sourceFile1, basefilename1,displaypath1,0,starttime,True)
+            basefilename2,_ = getBasefileNameAndDisplayPath(sourceFile2,0,"A")
+            statusfilename=displaypath1+basefilename1+basefilename2+".status"
+            dictionary={
+                "source1":sourceFile1,
+                "source2":sourceFile2,
+                "node1":0,
+                "node2":0,
+                "isEqual":False }
+            data = setComparisonDictionary(statusfilename,0,starttime, dictionary, True)
+            mythread = threading.Thread(target=compareToCheckIdentity, daemon=True,\
+                args=(sourceFile1,sourceFile2,distancegap,anglegap,statusfilename,starttime))
+            mythread.start() 
+        return JsonResponse(data, safe=False)    
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)  
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
