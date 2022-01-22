@@ -54,7 +54,8 @@ export default function HeaderDesktopView({
         hoverMenuHandler,
         hoverMenuLabel,
         isCustomComponent,
-        Component
+        Component,
+        sso
       }) => {
         if (isCustomComponent) {
           return (
@@ -80,8 +81,13 @@ export default function HeaderDesktopView({
           >
             <Button
               onClick={() => {
+                let redirectURL = `${href}`;
+                if (sso) {
+                  redirectURL += `?token=${localStorage.getItem('token')}`;
+                }
+
                 if (target) {
-                  window.open(`${href}`, '_blank');
+                  window.open(redirectURL, '_blank');
                 }
               }}
               {...{

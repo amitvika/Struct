@@ -5,8 +5,10 @@ import LoadingModal from '@monostruct/common/components/LoadingModal';
 
 import { AuthContext } from '@monostruct/common/context/AuthContext';
 import AuthService from '@monostruct/common/services/AuthServices';
+import { useQuery } from '@monostruct/common/utils/customHooks';
 
 const SignInPage = () => {
+  const query = useQuery();
   const { authUser, setAuthUser } = React.useContext(AuthContext);
   const history = useHistory();
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +28,11 @@ const SignInPage = () => {
 
   useEffect(() => {
     if (authUser.user) {
-      history.push('/items');
+      if (query.get('redirect-url')) {
+        window.location = query.get('redirect-url');
+      } else {
+        history.push('/items');
+      }
     }
   }, [authUser]);
 

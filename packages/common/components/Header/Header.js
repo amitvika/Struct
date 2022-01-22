@@ -8,18 +8,30 @@ import HeaderMobileView from './HeaderMobileView';
 import HeaderDesktopView from './HeaderDesktopView';
 import { AuthContext } from '../../context/AuthContext';
 import AuthService from '@monostruct/common/services/AuthServices';
+import { useQuery } from '@monostruct/common/utils/customHooks';
 
 const Header = (props) => {
   const classes = useStyles();
   const theme = useTheme();
   const history = useHistory();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const query = useQuery();
 
   const { authUser, setAuthUser } = React.useContext(AuthContext);
 
   React.useEffect(() => {
     fetchUser();
   }, []);
+
+  React.useEffect(() => {
+    if (query.get('token')) {
+      localStorage.setItem('token', query.get('token'));
+
+      history.replace({
+        search: ''
+      });
+    }
+  }, [query.get('token')]);
 
   const fetchUser = async () => {
     try {

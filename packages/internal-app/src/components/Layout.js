@@ -24,10 +24,11 @@ const headerListItem = [
   },
   {
     label: 'Product design',
-    href: `${process.env.REACT_APP_DESIGN_URL}`,
+    href: `${window.location.protocol}//${process.env.REACT_APP_DESIGN_URL}`,
     target: '_blank',
     addSeparator: false,
-    rel: 'noopener noreferrer'
+    rel: 'noopener noreferrer',
+    sso: true
   }
 ];
 

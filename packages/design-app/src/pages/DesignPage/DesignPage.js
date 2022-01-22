@@ -8,6 +8,7 @@ import AddDesignMenu from './AddDesignMenu';
 
 export default function DesignPage() {
   const history = useHistory();
+
   const handleItemClick = (id, data, openInTab) => {
     let link = `/cad/${id}`;
     if (openInTab) {

@@ -13,7 +13,6 @@ export const request = async (path, data, method) => {
     },
     data
   }).catch((error) => {
-    console.log('Error', error);
     const status = get(error, 'response.status');
     if (status === 401 && path !== '/api/auth/user') {
       localStorage.setItem('token', null);

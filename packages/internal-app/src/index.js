@@ -16,7 +16,7 @@ axios.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       window.localStorage.clear('token');
-      window.location = '/';
+      window.location = `/?redirect-url=${window.location.href}`;
       // console.log(error.response.data);
       // console.log(error.response.status);
       // console.log(error.response.headers);
