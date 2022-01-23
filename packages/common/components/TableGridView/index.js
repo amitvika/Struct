@@ -18,6 +18,10 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
+import Pagination from '@mui/material/Pagination';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { styled } from '@mui/material/styles';
 
 const TableGridView = ({
   title,
@@ -279,7 +283,7 @@ const TableGridView = ({
   };
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage + 1);
+    setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -366,20 +370,65 @@ const TableGridView = ({
             }}
           />
           {isPaginationEnabled && (
-            <TablePagination
-              component="div"
-              count={totalDocs}
-              page={page - 1}
-              onPageChange={handleChangePage}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              rowsPerPageOptions={[10, 25, 50, 100]}
+            <CustomTablePagination
+              {...{
+                page,
+                totalDocs,
+                rowsPerPage,
+                handleChangePage,
+                handleChangeRowsPerPage
+              }}
             />
           )}
         </div>
         {renderView()}
       </DefaultContainer>
     </>
+  );
+};
+
+// <TablePagination
+//   component="div"
+//   count={totalDocs}
+//   page={page - 1}
+//   onPageChange={handleChangePage}
+//   rowsPerPage={rowsPerPage}
+//   onRowsPerPageChange={handleChangeRowsPerPage}
+//   rowsPerPageOptions={[10, 25, 50, 100]}
+// />
+const BootstrapSelect = styled(Select)(({ theme }) => ({
+  '& .MuiOutlinedInput-notchedOutline': {
+    display: 'none'
+  }
+}));
+
+const CustomTablePagination = ({
+  page,
+  totalDocs,
+  rowsPerPage,
+  handleChangePage,
+  handleChangeRowsPerPage
+}) => {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      Rows per page:
+      <BootstrapSelect
+        labelId="demo-simple-select-standard-label"
+        id="demo-simple-select-standard"
+        value={rowsPerPage}
+        onChange={handleChangeRowsPerPage}
+      >
+        <MenuItem value={10}>10</MenuItem>
+        <MenuItem value={25}>25</MenuItem>
+        <MenuItem value={30}>50</MenuItem>
+        <MenuItem value={100}>100</MenuItem>
+      </BootstrapSelect>
+      <Pagination
+        count={Math.ceil(totalDocs / 10)}
+        page={page}
+        onChange={handleChangePage}
+      />
+    </Box>
   );
 };
 
