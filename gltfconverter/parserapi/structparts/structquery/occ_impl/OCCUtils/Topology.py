@@ -501,14 +501,14 @@ def dumpTopologyStructures(shape, level=0, parentId=[], returnStructure=[], face
                 "leaf": False}
         if s == TopAbs_VERTEX:
             pnt = brt.Pnt(topods_Vertex(shape))        
-            dict["Info"] =  {"x":pnt.X(),"y": pnt.Y(), "z":pnt.Z(), "kind":"Point"}
+            dict["Info"] =  {"x":roundoff(pnt.X(),hashEquals),"y": roundoff(pnt.Y(),hashEquals), "z":roundoff(pnt.Z(),hashEquals), "kind":"Point"}
             dict["leaf"] = True
         elif s == TopAbs_FACE:
-            dict["Info"] = recognize_face(shape)        
+            dict["Info"] = recognize_face(shape,hashEquals)        
         elif s == TopAbs_EDGE:        
-            dict["Info"] = recognize_edge(shape,faceInfo)
+            dict["Info"] = recognize_edge(shape,faceInfo,hashEquals)
         else:
-            dict["Info"] = recognize_shape_entity_info(shape)
+            dict["Info"] = recognize_shape_entity_info(shape,hashEquals)
         returnStructure.append(dict)
         it = TopoDS_Iterator(shape)
         parentId.append(myhash)
@@ -558,8 +558,10 @@ def dumpTopologySolids(shape, maxlevel=1, level=0, solid_dict={}, comp_dict={}, 
         level-=1
     return True
 
-def roundoff(point):
+def roundoff(point,draft=False):
     multiplier = 1
+    if draft:
+        return round(point*multiplier,2) / multiplier
     if(sys.maxsize/100000 > point) :
         multiplier = 100000
     else:
@@ -578,8 +580,8 @@ def roundoff(point):
                         multiplier = 1  
     return round(point*multiplier,3) / multiplier
 
-def getXYZ(co_ord):
-    return (roundoff(co_ord.Coord(1)),roundoff(co_ord.Coord(2)),roundoff(co_ord.Coord(3)))
+def getXYZ(co_ord,draft=False):
+    return (roundoff(co_ord.Coord(1),draft),roundoff(co_ord.Coord(2),draft),roundoff(co_ord.Coord(3),draft))
 
 def getPoint(pt):
     return (roundoff(pt.X()),roundoff(pt.Y()),roundoff(pt.Z()))
@@ -965,7 +967,7 @@ def recognize_edge_entity_info(topods_edge):
         entity[gltf_Dict['code']]="U"  
     return entity
 
-def recognize_face(topods_face):
+def recognize_face(topods_face,draft=False):
     """ returns True if the TopoDS_Face is a planar surface
     """
     entity = {}
@@ -984,10 +986,10 @@ def recognize_face(topods_face):
         gp_pln = surf.Plane()
        
         entity['kind'] = "Plane"       
-        entity['normalloc']  = getXYZ(gp_pln.Location())  # a point of the plane
-        entity['normaldir'] = getXYZ(gp_pln.Position().Direction())  # the plane normal
-        entity['location'] = getXYZ(gp_pln.Position().Location())  # the plane normal
-        entity['direction'] = getXYZ(gp_pln.Position().Direction())  # the plane normal
+        entity['normalloc']  = getXYZ(gp_pln.Location(),draft)  # a point of the plane
+        entity['normaldir'] = getXYZ(gp_pln.Position().Direction(),draft)  # the plane normal
+        entity['location'] = getXYZ(gp_pln.Position().Location(),draft)  # the plane normal
+        entity['direction'] = getXYZ(gp_pln.Position().Direction(),draft)  # the plane normal
         return entity
     elif surf_type == GeomAbs_Cylinder:
         # look for the properties of the cylinder
@@ -995,9 +997,9 @@ def recognize_face(topods_face):
         gp_cyl = surf.Cylinder()         
        
         entity['kind'] = "Cylinder"
-        entity['location'] = getXYZ(gp_cyl.Position().Location()) # a point of the axis
-        entity['direction'] = getXYZ(gp_cyl.Position().Direction()) # the cylinder axis
-        entity['radius'] = gp_cyl.Radius()
+        entity['location'] = getXYZ(gp_cyl.Position().Location(),draft) # a point of the axis
+        entity['direction'] = getXYZ(gp_cyl.Position().Direction(),draft) # the cylinder axis
+        entity['radius'] = roundoff(gp_cyl.Radius(),draft)
         #entity['coefficients'] = gp_cyl.Coefficients()
         # then export location and normal to the console output
         return entity
@@ -1006,10 +1008,10 @@ def recognize_face(topods_face):
         gp_cone = surf.Cone()
        
         entity['kind'] = "Cone"
-        entity['location'] =  getXYZ(gp_cone.Position().Location())  # a point of the axis       
-        entity['direction'] =  getXYZ(gp_cone.Position().Direction())  # a local coordinate point of the axis
-        entity['refradius'] = gp_cone.RefRadius()
-        entity['semiangle'] = gp_cone.SemiAngle()
+        entity['location'] =  getXYZ(gp_cone.Position().Location(),draft)  # a point of the axis       
+        entity['direction'] =  getXYZ(gp_cone.Position().Direction(),draft)  # a local coordinate point of the axis
+        entity['refradius'] = roundoff(gp_cone.RefRadius(),draft)
+        entity['semiangle'] = roundoff(gp_cone.SemiAngle(),draft)
         # then export location and normal to the console output
         return entity
     elif surf_type == GeomAbs_Sphere:
@@ -1017,9 +1019,9 @@ def recognize_face(topods_face):
         gp_sphere = surf.Sphere()
       
         entity['kind'] = "Sphere"
-        entity['location'] = getXYZ(gp_sphere.Position().Location())  # a point of the axis
-        entity['direction'] =  getXYZ(gp_sphere.Position().Direction())  # a local coordinate point of the axis
-        entity['radius'] = gp_sphere.Radius()
+        entity['location'] = getXYZ(gp_sphere.Position().Location(),draft)  # a point of the axis
+        entity['direction'] =  getXYZ(gp_sphere.Position().Direction(),draft)  # a local coordinate point of the axis
+        entity['radius'] = roundoff(gp_sphere.Radius(),draft)
         #axis = gp_sphere.Axis().Direction()  # the sphere axis
         # then export location and normal to the console output
         return entity
@@ -1028,10 +1030,10 @@ def recognize_face(topods_face):
         gp_torus = surf.Torus()
        
         entity['kind'] = "Torus"
-        entity['location'] = getXYZ(gp_torus.Position().Location())  # a point of the axis
-        entity['direction'] =  getXYZ(gp_torus.Position().Direction())  # a local coordinate point of the axis
-        entity['minorradius'] = gp_torus.MinorRadius()
-        entity['majorradius'] = gp_torus.MajorRadius()
+        entity['location'] = getXYZ(gp_torus.Position().Location(),draft)  # a point of the axis
+        entity['direction'] =  getXYZ(gp_torus.Position().Direction(),draft)  # a local coordinate point of the axis
+        entity['minorradius'] = roundoff(gp_torus.MinorRadius(),draft)
+        entity['majorradius'] = roundoff(gp_torus.MajorRadius(),draft)
         #axis = gp_torus.Axis().Direction()  # the sphere axis
         # then export location and normal to the console output
         return entity
@@ -1051,8 +1053,8 @@ def recognize_face(topods_face):
         for i in range(1,no_upoles+1):
             for j in range(1, no_vpoles+1):
                 try:
-                    poles.append(getXYZ(gp_bezier.Pole(i,j)))
-                    weights.append(gp_bezier.Weight(i,j)) 
+                    poles.append(getXYZ(gp_bezier.Pole(i,j),draft))
+                    weights.append(roundoff(gp_bezier.Weight(i,j),draft)) 
                 except:
                     pass
         entity['poles']=poles
@@ -1202,7 +1204,7 @@ def recognize_vertex_entity_info(topods_vertx):
     entity["code"] = "P" 
     return entity
 
-def recognize_shape_entity_info(topods_shape):
+def recognize_shape_entity_info(topods_shape,draft=False):
     """ returns True if the TopoDS_Face is a planar surface
     """
     entity = {}
@@ -1214,18 +1216,18 @@ def recognize_shape_entity_info(topods_shape):
     entity['transformation'] = []
     for i in range(1,4):
         for j in range(1,5):
-             entity['transformation'].append(transform.Value(i,j))
+             entity['transformation'].append(roundoff(transform.Value(i,j),draft))
     entity['orientation'] = "Reverse" if (topods_shape.Orientation() == TopAbs_Orientation.TopAbs_REVERSED) else "Forward"
     try:
         thisdimension = get_oriented_bounding_details(topods_shape)
-        entity['location'] = getXYZ(thisdimension.Position().Location())  # a point of the axis
-        entity['direction'] = getXYZ(thisdimension.Position().Direction())
-        entity['center']=getXYZ(thisdimension.Center())
+        entity['location'] = getXYZ(thisdimension.Position().Location(),draft)  # a point of the axis
+        entity['direction'] = getXYZ(thisdimension.Position().Direction(),draft)
+        entity['center']=getXYZ(thisdimension.Center(),draft)
     except:
         print("While accessing obb of the shape")
     return entity
 
-def recognize_edge(topods_edge,face_info):
+def recognize_edge(topods_edge,face_info,draft=False):
     """ returns True if the TopoDS_Face is a planar surface
     """
     entity = {}   
@@ -1246,51 +1248,51 @@ def recognize_edge(topods_edge,face_info):
     if  curve_type == GeomAbs_Line:
         entity['kind'] = "Line" 
         gp_Line = curve.Line()
-        entity['dirlocation'] = getXYZ(gp_Line.Location()) 
-        entity['location'] = getXYZ(gp_Line.Position().Location())  # a point of the axis
-        entity['direction'] = getXYZ(gp_Line.Position().Direction())
+        entity['dirlocation'] = getXYZ(gp_Line.Location(),draft) 
+        entity['location'] = getXYZ(gp_Line.Position().Location(),draft)  # a point of the axis
+        entity['direction'] = getXYZ(gp_Line.Position().Direction(),draft)
     elif curve_type == GeomAbs_Circle:
         entity['kind'] = "Circle"   
         gp_circle = curve.Circle()
-        entity['radius'] = gp_circle.Radius()
-        entity['center'] = getXYZ(gp_circle.Location())
-        entity['direction'] = getXYZ(gp_circle.Position().Direction())
+        entity['radius'] = roundoff(gp_circle.Radius(),draft)
+        entity['center'] = getXYZ(gp_circle.Location(),draft)
+        entity['direction'] = getXYZ(gp_circle.Position().Direction(),draft)
     elif curve_type == GeomAbs_Ellipse:
         entity['kind'] = "Ellipse"   
         gp_ellipse = curve.Ellipse()
-        entity['majorradius'] = gp_ellipse.MajorRadius()
-        entity['minorradius'] = gp_ellipse.MinorRadius()
-        entity['center'] = getXYZ(gp_ellipse.Location())  
-        entity['direction'] = getXYZ(gp_ellipse.Position().Direction())   
+        entity['majorradius'] = roundoff(gp_ellipse.MajorRadius(),draft)
+        entity['minorradius'] = roundoff(gp_ellipse.MinorRadius(),draft)
+        entity['center'] = getXYZ(gp_ellipse.Location(),draft)  
+        entity['direction'] = getXYZ(gp_ellipse.Position().Direction(),draft)   
     elif curve_type == GeomAbs_Hyperbola:
         entity['kind'] = "Hyperbola" 
         gp_hyperbola = curve.Hyperbola()
-        entity['major'] = gp_hyperbola.MajorRadius()
-        entity['minor'] = gp_hyperbola.MinorRadius()
-        entity['location'] = getXYZ(gp_hyperbola.Position().Location())  # a point of the axis
-        entity['direction'] = getXYZ(gp_hyperbola.Position().Direction())
-        entity['center'] = getXYZ(gp_hyperbola.Location())       
+        entity['major'] = roundoff(gp_hyperbola.MajorRadius(),draft)
+        entity['minor'] = roundoff(gp_hyperbola.MinorRadius(),draft)
+        entity['location'] = getXYZ(gp_hyperbola.Position().Location(),draft)  # a point of the axis
+        entity['direction'] = getXYZ(gp_hyperbola.Position().Direction(),draft)
+        entity['center'] = getXYZ(gp_hyperbola.Location(),draft)       
     elif curve_type == GeomAbs_Parabola:
         entity['kind'] = "Parabola"   
         gp_parabola = curve.Parabola()
-        entity['focal'] = gp_parabola.Focal()        
-        entity['location'] = getXYZ(gp_parabola.Position().Location())  # a point of the axis
-        entity['direction'] = getXYZ(gp_parabola.Position().Direction())
-        entity['center'] = getXYZ(gp_parabola.Location())         
+        entity['focal'] = roundoff(gp_parabola.Focal(),draft)        
+        entity['location'] = getXYZ(gp_parabola.Position().Location(),draft)  # a point of the axis
+        entity['direction'] = getXYZ(gp_parabola.Position().Direction(),draft)
+        entity['center'] = getXYZ(gp_parabola.Location(),draft)         
     elif curve_type == GeomAbs_BezierCurve:
         entity['kind'] = "Bezier"   
         gp_bezier = curve.Bezier()   
-        entity['degree'] = gp_bezier.Degree() 
-        entity['start'] = getXYZ(gp_bezier.StartPoint())
-        entity['end'] = getXYZ(gp_bezier.EndPoint())
+        entity['degree'] = roundoff(gp_bezier.Degree(),draft) 
+        entity['start'] = getXYZ(gp_bezier.StartPoint(),draft)
+        entity['end'] = getXYZ(gp_bezier.EndPoint(),draft)
         no_poles = gp_bezier.NbPoles() 
         entity['pole']=no_poles
         poles = []
         weights = []
         for i in range(1,no_poles+1):
             try:
-                poles.append(getXYZ(gp_bezier.Pole(i)))
-                weights.append(gp_bezier.Weight(i)) 
+                poles.append(getXYZ(gp_bezier.Pole(i),draft))
+                weights.append(roundoff(gp_bezier.Weight(i),draft)) 
             except:
                 pass
         entity['poles']=poles
@@ -1304,8 +1306,8 @@ def recognize_edge(topods_edge,face_info):
         entity['degree']=degree
         entity['periodic']=gp_nurbs.IsPeriodic()
         entity['rational']=gp_nurbs.IsRational()
-        entity['start'] = getXYZ(gp_nurbs.StartPoint())
-        entity['end'] = getXYZ(gp_nurbs.EndPoint())
+        entity['start'] = getXYZ(gp_nurbs.StartPoint(),draft)
+        entity['end'] = getXYZ(gp_nurbs.EndPoint(),draft)
         tcol_array = TColStd_Array1OfReal(1, knot)
         try:
             gp_nurbs.Knots(tcol_array) 
