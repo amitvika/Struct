@@ -21,7 +21,7 @@ const SignInPage = () => {
 
       setIsLoading(false);
     } catch (error) {
-      localStorage.setItem('token', null);
+      localStorage.removeItem('token');
       console.log('Error', error);
     }
   };

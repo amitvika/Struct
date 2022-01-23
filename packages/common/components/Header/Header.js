@@ -42,7 +42,7 @@ const Header = (props) => {
   };
 
   const handleLogout = () => {
-    localStorage.setItem('token', null);
+    localStorage.removeItem('token');
     setAuthUser({ user: undefined });
     setTimeout(() => {
       history.replace(props.loginPageUrl || '/');
