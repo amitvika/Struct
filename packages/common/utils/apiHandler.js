@@ -15,7 +15,7 @@ export const request = async (path, data, method) => {
   }).catch((error) => {
     const status = get(error, 'response.status');
     if (status === 401 && path !== '/api/auth/user') {
-      localStorage.setItem('token', null);
+      localStorage.removeItem('token');
       // window.location = '/';
     }
     throw error;
