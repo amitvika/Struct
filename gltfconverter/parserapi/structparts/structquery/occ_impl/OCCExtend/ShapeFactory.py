@@ -9,7 +9,7 @@ from OCC.Core.BRepBuilderAPI import (BRepBuilderAPI_MakeEdge,
                                      BRepBuilderAPI_MakeWire,
                                      BRepBuilderAPI_MakeFace, BRepBuilderAPI_MakeEdge2d,
                                      BRepBuilderAPI_Transform, BRepBuilderAPI_GTransform)
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Section, BRepAlgoAPI_Common, BRepAlgoAPI_Fuse
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common #,BRepAlgoAPI_Section,  BRepAlgoAPI_Fuse
 
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.BRepFill import BRepFill_Filling
@@ -38,7 +38,7 @@ from OCC.Core.TColStd import (TColStd_Array1OfInteger, TColStd_Array1OfReal, TCo
 from OCC.Core.TColgp import (TColgp_Array1OfPnt, TColgp_Array2OfPnt)
 
 from .TopologyUtils import is_edge, is_face, TopologyExplorer
-import pickle
+#import pickle
 
 #
 # assert utils
