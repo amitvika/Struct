@@ -6625,10 +6625,10 @@ def setComparisonDictionary(statusfilename,percentage,starttime, mystatusdict, c
             "percent":(percentage),
             "start":starttime.strftime("%H-%M-%S"),
             "current":currenttime.strftime("%H-%M-%S") }
+    mystatusdict["store"] = statusfilename
     try:   
         if(createdirectory):
-            os.makedirs(os.path.dirname(statusfilename), exist_ok=True)
-            mystatusdict["store"] = statusfilename
+            os.makedirs(os.path.dirname(statusfilename), exist_ok=True)            
         print("Writing",statusfilename,mystatusdict["status"]) 
         with open(statusfilename, 'w') as fh:
             fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))            
