@@ -21,6 +21,23 @@ import {
 } from '@monostruct/common/gltf/Tree/utils';
 import { useHistory } from 'react-router-dom';
 import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import { styled } from '@mui/material/styles';
+
+const BootstrapSelect = styled(Select)(({ theme }) => ({
+  'label + &': {
+    marginTop: theme.spacing(3)
+  },
+  '& .MuiSelect-select': {
+    padding: '5px'
+  }
+}));
+
+const BootstrapTableCell = styled(TableCell)(({ theme }) => ({
+  '& .MuiTableCell-root': {
+    padding: '3px'
+  }
+}));
 
 export default function MotionControlComponent({
   onClick,
@@ -40,6 +57,20 @@ export default function MotionControlComponent({
   const [itemList, setItemList] = React.useState(kinematicItemList);
   const history = useHistory();
 
+  const getAxisNumber = (actuator_motion_control) => {
+    if (get(actuator_motion_control, 'axis_number')) {
+      return actuator_motion_control.axis_number;
+    } else if (Array.isArray(actuator_motion_control.child_sequence_number)) {
+      if (actuator_motion_control.child_sequence_number.length >= 1) {
+        return actuator_motion_control.child_sequence_number[0];
+      } else {
+        return actuator_motion_control.axis_number;
+      }
+    } else {
+      return actuator_motion_control.child_sequence_number;
+    }
+  };
+
   React.useEffect(() => {
     ItemApi.getItemsAPI(`parent_id=${itemId}&is_actuator_type=true`)
       .then((res) => {
@@ -48,15 +79,20 @@ export default function MotionControlComponent({
         if (thisList) {
           for (let index = 0; index < thisList.length; index++) {
             let item = { ...thisList[index] };
-            const actuator_motion_control = item.actuator_motion_control || {};
-            item.actuator_motion_control.axis_number =
-              actuator_motion_control.axis_number
-                ? actuator_motion_control.axis_number
-                : Array.isArray(actuator_motion_control.child_sequence_number)
-                ? actuator_motion_control.child_sequence_number.length >= 1
-                  ? actuator_motion_control.child_sequence_number[0]
-                  : actuator_motion_control.axis_number
-                : actuator_motion_control.child_sequence_number;
+            const actuator_motion_control = get(
+              item,
+              'actuator_motion_control',
+              {}
+            );
+
+            if (!item.actuator_motion_control) {
+              item.actuator_motion_control = {};
+            }
+
+            item.actuator_motion_control.axis_number = getAxisNumber(
+              actuator_motion_control
+            );
+
             item.actuator_motion_control.child_sequence_number =
               actuator_motion_control.axis_number
                 ? actuator_motion_control.child_sequence_number
@@ -90,7 +126,9 @@ export default function MotionControlComponent({
         setKinematicItemList(thisList);
         //setSelectedOption(SELECTASSEMBLY);
       })
-      .catch((error) => {});
+      .catch((error) => {
+        console.log('-------------------', error);
+      });
   }, []);
 
   React.useEffect(() => {
@@ -197,7 +235,7 @@ export default function MotionControlComponent({
   const SelectAxisMenu = ({ itemId, multiple, onChange, value, label }) => {
     if (selectedValue === itemId) {
       return (
-        <Select
+        <BootstrapSelect
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           sx={{ width: '100%' }}
@@ -209,7 +247,7 @@ export default function MotionControlComponent({
           }}
         >
           {renderAxisMenu()}
-        </Select>
+        </BootstrapSelect>
       );
     }
 
@@ -225,6 +263,13 @@ export default function MotionControlComponent({
     }
   }; */
 
+  const handleInputChange = ({ itemId, actuator_motion_control, change }) => {
+    updateMotionControlActuator(itemId, {
+      ...actuator_motion_control,
+      ...change
+    });
+  };
+
   return (
     <Paper sx={{ maxHeight: 400, overflow: 'auto' }}>
       <Typography
@@ -239,14 +284,28 @@ export default function MotionControlComponent({
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell padding="none">Item name</TableCell>
-              <TableCell padding="none">Axis Number</TableCell>
-              <TableCell padding="none">Link applies</TableCell>
-              <TableCell padding="none">Actuator Limits</TableCell>
-              <TableCell padding="none">Machine’s Actuator Limits</TableCell>
-              <TableCell padding="none">End Effector</TableCell>
-              {/*  <TableCell padding="none">Chain #</TableCell> */}
-              <TableCell padding="none">Chain Numbers</TableCell>
+              <BootstrapTableCell padding="checkbox" size="small">
+                Item name
+              </BootstrapTableCell>
+              <BootstrapTableCell padding="checkbox" size="small">
+                Axis Number
+              </BootstrapTableCell>
+              <BootstrapTableCell padding="checkbox" size="small">
+                Link applies
+              </BootstrapTableCell>
+              <BootstrapTableCell padding="checkbox" size="small">
+                Actuator Limits
+              </BootstrapTableCell>
+              <BootstrapTableCell padding="checkbox" size="small">
+                Machine’s Actuator Limits
+              </BootstrapTableCell>
+              <BootstrapTableCell padding="checkbox" size="small">
+                End Effector
+              </BootstrapTableCell>
+              {/*  <TableCell padding="checkbox" size="small">Chain #</TableCell> */}
+              <BootstrapTableCell padding="checkbox" size="small">
+                Chain Numbers
+              </BootstrapTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -270,7 +329,7 @@ export default function MotionControlComponent({
                         : 'white'
                   }}
                   onClick={() => {
-                    if (showKinematicMove) {
+                    if (showKinematicMove || selectedValue == item.id) {
                       return;
                     }
                     setSelectedValue(item.id);
@@ -287,7 +346,11 @@ export default function MotionControlComponent({
                     onClick(mykey);
                   }}
                 >
-                  <TableCell component="th" padding="none">
+                  <BootstrapTableCell
+                    component="th"
+                    padding="checkbox"
+                    size="small"
+                  >
                     <Link
                       component="button"
                       color="primary"
@@ -296,8 +359,8 @@ export default function MotionControlComponent({
                     >
                       {itemName(item)}
                     </Link>
-                  </TableCell>
-                  <TableCell padding="none">
+                  </BootstrapTableCell>
+                  <BootstrapTableCell padding="checkbox" size="small">
                     <SelectAxisMenu
                       {...{
                         itemId: item.id,
@@ -318,10 +381,10 @@ export default function MotionControlComponent({
                           })
                       }}
                     />
-                  </TableCell>
-                  <TableCell padding="none">
+                  </BootstrapTableCell>
+                  <BootstrapTableCell padding="checkbox" size="small">
                     {selectedValue === item.id ? (
-                      <Select
+                      <BootstrapSelect
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={actuator_motion_control.child_part_type}
@@ -335,12 +398,12 @@ export default function MotionControlComponent({
                         <MenuItem value={'STATIC'}>Static</MenuItem>
                         <MenuItem value={'ACTUATOR'}>Actuator</MenuItem>
                         <MenuItem value={'LINKAGE'}>Linkage</MenuItem>
-                      </Select>
+                      </BootstrapSelect>
                     ) : (
                       <>{actuator_motion_control.child_part_type}</>
                     )}
-                  </TableCell>
-                  <TableCell padding="none">
+                  </BootstrapTableCell>
+                  <BootstrapTableCell padding="checkbox" size="small">
                     {actuator_motion_control.child_part_type == 'ACTUATOR'
                       ? actuator_motion_control.is_linear_or_rotational
                         ? Number(
@@ -350,9 +413,24 @@ export default function MotionControlComponent({
                             actuator_motion_control.rotational_angle_limit
                           ).toFixed(3)
                       : ''}
-                  </TableCell>
-                  <TableCell padding="none">{''}</TableCell>
-                  <TableCell padding="none">
+                  </BootstrapTableCell>
+                  {/* Machine Actuator Limit */}
+                  <BootstrapTableCell padding="checkbox" size="small">
+                    {selectedValue === item.id ? (
+                      <CustomAutoSubmitInput
+                        handleInputChange={(data) =>
+                          handleInputChange({
+                            itemId: item.id,
+                            actuator_motion_control,
+                            change: { machine_actuator_limit: data }
+                          })
+                        }
+                      />
+                    ) : (
+                      <>{actuator_motion_control.machine_actuator_limit}</>
+                    )}
+                  </BootstrapTableCell>
+                  <BootstrapTableCell padding="checkbox" size="small">
                     <Radio
                       checked={actuator_motion_control.is_end_effector}
                       name="radio-buttons"
@@ -367,8 +445,8 @@ export default function MotionControlComponent({
                         });
                       }}
                     />
-                  </TableCell>
-                  {/* <TableCell padding="none">
+                  </BootstrapTableCell>
+                  {/* <TableCell padding="checkbox" size="small">
                     {selectedValue === item.id ? (
                       <TextField
                         id="standard-basic"
@@ -388,7 +466,7 @@ export default function MotionControlComponent({
                     )}
                   </TableCell> */}
 
-                  <TableCell padding="none">
+                  <BootstrapTableCell padding="checkbox" size="small">
                     <SelectAxisMenu
                       {...{
                         itemId: item.id,
@@ -407,7 +485,7 @@ export default function MotionControlComponent({
                           })
                       }}
                     />
-                  </TableCell>
+                  </BootstrapTableCell>
                 </TableRow>
               );
             })}
@@ -417,3 +495,30 @@ export default function MotionControlComponent({
     </Paper>
   );
 }
+
+const CustomAutoSubmitInput = ({ handleInputChange }) => {
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [delayedSearchTerm, setDelayedSearchTerm] = React.useState('');
+
+  React.useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleInputChange(searchTerm);
+      console.log(searchTerm);
+      // Send Axios request here
+      setDelayedSearchTerm(searchTerm);
+    }, 3000);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  return (
+    <OutlinedInput
+      id="standard-basic"
+      variant="standard"
+      size="small"
+      type="number"
+      inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+  );
+};

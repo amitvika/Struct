@@ -1,4 +1,5 @@
-export const isLoggedIn = (_) => localStorage.getItem('token') !== 'null';
+export const isLoggedIn = (_) =>
+  localStorage.getItem('token') && localStorage.getItem('token') !== 'null';
 export const isURLExisting = async (url) => {
   try {
     const response = await fetch(url, {
