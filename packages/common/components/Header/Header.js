@@ -20,17 +20,13 @@ const Header = (props) => {
   const { authUser, setAuthUser } = React.useContext(AuthContext);
 
   React.useEffect(() => {
-    fetchUser();
-  }, []);
-
-  React.useEffect(() => {
     if (query.get('token')) {
       localStorage.setItem('token', query.get('token'));
-
       history.replace({
         search: ''
       });
     }
+    fetchUser();
   }, [query.get('token')]);
 
   const fetchUser = async () => {

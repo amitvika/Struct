@@ -57,7 +57,7 @@ const TableGridView = ({
   const [isManageTeamModalOpened, setIsManageTeamModalOpened] = useState(false);
 
   const paginationValues = getFromLocalStorage(`${title}-pagination`) || {};
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(
     paginationValues.rowsPerPage || 25
   );
@@ -279,7 +279,7 @@ const TableGridView = ({
   };
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    setPage(newPage + 1);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -369,7 +369,7 @@ const TableGridView = ({
             <TablePagination
               component="div"
               count={totalDocs}
-              page={page}
+              page={page - 1}
               onPageChange={handleChangePage}
               rowsPerPage={rowsPerPage}
               onRowsPerPageChange={handleChangeRowsPerPage}
