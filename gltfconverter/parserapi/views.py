@@ -1,6 +1,6 @@
 
-from itertools import chain
-from math import ceil
+#from itertools import chain
+#from math import ceil
 
 
 from django.http.response import JsonResponse, FileResponse
@@ -23,7 +23,7 @@ import json
 import pprint
 from glob import glob
 import os
-import sys
+#import sys
 import math
 import pickle
 import threading
@@ -1905,7 +1905,7 @@ def duplicateShapes(shape,dimension,depthable,stackable,filename,basefilename,di
         elif(zmove<=0):
             noOfDuplicates = 2
         else:
-            noOfDuplicates = 1+ceil(min(xmax-xmin,ymax-ymin) / (zmove))
+            noOfDuplicates = 1+math.ceil(min(xmax-xmin,ymax-ymin) / (zmove))
         print("With reduction", noOfDuplicates)
         if noOfDuplicates < 1 :
             noOfDuplicates = 1    
