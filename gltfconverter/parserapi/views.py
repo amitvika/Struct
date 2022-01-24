@@ -53,7 +53,7 @@ from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
     getPartStackablePositions, get_bounding_details, get_oriented_bounding_details, rotate_shape,
     recognize_direction, recognize_entity)
 from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound #, excluded_list_of_shapes_to_compound
-from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices #, getShapeLocationAndDirection 
+from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices, roundoff #, getShapeLocationAndDirection 
 
 #from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
 from OCC.Core.gp import (gp_Pnt, gp_Trsf, gp_Ax3) #, gp_Ax2, gp_Dir, gp_XYZ)
@@ -1450,7 +1450,7 @@ def compareDimension(dim1, dim2):
         return True
     return False
 
-def roundoff(point):
+""" def roundoff(point):
         multiplier = 1
         if(sys.maxsize/10000 > point) :
             multiplier = 10000
@@ -1466,25 +1466,25 @@ def roundoff(point):
                     else:
                         multiplier = 1   
     
-        return round(point*multiplier,2) / multiplier
+        return round(point*multiplier,2) / multiplier """
         
-def getDictionaryFromOBB(obb):
+def getDictionaryFromOBB(obb,draft=False):
         if obb:
             aBaryCenter = obb.Center()
             aXDir = obb.XDirection()
             aYDir = obb.YDirection()
             aZDir = obb.ZDirection()
-            axx = roundoff(aXDir.X())
-            axy = roundoff(aXDir.Y())
-            axz = roundoff(aXDir.Z())
-            ayx = roundoff(aYDir.X())
-            ayy = roundoff(aYDir.Y())
-            ayz = roundoff(aYDir.Z())
-            azx = roundoff(aZDir.X())
-            azy = roundoff(aZDir.Y())
-            azz = roundoff(aZDir.Z())
-            xsize, ysize, zsize = roundoff(obb.XHSize()), roundoff(obb.YHSize()), roundoff(obb.ZHSize())
-            xcenter,ycenter,zcenter = roundoff(aBaryCenter.X()), roundoff(aBaryCenter.Y()), roundoff(aBaryCenter.Z())
+            axx = roundoff(aXDir.X(),draft)
+            axy = roundoff(aXDir.Y(),draft)
+            axz = roundoff(aXDir.Z(),draft)
+            ayx = roundoff(aYDir.X(),draft)
+            ayy = roundoff(aYDir.Y(),draft)
+            ayz = roundoff(aYDir.Z(),draft)
+            azx = roundoff(aZDir.X(),draft)
+            azy = roundoff(aZDir.Y(),draft)
+            azz = roundoff(aZDir.Z(),draft)
+            xsize, ysize, zsize = roundoff(obb.XHSize(),draft), roundoff(obb.YHSize(),draft), roundoff(obb.ZHSize(),draft)
+            xcenter,ycenter,zcenter = roundoff(aBaryCenter.X(),draft), roundoff(aBaryCenter.Y(),draft), roundoff(aBaryCenter.Z(),draft)
             return {
                 "xx": axx, "xy": axy, "xz": axz,
                 "yx": ayx, "yy": ayy, "yz": ayz,
@@ -6374,23 +6374,24 @@ def getOutputShapesFromSourceFile(sourceFileName,distancegap,anglegap,statusfile
     except:
         return {}
         #raise ValueError("File Could not be loaded") 
-def bringToOriginAndToUnitAxis(fullShape1,thisdictionary1,stepname):
-    cx,cy,cz=thisdictionary1["cx"],thisdictionary1["cy"],thisdictionary1["cz"]
+def bringToOriginAndToUnitAxis(fullShape1,thisdimension1,thisdictionary1,stepname):
+    aBaryCenter = thisdimension1.Center()
+    cx,cy,cz=  aBaryCenter.X(),aBaryCenter.Y(),aBaryCenter.Z()
     fullZeroShape1=translate_shp(fullShape1,-cx,-cy,-cz, True)
-    thisdimension1 = get_oriented_bounding_details(fullZeroShape1)  
-    thisRotateddictionary1 = getDictionaryFromOBB(thisdimension1)
+    thisRotateddimension1 = get_oriented_bounding_details(fullZeroShape1)  
+    thisRotateddictionary1 = getDictionaryFromOBB(thisRotateddimension1)
     #fullZeroShape = fullZeroShape1
     print("")
     print("After translation with center",thisRotateddictionary1,thisdictionary1,cx,cy,cz)
     aLoc=gp_Trsf()
-    aLoc.SetTransformation(gp_Ax3(),thisdimension1.Position())
+    aLoc.SetTransformation(gp_Ax3(),thisRotateddimension1.Position())
     brep_trns = BRepBuilderAPI_Transform(fullZeroShape1, aLoc, True)
     fullZeroShape2 = brep_trns.Shape()
     thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
-    thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2)
+    thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2,True)
     print("After Rotation with built in transformation",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
-    #aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
-    #OCPStepIGESAnalyser.StepExportWithColor(shape=fullZeroShape2,color=aColor,name="MyShapeCommon").write_file(filename=stepname)
+    aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
+    OCPStepIGESAnalyser.StepExportWithColor(shape=fullZeroShape2,color=aColor,name="ZeroOrign"+stepname).write_file(filename=stepname)
     """  aLoc=gp_Trsf()
     aLoc.SetTransformation(gp_Ax3(),thisdimension1.Position())
     brep_trns = BRepBuilderAPI_Transform(fullZeroShape1, aLoc, True)
@@ -6528,11 +6529,11 @@ def compareToCheckIdentity(sourceFileName1,sourceFileName2,distancegap,anglegap,
             fullShape1,_ = list_of_shapes_to_compound(onlyShapes1,True)
             fullShape2,_ = list_of_shapes_to_compound(onlyShapes2,True)
             thisdimension1 = get_oriented_bounding_details(fullShape1)                        
-            thisdictionary1 = getDictionaryFromOBB(thisdimension1)
+            thisdictionary1 = getDictionaryFromOBB(thisdimension1,True)
             sx1,sy1,sz1 = thisdictionary1["sx"],thisdictionary1["sy"],thisdictionary1["sz"]
             [sx1,sy1,sz1] = sorted([sx1,sy1,sz1])
             thisdimension2 = get_oriented_bounding_details(fullShape2)                        
-            thisdictionary2 = getDictionaryFromOBB(thisdimension2)
+            thisdictionary2 = getDictionaryFromOBB(thisdimension2,True)
             sx2,sy2,sz2 = thisdictionary2["sx"],thisdictionary2["sy"],thisdictionary2["sz"]
             [sx2,sy2,sz2] = sorted([sx2,sy2,sz2])
             dictionary["obb1"]=thisdictionary1
@@ -6541,12 +6542,14 @@ def compareToCheckIdentity(sourceFileName1,sourceFileName2,distancegap,anglegap,
             if(dictionary["isEqual"]==False):
                 setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
                 return
-            fullZeroShape1, fullZeroDictionary1, translationRotation1 = bringToOriginAndToUnitAxis(fullShape1,thisdictionary1,statusfilename+"1.step")
-            fullZeroShape2, fullZeroDictionary2, translationRotation2 = bringToOriginAndToUnitAxis(fullShape2,thisdictionary2,statusfilename+"2.step")
+            fullZeroShape1, fullZeroDictionary1, center1 = bringToOriginAndToUnitAxis(fullShape1,thisdimension1,thisdictionary1,statusfilename+"1.step")
+            fullZeroShape2, fullZeroDictionary2, center2 = bringToOriginAndToUnitAxis(fullShape2,thisdimension2,thisdictionary2,statusfilename+"2.step")
             dictionary["origin1"]=fullZeroDictionary1
             dictionary["origin2"]=fullZeroDictionary2
-            dictionary["transformation1"]=translationRotation1
-            dictionary["transformation2"]=translationRotation2
+            dictionary["center1"]=center1
+            dictionary["center2"]=center2
+            dictionary["step1"]=statusfilename+"1.step"
+            dictionary["step2"]=statusfilename+"2.step"
             setComparisonDictionary(statusfilename,30,starttime,dictionary,False)
             face_dict1={}
             edge_dict1={}
