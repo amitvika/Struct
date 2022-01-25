@@ -31,7 +31,9 @@ const TaskTypeAndTeamAssignment = () => {
   };
 
   if (isTabsActive) {
-    return <TabComponent {...{ selectedValue, setSelectedValue }} />;
+    return (
+      <TabComponent {...{ selectedValue, setSelectedValue, setIsTabsActive }} />
+    );
   }
 
   const handleItemUpdate = (data) => {
