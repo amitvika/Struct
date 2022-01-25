@@ -175,9 +175,11 @@ export const fetchGLTFAndTree = async (props) => {
           ? statusRes.data.assemblies > 1
           : false
         : false;
+      const comparison_parameters = statusRes.data ? statusRes.data : null;
       updatedItemProp = {
         multiAssembly: multiAssembly,
-        stepTreeLength: treeRes.data.length
+        stepTreeLength: treeRes.data.length,
+        comparison_parameters: comparison_parameters
       };
     }
 
@@ -316,12 +318,13 @@ export const handleOtherTabCase = async (props) => {
         treeLength: treeRes.data.length,
         resourcepath: resourcePathURL
       });
-
+      const comparison_parameters = statusRes.data ? statusRes.data : null;
       updatedItemProp = {
         fileGDT: datastore,
         fileStore: fileStore,
         multiAssembly: multiAssembly,
-        stepTreeLength: treeRes.data.length
+        stepTreeLength: treeRes.data.length,
+        comparison_parameters: comparison_parameters
       };
     }
   } else {
@@ -349,12 +352,19 @@ export const handleOtherTabCase = async (props) => {
         treeLength: treeLength,
         resourcepath: resourcePathURL
       });
-
+      const comparison_parameters = getHierarchyRes
+        ? getHierarchyRes.data
+          ? getHierarchyRes.data.status
+            ? getHierarchyRes.data.status
+            : null
+          : null
+        : null;
       updatedItemProp = {
         fileGDT: datastore,
         fileStore: fileStore,
         multiAssembly: multiAssembly,
-        stepTreeLength: treeLength
+        stepTreeLength: treeLength,
+        comparison_parameters: comparison_parameters
       };
     }
   }
@@ -756,10 +766,12 @@ export const handleProductDesignTab = async (props) => {
       });
       setIsLoading(false);
       setIsFileLoading(false);
+      const comparison_parameters = statusRes.data ? statusRes.data : null;
       return {
         fileStore: datastore,
         multiAssembly: multiAssembly,
-        stepTreeLength: treeRes.data.length
+        stepTreeLength: treeRes.data.length,
+        comparison_parameters: comparison_parameters
       };
     }
   } else {
@@ -786,10 +798,18 @@ export const handleProductDesignTab = async (props) => {
       });
       setIsLoading(false);
       setIsFileLoading(false);
+      const comparison_parameters = getHierarchyRes
+        ? getHierarchyRes.data
+          ? getHierarchyRes.data.status
+            ? getHierarchyRes.data.status
+            : null
+          : null
+        : null;
       return {
         fileStore: datastore,
         multiAssembly: multiAssembly,
-        stepTreeLength: treeLength
+        stepTreeLength: treeLength,
+        comparison_parameters: comparison_parameters
       };
     }
   }

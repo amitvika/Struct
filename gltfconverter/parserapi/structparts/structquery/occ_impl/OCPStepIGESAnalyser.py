@@ -64,20 +64,19 @@ from OCC.Core.BRepOffsetAPI import BRepOffsetAPI_MakePipe
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.BRepAdaptor import BRepAdaptor_Curve
 #from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.TopoDS import (
-    TopoDS_Compound, topods_Face,TopoDS_Vertex, topods_Vertex, TopoDS_Iterator, TopoDS_Builder, TopoDS_Shape)
+from OCC.Core.TopoDS import (TopoDS_Compound, topods_Vertex, TopoDS_Builder, topods_Face) #,TopoDS_Vertex,  TopoDS_Iterator,  TopoDS_Shape)
 from OCC.Core.BRepCheck import (BRepCheck_Shell, BRepCheck_Status)
 from OCC.Core.XSControl import XSControl_WorkSession
 from OCC.Core.TopLoc import TopLoc_Location
-from OCC.Core.gp import gp_Pnt, gp_Vec, gp_Dir, gp_XYZ, gp_Pnt2d, gp_Ax2, gp_Circ
+from OCC.Core.gp import (gp_Pnt, gp_Trsf, gp_Ax3, gp_Circ, gp_Dir, gp_Ax2 )#, gp_XYZ, gp_Pnt2d,  gp_Vec)
+
 #from OCC.Core.GProp import GProp_GProps
 #from OCC.Core.BRepGProp import brepgprop_LinearProperties
 #from OCC.Core.ShapeBuild import ShapeBuild_ReShape
-from OCC.Core.TopAbs import (TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE,
-                        TopAbs_SHELL, TopAbs_SOLID, TopAbs_COMPOUND,
-                        TopAbs_COMPSOLID, TopAbs_Orientation)
+from OCC.Core.TopAbs import (TopAbs_SHELL,TopAbs_Orientation)
+#,TopAbs_VERTEX, TopAbs_EDGE, TopAbs_FACE, TopAbs_WIRE, TopAbs_SOLID, TopAbs_COMPOUND,TopAbs_COMPSOLID)
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeSphere, BRepPrimAPI_MakeBox
-from OCC.Core.GeomAbs import GeomAbs_Line, GeomAbs_Circle
+from OCC.Core.GeomAbs import GeomAbs_Circle #, GeomAbs_Line
 #from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 #from .OCCUtils.vertex import Vertex
 #from .OCCUtils import Topology
@@ -99,7 +98,10 @@ from .OCPShapes import Shape
 from .OCPAssembly import Color
 
 #from ... import Assembly
-from .OCCExtend.ShapeFactory import recognize_direction, recognize_curve, recognize_face_entity, get_circle_info, rotate_shape
+from .OCCExtend.ShapeFactory import (
+    recognize_direction, recognize_curve, recognize_face_entity, 
+    get_circle_info, rotate_shape, get_oriented_bounding_details,
+    getDictionaryFromOBB, translate_shp, rotate_shp_3_axis )
 from ....thumbnail.thumbnail import createThumbnail
 from .gltfDictionary import gltfdict
 from .Quaternion import Quaternion
@@ -874,6 +876,37 @@ class StepExportWithColor(object):
     
     def __init__(self, shape=None, color=None, name=None): 
         if(shape):
+            self.init_shape(shape,color,name)
+            """ # Create the application
+            self.app = XCAFApp_Application_GetApplication()
+            self.doc = TDocStd_Document(TCollection_ExtendedString("XmlOcaf"))
+            self.app.InitDocument(self.doc)
+            self.shapetool =  XCAFDoc_DocumentTool_ShapeTool(self.doc.Main())  
+            self.shapetool.SetAutoNaming(False)              
+            self.colortool = XCAFDoc_DocumentTool_ColorTool(self.doc.Main())
+            # add root    
+            if name is None:
+                name =  "Struct Assembly"  
+            self.assembly = self.shapetool.NewShape()
+            TDataStd_Name.Set(self.assembly, TCollection_ExtendedString(name))        
+            self.part = self.shapetool.NewShape()
+            comp = TopoDS_Compound()
+            comp_builder = TopoDS_Builder()
+            comp_builder.MakeCompound(comp)        
+            comp_builder.Add(comp, shape)
+            self.shapetool.SetShape(self.part,comp) 
+            TDataStd_Name.Set(self.part, TCollection_ExtendedString(f"{name}_part"))
+            if color:
+                self.colortool.SetColor(self.part,color,XCAFDoc_ColorType.XCAFDoc_ColorSurf) 
+            #self.subassembly = self.shapetool.NewShape()
+            #TDataStd_Name.Set(self.subassembly, TCollection_ExtendedString(name))        
+            #self.shapetool.AddComponent( self.subassembly,self.part,TopLoc_Location())
+            #self.shapetool.AddComponent( self.assembly, self.subassembly,TopLoc_Location())  
+            self.shapetool.AddComponent( self.assembly, self.part,TopLoc_Location())  
+            self.shapetool.UpdateAssemblies() """
+    
+    def init_shape(self, shape=None, color=None, name=None):
+        if shape:
             # Create the application
             self.app = XCAFApp_Application_GetApplication()
             self.doc = TDocStd_Document(TCollection_ExtendedString("XmlOcaf"))
@@ -901,7 +934,7 @@ class StepExportWithColor(object):
             #self.shapetool.AddComponent( self.assembly, self.subassembly,TopLoc_Location())  
             self.shapetool.AddComponent( self.assembly, self.part,TopLoc_Location())  
             self.shapetool.UpdateAssemblies()
-        
+    
     def write_file(self, filename):
         """ folder, fname = os.path.split(filename)
         name, ext = os.path.splitext(fname)
@@ -1243,13 +1276,14 @@ class StepExportWithColor(object):
             if lengthCheck >=treeLength:
                 break
         return assembly
-
+    def compareStatusArrays(self, statusArray1, statusArray2):
+        return True
     def WriteAssemblyOutPutShapes(self,shapes,filename,myParent,myTree,treeLength,\
         includeparts,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight, \
             logging, seperateparts,edgesize, vertexsize, maximumfacestoinclude,\
                 CreateChildSteps,CreateAssemblyOrder,explodegap,center,holescale,removegap,\
                     recreatefororder,CreateStackability,fuuid,displaypath='',\
-                        starttime=datetime.utcnow(),totalcount=0):
+                        starttime=datetime.utcnow(),totalcount=0,comparechildren=True):
         self.basefilename=filename
         self.displaypath=displaypath
         self.starttime=starttime
@@ -1312,6 +1346,7 @@ class StepExportWithColor(object):
             lengthCheck = 0
             self.assemblycreatedcurrentcount=0
             self.writeProgress(0,"Started")
+            myChildAssemblyOutputShapes=[]
             for aTree in myTree:
                 if aTree[self.gltf_dict['parentId']]==myParentId :                     
                     self.app = XCAFApp_Application_GetApplication()
@@ -1336,7 +1371,7 @@ class StepExportWithColor(object):
                     os.makedirs(os.path.dirname(fullpath), exist_ok=True)
                     if(self.write_file(fullpath)):  
                         #print("Assigning a shape",uuidname,uniquename,treeName,aTree) 
-                        (_,_,status_dict)=StepIgesAnalyser(filename=fullpath,includeparts=includeparts,\
+                        (_,(_, outputAssemblyShapesOrder),status_dict)=StepIgesAnalyser(filename=fullpath,includeparts=includeparts,\
                             distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,\
                                 moverotate=moverotate,thumbwidth=thumbwidth,thumbheight=thumbheight,\
                                     logging=logging,seperateparts=seperateparts, edgesize=edgesize,\
@@ -1345,23 +1380,74 @@ class StepExportWithColor(object):
                                                 explodegap=explodegap, center=center, holescale=holescale,\
                                                      removegap=removegap,recreatefororder=recreatefororder,\
                                                          CreateStackability=CreateStackability,\
-                                                             updateprogressfile=self.writeProgress).dump(False) 
+                                                             updateprogressfile=self.writeProgress,\
+                                                                 comparechildren=comparechildren).dump(False) 
                         subassemblyCounthere=0
                         subassemblyTreehere=0
+                        statusArray={
+                             "tree":status_dict["tree"],
+                             "status":status_dict["status"]}
+                        statusArrayStatus=status_dict["status"]
+                        #statusArray={}
                         try:
                             if "status" in status_dict:
-                                if "assemblies" in status_dict["status"]:
-                                    subassemblyCounthere=status_dict["status"]["assemblies"]
-                                if "trees" in status_dict["status"]:
-                                    subassemblyTreehere=status_dict["status"]["trees"]
+                                #statusArray=status_dict["status"]
+                                if "assemblies" in statusArrayStatus:
+                                    subassemblyCounthere=statusArrayStatus["assemblies"]
+                                if "trees" in statusArrayStatus:
+                                    subassemblyTreehere=statusArrayStatus["trees"]                                
                         except Exception as e:
                             print("There is an exception while fetching assembly count",e)
-                        assemblyNames.append((uuidname,uniquename,treeName,subassemblyCounthere,subassemblyTreehere,treeDisplay))
+                        equalsDict=[]
+                        myAssemblyChildInfo = (uuidname,uniquename,treeName,subassemblyCounthere,subassemblyTreehere,treeDisplay,statusArray,equalsDict)
+                        assemblyNames.append(myAssemblyChildInfo)
+                        myChildAssemblyOutputShapes.append(outputAssemblyShapesOrder)
                                         #in thread background thumbnail creation is not working Hence forcing dump to be thread free.
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break
             self.assemblycreatedcurrentcount = totalcount
+            myChildAssemblyOutputShapesLen = len(myChildAssemblyOutputShapes)
+            for childShapesIndex in range(myChildAssemblyOutputShapesLen):
+                myAssemblyChildInfo = assemblyNames[childShapesIndex]
+                childOutputShapes = myChildAssemblyOutputShapes[childShapesIndex]
+                for compareShapesIndex in range(childShapesIndex+1,myChildAssemblyOutputShapesLen):
+                    myAssemblyCompareInfo = assemblyNames[compareShapesIndex]
+                    compareOutputShapes = myChildAssemblyOutputShapes[compareShapesIndex]
+                    (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
+                    (uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)=myAssemblyCompareInfo
+                    compareStatusFileName='Display/'+uuidname1+'/'+uniquename1+uniquename2+".status"
+                    compareStepFileName='Media/'+uuidname1+'/'+uniquename1+uniquename2
+                    sourceAssemblyFileName1,sourceAssemblyFileName2='Media/'+uuidname1+'/'+uniquename1,'Media/'+uuidname2+'/'+uniquename2
+                    compareDictionary={
+                        "source1":sourceAssemblyFileName1,
+                        "source2":sourceAssemblyFileName2,
+                        "node1":nodeCount1,
+                        "node2":nodeCount2,
+                        "isEqual":False,
+                        "vertexEquals":False }
+                    retDictionary = compareDictionary
+                    self.setComparisonDictionary(compareStatusFileName,10,starttime,compareDictionary,True)
+                    if(self.compareStatusArrays(statusArray1["status"],statusArray2["status"])):
+                        _,onlyShapes1,_,_,_ = self.getShapesFromOutPutShapes(childOutputShapes,1,statusArray1["tree"],treeLength1,'')
+                        self.setComparisonDictionary(compareStatusFileName,15,starttime,compareDictionary,False)
+                        _,onlyShapes2,_,_,_ = self.getShapesFromOutPutShapes(compareOutputShapes,1,statusArray2["tree"],treeLength2,'')
+                        self.setComparisonDictionary(compareStatusFileName,25,starttime,compareDictionary,False)
+                        retDictionary = self.compareToCheckIdentityShapes(sourceAssemblyFileName1,sourceAssemblyFileName2,onlyShapes1,onlyShapes2,compareStatusFileName,starttime,compareStepFileName)
+                    if(retDictionary["vertexEquals"] or retDictionary["isEqual"]):
+                        equalsDict1.append(\
+                            ((uuidname1,uniquename1,treeName1,treeDisplay1),\
+                                (uuidname2,uniquename2,treeName2,treeDisplay2),\
+                                    (retDictionary["vertexEquals"],retDictionary["isEqual"])))
+                        myAssemblyChildInfo=(uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)
+                        assemblyNames[childShapesIndex]=myAssemblyChildInfo
+                        equalsDict2.append(\
+                            ((uuidname1,uniquename1,treeName1,treeDisplay1),\
+                                (uuidname2,uniquename2,treeName2,treeDisplay2),\
+                                    (retDictionary["vertexEquals"],retDictionary["isEqual"])))
+                        myAssemblyCompareInfo=(uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)
+                        assemblyNames[compareShapesIndex]=myAssemblyCompareInfo
+
             self.writeProgress(0,"Completed",assemblyNames)
             return  (addedAssembly,assemblyNames)
         self.writeProgress(0,totalcount,"No Child") 
@@ -1597,6 +1683,252 @@ class StepExportWithColor(object):
                 assemblyCount=1
         
         return assemblyCount,name
+    
+    def bringToOriginAndToUnitAxis(self, fullShape1,thisdimension1,thisdictionary1,stepname):
+        aBaryCenter = thisdimension1.Center()
+        cx,cy,cz=  aBaryCenter.X(),aBaryCenter.Y(),aBaryCenter.Z()
+        fullZeroShape1=translate_shp(fullShape1,-cx,-cy,-cz, True)
+        thisRotateddimension1 = get_oriented_bounding_details(fullZeroShape1)  
+        thisRotateddictionary1 = getDictionaryFromOBB(thisRotateddimension1)
+        #fullZeroShape = fullZeroShape1
+        print("")
+        print("After translation with center",thisRotateddictionary1,thisdictionary1,cx,cy,cz)
+        aLoc=gp_Trsf()
+        aLoc.SetTransformation(gp_Ax3(),thisRotateddimension1.Position())
+        brep_trns = BRepBuilderAPI_Transform(fullZeroShape1, aLoc, True)
+        fullZeroShape2 = brep_trns.Shape()
+        thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
+        thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2,True)
+        print("After Rotation with built in transformation",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
+        sx,sy,sz=thisRotateddictionary2["sx"],thisRotateddictionary2["sy"],thisRotateddictionary2["sz"]
+        if( sx >= sy ) and ( sx >= sz ) and (sy >= sz):
+            fullZeroShape3=fullZeroShape2
+            rotation=(0,0,0)
+        elif( sy >= sx ) and ( sx >= sz ) and (sy >= sz):
+            fullZeroShape3 = rotate_shp_3_axis(fullZeroShape2,0,0,90, unity="deg", copy=True)
+            rotation=(0,0,90) 
+        elif( sx >= sy ) and ( sx >= sz ) and (sz >= sy):            
+            fullZeroShape3 = rotate_shp_3_axis(fullZeroShape2,90,0,0, unity="deg", copy=True) 
+            rotation=(90,0,0)
+        elif( sx >= sy ) and ( sz >= sx ) and (sz >= sy):            
+            fullZeroShape3 = rotate_shp_3_axis(fullZeroShape2,90,90,0, unity="deg", copy=True) 
+            rotation=(90,90,0)
+        elif( sy >= sx ) and ( sz >= sx ) and (sz >= sy):            
+            fullZeroShape3 = rotate_shp_3_axis(fullZeroShape2,0,90,0, unity="deg", copy=True) 
+            rotation=(0,90,0)
+        elif( sy >= sx ) and ( sz >= sx ) and (sy >= sz):            
+            fullZeroShape3 = rotate_shp_3_axis(fullZeroShape2,0,90,90, unity="deg", copy=True) 
+            rotation=(0,90,90)
+        else:
+            fullZeroShape3=fullZeroShape2
+            rotation=(0,0,0)
+        thisdimension3 = get_oriented_bounding_details(fullZeroShape3) 
+        thisRotateddictionary3 = getDictionaryFromOBB(thisdimension3,True)
+        print("After Bringing x > y > z dimensions",thisRotateddictionary3,thisRotateddictionary2,thisdictionary1)
+        
+        aColor = Quantity_Color(0.3,0.32,0.37, Quantity_TOC_RGB)
+        self.init_shape(shape=fullZeroShape3,color=aColor,name="ZeroOrign"+stepname)
+        self.write_file(filename=stepname)
+        
+        print("") 
+        return (fullZeroShape3,thisRotateddictionary1,thisRotateddictionary3,(cx,cy,cz),rotation)
+    
+    def setComparisonDictionary(self, statusfilename,percentage,starttime, mystatusdict, createdirectory):
+        currenttime = datetime.utcnow()  
+        
+        mystatusdict["status"] =  {
+                "percent":(percentage),
+                "start":starttime.strftime("%H-%M-%S"),
+                "current":currenttime.strftime("%H-%M-%S") }
+        mystatusdict["store"] = statusfilename
+        try:   
+            if(createdirectory):
+                os.makedirs(os.path.dirname(statusfilename), exist_ok=True)            
+            print("Writing",statusfilename,mystatusdict["status"]) 
+            with open(statusfilename, 'w') as fh:
+                fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))            
+        except Exception as e:
+            print("Error while wrting",statusfilename,e)
+        return mystatusdict
+
+    def getFaceEdgeVertexStructures(self, face_dict1,edge_dict1,vertex_dict1):
+        facedata1=[]                        
+        faceList1 = list(face_dict1.values())
+        for faces1 in range(len(faceList1)):
+            facedata1.append([])
+            dumpTopologyStructures(faceList1[faces1],level=0,parentId=[None],returnStructure=facedata1[faces1],faceInfo=None, depth=1, hashEquals=True)                      
+        edgedata1=[]
+        edgeList1 = list(edge_dict1.values())
+        for edges1 in range(len(edgeList1)):
+            edgedata1.append([])
+            dumpTopologyStructures(edgeList1[edges1],level=0,parentId=[None],returnStructure=edgedata1[edges1],faceInfo=None, depth=1, hashEquals=True)                  
+        vertexdata1=[]
+        vertexList1 = list(vertex_dict1.values())
+        for vertex1 in range(len(vertexList1)):
+            vertexdata1.append([])
+            dumpTopologyStructures(vertexList1[vertex1],level=0,parentId=[None],returnStructure=vertexdata1[vertex1],faceInfo=None, depth=1, hashEquals=True)
+        return facedata1, edgedata1, vertexdata1                       
+
+    def ordered(self, obj):
+        if isinstance(obj, dict):
+            return sorted((k, self.ordered(v)) for k, v in obj.items())
+        if isinstance(obj, list):
+            return sorted(self.ordered(x) for x in obj)
+        else:
+            return obj
+
+    def compareOneToOneShape(self, faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2):
+        #print(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2)
+        return faceStruct1==faceStruct2 and edgeStruct1==edgeStruct2 and vertexStruct1==vertexStruct2
+
+    def compareToCheckIdentityShapes(self, sourceFileName1,sourceFileName2,onlyShapes1,onlyShapes2,statusfilename,starttime=None,compareStepName=None):#,thumbwidth,thumbheight):
+        dictionary={
+            "source1":sourceFileName1,
+            "source2":sourceFileName2,
+            "node1":0,
+            "node2":0,
+            "isEqual":False,
+            "vertexEquals":False }
+        if sourceFileName1 and sourceFileName2:
+            try:
+                dictionary["node1"]=len(onlyShapes1)
+                dictionary["node2"]=len(onlyShapes2)
+                dictionary["isEqual"]=dictionary["node1"]==dictionary["node2"]
+                #print("Done up to this0")
+                if(dictionary["isEqual"]==False):
+                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                    return dictionary
+                fullShape1,_ = list_of_shapes_to_compound(onlyShapes1,True)
+                fullShape2,_ = list_of_shapes_to_compound(onlyShapes2,True)
+                thisdimension1 = get_oriented_bounding_details(fullShape1)  
+                #print("Done up to this1")                      
+                thisdictionary1 = getDictionaryFromOBB(thisdimension1,True)
+                sx1,sy1,sz1 = thisdictionary1["sx"],thisdictionary1["sy"],thisdictionary1["sz"]
+                [sx1,sy1,sz1] = sorted([sx1,sy1,sz1])
+                thisdimension2 = get_oriented_bounding_details(fullShape2)                        
+                thisdictionary2 = getDictionaryFromOBB(thisdimension2,True)
+                sx2,sy2,sz2 = thisdictionary2["sx"],thisdictionary2["sy"],thisdictionary2["sz"]
+                [sx2,sy2,sz2] = sorted([sx2,sy2,sz2])
+                dictionary["obb1"]=thisdictionary1
+                dictionary["obb2"]=thisdictionary2
+                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                if(dictionary["isEqual"]==False):
+                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                    #print("Failure",dictionary)
+                    return dictionary
+                #print("Done up to this1")
+                stepName1 = (compareStepName if compareStepName else statusfilename)+"1.step" 
+                fullZeroShape1, fullZeroDictionary1, fullRotatedDictionary1, center1,rotation1 = self.bringToOriginAndToUnitAxis(\
+                    fullShape1,thisdimension1,thisdictionary1,stepName1)
+                stepName2 = (compareStepName if compareStepName else statusfilename)+"2.step"                
+                fullZeroShape2, fullZeroDictionary2, fullRotatedDictionary2, center2,rotation2 = self.bringToOriginAndToUnitAxis(\
+                    fullShape2,thisdimension2,thisdictionary2,stepName2)
+                dictionary["origin1"]=fullZeroDictionary1
+                dictionary["origin2"]=fullZeroDictionary2
+                dictionary["rotated1"]=fullRotatedDictionary1
+                dictionary["rotated2"]=fullRotatedDictionary2
+                dictionary["center1"]=center1
+                dictionary["center2"]=center2
+                dictionary['rotation1']=rotation1
+                dictionary['rotation2']=rotation2
+                dictionary["step1"]=statusfilename+"1.step"
+                dictionary["step2"]=statusfilename+"2.step"
+                self.setComparisonDictionary(statusfilename,30,starttime,dictionary,False)
+                face_dict1={}
+                edge_dict1={}
+                vertex_dict1={}
+                dumpTopologyFacesEdgesVertices(fullZeroShape1,face_dict1,edge_dict1,vertex_dict1)
+                dictionary["face1"]=len(face_dict1)
+                dictionary["edge1"]=len(edge_dict1)
+                dictionary["vertex1"]=len(vertex_dict1)
+                face_dict2={}
+                edge_dict2={}
+                vertex_dict2={}
+                dumpTopologyFacesEdgesVertices(fullZeroShape2,face_dict2,edge_dict2,vertex_dict2)
+                dictionary["face2"]=len(face_dict2)
+                dictionary["edge2"]=len(edge_dict2)
+                dictionary["vertex2"]=len(vertex_dict2)
+                dictionary["vertexEquals"]=(dictionary["vertex1"]==dictionary["vertex2"])
+                dictionary["isEqual"] = (dictionary["face1"]==dictionary["face2"]) and (dictionary["edge1"]==dictionary["edge2"]) and (dictionary["vertex1"]==dictionary["vertex2"])
+                if(dictionary["vertexEquals"]==False):
+                    print("Failure",dictionary)
+                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)                   
+                    return dictionary
+                faceStruct1, edgeStruct1, vertexStruct1 = self.getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1) 
+                faceStruct2, edgeStruct2, vertexStruct2 = self.getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
+                
+                faceStruct1, edgeStruct1, vertexStruct1 = self.ordered(faceStruct1), self.ordered(edgeStruct1), self.ordered(vertexStruct1)
+                faceStruct2, edgeStruct2, vertexStruct2 = self.ordered(faceStruct2), self.ordered(edgeStruct2), self.ordered(vertexStruct2)
+                faceStruct3, edgeStruct3, vertexStruct3 = faceStruct2, edgeStruct2, vertexStruct2
+                sx1,sy1,sz1 = fullRotatedDictionary1["sx"],fullRotatedDictionary1["sy"],fullRotatedDictionary1["sz"]
+                self.setComparisonDictionary(statusfilename,31,starttime,dictionary,False) 
+                rangeForRotation = 4
+                if (abs(sx1-sy1) < 1e-6) or (abs(sx1-sz1) < 1e-6) or (abs(sz1-sy1) < 1e-6):
+                    rangeForRotation = 4
+                else:
+                    rangeForRotation = 2  
+                rangeOfRotation = 360 / rangeForRotation      
+                for xdir in range(rangeForRotation):
+                    for ydir in range(rangeForRotation):
+                        for zdir in range(rangeForRotation):
+                            if xdir==0 and ydir==0 and zdir==0: 
+                                sx2,sy2,sz2 = fullRotatedDictionary2["sx"],fullRotatedDictionary2["sy"],fullRotatedDictionary2["sz"]
+                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                                if dictionary["isEqual"]: 
+                                    print("")  
+                                    print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeForRotation,sx1,sy1,sz1,sx2,sy2,sz2)                                                
+                                    dictionary["vertexEquals"]=(vertexStruct1==vertexStruct2)
+                                    if dictionary["vertexEquals"]:  
+                                        dictionary["vertexCompare2"]=(xdir*rangeForRotation,ydir*rangeForRotation,zdir*rangeForRotation)
+                                        print(xdir*rangeForRotation,ydir*rangeForRotation,zdir*rangeForRotation,"Vertex Done")
+                                        dictionary["isEqual"]=faceStruct1==faceStruct2 and edgeStruct1==edgeStruct2
+                                    else:
+                                        dictionary["isEqual"]=False 
+                            else:
+                                fullZeroRotatedShape2=rotate_shp_3_axis(fullZeroShape2,xdir*math.pi/2,ydir*math.pi/2,zdir*math.pi/2, unity="radian", copy=True) 
+                                thisRotateddimension2 = get_oriented_bounding_details(fullZeroRotatedShape2)                        
+                                fullRotatedDictionary2 = getDictionaryFromOBB(thisRotateddimension2,True)
+                                sx2,sy2,sz2 = fullRotatedDictionary2["sx"],fullRotatedDictionary2["sy"],fullRotatedDictionary2["sz"]
+                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                                if dictionary["isEqual"]:
+                                    print("")
+                                    print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,sx1,sy1,sz1,sx2,sy2,sz2)
+                                    face_dict2={}
+                                    edge_dict2={}
+                                    vertex_dict2={}
+                                    dumpTopologyFacesEdgesVertices(fullZeroRotatedShape2,face_dict2,edge_dict2,vertex_dict2) 
+                                    faceStruct2, edgeStruct2, vertexStruct2 = self.getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
+                                    faceStruct2, edgeStruct2, vertexStruct2 = self.ordered(faceStruct2), self.ordered(edgeStruct2), self.ordered(vertexStruct2)
+                                    if(vertexStruct1==vertexStruct2):
+                                        dictionary["isEqual"] = faceStruct1==faceStruct2 and edgeStruct1==edgeStruct2 
+                                        if dictionary["vertexEquals"]==False:
+                                            dictionary["vertexEquals"]=True                                                                                       
+                                            dictionary["vertexCompare2"]=(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation)
+                                            print(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,"Vertex Done")
+                                    else:
+                                        dictionary["isEqual"]=False 
+                            if dictionary["isEqual"]:
+                                dictionary["compare2"]=(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation)
+                                dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
+                                dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
+                                dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
+                                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                                print(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,"Done")
+                                return dictionary
+                            self.setComparisonDictionary(statusfilename,32+zdir+ydir*4+xdir*16,starttime,dictionary,False) 
+                dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
+                dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
+                dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
+                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+                print("Equality with Vertices",dictionary["vertexEquals"],"Equality with Faces and Edges", dictionary["isEqual"])     
+                return dictionary 
+            except Exception as e:               
+                print("Exception happened",e,dictionary)
+                dictionary["error"]=str(e)
+                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+                return dictionary 
+        self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+        return dictionary 
 class StepIgesAnalyser():
     """A class that analyzes the structure of an OCAF document."""
     scale = 0.001  # mm to meters
@@ -1685,7 +2017,7 @@ class StepIgesAnalyser():
         defaultR=0.3, defaultG=0.32, defaultB=0.37, seperateparts=False, seperatecompounds=True,
         recursiveShapes=None, recursiveTree=None, recursiveID=1, CreateChildSteps=False,
         CreateAssemblyOrder=False, explodegap=10.0, center=True, holescale=0.77, removegap=8.0,
-        recreatefororder=False, CreateStackability=False,updateprogressfile=None
+        recreatefororder=False, CreateStackability=False,updateprogressfile=None,comparechildren=True
         ):
         """Supply one or the other: document or STEP filename or Shapes."""
         self.starttime = datetime.utcnow()
@@ -1817,6 +2149,17 @@ class StepIgesAnalyser():
         self.multiplegltf = multipleGLTF 
         self.assemblycount = 0
         self.treelengthbeforevertices=0
+        self.partscount=0
+        self.facescount=0
+        self.edgescount=0
+        self.verticescount=0
+        self.obbdictionary={}
+        self.zerodictionary={}
+        self.rotateddictionary={}
+        self.assemblycenter=(0,0,0)
+        self.assemblyrotation=(0,0,0)
+        self.zerostep=''
+        self.comparechildren=comparechildren
         self.assemblyname = None
         self.recursiveTree = recursiveTree
         if (self.edgesize == 0) and (self.vertexsize==0):
@@ -3296,7 +3639,7 @@ class StepIgesAnalyser():
                 filename = None
         return  filename, fileuuid
 
-    def createChilds(self,filename,fileuuid):
+    def createChilds(self,filename,fileuuid,comparechildren=True):
         data=None        
         with open(filename, "r") as f:
             data = f.read()
@@ -3328,7 +3671,7 @@ class StepIgesAnalyser():
                                         self.CreateAssemblyOrder,self.explodegap,self.center,\
                                             self.holescale,self.removegap,self.recreatefororder,\
                                                 self.CreateStackability,fileuuid,self.displaypath,\
-                                                    self.starttime,assemblycount)
+                                                    self.starttime,assemblycount,comparechildren)
             """ self.write_progress(maxgap=0,action='Child Items Written',written=True,\
                 start=progressArray["start"] if ("start" in progressArray) else None,\
                     finish=None)  """
@@ -5448,6 +5791,16 @@ class StepIgesAnalyser():
                 mystatusdict["assemblies"]=self.assemblycount
                 mystatusdict["assembly"]=self.assemblyname
                 mystatusdict["trees"]=self.treelengthbeforevertices
+                mystatusdict["parts"]=self.partscount
+                mystatusdict["faces"]=self.facescount
+                mystatusdict["edges"]=self.edgescount
+                mystatusdict["vertices"]=self.verticescount
+                mystatusdict["obbPosition"]=self.obbdictionary
+                mystatusdict["obbOrigin"]=self.zerodictionary
+                mystatusdict["obbRotated"]=self.rotateddictionary
+                mystatusdict["center"]=self.assemblycenter
+                mystatusdict["rotation"]=self.assemblyrotation
+                mystatusdict["zerostep"]=self.zerostep
             try:            
                 timingdelta = datetime.utcnow()-self.currenttime            
                 if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
@@ -5500,6 +5853,26 @@ class StepIgesAnalyser():
                     self.assemblyname = statusArray["assembly"]
                 if "trees" in statusArray:
                     self.treelengthbeforevertices = statusArray["trees"]
+                if "parts" in statusArray:    
+                    self.partscount=statusArray["parts"]
+                if "faces" in statusArray:
+                    self.facescount=statusArray["faces"]
+                if "edges" in statusArray:
+                    self.edgescount=statusArray["edges"]
+                if "vertices" in statusArray:
+                    self.verticescount=statusArray["vertices"]
+                if "obbPosition" in statusArray:
+                    self.obbdictionary=statusArray["obbPosition"]
+                if "obbOrigin" in statusArray:
+                    self.zerodictionary=statusArray["obbOrigin"]
+                if "obbRotated" in statusArray:
+                    self.rotateddictionary=statusArray["obbRotated"]
+                if "center" in statusArray:
+                    self.assemblycenter=statusArray["center"]
+                if "rotation" in statusArray:
+                    self.assemblyrotation=statusArray["rotation"]
+                if "zerostep" in statusArray:
+                    self.zerostep=statusArray["zerostep"]
         except Exception as e:
             print("While Reading",e)  
         return statusArray
@@ -5675,7 +6048,7 @@ class StepIgesAnalyser():
         if self.recursiveTree:
             filetreepath, filetreeuuid = self.getIfTreeExists()
         if filetreepath and filetreeuuid:
-            self.createChilds(filetreepath,filetreeuuid)
+            self.createChilds(filetreepath,filetreeuuid,self.comparechildren)
             if byThread:
                 return
             else:
@@ -5721,6 +6094,35 @@ class StepIgesAnalyser():
         (self.assemblycount,self.assemblyname)=StepExportWithColor().FindAssemblyCount(\
                     1,self.tstep_dict["tree"],myTreeLenBeforeAddingEdgesAndVertices)  
         self.treelengthbeforevertices = myTreeLenBeforeAddingEdgesAndVertices 
+        outputShapesOrder = self.outputShapes
+        dictionaryOrderTree=self.tstep_dict["tree"]
+        lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
+        #Find the counts of features..
+        if ( (self.suffixname != "M") and (self.suffixname != "S") and \
+            (self.suffixname != "K") and (self.suffixname != "R") and (self.suffixname != "A") ):
+            shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
+                getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,lenDictionaryOrderTree,'')
+            self.partscount=len(shapeOrder)
+            
+            fullAssemblyShape,_ = list_of_shapes_to_compound(shapeOrder,True)
+            assembly_faces_dict = {}
+            assembly_edges_dict = {}
+            assembly_vertices_dict = {}
+            dumpTopologyFacesEdgesVertices(fullAssemblyShape,assembly_faces_dict,assembly_edges_dict,assembly_vertices_dict)
+            self.facescount=len(assembly_faces_dict)
+            self.edgescount=len(assembly_edges_dict)
+            self.verticescount=len(assembly_vertices_dict)        
+            thisAssemblydimension = get_oriented_bounding_details(fullAssemblyShape)                        
+            thisAssemblydictionary = getDictionaryFromOBB(thisAssemblydimension,True)
+            self.obbdictionary=thisAssemblydictionary
+            self.zerostep = self.fname+"ZeroOrigin.step"
+            _, fullZeroDictionary, fullRotatedDictionary, center, rotation = StepExportWithColor().\
+                bringToOriginAndToUnitAxis(fullAssemblyShape,thisAssemblydimension,thisAssemblydictionary,self.zerostep)
+            self.zerodictionary=fullZeroDictionary
+            self.rotateddictionary=fullRotatedDictionary
+            self.assemblycenter=center
+            self.assemblyrotation=rotation
+    
         dict_return = {
             "gltf":self.mstep_dict,
             "tree":self.tstep_dict['tree'],
@@ -5740,7 +6142,17 @@ class StepIgesAnalyser():
                         "current":datetime.utcnow().strftime("%H-%M-%S"),
                         "assemblies":self.assemblycount,
                         "assembly":self.assemblyname,
-                        "trees":self.treelengthbeforevertices},
+                        "trees":self.treelengthbeforevertices,
+                        "parts":self.partscount,
+                        "faces":self.facescount,
+                        "edges":self.edgescount,
+                        "vertices":self.verticescount,
+                        "obbPosition":self.obbdictionary,
+                        "obbOrigin":self.zerodictionary,
+                        "obbRotated":self.rotateddictionary,
+                        "center":self.assemblycenter,
+                        "rotation":self.assemblyrotation,
+                        "zerostep":self.zerostep},
              "display":COPY_PATH+self.displaypath
         }
         if self.writethread:
@@ -5797,9 +6209,11 @@ class StepIgesAnalyser():
                                         self.CreateAssemblyOrder,self.explodegap,self.center,\
                                             self.holescale,self.removegap,self.recreatefororder,\
                                                 self.CreateStackability,'',self.displaypath,\
-                                                    self.starttime,self.assemblycount)           
+                                                    self.starttime,self.assemblycount,self.comparechildren)           
                 """ self.write_progress(maxgap=0,action='Child Items Written',written=True) """
                 print("Completing Child Steps",self.fname)
+            
+                       
             if self.CreateAssemblyOrder:
                 print("Starting Assembly order",self.fname)
                 if self.recreatefororder:

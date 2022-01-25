@@ -148,6 +148,7 @@ export default function BaseItemProperties({
       let datagdt = '';
       let treeLength = 0;
       let multiAssembly = false;
+      let comparison_parameters = null;
       dataload = data.filename;
       /*let filenameWithOutExtension = dataload.replace(/^.*[\\\/]/, '');
       const lastDotIndex = filenameWithOutExtension.lastIndexOf('.');
@@ -310,10 +311,12 @@ export default function BaseItemProperties({
           });
           console.log('Setting active gltf file to', datagdt);
           setActiveGLTFile(datagdt);
+          comparison_parameters = statusRes.data ? statusRes.data : null;
           setItemProperties((prevData) => ({
             ...prevData,
             multiAssembly: multiAssembly,
-            stepTreeLength: treeLength
+            stepTreeLength: treeLength,
+            comparison_parameters: comparison_parameters
           }));
         }
       } else {
@@ -333,10 +336,18 @@ export default function BaseItemProperties({
         });
         console.log('Setting active gltf file to', datagdt);
         setActiveGLTFile(datagdt);
+        comparison_parameters = getHierarchyRes
+          ? getHierarchyRes.data
+            ? getHierarchyRes.data.status
+              ? getHierarchyRes.data.status
+              : null
+            : null
+          : null;
         setItemProperties((prevData) => ({
           ...prevData,
           multiAssembly: multiAssembly,
-          stepTreeLength: treeLength
+          stepTreeLength: treeLength,
+          comparison_parameters: comparison_parameters
         }));
       }
 
@@ -353,6 +364,7 @@ export default function BaseItemProperties({
           fileName: dataload,
           multiAssembly: multiAssembly,
           stepTreeLength: treeLength,
+          comparison_parameters: comparison_parameters,
           distanceGap: distanceGaper,
           angleGap: angleGaper,
           drawLine: drawLiner
@@ -370,6 +382,7 @@ export default function BaseItemProperties({
         fileKinematic: null,
         multiAssembly: multiAssembly,
         stepTreeLength: treeLength,
+        comparison_parameters: comparison_parameters,
         distanceGap: distanceGaper,
         angleGap: angleGaper,
         drawLine: drawLiner

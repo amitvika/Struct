@@ -287,7 +287,39 @@ def get_oriented_bounding_details(shape, optimal_BB=True):
         except Exception as e:
             print("Unable to find bounding box,",e)        
     return obb
-    
+
+def getDictionaryFromOBB(obb,draft=False):
+    if obb:
+        aBaryCenter = obb.Center()
+        aXDir = obb.XDirection()
+        aYDir = obb.YDirection()
+        aZDir = obb.ZDirection()
+        axx = roundoff(aXDir.X(),draft)
+        axy = roundoff(aXDir.Y(),draft)
+        axz = roundoff(aXDir.Z(),draft)
+        ayx = roundoff(aYDir.X(),draft)
+        ayy = roundoff(aYDir.Y(),draft)
+        ayz = roundoff(aYDir.Z(),draft)
+        azx = roundoff(aZDir.X(),draft)
+        azy = roundoff(aZDir.Y(),draft)
+        azz = roundoff(aZDir.Z(),draft)
+        xsize, ysize, zsize = roundoff(obb.XHSize(),draft), roundoff(obb.YHSize(),draft), roundoff(obb.ZHSize(),draft)
+        xcenter,ycenter,zcenter = roundoff(aBaryCenter.X(),draft), roundoff(aBaryCenter.Y(),draft), roundoff(aBaryCenter.Z(),draft)
+        return {
+            "xx": axx, "xy": axy, "xz": axz,
+            "yx": ayx, "yy": ayy, "yz": ayz,
+            "zx": azx, "zy": azy, "zz": azz,
+            "cx": xcenter, "cy": ycenter, "cz": zcenter,
+            "sx": xsize, "sy": ysize, "sz": zsize
+        }
+    else:
+        return {
+            "xx": 0, "xy": 0, "xz": 0,
+            "yx": 0, "yy": 0, "yz": 0,
+            "zx": 0, "zy": 0, "zz": 0,
+            "cx": 0, "cy": 0, "cz": 0,
+            "sx": 0, "sy": 0, "sz": 0
+        }    
 
 def roundOffMe(dimension):
     x1, x2, x3, x4, x5, x6 = dimension
@@ -2160,23 +2192,27 @@ def minimum_z_distance(shp1, shp2):
     return min_z_dist, min_dist, min_dist_shp1, min_dist_shp2
 
 
-def roundoff(point):
+def roundoff(point,draft=False):
     multiplier = 1
-    if(sys.maxsize/10000 > point) :
-        multiplier = 10000
+    if draft:
+        return round(point*multiplier,2) / multiplier
+    if(sys.maxsize/100000 > point) :
+        multiplier = 100000
     else:
-        if(sys.maxsize/1000 > point) :
-            multiplier = 1000
+        if(sys.maxsize/10000 > point) :
+            multiplier = 10000
         else:
-            if(sys.maxsize/100 > point) :
-                multiplier = 100
+            if(sys.maxsize/1000 > point) :
+                multiplier = 1000
             else:
-                if(sys.maxsize/10 > point) :
-                    multiplier = 10
+                if(sys.maxsize/100 > point) :
+                    multiplier = 100
                 else:
-                    multiplier = 1   
-    
-    return round(point*multiplier,2) / multiplier
+                    if(sys.maxsize/10 > point) :
+                        multiplier = 10
+                    else:
+                        multiplier = 1  
+    return round(point*multiplier,3) / multiplier
 
 def getXYZ(co_ord):
     return (roundoff(co_ord.Coord(1)),roundoff(co_ord.Coord(2)),roundoff(co_ord.Coord(3)))
