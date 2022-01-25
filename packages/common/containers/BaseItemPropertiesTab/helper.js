@@ -243,7 +243,9 @@ export const createChildItems = async ({
         is_child_item: true,
         filePartName: item[2],
         multiAssembly: item.length > 3 ? item[3] > 1 : false,
-        treeLength: item.length > 4 ? item[4] : 0
+        treeLength: item.length > 4 ? item[4] : 0,
+        comparison_parameters: item.length > 6 ? item[6] : null,
+        matched_childs: item.length > 7 ? item[7] : null
       }));
 
       console.log('New Items', newItem);

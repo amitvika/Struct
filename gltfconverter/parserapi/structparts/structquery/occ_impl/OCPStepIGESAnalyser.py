@@ -1283,7 +1283,7 @@ class StepExportWithColor(object):
             logging, seperateparts,edgesize, vertexsize, maximumfacestoinclude,\
                 CreateChildSteps,CreateAssemblyOrder,explodegap,center,holescale,removegap,\
                     recreatefororder,CreateStackability,fuuid,displaypath='',\
-                        starttime=datetime.utcnow(),totalcount=0,comparechildren=False):
+                        starttime=datetime.utcnow(),totalcount=0,comparechildren=True):
         self.basefilename=filename
         self.displaypath=displaypath
         self.starttime=starttime
@@ -1386,21 +1386,22 @@ class StepExportWithColor(object):
                         subassemblyTreehere=0
                         statusArray={
                              "tree":status_dict["tree"],
-                             "staus":status_dict["status"]}
+                             "status":status_dict["status"]}
+                        statusArrayStatus=status_dict["status"]
                         #statusArray={}
                         try:
                             if "status" in status_dict:
                                 #statusArray=status_dict["status"]
-                                if "assemblies" in statusArray:
-                                    subassemblyCounthere=statusArray["assemblies"]
-                                if "trees" in statusArray:
-                                    subassemblyTreehere=statusArray["trees"]                                
+                                if "assemblies" in statusArrayStatus:
+                                    subassemblyCounthere=statusArrayStatus["assemblies"]
+                                if "trees" in statusArrayStatus:
+                                    subassemblyTreehere=statusArrayStatus["trees"]                                
                         except Exception as e:
                             print("There is an exception while fetching assembly count",e)
                         equalsDict=[]
                         myAssemblyChildInfo = (uuidname,uniquename,treeName,subassemblyCounthere,subassemblyTreehere,treeDisplay,statusArray,equalsDict)
                         assemblyNames.append(myAssemblyChildInfo)
-                        myChildAssemblyOutputShapes.append((myAssemblyChildInfo,outputAssemblyShapesOrder))
+                        myChildAssemblyOutputShapes.append(outputAssemblyShapesOrder)
                                         #in thread background thumbnail creation is not working Hence forcing dump to be thread free.
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
@@ -1408,9 +1409,11 @@ class StepExportWithColor(object):
             self.assemblycreatedcurrentcount = totalcount
             myChildAssemblyOutputShapesLen = len(myChildAssemblyOutputShapes)
             for childShapesIndex in range(myChildAssemblyOutputShapesLen):
-                myAssemblyChildInfo, childOutputShapes = myChildAssemblyOutputShapes[childShapesIndex]
-                for compareShapesIndex in range(1,myChildAssemblyOutputShapesLen):
-                    myAssemblyCompareInfo, compareOutputShapes = myChildAssemblyOutputShapes[compareShapesIndex]
+                myAssemblyChildInfo = assemblyNames[childShapesIndex]
+                childOutputShapes = myChildAssemblyOutputShapes[childShapesIndex]
+                for compareShapesIndex in range(childShapesIndex+1,myChildAssemblyOutputShapesLen):
+                    myAssemblyCompareInfo = assemblyNames[compareShapesIndex]
+                    compareOutputShapes = myChildAssemblyOutputShapes[compareShapesIndex]
                     (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
                     (uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)=myAssemblyCompareInfo
                     compareStatusFileName='Display/'+uuidname1+'/'+uniquename1+uniquename2+".status"
@@ -1431,13 +1434,19 @@ class StepExportWithColor(object):
                         _,onlyShapes2,_,_,_ = self.getShapesFromOutPutShapes(compareOutputShapes,1,statusArray2["tree"],treeLength2,'')
                         self.setComparisonDictionary(compareStatusFileName,25,starttime,compareDictionary,False)
                         retDictionary = self.compareToCheckIdentityShapes(sourceAssemblyFileName1,sourceAssemblyFileName2,onlyShapes1,onlyShapes2,compareStatusFileName,starttime,compareStepFileName)
-                    if(retDictionary["vetexEquals"] or retDictionary["isEqual"]):
+                    if(retDictionary["vertexEquals"] or retDictionary["isEqual"]):
                         equalsDict1.append(\
                             ((uuidname1,uniquename1,treeName1,treeDisplay1),\
                                 (uuidname2,uniquename2,treeName2,treeDisplay2),\
-                                    (retDictionary["vetexEquals"],retDictionary["isEqual"])))
+                                    (retDictionary["vertexEquals"],retDictionary["isEqual"])))
                         myAssemblyChildInfo=(uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)
                         assemblyNames[childShapesIndex]=myAssemblyChildInfo
+                        equalsDict2.append(\
+                            ((uuidname1,uniquename1,treeName1,treeDisplay1),\
+                                (uuidname2,uniquename2,treeName2,treeDisplay2),\
+                                    (retDictionary["vertexEquals"],retDictionary["isEqual"])))
+                        myAssemblyCompareInfo=(uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)
+                        assemblyNames[compareShapesIndex]=myAssemblyCompareInfo
 
             self.writeProgress(0,"Completed",assemblyNames)
             return  (addedAssembly,assemblyNames)
@@ -1805,6 +1814,7 @@ class StepExportWithColor(object):
                 dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
                 if(dictionary["isEqual"]==False):
                     self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                    #print("Failure",dictionary)
                     return dictionary
                 #print("Done up to this1")
                 stepName1 = (compareStepName if compareStepName else statusfilename)+"1.step" 
@@ -1842,6 +1852,7 @@ class StepExportWithColor(object):
                 dictionary["isEqual"] = (dictionary["face1"]==dictionary["face2"]) and (dictionary["edge1"]==dictionary["edge2"]) and (dictionary["vertex1"]==dictionary["vertex2"])
                 if(dictionary["vertexEquals"]==False):
                     self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                    print("Failure",dictionary)
                     return dictionary
                 faceStruct1, edgeStruct1, vertexStruct1 = self.getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1) 
                 faceStruct2, edgeStruct2, vertexStruct2 = self.getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
@@ -2005,7 +2016,7 @@ class StepIgesAnalyser():
         defaultR=0.3, defaultG=0.32, defaultB=0.37, seperateparts=False, seperatecompounds=True,
         recursiveShapes=None, recursiveTree=None, recursiveID=1, CreateChildSteps=False,
         CreateAssemblyOrder=False, explodegap=10.0, center=True, holescale=0.77, removegap=8.0,
-        recreatefororder=False, CreateStackability=False,updateprogressfile=None,comparechildren=False
+        recreatefororder=False, CreateStackability=False,updateprogressfile=None,comparechildren=True
         ):
         """Supply one or the other: document or STEP filename or Shapes."""
         self.starttime = datetime.utcnow()
@@ -3627,7 +3638,7 @@ class StepIgesAnalyser():
                 filename = None
         return  filename, fileuuid
 
-    def createChilds(self,filename,fileuuid,comparechildren=False):
+    def createChilds(self,filename,fileuuid,comparechildren=True):
         data=None        
         with open(filename, "r") as f:
             data = f.read()
