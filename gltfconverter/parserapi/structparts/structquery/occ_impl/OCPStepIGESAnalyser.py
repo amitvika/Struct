@@ -1851,8 +1851,8 @@ class StepExportWithColor(object):
                 dictionary["vertexEquals"]=(dictionary["vertex1"]==dictionary["vertex2"])
                 dictionary["isEqual"] = (dictionary["face1"]==dictionary["face2"]) and (dictionary["edge1"]==dictionary["edge2"]) and (dictionary["vertex1"]==dictionary["vertex2"])
                 if(dictionary["vertexEquals"]==False):
-                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
                     print("Failure",dictionary)
+                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)                   
                     return dictionary
                 faceStruct1, edgeStruct1, vertexStruct1 = self.getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1) 
                 faceStruct2, edgeStruct2, vertexStruct2 = self.getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
@@ -1922,7 +1922,8 @@ class StepExportWithColor(object):
                 self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
                 print("Equality with Vertices",dictionary["vertexEquals"],"Equality with Faces and Edges", dictionary["isEqual"])     
                 return dictionary 
-            except Exception as e:
+            except Exception as e:               
+                print("Exception happened",e,dictionary)
                 dictionary["error"]=str(e)
                 self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
                 return dictionary 
