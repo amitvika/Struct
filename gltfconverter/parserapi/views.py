@@ -49,17 +49,16 @@ from .structparts import (Assembly, conversion)
 from .structparts.structquery.occ_impl import (OCPStepIGESAnalyser, OCPImporters)
 from .structparts.structquery.occ_impl.gltfDictionary import gltfdict
 from .structparts.structquery.occ_impl.OCCExtend.ShapeFactory import (
-    translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance, minimum_distance_only, scale_shape,  
-    getPartStackablePositions, get_bounding_details, get_oriented_bounding_details, rotate_shape,
-    recognize_direction, recognize_entity)
+    translate_shp, rotate_shp_3_axis, minimum_distance, minimum_z_distance, 
+    minimum_distance_only, scale_shape, getPartStackablePositions, get_bounding_details,
+    get_oriented_bounding_details, recognize_direction, recognize_entity, getDictionaryFromOBB) #rotate_shape,
 from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_shapes_to_compound #, excluded_list_of_shapes_to_compound
-from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices, roundoff #, getShapeLocationAndDirection 
+from .structparts.structquery.occ_impl.OCCUtils.Topology import dumpTopologyStructures, dumpTopologyFacesEdgesVertices#, roundoff #, getShapeLocationAndDirection 
 
 #from OCC.Core.TopAbs import (TopAbs_FACE, TopAbs_Orientation)
-from OCC.Core.gp import (gp_Pnt, gp_Trsf, gp_Ax3) #, gp_Ax2, gp_Dir, gp_XYZ)
-
+from OCC.Core.gp import gp_Pnt #, gp_Trsf, gp_Ax3, gp_Ax2, gp_Dir, gp_XYZ
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeSphere
-from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
+#from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Common
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 #from OCC.Core.Tesselator import ShapeTesselator
@@ -259,7 +258,7 @@ def FileUploadView(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -312,7 +311,7 @@ def FileReplaceView(request, pk):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -366,7 +365,7 @@ def FileUploadChunk(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -481,7 +480,7 @@ def FileGetView(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -915,7 +914,7 @@ def FileSplit(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -1187,7 +1186,7 @@ def FileHierarchySplit(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -1243,7 +1242,7 @@ def FileGetTextures(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -1285,7 +1284,7 @@ def FileGetFiles(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -1348,7 +1347,7 @@ def FileGetMinimumDistance(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -1468,61 +1467,61 @@ def compareDimension(dim1, dim2):
     
         return round(point*multiplier,2) / multiplier """
         
-def getDictionaryFromOBB(obb,draft=False):
-        if obb:
-            aBaryCenter = obb.Center()
-            aXDir = obb.XDirection()
-            aYDir = obb.YDirection()
-            aZDir = obb.ZDirection()
-            axx = roundoff(aXDir.X(),draft)
-            axy = roundoff(aXDir.Y(),draft)
-            axz = roundoff(aXDir.Z(),draft)
-            ayx = roundoff(aYDir.X(),draft)
-            ayy = roundoff(aYDir.Y(),draft)
-            ayz = roundoff(aYDir.Z(),draft)
-            azx = roundoff(aZDir.X(),draft)
-            azy = roundoff(aZDir.Y(),draft)
-            azz = roundoff(aZDir.Z(),draft)
-            xsize, ysize, zsize = roundoff(obb.XHSize(),draft), roundoff(obb.YHSize(),draft), roundoff(obb.ZHSize(),draft)
-            xcenter,ycenter,zcenter = roundoff(aBaryCenter.X(),draft), roundoff(aBaryCenter.Y(),draft), roundoff(aBaryCenter.Z(),draft)
-            return {
-                "xx": axx, "xy": axy, "xz": axz,
-                "yx": ayx, "yy": ayy, "yz": ayz,
-                "zx": azx, "zy": azy, "zz": azz,
-                "cx": xcenter, "cy": ycenter, "cz": zcenter,
-                "sx": xsize, "sy": ysize, "sz": zsize
-            }
-        else:
-            return {
-                "xx": 0, "xy": 0, "xz": 0,
-                "yx": 0, "yy": 0, "yz": 0,
-                "zx": 0, "zy": 0, "zz": 0,
-                "cx": 0, "cy": 0, "cz": 0,
-                "sx": 0, "sy": 0, "sz": 0
-            }
+""" def getDictionaryFromOBB(obb,draft=False):
+    if obb:
+        aBaryCenter = obb.Center()
+        aXDir = obb.XDirection()
+        aYDir = obb.YDirection()
+        aZDir = obb.ZDirection()
+        axx = roundoff(aXDir.X(),draft)
+        axy = roundoff(aXDir.Y(),draft)
+        axz = roundoff(aXDir.Z(),draft)
+        ayx = roundoff(aYDir.X(),draft)
+        ayy = roundoff(aYDir.Y(),draft)
+        ayz = roundoff(aYDir.Z(),draft)
+        azx = roundoff(aZDir.X(),draft)
+        azy = roundoff(aZDir.Y(),draft)
+        azz = roundoff(aZDir.Z(),draft)
+        xsize, ysize, zsize = roundoff(obb.XHSize(),draft), roundoff(obb.YHSize(),draft), roundoff(obb.ZHSize(),draft)
+        xcenter,ycenter,zcenter = roundoff(aBaryCenter.X(),draft), roundoff(aBaryCenter.Y(),draft), roundoff(aBaryCenter.Z(),draft)
+        return {
+            "xx": axx, "xy": axy, "xz": axz,
+            "yx": ayx, "yy": ayy, "yz": ayz,
+            "zx": azx, "zy": azy, "zz": azz,
+            "cx": xcenter, "cy": ycenter, "cz": zcenter,
+            "sx": xsize, "sy": ysize, "sz": zsize
+        }
+    else:
+        return {
+            "xx": 0, "xy": 0, "xz": 0,
+            "yx": 0, "yy": 0, "yz": 0,
+            "zx": 0, "zy": 0, "zz": 0,
+            "cx": 0, "cy": 0, "cz": 0,
+            "sx": 0, "sy": 0, "sz": 0
+        }  """
 
 def getMaxDirectionFromOBB(obb):
-        if obb:
-            xsize, ysize, zsize =  obb.XHSize() ,  obb.YHSize() ,  obb.ZHSize() 
-            if (zsize >= xsize) and (zsize >= ysize):
-                aDir = obb.ZDirection()
-            elif (ysize >= zsize) and (ysize >= xsize):
-                aDir = obb.YDirection()
-            else:
-                aDir = obb.XDirection()
-            return (aDir.X(), aDir.Y(), aDir.Z())
+    if obb:
+        xsize, ysize, zsize =  obb.XHSize() ,  obb.YHSize() ,  obb.ZHSize() 
+        if (zsize >= xsize) and (zsize >= ysize):
+            aDir = obb.ZDirection()
+        elif (ysize >= zsize) and (ysize >= xsize):
+            aDir = obb.YDirection()
         else:
-            return (0,0,0)
+            aDir = obb.XDirection()
+        return (aDir.X(), aDir.Y(), aDir.Z())
+    else:
+        return (0,0,0)
 
 def CreateSphereFromCenter(center,vertexsize=0.1,circular=False):
         
-        #center = obb.Center()
-        centerX, centerY, centerZ = center
-        if circular:
-            return BRepPrimAPI_MakeSphere(gp_Pnt(centerX,centerY,centerZ), vertexsize).Shape()
-        else:
-            corner = gp_Pnt(centerX-vertexsize, centerY-vertexsize, centerZ-vertexsize)
-            return BRepPrimAPI_MakeBox(corner,vertexsize*2,vertexsize*2,vertexsize*2).Shape()
+    #center = obb.Center()
+    centerX, centerY, centerZ = center
+    if circular:
+        return BRepPrimAPI_MakeSphere(gp_Pnt(centerX,centerY,centerZ), vertexsize).Shape()
+    else:
+        corner = gp_Pnt(centerX-vertexsize, centerY-vertexsize, centerZ-vertexsize)
+        return BRepPrimAPI_MakeBox(corner,vertexsize*2,vertexsize*2,vertexsize*2).Shape()
 
 def getValueFromJSONKey(jsonstruct, key):
     if key in jsonstruct:
@@ -1687,7 +1686,7 @@ def FileGetShapeInfo(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -2132,11 +2131,11 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             #return dictionary 
         try:
             dimension, myShapes = outputShapes
-            _,shape,_,assemblyStackName, (sR,sG,sB) = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
-            fullShape,_ = list_of_shapes_to_compound(shape,True)
-            shapeStackList = [(fullShape,assemblyStackName,Quantity_Color(sR,sG,sB, Quantity_TOC_RGB))]
+            shapeArrayOrder,_,_,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"],None)
+            #fullShape,_ = list_of_shapes_to_compound(shape,True)
+            #shapeStackList = [(fullShape,assemblyStackName,Quantity_Color(sR,sG,sB, Quantity_TOC_RGB))]
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
-            dictionary = FindStackability(sourceFileName,shapeStackList,dimension,distancegap=distancegap,\
+            dictionary = FindStackability(sourceFileName,shapeArrayOrder,dimension,distancegap=distancegap,\
                 anglegap=anglegap,animationtime=animationtime,starttime=starttime,logging=logging,).dump()
         except Exception as e:
             print("error calling stackablity from view",e)
@@ -2223,7 +2222,7 @@ def FileGetStackablePositions(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -4834,9 +4833,9 @@ def findMyShapeByTreeID(shapes,treeID):
             return item
     return None
 
-def getShapesFromOutPutShapes(shapes,mytree):
+def getShapesFromOutPutShapes(shapes,mytree,fromparent=1):
     return  OCPStepIGESAnalyser.StepExportWithColor().\
-        getShapesFromOutPutShapes(shapes,1,mytree,len(mytree),'')
+        getShapesFromOutPutShapes(shapes,fromparent,mytree,len(mytree),'')
 
 def getShapesFromOutPutShapes_old(shapes,mytree):
     retshapes=[]
@@ -5183,7 +5182,7 @@ def FileGetAssemblyOrder(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)  
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)  
     except:
         try:
             logging.error(traceback.format_exc())
@@ -5321,7 +5320,7 @@ def FileGetKinematicAnimation(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)  
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)  
     except:
         try:
             logging.error(traceback.format_exc())
@@ -5486,7 +5485,7 @@ def FileSaveTree(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -5550,7 +5549,7 @@ def FileSaveGDT(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -5593,7 +5592,7 @@ def GetFileContent(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -5645,7 +5644,7 @@ def FetchFileContent(request):
                     return response
                 except Exception as e:
                     print("Error while reading file",e,file,checkfilefrom) 
-                    return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+                    return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
                 except:
                     try:
                         logging.error(traceback.format_exc())
@@ -5661,8 +5660,8 @@ def FetchFileContent(request):
             logging.exception(e)
         except Exception as err:
             print("Error while logging",err)
-            return JsonResponse({'message': e, 'exception':err},status=status.HTTP_400_BAD_REQUEST, safe=False)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)
+            return JsonResponse({'message': str(e), 'exception':err},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
@@ -5720,13 +5719,13 @@ def HackersResponse(request):
             logging.info(request)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': "Hackers System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': "Hackers System Error "+str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
         try:
             logging.error(traceback.format_exc())
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': "Hackers System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': "Hackers System Error "+str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
 def extractKinematicInformation_old(kinematicparts):
     #print("Kinematic Parts",kinematicparts)
@@ -6110,7 +6109,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
             _, myShapes = outputShapes
             
-            shapeArray,onlyShapes,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            shapeArray,_,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
             print("myshapes",shapePickles)
             kinematicrotation = []
             shapeorder=[]
@@ -6282,7 +6281,7 @@ def FileGetKinematicRotationalAnimation(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)  
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)  
     except:
         try:
             logging.error(traceback.format_exc())
@@ -6359,7 +6358,7 @@ def getOutputShapesFromSourceFile(sourceFileName,distancegap,anglegap,statusfile
                 print("error",e)
         
         try:
-            setComparisonDictionary(statusfilename,10*fileNo,starttime,comparedict,False)
+            OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,10*fileNo,starttime,comparedict,False)
             _, myShapes = outputShapes
             
             shapeArray,onlyShapes,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
@@ -6374,138 +6373,280 @@ def getOutputShapesFromSourceFile(sourceFileName,distancegap,anglegap,statusfile
     except:
         return {}
         #raise ValueError("File Could not be loaded") 
-def bringToOriginAndToUnitAxis(fullShape1,thisdimension1,thisdictionary1,stepname):
-    aBaryCenter = thisdimension1.Center()
-    cx,cy,cz=  aBaryCenter.X(),aBaryCenter.Y(),aBaryCenter.Z()
-    fullZeroShape1=translate_shp(fullShape1,-cx,-cy,-cz, True)
-    thisRotateddimension1 = get_oriented_bounding_details(fullZeroShape1)  
-    thisRotateddictionary1 = getDictionaryFromOBB(thisRotateddimension1)
-    #fullZeroShape = fullZeroShape1
-    print("")
-    print("After translation with center",thisRotateddictionary1,thisdictionary1,cx,cy,cz)
-    aLoc=gp_Trsf()
-    aLoc.SetTransformation(gp_Ax3(),thisRotateddimension1.Position())
-    brep_trns = BRepBuilderAPI_Transform(fullZeroShape1, aLoc, True)
-    fullZeroShape2 = brep_trns.Shape()
-    thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
-    thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2,True)
-    print("After Rotation with built in transformation",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
-    aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
-    OCPStepIGESAnalyser.StepExportWithColor(shape=fullZeroShape2,color=aColor,name="ZeroOrign"+stepname).write_file(filename=stepname)
-    """  aLoc=gp_Trsf()
-    aLoc.SetTransformation(gp_Ax3(),thisdimension1.Position())
-    brep_trns = BRepBuilderAPI_Transform(fullZeroShape1, aLoc, True)
-    fullZeroShape2 = brep_trns.Shape()
-    thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
-    thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2)
-    print("After Rotation with built in reversing",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
-    aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
-    OCPStepIGESAnalyser.StepExportWithColor(shape=fullZeroShape2,color=aColor,name="MyShapeCommon").write_file(filename=stepname+"Reversed.step")
+
+# def bringToOriginAndToUnitAxis(fullShape1,thisdimension1,thisdictionary1,stepname):
+#     aBaryCenter = thisdimension1.Center()
+#     cx,cy,cz=  aBaryCenter.X(),aBaryCenter.Y(),aBaryCenter.Z()
+#     fullZeroShape1=translate_shp(fullShape1,-cx,-cy,-cz, True)
+#     thisRotateddimension1 = get_oriented_bounding_details(fullZeroShape1)  
+#     thisRotateddictionary1 = getDictionaryFromOBB(thisRotateddimension1)
+#     #fullZeroShape = fullZeroShape1
+#     print("")
+#     print("After translation with center",thisRotateddictionary1,thisdictionary1,cx,cy,cz)
+#     aLoc=gp_Trsf()
+#     aLoc.SetTransformation(gp_Ax3(),thisRotateddimension1.Position())
+#     brep_trns = BRepBuilderAPI_Transform(fullZeroShape1, aLoc, True)
+#     fullZeroShape2 = brep_trns.Shape()
+#     thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
+#     thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2,True)
+#     print("After Rotation with built in transformation",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
+#     aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
+#     OCPStepIGESAnalyser.StepExportWithColor(shape=fullZeroShape2,color=aColor,name="ZeroOrign"+stepname).write_file(filename=stepname)
+#     """  aLoc=gp_Trsf()
+#     aLoc.SetTransformation(gp_Ax3(),thisdimension1.Position())
+#     brep_trns = BRepBuilderAPI_Transform(fullZeroShape1, aLoc, True)
+#     fullZeroShape2 = brep_trns.Shape()
+#     thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
+#     thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2)
+#     print("After Rotation with built in reversing",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
+#     aColor = Quantity_Color(0, 0, 1, Quantity_TOC_RGB)
+#     OCPStepIGESAnalyser.StepExportWithColor(shape=fullZeroShape2,color=aColor,name="MyShapeCommon").write_file(filename=stepname+"Reversed.step")
  
-    x_direction = thisdimension1.XDirection()
-    y_direction = thisdimension1.YDirection()
-    z_direction = thisdimension1.ZDirection()
-    a_half_x = thisdimension1.XHSize()
-    a_half_y = thisdimension1.YHSize()
-    a_half_z = thisdimension1.ZHSize()
-    print("GettingDirections",x_direction,y_direction,z_direction)
-    ax = gp_XYZ(x_direction.X(), x_direction.Y(), x_direction.Z())
-    ay = gp_XYZ(y_direction.X(), y_direction.Y(), y_direction.Z())
-    az = gp_XYZ(z_direction.X(), z_direction.Y(), z_direction.Z())
-    print("Completed Directions",ax,ay,az)
-    p = gp_Pnt(0, 0,0)
-    an_axe = gp_Ax2(p, gp_Dir(z_direction), gp_Dir(x_direction))
-    print("initiated Axis",an_axe)
-    an_axe.SetLocation(gp_Pnt(p.XYZ() - ax * a_half_x - ay * a_half_y - az * a_half_z))
-    print("completed Axis",an_axe)
-    a_box = BRepPrimAPI_MakeBox(
-        an_axe, 2.0 * a_half_x, 2.0 * a_half_y, 2.0 * a_half_z
-    ).Shape()
-    OCPStepIGESAnalyser.StepExportWithColor(shape=a_box,color=aColor,name="MyShapeCommon").write_file(filename=stepname+"OriginalBox"+".step")
-    aLoc=gp_Trsf()
-    aLoc.SetTransformation(thisdimension1.Position(),gp_Ax3())
-    brep_trns = BRepBuilderAPI_Transform(a_box, aLoc, True)
-    fullZeroShape2 = brep_trns.Shape()
-    thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
-    thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2)
-    print("After Rotation with built in transformation for the box",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
-    OCPStepIGESAnalyser.StepExportWithColor(shape=fullZeroShape2,color=aColor,name="MyShapeCommon").write_file(filename=stepname+"TransformedBox"+".step")
-    aLoc=gp_Trsf()
-    aLoc.SetTransformation(gp_Ax3(),thisdimension1.Position())
-    brep_trns = BRepBuilderAPI_Transform(a_box, aLoc, True)
-    fullZeroShape2 = brep_trns.Shape()
-    thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
-    thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2)
-    print("After Rotation with built in reversed for the box",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
-    OCPStepIGESAnalyser.StepExportWithColor(shape=fullZeroShape2,color=aColor,name="MyShapeCommon").write_file(filename=stepname+"ReversedBox"+".step")
+#     x_direction = thisdimension1.XDirection()
+#     y_direction = thisdimension1.YDirection()
+#     z_direction = thisdimension1.ZDirection()
+#     a_half_x = thisdimension1.XHSize()
+#     a_half_y = thisdimension1.YHSize()
+#     a_half_z = thisdimension1.ZHSize()
+#     print("GettingDirections",x_direction,y_direction,z_direction)
+#     ax = gp_XYZ(x_direction.X(), x_direction.Y(), x_direction.Z())
+#     ay = gp_XYZ(y_direction.X(), y_direction.Y(), y_direction.Z())
+#     az = gp_XYZ(z_direction.X(), z_direction.Y(), z_direction.Z())
+#     print("Completed Directions",ax,ay,az)
+#     p = gp_Pnt(0, 0,0)
+#     an_axe = gp_Ax2(p, gp_Dir(z_direction), gp_Dir(x_direction))
+#     print("initiated Axis",an_axe)
+#     an_axe.SetLocation(gp_Pnt(p.XYZ() - ax * a_half_x - ay * a_half_y - az * a_half_z))
+#     print("completed Axis",an_axe)
+#     a_box = BRepPrimAPI_MakeBox(
+#         an_axe, 2.0 * a_half_x, 2.0 * a_half_y, 2.0 * a_half_z
+#     ).Shape()
+#     OCPStepIGESAnalyser.StepExportWithColor(shape=a_box,color=aColor,name="MyShapeCommon").write_file(filename=stepname+"OriginalBox"+".step")
+#     aLoc=gp_Trsf()
+#     aLoc.SetTransformation(thisdimension1.Position(),gp_Ax3())
+#     brep_trns = BRepBuilderAPI_Transform(a_box, aLoc, True)
+#     fullZeroShape2 = brep_trns.Shape()
+#     thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
+#     thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2)
+#     print("After Rotation with built in transformation for the box",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
+#     OCPStepIGESAnalyser.StepExportWithColor(shape=fullZeroShape2,color=aColor,name="MyShapeCommon").write_file(filename=stepname+"TransformedBox"+".step")
+#     aLoc=gp_Trsf()
+#     aLoc.SetTransformation(gp_Ax3(),thisdimension1.Position())
+#     brep_trns = BRepBuilderAPI_Transform(a_box, aLoc, True)
+#     fullZeroShape2 = brep_trns.Shape()
+#     thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
+#     thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2)
+#     print("After Rotation with built in reversed for the box",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
+#     OCPStepIGESAnalyser.StepExportWithColor(shape=fullZeroShape2,color=aColor,name="MyShapeCommon").write_file(filename=stepname+"ReversedBox"+".step")
     
-    thisInverteddictionary1 = thisRotateddictionary1
+#     thisInverteddictionary1 = thisRotateddictionary1
     
-    myMatrix = [
-        [thisRotateddictionary1["xx"],thisRotateddictionary1["yx"],thisRotateddictionary1["zx"]],
-        [thisRotateddictionary1["xy"],thisRotateddictionary1["yy"],thisRotateddictionary1["zy"]],
-        [thisRotateddictionary1["xz"],thisRotateddictionary1["yz"],thisRotateddictionary1["zz"]]
-        ]
-    inverseMatrix = getMatrixInverse(myMatrix)
-    print("Inverse Matrix",inverseMatrix,myMatrix)
-    [
-        [thisInverteddictionary1["xx"],thisInverteddictionary1["yx"],thisInverteddictionary1["zx"]],
-        [thisInverteddictionary1["xy"],thisInverteddictionary1["yy"],thisInverteddictionary1["zy"]],
-        [thisInverteddictionary1["xz"],thisInverteddictionary1["yz"],thisInverteddictionary1["zz"]]
-        ] = inverseMatrix
-    trace = thisInverteddictionary1["xx"] + thisInverteddictionary1["yy"] + thisInverteddictionary1["zz"]
-    ax = thisInverteddictionary1["zy"]-thisInverteddictionary1["yz"]
-    ay = thisInverteddictionary1["zx"]-thisInverteddictionary1["xz"]
-    az = thisInverteddictionary1["yx"]-thisInverteddictionary1["xy"]
-    diagonal=math.sqrt(ax*ax+ay*ay+az*az)
-    angle=0
-    if(diagonal!=0):
-        ax, ay, az = ax/diagonal, ay/diagonal, az/diagonal
-        angle = math.acos((trace-1.0)/2.0)
-        if(angle!=0):
-            fullZeroShape = fullZeroShape1
-            fullZeroShape1=rotate_shape(fullZeroShape,0,0,0, ax, ay, az, angle, unity="radian",copy=True)
-            thisdimension1 = get_oriented_bounding_details(fullZeroShape1)                        
-            thisRotateddictionary1 = getDictionaryFromOBB(thisdimension1)   
-            print("After rotation with positive angle",thisRotateddictionary1,thisdictionary1,thisInverteddictionary1, ax, ay, az, angle)
-            fullZeroShape1=rotate_shape(fullZeroShape,0,0,0, ax, ay, az, -angle, unity="radian",copy=True)
-            thisdimension1 = get_oriented_bounding_details(fullZeroShape1)                        
-            thisRotateddictionary1 = getDictionaryFromOBB(thisdimension1)
-    print("After rotation with Orientation",thisRotateddictionary1,thisdictionary1,thisInverteddictionary1, ax, ay, az, diagonal, -angle)        
-    """
-    print("") 
-    return (fullZeroShape1,thisRotateddictionary1,(cx,cy,cz))
+#     myMatrix = [
+#         [thisRotateddictionary1["xx"],thisRotateddictionary1["yx"],thisRotateddictionary1["zx"]],
+#         [thisRotateddictionary1["xy"],thisRotateddictionary1["yy"],thisRotateddictionary1["zy"]],
+#         [thisRotateddictionary1["xz"],thisRotateddictionary1["yz"],thisRotateddictionary1["zz"]]
+#         ]
+#     inverseMatrix = getMatrixInverse(myMatrix)
+#     print("Inverse Matrix",inverseMatrix,myMatrix)
+#     [
+#         [thisInverteddictionary1["xx"],thisInverteddictionary1["yx"],thisInverteddictionary1["zx"]],
+#         [thisInverteddictionary1["xy"],thisInverteddictionary1["yy"],thisInverteddictionary1["zy"]],
+#         [thisInverteddictionary1["xz"],thisInverteddictionary1["yz"],thisInverteddictionary1["zz"]]
+#         ] = inverseMatrix
+#     trace = thisInverteddictionary1["xx"] + thisInverteddictionary1["yy"] + thisInverteddictionary1["zz"]
+#     ax = thisInverteddictionary1["zy"]-thisInverteddictionary1["yz"]
+#     ay = thisInverteddictionary1["zx"]-thisInverteddictionary1["xz"]
+#     az = thisInverteddictionary1["yx"]-thisInverteddictionary1["xy"]
+#     diagonal=math.sqrt(ax*ax+ay*ay+az*az)
+#     angle=0
+#     if(diagonal!=0):
+#         ax, ay, az = ax/diagonal, ay/diagonal, az/diagonal
+#         angle = math.acos((trace-1.0)/2.0)
+#         if(angle!=0):
+#             fullZeroShape = fullZeroShape1
+#             fullZeroShape1=rotate_shape(fullZeroShape,0,0,0, ax, ay, az, angle, unity="radian",copy=True)
+#             thisdimension1 = get_oriented_bounding_details(fullZeroShape1)                        
+#             thisRotateddictionary1 = getDictionaryFromOBB(thisdimension1)   
+#             print("After rotation with positive angle",thisRotateddictionary1,thisdictionary1,thisInverteddictionary1, ax, ay, az, angle)
+#             fullZeroShape1=rotate_shape(fullZeroShape,0,0,0, ax, ay, az, -angle, unity="radian",copy=True)
+#             thisdimension1 = get_oriented_bounding_details(fullZeroShape1)                        
+#             thisRotateddictionary1 = getDictionaryFromOBB(thisdimension1)
+#     print("After rotation with Orientation",thisRotateddictionary1,thisdictionary1,thisInverteddictionary1, ax, ay, az, diagonal, -angle)        
+#     """
+#     print("") 
+#     return (fullZeroShape1,thisRotateddictionary1,(cx,cy,cz))
 
-def getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1):
-    facedata1=[]                        
-    faceList1 = list(face_dict1.values())
-    for faces1 in range(len(faceList1)):
-        facedata1.append([])
-        dumpTopologyStructures(faceList1[faces1],level=0,parentId=[None],returnStructure=facedata1[faces1],faceInfo=None, depth=1, hashEquals=True)                      
-    edgedata1=[]
-    edgeList1 = list(edge_dict1.values())
-    for edges1 in range(len(edgeList1)):
-        edgedata1.append([])
-        dumpTopologyStructures(edgeList1[edges1],level=0,parentId=[None],returnStructure=edgedata1[edges1],faceInfo=None, depth=1, hashEquals=True)                  
-    vertexdata1=[]
-    vertexList1 = list(vertex_dict1.values())
-    for vertex1 in range(len(vertexList1)):
-        vertexdata1.append([])
-        dumpTopologyStructures(vertexList1[vertex1],level=0,parentId=[None],returnStructure=vertexdata1[vertex1],faceInfo=None, depth=1, hashEquals=True)
-    return facedata1, edgedata1, vertexdata1                       
+# def setComparisonDictionary(statusfilename,percentage,starttime, mystatusdict, createdirectory):
+#     currenttime = datetime.utcnow()  
+    
+#     mystatusdict["status"] =  {
+#             "percent":(percentage),
+#             "start":starttime.strftime("%H-%M-%S"),
+#             "current":currenttime.strftime("%H-%M-%S") }
+#     mystatusdict["store"] = statusfilename
+#     try:   
+#         if(createdirectory):
+#             os.makedirs(os.path.dirname(statusfilename), exist_ok=True)            
+#         print("Writing",statusfilename,mystatusdict["status"]) 
+#         with open(statusfilename, 'w') as fh:
+#             fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))            
+#     except Exception as e:
+#         print("Error while wrting",statusfilename,e)
+#     return mystatusdict
 
-def ordered(obj):
-    if isinstance(obj, dict):
-        return sorted((k, ordered(v)) for k, v in obj.items())
-    if isinstance(obj, list):
-        return sorted(ordered(x) for x in obj)
-    else:
-        return obj
+# def getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1):
+#     facedata1=[]                        
+#     faceList1 = list(face_dict1.values())
+#     for faces1 in range(len(faceList1)):
+#         facedata1.append([])
+#         dumpTopologyStructures(faceList1[faces1],level=0,parentId=[None],returnStructure=facedata1[faces1],faceInfo=None, depth=1, hashEquals=True)                      
+#     edgedata1=[]
+#     edgeList1 = list(edge_dict1.values())
+#     for edges1 in range(len(edgeList1)):
+#         edgedata1.append([])
+#         dumpTopologyStructures(edgeList1[edges1],level=0,parentId=[None],returnStructure=edgedata1[edges1],faceInfo=None, depth=1, hashEquals=True)                  
+#     vertexdata1=[]
+#     vertexList1 = list(vertex_dict1.values())
+#     for vertex1 in range(len(vertexList1)):
+#         vertexdata1.append([])
+#         dumpTopologyStructures(vertexList1[vertex1],level=0,parentId=[None],returnStructure=vertexdata1[vertex1],faceInfo=None, depth=1, hashEquals=True)
+#     return facedata1, edgedata1, vertexdata1                       
 
-def compareOneToOneShape(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2):
-    #print(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2)
-    return faceStruct1==faceStruct2 and edgeStruct1==edgeStruct2 and vertexStruct1==vertexStruct2
+# def ordered(obj):
+#     if isinstance(obj, dict):
+#         return sorted((k, ordered(v)) for k, v in obj.items())
+#     if isinstance(obj, list):
+#         return sorted(ordered(x) for x in obj)
+#     else:
+#         return obj
 
+# def compareOneToOneShape(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2):
+#     #print(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2)
+#     return faceStruct1==faceStruct2 and edgeStruct1==edgeStruct2 and vertexStruct1==vertexStruct2
+
+# def compareToCheckIdentityShapes(sourceFileName1,sourceFileName2,onlyShapes1,onlyShapes2,statusfilename,starttime=None):#,thumbwidth,thumbheight):
+#     dictionary={
+#         "source1":sourceFileName1,
+#         "source2":sourceFileName2,
+#         "node1":0,
+#         "node2":0,
+#         "isEqual":False }
+#     if sourceFileName1 and sourceFileName2:
+#         try:
+#             dictionary["node1"]=len(onlyShapes1)
+#             dictionary["node2"]=len(onlyShapes2)
+#             dictionary["isEqual"]=dictionary["node1"]==dictionary["node2"]
+#             #print("Done up to this0")
+#             if(dictionary["isEqual"]==False):
+#                 setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+#                 return 
+#             fullShape1,_ = list_of_shapes_to_compound(onlyShapes1,True)
+#             fullShape2,_ = list_of_shapes_to_compound(onlyShapes2,True)
+#             thisdimension1 = get_oriented_bounding_details(fullShape1)  
+#             #print("Done up to this1")                      
+#             thisdictionary1 = getDictionaryFromOBB(thisdimension1,True)
+#             sx1,sy1,sz1 = thisdictionary1["sx"],thisdictionary1["sy"],thisdictionary1["sz"]
+#             [sx1,sy1,sz1] = sorted([sx1,sy1,sz1])
+#             thisdimension2 = get_oriented_bounding_details(fullShape2)                        
+#             thisdictionary2 = getDictionaryFromOBB(thisdimension2,True)
+#             sx2,sy2,sz2 = thisdictionary2["sx"],thisdictionary2["sy"],thisdictionary2["sz"]
+#             [sx2,sy2,sz2] = sorted([sx2,sy2,sz2])
+#             dictionary["obb1"]=thisdictionary1
+#             dictionary["obb2"]=thisdictionary2
+#             dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+#             if(dictionary["isEqual"]==False):
+#                 setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+#                 return
+#             #print("Done up to this1")
+#             fullZeroShape1, fullZeroDictionary1, center1,rotation1 = OCPStepIGESAnalyser.StepExportWithColor().\
+#                 bringToOriginAndToUnitAxis(fullShape1,thisdimension1,thisdictionary1,statusfilename+"1.step")
+#             fullZeroShape2, fullZeroDictionary2, center2,rotation2 = OCPStepIGESAnalyser.StepExportWithColor().\
+#                 bringToOriginAndToUnitAxis(fullShape2,thisdimension2,thisdictionary2,statusfilename+"2.step")
+#             dictionary["origin1"]=fullZeroDictionary1
+#             dictionary["origin2"]=fullZeroDictionary2
+#             dictionary["center1"]=center1
+#             dictionary["center2"]=center2
+#             dictionary['rotation1']=rotation1
+#             dictionary['rotation2']=rotation2
+#             dictionary["step1"]=statusfilename+"1.step"
+#             dictionary["step2"]=statusfilename+"2.step"
+#             setComparisonDictionary(statusfilename,30,starttime,dictionary,False)
+#             face_dict1={}
+#             edge_dict1={}
+#             vertex_dict1={}
+#             dumpTopologyFacesEdgesVertices(fullZeroShape1,face_dict1,edge_dict1,vertex_dict1)
+#             dictionary["face1"]=len(face_dict1)
+#             dictionary["edge1"]=len(edge_dict1)
+#             dictionary["vertex1"]=len(vertex_dict1)
+#             face_dict2={}
+#             edge_dict2={}
+#             vertex_dict2={}
+#             dumpTopologyFacesEdgesVertices(fullZeroShape2,face_dict2,edge_dict2,vertex_dict2)
+#             dictionary["face2"]=len(face_dict2)
+#             dictionary["edge2"]=len(edge_dict2)
+#             dictionary["vertex2"]=len(vertex_dict2)
+#             dictionary["vertexEquals"]=(dictionary["vertex1"]==dictionary["vertex2"])
+#             dictionary["isEqual"] = (dictionary["face1"]==dictionary["face2"]) and (dictionary["edge1"]==dictionary["edge2"]) and (dictionary["vertex1"]==dictionary["vertex2"])
+#             if(dictionary["vertexEquals"]==False):
+#                 setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+#                 return
+#             faceStruct1, edgeStruct1, vertexStruct1 = getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1) 
+#             faceStruct2, edgeStruct2, vertexStruct2 = getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
+             
+#             faceStruct1, edgeStruct1, vertexStruct1 = ordered(faceStruct1), ordered(edgeStruct1), ordered(vertexStruct1)
+#             faceStruct2, edgeStruct2, vertexStruct2 = ordered(faceStruct2), ordered(edgeStruct2), ordered(vertexStruct2)
+#             faceStruct3, edgeStruct3, vertexStruct3 = faceStruct2, edgeStruct2, vertexStruct2
+#             sx1,sy1,sz1 = fullZeroDictionary1["sx"],fullZeroDictionary1["sy"],fullZeroDictionary1["sz"]
+#             setComparisonDictionary(statusfilename,31,starttime,dictionary,False)            
+#             for xdir in range(4):
+#                 for ydir in range(4):
+#                     for zdir in range(4):
+#                         if xdir==0 and ydir==0 and zdir==0: 
+#                             sx2,sy2,sz2 = fullZeroDictionary2["sx"],fullZeroDictionary2["sy"],fullZeroDictionary2["sz"]
+#                             dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+#                             if dictionary["isEqual"]:                                                    
+#                                 dictionary["isEqual"]=compareOneToOneShape(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2)
+#                                 dictionary["vertexEquals"]=(vertexStruct1==vertexStruct2)
+#                         else:
+#                             fullZeroRotatedShape2=rotate_shp_3_axis(fullZeroShape2,xdir*math.pi/2,ydir*math.pi/2,zdir*math.pi/2, unity="radian", copy=True) 
+#                             thisRotateddimension2 = get_oriented_bounding_details(fullZeroRotatedShape2)                        
+#                             fullZeroDictionary2 = getDictionaryFromOBB(thisRotateddimension2)
+#                             sx2,sy2,sz2 = fullZeroDictionary2["sx"],fullZeroDictionary2["sy"],fullZeroDictionary2["sz"]
+#                             dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+#                             if dictionary["isEqual"]:
+#                                 face_dict2={}
+#                                 edge_dict2={}
+#                                 vertex_dict2={}
+#                                 dumpTopologyFacesEdgesVertices(fullZeroRotatedShape2,face_dict2,edge_dict2,vertex_dict2) 
+#                                 faceStruct2, edgeStruct2, vertexStruct2 = getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
+#                                 faceStruct2, edgeStruct2, vertexStruct2 = ordered(faceStruct2), ordered(edgeStruct2), ordered(vertexStruct2)
+#                                 dictionary["isEqual"]=compareOneToOneShape(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2)
+#                                 if dictionary["vertexEquals"]==False:
+#                                     dictionary["vertexEquals"]=(vertexStruct1==vertexStruct2)
+#                                     if dictionary["vertexEquals"]:
+#                                         dictionary["vertexCompare2"]=(xdir*90,ydir*90,zdir*90)
+#                                         print(xdir*90,ydir*90,zdir*90,"Vertex Done")
+#                         if dictionary["isEqual"]:
+#                             dictionary["compare2"]=(xdir*90,ydir*90,zdir*90)
+#                             dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
+#                             dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
+#                             dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
+#                             setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+#                             print(xdir*90,ydir*90,zdir*90,"Done")
+#                             return  
+#                         setComparisonDictionary(statusfilename,32+zdir+ydir*4+xdir*16,starttime,dictionary,False) 
+#             dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
+#             dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
+#             dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
+#             setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+#             print("Not Equal")     
+#             return  
+#         except Exception as e:
+#             dictionary["error"]=str(e)
+#             setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+#             return  
+#     setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+#     return  
 
 def compareToCheckIdentity(sourceFileName1,sourceFileName2,distancegap,anglegap,statusfilename,starttime=None):#,thumbwidth,thumbheight):
     dictionary={
@@ -6517,127 +6658,19 @@ def compareToCheckIdentity(sourceFileName1,sourceFileName2,distancegap,anglegap,
     if sourceFileName1 and sourceFileName2:
         try:
             _,onlyShapes1,_,_ = getOutputShapesFromSourceFile(sourceFileName1,distancegap,anglegap,statusfilename,dictionary,starttime,1)
-            setComparisonDictionary(statusfilename,15,starttime,dictionary,False)
+            OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,15,starttime,dictionary,False)
             _,onlyShapes2,_,_ = getOutputShapesFromSourceFile(sourceFileName2,distancegap,anglegap,statusfilename,dictionary,starttime,2)
-            setComparisonDictionary(statusfilename,25,starttime,dictionary,False)
-            dictionary["node1"]=len(onlyShapes1)
-            dictionary["node2"]=len(onlyShapes2)
-            dictionary["isEqual"]=dictionary["node1"]==dictionary["node2"]
-            if(dictionary["isEqual"]==False):
-                setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
-                return 
-            fullShape1,_ = list_of_shapes_to_compound(onlyShapes1,True)
-            fullShape2,_ = list_of_shapes_to_compound(onlyShapes2,True)
-            thisdimension1 = get_oriented_bounding_details(fullShape1)                        
-            thisdictionary1 = getDictionaryFromOBB(thisdimension1,True)
-            sx1,sy1,sz1 = thisdictionary1["sx"],thisdictionary1["sy"],thisdictionary1["sz"]
-            [sx1,sy1,sz1] = sorted([sx1,sy1,sz1])
-            thisdimension2 = get_oriented_bounding_details(fullShape2)                        
-            thisdictionary2 = getDictionaryFromOBB(thisdimension2,True)
-            sx2,sy2,sz2 = thisdictionary2["sx"],thisdictionary2["sy"],thisdictionary2["sz"]
-            [sx2,sy2,sz2] = sorted([sx2,sy2,sz2])
-            dictionary["obb1"]=thisdictionary1
-            dictionary["obb2"]=thisdictionary2
-            dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
-            if(dictionary["isEqual"]==False):
-                setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
-                return
-            fullZeroShape1, fullZeroDictionary1, center1 = bringToOriginAndToUnitAxis(fullShape1,thisdimension1,thisdictionary1,statusfilename+"1.step")
-            fullZeroShape2, fullZeroDictionary2, center2 = bringToOriginAndToUnitAxis(fullShape2,thisdimension2,thisdictionary2,statusfilename+"2.step")
-            dictionary["origin1"]=fullZeroDictionary1
-            dictionary["origin2"]=fullZeroDictionary2
-            dictionary["center1"]=center1
-            dictionary["center2"]=center2
-            dictionary["step1"]=statusfilename+"1.step"
-            dictionary["step2"]=statusfilename+"2.step"
-            setComparisonDictionary(statusfilename,30,starttime,dictionary,False)
-            face_dict1={}
-            edge_dict1={}
-            vertex_dict1={}
-            dumpTopologyFacesEdgesVertices(fullZeroShape1,face_dict1,edge_dict1,vertex_dict1)
-            dictionary["face1"]=len(face_dict1)
-            dictionary["edge1"]=len(edge_dict1)
-            dictionary["vertex1"]=len(vertex_dict1)
-            face_dict2={}
-            edge_dict2={}
-            vertex_dict2={}
-            dumpTopologyFacesEdgesVertices(fullZeroShape2,face_dict2,edge_dict2,vertex_dict2)
-            dictionary["face2"]=len(face_dict2)
-            dictionary["edge2"]=len(edge_dict2)
-            dictionary["vertex2"]=len(vertex_dict2)
-            dictionary["isEqual"] = (dictionary["face1"]==dictionary["face2"]) and (dictionary["edge1"]==dictionary["edge2"]) and (dictionary["vertex1"]==dictionary["vertex2"])
-            if(dictionary["isEqual"]==False):
-                setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
-                return
-            faceStruct1, edgeStruct1, vertexStruct1 = getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1) 
-            faceStruct2, edgeStruct2, vertexStruct2 = getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
-             
-            faceStruct1, edgeStruct1, vertexStruct1 = ordered(faceStruct1), ordered(edgeStruct1), ordered(vertexStruct1)
-            faceStruct2, edgeStruct2, vertexStruct2 = ordered(faceStruct2), ordered(edgeStruct2), ordered(vertexStruct2)
-            faceStruct3, edgeStruct3, vertexStruct3 = faceStruct2, edgeStruct2, vertexStruct2
-            sx1,sy1,sz1 = fullZeroDictionary1["sx"],fullZeroDictionary1["sy"],fullZeroDictionary1["sz"]
-            setComparisonDictionary(statusfilename,30,starttime,dictionary,False)            
-            for xdir in range(4):
-                for ydir in range(4):
-                    for zdir in range(4):
-                        if xdir==0 and ydir==0 and zdir==0: 
-                            sx2,sy2,sz2 = fullZeroDictionary2["sx"],fullZeroDictionary2["sy"],fullZeroDictionary2["sz"]
-                            dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
-                            if dictionary["isEqual"]:                                                    
-                                dictionary["isEqual"]=compareOneToOneShape(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2)
-                        else:
-                            fullZeroRotatedShape2=rotate_shp_3_axis(fullZeroShape2,xdir*math.pi/4,ydir*math.pi/4,zdir*math.pi/4, unity="radian", copy=True) 
-                            thisRotateddimension2 = get_oriented_bounding_details(fullZeroRotatedShape2)                        
-                            fullZeroDictionary2 = getDictionaryFromOBB(thisRotateddimension2)
-                            sx2,sy2,sz2 = fullZeroDictionary2["sx"],fullZeroDictionary2["sy"],fullZeroDictionary2["sz"]
-                            dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
-                            if dictionary["isEqual"]:
-                                face_dict2={}
-                                edge_dict2={}
-                                vertex_dict2={}
-                                dumpTopologyFacesEdgesVertices(fullZeroRotatedShape2,face_dict2,edge_dict2,vertex_dict2) 
-                                faceStruct2, edgeStruct2, vertexStruct2 = getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
-                                faceStruct2, edgeStruct2, vertexStruct2 = ordered(faceStruct2), ordered(edgeStruct2), ordered(vertexStruct2)
-                                dictionary["isEqual"]=compareOneToOneShape(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2)
-                        if dictionary["isEqual"]:
-                            dictionary["compare2"]=(xdir*math.pi/4,ydir*math.pi/4,zdir*math.pi/4)
-                            dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
-                            dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
-                            dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
-                            setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
-                            print(xdir*math.pi/4,ydir*math.pi/4,zdir*math.pi/4,"Done")
-                            return
-                        setComparisonDictionary(statusfilename,32+zdir+ydir*4+xdir*16,starttime,dictionary,False) 
-            dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
-            dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
-            dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
-            setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
-            print("Not Equal")     
+            OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,25,starttime,dictionary,False)
+            OCPStepIGESAnalyser.StepExportWithColor().compareToCheckIdentityShapes(sourceFileName1,sourceFileName2,onlyShapes1,onlyShapes2,statusfilename,starttime,None)
             return
         except Exception as e:
             dictionary["error"]=str(e)
-            setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+            OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
             return
-    setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+    OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
     return 
         #raise ValueError("File Could not be loaded") 
-def setComparisonDictionary(statusfilename,percentage,starttime, mystatusdict, createdirectory):
-    currenttime = datetime.utcnow()  
-    
-    mystatusdict["status"] =  {
-            "percent":(percentage),
-            "start":starttime.strftime("%H-%M-%S"),
-            "current":currenttime.strftime("%H-%M-%S") }
-    mystatusdict["store"] = statusfilename
-    try:   
-        if(createdirectory):
-            os.makedirs(os.path.dirname(statusfilename), exist_ok=True)            
-        print("Writing",statusfilename,mystatusdict["status"]) 
-        with open(statusfilename, 'w') as fh:
-            fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))            
-    except Exception as e:
-        print("Error while wrting",statusfilename,e)
-    return mystatusdict
+
     
 
 @api_view(['GET','POST'])
@@ -6681,7 +6714,7 @@ def FileCompareIdentity(request):
                 "node1":0,
                 "node2":0,
                 "isEqual":False }
-            data = setComparisonDictionary(statusfilename,0,starttime, dictionary, True)
+            data = OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,0,starttime, dictionary, True)
             mythread = threading.Thread(target=compareToCheckIdentity, daemon=True,\
                 args=(sourceFile1,sourceFile2,distancegap,anglegap,statusfilename,starttime))
             mythread.start() 
@@ -6692,7 +6725,7 @@ def FileCompareIdentity(request):
             logging.exception(e)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': e},status=status.HTTP_400_BAD_REQUEST, safe=False)  
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)  
     except:
         try:
             logging.error(traceback.format_exc())
