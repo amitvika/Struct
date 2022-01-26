@@ -1409,12 +1409,13 @@ class StepExportWithColor(object):
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break
-            self.assemblycreatedcurrentcount = totalcount
             myChildAssemblyOutputShapesLen = len(myChildAssemblyOutputShapes)
             for childShapesIndex in range(myChildAssemblyOutputShapesLen):
                 myAssemblyChildInfo = assemblyNames[childShapesIndex]
                 statusChildTree,childOutputShapes = myChildAssemblyOutputShapes[childShapesIndex]
+                self.writeProgress()
                 for compareShapesIndex in range(childShapesIndex+1,myChildAssemblyOutputShapesLen):
+                    self.writeProgress()
                     myAssemblyCompareInfo = assemblyNames[compareShapesIndex]
                     statusCompareTree,compareOutputShapes = myChildAssemblyOutputShapes[compareShapesIndex]
                     (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
@@ -1450,7 +1451,7 @@ class StepExportWithColor(object):
                                     (retDictionary["vertexEquals"],retDictionary["isEqual"])))
                         myAssemblyCompareInfo=(uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)
                         assemblyNames[compareShapesIndex]=myAssemblyCompareInfo
-
+            self.assemblycreatedcurrentcount = totalcount
             self.writeProgress(0,"Completed",assemblyNames)
             return  (addedAssembly,assemblyNames)
         self.writeProgress(0,totalcount,"No Child") 
@@ -2672,7 +2673,7 @@ class StepIgesAnalyser():
                     #print(hashcode,localTransform)
             if doCompact:                
                 len_color_arr = ( len(only_Colors) if only_Colors else 0 )
-                print("\t"*self.indent,"No of colors found",only_Colors[len_color_arr-1] if len_color_arr>0 else "NoColor","Faces",mylenFaceDict)
+                print("\t"*self.indent,"No of colors found",len_color_arr,":",only_Colors[len_color_arr-1] if len_color_arr>0 else "NoColor","Faces",mylenFaceDict)
                 if (len_color_arr<=2) or doParts or (mylenFaceDict > self.multiplegltf) or (fromCompound) or (self.seperateparts):
                     (R,G,B)=only_Colors[len_color_arr-1]
                     #print("Colors",R,G,B,len_color_arr,len(only_soilds))
