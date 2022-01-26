@@ -1384,10 +1384,11 @@ class StepExportWithColor(object):
                                                                  comparechildren=comparechildren).dump(False) 
                         subassemblyCounthere=0
                         subassemblyTreehere=0
-                        statusArray={
-                             "tree":status_dict["tree"],
-                             "status":status_dict["status"]}
+                        # statusArray={
+                        #      "tree":status_dict["tree"],
+                        #      "status":status_dict["status"]}
                         statusArrayStatus=status_dict["status"]
+                        statusTreeStatus=status_dict["tree"]
                         #statusArray={}
                         try:
                             if "status" in status_dict:
@@ -1399,9 +1400,9 @@ class StepExportWithColor(object):
                         except Exception as e:
                             print("There is an exception while fetching assembly count",e)
                         equalsDict=[]
-                        myAssemblyChildInfo = (uuidname,uniquename,treeName,subassemblyCounthere,subassemblyTreehere,treeDisplay,statusArray,equalsDict)
+                        myAssemblyChildInfo = (uuidname,uniquename,treeName,subassemblyCounthere,subassemblyTreehere,treeDisplay,statusArrayStatus,equalsDict)
                         assemblyNames.append(myAssemblyChildInfo)
-                        myChildAssemblyOutputShapes.append(outputAssemblyShapesOrder)
+                        myChildAssemblyOutputShapes.append((statusTreeStatus,outputAssemblyShapesOrder))
                                         #in thread background thumbnail creation is not working Hence forcing dump to be thread free.
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
@@ -1410,10 +1411,10 @@ class StepExportWithColor(object):
             myChildAssemblyOutputShapesLen = len(myChildAssemblyOutputShapes)
             for childShapesIndex in range(myChildAssemblyOutputShapesLen):
                 myAssemblyChildInfo = assemblyNames[childShapesIndex]
-                childOutputShapes = myChildAssemblyOutputShapes[childShapesIndex]
+                statusChildTree,childOutputShapes = myChildAssemblyOutputShapes[childShapesIndex]
                 for compareShapesIndex in range(childShapesIndex+1,myChildAssemblyOutputShapesLen):
                     myAssemblyCompareInfo = assemblyNames[compareShapesIndex]
-                    compareOutputShapes = myChildAssemblyOutputShapes[compareShapesIndex]
+                    statusCompareTree,compareOutputShapes = myChildAssemblyOutputShapes[compareShapesIndex]
                     (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
                     (uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)=myAssemblyCompareInfo
                     compareStatusFileName='Display/'+uuidname1+'/'+uniquename1+uniquename2+".status"
@@ -1428,10 +1429,10 @@ class StepExportWithColor(object):
                         "vertexEquals":False }
                     retDictionary = compareDictionary
                     self.setComparisonDictionary(compareStatusFileName,10,starttime,compareDictionary,True)
-                    if(self.compareStatusArrays(statusArray1["status"],statusArray2["status"])):
-                        _,onlyShapes1,_,_,_ = self.getShapesFromOutPutShapes(childOutputShapes,1,statusArray1["tree"],treeLength1,'')
+                    if(self.compareStatusArrays(statusArray1,statusArray2)):
+                        _,onlyShapes1,_,_,_ = self.getShapesFromOutPutShapes(childOutputShapes,1,statusChildTree,treeLength1,'')
                         self.setComparisonDictionary(compareStatusFileName,15,starttime,compareDictionary,False)
-                        _,onlyShapes2,_,_,_ = self.getShapesFromOutPutShapes(compareOutputShapes,1,statusArray2["tree"],treeLength2,'')
+                        _,onlyShapes2,_,_,_ = self.getShapesFromOutPutShapes(compareOutputShapes,1,statusCompareTree,treeLength2,'')
                         self.setComparisonDictionary(compareStatusFileName,25,starttime,compareDictionary,False)
                         retDictionary = self.compareToCheckIdentityShapes(sourceAssemblyFileName1,sourceAssemblyFileName2,onlyShapes1,onlyShapes2,compareStatusFileName,starttime,compareStepFileName)
                     if(retDictionary["vertexEquals"] or retDictionary["isEqual"]):
