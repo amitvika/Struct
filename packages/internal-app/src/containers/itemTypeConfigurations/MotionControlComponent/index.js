@@ -503,8 +503,6 @@ const CustomAutoSubmitInput = ({ handleInputChange }) => {
   React.useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       handleInputChange(searchTerm);
-      console.log(searchTerm);
-      // Send Axios request here
       setDelayedSearchTerm(searchTerm);
     }, 3000);
 

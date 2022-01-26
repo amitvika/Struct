@@ -9,7 +9,7 @@ import HistoryIcon from '@mui/icons-material//History';
 import FolderDeleteIcon from '@mui/icons-material//DeleteSweepOutlined';
 import Tooltip from '@mui/material/Tooltip';
 
-export default function Toolbar({
+function Toolbar({
   title,
   isViewArchivedChecked,
   handleViewArchived,
@@ -101,3 +101,5 @@ export default function Toolbar({
     </Paper>
   );
 }
+
+export default React.memo(Toolbar);

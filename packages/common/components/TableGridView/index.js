@@ -459,4 +459,4 @@ const GridAndListSelector = ({ isGridViewSelected, setIsGridViewSelected }) => {
   );
 };
 
-export default TableGridView;
+export default React.memo(TableGridView);
