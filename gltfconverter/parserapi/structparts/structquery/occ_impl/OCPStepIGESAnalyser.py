@@ -1888,7 +1888,7 @@ class StepExportWithColor(object):
                                     else:
                                         dictionary["isEqual"]=False 
                             else:
-                                fullZeroRotatedShape2=rotate_shp_3_axis(fullZeroShape2,xdir*math.pi/2,ydir*math.pi/2,zdir*math.pi/2, unity="radian", copy=True) 
+                                fullZeroRotatedShape2=rotate_shp_3_axis(fullZeroShape2,xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation, unity="radian", copy=True) 
                                 thisRotateddimension2 = get_oriented_bounding_details(fullZeroRotatedShape2)                        
                                 fullRotatedDictionary2 = getDictionaryFromOBB(thisRotateddimension2,True)
                                 sx2,sy2,sz2 = fullRotatedDictionary2["sx"],fullRotatedDictionary2["sy"],fullRotatedDictionary2["sz"]
@@ -2672,7 +2672,7 @@ class StepIgesAnalyser():
                     #print(hashcode,localTransform)
             if doCompact:                
                 len_color_arr = ( len(only_Colors) if only_Colors else 0 )
-                print("\t"*self.indent,"No of colors found",len_color_arr,"Faces",mylenFaceDict)
+                print("\t"*self.indent,"No of colors found",only_Colors[len_color_arr-1] if len_color_arr>0 else "NoColor","Faces",mylenFaceDict)
                 if (len_color_arr<=2) or doParts or (mylenFaceDict > self.multiplegltf) or (fromCompound) or (self.seperateparts):
                     (R,G,B)=only_Colors[len_color_arr-1]
                     #print("Colors",R,G,B,len_color_arr,len(only_soilds))
