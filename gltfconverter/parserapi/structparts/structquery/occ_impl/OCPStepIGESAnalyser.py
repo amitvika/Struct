@@ -1879,16 +1879,16 @@ class StepExportWithColor(object):
                                 dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
                                 if dictionary["isEqual"]: 
                                     print("")  
-                                    print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeForRotation,sx1,sy1,sz1,sx2,sy2,sz2)                                                
+                                    print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,sx1,sy1,sz1,sx2,sy2,sz2)                                                
                                     dictionary["vertexEquals"]=(vertexStruct1==vertexStruct2)
                                     if dictionary["vertexEquals"]:  
-                                        dictionary["vertexCompare2"]=(xdir*rangeForRotation,ydir*rangeForRotation,zdir*rangeForRotation)
-                                        print(xdir*rangeForRotation,ydir*rangeForRotation,zdir*rangeForRotation,"Vertex Done")
+                                        dictionary["vertexCompare2"]=(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation)
+                                        print(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,"Vertex Done")
                                         dictionary["isEqual"]=faceStruct1==faceStruct2 and edgeStruct1==edgeStruct2
                                     else:
                                         dictionary["isEqual"]=False 
                             else:
-                                fullZeroRotatedShape2=rotate_shp_3_axis(fullZeroShape2,xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation, unity="radian", copy=True) 
+                                fullZeroRotatedShape2=rotate_shp_3_axis(fullZeroShape2,xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation, unity="deg", copy=True) 
                                 thisRotateddimension2 = get_oriented_bounding_details(fullZeroRotatedShape2)                        
                                 fullRotatedDictionary2 = getDictionaryFromOBB(thisRotateddimension2,True)
                                 sx2,sy2,sz2 = fullRotatedDictionary2["sx"],fullRotatedDictionary2["sy"],fullRotatedDictionary2["sz"]
