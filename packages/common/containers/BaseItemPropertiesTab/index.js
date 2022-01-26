@@ -22,6 +22,7 @@ import {
   getFileNameWithoutExtension
 } from '@monostruct/common/gltf/Tree/utils';
 import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
+import AssemblyTab from '@monostruct/common/containers/AssemblyTab';
 
 export default function BaseItemProperties({
   itemId,
@@ -405,97 +406,101 @@ export default function BaseItemProperties({
   return (
     <div>
       {
-        <Grid className={classes.designcontainer}>
-          <Paper className={classes.paperContainer} variant="outlined" square>
-            {(progressBarLoader || progressBarRender) && (
-              <Box sx={{ width: '100%' }}>
-                <LinearProgressBarTiming
-                  value={percentager}
-                  currentProgressText={currentProgressTexter}
-                  completionProgressText={completionProgressTexter}
-                  centerActionText={centerActionTexter}
-                  progressBarRender={progressBarRender}
-                />
-              </Box>
-            )}
-            {
-              /*!isLoading &&
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Paper className={classes.paperContainer} variant="outlined" square>
+              {(progressBarLoader || progressBarRender) && (
+                <Box sx={{ width: '100%' }}>
+                  <LinearProgressBarTiming
+                    value={percentager}
+                    currentProgressText={currentProgressTexter}
+                    completionProgressText={completionProgressTexter}
+                    centerActionText={centerActionTexter}
+                    progressBarRender={progressBarRender}
+                  />
+                </Box>
+              )}
+              {
+                /*!isLoading &&
               Object.keys(gltfjson).length > 0 &&
               !isFileLoading &&*/ <GLTFRenderer
-                gltfobj={gltfobj}
-                fileGDT={itemProperties.fileGDT}
-                fileUUId={fileUUId}
-                fileAnimation={false}
-                activefile={
-                  (fileId || fileUUId || '') +
-                  gltfjsonlen.toString() +
-                  tabIndex.toString()
-                }
-                backcolor={DEFAULTBACKCOLOR()}
-                selectcolor={DEFAULTSELECTCOLOR()}
-                touchcolor={DEFAULTTOUCHCOLOR()}
-                selectedoption={selectedOption}
-                setSelectedOption={setSelectedOption}
-                splitmethod={SELECTHIRERACHY}
-                changedata={[]}
-                data2texture={null}
-                data3texture={null}
-                materialtype={STATEPROPS.materialname}
-                whatchanged={0}
-                dataselection={0}
-                activeDataTable={0}
+                  gltfobj={gltfobj}
+                  fileGDT={itemProperties.fileGDT}
+                  fileUUId={fileUUId}
+                  fileAnimation={false}
+                  activefile={
+                    (fileId || fileUUId || '') +
+                    gltfjsonlen.toString() +
+                    tabIndex.toString()
+                  }
+                  backcolor={DEFAULTBACKCOLOR()}
+                  selectcolor={DEFAULTSELECTCOLOR()}
+                  touchcolor={DEFAULTTOUCHCOLOR()}
+                  selectedoption={selectedOption}
+                  setSelectedOption={setSelectedOption}
+                  splitmethod={SELECTHIRERACHY}
+                  changedata={[]}
+                  data2texture={null}
+                  data3texture={null}
+                  materialtype={STATEPROPS.materialname}
+                  whatchanged={0}
+                  dataselection={0}
+                  activeDataTable={0}
+                  setProgressBarRender={setProgressBarRender}
+                  setPercentage={setPercentager}
+                  setProgressBarLoad={setProgressBarLoader}
+                  setCurrentProgressText={setCurrentProgressTexter}
+                  setCompletionProgressText={setCompletionProgressTexter}
+                  setCenterActionText={setCenterActionTexter}
+                  drawLine={drawLiner}
+                  edgecolor={STATEPROPS.edgecolor}
+                  activeGLTFFile={activeGLTFFile}
+                  setActiveGLTFile={setActiveGLTFile}
+                />
+              }
+              {isFileLoading && <CircularProgress />}
+            </Paper>
+            <Box className={classes.itemContainer}>
+              <GeometryInput
+                itemId={itemId}
+                handleFileUpload={handleFileUpload}
+                removeFile={removeFile}
+                setItemProperties={setItemProperties}
+                itemProperties={itemProperties}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+                isFileLoading={isFileLoading}
+                setIsFileLoading={setIsFileLoading}
+                label={'STEP, IGES, BREP, STL'}
+                distanceGap={distanceGaper}
+                setDistanceGap={setDistanceGaper}
+                angleGap={angleGaper}
+                setAngleGap={setAngleGaper}
+                drawLine={drawLiner}
+                setDrawLine={setDrawLiner}
                 setProgressBarRender={setProgressBarRender}
+                percentage={percentager}
                 setPercentage={setPercentager}
                 setProgressBarLoad={setProgressBarLoader}
                 setCurrentProgressText={setCurrentProgressTexter}
                 setCompletionProgressText={setCompletionProgressTexter}
                 setCenterActionText={setCenterActionTexter}
-                drawLine={drawLiner}
-                edgecolor={STATEPROPS.edgecolor}
-                activeGLTFFile={activeGLTFFile}
-                setActiveGLTFile={setActiveGLTFile}
+                {...{
+                  allowFirstLevelItems,
+                  setAllowFirstLevelItems,
+                  createAutoAssemblyOrder,
+                  setCreateAutoAssemblyOrder,
+                  createAutoStackability,
+                  setCreateAutoStackability,
+                  handleItemSaveOnServer,
+                  isDesignSite
+                }}
               />
-            }
-            {isFileLoading && <CircularProgress />}
-          </Paper>
-          <Grid className={classes.itemContainer}>
-            <GeometryInput
-              itemId={itemId}
-              handleFileUpload={handleFileUpload}
-              removeFile={removeFile}
-              setItemProperties={setItemProperties}
-              itemProperties={itemProperties}
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
-              isFileLoading={isFileLoading}
-              setIsFileLoading={setIsFileLoading}
-              label={'STEP, IGES, BREP, STL'}
-              distanceGap={distanceGaper}
-              setDistanceGap={setDistanceGaper}
-              angleGap={angleGaper}
-              setAngleGap={setAngleGaper}
-              drawLine={drawLiner}
-              setDrawLine={setDrawLiner}
-              setProgressBarRender={setProgressBarRender}
-              percentage={percentager}
-              setPercentage={setPercentager}
-              setProgressBarLoad={setProgressBarLoader}
-              setCurrentProgressText={setCurrentProgressTexter}
-              setCompletionProgressText={setCompletionProgressTexter}
-              setCenterActionText={setCenterActionTexter}
-              {...{
-                allowFirstLevelItems,
-                setAllowFirstLevelItems,
-                createAutoAssemblyOrder,
-                setCreateAutoAssemblyOrder,
-                createAutoStackability,
-                setCreateAutoStackability,
-                handleItemSaveOnServer,
-                isDesignSite
-              }}
-            />
-          </Grid>
-        </Grid>
+            </Box>
+          </Box>
+
+          <AssemblyTab />
+        </Box>
       }
     </div>
   );

@@ -92,13 +92,14 @@ const Administrative = () => {
               onChange={handleTabChange}
             >
               <Tab label="All Users" value={0} className="tab" />
-              <Tab label="User Access Permissions" value={3} className="tab" />
               <Tab
-                label="Team User Assignments"
+                label="Teams & User Assignments"
                 value={1}
                 className="tab"
                 sx={{ textAlign: 'left' }}
               />
+              <Tab label="Team Access Permissions" value={3} className="tab" />
+
               <Tab
                 label="Task Types & Team Assigments"
                 value={2}
