@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Assembly from '@monostruct/common/containers/AssemblyTab';
+import AssemblyTabWithTree from '@monostruct/common/containers/AssemblyTabWithTree';
 import { buildParentChildTree } from '@monostruct/common/containers/GeometricDimensioningTab/helper';
 import { SELECTFEATURE } from '@monostruct/common/gltf/Tree/utils';
 import ItemAPI from '@monostruct/common/api/items.api';
@@ -44,7 +44,7 @@ export default function ProductDesignSetup({ gltfjson, itemId }) {
   return (
     <div>
       {gltfjson?.tree && (
-        <Assembly
+        <AssemblyTabWithTree
           {...{
             assemblyTree: buildParentChildTree(gltfjson.tree, SELECTFEATURE),
             handleItemSelect

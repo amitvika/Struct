@@ -98,7 +98,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const FieldItemTitle = ({ style, title, valueToCopy }) => {
+const FieldItemTitle = React.memo(({ style, title, valueToCopy }) => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
@@ -138,9 +138,9 @@ const FieldItemTitle = ({ style, title, valueToCopy }) => {
       </Typography>
     </Tooltip>
   );
-};
+});
 
-export default function GridView({
+function GridView({
   list,
   columnsFields,
   handleTableRowClick,
@@ -219,7 +219,7 @@ export default function GridView({
     return item;
   };
 
-  const RenderIconBasedOnFileType = ({ file_url, logo_url }) => {
+  const RenderIconBasedOnFileType = React.memo(({ file_url, logo_url }) => {
     const [icons, setIcons] = React.useState(file_url);
     React.useEffect(() => {
       //console.log('URL', file_url);
@@ -261,7 +261,7 @@ export default function GridView({
       let fileName = file_png.substring(file_png.lastIndexOf('/') + 1);
       return <Avatar variant="square" alt={fileName} />;
     }
-  };
+  });
 
   return (
     <Grid container spacing={2}>
@@ -311,80 +311,84 @@ export default function GridView({
   );
 }
 
-const ActionButtonContainer = ({
-  product,
-  handleUndeleteButton = () => {},
-  handleDelete = () => {},
-  handleHistoryToggle = () => {},
-  handleEditButtonPress = () => {},
-  isViewArchivedChecked = true,
-  isHistoryLinkVisible = true,
-  showDeleteActionButton = true,
-  isEditLinkVisible = false
-}) => {
-  const classes = useStyles();
+const ActionButtonContainer = React.memo(
+  ({
+    product,
+    handleUndeleteButton = () => {},
+    handleDelete = () => {},
+    handleHistoryToggle = () => {},
+    handleEditButtonPress = () => {},
+    isViewArchivedChecked = true,
+    isHistoryLinkVisible = true,
+    showDeleteActionButton = true,
+    isEditLinkVisible = false
+  }) => {
+    const classes = useStyles();
 
-  const CustomIconButton = ({ title, onClick, children }) => {
+    const CustomIconButton = ({ title, onClick, children }) => {
+      return (
+        <Tooltip title={title} aria-label={title} placement="left">
+          <IconButton
+            onClick={(event) => {
+              event.stopPropagation();
+              onClick();
+            }}
+            style={{ padding: '7px' }}
+            size="large"
+          >
+            {children}
+          </IconButton>
+        </Tooltip>
+      );
+    };
+
     return (
-      <Tooltip title={title} aria-label={title} placement="left">
-        <IconButton
-          onClick={(event) => {
-            event.stopPropagation();
-            onClick();
-          }}
-          style={{ padding: '7px' }}
-          size="large"
-        >
-          {children}
-        </IconButton>
-      </Tooltip>
+      <div className={classes.actionIconContainer}>
+        {/* <ClipboardText item_id={product.id} /> */}
+        {isEditLinkVisible && (
+          <CustomIconButton
+            title={'Edit'}
+            onClick={(event) => {
+              handleEditButtonPress(product);
+            }}
+          >
+            <EditIcon />
+          </CustomIconButton>
+        )}
+        {isHistoryLinkVisible && (
+          <CustomIconButton
+            title={'View History'}
+            onClick={(event) => {
+              handleHistoryToggle({ rowId: product.id });
+            }}
+          >
+            <HistoryIcon />
+          </CustomIconButton>
+        )}
+
+        {showDeleteActionButton && !isViewArchivedChecked && (
+          <CustomIconButton
+            title={'Delete'}
+            onClick={(event) => {
+              handleDelete({ id: product.id });
+            }}
+          >
+            <DeleteOutlineIcon />
+          </CustomIconButton>
+        )}
+        {showDeleteActionButton && isViewArchivedChecked && (
+          <CustomIconButton
+            title={'Undelete'}
+            onClick={(event) => {
+              handleUndeleteButton({ id: product.id });
+            }}
+          >
+            <DeleteForeverIcon />
+          </CustomIconButton>
+        )}
+      </div>
     );
-  };
+  }
+);
 
-  return (
-    <div className={classes.actionIconContainer}>
-      {/* <ClipboardText item_id={product.id} /> */}
-      {isEditLinkVisible && (
-        <CustomIconButton
-          title={'Edit'}
-          onClick={(event) => {
-            handleEditButtonPress(product);
-          }}
-        >
-          <EditIcon />
-        </CustomIconButton>
-      )}
-      {isHistoryLinkVisible && (
-        <CustomIconButton
-          title={'View History'}
-          onClick={(event) => {
-            handleHistoryToggle({ rowId: product.id });
-          }}
-        >
-          <HistoryIcon />
-        </CustomIconButton>
-      )}
-
-      {showDeleteActionButton && !isViewArchivedChecked && (
-        <CustomIconButton
-          title={'Delete'}
-          onClick={(event) => {
-            handleDelete({ id: product.id });
-          }}
-        >
-          <DeleteOutlineIcon />
-        </CustomIconButton>
-      )}
-      {showDeleteActionButton && isViewArchivedChecked && (
-        <CustomIconButton
-          title={'Undelete'}
-          onClick={(event) => {
-            handleUndeleteButton({ id: product.id });
-          }}
-        >
-          <DeleteForeverIcon />
-        </CustomIconButton>
-      )}
-    </div>
-  );
-};
+export default React.memo(GridView);

@@ -8,7 +8,7 @@ import CurrentUsage from './currentUsage';
 import VendorDetails from './VendorDetails';
 import ManufactureProcessingProcessSimulation from '@monostruct/common/containers/ManufactureProcessingProcessSimulation';
 import ClientSetup from './clientSetup';
-import Assembly from '@monostruct/common/containers/AssemblyTab';
+import AssemblyTabWithTree from '@monostruct/common/containers/AssemblyTabWithTree';
 import Production from './production';
 import SurfaceFinishAndTreatment from './SurfaceFinishAndTreatment';
 import ComplianceAndCertifications from './ComplianceAndCertifications';
@@ -710,7 +710,7 @@ const ItemDetail = ({ itemValue }) => {
         );
       case 'assembly':
         return (
-          <Assembly
+          <AssemblyTabWithTree
             assemblyTree={get(gltfjson, 'tree', [])}
             activeGLTFFile={activeGLTFFile}
             setActiveGLTFile={setActiveGLTFile}

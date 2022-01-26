@@ -4,7 +4,7 @@ import Paper from '@mui/material/Paper';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import HistoryIcon from '@mui/icons-material/History';
 
-export default function TableView({
+function TableView({
   handleAdd = () => Promise.resolve(),
   handleUpdate = () => Promise.resolve(),
   handleDelete = () => Promise.resolve(),
@@ -114,3 +114,5 @@ export default function TableView({
     />
   );
 }
+
+export default React.memo(TableView);
