@@ -1409,12 +1409,13 @@ class StepExportWithColor(object):
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break
-            self.assemblycreatedcurrentcount = totalcount
             myChildAssemblyOutputShapesLen = len(myChildAssemblyOutputShapes)
             for childShapesIndex in range(myChildAssemblyOutputShapesLen):
                 myAssemblyChildInfo = assemblyNames[childShapesIndex]
                 statusChildTree,childOutputShapes = myChildAssemblyOutputShapes[childShapesIndex]
+                self.writeProgress()
                 for compareShapesIndex in range(childShapesIndex+1,myChildAssemblyOutputShapesLen):
+                    self.writeProgress()
                     myAssemblyCompareInfo = assemblyNames[compareShapesIndex]
                     statusCompareTree,compareOutputShapes = myChildAssemblyOutputShapes[compareShapesIndex]
                     (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
@@ -1450,7 +1451,7 @@ class StepExportWithColor(object):
                                     (retDictionary["vertexEquals"],retDictionary["isEqual"])))
                         myAssemblyCompareInfo=(uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)
                         assemblyNames[compareShapesIndex]=myAssemblyCompareInfo
-
+            self.assemblycreatedcurrentcount = totalcount
             self.writeProgress(0,"Completed",assemblyNames)
             return  (addedAssembly,assemblyNames)
         self.writeProgress(0,totalcount,"No Child") 
@@ -1879,16 +1880,16 @@ class StepExportWithColor(object):
                                 dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
                                 if dictionary["isEqual"]: 
                                     print("")  
-                                    print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeForRotation,sx1,sy1,sz1,sx2,sy2,sz2)                                                
+                                    print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,sx1,sy1,sz1,sx2,sy2,sz2)                                                
                                     dictionary["vertexEquals"]=(vertexStruct1==vertexStruct2)
                                     if dictionary["vertexEquals"]:  
-                                        dictionary["vertexCompare2"]=(xdir*rangeForRotation,ydir*rangeForRotation,zdir*rangeForRotation)
-                                        print(xdir*rangeForRotation,ydir*rangeForRotation,zdir*rangeForRotation,"Vertex Done")
+                                        dictionary["vertexCompare2"]=(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation)
+                                        print(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,"Vertex Done")
                                         dictionary["isEqual"]=faceStruct1==faceStruct2 and edgeStruct1==edgeStruct2
                                     else:
                                         dictionary["isEqual"]=False 
                             else:
-                                fullZeroRotatedShape2=rotate_shp_3_axis(fullZeroShape2,xdir*math.pi/2,ydir*math.pi/2,zdir*math.pi/2, unity="radian", copy=True) 
+                                fullZeroRotatedShape2=rotate_shp_3_axis(fullZeroShape2,xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation, unity="deg", copy=True) 
                                 thisRotateddimension2 = get_oriented_bounding_details(fullZeroRotatedShape2)                        
                                 fullRotatedDictionary2 = getDictionaryFromOBB(thisRotateddimension2,True)
                                 sx2,sy2,sz2 = fullRotatedDictionary2["sx"],fullRotatedDictionary2["sy"],fullRotatedDictionary2["sz"]
@@ -2672,7 +2673,7 @@ class StepIgesAnalyser():
                     #print(hashcode,localTransform)
             if doCompact:                
                 len_color_arr = ( len(only_Colors) if only_Colors else 0 )
-                print("\t"*self.indent,"No of colors found",len_color_arr,"Faces",mylenFaceDict)
+                print("\t"*self.indent,"No of colors found",len_color_arr,":",only_Colors[len_color_arr-1] if len_color_arr>0 else "NoColor","Faces",mylenFaceDict)
                 if (len_color_arr<=2) or doParts or (mylenFaceDict > self.multiplegltf) or (fromCompound) or (self.seperateparts):
                     (R,G,B)=only_Colors[len_color_arr-1]
                     #print("Colors",R,G,B,len_color_arr,len(only_soilds))
