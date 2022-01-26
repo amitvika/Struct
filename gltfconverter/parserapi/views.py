@@ -5989,8 +5989,62 @@ def extractKinematicInformation(kinematicparts):
                     else:
                         print("Not Setting Kinematic Info of secondPass to insert array",secondPass,kinematicInformation[secondPass],chains2,chains,sequence2,sequence) 
                 kinematicInformation[kinematicInfo] =  partName, displayName, partType, sequence+1, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector  
-    
-    for kinematicInfo in range(lengthOfKinematicInfo):
+    if maxChain > 0:
+        maxSequence = [-1 for x in range(maxChain)]
+        for kinematicInfo in range(lengthOfKinematicInfo):
+            partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
+            for chain in chains:
+                if chain > 0:
+                    if maxSequence[chain-1] < sequence:
+                        maxSequence[chain-1] = sequence                
+    else:
+        maxSequence=[]
+    print("Chains presence",maxChain)
+    for chainIndex in range(maxChain):
+        maxRangeSequence = maxSequence[chainIndex-1]
+        print("Sequence presence",chainIndex,maxRangeSequence)
+        for sequenceIndex in range(maxRangeSequence):
+            currentIndex = maxRangeSequence-1-sequenceIndex
+            TopFound=-1
+            BelowFound=-1
+            doRotateAxis=False
+            doLinkageAxis=False
+            for kinematicInfo in range(lengthOfKinematicInfo):
+                partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
+                print("What I got for axis copy",currentIndex,kinematicInformation[kinematicInfo],chainIndex+1,chains,sequence, (chainIndex+1) in chains,sequence==currentIndex,sequence==(currentIndex+1) )
+                if ((chainIndex+1) in chains) and (sequence==currentIndex):
+                    BelowFound=kinematicInfo
+                    doRotateAxis= (partType=="ACTUATOR")
+                    doLinkageAxis = (partType!="ACTUATOR")
+                if ((chainIndex+1) in chains) and (sequence==(currentIndex+1)):
+                    TopFound=kinematicInfo
+                    if currentIndex==0:
+                        BelowFound=TopFound
+                        doRotateAxis= (partType=="ACTUATOR")
+                if (TopFound != -1) and (BelowFound != -1):
+                    break
+            if doRotateAxis and (TopFound != -1):
+                partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[TopFound]
+                partName2, displayName2, partType2, sequence2, chains2, axis2, nextAxis2, axisAngle2, axisDistance2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2 = kinematicInformation[BelowFound]
+                print("ToDo transform for actuator",TopFound,BelowFound,partType,partType2,doLinkageAxis,(TopFound==BelowFound) or (doLinkageAxis and (partType=="ACTUATOR")))
+                if (TopFound==BelowFound):
+                    angle2, distance2, machineLimit2 = 0, 0, 0
+                kinematicInformation[TopFound] = partName, displayName, partType, sequence, chains, axis2, nextAxis, axisAngle, axisDistance, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector
+                print("Changing info because of previous part as Actuator", kinematicInformation[TopFound])
+            
+            if doLinkageAxis and (TopFound != -1):
+                partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[TopFound]
+                #partName2, displayName2, partType2, sequence2, chains2, axis2, nextAxis2, axisAngle2, axisDistance2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2 = kinematicInformation[BelowFound]
+                print("ToDo transform for linkage",TopFound,BelowFound,partType,partType2,doLinkageAxis,(TopFound==BelowFound) or (doLinkageAxis and (partType=="ACTUATOR")))
+                if (partType=="ACTUATOR"):
+                    #angle2, distance2, machineLimit2 = 0, 0, 0
+                    kinematicInformation[TopFound] = partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, 0, 0, 0, shapeOfAxis, isLinear, isEndEffector
+                    print("Changing info because of previous part as Linkage", kinematicInformation[TopFound])
+    print("")
+    print("Kinematic Info after arranging",kinematicInformation,maxChain,maxSequence)               
+    return kinematicInformation, maxChain, maxSequence
+
+""" for kinematicInfo in range(lengthOfKinematicInfo):
         print("Kinematic Info of checking linkage to copy axis",kinematicInfo,kinematicInformation[kinematicInfo])
         partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[kinematicInfo]
         if ((partType=="LINKAGE") and (sequence>1)):
@@ -6024,7 +6078,7 @@ def extractKinematicInformation(kinematicparts):
         maxSequence=[]
     print("")
     print("Kinematic Info after arranging",kinematicInformation,maxChain,maxSequence)               
-    return kinematicInformation, maxChain, maxSequence
+    return kinematicInformation, maxChain, maxSequence """
 
 def getKinematicInformation(kinematicparts,partname):
     html_display = html.escape(partname)

@@ -1292,6 +1292,8 @@ class StepExportWithColor(object):
         self.CreateStackability=CreateStackability
         self.totalcount=totalcount
         self.currenttime=datetime.utcnow()
+        self.assemblycreatedcurrentcount=0
+        self.writeProgress(0,"Initiated")
         name = None
         lengthCheck = 0
         #print("Passed",myTree)
