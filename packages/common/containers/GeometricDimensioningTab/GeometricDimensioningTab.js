@@ -29,7 +29,7 @@ import {
   //assignArray
 } from '@monostruct/common/gltf/Tree/utils';
 import { stringify } from '@monostruct/common/gltf/Flatted.js';
-import Assembly from '@monostruct/common/containers/AssemblyTab';
+import AssemblyTabWithTree from '@monostruct/common/containers/AssemblyTabWithTree';
 import { buildParentChildTree } from './helper';
 import { Box } from '@mui/system';
 
@@ -2230,7 +2230,7 @@ export default function GeometricDimensioningTab(props) {
         /*!isLoading && state.gltfjson?.tree &&*/ <div
           className={` ${classes.assemblyTreeContainer}`}
         >
-          <Assembly
+          <AssemblyTabWithTree
             assemblyTree={buildParentChildTree(
               arrayCopy(state.gltfjson ? state.gltfjson.tree : []),
               selectedOption,
