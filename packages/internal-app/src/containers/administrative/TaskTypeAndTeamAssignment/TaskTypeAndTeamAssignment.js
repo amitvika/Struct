@@ -9,12 +9,12 @@ import { fetchMyTeamAction } from '../../../actions/team.action';
 import Box from '@mui/material/Box';
 import TeamAssignment from './TeamAssignment/TeamAssignment';
 import TaskCreation from './TaskCreation/TaskCreation';
-import {
-  CustomTabs,
-  CustomTab,
-  TabPanel
-} from '@monostruct/common/components/CustomTabs/CustomTabs';
+import { TabPanel } from '@monostruct/common/components/CustomTabs/CustomTabs';
 import { get } from 'lodash';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import IconButton from '@mui/material/IconButton';
 
 const TaskTypeAndTeamAssignment = () => {
   const dispatch = useDispatch();
@@ -31,7 +31,9 @@ const TaskTypeAndTeamAssignment = () => {
   };
 
   if (isTabsActive) {
-    return <TabComponent {...{ selectedValue, setSelectedValue }} />;
+    return (
+      <TabComponent {...{ selectedValue, setSelectedValue, setIsTabsActive }} />
+    );
   }
 
   const handleItemUpdate = (data) => {
@@ -66,34 +68,62 @@ function a11yProps(index) {
   };
 }
 
-const TabComponent = ({ selectedValue, setSelectedValue }) => {
+const TabComponent = ({ selectedValue, setSelectedValue, setIsTabsActive }) => {
   const [selectedTabIndex, setCurrentSelectedTab] = useState(0);
 
-  const handleTabChange = (newValue) => {
+  const handleTabChange = (event, newValue) => {
     setCurrentSelectedTab(newValue);
   };
 
+  const handleClick = () => {
+    setIsTabsActive(false);
+  };
   return (
-    <Box>
-      <CustomTabs>
+    <>
+      <Box
+        sx={{
+          borderBottom: 1,
+          borderColor: 'divider',
+          width: '100%',
+          bgcolor: 'background.paper'
+        }}
+      >
+        {/* <CustomTabs>
         <CustomTab
-          label="Team assignment"
-          {...{ handleTabChange, selectedTabIndex }}
-          {...a11yProps(0)}
+        label="Team assignment"
+        {...{ handleTabChange, selectedTabIndex }}
+        {...a11yProps(0)}
         />
         <CustomTab
-          label="Task creation"
-          {...{ handleTabChange, selectedTabIndex }}
-          {...a11yProps(1)}
+        label="Task creation"
+        {...{ handleTabChange, selectedTabIndex }}
+        {...a11yProps(1)}
         />
-      </CustomTabs>
+      </CustomTabs> */}
+        <IconButton
+          color="primary"
+          onClick={handleClick}
+          component="span"
+          size="large"
+          sx={{
+            position: 'absolute',
+            zIndex: 9
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        <Tabs value={selectedTabIndex} onChange={handleTabChange} centered>
+          <Tab label="Team assignment" {...a11yProps(0)} />
+          <Tab label="Task creation" {...a11yProps(1)} />
+        </Tabs>
+      </Box>
       <TabPanel value={selectedTabIndex} index={0}>
         <TeamAssignment {...{ selectedValue, setSelectedValue }} />
       </TabPanel>
       <TabPanel value={selectedTabIndex} index={1}>
         <TaskCreation />
       </TabPanel>
-    </Box>
+    </>
   );
 };
 
