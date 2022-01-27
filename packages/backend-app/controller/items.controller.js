@@ -230,13 +230,29 @@ exports.upsert = async (req, res) => {
   try {
     let items = req.body || [];
 
-    items = items.map((item) => ({
-      ...item,
-      created_by: item.created_by || req.user.id,
-      updated_by: req.user.id
-    }));
+    const itemsPromises = items.map((item) => {
+      let dataValue = {
+        ...item,
+        created_by: item.created_by || req.user.id,
+        updated_by: req.user.id
+      };
 
-    const itemUpdated = await ItemModel.bulkInsertItems(items);
+      return ItemModel.updateOne(
+        {
+          $and: [
+            { name: dataValue.name },
+            { parent_id: getObjectId(item.parent_id) }
+          ]
+        },
+        dataValue,
+        {
+          upsert: true,
+          new: true
+        }
+      );
+    });
+
+    const itemUpdated = await Promise.all(itemsPromises);
 
     res.json({ success: true, itemUpdated });
   } catch (error) {
