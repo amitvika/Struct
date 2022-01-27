@@ -5930,6 +5930,8 @@ def extractKinematicInformation(kinematicparts):
         if ((distance==0) and (isLinear==True)):
             distance = aw
         machineLimit = convertToFloat(machineLimit, distance if isLinear else angle )
+        if machineLimit==0:
+            machineLimit = distance if isLinear else angle
         # if isActuator and aw==0:
         #     aw= math.pi/3 # 3.14 #3.14 #math.pi
         #     ap=-0.1*ap

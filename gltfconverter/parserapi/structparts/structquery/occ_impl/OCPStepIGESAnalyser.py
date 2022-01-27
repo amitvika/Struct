@@ -1207,7 +1207,9 @@ class StepExportWithColor(object):
                 shellshape = pickle.load(f)
         return fnamepath, shellshape
 
-    def GetSelfAndTreeFromOutputShapes(self,assembly,aTree,shapes,myTree,treeLength,fuuid):
+    def GetSelfAndTreeFromOutputShapes(self,assembly,aTree,shapes,myTree,treeLength,fuuid,writeProgressToupdateStatus=False):
+        if writeProgressToupdateStatus:
+            self.writeProgress()
         treeID = aTree[self.gltf_dict['id']]
         treeName = aTree[self.gltf_dict['name']]
         treeDisplay =  aTree[self.gltf_dict['display']]
@@ -1259,11 +1261,11 @@ class StepExportWithColor(object):
                     self.shapetool.UpdateAssemblies()
         else:     
             #print("Recursing a shape",treeName,aTree)      
-            subassembly=self.GetAssemblyOutPutShapes(treeID,myTree,shapes,treeDisplay,treeLength,fuuid)
+            subassembly=self.GetAssemblyOutPutShapes(treeID,myTree,shapes,treeDisplay,treeLength,fuuid,writeProgressToupdateStatus)
             self.shapetool.AddComponent(assembly, subassembly,TopLoc_Location())  
             self.shapetool.UpdateAssemblies()
 
-    def GetAssemblyOutPutShapes(self,myParent,myTree,shapes,name,treeLength,fuuid):        
+    def GetAssemblyOutPutShapes(self,myParent,myTree,shapes,name,treeLength,fuuid,writeProgressToupdateStatus=False):        
         assembly = self.shapetool.NewShape()
         if name is None:
             name =  "Struct Assembly "+str(myParent)
@@ -1271,7 +1273,7 @@ class StepExportWithColor(object):
         lengthCheck=0
         for aTree in myTree:
             if aTree[self.gltf_dict['parentId']]==myParent : 
-                self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength,fuuid)
+                self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength,fuuid,writeProgressToupdateStatus)
             lengthCheck+=1
             if lengthCheck >=treeLength:
                 break
@@ -1363,7 +1365,7 @@ class StepExportWithColor(object):
                     treeName = aTree[self.gltf_dict['name']]
                     treeDisplay = aTree[self.gltf_dict['display']]
                     #print("Getting a shape",treeName,aTree)
-                    self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength,fuuid)
+                    self.GetSelfAndTreeFromOutputShapes(assembly,aTree,shapes,myTree,treeLength,fuuid,True)
                     uuidname = str(uuid.uuid4())
                     uniquename=filename+" "+str(treeID)
                     self.assemblycreatedcurrentcount=addedAssembly
@@ -1373,7 +1375,7 @@ class StepExportWithColor(object):
                     os.makedirs(os.path.dirname(fullpath), exist_ok=True)
                     if(self.write_file(fullpath)):  
                         #print("Assigning a shape",uuidname,uniquename,treeName,aTree) 
-                        (_,(_, outputAssemblyShapesOrder),status_dict)=StepIgesAnalyser(filename=fullpath,includeparts=includeparts,\
+                        ((_,_,outputFullAssemblyZeroShape),(_, outputAssemblyShapesOrder),status_dict)=StepIgesAnalyser(filename=fullpath,includeparts=includeparts,\
                             distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,\
                                 moverotate=moverotate,thumbwidth=thumbwidth,thumbheight=thumbheight,\
                                     logging=logging,seperateparts=seperateparts, edgesize=edgesize,\
@@ -1404,7 +1406,7 @@ class StepExportWithColor(object):
                         equalsDict=[]
                         myAssemblyChildInfo = (uuidname,uniquename,treeName,subassemblyCounthere,subassemblyTreehere,treeDisplay,statusArrayStatus,equalsDict)
                         assemblyNames.append(myAssemblyChildInfo)
-                        myChildAssemblyOutputShapes.append((statusTreeStatus,outputAssemblyShapesOrder))
+                        myChildAssemblyOutputShapes.append((statusTreeStatus,outputAssemblyShapesOrder,outputFullAssemblyZeroShape))
                                         #in thread background thumbnail creation is not working Hence forcing dump to be thread free.
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
@@ -1412,12 +1414,12 @@ class StepExportWithColor(object):
             myChildAssemblyOutputShapesLen = len(myChildAssemblyOutputShapes)
             for childShapesIndex in range(myChildAssemblyOutputShapesLen):
                 myAssemblyChildInfo = assemblyNames[childShapesIndex]
-                statusChildTree,childOutputShapes = myChildAssemblyOutputShapes[childShapesIndex]
+                statusChildTree,childOutputShapes,childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
                 self.writeProgress()
                 for compareShapesIndex in range(childShapesIndex+1,myChildAssemblyOutputShapesLen):
                     self.writeProgress()
                     myAssemblyCompareInfo = assemblyNames[compareShapesIndex]
-                    statusCompareTree,compareOutputShapes = myChildAssemblyOutputShapes[compareShapesIndex]
+                    statusCompareTree,compareOutputShapes,compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
                     (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
                     (uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)=myAssemblyCompareInfo
                     compareStatusFileName='Display/'+uuidname1+'/'+uniquename1+uniquename2+".status"
@@ -2162,6 +2164,7 @@ class StepIgesAnalyser():
         self.rotateddictionary={}
         self.assemblycenter=(0,0,0)
         self.assemblyrotation=(0,0,0)
+        self.fullZeroShape=None
         self.zerostep=''
         self.comparechildren=comparechildren
         self.assemblyname = None
@@ -6120,12 +6123,13 @@ class StepIgesAnalyser():
             thisAssemblydictionary = getDictionaryFromOBB(thisAssemblydimension,True)
             self.obbdictionary=thisAssemblydictionary
             self.zerostep = self.fname+"ZeroOrigin.step"
-            _, fullZeroDictionary, fullRotatedDictionary, center, rotation = StepExportWithColor().\
+            fullZeroShape, fullZeroDictionary, fullRotatedDictionary, center, rotation = StepExportWithColor().\
                 bringToOriginAndToUnitAxis(fullAssemblyShape,thisAssemblydimension,thisAssemblydictionary,self.zerostep)
             self.zerodictionary=fullZeroDictionary
             self.rotateddictionary=fullRotatedDictionary
             self.assemblycenter=center
             self.assemblyrotation=rotation
+            self.fullZeroShape=fullZeroShape
     
         dict_return = {
             "gltf":self.mstep_dict,
@@ -6318,7 +6322,7 @@ class StepIgesAnalyser():
             self.percentage = 100
             self.write_status(0)
             return (            
-                (getPNG,self.output), 
+                (getPNG,self.output,self.fullZeroShape), 
                 (
                     (self.scene_min[0],self.scene_min[1],self.scene_min[2],
                     self.scene_max[0],self.scene_max[1],self.scene_max[2]),
