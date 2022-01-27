@@ -934,7 +934,44 @@ class StepExportWithColor(object):
             #self.shapetool.AddComponent( self.assembly, self.subassembly,TopLoc_Location())  
             self.shapetool.AddComponent( self.assembly, self.part,TopLoc_Location())  
             self.shapetool.UpdateAssemblies()
-    
+
+    def build_shape(self, shapeArray=None, name=None):
+        
+        # Create the application
+        self.app = XCAFApp_Application_GetApplication()
+        self.doc = TDocStd_Document(TCollection_ExtendedString("XmlOcaf"))
+        self.app.InitDocument(self.doc)
+        self.shapetool =  XCAFDoc_DocumentTool_ShapeTool(self.doc.Main())  
+        self.shapetool.SetAutoNaming(False)              
+        self.colortool = XCAFDoc_DocumentTool_ColorTool(self.doc.Main())
+        # add root    
+        if name is None:
+            name =  "Struct Assembly"  
+        self.assembly = self.shapetool.NewShape()
+        TDataStd_Name.Set(self.assembly, TCollection_ExtendedString(name))  
+        if shapeArray:
+            for (shape,treeDisplay,R,G,B) in shapeArray:
+                if(shape):
+                    if R is None:
+                        R=0
+                    if G is None:
+                        G=0
+                    if B is None:
+                        B=0
+                    c=Quantity_Color(R,G,B,Quantity_TOC_RGB)
+                    part = self.shapetool.NewShape()
+                    comp = TopoDS_Compound()
+                    comp_builder = TopoDS_Builder()
+                    comp_builder.MakeCompound(comp)        
+                    comp_builder.Add(comp, shape)
+                    self.shapetool.SetShape(part,comp) 
+                    TDataStd_Name.Set(part, TCollection_ExtendedString(treeDisplay))
+                    #print("Adding a shape",treeName,aTree)
+                    self.colortool.SetColor(part,c,XCAFDoc_ColorType.XCAFDoc_ColorSurf) 
+                    self.shapetool.AddComponent(assembly, part,TopLoc_Location())  
+                    self.shapetool.UpdateAssemblies()     
+            
+
     def write_file(self, filename):
         """ folder, fname = os.path.split(filename)
         name, ext = os.path.splitext(fname)
@@ -1729,22 +1766,22 @@ class StepExportWithColor(object):
         thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2,True)
         print("After Rotation with built in transformation",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
         sx,sy,sz=thisRotateddictionary2["sx"],thisRotateddictionary2["sy"],thisRotateddictionary2["sz"]
-        if( sx >= sy ) and ( sx >= sz ) and (sy >= sz):
+        if( sx >= sy ) and ( sx >= sz ) and ( sy >= sz ):
             fullZeroShape3=fullZeroShape2
             rotation=(0,0,0)
-        elif( sy >= sx ) and ( sx >= sz ) and (sy >= sz):
+        elif( sy >= sx ) and ( sx >= sz ) and ( sy >= sz ):
             fullZeroShape3 = rotate_shp_3_axis(fullZeroShape2,0,0,90, unity="deg", copy=True)
             rotation=(0,0,90) 
-        elif( sx >= sy ) and ( sx >= sz ) and (sz >= sy):            
+        elif( sx >= sy ) and ( sx >= sz ) and ( sz >= sy ):            
             fullZeroShape3 = rotate_shp_3_axis(fullZeroShape2,90,0,0, unity="deg", copy=True) 
             rotation=(90,0,0)
-        elif( sx >= sy ) and ( sz >= sx ) and (sz >= sy):            
+        elif( sx >= sy ) and ( sz >= sx ) and ( sz >= sy ):            
             fullZeroShape3 = rotate_shp_3_axis(fullZeroShape2,90,90,0, unity="deg", copy=True) 
             rotation=(90,90,0)
-        elif( sy >= sx ) and ( sz >= sx ) and (sz >= sy):            
+        elif( sy >= sx ) and ( sz >= sx ) and ( sz >= sy ):            
             fullZeroShape3 = rotate_shp_3_axis(fullZeroShape2,0,90,0, unity="deg", copy=True) 
             rotation=(0,90,0)
-        elif( sy >= sx ) and ( sz >= sx ) and (sy >= sz):            
+        elif( sy >= sx ) and ( sz >= sx ) and ( sy >= sz ):            
             fullZeroShape3 = rotate_shp_3_axis(fullZeroShape2,0,90,90, unity="deg", copy=True) 
             rotation=(0,90,90)
         else:
@@ -1839,7 +1876,7 @@ class StepExportWithColor(object):
                 [sx2,sy2,sz2] = sorted([sx2,sy2,sz2])
                 dictionary["obb1"]=thisdictionary1
                 dictionary["obb2"]=thisdictionary2
-                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and (abs(sz1-sz2) < 1e-6)
                 if(dictionary["isEqual"]==False):
                     self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
                     #print("Failure",dictionary)
@@ -1901,7 +1938,7 @@ class StepExportWithColor(object):
                         for zdir in range(rangeForRotation):
                             if xdir==0 and ydir==0 and zdir==0: 
                                 sx2,sy2,sz2 = fullRotatedDictionary2["sx"],fullRotatedDictionary2["sy"],fullRotatedDictionary2["sz"]
-                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and (abs(sz1-sz2) < 1e-6)
                                 if dictionary["isEqual"]: 
                                     print("")  
                                     print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,sx1,sy1,sz1,sx2,sy2,sz2)                                                
@@ -1917,7 +1954,7 @@ class StepExportWithColor(object):
                                 thisRotateddimension2 = get_oriented_bounding_details(fullZeroRotatedShape2)                        
                                 fullRotatedDictionary2 = getDictionaryFromOBB(thisRotateddimension2,True)
                                 sx2,sy2,sz2 = fullRotatedDictionary2["sx"],fullRotatedDictionary2["sy"],fullRotatedDictionary2["sz"]
-                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and (abs(sz1-sz2) < 1e-6)
                                 if dictionary["isEqual"]:
                                     print("")
                                     print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,sx1,sy1,sz1,sx2,sy2,sz2)
@@ -2009,7 +2046,7 @@ class StepExportWithColor(object):
                         for zdir in range(rangeForRotation):
                             if xdir==0 and ydir==0 and zdir==0: 
                                 sx2,sy2,sz2 = fullRotatedDictionary2["sx"],fullRotatedDictionary2["sy"],fullRotatedDictionary2["sz"]
-                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and (abs(sz1-sz2) < 1e-6)
                                 if dictionary["isEqual"]: 
                                     print("")  
                                     print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,sx1,sy1,sz1,sx2,sy2,sz2)                                                
@@ -2025,7 +2062,7 @@ class StepExportWithColor(object):
                                 thisRotateddimension2 = get_oriented_bounding_details(fullZeroRotatedShape2)                        
                                 fullRotatedDictionary2 = getDictionaryFromOBB(thisRotateddimension2,True)
                                 sx2,sy2,sz2 = fullRotatedDictionary2["sx"],fullRotatedDictionary2["sy"],fullRotatedDictionary2["sz"]
-                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and (abs(sz1-sz2) < 1e-6)
                                 if dictionary["isEqual"]:
                                     print("")
                                     print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,sx1,sy1,sz1,sx2,sy2,sz2)
