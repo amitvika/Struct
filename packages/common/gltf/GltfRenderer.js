@@ -827,7 +827,7 @@ class GLTFRenderer extends Component {
         size = size3D.length() || 1;
       }
       size = size3D.length() || 1;
-      const multipler = 2.36 / 1.64;
+      const multipler = 2.0 * (this.props.showKinematicMove ? 0.7 : 0.97); //2.36 / 1.64;
       //console.log(size,size3D.length());
       const center = box.getCenter(new Vector3());
       if (this.controls) {
@@ -860,7 +860,11 @@ class GLTFRenderer extends Component {
       }
 
       this.shiftposition = this.props.showKinematicMove
-        ? { x: 0, y: 0, z: 0 }
+        ? {
+            x: object.position.x - center.x,
+            y: object.position.y - center.y,
+            z: object.position.z - center.z
+          }
         : {
             x: object.position.x - center.x,
             y: object.position.y - center.y,
@@ -900,9 +904,12 @@ class GLTFRenderer extends Component {
           //console.log("setting3",size,this.defaultCamera);
         } else {
           this.defaultCamera.position.copy(center);
-          this.defaultCamera.position.x += size / 2.0;
-          this.defaultCamera.position.y += size / 2.0;
-          this.defaultCamera.position.z += size / 2.0;
+          const distanceFarOff = this.defaultCamera.isOrthographicCamera
+            ? 100
+            : 1;
+          this.defaultCamera.position.x += (size / 2.0) * distanceFarOff;
+          this.defaultCamera.position.y += (size / 2.0) * distanceFarOff;
+          this.defaultCamera.position.z += (size / 2.0) * distanceFarOff;
           this.defaultCamera.cameraposition = center;
           this.defaultCamera.lookAt(this.defaultCamera.cameraposition);
           //console.log("setting4",size,this.defaultCamera);

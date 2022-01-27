@@ -396,7 +396,11 @@ class TrackballControls extends EventDispatcher {
             }
           }
           _eye.subVectors(scope.object.position, scope.target);
-          mouseChange.multiplyScalar(_eye.length() * scope.panSpeed * 2);
+          mouseChange.multiplyScalar(
+            _eye.length() *
+              scope.panSpeed *
+              (scope.object.isOrthographicCamera ? 0.02 : 2)
+          );
 
           pan.copy(_eye).cross(scope.object.up).setLength(mouseChange.x);
           pan.add(objectUp.copy(scope.object.up).setLength(mouseChange.y));
