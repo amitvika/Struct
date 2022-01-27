@@ -108,11 +108,20 @@ export default function MotionControlComponent({
                   : actuator_motion_control.child_chain_number
                 : actuator_motion_control.child_chain_number;
             if (
+              actuator_motion_control.child_part_type == 'ACTUATOR' &&
               actuator_motion_control.rotational_angle_limit == 0 &&
               actuator_motion_control.is_linear_or_rotational == false
             ) {
               item.actuator_motion_control.rotational_angle_limit = Math.PI / 3;
             }
+            item.actuator_motion_control.machine_actuator_limit =
+              actuator_motion_control.machine_actuator_limit
+                ? actuator_motion_control.machine_actuator_limit
+                : actuator_motion_control.child_part_type == 'ACTUATOR'
+                ? actuator_motion_control.is_linear_or_rotational
+                  ? actuator_motion_control.linear_distance_limit
+                  : actuator_motion_control.rotational_angle_limit
+                : null;
             console.log(
               'Changing structure from',
               thisList[index],

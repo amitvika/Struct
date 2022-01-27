@@ -1278,8 +1278,21 @@ class StepExportWithColor(object):
             if lengthCheck >=treeLength:
                 break
         return assembly
+    
     def compareStatusArrays(self, statusArray1, statusArray2):
+        if (statusArray1["parts"]!=statusArray2["parts"]):
+            print("Parts Comparision",statusArray1,statusArray2,statusArray1["parts"],statusArray2["parts"])
+            return False
+        [sx1, sy1, sz1] = sorted([statusArray1["obbRotated"]["sx"],statusArray1["obbRotated"]["sy"],statusArray1["obbRotated"]["sz"]])
+        [sx2, sy2, sz2] = sorted([statusArray2["obbRotated"]["sx"],statusArray2["obbRotated"]["sy"],statusArray2["obbRotated"]["sz"]])
+        if (abs(sx1-sx2) > 1e-6) or (abs(sy1-sy2) > 1e-6) or (abs(sz1-sz2) > 1e-6) :
+            print("Size Comparision",[statusArray1["obbRotated"]["sx"],statusArray1["obbRotated"]["sy"],statusArray1["obbRotated"]["sz"]],[statusArray2["obbRotated"]["sx"],statusArray2["obbRotated"]["sy"],statusArray2["obbRotated"]["sz"]])
+            return False
+        if (statusArray1["vertices"]!=statusArray2["vertices"]):
+            print("Vertex Comparision",statusArray1["vertices"],statusArray2["vertices"])            
+            return False 
         return True
+
     def WriteAssemblyOutPutShapes(self,shapes,filename,myParent,myTree,treeLength,\
         includeparts,distancegap,anglegap,disectparts,moverotate,thumbwidth,thumbheight, \
             logging, seperateparts,edgesize, vertexsize, maximumfacestoinclude,\
@@ -1431,15 +1444,19 @@ class StepExportWithColor(object):
                         "node1":nodeCount1,
                         "node2":nodeCount2,
                         "isEqual":False,
-                        "vertexEquals":False }
+                        "vertexEquals":False,
+                        'obbstruct1':statusArray1,
+                        'obbstruct2':statusArray2}
                     retDictionary = compareDictionary
                     self.setComparisonDictionary(compareStatusFileName,10,starttime,compareDictionary,True)
                     if(self.compareStatusArrays(statusArray1,statusArray2)):
-                        _,onlyShapes1,_,_,_ = self.getShapesFromOutPutShapes(childOutputShapes,1,statusChildTree,treeLength1,'')
-                        self.setComparisonDictionary(compareStatusFileName,15,starttime,compareDictionary,False)
-                        _,onlyShapes2,_,_,_ = self.getShapesFromOutPutShapes(compareOutputShapes,1,statusCompareTree,treeLength2,'')
-                        self.setComparisonDictionary(compareStatusFileName,25,starttime,compareDictionary,False)
-                        retDictionary = self.compareToCheckIdentityShapes(sourceAssemblyFileName1,sourceAssemblyFileName2,onlyShapes1,onlyShapes2,compareStatusFileName,starttime,compareStepFileName)
+                        # _,onlyShapes1,_,_,_ = self.getShapesFromOutPutShapes(childOutputShapes,1,statusChildTree,treeLength1,'')
+                        # self.setComparisonDictionary(compareStatusFileName,15,starttime,compareDictionary,False)
+                        # _,onlyShapes2,_,_,_ = self.getShapesFromOutPutShapes(compareOutputShapes,1,statusCompareTree,treeLength2,'')
+                        # self.setComparisonDictionary(compareStatusFileName,25,starttime,compareDictionary,False)
+                        # retDictionary = self.compareToCheckIdentityShapes(sourceAssemblyFileName1,sourceAssemblyFileName2,onlyShapes1,onlyShapes2,compareStatusFileName,starttime,compareStepFileName)
+                        retDictionary = self.compareToCheckIdentityShapesOriginated(compareDictionary,childFullAssemblyZeroShape,compareFullAssemblyZeroShape,compareStatusFileName,starttime)
+        
                     if(retDictionary["vertexEquals"] or retDictionary["isEqual"]):
                         equalsDict1.append(\
                             ((uuidname1,uniquename1,treeName1,treeDisplay1),\
@@ -1935,6 +1952,115 @@ class StepExportWithColor(object):
                 return dictionary 
         self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
         return dictionary 
+        
+    def compareToCheckIdentityShapesOriginated(self,dictionary,fullZeroShape1,fullZeroShape2,statusfilename,starttime=None):
+        if dictionary is None:
+            dictionary={
+                "node1":0,
+                "node2":0,
+                "isEqual":False,
+                "vertexEquals":False }
+        if fullZeroShape1 and fullZeroShape2:
+            try:
+                thisRotateddimension1 = get_oriented_bounding_details(fullZeroShape1)                        
+                fullRotatedDictionary1 = getDictionaryFromOBB(thisRotateddimension1,True)
+                thisRotateddimension2 = get_oriented_bounding_details(fullZeroShape2)                        
+                fullRotatedDictionary2 = getDictionaryFromOBB(thisRotateddimension2,True)
+                face_dict1={}
+                edge_dict1={}
+                vertex_dict1={}
+                dumpTopologyFacesEdgesVertices(fullZeroShape1,face_dict1,edge_dict1,vertex_dict1)
+                dictionary["face1"]=len(face_dict1)
+                dictionary["edge1"]=len(edge_dict1)
+                dictionary["vertex1"]=len(vertex_dict1)
+                face_dict2={}
+                edge_dict2={}
+                vertex_dict2={}
+                dumpTopologyFacesEdgesVertices(fullZeroShape2,face_dict2,edge_dict2,vertex_dict2)
+                dictionary["face2"]=len(face_dict2)
+                dictionary["edge2"]=len(edge_dict2)
+                dictionary["vertex2"]=len(vertex_dict2)
+                dictionary["vertexEquals"]=(dictionary["vertex1"]==dictionary["vertex2"])
+                dictionary["isEqual"] = (dictionary["face1"]==dictionary["face2"]) and (dictionary["edge1"]==dictionary["edge2"]) and (dictionary["vertex1"]==dictionary["vertex2"])
+                if(dictionary["vertexEquals"]==False):
+                    print("Failure",dictionary)
+                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)                   
+                    return dictionary
+                faceStruct1, edgeStruct1, vertexStruct1 = self.getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1) 
+                faceStruct2, edgeStruct2, vertexStruct2 = self.getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
+                faceStruct1, edgeStruct1, vertexStruct1 = self.ordered(faceStruct1), self.ordered(edgeStruct1), self.ordered(vertexStruct1)
+                faceStruct2, edgeStruct2, vertexStruct2 = self.ordered(faceStruct2), self.ordered(edgeStruct2), self.ordered(vertexStruct2)
+                faceStruct3, edgeStruct3, vertexStruct3 = faceStruct2, edgeStruct2, vertexStruct2
+                sx1,sy1,sz1 = fullRotatedDictionary1["sx"],fullRotatedDictionary1["sy"],fullRotatedDictionary1["sz"]
+                self.setComparisonDictionary(statusfilename,31,starttime,dictionary,False) 
+                rangeForRotation = 4
+                if (abs(sx1-sy1) < 1e-6) or (abs(sx1-sz1) < 1e-6) or (abs(sz1-sy1) < 1e-6):
+                    rangeForRotation = 4
+                else:
+                    rangeForRotation = 2  
+                rangeOfRotation = 360 / rangeForRotation      
+                for xdir in range(rangeForRotation):
+                    for ydir in range(rangeForRotation):
+                        for zdir in range(rangeForRotation):
+                            if xdir==0 and ydir==0 and zdir==0: 
+                                sx2,sy2,sz2 = fullRotatedDictionary2["sx"],fullRotatedDictionary2["sy"],fullRotatedDictionary2["sz"]
+                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                                if dictionary["isEqual"]: 
+                                    print("")  
+                                    print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,sx1,sy1,sz1,sx2,sy2,sz2)                                                
+                                    dictionary["vertexEquals"]=(vertexStruct1==vertexStruct2)
+                                    if dictionary["vertexEquals"]:  
+                                        dictionary["vertexCompare2"]=(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation)
+                                        print(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,"Vertex Done")
+                                        dictionary["isEqual"]=faceStruct1==faceStruct2 and edgeStruct1==edgeStruct2
+                                    else:
+                                        dictionary["isEqual"]=False 
+                            else:
+                                fullZeroRotatedShape2=rotate_shp_3_axis(fullZeroShape2,xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation, unity="deg", copy=True) 
+                                thisRotateddimension2 = get_oriented_bounding_details(fullZeroRotatedShape2)                        
+                                fullRotatedDictionary2 = getDictionaryFromOBB(thisRotateddimension2,True)
+                                sx2,sy2,sz2 = fullRotatedDictionary2["sx"],fullRotatedDictionary2["sy"],fullRotatedDictionary2["sz"]
+                                dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and abs(sz1-sz2) < 1e-6
+                                if dictionary["isEqual"]:
+                                    print("")
+                                    print("Eligible to compare",xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,sx1,sy1,sz1,sx2,sy2,sz2)
+                                    face_dict2={}
+                                    edge_dict2={}
+                                    vertex_dict2={}
+                                    dumpTopologyFacesEdgesVertices(fullZeroRotatedShape2,face_dict2,edge_dict2,vertex_dict2) 
+                                    faceStruct2, edgeStruct2, vertexStruct2 = self.getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
+                                    faceStruct2, edgeStruct2, vertexStruct2 = self.ordered(faceStruct2), self.ordered(edgeStruct2), self.ordered(vertexStruct2)
+                                    if(vertexStruct1==vertexStruct2):
+                                        dictionary["isEqual"] = faceStruct1==faceStruct2 and edgeStruct1==edgeStruct2 
+                                        if dictionary["vertexEquals"]==False:
+                                            dictionary["vertexEquals"]=True                                                                                       
+                                            dictionary["vertexCompare2"]=(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation)
+                                            print(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,"Vertex Done")
+                                    else:
+                                        dictionary["isEqual"]=False 
+                            if dictionary["isEqual"]:
+                                dictionary["compare2"]=(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation)
+                                dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
+                                dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
+                                dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
+                                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                                print(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,"Done")
+                                return dictionary
+                            self.setComparisonDictionary(statusfilename,32+zdir+ydir*4+xdir*16,starttime,dictionary,False) 
+                dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
+                dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
+                dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
+                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+                print("Equality with Vertices",dictionary["vertexEquals"],"Equality with Faces and Edges", dictionary["isEqual"])     
+                return dictionary 
+            except Exception as e:               
+                print("Exception happened",e,dictionary)
+                dictionary["error"]=str(e)
+                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+                return dictionary 
+        self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+        return dictionary 
+
 class StepIgesAnalyser():
     """A class that analyzes the structure of an OCAF document."""
     scale = 0.001  # mm to meters
