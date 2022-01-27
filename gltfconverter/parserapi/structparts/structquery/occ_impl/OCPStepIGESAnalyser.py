@@ -1388,7 +1388,7 @@ class StepExportWithColor(object):
                     os.makedirs(os.path.dirname(fullpath), exist_ok=True)
                     if(self.write_file(fullpath)):  
                         #print("Assigning a shape",uuidname,uniquename,treeName,aTree) 
-                        ((_,_,outputFullAssemblyZeroShape),(_, outputAssemblyShapesOrder),status_dict)=StepIgesAnalyser(filename=fullpath,includeparts=includeparts,\
+                        ((_,_,outputFullAssemblyZeroShape),(_, _),status_dict)=StepIgesAnalyser(filename=fullpath,includeparts=includeparts,\
                             distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,\
                                 moverotate=moverotate,thumbwidth=thumbwidth,thumbheight=thumbheight,\
                                     logging=logging,seperateparts=seperateparts, edgesize=edgesize,\
@@ -1399,13 +1399,14 @@ class StepExportWithColor(object):
                                                          CreateStackability=CreateStackability,\
                                                              updateprogressfile=self.writeProgress,\
                                                                  comparechildren=comparechildren).dump(False) 
+                                                                 #in thread background thumbnail creation is not working Hence forcing dump to be thread free.
                         subassemblyCounthere=0
                         subassemblyTreehere=0
                         # statusArray={
                         #      "tree":status_dict["tree"],
                         #      "status":status_dict["status"]}
                         statusArrayStatus=status_dict["status"]
-                        statusTreeStatus=status_dict["tree"]
+                        #statusTreeStatus=status_dict["tree"]
                         #statusArray={}
                         try:
                             if "status" in status_dict:
@@ -1419,24 +1420,28 @@ class StepExportWithColor(object):
                         equalsDict=[]
                         myAssemblyChildInfo = (uuidname,uniquename,treeName,subassemblyCounthere,subassemblyTreehere,treeDisplay,statusArrayStatus,equalsDict)
                         assemblyNames.append(myAssemblyChildInfo)
-                        myChildAssemblyOutputShapes.append((statusTreeStatus,outputAssemblyShapesOrder,outputFullAssemblyZeroShape))
-                                        #in thread background thumbnail creation is not working Hence forcing dump to be thread free.
+                        #myChildAssemblyOutputShapes.append((statusTreeStatus,outputAssemblyShapesOrder,outputFullAssemblyZeroShape))
+                        myChildAssemblyOutputShapes.append(outputFullAssemblyZeroShape)
+                                         
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break
             myChildAssemblyOutputShapesLen = len(myChildAssemblyOutputShapes)
             for childShapesIndex in range(myChildAssemblyOutputShapesLen):
                 myAssemblyChildInfo = assemblyNames[childShapesIndex]
-                statusChildTree,childOutputShapes,childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
+                #statusChildTree,childOutputShapes,childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
+                childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
                 self.writeProgress()
                 for compareShapesIndex in range(childShapesIndex+1,myChildAssemblyOutputShapesLen):
                     self.writeProgress()
+                    myAssemblyChildInfo = assemblyNames[childShapesIndex]
                     myAssemblyCompareInfo = assemblyNames[compareShapesIndex]
-                    statusCompareTree,compareOutputShapes,compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
+                    #statusCompareTree,compareOutputShapes,compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
+                    compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
                     (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
                     (uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)=myAssemblyCompareInfo
                     compareStatusFileName='Display/'+uuidname1+'/'+uniquename1+uniquename2+".status"
-                    compareStepFileName='Media/'+uuidname1+'/'+uniquename1+uniquename2
+                    #compareStepFileName='Media/'+uuidname1+'/'+uniquename1+uniquename2
                     sourceAssemblyFileName1,sourceAssemblyFileName2='Media/'+uuidname1+'/'+uniquename1,'Media/'+uuidname2+'/'+uniquename2
                     compareDictionary={
                         "source1":sourceAssemblyFileName1,
