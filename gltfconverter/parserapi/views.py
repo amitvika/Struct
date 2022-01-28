@@ -786,7 +786,7 @@ ROTATEANDMOVE=4
 def getShapeFromPickle(fname):
     fnamepath = DISPLAY_URL+fname+".pickle"
     if not os.path.isfile(fnamepath):
-        fnamepath = S3_BUCKET+DISPLAY_URL+fname+".pickle"
+        fnamepath = S3_BUCKET+fnamepath#DISPLAY_URL+fname+".pickle"
         if not os.path.isfile(fnamepath):
             fnamepath = None
     shellshape=None
@@ -5470,7 +5470,7 @@ def FileSaveTree(request):
                 try:
                     treefile = DISPLAY_URL+guid+name+'.tree'
                     if not os.path.isfile(treefile):
-                        treefile=S3_BUCKET+DISPLAY_URL+guid+name+'.tree'
+                        treefile=S3_BUCKET+treefile #DISPLAY_URL+guid+name+'.tree'
                         if not os.path.isfile(treefile):
                             treefile = DISPLAY_URL+guid+name+'.tree'
                     print("Writing,",treefile)
@@ -5526,7 +5526,7 @@ def FileSaveGDT(request):
             try:
                 gdtfile = DISPLAY_URL+guid+name+'.gdt'
                 if not os.path.isfile(gdtfile):
-                    gdtfile=S3_BUCKET+DISPLAY_URL+guid+name+'.gdt'
+                    gdtfile=S3_BUCKET+gdtfile #DISPLAY_URL+guid+name+'.gdt'
                     if not os.path.isfile(gdtfile):
                         gdtfile = DISPLAY_URL+guid+name+'.gdt'
                 print("Writing,",gdtfile)
@@ -6357,15 +6357,68 @@ def FileGetKinematicRotationalAnimation(request):
             except Exception as e:
                 print("Error while logging",e)
 
-def getOutputShapesFromSourceFile(sourceFileName,distancegap,anglegap,statusfilename,comparedict,starttime=None,fileNo=1):#,thumbwidth,thumbheight):
+def readStatusInfo(sourceFileName,suffixname='3'):
+    if sourceFileName:
+        head, tail = os.path.split(sourceFileName)
+        if(head[-1]!="/"):
+            #print("Head does not contain last /",head)
+            head = head + "/"
+        #else:
+        #    #print("Head contains last /",head)
+        #    #pass
+        displaypath=''
+        MediaURLLength = len(MEDIA_URL)
+        if head[0:MediaURLLength]==MEDIA_URL:
+            displaypath = DISPLAY_URL+head[MediaURLLength:]
+        else:
+            displaypath = head
+        print("Conversion path",displaypath)
+        pathfilename, _ = os.path.splitext(tail)
+        basefilename = pathfilename+suffixname
+    else:
+        basefilename = "./"
+        displaypath= DISPLAY_URL
+    statusfilename = displaypath+basefilename+".status"
+    head, _ = os.path.split(statusfilename) 
+    DisplayURLLength = len(DISPLAY_URL)
+    if head[0:DisplayURLLength]==DISPLAY_URL:
+        fileuuid = head[DisplayURLLength:]
+        if fileuuid[-1]=='/':
+            fileuuid=fileuuid[:-1]
+    else:
+        fileuuid=None
+    if not os.path.isfile(statusfilename):
+        statusfilename = S3_BUCKET+statusfilename
+        if not os.path.isfile(statusfilename):
+            print("checking existance of",statusfilename)
+            statusfilename = None
+    statusArray={}
+    if statusfilename:
+        data=None        
+        with open(statusfilename, "r") as f:
+            data = f.read()
+        if data:
+            statusArray = json.loads(data)
+    print("Status Info",statusArray,fileuuid,statusfilename)
+    return statusArray, fileuuid, statusfilename
+
+def getOutputShapesFromSourceFile(originalFileName,distancegap,anglegap,statusfilename,comparedict,starttime=None,fileNo=1,statusArray={}):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
     #Now read and return the shape
    
     try:
-        
-        
+        doNotBringToOrigin = (statusArray and ("zerostep" in statusArray))
+        if doNotBringToOrigin:
+            print("Status Array",statusArray)
+            sourceFileName = statusArray["zerostep"]
+            if not os.path.isfile(sourceFileName):
+                doNotBringToOrigin = False
+                sourceFileName = originalFileName
+        else:
+            sourceFileName = originalFileName   
+        print("sourceFileName To Parse",sourceFileName,originalFileName,doNotBringToOrigin)         
         dictionary={}
         _, file_extension = os.path.splitext(sourceFileName)
         file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
@@ -6373,7 +6426,7 @@ def getOutputShapesFromSourceFile(sourceFileName,distancegap,anglegap,statusfile
         newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
         newfilename = newfilenamewithoutext + ".step"
         outputShapes={}
-        if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :          
+        if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :         
             
             try:
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
@@ -6417,18 +6470,49 @@ def getOutputShapesFromSourceFile(sourceFileName,distancegap,anglegap,statusfile
             OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,10*fileNo,starttime,comparedict,False)
             _, myShapes = outputShapes
             
-            shapeArray,onlyShapes,shapePickles,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
-            return (shapeArray,onlyShapes,shapePickles,dictionary)
+            _,onlyShapes,_,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+            if doNotBringToOrigin:
+                fullZeroShape,_ = list_of_shapes_to_compound(onlyShapes,True)
+                dict_return = statusArray
+            else:
+                partscount=len(onlyShapes)
+                fullAssemblyShape,_ = list_of_shapes_to_compound(onlyShapes,True)
+                assembly_faces_dict = {}
+                assembly_edges_dict = {}
+                assembly_vertices_dict = {}
+                dumpTopologyFacesEdgesVertices(fullAssemblyShape,assembly_faces_dict,assembly_edges_dict,assembly_vertices_dict)
+                facescount=len(assembly_faces_dict)
+                edgescount=len(assembly_edges_dict)
+                verticescount=len(assembly_vertices_dict)        
+                thisAssemblydimension = get_oriented_bounding_details(fullAssemblyShape)                        
+                thisAssemblydictionary = getDictionaryFromOBB(thisAssemblydimension,True)
+                zerostep = sourceFileName+"ZeroRotatedOrigin.step"
+                fullZeroShape, fullZeroDictionary, fullRotatedDictionary, center, rotation = OCPStepIGESAnalyser.StepExportWithColor().\
+                    bringToOriginAndToUnitAxis(fullAssemblyShape,thisAssemblydimension,thisAssemblydictionary,zerostep)
+                dict_return= (dictionary["status"] if "status" in dictionary else {} ) if dictionary else {} 
+                dict_return["parts"]=partscount
+                dict_return["faces"]=facescount
+                dict_return["edges"]=edgescount
+                dict_return["vertices"]=verticescount
+                dict_return["obbPosition"]=thisAssemblydictionary
+                dict_return["obbOrigin"]=fullZeroDictionary
+                dict_return["obbRotated"]=fullRotatedDictionary 
+                dict_return["center"]=center 
+                dict_return["rotation"]=rotation 
+                dict_return["zerostep"]=zerostep 
+            return (fullZeroShape,dict_return)
 
         except Exception as e:
             print("error",e) 
               
-        return 
-       
-       
-    except:
-        return {}
+        return (None,statusArray)
+    except Exception as e:
+        print("error",e) 
+        return (None,statusArray)
         #raise ValueError("File Could not be loaded") 
+    except:
+        print("Unknown system error occured")
+        return (None,statusArray)
 
 # def bringToOriginAndToUnitAxis(fullShape1,thisdimension1,thisdictionary1,stepname):
 #     aBaryCenter = thisdimension1.Center()
@@ -6713,11 +6797,16 @@ def compareToCheckIdentity(sourceFileName1,sourceFileName2,distancegap,anglegap,
         "isEqual":False }
     if sourceFileName1 and sourceFileName2:
         try:
-            _,onlyShapes1,_,_ = getOutputShapesFromSourceFile(sourceFileName1,distancegap,anglegap,statusfilename,dictionary,starttime,1)
+            statusArray1, _, _ = readStatusInfo(sourceFileName1)
+            statusArray2, _, _ = readStatusInfo(sourceFileName2)            
+            fullZeroShape1, statusArray1 = getOutputShapesFromSourceFile(sourceFileName1,distancegap,anglegap,statusfilename,dictionary,starttime,1,statusArray1)
+            dictionary["obbstruct1"]=statusArray1
             OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,15,starttime,dictionary,False)
-            _,onlyShapes2,_,_ = getOutputShapesFromSourceFile(sourceFileName2,distancegap,anglegap,statusfilename,dictionary,starttime,2)
+            fullZeroShape2, statusArray2 = getOutputShapesFromSourceFile(sourceFileName2,distancegap,anglegap,statusfilename,dictionary,starttime,2,statusArray2)
+            dictionary["obbstruct2"]=statusArray2
             OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,25,starttime,dictionary,False)
-            OCPStepIGESAnalyser.StepExportWithColor().compareToCheckIdentityShapes(sourceFileName1,sourceFileName2,onlyShapes1,onlyShapes2,statusfilename,starttime,None)
+            OCPStepIGESAnalyser.StepExportWithColor().compareToCheckIdentityShapesOriginated(dictionary,fullZeroShape1,fullZeroShape2,statusfilename,starttime)
+            #OCPStepIGESAnalyser.StepExportWithColor().compareToCheckIdentityShapes(sourceFileName1,sourceFileName2,onlyShapes1,onlyShapes2,statusfilename,starttime,None)
             return
         except Exception as e:
             dictionary["error"]=str(e)
