@@ -93,7 +93,7 @@ DATABASES = {
         'ENGINE': 'djongo',
         'NAME': 'python_store',
         'CLIENT': {
-                'host': 'mongodb://myUserAdmin:navin%23MongoDB%2366@localhost/python_store' \
+                'host': 'mongodb://myUserAdmin:navin%23MongoDB%2366@localhost' \
                     if development=='True' else \
                         'mongodb+srv://amit_ika:dividivi@cluster0-ne7uw.mongodb.net/python_store?retryWrites=true&w=majority'            
             },
