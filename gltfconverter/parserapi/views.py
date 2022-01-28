@@ -3,6 +3,7 @@
 #from math import ceil
 
 
+from xml.dom.expatbuilder import parseString
 from django.http.response import JsonResponse, FileResponse
 #from numpy import diagonal
 from rest_framework import status
@@ -11,8 +12,8 @@ from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from rest_framework.views import set_rollback
 
-from .models import File
-from .serializers import FileSerializer
+from .models import File,Storage
+from .serializers import FileSerializer,StorageSerializer
 #from .settingscopy import (DISPLAY_URL,MEDIA_URL)
 
 from inspect import getmembers
@@ -6500,6 +6501,72 @@ def getOutputShapesFromSourceFile(originalFileName,distancegap,anglegap,statusfi
                 dict_return["center"]=center 
                 dict_return["rotation"]=rotation 
                 dict_return["zerostep"]=zerostep 
+            try:
+                storageData = {}
+                storageData["assemblies"]=convertToInt(dict_return["assemblies"],0)
+                storageData["trees"]=convertToInt(dict_return["trees"],0)
+                storageData["parts"]=convertToInt(dict_return["parts"],0)
+                storageData["faces"]=convertToInt(dict_return["faces"],0)
+                storageData["edges"]=convertToInt(dict_return["edges"],0)
+                storageData["vertices"]=convertToInt(dict_return["vertices"],0)
+                storageData["obb_position"]=dict_return["obbPosition"]
+                storageData["obb_origin"]=dict_return["obbOrigin"]
+                storageData["obb_rotated"]=dict_return["obbRotated"]
+                cx,cy,cz=dict_return["center"]
+                storageData["cx"],storageData["cy"],storageData["cz"] = convertToFloat(cx,0),convertToFloat(cy,0),convertToFloat(cz,0) 
+                rx,ry,rz=dict_return["rotation"]
+                storageData["rx"],storageData["ry"],storageData["rz"] = convertToFloat(rx,0),convertToFloat(ry,0),convertToFloat(rz,0) 
+                sx,sy,sz=dict_return["obbRotated"]["sx"],dict_return["obbRotated"]["sy"],dict_return["obbRotated"]["sz"]
+                storageData["sx"],storageData["sy"],storageData["sz"]=convertToFloat(sx,0),convertToFloat(sy,0),convertToFloat(sz,0) 
+                storageData["zerostep"]=dict_return["zerostep"]
+             
+                print("Before assinging serializer",storageData)
+
+                storageSerializer = Storage(
+                    name=originalFileName,
+                    assemblies=storageData["assemblies"],
+                    trees=storageData["trees"],
+                    parts=storageData["parts"],
+                    faces=storageData["faces"],
+                    edges=storageData["edges"],
+                    vertices=storageData["vertices"],
+                    obb_position=storageData["obb_position"],
+                    obb_origin=storageData["obb_origin"],
+                    obb_rotated=storageData["obb_rotated"],
+                    cx=storageData["cx"],cy=storageData["cy"],cz=storageData["cz"],                
+                    rx=storageData["rx"],ry=storageData["ry"],rz=storageData["rz"],                 
+                    sx=storageData["sx"],sy=storageData["sy"],sz=storageData["sz"],
+                    zerostep=storageData["zerostep"],
+                    internal_object={})
+                print("")
+                print("Storage Serializer1", storageSerializer, "Tail")
+                print("")
+                storageSerializer.save()
+                #storageSerializer.data = dict_return
+                
+                """ storageSerializer.external_id=1
+                storageSerializer.assemblies=0
+                storageSerializer.trees=0
+                storageSerializer.parts= convertToInt(dict_return["parts"],0)
+                storageSerializer.faces=convertToInt(dict_return["faces"],0)
+                storageSerializer.edges=convertToInt(dict_return["edges"],0)
+                storageSerializer.vertices=convertToInt(dict_return["vertices"],0)
+                storageSerializer.obb_position=dict_return["obbPosition"]
+                storageSerializer.obb_origin=dict_return["obbOrigin"]
+                storageSerializer.obbRotated=dict_return["obbRotated"]
+                cx,cy,cz=dict_return["center"]
+                storageSerializer.cx,storageSerializer.cy,storageSerializer.cz=convertToFloat(cx,0),convertToFloat(cy,0),convertToFloat(cz,0) 
+                rx,ry,rz=dict_return["rotation"]
+                storageSerializer.rx,storageSerializer.ry,storageSerializer.rz=convertToFloat(rx,0),convertToFloat(ry,0),convertToFloat(rz,0) 
+                sx,sy,sz=dict_return["obbRotated"]["sx"],dict_return["obbRotated"]["sy"],dict_return["obbRotated"]["sz"]
+                storageSerializer.sx,storageSerializer.sy,storageSerializer.sz=convertToFloat(sx,0),convertToFloat(sy,0),convertToFloat(rz,0) 
+                storageSerializer.zerostep=dict_return["zerostep"] """
+                # if storageSerializer.is_valid():
+                #     storageSerializer.save()
+                # else:
+                #     print("While Saving there is a error",storageSerializer.data,storageData)
+            except Exception as e:
+                print("Error while saving",e)
             return (fullZeroShape,dict_return)
 
         except Exception as e:

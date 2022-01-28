@@ -83,11 +83,18 @@ AWS_S3_OBJECT_PARAMETERS = {
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
+development = os.getenv('Development')
+print("Setting the database engine:",development, "Development" if development=='True' else "Production")
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'DB/db.sqlite3'),
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': os.path.join(BASE_DIR, 'DB/db.sqlite3'),
+        
+        'ENGINE': 'djongo',
+        'NAME': 'python_store',
+        'CLIENT': {
+                'host': 'mongodb://myUserAdmin:navin%23MongoDB%2366@localhost' if development=='True' else 'mongodb+srv://amit_ika:dividivi@cluster0-ne7uw.mongodb.net/test?retryWrites=true&w=majority'            
+            },
     }
 }
 
