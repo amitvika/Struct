@@ -205,7 +205,11 @@ def saveStatusToDatabase(statusDictionary,originalFileName,referenceID,tabSuffix
         storageData["reset"]=getValueFromJSONKey(statusDictionary,"reset")
         storageData["assembly"]=getValueFromJSONKey(statusDictionary,"assembly")
         print("Before assinging serializer",storageData,referenceID,storageData["tab_suffix"])
-        storageSerializers = ParsingDetails.objects.filter(external_ref=referenceID,tab_suffix=storageData["tab_suffix"])
+        storageSerializers =[] 
+        if referenceID:
+            storageSerializers = ParsingDetails.objects.filter(external_ref=referenceID,tab_suffix=storageData["tab_suffix"])
+        else:
+            storageSerializers = ParsingDetails.objects.filter(name=originalFileName,tab_suffix=storageData["tab_suffix"])        
         if(len(storageSerializers)>0):
             print("Got Initial filter",storageSerializers)
             #storageSerializers = storageSerializers.filter(tab_suffix=storageData["tab_suffix"])
