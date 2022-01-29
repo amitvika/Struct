@@ -23,7 +23,8 @@ from .structparts.structquery.occ_impl.OCCExtend.TopologyUtils import list_of_sh
 
 class FindStackability(object):
     def __init__(self,sourceFileName,shapeArray,dimension,distancegap=0.3,anglegap=0.5,\
-        animationtime=1.5,starttime=None,logging=None):        
+        animationtime=1.5,starttime=None,logging=None,refid=''): 
+               
         try:
             try:
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
@@ -36,21 +37,21 @@ class FindStackability(object):
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=[(shape,fullName,fullColor)],includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S").dump(False) 
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S",refid=refid).dump(False) 
                 elif( (ymax-ymin) < (xmax-xmin) ) and ( (ymax-ymin) < (zmax-zmin) ):
                     print("Before rotate 2")
                     shape = rotate_shp_3_axis(fullShape,90,0,0, unity="deg", copy=True) 
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=[(shape,fullName,fullColor)],includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S").dump(False)
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S",refid=refid).dump(False)
                 else:
                     print("Before Analyser")
                     shape=fullShape
                     (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=shapeArray,includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S").dump(False)
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S",refid=refid).dump(False)
                 getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],35,starttime,False)  
                 #print(outputShapes)
                 dimension,stackable,depthable = stackableDictonary(outputShapes, distancegap, 0.1) 
@@ -62,7 +63,7 @@ class FindStackability(object):
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shapeList,fullName,fullColor),includeparts=False,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0, logging=logging, 
-                    edgesize=0, vertexsize=0, animations=moveArrays, delay=animationtime).dump()
+                    edgesize=0, vertexsize=0, animations=moveArrays, delay=animationtime,refid=refid).dump()
                 dictionary["stackable"] = [{"count":replications,"stack":stackable}]
             except Exception as e:
                 print("error while forming stackable",e)   

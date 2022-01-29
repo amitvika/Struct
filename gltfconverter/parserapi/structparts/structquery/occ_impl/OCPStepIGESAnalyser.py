@@ -27,6 +27,8 @@ import uuid
 #from glob import glob
 
 import logging
+
+from tinydb import Storage
 #from rest_framework import status
 
 #from six import MovedAttribute
@@ -109,7 +111,7 @@ from .Quaternion import Quaternion
 from ....settingscopy import (DISPLAY_URL,MEDIA_URL,COPY_PATH,S3_BUCKET)
 from ....assemblyorder import FindAssemblingOrder
 from ....assemblystack import FindStackability
-
+from ....models import ParsingDetails
 @contextmanager
 def measure_time(log, name):
     start_time = time()
@@ -117,7 +119,166 @@ def measure_time(log, name):
     taken = time() - start_time
     log.debug("    %-25s (took: %gms)", name, round(taken * 1000, 3))
 
+def convertToBool(value,default):    
+    if value is not None:
+        try:
+            if isinstance(value,bool):
+                return value
+            if value.lower()=="true":
+                return True
+            else:
+                if value.lower()=="false":
+                    return False
+                else:
+                    boolvalue = bool(value)
+                    return boolvalue
+        except:
+            return default
+    else:
+        return default
 
+def convertToFloat(value,default):
+    if value is not None:
+        if isinstance(value,float) :
+            return value
+        try:
+            floatValue = float(value)
+            return floatValue
+        except:
+            return default
+    else:
+        return default
+
+def convertToInt(value,default):    
+    if value is not None:
+        if isinstance(value,int):
+            return value
+        try:
+            intValue = int(value)
+            return intValue
+        except:
+            return default
+    else:
+        return default
+
+def getValueFromJSONKey(jsonstruct, key):
+    if key in jsonstruct:
+        return jsonstruct[key]
+    else:
+        return None
+
+def saveStatusToDatabase(statusDictionary,originalFileName,referenceID,tabSuffix,alwaysNew=True):
+    try:
+        storageData = {}
+        storageData["external_ref"]=referenceID
+        storageData["tab_suffix"]=tabSuffix if tabSuffix else 'BB'
+        storageData["assemblies"]=convertToInt(getValueFromJSONKey(statusDictionary,"assemblies"),0)
+        storageData["trees"]=convertToInt(getValueFromJSONKey(statusDictionary,"trees"),0)
+        storageData["parts"]=convertToInt(getValueFromJSONKey(statusDictionary,"parts"),0)
+        storageData["faces"]=convertToInt(getValueFromJSONKey(statusDictionary,"faces"),0)
+        storageData["edges"]=convertToInt(getValueFromJSONKey(statusDictionary,"edges"),0)
+        storageData["vertices"]=convertToInt(getValueFromJSONKey(statusDictionary,"vertices"),0)
+        storageData["obb_position"]=getValueFromJSONKey(statusDictionary,"obbPosition")
+        storageData["obb_origin"]=getValueFromJSONKey(statusDictionary,"obbOrigin")
+        storageData["obb_rotated"]=getValueFromJSONKey(statusDictionary,"obbRotated")
+        cxcycz=getValueFromJSONKey(statusDictionary,"center")
+        cx,cy,cz=0,0,0
+        if cxcycz:
+            cx, cy, cz = cxcycz         
+        storageData["cx"],storageData["cy"],storageData["cz"] = convertToFloat(cx,0),convertToFloat(cy,0),convertToFloat(cz,0) 
+        cxcycz=getValueFromJSONKey(statusDictionary,"rotation")
+        rx,ry,rz=0,0,0
+        if cxcycz:
+            rx, ry, rz = cxcycz
+        storageData["rx"],storageData["ry"],storageData["rz"] = convertToFloat(rx,0),convertToFloat(ry,0),convertToFloat(rz,0) 
+        cxcycz=getValueFromJSONKey(statusDictionary,"obbRotated")
+        sx,sy,sz=0,0,0
+        if cxcycz:
+            sx,sy,sz=getValueFromJSONKey(cxcycz,"sx"),getValueFromJSONKey(cxcycz,"sy"),getValueFromJSONKey(cxcycz,"sz")
+        storageData["sx"],storageData["sy"],storageData["sz"]=convertToFloat(sx,0),convertToFloat(sy,0),convertToFloat(sz,0) 
+        storageData["zerostep"]=getValueFromJSONKey(statusDictionary,"zerostep")
+        storageData["percent"]=convertToFloat(getValueFromJSONKey(statusDictionary,"percent"),0)
+        storageData["start"]=getValueFromJSONKey(statusDictionary,"start")
+        storageData["current"]=getValueFromJSONKey(statusDictionary,"current")
+        storageData["action"]=getValueFromJSONKey(statusDictionary,"action")
+        storageData["finish"]=getValueFromJSONKey(statusDictionary,"finish")
+        storageData["reset"]=getValueFromJSONKey(statusDictionary,"reset")
+        storageData["assembly"]=getValueFromJSONKey(statusDictionary,"assembly")
+        print("Before assinging serializer",storageData,referenceID,storageData["tab_suffix"])
+        storageSerializers = ParsingDetails.objects.filter(external_ref=referenceID,tab_suffix=storageData["tab_suffix"])
+        if(len(storageSerializers)>0):
+            print("Got Initial filter",storageSerializers)
+            #storageSerializers = storageSerializers.filter(tab_suffix=storageData["tab_suffix"])
+        storageSerializer=None
+        if(len(storageSerializers)==1) and (alwaysNew==False):
+            storageSerializer=storageSerializers[0]
+            print("Got storageAs",storageSerializer)            
+        elif(len(storageSerializers)==0) or (alwaysNew):
+            print("I could not get any data",ParsingDetails.objects.all())
+            storageSerializer = ParsingDetails(external_ref=storageData["external_ref"],
+                tab_suffix=storageData["tab_suffix"])
+                # name=originalFileName,
+                # assemblies=storageData["assemblies"],
+                # trees=storageData["trees"],
+                # parts=storageData["parts"],
+                # faces=storageData["faces"],
+                # edges=storageData["edges"],
+                # vertices=storageData["vertices"],
+                # obb_position=storageData["obb_position"],
+                # obb_origin=storageData["obb_origin"],
+                # obb_rotated=storageData["obb_rotated"],
+                # cx=storageData["cx"],cy=storageData["cy"],cz=storageData["cz"],                
+                # rx=storageData["rx"],ry=storageData["ry"],rz=storageData["rz"],                 
+                # sx=storageData["sx"],sy=storageData["sy"],sz=storageData["sz"],
+                # zerostep=storageData["zerostep"],
+                # percent=storageData["percent"],
+                # start=storageData["start"],
+                # current=storageData["current"],
+                # action=storageData["action"],
+                # finish=storageData["finish"],
+                # reset=storageData["reset"],
+                # assembly=storageData["assembly"],
+                # external_ref=storageData["external_ref"],
+                # tab_suffix=storageData["tab_suffix"])
+        else:
+            print("Returning Multiple Records",storageSerializers)
+            return
+        if storageSerializer:
+            storageSerializer.name=originalFileName
+            storageSerializer.assemblies=storageData["assemblies"]
+            storageSerializer.trees=storageData["trees"]
+            storageSerializer.parts=storageData["parts"]
+            storageSerializer.faces=storageData["faces"]
+            storageSerializer.edges=storageData["edges"]
+            storageSerializer.vertices=storageData["vertices"]
+            storageSerializer.obb_position=storageData["obb_position"] if storageData["obb_position"] else {}
+            storageSerializer.obb_origin=storageData["obb_origin"] if storageData["obb_origin"] else {}
+            storageSerializer.obb_rotated=storageData["obb_rotated"] if storageData["obb_rotated"] else {}
+            storageSerializer.cx=storageData["cx"]
+            storageSerializer.cy=storageData["cy"]
+            storageSerializer.cz=storageData["cz"]            
+            storageSerializer.rx=storageData["rx"]
+            storageSerializer.ry=storageData["ry"]
+            storageSerializer.rz=storageData["rz"]                 
+            storageSerializer.sx=storageData["sx"]
+            storageSerializer.sy=storageData["sy"]
+            storageSerializer.sz=storageData["sz"]
+            storageSerializer.zerostep=storageData["zerostep"]
+            storageSerializer.percent=storageData["percent"]
+            storageSerializer.start=storageData["start"]
+            storageSerializer.current=storageData["current"]
+            storageSerializer.action=storageData["action"]
+            storageSerializer.finish=storageData["finish"]
+            storageSerializer.reset=storageData["reset"]
+            storageSerializer.assembly=storageData["assembly"]
+            storageSerializer.internal_object={}
+            print("")
+            print("Storage Serializer Head", storageSerializer, "Tail")
+            print("")
+            storageSerializer.save()
+        
+    except Exception as e:
+        print("Error while saving",e)
 class StepGL:
     """
     Enumeration container (nothing special).    
@@ -1335,7 +1496,7 @@ class StepExportWithColor(object):
             logging, seperateparts,edgesize, vertexsize, maximumfacestoinclude,\
                 CreateChildSteps,CreateAssemblyOrder,explodegap,center,holescale,removegap,\
                     recreatefororder,CreateStackability,fuuid,displaypath='',\
-                        starttime=datetime.utcnow(),totalcount=0,comparechildren=True):
+                        starttime=datetime.utcnow(),totalcount=0,comparechildren=True,refid=''):
         self.basefilename=filename
         self.displaypath=displaypath
         self.starttime=starttime
@@ -1345,6 +1506,7 @@ class StepExportWithColor(object):
         self.totalcount=totalcount
         self.currenttime=datetime.utcnow()
         self.assemblycreatedcurrentcount=0
+        self.refid=refid
         self.writeProgress(0,"Initiated")
         name = None
         lengthCheck = 0
@@ -1422,6 +1584,7 @@ class StepExportWithColor(object):
                     addedAssembly+=1
                     self.writeProgress()
                     fullpath = 'Media/'+uuidname+'/'+uniquename+".step"
+                    #CREATE A MONGODB and GET REFID?
                     os.makedirs(os.path.dirname(fullpath), exist_ok=True)
                     if(self.write_file(fullpath)):  
                         #print("Assigning a shape",uuidname,uniquename,treeName,aTree) 
@@ -1435,7 +1598,7 @@ class StepExportWithColor(object):
                                                      removegap=removegap,recreatefororder=recreatefororder,\
                                                          CreateStackability=CreateStackability,\
                                                              updateprogressfile=self.writeProgress,\
-                                                                 comparechildren=comparechildren).dump(False) 
+                                                                 comparechildren=comparechildren,refid='').dump(False) 
                                                                  #in thread background thumbnail creation is not working Hence forcing dump to be thread free.
                         subassemblyCounthere=0
                         subassemblyTreehere=0
@@ -2187,7 +2350,7 @@ class StepIgesAnalyser():
         maximumfacestoinclude=48, animations=None, delay=1.0, shapeorder=[], kinematicanimation=None,
         kinematicrotation=None, thumbheight=300, thumbwidth=300, multipleGLTF=1200, addfeaturesThread=False, 
         suffixname='', writethread=False, writepickle=True, writefiles=True, logging=None,
-        includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, 
+        includeUV=False, traversesubshapes=False, writeStep=False, writeColorStep=False, refid='',
         defaultR=0.3, defaultG=0.32, defaultB=0.37, seperateparts=False, seperatecompounds=True,
         recursiveShapes=None, recursiveTree=None, recursiveID=1, CreateChildSteps=False,
         CreateAssemblyOrder=False, explodegap=10.0, center=True, holescale=0.77, removegap=8.0,
@@ -2337,6 +2500,7 @@ class StepIgesAnalyser():
         self.comparechildren=comparechildren
         self.assemblyname = None
         self.recursiveTree = recursiveTree
+        self.refid=refid
         if (self.edgesize == 0) and (self.vertexsize==0):
             self.writeStep = False
             self.writeColorStep = False
@@ -3833,7 +3997,7 @@ class StepIgesAnalyser():
             if "assemblies" in statusArray:
                 assemblycount = statusArray["assemblies"]
             #print("Status Array",statusArray,assemblycount)   
-            progressArray = self.read_progress()
+            _ = self.read_progress()
             """ self.write_progress(maxgap=0,action='Child Items Started',written=False,\
                 start=progressArray["start"] if ("start" in progressArray) else None,\
                     finish=None)  """
@@ -4310,7 +4474,7 @@ class StepIgesAnalyser():
                         else:
                             fname = pathfilename+"-"+str(myparentID)+"-"+myFeatureName+"."                    
                         print("Disecting", fname, iFiles+1,"/", mySplitFiles, ",", self.lenfeature,"/",self.lenFeatures)
-                        addedTrees = StepIgesAnalyser(filename=head+fname,shapeslist=["Dummy"],thumbheight=0,thumbwidth=0,addfeaturesThread=False).\
+                        addedTrees = StepIgesAnalyser(filename=head+fname,shapeslist=["Dummy"],thumbheight=0,thumbwidth=0,addfeaturesThread=False,refid=self.refid).\
                             addFeature(myshapes,myparentID,myTreeLen,myFeatureName)
                         myTreeLen+=addedTrees
             self.lenfeature+=1
@@ -5989,7 +6153,8 @@ class StepIgesAnalyser():
                                     fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))
                                     self.currenttime = datetime.utcnow()
                             except Exception as e:
-                                print("While Writing",statusfilename,e,self.percentage)                        
+                                print("While Writing",statusfilename,e,self.percentage) 
+                            saveStatusToDatabase(mystatusdict,self.fname,self.refid,self.suffixname,False)                       
                             """ if ((maxgap==0) and (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "K") and (self.suffixname != "A")) :
                                 paramfilename = self.displaypath+self.basefilename[:-1]+".status"
                                 #mystatusdict["createoption"]=self.basefilename[-1]
@@ -6385,7 +6550,7 @@ class StepIgesAnalyser():
                                         self.CreateAssemblyOrder,self.explodegap,self.center,\
                                             self.holescale,self.removegap,self.recreatefororder,\
                                                 self.CreateStackability,'',self.displaypath,\
-                                                    self.starttime,self.assemblycount,self.comparechildren)           
+                                                    self.starttime,self.assemblycount,self.comparechildren,self.refid)           
                 """ self.write_progress(maxgap=0,action='Child Items Written',written=True) """
                 print("Completing Child Steps",self.fname)
             
@@ -6396,7 +6561,7 @@ class StepIgesAnalyser():
                     (_, (orderDimension, outputShapesOrder), dictionaryOrder) = StepIgesAnalyser(
                             filename=self.fname,includeparts=False,distancegap=self.distancegap, logging=logging, 
                             anglegap=self.anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
-                            edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M").dump(False)
+                            edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M",refid=self.refid).dump(False)
                     dictionaryOrderTree = dictionaryOrder["tree"]
                     lenDictionaryOrderTree = len(dictionaryOrderTree)
                 else:
@@ -6413,7 +6578,7 @@ class StepIgesAnalyser():
                 FindAssemblingOrder(shapeArrayOrder,shapeOrder,aNameOrder,aColorAssemblyOrder,orderDimension,self.explodegap,\
                     self.center,self.holescale,self.removegap,self.logging).ExplodeParts(\
                         self.fname,self.distancegap,self.anglegap,self.delay,COPY_PATH+self.displaypath,\
-                            False,self.starttime)
+                            False,self.refid,self.starttime)
                 StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
                     100,self.starttime,False)
                 print("Completing Assembly order",self.fname)
@@ -6429,7 +6594,8 @@ class StepIgesAnalyser():
                                     'animationtime':self.delay,
                                     'colorshapes':shapePicklesOrder,
                                     'assemblyname':aNameOrder,
-                                    'dimension':orderDimension} 
+                                    'dimension':orderDimension,
+                                    'refid':self.refid} 
                     picklefile = COPY_PATH+self.displaypath+orderStatusName+".pickle"
                     with open(picklefile, 'wb') as f:
                         # Pickle the 'data' dictionary using the highest protocol available.                               
@@ -6449,7 +6615,7 @@ class StepIgesAnalyser():
                 StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
                     30,self.starttime,False)
                 FindStackability(self.fname,shapeArrayOrder,orderDimension,\
-                    self.distancegap,self.anglegap,self.delay,self.starttime,self.logging).dump()
+                    self.distancegap,self.anglegap,self.delay,self.starttime,self.logging,self.refid).dump()
                 StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
                     100,self.starttime,False)
                 print("Completing Stackability",self.fname)
@@ -6465,7 +6631,8 @@ class StepIgesAnalyser():
                                     'animationtime':self.delay,
                                     'colorshapes':shapePicklesOrder,
                                     'assemblyname':aNameOrder,
-                                    'dimension':orderDimension} 
+                                    'dimension':orderDimension,
+                                    'refid':self.refid} 
                     picklefile = COPY_PATH+self.displaypath+orderStatusName+".pickle"
                     with open(picklefile, 'wb') as f:
                         # Pickle the 'data' dictionary using the highest protocol available.                               

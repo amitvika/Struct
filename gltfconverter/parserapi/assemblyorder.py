@@ -1108,7 +1108,7 @@ class FindAssemblingOrder(object):
             (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=skipInitialShape,includeparts=False,distancegap=distancegap,logging=self.logging,
                     anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,writethread=False,
-                    edgesize=0, vertexsize=0, animations=self.moveArrays,shapeorder=self.shapeorder,delay=animationtime).dump()
+                    edgesize=0, vertexsize=0, animations=self.moveArrays,shapeorder=self.shapeorder,delay=animationtime,refid=self.refid).dump()
             dictionary['assemblyorder']={   "order":self.shapeorder,
                                             "direction":self.shapesdirection,
                                             "start":starttime.strftime("%H:%M:%S"),
@@ -1656,7 +1656,7 @@ class FindAssemblingOrder(object):
             print("Error while logging",e)
          
 
-    def ExplodeParts(self,sourceFileName,distancegap,anglegap,animationtime,displaypath="",bythread=True,starttime=None,debugMe=False,maxgap=5):
+    def ExplodeParts(self,sourceFileName,distancegap,anglegap,animationtime,displaypath="",bythread=True,refid='',starttime=None,debugMe=False,maxgap=5):
         self.displaypath=displaypath
         """  head, tail = os.path.split(sourceFileName)
         if(head[:-1]!="/"):
@@ -1670,6 +1670,7 @@ class FindAssemblingOrder(object):
             self.displaypath = head """
         #print("ExploreParts",shapeTol,gapTol)
         self.byThread=bythread
+        self.refid=refid
         if starttime==None:
             starttime=datetime.utcnow()
         dictionary={}
@@ -1706,7 +1707,7 @@ class FindAssemblingOrder(object):
         else:
             return(0,0,0)
     
-    def reChangeOrder(self,changedshapeorder,changedshapedirection,sourceFileName,distancegap,anglegap,animationtime,debugMe=False):
+    def reChangeOrder(self,changedshapeorder,changedshapedirection,sourceFileName,distancegap,anglegap,animationtime,refid,debugMe=False):
         
         starttime=datetime.utcnow()
         dictionary={}
@@ -1715,6 +1716,7 @@ class FindAssemblingOrder(object):
         lenShape = len(self.shapesArray)
         xmin, ymin, zmin, xmax, ymax, zmax = self.dimension 
         xc, yc, zc = (xmin+xmax)/2, (ymin+ymax)/2 , (zmin+zmax)/2
+        self.refid = refid
         if(self.center):    
            
             lenShape = len(self.shapesArray)

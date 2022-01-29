@@ -261,7 +261,9 @@ export const handleOtherTabCase = async (props) => {
     STATEPROPS.holescale,
     STATEPROPS.removegap,
     STATEPROPS.fromcenter,
-    STATEPROPS.animationtime
+    STATEPROPS.animationtime,
+    false,
+    item.id || item._id
   );
 
   setIsFileLoading(false);
@@ -446,7 +448,8 @@ export const setStack = async (props) => {
         getStepFile(item),
         item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
         item.angleGap ? item.angleGap : STATEPROPS.anglegap,
-        STATEPROPS.animationtime
+        STATEPROPS.animationtime,
+        item.id || item._id
       )
         .then((res) => res.data)
         .then((repos) => {
@@ -569,7 +572,8 @@ export const setOrder = async (props) => {
       STATEPROPS.fromcenter,
       STATEPROPS.holescale,
       STATEPROPS.removegap,
-      STATEPROPS.animationtime
+      STATEPROPS.animationtime,
+      item.id || item._id
     );
     setIsFileLoading(false);
     let datastore = getHierarchyRes.data.store;
@@ -713,7 +717,9 @@ export const handleProductDesignTab = async (props) => {
     STATEPROPS.holescale,
     STATEPROPS.removegap,
     STATEPROPS.fromcenter,
-    STATEPROPS.animationtime
+    STATEPROPS.animationtime,
+    false,
+    item.id || item._id
   );
 
   setIsFileLoading(false);
@@ -878,7 +884,8 @@ export const handleInternalUseProduct = async (props) => {
       item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
       item.angleGap ? item.angleGap : STATEPROPS.anglegap,
       STATEPROPS.animationtime,
-      kinematicItemList
+      kinematicItemList,
+      item.id || item._id
     );
 
     setIsFileLoading(false);
@@ -1035,7 +1042,8 @@ const checkStatusToParse = async (whichOneToLoad, whichOneToStatus) => {
     if (difference < 0) {
       difference += 24 * 60 * 60;
     }
-    if (difference > 2 * 60) {
+    if (difference > 5 * 60) {
+      // Increased from 2 to 5 since some file takes ~ 4 mins to load into memory..
       return PROCESSINGSTATUS.HUNG;
     }
     return PROCESSINGSTATUS.INPROGRESS;

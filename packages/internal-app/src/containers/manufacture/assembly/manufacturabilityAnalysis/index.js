@@ -1038,7 +1038,8 @@ export default function ManufacturabilityAnalysis(props) {
         STATEPROPS.fromcenter,
         STATEPROPS.holescale,
         STATEPROPS.removegap,
-        STATEPROPS.animationtime
+        STATEPROPS.animationtime,
+        itemProperties.id || itemProperties._id
       )
         .then((res) => res.data)
         .then(async (data) => {

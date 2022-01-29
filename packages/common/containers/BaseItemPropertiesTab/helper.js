@@ -144,7 +144,8 @@ export const createChildItems = async ({
         STATEPROPS.removegap,
         STATEPROPS.fromcenter,
         STATEPROPS.animationtime,
-        true
+        true,
+        item.id || item._id
       );
       setIsFileLoading(false);
     }

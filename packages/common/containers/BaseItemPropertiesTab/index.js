@@ -215,7 +215,9 @@ export default function BaseItemProperties({
         STATEPROPS.holescale,
         STATEPROPS.removegap,
         STATEPROPS.fromcenter,
-        STATEPROPS.animationtime
+        STATEPROPS.animationtime,
+        false,
+        itemProperties.id || itemProperties._id
       );
       setIsFileLoading(false);
       if (fileUUId != data.uuid) {

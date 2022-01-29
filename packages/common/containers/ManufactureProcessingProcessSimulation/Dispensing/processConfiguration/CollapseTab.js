@@ -11,6 +11,7 @@ import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
 // import { useSelector, useDispatch } from 'react-redux';
 // import { setCurrentItemAction } from '../../../../actions/itemActions';
 // import { getPartsStackableInfo } from '@monostruct/common/api/fileUpload.api';
+import { STATEPROPS } from '@monostruct/common/gltf/Tree/utils';
 
 export default function NestedList({ setItemValue }) {
   // const dispatch = useDispatch();
@@ -20,13 +21,13 @@ export default function NestedList({ setItemValue }) {
 
   // const currentItem = useSelector((state) => state.item.currentItem);
   const [splitfiles, setsplitfiles] = useState({});
-  const getItemFileStackID =(item) => {
-    if(item.fileUUId) {
+  const getItemFileStackID = (item) => {
+    if (item.fileUUId) {
       const fullpath = item.fileName;
-      return fullpath.slice(6,fullpath.length);
+      return fullpath.slice(6, fullpath.length);
     }
     return item.fileId;
-  }
+  };
   useEffect(() => {
     setDispensing(currentItem.dispensing);
   }, [currentItem]);
@@ -34,7 +35,13 @@ export default function NestedList({ setItemValue }) {
   useEffect(() => {
     console.log('----', currentItem);
 
-    getPartsStackableInfo(getItemFileStackID(currentItem))
+    getPartsStackableInfo(
+      getItemFileStackID(currentItem),
+      item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
+      currentItem.angleGap ? currentItem.angleGap : STATEPROPS.anglegap,
+      STATEPROPS.animationtime,
+      currentItem.id || currentItem._id
+    )
       .then((res) => {
         setsplitfiles(res.data);
       })
@@ -129,7 +136,7 @@ const StackableChild = ({ title, currentTab, handleListItem, stackValue }) => {
         style={{
           marginTop: '7px',
           backgroundColor: stackValue ? '#349E28' : '',
-          color: stackValue ? 'white' : '',
+          color: stackValue ? 'white' : ''
         }}
       >
         <div style={{ display: 'display' }}>

@@ -1,3 +1,3 @@
 from django.contrib import admin
-from .models import File,Storage
-admin.site.register([File,Storage])
+from .models import ChildParsingDetails, EdgeParsingDetails, File, ItemDetails,ParsingDetails
+admin.site.register([File,ParsingDetails,ChildParsingDetails,EdgeParsingDetails,ItemDetails])
