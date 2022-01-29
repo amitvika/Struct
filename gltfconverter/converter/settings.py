@@ -91,11 +91,11 @@ DATABASES = {
         # 'NAME': os.path.join(BASE_DIR, 'DB/db.sqlite3'),
         
         'ENGINE': 'djongo',
-        'NAME': 'python_store',
+        'NAME': 'test',
         'CLIENT': {
                 'host': 'mongodb://myUserAdmin:navin%23MongoDB%2366@localhost' \
                     if development=='True' else \
-                        'mongodb+srv://amit_ika:dividivi@cluster0-ne7uw.mongodb.net/python_store?retryWrites=true&w=majority'            
+                        'mongodb+srv://amit_ika:dividivi@cluster0-ne7uw.mongodb.net/test?retryWrites=true&w=majority'            
             },
     }
 }
