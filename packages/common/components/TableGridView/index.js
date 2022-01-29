@@ -298,7 +298,7 @@ const TableGridView = ({
     setTotalDocs(updatedList.length);
   };
 
-  if (isLoading) {
+  if (isChildItemTable && isLoading) {
     return (
       <Box sx={{ width: '100%', position: 'absolute', left: 0, top: '60px' }}>
         <LinearProgress />
@@ -312,6 +312,11 @@ const TableGridView = ({
 
   return (
     <>
+      {isLoading && (
+        <Box sx={{ width: '100%', position: 'absolute', left: 0, top: '60px' }}>
+          <LinearProgress />
+        </Box>
+      )}
       <DefaultContainer
         title={title}
         isHistoryModalOpened={isHistoryModalOpened}
@@ -433,7 +438,7 @@ const CustomTablePagination = ({
         <MenuItem value={100}>100</MenuItem>
       </BootstrapSelect>
       <Pagination
-        count={Math.ceil(totalDocs / 10)}
+        count={Math.ceil(totalDocs / 25)}
         page={page}
         onChange={handleChangePage}
       />
