@@ -28,6 +28,7 @@ const ItemsView = () => {
       isEditLinkVisible={false}
       isDesignModalOpened={false}
       isPaginationEnabled={true}
+      isChildItemTable={true}
     />
   );
 };

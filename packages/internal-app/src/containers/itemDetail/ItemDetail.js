@@ -50,6 +50,7 @@ import { getAFileFromStore } from '@monostruct/common/api/fileUpload.api';
 import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
 import AssignToClient from './AssignToClient';
 import SupplyingVendors from './SupplyingVendors';
+import InstanceOfThisItem from './InstanceOfThisItem/InstanceOfThisItem';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -764,6 +765,8 @@ const ItemDetail = ({ itemValue }) => {
             setVendorInfo={setItemProperties}
           />
         );
+      case 'instanceOfThisItem':
+        return <InstanceOfThisItem />;
       default:
         return 'Undefined Tab Index';
     }
@@ -805,7 +808,8 @@ const ItemDetail = ({ itemValue }) => {
     itemReport: 'Item Report',
     makeItemConfigurable: 'Make Item Configurable/Customizable',
     AssignToClient: 'Assign to Client(s)',
-    sv: 'Supplying Vendors'
+    sv: 'Supplying Vendors',
+    instanceOfThisItem: 'Instance of this Item'
   };
 
   const renderTab = () => {
