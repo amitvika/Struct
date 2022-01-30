@@ -5973,7 +5973,7 @@ def extractKinematicInformation(kinematicparts):
         maxSequence=[]
     print("Chains presence",maxChain)
     for chainIndex in range(maxChain):
-        maxRangeSequence = maxSequence[chainIndex-1]
+        maxRangeSequence = maxSequence[chainIndex]
         print("Sequence presence",chainIndex,maxRangeSequence)
         for sequenceIndex in range(maxRangeSequence):
             currentIndex = maxRangeSequence-1-sequenceIndex
