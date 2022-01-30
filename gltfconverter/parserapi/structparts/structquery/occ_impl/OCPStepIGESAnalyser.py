@@ -4459,12 +4459,13 @@ class StepIgesAnalyser():
             #print(outputFeature)
             self.write_progress()
             
-            myparentID =  str(outputFeature["Id"])             
-            self.myParentId_Dict[myparentID]={}
+            myparentID =  outputFeature["Id"]
+            strMyparentID = str(myparentID)             
+            self.myParentId_Dict[strMyparentID]={}
             for myFeatureName in ["f","e","v"]:
                 self.write_progress()
                 myTotalshapes = outputFeature[myFeatureName]                 
-                self.myParentId_Dict[myparentID][myFeatureName]=0
+                self.myParentId_Dict[strMyparentID][myFeatureName]=0
                 if(myTotalshapes):
                     myTotalLenShapes = len(myTotalshapes)
                     if self.multiplegltf > 0:
@@ -4472,7 +4473,7 @@ class StepIgesAnalyser():
                     else:
                         mySplitFiles = 1
                     start=0            
-                    self.myParentId_Dict[myparentID][myFeatureName]=mySplitFiles                    
+                    self.myParentId_Dict[strMyparentID][myFeatureName]=mySplitFiles                    
                     for iFiles in range(mySplitFiles):
                         self.write_progress()
                         if(mySplitFiles==1):
@@ -4485,9 +4486,9 @@ class StepIgesAnalyser():
                             myshapes= myTotalshapes[start:end]
                             start = end
                         if iFiles > 0:       
-                            fname = pathfilename+"-"+str(myparentID)+"-"+myFeatureName+str(iFiles)+"."
+                            fname = pathfilename+"-"+strMyparentID+"-"+myFeatureName+str(iFiles)+"."
                         else:
-                            fname = pathfilename+"-"+str(myparentID)+"-"+myFeatureName+"."                    
+                            fname = pathfilename+"-"+strMyparentID+"-"+myFeatureName+"."                    
                         print("Disecting", fname, iFiles+1,"/", mySplitFiles, ",", self.lenfeature,"/",self.lenFeatures)
                         addedTrees = StepIgesAnalyser(filename=head+fname,shapeslist=["Dummy"],thumbheight=0,thumbwidth=0,\
                             addfeaturesThread=False,refid=self.refid,refname=self.refname).\
