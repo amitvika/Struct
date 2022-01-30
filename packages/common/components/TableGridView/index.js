@@ -22,6 +22,7 @@ import Pagination from '@mui/material/Pagination';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/material/styles';
+import { Headding } from '..';
 
 const TableGridView = ({
   title,
@@ -46,7 +47,8 @@ const TableGridView = ({
   showDeleteActionButton = true,
   showHistoryButtonToolbar = true,
   showArchiveButtonToolbar = true,
-  CustomAddButton
+  CustomAddButton,
+  isChildItemTable = false
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [list, setList] = useState([]);
@@ -296,6 +298,18 @@ const TableGridView = ({
     setTotalDocs(updatedList.length);
   };
 
+  if (isChildItemTable && isLoading) {
+    return (
+      <Box sx={{ width: '100%', position: 'absolute', left: 0, top: '60px' }}>
+        <LinearProgress />
+      </Box>
+    );
+  }
+
+  if (isChildItemTable && filteredList.length === 0) {
+    return <Headding>No Child Items</Headding>;
+  }
+
   return (
     <>
       {isLoading && (
@@ -424,7 +438,7 @@ const CustomTablePagination = ({
         <MenuItem value={100}>100</MenuItem>
       </BootstrapSelect>
       <Pagination
-        count={Math.ceil(totalDocs / 10)}
+        count={Math.ceil(totalDocs / 25)}
         page={page}
         onChange={handleChangePage}
       />
