@@ -1052,7 +1052,8 @@ def splitHierarchyFile(
                 sourcefilename,includeparts,distancegap,anglegap,disectparts,moverotate,
                 edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
                 CreateChildSteps,CreateAssemblyOrder,CreateStackability,
-                explodegap,holescale,removegap,center,animationtime,createfromtree,refid)
+                explodegap,holescale,removegap,center,animationtime,createfromtree,
+                refid,refname)
             if converted:
                 return data
             else:   
