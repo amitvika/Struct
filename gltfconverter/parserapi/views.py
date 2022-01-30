@@ -5934,7 +5934,7 @@ def extractKinematicInformation(kinematicparts):
                 maxChain = chains[chain]
         chains=sorted(chains)
         isLinear = OCPStepIGESAnalyser.convertToBool(isLinear,False)
-        isEndEffector = OCPStepIGESAnalyser.onvertToBool(isEndEffector,False)
+        isEndEffector = OCPStepIGESAnalyser.convertToBool(isEndEffector,False)
         nextAxis, axisAngle, axisDistance = axis, angle, distance
         myInfo = (partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector)
         print("Each Kinematic Info",myInfo,kinematicinfo)
