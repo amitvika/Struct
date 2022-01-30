@@ -40,7 +40,8 @@ export default function NestedList({ setItemValue }) {
       item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
       currentItem.angleGap ? currentItem.angleGap : STATEPROPS.anglegap,
       STATEPROPS.animationtime,
-      currentItem.id || currentItem._id
+      currentItem.id || currentItem._id,
+      currentItem.name
     )
       .then((res) => {
         setsplitfiles(res.data);

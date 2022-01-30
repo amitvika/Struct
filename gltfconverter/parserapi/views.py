@@ -72,6 +72,7 @@ from .recursivecopier import RecursiveCopier, copyFilesRecursive
 from .assemblyorder import FindAssemblingOrder
 from .assemblystack import FindStackability
 from .matrixinv.matrixinv import getMatrixInverse
+from . import controllers
 
 class HttpFormatter(logging.Formatter):
 
@@ -836,13 +837,13 @@ def FileSplit(request):
         data = []
         if request.method == 'GET':
             id = request.GET.get('id', None)
-            includeparts =OCPStepIGESAnalyser.convertToBool(request.GET.get('includeparts',"false"),False)
-            distancegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
-            anglegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-            disectparts = OCPStepIGESAnalyser.convertToBool(request.GET.get('disectparts',"false"),False)
-            moverotate = OCPStepIGESAnalyser.convertToInt(request.GET.get('moverotate',"0"),0)   
-            thumbwidth = OCPStepIGESAnalyser.convertToInt(request.GET.get('thumbwidth',"300"),300)
-            thumbheight = OCPStepIGESAnalyser.convertToInt(request.GET.get('thumbheight',"300"),300)   
+            includeparts = controllers.convertToBool(request.GET.get('includeparts',"false"),False)
+            distancegap = controllers.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = controllers.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            disectparts = controllers.convertToBool(request.GET.get('disectparts',"false"),False)
+            moverotate = controllers.convertToInt(request.GET.get('moverotate',"0"),0)   
+            thumbwidth = controllers.convertToInt(request.GET.get('thumbwidth',"300"),300)
+            thumbheight = controllers.convertToInt(request.GET.get('thumbheight',"300"),300)   
             #print(includeparts)
             if includeparts:           
                 print("I am including minorparts")
@@ -909,7 +910,7 @@ def exportToHierarchyGLTF(
     thumbwidth,thumbheight,maximumfaces,seperateparts,
     CreateChildSteps,CreateAssemblyOrder,CreateStackability,
     explodegap,holescale,removegap,center,animationtime,
-    createfromtree,refid):
+    createfromtree,refid,refname):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -943,7 +944,7 @@ def exportToHierarchyGLTF(
                     maximumfacestoinclude=maximumfaces,CreateChildSteps=CreateChildSteps,
                     CreateAssemblyOrder=CreateAssemblyOrder,CreateStackability=CreateStackability,
                     explodegap=explodegap,holescale=holescale,removegap=removegap,center=center,
-                    delay=animationtime,recursiveTree=createfromtree,refid=refid).dump()
+                    delay=animationtime,recursiveTree=createfromtree,refid=refid,refname=refname).dump()
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)
@@ -976,7 +977,8 @@ def exportToHierarchyGLTF(
                     vertexsize=vertexsize, maximumfacestoinclude=maximumfaces,
                     CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,
                     CreateStackability=CreateStackability,explodegap=explodegap,holescale=holescale,
-                    removegap=removegap,center=center,delay=animationtime,recursiveTree=createfromtree,refid=refid).dump() 
+                    removegap=removegap,center=center,delay=animationtime,recursiveTree=createfromtree,
+                    refid=refid,refname=refname).dump() 
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)
@@ -999,7 +1001,8 @@ def exportToHierarchyGLTF(
                     vertexsize=vertexsize, maximumfacestoinclude=maximumfaces,
                     CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,
                     CreateStackability=CreateStackability,explodegap=explodegap,holescale=holescale,
-                    removegap=removegap,center=center,delay=animationtime,recursiveTree=createfromtree,refid=refid).dump()  
+                    removegap=removegap,center=center,delay=animationtime,recursiveTree=createfromtree,
+                    refid=refid,refname=refname).dump()  
                 #dictionary['thumbnail']=thumbnail                             
             except Exception as e:
                 print("error",e)
@@ -1021,7 +1024,8 @@ def exportToHierarchyGLTF(
                     vertexsize=vertexsize, maximumfacestoinclude=maximumfaces,
                     CreateChildSteps=CreateChildSteps,CreateAssemblyOrder=CreateAssemblyOrder,
                     CreateStackability=CreateStackability,explodegap=explodegap,holescale=holescale,
-                    removegap=removegap,center=center,delay=animationtime,recursiveTree=createfromtree,refid=refid).dump() 
+                    removegap=removegap,center=center,delay=animationtime,recursiveTree=createfromtree,
+                    refid=refid,refname=refname).dump() 
                 #dictionary['thumbnail']=thumbnail
             except Exception as e:
                 print("error",e)                
@@ -1036,7 +1040,8 @@ def splitHierarchyFile(
     id,key,includeparts,distancegap,anglegap,disectparts,moverotate,
     edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
     CreateChildSteps,CreateAssemblyOrder,CreateStackability,
-    explodegap,holescale,removegap,center,animationtime,createfromtree,refid):
+    explodegap,holescale,removegap,center,animationtime,createfromtree,
+    refid,refname):
     data =[]
     if id or is_number(id) :
         _, file_extension = os.path.splitext(id)
@@ -1056,7 +1061,8 @@ def splitHierarchyFile(
                         data,includeparts,distancegap,anglegap,disectparts,moverotate,
                         edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
                         CreateChildSteps,CreateAssemblyOrder,CreateStackability,
-                        explodegap,holescale,removegap,center,animationtime,createfromtree,refid)
+                        explodegap,holescale,removegap,center,animationtime,createfromtree,
+                        refid,refname)
                     return data                        
                 else:
                     print(" Unable to split", sourcefilename, "since not supported type", file_extension)               
@@ -1078,34 +1084,35 @@ def FileHierarchySplit(request):
         if request.method == 'GET':
             id = request.GET.get('id', None)
             refid = request.GET.get('refid','')
-            includeparts =OCPStepIGESAnalyser.convertToBool(request.GET.get('includeparts',"false"),False)
-            distancegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
-            anglegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-            disectparts = OCPStepIGESAnalyser.convertToBool(request.GET.get('disectparts',"false"),False)
-            moverotate = OCPStepIGESAnalyser.convertToInt(request.GET.get('moverotate',"0"),0)  
-            edgesize = OCPStepIGESAnalyser.convertToFloat(request.GET.get('edgesize',"0.3"),0.3) 
-            vertexsize = OCPStepIGESAnalyser.convertToFloat(request.GET.get('vertexsize',"0.3"),1.0)
-            createthumb = OCPStepIGESAnalyser.convertToBool(request.GET.get('createthumb',"false"),False)
+            refname = request.GET.get('refname','')
+            includeparts =controllers.convertToBool(request.GET.get('includeparts',"false"),False)
+            distancegap = controllers.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = controllers.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            disectparts = controllers.convertToBool(request.GET.get('disectparts',"false"),False)
+            moverotate = controllers.convertToInt(request.GET.get('moverotate',"0"),0)  
+            edgesize = controllers.convertToFloat(request.GET.get('edgesize',"0.3"),0.3) 
+            vertexsize = controllers.convertToFloat(request.GET.get('vertexsize',"0.3"),1.0)
+            createthumb = controllers.convertToBool(request.GET.get('createthumb',"false"),False)
             if createthumb==True:
                 defthumb=300
                 defthumbstr="300"
             else:
                 defthumb=0
                 defthumbstr="0"
-            thumbwidth = OCPStepIGESAnalyser.convertToInt(request.GET.get('thumbwidth',defthumbstr),defthumb)
-            thumbheight = OCPStepIGESAnalyser.convertToInt(request.GET.get('thumbheight',defthumbstr),defthumb)
-            maximumfaces = OCPStepIGESAnalyser.convertToInt(request.GET.get('maximumfaces',"50"),50)
-            seperateparts = OCPStepIGESAnalyser.convertToBool(request.GET.get('seperateparts',"false"),False)
+            thumbwidth = controllers.convertToInt(request.GET.get('thumbwidth',defthumbstr),defthumb)
+            thumbheight = controllers.convertToInt(request.GET.get('thumbheight',defthumbstr),defthumb)
+            maximumfaces = controllers.convertToInt(request.GET.get('maximumfaces',"50"),50)
+            seperateparts = controllers.convertToBool(request.GET.get('seperateparts',"false"),False)
             
-            CreateChildSteps=OCPStepIGESAnalyser.convertToBool(request.GET.get('CreateChildSteps',"false"),False)
-            CreateAssemblyOrder=OCPStepIGESAnalyser.convertToBool(request.GET.get('CreateAssemblyOrder',"false"),False)
-            CreateStackability=OCPStepIGESAnalyser.convertToBool(request.GET.get('CreateStackability',"false"),False)           
-            explodegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('explodegap',"10"),10)
-            holescale = OCPStepIGESAnalyser.convertToFloat(request.GET.get('holescale',"0.77"),0.77)
-            removegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('removegap',"8.0"),8.0)
-            center = OCPStepIGESAnalyser.convertToBool(request.GET.get('center',"true"),True)
-            animationtime = OCPStepIGESAnalyser.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
-            createfromtree = OCPStepIGESAnalyser.convertToBool(request.GET.get('createchilds',"false"),False)
+            CreateChildSteps=controllers.convertToBool(request.GET.get('CreateChildSteps',"false"),False)
+            CreateAssemblyOrder=controllers.convertToBool(request.GET.get('CreateAssemblyOrder',"false"),False)
+            CreateStackability=controllers.convertToBool(request.GET.get('CreateStackability',"false"),False)           
+            explodegap = controllers.convertToFloat(request.GET.get('explodegap',"10"),10)
+            holescale = controllers.convertToFloat(request.GET.get('holescale',"0.77"),0.77)
+            removegap = controllers.convertToFloat(request.GET.get('removegap',"8.0"),8.0)
+            center = controllers.convertToBool(request.GET.get('center',"true"),True)
+            animationtime = controllers.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
+            createfromtree = controllers.convertToBool(request.GET.get('createchilds',"false"),False)
             #print(includeparts)
             if includeparts:           
                 print("I am including minorparts")
@@ -1123,16 +1130,16 @@ def FileHierarchySplit(request):
                         data = splitHierarchyFile(
                             eachfile.file.name,MEDIA_URL,includeparts,distancegap,anglegap,disectparts,
                             moverotate,edgesize,vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
-                            CreateChildSteps,CreateAssemblyOrder,CreateStackability,
-                            explodegap,holescale,removegap,center,animationtime,createfromtree,refid)
+                            CreateChildSteps,CreateAssemblyOrder,CreateStackability,explodegap,holescale,removegap,
+                            center,animationtime,createfromtree,refid,refname)
                 else:
                     #id = request.GET.get('file', None)
                     if id is not None:
                         data = splitHierarchyFile(
                             id,MEDIA_URL,includeparts,distancegap,anglegap,disectparts,moverotate,edgesize,
-                            vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,
-                            CreateChildSteps,CreateAssemblyOrder,CreateStackability,
-                            explodegap,holescale,removegap,center,animationtime,createfromtree,refid)
+                            vertexsize,thumbwidth,thumbheight,maximumfaces,seperateparts,CreateChildSteps,
+                            CreateAssemblyOrder,CreateStackability,explodegap,holescale,removegap,center,
+                            animationtime,createfromtree,refid,refname)
             """ if ((edgesize!=0) or (vertexsize !=0)):
                 try:
                     gdtfile = "Display/"+data["store"]+".gdt"
@@ -1275,15 +1282,15 @@ def FileGetMinimumDistance(request):
             print("Error while logging",e)
         data = []
         if request.method == 'GET':        
-            xmove = OCPStepIGESAnalyser.convertToFloat(request.GET.get('xmove',"0.0"),0.0)
-            ymove = OCPStepIGESAnalyser.convertToFloat(request.GET.get('ymove',"0.0"),0.0)
-            zmove = OCPStepIGESAnalyser.convertToFloat(request.GET.get('zmove',"0.0"),0.0)
-            xrotate = OCPStepIGESAnalyser.convertToFloat(request.GET.get('xrotate',"0.0"),0.0)
-            yrotate = OCPStepIGESAnalyser.convertToFloat(request.GET.get('yrotate',"0.0"),0.0)
-            zrotate = OCPStepIGESAnalyser.convertToFloat(request.GET.get('zrotate',"0.0"),0.0)
+            xmove = controllers.convertToFloat(request.GET.get('xmove',"0.0"),0.0)
+            ymove = controllers.convertToFloat(request.GET.get('ymove',"0.0"),0.0)
+            zmove = controllers.convertToFloat(request.GET.get('zmove',"0.0"),0.0)
+            xrotate = controllers.convertToFloat(request.GET.get('xrotate',"0.0"),0.0)
+            yrotate = controllers.convertToFloat(request.GET.get('yrotate',"0.0"),0.0)
+            zrotate = controllers.convertToFloat(request.GET.get('zrotate',"0.0"),0.0)
             fname = request.GET.get('fname',"")
             sname = request.GET.get('sname',"")
-            moverotate = OCPStepIGESAnalyser.convertToInt(request.GET.get('moverotate',"0"),0)              
+            moverotate = controllers.convertToInt(request.GET.get('moverotate',"0"),0)              
             print("Got request for",xmove,ymove,zmove,xrotate,yrotate,zrotate,moverotate,fname,sname)
             if moverotate:
                 (distance, points1, points2), coplaner, parallel, normal, opposite, concentric, coradial, angle = findMinimumDistance(
@@ -1485,11 +1492,11 @@ def CreateSphereFromCenter(center,vertexsize=0.1,circular=False):
         corner = gp_Pnt(centerX-vertexsize, centerY-vertexsize, centerZ-vertexsize)
         return BRepPrimAPI_MakeBox(corner,vertexsize*2,vertexsize*2,vertexsize*2).Shape()
 
-def getValueFromJSONKey(jsonstruct, key):
-    if key in jsonstruct:
-        return jsonstruct[key]
-    else:
-        return None
+# def getValueFromJSONKey(jsonstruct, key):
+#     if key in jsonstruct:
+#         return jsonstruct[key]
+#     else:
+#         return None
 
 @api_view(['GET', 'POST'])
 def FileGetShapeInfo(request):
@@ -1504,7 +1511,7 @@ def FileGetShapeInfo(request):
             #print(mydict)    
             sname = request.GET.get('fname',"")         
             if sname=="":
-                start = OCPStepIGESAnalyser.convertToInt(request.GET.get('start',"0"),0)
+                start = controllers.convertToInt(request.GET.get('start',"0"),0)
                 steps = request.GET.get('steps',"")   
                 fnames=steps.split(",")                
                 parents = request.GET.get('parents',"")
@@ -1514,7 +1521,7 @@ def FileGetShapeInfo(request):
                 pnames=[sname]
                 start=0
         elif request.method == 'POST':
-            start = OCPStepIGESAnalyser.convertToInt(request.data['start'],0) 
+            start = controllers.convertToInt(request.data['start'],0) 
             steps = request.data['steps']   
             fnamesteps= json.loads(steps)
             fnames=fnamesteps['steps']
@@ -1565,7 +1572,7 @@ def FileGetShapeInfo(request):
                             if 'center' in data[0]['Info']:  
                                 thiscenterpoint = data[0]['Info']['center'] 
                             if 'radius' in data[0]['Info']:  
-                                thisradius = OCPStepIGESAnalyser.convertToFloat(data[0]['Info']['radius'],0.1) / 1.6
+                                thisradius = controllers.convertToFloat(data[0]['Info']['radius'],0.1) / 1.6
 
                             thisdimension = get_oriented_bounding_details(thisshell[index])
                             """ thissiblings = pnames[index]                                
@@ -1883,7 +1890,7 @@ def duplicateShapes(shape,dimension,depthable,stackable,filename,basefilename,di
     
     return shapeList, noOfDuplicates, moveArrays
 
-def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,starttime=None,refid=''):#,thumbwidth,thumbheight):
+def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,starttime=None,refid='',refname=''):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -1906,9 +1913,10 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             try:
                 shape = conversion.read_step_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0, suffixname="S",refid=refid).dump()
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,
+                    distancegap=distancegap,anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, 
+                    logging=logging,thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0, suffixname="S",
+                    refid=refid,refname=refname).dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
@@ -1952,9 +1960,10 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             try:
                 shape = conversion.read_stl_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S",refid=refid).dump()
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,
+                    distancegap=distancegap,anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, 
+                    logging=logging,thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S",
+                    refid=refid,refname=refname).dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
@@ -1988,9 +1997,10 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             try:               
                 shape = conversion.read_iges_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S",refid=refid).dump()
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,
+                    distancegap=distancegap,anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, 
+                    logging=logging,thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S",
+                    refid=refid,refname=refname).dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
@@ -2024,9 +2034,10 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             try:
                 shape = conversion.read_brep_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, logging=logging, 
-                    thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0, suffixname="S",refid=refid).dump()
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,
+                    distancegap=distancegap,anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, 
+                    logging=logging,thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0, suffixname="S",
+                    refid=refid,refname=refname).dump()
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
                 if( (xmax-xmin) < (ymax-ymin) ) and ( (xmax-xmin) < (zmax-zmin) ):
@@ -2060,8 +2071,9 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),ascompound=True, logging=logging, 
-                    distancegap=distancegap,anglegap=anglegap, suffixname="S",refid=refid).dump() 
+                    filename=sourceFileName,shapeslist=createShapeArray(shape),ascompound=True, 
+                    logging=logging,distancegap=distancegap,anglegap=anglegap, suffixname="S",
+                    refid=refid,refname=refname).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
                 """ dimension, _ = outputShapes
                 xmin, ymin, zmin, xmax, ymax, zmax = dimension 
@@ -2098,7 +2110,8 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             #shapeStackList = [(fullShape,assemblyStackName,Quantity_Color(sR,sG,sB, Quantity_TOC_RGB))]
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],30,starttime,False)
             dictionary = FindStackability(sourceFileName,shapeArrayOrder,dimension,distancegap=distancegap,\
-                anglegap=anglegap,animationtime=animationtime,starttime=starttime,logging=logging,refid=refid).dump()
+                anglegap=anglegap,animationtime=animationtime,starttime=starttime,logging=logging,\
+                    refid=refid,refname=refname).dump()
         except Exception as e:
             print("error calling stackablity from view",e)
         """ try:
@@ -2160,9 +2173,10 @@ def FileGetStackablePositions(request):
         if request.method == 'GET':
             id = request.GET.get('id', None)
             refid = request.GET.get('refid','')
-            distancegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
-            anglegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-            animationtime = OCPStepIGESAnalyser.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
+            refname = request.GET.get('refname','')
+            distancegap = controllers.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = controllers.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            animationtime = controllers.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
             starttime = datetime.utcnow() 
             #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
             #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
@@ -2171,13 +2185,13 @@ def FileGetStackablePositions(request):
                 for eachfile in files: 
                     basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,0,"M")
                     data = getEmptyDictionary(MEDIA_URL+eachfile.file.name,basefilename,displaypath,0,starttime,True)               
-                    data = exportToPartGLTF(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid)#,thumbwidth,thumbheight)
+                    data = exportToPartGLTF(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid,refname)#,thumbwidth,thumbheight)
             else:
                 #id = request.GET.get('file', None)
                 if id is not None:
                     basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"M")
                     data = getEmptyDictionary(MEDIA_URL+id,basefilename,displaypath,0,starttime,True) 
-                    data = exportToPartGLTF(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid)#,thumbwidth,thumbheight)
+                    data = exportToPartGLTF(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid,refname)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False) 
     except Exception as e:
         try:
@@ -4912,7 +4926,7 @@ def getEmptyDictionary(filename,basefilename,displaypath,percentage,starttime,cr
     return dict_return
 
 
-def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,holescale = 0.8,removegap=1.0,animationtime=1.5,byThread=True,starttime=None,refid=''):#,thumbwidth,thumbheight):
+def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,holescale = 0.8,removegap=1.0,animationtime=1.5,byThread=True,starttime=None,refid='',refname=''):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -4942,7 +4956,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,includeparts=False,distancegap=distancegap, logging=logging, 
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
-                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M",refid=refid).dump()
+                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M",
+                    refid=refid,refname=refname).dump()
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
                 #shape = Wholeshape
@@ -4969,7 +4984,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,suffixname="M",refid=refid).dump()
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,suffixname="M",
+                    refid=refid,refname=refname).dump()
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
                 nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,tolerance)
@@ -5006,7 +5022,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,suffixname="M",refid=refid).dump()
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,suffixname="M",
+                    refid=refid,refname=refname).dump()
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
                 nshape, moveArrays, shapeorder = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,tolerance)
@@ -5025,7 +5042,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
                     anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,suffixname="M",refid=refid).dump() 
+                    thumbwidth=0,thumbheight=0,suffixname="M",refid=refid,refname=refname).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
                 """ dimension, myShapes = outputShapes
                 shapeArray,shape,aName = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
@@ -5047,7 +5064,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             #shapeArray = createShapeArray(shape)
             #print("Order",dictionary)
             FindAssemblingOrder(shapeArray,shape,aName,aColorAssemblyOrder,dimension,explodegap,center,holescale,removegap,logging).\
-                ExplodeParts(sourceFileName,distancegap,anglegap,animationtime,dictionary["display"],byThread,refid)
+                ExplodeParts(sourceFileName,distancegap,anglegap,animationtime,dictionary["display"],byThread,refid,refname)
             getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],100,starttime,False)
             #whatGotHere = ExplodeParts(shapeArray,shape,aName,dimension,explodegap,center,holescale,removegap)
             #print("After calling Assembly order",dictionary)
@@ -5080,7 +5097,8 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
                             'colorshapes':shapePickles,
                             'assemblyname':aName,
                             'dimension':dimension,
-                            'refid':refid} 
+                            'refid':refid,
+                            'refname':refname} 
             picklefile = dictionary["display"]+dictionary["store"]+".pickle"
             with open(picklefile, 'wb') as f:
                 # Pickle the 'data' dictionary using the highest protocol available.                               
@@ -5110,13 +5128,14 @@ def FileGetAssemblyOrder(request):
             
             id = request.GET.get('id', None)
             refid = request.GET.get('refid','')
-            distancegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
-            anglegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-            explodegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('explodegap',"10"),10)
-            holescale = OCPStepIGESAnalyser.convertToFloat(request.GET.get('holescale',"0.77"),0.77)
-            removegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('removegap',"8.0"),8.0)
-            center = OCPStepIGESAnalyser.convertToBool(request.GET.get('center',"true"),True)
-            animationtime = OCPStepIGESAnalyser.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
+            refname = request.GET.get('refname','')
+            distancegap = controllers.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = controllers.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            explodegap = controllers.convertToFloat(request.GET.get('explodegap',"10"),10)
+            holescale = controllers.convertToFloat(request.GET.get('holescale',"0.77"),0.77)
+            removegap = controllers.convertToFloat(request.GET.get('removegap',"8.0"),8.0)
+            center = controllers.convertToBool(request.GET.get('center',"true"),True)
+            animationtime = controllers.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
             #thumbwidth = convertToFloat(request.GET.get('thumbwidth',"96"),96)
             #thumbheight = convertToFloat(request.GET.get('thumbheight',"96"),96)
             print("Before Export",id,distancegap,anglegap,explodegap,center,holescale,removegap)
@@ -5128,7 +5147,7 @@ def FileGetAssemblyOrder(request):
                     data = getEmptyDictionary(MEDIA_URL+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
                     print("From assembly",data)
                     mythread = threading.Thread(target=exportToAssemblyGLTF, daemon=True,\
-                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime,refid))
+                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime,refid,refname))
                     mythread.start()      
                     #data = exportToAssemblyGLTF("Media/"+eachfile.file.name,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False)#,thumbwidth,thumbheight)
             else:
@@ -5137,7 +5156,7 @@ def FileGetAssemblyOrder(request):
                     basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"M")
                     data = getEmptyDictionary(MEDIA_URL+id,basefilename,displaypath,0,starttime,True)
                     mythread = threading.Thread(target=exportToAssemblyGLTF, daemon=True,\
-                        args=(MEDIA_URL+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime,refid))
+                        args=(MEDIA_URL+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False,starttime,refid,refname))
                     mythread.start() 
                     #data = exportToAssemblyGLTF("Media/"+id,distancegap,anglegap,explodegap,center,holescale,removegap,animationtime,False)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False)    
@@ -5168,7 +5187,7 @@ def FileGetAssemblyOrder(request):
                 print("Error while logging",e)
 
 
-def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,refid=''):#,thumbwidth,thumbheight):
+def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,refid='',refname=''):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -5190,7 +5209,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,includeparts=False,distancegap=distancegap, logging=logging, 
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
-                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,refid=refid).dump()
+                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,refid=refid,refname=refname).dump()
             except Exception as e:
                 print("error",e)
        
@@ -5200,7 +5219,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid).dump()
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid,refname=refname).dump()
             except Exception as e:
                 print("error",e)
         
@@ -5210,7 +5229,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid).dump()                
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid,refname=refname).dump()                
             except Exception as e:
                 print("error",e)
         
@@ -5220,7 +5239,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
                     anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,refid=refid).dump()                 
+                    thumbwidth=0,thumbheight=0,refid=refid,refname=refname).dump()                 
             except Exception as e:
                 print("error",e)
         
@@ -5230,7 +5249,8 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                edgesize=0, vertexsize=0, kinematicanimation=[],shapeorder=[], delay=animationtime,refid=refid).dump()
+                edgesize=0, vertexsize=0, kinematicanimation=[],shapeorder=[], delay=animationtime,
+                refid=refid,refname=refname).dump()
         except Exception as e:
             print("error",e) 
         try:
@@ -5240,7 +5260,8 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,
                             'anglegap':anglegap,
                             'animationtime':animationtime,
                             'colorshapes':shapePickles,
-                            'refid':refid}
+                            'refid':refid,
+                            'refname':refname}
             picklefile = dictionary["display"]+dictionary["store"]+".pickle"
             with open(picklefile, 'wb') as f:                                
                 pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
@@ -5268,18 +5289,19 @@ def FileGetKinematicAnimation(request):
         if request.method == 'GET':
             id = request.GET.get('id', None)
             refid = request.GET.get('refid','')
-            distancegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
-            anglegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-            animationtime = OCPStepIGESAnalyser.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
+            refname=request.GET.get('refname','')
+            distancegap = controllers.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = controllers.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            animationtime = controllers.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
             print(id,distancegap,anglegap,animationtime)
             if is_number(id) :            
                 files = File.objects.filter(id__icontains=id)
                 for eachfile in files:               
-                    data = exportTokinematicGLTF(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,refid)#,thumbwidth,thumbheight)
+                    data = exportTokinematicGLTF(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,refid,refname)#,thumbwidth,thumbheight)
             else:
                 #id = request.GET.get('file', None)
                 if id is not None:
-                    data = exportTokinematicGLTF(MEDIA_URL+id,distancegap,anglegap,animationtime,refid)#,thumbwidth,thumbheight)
+                    data = exportTokinematicGLTF(MEDIA_URL+id,distancegap,anglegap,animationtime,refid,refname)#,thumbwidth,thumbheight)
         return JsonResponse(data, safe=False)    
     except Exception as e:
         try:
@@ -5334,10 +5356,11 @@ def FileSaveTree(request):
                 sourceType = myPickle['sourceType']
                 if sourceType=='Kinematic':
                     sourceFileName=myPickle['sourceFileName']
-                    distancegap=OCPStepIGESAnalyser.convertToFloat(myPickle['distancegap'],0.1)
-                    anglegap=OCPStepIGESAnalyser.convertToFloat(myPickle['anglegap'],0.5)
-                    animationtime=OCPStepIGESAnalyser.convertToFloat(myPickle['animationtime'],1.0)
+                    distancegap=controllers.convertToFloat(myPickle['distancegap'],0.1)
+                    anglegap=controllers.convertToFloat(myPickle['anglegap'],0.5)
+                    animationtime=controllers.convertToFloat(myPickle['animationtime'],1.0)
                     refid=myPickle['refid'] if 'refid' in myPickle else ''
+                    refname=myPickle['refname'] if 'refname' in myPickle else ''
                     colorShapeArray=myPickle['colorshapes']
                     #sourceFileName = name[:-2]
                     shapeArray=[]
@@ -5356,13 +5379,13 @@ def FileSaveTree(request):
                         if gltf_dict["id"] in aTree:
                             index=aTree[gltf_dict["id"]]-2                        
                         if "posx" in aTree:                    
-                            posx=OCPStepIGESAnalyser.convertToFloat(aTree["posx"],0)
+                            posx=controllers.convertToFloat(aTree["posx"],0)
                         if "posy" in aTree:
-                            posy=OCPStepIGESAnalyser.convertToFloat(aTree["posy"],0)
+                            posy=controllers.convertToFloat(aTree["posy"],0)
                         if "posz" in aTree:
-                            posz=OCPStepIGESAnalyser.convertToFloat(aTree["posz"],0)
+                            posz=controllers.convertToFloat(aTree["posz"],0)
                         if "angle" in aTree:
-                            angle=OCPStepIGESAnalyser.convertToFloat(aTree["angle"],0)                    
+                            angle=controllers.convertToFloat(aTree["angle"],0)                    
                         if(posx!=0 or posy!=0 or posz!=0 or angle!=0):
                             kinematicanimation.append((posx,posy,posz,angle))
                             shapeorder.append(index)
@@ -5370,20 +5393,22 @@ def FileSaveTree(request):
                     (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                         filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
                         anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,edgesize=0,vertexsize=0,
-                        kinematicanimation=kinematicanimation,shapeorder=shapeorder,delay=animationtime,refid=refid).dump()
+                        kinematicanimation=kinematicanimation,shapeorder=shapeorder,delay=animationtime,
+                        refid=refid,refname=refname).dump()
                 elif sourceType=='Order':
                     sourceFileName = myPickle['sourceFileName']
-                    distancegap = OCPStepIGESAnalyser.convertToFloat(myPickle['distancegap'],0.1)
-                    anglegap = OCPStepIGESAnalyser.convertToFloat(myPickle['anglegap'],0.5)
-                    explodegap = OCPStepIGESAnalyser.convertToFloat(myPickle['explodegap'],10)
-                    center = OCPStepIGESAnalyser.convertToBool(myPickle['center'],True)
-                    holescale= OCPStepIGESAnalyser.convertToFloat(myPickle['holescale'],0.77)
-                    removegap= OCPStepIGESAnalyser.convertToFloat(myPickle['removegap'],8)
-                    animationtime=OCPStepIGESAnalyser.convertToFloat(myPickle['animationtime'],1)
+                    distancegap = controllers.convertToFloat(myPickle['distancegap'],0.1)
+                    anglegap = controllers.convertToFloat(myPickle['anglegap'],0.5)
+                    explodegap = controllers.convertToFloat(myPickle['explodegap'],10)
+                    center = controllers.convertToBool(myPickle['center'],True)
+                    holescale= controllers.convertToFloat(myPickle['holescale'],0.77)
+                    removegap= controllers.convertToFloat(myPickle['removegap'],8)
+                    animationtime=controllers.convertToFloat(myPickle['animationtime'],1)
                     colorShapeArray=myPickle['colorshapes']
                     assemblyname=myPickle['assemblyname']
                     dimension=myPickle['dimension']
                     refid=myPickle['refid'] if 'refid' in myPickle else ''
+                    refname=myPickle['refname'] if 'refname' in myPickle else ''
                     shapeArray=[]    
                     shapesAlone=[]               
                     shapeorder=[]
@@ -5404,36 +5429,36 @@ def FileSaveTree(request):
                             if index>=0:
                                 shapeorder.append(index)
                                 if "AX" in aTree:                    
-                                    ax=OCPStepIGESAnalyser.convertToFloat(aTree["AX"],0)
+                                    ax=controllers.convertToFloat(aTree["AX"],0)
                                 else:
                                     ax=0
                                 if "AY" in aTree:                    
-                                    ay=OCPStepIGESAnalyser.convertToFloat(aTree["AY"],0)
+                                    ay=controllers.convertToFloat(aTree["AY"],0)
                                 else:
                                     ay=0
                                 if "AZ" in aTree:                    
-                                    az=OCPStepIGESAnalyser.convertToFloat(aTree["AZ"],0)
+                                    az=controllers.convertToFloat(aTree["AZ"],0)
                                 else:
                                     az=0
                                 if "CX" in aTree:                    
-                                    cx=OCPStepIGESAnalyser.convertToFloat(aTree["CX"],0)
+                                    cx=controllers.convertToFloat(aTree["CX"],0)
                                 else:
                                     cx=0
                                 if "CY" in aTree:                    
-                                    cy=OCPStepIGESAnalyser.convertToFloat(aTree["CY"],0)
+                                    cy=controllers.convertToFloat(aTree["CY"],0)
                                 else:
                                     cy=0
                                 if "CZ" in aTree:                    
-                                    cz=OCPStepIGESAnalyser.convertToFloat(aTree["CZ"],0)  
+                                    cz=controllers.convertToFloat(aTree["CZ"],0)  
                                 else:
                                     cz=0   
                                 if "CW" in aTree:                    
-                                    cw=OCPStepIGESAnalyser.convertToFloat(aTree["CW"],0) 
+                                    cw=controllers.convertToFloat(aTree["CW"],0) 
                                 else:
                                     cw=0                   
                                 shapedirection.append(((ax,ay,az),(cx,cy,cz,cw)))
                     dictionary = FindAssemblingOrder(shapeArray,shapesAlone,assemblyname,dimension,explodegap,center,holescale,removegap,logging).\
-                                    reChangeOrder(shapeorder,shapedirection,sourceFileName,distancegap,anglegap,animationtime,refid)
+                                    reChangeOrder(shapeorder,shapedirection,sourceFileName,distancegap,anglegap,animationtime,refid,refname)
             except Exception as e:
                 print("Error while loading",name,e) 
             if sourceType!='Order':  
@@ -5707,15 +5732,15 @@ def extractKinematicInformation_old(kinematicparts):
         myInfo = (None,None,0,False,False,[0,0,0],0,0,0)
         if 'actuator_motion_control' in kinematicpart:
             kinematicinfo = kinematicpart['actuator_motion_control']
-            myInfo = getValueFromJSONKey(kinematicinfo,'child_part_name'),\
-                getValueFromJSONKey(kinematicinfo,'child_part_display_name'),\
-                    getValueFromJSONKey(kinematicinfo,'child_sequence_number'),\
-                        getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),\
-                            getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),\
-                                getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
-                                    getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),\
-                                        getValueFromJSONKey(kinematicinfo,'axis_before_link'),\
-                                            getValueFromJSONKey(kinematicinfo,'axis_after_link')
+            myInfo = controllers.getValueFromJSONKey(kinematicinfo,'child_part_name'),\
+                controllers.getValueFromJSONKey(kinematicinfo,'child_part_display_name'),\
+                    controllers.getValueFromJSONKey(kinematicinfo,'child_sequence_number'),\
+                        controllers.getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),\
+                            controllers.getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),\
+                                controllers.getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
+                                    controllers.getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),\
+                                        controllers.getValueFromJSONKey(kinematicinfo,'axis_before_link'),\
+                                            controllers.getValueFromJSONKey(kinematicinfo,'axis_after_link')
         else:
             kinematicinfo='No Information for kinematic info'
         print("What I got as Axis1",kinematicinfo,myInfo)                             
@@ -5730,15 +5755,15 @@ def extractKinematicInformation_old(kinematicparts):
             if 'step' in axisDict:
                 _, shapeOfAxis = getShapeFromPickle(axisDict['step'])
                         
-        isActuator = not OCPStepIGESAnalyser.convertToBool(isActuator,False)
-        bl = OCPStepIGESAnalyser.convertToInt(bl,0)
-        al = OCPStepIGESAnalyser.convertToInt(al,0)
+        isActuator = not controllers.convertToBool(isActuator,False)
+        bl = controllers.convertToInt(bl,0)
+        al = controllers.convertToInt(al,0)
         if al!=0 and bl!=0 : #if it is a link, then it can not be actuator.
             isActuator = False        
         if partName==None:
-            partName = getValueFromJSONKey(kinematicpart,'filePartName')
+            partName = controllers.getValueFromJSONKey(kinematicpart,'filePartName')
         if displayName==None:
-            displayName = getValueFromJSONKey(kinematicpart,'name')
+            displayName = controllers.getValueFromJSONKey(kinematicpart,'name')
         if axis is None:
             axis  = [0,0,0]            
         elif isinstance(axis, list)==False :
@@ -5753,15 +5778,15 @@ def extractKinematicInformation_old(kinematicparts):
             for _ in range(remainingLength):
                 axis.append(0)
         [ax,ay,az]=axis
-        axis = [OCPStepIGESAnalyser.convertToFloat(ax,0), OCPStepIGESAnalyser.convertToFloat(ay,0), OCPStepIGESAnalyser.convertToFloat(az,0)]
+        axis = [controllers.convertToFloat(ax,0), controllers.convertToFloat(ay,0), controllers.convertToFloat(az,0)]
         # if axis==[0,0,0]:
         #     axis=[0,1,2]
-        aw = OCPStepIGESAnalyser.convertToFloat(aw,0)
+        aw = controllers.convertToFloat(aw,0)
         # if isActuator and aw==0:
         #     aw= math.pi/3 # 3.14 #3.14 #math.pi
         #     ap=-0.1*ap
-        sequence = OCPStepIGESAnalyser.convertToInt(sequence,0)
-        isLinear = OCPStepIGESAnalyser.convertToBool(isLinear,False)
+        sequence = controllers.convertToInt(sequence,0)
+        isLinear = controllers.convertToBool(isLinear,False)
       
         myInfo = partName, displayName, sequence, isActuator, isLinear, axis, aw, bl, al, shapeOfAxis
         print("Each Kinematic Info",myInfo,kinematicinfo)
@@ -5820,19 +5845,19 @@ def extractKinematicInformation(kinematicparts):
         myInfo =  (None, None, "STATIC", 0, 0, [0,0,0], 0, 0, 0, False, 0, False, False)
         if 'actuator_motion_control' in kinematicpart:
             kinematicinfo = kinematicpart['actuator_motion_control']
-            myInfo = getValueFromJSONKey(kinematicinfo,'child_part_name'),\
-                getValueFromJSONKey(kinematicinfo,'child_part_display_name'),\
-                    getValueFromJSONKey(kinematicinfo,'child_part_type'),\
-                        getValueFromJSONKey(kinematicinfo,'axis_number'),\
-                            getValueFromJSONKey(kinematicinfo,'child_sequence_number'),\
-                                getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
-                                    getValueFromJSONKey(kinematicinfo,'rotational_angle_limit'),\
-                                        getValueFromJSONKey(kinematicinfo,'linear_distance_limit'),\
-                                            getValueFromJSONKey(kinematicinfo,'machine_actuator_limit'),\
-                                                getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),\
-                                                    getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),\
-                                                        getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),\
-                                                            getValueFromJSONKey(kinematicinfo,'is_end_effector')
+            myInfo = controllers.getValueFromJSONKey(kinematicinfo,'child_part_name'),\
+                controllers.getValueFromJSONKey(kinematicinfo,'child_part_display_name'),\
+                    controllers.getValueFromJSONKey(kinematicinfo,'child_part_type'),\
+                        controllers.getValueFromJSONKey(kinematicinfo,'axis_number'),\
+                            controllers.getValueFromJSONKey(kinematicinfo,'child_sequence_number'),\
+                                controllers.getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
+                                    controllers.getValueFromJSONKey(kinematicinfo,'rotational_angle_limit'),\
+                                        controllers.getValueFromJSONKey(kinematicinfo,'linear_distance_limit'),\
+                                            controllers.getValueFromJSONKey(kinematicinfo,'machine_actuator_limit'),\
+                                                controllers.getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),\
+                                                    controllers.getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),\
+                                                        controllers.getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),\
+                                                            controllers.getValueFromJSONKey(kinematicinfo,'is_end_effector')
         else:
             kinematicinfo='No Information for kinematic info'
         #print("What I got as Axis1",kinematicinfo,myInfo)     
@@ -5848,7 +5873,7 @@ def extractKinematicInformation(kinematicparts):
             if 'step' in axisDict:
                 _, shapeOfAxis = getShapeFromPickle(axisDict['step'])
         forceAngle = isActuator is not None
-        isActuator = not OCPStepIGESAnalyser.convertToBool(isActuator,False)
+        isActuator = not controllers.convertToBool(isActuator,False)
         if (partType is None) or forceAngle:
             forceAngle = True
             if isActuator:
@@ -5862,9 +5887,9 @@ def extractKinematicInformation(kinematicparts):
         # if partType=='STATIC' and (sequence==3 or sequence==5):
         #     partType='LINKAGE'
         if partName==None:
-            partName = getValueFromJSONKey(kinematicpart,'filePartName')
+            partName = controllers.getValueFromJSONKey(kinematicpart,'filePartName')
         if displayName==None:
-            displayName = getValueFromJSONKey(kinematicpart,'name')
+            displayName = controllers.getValueFromJSONKey(kinematicpart,'name')
         if axis is None:
             axis  = [0,0,0]            
         elif isinstance(axis, list)==False :
@@ -5879,27 +5904,27 @@ def extractKinematicInformation(kinematicparts):
             for _ in range(remainingLength):
                 axis.append(0)
         [ax,ay,az]=axis
-        axis = [OCPStepIGESAnalyser.convertToFloat(ax,0), OCPStepIGESAnalyser.convertToFloat(ay,0), OCPStepIGESAnalyser.convertToFloat(az,0)]
+        axis = [controllers.convertToFloat(ax,0), controllers.convertToFloat(ay,0), controllers.convertToFloat(az,0)]
         [ax,ay,az]=axis
         if shapeOfAxis and ax==0 and ay==0 and az==0 :
             myobb = get_oriented_bounding_details(shapeOfAxis)
             ax, ay, az = getMaxDirectionFromOBB(myobb)
-            axis = [OCPStepIGESAnalyser.convertToFloat(ax,0), OCPStepIGESAnalyser.convertToFloat(ay,0), OCPStepIGESAnalyser.convertToFloat(az,0)]
+            axis = [controllers.convertToFloat(ax,0), controllers.convertToFloat(ay,0), controllers.convertToFloat(az,0)]
             
         # if axis==[0,0,0]:
         #     axis=[0,1,2]
-        aw = OCPStepIGESAnalyser.convertToFloat(aw,0)
-        angle = OCPStepIGESAnalyser.convertToFloat(angle,0)
+        aw = controllers.convertToFloat(aw,0)
+        angle = controllers.convertToFloat(angle,0)
         if ((angle==0) and (isLinear==False) ):
             angle = aw  
             # if angle==0:
             #     angle=math.pi/3       
         if maxAngle < angle:
             maxAngle = angle
-        distance = OCPStepIGESAnalyser.convertToFloat(distance,0)
+        distance = controllers.convertToFloat(distance,0)
         if ((distance==0) and (isLinear==True)):
             distance = aw
-        machineLimit = OCPStepIGESAnalyser.convertToFloat(machineLimit, distance if isLinear else angle )
+        machineLimit = controllers.convertToFloat(machineLimit, distance if isLinear else angle )
         # if machineLimit==0:
         #     machineLimit = distance if isLinear else angle
         # if isActuator and aw==0:
@@ -5910,7 +5935,7 @@ def extractKinematicInformation(kinematicparts):
         if (sequence is None) and (chains) and (isinstance(chains, list)==False) :
             sequence = chains
             chains=[1]
-        sequence = OCPStepIGESAnalyser.convertToInt(sequence,1)
+        sequence = controllers.convertToInt(sequence,1)
         # if ((chains is None) or len(chains)==0) and sequence < 6:
         #     chains=[1,2]
         # elif ((chains is None) or len(chains)==0) and sequence==6:
@@ -5925,16 +5950,16 @@ def extractKinematicInformation(kinematicparts):
         if chains is None:
             chains=[1]
         elif isinstance(chains, list)==False :
-            chains=[OCPStepIGESAnalyser.convertToInt(chains,1)]
+            chains=[controllers.convertToInt(chains,1)]
         elif len(chains)==0:
             chains=[1]
         for chain in range(len(chains)):
-            chains[chain] = OCPStepIGESAnalyser.convertToInt(chains[chain],1)
+            chains[chain] = controllers.convertToInt(chains[chain],1)
             if maxChain < chains[chain]:
                 maxChain = chains[chain]
         chains=sorted(chains)
-        isLinear = OCPStepIGESAnalyser.convertToBool(isLinear,False)
-        isEndEffector = OCPStepIGESAnalyser.convertToBool(isEndEffector,False)
+        isLinear = controllers.convertToBool(isLinear,False)
+        isEndEffector = controllers.convertToBool(isEndEffector,False)
         nextAxis, axisAngle, axisDistance = axis, angle, distance
         myInfo = (partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector)
         print("Each Kinematic Info",myInfo,kinematicinfo)
@@ -6057,13 +6082,13 @@ def getKinematicInformation(kinematicparts,partname):
     for kinematicpart in kinematicparts:
         if 'actuator_motion_control' in kinematicpart:
             kinematicinfo = kinematicpart['actuator_motion_control']
-            if (getValueFromJSONKey(kinematicinfo,'child_part_name')==html_display) or \
-                (getValueFromJSONKey(kinematicinfo,'child_part_display_name')==html_display):
-                return OCPStepIGESAnalyser.convertToInt(getValueFromJSONKey(kinematicinfo,'child_sequence_number'),1),\
-                    OCPStepIGESAnalyser.convertToBool(getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),False),\
-                        OCPStepIGESAnalyser.convertToBool(getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),False),\
-                            getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
-                                OCPStepIGESAnalyser.convertToFloat(getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),0.1)   
+            if (controllers.getValueFromJSONKey(kinematicinfo,'child_part_name')==html_display) or \
+                (controllers.getValueFromJSONKey(kinematicinfo,'child_part_display_name')==html_display):
+                return controllers.convertToInt(controllers.getValueFromJSONKey(kinematicinfo,'child_sequence_number'),1),\
+                    controllers.convertToBool(controllers.getValueFromJSONKey(kinematicinfo,'is_actuator_or_chain_link'),False),\
+                        controllers.convertToBool(controllers.getValueFromJSONKey(kinematicinfo,'is_linear_or_rotational'),False),\
+                            controllers.getValueFromJSONKey(kinematicinfo,'cylindrical_axis_of_rotation'),\
+                                controllers.convertToFloat(controllers.getValueFromJSONKey(kinematicinfo,'angle_or_distant_limit'),0.1)   
     return (0,False,False,[0,0,0],0)
 
 def getKinematicInformationFromIndex(kinematicParts,partname):
@@ -6075,7 +6100,7 @@ def getKinematicInformationFromIndex(kinematicParts,partname):
     return ("No Name", "Empty Item", "STATIC", 0, 0, [0,0,0], [0,0,0], 0, 0, 0, 0, 0, None, False, False) 
     
 
-def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None,refid='',partsteps=[]):#,thumbwidth,thumbheight):
+def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None,refid='',refname='',partsteps=[]):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -6097,7 +6122,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,includeparts=False,distancegap=distancegap, logging=logging, 
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
-                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,refid=refid).dump()
+                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,refid=refid,refname=refname).dump()
             except Exception as e:
                 print("error",e)
        
@@ -6107,7 +6132,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid).dump()
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid,refname=refname).dump()
             except Exception as e:
                 print("error",e)
         
@@ -6117,7 +6142,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid).dump()                
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid,refname=refname).dump()                
             except Exception as e:
                 print("error",e)
         
@@ -6127,7 +6152,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
                     anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,refid=refid).dump()                 
+                    thumbwidth=0,thumbheight=0,refid=refid,refname=refname).dump()                 
             except Exception as e:
                 print("error",e)
         
@@ -6183,11 +6208,11 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                     if ax==0 and ay==0 and az==0 :
                         myobb = get_oriented_bounding_details(shapeOfAxis)
                         ax, ay, az = getMaxDirectionFromOBB(myobb)
-                        ax, ay, az = OCPStepIGESAnalyser.convertToFloat(ax,0), OCPStepIGESAnalyser.convertToFloat(ay,0), OCPStepIGESAnalyser.convertToFloat(az,0)
+                        ax, ay, az = controllers.convertToFloat(ax,0), controllers.convertToFloat(ay,0), controllers.convertToFloat(az,0)
                     if ax==0 and ay==0 and az==0 :
                         myobb = get_oriented_bounding_details(eachShape)
                         ax, ay, az = getMaxDirectionFromOBB(myobb)
-                        ax, ay, az = OCPStepIGESAnalyser.convertToFloat(ax,0), OCPStepIGESAnalyser.convertToFloat(ay,0), OCPStepIGESAnalyser.convertToFloat(az,0)
+                        ax, ay, az = controllers.convertToFloat(ax,0), controllers.convertToFloat(ay,0), controllers.convertToFloat(az,0)
                     print("Each one",eachName,sequence,whatWeGotFromKinematicInfo, ax, ay, az  ) 
                     if  (chain in chains):
                         maxSequenceShape = maxSequence[chain-1]
@@ -6211,7 +6236,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                 filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
                 edgesize=0, vertexsize=0, kinematicrotation=kinematicrotation,shapeorder=shapeorder,
-                delay=animationtime,refid=refid).dump()
+                delay=animationtime,refid=refid,refname=refname).dump()
 
         except Exception as e:
             print("error",e) 
@@ -6222,7 +6247,8 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
                             'anglegap':anglegap,
                             'animationtime':animationtime,
                             'colorshapes':shapePickles,
-                            'refid':refid}
+                            'refid':refid,
+                            'refname':refname}
             picklefile = dictionary["display"]+dictionary["store"]+".pickle"
             with open(picklefile, 'wb') as f:                                
                 pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
@@ -6251,9 +6277,10 @@ def FileGetKinematicRotationalAnimation(request):
         if request.method == 'GET':
             id = request.GET.get('id', None)
             refid = request.GET.get('refid','')
-            distancegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
-            anglegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
-            animationtime = OCPStepIGESAnalyser.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
+            refname=request.GET.get('refname','')
+            distancegap = controllers.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = controllers.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            animationtime = controllers.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
             print(id,distancegap,anglegap,animationtime)
             starttime = datetime.utcnow() 
             if is_number(id) :            
@@ -6263,7 +6290,7 @@ def FileGetKinematicRotationalAnimation(request):
                     data = getEmptyDictionary(MEDIA_URL+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
                     print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
-                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid))
+                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid,refname))
                     mythread.start()  
             else:
                 #id = request.GET.get('file', None)
@@ -6272,17 +6299,18 @@ def FileGetKinematicRotationalAnimation(request):
                     data = getEmptyDictionary(MEDIA_URL+id, basefilename,displaypath,0,starttime,True) 
                     print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
-                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid))
+                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid,refname))
                     mythread.start()         
         elif request.method == 'POST':
             #print("Reached here in kinematic move",request.data)
             id = request.data['id']
-            distancegap = OCPStepIGESAnalyser.convertToFloat(request.data['distancegap'],0.1)
-            anglegap = OCPStepIGESAnalyser.convertToFloat(request.data['anglegap'],0.5)
-            animationtime = OCPStepIGESAnalyser.convertToFloat(request.data['animationtime'],1.0)
+            distancegap = controllers.convertToFloat(request.data['distancegap'],0.1)
+            anglegap = controllers.convertToFloat(request.data['anglegap'],0.5)
+            animationtime = controllers.convertToFloat(request.data['animationtime'],1.0)
             print("kinematicmove",id,distancegap,anglegap,animationtime)
             parts = request.data['parts']
             refid = request.data['refid']
+            refname = request.data['refname']
             partsteps=json.loads(parts)
             starttime = datetime.utcnow() 
             if is_number(id) :            
@@ -6292,7 +6320,7 @@ def FileGetKinematicRotationalAnimation(request):
                     data = getEmptyDictionary(MEDIA_URL+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
                     #print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
-                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid,partsteps))
+                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid,refname,partsteps))
                     mythread.start()  
             else:
                 #id = request.GET.get('file', None)
@@ -6301,7 +6329,7 @@ def FileGetKinematicRotationalAnimation(request):
                     data = getEmptyDictionary(MEDIA_URL+id, basefilename,displaypath,0,starttime,True) 
                     #print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
-                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid,partsteps))
+                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid,refname,partsteps))
                     mythread.start() 
         return JsonResponse(data, safe=False)    
     except Exception as e:
@@ -6476,23 +6504,23 @@ def getOutputShapesFromSourceFile(originalFileName,distancegap,anglegap,statusfi
             OCPStepIGESAnalyser.saveStatusToDatabase(dict_return,originalFileName,"NothingMan","AB")
             # try:
             #     storageData = {}
-            #     storageData["assemblies"]=OCPStepIGESAnalyser.convertToInt(dict_return["assemblies"],0)
-            #     storageData["trees"]=OCPStepIGESAnalyser.convertToInt(dict_return["trees"],0)
-            #     storageData["parts"]=OCPStepIGESAnalyser.convertToInt(dict_return["parts"],0)
-            #     storageData["faces"]=OCPStepIGESAnalyser.convertToInt(dict_return["faces"],0)
-            #     storageData["edges"]=OCPStepIGESAnalyser.convertToInt(dict_return["edges"],0)
-            #     storageData["vertices"]=OCPStepIGESAnalyser.convertToInt(dict_return["vertices"],0)
+            #     storageData["assemblies"]=controllers.convertToInt(dict_return["assemblies"],0)
+            #     storageData["trees"]=controllers.convertToInt(dict_return["trees"],0)
+            #     storageData["parts"]=controllers.convertToInt(dict_return["parts"],0)
+            #     storageData["faces"]=controllers.convertToInt(dict_return["faces"],0)
+            #     storageData["edges"]=controllers.convertToInt(dict_return["edges"],0)
+            #     storageData["vertices"]=controllers.convertToInt(dict_return["vertices"],0)
             #     storageData["obb_position"]=dict_return["obbPosition"]
             #     storageData["obb_origin"]=dict_return["obbOrigin"]
             #     storageData["obb_rotated"]=dict_return["obbRotated"]
             #     cx,cy,cz=dict_return["center"]
-            #     storageData["cx"],storageData["cy"],storageData["cz"] = OCPStepIGESAnalyser.convertToFloat(cx,0),OCPStepIGESAnalyser.convertToFloat(cy,0),OCPStepIGESAnalyser.convertToFloat(cz,0) 
+            #     storageData["cx"],storageData["cy"],storageData["cz"] = controllers.convertToFloat(cx,0),controllers.convertToFloat(cy,0),controllers.convertToFloat(cz,0) 
             #     rx,ry,rz=dict_return["rotation"]
-            #     storageData["rx"],storageData["ry"],storageData["rz"] = OCPStepIGESAnalyser.convertToFloat(rx,0),OCPStepIGESAnalyser.convertToFloat(ry,0),OCPStepIGESAnalyser.convertToFloat(rz,0) 
+            #     storageData["rx"],storageData["ry"],storageData["rz"] = controllers.convertToFloat(rx,0),controllers.convertToFloat(ry,0),controllers.convertToFloat(rz,0) 
             #     sx,sy,sz=dict_return["obbRotated"]["sx"],dict_return["obbRotated"]["sy"],dict_return["obbRotated"]["sz"]
-            #     storageData["sx"],storageData["sy"],storageData["sz"]=OCPStepIGESAnalyser.convertToFloat(sx,0),OCPStepIGESAnalyser.convertToFloat(sy,0),OCPStepIGESAnalyser.convertToFloat(sz,0) 
+            #     storageData["sx"],storageData["sy"],storageData["sz"]=controllers.convertToFloat(sx,0),controllers.convertToFloat(sy,0),controllers.convertToFloat(sz,0) 
             #     storageData["zerostep"]=dict_return["zerostep"]
-            #     storageData["percent"]=OCPStepIGESAnalyser.convertToFloat(dict_return["percent"],0)
+            #     storageData["percent"]=controllers.convertToFloat(dict_return["percent"],0)
             #     storageData["start"]=dict_return["start"]
             #     storageData["current"]=dict_return["current"]
             #     storageData["action"]=dict_return["action"]
@@ -6882,8 +6910,8 @@ def FileCompareIdentity(request):
         if request.method == 'GET':
             id1 = request.GET.get('id1', None)
             id2 = request.GET.get('id2', None)
-            distancegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
-            anglegap = OCPStepIGESAnalyser.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            distancegap = controllers.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = controllers.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
             print(id1,id2,distancegap,anglegap)
             starttime = datetime.utcnow() 
             sourceFile1=None

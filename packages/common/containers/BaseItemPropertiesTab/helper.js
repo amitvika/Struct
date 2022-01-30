@@ -145,7 +145,8 @@ export const createChildItems = async ({
         STATEPROPS.fromcenter,
         STATEPROPS.animationtime,
         true,
-        item.id || item._id
+        item.id || item._id,
+        item.name
       );
       setIsFileLoading(false);
     }

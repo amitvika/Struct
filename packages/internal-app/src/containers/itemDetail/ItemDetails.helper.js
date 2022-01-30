@@ -263,7 +263,8 @@ export const handleOtherTabCase = async (props) => {
     STATEPROPS.fromcenter,
     STATEPROPS.animationtime,
     false,
-    item.id || item._id
+    item.id || item._id,
+    item.name
   );
 
   setIsFileLoading(false);
@@ -449,7 +450,8 @@ export const setStack = async (props) => {
         item.distanceGap ? item.distanceGap : STATEPROPS.distancegap,
         item.angleGap ? item.angleGap : STATEPROPS.anglegap,
         STATEPROPS.animationtime,
-        item.id || item._id
+        item.id || item._id,
+        item.name
       )
         .then((res) => res.data)
         .then((repos) => {
@@ -573,7 +575,8 @@ export const setOrder = async (props) => {
       STATEPROPS.holescale,
       STATEPROPS.removegap,
       STATEPROPS.animationtime,
-      item.id || item._id
+      item.id || item._id,
+      item.name
     );
     setIsFileLoading(false);
     let datastore = getHierarchyRes.data.store;
@@ -719,7 +722,8 @@ export const handleProductDesignTab = async (props) => {
     STATEPROPS.fromcenter,
     STATEPROPS.animationtime,
     false,
-    item.id || item._id
+    item.id || item._id,
+    item.name
   );
 
   setIsFileLoading(false);
@@ -885,7 +889,8 @@ export const handleInternalUseProduct = async (props) => {
       item.angleGap ? item.angleGap : STATEPROPS.anglegap,
       STATEPROPS.animationtime,
       kinematicItemList,
-      item.id || item._id
+      item.id || item._id,
+      item.name
     );
 
     setIsFileLoading(false);

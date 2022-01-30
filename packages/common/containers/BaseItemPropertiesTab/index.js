@@ -218,7 +218,8 @@ export default function BaseItemProperties({
         STATEPROPS.fromcenter,
         STATEPROPS.animationtime,
         false,
-        itemProperties.id || itemProperties._id
+        itemProperties.id || itemProperties._id,
+        itemProperties.name
       );
       setIsFileLoading(false);
       if (fileUUId != data.uuid) {

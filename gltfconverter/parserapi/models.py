@@ -11,7 +11,8 @@ class File(models.Model):
         return self.file.name
 class ParsingDetails(models.Model):
     _id = models.ObjectIdField()
-    name = models.CharField(max_length=80, default=None)   
+    name = models.CharField(max_length=80, default=None)  
+    filename = models.CharField(max_length=80, default=None) 
     external_id=models.IntegerField(default=1)
     external_ref=models.CharField(max_length=255,default=None)
     tab_suffix=models.CharField(max_length=2,default=None)
@@ -52,7 +53,8 @@ class ParsingDetails(models.Model):
     #     ]
 class ChildParsingDetails(models.Model):
     _id = models.ObjectIdField()
-    name = models.CharField(max_length=80, default=None)   
+    name = models.CharField(max_length=80, default=None)  
+    filename = models.CharField(max_length=80, default=None) 
     external_id=models.IntegerField(default=1)
     external_ref=models.CharField(max_length=255,default=None)
     begin=models.IntegerField(default=0)
@@ -76,7 +78,8 @@ class ChildParsingDetails(models.Model):
     #     ]
 class EdgeParsingDetails(models.Model):
     _id = models.ObjectIdField()
-    name = models.CharField(max_length=80, default=None)   
+    name = models.CharField(max_length=80, default=None)  
+    filename = models.CharField(max_length=80, default=None) 
     external_id=models.IntegerField(default=1)
     external_ref=models.CharField(max_length=255,default=None)
     begin=models.IntegerField(default=0)
@@ -98,6 +101,7 @@ class EdgeParsingDetails(models.Model):
 class ItemDetails(models.Model):
     _id = models.ObjectIdField()
     name = models.CharField(max_length=80, default=None)   
+    filename = models.CharField(max_length=80, default=None)
     external_id=models.IntegerField(default=1)
     external_ref=models.CharField(max_length=255,default=None)
     fileId=models.CharField(max_length=255,default=None)

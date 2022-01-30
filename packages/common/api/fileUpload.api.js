@@ -99,9 +99,14 @@ export const getHierarchySplitFiles = async (
   center = true,
   animationtime = 1.0,
   createchilds = false,
-  refId = ''
+  refId = '',
+  refName = ''
 ) => {
-  const additionalparams = `&CreateChildSteps=${CreateChildSteps}&CreateAssemblyOrder=${CreateAssemblyOrder}&CreateStackability=${CreateStackability}&explodegap=${explodegap}&holescale=${holescale}&removegap=${removegap}&center=${center}&animationtime=${animationtime}&createchilds=${createchilds}&refid=${refId.toString()}`;
+  const additionalparams = `&CreateChildSteps=${CreateChildSteps}&CreateAssemblyOrder=${CreateAssemblyOrder}&CreateStackability=${CreateStackability}&explodegap=${explodegap}&holescale=${holescale}&removegap=${removegap}&center=${center}&animationtime=${animationtime}&createchilds=${createchilds}&refid=${(
+    refId ||
+    0 ||
+    ''
+  ).toString()}&refname=${refName}`;
   const splitURL = `${host}/hsplit?id=${id}&includeparts=${includeParts}&disectparts=${disectParts}&distancegap=${distancegap}&anglegap=${anglegap}&moverotate=${moverotate}&edgesize=${edgesize}&vertexsize=${vertexsize}&moverotate=${moverotate}&maximumfaces=${maximumfaces}&seperateparts=${seperateparts}&createthumb=${createthumb}${additionalparams}`;
   // console.log(splitURL);
   return axios.get(splitURL);
@@ -112,9 +117,14 @@ export const getPartsStackableInfo = async (
   distancegap,
   anglegap,
   animationtime,
-  refId
+  refId,
+  refName
 ) => {
-  const stackURL = `${host}/stackable?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}&refid=${refId.toString()}`;
+  const stackURL = `${host}/stackable?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}&refid=${(
+    refId ||
+    0 ||
+    ''
+  ).toString()}&refname=${refName}`;
   // console.log(stackURL);
   return axios.get(stackURL);
 };
@@ -128,9 +138,14 @@ export const getPartsAssemblyOrder = async (
   holescale,
   removegap,
   animationtime,
-  refId
+  refId,
+  refName
 ) => {
-  const orderURL = `${host}/assemblyorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&explodegap=${explodegap}&center=${center}&holescale=${holescale}&removegap=${removegap}&animationtime=${animationtime}&refid=${refId.toString()}`;
+  const orderURL = `${host}/assemblyorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&explodegap=${explodegap}&center=${center}&holescale=${holescale}&removegap=${removegap}&animationtime=${animationtime}&refid=${(
+    refId ||
+    0 ||
+    ''
+  ).toString()}&refname=${refName}`;
   // console.log(orderURL);
   return axios.get(orderURL);
 };
@@ -140,9 +155,14 @@ export const getPartsKinematicOrder = async (
   distancegap,
   anglegap,
   animationtime,
-  refId
+  refId,
+  refName
 ) => {
-  const kinematicURL = `${host}/kinematicorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}&refid=${refId.toString()}`;
+  const kinematicURL = `${host}/kinematicorder?id=${id}&distancegap=${distancegap}&anglegap=${anglegap}&animationtime=${animationtime}&refid=${(
+    refId ||
+    0 ||
+    ''
+  ).toString()}&refname=${refName}`;
   // console.log(kinematicURL);
   return axios.get(kinematicURL);
 };
@@ -152,14 +172,16 @@ export const getPartsKinematicMovement = async (
   anglegap,
   animationtime,
   kinematicItemList,
-  refId
+  refId,
+  refName
 ) => {
   var formInfo = new FormData();
   formInfo.append('id', id);
   formInfo.append('distancegap', distancegap);
   formInfo.append('anglegap', anglegap);
   formInfo.append('animationtime', animationtime);
-  formInfo.append('refid', refId.toString());
+  formInfo.append('refid', (refId || 0 || '').toString());
+  formInfo.append('refname', refName);
   formInfo.append('parts', stringify({ parts: kinematicItemList }));
 
   console.log('Kinematic Move', kinematicItemList);
