@@ -1932,12 +1932,18 @@ class StepExportWithColor(object):
         #fullZeroShape = fullZeroShape1
         print("")
         print("After translation with center",thisRotateddictionary1,thisdictionary1,cx,cy,cz)
-        aLoc=gp_Trsf()
-        aLoc.SetTransformation(gp_Ax3(),thisRotateddimension1.Position())
-        brep_trns = BRepBuilderAPI_Transform(fullZeroShape1, aLoc, True)
-        fullZeroShape2 = brep_trns.Shape()
-        thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
-        thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2,True)
+        sx,sy,sz=thisRotateddictionary1["sx"],thisRotateddictionary1["sy"],thisRotateddictionary1["sz"]
+        if(sx>0 and sy>0 or sz>0):            
+            aLoc=gp_Trsf()
+            aLoc.SetTransformation(gp_Ax3(),thisRotateddimension1.Position())
+            brep_trns = BRepBuilderAPI_Transform(fullZeroShape1, aLoc, True)
+            fullZeroShape2 = brep_trns.Shape()
+            thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
+            thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2,True)
+        else:
+            fullZeroShape2=fullZeroShape1
+            thisdimension2 = thisRotateddimension1 
+            thisRotateddictionary2 = thisRotateddictionary1
         print("After Rotation with built in transformation",thisRotateddictionary2,thisdictionary1,cx,cy,cz)
         sx,sy,sz=thisRotateddictionary2["sx"],thisRotateddictionary2["sy"],thisRotateddictionary2["sz"]
         if( sx >= sy ) and ( sx >= sz ) and ( sy >= sz ):
@@ -6682,7 +6688,8 @@ class StepIgesAnalyser():
                 (getPNG,self.output,self.fullZeroShape), 
                 (
                     (self.scene_min[0],self.scene_min[1],self.scene_min[2],
-                    self.scene_max[0],self.scene_max[1],self.scene_max[2]),
+                    self.scene_max[0],self.scene_max[1],self.scene_max[2]) if 
+                        (self.scene_min and self.scene_max) else (0,0,0,0,0,0),
                     self.outputShapes
                     ), 
                     dict_return )
