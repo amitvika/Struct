@@ -6006,7 +6006,7 @@ def extractKinematicInformation(kinematicparts):
             
             if doLinkageAxis and (TopFound != -1):
                 partName, displayName, partType, sequence, chains, axis, nextAxis, axisAngle, axisDistance, angle, distance, machineLimit, shapeOfAxis, isLinear, isEndEffector = kinematicInformation[TopFound]
-                #partName2, displayName2, partType2, sequence2, chains2, axis2, nextAxis2, axisAngle2, axisDistance2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2 = kinematicInformation[BelowFound]
+                partName2, displayName2, partType2, sequence2, chains2, axis2, nextAxis2, axisAngle2, axisDistance2, angle2, distance2, machineLimit2, shapeOfAxis2, isLinear2, isEndEffector2 = kinematicInformation[BelowFound]
                 print("ToDo transform for linkage",TopFound,BelowFound,partType,partType2,doLinkageAxis,(TopFound==BelowFound) or (doLinkageAxis and (partType=="ACTUATOR")))
                 if (partType=="ACTUATOR"):
                     #angle2, distance2, machineLimit2 = 0, 0, 0
