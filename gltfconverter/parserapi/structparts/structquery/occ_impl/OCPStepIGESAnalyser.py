@@ -4459,7 +4459,7 @@ class StepIgesAnalyser():
             #print(outputFeature)
             self.write_progress()
             
-            myparentID =  outputFeature["Id"]             
+            myparentID =  str(outputFeature["Id"])             
             self.myParentId_Dict[myparentID]={}
             for myFeatureName in ["f","e","v"]:
                 self.write_progress()

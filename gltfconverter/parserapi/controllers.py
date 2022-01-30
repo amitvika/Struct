@@ -177,9 +177,9 @@ class ChildParsingDetailsController():
             print("Before assinging serializer",storageData,referenceID,storageData["tab_suffix"])
             storageSerializers =[] 
             if referenceID:
-                storageSerializers = ChildParsingDetails.objects.filter(external_ref=referenceID,tab_suffix=storageData["tab_suffix"])
+                storageSerializers = ChildParsingDetails.objects.filter(external_ref=referenceID)
             else:
-                storageSerializers = ChildParsingDetails.objects.filter(filename=originalFileName,tab_suffix=storageData["tab_suffix"])        
+                storageSerializers = ChildParsingDetails.objects.filter(filename=originalFileName)        
             if(len(storageSerializers)>0):
                 print("Got Initial filter",storageSerializers)
                 #storageSerializers = storageSerializers.filter(tab_suffix=storageData["tab_suffix"])
@@ -189,8 +189,7 @@ class ChildParsingDetailsController():
                 print("Got storageAs",storageSerializer)            
             elif(len(storageSerializers)==0) or (alwaysNew):
                 print("I could not get any data",ChildParsingDetails.objects.all())
-                storageSerializer = ChildParsingDetails(external_ref=storageData["external_ref"],
-                    tab_suffix=storageData["tab_suffix"])                    
+                storageSerializer = ChildParsingDetails(external_ref=storageData["external_ref"])                    
             else:
                 print("Returning Multiple Records",storageSerializers)
                 return
@@ -239,9 +238,9 @@ class EdgeParsingDetailsController():
             print("Before assinging serializer",storageData,referenceID,storageData["tab_suffix"])
             storageSerializers =[] 
             if referenceID:
-                storageSerializers = EdgeParsingDetails.objects.filter(external_ref=referenceID,tab_suffix=storageData["tab_suffix"])
+                storageSerializers = EdgeParsingDetails.objects.filter(external_ref=referenceID)
             else:
-                storageSerializers = EdgeParsingDetails.objects.filter(filename=originalFileName,tab_suffix=storageData["tab_suffix"])        
+                storageSerializers = EdgeParsingDetails.objects.filter(filename=originalFileName)        
             if(len(storageSerializers)>0):
                 print("Got Initial filter",storageSerializers)
                 #storageSerializers = storageSerializers.filter(tab_suffix=storageData["tab_suffix"])
@@ -251,8 +250,7 @@ class EdgeParsingDetailsController():
                 print("Got storageAs",storageSerializer)            
             elif(len(storageSerializers)==0) or (alwaysNew):
                 print("I could not get any data",EdgeParsingDetails.objects.all())
-                storageSerializer = EdgeParsingDetails(external_ref=storageData["external_ref"],
-                    tab_suffix=storageData["tab_suffix"])                    
+                storageSerializer = EdgeParsingDetails(external_ref=storageData["external_ref"])                    
             else:
                 print("Returning Multiple Records",storageSerializers)
                 return
