@@ -120,7 +120,7 @@ class ParsingDetailsController():
             if(storageSerializers and len(storageSerializers)==1) and (alwaysNew==False):
                 storageSerializer=storageSerializers[0]
                 print("Got storageAs",storageSerializer)            
-            elif(storageSerializers and len(storageSerializers)==0) or (alwaysNew):
+            elif((not storageSerializers) or len(storageSerializers)==0) or (alwaysNew):
                 print("I could not get any data",ParsingDetails.objects.all())
                 storageSerializer = ParsingDetails(external_ref=storageData["external_ref"],
                     tab_suffix=storageData["tab_suffix"])                    
@@ -201,7 +201,7 @@ class ChildParsingDetailsController():
             if(storageSerializers and len(storageSerializers)==1) and (alwaysNew==False):
                 storageSerializer=storageSerializers[0]
                 print("Got storageAs",storageSerializer)            
-            elif(storageSerializers and len(storageSerializers)==0) or (alwaysNew):
+            elif((not storageSerializers) or len(storageSerializers)==0) or (alwaysNew):
                 print("I could not get any data",ChildParsingDetails.objects.all())
                 storageSerializer = ChildParsingDetails(external_ref=storageData["external_ref"])                    
             else:
@@ -262,7 +262,7 @@ class EdgeParsingDetailsController():
             if(storageSerializers and len(storageSerializers)==1) and (alwaysNew==False):
                 storageSerializer=storageSerializers[0]
                 print("Got storageAs",storageSerializer)            
-            elif(storageSerializers and len(storageSerializers)==0) or (alwaysNew):
+            elif((not storageSerializers) or len(storageSerializers)==0) or (alwaysNew):
                 print("I could not get any data",EdgeParsingDetails.objects.all())
                 storageSerializer = EdgeParsingDetails(external_ref=storageData["external_ref"])                    
             else:
