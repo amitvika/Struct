@@ -5711,17 +5711,19 @@ def CheckFileExistence(request):
 @api_view(['GET','POST','PUT','DELETE','PATCH'])
 def HackersResponse(request):
     try:
+        e=''
         try:
             logging.info(request)
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': "Hackers System Error "+str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': "Hackers Logging Error "+str(e)+str(request)},status=status.HTTP_400_BAD_REQUEST, safe=False)
     except:
+        e=''
         try:
             logging.error(traceback.format_exc())
         except Exception as e:
             print("Error while logging",e)
-        return JsonResponse({'message': "Hackers System Error "+str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)
+        return JsonResponse({'message': "Hackers System Error "+str(e)+str(request)},status=status.HTTP_400_BAD_REQUEST, safe=False)
 
 def extractKinematicInformation_old(kinematicparts):
     #print("Kinematic Parts",kinematicparts)
