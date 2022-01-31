@@ -55,6 +55,20 @@ class ParsingDetailsController():
         
         self.alwaysNew = alwaysNew
 
+    def s3update(self,originalFileName,tabSuffix,flag=True):
+        storageSerializers = ParsingDetails.objects.filter(filename=originalFileName,tab_suffix=tabSuffix)        
+        if(storageSerializers and len(storageSerializers)==1):
+            storageSerializer=storageSerializers[0]
+            print("Got storageAs",storageSerializer)     
+            if storageSerializer:
+                storageSerializer.s3storage=flag
+                storageSerializer.save()
+        else:
+            print("Not saving because length of storage",len(storageSerializers),storageSerializers)
+    
+    def s3TobeCopied(self):
+        return ParsingDetails.objects.filter(s3storage=True)       
+    
     def save(self,statusDictionary,name,originalFileName,referenceID,tabSuffix):
         try:
             alwaysNew=self.alwaysNew
@@ -99,14 +113,14 @@ class ParsingDetailsController():
                 storageSerializers = ParsingDetails.objects.filter(external_ref=referenceID,tab_suffix=storageData["tab_suffix"])
             else:
                 storageSerializers = ParsingDetails.objects.filter(filename=originalFileName,tab_suffix=storageData["tab_suffix"])        
-            if(len(storageSerializers)>0):
+            if(storageSerializers and len(storageSerializers)>0):
                 print("Got Initial filter",storageSerializers)
                 #storageSerializers = storageSerializers.filter(tab_suffix=storageData["tab_suffix"])
             storageSerializer=None
-            if(len(storageSerializers)==1) and (alwaysNew==False):
+            if(storageSerializers and len(storageSerializers)==1) and (alwaysNew==False):
                 storageSerializer=storageSerializers[0]
                 print("Got storageAs",storageSerializer)            
-            elif(len(storageSerializers)==0) or (alwaysNew):
+            elif(storageSerializers and len(storageSerializers)==0) or (alwaysNew):
                 print("I could not get any data",ParsingDetails.objects.all())
                 storageSerializer = ParsingDetails(external_ref=storageData["external_ref"],
                     tab_suffix=storageData["tab_suffix"])                    
@@ -180,14 +194,14 @@ class ChildParsingDetailsController():
                 storageSerializers = ChildParsingDetails.objects.filter(external_ref=referenceID)
             else:
                 storageSerializers = ChildParsingDetails.objects.filter(filename=originalFileName)        
-            if(len(storageSerializers)>0):
+            if(storageSerializers and len(storageSerializers)>0):
                 print("Got Initial filter",storageSerializers)
                 #storageSerializers = storageSerializers.filter(tab_suffix=storageData["tab_suffix"])
             storageSerializer=None
-            if(len(storageSerializers)==1) and (alwaysNew==False):
+            if(storageSerializers and len(storageSerializers)==1) and (alwaysNew==False):
                 storageSerializer=storageSerializers[0]
                 print("Got storageAs",storageSerializer)            
-            elif(len(storageSerializers)==0) or (alwaysNew):
+            elif(storageSerializers and len(storageSerializers)==0) or (alwaysNew):
                 print("I could not get any data",ChildParsingDetails.objects.all())
                 storageSerializer = ChildParsingDetails(external_ref=storageData["external_ref"])                    
             else:
@@ -241,14 +255,14 @@ class EdgeParsingDetailsController():
                 storageSerializers = EdgeParsingDetails.objects.filter(external_ref=referenceID)
             else:
                 storageSerializers = EdgeParsingDetails.objects.filter(filename=originalFileName)        
-            if(len(storageSerializers)>0):
+            if(storageSerializers and len(storageSerializers)>0):
                 print("Got Initial filter",storageSerializers)
                 #storageSerializers = storageSerializers.filter(tab_suffix=storageData["tab_suffix"])
             storageSerializer=None
-            if(len(storageSerializers)==1) and (alwaysNew==False):
+            if(storageSerializers and len(storageSerializers)==1) and (alwaysNew==False):
                 storageSerializer=storageSerializers[0]
                 print("Got storageAs",storageSerializer)            
-            elif(len(storageSerializers)==0) or (alwaysNew):
+            elif(storageSerializers and len(storageSerializers)==0) or (alwaysNew):
                 print("I could not get any data",EdgeParsingDetails.objects.all())
                 storageSerializer = EdgeParsingDetails(external_ref=storageData["external_ref"])                    
             else:

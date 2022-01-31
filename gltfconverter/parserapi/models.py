@@ -43,6 +43,7 @@ class ParsingDetails(models.Model):
     finish=models.CharField(max_length=10,default=None)
     reset=models.CharField(max_length=10,default=None)
     assembly=models.CharField(max_length=255, default=None)
+    s3storage=models.BooleanField(default=False)
     objects = models.DjongoManager()
     
     def __str__(self):

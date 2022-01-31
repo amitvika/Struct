@@ -6591,7 +6591,8 @@ class StepIgesAnalyser():
                     lenDictionaryOrderTree = len(dictionaryOrderTree)
                 else:
                     orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
-                        self.scene_max[0],self.scene_max[1],self.scene_max[2])
+                        self.scene_max[0],self.scene_max[1],self.scene_max[2]) if (self.scene_min and self.scene_max) else\
+                            (0,0,0,0,0,0)
                     outputShapesOrder = self.outputShapes
                     dictionaryOrderTree=self.tstep_dict["tree"]
                     lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
@@ -6631,7 +6632,8 @@ class StepIgesAnalyser():
             if self.CreateStackability:
                 print("Starting Stackability",self.fname)
                 orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
-                    self.scene_max[0],self.scene_max[1],self.scene_max[2])
+                    self.scene_max[0],self.scene_max[1],self.scene_max[2]) if (self.scene_min and self.scene_max) else\
+                        (0,0,0,0,0,0)
                 outputShapesOrder = self.outputShapes
                 dictionaryOrderTree=self.tstep_dict["tree"]
                 lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
