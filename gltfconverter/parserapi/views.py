@@ -5713,6 +5713,7 @@ def HackersResponse(request):
     try:
         e=''
         try:
+            logging.info({'message': "Hackers Logging Error Followed "+str(request)})
             logging.info(request)
         except Exception as e:
             print("Error while logging",e)
