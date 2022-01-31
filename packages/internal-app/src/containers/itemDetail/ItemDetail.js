@@ -51,6 +51,7 @@ import { AlertContext } from '@monostruct/common/context/AlertContext/AlertConte
 import AssignToClient from './AssignToClient';
 import SupplyingVendors from './SupplyingVendors';
 import InstanceOfThisItem from './InstanceOfThisItem/InstanceOfThisItem';
+import FeaturesTab from '../featuresTab/FeaturesTab';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -767,6 +768,8 @@ const ItemDetail = ({ itemValue }) => {
         );
       case 'instanceOfThisItem':
         return <InstanceOfThisItem />;
+      case 'features':
+        return <FeaturesTab />;
       default:
         return 'Undefined Tab Index';
     }
@@ -790,6 +793,7 @@ const ItemDetail = ({ itemValue }) => {
     sft: 'Surface Finish and Treatment',
     materials: 'Materials',
     iupc: 'Internal Item Properties',
+    features: 'Features',
     cf: 'Classification',
     cc: 'Compliance and Certifications',
     fls: 'Functional Load and Simulation',
