@@ -114,6 +114,8 @@ def copyFilesRecursive(timelag,fileLogger,logging):
                             print("Error while updating s3storage",e,storageSerializer)
                     else:
                         print("There are errors while copying",errors,storageSerializer)
+            else:
+                print("There are no files to copy",storageSerializers,len(storageSerializers))
             """ copyTree("Media/", "s3bucket/Media/",False,0,100)
             logprintinfo="Media Syncer Completed "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
             logging.info(logprintinfo)
