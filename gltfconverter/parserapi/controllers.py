@@ -67,7 +67,10 @@ class ParsingDetailsController():
             print("Not saving because length of storage",len(storageSerializers),storageSerializers)
     
     def s3TobeCopied(self):
-        return ParsingDetails.objects.filter(s3storage=True)       
+        return ParsingDetails.objects.filter(s3storage=True,percent=100)       
+    
+    def identicalRecords(self,sx,sy,sz,vertices):
+        return ParsingDetails.objects.filter(vertices=vertices,sx=sx,sy=sy,sz=sz)
     
     def save(self,statusDictionary,name,originalFileName,referenceID,tabSuffix):
         try:
@@ -84,6 +87,10 @@ class ParsingDetailsController():
             storageData["obb_position"]=getValueFromJSONKey(statusDictionary,"obbPosition")
             storageData["obb_origin"]=getValueFromJSONKey(statusDictionary,"obbOrigin")
             storageData["obb_rotated"]=getValueFromJSONKey(statusDictionary,"obbRotated")
+            storageData["matched"]=getValueFromJSONKey(statusDictionary,"matched")
+            storageData["comparetotal"]=convertToInt(getValueFromJSONKey(statusDictionary,"comparetotal"),0)
+            storageData["comparesub"]=convertToInt(getValueFromJSONKey(statusDictionary,"comparesub"),0)
+            storageData["comparepercent"]=convertToFloat(getValueFromJSONKey(statusDictionary,"comparepercent"),0)
             cxcycz=getValueFromJSONKey(statusDictionary,"center")
             cx,cy,cz=0,0,0
             if cxcycz:
@@ -113,14 +120,14 @@ class ParsingDetailsController():
                 storageSerializers = ParsingDetails.objects.filter(external_ref=referenceID,tab_suffix=storageData["tab_suffix"])
             else:
                 storageSerializers = ParsingDetails.objects.filter(filename=originalFileName,tab_suffix=storageData["tab_suffix"])        
-            if(storageSerializers and len(storageSerializers)>0):
+            if((storageSerializers is not None) and len(storageSerializers)>0):
                 print("Got Initial filter",storageSerializers)
                 #storageSerializers = storageSerializers.filter(tab_suffix=storageData["tab_suffix"])
             storageSerializer=None
-            if(storageSerializers and len(storageSerializers)==1) and (alwaysNew==False):
+            if((storageSerializers is not None) and len(storageSerializers)==1) and (alwaysNew==False):
                 storageSerializer=storageSerializers[0]
-                print("Got storageAs",storageSerializer)            
-            elif((not storageSerializers) or len(storageSerializers)==0) or (alwaysNew):
+                print("Got storageAs",storageSerializer,storageSerializer.filename)            
+            elif((storageSerializers is None) or len(storageSerializers)==0) or (alwaysNew):
                 print("I could not get any data",ParsingDetails.objects.all())
                 storageSerializer = ParsingDetails(external_ref=storageData["external_ref"],
                     tab_suffix=storageData["tab_suffix"])                    
@@ -136,9 +143,9 @@ class ParsingDetailsController():
                 storageSerializer.faces=storageData["faces"]
                 storageSerializer.edges=storageData["edges"]
                 storageSerializer.vertices=storageData["vertices"]
-                storageSerializer.obb_position=storageData["obb_position"] if storageData["obb_position"] else {}
-                storageSerializer.obb_origin=storageData["obb_origin"] if storageData["obb_origin"] else {}
-                storageSerializer.obb_rotated=storageData["obb_rotated"] if storageData["obb_rotated"] else {}
+                storageSerializer.obb_position=storageData["obb_position"] if (storageData["obb_position"] is not None) else {}
+                storageSerializer.obb_origin=storageData["obb_origin"] if (storageData["obb_origin"] is not None) else {}
+                storageSerializer.obb_rotated=storageData["obb_rotated"] if (storageData["obb_rotated"] is not None) else {}
                 storageSerializer.cx=storageData["cx"]
                 storageSerializer.cy=storageData["cy"]
                 storageSerializer.cz=storageData["cz"]            
@@ -157,8 +164,13 @@ class ParsingDetailsController():
                 storageSerializer.reset=storageData["reset"]
                 storageSerializer.assembly=storageData["assembly"]
                 storageSerializer.internal_object={}
+                storageSerializer.matched_across=storageData["matched"] if (storageData["matched"] is not None) else {}
+                storageSerializer.comparetotal=storageData["comparetotal"]
+                storageSerializer.comparesub=storageData["comparesub"]
+                storageSerializer.comparepercent=storageData["comparepercent"]
+
                 print("")
-                print("Storage Serializer Head", storageSerializer, "Tail")
+                print("Storage Serializer Head", storageSerializer, storageSerializer.matched_across,storageData["matched"], storageSerializer.filename)
                 print("")
                 storageSerializer.save()
             
@@ -188,20 +200,24 @@ class ChildParsingDetailsController():
             storageData["createorder"]=convertToBool(getValueFromJSONKey(statusDictionary,"createorder"),False)
             storageData["createstack"]=convertToBool(getValueFromJSONKey(statusDictionary,"createstack"),False)
             storageData["childfiles"]=getValueFromJSONKey(statusDictionary,"childfiles")
+            storageData["childpercent"]=convertToFloat(getValueFromJSONKey(statusDictionary,"childpercent"),0)
+            storageData["comparechild"]=convertToInt(getValueFromJSONKey(statusDictionary,"comparechild"),0)
+            storageData["comparesub"]=convertToInt(getValueFromJSONKey(statusDictionary,"comparesub"),0)
+            storageData["comparepercent"]=convertToFloat(getValueFromJSONKey(statusDictionary,"comparepercent"),0)
             print("Before assinging serializer",storageData,referenceID,storageData["tab_suffix"])
             storageSerializers =[] 
             if referenceID:
                 storageSerializers = ChildParsingDetails.objects.filter(external_ref=referenceID)
             else:
                 storageSerializers = ChildParsingDetails.objects.filter(filename=originalFileName)        
-            if(storageSerializers and len(storageSerializers)>0):
+            if((storageSerializers is not None) and len(storageSerializers)>0):
                 print("Got Initial filter",storageSerializers)
                 #storageSerializers = storageSerializers.filter(tab_suffix=storageData["tab_suffix"])
             storageSerializer=None
-            if(storageSerializers and len(storageSerializers)==1) and (alwaysNew==False):
+            if((storageSerializers is not None) and len(storageSerializers)==1) and (alwaysNew==False):
                 storageSerializer=storageSerializers[0]
                 print("Got storageAs",storageSerializer)            
-            elif((not storageSerializers) or len(storageSerializers)==0) or (alwaysNew):
+            elif((storageSerializers is None) or len(storageSerializers)==0) or (alwaysNew):
                 print("I could not get any data",ChildParsingDetails.objects.all())
                 storageSerializer = ChildParsingDetails(external_ref=storageData["external_ref"])                    
             else:
@@ -220,7 +236,11 @@ class ChildParsingDetailsController():
                 storageSerializer.createchilds=storageData["createchilds"]
                 storageSerializer.createorder=storageData["createorder"]
                 storageSerializer.createstack=storageData["createstack"]
-                storageSerializer.childfiles=storageData["childfiles"] if storageData["childfiles"] else {}
+                storageSerializer.childfiles=storageData["childfiles"] if (storageData["childfiles"] is not None) else {}
+                storageSerializer.childpercent=storageData["childpercent"]
+                storageSerializer.comparechild=storageData["comparechild"]
+                storageSerializer.comparesub=storageData["comparesub"]
+                storageSerializer.comparepercent=storageData["comparepercent"]
             print("")
             print("Storage Serializer Head", storageSerializer, "Tail")
             print("")
@@ -255,14 +275,14 @@ class EdgeParsingDetailsController():
                 storageSerializers = EdgeParsingDetails.objects.filter(external_ref=referenceID)
             else:
                 storageSerializers = EdgeParsingDetails.objects.filter(filename=originalFileName)        
-            if(storageSerializers and len(storageSerializers)>0):
+            if((storageSerializers is not None) and len(storageSerializers)>0):
                 print("Got Initial filter",storageSerializers)
                 #storageSerializers = storageSerializers.filter(tab_suffix=storageData["tab_suffix"])
             storageSerializer=None
-            if(storageSerializers and len(storageSerializers)==1) and (alwaysNew==False):
+            if((storageSerializers is not None) and len(storageSerializers)==1) and (alwaysNew==False):
                 storageSerializer=storageSerializers[0]
                 print("Got storageAs",storageSerializer)            
-            elif((not storageSerializers) or len(storageSerializers)==0) or (alwaysNew):
+            elif((storageSerializers is None) or len(storageSerializers)==0) or (alwaysNew):
                 print("I could not get any data",EdgeParsingDetails.objects.all())
                 storageSerializer = EdgeParsingDetails(external_ref=storageData["external_ref"])                    
             else:
@@ -278,7 +298,7 @@ class EdgeParsingDetailsController():
                 storageSerializer.action=storageData["action"]
                 storageSerializer.finish=storageData["finish"]
                 storageSerializer.reset=storageData["reset"]
-                storageSerializer.children=storageData["children"] if storageData["children"] else {}
+                storageSerializer.children=storageData["children"] if (storageData["children"] is not None) else {}
             print("")
             print("Storage Serializer Head", storageSerializer, "Tail")
             print("")

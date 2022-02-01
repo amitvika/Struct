@@ -896,13 +896,13 @@ def FileSplit(request):
             except Exception as e:
                 print("Error while logging",e)
 
-def createShapeArray(shapes):
+""" def createShapeArray(shapes):
     shapeArray=[]
     myID=0
     for aShape in shapes:
         myID += 1
         shapeArray.append((aShape,"ID"+str(myID),None))
-    return shapeArray
+    return shapeArray """
 
 def exportToHierarchyGLTF(
     sourceFileName,includeparts,distancegap,anglegap,
@@ -970,7 +970,7 @@ def exportToHierarchyGLTF(
             try:
                 shape = conversion.read_stl_file(sourceFileName)
                 (_,_, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
                     thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
                     seperateparts=seperateparts,moverotate=moverotate,edgesize=edgesize,
@@ -994,7 +994,7 @@ def exportToHierarchyGLTF(
                 shape = conversion.read_brep_file(sourceFileName, as_compound=False)
                 #print(shape)
                 (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
                     thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
                     seperateparts=seperateparts,moverotate=moverotate,edgesize=edgesize,
@@ -1017,7 +1017,7 @@ def exportToHierarchyGLTF(
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape), includeparts=includeparts,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape), includeparts=includeparts,
                     distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,
                     thumbwidth=thumbwidth,thumbheight=thumbheight, logging=logging, 
                     seperateparts=seperateparts, moverotate=moverotate,edgesize=edgesize, 
@@ -1914,7 +1914,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             try:
                 shape = conversion.read_step_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,
                     distancegap=distancegap,anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, 
                     logging=logging,thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0, suffixname="S",
                     refid=refid,refname=refname).dump()
@@ -1961,7 +1961,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             try:
                 shape = conversion.read_stl_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,
                     distancegap=distancegap,anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, 
                     logging=logging,thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S",
                     refid=refid,refname=refname).dump()
@@ -1998,7 +1998,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             try:               
                 shape = conversion.read_iges_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,
                     distancegap=distancegap,anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, 
                     logging=logging,thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0, suffixname="S",
                     refid=refid,refname=refname).dump()
@@ -2035,7 +2035,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             try:
                 shape = conversion.read_brep_file(sourceFileName, as_compound=True)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,
                     distancegap=distancegap,anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True, 
                     logging=logging,thumbwidth=0,thumbheight=0, edgesize=0, vertexsize=0, suffixname="S",
                     refid=refid,refname=refname).dump()
@@ -2072,7 +2072,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),ascompound=True, 
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),ascompound=True, 
                     logging=logging,distancegap=distancegap,anglegap=anglegap, suffixname="S",
                     refid=refid,refname=refname).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
@@ -4983,7 +4983,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             try:
                 shape = conversion.read_stl_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,suffixname="M",
                     refid=refid,refname=refname).dump()
@@ -5021,7 +5021,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             try:
                 shape = conversion.read_brep_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,suffixname="M",
                     refid=refid,refname=refname).dump()
@@ -5041,7 +5041,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),distancegap=distancegap,
                     anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0,suffixname="M",refid=refid,refname=refname).dump() 
                 #faces_dict, edges_dict, vertices_dict =  getFacesDimensions(shape[0])                
@@ -5218,7 +5218,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,
             try:
                 shape = conversion.read_stl_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid,refname=refname).dump()
             except Exception as e:
@@ -5228,7 +5228,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,
             try:
                 shape = conversion.read_brep_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid,refname=refname).dump()                
             except Exception as e:
@@ -5238,7 +5238,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),distancegap=distancegap,
                     anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0,refid=refid,refname=refname).dump()                 
             except Exception as e:
@@ -6134,7 +6134,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             try:
                 shape = conversion.read_stl_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid,refname=refname).dump()
             except Exception as e:
@@ -6144,7 +6144,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             try:
                 shape = conversion.read_brep_file(sourceFileName, as_compound=False)
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,distancegap=distancegap,
                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid,refname=refname).dump()                
             except Exception as e:
@@ -6154,7 +6154,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             try:
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),distancegap=distancegap,
                     anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
                     thumbwidth=0,thumbheight=0,refid=refid,refname=refname).dump()                 
             except Exception as e:
@@ -6362,242 +6362,242 @@ def FileGetKinematicRotationalAnimation(request):
             except Exception as e:
                 print("Error while logging",e)
 
-def readStatusInfo(sourceFileName,suffixname='3'):
-    if sourceFileName:
-        head, tail = os.path.split(sourceFileName)
-        if(head[-1]!="/"):
-            #print("Head does not contain last /",head)
-            head = head + "/"
-        #else:
-        #    #print("Head contains last /",head)
-        #    #pass
-        displaypath=''
-        MediaURLLength = len(MEDIA_URL)
-        if head[0:MediaURLLength]==MEDIA_URL:
-            displaypath = DISPLAY_URL+head[MediaURLLength:]
-        else:
-            displaypath = head
-        print("Conversion path",displaypath)
-        pathfilename, _ = os.path.splitext(tail)
-        basefilename = pathfilename+suffixname
-    else:
-        basefilename = "./"
-        displaypath= DISPLAY_URL
-    statusfilename = displaypath+basefilename+".status"
-    head, _ = os.path.split(statusfilename) 
-    DisplayURLLength = len(DISPLAY_URL)
-    if head[0:DisplayURLLength]==DISPLAY_URL:
-        fileuuid = head[DisplayURLLength:]
-        if fileuuid[-1]=='/':
-            fileuuid=fileuuid[:-1]
-    else:
-        fileuuid=None
-    if not os.path.isfile(statusfilename):
-        statusfilename = S3_BUCKET+statusfilename
-        if not os.path.isfile(statusfilename):
-            print("checking existance of",statusfilename)
-            statusfilename = None
-    statusArray={}
-    if statusfilename:
-        data=None        
-        with open(statusfilename, "r") as f:
-            data = f.read()
-        if data:
-            statusArray = json.loads(data)
-    print("Status Info",statusArray,fileuuid,statusfilename)
-    return statusArray, fileuuid, statusfilename
+# def readStatusInfo(sourceFileName,suffixname='3'):
+#     if sourceFileName:
+#         head, tail = os.path.split(sourceFileName)
+#         if(head[-1]!="/"):
+#             #print("Head does not contain last /",head)
+#             head = head + "/"
+#         #else:
+#         #    #print("Head contains last /",head)
+#         #    #pass
+#         displaypath=''
+#         MediaURLLength = len(MEDIA_URL)
+#         if head[0:MediaURLLength]==MEDIA_URL:
+#             displaypath = DISPLAY_URL+head[MediaURLLength:]
+#         else:
+#             displaypath = head
+#         print("Conversion path",displaypath)
+#         pathfilename, _ = os.path.splitext(tail)
+#         basefilename = pathfilename+suffixname
+#     else:
+#         basefilename = "./"
+#         displaypath= DISPLAY_URL
+#     statusfilename = displaypath+basefilename+".status"
+#     head, _ = os.path.split(statusfilename) 
+#     DisplayURLLength = len(DISPLAY_URL)
+#     if head[0:DisplayURLLength]==DISPLAY_URL:
+#         fileuuid = head[DisplayURLLength:]
+#         if fileuuid[-1]=='/':
+#             fileuuid=fileuuid[:-1]
+#     else:
+#         fileuuid=None
+#     if not os.path.isfile(statusfilename):
+#         statusfilename = S3_BUCKET+statusfilename
+#         if not os.path.isfile(statusfilename):
+#             print("checking existance of",statusfilename)
+#             statusfilename = None
+#     statusArray={}
+#     if statusfilename:
+#         data=None        
+#         with open(statusfilename, "r") as f:
+#             data = f.read()
+#         if data:
+#             statusArray = json.loads(data)
+#     print("Status Info",statusArray,fileuuid,statusfilename)
+#     return statusArray, fileuuid, statusfilename
 
-def getOutputShapesFromSourceFile(originalFileName,distancegap,anglegap,statusfilename,comparedict,starttime=None,fileNo=1,statusArray={}):#,thumbwidth,thumbheight):
-    """
-    Imports a file based on the type (STEP, IGES, BREP, STL)    
-    """
-    #Now read and return the shape
+# def getOutputShapesFromSourceFile(originalFileName,distancegap,anglegap,statusfilename,comparedict,starttime=None,fileNo=1,statusArray={}):#,thumbwidth,thumbheight):
+#     """
+#     Imports a file based on the type (STEP, IGES, BREP, STL)    
+#     """
+#     #Now read and return the shape
    
-    try:
-        doNotBringToOrigin = (statusArray and ("zerostep" in statusArray))
-        if doNotBringToOrigin:
-            print("Status Array",statusArray)
-            sourceFileName = statusArray["zerostep"]
-            if not os.path.isfile(sourceFileName):
-                doNotBringToOrigin = False
-                sourceFileName = originalFileName
-        else:
-            sourceFileName = originalFileName   
-        print("sourceFileName To Parse",sourceFileName,originalFileName,doNotBringToOrigin)         
-        dictionary={}
-        _, file_extension = os.path.splitext(sourceFileName)
-        file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
-        file_extension = file_extension.lower()
-        newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
-        newfilename = newfilenamewithoutext + ".step"
-        outputShapes={}
-        if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :         
+#     try:
+#         doNotBringToOrigin = (statusArray and ("zerostep" in statusArray))
+#         if doNotBringToOrigin:
+#             print("Status Array",statusArray)
+#             sourceFileName = statusArray["zerostep"]
+#             if not os.path.isfile(sourceFileName):
+#                 doNotBringToOrigin = False
+#                 sourceFileName = originalFileName
+#         else:
+#             sourceFileName = originalFileName   
+#         print("sourceFileName To Parse",sourceFileName,originalFileName,doNotBringToOrigin)         
+#         dictionary={}
+#         _, file_extension = os.path.splitext(sourceFileName)
+#         file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
+#         file_extension = file_extension.lower()
+#         newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
+#         newfilename = newfilenamewithoutext + ".step"
+#         outputShapes={}
+#         if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :         
             
-            try:
-                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,includeparts=False,distancegap=distancegap, logging=logging, 
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
-                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
-            except Exception as e:
-                print("error",e)
+#             try:
+#                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+#                     filename=sourceFileName,includeparts=False,distancegap=distancegap, logging=logging, 
+#                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
+#                     edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
+#             except Exception as e:
+#                 print("error",e)
        
-        if file_extension=="stl" :            
-            try:
-                shape = conversion.read_stl_file(sourceFileName, as_compound=False)
-                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
-            except Exception as e:
-                print("error",e)
+#         if file_extension=="stl" :            
+#             try:
+#                 shape = conversion.read_stl_file(sourceFileName, as_compound=False)
+#                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+#                     filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,distancegap=distancegap,
+#                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
+#                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
+#             except Exception as e:
+#                 print("error",e)
         
-        if file_extension=="brep" :            
-            try:
-                shape = conversion.read_brep_file(sourceFileName, as_compound=False)
-                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),includeparts=True,distancegap=distancegap,
-                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()                
-            except Exception as e:
-                print("error",e)
+#         if file_extension=="brep" :            
+#             try:
+#                 shape = conversion.read_brep_file(sourceFileName, as_compound=False)
+#                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+#                     filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,distancegap=distancegap,
+#                     anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
+#                     thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()                
+#             except Exception as e:
+#                 print("error",e)
         
-        if file_extension=="dxf" :            
-            try:
-                shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
-                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
-                    filename=sourceFileName,shapeslist=createShapeArray(shape),distancegap=distancegap,
-                    anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
-                    thumbwidth=0,thumbheight=0).dump()                 
-            except Exception as e:
-                print("error",e)
+#         if file_extension=="dxf" :            
+#             try:
+#                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
+#                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+#                     filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),distancegap=distancegap,
+#                     anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
+#                     thumbwidth=0,thumbheight=0).dump()                 
+#             except Exception as e:
+#                 print("error",e)
         
-        try:
-            OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,10*fileNo,starttime,comparedict,False)
-            _, myShapes = outputShapes
+#         try:
+#             OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,10*fileNo,starttime,comparedict,False)
+#             _, myShapes = outputShapes
             
-            _,onlyShapes,_,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
-            if doNotBringToOrigin:
-                fullZeroShape,_ = list_of_shapes_to_compound(onlyShapes,True)
-                dict_return = statusArray
-            else:
-                partscount=len(onlyShapes)
-                fullAssemblyShape,_ = list_of_shapes_to_compound(onlyShapes,True)
-                assembly_faces_dict = {}
-                assembly_edges_dict = {}
-                assembly_vertices_dict = {}
-                dumpTopologyFacesEdgesVertices(fullAssemblyShape,assembly_faces_dict,assembly_edges_dict,assembly_vertices_dict)
-                facescount=len(assembly_faces_dict)
-                edgescount=len(assembly_edges_dict)
-                verticescount=len(assembly_vertices_dict)        
-                thisAssemblydimension = get_oriented_bounding_details(fullAssemblyShape)                        
-                thisAssemblydictionary = getDictionaryFromOBB(thisAssemblydimension,True)
-                zerostep = sourceFileName+"ZeroRotatedOrigin.step"
-                fullZeroShape, fullZeroDictionary, fullRotatedDictionary, center, rotation = OCPStepIGESAnalyser.StepExportWithColor().\
-                    bringToOriginAndToUnitAxis(fullAssemblyShape,thisAssemblydimension,thisAssemblydictionary,zerostep)
-                dict_return= (dictionary["status"] if "status" in dictionary else {} ) if dictionary else {} 
-                dict_return["parts"]=partscount
-                dict_return["faces"]=facescount
-                dict_return["edges"]=edgescount
-                dict_return["vertices"]=verticescount
-                dict_return["obbPosition"]=thisAssemblydictionary
-                dict_return["obbOrigin"]=fullZeroDictionary
-                dict_return["obbRotated"]=fullRotatedDictionary 
-                dict_return["center"]=center 
-                dict_return["rotation"]=rotation 
-                dict_return["zerostep"]=zerostep 
-            OCPStepIGESAnalyser.saveStatusToDatabase(dict_return,originalFileName,"NothingMan","AB")
-            # try:
-            #     storageData = {}
-            #     storageData["assemblies"]=controllers.convertToInt(dict_return["assemblies"],0)
-            #     storageData["trees"]=controllers.convertToInt(dict_return["trees"],0)
-            #     storageData["parts"]=controllers.convertToInt(dict_return["parts"],0)
-            #     storageData["faces"]=controllers.convertToInt(dict_return["faces"],0)
-            #     storageData["edges"]=controllers.convertToInt(dict_return["edges"],0)
-            #     storageData["vertices"]=controllers.convertToInt(dict_return["vertices"],0)
-            #     storageData["obb_position"]=dict_return["obbPosition"]
-            #     storageData["obb_origin"]=dict_return["obbOrigin"]
-            #     storageData["obb_rotated"]=dict_return["obbRotated"]
-            #     cx,cy,cz=dict_return["center"]
-            #     storageData["cx"],storageData["cy"],storageData["cz"] = controllers.convertToFloat(cx,0),controllers.convertToFloat(cy,0),controllers.convertToFloat(cz,0) 
-            #     rx,ry,rz=dict_return["rotation"]
-            #     storageData["rx"],storageData["ry"],storageData["rz"] = controllers.convertToFloat(rx,0),controllers.convertToFloat(ry,0),controllers.convertToFloat(rz,0) 
-            #     sx,sy,sz=dict_return["obbRotated"]["sx"],dict_return["obbRotated"]["sy"],dict_return["obbRotated"]["sz"]
-            #     storageData["sx"],storageData["sy"],storageData["sz"]=controllers.convertToFloat(sx,0),controllers.convertToFloat(sy,0),controllers.convertToFloat(sz,0) 
-            #     storageData["zerostep"]=dict_return["zerostep"]
-            #     storageData["percent"]=controllers.convertToFloat(dict_return["percent"],0)
-            #     storageData["start"]=dict_return["start"]
-            #     storageData["current"]=dict_return["current"]
-            #     storageData["action"]=dict_return["action"]
-            #     storageData["finish"]=dict_return["finish"]
-            #     storageData["reset"]=dict_return["reset"]
-            #     storageData["assembly"]=dict_return["assembly"]
-            #     print("Before assinging serializer",storageData)
+#             _,onlyShapes,_,_,_ = getShapesFromOutPutShapes(myShapes,dictionary["tree"])
+#             if doNotBringToOrigin:
+#                 fullZeroShape,_ = list_of_shapes_to_compound(onlyShapes,True)
+#                 dict_return = statusArray
+#             else:
+#                 partscount=len(onlyShapes)
+#                 fullAssemblyShape,_ = list_of_shapes_to_compound(onlyShapes,True)
+#                 assembly_faces_dict = {}
+#                 assembly_edges_dict = {}
+#                 assembly_vertices_dict = {}
+#                 dumpTopologyFacesEdgesVertices(fullAssemblyShape,assembly_faces_dict,assembly_edges_dict,assembly_vertices_dict)
+#                 facescount=len(assembly_faces_dict)
+#                 edgescount=len(assembly_edges_dict)
+#                 verticescount=len(assembly_vertices_dict)        
+#                 thisAssemblydimension = get_oriented_bounding_details(fullAssemblyShape)                        
+#                 thisAssemblydictionary = getDictionaryFromOBB(thisAssemblydimension,True)
+#                 zerostep = sourceFileName+"ZeroRotatedOrigin.step"
+#                 fullZeroShape, fullZeroDictionary, fullRotatedDictionary, center, rotation = OCPStepIGESAnalyser.StepExportWithColor().\
+#                     bringToOriginAndToUnitAxis(fullAssemblyShape,thisAssemblydimension,thisAssemblydictionary,zerostep)
+#                 dict_return= (dictionary["status"] if "status" in dictionary else {} ) if dictionary else {} 
+#                 dict_return["parts"]=partscount
+#                 dict_return["faces"]=facescount
+#                 dict_return["edges"]=edgescount
+#                 dict_return["vertices"]=verticescount
+#                 dict_return["obbPosition"]=thisAssemblydictionary
+#                 dict_return["obbOrigin"]=fullZeroDictionary
+#                 dict_return["obbRotated"]=fullRotatedDictionary 
+#                 dict_return["center"]=center 
+#                 dict_return["rotation"]=rotation 
+#                 dict_return["zerostep"]=zerostep 
+#             # OCPStepIGESAnalyser.saveStatusToDatabase(dict_return,originalFileName,"NothingMan","AB")
+#             # try:
+#             #     storageData = {}
+#             #     storageData["assemblies"]=controllers.convertToInt(dict_return["assemblies"],0)
+#             #     storageData["trees"]=controllers.convertToInt(dict_return["trees"],0)
+#             #     storageData["parts"]=controllers.convertToInt(dict_return["parts"],0)
+#             #     storageData["faces"]=controllers.convertToInt(dict_return["faces"],0)
+#             #     storageData["edges"]=controllers.convertToInt(dict_return["edges"],0)
+#             #     storageData["vertices"]=controllers.convertToInt(dict_return["vertices"],0)
+#             #     storageData["obb_position"]=dict_return["obbPosition"]
+#             #     storageData["obb_origin"]=dict_return["obbOrigin"]
+#             #     storageData["obb_rotated"]=dict_return["obbRotated"]
+#             #     cx,cy,cz=dict_return["center"]
+#             #     storageData["cx"],storageData["cy"],storageData["cz"] = controllers.convertToFloat(cx,0),controllers.convertToFloat(cy,0),controllers.convertToFloat(cz,0) 
+#             #     rx,ry,rz=dict_return["rotation"]
+#             #     storageData["rx"],storageData["ry"],storageData["rz"] = controllers.convertToFloat(rx,0),controllers.convertToFloat(ry,0),controllers.convertToFloat(rz,0) 
+#             #     sx,sy,sz=dict_return["obbRotated"]["sx"],dict_return["obbRotated"]["sy"],dict_return["obbRotated"]["sz"]
+#             #     storageData["sx"],storageData["sy"],storageData["sz"]=controllers.convertToFloat(sx,0),controllers.convertToFloat(sy,0),controllers.convertToFloat(sz,0) 
+#             #     storageData["zerostep"]=dict_return["zerostep"]
+#             #     storageData["percent"]=controllers.convertToFloat(dict_return["percent"],0)
+#             #     storageData["start"]=dict_return["start"]
+#             #     storageData["current"]=dict_return["current"]
+#             #     storageData["action"]=dict_return["action"]
+#             #     storageData["finish"]=dict_return["finish"]
+#             #     storageData["reset"]=dict_return["reset"]
+#             #     storageData["assembly"]=dict_return["assembly"]
+#             #     print("Before assinging serializer",storageData)
 
-            #     storageSerializer = ParsingDetails(
-            #         name=originalFileName,
-            #         assemblies=storageData["assemblies"],
-            #         trees=storageData["trees"],
-            #         parts=storageData["parts"],
-            #         faces=storageData["faces"],
-            #         edges=storageData["edges"],
-            #         vertices=storageData["vertices"],
-            #         obb_position=storageData["obb_position"],
-            #         obb_origin=storageData["obb_origin"],
-            #         obb_rotated=storageData["obb_rotated"],
-            #         cx=storageData["cx"],cy=storageData["cy"],cz=storageData["cz"],                
-            #         rx=storageData["rx"],ry=storageData["ry"],rz=storageData["rz"],                 
-            #         sx=storageData["sx"],sy=storageData["sy"],sz=storageData["sz"],
-            #         zerostep=storageData["zerostep"],
-            #         percent=storageData["percent"],
-            #         start=storageData["start"],
-            #         current=storageData["current"],
-            #         action=storageData["action"],
-            #         finish=storageData["finish"],
-            #         reset=storageData["reset"],
-            #         assembly=storageData["assembly"],
-            #         internal_object={})
-            #     print("")
-            #     print("Storage Serializer1", storageSerializer, "Tail")
-            #     print("")
-            #     storageSerializer.save()
-            #     #storageSerializer.data = dict_return
+#             #     storageSerializer = ParsingDetails(
+#             #         name=originalFileName,
+#             #         assemblies=storageData["assemblies"],
+#             #         trees=storageData["trees"],
+#             #         parts=storageData["parts"],
+#             #         faces=storageData["faces"],
+#             #         edges=storageData["edges"],
+#             #         vertices=storageData["vertices"],
+#             #         obb_position=storageData["obb_position"],
+#             #         obb_origin=storageData["obb_origin"],
+#             #         obb_rotated=storageData["obb_rotated"],
+#             #         cx=storageData["cx"],cy=storageData["cy"],cz=storageData["cz"],                
+#             #         rx=storageData["rx"],ry=storageData["ry"],rz=storageData["rz"],                 
+#             #         sx=storageData["sx"],sy=storageData["sy"],sz=storageData["sz"],
+#             #         zerostep=storageData["zerostep"],
+#             #         percent=storageData["percent"],
+#             #         start=storageData["start"],
+#             #         current=storageData["current"],
+#             #         action=storageData["action"],
+#             #         finish=storageData["finish"],
+#             #         reset=storageData["reset"],
+#             #         assembly=storageData["assembly"],
+#             #         internal_object={})
+#             #     print("")
+#             #     print("Storage Serializer1", storageSerializer, "Tail")
+#             #     print("")
+#             #     storageSerializer.save()
+#             #     #storageSerializer.data = dict_return
                 
-            #     """ storageSerializer.external_id=1
-            #     storageSerializer.assemblies=0
-            #     storageSerializer.trees=0
-            #     storageSerializer.parts= convertToInt(dict_return["parts"],0)
-            #     storageSerializer.faces=convertToInt(dict_return["faces"],0)
-            #     storageSerializer.edges=convertToInt(dict_return["edges"],0)
-            #     storageSerializer.vertices=convertToInt(dict_return["vertices"],0)
-            #     storageSerializer.obb_position=dict_return["obbPosition"]
-            #     storageSerializer.obb_origin=dict_return["obbOrigin"]
-            #     storageSerializer.obbRotated=dict_return["obbRotated"]
-            #     cx,cy,cz=dict_return["center"]
-            #     storageSerializer.cx,storageSerializer.cy,storageSerializer.cz=convertToFloat(cx,0),convertToFloat(cy,0),convertToFloat(cz,0) 
-            #     rx,ry,rz=dict_return["rotation"]
-            #     storageSerializer.rx,storageSerializer.ry,storageSerializer.rz=convertToFloat(rx,0),convertToFloat(ry,0),convertToFloat(rz,0) 
-            #     sx,sy,sz=dict_return["obbRotated"]["sx"],dict_return["obbRotated"]["sy"],dict_return["obbRotated"]["sz"]
-            #     storageSerializer.sx,storageSerializer.sy,storageSerializer.sz=convertToFloat(sx,0),convertToFloat(sy,0),convertToFloat(rz,0) 
-            #     storageSerializer.zerostep=dict_return["zerostep"] """
-            #     # if storageSerializer.is_valid():
-            #     #     storageSerializer.save()
-            #     # else:
-            #     #     print("While Saving there is a error",storageSerializer.data,storageData)
-            # except Exception as e:
-            #     print("Error while saving",e)
-            return (fullZeroShape,dict_return)
+#             #     """ storageSerializer.external_id=1
+#             #     storageSerializer.assemblies=0
+#             #     storageSerializer.trees=0
+#             #     storageSerializer.parts= convertToInt(dict_return["parts"],0)
+#             #     storageSerializer.faces=convertToInt(dict_return["faces"],0)
+#             #     storageSerializer.edges=convertToInt(dict_return["edges"],0)
+#             #     storageSerializer.vertices=convertToInt(dict_return["vertices"],0)
+#             #     storageSerializer.obb_position=dict_return["obbPosition"]
+#             #     storageSerializer.obb_origin=dict_return["obbOrigin"]
+#             #     storageSerializer.obbRotated=dict_return["obbRotated"]
+#             #     cx,cy,cz=dict_return["center"]
+#             #     storageSerializer.cx,storageSerializer.cy,storageSerializer.cz=convertToFloat(cx,0),convertToFloat(cy,0),convertToFloat(cz,0) 
+#             #     rx,ry,rz=dict_return["rotation"]
+#             #     storageSerializer.rx,storageSerializer.ry,storageSerializer.rz=convertToFloat(rx,0),convertToFloat(ry,0),convertToFloat(rz,0) 
+#             #     sx,sy,sz=dict_return["obbRotated"]["sx"],dict_return["obbRotated"]["sy"],dict_return["obbRotated"]["sz"]
+#             #     storageSerializer.sx,storageSerializer.sy,storageSerializer.sz=convertToFloat(sx,0),convertToFloat(sy,0),convertToFloat(rz,0) 
+#             #     storageSerializer.zerostep=dict_return["zerostep"] """
+#             #     # if storageSerializer.is_valid():
+#             #     #     storageSerializer.save()
+#             #     # else:
+#             #     #     print("While Saving there is a error",storageSerializer.data,storageData)
+#             # except Exception as e:
+#             #     print("Error while saving",e)
+#             return (fullZeroShape,dict_return)
 
-        except Exception as e:
-            print("error",e) 
+#         except Exception as e:
+#             print("error",e) 
               
-        return (None,statusArray)
-    except Exception as e:
-        print("error",e) 
-        return (None,statusArray)
-        #raise ValueError("File Could not be loaded") 
-    except:
-        print("Unknown system error occured")
-        return (None,statusArray)
+#         return (None,statusArray)
+#     except Exception as e:
+#         print("error",e) 
+#         return (None,statusArray)
+#         #raise ValueError("File Could not be loaded") 
+#     except:
+#         print("Unknown system error occured")
+#         return (None,statusArray)
 
 # def bringToOriginAndToUnitAxis(fullShape1,thisdimension1,thisdictionary1,stepname):
 #     aBaryCenter = thisdimension1.Center()
@@ -6882,14 +6882,15 @@ def compareToCheckIdentity(sourceFileName1,sourceFileName2,distancegap,anglegap,
         "isEqual":False }
     if sourceFileName1 and sourceFileName2:
         try:
-            statusArray1, _, _ = readStatusInfo(sourceFileName1)
-            statusArray2, _, _ = readStatusInfo(sourceFileName2)            
-            fullZeroShape1, statusArray1 = getOutputShapesFromSourceFile(sourceFileName1,distancegap,anglegap,statusfilename,dictionary,starttime,1,statusArray1)
+            statusArray1, _, _, _ = OCPStepIGESAnalyser.StepExportWithColor().readStatusInfo(sourceFileName1)
+            statusArray2, _, _, _ = OCPStepIGESAnalyser.StepExportWithColor().readStatusInfo(sourceFileName2)            
+            fullZeroShape1, statusArray1 = OCPStepIGESAnalyser.StepExportWithColor().getOutputShapesFromSourceFile(sourceFileName1,distancegap,anglegap,statusfilename,dictionary,starttime,1,statusArray1)
             dictionary["obbstruct1"]=statusArray1
             OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,15,starttime,dictionary,False)
-            fullZeroShape2, statusArray2 = getOutputShapesFromSourceFile(sourceFileName2,distancegap,anglegap,statusfilename,dictionary,starttime,2,statusArray2)
+            fullZeroShape2, statusArray2 = OCPStepIGESAnalyser.StepExportWithColor().getOutputShapesFromSourceFile(sourceFileName2,distancegap,anglegap,statusfilename,dictionary,starttime,2,statusArray2)
             dictionary["obbstruct2"]=statusArray2
             OCPStepIGESAnalyser.StepExportWithColor().setComparisonDictionary(statusfilename,25,starttime,dictionary,False)
+            # if(OCPStepIGESAnalyser.StepExportWithColor().compareStatusArrays(statusArray1,statusArray2)):
             OCPStepIGESAnalyser.StepExportWithColor().compareToCheckIdentityShapesOriginated(dictionary,fullZeroShape1,fullZeroShape2,statusfilename,starttime)
             #OCPStepIGESAnalyser.StepExportWithColor().compareToCheckIdentityShapes(sourceFileName1,sourceFileName2,onlyShapes1,onlyShapes2,statusfilename,starttime,None)
             return

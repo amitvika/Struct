@@ -31,11 +31,11 @@ class ParsingDetails(models.Model):
     rx=models.FloatField(default=0)
     ry=models.FloatField(default=0)
     rz=models.FloatField(default=0)
-    obb_position=models.JSONField(blank=True, default=None)
-    obb_origin=models.JSONField(blank=True, default=None)
-    obb_rotated=models.JSONField(blank=True, default=None)
+    obb_position=models.JSONField(blank=True, default={})
+    obb_origin=models.JSONField(blank=True, default={})
+    obb_rotated=models.JSONField(blank=True, default={})
     zerostep = models.CharField(max_length=255, default=None)
-    internal_object=models.JSONField(blank=True, default=None)
+    internal_object=models.JSONField(blank=True, default={})
     percent=models.FloatField(default=0)
     start=models.CharField(max_length=10,default=None)
     current=models.CharField(max_length=10,default=None)
@@ -43,7 +43,11 @@ class ParsingDetails(models.Model):
     finish=models.CharField(max_length=10,default=None)
     reset=models.CharField(max_length=10,default=None)
     assembly=models.CharField(max_length=255, default=None)
-    s3storage=models.BooleanField(default=False)
+    s3storage=models.BooleanField(default=False)    
+    matched_across=models.JSONField(blank=True, default=[])
+    comparetotal=models.IntegerField(default=0)
+    comparesub=models.IntegerField(default=0)
+    comparepercent=models.FloatField(default=0)
     objects = models.DjongoManager()
     
     def __str__(self):
@@ -68,7 +72,11 @@ class ChildParsingDetails(models.Model):
     createchilds=models.BooleanField(default=False)
     createorder=models.BooleanField(default=False)
     createstack=models.BooleanField(default=False)
-    childfiles=models.JSONField(blank=True, default=None)
+    childfiles=models.JSONField(blank=True, default=[])
+    childpercent=models.FloatField(default=0)
+    comparechild=models.IntegerField(default=0)
+    comparesub=models.IntegerField(default=0)
+    comparepercent=models.FloatField(default=0)
     objects = models.DjongoManager()
     
     def __str__(self):
@@ -90,7 +98,7 @@ class EdgeParsingDetails(models.Model):
     action=models.CharField(max_length=80,default=None)
     finish=models.CharField(max_length=10,default=None)
     reset=models.CharField(max_length=10,default=None)    
-    children=models.JSONField(blank=True, default=None)
+    children=models.JSONField(blank=True, default={})
     objects = models.DjongoManager()
     
     def __str__(self):
@@ -123,8 +131,8 @@ class ItemDetails(models.Model):
     child_item_status = models.CharField(max_length=255,default='NOT_INITIATED',choices=ChildCreationStatus.choices())
     multiAssembly=models.BooleanField(default=False)
     filePartName=models.CharField(max_length=255,default=None)
-    comparison_parameters=models.JSONField(blank=True, default=None)
-    matched_childs=models.JSONField(blank=True, default=None)    
+    comparison_parameters=models.JSONField(blank=True, default={})
+    matched_childs=models.JSONField(blank=True, default=[])    
     objects = models.DjongoManager()
     
     def __str__(self):
