@@ -108,8 +108,9 @@ def copyFilesRecursive(timelag,fileLogger,logging):
                             errors.append((filename,filenamePath,"Got filename as other than Media "+MEDIA_URL))
                     if (len(errors)==0):
                         try:
-                            storageSerializer.s3storage=True
-                            storageSerializer.save()
+                            ParsingDetailsController().s3update(storageSerializer,True)
+                            # storageSerializer.s3storage=True                            
+                            # storageSerializer.save()
                         except Exception as e:
                             print("Error while updating s3storage",e,storageSerializer)
                     else:

@@ -48,23 +48,28 @@ def getValueFromJSONKey(jsonstruct, key):
                 return jsonstruct[key]            
     return None
     
-
+def getNotNone(dict,default):
+    return dict if dict is not None else default
 
 class ParsingDetailsController():
     def __init__( self, alwaysNew=False ):
         
         self.alwaysNew = alwaysNew
 
-    def s3update(self,originalFileName,tabSuffix,flag=True):
-        storageSerializers = ParsingDetails.objects.filter(filename=originalFileName,tab_suffix=tabSuffix)        
-        if(storageSerializers and len(storageSerializers)==1):
-            storageSerializer=storageSerializers[0]
-            print("Got storageAs",storageSerializer)     
-            if storageSerializer:
+    def s3update(self,storageSerializer,flag=True):
+        try:
+            if storageSerializer is not None:
+                storageSerializer.obb_position=getNotNone(storageSerializer.obb_position,{})
+                storageSerializer.obb_origin=getNotNone(storageSerializer.obb_origin,{})
+                storageSerializer.obb_rotated=getNotNone(storageSerializer.obb_rotated,{})
+                storageSerializer.internal_object={}
+                storageSerializer.matched_across=getNotNone(storageSerializer.matched_across,[])
                 storageSerializer.s3storage=flag
                 storageSerializer.save()
-        else:
-            print("Not saving because length of storage",len(storageSerializers),storageSerializers)
+            else:
+                print("Not saving because record is none",storageSerializer)
+        except Exception as e:
+            print("Error while updating flag",e,storageSerializer)
     
     def s3TobeCopied(self):
         return ParsingDetails.objects.filter(s3storage=False,percent=100)       
@@ -143,9 +148,9 @@ class ParsingDetailsController():
                 storageSerializer.faces=storageData["faces"]
                 storageSerializer.edges=storageData["edges"]
                 storageSerializer.vertices=storageData["vertices"]
-                storageSerializer.obb_position=storageData["obb_position"] if (storageData["obb_position"] is not None) else {}
-                storageSerializer.obb_origin=storageData["obb_origin"] if (storageData["obb_origin"] is not None) else {}
-                storageSerializer.obb_rotated=storageData["obb_rotated"] if (storageData["obb_rotated"] is not None) else {}
+                storageSerializer.obb_position=getNotNone(storageData["obb_position"],{})
+                storageSerializer.obb_origin=getNotNone(storageData["obb_origin"],{})
+                storageSerializer.obb_rotated=getNotNone(storageData["obb_rotated"],{})
                 storageSerializer.cx=storageData["cx"]
                 storageSerializer.cy=storageData["cy"]
                 storageSerializer.cz=storageData["cz"]            
@@ -164,7 +169,7 @@ class ParsingDetailsController():
                 storageSerializer.reset=storageData["reset"]
                 storageSerializer.assembly=storageData["assembly"]
                 storageSerializer.internal_object={}
-                storageSerializer.matched_across=storageData["matched"] if (storageData["matched"] is not None) else {}
+                storageSerializer.matched_across=getNotNone(storageData["matched"],[])
                 storageSerializer.comparetotal=storageData["comparetotal"]
                 storageSerializer.comparesub=storageData["comparesub"]
                 storageSerializer.comparepercent=storageData["comparepercent"]
@@ -236,7 +241,7 @@ class ChildParsingDetailsController():
                 storageSerializer.createchilds=storageData["createchilds"]
                 storageSerializer.createorder=storageData["createorder"]
                 storageSerializer.createstack=storageData["createstack"]
-                storageSerializer.childfiles=storageData["childfiles"] if (storageData["childfiles"] is not None) else {}
+                storageSerializer.childfiles=getNotNone(storageData["childfiles"],[])
                 storageSerializer.childpercent=storageData["childpercent"]
                 storageSerializer.comparechild=storageData["comparechild"]
                 storageSerializer.comparesub=storageData["comparesub"]
@@ -298,7 +303,7 @@ class EdgeParsingDetailsController():
                 storageSerializer.action=storageData["action"]
                 storageSerializer.finish=storageData["finish"]
                 storageSerializer.reset=storageData["reset"]
-                storageSerializer.children=storageData["children"] if (storageData["children"] is not None) else {}
+                storageSerializer.children=getNotNone(storageData["children"],{})
             print("")
             print("Storage Serializer Head", storageSerializer, "Tail")
             print("")
