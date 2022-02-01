@@ -67,7 +67,7 @@ class ParsingDetailsController():
             print("Not saving because length of storage",len(storageSerializers),storageSerializers)
     
     def s3TobeCopied(self):
-        return ParsingDetails.objects.filter(s3storage=True,percent=100)       
+        return ParsingDetails.objects.filter(s3storage=False,percent=100)       
     
     def identicalRecords(self,sx,sy,sz,vertices):
         return ParsingDetails.objects.filter(vertices=vertices,sx=sx,sy=sy,sz=sz)
