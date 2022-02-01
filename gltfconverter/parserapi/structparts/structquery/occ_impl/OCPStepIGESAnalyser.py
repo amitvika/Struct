@@ -1838,59 +1838,63 @@ class StepExportWithColor(object):
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break
-            self.writeProgress(0,"Started Comparing Childs")
-            myChildAssemblyOutputShapesLen = len(myChildAssemblyOutputShapes)
-            for childShapesIndex in range(myChildAssemblyOutputShapesLen):
-                myAssemblyChildInfo = assemblyNames[childShapesIndex]
-                #statusChildTree,childOutputShapes,childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
-                childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
-                self.writeProgress(comparechild=childShapesIndex)
-                for compareShapesIndex in range(childShapesIndex+1,myChildAssemblyOutputShapesLen):
-                    self.writeProgress(comparechild=childShapesIndex,comparesub=compareShapesIndex)
+            if comparechildren:
+                self.writeProgress(0,"Started Comparing Childs")
+                myChildAssemblyOutputShapesLen = len(myChildAssemblyOutputShapes)
+                for childShapesIndex in range(myChildAssemblyOutputShapesLen):
                     myAssemblyChildInfo = assemblyNames[childShapesIndex]
-                    myAssemblyCompareInfo = assemblyNames[compareShapesIndex]
-                    #statusCompareTree,compareOutputShapes,compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
-                    compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
-                    (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
-                    (uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)=myAssemblyCompareInfo
-                    compareStatusFileName='Display/'+uuidname1+'/'+uniquename1+uniquename2+".status"
-                    #compareStepFileName='Media/'+uuidname1+'/'+uniquename1+uniquename2
-                    sourceAssemblyFileName1,sourceAssemblyFileName2='Media/'+uuidname1+'/'+uniquename1,'Media/'+uuidname2+'/'+uniquename2
-                    compareDictionary={
-                        "source1":sourceAssemblyFileName1,
-                        "source2":sourceAssemblyFileName2,
-                        "node1":nodeCount1,
-                        "node2":nodeCount2,
-                        "isEqual":False,
-                        "vertexEquals":False,
-                        'obbstruct1':statusArray1,
-                        'obbstruct2':statusArray2}
-                    retDictionary = compareDictionary
-                    self.setComparisonDictionary(compareStatusFileName,10,starttime,compareDictionary,True,self.writeProgress,childShapesIndex,compareShapesIndex)
+                    #statusChildTree,childOutputShapes,childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
+                    childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
+                    self.writeProgress(comparechild=childShapesIndex)
+                    for compareShapesIndex in range(childShapesIndex+1,myChildAssemblyOutputShapesLen):
+                        self.writeProgress(comparechild=childShapesIndex,comparesub=compareShapesIndex)
+                        myAssemblyChildInfo = assemblyNames[childShapesIndex]
+                        myAssemblyCompareInfo = assemblyNames[compareShapesIndex]
+                        #statusCompareTree,compareOutputShapes,compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
+                        compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
+                        (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
+                        (uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)=myAssemblyCompareInfo
+                        compareStatusFileName='Display/'+uuidname1+'/'+uniquename1+uniquename2+".status"
+                        #compareStepFileName='Media/'+uuidname1+'/'+uniquename1+uniquename2
+                        sourceAssemblyFileName1,sourceAssemblyFileName2='Media/'+uuidname1+'/'+uniquename1,'Media/'+uuidname2+'/'+uniquename2
+                        compareDictionary={
+                            "source1":sourceAssemblyFileName1,
+                            "source2":sourceAssemblyFileName2,
+                            "node1":nodeCount1,
+                            "node2":nodeCount2,
+                            "isEqual":False,
+                            "vertexEquals":False,
+                            'obbstruct1':statusArray1,
+                            'obbstruct2':statusArray2}
+                        retDictionary = compareDictionary
+                        self.setComparisonDictionary(compareStatusFileName,10,starttime,compareDictionary,True,self.writeProgress,childShapesIndex,compareShapesIndex)
 
-                    if(self.compareStatusArrays(statusArray1,statusArray2)):
-                        # _,onlyShapes1,_,_,_ = self.getShapesFromOutPutShapes(childOutputShapes,1,statusChildTree,treeLength1,'')
-                        # self.setComparisonDictionary(compareStatusFileName,15,starttime,compareDictionary,False)
-                        # _,onlyShapes2,_,_,_ = self.getShapesFromOutPutShapes(compareOutputShapes,1,statusCompareTree,treeLength2,'')
-                        # self.setComparisonDictionary(compareStatusFileName,25,starttime,compareDictionary,False)
-                        # retDictionary = self.compareToCheckIdentityShapes(sourceAssemblyFileName1,sourceAssemblyFileName2,onlyShapes1,onlyShapes2,compareStatusFileName,starttime,compareStepFileName)
-                        retDictionary = self.compareToCheckIdentityShapesOriginated(compareDictionary,childFullAssemblyZeroShape,compareFullAssemblyZeroShape,compareStatusFileName,starttime,self.writeProgress,childShapesIndex,compareShapesIndex)
-        
-                    if(retDictionary["vertexEquals"] or retDictionary["isEqual"]):
-                        equalsDict1.append(\
-                            ((uuidname1,uniquename1,treeName1,treeDisplay1),\
-                                (uuidname2,uniquename2,treeName2,treeDisplay2),\
-                                    (retDictionary["vertexEquals"],retDictionary["isEqual"])))
-                        myAssemblyChildInfo=(uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)
-                        assemblyNames[childShapesIndex]=myAssemblyChildInfo
-                        equalsDict2.append(\
-                            ((uuidname1,uniquename1,treeName1,treeDisplay1),\
-                                (uuidname2,uniquename2,treeName2,treeDisplay2),\
-                                    (retDictionary["vertexEquals"],retDictionary["isEqual"])))
-                        myAssemblyCompareInfo=(uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)
-                        assemblyNames[compareShapesIndex]=myAssemblyCompareInfo
+                        if(self.compareStatusArrays(statusArray1,statusArray2)):
+                            # _,onlyShapes1,_,_,_ = self.getShapesFromOutPutShapes(childOutputShapes,1,statusChildTree,treeLength1,'')
+                            # self.setComparisonDictionary(compareStatusFileName,15,starttime,compareDictionary,False)
+                            # _,onlyShapes2,_,_,_ = self.getShapesFromOutPutShapes(compareOutputShapes,1,statusCompareTree,treeLength2,'')
+                            # self.setComparisonDictionary(compareStatusFileName,25,starttime,compareDictionary,False)
+                            # retDictionary = self.compareToCheckIdentityShapes(sourceAssemblyFileName1,sourceAssemblyFileName2,onlyShapes1,onlyShapes2,compareStatusFileName,starttime,compareStepFileName)
+                            retDictionary = self.compareToCheckIdentityShapesOriginated(compareDictionary,childFullAssemblyZeroShape,compareFullAssemblyZeroShape,compareStatusFileName,starttime,self.writeProgress,childShapesIndex,compareShapesIndex)
+            
+                        if(retDictionary["vertexEquals"] or retDictionary["isEqual"]):
+                            equalsDict1.append(\
+                                ((uuidname1,uniquename1,treeName1,treeDisplay1),\
+                                    (uuidname2,uniquename2,treeName2,treeDisplay2),\
+                                        (retDictionary["vertexEquals"],retDictionary["isEqual"])))
+                            myAssemblyChildInfo=(uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)
+                            assemblyNames[childShapesIndex]=myAssemblyChildInfo
+                            equalsDict2.append(\
+                                ((uuidname1,uniquename1,treeName1,treeDisplay1),\
+                                    (uuidname2,uniquename2,treeName2,treeDisplay2),\
+                                        (retDictionary["vertexEquals"],retDictionary["isEqual"])))
+                            myAssemblyCompareInfo=(uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)
+                            assemblyNames[compareShapesIndex]=myAssemblyCompareInfo
+                self.writeProgress(0,"Completed Comparing Childs",comparechild=myChildAssemblyOutputShapesLen,comparesub=myChildAssemblyOutputShapesLen,comparepercent=100)
+            
             self.assemblycreatedcurrentcount = totalcount
-            self.writeProgress(0,"Completed",assemblyNames)
+            self.writeProgress(0,"Completed",assemblyNames,100,\
+                totalcount if comparechildren else 0, totalcount if comparechildren else 0, 100 if comparechildren else 0)
             return  (addedAssembly,assemblyNames)
         self.writeProgress(0,totalcount,"No Child") 
         return (addedAssembly,None)
@@ -6814,7 +6818,9 @@ class StepIgesAnalyser():
                                 self.write_status(0,"Compared "+str(myCurrent),myTotal,myCurrent)
                         else:
                             myCurrent+=1
-                    self.write_status(0,"Compared "+str(myCurrent),myTotal,myTotal)
+                else:
+                    myTotal=0
+                self.write_status(0,"Compared "+str(myTotal),myTotal,myTotal,100)
             if self.CreateChildSteps:
                 print("Starting Child Steps",self.fname)
                 """ self.write_progress(maxgap=0,action='Child Items Started')  """
