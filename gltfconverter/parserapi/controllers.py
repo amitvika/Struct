@@ -173,7 +173,7 @@ class ParsingDetailsController():
                 storageSerializer.comparetotal=storageData["comparetotal"]
                 storageSerializer.comparesub=storageData["comparesub"]
                 storageSerializer.comparepercent=storageData["comparepercent"]
-
+                storageSerializer.s3storage=False
                 print("")
                 print("Storage Serializer Head", storageSerializer, storageSerializer.matched_across,storageData["matched"], storageSerializer.filename)
                 print("")
