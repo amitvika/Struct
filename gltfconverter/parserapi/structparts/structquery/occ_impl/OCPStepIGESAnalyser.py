@@ -1484,8 +1484,8 @@ class StepExportWithColor(object):
             "vertexEquals":False }
         if (sourceFileName1 is not None) and sourceFileName1 and (sourceFileName2 is not None) and sourceFileName2:
             try:               
-                statusArray2, _, _, basefilename2 = self.readStatusInfo(sourceFileName2)    
-                statusfilename = statusfile+basefilename2+".status"        
+                statusArray2, uuid2, _, basefilename2 = self.readStatusInfo(sourceFileName2)    
+                statusfilename = statusfile+uuid2+basefilename2+".status"        
                 dictionary["obbstruct1"]=statusArray1
                 self.setComparisonDictionary(statusfilename,15,starttime,dictionary,False,updateprogressfile,comparechild,comparesub)
                 fullZeroShape2, statusArray2 = self.getOutputShapesFromSourceFile(sourceFileName2,distancegap,anglegap,statusfilename,dictionary,starttime,2,statusArray2)
@@ -1854,7 +1854,7 @@ class StepExportWithColor(object):
                         compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
                         (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
                         (uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)=myAssemblyCompareInfo
-                        compareStatusFileName='Display/'+uuidname1+'/'+uniquename1+uniquename2+".status"
+                        compareStatusFileName='Display/'+uuidname1+'/'+uniquename1+uuidname2+uniquename2+".status"
                         #compareStepFileName='Media/'+uuidname1+'/'+uniquename1+uniquename2
                         sourceAssemblyFileName1,sourceAssemblyFileName2='Media/'+uuidname1+'/'+uniquename1,'Media/'+uuidname2+'/'+uniquename2
                         compareDictionary={
@@ -2146,7 +2146,7 @@ class StepExportWithColor(object):
             brep_trns = BRepBuilderAPI_Transform(fullZeroShape1, aLoc, True)
             fullZeroShape2 = brep_trns.Shape()
             thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
-            thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2,True)
+            thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2)
         else:
             fullZeroShape2=fullZeroShape1
             thisdimension2 = thisRotateddimension1 
@@ -2174,7 +2174,10 @@ class StepExportWithColor(object):
         else:
             fullZeroShape3=fullZeroShape2
             rotation=(0,0,0)
-        thisdimension3 = get_oriented_bounding_details(fullZeroShape3) 
+        if rotation==(0,0,0):
+            thisdimension3 = thisdimension2
+        else:
+            thisdimension3 = get_oriented_bounding_details(fullZeroShape3) 
         thisRotateddictionary3 = getDictionaryFromOBB(thisdimension3,True)
         print("After Bringing x > y > z dimensions",thisRotateddictionary3,thisRotateddictionary2,thisdictionary1)
         
