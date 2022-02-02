@@ -83,7 +83,7 @@ from OCC.Core.GeomAbs import GeomAbs_Circle #, GeomAbs_Line
 #from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 #from .OCCUtils.vertex import Vertex
 #from .OCCUtils import Topology
-from .OCCUtils.Topology import (dumpTopologyStructures, 
+from .OCCUtils.Topology import (GpropsFromShape, dumpTopologyStructures, 
                                 dumpTopologyFacesEdgesVertices,
                                 dumpTopologySolids,
                                 shapeString, 
@@ -105,7 +105,7 @@ from .OCPAssembly import Color
 from .OCCExtend.ShapeFactory import (
     recognize_direction, recognize_curve, recognize_face_entity, 
     get_circle_info, rotate_shape, get_oriented_bounding_details,
-    getDictionaryFromOBB, translate_shp, rotate_shp_3_axis )
+    getDictionaryFromOBB, roundoff, translate_shp, rotate_shp_3_axis )
 from ....thumbnail.thumbnail import createThumbnail
 from .gltfDictionary import gltfdict
 from .Quaternion import Quaternion
@@ -1362,6 +1362,15 @@ class StepExportWithColor(object):
             myID += 1
             shapeArray.append((aShape,"ID"+str(myID),None))
         return shapeArray
+    
+    def getVolume(self,fullZeroShape):
+        massvolume=0
+        try:
+            vprops = GpropsFromShape(fullZeroShape).volume()
+            massvolume = roundoff(vprops.Mass(),True)
+        except Exception as e:
+            print("Error while finding mass(volume)",e)
+        return massvolume
 
     def getOutputShapesFromSourceFile(self,originalFileName,distancegap,anglegap,statusfilename,comparedict,starttime=None,fileNo=1,statusArray={}):#,thumbwidth,thumbheight):
         """
@@ -1449,11 +1458,13 @@ class StepExportWithColor(object):
                     zerostep = sourceFileName+"ZeroRotatedOrigin.step"
                     fullZeroShape, fullZeroDictionary, fullRotatedDictionary, center, rotation = self.\
                         bringToOriginAndToUnitAxis(fullAssemblyShape,thisAssemblydimension,thisAssemblydictionary,zerostep)
+                    massvolume = self.getVolume(fullZeroShape)
                     dict_return= (dictionary["status"] if "status" in dictionary else {} ) if dictionary else {} 
                     dict_return["parts"]=partscount
                     dict_return["faces"]=facescount
                     dict_return["edges"]=edgescount
                     dict_return["vertices"]=verticescount
+                    dict_return["mass"]=massvolume
                     dict_return["obbPosition"]=thisAssemblydictionary
                     dict_return["obbOrigin"]=fullZeroDictionary
                     dict_return["obbRotated"]=fullRotatedDictionary 
@@ -2722,6 +2733,7 @@ class StepIgesAnalyser():
         self.facescount=0
         self.edgescount=0
         self.verticescount=0
+        self.massvolume=0
         self.obbdictionary={}
         self.zerodictionary={}
         self.rotateddictionary={}
@@ -6376,6 +6388,7 @@ class StepIgesAnalyser():
                 mystatusdict["faces"]=self.facescount
                 mystatusdict["edges"]=self.edgescount
                 mystatusdict["vertices"]=self.verticescount
+                mystatusdict["mass"]=self.massvolume
                 mystatusdict["obbPosition"]=self.obbdictionary
                 mystatusdict["obbOrigin"]=self.zerodictionary
                 mystatusdict["obbRotated"]=self.rotateddictionary
@@ -6386,6 +6399,7 @@ class StepIgesAnalyser():
                 mystatusdict["comparetotal"]=self.comparetotal if comparechild==0 else comparechild
                 mystatusdict["comparesub"]=self.comparesub if comparesub==0 else comparesub
                 mystatusdict["comparepercent"]=self.comparepercent if comparepercent==0 else comparepercent
+                
             try:            
                 timingdelta = datetime.utcnow()-self.currenttime            
                 if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
@@ -6447,6 +6461,8 @@ class StepIgesAnalyser():
                     self.edgescount=statusArray["edges"]
                 if "vertices" in statusArray:
                     self.verticescount=statusArray["vertices"]
+                if "mass" in statusArray:
+                    self.massvolume=statusArray["mass"]
                 if "obbPosition" in statusArray:
                     self.obbdictionary=statusArray["obbPosition"]
                 if "obbOrigin" in statusArray:
@@ -6720,6 +6736,7 @@ class StepIgesAnalyser():
             self.assemblycenter=center
             self.assemblyrotation=rotation
             self.fullZeroShape=fullZeroShape
+            self.massvolume = StepExportWithColor().getVolume(fullZeroShape)            
     
         dict_return = {
             "gltf":self.mstep_dict,
@@ -6745,6 +6762,7 @@ class StepIgesAnalyser():
                         "faces":self.facescount,
                         "edges":self.edgescount,
                         "vertices":self.verticescount,
+                        "mass":self.massvolume,
                         "obbPosition":self.obbdictionary,
                         "obbOrigin":self.zerodictionary,
                         "obbRotated":self.rotateddictionary,

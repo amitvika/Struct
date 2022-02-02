@@ -89,6 +89,7 @@ class ParsingDetailsController():
             storageData["faces"]=convertToInt(getValueFromJSONKey(statusDictionary,"faces"),0)
             storageData["edges"]=convertToInt(getValueFromJSONKey(statusDictionary,"edges"),0)
             storageData["vertices"]=convertToInt(getValueFromJSONKey(statusDictionary,"vertices"),0)
+            storageData["mass"]=convertToFloat(getValueFromJSONKey(statusDictionary,"mass"),0)
             storageData["obb_position"]=getValueFromJSONKey(statusDictionary,"obbPosition")
             storageData["obb_origin"]=getValueFromJSONKey(statusDictionary,"obbOrigin")
             storageData["obb_rotated"]=getValueFromJSONKey(statusDictionary,"obbRotated")
@@ -148,6 +149,7 @@ class ParsingDetailsController():
                 storageSerializer.faces=storageData["faces"]
                 storageSerializer.edges=storageData["edges"]
                 storageSerializer.vertices=storageData["vertices"]
+                storageSerializer.mass=storageData["mass"]
                 storageSerializer.obb_position=getNotNone(storageData["obb_position"],{})
                 storageSerializer.obb_origin=getNotNone(storageData["obb_origin"],{})
                 storageSerializer.obb_rotated=getNotNone(storageData["obb_rotated"],{})

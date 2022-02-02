@@ -22,6 +22,7 @@ class ParsingDetails(models.Model):
     faces=models.IntegerField(default=0)
     edges=models.IntegerField(default=0)
     vertices=models.IntegerField(default=0)
+    mass=models.FloatField(default=0)
     sx=models.FloatField(default=0)
     sy=models.FloatField(default=0)
     sz=models.FloatField(default=0)

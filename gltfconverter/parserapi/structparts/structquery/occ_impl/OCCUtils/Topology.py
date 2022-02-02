@@ -3,7 +3,7 @@ from __future__ import print_function
 from OCC.Core.gp import (gp_Lin, gp_Circ, gp_Elips, gp_Hypr, gp_Parab, gp_Other)
 from OCC.Core.Geom import (Geom_BezierCurve, Geom_BSplineCurve, Geom_OffsetCurve, Geom_TrimmedCurve )
 
-__all__ = ['Topo', 'WireExplorer', 'dumpTopology', 'dumpTopologyStructures',\
+__all__ = ['Topo', 'WireExplorer', 'dumpTopology', 'dumpTopologyStructures', 'GpropsFromShape',\
      'getFacesEdgesVerticesFromShapes', 'dumpTopologyFacesEdgesVertices', 'dumpTopologySolids',\
          'recognize_face_entity_info', 'recognize_edge_entity_info', 'recognize_vertex_entity_info',\
              'recognize_shape_entity_info', 'recognize_by_threejs', 'getShapeLocationAndDirection']
@@ -35,13 +35,42 @@ from OCC.Core.GeomAbs import (GeomAbs_C0,
 from OCC.Core.BRepAdaptor import BRepAdaptor_Surface, BRepAdaptor_Curve
 from OCC.Core.TColStd import (TColStd_Array1OfInteger, TColStd_Array1OfReal, TColStd_Array2OfReal)
 from OCC.Core.TColgp import (TColgp_Array1OfPnt, TColgp_Array2OfPnt)
-from OCC.Core.Bnd import Bnd_Box, Bnd_OBB
-from OCC.Core.BRepBndLib import brepbndlib_Add, brepbndlib_AddOptimal, brepbndlib_AddOBB
-from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakePrism
+from OCC.Core.Bnd import Bnd_OBB #, Bnd_Box 
+from OCC.Core.BRepBndLib import brepbndlib_AddOBB #, brepbndlib_Add, brepbndlib_AddOptimal 
+#from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakePrism
+from OCC.Core.GProp import GProp_GProps
+from OCC.Core.BRepGProp import (brepgprop_LinearProperties,
+                                brepgprop_SurfaceProperties,
+                                brepgprop_VolumeProperties)
 #from ..OCCExtend.ShapeFactory import (recognize_edge, recognize_face, recognize_shape)
 from ..gltfDictionary import gltfdict
 gltf_Dict = gltfdict()
 
+class GpropsFromShape(object):
+    def __init__(self, shape, tolerance=1e-5):
+        self.shape = shape
+        self.tolerance = tolerance
+
+    def volume(self):
+        '''returns the volume of a solid
+        '''
+        prop = GProp_GProps()
+        brepgprop_VolumeProperties(self.shape, prop, self.tolerance)
+        return prop
+
+    def surface(self):
+        '''returns the area of a surface
+        '''
+        prop = GProp_GProps()
+        brepgprop_SurfaceProperties(self.shape, prop, self.tolerance)
+        return prop
+
+    def linear(self):
+        '''returns the length of a wire or edge
+        '''
+        prop = GProp_GProps()
+        brepgprop_LinearProperties(self.shape, prop)
+        return prop
 class WireExplorer(object):
     '''
     Wire traversal
@@ -990,7 +1019,7 @@ def recognize_face(topods_face,draft=False):
         entity['normaldir'] = getXYZ(gp_pln.Position().Direction(),draft)  # the plane normal
         entity['location'] = getXYZ(gp_pln.Position().Location(),draft)  # the plane normal
         entity['direction'] = getXYZ(gp_pln.Position().Direction(),draft)  # the plane normal
-        return entity
+        #return entity
     elif surf_type == GeomAbs_Cylinder:
         # look for the properties of the cylinder
         # first get the related gp_Cyl
@@ -1002,7 +1031,7 @@ def recognize_face(topods_face,draft=False):
         entity['radius'] = roundoff(gp_cyl.Radius(),draft)
         #entity['coefficients'] = gp_cyl.Coefficients()
         # then export location and normal to the console output
-        return entity
+        #return entity
     elif surf_type == GeomAbs_Cone:
         
         gp_cone = surf.Cone()
@@ -1013,7 +1042,7 @@ def recognize_face(topods_face,draft=False):
         entity['refradius'] = roundoff(gp_cone.RefRadius(),draft)
         entity['semiangle'] = roundoff(gp_cone.SemiAngle(),draft)
         # then export location and normal to the console output
-        return entity
+        #return entity
     elif surf_type == GeomAbs_Sphere:
         
         gp_sphere = surf.Sphere()
@@ -1024,7 +1053,7 @@ def recognize_face(topods_face,draft=False):
         entity['radius'] = roundoff(gp_sphere.Radius(),draft)
         #axis = gp_sphere.Axis().Direction()  # the sphere axis
         # then export location and normal to the console output
-        return entity
+        #return entity
     elif surf_type == GeomAbs_Torus:
         
         gp_torus = surf.Torus()
@@ -1036,7 +1065,7 @@ def recognize_face(topods_face,draft=False):
         entity['majorradius'] = roundoff(gp_torus.MajorRadius(),draft)
         #axis = gp_torus.Axis().Direction()  # the sphere axis
         # then export location and normal to the console output
-        return entity
+        #return entity
     elif surf_type == GeomAbs_BezierSurface:      
         
         entity['kind'] = "Bezier"
@@ -1060,7 +1089,7 @@ def recognize_face(topods_face,draft=False):
         entity['poles']=poles
         entity['weights']=weights  
         
-        return entity
+        #return entity
     elif surf_type == GeomAbs_BSplineSurface:
         #gp_bspline = surf.BSpline()  
         entity['kind'] = "BSpline"
@@ -1125,22 +1154,26 @@ def recognize_face(topods_face,draft=False):
         except:
             pass
         entity['weights'] = to_np_from_tcolstd_array2_real(tcol_array,draft)
-        return entity
+        #return entity
     elif surf_type == GeomAbs_SurfaceOfRevolution:
         entity['kind'] = "Revolution"
-        return entity
+        #return entity
     elif surf_type == GeomAbs_SurfaceOfExtrusion:
         entity['kind'] = "Extrusion"
-        return entity
+        #return entity
     elif surf_type == GeomAbs_OffsetSurface:
         entity['kind'] = "Offset"
-
-        return entity
+        #return entity
     elif surf_type == GeomAbs_OtherSurface:
         entity['kind'] = "Others"
-        return entity
+        #return entity
     # nothing found
     entity['kind'] = "Unknown"
+    try:
+        sprop=GpropsFromShape(topods_face).surface()
+        entity['mass']=roundoff(sprop.Mass(),draft)
+    except Exception as e:
+        print("Error while getting mass(Area)",e)
     return entity
 
 def recognize_face_entity_info(topods_face):
@@ -1223,8 +1256,13 @@ def recognize_shape_entity_info(topods_shape,draft=False):
         entity['location'] = getXYZ(thisdimension.Position().Location(),draft)  # a point of the axis
         entity['direction'] = getXYZ(thisdimension.Position().Direction(),draft)
         entity['center']=getXYZ(thisdimension.Center(),draft)
-    except:
-        print("While accessing obb of the shape")
+        try:
+            vprop=GpropsFromShape(topods_shape).volume()
+            entity['mass']=roundoff(vprop.Mass(),draft)
+        except Exception as e:
+            print("Error while getting mass(volume)",e)
+    except Exception as e:
+        print("While accessing obb of the shape",e)
     return entity
 
 def recognize_edge(topods_edge,face_info,draft=False):
@@ -1342,6 +1380,11 @@ def recognize_edge(topods_edge,face_info,draft=False):
         entity['kind'] = "Other Curves" 
     else:
         entity['kind'] = "Unknown"   
+    try:
+        lprop=GpropsFromShape(topods_edge).linear()
+        entity['mass']=roundoff(lprop.Mass(),draft)
+    except Exception as e:
+        print("Error while getting mass(length)",e)
     return entity
 
 def get_oriented_bounding_details(shape, optimal_BB=True):

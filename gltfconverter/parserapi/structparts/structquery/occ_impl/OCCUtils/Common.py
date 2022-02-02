@@ -404,8 +404,9 @@ def fix_continuity(edge, continuity=1):
     su = ShapeUpgrade_ShapeDivideContinuity(edge)
     su.SetBoundaryCriterion(eval('GeomAbs_C'+str(continuity)))
     su.Perform()
-    te = st(su.Result())
-    return te
+    #te = str(su.Result())
+    #return te
+    return su.Result()
 
 
 def resample_curve_with_uniform_deflection(curve, deflection=0.5, degreeMin=3, degreeMax=8, continuity=GeomAbs_C2, tolerance=1e-4):
@@ -419,7 +420,7 @@ def resample_curve_with_uniform_deflection(curve, deflection=0.5, degreeMin=3, d
     defl = GCPnts_UniformDeflection(crv, deflection)
     with assert_isdone(defl, 'failed to compute UniformDeflection'):
         print("Number of points:", defl.NbPoints())
-    sampled_pnts = [defl.Value(i) for i in xrange(1, defl.NbPoints())]
+    sampled_pnts = [defl.Value(i) for i in range(1, defl.NbPoints())]
     resampled_curve = GeomAPI_PointsToBSpline(point_list_to_TColgp_Array1OfPnt(sampled_pnts), degreeMin, degreeMax, continuity, tolerance)
     return resampled_curve.Curve().GetObject()
 
@@ -493,7 +494,7 @@ def minimum_distance(shp1, shp2):
 def vertex2pnt(vertex):
     '''returns a gp_Pnt from a TopoDS_Vertex
     '''
-    from OCC.Core.Core.BRep import BRep_Tool
+    from OCC.Core.BRep import BRep_Tool
     return BRep_Tool.Pnt(vertex)
 
 
