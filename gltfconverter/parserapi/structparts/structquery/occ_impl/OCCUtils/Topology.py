@@ -586,7 +586,7 @@ def getXYZ(co_ord,draft=False):
 def getPoint(pt):
     return (roundoff(pt.X()),roundoff(pt.Y()),roundoff(pt.Z()))
 
-def to_np_from_tcolstd_array1_real(tcol_array):
+def to_np_from_tcolstd_array1_real(tcol_array,draft=False):
     """
     Convert OCC data to NumPy array.
 
@@ -600,7 +600,7 @@ def to_np_from_tcolstd_array1_real(tcol_array):
     array = zeros(n, dtype=float)
     for i in range(n):
         x = tcol_array.Value(i + 1)
-        array[i] = x
+        array[i] = roundoff(x,draft) if draft else x
     return array.tolist()
 
 
@@ -622,7 +622,7 @@ def to_np_from_tcolstd_array1_integer(tcol_array):
     return array.tolist()
 
 
-def to_np_from_tcolgp_array1_pnt(tcol_array):
+def to_np_from_tcolgp_array1_pnt(tcol_array,draft=False):
     """
     Convert OCC data to NumPy array.
 
@@ -636,11 +636,11 @@ def to_np_from_tcolgp_array1_pnt(tcol_array):
     array = zeros((n, 3), dtype=float)
     for i in range(n):
         p = tcol_array.Value(i + 1)
-        array[i, :] = p.X(), p.Y(), p.Z()
+        array[i, :] = (roundoff(p.X(),draft), roundoff(p.Y(),draft), roundoff(p.Z(),draft)) if draft else (p.X(), p.Y(), p.Z())
     return array.tolist()
 
 
-def to_np_from_tcolgp_array2_pnt(tcol_array):
+def to_np_from_tcolgp_array2_pnt(tcol_array,draft=False):
     """
     Convert OCC data to NumPy array.
 
@@ -655,11 +655,11 @@ def to_np_from_tcolgp_array2_pnt(tcol_array):
     for i in range(n):
         for j in range(m):
             p = tcol_array.Value(i + 1, j + 1)
-            array[i, j, :] = p.X(), p.Y(), p.Z()
+            array[i, j, :] = (roundoff(p.X(),draft), roundoff(p.Y(),draft), roundoff(p.Z(),draft)) if draft else (p.X(), p.Y(), p.Z())
     return array.tolist()
 
 
-def to_np_from_tcolstd_array2_real(tcol_array):
+def to_np_from_tcolstd_array2_real(tcol_array,draft=False):
     """
     Convert OCC data to NumPy array.
 
@@ -674,7 +674,7 @@ def to_np_from_tcolstd_array2_real(tcol_array):
     for i in range(n):
         for j in range(m):
             x = tcol_array.Value(i + 1, j + 1)
-            array[i, j] = x
+            array[i, j] = roundoff(x,draft) if draft else x
     return array.tolist()
 ##################################
 # Recognize functions
@@ -1075,7 +1075,7 @@ def recognize_face(topods_face,draft=False):
         except:
             pass
 
-        entity['uknots']=to_np_from_tcolstd_array1_real(tcol_array)       
+        entity['uknots']=to_np_from_tcolstd_array1_real(tcol_array,draft)       
         tcol_array = TColStd_Array1OfInteger(1, nurbs.NbUKnots())
         try:
             nurbs.UMultiplicities(tcol_array)
@@ -1087,7 +1087,7 @@ def recognize_face(topods_face,draft=False):
             nurbs.UKnotSequence(tcol_knot_seq)
         except:
             pass
-        entity['usequences']=to_np_from_tcolstd_array1_real(tcol_knot_seq)
+        entity['usequences']=to_np_from_tcolstd_array1_real(tcol_knot_seq,draft)
         
         entity['vdegree']=nurbs.VDegree()
         entity['vperiodic']=nurbs.IsVPeriodic()
@@ -1097,7 +1097,7 @@ def recognize_face(topods_face,draft=False):
             nurbs.VKnots(tcol_array)
         except:
             pass    
-        entity['vknots']=to_np_from_tcolstd_array1_real(tcol_array)       
+        entity['vknots']=to_np_from_tcolstd_array1_real(tcol_array,draft)       
         tcol_array = TColStd_Array1OfInteger(1, nurbs.NbVKnots())
         try:
             nurbs.VMultiplicities(tcol_array)
@@ -1111,20 +1111,20 @@ def recognize_face(topods_face,draft=False):
         except:
             pass
         #print("I have got errors here?")
-        entity['vsequences']=to_np_from_tcolstd_array1_real(tcol_knot_seq)
+        entity['vsequences']=to_np_from_tcolstd_array1_real(tcol_knot_seq,draft)
 
         tcol_array = TColgp_Array2OfPnt(1, nurbs.NbUPoles(), 1, nurbs.NbVPoles())
         try:
             nurbs.Poles(tcol_array)
         except:
             pass
-        entity['poles'] = to_np_from_tcolgp_array2_pnt(tcol_array)
+        entity['poles'] = to_np_from_tcolgp_array2_pnt(tcol_array,draft)
         tcol_array = TColStd_Array2OfReal(1, nurbs.NbUPoles(), 1, nurbs.NbVPoles())
         try:
             nurbs.Weights(tcol_array)
         except:
             pass
-        entity['weights'] = to_np_from_tcolstd_array2_real(tcol_array)
+        entity['weights'] = to_np_from_tcolstd_array2_real(tcol_array,draft)
         return entity
     elif surf_type == GeomAbs_SurfaceOfRevolution:
         entity['kind'] = "Revolution"
@@ -1313,7 +1313,7 @@ def recognize_edge(topods_edge,face_info,draft=False):
             gp_nurbs.Knots(tcol_array) 
         except:
             pass       
-        entity['knots']=to_np_from_tcolstd_array1_real(tcol_array)  
+        entity['knots']=to_np_from_tcolstd_array1_real(tcol_array,draft)  
         tcol_array = TColStd_Array1OfInteger(1, knot)
         try:
             gp_nurbs.Multiplicities(tcol_array)
@@ -1325,19 +1325,19 @@ def recognize_edge(topods_edge,face_info,draft=False):
             gp_nurbs.KnotSequence(tcol_knot_seq)
         except:
             pass
-        entity['sequences']=to_np_from_tcolstd_array1_real(tcol_knot_seq)
+        entity['sequences']=to_np_from_tcolstd_array1_real(tcol_knot_seq,draft)
         tcol_array = TColgp_Array1OfPnt(1, pole)
         try:
             gp_nurbs.Poles(tcol_array)
         except:
             pass        
-        entity['poles']=to_np_from_tcolgp_array1_pnt(tcol_array)
+        entity['poles']=to_np_from_tcolgp_array1_pnt(tcol_array,draft)
         tcol_array = TColStd_Array1OfReal(1, gp_nurbs.NbPoles())
         try:
             gp_nurbs.Weights(tcol_array)
         except:
             pass
-        entity['weights']=to_np_from_tcolstd_array1_real(tcol_array)
+        entity['weights']=to_np_from_tcolstd_array1_real(tcol_array,draft)
     elif curve_type == GeomAbs_OtherCurve:
         entity['kind'] = "Other Curves" 
     else:
