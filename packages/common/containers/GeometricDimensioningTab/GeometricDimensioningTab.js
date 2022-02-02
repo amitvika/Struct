@@ -1277,6 +1277,8 @@ export default function GeometricDimensioningTab(props) {
             structure.objects[structure.start + index]['obb'] = elementCopy(
               element[0].obb
             );
+            structure.objects[structure.start + index]['mass'] =
+              element[0].Info['mass'];
             structure.objects[structure.start + index]['axis'] = element[0]
               .Info['direction']
               ? elementCopy(element[0].Info['direction'])
