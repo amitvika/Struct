@@ -6814,8 +6814,19 @@ class StepIgesAnalyser():
                             myCurrent+=1
                             if compareDictionary["vertexEquals"] or compareDictionary["isEqual"]:
                                 self.matched.append(\
-                                    (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename,storageSerializer.tab_suffix))
+                                    ((self.refname,self.refid,self.fname),\
+                                        (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+                                            (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
                                 self.write_status(0,"Compared "+str(myCurrent),myTotal,myCurrent)
+                                try:
+                                    storageSerializer.matched_across.append(\
+                                        ((self.refname,self.refid,self.fname),\
+                                            (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+                                                (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
+                                    s3StorageValue = storageSerializer.s3storage if (storageSerializer.s3storage is not None) else False
+                                    controllers.ParsingDetailsController().s3update(storageSerializer, s3StorageValue )
+                                except Exception as e:
+                                    print("Exception while saving records",e)
                         else:
                             myCurrent+=1
                 else:
