@@ -6775,6 +6775,50 @@ class StepIgesAnalyser():
                         "comparepercent":self.comparepercent},
              "display":COPY_PATH+self.displaypath
         }
+        if ( (self.suffixname != "M") and (self.suffixname != "S") and \
+            (self.suffixname != "K") and (self.suffixname != "R") and (self.suffixname != "A") ):
+            if self.comparechildren:           
+                statusfileToCompare = self.displaypath+self.basefilename   
+                self.write_status(0,"Started Identical Analysis")  
+                storageSerializers=controllers.ParsingDetailsController().identicalRecords(self.rotateddictionary["sx"],self.rotateddictionary["sy"],self.rotateddictionary["sz"],self.verticescount)
+                if((storageSerializers is not None) and len(storageSerializers)>0):
+                    myTotal = len(storageSerializers)
+                    self.comparetotal = myTotal
+                    myCurrent = 0
+                    self.matched=[]
+                    self.comparesub=myCurrent
+                    for storageSerializer in storageSerializers:
+                        filenameRecorded = storageSerializer.filename   
+                        print("What I Got as storageSerializer",storageSerializer)                                           
+                        if (filenameRecorded != self.fname):
+                            compareDictionary=StepExportWithColor().compareToCheckIdentity(\
+                                self.fullZeroShape,dict_return["status"],self.fname,filenameRecorded,self.distancegap,self.anglegap,\
+                                    statusfileToCompare,self.starttime,self.write_status,myTotal,myCurrent)
+                            myCurrent+=1
+                            if compareDictionary["vertexEquals"] or compareDictionary["isEqual"]:
+                                self.matched.append(\
+                                    ((self.refname,self.refid,self.fname),\
+                                        (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+                                            (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
+                                self.write_status(0,"Compared "+str(myCurrent),myTotal,myCurrent)
+                                try:
+                                    storageSerializer.matched_across.append(\
+                                        ((self.refname,self.refid,self.fname),\
+                                            (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+                                                (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
+                                    s3StorageValue = storageSerializer.s3storage if (storageSerializer.s3storage is not None) else False
+                                    controllers.ParsingDetailsController().s3update(storageSerializer, s3StorageValue )
+                                except Exception as e:
+                                    print("Exception while saving records",e)
+                        else:
+                            myCurrent+=1
+                        self.comparesub=myCurrent 
+                else:
+                    myTotal=0
+                self.comparepercent=100
+                self.comparetotal=myTotal
+                self.comparesub=myTotal
+                self.write_status(0,"Compared "+str(myTotal),myTotal,myTotal,100)
         if self.writethread:
             mythread = threading.Thread(target=self.write_in_thread, daemon=True, args=(dict_return,getPNG,True))
             mythread.start()
@@ -6790,7 +6834,7 @@ class StepIgesAnalyser():
             except Exception as e:
                 print("Error while writing axisfile",e,"Writingglobal",WritingGlobalAxisAndAngle)
         self.percentage = 100
-        self.write_status(0)
+        self.write_status(0,"Completed parsing step file to assemblies")
         #self.write_status(0) #sometimes write_status fails because when in another thread there is a read command..
         #self.mstep_dict['tree']=self.tstep_dict['tree']
 
@@ -6817,42 +6861,45 @@ class StepIgesAnalyser():
             (self.suffixname != "K") and (self.suffixname != "R") and (self.suffixname != "A") ):
             #orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
             #    self.scene_max[0],self.scene_max[1],self.scene_max[2])
-            if self.comparechildren:           
-                statusfileToCompare = self.displaypath+self.basefilename   
-                self.write_status(0,"Started Identical Analysis")  
-                storageSerializers=controllers.ParsingDetailsController().identicalRecords(self.rotateddictionary["sx"],self.rotateddictionary["sy"],self.rotateddictionary["sz"],self.verticescount)
-                if((storageSerializers is not None) and len(storageSerializers)>0):
-                    myTotal = len(storageSerializers)
-                    myCurrent = 0
-                    self.matched=[]
-                    for storageSerializer in storageSerializers:
-                        filenameRecorded = storageSerializer.filename   
-                        print("What I Got as storageSerializer",storageSerializer)                    
-                        if (filenameRecorded != self.fname):
-                            compareDictionary=StepExportWithColor().compareToCheckIdentity(\
-                                self.fullZeroShape,dict_return["status"],self.fname,filenameRecorded,self.distancegap,self.anglegap,\
-                                    statusfileToCompare,self.starttime,self.write_status,myTotal,myCurrent)
-                            myCurrent+=1
-                            if compareDictionary["vertexEquals"] or compareDictionary["isEqual"]:
-                                self.matched.append(\
-                                    ((self.refname,self.refid,self.fname),\
-                                        (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
-                                            (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
-                                self.write_status(0,"Compared "+str(myCurrent),myTotal,myCurrent)
-                                try:
-                                    storageSerializer.matched_across.append(\
-                                        ((self.refname,self.refid,self.fname),\
-                                            (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
-                                                (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
-                                    s3StorageValue = storageSerializer.s3storage if (storageSerializer.s3storage is not None) else False
-                                    controllers.ParsingDetailsController().s3update(storageSerializer, s3StorageValue )
-                                except Exception as e:
-                                    print("Exception while saving records",e)
-                        else:
-                            myCurrent+=1
-                else:
-                    myTotal=0
-                self.write_status(0,"Compared "+str(myTotal),myTotal,myTotal,100)
+            # if self.comparechildren:           
+            #     statusfileToCompare = self.displaypath+self.basefilename   
+            #     self.write_status(0,"Started Identical Analysis")  
+            #     storageSerializers=controllers.ParsingDetailsController().identicalRecords(self.rotateddictionary["sx"],self.rotateddictionary["sy"],self.rotateddictionary["sz"],self.verticescount)
+            #     if((storageSerializers is not None) and len(storageSerializers)>0):
+            #         myTotal = len(storageSerializers)
+            #         self.comparetotal = myTotal
+            #         myCurrent = 0
+            #         self.matched=[]
+            #         self.comparesub=myCurrent
+            #         for storageSerializer in storageSerializers:
+            #             filenameRecorded = storageSerializer.filename   
+            #             print("What I Got as storageSerializer",storageSerializer)                                           
+            #             if (filenameRecorded != self.fname):
+            #                 compareDictionary=StepExportWithColor().compareToCheckIdentity(\
+            #                     self.fullZeroShape,dict_return["status"],self.fname,filenameRecorded,self.distancegap,self.anglegap,\
+            #                         statusfileToCompare,self.starttime,self.write_status,myTotal,myCurrent)
+            #                 myCurrent+=1
+            #                 if compareDictionary["vertexEquals"] or compareDictionary["isEqual"]:
+            #                     self.matched.append(\
+            #                         ((self.refname,self.refid,self.fname),\
+            #                             (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+            #                                 (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
+            #                     self.write_status(0,"Compared "+str(myCurrent),myTotal,myCurrent)
+            #                     try:
+            #                         storageSerializer.matched_across.append(\
+            #                             ((self.refname,self.refid,self.fname),\
+            #                                 (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+            #                                     (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
+            #                         s3StorageValue = storageSerializer.s3storage if (storageSerializer.s3storage is not None) else False
+            #                         controllers.ParsingDetailsController().s3update(storageSerializer, s3StorageValue )
+            #                     except Exception as e:
+            #                         print("Exception while saving records",e)
+            #             else:
+            #                 myCurrent+=1
+            #             self.comparesub=myCurrent 
+            #     else:
+            #         myTotal=0
+            #     self.write_status(0,"Compared "+str(myTotal),myTotal,myTotal,100)
             if self.CreateChildSteps:
                 print("Starting Child Steps",self.fname)
                 """ self.write_progress(maxgap=0,action='Child Items Started')  """
