@@ -107,6 +107,14 @@ const Administrative = () => {
               />
               <Tab label="Criteria Upload" value={4} className="tab" />
               <Tab label="Configuration History" value={5} className="tab" />
+              <Tab label="Process Scripts" value={6} className="tab" />
+              <Tab label="Tool Library" value={7} className="tab" />
+              <Tab label="Motion Control Library" value={8} className="tab" />
+              <Tab
+                label="Cell and Scaffolding Library"
+                value={9}
+                className="tab"
+              />
             </Tabs>
           </Paper>
         </Grid>

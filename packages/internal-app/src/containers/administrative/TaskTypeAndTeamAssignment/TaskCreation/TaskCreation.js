@@ -5,6 +5,7 @@ import Select from '@monostruct/common/components/atoms/Select';
 import Button from '@mui/material/Button';
 import FileHistory from '@monostruct/common/containers/FileHistory';
 import ImageAnnotationExcelUI from './ImageAnnotationExcelUI';
+import InteractiveTaskExcelUI from './InteractiveTaskExcelUI';
 
 export default function TaskCreation() {
   const [state, _setState] = useState({
@@ -25,15 +26,18 @@ export default function TaskCreation() {
       <Grid item xs={10}>
         <Select
           placeholder="Select"
-          options={['Classification', 'Segmentation'].map((option) => ({
-            label: option,
-            value: option
-          }))}
+          options={['Classification', 'Segmentation', 'Interactive Task'].map(
+            (option) => ({
+              label: option,
+              value: option
+            })
+          )}
           onChange={handleTaskTypeChange}
           value={state.task_type}
         />
       </Grid>
       {state.task_type === 'Classification' ? <ClassificationForm /> : null}
+      {state.task_type === 'Interactive Task' ? <InteractiveTask /> : null}
     </Grid>
   );
 }
@@ -43,6 +47,13 @@ const ClassificationForm = () => {
     <>
       <ZipFileImageUpload />
       <ImageAnnotationExcelUI />
+    </>
+  );
+};
+const InteractiveTask = () => {
+  return (
+    <>
+      <InteractiveTaskExcelUI />
     </>
   );
 };
