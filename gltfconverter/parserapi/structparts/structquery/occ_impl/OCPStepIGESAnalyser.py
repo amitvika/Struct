@@ -6,7 +6,7 @@ import shutil
 import re
 import struct
 import base64
-import zlib
+#import zlib
 from io import BytesIO
 #from itertools import chain
 from copy import  deepcopy
@@ -27,8 +27,9 @@ import uuid
 #from glob import glob
 
 import logging
+from pathlib import Path
 
-from tinydb import Storage
+#from tinydb import Storage
 #from rest_framework import status
 
 #from six import MovedAttribute
@@ -82,7 +83,7 @@ from OCC.Core.GeomAbs import GeomAbs_Circle #, GeomAbs_Line
 #from OCC.Core.GCPnts import GCPnts_AbscissaPoint
 #from .OCCUtils.vertex import Vertex
 #from .OCCUtils import Topology
-from .OCCUtils.Topology import (dumpTopologyStructures, 
+from .OCCUtils.Topology import (GpropsFromShape, dumpTopologyStructures, 
                                 dumpTopologyFacesEdgesVertices,
                                 dumpTopologySolids,
                                 shapeString, 
@@ -94,16 +95,17 @@ from .OCCUtils.Topology import (dumpTopologyStructures,
                                 Topo )
 
 from .OCCExtend.TopologyUtils import list_of_shapes_to_compound
+from . import OCPImporters
 from .. import assembly #,cq
- 
-from .OCPShapes import Shape
+from ... import conversion
+from .OCPShapes import Shape, Vertex
 from .OCPAssembly import Color
 
 #from ... import Assembly
 from .OCCExtend.ShapeFactory import (
     recognize_direction, recognize_curve, recognize_face_entity, 
     get_circle_info, rotate_shape, get_oriented_bounding_details,
-    getDictionaryFromOBB, translate_shp, rotate_shp_3_axis )
+    getDictionaryFromOBB, roundoff, translate_shp, rotate_shp_3_axis )
 from ....thumbnail.thumbnail import createThumbnail
 from .gltfDictionary import gltfdict
 from .Quaternion import Quaternion
@@ -1307,8 +1309,214 @@ class StepExportWithColor(object):
         except Exception as e:
             print("Error while wrting",statusfilename,e)
         return mystatusdict
+    
+    def readStatusInfo(self,sourceFileName,suffixname='3'):
+        if sourceFileName:
+            head, tail = os.path.split(sourceFileName)
+            if(head[-1]!="/"):
+                #print("Head does not contain last /",head)
+                head = head + "/"
+            #else:
+            #    #print("Head contains last /",head)
+            #    #pass
+            displaypath=''
+            MediaURLLength = len(MEDIA_URL)
+            if head[0:MediaURLLength]==MEDIA_URL:
+                displaypath = DISPLAY_URL+head[MediaURLLength:]
+            else:
+                displaypath = head
+            print("Conversion path",displaypath)
+            pathfilename, _ = os.path.splitext(tail)
+            basefilename = pathfilename+suffixname
+        else:
+            basefilename = "./"
+            displaypath= DISPLAY_URL
+        statusfilename = displaypath+basefilename+".status"
+        head, _ = os.path.split(statusfilename) 
+        DisplayURLLength = len(DISPLAY_URL)
+        if head[0:DisplayURLLength]==DISPLAY_URL:
+            fileuuid = head[DisplayURLLength:]
+            if fileuuid[-1]=='/':
+                fileuuid=fileuuid[:-1]
+        else:
+            fileuuid=None
+        if not os.path.isfile(statusfilename):
+            statusfilename = S3_BUCKET+statusfilename
+            if not os.path.isfile(statusfilename):
+                print("checking existance of",statusfilename)
+                statusfilename = None
+        statusArray={}
+        if statusfilename:
+            data=None        
+            with open(statusfilename, "r") as f:
+                data = f.read()
+            if data:
+                statusArray = json.loads(data)
+        print("Status Info",statusArray,fileuuid,statusfilename)
+        return statusArray, fileuuid, statusfilename, basefilename
 
-    def writeProgress(self, maxgap=10, action='',childfiles=[]):
+    def createShapeArray(self, shapes):
+        shapeArray=[]
+        myID=0
+        for aShape in shapes:
+            myID += 1
+            shapeArray.append((aShape,"ID"+str(myID),None))
+        return shapeArray
+    
+    def getVolume(self,fullZeroShape):
+        massvolume=0
+        try:
+            vprops = GpropsFromShape(fullZeroShape).volume()
+            massvolume = roundoff(vprops.Mass(),True)
+        except Exception as e:
+            print("Error while finding mass(volume)",e)
+        return massvolume
+
+    def getOutputShapesFromSourceFile(self,originalFileName,distancegap,anglegap,statusfilename,comparedict,starttime=None,fileNo=1,statusArray={}):#,thumbwidth,thumbheight):
+        """
+        Imports a file based on the type (STEP, IGES, BREP, STL)    
+        """
+        #Now read and return the shape
+    
+        try:
+            doNotBringToOrigin = ((statusArray is not None) and ("zerostep" in statusArray))
+            if doNotBringToOrigin:
+                print("Status Array",statusArray)
+                sourceFileName = statusArray["zerostep"]
+                if not os.path.isfile(sourceFileName):
+                    doNotBringToOrigin = False
+                    sourceFileName = originalFileName
+            else:
+                sourceFileName = originalFileName   
+            print("sourceFileName To Parse",sourceFileName,originalFileName,doNotBringToOrigin)         
+            dictionary={}
+            _, file_extension = os.path.splitext(sourceFileName)
+            file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
+            file_extension = file_extension.lower()
+            newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
+            newfilename = newfilenamewithoutext + ".step"
+            outputShapes={}
+            if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :         
+                
+                try:
+                    (_, outputShapes, dictionary) = StepIgesAnalyser(
+                        filename=sourceFileName,includeparts=False,distancegap=distancegap, logging=logging, 
+                        anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
+                        edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0).dump()
+                except Exception as e:
+                    print("error",e)
+        
+            if file_extension=="stl" :            
+                try:
+                    shape = conversion.read_stl_file(sourceFileName, as_compound=False)
+                    (_, outputShapes, dictionary) = StepIgesAnalyser(
+                        filename=sourceFileName,shapeslist=self.createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                        anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
+                        thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()
+                except Exception as e:
+                    print("error",e)
+            
+            if file_extension=="brep" :            
+                try:
+                    shape = conversion.read_brep_file(sourceFileName, as_compound=False)
+                    (_, outputShapes, dictionary) = StepIgesAnalyser(
+                        filename=sourceFileName,shapeslist=self.createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                        anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
+                        thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0).dump()                
+                except Exception as e:
+                    print("error",e)
+            
+            if file_extension=="dxf" :            
+                try:
+                    shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
+                    (_, outputShapes, dictionary) = StepIgesAnalyser(
+                        filename=sourceFileName,shapeslist=self.createShapeArray(shape),distancegap=distancegap,
+                        anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
+                        thumbwidth=0,thumbheight=0).dump()                 
+                except Exception as e:
+                    print("error",e)
+            
+            try:
+                self.setComparisonDictionary(statusfilename,10*fileNo,starttime,comparedict,False)
+                _, myShapes = outputShapes
+                _,onlyShapes,_,_,_ = self.getShapesFromOutPutShapes(myShapes,1,dictionary["tree"],len(dictionary["tree"]),'')
+                if doNotBringToOrigin:
+                    fullZeroShape,_ = list_of_shapes_to_compound(onlyShapes,True)
+                    dict_return = statusArray
+                else:
+                    partscount=len(onlyShapes)
+                    fullAssemblyShape,_ = list_of_shapes_to_compound(onlyShapes,True)
+                    assembly_faces_dict = {}
+                    assembly_edges_dict = {}
+                    assembly_vertices_dict = {}
+                    dumpTopologyFacesEdgesVertices(fullAssemblyShape,assembly_faces_dict,assembly_edges_dict,assembly_vertices_dict)
+                    facescount=len(assembly_faces_dict)
+                    edgescount=len(assembly_edges_dict)
+                    verticescount=len(assembly_vertices_dict)        
+                    thisAssemblydimension = get_oriented_bounding_details(fullAssemblyShape)                        
+                    thisAssemblydictionary = getDictionaryFromOBB(thisAssemblydimension,True)
+                    zerostep = sourceFileName+"ZeroRotatedOrigin.step"
+                    fullZeroShape, fullZeroDictionary, fullRotatedDictionary, center, rotation = self.\
+                        bringToOriginAndToUnitAxis(fullAssemblyShape,thisAssemblydimension,thisAssemblydictionary,zerostep)
+                    massvolume = self.getVolume(fullZeroShape)
+                    dict_return= (dictionary["status"] if "status" in dictionary else {} ) if dictionary else {} 
+                    dict_return["parts"]=partscount
+                    dict_return["faces"]=facescount
+                    dict_return["edges"]=edgescount
+                    dict_return["vertices"]=verticescount
+                    dict_return["mass"]=massvolume
+                    dict_return["obbPosition"]=thisAssemblydictionary
+                    dict_return["obbOrigin"]=fullZeroDictionary
+                    dict_return["obbRotated"]=fullRotatedDictionary 
+                    dict_return["center"]=center 
+                    dict_return["rotation"]=rotation 
+                    dict_return["zerostep"]=zerostep 
+                return (fullZeroShape,dict_return)
+
+            except Exception as e:
+                print("error",e) 
+                
+            return (None,statusArray)
+        except Exception as e:
+            print("error",e) 
+            return (None,statusArray)
+            #raise ValueError("File Could not be loaded") 
+        except:
+            print("Unknown system error occured")
+            return (None,statusArray)
+
+    def compareToCheckIdentity(self,fullZeroShape1,statusArray1,sourceFileName1,sourceFileName2,distancegap,anglegap,statusfile,starttime=None,updateprogressfile=None,comparechild=0,comparesub=0):#,thumbwidth,thumbheight):
+        dictionary={
+            "source1":sourceFileName1,
+            "source2":sourceFileName2,
+            "node1":0,
+            "node2":0,
+            "isEqual":False,
+            "vertexEquals":False }
+        if (sourceFileName1 is not None) and sourceFileName1 and (sourceFileName2 is not None) and sourceFileName2:
+            try:               
+                statusArray2, uuid2, _, basefilename2 = self.readStatusInfo(sourceFileName2)    
+                statusfilename = statusfile+uuid2+basefilename2+".status"        
+                dictionary["obbstruct1"]=statusArray1
+                self.setComparisonDictionary(statusfilename,15,starttime,dictionary,False,updateprogressfile,comparechild,comparesub)
+                fullZeroShape2, statusArray2 = self.getOutputShapesFromSourceFile(sourceFileName2,distancegap,anglegap,statusfilename,dictionary,starttime,2,statusArray2)
+                dictionary["obbstruct2"]=statusArray2
+                self.setComparisonDictionary(statusfilename,25,starttime,dictionary,False,updateprogressfile,comparechild,comparesub)
+                dictionary = self.compareToCheckIdentityShapesOriginated(dictionary,fullZeroShape1,fullZeroShape2,statusfilename,starttime,updateprogressfile,comparechild,comparesub)
+                #OCPStepIGESAnalyser.StepExportWithColor().compareToCheckIdentityShapes(sourceFileName1,sourceFileName2,onlyShapes1,onlyShapes2,statusfilename,starttime,None)
+                return dictionary
+            except Exception as e:
+                dictionary["error"]=str(e)
+                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,updateprogressfile,comparechild,comparesub) 
+                return dictionary
+        else:
+            statusfilename=statusfile+"Noname"+".status"
+            print("Got Empty Filename?",sourceFileName1,sourceFileName2,statusfilename)
+        self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,updateprogressfile,comparechild,comparesub)
+        return dictionary
+        #raise ValueError("File Could not be loaded") 
+
+    def writeProgress(self, maxgap=10, action='',childfiles=[],childpercent=0,comparechild=0,comparesub=0,comparepercent=0):
         currenttime = datetime.utcnow()
         mystatusdict =  {
             "begin":self.assemblycreatedcurrentcount,
@@ -1319,7 +1527,11 @@ class StepExportWithColor(object):
             "createchilds":self.CreateChildSteps,
             "createorder":self.CreateAssemblyOrder,
             "createstack":self.CreateStackability,
-            "childfiles":childfiles }
+            "childfiles":childfiles,
+            "childpercent":childpercent,
+            "comparechild":comparechild,
+            "comparesub":comparesub,
+            "comparepercent":comparepercent }
         try:            
             timingdelta = currenttime-self.currenttime            
             if (timingdelta.total_seconds() >= maxgap) or (maxgap==0):        
@@ -1637,57 +1849,63 @@ class StepExportWithColor(object):
                 lengthCheck+=1
                 if lengthCheck >=treeLength:
                     break
-            myChildAssemblyOutputShapesLen = len(myChildAssemblyOutputShapes)
-            for childShapesIndex in range(myChildAssemblyOutputShapesLen):
-                myAssemblyChildInfo = assemblyNames[childShapesIndex]
-                #statusChildTree,childOutputShapes,childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
-                childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
-                self.writeProgress()
-                for compareShapesIndex in range(childShapesIndex+1,myChildAssemblyOutputShapesLen):
-                    self.writeProgress()
+            if comparechildren:
+                self.writeProgress(0,"Started Comparing Childs")
+                myChildAssemblyOutputShapesLen = len(myChildAssemblyOutputShapes)
+                for childShapesIndex in range(myChildAssemblyOutputShapesLen):
                     myAssemblyChildInfo = assemblyNames[childShapesIndex]
-                    myAssemblyCompareInfo = assemblyNames[compareShapesIndex]
-                    #statusCompareTree,compareOutputShapes,compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
-                    compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
-                    (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
-                    (uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)=myAssemblyCompareInfo
-                    compareStatusFileName='Display/'+uuidname1+'/'+uniquename1+uniquename2+".status"
-                    #compareStepFileName='Media/'+uuidname1+'/'+uniquename1+uniquename2
-                    sourceAssemblyFileName1,sourceAssemblyFileName2='Media/'+uuidname1+'/'+uniquename1,'Media/'+uuidname2+'/'+uniquename2
-                    compareDictionary={
-                        "source1":sourceAssemblyFileName1,
-                        "source2":sourceAssemblyFileName2,
-                        "node1":nodeCount1,
-                        "node2":nodeCount2,
-                        "isEqual":False,
-                        "vertexEquals":False,
-                        'obbstruct1':statusArray1,
-                        'obbstruct2':statusArray2}
-                    retDictionary = compareDictionary
-                    self.setComparisonDictionary(compareStatusFileName,10,starttime,compareDictionary,True)
-                    if(self.compareStatusArrays(statusArray1,statusArray2)):
-                        # _,onlyShapes1,_,_,_ = self.getShapesFromOutPutShapes(childOutputShapes,1,statusChildTree,treeLength1,'')
-                        # self.setComparisonDictionary(compareStatusFileName,15,starttime,compareDictionary,False)
-                        # _,onlyShapes2,_,_,_ = self.getShapesFromOutPutShapes(compareOutputShapes,1,statusCompareTree,treeLength2,'')
-                        # self.setComparisonDictionary(compareStatusFileName,25,starttime,compareDictionary,False)
-                        # retDictionary = self.compareToCheckIdentityShapes(sourceAssemblyFileName1,sourceAssemblyFileName2,onlyShapes1,onlyShapes2,compareStatusFileName,starttime,compareStepFileName)
-                        retDictionary = self.compareToCheckIdentityShapesOriginated(compareDictionary,childFullAssemblyZeroShape,compareFullAssemblyZeroShape,compareStatusFileName,starttime)
-        
-                    if(retDictionary["vertexEquals"] or retDictionary["isEqual"]):
-                        equalsDict1.append(\
-                            ((uuidname1,uniquename1,treeName1,treeDisplay1),\
-                                (uuidname2,uniquename2,treeName2,treeDisplay2),\
-                                    (retDictionary["vertexEquals"],retDictionary["isEqual"])))
-                        myAssemblyChildInfo=(uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)
-                        assemblyNames[childShapesIndex]=myAssemblyChildInfo
-                        equalsDict2.append(\
-                            ((uuidname1,uniquename1,treeName1,treeDisplay1),\
-                                (uuidname2,uniquename2,treeName2,treeDisplay2),\
-                                    (retDictionary["vertexEquals"],retDictionary["isEqual"])))
-                        myAssemblyCompareInfo=(uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)
-                        assemblyNames[compareShapesIndex]=myAssemblyCompareInfo
+                    #statusChildTree,childOutputShapes,childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
+                    childFullAssemblyZeroShape = myChildAssemblyOutputShapes[childShapesIndex]
+                    self.writeProgress(comparechild=childShapesIndex)
+                    for compareShapesIndex in range(childShapesIndex+1,myChildAssemblyOutputShapesLen):
+                        self.writeProgress(comparechild=childShapesIndex,comparesub=compareShapesIndex)
+                        myAssemblyChildInfo = assemblyNames[childShapesIndex]
+                        myAssemblyCompareInfo = assemblyNames[compareShapesIndex]
+                        #statusCompareTree,compareOutputShapes,compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
+                        compareFullAssemblyZeroShape = myChildAssemblyOutputShapes[compareShapesIndex]
+                        (uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)=myAssemblyChildInfo
+                        (uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)=myAssemblyCompareInfo
+                        compareStatusFileName='Display/'+uuidname1+'/'+uniquename1+uuidname2+uniquename2+".status"
+                        #compareStepFileName='Media/'+uuidname1+'/'+uniquename1+uniquename2
+                        sourceAssemblyFileName1,sourceAssemblyFileName2='Media/'+uuidname1+'/'+uniquename1,'Media/'+uuidname2+'/'+uniquename2
+                        compareDictionary={
+                            "source1":sourceAssemblyFileName1,
+                            "source2":sourceAssemblyFileName2,
+                            "node1":nodeCount1,
+                            "node2":nodeCount2,
+                            "isEqual":False,
+                            "vertexEquals":False,
+                            'obbstruct1':statusArray1,
+                            'obbstruct2':statusArray2}
+                        retDictionary = compareDictionary
+                        self.setComparisonDictionary(compareStatusFileName,10,starttime,compareDictionary,True,self.writeProgress,childShapesIndex,compareShapesIndex)
+
+                        if(self.compareStatusArrays(statusArray1,statusArray2)):
+                            # _,onlyShapes1,_,_,_ = self.getShapesFromOutPutShapes(childOutputShapes,1,statusChildTree,treeLength1,'')
+                            # self.setComparisonDictionary(compareStatusFileName,15,starttime,compareDictionary,False)
+                            # _,onlyShapes2,_,_,_ = self.getShapesFromOutPutShapes(compareOutputShapes,1,statusCompareTree,treeLength2,'')
+                            # self.setComparisonDictionary(compareStatusFileName,25,starttime,compareDictionary,False)
+                            # retDictionary = self.compareToCheckIdentityShapes(sourceAssemblyFileName1,sourceAssemblyFileName2,onlyShapes1,onlyShapes2,compareStatusFileName,starttime,compareStepFileName)
+                            retDictionary = self.compareToCheckIdentityShapesOriginated(compareDictionary,childFullAssemblyZeroShape,compareFullAssemblyZeroShape,compareStatusFileName,starttime,self.writeProgress,childShapesIndex,compareShapesIndex)
+            
+                        if(retDictionary["vertexEquals"] or retDictionary["isEqual"]):
+                            equalsDict1.append(\
+                                ((uuidname1,uniquename1,treeName1,treeDisplay1),\
+                                    (uuidname2,uniquename2,treeName2,treeDisplay2),\
+                                        (retDictionary["vertexEquals"],retDictionary["isEqual"])))
+                            myAssemblyChildInfo=(uuidname1,uniquename1,treeName1,nodeCount1,treeLength1,treeDisplay1,statusArray1,equalsDict1)
+                            assemblyNames[childShapesIndex]=myAssemblyChildInfo
+                            equalsDict2.append(\
+                                ((uuidname1,uniquename1,treeName1,treeDisplay1),\
+                                    (uuidname2,uniquename2,treeName2,treeDisplay2),\
+                                        (retDictionary["vertexEquals"],retDictionary["isEqual"])))
+                            myAssemblyCompareInfo=(uuidname2,uniquename2,treeName2,nodeCount2,treeLength2,treeDisplay2,statusArray2,equalsDict2)
+                            assemblyNames[compareShapesIndex]=myAssemblyCompareInfo
+                self.writeProgress(0,"Completed Comparing Childs",comparechild=myChildAssemblyOutputShapesLen,comparesub=myChildAssemblyOutputShapesLen,comparepercent=100)
+            
             self.assemblycreatedcurrentcount = totalcount
-            self.writeProgress(0,"Completed",assemblyNames)
+            self.writeProgress(0,"Completed",assemblyNames,100,\
+                totalcount if comparechildren else 0, totalcount if comparechildren else 0, 100 if comparechildren else 0)
             return  (addedAssembly,assemblyNames)
         self.writeProgress(0,totalcount,"No Child") 
         return (addedAssembly,None)
@@ -1939,7 +2157,7 @@ class StepExportWithColor(object):
             brep_trns = BRepBuilderAPI_Transform(fullZeroShape1, aLoc, True)
             fullZeroShape2 = brep_trns.Shape()
             thisdimension2 = get_oriented_bounding_details(fullZeroShape2) 
-            thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2,True)
+            thisRotateddictionary2 = getDictionaryFromOBB(thisdimension2)
         else:
             fullZeroShape2=fullZeroShape1
             thisdimension2 = thisRotateddimension1 
@@ -1967,7 +2185,10 @@ class StepExportWithColor(object):
         else:
             fullZeroShape3=fullZeroShape2
             rotation=(0,0,0)
-        thisdimension3 = get_oriented_bounding_details(fullZeroShape3) 
+        if rotation==(0,0,0):
+            thisdimension3 = thisdimension2
+        else:
+            thisdimension3 = get_oriented_bounding_details(fullZeroShape3) 
         thisRotateddictionary3 = getDictionaryFromOBB(thisdimension3,True)
         print("After Bringing x > y > z dimensions",thisRotateddictionary3,thisRotateddictionary2,thisdictionary1)
         
@@ -1978,7 +2199,7 @@ class StepExportWithColor(object):
         print("") 
         return (fullZeroShape3,thisRotateddictionary1,thisRotateddictionary3,(cx,cy,cz),rotation)
     
-    def setComparisonDictionary(self, statusfilename,percentage,starttime, mystatusdict, createdirectory):
+    def setComparisonDictionary(self, statusfilename,percentage,starttime, mystatusdict, createdirectory,updateprogressfile=None,comparechild=0,comparesub=0):
         currenttime = datetime.utcnow()  
         
         mystatusdict["status"] =  {
@@ -1994,6 +2215,11 @@ class StepExportWithColor(object):
                 fh.write(json.dumps(mystatusdict, sort_keys=True, indent=2 ))            
         except Exception as e:
             print("Error while wrting",statusfilename,e)
+        if updateprogressfile is not None:
+            try:
+                updateprogressfile(comparechild=comparechild,comparesub=comparesub,comparepercent=percentage)
+            except Exception as e:
+                print("While Updating progress file",e,percentage) 
         return mystatusdict
 
     def getFaceEdgeVertexStructures(self, face_dict1,edge_dict1,vertex_dict1):
@@ -2026,7 +2252,7 @@ class StepExportWithColor(object):
         #print(faceStruct1, edgeStruct1, vertexStruct1,faceStruct2, edgeStruct2, vertexStruct2)
         return faceStruct1==faceStruct2 and edgeStruct1==edgeStruct2 and vertexStruct1==vertexStruct2
 
-    def compareToCheckIdentityShapes(self, sourceFileName1,sourceFileName2,onlyShapes1,onlyShapes2,statusfilename,starttime=None,compareStepName=None):#,thumbwidth,thumbheight):
+    def compareToCheckIdentityShapes(self, sourceFileName1,sourceFileName2,onlyShapes1,onlyShapes2,statusfilename,starttime=None,compareStepName=None,writeprogressfile=None,comparechild=0,comparesub=0):#,thumbwidth,thumbheight):
         dictionary={
             "source1":sourceFileName1,
             "source2":sourceFileName2,
@@ -2034,14 +2260,14 @@ class StepExportWithColor(object):
             "node2":0,
             "isEqual":False,
             "vertexEquals":False }
-        if sourceFileName1 and sourceFileName2:
+        if (sourceFileName1 is not None) and sourceFileName1 and (sourceFileName2 is not None) and sourceFileName2:
             try:
                 dictionary["node1"]=len(onlyShapes1)
                 dictionary["node2"]=len(onlyShapes2)
                 dictionary["isEqual"]=dictionary["node1"]==dictionary["node2"]
                 #print("Done up to this0")
                 if(dictionary["isEqual"]==False):
-                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                     return dictionary
                 fullShape1,_ = list_of_shapes_to_compound(onlyShapes1,True)
                 fullShape2,_ = list_of_shapes_to_compound(onlyShapes2,True)
@@ -2058,7 +2284,7 @@ class StepExportWithColor(object):
                 dictionary["obb2"]=thisdictionary2
                 dictionary["isEqual"] = (abs(sx1-sx2) < 1e-6) and (abs(sy1-sy2) < 1e-6) and (abs(sz1-sz2) < 1e-6)
                 if(dictionary["isEqual"]==False):
-                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                     #print("Failure",dictionary)
                     return dictionary
                 #print("Done up to this1")
@@ -2078,7 +2304,7 @@ class StepExportWithColor(object):
                 dictionary['rotation2']=rotation2
                 dictionary["step1"]=statusfilename+"1.step"
                 dictionary["step2"]=statusfilename+"2.step"
-                self.setComparisonDictionary(statusfilename,30,starttime,dictionary,False)
+                self.setComparisonDictionary(statusfilename,30,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                 face_dict1={}
                 edge_dict1={}
                 vertex_dict1={}
@@ -2097,7 +2323,7 @@ class StepExportWithColor(object):
                 dictionary["isEqual"] = (dictionary["face1"]==dictionary["face2"]) and (dictionary["edge1"]==dictionary["edge2"]) and (dictionary["vertex1"]==dictionary["vertex2"])
                 if(dictionary["vertexEquals"]==False):
                     print("Failure",dictionary)
-                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)                   
+                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)                  
                     return dictionary
                 faceStruct1, edgeStruct1, vertexStruct1 = self.getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1) 
                 faceStruct2, edgeStruct2, vertexStruct2 = self.getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
@@ -2106,7 +2332,7 @@ class StepExportWithColor(object):
                 faceStruct2, edgeStruct2, vertexStruct2 = self.ordered(faceStruct2), self.ordered(edgeStruct2), self.ordered(vertexStruct2)
                 faceStruct3, edgeStruct3, vertexStruct3 = faceStruct2, edgeStruct2, vertexStruct2
                 sx1,sy1,sz1 = fullRotatedDictionary1["sx"],fullRotatedDictionary1["sy"],fullRotatedDictionary1["sz"]
-                self.setComparisonDictionary(statusfilename,31,starttime,dictionary,False) 
+                self.setComparisonDictionary(statusfilename,31,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                 rangeForRotation = 4
                 if (abs(sx1-sy1) < 1e-6) or (abs(sx1-sz1) < 1e-6) or (abs(sz1-sy1) < 1e-6):
                     rangeForRotation = 4
@@ -2157,32 +2383,32 @@ class StepExportWithColor(object):
                                 dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
                                 dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
                                 dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
-                                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                                 print(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,"Done")
                                 return dictionary
-                            self.setComparisonDictionary(statusfilename,32+zdir+ydir*4+xdir*16,starttime,dictionary,False) 
+                            self.setComparisonDictionary(statusfilename,32+zdir+ydir*4+xdir*16,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                 dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
                 dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
                 dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
-                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                 print("Equality with Vertices",dictionary["vertexEquals"],"Equality with Faces and Edges", dictionary["isEqual"])     
                 return dictionary 
             except Exception as e:               
                 print("Exception happened",e,dictionary)
                 dictionary["error"]=str(e)
-                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                 return dictionary 
-        self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+        self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
         return dictionary 
         
-    def compareToCheckIdentityShapesOriginated(self,dictionary,fullZeroShape1,fullZeroShape2,statusfilename,starttime=None):
+    def compareToCheckIdentityShapesOriginated(self,dictionary,fullZeroShape1,fullZeroShape2,statusfilename,starttime=None,writeprogressfile=None,comparechild=0,comparesub=0):
         if dictionary is None:
             dictionary={
                 "node1":0,
                 "node2":0,
                 "isEqual":False,
                 "vertexEquals":False }
-        if fullZeroShape1 and fullZeroShape2:
+        if (fullZeroShape1 is not None) and fullZeroShape1 and (fullZeroShape2 is not None) and fullZeroShape2:
             try:
                 thisRotateddimension1 = get_oriented_bounding_details(fullZeroShape1)                        
                 fullRotatedDictionary1 = getDictionaryFromOBB(thisRotateddimension1,True)
@@ -2206,7 +2432,7 @@ class StepExportWithColor(object):
                 dictionary["isEqual"] = (dictionary["face1"]==dictionary["face2"]) and (dictionary["edge1"]==dictionary["edge2"]) and (dictionary["vertex1"]==dictionary["vertex2"])
                 if(dictionary["vertexEquals"]==False):
                     print("Failure",dictionary)
-                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)                   
+                    self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)                 
                     return dictionary
                 faceStruct1, edgeStruct1, vertexStruct1 = self.getFaceEdgeVertexStructures(face_dict1,edge_dict1,vertex_dict1) 
                 faceStruct2, edgeStruct2, vertexStruct2 = self.getFaceEdgeVertexStructures(face_dict2,edge_dict2,vertex_dict2) 
@@ -2214,7 +2440,7 @@ class StepExportWithColor(object):
                 faceStruct2, edgeStruct2, vertexStruct2 = self.ordered(faceStruct2), self.ordered(edgeStruct2), self.ordered(vertexStruct2)
                 faceStruct3, edgeStruct3, vertexStruct3 = faceStruct2, edgeStruct2, vertexStruct2
                 sx1,sy1,sz1 = fullRotatedDictionary1["sx"],fullRotatedDictionary1["sy"],fullRotatedDictionary1["sz"]
-                self.setComparisonDictionary(statusfilename,31,starttime,dictionary,False) 
+                self.setComparisonDictionary(statusfilename,31,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                 rangeForRotation = 4
                 if (abs(sx1-sy1) < 1e-6) or (abs(sx1-sz1) < 1e-6) or (abs(sz1-sy1) < 1e-6):
                     rangeForRotation = 4
@@ -2265,22 +2491,22 @@ class StepExportWithColor(object):
                                 dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
                                 dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
                                 dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
-                                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+                                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                                 print(xdir*rangeOfRotation,ydir*rangeOfRotation,zdir*rangeOfRotation,"Done")
                                 return dictionary
-                            self.setComparisonDictionary(statusfilename,32+zdir+ydir*4+xdir*16,starttime,dictionary,False) 
+                            self.setComparisonDictionary(statusfilename,32+zdir+ydir*4+xdir*16,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                 dictionary["struct1"] = (faceStruct1, edgeStruct1, vertexStruct1) 
                 dictionary["struct2First"]= (faceStruct3, edgeStruct3, vertexStruct3)
                 dictionary["struct2Last"] = (faceStruct2, edgeStruct2, vertexStruct2) 
-                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                 print("Equality with Vertices",dictionary["vertexEquals"],"Equality with Faces and Edges", dictionary["isEqual"])     
                 return dictionary 
             except Exception as e:               
                 print("Exception happened",e,dictionary)
                 dictionary["error"]=str(e)
-                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False) 
+                self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
                 return dictionary 
-        self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False)
+        self.setComparisonDictionary(statusfilename,100,starttime,dictionary,False,writeprogressfile,comparechild,comparesub)
         return dictionary 
 
 class StepIgesAnalyser():
@@ -2507,11 +2733,16 @@ class StepIgesAnalyser():
         self.facescount=0
         self.edgescount=0
         self.verticescount=0
+        self.massvolume=0
         self.obbdictionary={}
         self.zerodictionary={}
         self.rotateddictionary={}
         self.assemblycenter=(0,0,0)
         self.assemblyrotation=(0,0,0)
+        self.matched=[]        
+        self.comparetotal=0
+        self.comparesub=0
+        self.comparepercent=0
         self.fullZeroShape=None
         self.zerostep=''
         self.comparechildren=comparechildren
@@ -6129,7 +6360,7 @@ class StepIgesAnalyser():
 
 
 
-    def write_status(self,maxgap=10,action=''):
+    def write_status(self,maxgap=10,action='',comparechild=0,comparesub=0,comparepercent=0):
         currenttime = datetime.utcnow()  
         mystatusdict =  {
                 "percent":(self.percentage if self.ascompound==False else self.percentage/4.0),
@@ -6139,9 +6370,9 @@ class StepIgesAnalyser():
         try:
             if self.recursiveTree:
                 return mystatusdict
-            if self.updateprogressfile:
+            if self.updateprogressfile is not None:
                 try:
-                    self.updateprogressfile()
+                    self.updateprogressfile(action=action,childpercent=self.percentage)
                 except Exception as e:
                     print("While Updating progress file",e,self.percentage) 
             if(maxgap==0 and self.percentage>0):
@@ -6157,12 +6388,18 @@ class StepIgesAnalyser():
                 mystatusdict["faces"]=self.facescount
                 mystatusdict["edges"]=self.edgescount
                 mystatusdict["vertices"]=self.verticescount
+                mystatusdict["mass"]=self.massvolume
                 mystatusdict["obbPosition"]=self.obbdictionary
                 mystatusdict["obbOrigin"]=self.zerodictionary
                 mystatusdict["obbRotated"]=self.rotateddictionary
                 mystatusdict["center"]=self.assemblycenter
                 mystatusdict["rotation"]=self.assemblyrotation
                 mystatusdict["zerostep"]=self.zerostep
+                mystatusdict["matched"]=self.matched
+                mystatusdict["comparetotal"]=self.comparetotal if comparechild==0 else comparechild
+                mystatusdict["comparesub"]=self.comparesub if comparesub==0 else comparesub
+                mystatusdict["comparepercent"]=self.comparepercent if comparepercent==0 else comparepercent
+                
             try:            
                 timingdelta = datetime.utcnow()-self.currenttime            
                 if (timingdelta.total_seconds() >= maxgap) or (maxgap==0): 
@@ -6224,6 +6461,8 @@ class StepIgesAnalyser():
                     self.edgescount=statusArray["edges"]
                 if "vertices" in statusArray:
                     self.verticescount=statusArray["vertices"]
+                if "mass" in statusArray:
+                    self.massvolume=statusArray["mass"]
                 if "obbPosition" in statusArray:
                     self.obbdictionary=statusArray["obbPosition"]
                 if "obbOrigin" in statusArray:
@@ -6235,7 +6474,15 @@ class StepIgesAnalyser():
                 if "rotation" in statusArray:
                     self.assemblyrotation=statusArray["rotation"]
                 if "zerostep" in statusArray:
-                    self.zerostep=statusArray["zerostep"]
+                    self.zerostep=statusArray["zerostep"]                
+                if "matched" in statusArray:
+                    self.matched=statusArray["matched"]
+                if "comparetotal" in statusArray:
+                    self.comparetotal=statusArray["comparetotal"]
+                if "comparesub" in statusArray:
+                    self.comparesub=statusArray["comparesub"]
+                if "comparepercent" in statusArray:
+                    self.comparepercent=statusArray["comparepercent"]
         except Exception as e:
             print("While Reading",e)  
         return statusArray
@@ -6378,6 +6625,9 @@ class StepIgesAnalyser():
         except Exception as e:
             print("Error while logging",e)
 
+    def checkIfList(self,item):
+        return (item is not None) and (isinstance(item, list))
+
     def dumpInThread(self,byThread):
         """Return assembly structure in indented outline form.
         Format of lines:
@@ -6486,6 +6736,7 @@ class StepIgesAnalyser():
             self.assemblycenter=center
             self.assemblyrotation=rotation
             self.fullZeroShape=fullZeroShape
+            self.massvolume = StepExportWithColor().getVolume(fullZeroShape)            
     
         dict_return = {
             "gltf":self.mstep_dict,
@@ -6511,14 +6762,63 @@ class StepIgesAnalyser():
                         "faces":self.facescount,
                         "edges":self.edgescount,
                         "vertices":self.verticescount,
+                        "mass":self.massvolume,
                         "obbPosition":self.obbdictionary,
                         "obbOrigin":self.zerodictionary,
                         "obbRotated":self.rotateddictionary,
                         "center":self.assemblycenter,
                         "rotation":self.assemblyrotation,
-                        "zerostep":self.zerostep},
+                        "zerostep":self.zerostep,
+                        "matched":self.matched,
+                        "comparetotal":self.comparetotal,
+                        "comparesub":self.comparesub,
+                        "comparepercent":self.comparepercent},
              "display":COPY_PATH+self.displaypath
         }
+        if ( (self.suffixname != "M") and (self.suffixname != "S") and \
+            (self.suffixname != "K") and (self.suffixname != "R") and (self.suffixname != "A") ):
+            if self.comparechildren:           
+                statusfileToCompare = self.displaypath+self.basefilename   
+                self.write_status(0,"Started Identical Analysis")  
+                storageSerializers=controllers.ParsingDetailsController().identicalRecords(self.rotateddictionary["sx"],self.rotateddictionary["sy"],self.rotateddictionary["sz"],self.verticescount)
+                if((storageSerializers is not None) and len(storageSerializers)>0):
+                    myTotal = len(storageSerializers)
+                    self.comparetotal = myTotal
+                    myCurrent = 0
+                    self.matched=[]
+                    self.comparesub=myCurrent
+                    for storageSerializer in storageSerializers:
+                        filenameRecorded = storageSerializer.filename   
+                        print("What I Got as storageSerializer",storageSerializer)                                           
+                        if (filenameRecorded != self.fname):
+                            compareDictionary=StepExportWithColor().compareToCheckIdentity(\
+                                self.fullZeroShape,dict_return["status"],self.fname,filenameRecorded,self.distancegap,self.anglegap,\
+                                    statusfileToCompare,self.starttime,self.write_status,myTotal,myCurrent)
+                            myCurrent+=1
+                            if compareDictionary["vertexEquals"] or compareDictionary["isEqual"]:
+                                self.matched.append(\
+                                    ((self.refname,self.refid,self.fname),\
+                                        (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+                                            (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
+                                self.write_status(0,"Compared "+str(myCurrent),myTotal,myCurrent)
+                                try:
+                                    storageSerializer.matched_across.append(\
+                                        ((self.refname,self.refid,self.fname),\
+                                            (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+                                                (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
+                                    s3StorageValue = storageSerializer.s3storage if (storageSerializer.s3storage is not None) else False
+                                    controllers.ParsingDetailsController().s3update(storageSerializer, s3StorageValue )
+                                except Exception as e:
+                                    print("Exception while saving records",e)
+                        else:
+                            myCurrent+=1
+                        self.comparesub=myCurrent 
+                else:
+                    myTotal=0
+                self.comparepercent=100
+                self.comparetotal=myTotal
+                self.comparesub=myTotal
+                self.write_status(0,"Compared "+str(myTotal),myTotal,myTotal,100)
         if self.writethread:
             mythread = threading.Thread(target=self.write_in_thread, daemon=True, args=(dict_return,getPNG,True))
             mythread.start()
@@ -6534,8 +6834,8 @@ class StepIgesAnalyser():
             except Exception as e:
                 print("Error while writing axisfile",e,"Writingglobal",WritingGlobalAxisAndAngle)
         self.percentage = 100
-        self.write_status(0)
-        self.write_status(0) #sometimes write_status fails because when in another thread there is a read command..
+        self.write_status(0,"Completed parsing step file to assemblies")
+        #self.write_status(0) #sometimes write_status fails because when in another thread there is a read command..
         #self.mstep_dict['tree']=self.tstep_dict['tree']
 
         if (self.edgesize!=0) or (self.vertexsize!=0): 
@@ -6561,6 +6861,45 @@ class StepIgesAnalyser():
             (self.suffixname != "K") and (self.suffixname != "R") and (self.suffixname != "A") ):
             #orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
             #    self.scene_max[0],self.scene_max[1],self.scene_max[2])
+            # if self.comparechildren:           
+            #     statusfileToCompare = self.displaypath+self.basefilename   
+            #     self.write_status(0,"Started Identical Analysis")  
+            #     storageSerializers=controllers.ParsingDetailsController().identicalRecords(self.rotateddictionary["sx"],self.rotateddictionary["sy"],self.rotateddictionary["sz"],self.verticescount)
+            #     if((storageSerializers is not None) and len(storageSerializers)>0):
+            #         myTotal = len(storageSerializers)
+            #         self.comparetotal = myTotal
+            #         myCurrent = 0
+            #         self.matched=[]
+            #         self.comparesub=myCurrent
+            #         for storageSerializer in storageSerializers:
+            #             filenameRecorded = storageSerializer.filename   
+            #             print("What I Got as storageSerializer",storageSerializer)                                           
+            #             if (filenameRecorded != self.fname):
+            #                 compareDictionary=StepExportWithColor().compareToCheckIdentity(\
+            #                     self.fullZeroShape,dict_return["status"],self.fname,filenameRecorded,self.distancegap,self.anglegap,\
+            #                         statusfileToCompare,self.starttime,self.write_status,myTotal,myCurrent)
+            #                 myCurrent+=1
+            #                 if compareDictionary["vertexEquals"] or compareDictionary["isEqual"]:
+            #                     self.matched.append(\
+            #                         ((self.refname,self.refid,self.fname),\
+            #                             (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+            #                                 (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
+            #                     self.write_status(0,"Compared "+str(myCurrent),myTotal,myCurrent)
+            #                     try:
+            #                         storageSerializer.matched_across.append(\
+            #                             ((self.refname,self.refid,self.fname),\
+            #                                 (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+            #                                     (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
+            #                         s3StorageValue = storageSerializer.s3storage if (storageSerializer.s3storage is not None) else False
+            #                         controllers.ParsingDetailsController().s3update(storageSerializer, s3StorageValue )
+            #                     except Exception as e:
+            #                         print("Exception while saving records",e)
+            #             else:
+            #                 myCurrent+=1
+            #             self.comparesub=myCurrent 
+            #     else:
+            #         myTotal=0
+            #     self.write_status(0,"Compared "+str(myTotal),myTotal,myTotal,100)
             if self.CreateChildSteps:
                 print("Starting Child Steps",self.fname)
                 """ self.write_progress(maxgap=0,action='Child Items Started')  """
@@ -6591,7 +6930,9 @@ class StepIgesAnalyser():
                     lenDictionaryOrderTree = len(dictionaryOrderTree)
                 else:
                     orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
-                        self.scene_max[0],self.scene_max[1],self.scene_max[2])
+                        self.scene_max[0],self.scene_max[1],self.scene_max[2]) if\
+                            (self.checkIfList(self.scene_min) and self.checkIfList(self.scene_max)) else\
+                                (0,0,0,0,0,0)
                     outputShapesOrder = self.outputShapes
                     dictionaryOrderTree=self.tstep_dict["tree"]
                     lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
@@ -6631,7 +6972,9 @@ class StepIgesAnalyser():
             if self.CreateStackability:
                 print("Starting Stackability",self.fname)
                 orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
-                    self.scene_max[0],self.scene_max[1],self.scene_max[2])
+                    self.scene_max[0],self.scene_max[1],self.scene_max[2]) if\
+                        (self.checkIfList(self.scene_min) and self.checkIfList(self.scene_max)) else\
+                            (0,0,0,0,0,0)
                 outputShapesOrder = self.outputShapes
                 dictionaryOrderTree=self.tstep_dict["tree"]
                 lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
@@ -6684,15 +7027,14 @@ class StepIgesAnalyser():
         else:
             self.percentage = 100
             self.write_status(0)
-            return (            
-                (getPNG,self.output,self.fullZeroShape), 
-                (
-                    (self.scene_min[0],self.scene_min[1],self.scene_min[2],
-                    self.scene_max[0],self.scene_max[1],self.scene_max[2]) if 
-                        (self.scene_min and self.scene_max) else (0,0,0,0,0,0),
-                    self.outputShapes
-                    ), 
-                    dict_return )
+            return (\
+                (getPNG,self.output,self.fullZeroShape),\
+                    ( (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
+                        self.scene_max[0],self.scene_max[1],self.scene_max[2]) if\
+                            (self.checkIfList(self.scene_min) and self.checkIfList(self.scene_max)) else\
+                                (0,0,0,0,0,0),\
+                                    self.outputShapes ),\
+                                        dict_return )
     
     def dump(self,notByThread=True):
         """Return assembly structure in indented outline form.

@@ -34,7 +34,9 @@ def copyTree(sourceDir, destDir, removeAfterCopy, percentage=0, percentIncrement
                 linkto = os.readlink(srcname)
                 os.symlink(linkto, dstname)
             elif os.path.isdir(srcname):
-                copyTree(srcname, dstname, removeAfterCopy, currentPercentage, curPercentIncrement, symlinks, ignored_names)
+                myerrors = copyTree(srcname, dstname, removeAfterCopy, currentPercentage, curPercentIncrement, symlinks, ignored_names)
+                if(len(myerrors)>0):
+                    errors.extend(myerrors)
             else:
                 print("Copy Started", srcname, dstname, currentPercentage)
                 copiedname = shutil.copy2(srcname, dstname)                
@@ -44,6 +46,7 @@ def copyTree(sourceDir, destDir, removeAfterCopy, percentage=0, percentIncrement
                     print("Copy Completed", srcname, dstname,currentPercentage+curPercentIncrement)
                 else:
                     print("Error while copying",srcname,dstname,copiedname)
+                    errors.append((srcname,dstname,copiedname))
         except shutil.Error as err:
             errors.extend(err.args[0])
         except EnvironmentError as why:
@@ -71,7 +74,7 @@ def copyTree(sourceDir, destDir, removeAfterCopy, percentage=0, percentIncrement
                     print("Copy Completed", srcname, dstname,currentPercentage+curPercentIncrement)
                 else:
                     print("Error while copying",srcname,dstname,copiedname)
-                
+                    errors.append((srcname,dstname,copiedname))
         currentPercentage+=curPercentIncrement
 
 	# Recurse through the directories to make sure they are up to date.
@@ -81,7 +84,9 @@ def copyTree(sourceDir, destDir, removeAfterCopy, percentage=0, percentIncrement
             continue
         srcname = os.path.join(sourceDir, name)
         dstname = os.path.join(destDir, name)
-        copyTree(srcname, dstname, removeAfterCopy, currentPercentage, curPercentIncrement, symlinks, ignored_names)
+        myerrors = copyTree(srcname, dstname, removeAfterCopy, currentPercentage, curPercentIncrement, symlinks, ignored_names)
+        if(len(myerrors)>0):
+            errors.extend(myerrors)
         currentPercentage+=curPercentIncrement
     try:
         shutil.copystat(sourceDir, destDir)
@@ -94,6 +99,7 @@ def copyTree(sourceDir, destDir, removeAfterCopy, percentage=0, percentIncrement
     if errors:
         print(errors)
     currentPercentage = percentage + percentIncrement
+    return errors
 
 def copyOnefile(srcname, dstname, symlinks=False):    
     errors = []
@@ -105,13 +111,19 @@ def copyOnefile(srcname, dstname, symlinks=False):
             linkto = os.readlink(srcname)
             os.symlink(linkto, dstname)
         else:
-            shutil.copy2(srcname, dstname)
+            copiedname = shutil.copy2(srcname, dstname)
+            if copiedname == dstname:                    
+                print("Copy Completed", srcname, dstname)
+            else:
+                print("Error while copying",srcname,dstname,copiedname)
+                errors.append((srcname,dstname,copiedname))
     except shutil.Error as err:
         errors.extend(err.args[0])
     except EnvironmentError as why:
         errors.append((srcname, dstname, str(why)))
     if errors:
         print(errors)
+    return errors
 
 def checkIdle(timelag=0.0,logName="Media/Log/APIWatcher.Log"): 
     try:

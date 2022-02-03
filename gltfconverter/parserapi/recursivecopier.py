@@ -3,7 +3,8 @@ import os
 import threading
 from datetime import datetime
 from .dirSync import checkIdle, copyTree
-
+from .controllers import ParsingDetailsController
+from .settingscopy import (DISPLAY_URL,MEDIA_URL,S3_BUCKET)
 class RecursiveCopier():
 
     def __init__(self,interval,hFunction,logging,fileLogger,timeLogger):
@@ -76,14 +77,54 @@ def copyFilesRecursive(timelag,fileLogger,logging):
             logprintinfo="Syncer Started "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
             logging.info(logprintinfo)
             print(logprintinfo)
-            copyTree("Media/", "s3bucket/Media/",False,0,100)
+            storageSerializers = ParsingDetailsController().s3TobeCopied()
+            if((storageSerializers is not None) and len(storageSerializers)>0):
+                for storageSerializer in storageSerializers:
+                    filename = storageSerializer.filename
+                    errors=[]
+                    if (filename is not None) and filename:
+                        filenamePath, _ = os.path.split(filename)
+                        if(filenamePath[:-1]!="/"):            
+                            filenamePath = filenamePath + "/"
+                        print("Going to copy from",filenamePath,"to",S3_BUCKET+filenamePath)
+                        myErrors = copyTree(filenamePath, S3_BUCKET+filenamePath,False,0,100)  
+                        if(len(myErrors)>0):
+                            errors.extend(myErrors)
+                        logprintinfo="Media Syncer Completed "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
+                        logging.info(logprintinfo)
+                        print(logprintinfo)
+                        MediaUrlLength = len(MEDIA_URL)
+                        if filenamePath[0:MediaUrlLength]== MEDIA_URL:
+                            displaypath = DISPLAY_URL+filenamePath[MediaUrlLength:]
+                            print("Going to copy from",displaypath,"to",S3_BUCKET+displaypath)
+                            myErrors = copyTree(displaypath, S3_BUCKET+displaypath,True,0,100) 
+                            if(len(myErrors)>0): 
+                                errors.extend(myErrors)
+                            logprintinfo="Display Syncer Completed "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
+                            logging.info(logprintinfo)
+                            print(logprintinfo)
+                        else:
+                            print("Got filename as other than Media?",filenamePath)
+                            errors.append((filename,filenamePath,"Got filename as other than Media "+MEDIA_URL))
+                    if (len(errors)==0):
+                        try:
+                            ParsingDetailsController().s3update(storageSerializer,True)
+                            # storageSerializer.s3storage=True                            
+                            # storageSerializer.save()
+                        except Exception as e:
+                            print("Error while updating s3storage",e,storageSerializer)
+                    else:
+                        print("There are errors while copying",errors,storageSerializer)
+            else:
+                print("There are no files to copy",storageSerializers,len(storageSerializers))
+            """ copyTree("Media/", "s3bucket/Media/",False,0,100)
             logprintinfo="Media Syncer Completed "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
             logging.info(logprintinfo)
             print(logprintinfo)
             copyTree("Display/", "s3bucket/Display/",True,0,100)
             logprintinfo="Display Syncer Completed "+datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
             logging.info(logprintinfo)
-            print(logprintinfo)
+            print(logprintinfo) """
         else:
             print("I am not Idle to move files from Linux box to S3Box")
     except Exception as e:
