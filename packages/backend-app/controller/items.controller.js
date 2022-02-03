@@ -9,7 +9,13 @@ exports.get = async (req, res) => {
     const query = buildQuery(req);
     let result = {};
 
+    let select = '';
+    if (req.query.select_fields) {
+      select = req.query.select_fields.replace(/,/g, ' ');
+    }
+
     const options = {
+      select,
       sort: { updatedAt: -1 },
       populate: ['created_by', 'updated_by']
     };
