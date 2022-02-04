@@ -102,25 +102,25 @@ yarn install
 ### Internal App (Node)
 
 ```bash
-npm run server
+yarn server
 ```
 
 ### Internal App (React)
 
 ```bash
-npm start
+yarn start
 ```
 
 ### Design App (React)
 
 ```bash
-npm start-design
+yarn start-design
 ```
 
 ### Public App (React)
 
 ```bash
-npm start-public
+yarn start-public
 ```
 
 ### GLTFConverter
