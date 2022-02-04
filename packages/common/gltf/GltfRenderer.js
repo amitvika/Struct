@@ -3952,12 +3952,17 @@ class GLTFRenderer extends Component {
           myParentID = myStateTree[i][gltf_Dict['id']];
           //myParentID = this.props.gltfobj.tree[i][gltf_Dict["parentId"]];
           findEdges = myStateTree[i][gltf_Dict['subfeatures']];
-          if (!findEdges) {
-            if (myStateTree[i][gltf_Dict['element']] == 'F') {
-              myParentID = myStateTree[i][gltf_Dict['parentId']];
-              console.log('Find Parent Edges', myStateTree[i]);
+          if (!findEdges || findEdges == 'f') {
+            const myParentPart = this.findMyParentPart(mynode);
+            if (myParentPart) {
+              myParentID = myParentPart[gltf_Dict['id']];
             } else {
-              console.log('Find Not Parent Edges', myStateTree[i]);
+              if (myStateTree[i][gltf_Dict['element']] == 'F') {
+                myParentID = myStateTree[i][gltf_Dict['parentId']];
+                console.log('Find Parent Edges', myStateTree[i]);
+              } else {
+                console.log('Find Not Parent Edges', myStateTree[i]);
+              }
             }
           } else {
             console.log('Find Edges', myStateTree[i]);
@@ -5888,7 +5893,7 @@ class GLTFRenderer extends Component {
       if (allEdges == 0 && data.files) {
         myParentDic = data.files;
       }
-      //console.log("ParentDict",myParentDic);
+      console.log('ParentDict', myParentDic, Object.entries(myParentDic), data);
       let parentLineNodes = null;
       for (let [myParentID, howManyFilesJson] of Object.entries(myParentDic)) {
         //myParentID = allEdges;
@@ -6499,7 +6504,7 @@ class GLTFRenderer extends Component {
             }
           }
           if (howManyFiles > 0 && indexFiles > 0) {
-            //console.log(parentLineNodes);
+            console.log(parentLineNodes);
             if (parentLineNodes.children.length > 0) {
               parentLineNodes.position.x += this.shiftposition.x;
               parentLineNodes.position.y += this.shiftposition.y;
@@ -6513,11 +6518,15 @@ class GLTFRenderer extends Component {
                 ...this.partsMeshes,
                 ...parentLineNodes.children
               ];
-              //console.log('After adding edges', this.partsMeshes);
+              console.log('After adding edges', this.partsMeshes);
               this.raycastObjects = [
                 ...this.raycastObjects,
                 ...this.rayCastObjectFilters(parentLineNodes.children)
               ];
+              console.log(
+                'After adding edges, the raycast objects',
+                this.raycastObjects
+              );
               updateSelectionFromGdtTable();
             }
           }
