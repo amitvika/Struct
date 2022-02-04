@@ -39,8 +39,8 @@ yarn install
 
 - Install miniconda
 - start miniconda terminal
-- run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0`
-- run `conda activate structquery`
+- run `conda create --name structserver -c conda-forge pythonocc-core=7.5.1 occt=7.5.1 pyparsing=2.4.7 pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0`
+- run `conda activate structserver`
 - CD to `gltfconverter` directory
 - run `pip install -r requirements.txt`
 
@@ -129,7 +129,7 @@ yarn start-public
 - Initialize environment in [Conda](https://docs.anaconda.com/anaconda/install/windows/) terminal
 
 ```bash
-conda activate structquery
+conda activate structserver
 ```
 
 - For headless AWS to start opengl, following 4 commands needed and they are not needed for windows environment
@@ -162,7 +162,7 @@ python manage.py runserver localhost:8000
 - Initialize environment in [Conda](https://docs.anaconda.com/anaconda/install/windows/) terminal
 
 ```bash
-conda activate structquery
+conda activate structserver
 ```
 
 - Run the following command
