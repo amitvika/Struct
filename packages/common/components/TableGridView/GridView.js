@@ -225,10 +225,10 @@ function GridView({
       //console.log('URL', file_url);
       if (file_url) {
         getExistingPathFromServer(file_url, 'png')
-          .then((file_png) => {
+          .then((file_server) => {
             //console.log('PNG', file_png + file_url + '.png');
-            if (file_png) {
-              setIcons(file_png + file_url + '.png');
+            if (file_server) {
+              setIcons(file_server + file_url + '.png');
             } else {
               setIcons('');
             }

@@ -36,7 +36,7 @@ const ItemsView = () => {
       fields={columnsForItemView}
       fetchList={(query) =>
         ItemApi.getItemsAPI(
-          `${query}&select_fields=name,source,multiAssembly,direct_parent_id,origin_parent_id,child_item_created,fileStore,material`
+          `${query}&select_fields=name,source,multiAssembly,direct_parent_id,origin_parent_id,child_item_created,fileStore,material,fileUUId`
         )
       }
       isAddEditActionsEnabled={true}
