@@ -3976,7 +3976,7 @@ class GLTFRenderer extends Component {
         );
       }
       console.log('My ID', myParentID, findEdges);
-      if (myParentID != -1 && !findEdges) {
+      if (myParentID != -1) {
         let featureSetStart = 0;
         if (!findEdges) {
           for (var i = 0; i < myStateTree.length; i++) {
