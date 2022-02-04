@@ -34,7 +34,11 @@ const ItemsView = () => {
     <TableGridView
       title={'Items'}
       fields={columnsForItemView}
-      fetchList={ItemApi.getItemsAPI}
+      fetchList={(query) =>
+        ItemApi.getItemsAPI(
+          `${query}&select_fields=name,source,multiAssembly,direct_parent_id,origin_parent_id,child_item_created,fileStore,material`
+        )
+      }
       isAddEditActionsEnabled={true}
       handleItemClick={handleItemClick}
       isEditLinkVisible={false}
