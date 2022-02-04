@@ -1,6 +1,7 @@
-boto3==1.19.12
-catkin-pkg==0.4.24
-django-storages==1.12.3
-docutils==0.18.1
-graphviz==0.19.1
-pydot==1.4.2
+boto3==1.20.48 
+catkin-pkg==0.4.24 
+django-storages==1.12.3 
+docutils==0.18.1 
+graphviz==0.19.1 
+pydot==1.4.2 
+ezdxf==0.17.2 

@@ -38,6 +38,7 @@ import {
   handleInternalUseProduct,
   handleProductDesignTab,
   setOrder,
+  setStack,
   handleOtherTabCase,
   isOKToParseForProductDesignTab,
   isOKToParseForInternalUseProduct,
@@ -463,6 +464,25 @@ const ItemDetail = ({ itemValue }) => {
     }
   };
 
+  const handleSetStack = async (props) => {
+    const { item } = props;
+    if (!item.fileId && !item.fileUUId) {
+      return;
+    }
+    await setStack({
+      item,
+      setIsLoading,
+      setIsFileLoading,
+      setProgressBarLoad,
+      setPercentage,
+      percentage,
+      setCurrentProgressText,
+      setCompletionProgressText,
+      setgltfjson,
+      setItemProperties,
+      setActiveGLTFile
+    });
+  };
   // const handleItemUpdate = (change) => {
   //   let tempItemProperties = Object.assign({}, itemProperties, change);
 
@@ -676,7 +696,7 @@ const ItemDetail = ({ itemValue }) => {
             itemProperties={itemProperties}
             setItemProperties={setItemProperties}
             fetchList={ItemAPI.getItemsAPI}
-            // setStack={setStack}
+            setStack={handleSetStack}
             setOrder={handleSetOrder}
             gltfjson={gltfjson}
             isLoading={isLoading}
