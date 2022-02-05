@@ -193,22 +193,22 @@ logger.addHandler( logHandler )
 logger.setLevel( logging.INFO )
 
 def logRoundtrip(response, *args, **kwargs): 
-        extra = {
-            'req': {
-                'method': response.request.method,
-                'url': response.request.url,
-                'headers': response.request.headers,
-                'body': response.request.body,
-            }, 
-            'res': {
-                'code': response.status_code,
-                'reason': response.reason,
-                'url': response.url,
-                'headers': response.headers,
-                'body': response.text
-            },
-        }
-        logger.debug('HTTP roundtrip', extra=extra)
+    extra = {
+        'req': {
+            'method': response.request.method,
+            'url': response.request.url,
+            'headers': response.request.headers,
+            'body': response.request.body,
+        }, 
+        'res': {
+            'code': response.status_code,
+            'reason': response.reason,
+            'url': response.url,
+            'headers': response.headers,
+            'body': response.text
+        },
+    }
+    logger.debug('HTTP roundtrip', extra=extra)
 
 RecursiveCopier(1500, copyFilesRecursive, logging, fileLogger, timeLogger).start()
 gltf_dict = gltfdict()

@@ -7,6 +7,7 @@ import logging
 import requests
 
 from .environment import map_environment, DisplayEnvironment
+from .. import Component
 
 log = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ class CQPartsServerDisplayEnv(DisplayEnvironment):
 
         # Verify Parameter(s)
         # check that it is a component
-        from .. import Component
+        
         if not isinstance(component, Component):
             raise TypeError("given component must be a %r, not a %r" % (
                 Component, type(component)
