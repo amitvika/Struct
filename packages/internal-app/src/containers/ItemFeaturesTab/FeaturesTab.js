@@ -27,6 +27,13 @@ export default function ItemFeatureTab({ parsing_details_id, fileName }) {
       <Headding>Item Features</Headding>
       <Grid container spacing={2}>
         <Grid item xs={2}>
+          <Headding>Parts</Headding>
+        </Grid>
+        <Grid item xs={10}>
+          <Headding>{state.parts}</Headding>
+        </Grid>
+
+        <Grid item xs={2}>
           <Headding>Faces</Headding>
         </Grid>
         <Grid item xs={10}>
@@ -48,17 +55,12 @@ export default function ItemFeatureTab({ parsing_details_id, fileName }) {
         </Grid>
 
         <Grid item xs={2}>
-          <Headding>Trees</Headding>
-        </Grid>
-        <Grid item xs={10}>
-          <Headding>{state.trees}</Headding>
-        </Grid>
-
-        <Grid item xs={2}>
           <Headding>Mass</Headding>
         </Grid>
         <Grid item xs={10}>
-          <Headding>{state.mass}</Headding>
+          <Headding>
+            {state.mass ? Number(state.mass).toFixed(2) : state.mass}
+          </Headding>
         </Grid>
       </Grid>
     </Box>
