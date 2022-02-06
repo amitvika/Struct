@@ -223,9 +223,7 @@ export const createChildItems = async ({
       return false;
     }
 
-    const itemapidetailsRes = await ItemAPI.getItemsAPI(
-      `id=${parentId}&call_type=detail`
-    );
+    const itemapidetailsRes = await ItemAPI.getItemsAPI(`id=${parentId}`);
     if (
       !itemapidetailsRes ||
       !itemapidetailsRes.data ||

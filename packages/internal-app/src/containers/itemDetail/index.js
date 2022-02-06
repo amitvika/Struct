@@ -14,7 +14,7 @@ export default function ItemDetailMain() {
 
   useEffect(() => {
     setIsLoading(true);
-    ItemAPI.getItemsAPI(`id=${id}&call_type=detail`)
+    ItemAPI.getItemsAPI(`id=${id}`)
       .then((itemDetailResponse) => {
         if (get(itemDetailResponse, 'data[0]')) {
           setItemValue(get(itemDetailResponse, 'data[0]'));
