@@ -52,7 +52,7 @@ import { AlertContext } from '@monostruct/common/context/AlertContext/AlertConte
 import AssignToClient from './AssignToClient';
 import SupplyingVendors from './SupplyingVendors';
 import InstanceOfThisItem from './InstanceOfThisItem/InstanceOfThisItem';
-import FeaturesTab from '../featuresTab/FeaturesTab';
+import FeaturesTab from '../ItemFeaturesTab/FeaturesTab';
 
 let state_additionalSaveFunction = null;
 const ItemDetail = ({ itemValue }) => {
@@ -789,7 +789,14 @@ const ItemDetail = ({ itemValue }) => {
       case 'instanceOfThisItem':
         return <InstanceOfThisItem />;
       case 'features':
-        return <FeaturesTab />;
+        return (
+          <FeaturesTab
+            {...{
+              parsing_details_id: itemProperties.parsing_details_id,
+              fileName: itemProperties.fileName
+            }}
+          />
+        );
       default:
         return 'Undefined Tab Index';
     }

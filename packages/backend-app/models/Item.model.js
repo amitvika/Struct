@@ -110,6 +110,10 @@ const ItemSchema = new mongoose.Schema(
     comparison_parameters: { type: Object, default: null },
     matched_childs: { type: Object, default: null },
     not_for_public_use: { type: Boolean, default: true },
+    parsing_details_id: {
+      type: Schema.Types.ObjectId,
+      ref: 'ParserApiParsingDetail'
+    },
     created_by: { type: Schema.Types.ObjectId, ref: 'User' },
     updated_by: { type: Schema.Types.ObjectId, ref: 'User' }
   },
