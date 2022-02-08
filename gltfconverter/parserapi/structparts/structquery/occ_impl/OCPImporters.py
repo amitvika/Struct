@@ -203,31 +203,38 @@ def _dxf_convert(elements, tol):
             edges.extend(conv(el))
 
     if edges:
-      
-        edges_in = TopTools_HSequenceOfShape()
-       
-        #wires_out = TopTools_HSequenceOfShape()
-        _wire = BRepBuilderAPI_MakeWire()
-        for e in edges:
-            _wire.Add(e.wrapped)
-        _wire.Build()
-        _wire.IsDone()
-        #for e in edges:            
-        #    edges_in.Append(e.wrapped)
-        #ShapeAnalysis_FreeBounds.ConnectEdgesToWires(edges_in, tol, False, wires_out)
-       
-       
+        edges_in = TopTools_HSequenceOfShape() 
+        wires_out = [TopTools_HSequenceOfShape()]
+        for e in edges:            
+            edges_in.Append(e.wrapped)
+        ShapeAnalysis_FreeBounds.ConnectEdgesToWires(edges_in, tol, False, *wires_out)
         try:
-            #wires_pointer = wires_out
-            #print("I reached hrer1",wires_out,len(wires_out))
+            wires_pointer = wires_out
+            print("I reached hrer1",wires_out,len(wires_out))
             #wires_pointer = cast(wires_out, POINTER(TopTools_HSequenceOfShape)).value
-            #print("I reached hrer2",wires_pointer,len(wires_pointer))
-            #print(wires_pointer[0])
-            #rv = [Shape.cast(el) for el in wires_pointer]
-            rv = [Shape.cast(el) for el in _wire.Wire()]
-            #print("I reached here 3")
+            print("I reached hrer2",wires_pointer[0],len(wires_pointer))
+           
+            rv=[]
+            for el in wires_pointer:
+                if el is not None:
+                    print("My Element in edge",el)
+                    rv.append(Shape.cast(el))
+            print("I reached here 3")
         except Exception as e:
-            print(e)
+            print("Exception in Shape analysis",e)
+            _wire = BRepBuilderAPI_MakeWire()
+            for e in edges:
+                _wire.Add(e.wrapped)
+            _wire.Build()
+            _wire.IsDone()
+            try:
+                rv = [Shape.cast(el) for el in _wire.Wire()]           
+            except Exception as e:
+                print("Exception in iterating wires",e)
+                try:
+                    rv = [Shape.cast(_wire.Wire())]
+                except Exception as e:
+                    print("Exception in casting wires",e)
     return rv
 
 

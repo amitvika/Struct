@@ -664,6 +664,7 @@ def exportToGLTF(sourceFileName,distancegap,anglegap,disectparts,moverotate,thum
             return (dictionary, True)
         if file_extension=="dxf" :            
             try:
+                print("Going to import dxf",sourceFileName)
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 newfilename = newfilenamewithoutext + ".gltf"
                 myassemblies = Assembly.importer("shape")(shape,sourceFileName)
@@ -1015,6 +1016,7 @@ def exportToHierarchyGLTF(
             return (dictionary, True)
         if file_extension=="dxf" :            
             try:
+                print("Going to import dxf",sourceFileName)
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, _, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape), includeparts=includeparts,
@@ -1558,13 +1560,19 @@ def FileGetShapeInfo(request):
                     thisshell.append(appendable)
                     data = []
                     if index >=start :
+                        face_dict1={}
+                        edge_dict1={}
+                        vertex_dict1={}
+                        dumpTopologyFacesEdgesVertices(thisshell[index],face_dict1,edge_dict1,vertex_dict1)                        
                         dumpTopologyStructures(thisshell[index],level=0,parentId=[None],returnStructure=data,faceInfo=None, depth=1)
                         thisdimension = get_oriented_bounding_details(thisshell[index])                        
                         thisdictionary = getDictionaryFromOBB(thisdimension)
                         if(len(data)==0):
                             data=[{'type':'None'}]
                         data[0]['obb']=thisdictionary
-                        
+                        data[0]['faces']=len(face_dict1)
+                        data[0]['edges']=len(edge_dict1)
+                        data[0]['vertices']=len(vertex_dict1)
                         foundHole=False
                         if((data[0]['type']=='Edge') and (data[0]['Info']['kind']=='Circle')):
                             thiscenterpointXYZ = thisdimension.Center()
@@ -2070,6 +2078,7 @@ def exportToPartGLTF(sourceFileName,distancegap,anglegap,animationtime=1.0,start
             #return dictionary 
         if file_extension=="dxf" :            
             try:
+                print("Going to import dxf",sourceFileName)
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),ascompound=True, 
@@ -5039,6 +5048,7 @@ def exportToAssemblyGLTF(sourceFileName,distancegap,anglegap,explodegap,center,h
             #return dictionary 
         if file_extension=="dxf" :            
             try:
+                print("Going to import dxf",sourceFileName)
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),distancegap=distancegap,
@@ -5236,6 +5246,7 @@ def exportTokinematicGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,
         
         if file_extension=="dxf" :            
             try:
+                print("Going to import dxf",sourceFileName)
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),distancegap=distancegap,
@@ -6152,6 +6163,7 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
         
         if file_extension=="dxf" :            
             try:
+                print("Going to import dxf",sourceFileName)
                 shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
                 (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                     filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),distancegap=distancegap,
