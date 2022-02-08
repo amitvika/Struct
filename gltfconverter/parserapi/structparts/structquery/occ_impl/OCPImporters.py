@@ -197,7 +197,7 @@ def _dxf_convert(elements, tol):
     edges = []
    
     for el in elements:
-        
+        print("Element got to convert",el)
         conv = DXF_CONVERTERS.get(el.dxf.dxftype)
         if conv:
             edges.extend(conv(el))
@@ -211,7 +211,7 @@ def _dxf_convert(elements, tol):
         try:
             wires_pointer = wires_out
             print("I reached hrer1",wires_out,len(wires_out))
-            #wires_pointer = cast(wires_out, POINTER(TopTools_HSequenceOfShape)).value
+            #wires_pointer = cast(wires_out, POINTER(TopTools_HSequenceOfShape)).value //this is not working..
             print("I reached hrer2",wires_pointer[0],len(wires_pointer))
            
             rv=[]
@@ -233,6 +233,7 @@ def _dxf_convert(elements, tol):
                 print("Exception in iterating wires",e)
                 try:
                     rv = [Shape.cast(_wire.Wire())]
+                    print("I could make rv",rv)
                 except Exception as e:
                     print("Exception in casting wires",e)
     return rv
@@ -252,8 +253,9 @@ def importDXF(filename, tol=1e-6, exclude=[]):
 
     dxf = ezdxf.readfile(filename)
     faces = []
-
+    print("dxf objects",dxf)
     for name, layer in dxf.modelspace().groupby(dxfattrib="layer").items():
+        print("Caught dxf layer",name, layer)
         res = _dxf_convert(layer, tol) if name.lower() not in exclude_lwr else None
         if res:
             wire_sets = sortWiresByBuildOrder(res)
@@ -276,12 +278,17 @@ def importDXFObjects(filename, tol=1e-6, exclude=[]):
 
     dxf = ezdxf.readfile(filename)
     faces = []
-
+    print("dxf objects",dxf)
     for name, layer in dxf.modelspace().groupby(dxfattrib="layer").items():
+        print("Caught dxf layer",name, layer)
         res = _dxf_convert(layer, tol) if name.lower() not in exclude_lwr else None
         if res:
+            print("Got res wire",res)
             wire_sets = sortWiresByBuildOrder(res)
             for wire_set in wire_sets:
-                faces.append(Face.makeFromWires(wire_set[0], wire_set[1:]))
+                print("Got wires",wire_set)
+                argFaces = Face.makeFromWires(wire_set[0], wire_set[1:])
+                if argFaces is not None:
+                    faces.append()
 
     return faces

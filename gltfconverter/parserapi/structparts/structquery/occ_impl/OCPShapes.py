@@ -2179,16 +2179,23 @@ class Face(Shape):
         """
         Makes a planar face from one or more wires
         """
-
+        face=Shape(outerWire.wrapped)
         face_builder = BRepBuilderAPI_MakeFace(outerWire.wrapped, True)
 
         for w in innerWires:
             face_builder.Add(w.wrapped)
 
         face_builder.Build()
-        face = face_builder.Shape()
-
-        return cls(face).fix()
+        gotFace=False
+        try:
+            face = face_builder.Shape()
+            gotFace=True
+        except Exception as e:
+            print("Error while building face",e)
+        if gotFace:
+            return cls(face).fix()
+        else:
+            return None
 
     def fillet2D(self, radius: float, vertices: Iterable[Vertex]) -> "Face":
         """
