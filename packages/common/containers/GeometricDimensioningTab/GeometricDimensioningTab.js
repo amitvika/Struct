@@ -1277,6 +1277,12 @@ export default function GeometricDimensioningTab(props) {
             structure.objects[structure.start + index]['obb'] = elementCopy(
               element[0].obb
             );
+            structure.objects[structure.start + index]['faces'] =
+              element[0].faces;
+            structure.objects[structure.start + index]['edges'] =
+              element[0].edges;
+            structure.objects[structure.start + index]['vertices'] =
+              element[0].vertices;
             structure.objects[structure.start + index]['mass'] =
               element[0].Info['mass'];
             structure.objects[structure.start + index]['axis'] = element[0]
