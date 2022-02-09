@@ -5,3 +5,4 @@ docutils>=0.18.1
 graphviz>=0.19.1
 pydot>=1.4.2
 ezdxf>=0.17.2
+intel-openmp>=2022.0.2
