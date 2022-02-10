@@ -6778,47 +6778,7 @@ class StepIgesAnalyser():
         if ( (self.suffixname != "M") and (self.suffixname != "S") and \
             (self.suffixname != "K") and (self.suffixname != "R") and (self.suffixname != "A") ):
             if self.comparechildren:           
-                statusfileToCompare = self.displaypath+self.basefilename   
-                self.write_status(0,"Started Identical Analysis")  
-                storageSerializers=controllers.ParsingDetailsController().identicalRecords(self.rotateddictionary["sx"],self.rotateddictionary["sy"],self.rotateddictionary["sz"],self.verticescount)
-                if((storageSerializers is not None) and len(storageSerializers)>0):
-                    myTotal = len(storageSerializers)
-                    self.comparetotal = myTotal
-                    myCurrent = 0
-                    self.matched=[]
-                    self.comparesub=myCurrent
-                    for storageSerializer in storageSerializers:
-                        filenameRecorded = storageSerializer.filename   
-                        print("What I Got as storageSerializer",storageSerializer)                                           
-                        if (filenameRecorded != self.fname):
-                            compareDictionary=StepExportWithColor().compareToCheckIdentity(\
-                                self.fullZeroShape,dict_return["status"],self.fname,filenameRecorded,self.distancegap,self.anglegap,\
-                                    statusfileToCompare,self.starttime,self.write_status,myTotal,myCurrent)
-                            myCurrent+=1
-                            if compareDictionary["vertexEquals"] or compareDictionary["isEqual"]:
-                                self.matched.append(\
-                                    ((self.refname,self.refid,self.fname),\
-                                        (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
-                                            (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
-                                self.write_status(0,"Compared "+str(myCurrent),myTotal,myCurrent)
-                                try:
-                                    storageSerializer.matched_across.append(\
-                                        ((self.refname,self.refid,self.fname),\
-                                            (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
-                                                (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
-                                    s3StorageValue = storageSerializer.s3storage if (storageSerializer.s3storage is not None) else False
-                                    controllers.ParsingDetailsController().s3update(storageSerializer, s3StorageValue )
-                                except Exception as e:
-                                    print("Exception while saving records",e)
-                        else:
-                            myCurrent+=1
-                        self.comparesub=myCurrent 
-                else:
-                    myTotal=0
-                self.comparepercent=100
-                self.comparetotal=myTotal
-                self.comparesub=myTotal
-                self.write_status(0,"Compared "+str(myTotal),myTotal,myTotal,100)
+                self.compareAcross(dict_return)
         if self.writethread:
             mythread = threading.Thread(target=self.write_in_thread, daemon=True, args=(dict_return,getPNG,True))
             mythread.start()
@@ -6919,97 +6879,9 @@ class StepIgesAnalyser():
             
                        
             if self.CreateAssemblyOrder:
-                print("Starting Assembly order",self.fname)
-                if self.recreatefororder:
-                    (_, (orderDimension, outputShapesOrder), dictionaryOrder) = StepIgesAnalyser(
-                            filename=self.fname,includeparts=False,distancegap=self.distancegap, logging=logging, 
-                            anglegap=self.anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
-                            edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M",
-                            refid=self.refid,refname=self.refname).dump(False)
-                    dictionaryOrderTree = dictionaryOrder["tree"]
-                    lenDictionaryOrderTree = len(dictionaryOrderTree)
-                else:
-                    orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
-                        self.scene_max[0],self.scene_max[1],self.scene_max[2]) if\
-                            (self.checkIfList(self.scene_min) and self.checkIfList(self.scene_max)) else\
-                                (0,0,0,0,0,0)
-                    outputShapesOrder = self.outputShapes
-                    dictionaryOrderTree=self.tstep_dict["tree"]
-                    lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
-                shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
-                    getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,lenDictionaryOrderTree,'')
-                orderStatusName = self.basefilename[:-1]+'M'
-                StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
-                    30,self.starttime,False,self.refid,self.refname,self.fname,"M")
-                FindAssemblingOrder(shapeArrayOrder,shapeOrder,aNameOrder,aColorAssemblyOrder,orderDimension,self.explodegap,\
-                    self.center,self.holescale,self.removegap,self.logging).ExplodeParts(\
-                        self.fname,self.distancegap,self.anglegap,self.delay,COPY_PATH+self.displaypath,\
-                            False,self.refid,self.refname,self.starttime)
-                StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
-                    100,self.starttime,False,self.refid,self.refname,self.fname,"M")
-                print("Completing Assembly order",self.fname)
-                try:
-                    myPickle = {'sourceType':'Order',
-                                    'sourceFileName':self.fname,
-                                    'distancegap':self.distancegap,
-                                    'anglegap':self.anglegap,
-                                    'explodegap':self.explodegap,
-                                    'center':self.center,
-                                    'holescale':self.holescale,
-                                    'removegap':self.removegap,
-                                    'animationtime':self.delay,
-                                    'colorshapes':shapePicklesOrder,
-                                    'assemblyname':aNameOrder,
-                                    'dimension':orderDimension,
-                                    'refid':self.refid,
-                                    'refname':self.refname} 
-                    picklefile = COPY_PATH+self.displaypath+orderStatusName+".pickle"
-                    with open(picklefile, 'wb') as f:
-                        # Pickle the 'data' dictionary using the highest protocol available.                               
-                        pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
-                except Exception as e:
-                    print(e,"File, %s has error" % picklefile)
+                self.CreateAssemblyOrderFromShapes(myTreeLenBeforeAddingEdgesAndVertices)
             if self.CreateStackability:
-                print("Starting Stackability",self.fname)
-                orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
-                    self.scene_max[0],self.scene_max[1],self.scene_max[2]) if\
-                        (self.checkIfList(self.scene_min) and self.checkIfList(self.scene_max)) else\
-                            (0,0,0,0,0,0)
-                outputShapesOrder = self.outputShapes
-                dictionaryOrderTree=self.tstep_dict["tree"]
-                lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
-                shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
-                    getShapesFromOutPutShapes(outputShapesOrder,None,dictionaryOrderTree,lenDictionaryOrderTree,'')
-                orderStatusName = self.basefilename[:-1]+'S'
-                StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
-                    30,self.starttime,False,self.refid,self.refname,self.fname,"S")
-                FindStackability(self.fname,shapeArrayOrder,orderDimension,\
-                    self.distancegap,self.anglegap,self.delay,self.starttime,\
-                        self.logging,self.refid,self.refname).dump()
-                StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
-                    100,self.starttime,False,self.refid,self.refname,self.fname,"S")
-                print("Completing Stackability",self.fname)
-                try:
-                    myPickle = {'sourceType':'Order',
-                                    'sourceFileName':self.fname,
-                                    'distancegap':self.distancegap,
-                                    'anglegap':self.anglegap,
-                                    'explodegap':self.explodegap,
-                                    'center':self.center,
-                                    'holescale':self.holescale,
-                                    'removegap':self.removegap,
-                                    'animationtime':self.delay,
-                                    'colorshapes':shapePicklesOrder,
-                                    'assemblyname':aNameOrder,
-                                    'dimension':orderDimension,
-                                    'refid':self.refid,
-                                    'refname':self.refname} 
-                    picklefile = COPY_PATH+self.displaypath+orderStatusName+".pickle"
-                    with open(picklefile, 'wb') as f:
-                        # Pickle the 'data' dictionary using the highest protocol available.                               
-                        pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
-                except Exception as e:
-                    print(e,"File, %s has error" % picklefile)
+                self.CreateStackabilityFromShapes(myTreeLenBeforeAddingEdgesAndVertices)
             
         if byThread:   
             try:
@@ -7035,6 +6907,143 @@ class StepIgesAnalyser():
                                 (0,0,0,0,0,0),\
                                     self.outputShapes ),\
                                         dict_return )
+
+    def CreateStackabilityFromShapes(self, myTreeLenBeforeAddingEdgesAndVertices):
+        print("Starting Stackability",self.fname)
+        orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
+                    self.scene_max[0],self.scene_max[1],self.scene_max[2]) if\
+                        (self.checkIfList(self.scene_min) and self.checkIfList(self.scene_max)) else\
+                            (0,0,0,0,0,0)
+        outputShapesOrder = self.outputShapes
+        dictionaryOrderTree=self.tstep_dict["tree"]
+        lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
+        shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
+                    getShapesFromOutPutShapes(outputShapesOrder,None,dictionaryOrderTree,lenDictionaryOrderTree,'')
+        orderStatusName = self.basefilename[:-1]+'S'
+        StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
+                    30,self.starttime,False,self.refid,self.refname,self.fname,"S")
+        FindStackability(self.fname,shapeArrayOrder,orderDimension,\
+                    self.distancegap,self.anglegap,self.delay,self.starttime,\
+                        self.logging,self.refid,self.refname).dump()
+        StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
+                    100,self.starttime,False,self.refid,self.refname,self.fname,"S")
+        print("Completing Stackability",self.fname)
+        try:
+            myPickle = {'sourceType':'Order',
+                                    'sourceFileName':self.fname,
+                                    'distancegap':self.distancegap,
+                                    'anglegap':self.anglegap,
+                                    'explodegap':self.explodegap,
+                                    'center':self.center,
+                                    'holescale':self.holescale,
+                                    'removegap':self.removegap,
+                                    'animationtime':self.delay,
+                                    'colorshapes':shapePicklesOrder,
+                                    'assemblyname':aNameOrder,
+                                    'dimension':orderDimension,
+                                    'refid':self.refid,
+                                    'refname':self.refname} 
+            picklefile = COPY_PATH+self.displaypath+orderStatusName+".pickle"
+            with open(picklefile, 'wb') as f:
+                        # Pickle the 'data' dictionary using the highest protocol available.                               
+                pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            print(e,"File, %s has error" % picklefile)
+
+    def CreateAssemblyOrderFromShapes(self, myTreeLenBeforeAddingEdgesAndVertices):
+        print("Starting Assembly order",self.fname)
+        if self.recreatefororder:
+            (_, (orderDimension, outputShapesOrder), dictionaryOrder) = StepIgesAnalyser(
+                            filename=self.fname,includeparts=False,distancegap=self.distancegap, logging=logging, 
+                            anglegap=self.anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
+                            edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,suffixname="M",
+                            refid=self.refid,refname=self.refname).dump(False)
+            dictionaryOrderTree = dictionaryOrder["tree"]
+            lenDictionaryOrderTree = len(dictionaryOrderTree)
+        else:
+            orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
+                        self.scene_max[0],self.scene_max[1],self.scene_max[2]) if\
+                            (self.checkIfList(self.scene_min) and self.checkIfList(self.scene_max)) else\
+                                (0,0,0,0,0,0)
+            outputShapesOrder = self.outputShapes
+            dictionaryOrderTree=self.tstep_dict["tree"]
+            lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
+        shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
+                    getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,lenDictionaryOrderTree,'')
+        orderStatusName = self.basefilename[:-1]+'M'
+        StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
+                    30,self.starttime,False,self.refid,self.refname,self.fname,"M")
+        FindAssemblingOrder(shapeArrayOrder,shapeOrder,aNameOrder,aColorAssemblyOrder,orderDimension,self.explodegap,\
+                    self.center,self.holescale,self.removegap,self.logging).ExplodeParts(\
+                        self.fname,self.distancegap,self.anglegap,self.delay,COPY_PATH+self.displaypath,\
+                            False,self.refid,self.refname,self.starttime)
+        StepExportWithColor().writeStatus(orderStatusName,COPY_PATH+self.displaypath,\
+                    100,self.starttime,False,self.refid,self.refname,self.fname,"M")
+        print("Completing Assembly order",self.fname)
+        try:
+            myPickle = {'sourceType':'Order',
+                                    'sourceFileName':self.fname,
+                                    'distancegap':self.distancegap,
+                                    'anglegap':self.anglegap,
+                                    'explodegap':self.explodegap,
+                                    'center':self.center,
+                                    'holescale':self.holescale,
+                                    'removegap':self.removegap,
+                                    'animationtime':self.delay,
+                                    'colorshapes':shapePicklesOrder,
+                                    'assemblyname':aNameOrder,
+                                    'dimension':orderDimension,
+                                    'refid':self.refid,
+                                    'refname':self.refname} 
+            picklefile = COPY_PATH+self.displaypath+orderStatusName+".pickle"
+            with open(picklefile, 'wb') as f:
+                        # Pickle the 'data' dictionary using the highest protocol available.                               
+                pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            print(e,"File, %s has error" % picklefile)
+
+    def compareAcross(self, dict_return):
+        statusfileToCompare = self.displaypath+self.basefilename   
+        self.write_status(0,"Started Identical Analysis")  
+        storageSerializers=controllers.ParsingDetailsController().identicalRecords(self.rotateddictionary["sx"],self.rotateddictionary["sy"],self.rotateddictionary["sz"],self.verticescount)
+        if((storageSerializers is not None) and len(storageSerializers)>0):
+            myTotal = len(storageSerializers)
+            self.comparetotal = myTotal
+            myCurrent = 0
+            self.matched=[]
+            self.comparesub=myCurrent
+            for storageSerializer in storageSerializers:
+                filenameRecorded = storageSerializer.filename   
+                print("What I Got as storageSerializer",storageSerializer)                                           
+                if (filenameRecorded != self.fname):
+                    compareDictionary=StepExportWithColor().compareToCheckIdentity(\
+                                self.fullZeroShape,dict_return["status"],self.fname,filenameRecorded,self.distancegap,self.anglegap,\
+                                    statusfileToCompare,self.starttime,self.write_status,myTotal,myCurrent)
+                    myCurrent+=1
+                    if compareDictionary["vertexEquals"] or compareDictionary["isEqual"]:
+                        self.matched.append(\
+                                    ((self.refname,self.refid,self.fname),\
+                                        (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+                                            (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
+                        self.write_status(0,"Compared "+str(myCurrent),myTotal,myCurrent)
+                        try:
+                            storageSerializer.matched_across.append(\
+                                        ((self.refname,self.refid,self.fname),\
+                                            (storageSerializer.name,storageSerializer.external_ref,storageSerializer.filename),\
+                                                (compareDictionary["vertexEquals"],compareDictionary["isEqual"])))
+                            s3StorageValue = storageSerializer.s3storage if (storageSerializer.s3storage is not None) else False
+                            controllers.ParsingDetailsController().s3update(storageSerializer, s3StorageValue )
+                        except Exception as e:
+                            print("Exception while saving records",e)
+                else:
+                    myCurrent+=1
+                self.comparesub=myCurrent 
+        else:
+            myTotal=0
+        self.comparepercent=100
+        self.comparetotal=myTotal
+        self.comparesub=myTotal
+        self.write_status(0,"Compared "+str(myTotal),myTotal,myTotal,100)
     
     def dump(self,notByThread=True):
         """Return assembly structure in indented outline form.
