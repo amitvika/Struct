@@ -6437,7 +6437,7 @@ class StepIgesAnalyser():
             print("While Writing",e)  
         return mystatusdict
 
-    def read_status(self):
+    def read_status_old(self):
         statusArray = None
         try:
             filename = self.displaypath+self.basefilename+".status"
@@ -6483,6 +6483,36 @@ class StepIgesAnalyser():
                     self.comparesub=statusArray["comparesub"]
                 if "comparepercent" in statusArray:
                     self.comparepercent=statusArray["comparepercent"]
+        except Exception as e:
+            print("While Reading",e)  
+        return statusArray
+    
+    def read_status(self):
+        statusArray = None
+        try:
+            filename = self.displaypath+self.basefilename+".status"
+            with open(filename, "r") as f:
+                data = f.read()
+            if data:
+                statusArray = json.loads(data)                
+                self.percentage = controllers.convertToFloat(controllers.getValueFromJSONKey(statusArray,"percent"),0.0)
+                self.assemblycount = controllers.convertToInt(controllers.getValueFromJSONKey(statusArray,"assemblies"),0)
+                self.assemblyname = controllers.getValueFromJSONKey(statusArray,"assembly")               
+                self.treelengthbeforevertices = controllers.convertToInt(controllers.getValueFromJSONKey(statusArray,"trees"),0)                   
+                self.partscount=controllers.convertToInt(controllers.getValueFromJSONKey(statusArray,"parts"),0)                
+                self.facescount=controllers.convertToInt(controllers.getValueFromJSONKey(statusArray,"faces"),0)                
+                self.edgescount=controllers.convertToInt(controllers.getValueFromJSONKey(statusArray,"edges"),0)
+                self.verticescount=controllers.convertToInt(controllers.getValueFromJSONKey(statusArray,"vertices"),0)              
+                self.massvolume=controllers.convertToFloat(controllers.getValueFromJSONKey(statusArray,"mass"),0.0)
+                self.zerodictionary=controllers.getValueFromJSONKey(statusArray,"obbOrigin")                
+                self.rotateddictionary=controllers.getValueFromJSONKey(statusArray,"obbRotated")
+                self.assemblycenter=controllers.getValueFromJSONKey(statusArray,"center")
+                self.assemblyrotation=controllers.getValueFromJSONKey(statusArray,"rotation")
+                self.zerostep=controllers.getValueFromJSONKey(statusArray,"zerostep")                
+                self.matched=controllers.getValueFromJSONKey(statusArray,"matched")
+                self.comparetotal=controllers.convertToInt(controllers.getValueFromJSONKey(statusArray,"comparetotal"),0)
+                self.comparesub=controllers.convertToInt(controllers.getValueFromJSONKey(statusArray,"comparesub"),0)
+                self.comparepercent=controllers.convertToFloat(controllers.getValueFromJSONKey(statusArray,"comparepercent"),0.0)
         except Exception as e:
             print("While Reading",e)  
         return statusArray
