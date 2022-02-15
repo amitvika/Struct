@@ -40,11 +40,11 @@ def split_indices(folder,seed1,seed2):
     
     return(train,valid,test)
 
-## gets file names for a particular type of trash, given indices
-    ## input: waste category and indices
+## gets file names for a particular type of package, given indices
+    ## input: position category and indices
     ## output: file names 
-def get_names(waste_type,indices):
-    file_names = [waste_type+str(i)+".jpg" for i in indices]
+def get_names(position_type,indices):
+    file_names = [position_type+str(i)+".jpg" for i in indices]
     return(file_names)    
 
 ## moves group of source files to another folder
@@ -54,11 +54,11 @@ def move_files(source_files,destination_folder):
     for file in source_files:
         shutil.move(file,destination_folder)
 
-## paths will be train/cardboard, train/glass, etc...
+## paths will be train/front, train/back, etc...
 subsets = ['train','valid']
 position_types = ['front','back','right','left','top','bottom']
 
-## create destination folders for data subset and waste type
+## create destination folders for data subset and position type
 for subset in subsets:
     for position_type in position_types:
         folder = os.path.join('data',subset,position_type)
@@ -68,7 +68,7 @@ for subset in subsets:
 if not os.path.exists(os.path.join('data','test')):
     os.makedirs(os.path.join('data','test'))
             
-## move files to destination folders for each waste type
+## move files to destination folders for each position type
 for position_type in position_types:
     source_folder = os.path.join('dataset-resized',position_type)
     train_ind, valid_ind, test_ind = split_indices(source_folder,1,1)
@@ -133,7 +133,7 @@ y = []
 for label_path in data.test_ds.items:
     y.append(str(label_path))
     
-## then extract waste type from file path
+## then extract position type from file path
 pattern = re.compile("([a-z]+)[0-9]+")
 for i in range(len(y)):
     y[i] = pattern.search(y[i]).group(1)
