@@ -92,7 +92,7 @@ for position_type in position_types:
     move_files(test_source_files,"data/test")
 ## get a path to the folder with images
 path = Path(os.getcwd())/"data"
-path
+print("Path",path)
 
 tfms = aug_transforms(do_flip=True,flip_vert=True)
 data = ImageDataLoaders.from_folder(path,valid="valid",ds_tfms=tfms,bs=16)
@@ -138,7 +138,7 @@ pattern = re.compile("([a-z]+)[0-9]+")
 for i in range(len(y)):
     y[i] = pattern.search(y[i]).group(1)
 cm = confusion_matrix(y,yhat)
-print(cm)
+print("Confusion Matrix",cm)
 
 df_cm = pd.DataFrame(cm,position_types,position_types)
 
