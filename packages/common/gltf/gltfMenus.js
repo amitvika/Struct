@@ -44,7 +44,7 @@ export const myMenus = [
         name: 'opaque',
         values: {
           opaque: 'True',
-          wiremesh: false,
+          transparency: 0.0,
           ctrlKey: false
         },
         fields: [
@@ -53,6 +53,15 @@ export const myMenus = [
             type: 'radio',
             items: ['True', 'False', 'Self'],
             key: 'opaque'
+          },
+          {
+            name: 'Transparent',
+            type: 'slider',
+            auto: 'auto',
+            step: 0.1,
+            min: 0.0,
+            max: 1.0,
+            key: 'transparency'
           }
         ]
       },

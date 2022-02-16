@@ -256,6 +256,7 @@ class GLTFRenderer extends Component {
     wiremesh: false,
     castshadow: false,
     opaque: 'True',
+    transparency: 0.0,
     skeleton: false,
     showedges: true,
     showchosenaxis: true,
@@ -1336,7 +1337,8 @@ class GLTFRenderer extends Component {
                   this.state.side,
                   this.state.opaque,
                   this.state.wiremesh,
-                  this.state.castshadow
+                  this.state.castshadow,
+                  this.state.transparency
                 );
               }
             })
@@ -1508,7 +1510,8 @@ class GLTFRenderer extends Component {
       this.state.wiremesh,
       this.state.castshadow,
       this.state.skeleton,
-      this.state.grid
+      this.state.grid,
+      this.state.transparency
     );
 
     if (this.props.drawAxisLines) {
@@ -1921,7 +1924,8 @@ class GLTFRenderer extends Component {
     myWiremesh,
     myCastShadow,
     mySkeleton,
-    myGrid
+    myGrid,
+    myTransparancy
   ) => {
     if (this.skeletonHelpers.length) {
       this.skeletonHelpers.forEach((helper) => this.scene.remove(helper));
@@ -1950,7 +1954,8 @@ class GLTFRenderer extends Component {
                 mySide,
                 myOpaque,
                 myWiremesh,
-                myCastShadow
+                myCastShadow,
+                myTransparancy
               );
             })
           : '';
@@ -2101,7 +2106,8 @@ class GLTFRenderer extends Component {
         this.state.wiremesh,
         this.state.castshadow,
         this.state.skeleton,
-        this.state.grid
+        this.state.grid,
+        this.state.transparency
       );
     });
     const depthCtrl = dispFolder.add(this.state, 'opaque', [
@@ -2118,7 +2124,8 @@ class GLTFRenderer extends Component {
         this.state.wiremesh,
         this.state.castshadow,
         this.state.skeleton,
-        this.state.grid
+        this.state.grid,
+        this.state.transparency
       );
     });
     const wiremeshCtrl = dispFolder.add(this.state, 'wiremesh');
@@ -2131,7 +2138,8 @@ class GLTFRenderer extends Component {
         wiremeshCtrl.object.wiremesh,
         this.state.castshadow,
         this.state.skeleton,
-        this.state.grid
+        this.state.grid,
+        this.state.transparency
       );
     });
     const castShadowCtrl = dispFolder.add(this.state, 'castshadow');
@@ -2146,7 +2154,8 @@ class GLTFRenderer extends Component {
         this.state.wiremesh,
         castShadowCtrl.object.castshadow,
         this.state.skeleton,
-        this.state.grid
+        this.state.grid,
+        this.state.transparency
       );
     });
     const skeletonCtrl = dispFolder.add(this.state, 'skeleton');
@@ -2159,7 +2168,8 @@ class GLTFRenderer extends Component {
         this.state.wiremesh,
         this.state.castshadow,
         skeletonCtrl.object.skeleton,
-        this.state.grid
+        this.state.grid,
+        this.state.transparency
       );
     });
     const gridCtrl = dispFolder.add(this.state, 'grid');
@@ -2172,7 +2182,8 @@ class GLTFRenderer extends Component {
         this.state.wiremesh,
         this.state.castshadow,
         this.state.skeleton,
-        gridCtrl.object.grid
+        gridCtrl.object.grid,
+        this.state.transparency
       );
     });
     if (this.controls) {
@@ -5389,10 +5400,20 @@ class GLTFRenderer extends Component {
     }
   };
 
-  changeMaterialStats(material, mySide, myOpaque, myWiremesh, myCastShadow) {
+  changeMaterialStats(
+    material,
+    mySide,
+    myOpaque,
+    myWiremesh,
+    myCastShadow,
+    myTransparancy
+  ) {
     material.wireframe = myWiremesh;
     material.castShadow = myCastShadow;
     material.depthTest = true;
+    material.transparent = myTransparancy != 0.0;
+    material.opaque = 1 - myTransparancy;
+    material.opacity = 1 - myTransparancy;
     material.depthWrite =
       myOpaque == 'True'
         ? true
@@ -5401,6 +5422,7 @@ class GLTFRenderer extends Component {
         : !material.transparent;
     material.side =
       mySide == 'Front' ? FrontSide : mySide == 'Back' ? BackSide : DoubleSide;
+
     //console.log(material);
   }
 
@@ -6967,13 +6989,18 @@ class GLTFRenderer extends Component {
                 this.state.wiremesh,
                 this.state.castshadow,
                 this.state.skeleton,
-                this.state.grid
+                this.state.grid,
+                this.state.transparency
               );
             }
             break;
           case 2:
             if (values.opaque != this.state.opaque) {
               this.setStateWithoutError({ opaque: values.opaque });
+              toSet = true;
+            }
+            if (values.transparency != this.state.transparency) {
+              this.setStateWithoutError({ transparency: values.transparency });
               toSet = true;
             }
             if (toSet) {
@@ -6983,7 +7010,8 @@ class GLTFRenderer extends Component {
                 this.state.wiremesh,
                 this.state.castshadow,
                 this.state.skeleton,
-                this.state.grid
+                this.state.grid,
+                values.transparency
               );
             }
             break;
@@ -7012,7 +7040,8 @@ class GLTFRenderer extends Component {
                 values.wiremesh,
                 values.castshadow,
                 values.skeleton,
-                values.grid
+                values.grid,
+                this.state.transparency
               );
             }
             break;
