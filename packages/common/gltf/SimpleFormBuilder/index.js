@@ -31,9 +31,9 @@ export default class SimpleFormBuilder extends React.Component {
   style = {
     width: '100%',
     padding: '20px',
-    margin: '0px 15px',
+    margin: '5px 15px',
     display: 'inline-block',
-    'border-width': 0
+    'border-width': 10
   };
 
   constructor(props) {
