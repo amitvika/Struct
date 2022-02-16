@@ -4812,7 +4812,7 @@ class GLTFRenderer extends Component {
       meshmaterial.material.color = this.convertColor(
         this.props.touchcolor || DEFAULTTOUCHCOLOR()
       ); // this.props.distanceColor || distanceColor);
-      meshmaterial.material.opacity = 1.0;
+      meshmaterial.material.opacity = 1.0 - this.state.transparency;
     }
     //console.log("after",meshmaterial,meshmaterial.material.color);
   };
@@ -4840,7 +4840,7 @@ class GLTFRenderer extends Component {
       meshmaterial.material.color = this.convertColor(
         this.props.selectcolor || DEFAULTSELECTCOLOR()
       ); // this.props.distanceColor || distanceColor);
-      meshmaterial.material.opacity = 1.0;
+      meshmaterial.material.opacity = 1.0 - this.state.transparency;
     }
 
     //console.log("after",meshmaterial.material.color);
@@ -5412,8 +5412,8 @@ class GLTFRenderer extends Component {
     material.castShadow = myCastShadow;
     material.depthTest = true;
     material.transparent = myTransparancy != 0.0;
-    material.opaque = 1 - myTransparancy;
-    material.opacity = 1 - myTransparancy;
+    material.opaque = 1.0 - myTransparancy;
+    material.opacity = 1.0 - myTransparancy;
     material.depthWrite =
       myOpaque == 'True'
         ? true

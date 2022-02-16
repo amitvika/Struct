@@ -58,7 +58,7 @@ export const myMenus = [
             name: 'Transparent',
             type: 'slider',
             auto: 'auto',
-            step: 0.1,
+            step: 0.01,
             min: 0.0,
             max: 1.0,
             key: 'transparency'
