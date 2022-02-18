@@ -152,3 +152,6 @@ for r in range(len(cm)):
         if (r==c):
             correct += cm[r,c]
 accuracy = correct/sum(sum(cm))
+
+img=PILImage()
+pred,pred_idx,probs = learn.predict(img)
