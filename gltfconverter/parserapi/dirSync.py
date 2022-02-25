@@ -4,7 +4,7 @@
 import os
 from filecmp import *
 import shutil
-from datetime import datetime, timezone
+from datetime import datetime #, timezone
 
 def copyTree(sourceDir, destDir, removeAfterCopy, percentage=0, percentIncrement=100, symlinks=False, ignored_names=['.','..']):
     #names = os.listdir(sourceDir)
