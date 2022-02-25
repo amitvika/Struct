@@ -2165,6 +2165,26 @@ def minimum_distance_only(shp1, shp2):
         return 0
 
 
+def is_point_on_surface(shp1, x,y,z):
+    '''
+    compute minimum distance between Surface and Point
+    @param shp1:    any TopoDS_*
+    @param x:    points x location
+    @param y:    points y location
+    @param z:    points z location
+    @return: True if it is on surface otherwise False
+    '''    
+    _point_pnt = gp_Pnt(x, y, z)
+    shp2 = BRepBuilderAPI_MakeVertex(_point_pnt).Shape() # shape type        
+    bdss = BRepExtrema_DistShapeShape(shp1, shp2)
+    bdss.Perform()
+    assert_isdone(bdss, 'failed computing minimum distances')
+    min_dist = bdss.Value()
+    if min_dist<=1e-10:
+        return True
+    else:
+        return False
+
 def minimum_z_distance(shp1, shp2):
     '''
     compute minimum distance between 2 BREP's
@@ -2190,7 +2210,6 @@ def minimum_z_distance(shp1, shp2):
             min_z_dist = abs_z_dist
      
     return min_z_dist, min_dist, min_dist_shp1, min_dist_shp2
-
 
 def roundoff(point,draft=False):
     multiplier = 1

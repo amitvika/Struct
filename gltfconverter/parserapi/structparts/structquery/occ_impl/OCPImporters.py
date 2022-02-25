@@ -220,8 +220,8 @@ def _dxf_convert(elements, tol):
                     print("My Element in edge",el)
                     rv.append(Shape.cast(el))
             print("I reached here 3")
-        except Exception as e:
-            print("Exception in Shape analysis",e)
+        except Exception as ex:
+            print("Exception in Shape analysis",ex)
             _wire = BRepBuilderAPI_MakeWire()
             for e in edges:
                 _wire.Add(e.wrapped)
@@ -229,13 +229,13 @@ def _dxf_convert(elements, tol):
             _wire.IsDone()
             try:
                 rv = [Shape.cast(el) for el in _wire.Wire()]           
-            except Exception as e:
-                print("Exception in iterating wires",e)
+            except Exception as ex:
+                print("Exception in iterating wires",ex)
                 try:
                     rv = [Shape.cast(_wire.Wire())]
                     print("I could make rv",rv)
-                except Exception as e:
-                    print("Exception in casting wires",e)
+                except Exception as ex:
+                    print("Exception in casting wires",ex)
     return rv
 
 
