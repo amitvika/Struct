@@ -48,7 +48,7 @@ import {
 } from './ItemDetails.helper';
 import MaterialTab from '@monostruct/common/containers/MaterialTab/MaterialTab';
 import { getAFileFromStore } from '@monostruct/common/api/fileUpload.api';
-import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
+import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContextProvider';
 import AssignToClient from './AssignToClient';
 import SupplyingVendors from './SupplyingVendors';
 import InstanceOfThisItem from './InstanceOfThisItem/InstanceOfThisItem';

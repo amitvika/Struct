@@ -2,7 +2,7 @@ import { ColorModeContextProvider } from '@monostruct/common/themes/ColorModeCon
 import AppRoutes from './AppRoutes';
 import { AuthContextProvider } from '@monostruct/common/context/AuthContext';
 import '@monostruct/common/global.css';
-import { AlertContextProvider } from '@monostruct/common/context/AlertContext/AlertContext';
+import { AlertContextProvider } from '@monostruct/common/context/AlertContext/AlertContextProvider';
 
 function App() {
   return (

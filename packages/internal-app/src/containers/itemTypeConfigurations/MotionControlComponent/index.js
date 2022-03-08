@@ -20,7 +20,7 @@ import {
   DEFAULTROWSELECTCOLOR
 } from '@monostruct/common/gltf/Tree/utils';
 import { useHistory } from 'react-router-dom';
-import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
+import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContextProvider';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import { styled } from '@mui/material/styles';
 

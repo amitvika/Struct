@@ -3,7 +3,7 @@ import SelectorView from '@monostruct/common/components/SelectorView';
 import UserSetupAPI from '@monostruct/common/api/teamSetup.api';
 import get from 'lodash/get';
 import TeamSetupAPI from '@monostruct/common/api/teamTask.api';
-import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
+import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContextProvider';
 
 const TeamAssignment = ({ selectedValue, setSelectedValue }) => {
   const alertContext = React.useContext(AlertContext);

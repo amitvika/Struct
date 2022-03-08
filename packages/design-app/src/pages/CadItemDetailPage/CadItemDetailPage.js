@@ -10,7 +10,7 @@ import AssemblyTab from '@monostruct/common/containers/AssemblyTab';
 
 import DetailPage from '../../components/DetailComponent/DetailComponent';
 import BaseItemProperties from '@monostruct/common/containers/BaseItemPropertiesTab';
-import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContext';
+import { AlertContext } from '@monostruct/common/context/AlertContext/AlertContextProvider';
 import GeometricDimensioning from '@monostruct/common/containers/GeometricDimensioningTab/GeometricDimensioningTab';
 import ManufactureProcessingProcessSimulation from '@monostruct/common/containers/ManufactureProcessingProcessSimulation';
 import get from 'lodash/get';

@@ -12,7 +12,7 @@ import LoadingModal from '@monostruct/common/components/LoadingModal';
 import { getFileNameWithoutExtension } from '@monostruct/common/gltf/Tree/utils';
 import { createChildItems } from './helper';
 import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import DuplicateGeometryModal from './DuplicateGeometryModal';
 
 const useStyles = makeStyles((theme) => ({
   item_row: {
@@ -176,6 +176,9 @@ export default function GeometryInput({
             <Typography variant="h6">
               {itemProperties.child_item_created}
             </Typography>
+          </Grid>
+          <Grid item className={classes.item_row}>
+            <DuplicateGeometryModal />
           </Grid>
 
           <Grid item className={classes.item_row}>

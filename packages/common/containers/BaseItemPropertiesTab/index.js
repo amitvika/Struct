@@ -23,7 +23,6 @@ import {
 } from '@monostruct/common/gltf/Tree/utils';
 import LinearProgressBarTiming from '@monostruct/common/gltf/LinearProgressBarTiming';
 import AssemblyTab from '@monostruct/common/containers/AssemblyTab';
-import DuplicateGeometryModal from './DuplicateGeometryModal';
 
 export default function BaseItemProperties({
   itemId,
@@ -409,7 +408,6 @@ export default function BaseItemProperties({
 
   return (
     <div>
-      <DuplicateGeometryModal />
       {
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', flexDirection: 'row' }}>

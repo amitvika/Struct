@@ -10,7 +10,7 @@ import Alert from './components/Alert';
 import LoadingModal from '@monostruct/common/components/LoadingModal';
 import { ColorModeContextProvider } from '@monostruct/common/themes/ColorModeContextProvider';
 import { AuthContextProvider } from '@monostruct/common/context/AuthContext';
-import { AlertContextProvider } from '@monostruct/common/context/AlertContext/AlertContext';
+import { AlertContextProvider } from '@monostruct/common/context/AlertContext/AlertContextProvider';
 
 const App = () => {
   return (
