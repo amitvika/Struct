@@ -840,7 +840,8 @@ const ItemDetail = ({ itemValue }) => {
     makeItemConfigurable: 'Make Item Configurable/Customizable',
     AssignToClient: 'Assign to Client(s)',
     sv: 'Supplying Vendors',
-    instanceOfThisItem: 'Instance of this Item'
+    instanceOfThisItem: 'Instance of this Item',
+    pricing: 'pricing'
   };
 
   const renderTab = () => {
