@@ -69,7 +69,8 @@ export default function GeometricDimensioningTab(props) {
     activeGDTTable = 0,
     setActiveGDTTable = () => {},
     drawAxisLines = null,
-    setDrawAxisLines = () => {}
+    setDrawAxisLines = () => {},
+    showKinematicSliderMove = false
   } = props;
   const classes = USESTYLES();
 
@@ -380,7 +381,13 @@ export default function GeometricDimensioningTab(props) {
       setState({ gltfjson: myTree });
       globalSetGltfJSon(myTree);
       globalSetActiveDataTable(activeTable);
-      if (!showKinematicMove && myTree.gdttable && fileGDT && fileUUIder) {
+      if (
+        !showKinematicMove &&
+        myTree.gdttable &&
+        fileGDT &&
+        fileUUIder &&
+        !showKinematicSliderMove
+      ) {
         const savedData = await saveGDTInfo(
           myTree.gdttable,
           fileGDT,
@@ -603,10 +610,11 @@ export default function GeometricDimensioningTab(props) {
       setState({ gltfjson: gltfjson });
       mystate_gltfjson = gltfjson;
     } */
-    if (showKinematicMove) {
+    if (showKinematicMove || showKinematicSliderMove) {
       console.log(
         'I am not saving data because animation is ',
-        showKinematicMove
+        showKinematicMove,
+        showKinematicSliderMove
       );
 
       return;
@@ -2118,7 +2126,13 @@ export default function GeometricDimensioningTab(props) {
         renderdata: [...(selectedNodes || [])],
         whatchange: SELECTANITEM
       });
-      if (!showKinematicMove && myTree.gdttable && fileGDT && fileUUIder) {
+      if (
+        !showKinematicMove &&
+        myTree.gdttable &&
+        fileGDT &&
+        fileUUIder &&
+        !showKinematicSliderMove
+      ) {
         const savedData = await saveGDTInfo(gdtTableCopy, fileGDT, fileUUIder);
         console.log('Saved Data from Changed selections', savedData);
       } else {
@@ -2289,6 +2303,7 @@ export default function GeometricDimensioningTab(props) {
           activeGLTFFile={activeGLTFFile}
           setActiveGLTFile={setActiveGLTFile}
           drawAxisLines={drawAxisLines}
+          showKinematicSliderMove={showKinematicSliderMove}
         />
       </Paper>
 

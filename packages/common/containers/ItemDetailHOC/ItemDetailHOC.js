@@ -48,6 +48,8 @@ const ItemDetailHOC = (Component) =>
       useState(false);
     const [createAutoStackability, setCreateAutoStackability] = useState(false);
     const [showKinematicMove, setShowKinematicMove] = useState(false);
+    const [showKinematicSliderMove, setShowKinematicSliderMove] =
+      useState(false);
     const [regenerateKinematicMove, setRegenerateKinematicMove] = useState(0);
     const [kinematicItemList, setKinematicItemList] = useState([]);
     const [activeGLTFFile, setActiveGLTFileState] = useState('');
@@ -78,9 +80,16 @@ const ItemDetailHOC = (Component) =>
       }
       setAllowFirstLevelItems(itemValue?.child_item_status === 'INITIATED');
       setActiveGLTFile('');
+      console.log(
+        'Started handleGLTFAndTreeLoading from useeffect myTabIndex HOC',
+        itemProperties,
+        myTabIndex,
+        tabIndex
+      );
       handleGLTFAndTreeLoading({
         item: itemValue,
-        myTabedIndex: myTabIndex
+        myTabedIndex: myTabIndex,
+        whatEffect: true
       });
     }, [tabIndex]);
 
@@ -88,11 +97,25 @@ const ItemDetailHOC = (Component) =>
       if (!itemValue) {
         return;
       }
+      console.log(
+        'Started handleGLTFAndTreeLoading from useeffect itemValue.fileStore, showKinematicMove, regenerateKinematicMove HOC',
+        itemProperties,
+        itemValue.fileStore,
+        showKinematicMove,
+        regenerateKinematicMove,
+        tabIndex
+      );
       handleGLTFAndTreeLoading({
         item: itemValue,
-        myTabedIndex: tabIndex
+        myTabedIndex: tabIndex,
+        whatEffect: false
       });
-    }, [itemValue.fileStore, showKinematicMove, regenerateKinematicMove]);
+    }, [
+      itemValue.fileStore,
+      showKinematicMove,
+      regenerateKinematicMove,
+      showKinematicSliderMove
+    ]);
 
     useEffect(() => {
       CriteriaUploadAPI.fetchCriteriaUpload(
@@ -106,7 +129,7 @@ const ItemDetailHOC = (Component) =>
         .catch((error) => {});
     }, []);
 
-    const handleGLTFAndTreeLoading = ({ item, myTabedIndex }) => {
+    const handleGLTFAndTreeLoading = ({ item, myTabedIndex, whatEffect }) => {
       if (
         myTabedIndex !== tabIndex ||
         (!item.fileId && !item.fileUUId) ||
@@ -114,18 +137,25 @@ const ItemDetailHOC = (Component) =>
       ) {
         return;
       }
-      setGLTFAndTree({ item, myTabedIndex });
+      console.log(
+        'Started handleGLTFAndTreeLoading from useeffect tabindex itemdetailsHOC',
+        item,
+        myTabedIndex
+      );
+      setGLTFAndTree({ item, myTabedIndex, whatEffect });
     };
 
     const existingAxis = (axis) => {
       return axis && (axis[0] != 0 || axis[1] != 0 || axis[2] != 0);
     };
 
-    const setGLTFAndTree = async ({ item, myTabedIndex }) => {
+    const setGLTFAndTree = async ({ item, myTabedIndex, whatEffect }) => {
       try {
         let updatedItemProp = {};
         let myTabIndex =
-          (myTabedIndex === 'iupc' && !showKinematicMove) ||
+          (myTabedIndex === 'iupc' &&
+            !showKinematicMove &&
+            !showKinematicSliderMove) ||
           myTabedIndex === 'pdcu'
             ? 'gdtac'
             : myTabedIndex;
@@ -183,7 +213,8 @@ const ItemDetailHOC = (Component) =>
               ...gltfParam,
               okToParse,
               showKinematicMove,
-              regenerateKinematicMove
+              regenerateKinematicMove,
+              showKinematicSliderMove
             });
 
             myFileKinamatic = item.fileKinematic;
@@ -300,6 +331,7 @@ const ItemDetailHOC = (Component) =>
               ...gltfParam,
               okToParse,
               showKinematicMove: false,
+              showKinematicSliderMove: false,
               regenerateKinematicMove: 0
             });
             console.log('Setting active gltf file to', item.fileStore);
@@ -334,6 +366,7 @@ const ItemDetailHOC = (Component) =>
               ...gltfParam,
               okToParse,
               showKinematicMove: false,
+              showKinematicSliderMove: false,
               regenerateKinematicMove: 0
             });
             console.log('Setting active gltf file to', item.fileGDT);
@@ -343,7 +376,12 @@ const ItemDetailHOC = (Component) =>
 
         setItemValue((prev) => ({ ...prev, updatedItemProp }));
         handleSave(updatedItemProp); //Revert back after testing
-        if (item.fileGDT && item.child_item_status === 'INITIATED') {
+        if (
+          item.fileGDT &&
+          item.child_item_status === 'INITIATED' &&
+          whatEffect
+        ) {
+          console.log('Calling from setgltfandtreeroutine', item, whatEffect);
           const childrenCreated = await createChildItems({
             item,
             percentage,
@@ -399,6 +437,7 @@ const ItemDetailHOC = (Component) =>
           fileKinematic: item.fileKinematic,
           fileUUId: item.fileUUId,
           showKinematicMove: false,
+          showKinematicSliderMove: false,
           regenerateKinematicMove: 0,
           okToParse,
           setIsLoading,

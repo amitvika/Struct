@@ -1144,16 +1144,23 @@ class StepExportWithColor(object):
         """ folder, fname = os.path.split(filename)
         name, ext = os.path.splitext(fname)
         ext = ext[1:] if ext[0] == "." else ext """
-
+        print("Started writing",filename)
         session = XSControl_WorkSession()
         writer = STEPCAFControl_Writer(session, False)
         writer.SetColorMode(True)
         writer.SetLayerMode(True)
         writer.SetNameMode(True)
-        writer.Transfer(self.doc, STEPControl_AsIs)
-
+        print("Started transfering",filename)
+        writer.Transfer(self.doc, STEPControl_AsIs)    
         status = writer.Write(filename)
-
+        
+        """ try:
+            print("Going to closing session",session)
+            if session:
+                session.Delete()
+        except Exception as e:
+            print("Error while closing session",e) """
+        print("Completed writing",filename)
         return status == IFSelect_RetDone
         """ #self.app = XCAFApp_Application_GetApplication()
         store = XmlDrivers_DocumentStorageDriver(
@@ -1325,7 +1332,7 @@ class StepExportWithColor(object):
                 displaypath = DISPLAY_URL+head[MediaURLLength:]
             else:
                 displaypath = head
-            print("Conversion path",displaypath)
+            print("Conversion path status",displaypath,tail)
             pathfilename, _ = os.path.splitext(tail)
             basefilename = pathfilename+suffixname
         else:
@@ -1364,7 +1371,10 @@ class StepExportWithColor(object):
         return shapeArray
     
     def getVolume(self,fullZeroShape):
+        #For some of shapes, it hangs, hence returned 0
         massvolume=0
+        #if massvolume==0:
+        #    return massvolume        
         try:
             vprops = GpropsFromShape(fullZeroShape).volume()
             massvolume = roundoff(vprops.Mass(),True)
@@ -1808,8 +1818,21 @@ class StepExportWithColor(object):
                     fullpath = 'Media/'+uuidname+'/'+uniquename+".step"
                     #CREATE A MONGODB and GET REFID and REFNAME?
                     os.makedirs(os.path.dirname(fullpath), exist_ok=True)
-                    if(self.write_file(fullpath)):  
+                    writtenStatus = self.write_file(fullpath)
+                    self.doc=None
+                    
+                    """ try:
+                        #self.app.Close(self.doc)
+                        print("Going to close app",self.app)
+                        if(self.app):
+                            self.app.Delete()
+                            self.app=None
+                    except Exception as e:
+                        print("Error while closing writing",e) """
+                    if(writtenStatus):  
+                        
                         #print("Assigning a shape",uuidname,uniquename,treeName,aTree) 
+                        print("After writing",fullpath,"Reading again",fullpath)
                         ((_,_,outputFullAssemblyZeroShape),(_, _),status_dict)=StepIgesAnalyser(filename=fullpath,includeparts=includeparts,\
                             distancegap=distancegap,anglegap=anglegap,disectparts=disectparts,\
                                 moverotate=moverotate,thumbwidth=thumbwidth,thumbheight=thumbheight,\
@@ -2195,8 +2218,16 @@ class StepExportWithColor(object):
         aColor = Quantity_Color(0.3,0.32,0.37, Quantity_TOC_RGB)
         self.init_shape(shape=fullZeroShape3,color=aColor,name="ZeroOrign"+stepname)
         self.write_file(filename=stepname)
-        
-        print("") 
+        self.doc=None
+        """ try:
+            #self.app.Close(self.doc)
+            print("Going to close app",self.app)
+            if(self.app):
+                self.app.Delete()
+                self.app=None
+        except Exception as e:
+            print("Error while closing writing",e) """
+        #print("Completed writing file",stepname) 
         return (fullZeroShape3,thisRotateddictionary1,thisRotateddictionary3,(cx,cy,cz),rotation)
     
     def setComparisonDictionary(self, statusfilename,percentage,starttime, mystatusdict, createdirectory,updateprogressfile=None,comparechild=0,comparesub=0):
@@ -2658,7 +2689,7 @@ class StepIgesAnalyser():
                 self.displaypath = DISPLAY_URL+head[MediaURLLength:]
             else:
                 self.displaypath = head
-            print("Conversion path",self.displaypath)
+            print("Conversion path analyser",self.displaypath, tail)
             pathfilename, file_extension = os.path.splitext(tail)
             if file_extension:
                 file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
@@ -2786,14 +2817,19 @@ class StepIgesAnalyser():
             print("Reading End",self.endtime.strftime("%H-%M-%S"))    
     def read_file(self, fname):
         """Read STEP file and return <TDocStd_Document>."""
-
+        print("Started reading",fname)
         # Create the application, empty document and shape_tool
         if self.stepiges:
             doc = TDocStd_Document(TCollection_ExtendedString("STEP"))
         else:
             doc = TDocStd_Document(TCollection_ExtendedString("IGES"))
         app = XCAFApp_Application_GetApplication()
+        
+        print("Created APP",fname)
+        #app.InitDocument(doc)
+        #hanging for some files...
         app.NewDocument(TCollection_ExtendedString("MDTV-XCAF"), doc)
+        print("Created New Document",doc)
         self.shape_tool = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
         self.color_tool = XCAFDoc_DocumentTool_ColorTool(doc.Main())
         self.shape_tool.SetAutoNaming(True)
@@ -2807,10 +2843,14 @@ class StepIgesAnalyser():
         file_reader.SetLayerMode(True)
         file_reader.SetNameMode(True)
         if self.stepiges:
+            print("started setting material mode",fname)
             file_reader.SetMatMode(True)
+        print("started reading New Document",fname)
         status = file_reader.ReadFile(fname)
         if status == IFSelect_RetDone:
+            print("started transferring New Document",fname)
             file_reader.Transfer(doc)
+        print("Completed reading",fname,status)
         return doc
     
     def CreateSphereFromVertex(self, vertex,circular=False):
@@ -6766,8 +6806,9 @@ class StepIgesAnalyser():
             self.assemblycenter=center
             self.assemblyrotation=rotation
             self.fullZeroShape=fullZeroShape
+            print("I am going to get volume",fullZeroShape)
             self.massvolume = StepExportWithColor().getVolume(fullZeroShape)            
-    
+            print("Got volume",self.massvolume)
         dict_return = {
             "gltf":self.mstep_dict,
             "tree":self.tstep_dict['tree'],
@@ -6805,6 +6846,7 @@ class StepIgesAnalyser():
                         "comparepercent":self.comparepercent},
              "display":COPY_PATH+self.displaypath
         }
+        
         if ( (self.suffixname != "M") and (self.suffixname != "S") and \
             (self.suffixname != "K") and (self.suffixname != "R") and (self.suffixname != "A") ):
             if self.comparechildren:           

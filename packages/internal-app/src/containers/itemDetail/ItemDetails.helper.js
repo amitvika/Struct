@@ -39,6 +39,7 @@ export const fetchGLTFAndTree = async (props) => {
     setCompletionProgressText,
     setgltfjson,
     showKinematicMove,
+    showKinematicSliderMove,
     regenerateKinematicMove
   } = props;
   let updatedItemProp = {};
@@ -56,7 +57,10 @@ export const fetchGLTFAndTree = async (props) => {
     setIsLoading(true);
 
     let myTabIndex =
-      (myTabedIndex === 'iupc' && !showKinematicMove) || myTabedIndex == 'pdcu'
+      (myTabedIndex === 'iupc' &&
+        !showKinematicMove &&
+        !showKinematicSliderMove) ||
+      myTabedIndex == 'pdcu'
         ? 'gdtac'
         : myTabedIndex;
     let whichOneToLoad = fileUUId ? fileUUId + '/' : '';
@@ -374,6 +378,7 @@ export const handleOtherTabCase = async (props) => {
   if (allowFirstLevelItems && datastore) {
     if (item.child_item_status === 'INITIATED') {
       const itemClone = { ...item, fileGDT: datastore };
+      console.log('Calling from itemdetail othertabcase', datastore);
       const childrenCreated = await createChildItems({
         item: itemClone,
         percentage,
@@ -492,6 +497,7 @@ export const setStack = async (props) => {
         fileKinematic: item.fileKinematic,
         fileUUId: item.fileUUId,
         showKinematicMove: false,
+        showKinematicSliderMove: false,
         regenerateKinematicMove: 0,
         okToParse,
         setIsLoading,

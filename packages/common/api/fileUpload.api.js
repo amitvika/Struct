@@ -6,7 +6,7 @@ import CircularJSON from '../gltf/CircularJson';
 
 let baseURL = process.env.REACT_APP_GLTF_CONVERTER;
 
-baseURL = `https://cadapi.struct.services`;
+// baseURL = `https://cadapi.struct.services`;
 
 const host = `${baseURL}/api/v0`;
 

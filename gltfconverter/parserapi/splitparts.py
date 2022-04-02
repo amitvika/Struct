@@ -2,18 +2,18 @@ import os
 import struct
 import base64
 from io import BytesIO
-from itertools import chain
-from copy import copy, deepcopy
+#from itertools import chain
+from copy import  deepcopy #, copy
 import json
 from collections import defaultdict
 import numpy
 
-from cadquery import Vector
+from .structparts.structquery import Vector
 
-from cqparts.codec import Exporter, register_exporter
-from cqparts import __version__
-from cqparts import Component, Part, Assembly
-from cqparts.utils import CoordSystem, measure_time
+from .structparts.codec import Exporter, register_exporter
+from .structparts import __version__
+from .structparts import Component,  Assembly  #, Part
+from .structparts.utils import CoordSystem, measure_time
 
 import logging
 log = logging.getLogger(__name__)

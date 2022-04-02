@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Radio from '@mui/material/Radio';
+import Slider from '@mui/material/Slider';
 import ItemApi from '@monostruct/common/api/items.api';
 import { get } from 'lodash';
 import { getTableData } from './helper';
@@ -49,7 +50,8 @@ export default function MotionControlComponent({
   kinematicItemList,
   setKinematicItemList,
   selected3JSData,
-  showKinematicMove
+  showKinematicMove,
+  showKinematicSliderMove
 }) {
   const alertContext = React.useContext(AlertContext);
 
@@ -190,11 +192,13 @@ export default function MotionControlComponent({
   }, [selected3JSData]);
 
   const updateMotionControlActuator = (id, change) => {
+    console.log('Changing backend', change);
     ItemApi.updateItemAPI(id, { actuator_motion_control: change })
       .then((res) => {
         if (res.data) {
           alertContext.openSuccessAlert({ message: 'Actuator updated' });
         }
+        console.log('Kinematic list', res.data);
         setKinematicItemList(
           itemList.map((item) => (item.id === id ? res.data : item))
         );
@@ -270,7 +274,10 @@ export default function MotionControlComponent({
         child_chain_number: e.target.value
       });
     }
-  }; */
+  }; 
+  const handleSliderChange = (event, newValue) => {
+    setValue(newValue);
+  };*/
 
   const handleInputChange = ({ itemId, actuator_motion_control, change }) => {
     updateMotionControlActuator(itemId, {
@@ -311,7 +318,11 @@ export default function MotionControlComponent({
               <BootstrapTableCell padding="checkbox" size="small">
                 End Effector
               </BootstrapTableCell>
-              {/*  <TableCell padding="checkbox" size="small">Chain #</TableCell> */}
+              {showKinematicSliderMove && (
+                <BootstrapTableCell padding="checkbox" size="small">
+                  Movement
+                </BootstrapTableCell>
+              )}
               <BootstrapTableCell padding="checkbox" size="small">
                 Chain Numbers
               </BootstrapTableCell>
@@ -338,7 +349,11 @@ export default function MotionControlComponent({
                         : 'white'
                   }}
                   onClick={() => {
-                    if (showKinematicMove || selectedValue == item.id) {
+                    if (
+                      showKinematicMove ||
+                      selectedValue == item.id ||
+                      showKinematicSliderMove
+                    ) {
                       return;
                     }
                     setSelectedValue(item.id);
@@ -455,25 +470,41 @@ export default function MotionControlComponent({
                       }}
                     />
                   </BootstrapTableCell>
-                  {/* <TableCell padding="checkbox" size="small">
-                    {selectedValue === item.id ? (
-                      <TextField
-                        id="standard-basic"
-                        variant="standard"
-                        size="small"
-                        type="number"
-                        inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                        onKeyDown={(event) =>
-                          handleOnChangeChain(event)(
-                            item.id,
-                            actuator_motion_control
-                          )
-                        }
-                      />
-                    ) : (
-                      <>{actuator_motion_control.child_chain_number}</>
-                    )}
-                  </TableCell> */}
+                  {showKinematicSliderMove && (
+                    <BootstrapTableCell padding="checkbox" size="small">
+                      {actuator_motion_control.child_part_type == 'ACTUATOR' ? (
+                        <Slider
+                          aria-label="Angle"
+                          min={0}
+                          max={
+                            actuator_motion_control.rotational_angle_limit
+                              ? actuator_motion_control.rotational_angle_limit
+                              : 3.14
+                          }
+                          step={
+                            actuator_motion_control.rotational_angle_limit
+                              ? actuator_motion_control.rotational_angle_limit /
+                                100.0
+                              : 0.05
+                          }
+                          value={
+                            actuator_motion_control.chain_number //slider_angle
+                              ? actuator_motion_control.chain_number
+                              : 0
+                          }
+                          onChange={(event, newValue) => {
+                            event.stopPropagation();
+                            updateMotionControlActuator(item.id, {
+                              ...actuator_motion_control,
+                              chain_number: newValue
+                            });
+                          }}
+                        />
+                      ) : (
+                        ''
+                      )}
+                    </BootstrapTableCell>
+                  )}
 
                   <BootstrapTableCell padding="checkbox" size="small">
                     <SelectAxisMenu

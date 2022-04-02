@@ -27,7 +27,8 @@ export default function ThreejsSelection(props) {
     setIsCircularFaceOrEdgeSelection,
     cylindrical_axis_of_rotation,
     handleRotationalAxisChange,
-    showKinematicMove
+    showKinematicMove,
+    showKinematicSliderMove
   } = props;
 
   const [myvalue, setMyvalue] = useState(value);
@@ -277,7 +278,7 @@ export default function ThreejsSelection(props) {
     return false;
   };
   const doClick = () => {
-    if (showKinematicMove) {
+    if (showKinematicMove || showKinematicSliderMove) {
       return;
     }
     const myoption = getMyOption();
@@ -342,7 +343,7 @@ export default function ThreejsSelection(props) {
         variant="contained"
         color={active && clicked ? 'primary' : 'inherit'}
         onClick={(event) => {
-          if (showKinematicMove) {
+          if (showKinematicMove || showKinematicSliderMove) {
             return;
           }
           if (active) {

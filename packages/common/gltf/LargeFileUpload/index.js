@@ -88,7 +88,8 @@ export default function LargeFileUpload({
   createAutoAssemblyOrder,
   setCreateAutoAssemblyOrder,
   createAutoStackability,
-  setCreateAutoStackability
+  setCreateAutoStackability,
+  datauuid = null
 }) {
   const classes = useStyles();
   const [counter, setCounter] = useState(1);
@@ -118,7 +119,7 @@ export default function LargeFileUpload({
           ? dataload.size / chunkSize
           : Math.floor(dataload.size / chunkSize) + 1; // Total count of chunks will have been upload to finish the file
       setChunkCount(totalCount);
-      const fileID = uuidv4();
+      const fileID = datauuid ? datauuid : uuidv4();
       setFileGuid(fileID);
       //console.log('File Loading', dataload);
       const filenameWithExtension = dataload.name.replace(/^.*[\\\/]/, '');

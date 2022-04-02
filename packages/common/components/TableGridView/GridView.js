@@ -280,14 +280,14 @@ function GridView({
                 }}
               >
                 {!noThumbnail && (
-                  <Grid item sm sm={12} className={classes.thumbnailContainer}>
+                  <Grid item sm={12} className={classes.thumbnailContainer}>
                     <RenderIconBasedOnFileType
                       file_url={product.file_url}
                       logo_url={product.logo_url}
                     />
                   </Grid>
                 )}
-                <Grid item sm sm={12} className={classes.contentContainer}>
+                <Grid item sm={12} className={classes.contentContainer}>
                   <Grid container>
                     <Grid
                       item

@@ -65,6 +65,7 @@ from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 #from OCC.Core.Tesselator import ShapeTesselator
 #from OCC.Core.BRep import  BRep_Tool
 #from OCC.Core.TopoDS import (topods_Vertex)
+from OCC.Core.BRepOffset import BRepOffset_MakeOffset,BRepOffset_Skin
 
 from .settingscopy import (DISPLAY_URL,MEDIA_URL,S3_BUCKET)
 #from .dirSync import checkIdle, copyTree
@@ -73,7 +74,7 @@ from .assemblyorder import FindAssemblingOrder
 from .assemblystack import FindStackability
 from .matrixinv.matrixinv import getMatrixInverse
 from . import controllers
-
+from .fabrikSolver import FabrikSolver3D
 class HttpFormatter(logging.Formatter):
 
     def _formatHeaders(self, d):
@@ -6961,6 +6962,233 @@ def FileCompareIdentity(request):
             mythread = threading.Thread(target=compareToCheckIdentity, daemon=True,\
                 args=(sourceFile1,sourceFile2,distancegap,anglegap,statusfilename,starttime))
             mythread.start() 
+        return JsonResponse(data, safe=False)    
+    except Exception as e:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': str(e)},status=status.HTTP_400_BAD_REQUEST, safe=False)  
+    except:
+        try:
+            logging.error(traceback.format_exc())
+            logging.exception(e)
+        except Exception as e:
+            print("Error while logging",e)
+        return JsonResponse({'message': "System Error"},status=status.HTTP_400_BAD_REQUEST, safe=False)
+    finally:
+        try:
+            logging.info({'status':"completed",'request':request})
+        except Exception as e:
+            print("Error while logging",e)
+        except:
+            try:
+                logging.error(traceback.format_exc())
+                logging.exception(e)
+            except Exception as e:
+                print("Error while logging",e)
+
+def getOutputShapesAndDictionary(sourceFileName,distancegap,anglegap,refid='',refname=''):#,thumbwidth,thumbheight):
+    """
+    Imports a file based on the type (STEP, IGES, BREP, STL)    
+    """
+    #Now read and return the shape
+   
+    try:
+        
+        
+        dictionary={}
+        _, file_extension = os.path.splitext(sourceFileName)
+        file_extension = file_extension[1:] if file_extension[0] == "." else file_extension
+        file_extension = file_extension.lower()
+        newfilenamewithoutext = DISPLAY_URL+Path(sourceFileName).resolve().stem
+        newfilename = newfilenamewithoutext + ".step"
+        outputShapes={}
+        if file_extension=="stp" or file_extension=="step" or file_extension=="igs" or file_extension=="iges" :          
+            
+            try:
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,includeparts=False,distancegap=distancegap, logging=logging, 
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False,
+                    edgesize=0, vertexsize=0,thumbwidth=0,thumbheight=0,refid=refid,refname=refname).dump()
+            except Exception as e:
+                print("error",e)
+       
+        if file_extension=="stl" :            
+            try:
+                shape = conversion.read_stl_file(sourceFileName, as_compound=False)
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid,refname=refname).dump()
+            except Exception as e:
+                print("error",e)
+        
+        if file_extension=="brep" :            
+            try:
+                shape = conversion.read_brep_file(sourceFileName, as_compound=False)
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),includeparts=True,distancegap=distancegap,
+                    anglegap=anglegap,disectparts=False,moverotate=0,ascompound=True,writefiles=False, logging=logging, 
+                    thumbwidth=0,thumbheight=0,edgesize=0, vertexsize=0,refid=refid,refname=refname).dump()                
+            except Exception as e:
+                print("error",e)
+        
+        if file_extension=="dxf" :            
+            try:
+                print("Going to import dxf",sourceFileName)
+                shape = OCPImporters.importDXFObjects(sourceFileName, tol=distancegap )
+                (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                    filename=sourceFileName,shapeslist=OCPStepIGESAnalyser.StepExportWithColor().createShapeArray(shape),distancegap=distancegap,
+                    anglegap=anglegap,ascompound=True,writefiles=False, logging=logging, 
+                    thumbwidth=0,thumbheight=0,refid=refid,refname=refname).dump()                 
+            except Exception as e:
+                print("error",e)
+        return (outputShapes,dictionary)
+       
+       
+    except:
+        return {}
+        #raise ValueError("File Could not be loaded") 
+
+def offsetSurface(face,perpendicularGap,tolerance):
+    offsetFace = BRepOffset_MakeOffset()
+    offsetFace.Initialize(face, perpendicularGap, tolerance, Mode = BRepOffset_Skin)
+    offsetFace.MakeOffsetShape()
+    return offsetFace.Shape()
+
+def rotateToXAxis(kinematicShapePickles):
+    lenShapes = len(kinematicShapePickles)
+    maxX,maxY,maxZ,minX,minY,minZ=-1e-10,-1e-10,-1e-10,1e10,1e10,1e10
+    for iIndex in range(lenShapes):
+        (aShape, aName, aR, aG, aB) = kinematicShapePickles[iIndex]
+        if aShape:            
+            aDimension = get_oriented_bounding_details(aShape)
+            aXDir = aDimension.XDirection()
+            rotShape=rotate_shp_3_axis(aShape,-math.acos(aXDir.X()),0,0, unity="radian", copy=True) 
+            kinematicShapePickles[iIndex] = (rotShape, aName, aR, aG, aB)
+            xmin, ymin, zmin, xmax, ymax, zmax = get_bounding_details(rotShape)
+            if xmin < minX:
+                minX=xmin
+            if ymin < minY:
+                minY=ymin
+            if zmin < minZ:
+                minZ=zmin  
+            if xmax > maxX:
+                maxX=xmax  
+            if ymax > maxY:
+                maxY=ymax
+            if zmax > maxZ:
+                maxZ=zmax
+            for jIndex in range(iIndex+1,lenShapes):
+                (aShape, aName, aR, aG, aB) = kinematicShapePickles[jIndex]
+                if aShape:            
+                    rotShape=rotate_shp_3_axis(aShape,-math.acos(aXDir.X()),0,0, unity="radian", copy=True) 
+                    kinematicShapePickles[jIndex] = (rotShape, aName, aR, aG, aB)
+    return kinematicShapePickles, (minX,minY,minZ,maxX,maxY,maxZ)
+
+def exportToSurfaceGLTF(sourceFileName,surfFileName,distancegap,anglegap,perpendiculargap,animationtime=1.5,starttime=None,refid='',refname=''):#,thumbwidth,thumbheight):
+    """
+    Imports a file based on the type (STEP, IGES, BREP, STL)    
+    """
+    #Now read and return the shape
+   
+    try:
+        
+        (myKinematicDimension, myKinematicShapes), kinematicDictionary = getOutputShapesAndDictionary(sourceFileName,distancegap,anglegap,refid,refname)
+        getEmptyDictionary(sourceFileName,kinematicDictionary["store"],kinematicDictionary["display"],15,starttime,False)
+        (mySurfaceDimension, mySurfaceShapes), surfaceDictionary = getOutputShapesAndDictionary(surfFileName,distancegap,anglegap,refid,refname)
+        getEmptyDictionary(sourceFileName,kinematicDictionary["store"],kinematicDictionary["display"],30,starttime,False)
+        try:
+            _,_,kinematicShapePickles,_,_ = getShapesFromOutPutShapes(myKinematicShapes,kinematicDictionary["tree"])
+            surfaceShapeArray,_,_,_,_ = getShapesFromOutPutShapes(mySurfaceShapes,surfaceDictionary["tree"])
+            kinematicShapePickles, (kMinX,kMinY,kMinZ,kMaxX,kMaxY,kMaxZ) = rotateToXAxis(kinematicShapePickles)
+            sMinX,sMinY,sMinZ,sMaxX,sMaxY,sMaxZ = mySurfaceDimension
+            xmove = (sMinX+sMaxX)/2.0-kMinX
+            ymove = (sMinY+sMaxY)/2.0-kMinY
+            zmove = sMaxZ + perpendiculargap-kMinZ
+            kinematicArm = FabrikSolver3D((sMinX+sMaxX)/2.0,(sMinY+sMaxY)/2.0,sMaxZ + perpendiculargap)
+            lenSurfaceShapes = len(surfaceShapeArray)
+            for (aShape, aName, aR, aG, aB) in kinematicShapePickles:
+                if aShape:
+                    transShape=translate_shp(aShape,xmove, ymove, zmove, True)
+                    surfaceShapeArray.append((transShape,aName,Quantity_Color(aR,aG,aB,Quantity_TOC_RGB)))
+                    transdimension = get_oriented_bounding_details(transShape)
+                    aXDir = transdimension.XDirection()
+                    kinematicArm.addSegment(transdimension.XHSize()*2.0,math.acos(aXDir.Y()),math.acos(aXDir.Z()))                    
+
+            (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
+                filename=sourceFileName,shapeslist=surfaceShapeArray,includeparts=False,distancegap=distancegap,
+                anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
+                edgesize=0, vertexsize=0, kinematicrotation=surfaceShapeArray,shapeorder=kinematicShapePickles,
+                delay=animationtime,refid=refid,refname=refname).dump()
+
+        except Exception as e:
+            print("error",e) 
+        try:
+            myPickle = {'sourceType':'KinematicRotation',
+                            'sourceFileName':sourceFileName,
+                            'distancegap':distancegap,
+                            'anglegap':anglegap,
+                            'animationtime':animationtime,
+                            'colorshapes':kinematicShapePickles,
+                            'refid':refid,
+                            'refname':refname}
+            picklefile = dictionary["display"]+dictionary["store"]+".pickle"
+            with open(picklefile, 'wb') as f:                                
+                pickle.dump(myPickle, f, pickle.HIGHEST_PROTOCOL)
+                # Pickle the 'data' dictionary using the highest protocol available.
+                #pickle.dump(shapePickles, f, pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            print(e,"File, %s has error" % picklefile)  
+        getEmptyDictionary(sourceFileName,dictionary["store"],dictionary["display"],100,starttime,False)        
+        return 
+       
+       
+    except:
+        return {}
+        #raise ValueError("File Could not be loaded") 
+
+@api_view(['GET'])
+def FileGetSurfaceKinematicAnimation(request):
+    try:
+        try:
+            logging.info(request)
+        except Exception as e:
+            print("Error while logging",e)
+        data = []
+        if request.method == 'GET':
+            id = request.GET.get('id', None)
+            surf = request.GET.get('surf', None)
+            refid = request.GET.get('refid','')
+            refname=request.GET.get('refname','')
+            distancegap = controllers.convertToFloat(request.GET.get('distancegap',"0.1"),0.1)
+            anglegap = controllers.convertToFloat(request.GET.get('anglegap',"0.5"),0.5)
+            perpendiculargap = controllers.convertToFloat(request.GET.get('perpgap',"0.01"),0.01)
+            animationtime = controllers.convertToFloat(request.GET.get('animationtime',"1.0"),1.0)
+            print(id,distancegap,anglegap,animationtime)
+            starttime = datetime.utcnow() 
+            if is_number(id) :            
+                files = File.objects.filter(id__icontains=id)
+                surfaces = File.objects.filter(id__icontains=surf)
+                #for eachfile in files: 
+                if len(files)>0 and len(surfaces)>0 :
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+files[0].file.name,0,"R")
+                    data = getEmptyDictionary(MEDIA_URL+files[0].file.name, basefilename,displaypath,0,starttime,True) 
+                    #print("From assembly",data)
+                    mythread = threading.Thread(target=exportToSurfaceGLTF, daemon=True,\
+                        args=(MEDIA_URL+files[0].file.name,MEDIA_URL+surfaces[0].file.name,distancegap,anglegap,perpendiculargap,animationtime,starttime,refid,refname))
+                    mythread.start()  
+            else:
+                #id = request.GET.get('file', None)
+                if id is not None:
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"R")
+                    data = getEmptyDictionary(MEDIA_URL+id, basefilename,displaypath,0,starttime,True) 
+                    #print("From assembly",data)
+                    mythread = threading.Thread(target=exportToSurfaceGLTF, daemon=True,\
+                        args=(MEDIA_URL+id,MEDIA_URL+surf,distancegap,anglegap,perpendiculargap,animationtime,starttime,refid,refname))
+                    mythread.start() 
         return JsonResponse(data, safe=False)    
     except Exception as e:
         try:

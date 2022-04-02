@@ -210,6 +210,40 @@ const CadMakerItemDetail = (props) => {
       },
       {
         tabName: 'Make Item Configurable/Customizable'
+      },
+      {
+        tabId: 'surf',
+        tabName: 'Surface Navigation',
+        tabContent: SurfaceNavigation,
+        tabProps: {
+          itemProperties: itemValue,
+          setItemProperties: setItemValue,
+          allowFirstLevelItems,
+          setAllowFirstLevelItems,
+          createAutoAssemblyOrder,
+          setCreateAutoAssemblyOrder,
+          activeGLTFFile,
+          setActiveGLTFile,
+          setCreateAutoStackability,
+          createAutoStackability,
+          selectedOption,
+          setSelectedOption,
+          setPercentage,
+          setProgressBarLoad,
+          setCurrentProgressText,
+          setCompletionProgressText,
+          setCenterActionText,
+          progressBarLoad,
+          percentage,
+          currentProgressText,
+          completionProgressText,
+          centerActionText,
+          gltfjson,
+          setgltfjson,
+          tabIndex,
+          setTabIndex,
+          isDesignSite: true
+        }
       }
     ];
   };

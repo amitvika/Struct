@@ -57,7 +57,7 @@ class _STEPImporter(Importer):
         # encode to ascii (for a clean class name)
         name = name.encode('ascii', 'ignore')
         if type(name).__name__ == 'bytes':  # a python3 thing
-            name = name.decode()  # type: bytes -> str
+            name = name.decode()  # type bytes str
 
         # if begins with a number, inject a '_' at the beginning
         if re.search(r'^\d', name):

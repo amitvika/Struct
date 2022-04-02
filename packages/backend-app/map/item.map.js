@@ -59,6 +59,7 @@ exports.mapItem = async (item = {}) => {
       ? 'Multi-Item Assembly'
       : 'Single Item Part',
     child_item_created: item.child_item_status === 'COMPLETED' ? 'Yes' : 'No',
+    child_item_status: item.child_item_status,
     direct_parent_id: item.parent_id || item._id,
     origin_parent_id: item.parent_id || item._id,
     created_at: moment(get(item, 'createdAt')).format(

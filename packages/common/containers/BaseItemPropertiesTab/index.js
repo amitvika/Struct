@@ -169,7 +169,7 @@ export default function BaseItemProperties({
       setIsFileLoading(true);
       if (
         datastore != itemProperties.fileStore ||
-        dataload != itemProperties.filename ||
+        dataload != itemProperties.fileName ||
         data.uuid != itemProperties.fileUUId
       ) {
         setItemProperties((prevData) => ({

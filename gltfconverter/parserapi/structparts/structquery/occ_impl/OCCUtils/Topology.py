@@ -1169,6 +1169,8 @@ def recognize_face(topods_face,draft=False):
         #return entity
     # nothing found
     entity['kind'] = "Unknown"
+    #GpropsFromShape hangs..
+    entity['mass']=0
     try:
         sprop=GpropsFromShape(topods_face).surface()
         entity['mass']=roundoff(sprop.Mass(),draft)
@@ -1256,6 +1258,8 @@ def recognize_shape_entity_info(topods_shape,draft=False):
         entity['location'] = getXYZ(thisdimension.Position().Location(),draft)  # a point of the axis
         entity['direction'] = getXYZ(thisdimension.Position().Direction(),draft)
         entity['center']=getXYZ(thisdimension.Center(),draft)
+         #GpropsFromShape hangs..
+        entity['mass']=0
         try:
             vprop=GpropsFromShape(topods_shape).volume()
             entity['mass']=roundoff(vprop.Mass(),draft)
@@ -1380,6 +1384,8 @@ def recognize_edge(topods_edge,face_info,draft=False):
         entity['kind'] = "Other Curves" 
     else:
         entity['kind'] = "Unknown"   
+    #GpropsFromShape hangs..
+    entity['mass']=0
     try:
         lprop=GpropsFromShape(topods_edge).linear()
         entity['mass']=roundoff(lprop.Mass(),draft)

@@ -52,7 +52,8 @@ export default function Viewer({
   regenerateKinematicMove = 0,
   activeGLTFFile = '',
   setActiveGLTFile = () => {},
-  drawAxisLines = null
+  drawAxisLines = null,
+  showKinematicSliderMove = false
 }) {
   const [percentager, setPercentager] = useState(percentage || 0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
@@ -129,13 +130,13 @@ export default function Viewer({
           gltfobj={gltfjson}
           fileGDT={fileGDT}
           fileUUId={fileUUIder}
-          fileAnimation={false}
           activefile={
             activefile +
             //(showKinematicMove ? '' : gltfjsonlen.toString()) +
             tabIndex.toString() +
             showKinematicMove.toString() +
-            regenerateKinematicMove.toString()
+            regenerateKinematicMove.toString() +
+            showKinematicSliderMove.toString()
           }
           backcolor={DEFAULTBACKCOLOR()}
           selectcolor={DEFAULTSELECTCOLOR()}
@@ -173,11 +174,13 @@ export default function Viewer({
             activeGLTFFile +
             tabIndex.toString() +
             showKinematicMove.toString() +
-            regenerateKinematicMove.toString()
+            regenerateKinematicMove.toString() +
+            showKinematicSliderMove.toString()
           }
           setActiveGLTFile={setActiveGLTFile}
           drawAxisLines={drawAxisLines}
           showKinematicMove={showKinematicMove}
+          showKinematicSliderMove={showKinematicSliderMove}
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */
         />

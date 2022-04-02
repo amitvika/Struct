@@ -114,7 +114,8 @@ export default function Viewer({
             activeGLTFFile +
             tabIndex.toString() +
             showKinematicMove.toString() +
-            regenerateKinematicMove.toString()
+            regenerateKinematicMove.toString() +
+            showKinematicSliderMove.toString()
           }
           setActiveGLTFile={setActiveGLTFile}
         />

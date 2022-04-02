@@ -52,7 +52,9 @@ export default function ItemTypeConfigurations(props) {
     activeGDTTable,
     setActiveGDTTable,
     drawAxisLines,
-    setDrawAxisLines
+    setDrawAxisLines,
+    showKinematicSliderMove,
+    setShowKinematicSliderMove
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
@@ -276,6 +278,7 @@ export default function ItemTypeConfigurations(props) {
         setKinematicItemList={setKinematicItemList}
         selected3JSData={selected3JSData}
         showKinematicMove={showKinematicMove}
+        showKinematicSliderMove={showKinematicSliderMove}
         {...{
           itemProperties,
           gltfjson,
@@ -289,6 +292,10 @@ export default function ItemTypeConfigurations(props) {
   const handleSwitchChange = async (event) => {
     setShowKinematicMove(event.target.checked);
     setRegenerateKinematicMove(0);
+  };
+
+  const handleSwitchSliderChange = async (event) => {
+    setShowKinematicSliderMove(event.target.checked);
   };
 
   const handleRegenerate = async (event) => {
@@ -324,6 +331,16 @@ export default function ItemTypeConfigurations(props) {
             startIcon={<DynamicFeedOutlinedIcon />}
           ></Button>
         )}
+        <Typography variant="h6" noWrap>
+          {'Show Kinematic Slider Animation:'}
+        </Typography>
+        {!showKinematicMove && (
+          <Switch
+            checked={showKinematicSliderMove}
+            onChange={handleSwitchSliderChange}
+            inputProps={{ 'aria-label': 'controlled' }}
+          />
+        )}
       </Grid>
       {renderExcelUI()}
 
@@ -356,6 +373,7 @@ export default function ItemTypeConfigurations(props) {
         changingdata={renderData}
         whatchanger={whatchange}
         showKinematicMove={showKinematicMove}
+        showKinematicSliderMove={showKinematicSliderMove}
         regenerateKinematicMove={regenerateKinematicMove}
         additionalModelClick={additionalModelClick}
         activeGLTFFile={activeGLTFFile}

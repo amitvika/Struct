@@ -40,8 +40,11 @@ yarn install
 - Install miniconda
 - start miniconda terminal
 
-- run `conda env remove --name structserver ` ### this is needed if incase you want to delete the already created environment.
-- run `conda create --name structserver -c conda-forge pythonocc-core=7.5.1 occt=7.5.1 pyparsing=2.4.7 pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0 tensorflow-gpu glob2 seaborn scikit-learn Markdown=3.3.4 ipykernel`
+- run `conda env remove --name structserver or structquery ` ### this is needed if incase you want to delete the already created environment.
+- Following is for pythonocc-cor 7.4 environment supplied by cadquery
+- run `conda create --name structquery -c conda-forge -c cadquery cadquery=2 oce pythonocc-core pyparsing=2.4.7 pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpld3 mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0 tensorflow-gpu glob2 seaborn scikit-learn Markdown=3.3.4 ipykernel
+- Following is for pythonocc-cor 7.5 environment without cadquery
+- run `conda create --name structserver -c conda-forge pythonocc-core=7.5.1 occt=7.5.1 pyparsing=2.4.7 pip svgwrite Django django-cors-headers djangorestframework jinja2 tinydb requests six numpy scipy sympy matplotlib mpld3 mpmath nptyping s3fs trimesh pyopengl pillow networkx pyglet zlib djongo dnspython pymongo=3.12.0 tensorflow-gpu glob2 seaborn scikit-learn Markdown=3.3.4 ipykernel`
 - run `conda activate structserver`
 - run `conda install -c pytorch -c nvidia -c fastai fastai`
 - CD to `gltfconverter` directory

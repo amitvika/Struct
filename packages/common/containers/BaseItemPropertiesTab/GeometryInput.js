@@ -69,6 +69,10 @@ export default function GeometryInput({
           ...itemProperties,
           fileGDT: getFileNameWithoutExtension(itemProperties.fileName) + '3'
         };
+        console.log(
+          'Calling create child items from Geometry input',
+          itemProperties.fileName
+        );
         const childrenCreated = await createChildItems({
           item: itemClone,
           percentage,
@@ -133,6 +137,7 @@ export default function GeometryInput({
               removeFile={removeFile}
               itemProperties={itemProperties}
               setItemProperties={setItemProperties}
+              datauuid={null}
               isFileLoading={isFileLoading}
               setIsFileLoading={setIsFileLoading}
               label={label}
