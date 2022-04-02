@@ -896,7 +896,7 @@ const ItemDetail = ({ itemValue }) => {
     AssignToClient: 'Assign to Client(s)',
     sv: 'Supplying Vendors',
     instanceOfThisItem: 'Instance of this Item',
-    pricing: 'pricing'
+    pricing: 'pricinggggg'
   };
 
   const renderTab = () => {
