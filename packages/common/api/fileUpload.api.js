@@ -6,7 +6,7 @@ import CircularJSON from '../gltf/CircularJson';
 
 let baseURL = process.env.REACT_APP_GLTF_CONVERTER;
 
-// baseURL = `https://cadapi.struct.services`;
+baseURL = `https://cadapi.struct.services`;
 
 const host = `${baseURL}/api/v0`;
 
@@ -173,7 +173,8 @@ export const getPartsKinematicMovement = async (
   animationtime,
   kinematicItemList,
   refId,
-  refName
+  refName,
+  showKinematicSliderMove
 ) => {
   var formInfo = new FormData();
   formInfo.append('id', id);
@@ -183,6 +184,7 @@ export const getPartsKinematicMovement = async (
   formInfo.append('refid', (refId || 0 || '').toString());
   formInfo.append('refname', refName);
   formInfo.append('parts', stringify({ parts: kinematicItemList }));
+  formInfo.append('slidermove', showKinematicSliderMove ? true : false);
 
   console.log('Kinematic Move', kinematicItemList);
   return axios.post(`${host}/kinematicmove/`, formInfo);

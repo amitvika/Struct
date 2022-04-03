@@ -122,6 +122,7 @@ class ItemDetails(models.Model):
     fileMPPS=models.CharField(max_length=255,default=None)
     fileStack=models.CharField(max_length=255,default=None)
     fileKinematic=models.CharField(max_length=255,default=None)
+    fileSliderKinematic=models.CharField(max_length=255,default=None)
     surfName=models.CharField(max_length=255,default=None)
     surfStore=models.CharField(max_length=255,default=None)
     surfGDT=models.CharField(max_length=255,default=None)

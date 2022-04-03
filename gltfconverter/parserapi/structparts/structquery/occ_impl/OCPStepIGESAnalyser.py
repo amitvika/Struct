@@ -2628,7 +2628,8 @@ class StepIgesAnalyser():
         defaultR=0.3, defaultG=0.32, defaultB=0.37, seperateparts=False, seperatecompounds=True,
         recursiveShapes=None, recursiveTree=None, recursiveID=1, CreateChildSteps=False,
         CreateAssemblyOrder=False, explodegap=10.0, center=True, holescale=0.77, removegap=8.0,
-        recreatefororder=False, CreateStackability=False,updateprogressfile=None,comparechildren=True
+        recreatefororder=False, CreateStackability=False,updateprogressfile=None,comparechildren=True,
+        kinematicslider=None
         ):
         """Supply one or the other: document or STEP filename or Shapes."""
         self.starttime = datetime.utcnow()
@@ -2715,6 +2716,10 @@ class StepIgesAnalyser():
                 self.basefilename = pathfilename+"R"+self.edgeGapStr
                 self.writethread = False
                 self.suffixname = "R"
+            elif (kinematicslider!=None) or (suffixname=="P"):
+                self.basefilename = pathfilename+"P"+self.edgeGapStr
+                self.writethread = False
+                self.suffixname = "P"
             else:
                 self.basefilename = pathfilename+self.edgeGapStr
                 self.writethread = writethread
@@ -2729,12 +2734,13 @@ class StepIgesAnalyser():
             self.writethread = writethread
             self.displaypath= DISPLAY_URL
         self.progressfile = self.displaypath+pathfilename+".progress"
-        #print(self.fname,self.basefilename)
+        print(self.fname,self.basefilename)
         self.kinematicanimation=kinematicanimation
         self.kinematicrotation=kinematicrotation
+        self.kinematicslider=kinematicslider
         self.includeparts = includeparts
         self.ascompound = ascompound
-        if self.includeparts:
+        if self.includeparts or self.suffixname=="P":
             self.fileprefix = "I"
         else:
             self.fileprefix = "H"
@@ -6781,7 +6787,7 @@ class StepIgesAnalyser():
         dictionaryOrderTree=self.tstep_dict["tree"]
         lenDictionaryOrderTree = myTreeLenBeforeAddingEdgesAndVertices
         #Find the counts of features..
-        if ( (self.suffixname != "M") and (self.suffixname != "S") and \
+        if ( (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "P") and \
             (self.suffixname != "K") and (self.suffixname != "R") and (self.suffixname != "A") ):
             shapeArrayOrder,shapeOrder,shapePicklesOrder,aNameOrder,aColorAssemblyOrder = StepExportWithColor().\
                 getShapesFromOutPutShapes(outputShapesOrder,1,dictionaryOrderTree,lenDictionaryOrderTree,'')
@@ -6847,7 +6853,7 @@ class StepIgesAnalyser():
              "display":COPY_PATH+self.displaypath
         }
         
-        if ( (self.suffixname != "M") and (self.suffixname != "S") and \
+        if ( (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "P") and \
             (self.suffixname != "K") and (self.suffixname != "R") and (self.suffixname != "A") ):
             if self.comparechildren:           
                 self.compareAcross(dict_return)
@@ -6889,7 +6895,7 @@ class StepIgesAnalyser():
                         print("Error while copying Edges to s3",e)
             except Exception as e:
                 print("Error while disecting",e)
-        if ( (self.suffixname != "M") and (self.suffixname != "S") and \
+        if ( (self.suffixname != "M") and (self.suffixname != "S") and (self.suffixname != "P") and \
             (self.suffixname != "K") and (self.suffixname != "R") and (self.suffixname != "A") ):
             #orderDimension = (self.scene_min[0],self.scene_min[1],self.scene_min[2],\
             #    self.scene_max[0],self.scene_max[1],self.scene_max[2])

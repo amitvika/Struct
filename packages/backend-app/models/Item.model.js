@@ -89,6 +89,7 @@ const ItemSchema = new mongoose.Schema(
     fileMPPS: { type: String },
     fileStack: { type: String },
     fileKinematic: { type: String },
+    fileSliderKinematic: { type: String },
     surfName: { type: String },
     surfStore: { type: String },
     surfKinematic: { type: String },

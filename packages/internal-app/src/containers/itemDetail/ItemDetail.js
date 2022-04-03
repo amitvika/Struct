@@ -218,6 +218,7 @@ const ItemDetail = ({ itemValue }) => {
         fileMPPS: item.fileMPPS,
         fileStack: item.fileStack,
         fileKinematic: item.fileKinematic,
+        fileSliderKinematic: item.fileSliderKinematic,
         fileUUId: item.fileUUId,
         setIsLoading,
         setProgressBarLoad,
@@ -232,129 +233,172 @@ const ItemDetail = ({ itemValue }) => {
         let myFileKinamatic = null;
         let okToParse = await isOKToParseForInternalUseProduct({
           item,
-          regenerateKinematicMove
+          regenerateKinematicMove,
+          showKinematicSliderMove
         });
+        if (showKinematicSliderMove) {
+          if (!item.fileSliderKinematic || item.fileSliderKinematic === null) {
+            updatedItemProp = await handleInternalUseProduct({
+              item,
+              myTabedIndex,
+              myTabIndex,
+              setIsLoading,
+              setIsFileLoading,
+              setProgressBarLoad,
+              percentage,
+              setPercentage,
+              setCurrentProgressText,
+              setCompletionProgressText,
+              setgltfjson,
+              kinematicItemList,
+              showKinematicSliderMove
+            });
+            console.log(
+              'Setting active gltf file to',
+              updatedItemProp.fileSliderKinematic
+            );
+            myFileKinamatic = updatedItemProp.fileSliderKinematic;
+          } else {
+            gltfParam.fileSliderKinematic = item.fileSliderKinematic;
+            await fetchGLTFAndTree({
+              ...gltfParam,
+              okToParse,
+              showKinematicMove,
+              showKinematicSliderMove,
+              regenerateKinematicMove
+            });
 
-        if (!item.fileKinematic || item.fileKinematic === null) {
-          updatedItemProp = await handleInternalUseProduct({
-            item,
-            myTabedIndex,
-            myTabIndex,
-            setIsLoading,
-            setIsFileLoading,
-            setProgressBarLoad,
-            percentage,
-            setPercentage,
-            setCurrentProgressText,
-            setCompletionProgressText,
-            setgltfjson,
-            kinematicItemList
-          });
-          console.log(
-            'Setting active gltf file to',
-            updatedItemProp.fileKinematic
-          );
-          myFileKinamatic = updatedItemProp.fileKinematic;
+            myFileKinamatic = item.fileSliderKinematic;
+          }
         } else {
-          gltfParam.fileKinematic = item.fileKinematic;
-          await fetchGLTFAndTree({
-            ...gltfParam,
-            okToParse,
-            showKinematicMove,
-            showKinematicSliderMove,
-            regenerateKinematicMove
-          });
+          if (!item.fileKinematic || item.fileKinematic === null) {
+            updatedItemProp = await handleInternalUseProduct({
+              item,
+              myTabedIndex,
+              myTabIndex,
+              setIsLoading,
+              setIsFileLoading,
+              setProgressBarLoad,
+              percentage,
+              setPercentage,
+              setCurrentProgressText,
+              setCompletionProgressText,
+              setgltfjson,
+              kinematicItemList,
+              showKinematicSliderMove
+            });
+            console.log(
+              'Setting active gltf file to',
+              updatedItemProp.fileKinematic
+            );
+            myFileKinamatic = updatedItemProp.fileKinematic;
+          } else {
+            gltfParam.fileKinematic = item.fileKinematic;
+            await fetchGLTFAndTree({
+              ...gltfParam,
+              okToParse,
+              showKinematicMove,
+              showKinematicSliderMove,
+              regenerateKinematicMove
+            });
 
-          myFileKinamatic = item.fileKinematic;
+            myFileKinamatic = item.fileKinematic;
+          }
         }
 
-        if (activeGLTFFile != myFileKinamatic) {
+        if (activeGLTFFile != myFileKinamatic || !myFileKinamatic) {
           console.log('Setting active gltf file to', myFileKinamatic);
           setActiveGLTFile(myFileKinamatic);
         } else {
           console.log(
             'Setting active gltf file to',
-            myFileKinamatic + regenerateKinematicMove.toString()
+            myFileKinamatic +
+              regenerateKinematicMove.toString() +
+              showKinematicSliderMove.toString()
           );
           setActiveGLTFile(
-            myFileKinamatic + regenerateKinematicMove.toString()
+            myFileKinamatic +
+              regenerateKinematicMove.toString() +
+              showKinematicSliderMove.toString()
           );
         }
-        let whichOneToLoad =
-          (gltfParam.fileUUId ? gltfParam.fileUUId + '/' : '') +
-          myFileKinamatic;
-        console.log('Going to load axis info', whichOneToLoad);
 
-        let axisRes = await getAFileFromStore(whichOneToLoad, 'axis', true);
-        if (
-          axisRes &&
-          axisRes.data &&
-          axisRes.data.AllAxis &&
-          axisRes.data.AllAxis.length > 0
-        ) {
-          for (let index = 0; index < axisRes.data.AllAxis.length; index++) {
-            let elementAxis = axisRes.data.AllAxis[index];
-            if (Array.isArray(elementAxis) == false) {
-              elementAxis = [elementAxis];
-            }
-            for (
-              let indexAxis = 0;
-              indexAxis < elementAxis.length;
-              indexAxis++
-            ) {
-              const element = elementAxis[indexAxis];
-
-              //console.log('Element for drawing axis', element);
-              /* if (
-              existingAxis(element.directing) &&
-              element.rotation &&
-              element.rotation[3] != 0
-            ) {
-              axisArray.push({
-                axis: element.directing,
-                position: element.locating ? element.locating : [0, 0, 0],
-                name: element.display
-              });
-            } else {
-              if (element.rotation && element.rotation[3] != 0) {
-                axisArray.push({
-                  axis: [
-                    element.rotation[0],
-                    element.rotation[1],
-                    element.rotation[2]
-                  ],
-                  position: element.locating ? element.locating : [0, 0, 0],
-                  name: element.display
-                });
+        if (!showKinematicSliderMove) {
+          let whichOneToLoad =
+            (gltfParam.fileUUId ? gltfParam.fileUUId + '/' : '') +
+            myFileKinamatic;
+          console.log('Going to load axis info', whichOneToLoad);
+          let axisRes = await getAFileFromStore(whichOneToLoad, 'axis', true);
+          if (
+            axisRes &&
+            axisRes.data &&
+            axisRes.data.AllAxis &&
+            axisRes.data.AllAxis.length > 0
+          ) {
+            for (let index = 0; index < axisRes.data.AllAxis.length; index++) {
+              let elementAxis = axisRes.data.AllAxis[index];
+              if (Array.isArray(elementAxis) == false) {
+                elementAxis = [elementAxis];
               }
-            } */
-              if (
-                existingAxis(element.direction) &&
+              for (
+                let indexAxis = 0;
+                indexAxis < elementAxis.length;
+                indexAxis++
+              ) {
+                const element = elementAxis[indexAxis];
+
+                //console.log('Element for drawing axis', element);
+                /* if (
+                existingAxis(element.directing) &&
                 element.rotation &&
                 element.rotation[3] != 0
               ) {
                 axisArray.push({
-                  axis: element.direction,
-                  position: element.location ? element.location : [0, 0, 0],
+                  axis: element.directing,
+                  position: element.locating ? element.locating : [0, 0, 0],
                   name: element.display
                 });
               } else {
-                if (element.rotated && element.rotation[3] != 0) {
+                if (element.rotation && element.rotation[3] != 0) {
                   axisArray.push({
                     axis: [
-                      element.rotated[0],
-                      element.rotated[1],
-                      element.rotated[2]
+                      element.rotation[0],
+                      element.rotation[1],
+                      element.rotation[2]
                     ],
-                    position: element.location ? element.location : [0, 0, 0],
+                    position: element.locating ? element.locating : [0, 0, 0],
                     name: element.display
                   });
                 }
+              } */
+                if (
+                  existingAxis(element.direction) &&
+                  element.rotation &&
+                  element.rotation[3] != 0
+                ) {
+                  axisArray.push({
+                    axis: element.direction,
+                    position: element.location ? element.location : [0, 0, 0],
+                    name: element.display
+                  });
+                } else {
+                  if (element.rotated && element.rotation[3] != 0) {
+                    axisArray.push({
+                      axis: [
+                        element.rotated[0],
+                        element.rotated[1],
+                        element.rotated[2]
+                      ],
+                      position: element.location ? element.location : [0, 0, 0],
+                      name: element.display
+                    });
+                  }
+                }
               }
             }
+            console.log('Getting points for axis', axisArray);
+            setDrawAxisLines(axisArray);
           }
-          console.log('Getting points for axis', axisArray);
-          setDrawAxisLines(axisArray);
         }
       } else if (myTabIndex === 'pdcu') {
         let okToParse = await isOKToParseForProductDesignTab({ item });
@@ -491,6 +535,7 @@ const ItemDetail = ({ itemValue }) => {
         fileMPPS: item.fileMPPS,
         fileStack: item.fileStack,
         fileKinematic: item.fileKinematic,
+        fileSliderKinematic: item.fileSliderKinematic,
         fileUUId: item.fileUUId,
         showKinematicMove: false,
         showKinematicSliderMove: false,

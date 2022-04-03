@@ -564,6 +564,19 @@ class GLTFRenderer extends Component {
       } */
     }
     this.changeparts();
+    if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
+      if (
+        JSON.stringify(prevProps.kinematicItemList || []) !=
+        JSON.stringify(this.props.kinematicItemList || [])
+      ) {
+      }
+      console.log(
+        'Got in GltfRender',
+        this.props.kinematicItemList,
+        this.partsMeshes,
+        this.props.gltfobj
+      );
+    }
     if (this.props.drawAxisLines) {
       if (
         JSON.stringify(prevProps.drawAxisLines || []) !=

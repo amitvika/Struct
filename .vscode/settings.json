@@ -8,5 +8,5 @@
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "python.defaultInterpreterPath": "D:/ProgramData/Miniconda3/envs/structserver/python.exe"
+  "python.defaultInterpreterPath": "D:/ProgramData/Miniconda3/envs/structquery/python.exe"
 }

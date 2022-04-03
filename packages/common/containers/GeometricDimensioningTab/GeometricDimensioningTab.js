@@ -70,7 +70,8 @@ export default function GeometricDimensioningTab(props) {
     setActiveGDTTable = () => {},
     drawAxisLines = null,
     setDrawAxisLines = () => {},
-    showKinematicSliderMove = false
+    showKinematicSliderMove = false,
+    kinematicItemList = []
   } = props;
   const classes = USESTYLES();
 
@@ -1826,7 +1827,10 @@ export default function GeometricDimensioningTab(props) {
               newgltfjson.gdttable,
               myGlobalActiveDataTable
             );
-            if (newgltfjson.gdttable[myGlobalActiveDataTable]) {
+            if (
+              newgltfjson.gdttable &&
+              newgltfjson.gdttable[myGlobalActiveDataTable]
+            ) {
               newgltfjson.gdttable[myGlobalActiveDataTable].selectedObjects = [
                 ...copy_selectobjects
               ];
@@ -2304,6 +2308,7 @@ export default function GeometricDimensioningTab(props) {
           setActiveGLTFile={setActiveGLTFile}
           drawAxisLines={drawAxisLines}
           showKinematicSliderMove={showKinematicSliderMove}
+          kinematicItemList={kinematicItemList}
         />
       </Paper>
 

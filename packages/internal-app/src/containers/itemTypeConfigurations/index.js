@@ -228,7 +228,10 @@ export default function ItemTypeConfigurations(props) {
               obb: mySelectedObjects[0].obb,
               step:
                 (fileUUIder ? fileUUIder + '/' : '') +
-                mySelectedObjects[0][gltf_Dict['step']].slice(0, -5)
+                mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
+              position: mySelectedObjects[0].position
+                ? mySelectedObjects[0].position
+                : [0, 0, 0]
             }
           }
         };
@@ -242,7 +245,10 @@ export default function ItemTypeConfigurations(props) {
               obb: mySelectedObjects[0].obb,
               step:
                 (fileUUIder ? fileUUIder + '/' : '') +
-                mySelectedObjects[0][gltf_Dict['step']].slice(0, -5)
+                mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
+              position: mySelectedObjects[0].position
+                ? mySelectedObjects[0].position
+                : [0, 0, 0]
             }
           }
         });
@@ -382,6 +388,7 @@ export default function ItemTypeConfigurations(props) {
         setActiveGDTTable={setActiveGDTTable}
         drawAxisLines={drawAxisLines}
         setDrawAxisLines={setDrawAxisLines}
+        kinematicItemList={kinematicItemList}
         //{...{ whatchange }}
       />
     </>

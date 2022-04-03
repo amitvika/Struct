@@ -40,7 +40,8 @@ export const fetchGLTFAndTree = async (props) => {
     setgltfjson,
     showKinematicMove,
     showKinematicSliderMove,
-    regenerateKinematicMove
+    regenerateKinematicMove,
+    fileSliderKinematic
   } = props;
   let updatedItemProp = {};
   try {
@@ -51,7 +52,8 @@ export const fetchGLTFAndTree = async (props) => {
       gdt: fileGDT,
       mpps: fileMPPS,
       stack: fileStack,
-      kinematic: fileKinematic
+      kinematic: fileKinematic,
+      sliderkinematic: fileSliderKinematic
     };
 
     setIsLoading(true);
@@ -71,7 +73,9 @@ export const fetchGLTFAndTree = async (props) => {
     } else if (myTabIndex == 'stack') {
       whichOneToLoad += fileStack;
     } else if (myTabIndex == 'iupc') {
-      whichOneToLoad += fileKinematic;
+      whichOneToLoad += showKinematicSliderMove
+        ? fileSliderKinematic
+        : fileKinematic;
     } else {
       whichOneToLoad += fileGDT;
     }
@@ -318,6 +322,7 @@ export const handleOtherTabCase = async (props) => {
         tree: treeRes.data,
         multiAssembly: multiAssembly,
         kinematic: item.fileKinematic,
+        sliderkinematic: item.fileSliderKinematic,
         mpps: item.fileMPPS,
         stack: item.fileStack,
         gdt: datastore,
@@ -352,6 +357,7 @@ export const handleOtherTabCase = async (props) => {
         ...getHierarchyRes.data,
         multiAssembly: multiAssembly,
         kinematic: item.fileKinematic,
+        sliderkinematic: item.fileSliderKinematic,
         mpps: item.fileMPPS,
         stack: item.fileStack,
         gdt: datastore,
@@ -465,6 +471,7 @@ export const setStack = async (props) => {
           setgltfjson({
             ...repos,
             kinematic: item.fileKinematic,
+            sliderkinematic: item.fileSliderKinematic,
             mpps: item.fileMPPS,
             store: item.fileStore,
             stack: stack,
@@ -495,6 +502,7 @@ export const setStack = async (props) => {
         fileMPPS: item.fileMPPS,
         fileStack: item.fileStack,
         fileKinematic: item.fileKinematic,
+        fileSliderKinematic: item.fileSliderKinematic,
         fileUUId: item.fileUUId,
         showKinematicMove: false,
         showKinematicSliderMove: false,
@@ -627,6 +635,7 @@ export const setOrder = async (props) => {
           //multiAssembly: multiAssembly,
           treeLength: treeRes.data.length,
           kinematic: item.fileKinematic,
+          sliderkinematic: item.fileSliderKinematic,
           mpps: mpps,
           store: item.fileStore,
           stack: item.fileStack,
@@ -650,6 +659,7 @@ export const setOrder = async (props) => {
       setgltfjson({
         ...getHierarchyRes.data,
         kinematic: item.fileKinematic,
+        sliderkinematic: item.fileSliderKinematic,
         mpps: item.fileMPPS,
         store: item.fileStore,
         stack: item.fileStack,
@@ -774,6 +784,7 @@ export const handleProductDesignTab = async (props) => {
         tree: treeRes.data,
         multiAssembly: multiAssembly,
         kinematic: item.fileKinematic,
+        sliderkinematic: item.fileSliderKinematic,
         mpps: item.fileMPPS,
         stack: item.fileStack,
         gdt: item.fileGDT,
@@ -806,6 +817,7 @@ export const handleProductDesignTab = async (props) => {
         ...getHierarchyRes.data,
         multiAssembly: multiAssembly,
         kinematic: item.fileKinematic,
+        sliderkinematic: item.fileSliderKinematic,
         mpps: item.fileMPPS,
         stack: item.fileStack,
         gdt: item.fileGDT,
@@ -836,38 +848,76 @@ export const handleProductDesignTab = async (props) => {
 
 export const isOKToParseForInternalUseProduct = async ({
   item,
-  regenerateKinematicMove
+  regenerateKinematicMove,
+  showKinematicSliderMove
 }) => {
   if (regenerateKinematicMove) {
     item.fileKinematic = null;
     return PROCESSINGSTATUS.HUNG;
   }
   let okToParse = PROCESSINGSTATUS.PROCESSED;
-  try {
-    if (!item.fileKinematic || item.fileKinematic === null) {
-      if (item.fileStore && item.fileStore.length > 0) {
-        const fileKinematic =
-          item.fileStore.slice(0, item.fileStore.length - 1) + 'R0';
-        const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
-        const whichOneToStatus = getStatusPathURL(item) + fileKinematic;
-        okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
-        if (okToParse <= PROCESSINGSTATUS.INPROGRESS) {
-          item.fileKinematic = fileKinematic;
+  if (showKinematicSliderMove) {
+    try {
+      if (!item.fileSliderKinematic || item.fileSliderKinematic === null) {
+        if (item.fileStore && item.fileStore.length > 0) {
+          const fileSliderKinematic =
+            item.fileStore.slice(0, item.fileStore.length - 1) + 'P0';
+          const whichOneToLoad = getResourcePathURL(item) + fileSliderKinematic;
+          const whichOneToStatus = getStatusPathURL(item) + fileSliderKinematic;
+          okToParse = await checkStatusToParse(
+            whichOneToLoad,
+            whichOneToStatus
+          );
+          if (okToParse <= PROCESSINGSTATUS.INPROGRESS) {
+            item.fileSliderKinematic = fileSliderKinematic;
+          } else {
+          }
         } else {
         }
       } else {
+        const whichOneToLoad =
+          getResourcePathURL(item) + item.fileSliderKinematic;
+        const whichOneToStatus =
+          getStatusPathURL(item) + item.fileSliderKinematic;
+        okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+        if (okToParse > PROCESSINGSTATUS.INPROGRESS) {
+          item.fileSliderKinematic = null;
+        }
       }
-    } else {
-      const whichOneToLoad = getResourcePathURL(item) + item.fileKinematic;
-      const whichOneToStatus = getStatusPathURL(item) + item.fileKinematic;
-      okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
-      if (okToParse > PROCESSINGSTATUS.INPROGRESS) {
-        item.fileKinematic = null;
-      }
+      return okToParse;
+    } catch (error) {
+      return okToParse;
     }
-    return okToParse;
-  } catch (error) {
-    return okToParse;
+  } else {
+    try {
+      if (!item.fileKinematic || item.fileKinematic === null) {
+        if (item.fileStore && item.fileStore.length > 0) {
+          const fileKinematic =
+            item.fileStore.slice(0, item.fileStore.length - 1) + 'R0';
+          const whichOneToLoad = getResourcePathURL(item) + fileKinematic;
+          const whichOneToStatus = getStatusPathURL(item) + fileKinematic;
+          okToParse = await checkStatusToParse(
+            whichOneToLoad,
+            whichOneToStatus
+          );
+          if (okToParse <= PROCESSINGSTATUS.INPROGRESS) {
+            item.fileKinematic = fileKinematic;
+          } else {
+          }
+        } else {
+        }
+      } else {
+        const whichOneToLoad = getResourcePathURL(item) + item.fileKinematic;
+        const whichOneToStatus = getStatusPathURL(item) + item.fileKinematic;
+        okToParse = await checkStatusToParse(whichOneToLoad, whichOneToStatus);
+        if (okToParse > PROCESSINGSTATUS.INPROGRESS) {
+          item.fileKinematic = null;
+        }
+      }
+      return okToParse;
+    } catch (error) {
+      return okToParse;
+    }
   }
 };
 
@@ -882,7 +932,8 @@ export const handleInternalUseProduct = async (props) => {
     setCurrentProgressText,
     setCompletionProgressText,
     setgltfjson,
-    kinematicItemList
+    kinematicItemList,
+    showKinematicSliderMove
   } = props;
   setIsLoading(true);
   setIsFileLoading(true);
@@ -896,7 +947,8 @@ export const handleInternalUseProduct = async (props) => {
       STATEPROPS.animationtime,
       kinematicItemList,
       item.id || item._id,
-      item.name
+      item.name,
+      showKinematicSliderMove
     );
 
     setIsFileLoading(false);
@@ -933,31 +985,62 @@ export const handleInternalUseProduct = async (props) => {
         const gltfRes = await getAFileFromStore(datafile, 'gltf', true);
         const treeRes = await getAFileFromStore(datafile, 'tree', true);
         console.log('Setting', gltfRes, treeRes);
-        setgltfjson({
-          gltf: gltfRes.data,
-          tree: treeRes.data,
-          kinematic: datastore,
-          resourcepath: resourcePathURL
-        });
+        if (showKinematicSliderMove) {
+          setgltfjson({
+            gltf: gltfRes.data,
+            tree: treeRes.data,
+            sliderkinematic: datastore,
+            resourcepath: resourcePathURL
+          });
+        } else {
+          setgltfjson({
+            gltf: gltfRes.data,
+            tree: treeRes.data,
+            kinematic: datastore,
+            resourcepath: resourcePathURL
+          });
+        }
+
         setIsLoading(false);
         setIsFileLoading(false);
-        return {
-          fileKinematic: datastore
-        };
+        if (showKinematicSliderMove) {
+          return {
+            fileSliderKinematic: datastore
+          };
+        } else {
+          return {
+            fileKinematic: datastore
+          };
+        }
       }
     } else {
       if (datastore) {
         //const multiAssembly = treeLength > 0;
-        setgltfjson({
-          ...getHierarchyRes.data,
-          kinematic: datastore,
-          resourcepath: resourcePathURL
-        });
+        if (showKinematicSliderMove) {
+          setgltfjson({
+            ...getHierarchyRes.data,
+            sliderkinematic: datastore,
+            resourcepath: resourcePathURL
+          });
+        } else {
+          setgltfjson({
+            ...getHierarchyRes.data,
+            kinematic: datastore,
+            resourcepath: resourcePathURL
+          });
+        }
+
         setIsLoading(false);
         setIsFileLoading(false);
-        return {
-          fileKinematic: datastore
-        };
+        if (showKinematicSliderMove) {
+          return {
+            fileSliderKinematic: datastore
+          };
+        } else {
+          return {
+            fileKinematic: datastore
+          };
+        }
       }
     }
     setIsLoading(false);

@@ -190,6 +190,7 @@ export default function BaseItemProperties({
           fileMPPS: null,
           fileStack: null,
           fileKinematic: null,
+          fileSilderKinematic: null,
           distanceGap: distanceGaper,
           angleGap: angleGaper,
           drawLine: drawLiner
@@ -256,6 +257,7 @@ export default function BaseItemProperties({
             fileMPPS: null,
             fileStack: null,
             fileKinematic: null,
+            fileSilderKinematic: null,
             distanceGap: distanceGaper,
             angleGap: angleGaper,
             drawLine: drawLiner
@@ -384,6 +386,7 @@ export default function BaseItemProperties({
         fileMPPS: null,
         fileStack: null,
         fileKinematic: null,
+        fileSilderKinematic: null,
         multiAssembly: multiAssembly,
         stepTreeLength: treeLength,
         comparison_parameters: comparison_parameters,

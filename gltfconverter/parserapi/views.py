@@ -3,6 +3,7 @@
 #from math import ceil
 
 
+from tkinter import SOLID
 from xml.dom.expatbuilder import parseString
 from django.http.response import JsonResponse, FileResponse
 #from numpy import diagonal
@@ -6116,7 +6117,7 @@ def getKinematicInformationFromIndex(kinematicParts,partname):
     return ("No Name", "Empty Item", "STATIC", 0, 0, [0,0,0], [0,0,0], 0, 0, 0, 0, 0, None, False, False) 
     
 
-def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None,refid='',refname='',partsteps=[]):#,thumbwidth,thumbheight):
+def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationtime=1.5,starttime=None,refid='',refname='',partsteps=[],slidermove=False):#,thumbwidth,thumbheight):
     """
     Imports a file based on the type (STEP, IGES, BREP, STL)    
     """
@@ -6252,8 +6253,9 @@ def exportTokinematicRotationGLTF(sourceFileName,distancegap,anglegap,animationt
             (_, outputShapes, dictionary) = OCPStepIGESAnalyser.StepIgesAnalyser(
                 filename=sourceFileName,shapeslist=shapeArray,includeparts=False,distancegap=distancegap,
                 anglegap=anglegap,disectparts=False,moverotate=0,thumbwidth=0,thumbheight=0,
-                edgesize=0, vertexsize=0, kinematicrotation=kinematicrotation,shapeorder=shapeorder,
-                delay=animationtime,refid=refid,refname=refname).dump()
+                edgesize=0, vertexsize=0, kinematicrotation=kinematicrotation if slidermove==False else None,
+                shapeorder=shapeorder,delay=animationtime,refid=refid,refname=refname,
+                kinematicslider=True if slidermove==True else None).dump()
 
         except Exception as e:
             print("error",e) 
@@ -6329,24 +6331,25 @@ def FileGetKinematicRotationalAnimation(request):
             refid = request.data['refid']
             refname = request.data['refname']
             partsteps=json.loads(parts)
+            slidermove=controllers.convertToBool(request.data['slidermove'],False)
             starttime = datetime.utcnow() 
             if is_number(id) :            
                 files = File.objects.filter(id__icontains=id)
                 for eachfile in files: 
-                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,0,"R")
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+eachfile.file.name,0,"R" if slidermove==False else "P")
                     data = getEmptyDictionary(MEDIA_URL+eachfile.file.name, basefilename,displaypath,0,starttime,True) 
                     #print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
-                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid,refname,partsteps))
+                        args=(MEDIA_URL+eachfile.file.name,distancegap,anglegap,animationtime,starttime,refid,refname,partsteps,slidermove))
                     mythread.start()  
             else:
                 #id = request.GET.get('file', None)
                 if id is not None:
-                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"R")
+                    basefilename,displaypath = getBasefileNameAndDisplayPath(MEDIA_URL+id,0,"R" if slidermove==False else "P")
                     data = getEmptyDictionary(MEDIA_URL+id, basefilename,displaypath,0,starttime,True) 
                     #print("From assembly",data)
                     mythread = threading.Thread(target=exportTokinematicRotationGLTF, daemon=True,\
-                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid,refname,partsteps))
+                        args=(MEDIA_URL+id,distancegap,anglegap,animationtime,starttime,refid,refname,partsteps,slidermove))
                     mythread.start() 
         return JsonResponse(data, safe=False)    
     except Exception as e:
