@@ -41,7 +41,8 @@ import {
   Line,
   Object3D,
   Group,
-  CatmullRomCurve3
+  CatmullRomCurve3,
+  Quaternion
   /*
     LineSegments,    
     Mesh,
@@ -486,7 +487,9 @@ class GLTFRenderer extends Component {
         ...this.raycastObjects,
         ...this.rayCastObjectFilters(axisLineNodes.children)
       ];
+      return axisLineNodes;
     }
+    return null;
   };
   makeVisibilityToAxisArrays = (change) => {
     if (this.axisArray) {
@@ -564,19 +567,7 @@ class GLTFRenderer extends Component {
       } */
     }
     this.changeparts();
-    if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
-      if (
-        JSON.stringify(prevProps.kinematicItemList || []) !=
-        JSON.stringify(this.props.kinematicItemList || [])
-      ) {
-      }
-      console.log(
-        'Got in GltfRender',
-        this.props.kinematicItemList,
-        this.partsMeshes,
-        this.props.gltfobj
-      );
-    }
+
     if (this.props.drawAxisLines) {
       if (
         JSON.stringify(prevProps.drawAxisLines || []) !=
@@ -599,6 +590,7 @@ class GLTFRenderer extends Component {
         // );
       }
     }
+    this.kinematicMovement(prevProps);
     /* 
         if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
             this.setState({gltfobj:this.props.gltfobj});
@@ -1538,7 +1530,7 @@ class GLTFRenderer extends Component {
         this.drawAxisLine(element.axis, element.position, element.name);
       }
     }
-
+    this.kinematicMovement(null);
     await this.loadAdditionalFeatures();
     //console.log("File props",this.props.fileGDT,this.props.drawLine,this.props.activeId);
     // if (this.props.drawLine && this.props.fileGDT) {
@@ -5410,6 +5402,243 @@ class GLTFRenderer extends Component {
                 } */
       }
       console.log('Performed all operations to rerender');
+    }
+  };
+  getPrevPropsItem = (prevProps, kinematicItem) => {
+    for (let index = 0; index < prevProps.kinematicItemList.length; index++) {
+      const element = prevProps.kinematicItemList[index];
+      if (element.filePartName === kinematicItem.filePartName) {
+        return element;
+      }
+    }
+    return null;
+  };
+  findUniqueName = (fromName, fromIndex) => {
+    const lastI0 = fromName ? fromName.lastIndexOf('I0') : -1;
+    if (lastI0 == -1) {
+      console.log('FromName does not contain I0', fromName);
+      return null;
+    }
+    if (fromName.length >= fromIndex) {
+      return fromName.substring(fromIndex, lastI0);
+    }
+    console.log('From Name length is not greater', fromName, fromIndex);
+    return null;
+  };
+  findNodeFrom = (kinematicItem) => {
+    const uniqueName = kinematicItem.filePartName
+      ? this.findUniqueName(kinematicItem.filePartName, 0)
+      : null; // Index is changed because we are only getting parts and not faces or edges..
+    if (uniqueName) {
+      for (let index = 0; index < this.partsMeshes.length; index++) {
+        const element = this.partsMeshes[index];
+        if (element && element.name) {
+          let thisName = this.findUniqueName(element.name, 4); // "PART" is the beginning of the name.
+          console.log(
+            thisName,
+            uniqueName,
+            kinematicItem.filePartName,
+            element.name
+          );
+          if (thisName === uniqueName) {
+            return element;
+          }
+        } else {
+          console.log('No name or element is null', element, kinematicItem);
+        }
+      }
+    }
+    return null;
+  };
+  animateParts = (differenceElement, propsElement) => {
+    if (
+      propsElement.actuator_motion_control &&
+      propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+    ) {
+      let axis =
+        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis;
+      //axis = [0, 1, 0];
+      if (axis) {
+        let axisline = this.drawAxisLine(
+          propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+            .axis,
+          propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+            .position,
+          propsElement.name
+        );
+        for (
+          let index = 0;
+          index < this.props.kinematicItemList.length;
+          index++
+        ) {
+          const element = this.props.kinematicItemList[index];
+          if (
+            element &&
+            element.actuator_motion_control &&
+            element.actuator_motion_control.axis_number >
+              propsElement.actuator_motion_control.axis_number
+          ) {
+            let node = this.findNodeFrom(element);
+            if (node) {
+              console.log('Found node for', element, node);
+              if (
+                propsElement.actuator_motion_control
+                  .cylindrical_axis_of_rotation
+              ) {
+                if (axis) {
+                  const position =
+                    propsElement.actuator_motion_control
+                      .cylindrical_axis_of_rotation.position;
+                  const axisVector = new Vector3(axis[0], axis[2], -axis[1]);
+
+                  var q = new Quaternion();
+
+                  q.setFromAxisAngle(axisVector, differenceElement);
+                  node.applyQuaternion(q);
+                  //node.matrixWorldNeedsUpdate = true;
+                  console.log(
+                    node,
+                    'Before translation',
+                    node.position,
+                    this.shiftposition,
+                    position,
+                    differenceElement
+                  );
+                  node.position.x -= this.shiftposition.x + position[0] * 0.001;
+                  node.position.y -= this.shiftposition.y + position[2] * 0.001;
+                  node.position.z -= this.shiftposition.z - position[1] * 0.001;
+                  console.log(
+                    node,
+                    'After translation',
+                    node.position,
+                    this.shiftposition,
+                    position
+                  );
+                  //node.applyQuaternion(q);
+                  node.position.applyQuaternion(q);
+
+                  //node.rotateOnWorldAxis(axisVector, differenceElement);
+                  //node.updateMatrixWorld();
+                  console.log(node, 'After rotation', node.position);
+                  node.position.x += this.shiftposition.x + position[0] * 0.001;
+                  node.position.y += this.shiftposition.y + position[2] * 0.001;
+                  node.position.z += this.shiftposition.z - position[1] * 0.001;
+                  console.log(
+                    node,
+                    'After rotation transalation',
+                    node.position,
+                    this.shiftposition,
+                    position
+                  );
+
+                  //node.matrixWorldNeedsUpdate = false;
+                  console.log(
+                    'Done movement for',
+                    node,
+                    axisVector,
+                    differenceElement
+                  );
+                }
+              }
+            } else {
+              console.log('No node found for', element, this.partsMeshes);
+            }
+          } else {
+            console.log(
+              'Some elements are missing in structure or axis number is lesser',
+              element,
+              propsElement
+            );
+          }
+        }
+      } else {
+        console.log(
+          'No axis found at cylindrical_axis_of_rotation',
+          propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+        );
+      }
+    } else {
+      console.log(
+        'No actuator_motion_control or actuator_motion_control.cylindrical_axis_of_rotation',
+        propsElement
+      );
+    }
+  };
+  kinematicMovement = (prevProps) => {
+    if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
+      if (
+        JSON.stringify(prevProps ? prevProps.kinematicItemList || [] : []) !=
+        JSON.stringify(this.props.kinematicItemList || [])
+      ) {
+      }
+      console.log(
+        'Got in GltfRender',
+        this.props.kinematicItemList,
+        this.partsMeshes,
+        this.props.gltfobj
+      );
+
+      if (
+        this.partsMeshes &&
+        this.partsMeshes.length > 0 &&
+        this.props.kinematicItemList &&
+        this.props.kinematicItemList.length > 0
+      ) {
+        const sameGLTF = prevProps
+          ? prevProps.activeGLTFFile === this.props.activeGLTFFile
+          : false;
+        for (
+          let index = 0;
+          index < this.props.kinematicItemList.length;
+          index++
+        ) {
+          const propsElement = this.props.kinematicItemList[index];
+          const prevPropsElement = sameGLTF
+            ? prevProps.kinematicItemList
+              ? prevProps.kinematicItemList[index].filePartName ===
+                propsElement.filePartName
+                ? prevProps.kinematicItemList[index]
+                : this.getPrevPropsItem(prevProps, propsElement)
+              : null
+            : null;
+          let differenceElement =
+            prevPropsElement && propsElement
+              ? prevPropsElement.actuator_motion_control &&
+                propsElement.actuator_motion_control
+                ? propsElement.actuator_motion_control.chain_number -
+                  prevPropsElement.actuator_motion_control.chain_number
+                : 0
+              : 0;
+          if (!sameGLTF || !prevPropsElement) {
+            differenceElement = propsElement
+              ? propsElement.actuator_motion_control
+                ? propsElement.actuator_motion_control.chain_number
+                : 0
+              : 0;
+          }
+          if (differenceElement) {
+            this.animateParts(differenceElement, propsElement);
+            /* console.log(index, differenceElement, this.partsMeshes[index + 1]);
+            if (
+              propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+            ) {
+              const axis =
+                propsElement.actuator_motion_control
+                  .cylindrical_axis_of_rotation.axis;
+              if (axis) {
+                const axisVector = new Vector3(axis[0], axis[2], axis[1]);
+
+                this.partsMeshes[index + 1].rotateOnWorldAxis(
+                  axisVector,
+                  differenceElement
+                );
+              }
+            } */
+          } else {
+            console.log(index, propsElement, 'No difference found');
+          }
+        }
+      }
     }
   };
 

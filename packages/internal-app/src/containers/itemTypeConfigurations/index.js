@@ -302,6 +302,10 @@ export default function ItemTypeConfigurations(props) {
 
   const handleSwitchSliderChange = async (event) => {
     setShowKinematicSliderMove(event.target.checked);
+    if (!event.target.checked) {
+      setShowKinematicMove(false);
+      setRegenerateKinematicMove(0);
+    }
   };
 
   const handleRegenerate = async (event) => {

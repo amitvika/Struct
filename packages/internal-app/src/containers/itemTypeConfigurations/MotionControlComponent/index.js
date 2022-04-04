@@ -285,6 +285,25 @@ export default function MotionControlComponent({
       ...change
     });
   };
+  const getLimit = (actuator_motion_control) => {
+    const limit = actuator_motion_control.is_linear_or_rotational
+      ? Number(actuator_motion_control.linear_distance_limit)
+      : Number(actuator_motion_control.rotational_angle_limit);
+
+    const actuatorlimit = actuator_motion_control.machine_actuator_limit
+      ? Number(actuator_motion_control.machine_actuator_limit)
+      : 0;
+    if (actuatorlimit <= 0 && limit > 0) {
+      return limit;
+    }
+    if (actuatorlimit > 0 && actuatorlimit < limit) {
+      return actuatorlimit;
+    }
+    if (limit > 0) {
+      return limit;
+    }
+    return actuator_motion_control.is_linear_or_rotational ? 100 : 3.14;
+  };
 
   return (
     <Paper sx={{ maxHeight: 400, overflow: 'auto' }}>
@@ -332,6 +351,10 @@ export default function MotionControlComponent({
             {itemList.map((item) => {
               const actuator_motion_control =
                 item.actuator_motion_control || {};
+              const actuatorDistanceAngleLimit =
+                actuator_motion_control.child_part_type == 'ACTUATOR'
+                  ? getLimit(item.actuator_motion_control)
+                  : 0;
               //console.log('Assinging table row', selectedValue, item.id);
               return (
                 <TableRow
@@ -475,16 +498,11 @@ export default function MotionControlComponent({
                       {actuator_motion_control.child_part_type == 'ACTUATOR' ? (
                         <Slider
                           aria-label="Angle"
-                          min={0}
-                          max={
-                            actuator_motion_control.rotational_angle_limit
-                              ? actuator_motion_control.rotational_angle_limit
-                              : 3.14
-                          }
+                          min={-actuatorDistanceAngleLimit}
+                          max={actuatorDistanceAngleLimit}
                           step={
-                            actuator_motion_control.rotational_angle_limit
-                              ? actuator_motion_control.rotational_angle_limit /
-                                100.0
+                            actuatorDistanceAngleLimit
+                              ? actuatorDistanceAngleLimit / 100.0
                               : 0.05
                           }
                           value={
@@ -492,6 +510,8 @@ export default function MotionControlComponent({
                               ? actuator_motion_control.chain_number
                               : 0
                           }
+                          valueLabelDisplay="auto"
+                          valueLabelFormat={(x) => Number(x).toFixed(1)}
                           onChange={(event, newValue) => {
                             event.stopPropagation();
                             updateMotionControlActuator(item.id, {

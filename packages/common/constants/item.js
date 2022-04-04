@@ -46,7 +46,7 @@ export const columnsForItemView = [
   },
   {
     title: 'Child Items Created',
-    field: 'child_item_status',
+    field: 'child_item_created',
     editable: 'never'
   },
   {
