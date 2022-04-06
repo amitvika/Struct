@@ -5518,13 +5518,13 @@ class GLTFRenderer extends Component {
           propsElement.name
         ); */
         const nextNodeTree = this.getMyTreeNode(nextNode);
-        let topLeft = nextNodeTree
+        let meshCentroid = nextNodeTree
           ? nextNodeTree[gltf_Dict['topLeft']]
             ? nextNodeTree[gltf_Dict['topLeft']]
             : [0, 0, 0]
           : [0, 0, 0];
-        topLeft = [0, 0, 0];
-        console.log('Top Left', topLeft, nextNode);
+        //topLeft = [0, 0, 0];
+        console.log('Mesh Centroid', meshCentroid, nextNode);
         for (
           let index = 0;
           index < this.props.kinematicItemList.length;
@@ -5586,16 +5586,16 @@ class GLTFRenderer extends Component {
                     differenceElement,
                     sourcePosition,
                     targetPosition,
-                    topLeft
+                    meshCentroid
                   );
                   /* node.position.x -= this.shiftposition.x + position[0] * 0.001;
                   node.position.y -= this.shiftposition.y + position[2] * 0.001;
                   node.position.z -= this.shiftposition.z - position[1] * 0.001; */
                   // const positionObject = node.position.clone();
                   const shiftablePosition = new Vector3(
-                    +(topLeft[0] + position[0]) * 0.001,
-                    +(topLeft[2] + position[2]) * 0.001,
-                    -(topLeft[0] + position[1]) * 0.001
+                    +(meshCentroid[0] + position[0]) * 0.001,
+                    +(meshCentroid[2] + position[2]) * 0.001,
+                    -(meshCentroid[0] + position[1]) * 0.001
                   );
 
                   /* node.position.x -= +(topLeft[0] + position[0]) * 0.001;
@@ -5611,7 +5611,7 @@ class GLTFRenderer extends Component {
                     node.position,
                     this.shiftposition,
                     position,
-                    topLeft
+                    meshCentroid
                   );
                   //node.applyQuaternion(nodeconjugate);
                   node.applyQuaternion(axisQuaternion);
@@ -5642,7 +5642,7 @@ class GLTFRenderer extends Component {
                     node.position,
                     this.shiftposition,
                     position,
-                    topLeft
+                    meshCentroid
                   );
                   //node.matrixWorldNeedsUpdate = false;
                   console.log(
