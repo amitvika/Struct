@@ -3,15 +3,15 @@
 #from math import ceil
 
 
-from tkinter import SOLID
-from xml.dom.expatbuilder import parseString
+#from tkinter import SOLID
+#from xml.dom.expatbuilder import parseString
 from django.http.response import JsonResponse, FileResponse
 #from numpy import diagonal
 from rest_framework import status
 from rest_framework.decorators import api_view
 #from rest_framework.parsers import FileUploadParser
 from rest_framework.parsers import JSONParser
-from rest_framework.views import set_rollback
+#from rest_framework.views import set_rollback
 
 from .models import File
 from .serializers import FileSerializer
@@ -76,6 +76,10 @@ from .assemblystack import FindStackability
 from .matrixinv.matrixinv import getMatrixInverse
 from . import controllers
 from .fabrikSolver import FabrikSolver3D
+
+
+
+
 class HttpFormatter(logging.Formatter):
 
     def _formatHeaders(self, d):

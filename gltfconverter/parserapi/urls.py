@@ -58,5 +58,41 @@ urlpatterns = [
         static(settings.S3MEDIA_URL, document_root=settings.S3MEDIA_ROOT) + \
             static(settings.S3DISPLAY_URL, document_root=settings.S3DISPLAY_ROOT) + \
                 static(settings.STATUS_URL, document_root=settings.STATUS_ROOT) 
-        
+print(dir(views))
+""" def getFunctions(name,level=0,maxlevel=3):
+    level = level + 1
+    if name:
+        module = None
+        try:            
+            module = __import__(name)
+        except Exception as e:
+            print("Exception in importing",name,e)
+            module=None
+            try:
+                module = globals()[name]
+            except Exception as e:
+                print("Exception in global",name,e)
+                module=None
+                try:
+                    module = locals()[name]
+                except Exception as e:
+                    print("Exception in local",name,e)
+        if(module):
+            lister = dir(module)
+            if(level < maxlevel):
+                print("Function",name)
+                for eachName in lister:
+                    print("Function Methods" , name, eachName)
+                    if(name and eachName):
+                        print("Function Method Arguments",name,eachName,getattr(module,eachName))
+                    getFunctions(eachName,level,maxlevel)
+
+
+level=0
+lister = dir()
+for eachName in lister:
+    print("Module " , eachName)    
+    getFunctions(eachName,level,3) """
+
+
 

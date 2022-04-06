@@ -154,6 +154,7 @@ export const gltf_Dict = {
   center: 'C',
   xdir: 'X',
   ydir: 'Y',
+  obb: 'Z',
   focal: 'R',
   degree: 'D',
   start: 'S',

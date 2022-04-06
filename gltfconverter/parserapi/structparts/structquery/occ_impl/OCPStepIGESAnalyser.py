@@ -7950,7 +7950,10 @@ class StepIgesAnalyser():
                 mesher_dict[self.gltf_Dict["topLeft"]] = buff.vert_min
                 mesher_dict[self.gltf_Dict["bottomRight"]] = buff.vert_max
                 mesher_dict[self.gltf_Dict["bin"]]=True
-
+                if self.kinematicslider:
+                    thisdimension = get_oriented_bounding_details(part)                        
+                    thisdictionary = getDictionaryFromOBB(thisdimension,True)
+                    mesher_dict[self.gltf_Dict["obb"]]=thisdictionary
                 self.updateParentDimensions(mesher_dict)
                 
                 #print("affter update")

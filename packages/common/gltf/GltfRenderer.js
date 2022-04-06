@@ -5426,21 +5426,21 @@ class GLTFRenderer extends Component {
       console.log('FromName does not contain I0', fromName);
       return null;
     }
-    if (fromName.length >= fromIndex) {
-      return fromName.substring(fromIndex, lastI0);
+    if (fromName.substring(0, fromIndex.length) === fromIndex) {
+      return fromName.substring(fromIndex.length, lastI0);
     }
-    console.log('From Name length is not greater', fromName, fromIndex);
-    return null;
+    //console.log('From Name length is not greater', fromName, fromIndex);
+    return fromName.substring(0, lastI0);
   };
   findNodeFrom = (kinematicItem) => {
     const uniqueName = kinematicItem.filePartName
-      ? this.findUniqueName(kinematicItem.filePartName, 0)
+      ? this.findUniqueName(kinematicItem.filePartName, 'PART')
       : null; // Index is changed because we are only getting parts and not faces or edges..
     if (uniqueName) {
       for (let index = 0; index < this.partsMeshes.length; index++) {
         const element = this.partsMeshes[index];
         if (element && element.name) {
-          let thisName = this.findUniqueName(element.name, 4); // "PART" is the beginning of the name.
+          let thisName = this.findUniqueName(element.name, 'PART'); // "PART" is the beginning of the name.
           // console.log(
           //   thisName,
           //   uniqueName,
@@ -5451,10 +5451,21 @@ class GLTFRenderer extends Component {
             return element;
           }
         } else {
-          console.log('No name or element is null', element, kinematicItem);
+          console.log(
+            'No name or element is null in the loop',
+            element,
+            uniqueName,
+            kinematicItem
+          );
         }
       }
     }
+    console.log(
+      'No name or element is null outside',
+
+      kinematicItem.filePartName,
+      kinematicItem
+    );
     return null;
   };
   drawAxisLineToKinematic = (propsElement) => {
@@ -5477,7 +5488,19 @@ class GLTFRenderer extends Component {
     }
     return null;
   };
-  animateParts = (differenceElement, propsElement, currentNode) => {
+  getMyTreeNode = (mynode) => {
+    const state_gltfobj = this.this_state_gltf || this.props.gltfobj;
+
+    const myStateTree = state_gltfobj.tree;
+    //console.log('State tree', myStateTree, this.props.gltfobj);
+    for (var i = 0; i < myStateTree.length; i++) {
+      if (myStateTree[i][gltf_Dict['name']] == mynode.name) {
+        return myStateTree[i];
+      }
+    }
+    return null;
+  };
+  animateParts = (differenceElement, propsElement, currentNode, nextNode) => {
     if (
       propsElement.actuator_motion_control &&
       propsElement.actuator_motion_control.cylindrical_axis_of_rotation
@@ -5494,6 +5517,14 @@ class GLTFRenderer extends Component {
             .position,
           propsElement.name
         ); */
+        const nextNodeTree = this.getMyTreeNode(nextNode);
+        let topLeft = nextNodeTree
+          ? nextNodeTree[gltf_Dict['topLeft']]
+            ? nextNodeTree[gltf_Dict['topLeft']]
+            : [0, 0, 0]
+          : [0, 0, 0];
+        topLeft = [0, 0, 0];
+        console.log('Top Left', topLeft, nextNode);
         for (
           let index = 0;
           index < this.props.kinematicItemList.length;
@@ -5508,7 +5539,7 @@ class GLTFRenderer extends Component {
           ) {
             let node = this.findNodeFrom(element);
             if (node) {
-              console.log('Found node for', element, node);
+              //console.log('Found node for', element, node);
               if (
                 propsElement.actuator_motion_control
                   .cylindrical_axis_of_rotation
@@ -5518,16 +5549,16 @@ class GLTFRenderer extends Component {
                     propsElement.actuator_motion_control
                       .cylindrical_axis_of_rotation.position;
                   let axisVector = new Vector3(axis[0], axis[2], -axis[1]);
-                  var nodeQuaternion = currentNode.quaternion;
-                  var nodeconjugate = nodeQuaternion.conjugate();
+                  //var nodeQuaternion = currentNode.quaternion;
+                  //var nodeconjugate = nodeQuaternion.conjugate();
                   //axisVector = axisVector.applyQuaternion(nodeQuaternion);
-                  console.log(
-                    'Applying quaternion',
-                    axis,
-                    axisVector,
-                    nodeQuaternion,
-                    nodeconjugate
-                  );
+                  // console.log(
+                  //   'Applying quaternion',
+                  //   axis,
+                  //   axisVector,
+                  //   nodeQuaternion,
+                  //   nodeconjugate
+                  // );
                   var axisQuaternion = new Quaternion();
                   axisQuaternion.setFromAxisAngle(
                     axisVector,
@@ -5554,15 +5585,23 @@ class GLTFRenderer extends Component {
                     position,
                     differenceElement,
                     sourcePosition,
-                    targetPosition
+                    targetPosition,
+                    topLeft
                   );
                   /* node.position.x -= this.shiftposition.x + position[0] * 0.001;
                   node.position.y -= this.shiftposition.y + position[2] * 0.001;
                   node.position.z -= this.shiftposition.z - position[1] * 0.001; */
                   // const positionObject = node.position.clone();
-                  node.position.x -= +position[0] * 0.001;
-                  node.position.y -= +position[2] * 0.001;
-                  node.position.z -= -position[1] * 0.001;
+                  const shiftablePosition = new Vector3(
+                    +(topLeft[0] + position[0]) * 0.001,
+                    +(topLeft[2] + position[2]) * 0.001,
+                    -(topLeft[0] + position[1]) * 0.001
+                  );
+
+                  /* node.position.x -= +(topLeft[0] + position[0]) * 0.001;
+                  node.position.y -= +(topLeft[2] + position[2]) * 0.001;
+                  node.position.z -= -(topLeft[0] + position[1]) * 0.001; */
+                  node.position.sub(shiftablePosition);
                   /* node.position.x = 0;
                   node.position.y = 0;
                   node.position.z = 0; */
@@ -5571,7 +5610,8 @@ class GLTFRenderer extends Component {
                     'After translation',
                     node.position,
                     this.shiftposition,
-                    position
+                    position,
+                    topLeft
                   );
                   //node.applyQuaternion(nodeconjugate);
                   node.applyQuaternion(axisQuaternion);
@@ -5587,9 +5627,11 @@ class GLTFRenderer extends Component {
                   /*   node.position.x += this.shiftposition.x + position[0] * 0.001;
                   node.position.y += this.shiftposition.y + position[2] * 0.001;
                   node.position.z += this.shiftposition.z - position[1] * 0.001; */
-                  node.position.x += +position[0] * 0.001;
-                  node.position.y += +position[2] * 0.001;
-                  node.position.z += -position[1] * 0.001;
+                  /* node.position.x += +(topLeft[0] + position[0]) * 0.001;
+                  node.position.y += +(topLeft[2] + position[2]) * 0.001;
+                  node.position.z += -(topLeft[0] + position[1]) * 0.001; */
+                  node.position.add(shiftablePosition);
+                  node.updateMatrix();
                   node.updateMatrixWorld(true);
                   /*   node.position.x += positionObject.x;
                   node.position.y += positionObject.y;
@@ -5599,7 +5641,8 @@ class GLTFRenderer extends Component {
                     'After rotation transalation',
                     node.position,
                     this.shiftposition,
-                    position
+                    position,
+                    topLeft
                   );
                   //node.matrixWorldNeedsUpdate = false;
                   console.log(
@@ -5634,6 +5677,36 @@ class GLTFRenderer extends Component {
       );
     }
   };
+
+  findNextPart = (propsElement) => {
+    if (
+      propsElement.actuator_motion_control &&
+      propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+    ) {
+      for (
+        let index = 0;
+        index < this.props.kinematicItemList.length;
+        index++
+      ) {
+        const element = this.props.kinematicItemList[index];
+        if (
+          element &&
+          element.actuator_motion_control &&
+          element.actuator_motion_control.axis_number ==
+            propsElement.actuator_motion_control.axis_number + 1
+        ) {
+          return element;
+        }
+      }
+    }
+    console.log(
+      'I Could not get next part',
+      propsElement,
+      this.props.kinematicItemList
+    );
+    return null;
+  };
+
   kinematicMovement = (prevProps) => {
     if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
       if (
@@ -5718,7 +5791,26 @@ class GLTFRenderer extends Component {
               : 0;
           }
           if (differenceElement) {
-            this.animateParts(differenceElement, propsElement, currentNode);
+            const nextElement = this.findNextPart(propsElement);
+            const nextNode = nextElement
+              ? this.findNodeFrom(nextElement)
+              : null;
+            if (nextNode) {
+              this.animateParts(
+                differenceElement,
+                propsElement,
+                currentNode,
+                nextNode
+              );
+            } else {
+              console.log(
+                'I Could not get next node',
+                nextElement,
+                currentNode,
+                nextNode
+              );
+            }
+
             /* console.log(index, differenceElement, this.partsMeshes[index + 1]);
             if (
               propsElement.actuator_motion_control.cylindrical_axis_of_rotation
