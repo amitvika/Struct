@@ -58,8 +58,8 @@ urlpatterns = [
         static(settings.S3MEDIA_URL, document_root=settings.S3MEDIA_ROOT) + \
             static(settings.S3DISPLAY_URL, document_root=settings.S3DISPLAY_ROOT) + \
                 static(settings.STATUS_URL, document_root=settings.STATUS_ROOT) 
-print(dir(views))
-""" def getFunctions(name,level=0,maxlevel=3):
+""" print(dir(views))
+def getFunctions(name,level=0,maxlevel=3):
     level = level + 1
     if name:
         module = None
