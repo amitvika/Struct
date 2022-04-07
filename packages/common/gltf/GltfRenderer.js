@@ -597,7 +597,9 @@ class GLTFRenderer extends Component {
         // );
       }
     }
-    this.kinematicMovement(prevProps);
+    if (this.props.showKinematicSliderMove) {
+      this.kinematicMovement(prevProps);
+    }
     /* 
         if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
             this.setState({gltfobj:this.props.gltfobj});
@@ -1394,6 +1396,29 @@ class GLTFRenderer extends Component {
       //console.log(this.props);
     }
   };
+  assignPositions = () => {
+    if (this.partsMeshes && this.partsMeshes.length > 0) {
+      this.partsMeshes.forEach((element) => {
+        console.log('element', element, element.geometry);
+        if (element.geometry) {
+          element.geometry.computeBoundingBox();
+          var centroid = new Vector3();
+          centroid.addVectors(
+            element.geometry.boundingBox.min,
+            element.geometry.boundingBox.max
+          );
+          centroid.multiplyScalar(0.5);
+          element.geometry.applyMatrix(
+            new Matrix4().makeTranslation(-centroid.x, -centroid.y, -centroid.z)
+          );
+          element.position.copy(centroid);
+          element.updateMatrix();
+          element.updateMatrixWorld();
+          console.log('element', element, element.geometry);
+        }
+      });
+    }
+  };
   /*
    *
    * @param {THREE.Object3D} object
@@ -1537,7 +1562,11 @@ class GLTFRenderer extends Component {
         this.drawAxisLine(element.axis, element.position, element.name);
       }
     }
-    this.kinematicMovement(null);
+    if (this.props.showKinematicSliderMove) {
+      //this.assignPositions();
+      this.kinematicMovement(null);
+    }
+
     await this.loadAdditionalFeatures();
     //console.log("File props",this.props.fileGDT,this.props.drawLine,this.props.activeId);
     // if (this.props.drawLine && this.props.fileGDT) {
@@ -5523,7 +5552,7 @@ class GLTFRenderer extends Component {
             ? nextNodeTree[gltf_Dict['topLeft']]
             : [0, 0, 0]
           : [0, 0, 0];
-        //topLeft = [0, 0, 0];
+        //meshCentroid = [100, 0, 100];
         console.log('Mesh Centroid', meshCentroid, nextNode);
         for (
           let index = 0;
@@ -5548,7 +5577,7 @@ class GLTFRenderer extends Component {
                   const position =
                     propsElement.actuator_motion_control
                       .cylindrical_axis_of_rotation.position;
-                  let axisVector = new Vector3(axis[0], axis[2], -axis[1]);
+                  let axisVector = new Vector3(axis[0], axis[1], axis[2]);
                   //var nodeQuaternion = currentNode.quaternion;
                   //var nodeconjugate = nodeQuaternion.conjugate();
                   //axisVector = axisVector.applyQuaternion(nodeQuaternion);
@@ -5592,16 +5621,30 @@ class GLTFRenderer extends Component {
                   node.position.y -= this.shiftposition.y + position[2] * 0.001;
                   node.position.z -= this.shiftposition.z - position[1] * 0.001; */
                   // const positionObject = node.position.clone();
-                  const shiftablePosition = new Vector3(
-                    +(meshCentroid[0] + position[0]) * 0.001,
-                    +(meshCentroid[2] + position[2]) * 0.001,
-                    -(meshCentroid[0] + position[1]) * 0.001
-                  );
 
+                  const shiftablePosition = new Vector3(
+                    +(meshCentroid[0] + position[0]),
+                    +(meshCentroid[1] + position[1]),
+                    +(meshCentroid[2] + position[2])
+                  );
+                  const shiftablePositionAxis = shiftablePosition.normalize();
+                  let shiftableDistance = Math.sqrt(
+                    shiftablePosition.x * shiftablePosition.x +
+                      shiftablePosition.y * shiftablePosition.y +
+                      shiftablePosition.z * shiftablePosition.z
+                  );
+                  //shiftableDistance = 0;
                   /* node.position.x -= +(topLeft[0] + position[0]) * 0.001;
                   node.position.y -= +(topLeft[2] + position[2]) * 0.001;
                   node.position.z -= -(topLeft[0] + position[1]) * 0.001; */
-                  node.position.sub(shiftablePosition);
+
+                  node.translateOnAxis(
+                    shiftablePositionAxis,
+                    -shiftableDistance
+                  );
+                  node.updateMatrix();
+                  node.updateMatrixWorld(true);
+                  //node.position.sub(shiftablePosition);
                   /* node.position.x = 0;
                   node.position.y = 0;
                   node.position.z = 0; */
@@ -5614,12 +5657,12 @@ class GLTFRenderer extends Component {
                     meshCentroid
                   );
                   //node.applyQuaternion(nodeconjugate);
-                  node.applyQuaternion(axisQuaternion);
+                  //node.applyQuaternion(axisQuaternion);
                   //node.applyQuaternion(nodeQuaternion);
-                  node.position.applyQuaternion(axisQuaternion);
+                  //node.position.applyQuaternion(axisQuaternion);
 
                   //node.position.applyAxisAngle(axisVector, differenceElement);
-                  //node.rotateOnAxis(axisVector, differenceElement);
+                  node.rotateOnAxis(axisVector, differenceElement);
                   //node.rotateOnWorldAxis(axisVector, differenceElement);
                   //node.setRotationFromAxisAngle(axisVector, differenceElement);
 
@@ -5630,7 +5673,13 @@ class GLTFRenderer extends Component {
                   /* node.position.x += +(topLeft[0] + position[0]) * 0.001;
                   node.position.y += +(topLeft[2] + position[2]) * 0.001;
                   node.position.z += -(topLeft[0] + position[1]) * 0.001; */
-                  node.position.add(shiftablePosition);
+                  node.updateMatrix();
+                  node.updateMatrixWorld(true);
+                  node.translateOnAxis(
+                    shiftablePositionAxis,
+                    shiftableDistance
+                  );
+                  //node.position.add(shiftablePosition);
                   node.updateMatrix();
                   node.updateMatrixWorld(true);
                   /*   node.position.x += positionObject.x;
