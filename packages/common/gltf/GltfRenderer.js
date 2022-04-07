@@ -419,7 +419,13 @@ class GLTFRenderer extends Component {
   };
 
   drawAxisLine = (axis, position, objectname) => {
-    if (this.scene && axis && axis.length == 3) {
+    if (
+      this.scene &&
+      axis &&
+      axis.length == 3 &&
+      position &&
+      position.length == 3
+    ) {
       let axisLineNodes = new Group(); //new Object3D();
       axisLineNodes.linetype = 5;
       const name = 'AXIS' + (objectname ? objectname : '');
@@ -1407,11 +1413,18 @@ class GLTFRenderer extends Component {
             element.geometry.boundingBox.min,
             element.geometry.boundingBox.max
           );
-          centroid.multiplyScalar(0.5);
+          centroid.multiplyScalar(0.25);
+          const k = 0;
+          //centroid = element.geometry.boundingBox.min;
           element.geometry.applyMatrix(
-            new Matrix4().makeTranslation(-centroid.x, -centroid.y, -centroid.z)
+            new Matrix4().makeTranslation(
+              -centroid.x * k,
+              -centroid.y * k,
+              -centroid.z * k
+            )
           );
-          element.position.copy(centroid);
+          //element.position.copy(centroid);
+          element.position.set(centroid.x * k, centroid.y * k, centroid.z * k);
           element.updateMatrix();
           element.updateMatrixWorld();
           console.log('element', element, element.geometry);
@@ -5506,11 +5519,16 @@ class GLTFRenderer extends Component {
       let axis =
         propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis;
       if (axis) {
+        const position =
+          propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+            .position !== undefined
+            ? propsElement.actuator_motion_control.cylindrical_axis_of_rotation
+                .position
+            : [0, 0, 0];
         return this.drawAxisLine(
           propsElement.actuator_motion_control.cylindrical_axis_of_rotation
             .axis,
-          propsElement.actuator_motion_control.cylindrical_axis_of_rotation
-            .position,
+          position,
           propsElement.name
         );
       }
@@ -5552,7 +5570,7 @@ class GLTFRenderer extends Component {
             ? nextNodeTree[gltf_Dict['topLeft']]
             : [0, 0, 0]
           : [0, 0, 0];
-        //meshCentroid = [100, 0, 100];
+        //meshCentroid = [0, 0, 0];
         console.log('Mesh Centroid', meshCentroid, nextNode);
         for (
           let index = 0;
@@ -5628,7 +5646,7 @@ class GLTFRenderer extends Component {
                     +(meshCentroid[2] + position[2])
                   );
                   const shiftablePositionAxis = shiftablePosition.normalize();
-                  let shiftableDistance = Math.sqrt(
+                  let shiftableDistance = -Math.sqrt(
                     shiftablePosition.x * shiftablePosition.x +
                       shiftablePosition.y * shiftablePosition.y +
                       shiftablePosition.z * shiftablePosition.z
@@ -5642,9 +5660,10 @@ class GLTFRenderer extends Component {
                     shiftablePositionAxis,
                     -shiftableDistance
                   );
+                  //node.position.sub(shiftablePosition);
                   node.updateMatrix();
                   node.updateMatrixWorld(true);
-                  //node.position.sub(shiftablePosition);
+
                   /* node.position.x = 0;
                   node.position.y = 0;
                   node.position.z = 0; */
@@ -5657,8 +5676,9 @@ class GLTFRenderer extends Component {
                     meshCentroid
                   );
                   //node.applyQuaternion(nodeconjugate);
-                  //node.applyQuaternion(axisQuaternion);
                   //node.applyQuaternion(nodeQuaternion);
+                  //node.applyQuaternion(axisQuaternion);
+
                   //node.position.applyQuaternion(axisQuaternion);
 
                   //node.position.applyAxisAngle(axisVector, differenceElement);
