@@ -604,6 +604,7 @@ class GLTFRenderer extends Component {
       }
     }
     if (this.props.showKinematicSliderMove) {
+      console.log('Getting from Component DID update', prevProps);
       this.kinematicMovement(prevProps);
     }
     /* 
@@ -1402,7 +1403,33 @@ class GLTFRenderer extends Component {
       //console.log(this.props);
     }
   };
-  assignPositions = () => {
+
+  assignPositionToElement = (element, centre) => {
+    if (element.geometry) {
+      if (
+        element.centre.x == 0 &&
+        element.centre.y == 0 &&
+        element.centre.z == 0
+      ) {
+        element.geometry.applyMatrix(
+          new Matrix4().makeTranslation(
+            element.centre.x - centre.x,
+            element.centre.x - centre.y,
+            element.centre.x - centre.z
+          )
+        );
+        const addedVector = new Vector3(0, 0, 0);
+        addedVector.subVectors(centre, element.centre);
+        element.position.add(addedVector);
+        element.centre = centre.clone();
+        element.updateMatrix();
+        element.updateMatrixWorld();
+        console.log('element', element, element.geometry);
+      }
+    }
+  };
+
+  assignPositions = (byFactor) => {
     if (this.partsMeshes && this.partsMeshes.length > 0) {
       this.partsMeshes.forEach((element) => {
         console.log('element', element, element.geometry);
@@ -1413,18 +1440,16 @@ class GLTFRenderer extends Component {
             element.geometry.boundingBox.min,
             element.geometry.boundingBox.max
           );
-          centroid.multiplyScalar(0.25);
-          const k = 0;
+
+          centroid.multiplyScalar(byFactor * 0.5);
           //centroid = element.geometry.boundingBox.min;
           element.geometry.applyMatrix(
-            new Matrix4().makeTranslation(
-              -centroid.x * k,
-              -centroid.y * k,
-              -centroid.z * k
-            )
+            new Matrix4().makeTranslation(-centroid.x, -centroid.y, -centroid.z)
           );
           //element.position.copy(centroid);
-          element.position.set(centroid.x * k, centroid.y * k, centroid.z * k);
+          element.position.set(centroid.x, centroid.y, centroid.z);
+          element.centroid = centroid.clone();
+          element.centre = new Vector3(centroid.x, centroid.y, centroid.z);
           element.updateMatrix();
           element.updateMatrixWorld();
           console.log('element', element, element.geometry);
@@ -1576,7 +1601,9 @@ class GLTFRenderer extends Component {
       }
     }
     if (this.props.showKinematicSliderMove) {
-      //this.assignPositions();
+      this.assignPositions(0); //1 means exact centriod, 0 means origin
+      console.log('Getting from initialization routine, setcontent');
+
       this.kinematicMovement(null);
     }
 
@@ -5547,7 +5574,13 @@ class GLTFRenderer extends Component {
     }
     return null;
   };
-  animateParts = (differenceElement, propsElement, currentNode, nextNode) => {
+  animateParts = (
+    differenceElement,
+    propsElement,
+    currentNode,
+    nextNode,
+    prevProps
+  ) => {
     if (
       propsElement.actuator_motion_control &&
       propsElement.actuator_motion_control.cylindrical_axis_of_rotation
@@ -5571,7 +5604,13 @@ class GLTFRenderer extends Component {
             : [0, 0, 0]
           : [0, 0, 0];
         //meshCentroid = [0, 0, 0];
-        console.log('Mesh Centroid', meshCentroid, nextNode);
+        let geometryCentroid = nextNode.centroid
+          ? nextNode.centroid.clone()
+          : new Vector3(-meshCentroid[0], -meshCentroid[1], -meshCentroid[2]);
+
+        geometryCentroid.multiplyScalar(1.0);
+
+        console.log('Mesh Centroid', meshCentroid, geometryCentroid, nextNode);
         for (
           let index = 0;
           index < this.props.kinematicItemList.length;
@@ -5596,6 +5635,14 @@ class GLTFRenderer extends Component {
                     propsElement.actuator_motion_control
                       .cylindrical_axis_of_rotation.position;
                   let axisVector = new Vector3(axis[0], axis[1], axis[2]);
+                  let centre = new Vector3(
+                    position[0],
+                    position[1],
+                    position[2]
+                  );
+                  //if (prevProps == null) {
+                  this.assignPositionToElement(node, centre);
+                  //}
                   //var nodeQuaternion = currentNode.quaternion;
                   //var nodeconjugate = nodeQuaternion.conjugate();
                   //axisVector = axisVector.applyQuaternion(nodeQuaternion);
@@ -5622,45 +5669,49 @@ class GLTFRenderer extends Component {
                     node.position
                   ); */
                   //node.matrixWorldNeedsUpdate = true;
-                  let targetPosition = new Vector3();
+                  /* let targetPosition = new Vector3();
                   const sourcePosition = node.getWorldPosition(targetPosition);
                   console.log(
                     node,
                     'Before translation',
                     node.position,
-                    this.shiftposition,
+                    //this.shiftposition,
                     position,
                     differenceElement,
-                    sourcePosition,
-                    targetPosition,
-                    meshCentroid
-                  );
+                    //sourcePosition,
+                    //targetPosition,
+                    meshCentroid,
+                    geometryCentroid
+                  ); */
                   /* node.position.x -= this.shiftposition.x + position[0] * 0.001;
                   node.position.y -= this.shiftposition.y + position[2] * 0.001;
                   node.position.z -= this.shiftposition.z - position[1] * 0.001; */
                   // const positionObject = node.position.clone();
 
-                  const shiftablePosition = new Vector3(
-                    +(meshCentroid[0] + position[0]),
-                    +(meshCentroid[1] + position[1]),
-                    +(meshCentroid[2] + position[2])
+                  /* const shiftablePosition = new Vector3(
+                    +(geometryCentroid.x + position[0]),
+                    +(geometryCentroid.y + position[1]),
+                    +(geometryCentroid.z + position[2])
                   );
-                  const shiftablePositionAxis = shiftablePosition.normalize();
-                  let shiftableDistance = -Math.sqrt(
+                  const shiftablePositionAxis = shiftablePosition
+                    .clone()
+                    .normalize();
+                  let shiftableDistance = Math.sqrt(
                     shiftablePosition.x * shiftablePosition.x +
                       shiftablePosition.y * shiftablePosition.y +
                       shiftablePosition.z * shiftablePosition.z
-                  );
+                  ); */
                   //shiftableDistance = 0;
                   /* node.position.x -= +(topLeft[0] + position[0]) * 0.001;
                   node.position.y -= +(topLeft[2] + position[2]) * 0.001;
                   node.position.z -= -(topLeft[0] + position[1]) * 0.001; */
 
-                  node.translateOnAxis(
+                  /*node.translateOnAxis(
                     shiftablePositionAxis,
-                    -shiftableDistance
-                  );
-                  //node.position.sub(shiftablePosition);
+                    -shiftableDistance * 0.001
+                  );*/
+
+                  node.position.sub(centre);
                   node.updateMatrix();
                   node.updateMatrixWorld(true);
 
@@ -5671,9 +5722,18 @@ class GLTFRenderer extends Component {
                     node,
                     'After translation',
                     node.position,
-                    this.shiftposition,
+                    //this.shiftposition,
                     position,
-                    meshCentroid
+                    differenceElement,
+                    centre
+                    /* ,
+                    //sourcePosition,
+                    //targetPosition,
+                    meshCentroid,
+                    geometryCentroid,
+                    shiftableDistance,
+                    shiftablePosition,
+                    shiftablePositionAxis */
                   );
                   //node.applyQuaternion(nodeconjugate);
                   //node.applyQuaternion(nodeQuaternion);
@@ -5686,7 +5746,25 @@ class GLTFRenderer extends Component {
                   //node.rotateOnWorldAxis(axisVector, differenceElement);
                   //node.setRotationFromAxisAngle(axisVector, differenceElement);
 
-                  console.log(node, 'After rotation', node.position);
+                  console.log(
+                    node,
+                    'After rotation',
+                    node.position,
+                    //this.shiftposition,
+                    position,
+                    differenceElement,
+                    centre,
+                    axisVector
+                    /*
+                    //sourcePosition,
+                    //targetPosition,
+                    meshCentroid,
+                    geometryCentroid,
+                    shiftableDistance,
+                    shiftablePosition,
+                    shiftablePositionAxis,
+                    axisVector*/
+                  );
                   /*   node.position.x += this.shiftposition.x + position[0] * 0.001;
                   node.position.y += this.shiftposition.y + position[2] * 0.001;
                   node.position.z += this.shiftposition.z - position[1] * 0.001; */
@@ -5695,13 +5773,15 @@ class GLTFRenderer extends Component {
                   node.position.z += -(topLeft[0] + position[1]) * 0.001; */
                   node.updateMatrix();
                   node.updateMatrixWorld(true);
-                  node.translateOnAxis(
+                  /*node.translateOnAxis(
                     shiftablePositionAxis,
-                    shiftableDistance
-                  );
-                  //node.position.add(shiftablePosition);
+                    shiftableDistance * 0.001
+                  );*/
+                  node.position.add(centre);
+                  //this.assignPositionToElement(node, centre.multiplyScalar(1));
                   node.updateMatrix();
                   node.updateMatrixWorld(true);
+
                   /*   node.position.x += positionObject.x;
                   node.position.y += positionObject.y;
                   node.position.z += positionObject.z; */
@@ -5709,9 +5789,19 @@ class GLTFRenderer extends Component {
                     node,
                     'After rotation transalation',
                     node.position,
-                    this.shiftposition,
+                    //this.shiftposition,
                     position,
-                    meshCentroid
+                    differenceElement,
+                    centre,
+                    axisVector
+                    /* //sourcePosition,
+                    //targetPosition,
+                    meshCentroid,
+                    geometryCentroid,
+                    shiftableDistance,
+                    shiftablePosition,
+                    shiftablePositionAxis,
+                    axisVector */
                   );
                   //node.matrixWorldNeedsUpdate = false;
                   console.log(
@@ -5807,6 +5897,7 @@ class GLTFRenderer extends Component {
           const propsElement = this.props.kinematicItemList[index];
 
           const currentNode = this.findNodeFrom(propsElement);
+
           if (prevProps == null) {
             this.axisArray = [];
             const axisline = this.drawAxisLineToKinematic(propsElement);
@@ -5817,6 +5908,7 @@ class GLTFRenderer extends Component {
                 meshLine.getWorldDirection(targetDirection);
               let targetPosition = new Vector3();
               const sourcePosition = meshLine.getWorldPosition(targetPosition);
+
               console.log(
                 meshLine,
                 sourceDirection,
@@ -5864,12 +5956,14 @@ class GLTFRenderer extends Component {
             const nextNode = nextElement
               ? this.findNodeFrom(nextElement)
               : null;
+
             if (nextNode) {
               this.animateParts(
                 differenceElement,
                 propsElement,
                 currentNode,
-                nextNode
+                nextNode,
+                prevProps
               );
             } else {
               console.log(
