@@ -1405,7 +1405,7 @@ class GLTFRenderer extends Component {
   };
 
   assignPositionToElement = (element, centre) => {
-    if (element.geometry) {
+    if (element.geometry && element.centre) {
       if (
         element.centre.x == 0 &&
         element.centre.y == 0 &&
