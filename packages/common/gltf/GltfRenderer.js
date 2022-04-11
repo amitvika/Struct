@@ -122,7 +122,8 @@ import {
   pollFunction,
   isEmptyObjectDictionary,
   elementCopy,
-  arrayCopy
+  arrayCopy,
+  extractKinematicInformation
 } from './Tree/utils';
 import './styles/style.css';
 
@@ -296,7 +297,8 @@ class GLTFRenderer extends Component {
     lastClickedNode: null,
     autoHideDuration: 1000,
     edgelinewidth: 2.0,
-    freezeNonSelection: false
+    freezeNonSelection: false,
+    parsedKinematicInfo: []
     //gltfobj:this.props.gltfobj
   };
   state_selectedObjects = [];
@@ -605,7 +607,7 @@ class GLTFRenderer extends Component {
     }
     if (this.props.showKinematicSliderMove) {
       console.log('Getting from Component DID update', prevProps);
-      this.kinematicMovement(prevProps);
+      this.kinematicMovement(prevProps, this.state.parsedKinematicInfo);
     }
     /* 
         if((this.state.gltfobj!=this.props.gltfobj) || (prevState.gltfobj !=this.state.gltfobj)) {
@@ -656,12 +658,13 @@ class GLTFRenderer extends Component {
   };
 
   truncToFirst = () => {
-    if (this.axisArray) {
+    /* if (this.axisArray) {
       for (let index = 0; index < this.axisArray.length; index++) {
         this.removeFromScreenObjects(this.axisArray[index]);
       }
       this.axisArray = [];
-    }
+    } */
+    this.removeDrawnAxisLines();
     if (this.content) {
       for (let index = this.content.length - 1; index > 0; index--) {
         if (index > 0) {
@@ -1404,27 +1407,201 @@ class GLTFRenderer extends Component {
     }
   };
 
-  assignPositionToElement = (element, centre) => {
+  assignPositionToElement = (
+    element,
+    revisedPosition,
+    revisedQuaternion,
+    originalPosition
+  ) => {
     if (element.geometry && element.centre) {
       if (
-        element.centre.x == 0 &&
-        element.centre.y == 0 &&
-        element.centre.z == 0
+        (element.centre.x == 0 &&
+          element.centre.y == 0 &&
+          element.centre.z == 0) ||
+        true
       ) {
-        element.geometry.applyMatrix(
-          new Matrix4().makeTranslation(
-            element.centre.x - centre.x,
-            element.centre.x - centre.y,
-            element.centre.x - centre.z
-          )
+        //element.position.sub(originalPosition);
+        const centerFactor = originalPosition.clone();
+        console.log(
+          'element.position1',
+          element.name,
+          element.position,
+          element.localPosition,
+          element.centre,
+          centerFactor
         );
-        const addedVector = new Vector3(0, 0, 0);
-        addedVector.subVectors(centre, element.centre);
-        element.position.add(addedVector);
-        element.centre = centre.clone();
+        element.position.sub(element.localPosition);
+        console.log(
+          'element.position2',
+          element.name,
+          element.position,
+          element.localPosition,
+          element.centre,
+          centerFactor
+        );
         element.updateMatrix();
         element.updateMatrixWorld();
-        console.log('element', element, element.geometry);
+        element.applyQuaternion(element.localQuaternion.clone().invert());
+        element.updateMatrix();
+        element.updateMatrixWorld();
+        console.log(
+          'element.position3',
+          element.name,
+          element.position,
+          element.localPosition,
+          element.centre,
+          centerFactor,
+          element.localArrays
+        );
+        //console.log('Got vector as', addedVector, centre, element.centre);
+        //element.position.add(addedVector);
+        //revisedPosition.clone(); //originalPosition; //revisedPosition; //new Vector3(0, 0, 0);
+        /*  for (let index = 0; index < element.localArrays.length; index++) {
+          const elementArray = element.localArrays[index];
+          element.position.add(elementArray);
+        } */
+
+        // console.log(
+        //   'element.position4',
+        //   element.name,
+        //   element.position,
+        //   element.localPosition,
+        //   centerFactor,
+        //   element.localArrays
+        // );
+        //element.position.add(centerFactor);
+        element.updateMatrix();
+        element.updateMatrixWorld();
+        //const elementLocalPosition = element.localPosition.clone(); //originalPosition; //element.localPosition; //element.position.clone();
+        /* let elementLocalPosition = new Vector3(
+          -element.centre.x,
+          -element.centre.y,
+          -element.centre.z
+        ); */
+        let elementLocalPosition = element.centre.clone();
+        const addedVector = new Vector3(0, 0, 0);
+        //const centerFactor = revisedPosition.clone(); //originalPosition.clone();//revisedPosition.clone(); //originalPosition; //revisedPosition; //new Vector3(0, 0, 0);
+        elementLocalPosition.sub(centerFactor);
+
+        //addedVector.subVectors(centerFactor, elementLocalPosition);
+        element.geometry.applyMatrix(
+          new Matrix4().makeTranslation(
+            elementLocalPosition.x,
+            elementLocalPosition.y,
+            elementLocalPosition.z
+          )
+        );
+        /* console.log(
+          'element local1',
+          element.localPosition,
+          originalPosition,
+          element.position,
+          elementLocalPosition,
+          element.localQuaternion,
+          element.localQuaternion.clone().invert(),
+          addedVector
+        ); */
+        console.log(
+          'element.position4',
+          element.name,
+          element.position,
+          element.localPosition,
+          element.centre,
+          centerFactor,
+          elementLocalPosition
+        );
+        //element.position.add(addedVector);
+        // console.log(
+        //   'element.position6',
+        //   element.name,
+        //   element.position,
+        //   element.localPosition,
+        //   centerFactor
+        // );
+        //element.position.sub(centerFactor);
+        // console.log(
+        //   'element.position7',
+        //   element.name,
+        //   element.position,
+        //   element.localPosition,
+        //   centerFactor
+        // );
+        element.updateMatrix();
+        element.updateMatrixWorld();
+        /* console.log(
+          'element local2',
+          element.localPosition,
+          element.position,
+          element.localQuaternion,
+          element.localQuaternion.clone().invert()
+        );
+ */
+        element.applyQuaternion(revisedQuaternion);
+        element.updateMatrix();
+        element.updateMatrixWorld();
+        console.log(
+          'element.position5',
+          element.name,
+          element.position,
+          element.localPosition,
+          element.centre,
+          centerFactor,
+          element.localQuaternion,
+          revisedQuaternion,
+          revisedPosition,
+          elementLocalPosition
+        );
+        // console.log(
+        //   'element local3',
+        //   element.localPosition,
+        //   element.position,
+        //   element.localQuaternion,
+        //   revisedQuaternion,
+        //   revisedPosition,
+        //   elementLocalPosition
+        // );
+        element.position.add(revisedPosition);
+        console.log(
+          'element.position6',
+          element.name,
+          element.position,
+          element.localPosition,
+          element.centre,
+          centerFactor,
+          element.localQuaternion,
+          revisedQuaternion,
+          revisedPosition,
+          elementLocalPosition
+        );
+        //element.position.add(originalPosition);
+        element.updateMatrix();
+        element.updateMatrixWorld(true);
+        console.log(
+          'element.position7',
+          element,
+          element.name,
+          element.position,
+          element.localPosition,
+          element.centre,
+          centerFactor,
+          element.localQuaternion,
+          revisedQuaternion,
+          revisedPosition,
+          elementLocalPosition
+        );
+        element.localPosition = revisedPosition.clone();
+        element.localQuaternion = revisedQuaternion.clone();
+        element.centre = centerFactor.clone();
+        element.localArrays.push(element.centre.clone());
+        // console.log(
+        //   'element local5',
+        //   element.localPosition,
+        //   element.position,
+        //   element.localQuaternion,
+        //   revisedQuaternion,
+        //   revisedPosition
+        // );
+        // console.log('element', element, revisedPosition, revisedQuaternion);
       }
     }
   };
@@ -1432,7 +1609,7 @@ class GLTFRenderer extends Component {
   assignPositions = (byFactor) => {
     if (this.partsMeshes && this.partsMeshes.length > 0) {
       this.partsMeshes.forEach((element) => {
-        console.log('element', element, element.geometry);
+        //console.log('element', element, element.geometry);
         if (element.geometry) {
           element.geometry.computeBoundingBox();
           var centroid = new Vector3();
@@ -1452,7 +1629,14 @@ class GLTFRenderer extends Component {
           element.centre = new Vector3(centroid.x, centroid.y, centroid.z);
           element.updateMatrix();
           element.updateMatrixWorld();
-          console.log('element', element, element.geometry);
+          element.localPosition = new Vector3(0, 0, 0);
+          element.localQuaternion = new Quaternion(0, 0, 0, 1);
+          element.localArrays = [];
+          element.localArrays.push(element.centre.clone());
+
+          //const position = element.geometry.attributes.position;
+          //console.log('Got positiion in 3js', position, position.applyMatrix4);
+          //console.log('element', element, element.geometry);
         }
       });
     }
@@ -1596,15 +1780,23 @@ class GLTFRenderer extends Component {
         indexLines++
       ) {
         const element = this.props.drawAxisLines[indexLines];
-        console.log('Getting an element to draw axis', element);
+        //console.log('Getting an element to draw axis', element);
         this.drawAxisLine(element.axis, element.position, element.name);
       }
     }
     if (this.props.showKinematicSliderMove) {
       this.assignPositions(0); //1 means exact centriod, 0 means origin
       console.log('Getting from initialization routine, setcontent');
-
-      this.kinematicMovement(null);
+      const parsedInfo = extractKinematicInformation(
+        this.props.kinematicItemList
+      );
+      console.log('Entering setting state');
+      this.kinematicMovement(null, parsedInfo);
+      console.log('Completed kinematic movement from initialization routine');
+      this.setStateWithoutError({ parsedKinematicInfo: parsedInfo });
+      console.log('Completed Entering setting state');
+    } else {
+      this.setStateWithoutError({ parsedKinematicInfo: [] });
     }
 
     await this.loadAdditionalFeatures();
@@ -2624,12 +2816,7 @@ class GLTFRenderer extends Component {
         });
       });
     }
-    if (this.axisArray) {
-      for (let index = 0; index < this.axisArray.length; index++) {
-        this.removeFromScreenObjects(this.axisArray[index]);
-      }
-      this.axisArray = [];
-    }
+    this.removeDrawnAxisLines();
   };
 
   onWindowResize = () => {
@@ -5480,9 +5667,121 @@ class GLTFRenderer extends Component {
       console.log('Performed all operations to rerender');
     }
   };
+  getSequencedItem = (parsedItem, getSequence, getChain = 1) => {
+    let kinematicInformation, maxChain, maxSequence;
+    [kinematicInformation, maxChain, maxSequence] = parsedItem;
+    console.log(
+      'Parsed Item',
+      parsedItem,
+      'Kinematic Information',
+      kinematicInformation,
+      'maxChain',
+      maxChain,
+      'maxSequence',
+      maxSequence
+    );
+    const lengthOfKinematicInfo = kinematicInformation.length;
+    for (
+      var kinematicInfo = 0, _pj_a = lengthOfKinematicInfo;
+      kinematicInfo < _pj_a;
+      kinematicInfo += 1
+    ) {
+      let partName,
+        displayName,
+        partType,
+        sequence,
+        chains,
+        axis,
+        nextAxis,
+        axisAngle,
+        axisDistance,
+        angle,
+        distance,
+        machineLimit,
+        isLinear,
+        isEndEffector,
+        position,
+        axisPosition;
+      [
+        partName,
+        displayName,
+        partType,
+        sequence,
+        chains,
+        axis,
+        nextAxis,
+        axisAngle,
+        axisDistance,
+        angle,
+        distance,
+        machineLimit,
+        isLinear,
+        isEndEffector,
+        position,
+        axisPosition
+      ] = kinematicInformation[kinematicInfo];
+      if (chains.includes(getChain) && sequence === getSequence) {
+        return kinematicInformation[kinematicInfo];
+      }
+    }
+    return null;
+  };
+  getKinematicItem = (kinematicItemList, kinematicInformation) => {
+    let partName,
+      displayName,
+      partType,
+      sequence,
+      chains,
+      axis,
+      nextAxis,
+      axisAngle,
+      axisDistance,
+      angle,
+      distance,
+      machineLimit,
+      isLinear,
+      isEndEffector,
+      position,
+      axisPosition;
+    [
+      partName,
+      displayName,
+      partType,
+      sequence,
+      chains,
+      axis,
+      nextAxis,
+      axisAngle,
+      axisDistance,
+      angle,
+      distance,
+      machineLimit,
+      isLinear,
+      isEndEffector,
+      position,
+      axisPosition
+    ] = kinematicInformation;
+    //console.log('Info', kinematicInformation, 'partname', partName);
+    const uniqueName = partName ? this.findUniqueName(partName, 'PART') : null;
+    if (uniqueName) {
+      for (let index = 0; index < kinematicItemList.length; index++) {
+        const element = kinematicItemList[index];
+        const thisUniqueName = element
+          ? element.filePartName
+            ? this.findUniqueName(element.filePartName, 'PART')
+            : null
+          : null;
+        if (thisUniqueName === uniqueName) {
+          return element;
+        }
+      }
+    }
+    return null;
+  };
   getPrevPropsItem = (prevProps, kinematicItem) => {
     for (let index = 0; index < prevProps.kinematicItemList.length; index++) {
       const element = prevProps.kinematicItemList[index];
+      this.findUniqueName(kinematicItem.filePartName, 'PART');
       if (element.filePartName === kinematicItem.filePartName) {
         return element;
       }
@@ -5520,21 +5819,21 @@ class GLTFRenderer extends Component {
             return element;
           }
         } else {
-          console.log(
+          /* console.log(
             'No name or element is null in the loop',
             element,
             uniqueName,
             kinematicItem
-          );
+          ); */
         }
       }
     }
-    console.log(
+    /* console.log(
       'No name or element is null outside',
 
       kinematicItem.filePartName,
       kinematicItem
-    );
+    ); */
     return null;
   };
   drawAxisLineToKinematic = (propsElement) => {
@@ -5579,7 +5878,12 @@ class GLTFRenderer extends Component {
     propsElement,
     currentNode,
     nextNode,
-    prevProps
+    prevProps,
+    sequence,
+    parsedInfo,
+    localQuaternion,
+    localPosition,
+    originaPosition
   ) => {
     if (
       propsElement.actuator_motion_control &&
@@ -5587,7 +5891,7 @@ class GLTFRenderer extends Component {
     ) {
       let axis =
         propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis;
-      console.log('Got axis as ', axis, currentNode);
+      //console.log('Got axis as ', axis, currentNode);
       //axis = [0, 0, 1];
       if (axis) {
         /* let axisline = this.drawAxisLine(
@@ -5610,18 +5914,32 @@ class GLTFRenderer extends Component {
 
         geometryCentroid.multiplyScalar(1.0);
 
-        console.log('Mesh Centroid', meshCentroid, geometryCentroid, nextNode);
+        //console.log('Mesh Centroid', meshCentroid, geometryCentroid, nextNode);
         for (
-          let index = 0;
+          let index = sequence + 1;
           index < this.props.kinematicItemList.length;
           index++
         ) {
-          const element = this.props.kinematicItemList[index];
+          const sequencedElement = this.getSequencedItem(
+            parsedInfo,
+            index + 1,
+            1
+          );
+
+          const element = sequencedElement
+            ? this.getKinematicItem(
+                this.props.kinematicItemList,
+                sequencedElement
+              )
+            : this.props.kinematicItemList[index];
+          //const element = this.props.kinematicItemList[index];
           if (
             element &&
             element.actuator_motion_control &&
-            element.actuator_motion_control.axis_number >
-              propsElement.actuator_motion_control.axis_number
+            ((!sequencedElement &&
+              element.actuator_motion_control.axis_number >
+                propsElement.actuator_motion_control.axis_number) ||
+              sequencedElement)
           ) {
             let node = this.findNodeFrom(element);
             if (node) {
@@ -5631,17 +5949,24 @@ class GLTFRenderer extends Component {
                   .cylindrical_axis_of_rotation
               ) {
                 if (axis) {
-                  const position =
-                    propsElement.actuator_motion_control
-                      .cylindrical_axis_of_rotation.position;
-                  let axisVector = new Vector3(axis[0], axis[1], axis[2]);
-                  let centre = new Vector3(
-                    position[0],
-                    position[1],
-                    position[2]
-                  );
+                  // const position =
+                  //   propsElement.actuator_motion_control
+                  //     .cylindrical_axis_of_rotation.position;
+                  // let axisVector = new Vector3(axis[0], axis[1], axis[2]);
+                  // let centre = new Vector3(
+                  //   position[0],
+                  //   position[1],
+                  //   position[2]
+                  // );
+                  // centre = localPosition;
                   //if (prevProps == null) {
-                  this.assignPositionToElement(node, centre);
+                  this.assignPositionToElement(
+                    node,
+                    localPosition,
+                    localQuaternion,
+                    originaPosition
+                  );
+                  //this.assignPositionToElement(node, localPosition);
                   //}
                   //var nodeQuaternion = currentNode.quaternion;
                   //var nodeconjugate = nodeQuaternion.conjugate();
@@ -5653,12 +5978,12 @@ class GLTFRenderer extends Component {
                   //   nodeQuaternion,
                   //   nodeconjugate
                   // );
-                  var axisQuaternion = new Quaternion();
+                  /* var axisQuaternion = new Quaternion();
                   axisQuaternion.setFromAxisAngle(
                     axisVector,
                     differenceElement
                   );
-                  axisQuaternion.normalize();
+                  axisQuaternion.normalize(); */
                   /* console.log(
                     'Node.position before applying quaternion',
                     node.position
@@ -5711,30 +6036,31 @@ class GLTFRenderer extends Component {
                     -shiftableDistance * 0.001
                   );*/
 
-                  node.position.sub(centre);
-                  node.updateMatrix();
-                  node.updateMatrixWorld(true);
+                  // node.position.sub(centre);
+                  // node.updateMatrix();
+                  // node.updateMatrixWorld(true);
 
                   /* node.position.x = 0;
                   node.position.y = 0;
                   node.position.z = 0; */
-                  console.log(
-                    node,
-                    'After translation',
-                    node.position,
-                    //this.shiftposition,
-                    position,
-                    differenceElement,
-                    centre
-                    /* ,
-                    //sourcePosition,
-                    //targetPosition,
-                    meshCentroid,
-                    geometryCentroid,
-                    shiftableDistance,
-                    shiftablePosition,
-                    shiftablePositionAxis */
-                  );
+                  // console.log(
+                  //   node,
+                  //   'After translation',
+                  //   node.position,
+                  //   //this.shiftposition,
+                  //   position,
+                  //   differenceElement,
+                  //   centre,
+                  //   localPosition
+                  //   /* ,
+                  //   //sourcePosition,
+                  //   //targetPosition,
+                  //   meshCentroid,
+                  //   geometryCentroid,
+                  //   shiftableDistance,
+                  //   shiftablePosition,
+                  //   shiftablePositionAxis */
+                  // );
                   //node.applyQuaternion(nodeconjugate);
                   //node.applyQuaternion(nodeQuaternion);
                   //node.applyQuaternion(axisQuaternion);
@@ -5742,85 +6068,87 @@ class GLTFRenderer extends Component {
                   //node.position.applyQuaternion(axisQuaternion);
 
                   //node.position.applyAxisAngle(axisVector, differenceElement);
-                  node.rotateOnAxis(axisVector, differenceElement);
+                  //node.rotateOnAxis(axisVector, differenceElement);
                   //node.rotateOnWorldAxis(axisVector, differenceElement);
+                  //axisQuaternion = localQuaternion;
+                  // node.applyQuaternion(axisQuaternion);
                   //node.setRotationFromAxisAngle(axisVector, differenceElement);
 
-                  console.log(
-                    node,
-                    'After rotation',
-                    node.position,
-                    //this.shiftposition,
-                    position,
-                    differenceElement,
-                    centre,
-                    axisVector
-                    /*
-                    //sourcePosition,
-                    //targetPosition,
-                    meshCentroid,
-                    geometryCentroid,
-                    shiftableDistance,
-                    shiftablePosition,
-                    shiftablePositionAxis,
-                    axisVector*/
-                  );
+                  // console.log(
+                  //   node,
+                  //   'After rotation',
+                  //   node.position,
+                  //   //this.shiftposition,
+                  //   position,
+                  //   differenceElement,
+                  //   centre,
+                  //   axisVector
+                  //   /*
+                  //   //sourcePosition,
+                  //   //targetPosition,
+                  //   meshCentroid,
+                  //   geometryCentroid,
+                  //   shiftableDistance,
+                  //   shiftablePosition,
+                  //   shiftablePositionAxis,
+                  //   axisVector*/
+                  // );
                   /*   node.position.x += this.shiftposition.x + position[0] * 0.001;
                   node.position.y += this.shiftposition.y + position[2] * 0.001;
                   node.position.z += this.shiftposition.z - position[1] * 0.001; */
                   /* node.position.x += +(topLeft[0] + position[0]) * 0.001;
                   node.position.y += +(topLeft[2] + position[2]) * 0.001;
                   node.position.z += -(topLeft[0] + position[1]) * 0.001; */
-                  node.updateMatrix();
-                  node.updateMatrixWorld(true);
+                  // node.updateMatrix();
+                  // node.updateMatrixWorld(true);
                   /*node.translateOnAxis(
                     shiftablePositionAxis,
                     shiftableDistance * 0.001
                   );*/
-                  node.position.add(centre);
-                  //this.assignPositionToElement(node, centre.multiplyScalar(1));
-                  node.updateMatrix();
-                  node.updateMatrixWorld(true);
+                  // node.position.add(centre);
+                  // //this.assignPositionToElement(node, centre.multiplyScalar(1));
+                  // node.updateMatrix();
+                  // node.updateMatrixWorld(true);
 
                   /*   node.position.x += positionObject.x;
                   node.position.y += positionObject.y;
                   node.position.z += positionObject.z; */
-                  console.log(
-                    node,
-                    'After rotation transalation',
-                    node.position,
-                    //this.shiftposition,
-                    position,
-                    differenceElement,
-                    centre,
-                    axisVector
-                    /* //sourcePosition,
-                    //targetPosition,
-                    meshCentroid,
-                    geometryCentroid,
-                    shiftableDistance,
-                    shiftablePosition,
-                    shiftablePositionAxis,
-                    axisVector */
-                  );
+                  // console.log(
+                  //   node,
+                  //   'After rotation transalation',
+                  //   node.position,
+                  //   //this.shiftposition,
+                  //   position,
+                  //   differenceElement,
+                  //   centre,
+                  //   axisVector
+                  //   /* //sourcePosition,
+                  //   //targetPosition,
+                  //   meshCentroid,
+                  //   geometryCentroid,
+                  //   shiftableDistance,
+                  //   shiftablePosition,
+                  //   shiftablePositionAxis,
+                  //   axisVector */
+                  // );
                   //node.matrixWorldNeedsUpdate = false;
-                  console.log(
-                    'Done movement for',
-                    node,
-                    axisVector,
-                    differenceElement
-                  );
+                  // console.log(
+                  //   'Done movement for',
+                  //   node,
+                  //   axisVector,
+                  //   differenceElement
+                  // );
                 }
               }
             } else {
               console.log('No node found for', element, this.partsMeshes);
             }
           } else {
-            console.log(
+            /*  console.log(
               'Some elements are missing in structure or axis number is lesser',
               element,
               propsElement
-            );
+            ); */
           }
         }
       } else {
@@ -5865,116 +6193,420 @@ class GLTFRenderer extends Component {
     );
     return null;
   };
-
-  kinematicMovement = (prevProps) => {
+  getAxisFromQuaternion = (quaternion) => {
+    const axis = [0, 0, 0];
+    const angle = 2 * Math.acos(quaternion.w);
+    if (1 - quaternion.w * quaternion.w < 0.000001) {
+      // test to avoid divide by zero, s is always positive due to sqrt
+      // if s close to zero then direction of axis not important
+      axis[0] = quaternion.x;
+      axis[1] = quaternion.y;
+      axis[2] = quaternion.z;
+    } else {
+      // http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
+      const s = Math.sqrt(1 - quaternion.w * quaternion.w);
+      axis[0] = quaternion.x / s;
+      axis[1] = quaternion.y / s;
+      axis[2] = quaternion.z / s;
+    }
+    return axis;
+  };
+  kinematicMovement = (prevProps, parsedInfo) => {
     if (this.props.kinematicItemList && this.props.showKinematicSliderMove) {
       if (
-        JSON.stringify(prevProps ? prevProps.kinematicItemList || [] : []) !=
-        JSON.stringify(this.props.kinematicItemList || [])
+        JSON.stringify(prevProps ? prevProps.kinematicItemList || [] : []) !==
+          JSON.stringify(this.props.kinematicItemList || []) &&
+        JSON.stringify(parsedInfo || []) !== JSON.stringify([])
       ) {
-      }
-      console.log(
-        'Got in GltfRender',
-        this.props.kinematicItemList,
-        this.partsMeshes,
-        this.props.gltfobj
-      );
+        console.log(
+          'Got in GltfRender',
+          this.props.kinematicItemList,
+          this.partsMeshes,
+          this.props.gltfobj
+        );
 
-      if (
-        this.partsMeshes &&
-        this.partsMeshes.length > 0 &&
-        this.props.kinematicItemList &&
-        this.props.kinematicItemList.length > 0
-      ) {
-        const sameGLTF = prevProps
-          ? prevProps.activeGLTFFile === this.props.activeGLTFFile
-          : false;
-        for (
-          let index = 0;
-          index < this.props.kinematicItemList.length;
-          index++
+        if (
+          this.partsMeshes &&
+          this.partsMeshes.length > 0 &&
+          this.props.kinematicItemList &&
+          this.props.kinematicItemList.length > 0
         ) {
-          const propsElement = this.props.kinematicItemList[index];
-
-          const currentNode = this.findNodeFrom(propsElement);
-
+          const sameGLTF = prevProps
+            ? prevProps.activeGLTFFile === this.props.activeGLTFFile
+            : false;
           if (prevProps == null) {
+            this.removeDrawnAxisLines();
             this.axisArray = [];
-            const axisline = this.drawAxisLineToKinematic(propsElement);
-            if (axisline) {
-              const meshLine = axisline.children[0];
-              let targetDirection = new Vector3();
-              const sourceDirection =
-                meshLine.getWorldDirection(targetDirection);
-              let targetPosition = new Vector3();
-              const sourcePosition = meshLine.getWorldPosition(targetPosition);
-
-              console.log(
-                meshLine,
-                sourceDirection,
-                targetDirection,
-                sourcePosition,
-                targetPosition,
-                propsElement.actuator_motion_control
-                  .cylindrical_axis_of_rotation.axis,
-                propsElement.actuator_motion_control
-                  .cylindrical_axis_of_rotation.position,
-                meshLine.geometry,
-                meshLine.geometry.vertices
-              );
-            }
-            if (currentNode) {
-              console.log('Current Node', currentNode, axisline);
-            }
           }
+          let localQuaternion = new Quaternion(0, 0, 0, 1);
+          let localPosition = new Vector3(0, 0, 0);
+          let localPreviousPosition = new Vector3(0, 0, 0);
+          for (
+            let index = 0;
+            index < this.props.kinematicItemList.length;
+            index++
+          ) {
+            const sequencedElement = this.getSequencedItem(
+              parsedInfo,
+              index + 1,
+              1
+            );
 
-          const prevPropsElement = sameGLTF
-            ? prevProps.kinematicItemList
-              ? prevProps.kinematicItemList[index].filePartName ===
-                propsElement.filePartName
-                ? prevProps.kinematicItemList[index]
-                : this.getPrevPropsItem(prevProps, propsElement)
-              : null
-            : null;
-          let differenceElement =
-            prevPropsElement && propsElement
-              ? prevPropsElement.actuator_motion_control &&
-                propsElement.actuator_motion_control
-                ? propsElement.actuator_motion_control.chain_number -
-                  prevPropsElement.actuator_motion_control.chain_number
-                : 0
-              : 0;
-          if (!sameGLTF || !prevPropsElement) {
-            differenceElement = propsElement
-              ? propsElement.actuator_motion_control
-                ? propsElement.actuator_motion_control.chain_number
-                : 0
-              : 0;
-          }
-          if (differenceElement) {
-            const nextElement = this.findNextPart(propsElement);
-            const nextNode = nextElement
-              ? this.findNodeFrom(nextElement)
-              : null;
+            const propsElement = sequencedElement
+              ? this.getKinematicItem(
+                  this.props.kinematicItemList,
+                  sequencedElement
+                )
+              : this.props.kinematicItemList[index];
 
-            if (nextNode) {
-              this.animateParts(
-                differenceElement,
-                propsElement,
-                currentNode,
-                nextNode,
-                prevProps
-              );
-            } else {
-              console.log(
-                'I Could not get next node',
-                nextElement,
-                currentNode,
-                nextNode
-              );
-            }
+            const currentNode = this.findNodeFrom(propsElement);
+            console.log(
+              'Comparing stringingfication',
+              parsedInfo,
+              propsElement,
+              sequencedElement,
+              currentNode
+            );
+            if (
+              currentNode &&
+              propsElement &&
+              propsElement.actuator_motion_control &&
+              propsElement.actuator_motion_control.child_part_type ===
+                'ACTUATOR'
+            ) {
+              if (prevProps == null) {
+                const axisLine = this.drawAxisLineToKinematic(propsElement);
+                if (currentNode) {
+                  currentNode.axisLine = axisLine
+                    ? axisLine.children
+                      ? axisLine.children.length > 0
+                        ? axisLine.children[0]
+                        : null
+                      : null
+                    : null;
+                } else {
+                  console.log('Current node is null for', propsElement);
+                }
 
-            /* console.log(index, differenceElement, this.partsMeshes[index + 1]);
+                /* const axisline = this.drawAxisLineToKinematic(propsElement);
+                if (axisline) {
+                  const meshLine = axisline.children[0];
+                  let targetDirection = new Vector3();
+                  const sourceDirection =
+                    meshLine.getWorldDirection(targetDirection);
+                  let targetPosition = new Vector3();
+                  const sourcePosition = meshLine.getWorldPosition(targetPosition);
+    
+                  console.log(
+                    meshLine,
+                    sourceDirection,
+                    targetDirection,
+                    sourcePosition,
+                    targetPosition,
+                    propsElement.actuator_motion_control
+                      .cylindrical_axis_of_rotation.axis,
+                    propsElement.actuator_motion_control
+                      .cylindrical_axis_of_rotation.position,
+                    meshLine.geometry,
+                    meshLine.geometry.vertices
+                  );
+                } 
+                if (currentNode) {
+                  console.log('Current Node', currentNode, axisline);
+                }*/
+              }
+
+              const prevPropsElement = sameGLTF
+                ? prevProps.kinematicItemList
+                  ? prevProps.kinematicItemList[index].filePartName ===
+                    propsElement.filePartName
+                    ? prevProps.kinematicItemList[index]
+                    : this.getPrevPropsItem(prevProps, propsElement)
+                  : null
+                : null;
+              let differenceElement =
+                prevPropsElement && propsElement
+                  ? prevPropsElement.actuator_motion_control &&
+                    propsElement.actuator_motion_control
+                    ? propsElement.actuator_motion_control.chain_number -
+                      prevPropsElement.actuator_motion_control.chain_number
+                    : 0
+                  : 0;
+              if (!sameGLTF || !prevPropsElement) {
+                differenceElement = propsElement
+                  ? propsElement.actuator_motion_control
+                    ? propsElement.actuator_motion_control.chain_number
+                    : 0
+                  : 0;
+              }
+              if (
+                differenceElement ||
+                propsElement.actuator_motion_control.chain_number !=
+                  0 /* || prevProps == null */
+              ) {
+                let currentAxis = propsElement.actuator_motion_control
+                  .cylindrical_axis_of_rotation
+                  ? propsElement.actuator_motion_control
+                      .cylindrical_axis_of_rotation.axis
+                    ? new Vector3(
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[0],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[1],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.axis[2]
+                      )
+                    : new Vector3()
+                  : new Vector3();
+                let currentPosition = propsElement.actuator_motion_control
+                  .cylindrical_axis_of_rotation
+                  ? propsElement.actuator_motion_control
+                      .cylindrical_axis_of_rotation.position
+                    ? new Vector3(
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[0],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[1],
+                        propsElement.actuator_motion_control.cylindrical_axis_of_rotation.position[2]
+                      )
+                    : new Vector3()
+                  : new Vector3();
+
+                //let mydummyquaternion = localQuaternion; //new Quaternion();
+                //mydummyquaternion.setFromAxisAngle(new Vector3(0.19, 1, 0), 0);
+                let localQuaternionCopy = localQuaternion.clone();
+                let currentOriginalPosition = currentPosition.clone();
+                currentPosition.sub(localPosition);
+                currentPosition.applyQuaternion(localQuaternionCopy);
+                //currentPosition.applyQuaternion(currentQuaternion);
+                currentPosition.add(localPosition);
+                let currentAnotherAxis = currentAxis.clone();
+                let currentPositionAxis = currentAxis.clone();
+                currentPositionAxis.add(currentOriginalPosition);
+                currentPositionAxis.sub(localPosition);
+                currentPositionAxis.applyQuaternion(localQuaternionCopy);
+                currentPositionAxis.add(localPosition);
+                currentPositionAxis.sub(currentPosition);
+                currentPositionAxis.normalize();
+                const localExtaPosition = currentOriginalPosition.clone();
+                localExtaPosition.sub(localPreviousPosition);
+
+                // currentPosition = new Vector3(0, 0, 0);
+                // currentPosition.sub(localPosition);
+                // currentPosition.applyQuaternion(localQuaternionCopy);
+                // //currentPosition.applyQuaternion(currentQuaternion);
+                // currentPosition.add(localPosition);
+                let currentQuaternion = new Quaternion();
+                /* currentAxis.sub(localPosition);
+                currentAxis.applyQuaternion(mydummyquaternion);
+                currentAxis.add(localPosition);
+                currentAxis.normalize();
+                currentQuaternion
+                  .setFromAxisAngle(currentAxis, differenceElement)
+                  .normalize();
+                localQuaternion = currentQuaternion.clone(); */
+                currentQuaternion
+                  .setFromAxisAngle(
+                    currentPositionAxis,
+                    /* index >= 2 && false
+                      ? 0
+                      : */ propsElement.actuator_motion_control.chain_number
+                  )
+                  .normalize();
+                localQuaternionCopy.premultiply(currentQuaternion).normalize();
+                const multipliedAxis =
+                  this.getAxisFromQuaternion(localQuaternion);
+                console.log(
+                  'Quaternion inside loop',
+                  currentQuaternion,
+                  localQuaternion,
+                  multipliedAxis,
+                  currentAnotherAxis,
+                  currentPositionAxis
+                );
+
+                let localPreviousCUrrentPosition =
+                  currentOriginalPosition.clone();
+
+                /*  localPreviousCUrrentPosition.sub(localPreviousPosition);
+                localPreviousCUrrentPosition.sub(localPosition);
+                localPreviousCUrrentPosition.applyQuaternion(
+                  localQuaternionCopy
+                );
+
+                localPreviousCUrrentPosition.add(localPosition);
+                localPreviousCUrrentPosition.add(localPreviousPosition); */
+
+                //localPreviousCUrrentPosition.add(new Vector3(-15, -16, 0));
+                let localPreviousStoredPosition =
+                  currentOriginalPosition.clone();
+                localPreviousStoredPosition.sub(localPreviousPosition);
+                localPreviousStoredPosition.applyQuaternion(
+                  localQuaternionCopy //.clone().invert()
+                );
+                localPreviousStoredPosition.add(localPreviousPosition);
+                localPreviousStoredPosition.sub(localPosition);
+                localPreviousStoredPosition.applyQuaternion(
+                  localQuaternionCopy //.clone().invert()
+                );
+                //currentPosition.applyQuaternion(currentQuaternion);
+                /*  localPreviousStoredPosition.add(localPosition);
+                localPreviousStoredPosition = currentOriginalPosition.clone();
+                localPreviousStoredPosition.applyMatrix4(currentNode.matrix); */
+                let localPerviousAssignedPosition = new Vector3(
+                  -localPreviousPosition.x,
+                  -localPreviousPosition.y,
+                  -localPreviousPosition.z
+                );
+                //localPreviousPosition.clone();
+                localPerviousAssignedPosition.applyMatrix4(currentNode.matrix);
+                let localZeroPosition = new Vector3(0, 0, 0);
+                localZeroPosition.applyMatrix4(currentNode.matrix);
+                console.log(
+                  'Difference between',
+                  localPreviousStoredPosition,
+                  currentPosition,
+                  localPosition,
+                  currentOriginalPosition,
+                  'Previous',
+                  localPerviousAssignedPosition,
+                  localPreviousPosition,
+                  'Zero',
+                  localZeroPosition,
+                  index,
+                  'Node',
+                  currentNode.position,
+                  currentNode.quaternion,
+                  currentNode.scale,
+                  localQuaternionCopy,
+                  localQuaternion
+                );
+                //localPreviousStoredPosition = currentPosition.clone();
+                //localPreviousStoredPosition.sub(currentOriginalPosition);
+                /* localPreviousStoredPosition = currentPosition.clone();
+                if (index >= 2) {
+                  localPreviousStoredPosition.add(localPosition);
+                } */
+                localPosition = currentPosition.clone();
+                localQuaternion = localQuaternionCopy.clone();
+
+                //localPosition = localPreviousCUrrentPosition.clone();
+                localPreviousPosition = currentOriginalPosition.clone();
+                /*
+                const multipliedAxis =
+                  this.getAxisFromQuaternion(localQuaternion);
+
+                var dotGeometry = new BufferGeometry();
+                //dotGeometry.vertices.push(localPosition);
+                dotGeometry.setAttribute(
+                  'position',
+                  new Float32BufferAttribute(
+                    [
+                      localPosition.x * 0.001,
+
+                      localPosition.z * 0.001,
+                      -localPosition.y * 0.001
+                    ],
+                    3
+                  )
+                );
+
+                var dotMaterial = new PointsMaterial({
+                  size: 100,
+                  color: 0xffdd00,
+                  sizeAttenuation: false
+                });
+                var dot = new Points(dotGeometry, dotMaterial);
+                dot.name = propsElement.name;
+                this.scene.add(dot);
+                this.drawAxisLine(
+                  [multipliedAxis.x, multipliedAxis.y, multipliedAxis.z],
+                  [
+                    currentPosition.x,
+                    currentPosition.y,
+                    currentPosition.z + 10
+                  ],
+
+                  'i am NEW' +
+                    propsElement.name +
+                    Number(currentPosition.x).toFixed(3).toString() +
+                    ' ' +
+                    Number(currentPosition.y).toFixed(3).toString() +
+                    ' ' +
+                    Number(currentPosition.z).toFixed(3).toString() +
+                    ' ' //+
+                  //propsElement.name
+                );
+                this.drawAxisLine(
+                  [
+                    currentAnotherAxis.x,
+                    currentAnotherAxis.y,
+                    currentAnotherAxis.z
+                  ],
+                  [
+                    currentAnotherPosition.x,
+                    currentAnotherPosition.y,
+                    currentAnotherPosition.z + 10
+                  ],
+                  'Old one' +
+                    propsElement.name +
+                    Number(currentAnotherPosition.x).toFixed(3).toString() +
+                    ' ' +
+                    Number(currentAnotherPosition.y).toFixed(3).toString() +
+                    ' ' +
+                    Number(currentAnotherPosition.z).toFixed(3).toString() +
+                    ' ' //+
+                  // +propsElement.name
+                );
+                */
+                //currentAnotherAxis.applyQuaternion(localQuaternion).normalize();
+                //let currentAnotherQuaternion = new Quaternion();
+                /* currentAnotherQuaternion
+                  .setFromAxisAngle(currentAnotherAxis, differenceElement)
+                  .normalize(); */
+                //localQuaternion = currentAnotherQuaternion.clone();
+                //currentAxis.applyQuaternion(localQuaternion);
+                const nextElement = this.findNextPart(propsElement);
+                const nextNode = nextElement
+                  ? this.findNodeFrom(nextElement)
+                  : null;
+                console.log(
+                  'Animating for',
+                  propsElement,
+                  differenceElement,
+                  localQuaternion,
+                  localPosition,
+                  currentAnotherAxis,
+                  //currentAnotherQuaternion,
+                  currentAxis,
+                  currentQuaternion,
+                  currentPosition,
+                  /* index >= 2 && false
+                    ? localPreviousCUrrentPosition
+                    :  */ currentOriginalPosition
+                );
+                if (nextNode) {
+                  this.animateParts(
+                    differenceElement,
+                    propsElement,
+                    currentNode,
+                    nextNode,
+                    prevProps,
+                    index,
+                    parsedInfo,
+                    localQuaternion.clone(),
+                    /* index >= 2 && false
+                      ? localPreviousStoredPosition.clone()
+                      :  */ localPosition.clone(),
+                    /* index >= 2 && false
+                      ? localPreviousCUrrentPosition.clone()
+                      :  */ currentOriginalPosition.clone()
+                  );
+                } else {
+                  console.log(
+                    'I Could not get next node',
+                    nextElement,
+                    currentNode,
+                    nextNode
+                  );
+                }
+
+                /* console.log(index, differenceElement, this.partsMeshes[index + 1]);
             if (
               propsElement.actuator_motion_control.cylindrical_axis_of_rotation
             ) {
@@ -5990,13 +6622,24 @@ class GLTFRenderer extends Component {
                 );
               }
             } */
-          } else {
-            console.log(index, propsElement, 'No difference found');
+              } else {
+                console.log(index, propsElement, 'No difference found');
+              }
+            }
           }
         }
       }
     }
   };
+
+  removeDrawnAxisLines() {
+    if (this.axisArray) {
+      for (let index = 0; index < this.axisArray.length; index++) {
+        this.removeFromScreenObjects(this.axisArray[index]);
+      }
+      this.axisArray = [];
+    }
+  }
 
   changeMaterialStats(
     material,

@@ -695,3 +695,856 @@ export const PROCESSINGSTATUS = {
   HUNG: 2,
   NOTSTARTED: 3
 };
+
+export const convertToBool = (value, defaults) => {
+  var boolvalue;
+  if (value !== null) {
+    try {
+      if (typeof value === 'boolean' || value instanceof Boolean) {
+        return value;
+      }
+      console.log('Value Got at convertToBool', value);
+      if (value.toString().toLowerCase() === 'true') {
+        return true;
+      } else {
+        if (value.toString().toLowerCase() === 'false') {
+          return false;
+        } else {
+          boolvalue = Boolean(value);
+          return boolvalue;
+        }
+      }
+    } catch (e) {
+      console.log('Error while conversion', e, value, defaults);
+      return defaults;
+    }
+  } else {
+    return defaults;
+  }
+};
+export const convertToFloat = (value, defaults) => {
+  var floatValue;
+  if (value !== null) {
+    if (typeof value === 'number' || value instanceof Number) {
+      return value;
+    }
+    try {
+      floatValue = Number.parseFloat(value);
+      return floatValue;
+    } catch (e) {
+      console.log('Error while conversion', e, value, defaults);
+      return defaults;
+    }
+  } else {
+    return defaults;
+  }
+};
+export const convertToInt = (value, defaults) => {
+  var intValue;
+  if (value !== null) {
+    if (typeof value === 'number' || value instanceof Number) {
+      return value;
+    }
+    try {
+      intValue = Number.parseInt(value);
+      return intValue;
+    } catch (e) {
+      console.log('Error while conversion', e, value, defaults);
+      return defaults;
+    }
+  } else {
+    return defaults;
+  }
+};
+export const getValueFromJSONKey = (jsonstruct, key) => {
+  if (jsonstruct !== null) {
+    if (key !== null) {
+      if (jsonstruct[key] !== undefined) {
+        return jsonstruct[key];
+      }
+    }
+  }
+  return null;
+};
+export const getNotNone = (dict, defaults) => {
+  return dict !== null ? dict : defaults;
+};
+export const findAnyOne = (chain1, chain2) => {
+  var length1, length2;
+  length1 = chain1.length;
+  length2 = chain2.length;
+  if (length1 < length2) {
+    for (
+      var achain, _pj_c = 0, _pj_a = chain1, _pj_b = _pj_a.length;
+      _pj_c < _pj_b;
+      _pj_c += 1
+    ) {
+      achain = _pj_a[_pj_c];
+      if (chain2.includes(achain)) {
+        return true;
+      }
+    }
+  } else {
+    for (
+      var achain, _pj_c = 0, _pj_a = chain2, _pj_b = _pj_a.length;
+      _pj_c < _pj_b;
+      _pj_c += 1
+    ) {
+      achain = _pj_a[_pj_c];
+      if (chain1.includes(achain)) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+export const sorted = (items, kwargs = {}) => {
+  const key = kwargs.key === undefined ? (x) => x : kwargs.key;
+  const reverse = kwargs.reverse === undefined ? false : kwargs.reverse;
+  const sortKeys = items.map((item, pos) => [key(item), pos]);
+  const comparator = Array.isArray(sortKeys[0][0])
+    ? (left, right) => {
+        for (var n = 0; n < Math.min(left.length, right.length); n++) {
+          const vLeft = left[n],
+            vRight = right[n];
+          const order = vLeft == vRight ? 0 : vLeft > vRight ? 1 : -1;
+          if (order != 0) return order;
+        }
+        return left.length - right.length;
+      }
+    : (left, right) => {
+        const vLeft = left[0],
+          vRight = right[0];
+        const order = vLeft == vRight ? 0 : vLeft > vRight ? 1 : -1;
+        return order;
+      };
+  sortKeys.sort(comparator);
+  if (reverse) sortKeys.reverse();
+  return sortKeys.map((order) => items[order[1]]);
+};
+export const range = (start, stop, step) => {
+  if (typeof stop == 'undefined') {
+    // one param defined
+    stop = start;
+    start = 0;
+  }
+
+  if (typeof step == 'undefined') {
+    step = 1;
+  }
+
+  if ((step > 0 && start >= stop) || (step < 0 && start <= stop)) {
+    return [];
+  }
+
+  var result = [];
+  for (var i = start; step > 0 ? i < stop : i > stop; i += step) {
+    result.push(i);
+  }
+
+  return result;
+};
+export const extractKinematicInformation = (kinematicparts) => {
+  var BelowFound,
+    TopFound,
+    angle,
+    angle2,
+    aw,
+    ax,
+    axis,
+    axis2,
+    axisAngle,
+    axisAngle2,
+    axisDict,
+    axisDistance,
+    axisDistance2,
+    ay,
+    az,
+    chains,
+    chains2,
+    currentIndex,
+    displayName,
+    displayName2,
+    distance,
+    distance2,
+    doLinkageAxis,
+    doRotateAxis,
+    findAcutator,
+    forceAngle,
+    isActuator,
+    isEndEffector,
+    isEndEffector2,
+    isLinear,
+    isLinear2,
+    kinematicInformation,
+    kinematicinfo,
+    lengthOfKinematicInfo,
+    machineLimit,
+    machineLimit2,
+    maxAngle,
+    maxChain,
+    maxRangeSequence,
+    maxSequence,
+    myInfo,
+    myobb,
+    nextAxis,
+    nextAxis2,
+    partName,
+    partName2,
+    partType,
+    partType2,
+    remainingLength,
+    sequence,
+    sequence2,
+    position,
+    px,
+    py,
+    pz,
+    axisPosition,
+    position2,
+    axisPosition2;
+  console.log('');
+  kinematicInformation = [];
+  maxChain = -1;
+  maxAngle = -10000000000.0;
+  for (
+    var kinematicpart, _pj_c = 0, _pj_a = kinematicparts, _pj_b = _pj_a.length;
+    _pj_c < _pj_b;
+    _pj_c += 1
+  ) {
+    kinematicpart = _pj_a[_pj_c];
+    myInfo = [
+      null,
+      null,
+      'STATIC',
+      0,
+      0,
+      [0, 0, 0],
+      0,
+      0,
+      0,
+      false,
+      0,
+      false,
+      false
+    ];
+    if (kinematicpart['actuator_motion_control'] !== undefined) {
+      kinematicinfo = kinematicpart['actuator_motion_control'];
+      myInfo = [
+        getValueFromJSONKey(kinematicinfo, 'child_part_name'),
+        getValueFromJSONKey(kinematicinfo, 'child_part_display_name'),
+        getValueFromJSONKey(kinematicinfo, 'child_part_type'),
+        getValueFromJSONKey(kinematicinfo, 'axis_number'),
+        getValueFromJSONKey(kinematicinfo, 'child_sequence_number'),
+        getValueFromJSONKey(kinematicinfo, 'cylindrical_axis_of_rotation'),
+        getValueFromJSONKey(kinematicinfo, 'chain_number'),
+        getValueFromJSONKey(kinematicinfo, 'chain_number'),
+        getValueFromJSONKey(kinematicinfo, 'machine_actuator_limit'),
+        getValueFromJSONKey(kinematicinfo, 'is_linear_or_rotational'),
+        getValueFromJSONKey(kinematicinfo, 'chain_number'),
+        getValueFromJSONKey(kinematicinfo, 'is_actuator_or_chain_link'),
+        getValueFromJSONKey(kinematicinfo, 'is_end_effector')
+      ];
+    } else {
+      kinematicinfo = 'No Information for kinematic info';
+    }
+    [
+      partName,
+      displayName,
+      partType,
+      sequence,
+      chains,
+      axisDict,
+      angle,
+      distance,
+      machineLimit,
+      isLinear,
+      aw,
+      isActuator,
+      isEndEffector
+    ] = myInfo;
+    console.log('What I got as Axis', axisDict, kinematicinfo, myInfo);
+    axis = null;
+    position = null;
+    if (axisDict === null) {
+      axis = [0, 0, 0];
+      position = [0, 0, 0];
+    } else {
+      if (axisDict['axis'] !== undefined) {
+        axis = axisDict['axis'];
+      }
+      if (axisDict['position'] !== undefined) {
+        position = axisDict['position'];
+      }
+    }
+    forceAngle = isActuator !== null;
+    isActuator = !convertToBool(isActuator, false);
+    if (partType === null || forceAngle) {
+      forceAngle = true;
+      if (isActuator) {
+        partType = 'ACTUATOR';
+      } else {
+        partType = 'LINKAGE';
+      }
+    }
+    if (partType === null) {
+      partType = 'STATIC';
+    }
+    if (partName === null) {
+      partName = getValueFromJSONKey(kinematicpart, 'filePartName');
+    }
+    if (displayName === null) {
+      displayName = getValueFromJSONKey(kinematicpart, 'name');
+    }
+    if (position === null) {
+      position = [0, 0, 0];
+    }
+    if (axis === null) {
+      axis = [0, 0, 0];
+    } else {
+      if (typeof axis !== 'object' || axis instanceof Array === false) {
+        if (axis['xx'] !== undefined) {
+          axis = [axis['xx'], axis['xy'], axis['xz']];
+        } else {
+          axis = [axis, 0, 0];
+        }
+      } else {
+        if (axis.length > 3) {
+          axis = axis.slice(0, 3);
+        } else {
+          if (axis.length < 3) {
+            remainingLength = 3 - axis.length;
+            for (
+              var_pj_i = 0, _pj_d = remainingLength;
+              _pj_i < _pj_d;
+              _pj_i += 1
+            ) {
+              axis.push(0);
+            }
+          }
+        }
+      }
+    }
+    [ax, ay, az] = axis;
+    axis = [
+      convertToFloat(ax, 0),
+      convertToFloat(ay, 0),
+      convertToFloat(az, 0)
+    ];
+    [ax, ay, az] = axis;
+    [px, py, pz] = position;
+    position = [
+      convertToFloat(px, 0),
+      convertToFloat(py, 0),
+      convertToFloat(pz, 0)
+    ];
+    [px, py, pz] = position;
+    aw = convertToFloat(aw, 0);
+    angle = convertToFloat(angle, 0);
+    if (angle === 0 && isLinear === false) {
+      angle = aw;
+    }
+    if (maxAngle < angle) {
+      maxAngle = angle;
+    }
+    distance = convertToFloat(distance, 0);
+    if (distance === 0 && isLinear === true) {
+      distance = aw;
+    }
+    machineLimit = convertToFloat(machineLimit, isLinear ? distance : angle);
+    if (angle === 0 && forceAngle) {
+      angle = math.pi / 3;
+    }
+    if (
+      sequence === null &&
+      chains &&
+      (typeof chains !== 'object' || chains instanceof Array === false)
+    ) {
+      sequence = chains;
+      chains = [1];
+    }
+    sequence = convertToInt(sequence, 1);
+    if (chains === null) {
+      chains = [1];
+    } else {
+      if (typeof chains !== 'object' || chains instanceof Array === false) {
+        chains = [convertToInt(chains, 1)];
+      } else {
+        if (chains.length === 0) {
+          chains = [1];
+        }
+      }
+    }
+    for (var chain = 0, _pj_d = chains.length; chain < _pj_d; chain += 1) {
+      chains[chain] = convertToInt(chains[chain], 1);
+      if (maxChain < chains[chain]) {
+        maxChain = chains[chain];
+      }
+    }
+    chains = sorted(chains);
+    isLinear = convertToBool(isLinear, false);
+    isEndEffector = convertToBool(isEndEffector, false);
+    [nextAxis, axisAngle, axisDistance, axisPosition] = [
+      axis,
+      angle,
+      distance,
+      position
+    ];
+    myInfo = [
+      partName,
+      displayName,
+      partType,
+      sequence,
+      chains,
+      axis,
+      nextAxis,
+      axisAngle,
+      axisDistance,
+      angle,
+      distance,
+      machineLimit,
+      isLinear,
+      isEndEffector,
+      position,
+      axisPosition
+    ];
+    console.log('Each Kinematic Info', myInfo, kinematicinfo);
+    kinematicInformation.push(myInfo);
+  }
+  lengthOfKinematicInfo = kinematicInformation.length;
+  console.log(
+    'Kinematic Info before arranging',
+    kinematicInformation,
+    lengthOfKinematicInfo
+  );
+  for (
+    var kinematicInfo = 0, _pj_a = lengthOfKinematicInfo;
+    kinematicInfo < _pj_a;
+    kinematicInfo += 1
+  ) {
+    console.log(
+      'Kinematic Info of checking linkage to insert array',
+      kinematicInfo,
+      kinematicInformation[kinematicInfo]
+    );
+    [
+      partName,
+      displayName,
+      partType,
+      sequence,
+      chains,
+      axis,
+      nextAxis,
+      axisAngle,
+      axisDistance,
+      angle,
+      distance,
+      machineLimit,
+      isLinear,
+      isEndEffector,
+      position,
+      axisPosition
+    ] = kinematicInformation[kinematicInfo];
+    if (partType === 'LINKAGE') {
+      findAcutator = false;
+      for (
+        var secondPass = 0, _pj_b = lengthOfKinematicInfo;
+        secondPass < _pj_b;
+        secondPass += 1
+      ) {
+        [
+          partName2,
+          displayName2,
+          partType2,
+          sequence2,
+          chains2,
+          axis2,
+          nextAxis2,
+          axisAngle2,
+          axisDistance2,
+          angle2,
+          distance2,
+          machineLimit2,
+          isLinear2,
+          isEndEffector2,
+          position2,
+          axisPosition2
+        ] = kinematicInformation[secondPass];
+        if (
+          partType2 === 'ACTUATOR' &&
+          sequence2 === sequence &&
+          findAnyOne(chains2, chains)
+        ) {
+          findAcutator = true;
+          break;
+        }
+      }
+      if (findAcutator) {
+        kinematicInformation[kinematicInfo] = [
+          partName,
+          displayName,
+          partType,
+          sequence + 1,
+          chains,
+          axis,
+          nextAxis,
+          axisAngle,
+          axisDistance,
+          angle,
+          distance,
+          machineLimit,
+          isLinear,
+          isEndEffector,
+          position,
+          axisPosition
+        ];
+        for (
+          var secondPass = 0, _pj_b = lengthOfKinematicInfo;
+          secondPass < _pj_b;
+          secondPass += 1
+        ) {
+          [
+            partName2,
+            displayName2,
+            partType2,
+            sequence2,
+            chains2,
+            axis2,
+            nextAxis2,
+            axisAngle2,
+            axisDistance2,
+            angle2,
+            distance2,
+            machineLimit2,
+            isLinear2,
+            isEndEffector2,
+            position2,
+            axisPosition2
+          ] = kinematicInformation[secondPass];
+          if (sequence2 > sequence && findAnyOne(chains2, chains)) {
+            console.log(
+              'Yes Setting Kinematic Info of secondPass to insert array',
+              secondPass,
+              kinematicInformation[secondPass]
+            );
+            kinematicInformation[secondPass] = [
+              partName2,
+              displayName2,
+              partType2,
+              sequence2 + 1,
+              chains2,
+              axis2,
+              nextAxis2,
+              axisAngle2,
+              axisDistance2,
+              angle2,
+              distance2,
+              machineLimit2,
+              isLinear2,
+              isEndEffector2,
+              position2,
+              axisPosition2
+            ];
+          } else {
+            console.log(
+              'Not Setting Kinematic Info of secondPass to insert array',
+              secondPass,
+              kinematicInformation[secondPass],
+              chains2,
+              chains,
+              sequence2,
+              sequence
+            );
+          }
+        }
+        kinematicInformation[kinematicInfo] = [
+          partName,
+          displayName,
+          partType,
+          sequence + 1,
+          chains,
+          axis,
+          nextAxis,
+          axisAngle,
+          axisDistance,
+          angle,
+          distance,
+          machineLimit,
+          isLinear,
+          isEndEffector,
+          position,
+          axisPosition
+        ];
+      }
+    }
+  }
+  if (maxChain > 0) {
+    var _pj_b = range(maxChain);
+    maxSequence = [];
+    for (var _pj_c = 0, _pj_d = _pj_b.length; _pj_c < _pj_d; _pj_c += 1) {
+      //var x = _pj_b[_pj_c];
+      maxSequence.push(-1);
+    }
+  } else {
+    maxSequence = [];
+  }
+
+  for (
+    var kinematicInfo = 0, _pj_a = lengthOfKinematicInfo;
+    kinematicInfo < _pj_a;
+    kinematicInfo += 1
+  ) {
+    [
+      partName,
+      displayName,
+      partType,
+      sequence,
+      chains,
+      axis,
+      nextAxis,
+      axisAngle,
+      axisDistance,
+      angle,
+      distance,
+      machineLimit,
+      isLinear,
+      isEndEffector,
+      position,
+      axisPosition
+    ] = kinematicInformation[kinematicInfo];
+    for (
+      var chain, _pj_d = 0, _pj_b = chains, _pj_c = _pj_b.length;
+      _pj_d < _pj_c;
+      _pj_d += 1
+    ) {
+      chain = _pj_b[_pj_d];
+      if (chain > 0) {
+        if (maxSequence[chain - 1] < sequence) {
+          maxSequence[chain - 1] = sequence;
+        }
+      }
+    }
+  }
+
+  console.log('Chains presence', maxChain);
+  for (
+    var chainIndex = 0, _pj_a = maxChain;
+    chainIndex < _pj_a;
+    chainIndex += 1
+  ) {
+    maxRangeSequence = maxSequence[chainIndex];
+    console.log('Sequence presence', chainIndex, maxRangeSequence);
+    for (
+      var sequenceIndex = 0, _pj_b = maxRangeSequence;
+      sequenceIndex < _pj_b;
+      sequenceIndex += 1
+    ) {
+      currentIndex = maxRangeSequence - 1 - sequenceIndex;
+      TopFound = -1;
+      BelowFound = -1;
+      doRotateAxis = false;
+      doLinkageAxis = false;
+      for (
+        var kinematicInfo = 0, _pj_c = lengthOfKinematicInfo;
+        kinematicInfo < _pj_c;
+        kinematicInfo += 1
+      ) {
+        [
+          partName,
+          displayName,
+          partType,
+          sequence,
+          chains,
+          axis,
+          nextAxis,
+          axisAngle,
+          axisDistance,
+          angle,
+          distance,
+          machineLimit,
+          isLinear,
+          isEndEffector,
+          position,
+          axisPosition
+        ] = kinematicInformation[kinematicInfo];
+        console.log(
+          'What I got for axis copy',
+          currentIndex,
+          kinematicInformation[kinematicInfo],
+          chainIndex + 1,
+          chains,
+          sequence,
+          chains.includes(chainIndex + 1),
+          sequence === currentIndex,
+          sequence === currentIndex + 1
+        );
+        if (chains.includes(chainIndex + 1) && sequence === currentIndex) {
+          BelowFound = kinematicInfo;
+          doRotateAxis = partType === 'ACTUATOR';
+          doLinkageAxis = partType !== 'ACTUATOR';
+        }
+        if (chains.includes(chainIndex + 1) && sequence === currentIndex + 1) {
+          TopFound = kinematicInfo;
+          if (currentIndex === 0) {
+            BelowFound = TopFound;
+            doRotateAxis = partType === 'ACTUATOR';
+          }
+        }
+        if (TopFound !== -1 && BelowFound !== -1) {
+          break;
+        }
+      }
+      if (doRotateAxis && TopFound !== -1) {
+        [
+          partName,
+          displayName,
+          partType,
+          sequence,
+          chains,
+          axis,
+          nextAxis,
+          axisAngle,
+          axisDistance,
+          angle,
+          distance,
+          machineLimit,
+          isLinear,
+          isEndEffector,
+          position,
+          axisPosition
+        ] = kinematicInformation[TopFound];
+        [
+          partName2,
+          displayName2,
+          partType2,
+          sequence2,
+          chains2,
+          axis2,
+          nextAxis2,
+          axisAngle2,
+          axisDistance2,
+          angle2,
+          distance2,
+          machineLimit2,
+          isLinear2,
+          isEndEffector2,
+          position2,
+          axisPosition2
+        ] = kinematicInformation[BelowFound];
+        console.log(
+          'ToDo transform for actuator',
+          TopFound,
+          BelowFound,
+          partType,
+          partType2,
+          doLinkageAxis,
+          TopFound === BelowFound || (doLinkageAxis && partType === 'ACTUATOR')
+        );
+        if (TopFound === BelowFound) {
+          [angle2, distance2, machineLimit2] = [0, 0, 0];
+        }
+        kinematicInformation[TopFound] = [
+          partName,
+          displayName,
+          partType,
+          sequence,
+          chains,
+          axis2,
+          nextAxis,
+          axisAngle,
+          axisDistance,
+          angle2,
+          distance2,
+          machineLimit2,
+          isLinear2,
+          isEndEffector,
+          position2,
+          axisPosition2
+        ];
+        console.log(
+          'Changing info because of previous part as Actuator',
+          kinematicInformation[TopFound]
+        );
+      }
+      if (doLinkageAxis && TopFound !== -1) {
+        [
+          partName,
+          displayName,
+          partType,
+          sequence,
+          chains,
+          axis,
+          nextAxis,
+          axisAngle,
+          axisDistance,
+          angle,
+          distance,
+          machineLimit,
+          isLinear,
+          isEndEffector,
+          position,
+          axisPosition
+        ] = kinematicInformation[TopFound];
+        [
+          partName2,
+          displayName2,
+          partType2,
+          sequence2,
+          chains2,
+          axis2,
+          nextAxis2,
+          axisAngle2,
+          axisDistance2,
+          angle2,
+          distance2,
+          machineLimit2,
+          isLinear2,
+          isEndEffector2,
+          position2,
+          axisPosition2
+        ] = kinematicInformation[BelowFound];
+        console.log(
+          'ToDo transform for linkage',
+          TopFound,
+          BelowFound,
+          partType,
+          partType2,
+          doLinkageAxis,
+          TopFound === BelowFound || (doLinkageAxis && partType === 'ACTUATOR')
+        );
+        if (partType === 'ACTUATOR') {
+          kinematicInformation[TopFound] = [
+            partName,
+            displayName,
+            partType,
+            sequence,
+            chains,
+            axis,
+            nextAxis,
+            axisAngle,
+            axisDistance,
+            0,
+            0,
+            0,
+            isLinear,
+            isEndEffector,
+            position,
+            axisPosition
+          ];
+          console.log(
+            'Changing info because of previous part as Linkage',
+            kinematicInformation[TopFound]
+          );
+        }
+      }
+    }
+  }
+  console.log('');
+  console.log(
+    'Kinematic Info after arranging',
+    kinematicInformation,
+    maxChain,
+    maxSequence
+  );
+  return [kinematicInformation, maxChain, maxSequence];
+};

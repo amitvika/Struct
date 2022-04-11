@@ -1,7 +1,7 @@
 sudo -i
 export PATH=~/anaconda3/bin:$PATH
 source ~/anaconda3/etc/profile.d/conda.sh
-conda activate structserver
+conda activate structquery
 cd /home/ubuntu/Struct/gltfconverter
 export DONOTUSES3=False
 Xvfb :1 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &> xvfb.log &
