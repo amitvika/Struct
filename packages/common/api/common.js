@@ -7,7 +7,7 @@ let baseURL = process.env.REACT_APP_GLTF_CONVERTER
   ? process.env.REACT_APP_GLTF_CONVERTER
   : 'http://localhost:8000';
 
-// baseURL = 'https://cadapi.struct.services';
+baseURL = 'https://cadapi.struct.services';
 
 const resourcePathBase = `${baseURL}/`; //"./gltfconverter/";//
 
