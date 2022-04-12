@@ -195,7 +195,7 @@ export default function MotionControlComponent({
     console.log('Changing backend', change);
     ItemApi.updateItemAPI(id, { actuator_motion_control: change })
       .then((res) => {
-        if (res.data) {
+        if (res.data && !showKinematicSliderMove) {
           alertContext.openSuccessAlert({ message: 'Actuator updated' });
         }
         console.log('Kinematic list', res.data);
@@ -495,15 +495,18 @@ export default function MotionControlComponent({
                   </BootstrapTableCell>
                   {showKinematicSliderMove && (
                     <BootstrapTableCell padding="checkbox" size="small">
-                      {actuator_motion_control.child_part_type == 'ACTUATOR' ? (
+                      {actuator_motion_control.child_part_type == 'ACTUATOR' &&
+                      !actuator_motion_control.is_end_effector ? (
                         <Slider
                           aria-label="Angle"
                           min={-actuatorDistanceAngleLimit}
                           max={actuatorDistanceAngleLimit}
                           step={
-                            actuatorDistanceAngleLimit
-                              ? actuatorDistanceAngleLimit / 100.0
-                              : 0.05
+                            actuatorDistanceAngleLimit >= 0.01
+                              ? // ? Math.round(actuatorDistanceAngleLimit * 100) /
+                                //   10000
+                                actuatorDistanceAngleLimit / 100
+                              : 0.01
                           }
                           value={
                             actuator_motion_control.chain_number //slider_angle
@@ -511,7 +514,7 @@ export default function MotionControlComponent({
                               : 0
                           }
                           valueLabelDisplay="auto"
-                          valueLabelFormat={(x) => Number(x).toFixed(1)}
+                          valueLabelFormat={(x) => Number(x).toFixed(2)}
                           onChange={(event, newValue) => {
                             event.stopPropagation();
                             updateMotionControlActuator(item.id, {

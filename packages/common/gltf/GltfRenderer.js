@@ -1411,7 +1411,8 @@ class GLTFRenderer extends Component {
     element,
     revisedPosition,
     revisedQuaternion,
-    originalPosition
+    //originalPosition,
+    shiftingPosition
   ) => {
     if (element.geometry && element.centre) {
       if (
@@ -1421,23 +1422,33 @@ class GLTFRenderer extends Component {
         true
       ) {
         //element.position.sub(originalPosition);
-        const centerFactor = originalPosition.clone();
+        //const centerFactor = originalPosition.clone();
         console.log(
           'element.position1',
           element.name,
           element.position,
           element.localPosition,
-          element.centre,
-          centerFactor
+          element.localQuaternion,
+          //element.centre,
+          //centerFactor,
+          element.shiftingPosition,
+          revisedPosition,
+          revisedQuaternion,
+          shiftingPosition
         );
-        element.position.sub(element.localPosition);
+        element.position.sub(element.shiftingPosition);
         console.log(
           'element.position2',
           element.name,
           element.position,
           element.localPosition,
-          element.centre,
-          centerFactor
+          element.localQuaternion,
+          //element.centre,
+          //centerFactor,
+          element.shiftingPosition,
+          revisedPosition,
+          revisedQuaternion,
+          shiftingPosition
         );
         element.updateMatrix();
         element.updateMatrixWorld();
@@ -1449,9 +1460,13 @@ class GLTFRenderer extends Component {
           element.name,
           element.position,
           element.localPosition,
-          element.centre,
-          centerFactor,
-          element.localArrays
+          element.localQuaternion,
+          //element.centre,
+          //centerFactor,
+          element.shiftingPosition,
+          revisedPosition,
+          revisedQuaternion,
+          shiftingPosition
         );
         //console.log('Got vector as', addedVector, centre, element.centre);
         //element.position.add(addedVector);
@@ -1478,64 +1493,64 @@ class GLTFRenderer extends Component {
           -element.centre.y,
           -element.centre.z
         ); */
-        let elementLocalPosition = element.centre.clone();
-        const addedVector = new Vector3(0, 0, 0);
-        //const centerFactor = revisedPosition.clone(); //originalPosition.clone();//revisedPosition.clone(); //originalPosition; //revisedPosition; //new Vector3(0, 0, 0);
-        elementLocalPosition.sub(centerFactor);
+        //         let elementLocalPosition = element.centre.clone();
+        //         const addedVector = new Vector3(0, 0, 0);
+        //         //const centerFactor = revisedPosition.clone(); //originalPosition.clone();//revisedPosition.clone(); //originalPosition; //revisedPosition; //new Vector3(0, 0, 0);
+        //         elementLocalPosition.sub(centerFactor);
 
-        //addedVector.subVectors(centerFactor, elementLocalPosition);
-        element.geometry.applyMatrix(
-          new Matrix4().makeTranslation(
-            elementLocalPosition.x,
-            elementLocalPosition.y,
-            elementLocalPosition.z
-          )
-        );
-        /* console.log(
-          'element local1',
-          element.localPosition,
-          originalPosition,
-          element.position,
-          elementLocalPosition,
-          element.localQuaternion,
-          element.localQuaternion.clone().invert(),
-          addedVector
-        ); */
-        console.log(
-          'element.position4',
-          element.name,
-          element.position,
-          element.localPosition,
-          element.centre,
-          centerFactor,
-          elementLocalPosition
-        );
-        //element.position.add(addedVector);
-        // console.log(
-        //   'element.position6',
-        //   element.name,
-        //   element.position,
-        //   element.localPosition,
-        //   centerFactor
-        // );
-        //element.position.sub(centerFactor);
-        // console.log(
-        //   'element.position7',
-        //   element.name,
-        //   element.position,
-        //   element.localPosition,
-        //   centerFactor
-        // );
-        element.updateMatrix();
-        element.updateMatrixWorld();
-        /* console.log(
-          'element local2',
-          element.localPosition,
-          element.position,
-          element.localQuaternion,
-          element.localQuaternion.clone().invert()
-        );
- */
+        //         //addedVector.subVectors(centerFactor, elementLocalPosition);
+        //         element.geometry.applyMatrix(
+        //           new Matrix4().makeTranslation(
+        //             elementLocalPosition.x,
+        //             elementLocalPosition.y,
+        //             elementLocalPosition.z
+        //           )
+        //         );
+        //         /* console.log(
+        //           'element local1',
+        //           element.localPosition,
+        //           originalPosition,
+        //           element.position,
+        //           elementLocalPosition,
+        //           element.localQuaternion,
+        //           element.localQuaternion.clone().invert(),
+        //           addedVector
+        //         ); */
+        //         console.log(
+        //           'element.position4',
+        //           element.name,
+        //           element.position,
+        //           element.localPosition,
+        //           element.centre,
+        //           centerFactor,
+        //           elementLocalPosition
+        //         );
+        //         //element.position.add(addedVector);
+        //         // console.log(
+        //         //   'element.position6',
+        //         //   element.name,
+        //         //   element.position,
+        //         //   element.localPosition,
+        //         //   centerFactor
+        //         // );
+        //         //element.position.sub(centerFactor);
+        //         // console.log(
+        //         //   'element.position7',
+        //         //   element.name,
+        //         //   element.position,
+        //         //   element.localPosition,
+        //         //   centerFactor
+        //         // );
+        //         element.updateMatrix();
+        //         element.updateMatrixWorld();
+        //         /* console.log(
+        //           'element local2',
+        //           element.localPosition,
+        //           element.position,
+        //           element.localQuaternion,
+        //           element.localQuaternion.clone().invert()
+        //         );
+        //  */
         element.applyQuaternion(revisedQuaternion);
         element.updateMatrix();
         element.updateMatrixWorld();
@@ -1544,12 +1559,13 @@ class GLTFRenderer extends Component {
           element.name,
           element.position,
           element.localPosition,
-          element.centre,
-          centerFactor,
           element.localQuaternion,
-          revisedQuaternion,
+          //element.centre,
+          //centerFactor,
+          element.shiftingPosition,
           revisedPosition,
-          elementLocalPosition
+          revisedQuaternion,
+          shiftingPosition
         );
         // console.log(
         //   'element local3',
@@ -1560,18 +1576,19 @@ class GLTFRenderer extends Component {
         //   revisedPosition,
         //   elementLocalPosition
         // );
-        element.position.add(revisedPosition);
+        element.position.add(shiftingPosition);
         console.log(
           'element.position6',
           element.name,
           element.position,
           element.localPosition,
-          element.centre,
-          centerFactor,
           element.localQuaternion,
-          revisedQuaternion,
+          //element.centre,
+          //centerFactor,
+          element.shiftingPosition,
           revisedPosition,
-          elementLocalPosition
+          revisedQuaternion,
+          shiftingPosition
         );
         //element.position.add(originalPosition);
         element.updateMatrix();
@@ -1582,17 +1599,19 @@ class GLTFRenderer extends Component {
           element.name,
           element.position,
           element.localPosition,
-          element.centre,
-          centerFactor,
           element.localQuaternion,
-          revisedQuaternion,
+          //element.centre,
+          //centerFactor,
+          element.shiftingPosition,
           revisedPosition,
-          elementLocalPosition
+          revisedQuaternion,
+          shiftingPosition
         );
         element.localPosition = revisedPosition.clone();
         element.localQuaternion = revisedQuaternion.clone();
-        element.centre = centerFactor.clone();
-        element.localArrays.push(element.centre.clone());
+        //element.centre = centerFactor.clone();
+        //element.localArrays.push(element.centre.clone());
+        element.shiftingPosition = shiftingPosition.clone();
         // console.log(
         //   'element local5',
         //   element.localPosition,
@@ -1610,34 +1629,8 @@ class GLTFRenderer extends Component {
     if (this.partsMeshes && this.partsMeshes.length > 0) {
       this.partsMeshes.forEach((element) => {
         //console.log('element', element, element.geometry);
-        if (element.geometry) {
-          element.geometry.computeBoundingBox();
-          var centroid = new Vector3();
-          centroid.addVectors(
-            element.geometry.boundingBox.min,
-            element.geometry.boundingBox.max
-          );
-
-          centroid.multiplyScalar(byFactor * 0.5);
-          //centroid = element.geometry.boundingBox.min;
-          element.geometry.applyMatrix(
-            new Matrix4().makeTranslation(-centroid.x, -centroid.y, -centroid.z)
-          );
-          //element.position.copy(centroid);
-          element.position.set(centroid.x, centroid.y, centroid.z);
-          element.centroid = centroid.clone();
-          element.centre = new Vector3(centroid.x, centroid.y, centroid.z);
-          element.updateMatrix();
-          element.updateMatrixWorld();
-          element.localPosition = new Vector3(0, 0, 0);
-          element.localQuaternion = new Quaternion(0, 0, 0, 1);
-          element.localArrays = [];
-          element.localArrays.push(element.centre.clone());
-
-          //const position = element.geometry.attributes.position;
-          //console.log('Got positiion in 3js', position, position.applyMatrix4);
-          //console.log('element', element, element.geometry);
-        }
+        this.AssignPositionToSingleNode(element, byFactor);
+        element.axisLine = null;
       });
     }
   };
@@ -5874,16 +5867,17 @@ class GLTFRenderer extends Component {
     return null;
   };
   animateParts = (
-    differenceElement,
+    //differenceElement,
     propsElement,
-    currentNode,
-    nextNode,
-    prevProps,
+    //currentNode,
+    //nextNode,
+    //prevProps,
     sequence,
     parsedInfo,
     localQuaternion,
     localPosition,
-    originaPosition
+    //originaPosition,
+    shiftingPosition
   ) => {
     if (
       propsElement.actuator_motion_control &&
@@ -5901,18 +5895,18 @@ class GLTFRenderer extends Component {
             .position,
           propsElement.name
         ); */
-        const nextNodeTree = this.getMyTreeNode(nextNode);
-        let meshCentroid = nextNodeTree
-          ? nextNodeTree[gltf_Dict['topLeft']]
-            ? nextNodeTree[gltf_Dict['topLeft']]
-            : [0, 0, 0]
-          : [0, 0, 0];
-        //meshCentroid = [0, 0, 0];
-        let geometryCentroid = nextNode.centroid
-          ? nextNode.centroid.clone()
-          : new Vector3(-meshCentroid[0], -meshCentroid[1], -meshCentroid[2]);
+        // const nextNodeTree = this.getMyTreeNode(nextNode);
+        // let meshCentroid = nextNodeTree
+        //   ? nextNodeTree[gltf_Dict['topLeft']]
+        //     ? nextNodeTree[gltf_Dict['topLeft']]
+        //     : [0, 0, 0]
+        //   : [0, 0, 0];
+        // //meshCentroid = [0, 0, 0];
+        // let geometryCentroid = nextNode.centroid
+        //   ? nextNode.centroid.clone()
+        //   : new Vector3(-meshCentroid[0], -meshCentroid[1], -meshCentroid[2]);
 
-        geometryCentroid.multiplyScalar(1.0);
+        // geometryCentroid.multiplyScalar(1.0);
 
         //console.log('Mesh Centroid', meshCentroid, geometryCentroid, nextNode);
         for (
@@ -5964,8 +5958,18 @@ class GLTFRenderer extends Component {
                     node,
                     localPosition,
                     localQuaternion,
-                    originaPosition
+                    //originaPosition,
+                    shiftingPosition
                   );
+                  if (node.axisLine) {
+                    // this.assignPositionToElement(
+                    //   node.axisLine,
+                    //   localPosition,
+                    //   localQuaternion,
+                    //   originaPosition,
+                    //   shiftingPosition
+                    // );
+                  }
                   //this.assignPositionToElement(node, localPosition);
                   //}
                   //var nodeQuaternion = currentNode.quaternion;
@@ -6240,7 +6244,9 @@ class GLTFRenderer extends Component {
           }
           let localQuaternion = new Quaternion(0, 0, 0, 1);
           let localPosition = new Vector3(0, 0, 0);
-          let localPreviousPosition = new Vector3(0, 0, 0);
+          //let localPreviousPosition = new Vector3(0, 0, 0);
+          let localTranslation = new Vector3(0, 0, 0);
+          let localShiftedPosition = new Vector3(0, 0, 0);
           for (
             let index = 0;
             index < this.props.kinematicItemList.length;
@@ -6271,6 +6277,7 @@ class GLTFRenderer extends Component {
               currentNode &&
               propsElement &&
               propsElement.actuator_motion_control &&
+              !propsElement.actuator_motion_control.is_end_effector &&
               propsElement.actuator_motion_control.child_part_type ===
                 'ACTUATOR'
             ) {
@@ -6284,6 +6291,7 @@ class GLTFRenderer extends Component {
                         : null
                       : null
                     : null;
+                  //this.AssignPositionToSingleNode(currentNode.axisLine, 0);
                 } else {
                   console.log('Current node is null for', propsElement);
                 }
@@ -6369,59 +6377,92 @@ class GLTFRenderer extends Component {
 
                 //let mydummyquaternion = localQuaternion; //new Quaternion();
                 //mydummyquaternion.setFromAxisAngle(new Vector3(0.19, 1, 0), 0);
-                let localQuaternionCopy = localQuaternion.clone();
+                let localCurrentQuaternion = localQuaternion.clone();
                 let currentOriginalPosition = currentPosition.clone();
+                let localCurrentTranslation = localTranslation.clone();
                 currentPosition.sub(localPosition);
-                currentPosition.applyQuaternion(localQuaternionCopy);
+                currentPosition.applyQuaternion(localCurrentQuaternion);
                 //currentPosition.applyQuaternion(currentQuaternion);
                 currentPosition.add(localPosition);
-                let currentAnotherAxis = currentAxis.clone();
+                //let currentAnotherAxis = currentAxis.clone();
                 let currentPositionAxis = currentAxis.clone();
                 currentPositionAxis.add(currentOriginalPosition);
                 currentPositionAxis.sub(localPosition);
-                currentPositionAxis.applyQuaternion(localQuaternionCopy);
+                currentPositionAxis.applyQuaternion(localCurrentQuaternion);
                 currentPositionAxis.add(localPosition);
                 currentPositionAxis.sub(currentPosition);
                 currentPositionAxis.normalize();
-                const localExtaPosition = currentOriginalPosition.clone();
-                localExtaPosition.sub(localPreviousPosition);
+                //const localExtaPosition = currentOriginalPosition.clone();
+                //localExtaPosition.sub(localPreviousPosition);
 
                 // currentPosition = new Vector3(0, 0, 0);
                 // currentPosition.sub(localPosition);
                 // currentPosition.applyQuaternion(localQuaternionCopy);
                 // //currentPosition.applyQuaternion(currentQuaternion);
                 // currentPosition.add(localPosition);
+                const isLinear =
+                  propsElement.actuator_motion_control.is_linear_or_rotational;
                 let currentQuaternion = new Quaternion();
-                /* currentAxis.sub(localPosition);
-                currentAxis.applyQuaternion(mydummyquaternion);
-                currentAxis.add(localPosition);
-                currentAxis.normalize();
-                currentQuaternion
-                  .setFromAxisAngle(currentAxis, differenceElement)
-                  .normalize();
-                localQuaternion = currentQuaternion.clone(); */
-                currentQuaternion
-                  .setFromAxisAngle(
-                    currentPositionAxis,
-                    /* index >= 2 && false
-                      ? 0
-                      : */ propsElement.actuator_motion_control.chain_number
-                  )
-                  .normalize();
-                localQuaternionCopy.premultiply(currentQuaternion).normalize();
-                const multipliedAxis =
-                  this.getAxisFromQuaternion(localQuaternion);
+                if (isLinear) {
+                  const currentLength = math.sqrt(
+                    currentPositionAxis.x * currentPositionAxis.x +
+                      currentPositionAxis.y * currentPositionAxis.y +
+                      currentPositionAxis.z * currentPositionAxis.z
+                  );
+                  if (currentLength != 0) {
+                    localCurrentTranslation.add(
+                      new Vector3(
+                        (currentPositionAxis.x *
+                          propsElement.actuator_motion_control.chain_number) /
+                          currentLength,
+                        (currentPositionAxis.y *
+                          propsElement.actuator_motion_control.chain_number) /
+                          currentLength,
+                        (currentPositionAxis.z *
+                          propsElement.actuator_motion_control.chain_number) /
+                          currentLength
+                      )
+                    );
+                  }
+                } else {
+                  /* currentAxis.sub(localPosition);
+                  currentAxis.applyQuaternion(mydummyquaternion);
+                  currentAxis.add(localPosition);
+                  currentAxis.normalize();
+                  currentQuaternion
+                    .setFromAxisAngle(currentAxis, differenceElement)
+                    .normalize();
+                  localQuaternion = currentQuaternion.clone(); */
+                  currentQuaternion
+                    .setFromAxisAngle(
+                      currentPositionAxis,
+                      /* index >= 2 && false
+                        ? 0
+                        : */
+                      propsElement.actuator_motion_control.chain_number
+                    )
+                    .normalize();
+                  localCurrentQuaternion
+                    .premultiply(currentQuaternion)
+                    .normalize();
+                }
+
+                // const multipliedAxis =
+                //   this.getAxisFromQuaternion(localQuaternion);
                 console.log(
                   'Quaternion inside loop',
                   currentQuaternion,
                   localQuaternion,
-                  multipliedAxis,
-                  currentAnotherAxis,
-                  currentPositionAxis
+                  localCurrentQuaternion,
+                  localCurrentTranslation,
+                  //multipliedAxis,
+                  currentAxis,
+                  currentPositionAxis,
+                  localTranslation
                 );
 
-                let localPreviousCUrrentPosition =
-                  currentOriginalPosition.clone();
+                // let localPreviousCUrrentPosition =
+                //   currentOriginalPosition.clone();
 
                 /*  localPreviousCUrrentPosition.sub(localPreviousPosition);
                 localPreviousCUrrentPosition.sub(localPosition);
@@ -6433,60 +6474,71 @@ class GLTFRenderer extends Component {
                 localPreviousCUrrentPosition.add(localPreviousPosition); */
 
                 //localPreviousCUrrentPosition.add(new Vector3(-15, -16, 0));
-                let localPreviousStoredPosition =
-                  currentOriginalPosition.clone();
-                localPreviousStoredPosition.sub(localPreviousPosition);
-                localPreviousStoredPosition.applyQuaternion(
-                  localQuaternionCopy //.clone().invert()
-                );
-                localPreviousStoredPosition.add(localPreviousPosition);
-                localPreviousStoredPosition.sub(localPosition);
-                localPreviousStoredPosition.applyQuaternion(
-                  localQuaternionCopy //.clone().invert()
-                );
-                //currentPosition.applyQuaternion(currentQuaternion);
-                /*  localPreviousStoredPosition.add(localPosition);
-                localPreviousStoredPosition = currentOriginalPosition.clone();
-                localPreviousStoredPosition.applyMatrix4(currentNode.matrix); */
-                let localPerviousAssignedPosition = new Vector3(
-                  -localPreviousPosition.x,
-                  -localPreviousPosition.y,
-                  -localPreviousPosition.z
-                );
-                //localPreviousPosition.clone();
-                localPerviousAssignedPosition.applyMatrix4(currentNode.matrix);
-                let localZeroPosition = new Vector3(0, 0, 0);
-                localZeroPosition.applyMatrix4(currentNode.matrix);
-                console.log(
-                  'Difference between',
-                  localPreviousStoredPosition,
-                  currentPosition,
-                  localPosition,
-                  currentOriginalPosition,
-                  'Previous',
-                  localPerviousAssignedPosition,
-                  localPreviousPosition,
-                  'Zero',
-                  localZeroPosition,
-                  index,
-                  'Node',
-                  currentNode.position,
-                  currentNode.quaternion,
-                  currentNode.scale,
-                  localQuaternionCopy,
-                  localQuaternion
-                );
+                // let localPreviousStoredPosition =
+                //   currentOriginalPosition.clone();
+                // localPreviousStoredPosition.sub(localPreviousPosition);
+                // localPreviousStoredPosition.applyQuaternion(
+                //   localCurrentQuaternion //.clone().invert()
+                // );
+                // localPreviousStoredPosition.add(localPreviousPosition);
+                // localPreviousStoredPosition.sub(localPosition);
+                // localPreviousStoredPosition.applyQuaternion(
+                //   localCurrentQuaternion //.clone().invert()
+                // );
+                // //currentPosition.applyQuaternion(currentQuaternion);
+                // /*  localPreviousStoredPosition.add(localPosition);
+                // localPreviousStoredPosition = currentOriginalPosition.clone();
+                // localPreviousStoredPosition.applyMatrix4(currentNode.matrix); */
+                // let localPerviousAssignedPosition = new Vector3(
+                //   -localPreviousPosition.x,
+                //   -localPreviousPosition.y,
+                //   -localPreviousPosition.z
+                // );
+                // //localPreviousPosition.clone();
+                // localPerviousAssignedPosition.applyMatrix4(currentNode.matrix);
+                // let localZeroPosition = new Vector3(0, 0, 0);
+                // localZeroPosition.applyMatrix4(currentNode.matrix);
+                // console.log(
+                //   'Difference between',
+                //   localPreviousStoredPosition,
+                //   currentPosition,
+                //   localPosition,
+                //   currentOriginalPosition,
+                //   'Previous',
+                //   localPerviousAssignedPosition,
+                //   localPreviousPosition,
+                //   'Zero',
+                //   localZeroPosition,
+                //   index,
+                //   'Node',
+                //   currentNode.position,
+                //   currentNode.quaternion,
+                //   currentNode.scale,
+                //   localCurrentQuaternion,
+                //   localQuaternion
+                // );
                 //localPreviousStoredPosition = currentPosition.clone();
                 //localPreviousStoredPosition.sub(currentOriginalPosition);
                 /* localPreviousStoredPosition = currentPosition.clone();
                 if (index >= 2) {
                   localPreviousStoredPosition.add(localPosition);
                 } */
-                localPosition = currentPosition.clone();
-                localQuaternion = localQuaternionCopy.clone();
 
+                let shiftedPosition = currentOriginalPosition.clone();
+                shiftedPosition.applyQuaternion(localQuaternion);
+                shiftedPosition.add(localShiftedPosition);
+                let shiftingPosition = currentOriginalPosition.clone();
+                shiftingPosition.applyQuaternion(localCurrentQuaternion);
+                shiftedPosition.sub(shiftingPosition);
+                shiftedPosition.add(localCurrentTranslation);
+                //shiftingPosition.sub(shiftedPosition);
+
+                localPosition = currentPosition.clone();
+                localQuaternion = localCurrentQuaternion.clone();
+                localShiftedPosition = shiftedPosition.clone();
+                localTranslation = localCurrentTranslation.clone();
                 //localPosition = localPreviousCUrrentPosition.clone();
-                localPreviousPosition = currentOriginalPosition.clone();
+                //localPreviousPosition = currentOriginalPosition.clone();
                 /*
                 const multipliedAxis =
                   this.getAxisFromQuaternion(localQuaternion);
@@ -6561,50 +6613,56 @@ class GLTFRenderer extends Component {
                   .normalize(); */
                 //localQuaternion = currentAnotherQuaternion.clone();
                 //currentAxis.applyQuaternion(localQuaternion);
-                const nextElement = this.findNextPart(propsElement);
-                const nextNode = nextElement
-                  ? this.findNodeFrom(nextElement)
-                  : null;
+                // const nextElement = this.findNextPart(propsElement);
+                // const nextNode = nextElement
+                //   ? this.findNodeFrom(nextElement)
+                //   : null;
                 console.log(
                   'Animating for',
                   propsElement,
                   differenceElement,
                   localQuaternion,
                   localPosition,
-                  currentAnotherAxis,
+                  localTranslation,
+                  //currentAnotherAxis,
                   //currentAnotherQuaternion,
                   currentAxis,
                   currentQuaternion,
                   currentPosition,
+                  index,
                   /* index >= 2 && false
                     ? localPreviousCUrrentPosition
-                    :  */ currentOriginalPosition
+                    :  */
+                  currentOriginalPosition
                 );
-                if (nextNode) {
-                  this.animateParts(
-                    differenceElement,
-                    propsElement,
-                    currentNode,
-                    nextNode,
-                    prevProps,
-                    index,
-                    parsedInfo,
-                    localQuaternion.clone(),
-                    /* index >= 2 && false
+                //if (nextNode) {
+                this.animateParts(
+                  //differenceElement,
+                  propsElement,
+                  //currentNode,
+                  //nextNode,
+                  //prevProps,
+                  index,
+                  parsedInfo,
+                  localQuaternion.clone(),
+                  /* index >= 2 && false
                       ? localPreviousStoredPosition.clone()
-                      :  */ localPosition.clone(),
-                    /* index >= 2 && false
+                      :  */
+                  localPosition.clone(),
+                  /* index >= 2 && false
                       ? localPreviousCUrrentPosition.clone()
-                      :  */ currentOriginalPosition.clone()
-                  );
-                } else {
-                  console.log(
-                    'I Could not get next node',
-                    nextElement,
-                    currentNode,
-                    nextNode
-                  );
-                }
+                      :  */
+                  //currentOriginalPosition.clone(),
+                  shiftedPosition.clone()
+                );
+                // } else {
+                //   console.log(
+                //     'I Could not get next node',
+                //     nextElement,
+                //     currentNode,
+                //     nextNode
+                //   );
+                // }
 
                 /* console.log(index, differenceElement, this.partsMeshes[index + 1]);
             if (
@@ -6629,6 +6687,37 @@ class GLTFRenderer extends Component {
           }
         }
       }
+    }
+  };
+
+  AssignPositionToSingleNode = (element, byFactor) => {
+    if (element.geometry) {
+      element.geometry.computeBoundingBox();
+      var centroid = new Vector3();
+      centroid.addVectors(
+        element.geometry.boundingBox.min,
+        element.geometry.boundingBox.max
+      );
+
+      centroid.multiplyScalar(byFactor * 0.5);
+      //centroid = element.geometry.boundingBox.min;
+      element.geometry.applyMatrix(
+        new Matrix4().makeTranslation(-centroid.x, -centroid.y, -centroid.z)
+      );
+      //element.position.copy(centroid);
+      element.position.set(centroid.x, centroid.y, centroid.z);
+      element.centroid = centroid.clone();
+      element.centre = new Vector3(centroid.x, centroid.y, centroid.z);
+      element.updateMatrix();
+      element.updateMatrixWorld();
+      element.localPosition = new Vector3(0, 0, 0);
+      element.localQuaternion = new Quaternion(0, 0, 0, 1);
+      // element.localArrays = [];
+      // element.localArrays.push(element.centre.clone());
+      element.shiftingPosition = new Vector3(0, 0, 0);
+      //const position = element.geometry.attributes.position;
+      //console.log('Got positiion in 3js', position, position.applyMatrix4);
+      //console.log('element', element, element.geometry);
     }
   };
 
