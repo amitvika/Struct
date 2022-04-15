@@ -1663,6 +1663,9 @@ export default function ManufacturabilityAnalysis(props) {
               (state.mycounter ? state.mycounter : 0).toString()
             }
             setActiveGLTFile={setActiveGLTFile}
+            xyzEndEffectorPosition={{ X: 0, Y: 0, Z: 0 }}
+            setXYZEndEffectorPosition={null}
+            itemProperties={null}
             //resetSelectionFromTree={resetSelectionFromTree}
           />
         }

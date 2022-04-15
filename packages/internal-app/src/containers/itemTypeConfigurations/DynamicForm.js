@@ -23,7 +23,9 @@ export default function DynamicCriteria({
   setKinematicItemList,
   selected3JSData,
   showKinematicMove,
-  showKinematicSliderMove
+  showKinematicSliderMove,
+  isMountSufaceFaceSelection,
+  setIsMountSufaceFaceSelection
 }) {
   const handleOnChange = (name, value) => {
     const findIndex = stateFormFields.findIndex(
@@ -116,6 +118,7 @@ export default function DynamicCriteria({
                 type={fieldItem.dataType === 'Numerical' ? 'number' : 'text'}
                 onChange={(event) => {
                   setIsCircularFaceOrEdgeSelection(false);
+                  setIsMountSufaceFaceSelection(false);
                   handleOnChange(fieldItem.fieldName, event.target.value);
                 }}
                 value={fieldItem.value || ''}
@@ -129,6 +132,7 @@ export default function DynamicCriteria({
                   .map((option) => ({ label: option, value: option }))}
                 onChange={({ value, label }) => {
                   setIsCircularFaceOrEdgeSelection(false);
+                  setIsMountSufaceFaceSelection(false);
                   handleOnChange(fieldItem.fieldName, value);
                 }}
                 value={fieldItem.value}
@@ -163,7 +167,9 @@ export default function DynamicCriteria({
                   onClick={handleOnClick}
                   {...{
                     setIsCircularFaceOrEdgeSelection,
-                    handleRotationalAxisChange
+                    handleRotationalAxisChange,
+                    isMountSufaceFaceSelection,
+                    setIsMountSufaceFaceSelection
                   }}
                 />
               )}

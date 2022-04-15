@@ -45,6 +45,7 @@ const CustomSelect = ({
   errors,
   onChange,
   labelwidth,
+  fieldContainerStyle,
   ...others
 }) => {
   const key = field.key || field.name || 'key';
@@ -68,12 +69,18 @@ const CustomSelect = ({
 
   //console.log("Selected Values",selectedValues,"Common Baby");
   return (
-    <FormControl style={{ width: '100%' }} error={!!errorText}>
+    <FormControl
+      style={{ width: '100%', ...fieldContainerStyle }}
+      error={!!errorText}
+    >
       {/* <Grid style={{display:"flex"}}> */}
-      <span>
+      <span style={{ ...fieldContainerStyle }}>
         {currentlabelwidth != 0 && (
           <InputLabel
-            style={{ width: currentlabelwidth.toString() + '%' }}
+            style={{
+              width: currentlabelwidth.toString() + '%',
+              ...fieldContainerStyle
+            }}
             htmlFor={`${getName(name)}`}
           >
             {getName(name)}
@@ -81,7 +88,7 @@ const CustomSelect = ({
         )}
         <Select
           zindex="tooltip"
-          style={{ width: textwidth.toString() + '%' }}
+          style={{ width: textwidth.toString() + '%', ...fieldContainerStyle }}
           key={inputKey}
           fullWidth
           multiple={multiple}
@@ -93,26 +100,39 @@ const CustomSelect = ({
           {...others}
         >
           {empty && !multiple && (
-            <MenuItem key={'None'} value="">
-              <Checkbox checked={myvalues === ''} />
+            <MenuItem key={'None'} value="" style={{ ...fieldContainerStyle }}>
+              <Checkbox
+                checked={myvalues === ''}
+                style={{ ...fieldContainerStyle }}
+              />
               <ListItemText primary={'None'} />
             </MenuItem>
           )}
 
           {items.map((item) => (
-            <MenuItem key={item.title} value={item.value}>
+            <MenuItem
+              key={item.title}
+              value={item.value}
+              style={{ ...fieldContainerStyle }}
+            >
               <Checkbox
                 checked={
                   multiple
                     ? myvalues.indexOf(item.value) > -1
                     : myvalues === item.value
                 }
+                style={{ ...fieldContainerStyle }}
               />
-              <ListItemText primary={item.title} />
+              <ListItemText
+                primary={item.title}
+                style={{ ...fieldContainerStyle }}
+              />
             </MenuItem>
           ))}
         </Select>
-        <FormHelperText>{errorText ? errorText : helperText}</FormHelperText>
+        <FormHelperText style={{ ...fieldContainerStyle }}>
+          {errorText ? errorText : helperText}
+        </FormHelperText>
       </span>
     </FormControl>
   );

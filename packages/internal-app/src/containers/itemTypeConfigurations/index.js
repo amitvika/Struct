@@ -11,6 +11,7 @@ import {
   SELECTANITEM,
   gltf_Dict
 } from '@monostruct/common/gltf/Tree/utils';
+import { PlusMinus } from '@monostruct/common/gltf/PlusMinus';
 import CriteriaUploadAPI from '@monostruct/common/api/criteriaUpload.api';
 import Headding from '@monostruct/common/components/atoms/Headding';
 import DynamicHierarchyForm from './DynamicHierarchyForm';
@@ -54,11 +55,14 @@ export default function ItemTypeConfigurations(props) {
     drawAxisLines,
     setDrawAxisLines,
     showKinematicSliderMove,
-    setShowKinematicSliderMove
+    setShowKinematicSliderMove,
+    xyzEndEffectorPosition,
+    setXYZEndEffectorPosition
   } = props;
   const [isFileLoading, setIsFileLoading] = useState(isLoading);
   const classes = USESTYLES();
   const [percentager, setPercentager] = useState(percentage || 0);
+  //const [xyzEndEffectorPosition, setXYZEndEffectorPosition] = useState({ X: 0, Y: 0, Z: 0 });
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
   const [currentProgressTexter, setCurrentProgressTexter] =
     useState(currentProgressText);
@@ -75,7 +79,8 @@ export default function ItemTypeConfigurations(props) {
   const [internalProductConfig, setInternalProductConfig] = useState(null);
   const [isCircularFaceOrEdgeSelection, setIsCircularFaceOrEdgeSelection] =
     useState(false);
-
+  const [isMountSufaceFaceSelection, setIsMountSufaceFaceSelection] =
+    useState(false);
   useEffect(() => {
     CriteriaUploadAPI.fetchCriteriaUpload(
       `type=Internal Use Product Configuration`
@@ -218,40 +223,82 @@ export default function ItemTypeConfigurations(props) {
       if (
         mySelectedObjects[0] &&
         (mySelectedObjects[0].obb || mySelectedObjects[0].axis) &&
-        isCircularFaceOrEdgeSelection
+        (isCircularFaceOrEdgeSelection || isMountSufaceFaceSelection)
       ) {
-        let actuator_dictionary = {
-          actuator_motion_control: {
-            ...(itemProperties.actuator_motion_control || {}),
-            cylindrical_axis_of_rotation: {
-              axis: mySelectedObjects[0].axis,
-              obb: mySelectedObjects[0].obb,
-              step:
-                (fileUUIder ? fileUUIder + '/' : '') +
-                mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
-              position: mySelectedObjects[0].position
-                ? mySelectedObjects[0].position
-                : [0, 0, 0]
+        let actuator_dictionary = isCircularFaceOrEdgeSelection
+          ? {
+              actuator_motion_control: {
+                ...(itemProperties.actuator_motion_control || {}),
+                cylindrical_axis_of_rotation: {
+                  ...(itemProperties.actuator_motion_control
+                    .cylindrical_axis_of_rotation || {}),
+                  axis: mySelectedObjects[0].axis,
+                  obb: mySelectedObjects[0].obb,
+                  step:
+                    (fileUUIder ? fileUUIder + '/' : '') +
+                    mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
+                  position: mySelectedObjects[0].position
+                    ? mySelectedObjects[0].position
+                    : [0, 0, 0]
+                }
+              }
             }
-          }
-        };
+          : {
+              actuator_motion_control: {
+                ...(itemProperties.actuator_motion_control || {}),
+                cylindrical_axis_of_rotation: {
+                  ...(itemProperties.actuator_motion_control
+                    .cylindrical_axis_of_rotation || {}),
+                  mountaxis: mySelectedObjects[0].axis,
+                  mountobb: mySelectedObjects[0].obb,
+                  mountstep:
+                    (fileUUIder ? fileUUIder + '/' : '') +
+                    mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
+                  mountposition: mySelectedObjects[0].position
+                    ? mySelectedObjects[0].position
+                    : [0, 0, 0]
+                }
+              }
+            };
         let cloneItemProperties = { ...itemProperties, ...actuator_dictionary };
         setItemProperties(cloneItemProperties);
-        handleSave({
-          actuator_motion_control: {
-            ...(itemProperties.actuator_motion_control || {}),
-            cylindrical_axis_of_rotation: {
-              axis: mySelectedObjects[0].axis,
-              obb: mySelectedObjects[0].obb,
-              step:
-                (fileUUIder ? fileUUIder + '/' : '') +
-                mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
-              position: mySelectedObjects[0].position
-                ? mySelectedObjects[0].position
-                : [0, 0, 0]
-            }
-          }
-        });
+        handleSave(
+          isCircularFaceOrEdgeSelection
+            ? {
+                actuator_motion_control: {
+                  ...(itemProperties.actuator_motion_control || {}),
+                  cylindrical_axis_of_rotation: {
+                    ...(itemProperties.actuator_motion_control
+                      .cylindrical_axis_of_rotation || {}),
+                    axis: mySelectedObjects[0].axis,
+                    obb: mySelectedObjects[0].obb,
+                    step:
+                      (fileUUIder ? fileUUIder + '/' : '') +
+                      mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
+                    position: mySelectedObjects[0].position
+                      ? mySelectedObjects[0].position
+                      : [0, 0, 0]
+                  }
+                }
+              }
+            : {
+                actuator_motion_control: {
+                  ...(itemProperties.actuator_motion_control || {}),
+                  cylindrical_axis_of_rotation: {
+                    ...(itemProperties.actuator_motion_control
+                      .cylindrical_axis_of_rotation || {}),
+                    mountaxis: mySelectedObjects[0].axis,
+                    mountobb: mySelectedObjects[0].obb,
+                    mountstep:
+                      (fileUUIder ? fileUUIder + '/' : '') +
+                      mySelectedObjects[0][gltf_Dict['step']].slice(0, -5),
+                    mountposition: mySelectedObjects[0].position
+                      ? mySelectedObjects[0].position
+                      : [0, 0, 0]
+                  }
+                }
+              }
+        );
 
         // setIsCircularFaceOrEdgeSelection(false);
       }
@@ -289,7 +336,9 @@ export default function ItemTypeConfigurations(props) {
           itemProperties,
           gltfjson,
           setIsCircularFaceOrEdgeSelection,
-          handleRotationalAxisChange
+          handleRotationalAxisChange,
+          isMountSufaceFaceSelection,
+          setIsMountSufaceFaceSelection
         }}
       />
     );
@@ -318,6 +367,30 @@ export default function ItemTypeConfigurations(props) {
   const additionalModelClick = (data) => {
     console.log('I am getting from addiitonal Model Click', data);
     setSelected3JSData(data);
+  };
+  const OnChangeOfPosition = (xyz, data) => {
+    if (xyz === 'X') {
+      setXYZEndEffectorPosition({
+        X: data,
+        Y: xyzEndEffectorPosition.Y,
+        Z: xyzEndEffectorPosition.Z
+      });
+    }
+    if (xyz === 'Y') {
+      setXYZEndEffectorPosition({
+        X: xyzEndEffectorPosition.X,
+        Y: data,
+        Z: xyzEndEffectorPosition.Z
+      });
+    }
+    if (xyz === 'Z') {
+      setXYZEndEffectorPosition({
+        X: xyzEndEffectorPosition.X,
+        Y: xyzEndEffectorPosition.Y,
+        Z: data
+      });
+    }
+    console.log('Changing', xyz, data);
   };
   return (
     <>
@@ -353,6 +426,36 @@ export default function ItemTypeConfigurations(props) {
             onChange={handleSwitchSliderChange}
             inputProps={{ 'aria-label': 'controlled' }}
           />
+        )}
+        {!showKinematicMove && showKinematicSliderMove && (
+          <>
+            <PlusMinus
+              label={'X'}
+              step={0.1}
+              value={xyzEndEffectorPosition.X}
+              onChange={(event, data) => {
+                OnChangeOfPosition('X', data);
+              }}
+            />
+            &nbsp;&nbsp;
+            <PlusMinus
+              label={'Y'}
+              step={0.1}
+              value={xyzEndEffectorPosition.Y}
+              onChange={(event, data) => {
+                OnChangeOfPosition('Y', data);
+              }}
+            />
+            &nbsp;&nbsp;
+            <PlusMinus
+              label={'Z'}
+              step={0.1}
+              value={xyzEndEffectorPosition.Z}
+              onChange={(event, data) => {
+                OnChangeOfPosition('Z', data);
+              }}
+            />
+          </>
         )}
       </Grid>
       {renderExcelUI()}
@@ -396,6 +499,9 @@ export default function ItemTypeConfigurations(props) {
         drawAxisLines={drawAxisLines}
         setDrawAxisLines={setDrawAxisLines}
         kinematicItemList={kinematicItemList}
+        xyzEndEffectorPosition={xyzEndEffectorPosition}
+        setXYZEndEffectorPosition={setXYZEndEffectorPosition}
+        itemProperties={itemProperties}
         //{...{ whatchange }}
       />
     </>

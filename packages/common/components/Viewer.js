@@ -118,6 +118,9 @@ export default function Viewer({
             showKinematicSliderMove.toString()
           }
           setActiveGLTFile={setActiveGLTFile}
+          xyzEndEffectorPosition={{ X: 0, Y: 0, Z: 0 }}
+          setXYZEndEffectorPosition={null}
+          itemProperties={null}
         />
       }
     </div>

@@ -462,6 +462,9 @@ export default function BaseItemProperties({
                   edgecolor={STATEPROPS.edgecolor}
                   activeGLTFFile={activeGLTFFile}
                   setActiveGLTFile={setActiveGLTFile}
+                  xyzEndEffectorPosition={{ X: 0, Y: 0, Z: 0 }}
+                  setXYZEndEffectorPosition={null}
+                  itemProperties={null}
                 />
               }
               {isFileLoading && <CircularProgress />}

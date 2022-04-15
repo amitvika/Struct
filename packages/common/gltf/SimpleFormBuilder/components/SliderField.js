@@ -21,6 +21,7 @@ const CustomSliderField = ({
   errors,
   onChange,
   labelwidth,
+  fieldContainerStyle,
   ...others
 }) => {
   const key = field.key || field.name || 'key';
@@ -39,15 +40,20 @@ const CustomSliderField = ({
   currentlabelwidth = textwidth;
   return (
     // <Grid style={{display:"flex"}}>
-    <span>
+    <span style={{ ...fieldContainerStyle }}>
       {currentlabelwidth != 0 && (
-        <InputLabel style={{ width: currentlabelwidth.toString() + '%' }}>
+        <InputLabel
+          style={{
+            width: currentlabelwidth.toString() + '%',
+            ...fieldContainerStyle
+          }}
+        >
           {getName(name)}
         </InputLabel>
       )}
       <Slider
         zindex="tooltip"
-        style={{ width: textwidth.toString() + '%' }}
+        style={{ width: textwidth.toString() + '%', ...fieldContainerStyle }}
         {...field}
         key={inputKey}
         valueLabelDisplay={type}

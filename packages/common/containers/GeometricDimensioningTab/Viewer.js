@@ -54,7 +54,10 @@ export default function Viewer({
   setActiveGLTFile = () => {},
   drawAxisLines = null,
   showKinematicSliderMove = false,
-  kinematicItemList = []
+  kinematicItemList = [],
+  xyzEndEffectorPosition = { X: 0, Y: 0, Z: 0 },
+  setXYZEndEffectorPosition = () => {},
+  itemProperties = null
 }) {
   const [percentager, setPercentager] = useState(percentage || 0);
   const [progressBarLoader, setProgressBarLoader] = useState(progressBarLoad);
@@ -183,6 +186,9 @@ export default function Viewer({
           showKinematicMove={showKinematicMove}
           showKinematicSliderMove={showKinematicSliderMove}
           kinematicItemList={kinematicItemList}
+          xyzEndEffectorPosition={xyzEndEffectorPosition}
+          setXYZEndEffectorPosition={setXYZEndEffectorPosition}
+          itemProperties={itemProperties}
           /*  openSnackBar={openSnackBar}
             closeSnackBar={closeSnackBar} */
         />

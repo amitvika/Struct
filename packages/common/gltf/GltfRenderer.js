@@ -123,7 +123,9 @@ import {
   isEmptyObjectDictionary,
   elementCopy,
   arrayCopy,
-  extractKinematicInformation
+  extractKinematicInformation /*,
+  DEFAULTBACKMENUCOLOR,
+  DEFAULTTEXTMENUCOLOR*/
 } from './Tree/utils';
 import './styles/style.css';
 
@@ -139,6 +141,7 @@ import { myMenus } from './gltfMenus';
 import { CircularProgress, ClickAwayListener, Snackbar } from '@mui/material';
 import RotateLeftSharpIcon from '@mui/icons-material/RotateLeftSharp';
 import AcUnitSharpIcon from '@mui/icons-material/AcUnitSharp';
+import AnimationOutlinedIcon from '@mui/icons-material/AnimationOutlined';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -6684,6 +6687,47 @@ class GLTFRenderer extends Component {
                 console.log(index, propsElement, 'No difference found');
               }
             }
+            if (
+              currentNode &&
+              propsElement &&
+              propsElement.actuator_motion_control &&
+              propsElement.actuator_motion_control.is_end_effector &&
+              propsElement.actuator_motion_control.child_part_type ===
+                'ACTUATOR'
+            ) {
+              if (this.props.itemProperties) {
+                const itemProperties = this.props.itemProperties;
+                console.log('Got itemproperties as', itemProperties);
+                if (
+                  itemProperties.actuator_motion_control &&
+                  itemProperties.actuator_motion_control
+                    .cylindrical_axis_of_rotation &&
+                  itemProperties.actuator_motion_control
+                    .cylindrical_axis_of_rotation.mountobb
+                ) {
+                  const mountSurface =
+                    itemProperties.actuator_motion_control
+                      .cylindrical_axis_of_rotation.mountobb;
+                  let mountPosition = new Vector3(
+                    mountSurface.cx,
+                    mountSurface.cy,
+                    mountSurface.cz
+                  );
+                  mountPosition.sub(localPosition);
+                  mountPosition.applyQuaternion(localQuaternion);
+                  //currentPosition.applyQuaternion(currentQuaternion);
+                  mountPosition.add(localPosition);
+                  console.log('Mount Position', mountPosition);
+                  if (this.props.setXYZEndEffectorPosition) {
+                    this.props.setXYZEndEffectorPosition({
+                      X: Number(mountPosition.x).toFixed(3),
+                      Y: Number(mountPosition.y).toFixed(3),
+                      Z: Number(mountPosition.z).toFixed(3)
+                    });
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -8670,7 +8714,7 @@ class GLTFRenderer extends Component {
           <Button
             aria-describedby={this.idEl[index]}
             id={'pop' + index.toString()}
-            variant="outlined"
+            variant="contained"
             key={this.openEl[index] ? 'O' : 'I' + index.toString()}
             onClick={(event) => {
               this.handlePopperClick(event, index);
@@ -9055,8 +9099,15 @@ class GLTFRenderer extends Component {
                 this.resetMyControls();
               }}
               startIcon={<RotateLeftSharpIcon />}
-            ></Button>
+            >
+              &nbsp;
+            </Button>
             <Button
+              /* sx={{
+                backgroundColor: this.state.freezeNonSelection
+                  ? DEFAULTBACKMENUCOLOR
+                  : DEFAULTTEXTMENUCOLOR
+              }} */
               variant="contained"
               onClick={async (event) => {
                 // this.setState({
@@ -9071,14 +9122,34 @@ class GLTFRenderer extends Component {
                   console.log('Error while doing onlcikc from menu', error);
                 }
               }}
-              style={{
+              /* style={{
                 backgroundColor: this.state.freezeNonSelection
-                  ? '#BBBBBB'
-                  : '#444444'
-              }}
-              //color={this.state.freezeNonSelection ? 'light' : 'dark'}
-              startIcon={<AcUnitSharpIcon />}
-            ></Button>
+                  ? DEFAULTBACKMENUCOLOR
+                  : DEFAULTTEXTMENUCOLOR,
+                color: this.state.freezeNonSelection
+                  ? DEFAULTTEXTMENUCOLOR
+                  : DEFAULTBACKMENUCOLOR
+              }} */
+              /* color={
+                this.state.freezeNonSelection
+                  ? DEFAULTBACKMENUCOLOR
+                  : DEFAULTTEXTMENUCOLOR
+              }
+              backgroundColor={
+                this.state.freezeNonSelection
+                  ? DEFAULTBACKMENUCOLOR
+                  : DEFAULTTEXTMENUCOLOR
+              } */
+              startIcon={
+                this.state.freezeNonSelection ? (
+                  <AnimationOutlinedIcon />
+                ) : (
+                  <AcUnitSharpIcon />
+                )
+              }
+            >
+              &nbsp;
+            </Button>
           </Grid>
 
           <Popper

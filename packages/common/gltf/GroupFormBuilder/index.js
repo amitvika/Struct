@@ -34,6 +34,7 @@ export default class GroupFormBuilder extends React.Component {
           ...this.props.inputContainerStyle,
           width: '100px'
         }}
+        variant="contained"
       >
         <SimpleFormBuilder
           fieldContainerStyle={{

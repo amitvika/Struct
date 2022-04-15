@@ -23,6 +23,7 @@ const CustomTextField = ({
   onChange,
   multiline,
   labelwidth,
+  fieldContainerStyle,
   ...others
 }) => {
   const key = field.key || field.name || 'key';
@@ -41,7 +42,12 @@ const CustomTextField = ({
     // <Grid style={{display:"flex"}}>
     <span>
       {currentlabelwidth != 0 && (
-        <InputLabel style={{ width: currentlabelwidth.toString() + '%' }}>
+        <InputLabel
+          style={{
+            width: currentlabelwidth.toString() + '%',
+            ...fieldContainerStyle
+          }}
+        >
           {getName(name)}
         </InputLabel>
       )}
@@ -61,7 +67,7 @@ const CustomTextField = ({
         multiline={multiline}
         fullWidth
         {...others}
-        style={{ width: textwidth.toString() + '%' }}
+        style={{ width: textwidth.toString() + '%', ...fieldContainerStyle }}
         InputProps={{
           style: multiline ? { minHeight: '36px' } : { height: '36px' }
         }}

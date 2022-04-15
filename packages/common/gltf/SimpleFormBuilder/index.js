@@ -33,7 +33,8 @@ export default class SimpleFormBuilder extends React.Component {
     padding: '20px',
     margin: '5px 15px',
     display: 'inline-block',
-    'border-width': 10
+    'border-width': 10,
+    ...this.props.fieldContainerStyle
   };
 
   constructor(props) {
@@ -182,6 +183,7 @@ export default class SimpleFormBuilder extends React.Component {
               this.handleChange(key, event.target.value, event.ctrlKey)
             }
             labelwidth={this.props.labelwidth}
+            fieldContainerStyle={this.props.fieldContainerStyle}
           />
         );
 
@@ -191,7 +193,8 @@ export default class SimpleFormBuilder extends React.Component {
             <div
               style={{
                 display: 'flex',
-                alignItems: 'flex-end'
+                alignItems: 'flex-end',
+                ...this.props.fieldContainerStyle
               }}
             >
               <CustomTextField
@@ -206,6 +209,7 @@ export default class SimpleFormBuilder extends React.Component {
                 rows={field.rows || 1}
                 rowsMax={field.rowsMax || 3}
                 labelwidth={this.props.labelwidth}
+                fieldContainerStyle={this.props.fieldContainerStyle}
               />
               {/* {emoji ? (
                 <div>
@@ -234,6 +238,7 @@ export default class SimpleFormBuilder extends React.Component {
               this.handleChange(key, newvalue, event.ctrlKey)
             }
             labelwidth={this.props.labelwidth}
+            fieldContainerStyle={this.props.fieldContainerStyle}
           />
         );
       case 'select':
@@ -254,6 +259,7 @@ export default class SimpleFormBuilder extends React.Component {
             dialogContent={dialogContent}
             dialogTitle={dialogTitle}
             labelwidth={this.props.labelwidth}
+            fieldContainerStyle={this.props.fieldContainerStyle}
           />
         );
 
@@ -262,7 +268,12 @@ export default class SimpleFormBuilder extends React.Component {
           // <Grid style={{display:"flex"}}>
           <span>
             {currentlabelwidth != 0 && (
-              <InputLabel style={{ width: currentlabelwidth.toString() + '%' }}>
+              <InputLabel
+                style={{
+                  width: currentlabelwidth.toString() + '%',
+                  ...this.props.fieldContainerStyle
+                }}
+              >
                 {this.getName(name)}
               </InputLabel>
             )}
@@ -276,6 +287,7 @@ export default class SimpleFormBuilder extends React.Component {
               defaultValue={this.getProperty(key, defaultValue, '')}
               onChange={(color) => this.handleChange(key, color.value, false)}
               //style={{width:textwidth.toString()+"%",height:"600"}}
+              fieldContainerStyle={this.props.fieldContainerStyle}
             /> */}
           </span>
           // </Grid>
@@ -295,6 +307,7 @@ export default class SimpleFormBuilder extends React.Component {
           <FormControl zindex="tooltip" component="fieldset">
             <FormGroup row>
               <FormControlLabel
+                style={{ ...this.props.fieldContainerStyle }}
                 control={
                   <Checkbox
                     checked={this.getProperty(key, defaultValue, false)}
@@ -307,6 +320,9 @@ export default class SimpleFormBuilder extends React.Component {
                       );
                     }}
                     disabled={disabled}
+                    style={{
+                      ...this.props.fieldContainerStyle
+                    }}
                   />
                 }
                 label={this.getName(name)}
@@ -319,19 +335,27 @@ export default class SimpleFormBuilder extends React.Component {
       case 'lradio': {
         const items = field.items || [];
         return (
-          <Grid style={{ display: 'flex' }}>
-            <FormControl zindex="tooltip" component="fieldset">
+          <Grid style={{ display: 'flex', ...this.props.fieldContainerStyle }}>
+            <FormControl
+              zindex="tooltip"
+              component="fieldset"
+              style={{ ...this.props.fieldContainerStyle }}
+            >
               <RadioGroup
                 value={`${this.getProperty(key, defaultValue, false)}`}
                 onChange={(event) => {
                   this.handleChange(key, event.target.value, event.ctrlKey);
                 }}
+                style={{ ...this.props.fieldContainerStyle }}
               >
                 {items.map((item) => (
                   <FormControlLabel
                     value={item.title}
-                    control={<Radio />}
+                    control={
+                      <Radio style={{ ...this.props.fieldContainerStyle }} />
+                    }
                     label={this.getName(item.title)}
+                    style={{ ...this.props.fieldContainerStyle }}
                   />
                 ))}
               </RadioGroup>
@@ -343,28 +367,42 @@ export default class SimpleFormBuilder extends React.Component {
         const items = field.items || [];
         return (
           // <Grid style={{display:"flex"}}>
-          <span>
+          <span style={{ ...this.props.fieldContainerStyle }}>
             {currentlabelwidth != 0 && (
-              <InputLabel style={{ width: currentlabelwidth.toString() + '%' }}>
+              <InputLabel
+                style={{
+                  width: currentlabelwidth.toString() + '%',
+                  ...this.props.fieldContainerStyle
+                }}
+              >
                 {this.getName(name)}
               </InputLabel>
             )}
             <FormControl
               component="fieldset"
               zindex="tooltip"
-              style={{ width: textwidth.toString() + '%' }}
+              style={{
+                width: textwidth.toString() + '%',
+                ...this.props.fieldContainerStyle
+              }}
             >
               <RadioGroup
                 value={`${this.getProperty(key, defaultValue, false)}`}
                 onChange={(event) => {
                   this.handleChange(key, event.target.value, event.ctrlKey);
                 }}
+                style={{ ...this.props.fieldContainerStyle }}
               >
                 {items.map((item) => (
                   <FormControlLabel
                     value={item.title}
-                    control={<Radio />}
+                    control={
+                      <Radio style={{ ...this.props.fieldContainerStyle }} />
+                    }
                     label={this.getName(item.title)}
+                    style={{
+                      ...this.props.fieldContainerStyle
+                    }}
                   />
                 ))}
               </RadioGroup>
@@ -433,12 +471,13 @@ export default class SimpleFormBuilder extends React.Component {
           zindex="tooltip"
           style={{
             ...this.style,
-            backgroundColor: '#fefefe',
+            //backgroundColor: '#eeeeee',
             padding: 1,
             ...this.props.fieldContainerStyle
           }}
           flex={1}
           wrap={this.props.wrap}
+          variant="contained"
         >
           <Grid
             p={1}
@@ -446,6 +485,7 @@ export default class SimpleFormBuilder extends React.Component {
             spacing={10}
             direction="column"
             style={{ display: 'flex', margin: '1px 0' }}
+            variant="contained"
           >
             {this.getFields()}
           </Grid>

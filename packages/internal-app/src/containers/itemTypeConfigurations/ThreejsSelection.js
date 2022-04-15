@@ -28,7 +28,9 @@ export default function ThreejsSelection(props) {
     cylindrical_axis_of_rotation,
     handleRotationalAxisChange,
     showKinematicMove,
-    showKinematicSliderMove
+    showKinematicSliderMove,
+    isMountSufaceFaceSelection,
+    setIsMountSufaceFaceSelection
   } = props;
 
   const [myvalue, setMyvalue] = useState(value);
@@ -289,13 +291,19 @@ export default function ThreejsSelection(props) {
       });
     }
     setRenderData(myvalue, { name: mykey, option: myoption }, onChange);
+    console.log('What I Got in selection is', mykey, mytype, myoption);
     if (
       mytype === 'CircularFaceOrEdgeSelection' ||
       mytype === 'LinearFaceOrEdgeSelection3D'
     ) {
       setIsCircularFaceOrEdgeSelection(true);
+      setIsMountSufaceFaceSelection(false);
+    } else if (mykey == 'Mount Surface(s)' && mytype === 'FaceSelection') {
+      setIsCircularFaceOrEdgeSelection(false);
+      setIsMountSufaceFaceSelection(true);
     } else {
       setIsCircularFaceOrEdgeSelection(false);
+      setIsMountSufaceFaceSelection(false);
     }
     onClick(mykey);
     //setRenderData(myvalue, { name: mykey, option: myoption }, onChange);

@@ -87,6 +87,11 @@ const ItemDetail = ({ itemValue }) => {
   const [activeGDTTable, setActiveGDTTable] = useState('');
   const [drawAxisLines, setDrawAxisLines] = useState(null);
   const parserNeeded = ['pdcu', 'gdtac', 'iupc', 'assembly'];
+  const [xyzEndEffectorPosition, setXYZEndEffectorPosition] = useState({
+    X: 0,
+    Y: 0,
+    Z: 0
+  });
 
   /* useEffect(() => {
     if (itemValue) {
@@ -732,6 +737,7 @@ const ItemDetail = ({ itemValue }) => {
             drawAxisLines={drawAxisLines}
             setDrawAxisLines={setDrawAxisLines}
             {...{ internalProductConfig }}
+            itemProperties={itemProperties}
           />
         );
       case 'iupc':
@@ -782,6 +788,8 @@ const ItemDetail = ({ itemValue }) => {
             setActiveGDTTable={setActiveGDTTable}
             drawAxisLines={drawAxisLines}
             setDrawAxisLines={setDrawAxisLines}
+            xyzEndEffectorPosition={xyzEndEffectorPosition}
+            setXYZEndEffectorPosition={setXYZEndEffectorPosition}
             {...{ handleSave }}
           />
         );

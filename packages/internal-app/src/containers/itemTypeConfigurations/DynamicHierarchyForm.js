@@ -21,7 +21,9 @@ export default function DynamicHierarchyForm(props) {
     setKinematicItemList,
     selected3JSData,
     showKinematicMove,
-    showKinematicSliderMove
+    showKinematicSliderMove,
+    isMountSufaceFaceSelection,
+    setIsMountSufaceFaceSelection
   } = props;
   const currentItem = useSelector((state) => state.item.currentItem);
 
@@ -267,7 +269,9 @@ export default function DynamicHierarchyForm(props) {
               setKinematicItemList,
               selected3JSData,
               showKinematicMove,
-              showKinematicSliderMove
+              showKinematicSliderMove,
+              isMountSufaceFaceSelection,
+              setIsMountSufaceFaceSelection
             }}
           />
         );
