@@ -123,9 +123,11 @@ import {
   isEmptyObjectDictionary,
   elementCopy,
   arrayCopy,
-  extractKinematicInformation /*,
+  extractKinematicInformation,
   DEFAULTBACKMENUCOLOR,
-  DEFAULTTEXTMENUCOLOR*/
+  DEFAULTTEXTMENUCOLOR,
+  DEFAULTBUTTONHOVERCOLOR,
+  DEFAULTBUTTONHOVERBACKGROUND
 } from './Tree/utils';
 import './styles/style.css';
 
@@ -8710,23 +8712,8 @@ class GLTFRenderer extends Component {
       (data, index) =>
         (index < 3 ||
           (this.props.fileGDT && index == 3) ||
-          (this.props.fileAnimation && index == 4)) && (
-          <Button
-            aria-describedby={this.idEl[index]}
-            id={'pop' + index.toString()}
-            variant="contained"
-            key={this.openEl[index] ? 'O' : 'I' + index.toString()}
-            onClick={(event) => {
-              this.handlePopperClick(event, index);
-            }}
-            color={
-              index == myIndex && this.openEl[index] ? 'primary' : 'secondary'
-            }
-            startIcon={data.icon}
-          >
-            {data.folder}
-          </Button>
-        )
+          (this.props.fileAnimation && index == 4)) &&
+        this.displayButton(index, myIndex, data)
     );
   };
 
@@ -8940,6 +8927,55 @@ class GLTFRenderer extends Component {
     );
   };
 
+  displayButton(index, myIndex, data) {
+    const selected = index == myIndex && this.openEl[index];
+    return (
+      <Button
+        sx={{
+          color: this.getThemeTextColor(selected),
+          background: this.getThemeBackgroundColor(selected),
+          backgroundColor: this.getThemeBackgroundColor(selected),
+          '&:hover': {
+            color: this.getHoverBackgroundColor(selected),
+            backgroundColor: this.getHoverBackgroundColor(selected),
+            background: this.getHoverTextColor(selected)
+          }
+        }}
+        aria-describedby={this.idEl[index]}
+        id={'pop' + index.toString()}
+        variant="outlined"
+        key={this.openEl[index] ? 'O' : 'I' + index.toString()}
+        onClick={(event) => {
+          this.handlePopperClick(event, index);
+        }}
+        /*  */
+        startIcon={data.icon}
+      >
+        {data.folder}
+      </Button>
+    );
+  }
+
+  getThemeBackgroundColor(selected) {
+    return selected ? DEFAULTBACKMENUCOLOR() : DEFAULTTEXTMENUCOLOR();
+  }
+
+  getThemeTextColor(selected) {
+    return selected ? DEFAULTTEXTMENUCOLOR() : DEFAULTBACKMENUCOLOR();
+  }
+
+  getHoverBackgroundColor(selected) {
+    return selected
+      ? DEFAULTBUTTONHOVERBACKGROUND()
+      : DEFAULTBUTTONHOVERCOLOR();
+  }
+
+  getHoverTextColor(selected) {
+    return selected
+      ? DEFAULTBUTTONHOVERCOLOR()
+      : DEFAULTBUTTONHOVERBACKGROUND();
+  }
+
   /*render() {
     const state_gltfobj = this.props.gltfobj || this.this_state_gltf;
 
@@ -9094,7 +9130,17 @@ class GLTFRenderer extends Component {
           <Grid p={1}>
             {this.buildMenus(this.state.selectedmenu)}
             <Button
-              variant="contained"
+              sx={{
+                color: this.getThemeTextColor(false),
+                background: this.getThemeBackgroundColor(false),
+                backgroundColor: this.getThemeBackgroundColor(false),
+                '&:hover': {
+                  color: this.getHoverBackgroundColor(false),
+                  backgroundColor: this.getHoverBackgroundColor(false),
+                  background: this.getHoverTextColor(false)
+                }
+              }}
+              variant="outlined"
               onClick={(event) => {
                 this.resetMyControls();
               }}
@@ -9103,12 +9149,27 @@ class GLTFRenderer extends Component {
               &nbsp;
             </Button>
             <Button
-              /* sx={{
-                backgroundColor: this.state.freezeNonSelection
-                  ? DEFAULTBACKMENUCOLOR
-                  : DEFAULTTEXTMENUCOLOR
-              }} */
-              variant="contained"
+              sx={{
+                color: this.getThemeTextColor(this.state.freezeNonSelection),
+                background: this.getThemeBackgroundColor(
+                  this.state.freezeNonSelection
+                ),
+                backgroundColor: this.getThemeBackgroundColor(
+                  this.state.freezeNonSelection
+                ),
+                '&:hover': {
+                  color: this.getHoverBackgroundColor(
+                    this.state.freezeNonSelection
+                  ),
+                  backgroundColor: this.getHoverBackgroundColor(
+                    this.state.freezeNonSelection
+                  ),
+                  background: this.getHoverTextColor(
+                    this.state.freezeNonSelection
+                  )
+                }
+              }}
+              variant="outlined"
               onClick={async (event) => {
                 // this.setState({
                 //   freezeNonSelection: !this.state.freezeNonSelection
@@ -9122,24 +9183,6 @@ class GLTFRenderer extends Component {
                   console.log('Error while doing onlcikc from menu', error);
                 }
               }}
-              /* style={{
-                backgroundColor: this.state.freezeNonSelection
-                  ? DEFAULTBACKMENUCOLOR
-                  : DEFAULTTEXTMENUCOLOR,
-                color: this.state.freezeNonSelection
-                  ? DEFAULTTEXTMENUCOLOR
-                  : DEFAULTBACKMENUCOLOR
-              }} */
-              /* color={
-                this.state.freezeNonSelection
-                  ? DEFAULTBACKMENUCOLOR
-                  : DEFAULTTEXTMENUCOLOR
-              }
-              backgroundColor={
-                this.state.freezeNonSelection
-                  ? DEFAULTBACKMENUCOLOR
-                  : DEFAULTTEXTMENUCOLOR
-              } */
               startIcon={
                 this.state.freezeNonSelection ? (
                   <AnimationOutlinedIcon />

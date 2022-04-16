@@ -6,7 +6,7 @@ import {
   createTheme
 } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
-
+import { setSelectedTheme } from '../gltf/Tree/utils';
 export const ColorModeContext = React.createContext({
   toggleColorMode: () => {}
 });
@@ -17,17 +17,21 @@ export const ColorModeContextProvider = ({ children }) => {
   const colorMode = React.useMemo(
     () => ({
       toggleColorMode: () => {
-        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+        setMode((prevMode) => {
+          setSelectedTheme(prevMode === 'light' ? 'dark' : 'light');
+          return prevMode === 'light' ? 'dark' : 'light';
+        });
       }
     }),
     []
   );
 
   // Update the theme only if the mode changes
-  const theme = React.useMemo(
-    () => createTheme(adaptV4Theme(getDesignTokens(mode))),
-    [mode]
-  );
+  const theme = React.useMemo(() => {
+    //console.log('Mode to color', mode);
+    setSelectedTheme(mode);
+    return createTheme(adaptV4Theme(getDesignTokens(mode)));
+  }, [mode]);
 
   return (
     <ColorModeContext.Provider value={colorMode}>

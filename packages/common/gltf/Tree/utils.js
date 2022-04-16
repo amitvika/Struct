@@ -368,6 +368,13 @@ export const DEFAULTROWSELECTCOLOR = () => {
   //console.log("ThemeName",selectedTheme);
   return selectedTheme == 'light' ? '#7C7C7C' : '#838383';
 };
+
+export const DEFAULTBUTTONHOVERCOLOR = () => {
+  return selectedTheme == 'light' ? '#ffffff' : '#000000';
+};
+export const DEFAULTBUTTONHOVERBACKGROUND = () => {
+  return selectedTheme == 'light' ? '#5D6D7E' : '#A29281';
+};
 const DEFAULTDISTANCEGAP = 0.1;
 const DEFAULTANGLEGAP = 0.1;
 const DEFAULTEDGESIZE = 0.3;
